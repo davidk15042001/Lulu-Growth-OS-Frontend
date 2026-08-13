@@ -45,6 +45,8 @@ npm run check
 
 This validates TypeScript, all 141 routes, the page-to-API contracts and the production build. If the backend repository is available beside this repository, the API audit also verifies every frontend resource type against the backend catalog.
 
+The shared Lulu Intelligence logo is stored at `public/branding/lulu-intelligence-logo.png`. `GlobalBranding` replaces the former page-specific marks at runtime so authentication, onboarding and application pages always use the same asset.
+
 ## Structure
 
 - `src/pages/<generatedName>/` — exact source snapshot for one MagicPath component

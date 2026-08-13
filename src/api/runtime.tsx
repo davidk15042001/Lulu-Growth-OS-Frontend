@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { navigateApp, routes } from "../routing";
+import { GlobalBranding } from "../branding/GlobalBranding";
 import { ApiError } from "./client";
 import { LiveApiPanel } from "./LiveApiPanel";
 import { getPageContract } from "./page-contracts";
@@ -68,6 +69,7 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     {state === "checking" && <div role="status" style={{ position: "fixed", inset: 0, zIndex: 9999, display: "grid", placeItems: "center", background: "#f7f7f5", color: "#686864", font: "500 14px Inter, sans-serif" }}>Loading workspace…</div>}
     {state === "offline" && <div role="alert" style={{ position: "fixed", zIndex: 9999, left: "50%", top: 12, transform: "translateX(-50%)", maxWidth: "calc(100% - 24px)", border: "1px solid #d5d5d0", borderRadius: 8, background: "#fff", color: "#171717", padding: "10px 14px", boxShadow: "0 10px 30px rgba(0,0,0,.12)", font: "500 13px Inter, sans-serif" }}>Live data is temporarily unavailable. Your layout remains accessible.</div>}
     {children}
+    <GlobalBranding contractKind={contract.kind} />
     {state === "ready" && workspaceId && <LiveApiPanel workspaceId={workspaceId} contract={contract} />}
   </>;
 }
