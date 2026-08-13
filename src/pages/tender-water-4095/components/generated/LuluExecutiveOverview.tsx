@@ -204,7 +204,7 @@ export const LuluExecutiveOverview = () => {
   const [query, setQuery] = useState('');
   const [sent, setSent] = useState(false);
   return <div className="min-h-screen bg-[var(--background)] text-foreground">
-  <aside className={`${mobileMenu ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-30 flex w-[248px] flex-col bg-[var(--sidebar)] text-foreground transition-transform lg:translate-x-0`}><div className="flex h-[72px] items-center border-b border-border px-6"><div className="mr-3 flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Sparkles size={17} /></div><strong className="text-lg text-foreground">LULU<span className="text-foreground">AI</span></strong><button onClick={() => setMobileMenu(false)} className="ml-auto lg:hidden" aria-label="Close navigation"><X size={18} /></button></div><div className="flex items-center gap-3 border-b border-border px-5 py-4"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary text-xs font-bold text-primary-foreground">AC</div><div><p className="text-sm font-semibold text-foreground">Acme Corporation</p><p className="text-xs text-muted-foreground">Enterprise workspace</p></div><ChevronDown size={15} className="ml-auto" /></div><nav className="flex-1 overflow-y-auto px-3 py-5" aria-label="Primary navigation"><p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[.2em] text-muted-foreground">Workspace</p><button className="flex w-full items-center gap-3 rounded-lg bg-secondary/15 px-3 py-2.5 text-sm font-semibold text-foreground"><Brain size={17} />Intelligence</button>{navOpen && <div className="ml-4 border-l border-border pl-3"><a className="block rounded-md px-3 py-2 text-xs text-foreground hover:text-foreground" href="#overview">Intelligence Overview</a><a className="mb-1 block rounded-md bg-secondary px-3 py-2 text-xs font-semibold text-foreground" href="#overview">Executive Overview</a><button className="flex w-full justify-between px-3 py-2 text-xs text-foreground">Business Intelligence<ChevronDown size={13} /></button><button className="flex w-full justify-between px-3 py-2 text-xs text-foreground">Analytics<ChevronDown size={13} /></button><button className="flex w-full justify-between px-3 py-2 text-xs text-foreground">AI Intelligence<ChevronDown size={13} /></button></div>}<button onClick={() => setNavOpen(!navOpen)} className="mt-3 flex w-full items-center gap-3 px-3 py-2.5 text-sm text-foreground hover:text-foreground"><Layers3 size={17} />Collapse menu</button></nav><div className="border-t border-border p-4"><button className="flex w-full gap-3 px-3 py-2 text-sm text-foreground"><Settings2 size={17} />Settings</button><button className="flex w-full gap-3 px-3 py-2 text-sm text-foreground"><CircleHelp size={17} />Help center</button></div></aside>
+  <aside className={`${mobileMenu ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-30 flex w-[248px] flex-col bg-[var(--sidebar)] text-foreground transition-transform lg:translate-x-0`}><div className="flex h-[72px] items-center border-b border-border px-6"><div className="mr-3 flex h-8 w-8 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Sparkles size={17} /></div><strong className="text-lg text-foreground">LULU<span className="text-foreground">AI</span></strong><button onClick={() => setMobileMenu(false)} className="ml-auto lg:hidden" aria-label="Close navigation"><X size={18} /></button></div><div className="flex items-center gap-3 border-b border-border px-5 py-4"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary text-xs font-bold text-primary-foreground">AC</div><div><p className="text-sm font-semibold text-foreground">Acme Corporation</p><p className="text-xs text-muted-foreground">Enterprise workspace</p></div><ChevronDown size={15} className="ml-auto" /></div><LuluSectionNavigation activeId="tender-water-4095" /><div className="border-t border-border p-4"><button className="flex w-full gap-3 px-3 py-2 text-sm text-foreground"><Settings2 size={17} />Settings</button><button className="flex w-full gap-3 px-3 py-2 text-sm text-foreground"><CircleHelp size={17} />Help center</button></div></aside>
   <main className="min-w-0 lg:ml-[248px]"><header className="sticky top-0 z-20 flex h-[72px] items-center justify-between border-b border-border bg-secondary px-4 backdrop-blur md:px-8"><button onClick={() => setMobileMenu(true)} className="mr-3 lg:hidden" aria-label="Open navigation"><Menu size={21} /></button><div className="flex items-center gap-2 text-sm text-muted-foreground"><span>Intelligence</span><ChevronRight size={14} /><strong className="text-foreground">Executive Overview</strong></div><div className="flex items-center gap-2"><Button>Last 30 Days <ChevronDown className="ml-1 inline" size={13} /></Button><Button>Compare <ChevronDown className="ml-1 inline" size={13} /></Button><Button primary><MessageSquare className="mr-1 inline" size={14} />Ask Lulu AI</Button><button className="rounded-lg border border-border p-2" aria-label="Refresh data"><RefreshCw size={15} /></button><button className="rounded-lg p-2" aria-label="Notifications"><Bell size={17} /></button></div></header>
   <div id="overview" className="mx-auto max-w-[1500px] px-4 py-7 md:px-8 lg:px-10"><div className="mb-7"><p className="mb-2 text-xs font-bold uppercase tracking-[.18em] text-foreground">Business operating system</p><h1 className="text-3xl font-bold tracking-[-.04em] text-foreground md:text-[38px]">Executive Overview</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">Get a clear view of your business performance, major changes, opportunities, risks and the decisions that matter most.</p></div>
   <section className="mb-8 rounded-2xl border border-border bg-gradient-to-r from-white via-white to-secondary/70 p-5 shadow-sm md:p-6"><div className="flex gap-4"><div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary text-foreground"><Brain size={20} /></div><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h2 className="font-bold text-foreground">Executive Summary</h2><Badge kind="purple"><Sparkles size={11} />AI-generated</Badge></div><p className="mt-3 max-w-5xl text-base leading-7 text-foreground">Your business is performing strongly overall. Revenue and customer growth improved during the selected period, while advertising efficiency declined and requires attention. Lulu AI identified three high-impact opportunities and two risks that may affect near-term growth.</p><div className="mt-4 flex flex-wrap gap-2"><Badge kind="green">Business Status: Strong</Badge><Badge kind="green">Major Positive: Revenue +14.8% ↑</Badge><Badge kind="red">Major Negative: Advertising ROAS -14% ↓</Badge><Badge kind="amber">Most Important Action: Review advertising efficiency</Badge></div></div></div></section>
@@ -239,3 +239,442 @@ export const LuluExecutiveOverview = () => {
   <section className="mb-9 rounded-xl border border-border bg-card p-5 shadow-sm"><Header title="Data Coverage" /><div className="grid gap-4 md:grid-cols-4"><div><p className="text-xs text-muted-foreground">Connected sources</p><p className="text-xl font-bold">7</p></div><div><p className="text-xs text-muted-foreground">Data freshness</p><p className="text-sm font-bold text-chart-4">Fresh · updated 8 min ago</p></div><div><p className="text-xs text-muted-foreground">Coverage</p><p className="text-xl font-bold">94%</p></div><div><p className="text-xs text-muted-foreground">Sync status</p><p className="text-sm font-bold text-chart-4">● All synced</p></div></div><p className="mt-4 text-xs text-chart-1">Missing: LinkedIn Ads, TikTok Ads not connected · <button className="font-bold underline">Connect</button></p><div className="mt-4 flex flex-wrap gap-2">{['Shopify', 'Google Analytics', 'Google Ads', 'Meta Ads', 'CRM', 'Finance System', 'LinkedIn Ads'].map((source, i) => <span key={source} className={`rounded-full border px-3 py-1 text-xs ${i === 6 ? 'border-border bg-card text-muted-foreground' : 'border-border bg-secondary text-foreground'}`}>{source}</span>)}</div></section>
  </div></main></div>;
 };
+
+/* Lulu dropdown navigation — intentionally isolated from page content. */
+const luluDropdownNavigation = [{
+  "label": "Dashboard",
+  "pages": [{
+    "id": "fancily-leaf-1766",
+    "label": "Executive Dashboard"
+  }]
+}, {
+  "label": "AI",
+  "pages": [{
+    "id": "fresh-moon-5374",
+    "label": "Assistant"
+  }, {
+    "id": "radiant-dusk-9079",
+    "label": "Agents"
+  }, {
+    "id": "calmly-park-3313",
+    "label": "Agent Marketplace"
+  }, {
+    "id": "rich-field-1880",
+    "label": "Knowledge"
+  }, {
+    "id": "wondrously-second-5656",
+    "label": "Actions"
+  }, {
+    "id": "sunny-moon-6307",
+    "label": "Conversations"
+  }, {
+    "id": "sparkling-cave-8456",
+    "label": "Activity"
+  }]
+}, {
+  "label": "CRM",
+  "pages": [{
+    "id": "bright-meadow-7537",
+    "label": "Overview"
+  }, {
+    "id": "sturdy-month-1562",
+    "label": "Contacts"
+  }, {
+    "id": "kindly-pool-8785",
+    "label": "Companies"
+  }, {
+    "id": "swift-hour-7844",
+    "label": "Leads"
+  }, {
+    "id": "smartly-shade-4619",
+    "label": "Deals"
+  }, {
+    "id": "calmly-cloud-9988",
+    "label": "Pipeline"
+  }, {
+    "id": "cosmic-pool-1616",
+    "label": "Activities"
+  }, {
+    "id": "deeply-noon-9539",
+    "label": "Tasks"
+  }, {
+    "id": "sunnily-gulf-7520",
+    "label": "Customer Segments"
+  }, {
+    "id": "gracefully-storm-2649",
+    "label": "Customer Intelligence"
+  }]
+}, {
+  "label": "Marketing",
+  "pages": [{
+    "id": "dreamily-soil-9290",
+    "label": "Campaigns"
+  }, {
+    "id": "wondrous-cloud-1355",
+    "label": "Content"
+  }, {
+    "id": "sparklingly-home-7386",
+    "label": "Strategy"
+  }, {
+    "id": "gently-shade-2476",
+    "label": "Campaigns"
+  }, {
+    "id": "sparklingly-moon-5114",
+    "label": "SEO"
+  }, {
+    "id": "zealously-path-4224",
+    "label": "GEO"
+  }, {
+    "id": "sunny-house-9595",
+    "label": "AEO"
+  }, {
+    "id": "kind-time-4492",
+    "label": "Keywords"
+  }, {
+    "id": "smartly-shore-1468",
+    "label": "Competitors"
+  }, {
+    "id": "breezily-wood-5980",
+    "label": "Audiences"
+  }, {
+    "id": "breezy-shore-6734",
+    "label": "Analytics"
+  }]
+}, {
+  "label": "Advertising",
+  "pages": [{
+    "id": "finely-garden-9221",
+    "label": "Overview"
+  }, {
+    "id": "friendly-path-8200",
+    "label": "Analytics"
+  }, {
+    "id": "wise-brook-1762",
+    "label": "Campaigns"
+  }, {
+    "id": "softly-second-7684",
+    "label": "Audiences"
+  }, {
+    "id": "happily-storm-2690",
+    "label": "Creatives"
+  }, {
+    "id": "sunny-minute-1092",
+    "label": "Budgets"
+  }, {
+    "id": "zesty-grass-9196",
+    "label": "AI Optimization"
+  }, {
+    "id": "nicely-shade-2637",
+    "label": "Tracking & Attribution"
+  }, {
+    "id": "nice-moon-2056",
+    "label": "AI Campaign & Ad Builder"
+  }, {
+    "id": "sunnily-peak-7188",
+    "label": "Publishing & Approval Center"
+  }, {
+    "id": "solid-sand-5563",
+    "label": "AI Experiments & A/B Testing"
+  }, {
+    "id": "sunny-summer-2293",
+    "label": "Ad Accounts & Platform Management"
+  }]
+}, {
+  "label": "Intelligence",
+  "pages": [{
+    "id": "serene-cloud-7079",
+    "label": "Intelligence Overview"
+  }, {
+    "id": "tender-water-4095",
+    "label": "Executive Overview"
+  }, {
+    "id": "swiftly-cliff-4166",
+    "label": "Business Health"
+  }, {
+    "id": "sharp-current-9677",
+    "label": "Growth"
+  }, {
+    "id": "proudly-river-8017",
+    "label": "Revenue"
+  }, {
+    "id": "dreamily-shade-6192",
+    "label": "Customers"
+  }, {
+    "id": "nicely-hour-4035",
+    "label": "Sales"
+  }, {
+    "id": "eagerly-winter-3152",
+    "label": "Marketing"
+  }, {
+    "id": "sharply-wood-4560",
+    "label": "Advertising Intelligence"
+  }, {
+    "id": "bold-ocean-5847",
+    "label": "Ecommerce Intelligence"
+  }, {
+    "id": "cozily-path-5612",
+    "label": "Finance Intelligence"
+  }, {
+    "id": "gently-light-6089",
+    "label": "Operations Intelligence"
+  }, {
+    "id": "cool-town-1727",
+    "label": "Products Intelligence"
+  }, {
+    "id": "swift-pool-5077",
+    "label": "KPI Explorer"
+  }, {
+    "id": "friendly-ground-4157",
+    "label": "Reports"
+  }, {
+    "id": "brave-stream-5322",
+    "label": "Comparisons"
+  }, {
+    "id": "sparkling-time-5280",
+    "label": "Comparisons"
+  }, {
+    "id": "wispy-current-7490",
+    "label": "Forecasts"
+  }, {
+    "id": "kindly-year-8981",
+    "label": "Benchmarks"
+  }, {
+    "id": "serenely-creek-1765",
+    "label": "Trends"
+  }, {
+    "id": "sparklingly-light-7230",
+    "label": "Anomalies"
+  }, {
+    "id": "clever-soil-5964",
+    "label": "Attribution"
+  }, {
+    "id": "serenely-week-1771",
+    "label": "AI Insights"
+  }, {
+    "id": "daring-home-4179",
+    "label": "AI Recommendations"
+  }, {
+    "id": "wispy-leaf-3778",
+    "label": "AI Tasks"
+  }, {
+    "id": "happily-brook-7061",
+    "label": "Opportunities"
+  }, {
+    "id": "radiant-cave-9340",
+    "label": "Decisions"
+  }, {
+    "id": "boldly-time-5189",
+    "label": "Risk Center"
+  }, {
+    "id": "proud-rain-4772",
+    "label": "Activity Timeline"
+  }]
+}, {
+  "label": "Ecommerce",
+  "pages": [{
+    "id": "smart-ocean-3898",
+    "label": "Overview"
+  }, {
+    "id": "nice-year-6253",
+    "label": "Stores"
+  }, {
+    "id": "nicely-ocean-1051",
+    "label": "Products"
+  }, {
+    "id": "richly-forest-5832",
+    "label": "Categories"
+  }, {
+    "id": "mightily-shore-7108",
+    "label": "Orders"
+  }, {
+    "id": "fancy-ground-8040",
+    "label": "Customers"
+  }, {
+    "id": "serenely-sand-9226",
+    "label": "Carts"
+  }, {
+    "id": "smart-village-1099",
+    "label": "Inventory"
+  }, {
+    "id": "dreamy-shade-5445",
+    "label": "Returns & Refunds"
+  }, {
+    "id": "daring-brook-9034",
+    "label": "Reviews"
+  }, {
+    "id": "sharply-sky-4161",
+    "label": "Discounts & Promotions"
+  }, {
+    "id": "wildly-time-4260",
+    "label": "Carts & Abandoned Carts"
+  }, {
+    "id": "quietly-moon-4186",
+    "label": "Shipping"
+  }, {
+    "id": "merry-castle-3260",
+    "label": "Payments"
+  }, {
+    "id": "merry-cliff-8846",
+    "label": "Coupons"
+  }, {
+    "id": "safely-dawn-7731",
+    "label": "Subscriptions"
+  }, {
+    "id": "purely-dusk-2409",
+    "label": "Shipping & Fulfillment"
+  }, {
+    "id": "soft-hill-4757",
+    "label": "Taxes"
+  }, {
+    "id": "safely-air-9334",
+    "label": "Collections"
+  }, {
+    "id": "merry-land-6169",
+    "label": "Store Performance"
+  }]
+}, {
+  "label": "Finance",
+  "pages": [{
+    "id": "quietly-stone-4158",
+    "label": "Overview"
+  }, {
+    "id": "breezy-soil-2475",
+    "label": "Invoices"
+  }, {
+    "id": "tender-creek-3139",
+    "label": "Offers & Quotes"
+  }, {
+    "id": "cool-rain-6499",
+    "label": "Income"
+  }, {
+    "id": "richly-land-8084",
+    "label": "Transactions"
+  }, {
+    "id": "calm-tide-3752",
+    "label": "Payments"
+  }, {
+    "id": "zesty-earth-3938",
+    "label": "Expenses"
+  }, {
+    "id": "bravely-bay-4544",
+    "label": "Customers"
+  }, {
+    "id": "eager-minute-1586",
+    "label": "Vendors"
+  }, {
+    "id": "fair-bridge-8618",
+    "label": "Accounts"
+  }, {
+    "id": "soft-town-3284",
+    "label": "Cash Flow"
+  }, {
+    "id": "wisely-gate-3183",
+    "label": "Budgets"
+  }, {
+    "id": "sharp-morning-7310",
+    "label": "Financial Planning"
+  }, {
+    "id": "sparklingly-city-3338",
+    "label": "Reconciliation"
+  }, {
+    "id": "radiant-hour-5376",
+    "label": "Recurring Revenue"
+  }, {
+    "id": "lucky-park-8649",
+    "label": "Payouts"
+  }, {
+    "id": "vibrantly-second-9428",
+    "label": "Financial Automation"
+  }, {
+    "id": "sturdy-week-3372",
+    "label": "Taxes"
+  }, {
+    "id": "boldly-field-4971",
+    "label": "Finance Settings"
+  }]
+}, {
+  "label": "Sales",
+  "pages": [{
+    "id": "fine-park-8079",
+    "label": "Overview"
+  }, {
+    "id": "softly-autumn-9038",
+    "label": "Leads"
+  }, {
+    "id": "wildly-sun-6424",
+    "label": "Opportunities"
+  }, {
+    "id": "deeply-month-1392",
+    "label": "Deals"
+  }, {
+    "id": "sweet-evening-7753",
+    "label": "Pipeline"
+  }, {
+    "id": "warmly-road-3804",
+    "label": "Activities"
+  }, {
+    "id": "wondrously-gate-2200",
+    "label": "Tasks"
+  }, {
+    "id": "sharp-cliff-6925",
+    "label": "Customer Segments"
+  }, {
+    "id": "lovingly-shore-4782",
+    "label": "Forecast"
+  }, {
+    "id": "rich-moon-9195",
+    "label": "Reports"
+  }, {
+    "id": "lively-house-6788",
+    "label": "Commissions"
+  }, {
+    "id": "gentle-cliff-7133",
+    "label": "Goals"
+  }, {
+    "id": "kindly-morning-7115",
+    "label": "Territories"
+  }, {
+    "id": "friendly-tower-1528",
+    "label": "Lead Assignment"
+  }, {
+    "id": "nicely-land-1864",
+    "label": "Settings"
+  }]
+}, {
+  "label": "Integrations",
+  "pages": [{
+    "id": "glad-coast-1428",
+    "label": "Integrations"
+  }]
+}, {
+  "label": "Billing",
+  "pages": [{
+    "id": "pure-minute-5446",
+    "label": "Billing"
+  }]
+}] as const;
+function LuluSectionNavigation({
+  activeId
+}: {
+  activeId: string;
+}) {
+  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
+    {luluDropdownNavigation.map(section => {
+      const isActiveSection = section.pages.some(page => page.id === activeId);
+      return <details key={section.label} open={isActiveSection} className="group rounded-lg">
+        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+          <span>{section.label}</span>
+          <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
+        </summary>
+        <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
+          {section.pages.map(page => {
+            const isActivePage = page.id === activeId;
+            return <a key={page.id} href={`#${page.id}`} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+              {page.label}
+            </a>;
+          })}
+        </div>
+      </details>;
+    })}
+  </nav>;
+}

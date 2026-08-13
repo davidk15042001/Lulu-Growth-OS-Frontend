@@ -212,7 +212,7 @@ export const LuluOperations = () => {
   const [ask, setAsk] = useState('');
   const [notice, setNotice] = useState(true);
   const filtered = processes.filter(p => p.name.toLowerCase().includes(query.toLowerCase()));
-  return <main className="ops-page">
+  return <div className="flex min-h-screen bg-[var(--background)]"><aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-[var(--sidebar)] p-4 lg:flex"><div className="mb-5 flex items-center gap-3 px-2 py-3"><div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-lg font-bold text-primary-foreground">L</div><span className="font-semibold text-foreground">Lulu AI</span></div><LuluSectionNavigation activeId="gently-light-6089" /></aside><div className="min-w-0 flex-1"><main className="ops-page">
     <header className="page-header">
       <p className="breadcrumb">Intelligence <span>/</span> Business Intelligence <span>/</span> Operations</p>
       <div className="header-row"><div><h1>Operations</h1><p className="subtitle">Understand operational efficiency, processes, workflows, automation and business execution across your organization.</p></div><nav className="actions" aria-label="Page actions"><button className="btn primary"><Sparkles size={15} /> <span>Ask Lulu AI</span></button><button className="btn"><RefreshCw size={15} /> <span>Refresh</span></button><button className="btn"><Plus size={15} /> <span>Create Report</span></button><button className="btn"><Download size={15} /> <span>Export</span></button></nav></div>
@@ -227,46 +227,46 @@ export const LuluOperations = () => {
     <Section title="PROCESS PERFORMANCE"><div className="toolbar"><label className="search"><Search size={16} /><input aria-label="Search processes" placeholder="Search processes" value={query} onChange={e => setQuery(e.target.value)} /></label><button className="select">Department <ChevronDown size={14} /></button><button className="select">Status <ChevronDown size={14} /></button><button className="select">Sort: Success Rate <ChevronDown size={14} /></button></div><div className="table-wrap"><table><thead><tr>{['Process', 'Executions', 'Successful', 'Failed', 'Success Rate', 'Avg Cycle Time', 'SLA Compliance', 'Automation Rate'].map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{filtered.map(p => <tr key={p.name}><td><strong>{p.name}</strong></td><td>{p.executions}</td><td>{p.successful}</td><td className={p.failed !== '0' ? 'red-text' : ''}>{p.failed}</td><td className={p.success === '90.0%' ? 'amber-text' : ''}>{p.success}</td><td>{p.cycle}</td><td className={p.sla === '72.4%' || p.sla === '84.8%' ? 'amber-text' : ''}>{p.sla}</td><td>{p.automation}</td></tr>)}</tbody></table></div><p className="caption">1–8 of 42 processes</p></Section>
 
     <Section title="PROCESS ANALYTICS"><div className="four-col"><article className="card panel"><h3>Process Volume by Department</h3>{departments.map(d => <div className="bar-row" key={d.n}><span>{d.n}</span><div className="bar"><i style={{
-                width: `${d.w}%`
-              }} /></div><b>{d.v}</b></div>)}</article><article className="card panel donut-panel"><h3>Process Success Rate</h3><div className="donut-line"><Donut value={95.5} /><strong>95.5%<small>Overall</small></strong></div><p className="caption">Success Rate = Completed ÷ Total Executions.</p><p className="mini-stat"><span>Successful</span><b className="teal-text">271,840</b></p><p className="mini-stat"><span>Failed</span><b className="red-text">12,880</b></p></article><article className="card panel"><h3>Process Failures</h3><strong className="big-number">12,880</strong><p className="caption">Total failures · 30 day trend</p>{[['CRM→ERP Sync', '8,240', '64.0%'], ['Support Routing', '1,356', '10.5%'], ['Lead Qualification', '580', '4.5%']].map(x => <div className="failure-row" key={x[0]}><span>{x[0]}</span><b>{x[1]}</b><em>{x[2]}</em></div>)}<svg className="micro-chart" viewBox="0 0 220 42"><path d="M0 34 L30 30 L65 32 L94 18 L122 25 L150 12 L180 18 L220 4" fill="none" stroke="var(--chart-5)" strokeWidth="2" /></svg></article><article className="card panel"><h3>Avg Cycle Time</h3><strong className="big-number">4.2 min</strong><p className="caption">Overall average</p>{[['Compliance Reporting', '28.4 min', 100], ['Lead Qualification', '14.2 min', 50], ['Customer Onboarding', '8.4 min', 30], ['Invoice Gen', '0.8 min', 8]].map(x => <div className="bar-row" key={x[0]}><span>{x[0]}</span><div className="bar"><i className={x[0] === 'Compliance Reporting' ? 'amber-fill' : ''} style={{
-                width: `${x[2]}%`
-              }} /></div><b>{x[1]}</b></div>)}<p className="caption">Avg ≠ Median. Median: 3.1 min.</p></article></div></Section>
+                    width: `${d.w}%`
+                  }} /></div><b>{d.v}</b></div>)}</article><article className="card panel donut-panel"><h3>Process Success Rate</h3><div className="donut-line"><Donut value={95.5} /><strong>95.5%<small>Overall</small></strong></div><p className="caption">Success Rate = Completed ÷ Total Executions.</p><p className="mini-stat"><span>Successful</span><b className="teal-text">271,840</b></p><p className="mini-stat"><span>Failed</span><b className="red-text">12,880</b></p></article><article className="card panel"><h3>Process Failures</h3><strong className="big-number">12,880</strong><p className="caption">Total failures · 30 day trend</p>{[['CRM→ERP Sync', '8,240', '64.0%'], ['Support Routing', '1,356', '10.5%'], ['Lead Qualification', '580', '4.5%']].map(x => <div className="failure-row" key={x[0]}><span>{x[0]}</span><b>{x[1]}</b><em>{x[2]}</em></div>)}<svg className="micro-chart" viewBox="0 0 220 42"><path d="M0 34 L30 30 L65 32 L94 18 L122 25 L150 12 L180 18 L220 4" fill="none" stroke="var(--chart-5)" strokeWidth="2" /></svg></article><article className="card panel"><h3>Avg Cycle Time</h3><strong className="big-number">4.2 min</strong><p className="caption">Overall average</p>{[['Compliance Reporting', '28.4 min', 100], ['Lead Qualification', '14.2 min', 50], ['Customer Onboarding', '8.4 min', 30], ['Invoice Gen', '0.8 min', 8]].map(x => <div className="bar-row" key={x[0]}><span>{x[0]}</span><div className="bar"><i className={x[0] === 'Compliance Reporting' ? 'amber-fill' : ''} style={{
+                    width: `${x[2]}%`
+                  }} /></div><b>{x[1]}</b></div>)}<p className="caption">Avg ≠ Median. Median: 3.1 min.</p></article></div></Section>
 
     <Section title="OPERATIONAL BOTTLENECKS" className="bottleneck"><div className="section-title"><span className="badge orange">4 identified</span></div><div className="table-wrap"><table><thead><tr>{['Process', 'Bottleneck Stage', 'Volume', 'Avg Wait Time', 'Avg Processing Time', 'SLA Impact', 'Severity'].map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{bottlenecks.map(r => <tr key={r[0]}>{r.map((v, i) => <td key={`${r[0]}-${i}`} className={i === 6 ? `severity ${v.toLowerCase()}` : ''}>{v}</td>)}</tr>)}</tbody></table></div><p className="caption">Bottlenecks identified from cycle time + queue + SLA breach data. Process changes belong in Operations module.</p></Section>
 
     <Section title="QUEUE PERFORMANCE"><div className="two-col"><article className="card panel"><div className="panel-head"><h3>Queue Volume by Process</h3><strong>8,284 <small>Total queued</small></strong></div>{[['Lead Qual', '2,840', 100], ['CRM Sync', '2,400', 85], ['Support Routing', '1,840', 65], ['Other', '1,204', 42]].map(r => <div className="bar-row" key={r[0]}><span>{r[0]}</span><div className="bar"><i className="orange-fill" style={{
-                width: `${r[2]}%`
-              }} /></div><b>{r[1]}</b></div>)}</article><article className="card panel"><h3>Queue Detail</h3><div className="table-wrap"><table><thead><tr><th>Process</th><th>Queue Volume</th><th>Avg Wait</th><th>Longest Wait</th><th>Trend</th></tr></thead><tbody>{[['Lead Qualification', '2,840', '8.4 min', '42 min', '↑'], ['Support Routing', '1,840', '4.2 min', '28 min', '→'], ['CRM Sync', '2,400', '2.8 min', '18 min', '↑'], ['Other', '1,204', '1.2 min', '12 min', '↓']].map(r => <tr key={r[0]}>{r.map(v => <td key={v}>{v}</td>)}</tr>)}</tbody></table></div></article></div></Section>
+                    width: `${r[2]}%`
+                  }} /></div><b>{r[1]}</b></div>)}</article><article className="card panel"><h3>Queue Detail</h3><div className="table-wrap"><table><thead><tr><th>Process</th><th>Queue Volume</th><th>Avg Wait</th><th>Longest Wait</th><th>Trend</th></tr></thead><tbody>{[['Lead Qualification', '2,840', '8.4 min', '42 min', '↑'], ['Support Routing', '1,840', '4.2 min', '28 min', '→'], ['CRM Sync', '2,400', '2.8 min', '18 min', '↑'], ['Other', '1,204', '1.2 min', '12 min', '↓']].map(r => <tr key={r[0]}>{r.map(v => <td key={v}>{v}</td>)}</tr>)}</tbody></table></div></article></div></Section>
 
     <Section title="WORKFLOW PERFORMANCE"><div className="table-wrap"><table><thead><tr>{['Workflow', 'Executions', 'Success Rate', 'Failure Rate', 'Cycle Time', 'SLA Compliance', 'Automation Rate'].map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{workflows.map(r => <tr key={r[0]} className={r[0].includes('Lead-to') || r[0].includes('Compliance') ? 'warning-row' : ''}>{r.map((v, i) => <td key={`${r[0]}-${i}`}>{v}</td>)}</tr>)}</tbody></table></div><h3 className="subheading">Workflow Failures</h3><div className="failure-grid">{[['API rate limit', 'CRM→ERP', '8,240', '↑'], ['Classification timeout', 'Support', '1,356', '→'], ['Manual review delay', 'Lead Qual', '580', '↑']].map(r => <div className="failure-card" key={r[0]}><strong>{r[0]}</strong><span>{r[1]}</span><b>{r[2]} failures</b><em>{r[3]}</em></div>)}</div></Section>
 
     <Section title="AUTOMATION PERFORMANCE"><div className="three-col"><article className="card panel table-panel"><div className="panel-head"><h3>Automation Performance</h3><span className="estimated">Estimated</span></div><div className="table-wrap"><table><thead><tr><th>Automation</th><th>Executions</th><th>Success</th><th>Failed</th><th>Time Saved</th><th>Fallback</th></tr></thead><tbody>{automation.map(r => <tr key={r[0]}>{r.map((v, i) => <td key={`${r[0]}-${i}`} className={i === 5 && v === '10.0%' ? 'amber-text' : ''}>{v}</td>)}</tr>)}</tbody></table></div><p className="caption">Time Saved = Estimated based on average manual processing time per task.</p></article><article className="card panel donut-panel"><h3>Automation Coverage</h3><div className="donut-line"><Donut value={68.4} tone="orange" /><strong>68.4%<small>Automated</small></strong></div>{departments.slice(0, 4).map((d, i) => <div className="bar-row" key={d.n}><span>{d.n}</span><div className="bar"><i className="orange-fill" style={{
-                width: `${[82, 74, 68, 52][i]}%`
-              }} /></div><b>{[82, 74, 68, 52][i]}%</b></div>)}<p className="caption">Coverage ≠ Success Rate.</p></article><article className="card panel"><h3>Automation Time Savings</h3><strong className="big-number">~5,864 hrs<small>/ month</small></strong><span className="estimated">Estimated</span>{[['Order Processing', '2,408 hrs', 90], ['Email Dispatch', '1,040 hrs', 62], ['CRM Sync', '1,373 hrs', 72], ['Invoice Gen', '614 hrs', 38]].map(r => <div className="bar-row" key={r[0]}><span>{r[0]}</span><div className="bar"><i className="orange-fill" style={{
-                width: `${r[2]}%`
-              }} /></div><b>{r[1]}</b></div>)}<p className="caption">Not an accounting metric.</p></article></div></Section>
+                    width: `${[82, 74, 68, 52][i]}%`
+                  }} /></div><b>{[82, 74, 68, 52][i]}%</b></div>)}<p className="caption">Coverage ≠ Success Rate.</p></article><article className="card panel"><h3>Automation Time Savings</h3><strong className="big-number">~5,864 hrs<small>/ month</small></strong><span className="estimated">Estimated</span>{[['Order Processing', '2,408 hrs', 90], ['Email Dispatch', '1,040 hrs', 62], ['CRM Sync', '1,373 hrs', 72], ['Invoice Gen', '614 hrs', 38]].map(r => <div className="bar-row" key={r[0]}><span>{r[0]}</span><div className="bar"><i className="orange-fill" style={{
+                    width: `${r[2]}%`
+                  }} /></div><b>{r[1]}</b></div>)}<p className="caption">Not an accounting metric.</p></article></div></Section>
 
     <Section title="MANUAL WORKLOAD"><div className="two-col"><article className="card panel"><h3>Manual Task Volume</h3><strong className="big-number">90,128 <small>executions · 31.6%</small></strong>{departments.slice(0, 5).map((d, i) => <div className="bar-row" key={d.n}><span>{d.n}</span><div className="bar"><i className="amber-fill" style={{
-                width: `${[88, 68, 52, 42, 30][i]}%`
-              }} /></div><b>{['32,480', '20,840', '14,220', '10,840', '6,420'][i]}</b></div>)}</article><article className="card panel"><h3>Manual Workload by Process</h3><div className="table-wrap"><table><thead><tr><th>Process</th><th>Manual Volume</th><th>Avg Manual Time</th><th>Total Manual Time</th><th>Trend</th></tr></thead><tbody>{manual.map(r => <tr key={r[0]}>{r.map(v => <td key={v}>{v}</td>)}</tr>)}</tbody></table></div></article></div></Section>
+                    width: `${[88, 68, 52, 42, 30][i]}%`
+                  }} /></div><b>{['32,480', '20,840', '14,220', '10,840', '6,420'][i]}</b></div>)}</article><article className="card panel"><h3>Manual Workload by Process</h3><div className="table-wrap"><table><thead><tr><th>Process</th><th>Manual Volume</th><th>Avg Manual Time</th><th>Total Manual Time</th><th>Trend</th></tr></thead><tbody>{manual.map(r => <tr key={r[0]}>{r.map(v => <td key={v}>{v}</td>)}</tr>)}</tbody></table></div></article></div></Section>
 
     <Section title="TEAM & DEPARTMENT OPERATIONS"><div className="two-col"><article className="card panel"><h3>Team Operational Performance</h3><div className="table-wrap"><table><thead><tr><th>Team</th><th>Process Volume</th><th>Completed</th><th>Cycle Time</th><th>SLA</th><th>Error Rate</th><th>Manual %</th></tr></thead><tbody>{[['Operations Team', '84,200', '80,412', '4.8 min', '92.4%', '4.5%', '22.4%'], ['Sales Ops', '62,400', '59,280', '6.2 min', '89.4%', '5.2%', '38.4%'], ['Finance Ops', '48,200', '46,754', '2.1 min', '98.2%', '2.8%', '18.4%'], ['Marketing Ops', '38,400', '36,864', '3.8 min', '94.8%', '3.6%', '28.4%'], ['Support Team', '23,320', '21,452', '5.4 min', '86.2%', '6.8%', '42.8%']].map(r => <tr key={r[0]}>{r.map(v => <td key={v}>{v}</td>)}</tr>)}</tbody></table></div><p className="caption">Focus on process-level performance. Not individual employee surveillance.</p></article><article className="card panel"><h3>Department Operations</h3><div className="table-wrap"><table><thead><tr><th>Department</th><th>Volume</th><th>Success</th><th>Cycle</th><th>SLA</th><th>Automation</th></tr></thead><tbody>{departments.slice(0, 5).map((d, i) => <tr key={d.n}><td>{d.n}</td><td>{d.v}</td><td className={i === 4 ? 'amber-text' : ''}>{['96.2%', '95.4%', '98.4%', '94.8%', '91.2%'][i]}</td><td>{['4.8 min', '6.2 min', '2.1 min', '3.8 min', '5.4 min'][i]}</td><td className={i === 4 ? 'amber-text' : ''}>{['92.4%', '89.4%', '98.2%', '94.8%', '86.2%'][i]}</td><td>{['77.6%', '61.6%', '81.6%', '71.6%', '57.2%'][i]}</td></tr>)}</tbody></table></div></article></div></Section>
 
     <Section title="SLA PERFORMANCE"><div className="two-col"><article className="card panel donut-panel"><h3>SLA Performance</h3><div className="donut-line"><Donut value={91.2} /><strong>91.2%<small>Compliance</small></strong></div>{[['Order Processing', 99], ['Invoice Generation', 99], ['Lead Qualification', 85], ['Compliance Reporting', 72], ['Support Routing', 88]].map(r => <div className="bar-row" key={r[0]}><span>{r[0]}</span><div className="bar"><i className={Number(r[1]) < 85 ? 'red-fill' : Number(r[1]) < 90 ? 'amber-fill' : ''} style={{
-                width: `${r[1]}%`
-              }} /></div><b>{r[1]}%</b></div>)}<p className="caption">SLA Compliance = Executions within SLA ÷ Total Executions.</p></article><article className="card panel"><h3>SLA Breaches</h3><div className="table-wrap"><table><thead><tr><th>Process</th><th>SLA</th><th>Actual</th><th>Variance</th><th>Date</th><th>Team</th><th>Severity</th></tr></thead><tbody>{[['Compliance Reporting', '15 min', '28.4 min', '+13.4 min', 'Mar 21', 'Finance', 'Critical'], ['Lead Qualification', '30 min', '42 min', '+12 min', 'Mar 24', 'Sales', 'High'], ['Lead Qualification', '30 min', '38 min', '+8 min', 'Mar 26', 'Sales', 'High'], ['Support Routing', '10 min', '18 min', '+8 min', 'Mar 27', 'Support', 'Medium'], ['CRM Sync', '5 min', '8 min', '+3 min', 'Mar 28', 'Operations', 'Medium']].map(r => <tr key={`${r[0]}-${r[3]}`}>{r.map((v, i) => <td key={`${r[0]}-${i}`} className={i === 6 ? `severity ${v.toLowerCase()}` : ''}>{v}</td>)}</tr>)}</tbody></table></div><p className="caption">SLA configuration belongs in Operations module.</p></article></div></Section>
+                    width: `${r[1]}%`
+                  }} /></div><b>{r[1]}%</b></div>)}<p className="caption">SLA Compliance = Executions within SLA ÷ Total Executions.</p></article><article className="card panel"><h3>SLA Breaches</h3><div className="table-wrap"><table><thead><tr><th>Process</th><th>SLA</th><th>Actual</th><th>Variance</th><th>Date</th><th>Team</th><th>Severity</th></tr></thead><tbody>{[['Compliance Reporting', '15 min', '28.4 min', '+13.4 min', 'Mar 21', 'Finance', 'Critical'], ['Lead Qualification', '30 min', '42 min', '+12 min', 'Mar 24', 'Sales', 'High'], ['Lead Qualification', '30 min', '38 min', '+8 min', 'Mar 26', 'Sales', 'High'], ['Support Routing', '10 min', '18 min', '+8 min', 'Mar 27', 'Support', 'Medium'], ['CRM Sync', '5 min', '8 min', '+3 min', 'Mar 28', 'Operations', 'Medium']].map(r => <tr key={`${r[0]}-${r[3]}`}>{r.map((v, i) => <td key={`${r[0]}-${i}`} className={i === 6 ? `severity ${v.toLowerCase()}` : ''}>{v}</td>)}</tr>)}</tbody></table></div><p className="caption">SLA configuration belongs in Operations module.</p></article></div></Section>
 
     <Section title="ERROR ANALYSIS"><div className="two-col"><article className="card panel donut-panel"><h3>Operational Errors</h3><strong className="big-number">12,880 <small>errors · Error rate 4.5%</small></strong><div className="error-donut"><Donut value={38.4} tone="red" /><ul><li><i className="dot red" />API Errors <b>38.4%</b></li><li><i className="dot orange" />Timeout <b>24.2%</b></li><li><i className="dot amber" />Data Validation <b>18.4%</b></li><li><i className="dot teal" />Auth Failure <b>12.8%</b></li></ul></div></article><article className="card panel"><h3>Error Concentration</h3><p className="caption">Top 3 processes responsible for 84.2% of all errors.</p>{[['CRM Data Sync', '8,240', '64.0%', 100], ['Support Routing', '1,356', '10.5%', 42], ['Lead Qual', '580', '4.5%', 24], ['Other', '2,704', '21.0%', 34]].map(r => <div className="pareto" key={r[0]}><span>{r[0]}</span><div className="bar"><i className="red-fill" style={{
-                width: `${r[3]}%`
-              }} /></div><b>{r[1]}</b><em>{r[2]}</em></div>)}<p className="caption">Fix the top 1 process to eliminate 64% of all errors.</p></article></div></Section>
+                    width: `${r[3]}%`
+                  }} /></div><b>{r[1]}</b><em>{r[2]}</em></div>)}<p className="caption">Fix the top 1 process to eliminate 64% of all errors.</p></article></div></Section>
 
     <Section title="OPERATIONAL COST"><div className="two-col"><article className="card panel"><h3>Operational Cost</h3><strong className="big-number">$284,200<small>/ month</small></strong><span className="estimated">Observed + Estimated</span><div className="cost-grid"><div><b>$1.00</b><span>Cost / execution</span></div><div><b>$1.05</b><span>Cost / completed</span></div><div><b>$0.42</b><span>Cost / automation</span></div></div><p className="caption">Estimated values are clearly labeled where applicable.</p></article><article className="card panel"><h3>Operational Cost Efficiency</h3>{[['Cost / Execution', '$1.00', '→ stable', 'teal'], ['Cost / Completed Process', '$1.05', '↓ 4.2%', 'teal'], ['Cost / Automation', '$0.42', '↓ 8.4%', 'teal'], ['Cost / Manual Task', '$3.84', '↑ 4x costlier', 'amber']].map(r => <div className="eff-row" key={r[0]}><span>{r[0]}</span><strong>{r[1]}</strong><em className={r[3]}>{r[2]}</em></div>)}<p className="caption">Estimated Cost clearly labeled where applicable.</p></article></div></Section>
 
     <Section title="OPERATIONAL CAPACITY"><div className="three-col"><article className="card panel"><h3>Capacity Overview</h3><div className="capacity-stats"><span>Available <b>100%</b></span><span>Used <b>72.4%</b></span><span>Remaining <b>27.6%</b></span></div><div className="capacity"><i style={{
-              width: '72.4%'
-            }} /><b /></div><span className="badge teal">Balanced</span></article><article className="card panel"><h3>Capacity by Team</h3>{[['Operations Team', '84.2%', 'amber'], ['Finance Ops', '68.4%', 'teal'], ['Support Team', '91.8%', 'red'], ['Sales Ops', '62.4%', 'teal'], ['Marketing Ops', '58.2%', 'teal']].map(r => <div className="capacity-row" key={r[0]}><span>{r[0]}</span><div className="bar"><i className={`${r[2]}-fill`} style={{
-                width: r[1]
-              }} /></div><b>{r[1]}</b></div>)}</article><article className="card panel"><h3>Workload Distribution</h3><div className="table-wrap"><table><thead><tr><th>Team</th><th>Volume</th><th>Est. Effort</th><th>Util.</th></tr></thead><tbody>{[['Operations', '84,200', '2,840 hrs', '84.2%'], ['Finance', '48,200', '1,420 hrs', '68.4%'], ['Support', '23,320', '1,840 hrs', '91.8%'], ['Sales', '62,400', '2,120 hrs', '62.4%']].map(r => <tr key={r[0]}>{r.map(v => <td key={v}>{v}</td>)}</tr>)}</tbody></table></div><p className="caption">Thresholds based on organization-configured capacity settings.</p></article></div></Section>
+                  width: '72.4%'
+                }} /><b /></div><span className="badge teal">Balanced</span></article><article className="card panel"><h3>Capacity by Team</h3>{[['Operations Team', '84.2%', 'amber'], ['Finance Ops', '68.4%', 'teal'], ['Support Team', '91.8%', 'red'], ['Sales Ops', '62.4%', 'teal'], ['Marketing Ops', '58.2%', 'teal']].map(r => <div className="capacity-row" key={r[0]}><span>{r[0]}</span><div className="bar"><i className={`${r[2]}-fill`} style={{
+                    width: r[1]
+                  }} /></div><b>{r[1]}</b></div>)}</article><article className="card panel"><h3>Workload Distribution</h3><div className="table-wrap"><table><thead><tr><th>Team</th><th>Volume</th><th>Est. Effort</th><th>Util.</th></tr></thead><tbody>{[['Operations', '84,200', '2,840 hrs', '84.2%'], ['Finance', '48,200', '1,420 hrs', '68.4%'], ['Support', '23,320', '1,840 hrs', '91.8%'], ['Sales', '62,400', '2,120 hrs', '62.4%']].map(r => <tr key={r[0]}>{r.map(v => <td key={v}>{v}</td>)}</tr>)}</tbody></table></div><p className="caption">Thresholds based on organization-configured capacity settings.</p></article></div></Section>
 
     <Section title="OPERATIONAL DEPENDENCIES"><div className="card dependency"><svg viewBox="0 0 900 220" role="img" aria-label="Operational dependency network"><g stroke="var(--chart-3)" strokeWidth="2" opacity=".8"><line x1="120" y1="110" x2="330" y2="62" /><line x1="120" y1="110" x2="330" y2="166" /><line x1="330" y1="62" x2="550" y2="110" /><line x1="330" y1="166" x2="550" y2="110" /><line x1="550" y1="110" x2="760" y2="62" /><line x1="550" y1="110" x2="760" y2="166" /></g><g fill="var(--muted-foreground)" stroke="var(--chart-3)" strokeWidth="3"><circle cx="120" cy="110" r="34" /><circle cx="330" cy="62" r="28" /><circle cx="330" cy="166" r="28" /><circle cx="550" cy="110" r="42" stroke="var(--chart-1)" /><circle cx="760" cy="62" r="28" /><circle cx="760" cy="166" r="28" stroke="var(--chart-5)" /></g><g fill="var(--border)" fontSize="12" textAnchor="middle"><text x="120" y="114">Orders</text><text x="330" y="66">CRM</text><text x="330" y="170">Support</text><text x="550" y="114">CRM Sync</text><text x="760" y="66">ERP</text><text x="760" y="170">Billing</text></g></svg><div className="table-wrap"><table><thead><tr><th>Process</th><th>Dependencies</th><th>Systems</th><th>Dependency Risk</th><th>SPF Risk</th></tr></thead><tbody>{[['CRM Data Sync', '4', 'CRM, ERP', 'High', 'SPF'], ['Order Processing', '3', 'ERP, Billing', 'Medium', 'SPF'], ['Support Routing', '2', 'CRM, Support', 'Medium', 'Low'], ['Invoice Generation', '2', 'ERP, Billing', 'Low', 'Low']].map(r => <tr key={r[0]}>{r.map((v, i) => <td key={v} className={i === 4 && v === 'SPF' ? 'severity critical' : ''}>{v}</td>)}</tr>)}</tbody></table></div></div></Section>
 
@@ -285,24 +285,463 @@ export const LuluOperations = () => {
     <Section title="OPERATIONS DATA HEALTH"><div className="health-grid">{[['Lulu AI Automation Engine', 'Connected ✓', '1 min ago', 'Full coverage', 'teal'], ['CRM (Salesforce)', 'Connected ✓', '2 min ago', 'Missing: None', 'teal'], ['ERP System', 'Partial ⚠', '4 hrs ago', 'Missing: Mar 20–22', 'amber'], ['Support Platform', 'Connected ✓', '5 min ago', 'Metrics: all', 'teal'], ['Project Management', 'Connected ✓', '8 min ago', 'Metrics: all', 'teal']].map(r => <article className="card health" key={r[0]}><strong>{r[0]}</strong><span className={r[4]}>{r[1]}</span><small>Sync: {r[2]}</small><small>{r[3]}</small></article>)}</div><p className="caption">To manage operational data connections, open Integrations →</p></Section>
 
     <Section title="KEY OPERATIONS KPIs"><a className="explorer" href="#explorer">→ Open KPI Explorer</a><div className="kpi-grid compact">{metrics.concat([{
-          label: 'Manual Workload',
-          value: '90,128',
-          prev: '86,420 prev.',
-          delta: '+4.2%',
-          tone: 'amber',
-          direction: 'up'
-        }, {
-          label: 'Capacity Utilization',
-          value: '72.4%',
-          prev: '68.8% prev.',
-          delta: '+3.6%',
-          tone: 'amber',
-          direction: 'up'
-        }]).map(m => <article className="card kpi" key={m.label}><div className="kpi-top"><p>{m.label}</p><Sparkline tone={m.tone} /></div><strong className="kpi-value">{m.value}</strong><span className="prev">{m.prev}</span><span className={`delta ${m.tone}`}>{m.direction === 'up' ? '↑' : '↓'} {m.delta}</span></article>)}</div></Section>
+              label: 'Manual Workload',
+              value: '90,128',
+              prev: '86,420 prev.',
+              delta: '+4.2%',
+              tone: 'amber',
+              direction: 'up'
+            }, {
+              label: 'Capacity Utilization',
+              value: '72.4%',
+              prev: '68.8% prev.',
+              delta: '+3.6%',
+              tone: 'amber',
+              direction: 'up'
+            }]).map(m => <article className="card kpi" key={m.label}><div className="kpi-top"><p>{m.label}</p><Sparkline tone={m.tone} /></div><strong className="kpi-value">{m.value}</strong><span className="prev">{m.prev}</span><span className={`delta ${m.tone}`}>{m.direction === 'up' ? '↑' : '↓'} {m.delta}</span></article>)}</div></Section>
 
     <section className="section ai-panel"><div className="section-title"><h2>EXPLAIN OPERATIONAL PERFORMANCE</h2><span className="ai-pill">✦ AI Assessment</span></div><p className="caption">Based on connected operational data. Not operational system configuration.</p><ul>{aiBullets.map(b => <li key={b}>{b}</li>)}</ul><a href="#recommendations">Want to act on these findings? → View AI Recommendations</a></section>
 
     <section className="ask-panel"><p className="eyebrow">ASK LULU AI</p><h2>Make sense of your operations.</h2><div className="ask-input"><input value={ask} onChange={e => setAsk(e.target.value)} placeholder="Ask Lulu AI about your operational performance..." aria-label="Ask Lulu AI" /><button aria-label="Send question"><Send size={17} /></button></div><div className="prompt-grid">{['Which processes are slowest?', 'Where are our biggest bottlenecks?', 'What is our automation rate?', 'Where are SLA breaches?', 'Which workflows fail most?', 'How much time are automations saving?', 'Which systems cause failures?', 'Where are we over capacity?'].map(p => <button key={p} onClick={() => setAsk(p)}>{p}</button>)}</div></section>
     <footer>Data Sources: Lulu AI Automation, CRM, ERP (Partial), Support Platform, Project Mgmt <span>Last updated: 1 min ago · Period: Last 30 Days</span></footer>
-  </main>;
+  </main></div></div>;
 };
+
+/* Lulu dropdown navigation — intentionally isolated from page content. */
+const luluDropdownNavigation = [{
+  "label": "Dashboard",
+  "pages": [{
+    "id": "fancily-leaf-1766",
+    "label": "Executive Dashboard"
+  }]
+}, {
+  "label": "AI",
+  "pages": [{
+    "id": "fresh-moon-5374",
+    "label": "Assistant"
+  }, {
+    "id": "radiant-dusk-9079",
+    "label": "Agents"
+  }, {
+    "id": "calmly-park-3313",
+    "label": "Agent Marketplace"
+  }, {
+    "id": "rich-field-1880",
+    "label": "Knowledge"
+  }, {
+    "id": "wondrously-second-5656",
+    "label": "Actions"
+  }, {
+    "id": "sunny-moon-6307",
+    "label": "Conversations"
+  }, {
+    "id": "sparkling-cave-8456",
+    "label": "Activity"
+  }]
+}, {
+  "label": "CRM",
+  "pages": [{
+    "id": "bright-meadow-7537",
+    "label": "Overview"
+  }, {
+    "id": "sturdy-month-1562",
+    "label": "Contacts"
+  }, {
+    "id": "kindly-pool-8785",
+    "label": "Companies"
+  }, {
+    "id": "swift-hour-7844",
+    "label": "Leads"
+  }, {
+    "id": "smartly-shade-4619",
+    "label": "Deals"
+  }, {
+    "id": "calmly-cloud-9988",
+    "label": "Pipeline"
+  }, {
+    "id": "cosmic-pool-1616",
+    "label": "Activities"
+  }, {
+    "id": "deeply-noon-9539",
+    "label": "Tasks"
+  }, {
+    "id": "sunnily-gulf-7520",
+    "label": "Customer Segments"
+  }, {
+    "id": "gracefully-storm-2649",
+    "label": "Customer Intelligence"
+  }]
+}, {
+  "label": "Marketing",
+  "pages": [{
+    "id": "dreamily-soil-9290",
+    "label": "Campaigns"
+  }, {
+    "id": "wondrous-cloud-1355",
+    "label": "Content"
+  }, {
+    "id": "sparklingly-home-7386",
+    "label": "Strategy"
+  }, {
+    "id": "gently-shade-2476",
+    "label": "Campaigns"
+  }, {
+    "id": "sparklingly-moon-5114",
+    "label": "SEO"
+  }, {
+    "id": "zealously-path-4224",
+    "label": "GEO"
+  }, {
+    "id": "sunny-house-9595",
+    "label": "AEO"
+  }, {
+    "id": "kind-time-4492",
+    "label": "Keywords"
+  }, {
+    "id": "smartly-shore-1468",
+    "label": "Competitors"
+  }, {
+    "id": "breezily-wood-5980",
+    "label": "Audiences"
+  }, {
+    "id": "breezy-shore-6734",
+    "label": "Analytics"
+  }]
+}, {
+  "label": "Advertising",
+  "pages": [{
+    "id": "finely-garden-9221",
+    "label": "Overview"
+  }, {
+    "id": "friendly-path-8200",
+    "label": "Analytics"
+  }, {
+    "id": "wise-brook-1762",
+    "label": "Campaigns"
+  }, {
+    "id": "softly-second-7684",
+    "label": "Audiences"
+  }, {
+    "id": "happily-storm-2690",
+    "label": "Creatives"
+  }, {
+    "id": "sunny-minute-1092",
+    "label": "Budgets"
+  }, {
+    "id": "zesty-grass-9196",
+    "label": "AI Optimization"
+  }, {
+    "id": "nicely-shade-2637",
+    "label": "Tracking & Attribution"
+  }, {
+    "id": "nice-moon-2056",
+    "label": "AI Campaign & Ad Builder"
+  }, {
+    "id": "sunnily-peak-7188",
+    "label": "Publishing & Approval Center"
+  }, {
+    "id": "solid-sand-5563",
+    "label": "AI Experiments & A/B Testing"
+  }, {
+    "id": "sunny-summer-2293",
+    "label": "Ad Accounts & Platform Management"
+  }]
+}, {
+  "label": "Intelligence",
+  "pages": [{
+    "id": "serene-cloud-7079",
+    "label": "Intelligence Overview"
+  }, {
+    "id": "tender-water-4095",
+    "label": "Executive Overview"
+  }, {
+    "id": "swiftly-cliff-4166",
+    "label": "Business Health"
+  }, {
+    "id": "sharp-current-9677",
+    "label": "Growth"
+  }, {
+    "id": "proudly-river-8017",
+    "label": "Revenue"
+  }, {
+    "id": "dreamily-shade-6192",
+    "label": "Customers"
+  }, {
+    "id": "nicely-hour-4035",
+    "label": "Sales"
+  }, {
+    "id": "eagerly-winter-3152",
+    "label": "Marketing"
+  }, {
+    "id": "sharply-wood-4560",
+    "label": "Advertising Intelligence"
+  }, {
+    "id": "bold-ocean-5847",
+    "label": "Ecommerce Intelligence"
+  }, {
+    "id": "cozily-path-5612",
+    "label": "Finance Intelligence"
+  }, {
+    "id": "gently-light-6089",
+    "label": "Operations Intelligence"
+  }, {
+    "id": "cool-town-1727",
+    "label": "Products Intelligence"
+  }, {
+    "id": "swift-pool-5077",
+    "label": "KPI Explorer"
+  }, {
+    "id": "friendly-ground-4157",
+    "label": "Reports"
+  }, {
+    "id": "brave-stream-5322",
+    "label": "Comparisons"
+  }, {
+    "id": "sparkling-time-5280",
+    "label": "Comparisons"
+  }, {
+    "id": "wispy-current-7490",
+    "label": "Forecasts"
+  }, {
+    "id": "kindly-year-8981",
+    "label": "Benchmarks"
+  }, {
+    "id": "serenely-creek-1765",
+    "label": "Trends"
+  }, {
+    "id": "sparklingly-light-7230",
+    "label": "Anomalies"
+  }, {
+    "id": "clever-soil-5964",
+    "label": "Attribution"
+  }, {
+    "id": "serenely-week-1771",
+    "label": "AI Insights"
+  }, {
+    "id": "daring-home-4179",
+    "label": "AI Recommendations"
+  }, {
+    "id": "wispy-leaf-3778",
+    "label": "AI Tasks"
+  }, {
+    "id": "happily-brook-7061",
+    "label": "Opportunities"
+  }, {
+    "id": "radiant-cave-9340",
+    "label": "Decisions"
+  }, {
+    "id": "boldly-time-5189",
+    "label": "Risk Center"
+  }, {
+    "id": "proud-rain-4772",
+    "label": "Activity Timeline"
+  }]
+}, {
+  "label": "Ecommerce",
+  "pages": [{
+    "id": "smart-ocean-3898",
+    "label": "Overview"
+  }, {
+    "id": "nice-year-6253",
+    "label": "Stores"
+  }, {
+    "id": "nicely-ocean-1051",
+    "label": "Products"
+  }, {
+    "id": "richly-forest-5832",
+    "label": "Categories"
+  }, {
+    "id": "mightily-shore-7108",
+    "label": "Orders"
+  }, {
+    "id": "fancy-ground-8040",
+    "label": "Customers"
+  }, {
+    "id": "serenely-sand-9226",
+    "label": "Carts"
+  }, {
+    "id": "smart-village-1099",
+    "label": "Inventory"
+  }, {
+    "id": "dreamy-shade-5445",
+    "label": "Returns & Refunds"
+  }, {
+    "id": "daring-brook-9034",
+    "label": "Reviews"
+  }, {
+    "id": "sharply-sky-4161",
+    "label": "Discounts & Promotions"
+  }, {
+    "id": "wildly-time-4260",
+    "label": "Carts & Abandoned Carts"
+  }, {
+    "id": "quietly-moon-4186",
+    "label": "Shipping"
+  }, {
+    "id": "merry-castle-3260",
+    "label": "Payments"
+  }, {
+    "id": "merry-cliff-8846",
+    "label": "Coupons"
+  }, {
+    "id": "safely-dawn-7731",
+    "label": "Subscriptions"
+  }, {
+    "id": "purely-dusk-2409",
+    "label": "Shipping & Fulfillment"
+  }, {
+    "id": "soft-hill-4757",
+    "label": "Taxes"
+  }, {
+    "id": "safely-air-9334",
+    "label": "Collections"
+  }, {
+    "id": "merry-land-6169",
+    "label": "Store Performance"
+  }]
+}, {
+  "label": "Finance",
+  "pages": [{
+    "id": "quietly-stone-4158",
+    "label": "Overview"
+  }, {
+    "id": "breezy-soil-2475",
+    "label": "Invoices"
+  }, {
+    "id": "tender-creek-3139",
+    "label": "Offers & Quotes"
+  }, {
+    "id": "cool-rain-6499",
+    "label": "Income"
+  }, {
+    "id": "richly-land-8084",
+    "label": "Transactions"
+  }, {
+    "id": "calm-tide-3752",
+    "label": "Payments"
+  }, {
+    "id": "zesty-earth-3938",
+    "label": "Expenses"
+  }, {
+    "id": "bravely-bay-4544",
+    "label": "Customers"
+  }, {
+    "id": "eager-minute-1586",
+    "label": "Vendors"
+  }, {
+    "id": "fair-bridge-8618",
+    "label": "Accounts"
+  }, {
+    "id": "soft-town-3284",
+    "label": "Cash Flow"
+  }, {
+    "id": "wisely-gate-3183",
+    "label": "Budgets"
+  }, {
+    "id": "sharp-morning-7310",
+    "label": "Financial Planning"
+  }, {
+    "id": "sparklingly-city-3338",
+    "label": "Reconciliation"
+  }, {
+    "id": "radiant-hour-5376",
+    "label": "Recurring Revenue"
+  }, {
+    "id": "lucky-park-8649",
+    "label": "Payouts"
+  }, {
+    "id": "vibrantly-second-9428",
+    "label": "Financial Automation"
+  }, {
+    "id": "sturdy-week-3372",
+    "label": "Taxes"
+  }, {
+    "id": "boldly-field-4971",
+    "label": "Finance Settings"
+  }]
+}, {
+  "label": "Sales",
+  "pages": [{
+    "id": "fine-park-8079",
+    "label": "Overview"
+  }, {
+    "id": "softly-autumn-9038",
+    "label": "Leads"
+  }, {
+    "id": "wildly-sun-6424",
+    "label": "Opportunities"
+  }, {
+    "id": "deeply-month-1392",
+    "label": "Deals"
+  }, {
+    "id": "sweet-evening-7753",
+    "label": "Pipeline"
+  }, {
+    "id": "warmly-road-3804",
+    "label": "Activities"
+  }, {
+    "id": "wondrously-gate-2200",
+    "label": "Tasks"
+  }, {
+    "id": "sharp-cliff-6925",
+    "label": "Customer Segments"
+  }, {
+    "id": "lovingly-shore-4782",
+    "label": "Forecast"
+  }, {
+    "id": "rich-moon-9195",
+    "label": "Reports"
+  }, {
+    "id": "lively-house-6788",
+    "label": "Commissions"
+  }, {
+    "id": "gentle-cliff-7133",
+    "label": "Goals"
+  }, {
+    "id": "kindly-morning-7115",
+    "label": "Territories"
+  }, {
+    "id": "friendly-tower-1528",
+    "label": "Lead Assignment"
+  }, {
+    "id": "nicely-land-1864",
+    "label": "Settings"
+  }]
+}, {
+  "label": "Integrations",
+  "pages": [{
+    "id": "glad-coast-1428",
+    "label": "Integrations"
+  }]
+}, {
+  "label": "Billing",
+  "pages": [{
+    "id": "pure-minute-5446",
+    "label": "Billing"
+  }]
+}] as const;
+function LuluSectionNavigation({
+  activeId
+}: {
+  activeId: string;
+}) {
+  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
+    {luluDropdownNavigation.map(section => {
+      const isActiveSection = section.pages.some(page => page.id === activeId);
+      return <details key={section.label} open={isActiveSection} className="group rounded-lg">
+        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+          <span>{section.label}</span>
+          <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
+        </summary>
+        <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
+          {section.pages.map(page => {
+            const isActivePage = page.id === activeId;
+            return <a key={page.id} href={`#${page.id}`} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+              {page.label}
+            </a>;
+          })}
+        </div>
+      </details>;
+    })}
+  </nav>;
+}

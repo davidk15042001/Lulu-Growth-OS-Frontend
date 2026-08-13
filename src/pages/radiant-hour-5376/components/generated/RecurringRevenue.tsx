@@ -14,7 +14,7 @@ const cohortRows = [['Jan 24', '100%', '91%', '86%', '81%', '78%', '75%', '73%',
 const risks = [['Increasing churn', 'High', 'Jun 30', 'Churn rate has risen 0.8pp over the last 60 days.', '$8,100'], ['High revenue concentration', 'Medium', 'Jun 30', 'Top 10 accounts represent 41% of current MRR.', '$116,645'], ['Upcoming expirations', 'Low', 'Jun 29', '12 subscriptions renew in the next 30 days.', '$18,400']];
 const recs = ['Review the 12 upcoming renewals with account owners', 'Create an expansion play for Enterprise accounts', 'Investigate churn drivers in Lulu Insights', 'Prioritize referral channel acquisition'];
 function Sidebar() {
-  return <aside className="rr-sidebar"><div className="rr-logo"><span className="rr-logo-mark">L</span><span>Lulu <b>AI</b></span></div><div className="rr-workspace"><div className="rr-avatar">AC</div><div><strong>Acme Corporation</strong><small>Finance workspace</small></div><ChevronDown size={14} /></div><nav aria-label="Main navigation"><p className="rr-nav-label">Workspace</p><a><LayoutDashboard size={17} />Overview</a><a><Activity size={17} />Activity</a><a className="active"><BarChart3 size={17} />Finance<ChevronDown className="nav-caret" size={14} /></a><div className="rr-subnav"><a>Finance overview</a><a>Income</a><a className="sub-active">Recurring revenue</a><a>Payments</a></div><a><Users size={17} />Customers</a><a><Target size={17} />Reports</a><p className="rr-nav-label">Manage</p><a><Settings size={17} />Settings</a></nav><div className="rr-sidebar-bottom"><div className="rr-help"><HelpCircle size={18} /><div><strong>Need help?</strong><small>Ask Lulu anything</small></div></div><div className="rr-user"><div className="rr-avatar purple">JS</div><div><strong>Jordan Smith</strong><small>Administrator</small></div><MoreHorizontal size={17} /></div></div></aside>;
+  return <aside className="rr-sidebar"><div className="rr-logo"><span className="rr-logo-mark">L</span><span>Lulu <b>AI</b></span></div><div className="rr-workspace"><div className="rr-avatar">AC</div><div><strong>Acme Corporation</strong><small>Finance workspace</small></div><ChevronDown size={14} /></div><LuluSectionNavigation activeId="radiant-hour-5376" /><div className="rr-sidebar-bottom"><div className="rr-help"><HelpCircle size={18} /><div><strong>Need help?</strong><small>Ask Lulu anything</small></div></div><div className="rr-user"><div className="rr-avatar purple">JS</div><div><strong>Jordan Smith</strong><small>Administrator</small></div><MoreHorizontal size={17} /></div></div></aside>;
 }
 function Header() {
   const [period, setPeriod] = useState('Current Month');
@@ -76,4 +76,443 @@ export function RecurringRevenue() {
 <div className="three-col"><section className="panel risk-panel"><div className="section-head"><h2>Revenue Risks</h2><ShieldAlert size={18} className="red-icon" /></div>{risks.map(r => <article className="risk-card" key={r[0]}><div><strong>{r[0]}</strong><span className={`severity ${r[1].toLowerCase()}`}>{r[1]}</span></div><small>Detected {r[2]} · {r[3]}</small><b>{r[4]} affected revenue</b><div><button className="tiny-btn">Investigate</button><button className="tiny-btn ghost">Ask Lulu AI</button></div></article>)}</section><section className="panel opportunities"><div className="section-head"><h2>Revenue Opportunities</h2><Lightbulb size={18} className="amber-icon" /></div>{[['Expansion opportunities in Enterprise', '38 accounts show usage above plan', '$7,800'], ['Upsell potential for Lulu Assist', '64 customers have not added Assist', '$4,200'], ['Referral channel acceleration', 'Referral retention is 99.1%', '$3,600']].map(r => <article className="opportunity" key={r[0]}><div><strong>{r[0]}</strong><span className="badge ai-badge">AI-generated</span></div><p>{r[1]}</p><b>Potential MRR impact: {r[2]}</b></article>)}</section><section className="panel alerts"><div className="section-head"><h2>Revenue Alerts</h2><Bell size={18} /></div>{[['Churn rate crossed the 2.5% threshold', 'High'], ['12 renewals due within 30 days', 'Medium'], ['MRR growth is above quarterly average', 'Low']].map(r => <article className="alert-row" key={r[0]}><span className={`alert-dot ${r[1].toLowerCase()}`} /><div><strong>{r[0]}</strong><small>{r[1]} severity · Today</small></div><button aria-label={`Open alert: ${r[0]}`}><ChevronDown size={15} /></button></article>)}</section></div>
 <div className="two-col ai-row"><section className="ai-panel"><div className="ai-heading"><Sparkles size={20} /><div><h2>AI Insights</h2><span className="badge ai-badge">AI-generated</span></div></div><p>MRR increased 6.8% compared with the previous month, primarily driven by new recurring revenue and customer expansion.</p><div className="mini-bridge"><span>$266.9k</span><i>+24.3k</i><i>+11.2k</i><i className="down">−4.8k</i><i className="down">−8.1k</i><b>$289.5k</b></div><small>Analysis is based on observed sample records and calculated movements.</small></section><section className="panel recommendations"><div className="section-head"><div><h2>AI Recommendations</h2><p className="note">Prioritized next actions</p></div><Sparkles size={17} /></div>{recs.map(item => <div className="recommendation" key={item}><span className="number">→</span><span>{item}</span><button className="tiny-btn">Review</button></div>)}<p className="method">AI will not automatically modify subscriptions or customer contracts.</p></section></div>
 <section className="ask-lulu"><div className="ask-title"><div className="sparkle-circle"><Sparkles size={19} /></div><div><h2>Ask Lulu AI</h2><p>Explore your recurring revenue with natural language.</p></div></div><div className="ask-input"><Search size={18} /><input aria-label="Ask Lulu AI" placeholder="Ask Lulu AI about recurring revenue..." /><button className="primary">Send <ArrowUpRight size={15} /></button></div><div className="suggestions">{['What is our current MRR?', 'What is our ARR?', 'Why did MRR change?', 'Which customers churned?', 'What is our churn rate?', 'What is our NRR?', 'Which products generate the most recurring revenue?', 'What is our recurring revenue forecast?'].map(item => <button key={item}>{item}</button>)}</div></section><div className="collapsed-states"><button>Empty state <ChevronDown size={14} /></button><button>Limited data <ChevronDown size={14} /></button><button>Errors & sync status <ChevronDown size={14} /></button></div></div></main></div>;
+}
+
+/* Lulu dropdown navigation — intentionally isolated from page content. */
+const luluDropdownNavigation = [{
+  "label": "Dashboard",
+  "pages": [{
+    "id": "fancily-leaf-1766",
+    "label": "Executive Dashboard"
+  }]
+}, {
+  "label": "AI",
+  "pages": [{
+    "id": "fresh-moon-5374",
+    "label": "Assistant"
+  }, {
+    "id": "radiant-dusk-9079",
+    "label": "Agents"
+  }, {
+    "id": "calmly-park-3313",
+    "label": "Agent Marketplace"
+  }, {
+    "id": "rich-field-1880",
+    "label": "Knowledge"
+  }, {
+    "id": "wondrously-second-5656",
+    "label": "Actions"
+  }, {
+    "id": "sunny-moon-6307",
+    "label": "Conversations"
+  }, {
+    "id": "sparkling-cave-8456",
+    "label": "Activity"
+  }]
+}, {
+  "label": "CRM",
+  "pages": [{
+    "id": "bright-meadow-7537",
+    "label": "Overview"
+  }, {
+    "id": "sturdy-month-1562",
+    "label": "Contacts"
+  }, {
+    "id": "kindly-pool-8785",
+    "label": "Companies"
+  }, {
+    "id": "swift-hour-7844",
+    "label": "Leads"
+  }, {
+    "id": "smartly-shade-4619",
+    "label": "Deals"
+  }, {
+    "id": "calmly-cloud-9988",
+    "label": "Pipeline"
+  }, {
+    "id": "cosmic-pool-1616",
+    "label": "Activities"
+  }, {
+    "id": "deeply-noon-9539",
+    "label": "Tasks"
+  }, {
+    "id": "sunnily-gulf-7520",
+    "label": "Customer Segments"
+  }, {
+    "id": "gracefully-storm-2649",
+    "label": "Customer Intelligence"
+  }]
+}, {
+  "label": "Marketing",
+  "pages": [{
+    "id": "dreamily-soil-9290",
+    "label": "Campaigns"
+  }, {
+    "id": "wondrous-cloud-1355",
+    "label": "Content"
+  }, {
+    "id": "sparklingly-home-7386",
+    "label": "Strategy"
+  }, {
+    "id": "gently-shade-2476",
+    "label": "Campaigns"
+  }, {
+    "id": "sparklingly-moon-5114",
+    "label": "SEO"
+  }, {
+    "id": "zealously-path-4224",
+    "label": "GEO"
+  }, {
+    "id": "sunny-house-9595",
+    "label": "AEO"
+  }, {
+    "id": "kind-time-4492",
+    "label": "Keywords"
+  }, {
+    "id": "smartly-shore-1468",
+    "label": "Competitors"
+  }, {
+    "id": "breezily-wood-5980",
+    "label": "Audiences"
+  }, {
+    "id": "breezy-shore-6734",
+    "label": "Analytics"
+  }]
+}, {
+  "label": "Advertising",
+  "pages": [{
+    "id": "finely-garden-9221",
+    "label": "Overview"
+  }, {
+    "id": "friendly-path-8200",
+    "label": "Analytics"
+  }, {
+    "id": "wise-brook-1762",
+    "label": "Campaigns"
+  }, {
+    "id": "softly-second-7684",
+    "label": "Audiences"
+  }, {
+    "id": "happily-storm-2690",
+    "label": "Creatives"
+  }, {
+    "id": "sunny-minute-1092",
+    "label": "Budgets"
+  }, {
+    "id": "zesty-grass-9196",
+    "label": "AI Optimization"
+  }, {
+    "id": "nicely-shade-2637",
+    "label": "Tracking & Attribution"
+  }, {
+    "id": "nice-moon-2056",
+    "label": "AI Campaign & Ad Builder"
+  }, {
+    "id": "sunnily-peak-7188",
+    "label": "Publishing & Approval Center"
+  }, {
+    "id": "solid-sand-5563",
+    "label": "AI Experiments & A/B Testing"
+  }, {
+    "id": "sunny-summer-2293",
+    "label": "Ad Accounts & Platform Management"
+  }]
+}, {
+  "label": "Intelligence",
+  "pages": [{
+    "id": "serene-cloud-7079",
+    "label": "Intelligence Overview"
+  }, {
+    "id": "tender-water-4095",
+    "label": "Executive Overview"
+  }, {
+    "id": "swiftly-cliff-4166",
+    "label": "Business Health"
+  }, {
+    "id": "sharp-current-9677",
+    "label": "Growth"
+  }, {
+    "id": "proudly-river-8017",
+    "label": "Revenue"
+  }, {
+    "id": "dreamily-shade-6192",
+    "label": "Customers"
+  }, {
+    "id": "nicely-hour-4035",
+    "label": "Sales"
+  }, {
+    "id": "eagerly-winter-3152",
+    "label": "Marketing"
+  }, {
+    "id": "sharply-wood-4560",
+    "label": "Advertising Intelligence"
+  }, {
+    "id": "bold-ocean-5847",
+    "label": "Ecommerce Intelligence"
+  }, {
+    "id": "cozily-path-5612",
+    "label": "Finance Intelligence"
+  }, {
+    "id": "gently-light-6089",
+    "label": "Operations Intelligence"
+  }, {
+    "id": "cool-town-1727",
+    "label": "Products Intelligence"
+  }, {
+    "id": "swift-pool-5077",
+    "label": "KPI Explorer"
+  }, {
+    "id": "friendly-ground-4157",
+    "label": "Reports"
+  }, {
+    "id": "brave-stream-5322",
+    "label": "Comparisons"
+  }, {
+    "id": "sparkling-time-5280",
+    "label": "Comparisons"
+  }, {
+    "id": "wispy-current-7490",
+    "label": "Forecasts"
+  }, {
+    "id": "kindly-year-8981",
+    "label": "Benchmarks"
+  }, {
+    "id": "serenely-creek-1765",
+    "label": "Trends"
+  }, {
+    "id": "sparklingly-light-7230",
+    "label": "Anomalies"
+  }, {
+    "id": "clever-soil-5964",
+    "label": "Attribution"
+  }, {
+    "id": "serenely-week-1771",
+    "label": "AI Insights"
+  }, {
+    "id": "daring-home-4179",
+    "label": "AI Recommendations"
+  }, {
+    "id": "wispy-leaf-3778",
+    "label": "AI Tasks"
+  }, {
+    "id": "happily-brook-7061",
+    "label": "Opportunities"
+  }, {
+    "id": "radiant-cave-9340",
+    "label": "Decisions"
+  }, {
+    "id": "boldly-time-5189",
+    "label": "Risk Center"
+  }, {
+    "id": "proud-rain-4772",
+    "label": "Activity Timeline"
+  }]
+}, {
+  "label": "Ecommerce",
+  "pages": [{
+    "id": "smart-ocean-3898",
+    "label": "Overview"
+  }, {
+    "id": "nice-year-6253",
+    "label": "Stores"
+  }, {
+    "id": "nicely-ocean-1051",
+    "label": "Products"
+  }, {
+    "id": "richly-forest-5832",
+    "label": "Categories"
+  }, {
+    "id": "mightily-shore-7108",
+    "label": "Orders"
+  }, {
+    "id": "fancy-ground-8040",
+    "label": "Customers"
+  }, {
+    "id": "serenely-sand-9226",
+    "label": "Carts"
+  }, {
+    "id": "smart-village-1099",
+    "label": "Inventory"
+  }, {
+    "id": "dreamy-shade-5445",
+    "label": "Returns & Refunds"
+  }, {
+    "id": "daring-brook-9034",
+    "label": "Reviews"
+  }, {
+    "id": "sharply-sky-4161",
+    "label": "Discounts & Promotions"
+  }, {
+    "id": "wildly-time-4260",
+    "label": "Carts & Abandoned Carts"
+  }, {
+    "id": "quietly-moon-4186",
+    "label": "Shipping"
+  }, {
+    "id": "merry-castle-3260",
+    "label": "Payments"
+  }, {
+    "id": "merry-cliff-8846",
+    "label": "Coupons"
+  }, {
+    "id": "safely-dawn-7731",
+    "label": "Subscriptions"
+  }, {
+    "id": "purely-dusk-2409",
+    "label": "Shipping & Fulfillment"
+  }, {
+    "id": "soft-hill-4757",
+    "label": "Taxes"
+  }, {
+    "id": "safely-air-9334",
+    "label": "Collections"
+  }, {
+    "id": "merry-land-6169",
+    "label": "Store Performance"
+  }]
+}, {
+  "label": "Finance",
+  "pages": [{
+    "id": "quietly-stone-4158",
+    "label": "Overview"
+  }, {
+    "id": "breezy-soil-2475",
+    "label": "Invoices"
+  }, {
+    "id": "tender-creek-3139",
+    "label": "Offers & Quotes"
+  }, {
+    "id": "cool-rain-6499",
+    "label": "Income"
+  }, {
+    "id": "richly-land-8084",
+    "label": "Transactions"
+  }, {
+    "id": "calm-tide-3752",
+    "label": "Payments"
+  }, {
+    "id": "zesty-earth-3938",
+    "label": "Expenses"
+  }, {
+    "id": "bravely-bay-4544",
+    "label": "Customers"
+  }, {
+    "id": "eager-minute-1586",
+    "label": "Vendors"
+  }, {
+    "id": "fair-bridge-8618",
+    "label": "Accounts"
+  }, {
+    "id": "soft-town-3284",
+    "label": "Cash Flow"
+  }, {
+    "id": "wisely-gate-3183",
+    "label": "Budgets"
+  }, {
+    "id": "sharp-morning-7310",
+    "label": "Financial Planning"
+  }, {
+    "id": "sparklingly-city-3338",
+    "label": "Reconciliation"
+  }, {
+    "id": "radiant-hour-5376",
+    "label": "Recurring Revenue"
+  }, {
+    "id": "lucky-park-8649",
+    "label": "Payouts"
+  }, {
+    "id": "vibrantly-second-9428",
+    "label": "Financial Automation"
+  }, {
+    "id": "sturdy-week-3372",
+    "label": "Taxes"
+  }, {
+    "id": "boldly-field-4971",
+    "label": "Finance Settings"
+  }]
+}, {
+  "label": "Sales",
+  "pages": [{
+    "id": "fine-park-8079",
+    "label": "Overview"
+  }, {
+    "id": "softly-autumn-9038",
+    "label": "Leads"
+  }, {
+    "id": "wildly-sun-6424",
+    "label": "Opportunities"
+  }, {
+    "id": "deeply-month-1392",
+    "label": "Deals"
+  }, {
+    "id": "sweet-evening-7753",
+    "label": "Pipeline"
+  }, {
+    "id": "warmly-road-3804",
+    "label": "Activities"
+  }, {
+    "id": "wondrously-gate-2200",
+    "label": "Tasks"
+  }, {
+    "id": "sharp-cliff-6925",
+    "label": "Customer Segments"
+  }, {
+    "id": "lovingly-shore-4782",
+    "label": "Forecast"
+  }, {
+    "id": "rich-moon-9195",
+    "label": "Reports"
+  }, {
+    "id": "lively-house-6788",
+    "label": "Commissions"
+  }, {
+    "id": "gentle-cliff-7133",
+    "label": "Goals"
+  }, {
+    "id": "kindly-morning-7115",
+    "label": "Territories"
+  }, {
+    "id": "friendly-tower-1528",
+    "label": "Lead Assignment"
+  }, {
+    "id": "nicely-land-1864",
+    "label": "Settings"
+  }]
+}, {
+  "label": "Integrations",
+  "pages": [{
+    "id": "glad-coast-1428",
+    "label": "Integrations"
+  }]
+}, {
+  "label": "Billing",
+  "pages": [{
+    "id": "pure-minute-5446",
+    "label": "Billing"
+  }]
+}] as const;
+function LuluSectionNavigation({
+  activeId
+}: {
+  activeId: string;
+}) {
+  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
+    {luluDropdownNavigation.map(section => {
+      const isActiveSection = section.pages.some(page => page.id === activeId);
+      return <details key={section.label} open={isActiveSection} className="group rounded-lg">
+        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+          <span>{section.label}</span>
+          <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
+        </summary>
+        <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
+          {section.pages.map(page => {
+            const isActivePage = page.id === activeId;
+            return <a key={page.id} href={`#${page.id}`} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+              {page.label}
+            </a>;
+          })}
+        </div>
+      </details>;
+    })}
+  </nav>;
 }

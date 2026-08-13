@@ -155,11 +155,7 @@ export function LuluAITasks() {
   return <main className="min-h-screen bg-[var(--background)] text-foreground flex font-sans">
     <aside className="hidden lg:flex w-[248px] shrink-0 border-r border-border bg-[var(--background)] flex-col p-4 sticky top-0 h-screen">
       <div className="flex items-center gap-3 px-3 py-4 mb-5"><div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center shadow-lg shadow-black/20 text-primary-foreground"><Sparkles size={18} className="text-foreground" /></div><div><strong className="text-foreground tracking-tight">lulu<span className="text-foreground">.</span>ai</strong><p className="text-[10px] text-muted-foreground mt-0.5">BUSINESS OS</p></div></div>
-      <nav className="space-y-1" aria-label="Main navigation">
-        {[['Overview', LayoutDashboard], ['Intelligence', Zap], ['Customers', Users], ['Growth', BarChart3], ['Operations', Gauge], ['Finance', FileText]].map(([label, Icon]) => <button key={label as string} className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-left ${label === 'Intelligence' ? 'bg-secondary/12 text-foreground' : 'text-foreground hover:bg-secondary hover:text-foreground'}`}><Icon size={16} /><span>{label as string}</span>{label === 'Intelligence' && <ChevronDown size={14} className="ml-auto" />}</button>)}
-        <div className="ml-8 border-l border-border/30 pl-3 py-2 space-y-1"><p className="text-[10px] uppercase tracking-widest text-muted-foreground px-2 py-1">AI Intelligence</p>{['AI Overview', 'AI Tasks', 'AI Recommendations', 'AI Insights'].map(label => <button key={label} onClick={() => label === 'AI Tasks' && notify('AI Tasks is already open')} className={`w-full rounded-md px-2 py-2 text-left text-xs ${label === 'AI Tasks' ? 'bg-secondary/15 text-foreground border-l-2 border-border' : 'text-foreground hover:text-foreground'}`}>{label}</button>)}</div>
-        {[['Reports', FileText], ['Settings', Settings], ['Help & Support', LifeBuoy]].map(([label, Icon]) => <button key={label as string} className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground hover:bg-secondary hover:text-foreground"><Icon size={16} /><span>{label as string}</span></button>)}
-      </nav>
+      <LuluSectionNavigation activeId="wispy-leaf-3778" />
       <div className="mt-auto border-t border-border pt-4"><div className="flex items-center gap-3 px-2"><div className="h-8 w-8 rounded-full bg-gradient-to-br from-secondary to-card flex items-center justify-center text-xs font-bold">JD</div><div className="min-w-0"><p className="text-xs text-foreground">Jordan Davis</p><p className="text-[10px] text-muted-foreground truncate">Operations lead</p></div><MoreHorizontal size={16} className="ml-auto text-muted-foreground" /></div></div>
     </aside>
     <section className="flex-1 min-w-0">
@@ -210,4 +206,443 @@ export function LuluAITasks() {
     {toast && <div role="status" className="fixed bottom-5 right-5 z-50 rounded-lg border border-border/30 bg-[var(--secondary)] px-4 py-3 text-sm text-foreground shadow-2xl">{toast}</div>}
     {modal && <div className="fixed inset-0 z-40 bg-primary/60 flex items-center justify-center p-4" role="presentation"><div role="dialog" aria-modal="true" aria-labelledby="modal-title" className="w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-[var(--secondary)] shadow-2xl"><div className="flex items-center justify-between border-b border-border px-5 py-4"><h2 id="modal-title" className="text-lg font-semibold text-foreground">{modal === 'approve' ? 'Approve AI Task' : modal === 'reject' ? 'Reject AI Task' : modal === 'pause' ? 'Pause Task' : modal === 'cancel' ? 'Cancel Task' : modal === 'retry' ? 'Retry Task' : 'Create AI Task'}</h2><button onClick={() => setModal(null)} aria-label="Close dialog" className="text-foreground hover:text-foreground"><X size={18} /></button></div><div className="p-5 space-y-4">{modal === 'create' ? <div className="space-y-4"><div className="flex gap-1 rounded-lg bg-[var(--secondary)] p-1"><button className="flex-1 rounded-md bg-secondary/20 py-2 text-xs text-foreground">Create task</button><button className="flex-1 py-2 text-xs text-foreground">Create with Lulu AI</button></div>{['Task name', 'Description', 'Business area', 'Source', 'Priority', 'Owner', 'Due date', 'Success Criteria'].map(field => <label key={field} className="block text-xs text-muted-foreground">{field}<input className="mt-1.5 w-full rounded-md border border-border bg-[var(--secondary)] px-3 py-2.5 text-sm text-foreground outline-none focus:border-border/60" placeholder={field === 'Description' ? 'Describe the desired outcome...' : `Enter ${field.toLowerCase()}`} /></label>)}<div className="flex items-center justify-between rounded-lg border border-border px-3 py-3 text-xs"><span>AI execution permission</span><div className="h-5 w-9 rounded-full bg-primary p-0.5 text-primary-foreground"><div className="h-4 w-4 ml-4 rounded-full bg-card" /></div></div></div> : modal === 'reject' ? <div><p className="text-sm text-foreground mb-4">Why are you rejecting this task?</p><div className="grid sm:grid-cols-2 gap-2">{['Not relevant', 'Incorrect', 'Already completed', 'Not feasible', 'Too risky', 'Not a priority', 'Other'].map(reason => <label key={reason} className="flex gap-2 rounded-md border border-border p-2.5 text-xs text-muted-foreground"><input type="radio" name="reason" />{reason}</label>)}</div><textarea className="mt-4 min-h-24 w-full rounded-md border border-border bg-[var(--secondary)] p-3 text-sm outline-none" placeholder="Add comment (optional)" /></div> : modal === 'pause' ? <p className="text-sm leading-6 text-muted-foreground">AI execution will stop until the task is resumed.</p> : modal === 'cancel' ? <div className="space-y-3 text-sm text-muted-foreground"><p>Current status: <span className="text-foreground">In Progress</span></p><p>Potential consequences: Active monitoring and scheduled steps will stop.</p><p>Dependencies affected: Google Ads connection and the 7-day outcome tracker.</p></div> : modal === 'retry' ? <div className="space-y-3 text-sm text-muted-foreground"><p>Failure Reason: <span className="text-chart-5">API rate limit exceeded — Google Ads</span></p><p>Connected System: Google Ads</p><p>Last Attempt: Today 07:12</p><p>Recommended Fix: Wait 15 min then retry</p></div> : <div className="space-y-3 text-sm text-muted-foreground"><p>Task: <span className="text-foreground">Optimize Underperforming Advertising Campaigns</span></p><p>Proposed Action: Pause 3 campaigns, reallocate $4,200 to top-performing campaigns</p><p>Target: Google Ads — 3 campaigns</p><p>Expected Impact: <span className="text-chart-4">Estimated -$1,800/mo CPA · +0.6x ROAS improvement</span></p><p>Potential Risks: Low — no budget increase, approved reallocation only</p><p>Permissions: <span className="text-chart-4">Google Ads Campaign Management — Authorized</span></p><p className="text-foreground">Related Recommendation ↗</p></div>}<div className="flex justify-end gap-2 pt-3 border-t border-border"><button onClick={() => setModal(null)} className="rounded-lg border border-border px-4 py-2.5 text-sm text-foreground">{modal === 'pause' ? 'Cancel' : modal === 'cancel' ? 'Keep Task' : modal === 'retry' ? 'Edit Task' : 'Cancel'}</button><button onClick={() => action(modal === 'approve' ? 'Task approved and queued for execution' : modal === 'reject' ? 'Task rejected' : modal === 'pause' ? 'Task paused' : modal === 'cancel' ? 'Task cancelled' : modal === 'retry' ? 'Retry scheduled' : 'Task created successfully')} className={`rounded-lg px-4 py-2.5 text-sm font-semibold text-primary-foreground ${modal === 'reject' || modal === 'cancel' ? 'bg-destructive hover:bg-destructive' : modal === 'pause' ? 'bg-primary hover:bg-primary' : 'bg-gradient-to-r from-primary to-primary hover:brightness-110'}`}>{modal === 'approve' ? 'Approve Task' : modal === 'reject' ? 'Reject Task' : modal === 'pause' ? 'Pause' : modal === 'cancel' ? 'Cancel Task' : modal === 'retry' ? 'Retry' : 'Create Task'}</button></div></div></div></div>}
   </main>;
+}
+
+/* Lulu dropdown navigation — intentionally isolated from page content. */
+const luluDropdownNavigation = [{
+  "label": "Dashboard",
+  "pages": [{
+    "id": "fancily-leaf-1766",
+    "label": "Executive Dashboard"
+  }]
+}, {
+  "label": "AI",
+  "pages": [{
+    "id": "fresh-moon-5374",
+    "label": "Assistant"
+  }, {
+    "id": "radiant-dusk-9079",
+    "label": "Agents"
+  }, {
+    "id": "calmly-park-3313",
+    "label": "Agent Marketplace"
+  }, {
+    "id": "rich-field-1880",
+    "label": "Knowledge"
+  }, {
+    "id": "wondrously-second-5656",
+    "label": "Actions"
+  }, {
+    "id": "sunny-moon-6307",
+    "label": "Conversations"
+  }, {
+    "id": "sparkling-cave-8456",
+    "label": "Activity"
+  }]
+}, {
+  "label": "CRM",
+  "pages": [{
+    "id": "bright-meadow-7537",
+    "label": "Overview"
+  }, {
+    "id": "sturdy-month-1562",
+    "label": "Contacts"
+  }, {
+    "id": "kindly-pool-8785",
+    "label": "Companies"
+  }, {
+    "id": "swift-hour-7844",
+    "label": "Leads"
+  }, {
+    "id": "smartly-shade-4619",
+    "label": "Deals"
+  }, {
+    "id": "calmly-cloud-9988",
+    "label": "Pipeline"
+  }, {
+    "id": "cosmic-pool-1616",
+    "label": "Activities"
+  }, {
+    "id": "deeply-noon-9539",
+    "label": "Tasks"
+  }, {
+    "id": "sunnily-gulf-7520",
+    "label": "Customer Segments"
+  }, {
+    "id": "gracefully-storm-2649",
+    "label": "Customer Intelligence"
+  }]
+}, {
+  "label": "Marketing",
+  "pages": [{
+    "id": "dreamily-soil-9290",
+    "label": "Campaigns"
+  }, {
+    "id": "wondrous-cloud-1355",
+    "label": "Content"
+  }, {
+    "id": "sparklingly-home-7386",
+    "label": "Strategy"
+  }, {
+    "id": "gently-shade-2476",
+    "label": "Campaigns"
+  }, {
+    "id": "sparklingly-moon-5114",
+    "label": "SEO"
+  }, {
+    "id": "zealously-path-4224",
+    "label": "GEO"
+  }, {
+    "id": "sunny-house-9595",
+    "label": "AEO"
+  }, {
+    "id": "kind-time-4492",
+    "label": "Keywords"
+  }, {
+    "id": "smartly-shore-1468",
+    "label": "Competitors"
+  }, {
+    "id": "breezily-wood-5980",
+    "label": "Audiences"
+  }, {
+    "id": "breezy-shore-6734",
+    "label": "Analytics"
+  }]
+}, {
+  "label": "Advertising",
+  "pages": [{
+    "id": "finely-garden-9221",
+    "label": "Overview"
+  }, {
+    "id": "friendly-path-8200",
+    "label": "Analytics"
+  }, {
+    "id": "wise-brook-1762",
+    "label": "Campaigns"
+  }, {
+    "id": "softly-second-7684",
+    "label": "Audiences"
+  }, {
+    "id": "happily-storm-2690",
+    "label": "Creatives"
+  }, {
+    "id": "sunny-minute-1092",
+    "label": "Budgets"
+  }, {
+    "id": "zesty-grass-9196",
+    "label": "AI Optimization"
+  }, {
+    "id": "nicely-shade-2637",
+    "label": "Tracking & Attribution"
+  }, {
+    "id": "nice-moon-2056",
+    "label": "AI Campaign & Ad Builder"
+  }, {
+    "id": "sunnily-peak-7188",
+    "label": "Publishing & Approval Center"
+  }, {
+    "id": "solid-sand-5563",
+    "label": "AI Experiments & A/B Testing"
+  }, {
+    "id": "sunny-summer-2293",
+    "label": "Ad Accounts & Platform Management"
+  }]
+}, {
+  "label": "Intelligence",
+  "pages": [{
+    "id": "serene-cloud-7079",
+    "label": "Intelligence Overview"
+  }, {
+    "id": "tender-water-4095",
+    "label": "Executive Overview"
+  }, {
+    "id": "swiftly-cliff-4166",
+    "label": "Business Health"
+  }, {
+    "id": "sharp-current-9677",
+    "label": "Growth"
+  }, {
+    "id": "proudly-river-8017",
+    "label": "Revenue"
+  }, {
+    "id": "dreamily-shade-6192",
+    "label": "Customers"
+  }, {
+    "id": "nicely-hour-4035",
+    "label": "Sales"
+  }, {
+    "id": "eagerly-winter-3152",
+    "label": "Marketing"
+  }, {
+    "id": "sharply-wood-4560",
+    "label": "Advertising Intelligence"
+  }, {
+    "id": "bold-ocean-5847",
+    "label": "Ecommerce Intelligence"
+  }, {
+    "id": "cozily-path-5612",
+    "label": "Finance Intelligence"
+  }, {
+    "id": "gently-light-6089",
+    "label": "Operations Intelligence"
+  }, {
+    "id": "cool-town-1727",
+    "label": "Products Intelligence"
+  }, {
+    "id": "swift-pool-5077",
+    "label": "KPI Explorer"
+  }, {
+    "id": "friendly-ground-4157",
+    "label": "Reports"
+  }, {
+    "id": "brave-stream-5322",
+    "label": "Comparisons"
+  }, {
+    "id": "sparkling-time-5280",
+    "label": "Comparisons"
+  }, {
+    "id": "wispy-current-7490",
+    "label": "Forecasts"
+  }, {
+    "id": "kindly-year-8981",
+    "label": "Benchmarks"
+  }, {
+    "id": "serenely-creek-1765",
+    "label": "Trends"
+  }, {
+    "id": "sparklingly-light-7230",
+    "label": "Anomalies"
+  }, {
+    "id": "clever-soil-5964",
+    "label": "Attribution"
+  }, {
+    "id": "serenely-week-1771",
+    "label": "AI Insights"
+  }, {
+    "id": "daring-home-4179",
+    "label": "AI Recommendations"
+  }, {
+    "id": "wispy-leaf-3778",
+    "label": "AI Tasks"
+  }, {
+    "id": "happily-brook-7061",
+    "label": "Opportunities"
+  }, {
+    "id": "radiant-cave-9340",
+    "label": "Decisions"
+  }, {
+    "id": "boldly-time-5189",
+    "label": "Risk Center"
+  }, {
+    "id": "proud-rain-4772",
+    "label": "Activity Timeline"
+  }]
+}, {
+  "label": "Ecommerce",
+  "pages": [{
+    "id": "smart-ocean-3898",
+    "label": "Overview"
+  }, {
+    "id": "nice-year-6253",
+    "label": "Stores"
+  }, {
+    "id": "nicely-ocean-1051",
+    "label": "Products"
+  }, {
+    "id": "richly-forest-5832",
+    "label": "Categories"
+  }, {
+    "id": "mightily-shore-7108",
+    "label": "Orders"
+  }, {
+    "id": "fancy-ground-8040",
+    "label": "Customers"
+  }, {
+    "id": "serenely-sand-9226",
+    "label": "Carts"
+  }, {
+    "id": "smart-village-1099",
+    "label": "Inventory"
+  }, {
+    "id": "dreamy-shade-5445",
+    "label": "Returns & Refunds"
+  }, {
+    "id": "daring-brook-9034",
+    "label": "Reviews"
+  }, {
+    "id": "sharply-sky-4161",
+    "label": "Discounts & Promotions"
+  }, {
+    "id": "wildly-time-4260",
+    "label": "Carts & Abandoned Carts"
+  }, {
+    "id": "quietly-moon-4186",
+    "label": "Shipping"
+  }, {
+    "id": "merry-castle-3260",
+    "label": "Payments"
+  }, {
+    "id": "merry-cliff-8846",
+    "label": "Coupons"
+  }, {
+    "id": "safely-dawn-7731",
+    "label": "Subscriptions"
+  }, {
+    "id": "purely-dusk-2409",
+    "label": "Shipping & Fulfillment"
+  }, {
+    "id": "soft-hill-4757",
+    "label": "Taxes"
+  }, {
+    "id": "safely-air-9334",
+    "label": "Collections"
+  }, {
+    "id": "merry-land-6169",
+    "label": "Store Performance"
+  }]
+}, {
+  "label": "Finance",
+  "pages": [{
+    "id": "quietly-stone-4158",
+    "label": "Overview"
+  }, {
+    "id": "breezy-soil-2475",
+    "label": "Invoices"
+  }, {
+    "id": "tender-creek-3139",
+    "label": "Offers & Quotes"
+  }, {
+    "id": "cool-rain-6499",
+    "label": "Income"
+  }, {
+    "id": "richly-land-8084",
+    "label": "Transactions"
+  }, {
+    "id": "calm-tide-3752",
+    "label": "Payments"
+  }, {
+    "id": "zesty-earth-3938",
+    "label": "Expenses"
+  }, {
+    "id": "bravely-bay-4544",
+    "label": "Customers"
+  }, {
+    "id": "eager-minute-1586",
+    "label": "Vendors"
+  }, {
+    "id": "fair-bridge-8618",
+    "label": "Accounts"
+  }, {
+    "id": "soft-town-3284",
+    "label": "Cash Flow"
+  }, {
+    "id": "wisely-gate-3183",
+    "label": "Budgets"
+  }, {
+    "id": "sharp-morning-7310",
+    "label": "Financial Planning"
+  }, {
+    "id": "sparklingly-city-3338",
+    "label": "Reconciliation"
+  }, {
+    "id": "radiant-hour-5376",
+    "label": "Recurring Revenue"
+  }, {
+    "id": "lucky-park-8649",
+    "label": "Payouts"
+  }, {
+    "id": "vibrantly-second-9428",
+    "label": "Financial Automation"
+  }, {
+    "id": "sturdy-week-3372",
+    "label": "Taxes"
+  }, {
+    "id": "boldly-field-4971",
+    "label": "Finance Settings"
+  }]
+}, {
+  "label": "Sales",
+  "pages": [{
+    "id": "fine-park-8079",
+    "label": "Overview"
+  }, {
+    "id": "softly-autumn-9038",
+    "label": "Leads"
+  }, {
+    "id": "wildly-sun-6424",
+    "label": "Opportunities"
+  }, {
+    "id": "deeply-month-1392",
+    "label": "Deals"
+  }, {
+    "id": "sweet-evening-7753",
+    "label": "Pipeline"
+  }, {
+    "id": "warmly-road-3804",
+    "label": "Activities"
+  }, {
+    "id": "wondrously-gate-2200",
+    "label": "Tasks"
+  }, {
+    "id": "sharp-cliff-6925",
+    "label": "Customer Segments"
+  }, {
+    "id": "lovingly-shore-4782",
+    "label": "Forecast"
+  }, {
+    "id": "rich-moon-9195",
+    "label": "Reports"
+  }, {
+    "id": "lively-house-6788",
+    "label": "Commissions"
+  }, {
+    "id": "gentle-cliff-7133",
+    "label": "Goals"
+  }, {
+    "id": "kindly-morning-7115",
+    "label": "Territories"
+  }, {
+    "id": "friendly-tower-1528",
+    "label": "Lead Assignment"
+  }, {
+    "id": "nicely-land-1864",
+    "label": "Settings"
+  }]
+}, {
+  "label": "Integrations",
+  "pages": [{
+    "id": "glad-coast-1428",
+    "label": "Integrations"
+  }]
+}, {
+  "label": "Billing",
+  "pages": [{
+    "id": "pure-minute-5446",
+    "label": "Billing"
+  }]
+}] as const;
+function LuluSectionNavigation({
+  activeId
+}: {
+  activeId: string;
+}) {
+  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
+    {luluDropdownNavigation.map(section => {
+      const isActiveSection = section.pages.some(page => page.id === activeId);
+      return <details key={section.label} open={isActiveSection} className="group rounded-lg">
+        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+          <span>{section.label}</span>
+          <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
+        </summary>
+        <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
+          {section.pages.map(page => {
+            const isActivePage = page.id === activeId;
+            return <a key={page.id} href={`#${page.id}`} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+              {page.label}
+            </a>;
+          })}
+        </div>
+      </details>;
+    })}
+  </nav>;
 }

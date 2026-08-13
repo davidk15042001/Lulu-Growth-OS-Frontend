@@ -111,7 +111,7 @@ export const LuluAIConversations = () => {
       *{box-sizing:border-box} .conversation-shell{height:100vh;display:flex;overflow:hidden;background:var(--background);color:var(--foreground);font-family:Inter,ui-sans-serif,system-ui,sans-serif;font-size:13px} button,input{font:inherit} button{cursor:pointer} button:focus-visible,input:focus-visible{outline:2px solid var(--border);outline-offset:2px}.sidebar{width:232px;flex:none;display:flex;flex-direction:column;padding:22px 12px 14px;background:var(--sidebar);border-right:1px solid rgba(0,0,0,.07)}.brand{display:flex;align-items:center;gap:9px;padding:0 11px 28px;color:var(--foreground);font-size:16px;font-weight:700}.brand svg{color:var(--foreground)}.nav-label{margin:0 12px 8px;color:var(--muted-foreground);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.nav-label.platform{margin-top:22px}.nav-item{width:100%;display:flex;align-items:center;gap:10px;margin:2px 0;padding:9px 12px;border:0;border-radius:7px;color:var(--muted-foreground);background:transparent;text-align:left;font-size:12px}.nav-item:hover{color:var(--muted-foreground);background:rgba(0,0,0,.045)}.nav-item.active{padding-left:9px;border-left:3px solid var(--border);color:var(--foreground);background:rgba(0,0,0,.14)}.side-bottom{margin-top:auto;padding-top:13px;border-top:1px solid rgba(0,0,0,.07)}.profile{display:flex;align-items:center;gap:9px;width:100%;padding:9px;border:0;border-radius:7px;color:var(--muted-foreground);background:transparent;text-align:left}.profile:hover{background:rgba(0,0,0,.04)}.profile span{display:flex;flex:1;flex-direction:column;gap:2px}.profile strong{font-size:12px;color:var(--foreground)}.profile small{font-size:11px;color:var(--muted-foreground)}.avatar{width:28px;height:28px;display:grid!important;place-items:center;border-radius:50%;color:var(--primary-foreground)!important;background:var(--primary);font-size:10px;font-weight:700}.workspace{min-width:0;flex:1;display:flex;flex-direction:column;overflow:hidden}.topbar{height:65px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;border-bottom:1px solid rgba(0,0,0,.07);background:var(--background)}.crumb{display:flex;align-items:center;gap:7px;color:var(--muted-foreground);font-size:12px}.crumb strong{color:var(--foreground);font-weight:500}.top-actions{display:flex;align-items:center;gap:10px}.icon-btn,.secondary,.primary,.action-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:1px solid rgba(0,0,0,.1);border-radius:7px;color:var(--muted-foreground);background:var(--background)}.icon-btn{width:31px;height:31px;padding:0}.icon-btn:hover,.secondary:hover,.action-btn:hover{border-color:rgba(0,0,0,.22);color:var(--foreground)}.primary{padding:9px 13px;border-color:var(--primary-foreground);color:var(--primary-foreground);background:var(--primary)}.primary:hover{background:var(--primary);color:var(--primary-foreground)}.secondary{padding:9px 13px}.page{overflow:auto;padding:28px 28px 50px}.page-header{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px}.eyebrow{display:flex;align-items:center;gap:7px;color:var(--foreground);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}.page h1{margin:9px 0 7px;color:var(--foreground);font-size:28px;letter-spacing:-.035em}.page-header p{max-width:640px;margin:0;color:var(--muted-foreground);line-height:1.55}.header-buttons{display:flex;gap:9px;flex:none}.metrics{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:24px}.metric{min-width:0;padding:15px 16px;border:1px solid rgba(0,0,0,.07);border-radius:9px;background:var(--background)}.metric-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted-foreground)}.metric svg{color:var(--foreground)}.metric.green svg,.status-active{color:var(--chart-4)}.metric.blue svg{color:var(--foreground)}.metric.cyan svg{color:var(--foreground)}.metric.dim{opacity:.68}.metric label{display:block;margin-top:12px;color:var(--muted-foreground);font-size:11px}.metric strong{display:block;margin-top:4px;color:var(--foreground);font-size:22px;letter-spacing:-.04em}.workspace-grid{display:grid;grid-template-columns:280px minmax(430px,1fr) 268px;min-height:640px;border:1px solid rgba(0,0,0,.07);border-radius:10px;overflow:hidden;background:var(--background)}.list-column,.detail-column,.context-column{min-width:0}.list-column{border-right:1px solid rgba(0,0,0,.07)}.detail-column{border-right:1px solid rgba(0,0,0,.07)}.column-header{padding:18px 16px 12px;border-bottom:1px solid rgba(0,0,0,.06)}.column-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}.column-title h2{margin:0;color:var(--foreground);font-size:14px}.count{color:var(--muted-foreground);font-size:11px}.search-box{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid rgba(0,0,0,.08);border-radius:7px;color:var(--muted-foreground);background:var(--background)}.search-box:focus-within{border-color:var(--muted-foreground)}.search-box input{width:100%;border:0;outline:0;color:var(--foreground);background:transparent;font-size:12px}.search-box input::placeholder{color:var(--muted-foreground)}.filter-row{display:flex;gap:5px;margin-top:8px;overflow:hidden}.filter-row button{display:flex;align-items:center;gap:4px;padding:6px 7px;border:1px solid rgba(0,0,0,.07);border-radius:6px;color:var(--muted-foreground);background:var(--background);white-space:nowrap;font-size:10px}.filter-row button:hover{color:var(--foreground);border-color:rgba(0,0,0,.16)}.list-sort{display:flex;align-items:center;justify-content:space-between;padding:11px 16px;color:var(--muted-foreground);font-size:11px}.list-sort button{display:flex;align-items:center;gap:5px;border:0;color:var(--muted-foreground);background:transparent;font-size:11px}.conversation-list{overflow:auto;max-height:540px;padding:0 8px 10px}.conversation-card{position:relative;padding:13px 9px;margin-bottom:3px;border:1px solid transparent;border-radius:8px;cursor:pointer;transition:.15s}.conversation-card:hover{border-color:rgba(0,0,0,.1);background:var(--background)}.conversation-card.selected{border-color:rgba(0,0,0,.45);background:rgba(0,0,0,.12)}.conversation-card h3{display:flex;align-items:center;gap:5px;margin:0;color:var(--foreground);font-size:12px;font-weight:600}.conversation-card h3 span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pin{color:var(--foreground);flex:none}.preview{overflow:hidden;margin:6px 0;color:var(--muted-foreground);font-size:11px;line-height:1.4;text-overflow:ellipsis;white-space:nowrap}.card-meta{display:flex;align-items:center;justify-content:space-between;color:var(--muted-foreground);font-size:10px}.agent-line{overflow:hidden;max-width:145px;text-overflow:ellipsis;white-space:nowrap}.status{padding:3px 6px;border-radius:5px;font-size:9px;font-weight:600}.status.active{color:var(--chart-4);background:rgba(0,0,0,.12)}.status.completed{color:var(--muted-foreground);background:rgba(0,0,0,.11)}.status.archived{color:var(--muted-foreground);background:rgba(0,0,0,.12)}.context-tag{display:inline-flex;margin-top:8px;padding:3px 6px;border-radius:4px;color:var(--foreground);background:rgba(0,0,0,.12);font-size:9px}.hover-actions{display:none;gap:3px;position:absolute;right:7px;top:10px}.conversation-card:hover .hover-actions{display:flex}.hover-actions button{width:23px;height:23px;padding:0;border:1px solid rgba(0,0,0,.12);border-radius:5px;color:var(--muted-foreground);background:var(--background)}.detail-header{padding:19px 21px 16px;border-bottom:1px solid rgba(0,0,0,.07)}.detail-headline{display:flex;justify-content:space-between;gap:15px}.detail-headline h2{margin:0;color:var(--foreground);font-size:18px;letter-spacing:-.025em}.detail-headline p{margin:7px 0 0;color:var(--muted-foreground);font-size:11px}.detail-badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:13px}.tag{padding:4px 7px;border-radius:4px;color:var(--muted-foreground);background:var(--background);font-size:10px}.tag.violet{color:var(--foreground);background:rgba(0,0,0,.12)}.detail-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:15px}.action-btn{padding:7px 9px;font-size:10px}.action-btn.primary-action{border-color:var(--primary-foreground);color:var(--primary-foreground);background:var(--primary)}.messages{overflow:auto;max-height:570px;padding:22px 21px 10px}.message{display:flex;gap:10px;margin-bottom:19px}.message.user{justify-content:flex-end}.message.user .bubble-wrap{align-items:flex-end}.bubble-wrap{display:flex;max-width:88%;flex-direction:column;align-items:flex-start}.speaker{display:flex;align-items:center;gap:6px;margin-bottom:6px;color:var(--muted-foreground);font-size:10px}.speaker strong{color:var(--foreground);font-weight:600}.message.user .speaker{flex-direction:row-reverse}.ai-mark,.user-mark{width:23px;height:23px;display:grid;place-items:center;border-radius:7px}.ai-mark{color:var(--foreground);background:rgba(0,0,0,.16)}.user-mark{color:var(--muted-foreground);background:var(--background)}.bubble{padding:11px 13px;border:1px solid rgba(0,0,0,.07);border-radius:4px 10px 10px 10px;color:var(--muted-foreground);background:var(--background);line-height:1.55}.message.user .bubble{border-color:rgba(0,0,0,.18);border-radius:10px 4px 10px 10px;color:var(--foreground);background:var(--background)}.time{margin-top:5px;color:var(--muted-foreground);font-size:9px}.context-card{width:100%;margin-top:9px;border:1px solid rgba(0,0,0,.065);border-radius:7px;background:var(--background)}.context-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:9px 10px;border:0;color:var(--muted-foreground);background:transparent;text-align:left;font-size:10px}.context-content{padding:0 10px 9px}.context-row{display:flex;gap:8px;padding:7px 0;border-top:1px solid rgba(0,0,0,.05);color:var(--muted-foreground);font-size:10px}.context-row svg{flex:none;color:var(--foreground)}.context-row strong{display:block;margin-bottom:2px;color:var(--foreground);font-weight:500}.context-row span{color:var(--muted-foreground)}.view-action{margin-left:auto;border:0;color:var(--foreground);background:transparent;font-size:10px}.composer{display:flex;align-items:center;gap:8px;margin:10px 21px 18px;padding:8px;border:1px solid rgba(0,0,0,.09);border-radius:8px;background:var(--background)}.composer input{min-width:0;flex:1;border:0;outline:0;color:var(--foreground);background:transparent;font-size:12px}.composer button{display:flex;align-items:center;gap:5px;padding:7px 10px;border:0;border-radius:6px;color:var(--primary-foreground);background:var(--primary);font-size:11px}.composer .attach{padding:6px;border:0;color:var(--muted-foreground);background:transparent}.context-column{overflow:auto;padding:18px 16px}.context-column-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.context-column h2{margin:0;color:var(--foreground);font-size:13px}.context-section{padding:0 0 18px;margin-bottom:18px;border-bottom:1px solid rgba(0,0,0,.07)}.context-section h3{display:flex;align-items:center;gap:7px;margin:0 0 11px;color:var(--muted-foreground);font-size:10px;letter-spacing:.08em;text-transform:uppercase}.context-section h3 svg{color:var(--foreground)}.agent-summary{display:flex;align-items:center;gap:9px}.agent-icon{width:32px;height:32px;display:grid;place-items:center;border-radius:8px;color:var(--foreground);background:rgba(0,0,0,.16)}.agent-summary strong{display:block;color:var(--foreground);font-size:12px}.agent-summary small{display:block;margin-top:3px;color:var(--muted-foreground);font-size:10px}.context-section p{margin:10px 0;color:var(--muted-foreground);font-size:11px;line-height:1.5}.open-link{display:flex;align-items:center;gap:5px;padding:0;border:0;color:var(--foreground);background:transparent;font-size:10px}.resource{display:flex;align-items:center;gap:8px;padding:7px 0;color:var(--muted-foreground);font-size:11px}.resource svg{color:var(--foreground)}.pending{margin-left:auto;padding:3px 5px;border-radius:4px;color:var(--chart-1);background:rgba(0,0,0,.12);font-size:9px}.timeline{list-style:none;padding:0;margin:0}.timeline li{display:flex;gap:8px;padding:7px 0;color:var(--muted-foreground);font-size:10px;line-height:1.35}.timeline li svg{flex:none;color:var(--foreground);margin-top:1px}.timeline time{display:block;color:var(--muted-foreground);font-size:9px}.dialog{width:min(430px,calc(100vw - 28px));padding:23px;border:1px solid rgba(0,0,0,.12);border-radius:12px;color:var(--foreground);background:var(--background);box-shadow:0 24px 80px var(--background);z-index:5}.dialog::backdrop{background:rgba(0,0,0,.78)}.dialog header{display:flex;align-items:center;justify-content:space-between}.dialog h2{margin:0;color:var(--foreground);font-size:16px}.dialog p{color:var(--muted-foreground);line-height:1.5}.dialog input,.dialog select{width:100%;padding:10px;border:1px solid rgba(0,0,0,.12);border-radius:7px;outline:0;color:var(--foreground);background:var(--background)}.dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:20px}.danger{border-color:rgba(0,0,0,.4);color:var(--primary-foreground);background:var(--primary)}.format-options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.format-options label{padding:12px;border:1px solid rgba(0,0,0,.1);border-radius:7px;color:var(--muted-foreground);background:var(--background);text-align:center}.format-options input{width:auto;margin-right:5px}.empty-state{padding:40px 20px;text-align:center;color:var(--muted-foreground)}.empty-state h3{color:var(--foreground);font-size:14px}.empty-state p{font-size:12px}.mobile-nav{display:none}@media(max-width:1240px){.workspace-grid{grid-template-columns:250px minmax(390px,1fr)}.context-column{display:none}.metrics{grid-template-columns:repeat(3,1fr)}}@media(max-width:900px){.sidebar{width:64px;padding-inline:8px}.brand span,.nav-label,.nav-item span,.side-bottom .nav-item span,.profile span:not(.avatar),.profile>svg{display:none}.brand{justify-content:center;padding-inline:0}.nav-item{justify-content:center;padding-inline:8px}.workspace-grid{grid-template-columns:230px minmax(350px,1fr)}.page{padding:22px 18px 40px}}@media(max-width:700px){.conversation-shell{overflow:auto}.sidebar{display:none}.workspace{width:100%;overflow:visible}.topbar{padding:0 14px}.page{overflow:visible;padding:18px 12px}.page-header{display:block}.header-buttons{margin-top:15px}.metrics{grid-template-columns:repeat(2,1fr)}.workspace-grid{display:block;min-height:0}.list-column,.detail-column{border:0}.list-column{max-height:500px;border-bottom:1px solid rgba(0,0,0,.08)}.conversation-list{max-height:330px}.messages{max-height:none}.detail-actions{display:none}.context-column{display:block}.page h1{font-size:25px}}
       @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important}}
     `}</style>
-    <aside className="sidebar" aria-label="Primary navigation"><div className="brand"><Sparkles size={18} /><span>Lulu AI</span></div><nav><p className="nav-label">Main</p><button className="nav-item"><BarChart3 size={16} /><span>Dashboard</span></button><button className="nav-item"><Lightbulb size={16} /><span>AI Insights Center</span></button><button className="nav-item"><Activity size={16} /><span>Business Health</span></button><button className="nav-item"><ArrowDownUp size={16} /><span>Growth Score</span></button><p className="nav-label platform">AI Platform</p>{platformNav.map(([label, Icon]) => <button key={label} className={`nav-item ${label === 'AI Activity' ? '' : ''}`}><Icon size={16} /><span>{label}</span></button>)}<button className="nav-item active" aria-current="page"><MessagesSquare size={16} /><span>AI Conversations</span><span className="count">12</span></button></nav><div className="side-bottom"><button className="nav-item"><Settings size={16} /><span>Settings</span></button><button className="nav-item"><CircleHelp size={16} /><span>Help</span></button><button className="profile"><span className="avatar">SM</span><span><strong>Sarah Mitchell</strong><small>CEO</small></span><ChevronDown size={14} /></button></div></aside>
+    <aside className="sidebar" aria-label="Primary navigation"><div className="brand"><Sparkles size={18} /><span>Lulu AI</span></div><LuluSectionNavigation activeId="sunny-moon-6307" /><div className="side-bottom"><button className="nav-item"><Settings size={16} /><span>Settings</span></button><button className="nav-item"><CircleHelp size={16} /><span>Help</span></button><button className="profile"><span className="avatar">SM</span><span><strong>Sarah Mitchell</strong><small>CEO</small></span><ChevronDown size={14} /></button></div></aside>
     <main className="workspace"><header className="topbar"><div className="crumb"><span>AI Platform</span><ChevronRight size={13} /><strong>AI Conversations</strong></div><div className="top-actions"><button className="icon-btn" aria-label="Notifications"><Bell size={15} /></button><button className="icon-btn" aria-label="Help"><CircleHelp size={15} /></button><button className="avatar" aria-label="Open profile">SM</button></div></header><div className="page"><section className="page-header"><div><span className="eyebrow"><MessagesSquare size={12} />Conversation workspace</span><h1>AI Conversations</h1><p>View and manage your AI conversations in one place. Search previous conversations, understand context, review outcomes and continue where you left off.</p></div><div className="header-buttons"><button className="secondary" onClick={() => setModal('share')}><Settings size={14} />Conversation Settings</button><button className="primary" onClick={() => setSelectedId('q4')}><Plus size={15} />New Conversation</button></div></section>
       <section className="metrics" aria-label="Conversation overview">{metrics.map(([label, value, Icon, tone]) => <article className={`metric ${tone}`} key={label}><div className="metric-top"><Icon size={16} /><span>···</span></div><label>{label}</label><strong>{value}</strong></article>)}</section>
       <section className="workspace-grid" aria-label="Conversation workspace"><section className="list-column"><div className="column-header"><div className="column-title"><h2>Conversations</h2><span className="count">284 total</span></div><label className="search-box"><Search size={14} /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search conversations" aria-label="Search conversations" /></label><div className="filter-row"><button><Filter size={11} />Participant<ChevronDown size={11} /></button><button>Status<ChevronDown size={11} /></button><button>Date<ChevronDown size={11} /></button><button>Context<ChevronDown size={11} /></button></div></div><div className="list-sort"><span>{filtered.length} conversations</span><button><ArrowDownUp size={12} />Most Recent<ChevronDown size={11} /></button></div><div className="conversation-list">{filtered.map(item => <article key={item.id} className={`conversation-card ${selectedId === item.id ? 'selected' : ''}`} onClick={() => setSelectedId(item.id)} tabIndex={0} onKeyDown={event => {
@@ -135,3 +135,442 @@ export const LuluAIConversations = () => {
 };
 void [Check, CheckCircle2, ChevronLeft, Copy, Code2, Grip, Hash];
 void [ArrowDownUp];
+
+/* Lulu dropdown navigation — intentionally isolated from page content. */
+const luluDropdownNavigation = [{
+  "label": "Dashboard",
+  "pages": [{
+    "id": "fancily-leaf-1766",
+    "label": "Executive Dashboard"
+  }]
+}, {
+  "label": "AI",
+  "pages": [{
+    "id": "fresh-moon-5374",
+    "label": "Assistant"
+  }, {
+    "id": "radiant-dusk-9079",
+    "label": "Agents"
+  }, {
+    "id": "calmly-park-3313",
+    "label": "Agent Marketplace"
+  }, {
+    "id": "rich-field-1880",
+    "label": "Knowledge"
+  }, {
+    "id": "wondrously-second-5656",
+    "label": "Actions"
+  }, {
+    "id": "sunny-moon-6307",
+    "label": "Conversations"
+  }, {
+    "id": "sparkling-cave-8456",
+    "label": "Activity"
+  }]
+}, {
+  "label": "CRM",
+  "pages": [{
+    "id": "bright-meadow-7537",
+    "label": "Overview"
+  }, {
+    "id": "sturdy-month-1562",
+    "label": "Contacts"
+  }, {
+    "id": "kindly-pool-8785",
+    "label": "Companies"
+  }, {
+    "id": "swift-hour-7844",
+    "label": "Leads"
+  }, {
+    "id": "smartly-shade-4619",
+    "label": "Deals"
+  }, {
+    "id": "calmly-cloud-9988",
+    "label": "Pipeline"
+  }, {
+    "id": "cosmic-pool-1616",
+    "label": "Activities"
+  }, {
+    "id": "deeply-noon-9539",
+    "label": "Tasks"
+  }, {
+    "id": "sunnily-gulf-7520",
+    "label": "Customer Segments"
+  }, {
+    "id": "gracefully-storm-2649",
+    "label": "Customer Intelligence"
+  }]
+}, {
+  "label": "Marketing",
+  "pages": [{
+    "id": "dreamily-soil-9290",
+    "label": "Campaigns"
+  }, {
+    "id": "wondrous-cloud-1355",
+    "label": "Content"
+  }, {
+    "id": "sparklingly-home-7386",
+    "label": "Strategy"
+  }, {
+    "id": "gently-shade-2476",
+    "label": "Campaigns"
+  }, {
+    "id": "sparklingly-moon-5114",
+    "label": "SEO"
+  }, {
+    "id": "zealously-path-4224",
+    "label": "GEO"
+  }, {
+    "id": "sunny-house-9595",
+    "label": "AEO"
+  }, {
+    "id": "kind-time-4492",
+    "label": "Keywords"
+  }, {
+    "id": "smartly-shore-1468",
+    "label": "Competitors"
+  }, {
+    "id": "breezily-wood-5980",
+    "label": "Audiences"
+  }, {
+    "id": "breezy-shore-6734",
+    "label": "Analytics"
+  }]
+}, {
+  "label": "Advertising",
+  "pages": [{
+    "id": "finely-garden-9221",
+    "label": "Overview"
+  }, {
+    "id": "friendly-path-8200",
+    "label": "Analytics"
+  }, {
+    "id": "wise-brook-1762",
+    "label": "Campaigns"
+  }, {
+    "id": "softly-second-7684",
+    "label": "Audiences"
+  }, {
+    "id": "happily-storm-2690",
+    "label": "Creatives"
+  }, {
+    "id": "sunny-minute-1092",
+    "label": "Budgets"
+  }, {
+    "id": "zesty-grass-9196",
+    "label": "AI Optimization"
+  }, {
+    "id": "nicely-shade-2637",
+    "label": "Tracking & Attribution"
+  }, {
+    "id": "nice-moon-2056",
+    "label": "AI Campaign & Ad Builder"
+  }, {
+    "id": "sunnily-peak-7188",
+    "label": "Publishing & Approval Center"
+  }, {
+    "id": "solid-sand-5563",
+    "label": "AI Experiments & A/B Testing"
+  }, {
+    "id": "sunny-summer-2293",
+    "label": "Ad Accounts & Platform Management"
+  }]
+}, {
+  "label": "Intelligence",
+  "pages": [{
+    "id": "serene-cloud-7079",
+    "label": "Intelligence Overview"
+  }, {
+    "id": "tender-water-4095",
+    "label": "Executive Overview"
+  }, {
+    "id": "swiftly-cliff-4166",
+    "label": "Business Health"
+  }, {
+    "id": "sharp-current-9677",
+    "label": "Growth"
+  }, {
+    "id": "proudly-river-8017",
+    "label": "Revenue"
+  }, {
+    "id": "dreamily-shade-6192",
+    "label": "Customers"
+  }, {
+    "id": "nicely-hour-4035",
+    "label": "Sales"
+  }, {
+    "id": "eagerly-winter-3152",
+    "label": "Marketing"
+  }, {
+    "id": "sharply-wood-4560",
+    "label": "Advertising Intelligence"
+  }, {
+    "id": "bold-ocean-5847",
+    "label": "Ecommerce Intelligence"
+  }, {
+    "id": "cozily-path-5612",
+    "label": "Finance Intelligence"
+  }, {
+    "id": "gently-light-6089",
+    "label": "Operations Intelligence"
+  }, {
+    "id": "cool-town-1727",
+    "label": "Products Intelligence"
+  }, {
+    "id": "swift-pool-5077",
+    "label": "KPI Explorer"
+  }, {
+    "id": "friendly-ground-4157",
+    "label": "Reports"
+  }, {
+    "id": "brave-stream-5322",
+    "label": "Comparisons"
+  }, {
+    "id": "sparkling-time-5280",
+    "label": "Comparisons"
+  }, {
+    "id": "wispy-current-7490",
+    "label": "Forecasts"
+  }, {
+    "id": "kindly-year-8981",
+    "label": "Benchmarks"
+  }, {
+    "id": "serenely-creek-1765",
+    "label": "Trends"
+  }, {
+    "id": "sparklingly-light-7230",
+    "label": "Anomalies"
+  }, {
+    "id": "clever-soil-5964",
+    "label": "Attribution"
+  }, {
+    "id": "serenely-week-1771",
+    "label": "AI Insights"
+  }, {
+    "id": "daring-home-4179",
+    "label": "AI Recommendations"
+  }, {
+    "id": "wispy-leaf-3778",
+    "label": "AI Tasks"
+  }, {
+    "id": "happily-brook-7061",
+    "label": "Opportunities"
+  }, {
+    "id": "radiant-cave-9340",
+    "label": "Decisions"
+  }, {
+    "id": "boldly-time-5189",
+    "label": "Risk Center"
+  }, {
+    "id": "proud-rain-4772",
+    "label": "Activity Timeline"
+  }]
+}, {
+  "label": "Ecommerce",
+  "pages": [{
+    "id": "smart-ocean-3898",
+    "label": "Overview"
+  }, {
+    "id": "nice-year-6253",
+    "label": "Stores"
+  }, {
+    "id": "nicely-ocean-1051",
+    "label": "Products"
+  }, {
+    "id": "richly-forest-5832",
+    "label": "Categories"
+  }, {
+    "id": "mightily-shore-7108",
+    "label": "Orders"
+  }, {
+    "id": "fancy-ground-8040",
+    "label": "Customers"
+  }, {
+    "id": "serenely-sand-9226",
+    "label": "Carts"
+  }, {
+    "id": "smart-village-1099",
+    "label": "Inventory"
+  }, {
+    "id": "dreamy-shade-5445",
+    "label": "Returns & Refunds"
+  }, {
+    "id": "daring-brook-9034",
+    "label": "Reviews"
+  }, {
+    "id": "sharply-sky-4161",
+    "label": "Discounts & Promotions"
+  }, {
+    "id": "wildly-time-4260",
+    "label": "Carts & Abandoned Carts"
+  }, {
+    "id": "quietly-moon-4186",
+    "label": "Shipping"
+  }, {
+    "id": "merry-castle-3260",
+    "label": "Payments"
+  }, {
+    "id": "merry-cliff-8846",
+    "label": "Coupons"
+  }, {
+    "id": "safely-dawn-7731",
+    "label": "Subscriptions"
+  }, {
+    "id": "purely-dusk-2409",
+    "label": "Shipping & Fulfillment"
+  }, {
+    "id": "soft-hill-4757",
+    "label": "Taxes"
+  }, {
+    "id": "safely-air-9334",
+    "label": "Collections"
+  }, {
+    "id": "merry-land-6169",
+    "label": "Store Performance"
+  }]
+}, {
+  "label": "Finance",
+  "pages": [{
+    "id": "quietly-stone-4158",
+    "label": "Overview"
+  }, {
+    "id": "breezy-soil-2475",
+    "label": "Invoices"
+  }, {
+    "id": "tender-creek-3139",
+    "label": "Offers & Quotes"
+  }, {
+    "id": "cool-rain-6499",
+    "label": "Income"
+  }, {
+    "id": "richly-land-8084",
+    "label": "Transactions"
+  }, {
+    "id": "calm-tide-3752",
+    "label": "Payments"
+  }, {
+    "id": "zesty-earth-3938",
+    "label": "Expenses"
+  }, {
+    "id": "bravely-bay-4544",
+    "label": "Customers"
+  }, {
+    "id": "eager-minute-1586",
+    "label": "Vendors"
+  }, {
+    "id": "fair-bridge-8618",
+    "label": "Accounts"
+  }, {
+    "id": "soft-town-3284",
+    "label": "Cash Flow"
+  }, {
+    "id": "wisely-gate-3183",
+    "label": "Budgets"
+  }, {
+    "id": "sharp-morning-7310",
+    "label": "Financial Planning"
+  }, {
+    "id": "sparklingly-city-3338",
+    "label": "Reconciliation"
+  }, {
+    "id": "radiant-hour-5376",
+    "label": "Recurring Revenue"
+  }, {
+    "id": "lucky-park-8649",
+    "label": "Payouts"
+  }, {
+    "id": "vibrantly-second-9428",
+    "label": "Financial Automation"
+  }, {
+    "id": "sturdy-week-3372",
+    "label": "Taxes"
+  }, {
+    "id": "boldly-field-4971",
+    "label": "Finance Settings"
+  }]
+}, {
+  "label": "Sales",
+  "pages": [{
+    "id": "fine-park-8079",
+    "label": "Overview"
+  }, {
+    "id": "softly-autumn-9038",
+    "label": "Leads"
+  }, {
+    "id": "wildly-sun-6424",
+    "label": "Opportunities"
+  }, {
+    "id": "deeply-month-1392",
+    "label": "Deals"
+  }, {
+    "id": "sweet-evening-7753",
+    "label": "Pipeline"
+  }, {
+    "id": "warmly-road-3804",
+    "label": "Activities"
+  }, {
+    "id": "wondrously-gate-2200",
+    "label": "Tasks"
+  }, {
+    "id": "sharp-cliff-6925",
+    "label": "Customer Segments"
+  }, {
+    "id": "lovingly-shore-4782",
+    "label": "Forecast"
+  }, {
+    "id": "rich-moon-9195",
+    "label": "Reports"
+  }, {
+    "id": "lively-house-6788",
+    "label": "Commissions"
+  }, {
+    "id": "gentle-cliff-7133",
+    "label": "Goals"
+  }, {
+    "id": "kindly-morning-7115",
+    "label": "Territories"
+  }, {
+    "id": "friendly-tower-1528",
+    "label": "Lead Assignment"
+  }, {
+    "id": "nicely-land-1864",
+    "label": "Settings"
+  }]
+}, {
+  "label": "Integrations",
+  "pages": [{
+    "id": "glad-coast-1428",
+    "label": "Integrations"
+  }]
+}, {
+  "label": "Billing",
+  "pages": [{
+    "id": "pure-minute-5446",
+    "label": "Billing"
+  }]
+}] as const;
+function LuluSectionNavigation({
+  activeId
+}: {
+  activeId: string;
+}) {
+  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
+    {luluDropdownNavigation.map(section => {
+      const isActiveSection = section.pages.some(page => page.id === activeId);
+      return <details key={section.label} open={isActiveSection} className="group rounded-lg">
+        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+          <span>{section.label}</span>
+          <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
+        </summary>
+        <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
+          {section.pages.map(page => {
+            const isActivePage = page.id === activeId;
+            return <a key={page.id} href={`#${page.id}`} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+              {page.label}
+            </a>;
+          })}
+        </div>
+      </details>;
+    })}
+  </nav>;
+}

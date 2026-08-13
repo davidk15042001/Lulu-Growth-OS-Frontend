@@ -80,7 +80,7 @@ function Sidebar({
   collapsed: boolean;
   setCollapsed: (v: boolean) => void;
 }) {
-  return <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}><div className="brand"><span className="brand-mark"><Sparkles size={15} /></span><strong>LULU<span>AI</span></strong><button aria-label="Collapse sidebar" onClick={() => setCollapsed(!collapsed)}><ChevronLeft size={15} /></button></div><button className="workspace" aria-label="Select workspace"><b>L</b><span>Acme Corporation</span><ChevronDown size={14} /></button><p className="nav-label">MARKETING</p><nav>{nav.map(item => <button key={item} className={`nav-item ${item === 'AEO' ? 'active' : ''}`} aria-label={item}><span className="nav-icon">{item === 'AEO' ? <Sparkles size={14} /> : item.slice(0, 1)}</span><span>{item}</span>{item === 'AEO' && <i />}</button>)}</nav><div className="sidebar-bottom"><button className="nav-item"><span className="nav-icon">⚙</span><span>Settings</span></button><div className="user-small"><span className="avatar">JD</span><span><strong>Jordan Davis</strong><small>Admin</small></span></div></div></aside>;
+  return <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}><div className="brand"><span className="brand-mark"><Sparkles size={15} /></span><strong>LULU<span>AI</span></strong><button aria-label="Collapse sidebar" onClick={() => setCollapsed(!collapsed)}><ChevronLeft size={15} /></button></div><button className="workspace" aria-label="Select workspace"><b>L</b><span>Acme Corporation</span><ChevronDown size={14} /></button><p className="nav-label">MARKETING</p><LuluSectionNavigation activeId="sunny-house-9595" /><div className="sidebar-bottom"><button className="nav-item"><span className="nav-icon">⚙</span><span>Settings</span></button><div className="user-small"><span className="avatar">JD</span><span><strong>Jordan Davis</strong><small>Admin</small></span></div></div></aside>;
 }
 function Modal({
   modal,
@@ -147,3 +147,442 @@ export function LuluAeoWorkspace() {
                   }} /></div><b>{x[1]}</b></div>)}</div><div className="missing"><h3>Missing elements</h3><p><AlertTriangle size={13} /> Direct pricing details</p><p><AlertTriangle size={13} /> Supporting evidence</p></div><div className="detail-actions"><button className="primary" onClick={() => open('optimize')}>Optimize Content</button><button className="ghost" onClick={() => open('faq')}>Create Content</button><button className="ghost" onClick={() => open('task')}>Create Task</button><button className="ghost" onClick={() => open('export')}>Export</button></div></aside>}</div></div></main><Modal modal={modal} close={() => setModal(null)} open={open} /></div>;
 }
 const styles = `:root{font-family:Inter,Arial,sans-serif;color:var(--foreground);background:var(--sidebar);font-size:12px}*{box-sizing:border-box}button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--border);outline-offset:2px}.app-shell{display:flex;min-height:100vh;background:var(--sidebar)}.sidebar{width:230px;flex:none;background:var(--sidebar);color:var(--muted-foreground);padding:19px 12px;display:flex;flex-direction:column}.sidebar.collapsed{width:68px}.sidebar.collapsed .workspace span,.sidebar.collapsed .nav-item>span:not(.nav-icon),.sidebar.collapsed .nav-label,.sidebar.collapsed .user-small strong,.sidebar.collapsed .user-small small,.sidebar.collapsed .brand strong{display:none}.brand{height:30px;display:flex;align-items:center;gap:9px;color:var(--foreground);padding:0 9px;margin-bottom:22px}.brand strong{font-size:14px;letter-spacing:-.5px}.brand strong span{color:var(--foreground)}.brand button{margin-left:auto;background:transparent;color:var(--muted-foreground)}.brand-mark{width:24px;height:24px;border-radius:7px;background:var(--primary);color:var(--primary-foreground);display:grid;place-items:center}.workspace{display:flex;align-items:center;gap:8px;width:100%;padding:9px;border-radius:7px;background:var(--background);color:var(--foreground);text-align:left}.workspace b{display:grid;place-items:center;width:24px;height:24px;background:var(--primary);border-radius:5px;color:var(--primary-foreground)}.workspace svg{margin-left:auto}.nav-label,.eyebrow{font-size:9px;letter-spacing:.14em;font-weight:700;color:var(--muted-foreground);margin:23px 9px 9px}.nav-item{position:relative;display:flex;align-items:center;gap:10px;width:100%;padding:9px;border-radius:6px;color:var(--muted-foreground);background:transparent;text-align:left}.nav-item:hover,.nav-item.active{background:var(--background);color:var(--foreground)}.nav-item.active{color:var(--foreground)}.nav-item i{height:18px;width:2px;background:var(--primary);position:absolute;right:0;color:var(--primary-foreground)}.nav-icon{width:16px;display:grid;place-items:center}.sidebar-bottom{margin-top:auto}.user-small{display:flex;gap:8px;align-items:center;padding:15px 8px 3px;border-top:1px solid var(--muted-foreground);margin-top:14px}.user-small strong,.user-small small{display:block}.user-small strong{color:var(--foreground);font-size:11px}.user-small small{color:var(--muted-foreground);margin-top:2px}.avatar{background:var(--secondary);color:var(--foreground);border-radius:50%;height:28px;width:28px;display:grid;place-items:center;font-weight:700;font-size:10px}.main{flex:1;min-width:0}.topbar{height:58px;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 28px}.crumb{display:flex;align-items:center;gap:8px;color:var(--muted-foreground)}.crumb strong{color:var(--foreground)}.top-actions{display:flex;align-items:center;gap:18px}.icon-btn{background:transparent;color:var(--muted-foreground);position:relative;padding:5px}.icon-btn i{position:absolute;top:3px;right:3px;width:5px;height:5px;background:var(--primary);border-radius:50%;color:var(--primary-foreground)}.mobile-menu{display:none;background:transparent}.page{max-width:1700px;margin:auto;padding:27px 30px 70px}.page-head{display:flex;justify-content:space-between;gap:25px;margin-bottom:23px}.page-head h1{font-size:28px;letter-spacing:-1.5px;margin:3px 0 5px}.page-head .eyebrow{margin:0;color:var(--foreground)}.subtitle{color:var(--muted-foreground);margin:0;max-width:660px;font-size:13px}.controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.controls select,select{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px 25px 8px 10px;color:var(--muted-foreground)}.primary,.ghost,.ask{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:8px 11px;font-weight:600;white-space:nowrap}.primary{background:var(--primary);color:var(--primary-foreground)}.ghost{background:var(--card);color:var(--muted-foreground);border:1px solid var(--border)}.ask{background:var(--card);color:var(--foreground);border:1px solid var(--border)}.kpi-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-bottom:17px}.kpi{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:14px;min-width:0}.kpi p{color:var(--muted-foreground);margin:0 0 12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.kpi strong{display:block;font-size:23px;letter-spacing:-1px}.kpi small{display:block;color:var(--muted-foreground);margin-top:4px}.dot{display:block;width:7px;height:7px;border-radius:50%;margin-bottom:10px}.dot.amber{background:var(--primary);color:var(--primary-foreground)}.dot.green{background:var(--primary);color:var(--primary-foreground)}.dot.blue{background:var(--primary);color:var(--primary-foreground)}.dot.teal{background:var(--primary);color:var(--primary-foreground)}.dot.violet{background:var(--primary);color:var(--primary-foreground)}.dot.red{background:var(--primary);color:var(--primary-foreground)}.search-wrap{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:0 12px;height:38px}.search-wrap svg,.small-search svg{color:var(--muted-foreground)}.search-wrap input,.small-search input{border:0;outline:0;flex:1;color:var(--foreground)}.search-wrap kbd{color:var(--muted-foreground);background:var(--secondary);border:1px solid var(--border);border-radius:4px;padding:3px 6px;font-size:10px}.chips,.filter-line{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 20px}.chips button,.filter-line button,.tabs button{border:1px solid var(--border);background:var(--card);border-radius:15px;padding:6px 10px;color:var(--muted-foreground);font-size:11px}.content-layout.has-detail{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:16px;align-items:start}.sections{min-width:0;display:flex;flex-direction:column;gap:15px}.card,.ai-card{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:20px}.section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:15px;margin-bottom:18px}.section-head h2{font-size:16px;letter-spacing:-.4px;margin:3px 0 0}.section-head .eyebrow{margin:0}.muted{color:var(--muted-foreground)}.ai-label{display:inline-flex;align-items:center;gap:5px;color:var(--chart-3);font-size:9px;letter-spacing:.08em;font-weight:700}.chart{margin:0 -4px}.stat-pills,.mini-stats,.tags{display:flex;gap:8px;flex-wrap:wrap}.stat-pills span,.topic-badge,.tags span{background:var(--secondary);color:var(--chart-3);border-radius:4px;padding:5px 8px;font-size:10px}.health-grid{display:grid;grid-template-columns:220px 1fr;gap:26px}.score-block{display:flex;align-items:center;flex-direction:column;gap:8px}.ring{position:relative;display:grid;place-items:center;flex:none}.ring svg{position:absolute;inset:0;width:100%;height:100%}.ring strong{font-size:22px}.trend{display:flex;align-items:center}.down{color:var(--chart-5)}.table-scroll{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:720px}th{text-align:left;background:var(--card);color:var(--muted-foreground);font-size:9px;letter-spacing:.11em;text-transform:uppercase;font-weight:700;padding:10px}td{padding:12px 10px;border-top:1px solid var(--border);color:var(--muted-foreground);white-space:nowrap}td strong{color:var(--foreground);font-weight:600}tbody tr:hover{background:var(--card);cursor:pointer}.badge{display:inline-flex;align-items:center;gap:4px;border-radius:12px;padding:4px 7px;font-size:10px;font-weight:600;background:var(--secondary);color:var(--foreground)}.badge.green{background:var(--secondary);color:var(--foreground)}.badge.red{background:var(--secondary);color:var(--foreground)}.badge.amber{background:var(--secondary);color:var(--foreground)}.badge.teal{background:var(--secondary);color:var(--foreground)}.badge.violet{background:var(--secondary);color:var(--foreground)}.small-search{display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:0 9px;height:31px;min-width:230px}.filter-line{margin:0 0 13px}.filter-line button{display:flex;align-items:center;gap:7px;border-radius:6px}.bulk{display:flex;align-items:center;gap:12px;background:var(--card);padding:9px 12px;margin-bottom:10px;border-radius:6px;color:var(--foreground)}.bulk button,.link-btn{background:transparent;color:var(--foreground);font-size:11px}.priority{border-radius:4px;padding:4px 7px;font-size:10px;font-weight:700;background:var(--secondary);color:var(--foreground)}.priority.critical{background:var(--secondary);color:var(--chart-5)}.priority.high{background:var(--secondary);color:var(--foreground)}.priority.medium{background:var(--secondary);color:var(--foreground)}.quality-layout,.content-columns{display:grid;grid-template-columns:1.2fr 1fr;gap:30px}.mini-list>div,.content-item{display:grid;grid-template-columns:1fr auto;gap:4px;padding:10px 0;border-bottom:1px solid var(--border)}.mini-list span,.content-item span{color:var(--muted-foreground);font-size:11px}.mini-list button,.content-item button{grid-column:2}.mini-stats{margin-bottom:18px}.mini-stats div{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:9px 12px;min-width:105px}.mini-stats strong,.mini-stats span{display:block}.mini-stats strong{font-size:16px}.mini-stats span{font-size:10px;color:var(--muted-foreground);margin-top:3px}.opportunity-grid,.cluster-grid,.risk-grid,.insight-grid,.recommend-grid,.action-grid,.gap-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.opportunity-card,.cluster,.risk-card,.ai-card article,.action-grid article,.gap-grid article{border:1px solid var(--border);border-radius:7px;padding:14px}.opp-head,.cluster-top,.rec-top,.insight-meta{display:flex;justify-content:space-between;align-items:center}.score{background:var(--secondary);color:var(--foreground);border-radius:5px;padding:5px 8px;font-weight:700;display:inline-block}.opportunity-card h3,.risk-card h3,.ai-card article h3,.action-grid h3,.gap-grid h3{font-size:13px;line-height:1.4;margin:11px 0 6px}.opportunity-card p,.risk-card p,.ai-card article p,.action-grid p{color:var(--muted-foreground);line-height:1.5;margin:0}.card-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-top:14px}.card-actions .ghost{padding:6px 8px;font-size:10px}.cluster-top small,.cluster-foot{display:block;color:var(--muted-foreground);margin-top:5px}.cluster-top .ring strong{font-size:11px}.bar-label{display:flex;justify-content:space-between;margin-top:12px;color:var(--muted-foreground)}.bar{height:7px;background:var(--secondary);border-radius:9px}.bar i{display:block;height:100%;background:var(--primary);border-radius:9px;color:var(--primary-foreground)}.cluster-foot{display:flex;justify-content:space-between;align-items:center;font-size:10px}.tabs{display:flex;gap:5px;border-bottom:1px solid var(--border);margin-bottom:8px;overflow-x:auto}.tabs button{border:0;border-radius:5px 5px 0 0;white-space:nowrap}.tabs button.active{color:var(--primary-foreground);background:var(--secondary)}.tabs b{margin-left:6px;background:var(--secondary);border-radius:9px;padding:2px 5px;font-size:9px}.intent-row{display:grid;grid-template-columns:1.7fr .7fr 1fr auto auto;gap:12px;align-items:center;padding:13px 0;border-bottom:1px solid var(--border)}.intent-row .bar{min-width:90px}.faq-strip,.gap-summary,.authorization{display:flex;align-items:center;gap:10px;padding:12px;background:var(--card);color:var(--foreground);border-radius:6px}.content-columns h3{font-size:12px;margin:0 0 8px}.gap-summary{margin-top:16px}.gap-grid article small{display:block;color:var(--muted-foreground);margin-top:12px}.ai-card{background:var(--card);border-color:var(--foreground)}.ai-card article{background:rgba(0,0,0,.65);border-color:var(--foreground)}.insight-meta b{color:var(--muted-foreground);font-size:10px}.ai-card article small{display:block;color:var(--muted-foreground);margin:10px 0 6px}.violet{color:var(--foreground)}.authorization{margin:16px 0 0;color:var(--foreground)}.status-line{display:flex;gap:4px;color:var(--foreground);font-size:10px;margin-top:10px}.risk-card small{display:block;color:var(--muted-foreground);margin-top:10px}.risk-card .ghost{margin-top:12px}.detail-panel{position:sticky;top:15px;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:18px;max-height:calc(100vh - 80px);overflow:auto}.detail-head{display:flex;justify-content:space-between;align-items:start;border-bottom:1px solid var(--border);padding-bottom:14px}.detail-head h2{font-size:15px;line-height:1.35;margin:5px 0}.detail-section{padding:15px 0;border-bottom:1px solid var(--border)}.detail-section h3,.missing h3{font-size:11px;margin:0 0 9px}.detail-section h3 b{float:right}.answer-box{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:11px;color:var(--muted-foreground);line-height:1.6}.detail-section small{display:flex;gap:5px;color:var(--muted-foreground);font-size:10px;margin-top:9px}.detail-section a{display:flex;align-items:center;gap:5px;color:var(--foreground)}.quality-row{display:grid;grid-template-columns:85px 1fr 35px;gap:8px;align-items:center;margin:9px 0;color:var(--muted-foreground);font-size:10px}.quality-row b{color:var(--muted-foreground)}.missing{padding:15px 0}.missing p{display:flex;gap:6px;color:var(--chart-1);font-size:11px}.detail-actions{display:flex;flex-wrap:wrap;gap:7px}.modal{position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:22px;background:rgba(0,0,0,.58);display:grid;place-items:center;border:0;z-index:5}.modal-card{position:relative;background:var(--card);border-radius:10px;width:min(540px,100%);padding:25px;box-shadow:0 18px 55px rgba(0,0,0,.2)}.modal-close{position:absolute;right:14px;top:14px;background:var(--secondary);border-radius:5px;padding:5px;color:var(--muted-foreground)}.modal-card h2{font-size:20px;margin:10px 0 13px}.modal-card p{color:var(--muted-foreground);line-height:1.6}.check-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:10px 0}.check-grid label{display:flex;align-items:center;gap:7px;color:var(--muted-foreground)}.note{display:flex;align-items:center;gap:7px;background:var(--card);color:var(--foreground)!important;padding:10px;border-radius:5px}.form{display:grid;gap:12px}.form label{display:grid;gap:6px;color:var(--muted-foreground);font-weight:600}.form input,.form textarea,.form select{width:100%;border:1px solid var(--border);border-radius:6px;padding:10px;outline:0}.form textarea{min-height:70px;resize:vertical}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}.complete{text-align:center}.complete>svg{color:var(--chart-4);background:var(--secondary);border-radius:50%;padding:6px;box-sizing:content-box}.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:15px}.result-grid b{background:var(--card);padding:12px;color:var(--muted-foreground);font-size:17px}.result-grid small{display:block;color:var(--muted-foreground);font-size:10px;font-weight:400;margin-top:3px}@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(4,1fr)}.page-head{display:block}.controls{justify-content:flex-start;margin-top:18px}}@media(max-width:850px){.sidebar{width:68px}.sidebar .workspace span,.sidebar .nav-item>span:not(.nav-icon),.sidebar .nav-label,.sidebar .user-small strong,.sidebar .user-small small,.sidebar .brand strong{display:none}.workspace{justify-content:center}.workspace svg{display:none}.mobile-menu{display:block}.topbar{padding:0 15px}.page{padding:22px 15px 55px}.content-layout.has-detail{grid-template-columns:1fr}.detail-panel{position:relative;top:auto;max-height:none}.kpi-grid{grid-template-columns:repeat(3,1fr)}}@media(max-width:560px){.kpi-grid{grid-template-columns:1fr 1fr}.kpi:last-child{grid-column:1/-1}.page-head h1{font-size:24px}.controls select{width:100%}.controls .primary,.controls .ask{flex:1;justify-content:center}.health-grid,.quality-layout,.content-columns{grid-template-columns:1fr}.opportunity-grid,.cluster-grid,.risk-grid,.insight-grid,.recommend-grid,.action-grid,.gap-grid{grid-template-columns:1fr}.intent-row{grid-template-columns:1fr 1fr}.intent-row .bar{grid-column:1/-1}.card,.ai-card{padding:15px}.section-head{display:block}.section-head>select,.section-head>button{margin-top:12px}.check-grid{grid-template-columns:1fr 1fr}.top-actions{gap:8px}}`;
+
+/* Lulu dropdown navigation — intentionally isolated from page content. */
+const luluDropdownNavigation = [{
+  "label": "Dashboard",
+  "pages": [{
+    "id": "fancily-leaf-1766",
+    "label": "Executive Dashboard"
+  }]
+}, {
+  "label": "AI",
+  "pages": [{
+    "id": "fresh-moon-5374",
+    "label": "Assistant"
+  }, {
+    "id": "radiant-dusk-9079",
+    "label": "Agents"
+  }, {
+    "id": "calmly-park-3313",
+    "label": "Agent Marketplace"
+  }, {
+    "id": "rich-field-1880",
+    "label": "Knowledge"
+  }, {
+    "id": "wondrously-second-5656",
+    "label": "Actions"
+  }, {
+    "id": "sunny-moon-6307",
+    "label": "Conversations"
+  }, {
+    "id": "sparkling-cave-8456",
+    "label": "Activity"
+  }]
+}, {
+  "label": "CRM",
+  "pages": [{
+    "id": "bright-meadow-7537",
+    "label": "Overview"
+  }, {
+    "id": "sturdy-month-1562",
+    "label": "Contacts"
+  }, {
+    "id": "kindly-pool-8785",
+    "label": "Companies"
+  }, {
+    "id": "swift-hour-7844",
+    "label": "Leads"
+  }, {
+    "id": "smartly-shade-4619",
+    "label": "Deals"
+  }, {
+    "id": "calmly-cloud-9988",
+    "label": "Pipeline"
+  }, {
+    "id": "cosmic-pool-1616",
+    "label": "Activities"
+  }, {
+    "id": "deeply-noon-9539",
+    "label": "Tasks"
+  }, {
+    "id": "sunnily-gulf-7520",
+    "label": "Customer Segments"
+  }, {
+    "id": "gracefully-storm-2649",
+    "label": "Customer Intelligence"
+  }]
+}, {
+  "label": "Marketing",
+  "pages": [{
+    "id": "dreamily-soil-9290",
+    "label": "Campaigns"
+  }, {
+    "id": "wondrous-cloud-1355",
+    "label": "Content"
+  }, {
+    "id": "sparklingly-home-7386",
+    "label": "Strategy"
+  }, {
+    "id": "gently-shade-2476",
+    "label": "Campaigns"
+  }, {
+    "id": "sparklingly-moon-5114",
+    "label": "SEO"
+  }, {
+    "id": "zealously-path-4224",
+    "label": "GEO"
+  }, {
+    "id": "sunny-house-9595",
+    "label": "AEO"
+  }, {
+    "id": "kind-time-4492",
+    "label": "Keywords"
+  }, {
+    "id": "smartly-shore-1468",
+    "label": "Competitors"
+  }, {
+    "id": "breezily-wood-5980",
+    "label": "Audiences"
+  }, {
+    "id": "breezy-shore-6734",
+    "label": "Analytics"
+  }]
+}, {
+  "label": "Advertising",
+  "pages": [{
+    "id": "finely-garden-9221",
+    "label": "Overview"
+  }, {
+    "id": "friendly-path-8200",
+    "label": "Analytics"
+  }, {
+    "id": "wise-brook-1762",
+    "label": "Campaigns"
+  }, {
+    "id": "softly-second-7684",
+    "label": "Audiences"
+  }, {
+    "id": "happily-storm-2690",
+    "label": "Creatives"
+  }, {
+    "id": "sunny-minute-1092",
+    "label": "Budgets"
+  }, {
+    "id": "zesty-grass-9196",
+    "label": "AI Optimization"
+  }, {
+    "id": "nicely-shade-2637",
+    "label": "Tracking & Attribution"
+  }, {
+    "id": "nice-moon-2056",
+    "label": "AI Campaign & Ad Builder"
+  }, {
+    "id": "sunnily-peak-7188",
+    "label": "Publishing & Approval Center"
+  }, {
+    "id": "solid-sand-5563",
+    "label": "AI Experiments & A/B Testing"
+  }, {
+    "id": "sunny-summer-2293",
+    "label": "Ad Accounts & Platform Management"
+  }]
+}, {
+  "label": "Intelligence",
+  "pages": [{
+    "id": "serene-cloud-7079",
+    "label": "Intelligence Overview"
+  }, {
+    "id": "tender-water-4095",
+    "label": "Executive Overview"
+  }, {
+    "id": "swiftly-cliff-4166",
+    "label": "Business Health"
+  }, {
+    "id": "sharp-current-9677",
+    "label": "Growth"
+  }, {
+    "id": "proudly-river-8017",
+    "label": "Revenue"
+  }, {
+    "id": "dreamily-shade-6192",
+    "label": "Customers"
+  }, {
+    "id": "nicely-hour-4035",
+    "label": "Sales"
+  }, {
+    "id": "eagerly-winter-3152",
+    "label": "Marketing"
+  }, {
+    "id": "sharply-wood-4560",
+    "label": "Advertising Intelligence"
+  }, {
+    "id": "bold-ocean-5847",
+    "label": "Ecommerce Intelligence"
+  }, {
+    "id": "cozily-path-5612",
+    "label": "Finance Intelligence"
+  }, {
+    "id": "gently-light-6089",
+    "label": "Operations Intelligence"
+  }, {
+    "id": "cool-town-1727",
+    "label": "Products Intelligence"
+  }, {
+    "id": "swift-pool-5077",
+    "label": "KPI Explorer"
+  }, {
+    "id": "friendly-ground-4157",
+    "label": "Reports"
+  }, {
+    "id": "brave-stream-5322",
+    "label": "Comparisons"
+  }, {
+    "id": "sparkling-time-5280",
+    "label": "Comparisons"
+  }, {
+    "id": "wispy-current-7490",
+    "label": "Forecasts"
+  }, {
+    "id": "kindly-year-8981",
+    "label": "Benchmarks"
+  }, {
+    "id": "serenely-creek-1765",
+    "label": "Trends"
+  }, {
+    "id": "sparklingly-light-7230",
+    "label": "Anomalies"
+  }, {
+    "id": "clever-soil-5964",
+    "label": "Attribution"
+  }, {
+    "id": "serenely-week-1771",
+    "label": "AI Insights"
+  }, {
+    "id": "daring-home-4179",
+    "label": "AI Recommendations"
+  }, {
+    "id": "wispy-leaf-3778",
+    "label": "AI Tasks"
+  }, {
+    "id": "happily-brook-7061",
+    "label": "Opportunities"
+  }, {
+    "id": "radiant-cave-9340",
+    "label": "Decisions"
+  }, {
+    "id": "boldly-time-5189",
+    "label": "Risk Center"
+  }, {
+    "id": "proud-rain-4772",
+    "label": "Activity Timeline"
+  }]
+}, {
+  "label": "Ecommerce",
+  "pages": [{
+    "id": "smart-ocean-3898",
+    "label": "Overview"
+  }, {
+    "id": "nice-year-6253",
+    "label": "Stores"
+  }, {
+    "id": "nicely-ocean-1051",
+    "label": "Products"
+  }, {
+    "id": "richly-forest-5832",
+    "label": "Categories"
+  }, {
+    "id": "mightily-shore-7108",
+    "label": "Orders"
+  }, {
+    "id": "fancy-ground-8040",
+    "label": "Customers"
+  }, {
+    "id": "serenely-sand-9226",
+    "label": "Carts"
+  }, {
+    "id": "smart-village-1099",
+    "label": "Inventory"
+  }, {
+    "id": "dreamy-shade-5445",
+    "label": "Returns & Refunds"
+  }, {
+    "id": "daring-brook-9034",
+    "label": "Reviews"
+  }, {
+    "id": "sharply-sky-4161",
+    "label": "Discounts & Promotions"
+  }, {
+    "id": "wildly-time-4260",
+    "label": "Carts & Abandoned Carts"
+  }, {
+    "id": "quietly-moon-4186",
+    "label": "Shipping"
+  }, {
+    "id": "merry-castle-3260",
+    "label": "Payments"
+  }, {
+    "id": "merry-cliff-8846",
+    "label": "Coupons"
+  }, {
+    "id": "safely-dawn-7731",
+    "label": "Subscriptions"
+  }, {
+    "id": "purely-dusk-2409",
+    "label": "Shipping & Fulfillment"
+  }, {
+    "id": "soft-hill-4757",
+    "label": "Taxes"
+  }, {
+    "id": "safely-air-9334",
+    "label": "Collections"
+  }, {
+    "id": "merry-land-6169",
+    "label": "Store Performance"
+  }]
+}, {
+  "label": "Finance",
+  "pages": [{
+    "id": "quietly-stone-4158",
+    "label": "Overview"
+  }, {
+    "id": "breezy-soil-2475",
+    "label": "Invoices"
+  }, {
+    "id": "tender-creek-3139",
+    "label": "Offers & Quotes"
+  }, {
+    "id": "cool-rain-6499",
+    "label": "Income"
+  }, {
+    "id": "richly-land-8084",
+    "label": "Transactions"
+  }, {
+    "id": "calm-tide-3752",
+    "label": "Payments"
+  }, {
+    "id": "zesty-earth-3938",
+    "label": "Expenses"
+  }, {
+    "id": "bravely-bay-4544",
+    "label": "Customers"
+  }, {
+    "id": "eager-minute-1586",
+    "label": "Vendors"
+  }, {
+    "id": "fair-bridge-8618",
+    "label": "Accounts"
+  }, {
+    "id": "soft-town-3284",
+    "label": "Cash Flow"
+  }, {
+    "id": "wisely-gate-3183",
+    "label": "Budgets"
+  }, {
+    "id": "sharp-morning-7310",
+    "label": "Financial Planning"
+  }, {
+    "id": "sparklingly-city-3338",
+    "label": "Reconciliation"
+  }, {
+    "id": "radiant-hour-5376",
+    "label": "Recurring Revenue"
+  }, {
+    "id": "lucky-park-8649",
+    "label": "Payouts"
+  }, {
+    "id": "vibrantly-second-9428",
+    "label": "Financial Automation"
+  }, {
+    "id": "sturdy-week-3372",
+    "label": "Taxes"
+  }, {
+    "id": "boldly-field-4971",
+    "label": "Finance Settings"
+  }]
+}, {
+  "label": "Sales",
+  "pages": [{
+    "id": "fine-park-8079",
+    "label": "Overview"
+  }, {
+    "id": "softly-autumn-9038",
+    "label": "Leads"
+  }, {
+    "id": "wildly-sun-6424",
+    "label": "Opportunities"
+  }, {
+    "id": "deeply-month-1392",
+    "label": "Deals"
+  }, {
+    "id": "sweet-evening-7753",
+    "label": "Pipeline"
+  }, {
+    "id": "warmly-road-3804",
+    "label": "Activities"
+  }, {
+    "id": "wondrously-gate-2200",
+    "label": "Tasks"
+  }, {
+    "id": "sharp-cliff-6925",
+    "label": "Customer Segments"
+  }, {
+    "id": "lovingly-shore-4782",
+    "label": "Forecast"
+  }, {
+    "id": "rich-moon-9195",
+    "label": "Reports"
+  }, {
+    "id": "lively-house-6788",
+    "label": "Commissions"
+  }, {
+    "id": "gentle-cliff-7133",
+    "label": "Goals"
+  }, {
+    "id": "kindly-morning-7115",
+    "label": "Territories"
+  }, {
+    "id": "friendly-tower-1528",
+    "label": "Lead Assignment"
+  }, {
+    "id": "nicely-land-1864",
+    "label": "Settings"
+  }]
+}, {
+  "label": "Integrations",
+  "pages": [{
+    "id": "glad-coast-1428",
+    "label": "Integrations"
+  }]
+}, {
+  "label": "Billing",
+  "pages": [{
+    "id": "pure-minute-5446",
+    "label": "Billing"
+  }]
+}] as const;
+function LuluSectionNavigation({
+  activeId
+}: {
+  activeId: string;
+}) {
+  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
+    {luluDropdownNavigation.map(section => {
+      const isActiveSection = section.pages.some(page => page.id === activeId);
+      return <details key={section.label} open={isActiveSection} className="group rounded-lg">
+        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+          <span>{section.label}</span>
+          <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
+        </summary>
+        <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
+          {section.pages.map(page => {
+            const isActivePage = page.id === activeId;
+            return <a key={page.id} href={`#${page.id}`} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+              {page.label}
+            </a>;
+          })}
+        </div>
+      </details>;
+    })}
+  </nav>;
+}

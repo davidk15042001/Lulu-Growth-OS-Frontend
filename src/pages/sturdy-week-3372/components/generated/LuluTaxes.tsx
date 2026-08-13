@@ -180,10 +180,7 @@ export function LuluTaxes() {
     window.setTimeout(() => setNotice(''), 2500);
   };
   return <div className="min-h-screen bg-[var(--background)] text-foreground">
-    <aside className="fixed inset-y-0 left-0 hidden w-[228px] flex-col border-r border-border bg-card lg:flex"><div className="flex h-16 items-center gap-3 border-b border-border px-5"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--secondary)] text-sm font-black text-foreground">L</div><span className="text-[17px] font-extrabold tracking-tight">lulu <span className="font-normal text-muted-foreground">ai</span></span></div><div className="px-4 pt-6"><p className="px-2 text-[10px] font-bold uppercase tracking-[.16em] text-muted-foreground">Workspace</p><button className="mt-3 flex w-full items-center justify-between rounded-lg border border-border px-3 py-2 text-left text-xs font-semibold"><span>Acme Holdings</span><ChevronDown size={14} className="text-muted-foreground" /></button></div><nav className="mt-7 flex-1 px-3"><p className="px-2 text-[10px] font-bold uppercase tracking-[.16em] text-muted-foreground">Finance</p>{nav.map(({
-          label,
-          icon: Icon
-        }) => <button key={label} onClick={() => setActiveNav(label)} className={`mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[12px] font-medium transition ${activeNav === label ? 'bg-secondary font-bold text-foreground' : 'text-foreground hover:bg-card hover:text-foreground'}`}><Icon size={16} strokeWidth={1.8} /><span>{label}</span>{label === 'Taxes' && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-primary text-primary-foreground" />}</button>)}</nav><div className="border-t border-border p-4"><button className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-xs text-foreground hover:bg-card"><Settings2 size={16} /><span>Settings</span></button><div className="mt-3 flex items-center gap-2 px-2"><div className="flex h-7 w-7 items-center justify-center rounded-full bg-sidebar text-[10px] font-bold">JD</div><div><p className="text-xs font-semibold">Jordan Davis</p><p className="text-[10px] text-muted-foreground">Admin</p></div></div></div></aside>
+    <aside className="fixed inset-y-0 left-0 hidden w-[228px] flex-col border-r border-border bg-card lg:flex"><div className="flex h-16 items-center gap-3 border-b border-border px-5"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--secondary)] text-sm font-black text-foreground">L</div><span className="text-[17px] font-extrabold tracking-tight">lulu <span className="font-normal text-muted-foreground">ai</span></span></div><div className="px-4 pt-6"><p className="px-2 text-[10px] font-bold uppercase tracking-[.16em] text-muted-foreground">Workspace</p><button className="mt-3 flex w-full items-center justify-between rounded-lg border border-border px-3 py-2 text-left text-xs font-semibold"><span>Acme Holdings</span><ChevronDown size={14} className="text-muted-foreground" /></button></div><LuluSectionNavigation activeId="sturdy-week-3372" /><div className="border-t border-border p-4"><button className="flex w-full items-center gap-3 rounded-lg px-2 py-2 text-xs text-foreground hover:bg-card"><Settings2 size={16} /><span>Settings</span></button><div className="mt-3 flex items-center gap-2 px-2"><div className="flex h-7 w-7 items-center justify-center rounded-full bg-sidebar text-[10px] font-bold">JD</div><div><p className="text-xs font-semibold">Jordan Davis</p><p className="text-[10px] text-muted-foreground">Admin</p></div></div></div></aside>
     <div className="lg:pl-[228px]"><header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-secondary px-5 backdrop-blur md:px-8"><div className="flex items-center gap-3"><span className="text-sm font-bold text-foreground">Finance</span><span className="text-foreground">/</span><span className="text-sm text-muted-foreground">Taxes</span></div><div className="flex items-center gap-2"><button aria-label="Help" className="hidden rounded-lg p-2 text-foreground hover:bg-card sm:block"><CircleHelp size={18} /></button><button aria-label="Notifications" className="rounded-lg p-2 text-foreground hover:bg-card"><Bell size={18} /></button><div className="ml-2 hidden h-7 w-px bg-secondary sm:block" /><div className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--secondary)] text-[10px] font-bold text-foreground">JD</div></div></header>
       <main className="mx-auto max-w-[1500px] px-4 py-7 md:px-8 lg:px-10"><div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end"><div><p className="mb-2 text-xs font-semibold text-foreground">Finance / Taxes</p><h1 className="text-3xl font-extrabold tracking-[-.04em] text-foreground md:text-[38px]">Taxes</h1><p className="mt-2 text-sm text-muted-foreground">Monitor tax-related financial data, obligations, payments and deadlines in one place.</p></div><div className="flex flex-wrap items-end gap-2"><label className="text-[11px] font-semibold text-muted-foreground"><span className="mb-1 block">Tax Jurisdiction</span><button className="flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3 text-xs font-semibold">🇩🇪 Germany · All regions <ChevronDown size={13} /></button></label><label className="text-[11px] font-semibold text-muted-foreground"><span className="mb-1 block">Tax Period</span><select value={period} onChange={e => setPeriod(e.target.value)} className="h-9 rounded-lg border border-border bg-card px-3 text-xs font-semibold outline-none"><option>Current Month</option><option>Previous Month</option><option>Current Quarter</option><option>Previous Quarter</option><option>Current Year</option><option>Previous Year</option><option>Custom</option></select></label></div></div><div className="mt-5 flex flex-wrap gap-2"><button onClick={() => toast('New tax record form opened')} className="flex h-9 items-center gap-2 rounded-lg bg-[var(--primary)] px-3.5 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary"><Plus size={15} /> Add Tax Record</button><button onClick={() => toast('Ask Lulu AI is ready')} className="flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3.5 text-xs font-bold text-foreground hover:bg-card"><Sparkles size={14} className="text-foreground" /> Ask Lulu AI</button><button onClick={() => toast('Export prepared')} className="flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3.5 text-xs font-bold text-foreground hover:bg-card"><Download size={14} /> Export</button><button aria-label="More actions" className="flex h-9 items-center rounded-lg border border-border bg-card px-2.5 text-foreground hover:bg-card"><MoreHorizontal size={17} /></button></div>
         <div className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">{[['Estimated Tax Liability', '€47,320', 'Estimated', 'amber', '+8.4%'], ['Tax Paid', '€31,500', 'Recorded', 'green', '+12.1%'], ['Tax Due', '€15,820', 'Recorded', 'orange', '−4.2%'], ['Upcoming', '€8,200', 'Calculated', 'blue', '2 deadlines'], ['Overdue', '€3,750', 'Recorded', 'red', '1 record'], ['Taxable Revenue', '€312,400', 'Calculated', 'blue', '+11.8%'], ['Taxable Expenses', '€89,600', 'Calculated', 'blue', '+6.2%']].map(([label, value, tag, color, trend]) => <article key={label} className="rounded-xl border border-border bg-card p-4"><div className="flex items-start justify-between gap-1"><p className="text-[11px] font-medium leading-4 text-muted-foreground">{label}</p><span className={`h-2 w-2 shrink-0 rounded-full ${color === 'green' ? 'bg-chart-4' : color === 'red' ? 'bg-destructive' : color === 'amber' ? 'bg-chart-1' : color === 'orange' ? 'bg-chart-1' : 'bg-primary'}`} /></div><p className="mt-3 text-[21px] font-extrabold tracking-tight text-foreground">{value}</p><div className="mt-2 flex items-center justify-between gap-1"><Transparency kind={tag as 'Recorded' | 'Calculated' | 'Estimated'} /><span className="text-[10px] font-semibold text-muted-foreground">{trend}</span></div></article>)}</div>
@@ -201,4 +198,443 @@ export function LuluTaxes() {
         <Section title="Ask Lulu AI" eyebrow="Your finance co-pilot"><div className="p-5"><div className="flex items-center gap-3 rounded-xl border border-border bg-secondary px-4 py-2"><Bot size={19} className="text-muted-foreground" /><input placeholder="Ask Lulu AI about your tax data..." className="h-9 flex-1 bg-transparent text-xs outline-none" /><button onClick={() => toast('Lulu AI is thinking…')} className="rounded-lg bg-primary px-3 py-2 text-[11px] font-bold text-primary-foreground">Ask</button></div><div className="mt-4 flex gap-2 overflow-x-auto pb-1">{['What tax obligations are currently outstanding?', 'Which tax deadlines are coming up?', 'How much tax has been paid?', 'Which tax records are overdue?', 'Show our tax liabilities by period.', 'Which tax records need review?', 'Are there missing tax documents?', 'Which transactions are unclassified?', 'Compare tax amounts with the previous period.', 'Create a tax data report.'].map(prompt => <button key={prompt} onClick={() => toast(prompt)} className="whitespace-nowrap rounded-full border border-border bg-card px-3 py-2 text-[11px] font-medium text-foreground hover:border-border hover:text-foreground">{prompt}</button>)}</div><p className="mt-4 text-[10px] text-muted-foreground">Lulu AI responses are based on available financial data and do not constitute professional tax advice.</p></div></Section>
       </main></div>{notice && <div role="status" className="fixed bottom-5 right-5 flex items-center gap-2 rounded-lg bg-primary px-4 py-3 text-xs font-semibold text-primary-foreground shadow-xl"><CheckCircle2 size={15} className="text-foreground" />{notice}<button onClick={() => setNotice('')}><X size={14} /></button></div>}
   </div>;
+}
+
+/* Lulu dropdown navigation — intentionally isolated from page content. */
+const luluDropdownNavigation = [{
+  "label": "Dashboard",
+  "pages": [{
+    "id": "fancily-leaf-1766",
+    "label": "Executive Dashboard"
+  }]
+}, {
+  "label": "AI",
+  "pages": [{
+    "id": "fresh-moon-5374",
+    "label": "Assistant"
+  }, {
+    "id": "radiant-dusk-9079",
+    "label": "Agents"
+  }, {
+    "id": "calmly-park-3313",
+    "label": "Agent Marketplace"
+  }, {
+    "id": "rich-field-1880",
+    "label": "Knowledge"
+  }, {
+    "id": "wondrously-second-5656",
+    "label": "Actions"
+  }, {
+    "id": "sunny-moon-6307",
+    "label": "Conversations"
+  }, {
+    "id": "sparkling-cave-8456",
+    "label": "Activity"
+  }]
+}, {
+  "label": "CRM",
+  "pages": [{
+    "id": "bright-meadow-7537",
+    "label": "Overview"
+  }, {
+    "id": "sturdy-month-1562",
+    "label": "Contacts"
+  }, {
+    "id": "kindly-pool-8785",
+    "label": "Companies"
+  }, {
+    "id": "swift-hour-7844",
+    "label": "Leads"
+  }, {
+    "id": "smartly-shade-4619",
+    "label": "Deals"
+  }, {
+    "id": "calmly-cloud-9988",
+    "label": "Pipeline"
+  }, {
+    "id": "cosmic-pool-1616",
+    "label": "Activities"
+  }, {
+    "id": "deeply-noon-9539",
+    "label": "Tasks"
+  }, {
+    "id": "sunnily-gulf-7520",
+    "label": "Customer Segments"
+  }, {
+    "id": "gracefully-storm-2649",
+    "label": "Customer Intelligence"
+  }]
+}, {
+  "label": "Marketing",
+  "pages": [{
+    "id": "dreamily-soil-9290",
+    "label": "Campaigns"
+  }, {
+    "id": "wondrous-cloud-1355",
+    "label": "Content"
+  }, {
+    "id": "sparklingly-home-7386",
+    "label": "Strategy"
+  }, {
+    "id": "gently-shade-2476",
+    "label": "Campaigns"
+  }, {
+    "id": "sparklingly-moon-5114",
+    "label": "SEO"
+  }, {
+    "id": "zealously-path-4224",
+    "label": "GEO"
+  }, {
+    "id": "sunny-house-9595",
+    "label": "AEO"
+  }, {
+    "id": "kind-time-4492",
+    "label": "Keywords"
+  }, {
+    "id": "smartly-shore-1468",
+    "label": "Competitors"
+  }, {
+    "id": "breezily-wood-5980",
+    "label": "Audiences"
+  }, {
+    "id": "breezy-shore-6734",
+    "label": "Analytics"
+  }]
+}, {
+  "label": "Advertising",
+  "pages": [{
+    "id": "finely-garden-9221",
+    "label": "Overview"
+  }, {
+    "id": "friendly-path-8200",
+    "label": "Analytics"
+  }, {
+    "id": "wise-brook-1762",
+    "label": "Campaigns"
+  }, {
+    "id": "softly-second-7684",
+    "label": "Audiences"
+  }, {
+    "id": "happily-storm-2690",
+    "label": "Creatives"
+  }, {
+    "id": "sunny-minute-1092",
+    "label": "Budgets"
+  }, {
+    "id": "zesty-grass-9196",
+    "label": "AI Optimization"
+  }, {
+    "id": "nicely-shade-2637",
+    "label": "Tracking & Attribution"
+  }, {
+    "id": "nice-moon-2056",
+    "label": "AI Campaign & Ad Builder"
+  }, {
+    "id": "sunnily-peak-7188",
+    "label": "Publishing & Approval Center"
+  }, {
+    "id": "solid-sand-5563",
+    "label": "AI Experiments & A/B Testing"
+  }, {
+    "id": "sunny-summer-2293",
+    "label": "Ad Accounts & Platform Management"
+  }]
+}, {
+  "label": "Intelligence",
+  "pages": [{
+    "id": "serene-cloud-7079",
+    "label": "Intelligence Overview"
+  }, {
+    "id": "tender-water-4095",
+    "label": "Executive Overview"
+  }, {
+    "id": "swiftly-cliff-4166",
+    "label": "Business Health"
+  }, {
+    "id": "sharp-current-9677",
+    "label": "Growth"
+  }, {
+    "id": "proudly-river-8017",
+    "label": "Revenue"
+  }, {
+    "id": "dreamily-shade-6192",
+    "label": "Customers"
+  }, {
+    "id": "nicely-hour-4035",
+    "label": "Sales"
+  }, {
+    "id": "eagerly-winter-3152",
+    "label": "Marketing"
+  }, {
+    "id": "sharply-wood-4560",
+    "label": "Advertising Intelligence"
+  }, {
+    "id": "bold-ocean-5847",
+    "label": "Ecommerce Intelligence"
+  }, {
+    "id": "cozily-path-5612",
+    "label": "Finance Intelligence"
+  }, {
+    "id": "gently-light-6089",
+    "label": "Operations Intelligence"
+  }, {
+    "id": "cool-town-1727",
+    "label": "Products Intelligence"
+  }, {
+    "id": "swift-pool-5077",
+    "label": "KPI Explorer"
+  }, {
+    "id": "friendly-ground-4157",
+    "label": "Reports"
+  }, {
+    "id": "brave-stream-5322",
+    "label": "Comparisons"
+  }, {
+    "id": "sparkling-time-5280",
+    "label": "Comparisons"
+  }, {
+    "id": "wispy-current-7490",
+    "label": "Forecasts"
+  }, {
+    "id": "kindly-year-8981",
+    "label": "Benchmarks"
+  }, {
+    "id": "serenely-creek-1765",
+    "label": "Trends"
+  }, {
+    "id": "sparklingly-light-7230",
+    "label": "Anomalies"
+  }, {
+    "id": "clever-soil-5964",
+    "label": "Attribution"
+  }, {
+    "id": "serenely-week-1771",
+    "label": "AI Insights"
+  }, {
+    "id": "daring-home-4179",
+    "label": "AI Recommendations"
+  }, {
+    "id": "wispy-leaf-3778",
+    "label": "AI Tasks"
+  }, {
+    "id": "happily-brook-7061",
+    "label": "Opportunities"
+  }, {
+    "id": "radiant-cave-9340",
+    "label": "Decisions"
+  }, {
+    "id": "boldly-time-5189",
+    "label": "Risk Center"
+  }, {
+    "id": "proud-rain-4772",
+    "label": "Activity Timeline"
+  }]
+}, {
+  "label": "Ecommerce",
+  "pages": [{
+    "id": "smart-ocean-3898",
+    "label": "Overview"
+  }, {
+    "id": "nice-year-6253",
+    "label": "Stores"
+  }, {
+    "id": "nicely-ocean-1051",
+    "label": "Products"
+  }, {
+    "id": "richly-forest-5832",
+    "label": "Categories"
+  }, {
+    "id": "mightily-shore-7108",
+    "label": "Orders"
+  }, {
+    "id": "fancy-ground-8040",
+    "label": "Customers"
+  }, {
+    "id": "serenely-sand-9226",
+    "label": "Carts"
+  }, {
+    "id": "smart-village-1099",
+    "label": "Inventory"
+  }, {
+    "id": "dreamy-shade-5445",
+    "label": "Returns & Refunds"
+  }, {
+    "id": "daring-brook-9034",
+    "label": "Reviews"
+  }, {
+    "id": "sharply-sky-4161",
+    "label": "Discounts & Promotions"
+  }, {
+    "id": "wildly-time-4260",
+    "label": "Carts & Abandoned Carts"
+  }, {
+    "id": "quietly-moon-4186",
+    "label": "Shipping"
+  }, {
+    "id": "merry-castle-3260",
+    "label": "Payments"
+  }, {
+    "id": "merry-cliff-8846",
+    "label": "Coupons"
+  }, {
+    "id": "safely-dawn-7731",
+    "label": "Subscriptions"
+  }, {
+    "id": "purely-dusk-2409",
+    "label": "Shipping & Fulfillment"
+  }, {
+    "id": "soft-hill-4757",
+    "label": "Taxes"
+  }, {
+    "id": "safely-air-9334",
+    "label": "Collections"
+  }, {
+    "id": "merry-land-6169",
+    "label": "Store Performance"
+  }]
+}, {
+  "label": "Finance",
+  "pages": [{
+    "id": "quietly-stone-4158",
+    "label": "Overview"
+  }, {
+    "id": "breezy-soil-2475",
+    "label": "Invoices"
+  }, {
+    "id": "tender-creek-3139",
+    "label": "Offers & Quotes"
+  }, {
+    "id": "cool-rain-6499",
+    "label": "Income"
+  }, {
+    "id": "richly-land-8084",
+    "label": "Transactions"
+  }, {
+    "id": "calm-tide-3752",
+    "label": "Payments"
+  }, {
+    "id": "zesty-earth-3938",
+    "label": "Expenses"
+  }, {
+    "id": "bravely-bay-4544",
+    "label": "Customers"
+  }, {
+    "id": "eager-minute-1586",
+    "label": "Vendors"
+  }, {
+    "id": "fair-bridge-8618",
+    "label": "Accounts"
+  }, {
+    "id": "soft-town-3284",
+    "label": "Cash Flow"
+  }, {
+    "id": "wisely-gate-3183",
+    "label": "Budgets"
+  }, {
+    "id": "sharp-morning-7310",
+    "label": "Financial Planning"
+  }, {
+    "id": "sparklingly-city-3338",
+    "label": "Reconciliation"
+  }, {
+    "id": "radiant-hour-5376",
+    "label": "Recurring Revenue"
+  }, {
+    "id": "lucky-park-8649",
+    "label": "Payouts"
+  }, {
+    "id": "vibrantly-second-9428",
+    "label": "Financial Automation"
+  }, {
+    "id": "sturdy-week-3372",
+    "label": "Taxes"
+  }, {
+    "id": "boldly-field-4971",
+    "label": "Finance Settings"
+  }]
+}, {
+  "label": "Sales",
+  "pages": [{
+    "id": "fine-park-8079",
+    "label": "Overview"
+  }, {
+    "id": "softly-autumn-9038",
+    "label": "Leads"
+  }, {
+    "id": "wildly-sun-6424",
+    "label": "Opportunities"
+  }, {
+    "id": "deeply-month-1392",
+    "label": "Deals"
+  }, {
+    "id": "sweet-evening-7753",
+    "label": "Pipeline"
+  }, {
+    "id": "warmly-road-3804",
+    "label": "Activities"
+  }, {
+    "id": "wondrously-gate-2200",
+    "label": "Tasks"
+  }, {
+    "id": "sharp-cliff-6925",
+    "label": "Customer Segments"
+  }, {
+    "id": "lovingly-shore-4782",
+    "label": "Forecast"
+  }, {
+    "id": "rich-moon-9195",
+    "label": "Reports"
+  }, {
+    "id": "lively-house-6788",
+    "label": "Commissions"
+  }, {
+    "id": "gentle-cliff-7133",
+    "label": "Goals"
+  }, {
+    "id": "kindly-morning-7115",
+    "label": "Territories"
+  }, {
+    "id": "friendly-tower-1528",
+    "label": "Lead Assignment"
+  }, {
+    "id": "nicely-land-1864",
+    "label": "Settings"
+  }]
+}, {
+  "label": "Integrations",
+  "pages": [{
+    "id": "glad-coast-1428",
+    "label": "Integrations"
+  }]
+}, {
+  "label": "Billing",
+  "pages": [{
+    "id": "pure-minute-5446",
+    "label": "Billing"
+  }]
+}] as const;
+function LuluSectionNavigation({
+  activeId
+}: {
+  activeId: string;
+}) {
+  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
+    {luluDropdownNavigation.map(section => {
+      const isActiveSection = section.pages.some(page => page.id === activeId);
+      return <details key={section.label} open={isActiveSection} className="group rounded-lg">
+        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+          <span>{section.label}</span>
+          <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
+        </summary>
+        <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
+          {section.pages.map(page => {
+            const isActivePage = page.id === activeId;
+            return <a key={page.id} href={`#${page.id}`} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+              {page.label}
+            </a>;
+          })}
+        </div>
+      </details>;
+    })}
+  </nav>;
 }
