@@ -1,0 +1,166 @@
+import { useState } from 'react';
+import type { ReactNode } from 'react';
+import { Activity, AlertTriangle, BarChart3, Bot, Check, ChevronDown, Download, Globe2, LayoutDashboard, Menu, MoreHorizontal, Plus, RefreshCw, Search, Send, Settings, Shield, Sparkles, Target, TrendingUp, Users, X, Zap } from 'lucide-react';
+const nav = [{
+  g: 'WORKSPACE',
+  i: [['Dashboard', LayoutDashboard], ['Company Profile', Users]]
+}, {
+  g: 'MARKETING',
+  i: [['Strategy', Target], ['Campaigns', BarChart3], ['Keywords', Search], ['Content', Zap], ['Audiences', Users], ['Analytics', Activity], ['Competitors', Globe2], ['SEO', Activity], ['GEO', Globe2], ['AEO', Zap]]
+}, {
+  g: 'AI',
+  i: [['AI Assistant', Bot], ['AI Agents', Sparkles], ['AI Insights', Activity]]
+}, {
+  g: 'CRM',
+  i: [['Contacts', Users], ['Companies', Users], ['Leads', Target], ['Deals', BarChart3]]
+}, {
+  g: 'SETTINGS',
+  i: [['Settings', Settings]]
+}];
+const competitors = [{
+  n: 'HubSpot',
+  l: 'H',
+  c: 'var(--foreground)',
+  type: 'Direct',
+  market: 'Germany · Global',
+  pos: 'Stronger',
+  growth: '+18.4%',
+  vis: 'High',
+  pri: 'Critical',
+  intel: 'Full',
+  when: 'Today'
+}, {
+  n: 'Salesforce',
+  l: 'S',
+  c: 'var(--primary)',
+  type: 'Direct',
+  market: 'Germany · Global',
+  pos: 'Stronger',
+  growth: '+8.2%',
+  vis: 'High',
+  pri: 'Critical',
+  intel: 'Full',
+  when: 'Today'
+}, {
+  n: 'Pipedrive',
+  l: 'P',
+  c: 'var(--foreground)',
+  type: 'Direct',
+  market: 'Germany · Austria',
+  pos: 'Similar',
+  growth: '+4.8%',
+  vis: 'Medium',
+  pri: 'High',
+  intel: 'Partial',
+  when: '2d ago'
+}, {
+  n: 'Monday.com',
+  l: 'M',
+  c: 'var(--primary)',
+  type: 'Indirect',
+  market: 'Germany',
+  pos: 'Similar',
+  growth: '+12.1%',
+  vis: 'Medium',
+  pri: 'High',
+  intel: 'Partial',
+  when: '1d ago'
+}, {
+  n: 'Zoho',
+  l: 'Z',
+  c: 'var(--primary)',
+  type: 'Direct',
+  market: 'Germany · India',
+  pos: 'Weaker',
+  growth: '+2.4%',
+  vis: 'Low',
+  pri: 'Medium',
+  intel: 'Limited',
+  when: '3d ago'
+}, {
+  n: 'Freshworks',
+  l: 'F',
+  c: 'var(--chart-5)',
+  type: 'Direct',
+  market: 'Germany',
+  pos: 'Weaker',
+  growth: '-1.2%',
+  vis: 'Low',
+  pri: 'Medium',
+  intel: 'Partial',
+  when: '4d ago'
+}, {
+  n: 'Notion',
+  l: 'N',
+  c: 'var(--foreground)',
+  type: 'Indirect',
+  market: 'Global',
+  pos: 'Similar',
+  growth: '+22.8%',
+  vis: 'High',
+  pri: 'Low',
+  intel: 'Limited',
+  when: '5d ago'
+}, {
+  n: 'Airtable',
+  l: 'A',
+  c: 'var(--primary)',
+  type: 'Indirect',
+  market: 'Global',
+  pos: 'Weaker',
+  growth: '+6.4%',
+  vis: 'Medium',
+  pri: 'Low',
+  intel: 'Limited',
+  when: '7d ago'
+}];
+const kpis = [['Tracked Competitors', '14', '+2 this month', 'Users'], ['Primary Competitors', '6', 'Direct market set', 'Target'], ['Gaining Momentum', '3', 'Watch closely', 'TrendingUp'], ['Market Opportunities', '18', 'AI identified', 'Sparkles'], ['Competitive Risks', '7', 'Requires attention', 'AlertTriangle'], ['Updated Today', '9', 'Fresh intelligence', 'RefreshCw']];
+const movements = ['Website positioning update · HubSpot', 'Search visibility increased +22% · HubSpot', 'New content category · HubSpot', 'Market signal in DACH region · Salesforce', 'Advertising activity change · HubSpot'];
+const insights = ['HubSpot gaining visibility in DACH enterprise segment — your core strategic market.', 'Salesforce AI product messaging overlaps your primary positioning.', 'Your strongest differentiation is a unified AI operating system; competitors focus on point solutions.', 'AI business intelligence has limited competitor content coverage — a content acquisition opportunity.'];
+const actions = ['Strengthen enterprise positioning to create distance from HubSpot SMB focus.', 'Develop content for the AI business intelligence topic cluster.', 'Review growing Salesforce AI feature overlap and assess strategic response.', 'Increase GEO and AEO coverage for queries where competitors are more visible.'];
+const Pill = ({
+  children,
+  tone = 'gray'
+}: {
+  children: ReactNode;
+  tone?: string;
+}) => <span className={`inline-flex rounded-full px-2 py-1 text-[10px] font-medium ${tone === 'amber' ? 'bg-chart-1/10 text-[var(--chart-1)]' : tone === 'green' ? 'bg-chart-4/10 text-chart-4' : tone === 'red' ? 'bg-chart-5/10 text-chart-5' : tone === 'purple' ? 'bg-secondary text-foreground' : 'bg-secondary text-muted-foreground'}`}>{children}</span>;
+export const LuluCompetitors = () => {
+  const [mobile, setMobile] = useState(false);
+  const [query, setQuery] = useState('');
+  const [modal, setModal] = useState(true);
+  const [view, setView] = useState('List');
+  const filtered = competitors.filter(x => x.n.toLowerCase().includes(query.toLowerCase()));
+  return <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]" style={{
+    fontFamily: 'Inter,sans-serif'
+  }}>
+<aside className={`${mobile ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-30 w-[220px] flex-col bg-[var(--sidebar)] px-3 py-5 lg:flex`}><div className="mb-7 flex items-center gap-2 px-2"><span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--primary)] font-bold text-primary-foreground">L</span><strong className="text-foreground">Lulu AI</strong></div><nav className="flex-1 space-y-5">{nav.map(g => <div key={g.g}><p className="mb-2 px-3 text-[10px] tracking-[.14em] text-[var(--muted-foreground)]">{g.g}</p>{g.i.map(([label, Icon]) => <button key={label as string} className={`flex h-8 w-full items-center gap-3 border-l-2 px-3 text-left text-xs ${label === 'Competitors' ? 'border-[var(--border)] bg-[var(--primary)] text-[var(--primary-foreground)]' : 'border-transparent text-[var(--primary-foreground)] hover:bg-[var(--primary)] hover:text-primary-foreground'}`}><Icon size={14} /><span>{label as string}</span></button>)}</div>)}</nav><div className="flex items-center gap-2 border-t border-[var(--muted-foreground)] pt-4"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-xs text-foreground">DM</span><span className="text-xs text-foreground">David M</span><MoreHorizontal size={15} className="ml-auto text-muted-foreground" /></div></aside>
+<main className="lg:ml-[220px]"><header className="flex h-14 items-center justify-between bg-[var(--sidebar)] px-4 text-foreground sm:px-7"><div className="flex items-center gap-3"><button className="lg:hidden" onClick={() => setMobile(true)} aria-label="Open navigation"><Menu size={19} /></button><span className="text-xs text-muted-foreground">Marketing</span><span className="text-muted-foreground">/</span><span className="text-xs">Competitors</span></div><div className="flex items-center gap-2"><button className="hidden text-xs text-foreground sm:block"><RefreshCw size={14} className="mr-1 inline" />Refresh</button><button className="hidden text-xs text-foreground md:block"><Download size={14} className="mr-1 inline" />Export</button><button onClick={() => setModal(true)} className="hidden rounded-md border border-border px-3 py-2 text-xs md:block"><Plus size={13} className="mr-1 inline" />Import Competitors</button><button onClick={() => setModal(true)} className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)]"><Sparkles size={13} className="mr-1 inline" />Ask Lulu AI</button></div></header>
+<div className="px-4 py-6 sm:px-8"><div className="flex flex-wrap items-end justify-between gap-4"><div><Pill tone="green">Active</Pill><h1 className="mt-2 text-3xl font-bold tracking-tight">Competitors</h1><p className="mt-1 text-sm text-[var(--muted-foreground)]">Monitor your competitive landscape and discover opportunities to outperform your market.</p></div><button onClick={() => setModal(true)} className="rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-primary-foreground">Add Competitor</button></div>
+<section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">{kpis.map(([title, value, sub, icon]) => <article key={title} className="rounded-xl border border-[var(--border)] bg-card p-4"><div className="flex justify-between text-xs text-muted-foreground"><span>{title}</span><span className="text-[var(--foreground)]">{icon === 'TrendingUp' ? <TrendingUp size={15} /> : icon === 'AlertTriangle' ? <AlertTriangle size={15} /> : icon === 'Sparkles' ? <Sparkles size={15} /> : icon === 'RefreshCw' ? <RefreshCw size={15} /> : icon === 'Target' ? <Target size={15} /> : <Users size={15} />}</span></div><strong className="mt-2 block text-2xl">{value}</strong><p className="mt-1 text-[11px] text-muted-foreground">{sub}</p></article>)}</section>
+<div className="mt-6 flex flex-wrap gap-2 rounded-xl border border-[var(--border)] bg-card p-3"><div className="flex min-w-[240px] flex-1 items-center gap-2 rounded-lg border border-[var(--border)] px-3"><Search size={15} className="text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search competitors, markets, industries" className="w-full py-2 text-xs outline-none" /></div>{['Competitor Type', 'Market', 'Status', 'Competitive Position', 'Growth', 'Intelligence Availability', 'Strategic Priority'].map(x => <button key={x} className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs">{x}<ChevronDown size={12} className="ml-2 inline" /></button>)}<button className="px-2 text-xs text-[var(--foreground)]">Clear Filters</button></div>
+<section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-bold">Competitive Landscape</h2><p className="mt-1 text-xs text-muted-foreground">Market visibility and strategic strength</p></div><button className="rounded-lg border px-3 py-2 text-xs">Market Position <ChevronDown size={12} className="ml-2 inline" /></button></div><svg viewBox="0 0 900 380" className="mt-4 h-[380px] w-full" role="img" aria-label="Competitive landscape bubble chart"><path d="M75 20V330H850" fill="none" stroke="var(--border)" /><path d="M75 95H850M75 170H850M75 245H850" stroke="var(--border)" strokeDasharray="5 5" /><text x="410" y="365" fill="var(--muted-foreground)" fontSize="12">Market Visibility · Low → High</text><text transform="rotate(-90 18 190)" x="18" y="190" fill="var(--muted-foreground)" fontSize="12">Strategic Strength · Weak → Strong</text><circle cx="650" cy="190" r="48" fill="var(--chart-1)" fillOpacity=".85" stroke="var(--chart-1)" strokeWidth="8" strokeOpacity=".18" /><circle cx="735" cy="70" r="42" fill="var(--chart-5)" /><circle cx="800" cy="95" r="36" fill="var(--chart-5)" /><circle cx="700" cy="145" r="28" fill="var(--chart-1)" /><circle cx="560" cy="165" r="25" fill="var(--chart-3)" /><circle cx="220" cy="145" r="18" fill="var(--border)" /><circle cx="460" cy="265" r="21" fill="var(--border)" /><circle cx="300" cy="275" r="24" fill="var(--chart-2)" /><g textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--muted-foreground)"><text x="650" y="195">Lulu AI</text><text x="735" y="75">HubSpot</text><text x="800" y="100">Salesforce</text><text x="700" y="150">Pipedrive</text><text x="560" y="170">Monday</text><text x="220" y="150">Zoho</text><text x="460" y="270">Freshworks</text><text x="300" y="280">Notion</text></g></svg><div className="flex flex-wrap gap-5 border-t pt-3 text-xs"><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--primary)] text-primary-foreground" />Your Business</span><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-destructive" />Direct</span><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-primary text-primary-foreground" />Indirect</span><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-primary text-primary-foreground" />Emerging</span><span className="text-muted-foreground">Positioning is AI Inferred · updated 1 hour ago <Pill tone="purple">AI Inferred</Pill></span></div></section>
+<section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">Competitors <Pill>14</Pill></h2><div className="flex gap-1">{['List', 'Grid', 'Comparison', 'Intelligence'].map(x => <button key={x} onClick={() => setView(x)} className={`border-b-2 px-3 py-2 text-xs ${view === x ? 'border-[var(--border)] font-semibold' : 'border-transparent text-foreground'}`}>{x}</button>)}</div></div>{view === 'List' ? <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[980px] text-left text-xs"><thead className="bg-[var(--card)] text-[10px] uppercase text-muted-foreground"><tr>{['Competitor', 'Type', 'Market', 'Competitive Position', 'Growth', 'Visibility', 'Priority', 'Intelligence', 'Updated', 'Actions'].map(h => <th key={h} className="px-3 py-3">{h}</th>)}</tr></thead><tbody>{filtered.map(x => <tr key={x.n} className="border-t border-border"><td className="px-3 py-3"><span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-foreground" style={{
+                      background: x.c
+                    }}>{x.l}</span><b>{x.n}</b></td><td><Pill tone={x.type === 'Direct' ? 'red' : 'gray'}>{x.type}</Pill></td><td>{x.market}</td><td><Pill tone={x.pos === 'Stronger' ? 'red' : x.pos === 'Weaker' ? 'green' : 'amber'}>{x.pos}</Pill></td><td className={x.growth.startsWith('-') ? 'text-chart-5' : 'text-chart-4'}>{x.growth}</td><td>{x.vis}</td><td><Pill tone={x.pri === 'Critical' ? 'red' : 'amber'}>{x.pri}</Pill></td><td><Pill tone={x.intel === 'Full' ? 'green' : x.intel === 'Partial' ? 'amber' : 'gray'}>{x.intel}</Pill></td><td>{x.when}</td><td className="whitespace-nowrap text-[var(--foreground)]">Open · Compare · Edit</td></tr>)}</tbody></table></div> : <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{filtered.slice(0, 4).map(x => <article key={x.n} className="rounded-xl border p-4"><span className="inline-flex h-9 w-9 items-center justify-center rounded-full font-bold text-foreground" style={{
+                background: x.c
+              }}>{x.l}</span><Pill tone="red">{x.type}</Pill><h3 className="mt-3 font-bold">{x.n}</h3><p className="text-xs text-muted-foreground">{x.n.toLowerCase()}.com · {x.market}</p><div className="mt-4 flex flex-wrap gap-1"><Pill tone="amber">{x.pos}</Pill><Pill tone="green">{x.growth}</Pill><Pill>{x.intel} Intelligence</Pill></div><div className="mt-5 border-t pt-3 text-xs text-[var(--foreground)]">Open · Compare · Edit</div></article>)}</div>}</section>
+<article className="mt-6 rounded-xl bg-[var(--card)] p-6 text-foreground"><div className="flex flex-wrap items-start justify-between gap-3"><div className="flex gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] text-xl font-bold text-primary-foreground">H</span><div><h2 className="text-xl font-bold">HubSpot</h2><p className="text-xs text-muted-foreground">hubspot.com · CRM and inbound marketing</p></div></div><div className="flex flex-wrap gap-2"><Pill tone="green">Active</Pill><Pill tone="red">Critical Priority</Pill><Pill tone="green">Full Intelligence</Pill><button className="rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-primary-foreground">Ask Lulu AI</button></div></div><div className="mt-5 flex flex-wrap gap-4 border-b border-border pb-3 text-xs text-muted-foreground">{['Overview', 'Position', 'Marketing', 'Content', 'SEO', 'GEO', 'AEO', 'Advertising', 'Audiences', 'Movements'].map((x, i) => <button key={x} className={i === 0 ? 'border-b-2 border-[var(--border)] pb-3 text-[var(--foreground)]' : ''}>{x}</button>)}</div><div className="mt-5 grid gap-4 xl:grid-cols-2"><div className="rounded-xl bg-card p-5 text-[var(--foreground)]"><h3 className="font-bold">Company overview</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">HubSpot is a leading CRM and inbound marketing platform serving SMB to mid-market teams.</p><p className="mt-4 text-xs font-semibold">Products</p><div className="mt-2 flex flex-wrap gap-2">{['CRM', 'Marketing Hub', 'Sales Hub', 'Service Hub'].map(x => <Pill key={x}>{x}</Pill>)}</div><p className="mt-4 text-xs text-muted-foreground">Company information <Pill tone="green">Observed</Pill> · updated Today</p></div><div className="rounded-xl bg-[var(--secondary)] p-5"><h3 className="font-bold"><Sparkles className="mr-2 inline text-[var(--foreground)]" size={16} />AI Competitive Insights <Pill tone="amber">AI-generated</Pill></h3>{insights.slice(0, 3).map((x, i) => <p key={x} className={`mt-4 border-l-2 ${i === 2 ? 'border-border' : 'border-chart-5'} pl-3 text-sm text-foreground`}>{x}</p>)}</div></div></article>
+<section className="mt-6 grid gap-4 xl:grid-cols-2"><article className="rounded-xl border bg-card p-5"><h2 className="font-bold">Competitive Position: Your Business vs HubSpot</h2>{['Market Presence', 'Search Visibility', 'Content Presence', 'AI Visibility', 'Marketing Activity', 'Audience Reach'].map((x, i) => <div key={x} className="mt-4"><div className="flex justify-between text-xs"><span>{x}</span><Pill tone={i === 3 ? 'purple' : 'green'}>{i === 3 ? 'AI Inferred' : 'Observed'}</Pill></div><div className="mt-2 flex h-2 gap-1"><span className="ml-auto block rounded bg-[var(--primary)] text-primary-foreground" style={{
+                  width: `${30 + i * 4}%`
+                }} /><span className="block rounded bg-destructive" style={{
+                  width: `${22 + (5 - i) * 5}%`
+                }} /></div></div>)}</article><article className="rounded-xl border bg-card p-5"><h2 className="font-bold">Competitive Scorecard</h2>{['Market Presence', 'Search Visibility', 'Content Presence', 'AI Visibility', 'Marketing Activity', 'Audience Reach', 'Revenue', 'Advertising Spend'].map(x => <div key={x} className="flex items-center justify-between border-b py-3 text-xs"><span>{x}</span><span className="font-semibold">{x === 'Revenue' || x === 'Advertising Spend' ? <span className="text-muted-foreground">Not Available</span> : <><span className="text-foreground">Your 7</span> · <span className="text-chart-5">HubSpot 8</span> · <b className="text-chart-5">-1</b></>}</span></div>)}<p className="mt-3 text-[11px] text-muted-foreground">Scores marked Not Available cannot be reliably calculated from current data.</p></article></section>
+<section className="mt-6 rounded-xl border bg-card p-5"><h2 className="text-lg font-bold">Market Positioning Comparison</h2><div className="mt-4 grid gap-4 md:grid-cols-2"><div className="border-l-2 border-[var(--border)] p-4"><Pill tone="amber">Your Business</Pill><h3 className="mt-3 font-bold">The AI Business Operating System for enterprise growth.</h3><p className="mt-2 text-xs text-muted-foreground">Target: Enterprise businesses</p><ul className="mt-4 space-y-2 text-sm"><li>AI-native platform</li><li>End-to-end automation</li><li>Unified business intelligence</li></ul></div><div className="border-l-2 border-border p-4"><Pill>HubSpot</Pill><h3 className="mt-3 font-bold">The easy-to-use CRM for growing businesses.</h3><p className="mt-2 text-xs text-muted-foreground">Target: SMB to mid-market</p><ul className="mt-4 space-y-2 text-sm"><li>Ease of use</li><li>All-in-one marketing suite</li><li>Large partner ecosystem</li></ul></div></div><div className="mt-4 rounded-xl bg-[var(--secondary)] p-5 text-foreground"><h3 className="font-bold"><Sparkles className="mr-2 inline text-[var(--foreground)]" size={16} />AI Positioning Analysis <Pill tone="amber">AI-generated</Pill></h3><div className="mt-4 grid gap-4 md:grid-cols-3">{['Positioning Overlap · CRM automation overlap, with an AI-native advantage.', 'Differentiation Opportunity · Enterprise AI OS is not replicated by HubSpot.', 'Messaging Gap · Enterprise vs SMB awareness gap.'].map((x, i) => <p key={x} className={`border-l-2 ${i === 1 ? 'border-border' : i === 2 ? 'border-border' : 'border-[var(--border)]'} pl-3 text-xs text-foreground`}>{x}</p>)}</div></div></section>
+<div className="mt-6 grid gap-4 xl:grid-cols-2"><section className="rounded-xl border bg-card p-5"><h2 className="font-bold">Marketing Strategy Comparison</h2>{[['Target Audiences', 'Enterprise Growth SME', 'SMB Mid-market RevOps'], ['Primary Channels', 'Organic Search · GEO · AEO', 'Content · Inbound · Paid · Partner'], ['Content Strategy', 'AI insights · business intelligence', 'Education · tutorials · case studies'], ['Search Strategy', 'SEO plus GEO/AEO focus', 'Heavy SEO · paid search'], ['Market Focus', 'DACH Enterprise', 'Global SMB-focused']].map(r => <div key={r[0]} className="grid grid-cols-3 border-b py-3 text-xs"><b>{r[0]}</b><span>{r[1]}</span><span className="text-muted-foreground">{r[2]}</span></div>)}<div className="mt-4 rounded-lg bg-[var(--secondary)] p-4 text-xs text-foreground"><Sparkles size={14} className="mr-2 inline text-[var(--foreground)]" />HubSpot invests significantly more in content volume. Your stronger AI search focus is defensible. <Pill tone="amber">Confidence High</Pill></div></section><section className="rounded-xl border bg-card p-5"><h2 className="font-bold">Products and Services Comparison</h2>{[['AI Business OS', '✓', '—'], ['CRM', '✓', '✓'], ['Marketing Automation', '✓', '✓'], ['AI Business Intelligence', '✓', '~'], ['Workflow Automation', '✓', '~'], ['Content Management', '~', '✓']].map(r => <div key={r[0]} className="grid grid-cols-3 border-b py-3 text-xs"><span>{r[0]}</span><b className="text-foreground">{r[1]}</b><b className={r[2] === '✓' ? 'text-foreground' : 'text-foreground'}>{r[2]}</b></div>)}<p className="mt-3 text-[11px] text-muted-foreground">Comparison based on publicly available information, AI Inferred where marked.</p></section></div>
+<section className="mt-6 rounded-xl border-t-2 border-[var(--border)] bg-card p-5"><h2 className="font-bold">Advertising Intelligence <Pill tone="amber">Limited Data</Pill></h2><p className="mt-3 rounded-lg bg-secondary p-3 text-xs text-[var(--foreground)]">Advertising intelligence is based on publicly observable signals only. Lulu AI does not access private advertising accounts or confidential competitor data.</p><div className="mt-4 grid gap-3 md:grid-cols-4">{[['Advertising Activity', 'Active', 'Observed'], ['Active Channels', 'Google Ads · LinkedIn Ads · Meta Ads', 'Observed'], ['Creative Themes', 'Product demos · customer success · free trial', 'AI Inferred'], ['Landing Page Focus', 'Free trial signups · product tours', 'Observed']].map(x => <div key={x[0]} className="rounded-lg border p-3 text-xs"><p className="text-muted-foreground">{x[0]}</p><b className="mt-2 block">{x[1]}</b><Pill tone={x[2] === 'AI Inferred' ? 'purple' : 'green'}>{x[2]}</Pill></div>)}</div></section>
+<section className="mt-6 grid gap-4 xl:grid-cols-2"><article className="rounded-xl bg-[var(--card)] p-5 text-foreground"><h2 className="font-bold"><Sparkles className="mr-2 inline text-[var(--chart-1)]" />Competitive Opportunities <Pill tone="amber">AI-generated · 18</Pill></h2>{['HubSpot weak enterprise AI positioning', 'AI business intelligence topic cluster gap', 'Pipedrive declining DACH visibility', 'GEO coverage gap in AI queries'].map((x, i) => <div key={x} className="mt-4 flex gap-3 border-b border-border pb-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-[var(--chart-1)] text-xs text-[var(--foreground)]">{88 - i * 6}</span><div><p className="text-sm">{x}</p><Pill tone={i === 2 ? 'green' : 'amber'}>{i === 2 ? 'Medium' : 'High'} impact</Pill><button className="ml-2 text-xs text-[var(--foreground)]">Create Task</button></div></div>)}</article><article className="rounded-xl border bg-card p-5"><h2 className="font-bold">Competitive Risks <Pill tone="red">7</Pill></h2>{['Salesforce AI features overlapping core Lulu AI positioning', 'HubSpot gaining search share on commercial keywords', 'Monday.com rapid growth creates indirect pressure', 'New competitor DACH market signals'].map((x, i) => <div key={x} className="mt-4 border-b pb-3"><Pill tone={i === 0 ? 'red' : i === 3 ? 'gray' : 'amber'}>{i === 0 ? 'Critical' : i === 3 ? 'Medium' : 'High'}</Pill><p className="mt-2 text-sm">{x}</p><button className="mt-2 text-xs text-[var(--chart-1)]">View Risk · Create Task</button></div>)}</article></section>
+<section className="mt-6 rounded-xl bg-[var(--card)] p-5 text-foreground"><div className="flex flex-wrap justify-between gap-3"><h2 className="text-lg font-bold"><Sparkles className="mr-2 inline text-[var(--chart-1)]" />Lulu AI Competitive Insights <Pill tone="amber">AI-generated</Pill></h2><span className="text-xs text-muted-foreground">Analyzed 2 hours ago</span></div><div className="mt-5 grid gap-3 md:grid-cols-2">{insights.map((x, i) => <article key={x} className={`rounded-lg border-l-4 ${i < 2 ? 'border-chart-5' : 'border-border'} bg-[var(--background)] p-4`}><p className="text-sm text-foreground">{x}</p><div className="mt-3 flex gap-2"><Pill tone={i === 1 ? 'red' : 'green'}>Impact {i === 1 ? 'Critical' : 'High'}</Pill><Pill tone="amber">Confidence High</Pill></div></article>)}</div><div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-xs text-muted-foreground"><span>Sources: Website · SEO Data · GEO Monitoring · Content Analysis</span><button className="rounded-lg bg-[var(--primary)] px-4 py-2 font-semibold text-primary-foreground">Run Full Competitive Analysis</button></div></section>
+<section className="mt-6 rounded-xl border bg-card p-5"><h2 className="text-lg font-bold"><Sparkles className="mr-2 inline text-[var(--foreground)]" />Lulu AI Recommendations</h2><div className="mt-4 grid gap-3 md:grid-cols-2">{actions.map((x, i) => <article key={x} className="border-l-4 border-[var(--border)] p-4"><Pill tone={i === 0 ? 'red' : 'amber'}>{i === 0 ? 'Critical' : 'High'}</Pill><h3 className="mt-2 text-sm font-bold">{x}</h3><p className="mt-2 text-xs text-muted-foreground">Lulu AI found a material opportunity based on connected competitive intelligence.</p><button className="mt-4 rounded border px-3 py-2 text-xs">Review</button><button className="ml-2 rounded bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-primary-foreground">{i === 1 ? 'Create Content' : 'Create Task'}</button></article>)}</div><p className="mt-4 text-xs text-muted-foreground">Recommendations require your review and confirmation. No campaigns, budgets or strategic settings are changed automatically.</p></section>
+<section className="mt-6 rounded-xl border bg-card p-5"><h2 className="font-bold">Competitor Movements <Pill tone="amber">AI Detected</Pill> <Pill>12</Pill></h2>{movements.map((x, i) => <div key={x} className="flex flex-wrap items-center gap-3 border-b py-3 text-xs"><Activity size={15} className="text-[var(--foreground)]" /><span className="min-w-[260px] flex-1">{x}</span><span className="text-muted-foreground">{i + 2}d ago</span><Pill tone={i === 1 || i === 2 || i === 3 ? 'red' : 'amber'}>{i === 1 ? 'High' : 'Medium'} impact</Pill><Pill tone={i === 0 || i === 2 ? 'amber' : 'green'}>{i === 0 || i === 2 ? 'AI Detected' : 'Observed'}</Pill><button className="text-[var(--foreground)]">View</button></div>)}</section>
+<section className="mt-6 rounded-xl border bg-card p-5"><div className="flex justify-between"><h2 className="font-bold">Competitive Trends</h2><div className="flex gap-1">{['30D', '90D', '6M', '12M'].map(x => <button key={x} className="rounded px-3 py-1 text-xs hover:bg-secondary">{x}</button>)}</div></div><svg viewBox="0 0 900 160" className="mt-4 w-full" role="img" aria-label="Competitive trends line chart"><path d="M45 15V125H875" fill="none" stroke="var(--border)" /><path d="M45 45H875M45 75H875M45 105H875" stroke="var(--border)" strokeDasharray="4 4" /><path d="M45 112 C180 100 250 80 360 90 S590 48 875 30" fill="none" stroke="var(--foreground)" strokeWidth="3" /><path d="M45 100 C180 90 300 65 440 70 S650 38 875 45" fill="none" stroke="var(--foreground)" strokeDasharray="7 5" strokeWidth="2" /><path d="M45 118 C200 120 320 110 460 96 S700 75 875 70" fill="none" stroke="var(--foreground)" strokeDasharray="7 5" strokeWidth="2" /></svg><p className="text-xs text-muted-foreground">Trend data is AI Inferred from available market signals. <Pill tone="purple">AI Inferred</Pill></p></section>
+<section className="mt-6 rounded-xl border bg-card p-5"><h2 className="font-bold">Discover Competitors with Lulu AI <Pill tone="amber">AI-generated</Pill></h2><p className="mt-2 text-sm text-muted-foreground">Analyze industry products, markets, websites and search signals to uncover relevant competitors.</p><div className="mt-4 grid gap-2">{[['Microsoft Dynamics', 'Direct', 'AI CRM enterprise overlap', 'Global', 'High'], ['Sage Business Cloud', 'Indirect', 'Business management', 'Germany', 'Medium'], ['Workday', 'Indirect', 'Business OS positioning', 'Global Enterprise', 'Medium'], ['SAP', 'Indirect', 'DACH enterprise overlap', 'Germany · Global', 'Medium'], ['Odoo', 'Direct', 'AI automation SMB-Enterprise', 'Germany', 'Low']].map(x => <div key={x[0]} className="flex flex-wrap items-center gap-3 border-b py-3 text-xs"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--secondary)] font-bold">{x[0][0]}</span><b className="w-36">{x[0]}</b><Pill>{x[1]}</Pill><span className="flex-1 text-muted-foreground">{x[2]} · {x[3]}</span><Pill tone={x[4] === 'High' ? 'green' : x[4] === 'Medium' ? 'amber' : 'gray'}>{x[4]} confidence</Pill><button className="rounded bg-[var(--primary)] px-3 py-2 font-semibold text-primary-foreground">Add Competitor</button><button className="text-[var(--foreground)]">Review</button><button className="text-foreground">Dismiss</button></div>)}</div><button className="mt-4 rounded-lg border px-3 py-2 text-xs">Discover More Competitors</button><p className="mt-3 text-[11px] text-muted-foreground">Suggestions are AI-generated. Review before adding.</p></section>
+<section className="mt-6 grid gap-3 md:grid-cols-3 xl:grid-cols-6">{[['No Competitors Yet', 'Add Competitor'], ['No Competitors Found', 'Clear Filters'], ['Competitive Intelligence Is Limited', 'Connect Integration'], ['Loading State', ''], ['Competitor Intelligence Could Not Be Loaded', 'Try Again'], ['Competitive Intelligence Restricted', '']].map(x => <article key={x[0]} className="rounded-xl border border-dashed bg-card p-4"><Shield size={17} className="text-[var(--foreground)]" /><h3 className="mt-3 text-sm font-bold">{x[0]}</h3><p className="mt-2 text-xs text-muted-foreground">{x[0].includes('Restricted') ? 'No data exposed beyond this message.' : 'Workspace state preview.'}</p>{x[1] && <button className="mt-4 rounded bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-primary-foreground">{x[1]}</button>}</article>)}</section>
+</div></main>
+{modal && <div className="fixed inset-0 z-40 flex items-center justify-center bg-primary/50 p-4"><div className="w-full max-w-[560px] rounded-2xl bg-card p-6 shadow-xl"><div className="flex items-center justify-between"><h2 className="text-xl font-bold">Add Competitor</h2><button onClick={() => setModal(false)} aria-label="Close modal"><X size={19} /></button></div><div className="mt-5 grid gap-4"><label className="text-xs font-semibold">Company Name<input className="mt-2 w-full rounded-lg border p-3 text-sm" placeholder="e.g. HubSpot" /></label><label className="text-xs font-semibold">Website Domain<div className="mt-2 flex items-center gap-2 rounded-lg border px-3"><Globe2 size={16} className="text-muted-foreground" /><input className="w-full p-3 text-sm outline-none" placeholder="company.com" /></div></label><fieldset><legend className="text-xs font-semibold">Competitor Type</legend><div className="mt-2 flex flex-wrap gap-3">{['Direct', 'Indirect', 'Emerging', 'Substitute', 'Aspirational'].map(x => <label key={x} className="text-xs"><input type="radio" name="type" className="mr-1 accent-[var(--foreground)]" /> {x}</label>)}</div></fieldset><label className="text-xs font-semibold">Industry<select className="mt-2 w-full rounded-lg border p-3 text-sm"><option>SaaS / Technology</option><option>Marketing</option><option>Business Services</option></select></label><label className="text-xs font-semibold">Markets<input className="mt-2 w-full rounded-lg border p-3 text-sm" placeholder="Germany, Austria, Switzerland" /></label><label className="text-xs font-semibold">Description<textarea className="mt-2 h-20 w-full rounded-lg border p-3 text-sm" placeholder="Why is this competitor relevant?" /></label><fieldset><legend className="text-xs font-semibold">Strategic Priority</legend><div className="mt-2 flex gap-4">{['Critical', 'High', 'Medium', 'Low'].map(x => <label key={x} className="text-xs"><input type="radio" name="priority" className="mr-1 accent-[var(--foreground)]" /> {x}</label>)}</div></fieldset></div><div className="mt-6 flex justify-end gap-2"><button onClick={() => setModal(false)} className="rounded-lg px-4 py-2 text-sm">Cancel</button><button className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-primary-foreground">Add Competitor</button></div></div></div>}</div>;
+};

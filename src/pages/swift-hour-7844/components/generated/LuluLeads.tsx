@@ -1,0 +1,380 @@
+import { useMemo, useState } from 'react';
+import { Activity, AlertCircle, AlertTriangle, ArrowDown, ArrowUpRight, BarChart3, Bell, Bookmark, Brain, Building2, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, CircleDollarSign, Clock3, Columns3, Download, Edit3, FileSpreadsheet, Filter, GitBranch, Globe2, Layers3, LayoutDashboard, Link2, Lock, Megaphone, MoreHorizontal, Phone, Plus, Search, SearchX, Settings, SlidersHorizontal, Sparkles, Tag, TrendingDown, TrendingUp, Upload, UserPlus, Users, X, Zap } from 'lucide-react';
+type LeadStatus = 'New' | 'Contacted' | 'Qualified' | 'Nurturing' | 'Converted' | 'Lost';
+type Lead = {
+  id: string;
+  name: string;
+  initials: string;
+  title: string;
+  company: string;
+  score: number;
+  status: LeadStatus;
+  source: string;
+  owner: string;
+  ownerInitials: string;
+  activity: string;
+  days: number;
+  created: string;
+  value: string;
+  priority: 'High' | 'Medium' | 'Monitor';
+  email: string;
+  phone: string;
+  location: string;
+};
+const leads: Lead[] = [{
+  id: 'l1',
+  name: 'Marcus Johnson',
+  initials: 'MJ',
+  title: 'VP Sales',
+  company: 'Quantum Dynamics',
+  score: 92,
+  status: 'Qualified',
+  source: 'Google Ads',
+  owner: 'Sarah K.',
+  ownerInitials: 'SK',
+  activity: '1d ago',
+  days: 1,
+  created: 'May 14, 2024',
+  value: '€84,000',
+  priority: 'High',
+  email: 'marcus@quantum-dynamics.com',
+  phone: '+1 415 555 0182',
+  location: 'San Francisco, US'
+}, {
+  id: 'l2',
+  name: 'Lena Fischer',
+  initials: 'LF',
+  title: 'CEO',
+  company: 'BrightPath GmbH',
+  score: 87,
+  status: 'Nurturing',
+  source: 'Organic Search',
+  owner: 'Jordan D.',
+  ownerInitials: 'JD',
+  activity: '3h ago',
+  days: 0,
+  created: 'May 13, 2024',
+  value: '€62,400',
+  priority: 'High',
+  email: 'lena@brightpath.de',
+  phone: '+49 30 555 0182',
+  location: 'Berlin, Germany'
+}, {
+  id: 'l3',
+  name: 'Tom Bergmann',
+  initials: 'TB',
+  title: 'CTO',
+  company: 'DataStream AG',
+  score: 78,
+  status: 'Contacted',
+  source: 'Referral',
+  owner: 'Mark R.',
+  ownerInitials: 'MR',
+  activity: '5d ago',
+  days: 5,
+  created: 'May 9, 2024',
+  value: '€48,200',
+  priority: 'High',
+  email: 'tom@datastream.ag',
+  phone: '+49 89 555 0921',
+  location: 'Munich, Germany'
+}, {
+  id: 'l4',
+  name: 'Anika Mehta',
+  initials: 'AM',
+  title: 'Founder',
+  company: 'Indigo Labs',
+  score: 94,
+  status: 'Qualified',
+  source: 'Website',
+  owner: 'Jordan D.',
+  ownerInitials: 'JD',
+  activity: '2h ago',
+  days: 0,
+  created: 'May 8, 2024',
+  value: '€128,000',
+  priority: 'High',
+  email: 'anika@indigolabs.io',
+  phone: '+44 20 5555 1802',
+  location: 'London, UK'
+}, {
+  id: 'l5',
+  name: 'Carlos Vega',
+  initials: 'CV',
+  title: 'Head of Ops',
+  company: 'PanAm Logistics',
+  score: 65,
+  status: 'New',
+  source: 'Meta Ads',
+  owner: 'Anna P.',
+  ownerInitials: 'AP',
+  activity: '8d ago',
+  days: 8,
+  created: 'May 5, 2024',
+  value: '€32,400',
+  priority: 'High',
+  email: 'carlos@panamlogistics.com',
+  phone: '—',
+  location: 'Miami, US'
+}, {
+  id: 'l6',
+  name: 'Sophie Kim',
+  initials: 'SK',
+  title: 'CFO',
+  company: 'NovaTech',
+  score: 71,
+  status: 'Contacted',
+  source: 'Social',
+  owner: 'David M.',
+  ownerInitials: 'DM',
+  activity: '4d ago',
+  days: 4,
+  created: 'May 2, 2024',
+  value: '€44,800',
+  priority: 'Medium',
+  email: 'sophie@novatech.co',
+  phone: '+82 2 555 1212',
+  location: 'Seoul, South Korea'
+}, {
+  id: 'l7',
+  name: 'James Osei',
+  initials: 'JO',
+  title: 'Director',
+  company: 'Accra Ventures',
+  score: 88,
+  status: 'Nurturing',
+  source: 'Referral',
+  owner: 'Sarah K.',
+  ownerInitials: 'SK',
+  activity: '1d ago',
+  days: 1,
+  created: 'Apr 29, 2024',
+  value: '€74,600',
+  priority: 'High',
+  email: 'james@accraventures.com',
+  phone: '+233 30 555 0144',
+  location: 'Accra, Ghana'
+}, {
+  id: 'l8',
+  name: 'Nina Petrov',
+  initials: 'NP',
+  title: 'Product Lead',
+  company: 'OpenStack',
+  score: 54,
+  status: 'New',
+  source: 'Import',
+  owner: 'Mark R.',
+  ownerInitials: 'MR',
+  activity: '12d ago',
+  days: 12,
+  created: 'Apr 22, 2024',
+  value: '€18,000',
+  priority: 'Medium',
+  email: 'nina@openstack.dev',
+  phone: '—',
+  location: 'Sofia, Bulgaria'
+}, {
+  id: 'l9',
+  name: 'Emil Larsen',
+  initials: 'EL',
+  title: 'Sales Manager',
+  company: 'NordRetail',
+  score: 82,
+  status: 'Qualified',
+  source: 'Organic Search',
+  owner: 'Jordan D.',
+  ownerInitials: 'JD',
+  activity: '6h ago',
+  days: 0,
+  created: 'Apr 21, 2024',
+  value: '€56,200',
+  priority: 'High',
+  email: 'emil@nordretail.no',
+  phone: '+47 22 555 401',
+  location: 'Oslo, Norway'
+}, {
+  id: 'l10',
+  name: 'Priya Nair',
+  initials: 'PN',
+  title: 'COO',
+  company: 'TechBridge India',
+  score: 76,
+  status: 'Nurturing',
+  source: 'Website',
+  owner: 'Anna P.',
+  ownerInitials: 'AP',
+  activity: '2d ago',
+  days: 2,
+  created: 'Apr 18, 2024',
+  value: '€38,600',
+  priority: 'Medium',
+  email: 'priya@techbridge.in',
+  phone: '+91 80 555 1088',
+  location: 'Bengaluru, India'
+}];
+const nav = [{
+  label: 'CRM',
+  icon: LayoutDashboard
+}, {
+  label: 'Contacts',
+  icon: Users
+}, {
+  label: 'Companies',
+  icon: Building2
+}, {
+  label: 'Leads',
+  icon: UserPlus
+}, {
+  label: 'Deals',
+  icon: CircleDollarSign
+}, {
+  label: 'Pipeline',
+  icon: GitBranch
+}, {
+  label: 'Activities',
+  icon: Activity
+}, {
+  label: 'Tasks',
+  icon: CheckCircle2
+}, {
+  label: 'Customer Segments',
+  icon: Layers3
+}, {
+  label: 'Customer Intelligence',
+  icon: Brain
+}];
+const kpis = [{
+  label: 'Total Leads',
+  value: '428',
+  icon: UserPlus
+}, {
+  label: 'New Leads',
+  value: '84',
+  detail: '+18.4%',
+  icon: TrendingUp,
+  color: 'emerald'
+}, {
+  label: 'Qualified Leads',
+  value: '126',
+  detail: '29.4% of total',
+  icon: CheckCircle2,
+  color: 'blue'
+}, {
+  label: 'Conversion Rate',
+  value: '24.6%',
+  detail: '+4.2% this month',
+  icon: ArrowUpRight,
+  color: 'emerald'
+}, {
+  label: 'High-Potential',
+  value: '58',
+  detail: 'AI identified',
+  icon: Zap,
+  color: 'violet'
+}, {
+  label: 'Requiring Attention',
+  value: '37',
+  detail: 'Needs follow-up',
+  icon: AlertCircle,
+  color: 'rose'
+}];
+const sourceIcon = (source: string) => source === 'Google Ads' || source === 'Organic Search' ? Search : source === 'Meta Ads' ? Megaphone : source === 'Referral' ? Link2 : Globe2;
+const statusClass = (status: LeadStatus) => ({
+  New: 'text-foreground bg-secondary/15',
+  Contacted: 'text-foreground bg-secondary/15',
+  Qualified: 'text-foreground bg-secondary/15',
+  Nurturing: 'text-foreground bg-secondary/15',
+  Converted: 'text-foreground bg-secondary/15',
+  Lost: 'text-chart-5 bg-chart-5/15'
+})[status];
+function Sidebar({
+  mobileOpen,
+  setMobileOpen
+}: {
+  mobileOpen: boolean;
+  setMobileOpen: (value: boolean) => void;
+}) {
+  return <aside className={`${mobileOpen ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-40 flex w-60 flex-col border-r border-border bg-[var(--sidebar)] p-4 transition-transform lg:static lg:translate-x-0`}>
+  <div className="flex items-center gap-3 px-2 py-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">L</div><strong className="text-lg tracking-tight text-foreground">Lulu AI</strong><button className="ml-auto text-foreground lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X size={18} /></button></div>
+  <p className="mb-2 mt-7 px-2 text-[11px] font-medium uppercase tracking-[0.12em] text-muted-foreground">CRM</p>
+  <nav className="space-y-1" aria-label="CRM navigation">{nav.map(({
+        label,
+        icon: Icon
+      }) => <button key={label} onClick={() => setMobileOpen(false)} className={`group relative flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm transition ${label === 'Leads' ? 'bg-secondary/20 text-foreground' : 'text-foreground hover:bg-secondary hover:text-foreground'}`}><Icon size={17} className={label === 'Leads' ? 'text-foreground' : 'text-muted-foreground'} /><span>{label}</span>{label === 'Leads' && <span className="absolute left-0 h-6 w-0.5 rounded-full bg-primary text-primary-foreground" />}</button>)}</nav>
+  <div className="my-5 border-t border-border" /><button className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground hover:bg-secondary hover:text-foreground"><Settings size={17} /><span>Settings</span></button>
+  <div className="mt-auto flex items-center gap-3 border-t border-border px-2 pt-4"><div className="relative flex h-9 w-9 items-center justify-center rounded-full bg-secondary/20 text-xs font-semibold text-foreground">JD<span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[var(--muted-foreground)] bg-primary text-primary-foreground" /></div><div><p className="text-sm font-medium text-foreground">Jordan Davis</p><p className="text-xs text-muted-foreground">CRM Manager</p></div></div>
+ </aside>;
+}
+export function LuluLeads() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [selected, setSelected] = useState<string[]>([]);
+  const [activeLead, setActiveLead] = useState<Lead | null>(null);
+  const [modal, setModal] = useState<'create' | 'qualify' | 'convert' | 'import' | 'export' | null>(null);
+  const [query, setQuery] = useState('');
+  const [showColumns, setShowColumns] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [pageSize, setPageSize] = useState('50');
+  const filtered = useMemo(() => leads.filter(l => `${l.name} ${l.company} ${l.source} ${l.id}`.toLowerCase().includes(query.toLowerCase())), [query]);
+  const toggle = (id: string) => setSelected(v => v.includes(id) ? v.filter(x => x !== id) : [...v, id]);
+  return <div className="min-h-screen bg-[var(--background)] font-sans text-foreground"><div className="flex min-h-screen"><Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />{mobileOpen && <button className="fixed inset-0 z-30 bg-primary/60 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close navigation overlay" />}
+ <main className="min-w-0 flex-1 overflow-hidden"><header className="border-b border-border px-4 py-4 sm:px-6 lg:px-8"><div className="flex items-start justify-between gap-4"><div><button className="mb-3 text-foreground lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open navigation"><LayoutDashboard size={21} /></button><div className="mb-3 hidden items-center gap-2 text-xs text-muted-foreground sm:flex"><span>Lulu AI</span><ChevronRight size={13} /><span>CRM</span><ChevronRight size={13} /><span className="text-foreground">Leads</span></div><h1 className="text-3xl font-semibold tracking-tight text-foreground">Leads</h1><p className="mt-1 text-sm text-muted-foreground">Capture, qualify and prioritize prospects to improve your sales pipeline.</p></div><div className="flex shrink-0 gap-2"><button onClick={() => setModal('import')} className="hidden items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:border-border sm:flex"><Upload size={16} />Import</button><button onClick={() => setModal('export')} className="hidden items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:border-border md:flex"><Download size={16} />Export</button><button onClick={() => setModal('create')} className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground shadow-lg shadow-black/10 hover:bg-primary"><Plus size={16} />Create Lead</button></div></div></header>
+ <div className="space-y-6 p-4 sm:p-6 lg:p-8"><section className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">{kpis.map(({
+              label,
+              value,
+              detail,
+              icon: Icon,
+              color
+            }) => <article key={label} className="rounded-xl border border-border bg-[var(--card)] px-4 py-4 transition hover:border-border"><div className="flex items-center justify-between"><p className="text-xs font-medium uppercase tracking-[0.08em] text-muted-foreground">{label}</p><Icon size={16} className={color === 'violet' ? 'text-foreground' : color === 'emerald' ? 'text-foreground' : color === 'rose' ? 'text-chart-5' : color === 'blue' ? 'text-foreground' : 'text-muted-foreground'} /></div><p className="mt-2 text-2xl font-semibold tracking-tight text-foreground">{value}</p>{detail && <p className={`mt-1 text-xs ${color === 'rose' ? 'text-chart-5' : color === 'emerald' ? 'text-foreground' : color === 'violet' ? 'text-foreground' : 'text-muted-foreground'}`}>{detail}</p>}</article>)}</section>
+ <section className="space-y-3"><div className="relative"><Search className="absolute left-4 top-3.5 text-muted-foreground" size={18} /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search leads... (Name, Email, Company, Source, ID)" className="w-full rounded-xl border border-border bg-[var(--secondary)] py-3 pl-11 pr-16 text-sm text-foreground outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring" /><kbd className="absolute right-4 top-3 rounded bg-secondary px-2 py-1 text-[11px] text-muted-foreground">⌘K</kbd></div><div className="flex flex-wrap items-center gap-2"><button onClick={() => setActiveFilter(activeFilter ? '' : 'Lead Status')} className={`flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm ${activeFilter ? 'bg-secondary/20 text-foreground' : 'text-foreground'}`}><SlidersHorizontal size={15} />Filters</button>{['Lead Status', 'Lead Score', 'Lead Source', 'Owner', 'Industry', 'Company', 'Location', 'Created Date', 'Last Activity', 'Tags'].map(x => <button key={x} onClick={() => setActiveFilter(activeFilter === x ? null : x)} className={`rounded-md px-2.5 py-1.5 text-xs ${activeFilter === x ? 'bg-secondary/20 text-foreground' : 'text-foreground hover:bg-secondary hover:text-foreground'}`}>{x}<ChevronDown className="ml-1 inline" size={12} /></button>)}<button onClick={() => setSaved(!saved)} className="ml-auto flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-xs text-foreground hover:text-foreground"><Bookmark size={14} />{saved ? 'Saved' : 'Save Filter'}</button></div><div className="flex flex-wrap gap-2"><span className="text-xs text-muted-foreground">Saved:</span>{['My New Leads', 'High Potential', 'Unassigned', 'Leads Without Activity', 'Ready for Qualification'].map(x => <button key={x} className="rounded-md border border-border px-2.5 py-1 text-xs text-foreground hover:border-border/40 hover:text-foreground">{x}</button>)}{activeFilter && <button onClick={() => setActiveFilter(null)} className="text-xs text-foreground">Clear Filters</button>}</div></section>
+ <section className="overflow-hidden rounded-xl border border-border bg-[var(--card)]"><div className="flex items-center justify-between border-b border-border px-4 py-3"><div><h2 className="font-medium text-foreground">All leads</h2><p className="text-xs text-muted-foreground">{filtered.length} of 428 prospects</p></div><div className="relative"><button onClick={() => setShowColumns(!showColumns)} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-foreground hover:text-foreground"><Columns3 size={15} />Columns</button>{showColumns && <div className="absolute right-0 top-11 z-20 w-52 rounded-xl border border-border bg-[var(--secondary)] p-3 shadow-2xl"><p className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">Show columns</p>{['Lead', 'Company', 'Score', 'Status', 'Source', 'Owner', 'Last Activity', 'Created', 'Potential Value'].map(x => <label key={x} className="flex items-center gap-2 py-1.5 text-xs text-foreground"><input type="checkbox" defaultChecked className="accent-primary" />{x}</label>)}<button className="mt-2 text-xs text-foreground">Reset to Default</button></div>}</div></div><div className="overflow-x-auto"><table className="w-full min-w-[1050px] text-left text-sm"><thead className="border-b border-border bg-[var(--card)] text-xs text-muted-foreground"><tr><th scope="col" className="w-10 px-4 py-3"><input type="checkbox" checked={selected.length === leads.length} onChange={e => setSelected(e.target.checked ? leads.map(l => l.id) : [])} className="accent-primary" aria-label="Select all leads" /></th>{['Lead', 'Company', 'Lead Score', 'Status', 'Source', 'Owner', 'Last Activity', 'Created', 'Potential Value', ''].map((x, i) => <th scope="col" key={x || 'actions'} aria-sort={i === 0 ? 'descending' : 'none'} className="whitespace-nowrap px-3 py-3 font-medium">{x}{i < 3 && <ChevronDown className="ml-1 inline text-foreground" size={13} />}</th>)}</tr></thead><tbody className="divide-y divide-white/[0.06]">{filtered.map(lead => {
+                    const SourceIcon = sourceIcon(lead.source);
+                    return <tr key={lead.id} onClick={() => setActiveLead(lead)} className={`cursor-pointer transition hover:bg-secondary ${selected.includes(lead.id) ? 'border-l-2 border-l-border bg-secondary/[0.08]' : ''} ${lead.days > 7 ? 'bg-chart-5/[0.025]' : ''}`}><td className="px-4 py-3" onClick={e => e.stopPropagation()}><input type="checkbox" checked={selected.includes(lead.id)} onChange={() => toggle(lead.id)} className="accent-primary" aria-label={`Select ${lead.name}`} /></td><td className="px-3 py-3"><div className="flex items-center gap-3"><div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary/20 text-[11px] font-semibold text-foreground">{lead.initials}</div><div><strong className="block font-medium text-foreground">{lead.name}</strong><span className="text-xs text-muted-foreground">{lead.title}</span></div></div></td><td className="px-3 py-3 text-foreground"><Building2 size={14} className="mr-2 inline text-muted-foreground" />{lead.company}</td><td className="px-3 py-3"><span className={`rounded-md px-2 py-1 text-xs font-semibold ${lead.score >= 85 ? 'bg-secondary/20 text-foreground' : lead.score >= 65 ? 'bg-secondary/15 text-foreground' : 'bg-secondary/15 text-foreground'}`}>{lead.score}</span><span className="ml-2 text-xs text-muted-foreground">{lead.score >= 85 ? 'High' : lead.score >= 65 ? 'Medium' : 'Low'}</span></td><td className="px-3 py-3"><span className={`whitespace-nowrap rounded-full px-2 py-1 text-xs ${statusClass(lead.status)}`}><span className="mr-1">●</span>{lead.status}</span></td><td className="px-3 py-3 whitespace-nowrap text-xs text-foreground"><SourceIcon size={14} className="mr-1.5 inline text-muted-foreground" />{lead.source}</td><td className="px-3 py-3 whitespace-nowrap text-xs text-foreground"><span className="mr-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-secondary/15 text-[9px] text-foreground">{lead.ownerInitials}</span>{lead.owner}</td><td className={`px-3 py-3 whitespace-nowrap text-xs ${lead.days > 7 ? 'text-chart-5' : 'text-muted-foreground'}`}>{lead.activity}</td><td className="px-3 py-3 whitespace-nowrap text-xs text-muted-foreground">{lead.created}</td><td className="px-3 py-3 text-right font-medium text-foreground">{lead.value}</td><td className="px-3 py-3"><button onClick={e => e.stopPropagation()} aria-label={`More actions for ${lead.name}`} className="rounded-md p-1.5 text-foreground hover:bg-secondary hover:text-foreground"><MoreHorizontal size={17} /></button></td></tr>;
+                  })}</tbody></table></div><div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 text-xs text-muted-foreground"><span>1–{filtered.length} of 428 leads</span><div className="flex items-center gap-1"><button className="rounded p-1.5 hover:bg-secondary" aria-label="Previous page"><ChevronLeft size={15} /></button>{['1', '2', '3', '…', '9'].map(x => <button key={x} className={`rounded px-2 py-1 ${x === '1' ? 'bg-secondary/20 text-foreground' : 'hover:bg-secondary'}`}>{x}</button>)}<button className="rounded p-1.5 hover:bg-secondary" aria-label="Next page"><ChevronRight size={15} /></button></div><label>Rows <select value={pageSize} onChange={e => setPageSize(e.target.value)} className="ml-1 rounded border border-border bg-transparent p-1 text-foreground"><option>25</option><option>50</option><option>100</option></select></label></div></section>
+ {selected.length > 0 && <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-2 rounded-xl border border-border/30 bg-[var(--secondary)] p-3 shadow-2xl"><strong className="mr-2 text-sm text-foreground">{selected.length} leads selected</strong><button onClick={() => setSelected([])} aria-label="Deselect leads" className="mr-2 text-foreground"><X size={16} /></button>{['Assign Owner', 'Change Status', 'Add Tag', 'Create Task', 'Export', 'Archive', 'Delete'].map(x => <button key={x} className="rounded-lg border border-border px-2.5 py-1.5 text-xs text-foreground hover:bg-secondary">{x}</button>)}<button className="ml-auto rounded-lg border border-border/30 px-3 py-1.5 text-xs text-foreground">Bulk Qualify</button></div>}
+ <Funnel /><Sources /><Attention /><Insights />
+ </div></main></div>{activeLead && <Preview lead={activeLead} close={() => setActiveLead(null)} qualify={() => setModal('qualify')} convert={() => setModal('convert')} />} {modal && <Modal kind={modal} close={() => setModal(null)} lead={activeLead} />}<button onClick={() => setModal('create')} className="fixed bottom-5 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-black/30 lg:hidden" aria-label="Create lead"><Plus /></button></div>;
+}
+function Funnel() {
+  const stages = [['New', '428', '100%', 'slate'], ['Contacted', '284', '66.4%', 'blue'], ['Qualified', '126', '29.4%', 'violet'], ['Nurturing', '84', '19.6%', 'amber'], ['Converted', '104', '24.3%', 'emerald']];
+  return <section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="mb-5 flex items-center gap-2"><TrendingDown size={18} className="text-foreground" /><h2 className="font-medium text-foreground">Lead Funnel</h2></div><div role="img" aria-label="Lead funnel progression from New to Converted" className="flex flex-col gap-3 md:flex-row md:items-end md:gap-2">{stages.map(([name, count, pct, color]) => <div key={name} className="flex-1"><div className={`flex h-16 items-center justify-between rounded-lg bg-${color}-500/20 px-4 text-sm`}><span className="font-medium text-foreground">{name}</span><strong className="rounded-md bg-primary/20 px-2 py-1 text-xs text-foreground">{count}</strong></div><p className="mt-2 text-xs text-muted-foreground">{pct} <span className="text-muted-foreground">from total</span></p></div>)}</div><p className="mt-5 text-xs text-muted-foreground">Funnel shows progression, not a linear sequence. Converted leads may skip stages.</p></section>;
+}
+function Sources() {
+  const data = [['Organic Search', '124', '28', '22.6%'], ['Google Ads', '96', '34', '35.4%'], ['Website', '84', '22', '26.2%'], ['Referral', '62', '24', '38.7%'], ['Meta Ads', '38', '8', '21.1%'], ['Social', '24', '10', '41.7%']];
+  return <section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="mb-5 flex items-center gap-2"><Globe2 size={18} className="text-foreground" /><h2 className="font-medium text-foreground">Lead Sources</h2></div><div className="grid gap-8 lg:grid-cols-2"><div className="space-y-4">{data.map(([name, count, qualified, rate]) => <div key={name}><div className="mb-1 flex justify-between text-xs"><span className="text-foreground">{name}</span><span className="text-muted-foreground">{count} leads · {qualified} qualified</span></div><div className="h-2 rounded-full bg-secondary"><div className={`h-2 rounded-full ${name === 'Google Ads' ? 'bg-primary' : 'bg-primary'}`} style={{
+              width: `${Math.min(100, Number(count) / 1.24)}%`
+            }} /></div><span className="mt-1 block text-[11px] text-muted-foreground">{rate} conversion {name === 'Google Ads' && <strong className="ml-2 text-foreground">Best performer</strong>}</span></div>)}</div><div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead className="text-muted-foreground"><tr><th className="pb-3">Source</th><th className="pb-3">Leads</th><th className="pb-3">Qualified</th><th className="pb-3">Conversion</th></tr></thead><tbody className="divide-y divide-white/[0.06]">{data.map(([name, count, qualified, rate]) => <tr key={name}><td className="py-2 text-foreground">{name}</td><td className="py-2 text-muted-foreground">{count}</td><td className="py-2 text-muted-foreground">{qualified}</td><td className="py-2 text-foreground">{rate}</td></tr>)}</tbody></table><button className="mt-4 text-xs text-foreground hover:text-foreground">View Source Performance →</button></div></div></section>;
+}
+function Attention() {
+  const items = [['Anika Mehta', 'High-score lead (94) without follow-up in 3 days', 'High', 'Jordan D.', 'Review'], ['Nina Petrov', 'No activity for 12 days', 'Medium', 'Mark R.', 'Review'], ['Carlos Vega', 'New lead, never contacted', 'High', 'Anna P.', 'Contact Now'], ['Tom Bergmann', 'Repeated website visits, no sales outreach', 'High', 'Mark R.', 'Review']];
+  return <section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="mb-4 flex items-center gap-2"><AlertTriangle size={18} className="text-chart-1" /><h2 className="font-medium text-foreground">Leads Requiring Attention</h2></div><div className="divide-y divide-white/[0.06]">{items.map(([name, reason, priority, owner, action]) => <div key={name} className="grid gap-2 py-3 text-sm md:grid-cols-[1fr_2fr_110px_110px_100px] md:items-center"><strong className="text-foreground">{name}</strong><span className="text-muted-foreground">{reason}</span><span className={priority === 'High' ? 'text-chart-5' : 'text-foreground'}>● {priority}</span><span className="text-xs text-muted-foreground">{owner}</span><button className="w-fit rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:border-border/40 hover:text-foreground">{action}</button></div>)}</div></section>;
+}
+function Insights() {
+  const cards = [['High Conversion Potential', 'Referral leads are converting 38.7% — significantly above average. Consider increasing referral activity.', '91%', 'emerald', 'View Leads'], ['Lead Going Cold', '8 medium-priority leads have had no activity for more than 10 days. Follow-up recommended.', '86%', 'amber', 'Review Leads'], ['Strong Company Fit', '4 leads from mid-size technology companies match your highest-converting customer profile.', '83%', 'violet', 'Review']];
+  return <section className="rounded-xl border border-border/20 bg-[var(--card)] p-5"><div className="mb-5 flex items-center gap-2"><Sparkles size={18} className="text-foreground" /><h2 className="font-medium text-foreground">Lulu AI Lead Insights</h2><span className="rounded-full bg-secondary/15 px-2 py-1 text-[10px] font-medium uppercase tracking-wider text-foreground">AI Insight</span></div><div className="grid gap-3 lg:grid-cols-3">{cards.map(([title, desc, confidence, color, cta]) => <article key={title} className="rounded-lg border border-border bg-[var(--card)] p-4"><span className="text-[10px] uppercase tracking-wider text-foreground">AI Insight</span><h3 className="mt-3 font-medium text-foreground">{title}</h3><p className="mt-2 min-h-12 text-xs leading-5 text-muted-foreground">{desc}</p><div className="mt-4 flex items-center justify-between text-xs"><span className={`text-${color}-300`}>Confidence {confidence}</span><span className="text-muted-foreground">2h ago</span></div><button className="mt-4 w-full rounded-lg border border-border py-2 text-xs text-foreground hover:border-border/40 hover:text-foreground">{cta}</button></article>)}</div><p className="mt-4 text-[11px] text-muted-foreground">Based on available CRM data · Lulu AI never exposes private reasoning</p></section>;
+}
+function Preview({
+  lead,
+  close,
+  qualify,
+  convert
+}: {
+  lead: Lead;
+  close: () => void;
+  qualify: () => void;
+  convert: () => void;
+}) {
+  return <aside className="fixed inset-y-0 right-0 z-50 flex w-full max-w-md flex-col border-l border-border bg-[var(--sidebar)] shadow-2xl"><div className="flex items-center justify-between border-b border-border p-5"><div><p className="text-xs uppercase tracking-wider text-muted-foreground">Lead preview</p><h2 className="mt-1 text-lg font-semibold text-foreground">{lead.name}</h2></div><button onClick={close} aria-label="Close lead preview" className="rounded-lg p-2 text-foreground hover:bg-secondary hover:text-foreground"><X size={18} /></button></div><div className="flex-1 space-y-6 overflow-y-auto p-5"><div className="flex items-center gap-4"><div className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-secondary/20 text-xl font-semibold text-foreground">{lead.initials}</div><div><h3 className="text-xl font-semibold text-foreground">{lead.name}</h3><p className="text-sm text-muted-foreground">{lead.title} · {lead.company}</p><div className="mt-2 flex gap-2"><span className="rounded-md bg-secondary/20 px-2 py-1 text-xs text-foreground">{lead.score} High</span><span className={`rounded-full px-2 py-1 text-xs ${statusClass(lead.status)}`}>{lead.status}</span></div></div></div><div><h3 className="mb-3 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Lead Details</h3><div className="grid grid-cols-2 gap-4 text-sm"><div><p className="text-xs text-muted-foreground">Email</p><p className="mt-1 truncate text-foreground">{lead.email}</p></div><div><p className="text-xs text-muted-foreground">Phone</p><p className="mt-1 text-foreground">{lead.phone}</p></div><div><p className="text-xs text-muted-foreground">Location</p><p className="mt-1 text-foreground">{lead.location}</p></div><div><p className="text-xs text-muted-foreground">Created</p><p className="mt-1 text-foreground">{lead.created}</p></div></div></div><div className="rounded-xl border border-border/20 bg-secondary/[0.06] p-4"><div className="flex items-center justify-between"><span className="flex items-center gap-2 text-sm font-medium text-foreground"><Sparkles size={15} />AI Prioritization</span><span className="rounded-full bg-secondary/20 px-2 py-1 text-[10px] text-foreground">High</span></div><p className="mt-3 text-sm text-foreground">Strong engagement and company fit indicate a timely opportunity.</p><div className="mt-3 flex justify-between text-xs text-muted-foreground"><span>Confidence 92%</span><span>Updated 2h ago</span></div></div><div><h3 className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Lead Score</h3><div className="mt-3 flex items-center gap-4"><div className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-border text-lg font-semibold text-foreground">{lead.score}</div><div><p className="font-medium text-foreground">High Potential</p><p className="text-xs text-muted-foreground">Engagement · Company fit · Source quality</p></div></div></div><div><h3 className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Potential Value</h3><p className="mt-2 text-3xl font-semibold text-foreground">{lead.value}</p></div><div><h3 className="mb-3 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Recent Activity</h3>{['Visited pricing page', 'Lead score updated by AI', 'Initial lead captured'].map((x, i) => <div key={x} className="flex items-center gap-3 py-2 text-xs text-foreground"><span className="flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-foreground"><Activity size={13} /></span>{x}<span className="ml-auto text-muted-foreground">{i + 1}h ago</span></div>)}</div></div><div className="grid grid-cols-2 gap-2 border-t border-border p-4"><button onClick={qualify} className="rounded-lg bg-primary py-2 text-sm font-medium text-primary-foreground hover:bg-primary">Qualify</button><button onClick={convert} className="rounded-lg border border-border/30 py-2 text-sm text-foreground hover:bg-secondary/10">Convert</button><button className="rounded-lg border border-border py-2 text-xs text-foreground">Open Contact</button><button className="rounded-lg border border-border py-2 text-xs text-foreground">Add Task</button></div></aside>;
+}
+function Modal({
+  kind,
+  close,
+  lead
+}: {
+  kind: 'create' | 'qualify' | 'convert' | 'import' | 'export';
+  close: () => void;
+  lead: Lead | null;
+}) {
+  const title = kind === 'create' ? 'Create Lead' : kind === 'qualify' ? 'Qualify Lead' : kind === 'convert' ? 'Convert Lead' : kind === 'import' ? 'Import Leads' : 'Export Leads';
+  return <div className="fixed inset-0 z-[60] flex items-center justify-center bg-primary/70 p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div className="max-h-[92vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-[var(--secondary)] shadow-2xl"><div className="flex items-center justify-between border-b border-border p-5"><h2 id="modal-title" className="flex items-center gap-2 text-lg font-semibold text-foreground">{kind === 'qualify' && <CheckCircle2 className="text-foreground" size={19} />} {title}</h2><button onClick={close} aria-label="Close dialog" className="text-foreground hover:text-foreground"><X size={19} /></button></div><div className="space-y-5 p-5">{kind === 'import' ? <><div className="flex items-center gap-2 text-xs text-muted-foreground">{['Upload', 'Map Fields', 'Validate', 'Review', 'Import', 'Results'].map((x, i) => <span key={x} className={i === 0 ? 'text-foreground' : ''}>{i + 1}. {x}{i < 5 && <ChevronRight className="mx-1 inline" size={12} />}</span>)}</div><div className="rounded-xl border border-dashed border-border/40 bg-secondary/[0.04] p-12 text-center"><FileSpreadsheet className="mx-auto text-foreground" size={34} /><h3 className="mt-3 font-medium text-foreground">Drop your lead file here</h3><p className="mt-1 text-sm text-muted-foreground">CSV or XLSX up to 25MB</p><button className="mt-5 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground">Choose file</button></div><p className="flex items-center gap-2 text-xs text-foreground"><Lock size={14} />Existing records will not be overwritten without your confirmation.</p></> : kind === 'export' ? <><div className="space-y-3">{['All Leads (428)', 'Current Filter', 'Selected Leads'].map((x, i) => <label key={x} className="flex items-center gap-3 rounded-lg border border-border p-3 text-sm text-foreground"><input type="radio" name="scope" defaultChecked={i === 0} className="accent-primary" />{x}</label>)}</div><div><p className="mb-2 text-xs uppercase tracking-wider text-muted-foreground">Format</p><div className="flex gap-2"><button className="rounded-lg bg-secondary/20 px-4 py-2 text-sm text-foreground">CSV</button><button className="rounded-lg border border-border px-4 py-2 text-sm text-foreground">Excel</button></div></div><div className="grid grid-cols-2 gap-2 text-sm text-foreground">{['Lead', 'Company', 'Score', 'Status', 'Source', 'Owner', 'Potential Value'].map(x => <label key={x} className="flex gap-2"><input type="checkbox" defaultChecked className="accent-primary" />{x}</label>)}</div></> : kind === 'convert' ? <><div className="rounded-lg border border-border/20 bg-secondary/[0.06] p-4"><strong className="text-foreground">{lead?.name || 'Marcus Johnson'}</strong><p className="mt-1 text-sm text-muted-foreground">{lead?.company || 'Quantum Dynamics'} → Contact + Company + Deal</p></div><div className="space-y-3"><label className="flex items-center gap-3 rounded-lg border border-border p-4 text-sm text-foreground"><input type="checkbox" defaultChecked className="accent-primary" />Create new contact</label><label className="flex items-center gap-3 rounded-lg border border-border p-4 text-sm text-foreground"><input type="checkbox" defaultChecked className="accent-primary" />Create new company</label><label className="flex items-center gap-3 rounded-lg border border-border p-4 text-sm text-foreground"><input type="checkbox" defaultChecked className="accent-primary" />Create deal · {lead?.value || '€84,000'}</label></div><p className="text-xs text-foreground">No duplicate records will be created silently.</p></> : <><div className="grid gap-4 sm:grid-cols-2">{['First Name *', 'Last Name *', 'Email *', 'Phone · Optional', 'Company · Optional', 'Job Title · Optional', 'Lead Source *', 'Lead Status *', 'Owner · Optional', 'Industry · Optional', 'Country · Optional', 'City · Optional', 'Potential Value · Optional', 'Tags · Optional'].map(x => <label key={x} className="text-xs text-muted-foreground">{x}<input className="mt-1.5 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring" /></label>)}</div>{kind === 'qualify' && <><label className="block text-xs text-muted-foreground">Need<textarea className="mt-1.5 h-20 w-full rounded-lg border border-border bg-[var(--secondary)] p-3 text-sm text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring" /></label><div className="grid gap-4 sm:grid-cols-2"><label className="text-xs text-muted-foreground">Authority<select className="mt-1.5 w-full rounded-lg border border-border bg-[var(--secondary)] p-2.5 text-sm text-foreground"><option>Decision Maker</option><option>Influencer</option><option>User</option><option>Unknown</option></select></label><label className="text-xs text-muted-foreground">Timing<select className="mt-1.5 w-full rounded-lg border border-border bg-[var(--secondary)] p-2.5 text-sm text-foreground"><option>Immediate</option><option>1-3 months</option><option>3-6 months</option><option>6+ months</option></select></label></div></>}</>}</div><div className="flex justify-end gap-2 border-t border-border p-4"><button onClick={close} className="rounded-lg px-4 py-2 text-sm text-muted-foreground hover:text-foreground">Cancel</button><button onClick={close} className={`rounded-lg px-4 py-2 text-sm font-medium text-primary-foreground ${kind === 'convert' ? 'bg-primary hover:bg-primary' : 'bg-primary hover:bg-primary'}`}>{kind === 'qualify' ? 'Qualify Lead' : kind === 'convert' ? 'Convert Lead' : kind === 'import' ? 'Continue' : kind === 'export' ? 'Export' : kind === 'create' ? 'Create Lead' : 'Save Changes'}</button></div></div></div>;
+}

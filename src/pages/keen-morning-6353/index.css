@@ -1,0 +1,454 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+@plugin "tailwindcss-animate";
+@custom-variant dark (&:is(.dark *));
+
+:root { --font-body: 'Inter', sans-serif; --font-heading: 'Inter', sans-serif; }
+
+body { margin: 0; min-width: 320px; background: var(--background); font-family: var(--font-body); }
+
+@layer base {
+  * { box-sizing: border-box; }
+  html, body, #root { min-height: 100%; width: 100%; }
+  button, input, textarea, select { font: inherit; }
+  button, a, select, input[type='checkbox'], input[type='file'] { -webkit-tap-highlight-color: transparent; }
+  button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--border); outline-offset: 2px; }
+  :root {
+    --card: oklch(0.991 0.002 255.7);
+    --ring: oklch(0.312 0.004 262.2);
+    --input: oklch(0.617 0.004 262.2);
+    --muted: oklch(0.973 0.002 255.7);
+    --accent: oklch(0.973 0.002 255.7);
+    --border: oklch(0.187 0.004 262.2 / 0.10);
+    --chart-1: oklch(0.784 0.181 47.7);
+    --chart-2: oklch(0.617 0.181 308.2);
+    --chart-3: oklch(0.573 0.181 259.6);
+    --chart-4: oklch(0.617 0.181 142.2);
+    --chart-5: oklch(0.547 0.181 29.2);
+    --popover: oklch(0.991 0.002 255.7);
+    --primary: oklch(0.187 0.004 262.2);
+    --sidebar: oklch(0.988 0.001 255.7);
+    --secondary: oklch(0.942 0.003 255.7);
+    --background: oklch(0.991 0.002 255.7);
+    --foreground: oklch(0.187 0.004 262.2);
+    --destructive: oklch(0.547 0.181 29.2);
+    --sidebar-ring: oklch(0.312 0.004 262.2);
+    --sidebar-accent: oklch(0.973 0.002 255.7);
+    --sidebar-border: oklch(0.187 0.004 262.2 / 0.10);
+    --card-foreground: oklch(0.187 0.004 262.2);
+    --sidebar-primary: oklch(0.187 0.004 262.2);
+    --muted-foreground: oklch(0.624 0.006 262.2);
+    --accent-foreground: oklch(0.187 0.004 262.2);
+    --popover-foreground: oklch(0.187 0.004 262.2);
+    --primary-foreground: oklch(0.991 0.002 255.7);
+    --sidebar-foreground: oklch(0.187 0.004 262.2);
+    --secondary-foreground: oklch(0.388 0.012 262.2);
+    --sidebar-accent-foreground: oklch(0.187 0.004 262.2);
+    --sidebar-primary-foreground: oklch(0.991 0.002 255.7);
+  }
+}
+
+.form-input { width: 100%; height: 2.75rem; border-radius: 0.375rem; border: 1px solid var(--border); background: var(--sidebar); padding: 0 0.75rem; font-size: 0.875rem; color: var(--foreground); outline: none; }
+.form-input::placeholder { color: var(--muted-foreground); }
+.form-input:focus { border-color: var(--muted-foreground); box-shadow: none; }
+.form-input option { background: var(--card); color: var(--foreground); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: 0.01ms !important; }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-body: var(--font-body);
+  --font-heading: var(--font-heading);
+  --font-mono: var(--font-geist-mono);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.302 0.004 262.2);
+  --foreground: oklch(0.991 0.002 255.7);
+  --card: oklch(0.388 0.004 262.2);
+  --card-foreground: oklch(0.991 0.002 255.7);
+  --popover: oklch(0.373 0.004 262.2);
+  --popover-foreground: oklch(0.991 0.002 255.7);
+  --primary: oklch(0.991 0.002 255.7);
+  --primary-foreground: oklch(0.187 0.004 262.2);
+  --secondary: oklch(0.388 0.004 262.2);
+  --secondary-foreground: oklch(0.973 0.002 255.7);
+  --muted: oklch(0.444 0.004 262.2);
+  --muted-foreground: oklch(0.724 0.006 262.2);
+  --accent: oklch(0.444 0.004 262.2);
+  --accent-foreground: oklch(0.991 0.002 255.7);
+  --destructive: oklch(0.547 0.181 29.2);
+  --border: oklch(0.991 0.002 255.7 / 0.15);
+  --input: oklch(0.991 0.002 255.7 / 0.15);
+  --ring: oklch(0.724 0.006 262.2);
+  --chart-1: oklch(0.872 0.181 47.7);
+  --chart-2: oklch(0.617 0.181 308.2);
+  --chart-3: oklch(0.784 0.101 259.6);
+  --chart-4: oklch(0.784 0.101 142.2);
+  --chart-5: oklch(0.784 0.101 29.2);
+  --sidebar: oklch(0.332 0.004 262.2);
+  --sidebar-foreground: oklch(0.933 0.002 255.7);
+  --sidebar-primary: oklch(0.991 0.002 255.7);
+  --sidebar-primary-foreground: oklch(0.187 0.004 262.2);
+  --sidebar-accent: oklch(0.444 0.004 262.2);
+  --sidebar-accent-foreground: oklch(0.991 0.002 255.7);
+  --sidebar-border: oklch(0.991 0.002 255.7 / 0.15);
+  --sidebar-ring: oklch(0.724 0.006 262.2);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+  }
+  html,
+  body,
+  #root {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overscroll-behavior-x: none;
+  }
+}
+
+/* Broken Image Fallback Styles */
+img.broken-image-fallback {
+  position: relative;
+  display: inline-block;
+  background: var(--card);
+  border: 1px solid var(--border);
+  object-fit: none;
+  object-position: center;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.dark img.broken-image-fallback {
+  background: var(--background);
+  border-color: var(--muted-foreground);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Lulu AI blue palette — color treatment only. Layout, content, sections, and navigation remain unchanged. */
+:root {
+  --lulu-background: var(--sidebar);
+  --lulu-primary: var(--primary);
+  --lulu-headline: var(--primary);
+  --lulu-surface: var(--sidebar);
+  --lulu-border: var(--border);
+  --lulu-muted: var(--muted-foreground);
+  --lulu-accent: var(--border);
+  --lulu-text: var(--muted-foreground);
+  --lulu-hover: var(--border);
+  --lulu-on-blue: var(--background);
+}
+
+body,
+#root,
+#root > main,
+#root > div {
+  background: var(--lulu-background) !important;
+  color: var(--lulu-text) !important;
+}
+
+#root > main {
+  background-color: var(--lulu-background) !important;
+  color: var(--lulu-text) !important;
+}
+
+#root > main > header,
+#root > div > header,
+header {
+  background-color: var(--lulu-headline) !important;
+  border-color: var(--lulu-border) !important;
+}
+
+header,
+header *,
+#root > main > header,
+#root > main > header * {
+  color: var(--lulu-on-blue) !important;
+}
+
+#root > main [class~="bg-[var(--background)]"],
+#root > main [class*="bg-[var(--background)]/"],
+#root > main [class~="bg-[var(--background)]"],
+#root > main [class~="bg-[var(--background)]"],
+#root > main [class~="bg-[var(--background)]"],
+#root > main [class*="bg-white/["],
+#root > main [class*="bg-black/"] {
+  background-color: var(--lulu-surface) !important;
+}
+
+#root > main [class~="bg-white"] {
+  background-color: var(--primary-foreground) !important;color:var(--primary-foreground)}
+
+#root > main [class*="border-white"],
+#root > main [class*="border-slate"],
+#root > main [class*="border-violet"],
+#root > main [class*="border-sky"],
+#root > main [class*="border-amber"] {
+  border-color: var(--lulu-border) !important;
+}
+
+#root > main .text-white,
+#root > main [class*="text-slate-100"],
+#root > main [class*="text-slate-200"],
+#root > main [class*="text-slate-300"],
+#root > main [class*="text-slate-700"] {
+  color: var(--lulu-text) !important;
+}
+
+#root > main [class*="text-slate-400"],
+#root > main [class*="text-slate-500"],
+#root > main [class*="text-slate-600"] {
+  color: var(--lulu-muted) !important;
+}
+
+#root > main [class*="text-violet"],
+#root > main [class*="text-sky"],
+#root > main [class*="text-amber"],
+#root > main [class*="text-emerald"] {
+  color: var(--lulu-primary) !important;
+}
+
+#root > main h1,
+#root > main h2,
+#root > main h3,
+#root > main h4,
+#root > main h5,
+#root > main h6 {
+  color: var(--lulu-headline) !important;
+}
+
+#root > main h1 {
+  color: var(--lulu-headline) !important;
+}
+
+#root > main [class*="bg-violet-500/"],
+#root > main [class*="bg-sky-400/"],
+#root > main [class*="bg-amber-300/"],
+#root > main [class*="bg-emerald"],
+#root > main [class*="bg-red-400/"] {
+  background-color: var(--lulu-surface) !important;
+  color: var(--lulu-primary) !important;
+}
+
+#root > main [class~="bg-violet-500"],
+#root > main [class~="bg-violet-400"],
+#root > main [class~="bg-blue-500"],
+#root > main [class~="bg-indigo-500"],
+#root > main [class~="bg-cyan-500"],
+#root > main [class~="bg-red-500"],
+#root > main [class~="bg-red-500/90"],
+#root > main [class~="bg-amber-500"],
+#root > main [class~="bg-yellow-500"],
+#root > main [class~="bg-orange-500"] {
+  background-color: var(--lulu-primary) !important;
+  color: var(--lulu-on-blue) !important;
+}
+
+#root > main [class~="bg-violet-500"] *,
+#root > main [class~="bg-violet-400"] *,
+#root > main [class~="bg-blue-500"] *,
+#root > main [class~="bg-indigo-500"] *,
+#root > main [class~="bg-cyan-500"] *,
+#root > main [class~="bg-red-500"] *,
+#root > main [class~="bg-red-500/90"] * {
+  color: inherit !important;
+}
+
+#root > main button[class~="bg-violet-500"]:hover,
+#root > main button[class~="bg-blue-500"]:hover,
+#root > main button[class~="bg-indigo-500"]:hover,
+#root > main button[class~="bg-cyan-500"]:hover,
+#root > main button[class~="bg-red-500"]:hover,
+#root > main button[class~="bg-red-500/90"]:hover,
+#root > main [class*="hover:bg-violet-400"]:hover,
+#root > main [class*="hover:bg-red-500"]:hover {
+  background-color: var(--lulu-hover) !important;
+  color: var(--lulu-on-blue) !important;
+}
+
+#root > main [class*="hover:text-white"]:hover,
+#root > main [class*="hover:text-violet"]:hover,
+#root > main [class*="hover:text-slate"]:hover,
+#root > main [class*="hover:text-red"]:hover {
+  color: var(--lulu-hover) !important;
+}
+
+#root > main input,
+#root > main select,
+#root > main textarea,
+#root > main .form-input {
+  background: var(--lulu-surface) !important;
+  border-color: var(--lulu-border) !important;
+  color: var(--lulu-text) !important;
+}
+
+#root > main input::placeholder,
+#root > main textarea::placeholder {
+  color: var(--lulu-muted) !important;
+}
+
+#root > main input:focus,
+#root > main select:focus,
+#root > main textarea:focus,
+#root > main .form-input:focus {
+  border-color: var(--lulu-primary) !important;
+  box-shadow: 0 0 0 3px rgba(0,0,0,0.16) !important;
+}
+
+#root > main input[type='checkbox'] {
+  accent-color: var(--lulu-primary) !important;
+}
+
+#root > main [class*="focus:border-violet"],
+#root > main [class*="focus:ring-violet"] {
+  --tw-ring-color: rgba(0,0,0,0.2) !important;
+}
+
+#root > main dialog {
+  background-color: rgba(0,0,0,0.56) !important;
+}
+
+#root > main dialog > form,
+#root > main dialog > div {
+  background: var(--card) !important;
+  color: var(--lulu-text) !important;
+  border-color: var(--lulu-border) !important;
+}
+
+#root > main dialog [class*="bg-[var(--background)]"],
+#root > main dialog [class*="bg-[var(--background)]"] {
+  background-color: var(--primary-foreground) !important;
+}
+
+#root > main [role='status'],
+#root > main [class*="text-violet-100"],
+#root > main [class*="text-violet-200"] {
+  color: var(--lulu-primary) !important;
+}
+
+#root > main [class*="shadow-violet"] {
+  box-shadow: 0 10px 24px rgba(0,0,0,0.18) !important;
+}
+
+#root > main [class*="selection:bg-violet"]::selection,
+#root > main ::selection {
+  background: rgba(0,0,0,0.18) !important;
+}
+
+#root > main footer,
+#root > main nav {
+  border-color: var(--lulu-border) !important;
+}
+
+
+/* OPENAI SEMANTIC THEME ENFORCEMENT: colors only; layout and behavior remain unchanged. */
+html, body, #root { background-color: var(--background) !important; color: var(--foreground); }
+#root#root > div[class*="min-h-screen"], #root#root > main[class*="min-h-screen"] { background-color: var(--background) !important; color: var(--foreground) !important; }
+#root#root > div > aside, #root#root > main > aside { background-color: var(--sidebar) !important; color: var(--sidebar-foreground) !important; border-color: var(--sidebar-border) !important; }
+#root#root > div > main, #root#root > main { background-color: var(--background) !important; color: var(--foreground) !important; }
+#root#root [class~="bg-background"], #root#root [class~="bg-[var(--background)]"] { background-color: var(--background) !important; }
+#root#root [class~="bg-card"], #root#root [class~="bg-[var(--card)]"] { background-color: var(--card) !important; }
+#root#root [class~="bg-sidebar"], #root#root [class~="bg-[var(--sidebar)]"] { background-color: var(--sidebar) !important; }
+#root#root [class~="bg-secondary"], #root#root [class~="bg-[var(--secondary)]"] { background-color: var(--secondary) !important; }
+#root#root [class~="bg-muted"], #root#root [class~="bg-[var(--muted)]"] { background-color: var(--muted) !important; }
+#root#root [class~="bg-primary"], #root#root [class~="bg-[var(--primary)]"] { background-color: var(--primary) !important; }
+#root#root [class~="text-foreground"], #root#root [class~="text-[var(--foreground)]"] { color: var(--foreground) !important; }
+#root#root [class~="text-muted-foreground"], #root#root [class~="text-[var(--muted-foreground)]"] { color: var(--muted-foreground) !important; }
+#root#root [class~="text-primary-foreground"], #root#root [class~="text-[var(--primary-foreground)]"] { color: var(--primary-foreground) !important; }
+#root#root [class~="border-border"], #root#root [class~="border-[var(--border)]"] { border-color: var(--border) !important; }

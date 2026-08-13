@@ -1,0 +1,258 @@
+import { useMemo, useState } from 'react';
+import { Archive, ArrowDownUp, Bell, Brain, Check, ChevronDown, ChevronRight, CircleHelp, Columns3, Copy, Download, ExternalLink, Filter, Globe2, LayoutDashboard, ListFilter, MoreHorizontal, Plus, RefreshCw, Search, Settings2, SlidersHorizontal, Sparkles, Tags, Trash2, Upload, Users, X, Zap } from 'lucide-react';
+type Platform = 'Google Ads' | 'Meta Ads' | 'Microsoft Advertising' | 'LinkedIn Ads' | 'TikTok Ads';
+type AudienceStatus = 'Active' | 'Processing' | 'Available' | 'Unavailable' | 'Error';
+type Audience = {
+  id: string;
+  name: string;
+  platform: Platform;
+  type: string;
+  status: AudienceStatus;
+  size: string;
+  campaigns: number;
+  spend: string;
+  conversions: string;
+  cpa: string;
+  roas: string;
+  synced: string;
+  updated: string;
+  quality: string;
+  tone: string;
+};
+type Modal = 'create' | 'sync' | 'duplicate' | 'archive' | 'connect' | 'export' | null;
+type PlatformOption = {
+  name: Platform;
+  mark: string;
+  description: string;
+  connected: boolean;
+};
+const platforms: PlatformOption[] = [{
+  name: 'Google Ads',
+  mark: 'G',
+  description: 'Search, YouTube and Display audiences',
+  connected: true
+}, {
+  name: 'Meta Ads',
+  mark: 'M',
+  description: 'Facebook and Instagram audiences',
+  connected: true
+}, {
+  name: 'Microsoft Advertising',
+  mark: 'm',
+  description: 'Bing and Microsoft network audiences',
+  connected: false
+}, {
+  name: 'LinkedIn Ads',
+  mark: 'in',
+  description: 'Professional and company audiences',
+  connected: false
+}, {
+  name: 'TikTok Ads',
+  mark: '♪',
+  description: 'TikTok engagement audiences',
+  connected: false
+}];
+const audiences: Audience[] = [{
+  id: 'aud_7F2A91',
+  name: 'High-value customers · 180d',
+  platform: 'Google Ads',
+  type: 'Customer List',
+  status: 'Active',
+  size: '48,240',
+  campaigns: 4,
+  spend: '$24,810',
+  conversions: '612',
+  cpa: '$40.54',
+  roas: '4.8x',
+  synced: '12 min ago',
+  updated: 'Today, 9:42 AM',
+  quality: 'Excellent',
+  tone: 'violet'
+}, {
+  id: 'aud_19C0B4',
+  name: 'Product viewers · 30d',
+  platform: 'Meta Ads',
+  type: 'Website Visitors',
+  status: 'Active',
+  size: '126,840',
+  campaigns: 7,
+  spend: '$18,420',
+  conversions: '384',
+  cpa: '$47.97',
+  roas: '3.7x',
+  synced: '28 min ago',
+  updated: 'Today, 9:26 AM',
+  quality: 'Good',
+  tone: 'blue'
+}, {
+  id: 'aud_8D3E20',
+  name: 'Spring lookalike · 1%',
+  platform: 'Meta Ads',
+  type: 'Lookalike',
+  status: 'Available',
+  size: '2.1M',
+  campaigns: 2,
+  spend: '$9,240',
+  conversions: '156',
+  cpa: '$59.23',
+  roas: '2.9x',
+  synced: '1 hr ago',
+  updated: 'Today, 8:54 AM',
+  quality: 'Good',
+  tone: 'teal'
+}, {
+  id: 'aud_4B78DD',
+  name: 'Demo request leads',
+  platform: 'Google Ads',
+  type: 'Leads',
+  status: 'Processing',
+  size: 'No Data',
+  campaigns: 0,
+  spend: '$0',
+  conversions: 'No Data',
+  cpa: 'No Data',
+  roas: 'No Data',
+  synced: 'Processing',
+  updated: 'Yesterday, 4:16 PM',
+  quality: 'Unavailable',
+  tone: 'amber'
+}, {
+  id: 'aud_2A610E',
+  name: 'Cart abandoners · 14d',
+  platform: 'Meta Ads',
+  type: 'Remarketing',
+  status: 'Error',
+  size: 'No Data',
+  campaigns: 1,
+  spend: '$3,180',
+  conversions: 'No Data',
+  cpa: 'No Data',
+  roas: 'No Data',
+  synced: 'Failed',
+  updated: 'Yesterday, 2:11 PM',
+  quality: 'Limited',
+  tone: 'rose'
+}];
+const performance = [{
+  label: 'Spend',
+  value: '$52,470',
+  note: 'Observed · last 30 days'
+}, {
+  label: 'Impressions',
+  value: '3.84M',
+  note: 'Observed · last 30 days'
+}, {
+  label: 'Reach',
+  value: '614K',
+  note: 'Observed · last 30 days'
+}, {
+  label: 'Conversions',
+  value: '1,152',
+  note: 'Observed · last 30 days'
+}, {
+  label: 'CPA',
+  value: '$45.55',
+  note: 'Observed · last 30 days'
+}, {
+  label: 'ROAS',
+  value: '4.2x',
+  note: 'Observed · last 30 days'
+}];
+const usage = [{
+  campaign: 'Q2 Pipeline Acceleration',
+  platform: 'Google Ads',
+  status: 'Live',
+  spend: '$14,280',
+  conversions: '342',
+  cpa: '$41.75',
+  roas: '5.1x'
+}, {
+  campaign: 'Always-on Brand Search',
+  platform: 'Google Ads',
+  status: 'Live',
+  spend: '$8,940',
+  conversions: '270',
+  cpa: '$33.11',
+  roas: '4.6x'
+}, {
+  campaign: 'Customer Winback',
+  platform: 'Google Ads',
+  status: 'Paused',
+  spend: '$1,590',
+  conversions: '—',
+  cpa: 'No Data',
+  roas: 'No Data'
+}];
+const statusStyles: Record<AudienceStatus, string> = {
+  Active: 'bg-chart-4/10 text-chart-4 border-chart-4/30',
+  Processing: 'bg-secondary text-foreground border-border',
+  Available: 'bg-secondary text-foreground border-border',
+  Unavailable: 'bg-secondary text-muted-foreground border-border',
+  Error: 'bg-chart-5/10 text-chart-5 border-chart-5/30'
+};
+function PlatformMark({
+  platform
+}: {
+  platform: Platform;
+}) {
+  const option = platforms.find(item => item.name === platform);
+  return <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">{option?.mark}</span>;
+}
+function ModalPanel({
+  modal,
+  close,
+  selected,
+  setModal
+}: {
+  modal: Modal;
+  close: () => void;
+  selected: Audience;
+  setModal: (modal: Modal) => void;
+}) {
+  if (!modal) return null;
+  const titles: Record<Exclude<Modal, null>, string> = {
+    create: 'Create audience',
+    sync: 'Sync audience',
+    duplicate: 'Duplicate audience',
+    archive: 'Archive audience',
+    connect: 'Connect a platform',
+    export: 'Export audiences'
+  };
+  return <section className="fixed inset-0 z-30 flex items-end justify-center bg-primary/30 p-4 backdrop-blur-sm sm:items-center" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div className="w-full max-w-xl rounded-2xl border border-border bg-card p-6 shadow-2xl">
+      <div className="mb-6 flex items-start justify-between"><div><p className="mb-1 text-xs font-semibold uppercase tracking-[.16em] text-foreground">Workspace action</p><h2 id="modal-title" className="text-2xl font-semibold tracking-tight text-foreground">{titles[modal]}</h2></div><button onClick={close} aria-label="Close dialog" className="rounded-lg p-2 text-foreground hover:bg-secondary hover:text-foreground"><X size={18} /></button></div>
+      {modal === 'connect' && <div className="space-y-3">{platforms.map(item => <div key={item.name} className="flex items-center gap-3 rounded-xl border border-border p-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">{item.mark}</span><div className="min-w-0 flex-1"><p className="font-medium text-foreground">{item.name}</p><p className="text-sm text-muted-foreground">{item.description}</p></div><button className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground">{item.connected ? 'Connected' : 'Connect'}</button></div>)}</div>}
+      {modal === 'create' && <div className="space-y-5"><div className="flex items-center gap-2">{['Platform', 'Type', 'Definition', 'Settings', 'Review'].map((step, i) => <div key={step} className="flex flex-1 items-center gap-2"><span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${i === 0 ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>{i + 1}</span><span className="hidden text-xs font-medium text-muted-foreground sm:block">{step}</span></div>)}</div><label className="block text-sm font-medium text-foreground">Platform<select className="mt-2 w-full rounded-lg border border-border p-3 text-sm"><option>Google Ads</option><option>Meta Ads</option></select></label><label className="block text-sm font-medium text-foreground">Audience type<select className="mt-2 w-full rounded-lg border border-border p-3 text-sm"><option>Customer List</option><option>Website Visitors</option><option>Lookalike</option><option>Remarketing</option></select></label><p className="rounded-lg bg-secondary p-3 text-sm text-foreground">The audience will show as Processing until the connected platform confirms availability.</p><button className="w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground hover:bg-primary">Continue to definition</button></div>}
+      {modal === 'sync' && <div className="space-y-4"><div className="rounded-xl border border-border bg-card p-4"><div className="flex items-center gap-3"><PlatformMark platform={selected.platform} /><div><p className="font-semibold text-foreground">{selected.name}</p><p className="text-sm text-muted-foreground">Current status: {selected.status} · Last synchronization: {selected.synced}</p></div></div></div><p className="text-sm leading-6 text-muted-foreground">A sync requests the latest audience state from {selected.platform}. No progress is shown until the platform reports a result.</p><button className="w-full rounded-lg bg-primary px-4 py-3 font-semibold text-primary-foreground">Sync audience</button></div>}
+      {(modal === 'duplicate' || modal === 'archive' || modal === 'export') && <div className="space-y-4"><p className="text-sm leading-6 text-muted-foreground">{modal === 'duplicate' ? `Copy supported settings from “${selected.name}”. The new audience will require platform confirmation before it can be used.` : modal === 'archive' ? 'The audience will be removed from the active Lulu AI audience workspace. Existing platform usage will not be changed unless explicitly supported and confirmed.' : 'Choose a format and scope for this export. Unsupported metrics will be labeled No Data.'}</p>{modal === 'duplicate' && <input aria-label="New audience name" className="w-full rounded-lg border border-border p-3 text-sm" defaultValue={`${selected.name} · Copy`} />}{modal === 'export' && <div className="flex gap-2">{['CSV', 'Excel', 'PDF'].map(format => <button key={format} className="flex-1 rounded-lg border border-border p-3 text-sm font-medium hover:border-border">{format}</button>)}</div>}<button onClick={close} className={`w-full rounded-lg px-4 py-3 font-semibold text-primary-foreground ${modal === 'archive' ? 'bg-primary' : 'bg-primary'}`}>{modal === 'archive' ? 'Archive audience' : modal === 'export' ? 'Export audiences' : 'Duplicate audience'}</button></div>}
+    </div>
+  </section>;
+}
+export function AdvertisingAudiences() {
+  const [selectedId, setSelectedId] = useState(audiences[0].id);
+  const [platform, setPlatform] = useState<'All Platforms' | Platform>('All Platforms');
+  const [query, setQuery] = useState('');
+  const [modal, setModal] = useState<Modal>(null);
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedRows, setSelectedRows] = useState<string[]>([]);
+  const selected = audiences.find(item => item.id === selectedId) ?? audiences[0];
+  const visibleAudiences = useMemo(() => audiences.filter(item => (platform === 'All Platforms' || item.platform === platform) && `${item.name} ${item.id} ${item.platform} ${item.type}`.toLowerCase().includes(query.toLowerCase())), [platform, query]);
+  const toggleRow = (id: string) => setSelectedRows(rows => rows.includes(id) ? rows.filter(row => row !== id) : [...rows, id]);
+  return <div className="min-h-screen bg-[var(--background)] text-foreground">
+    <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-[var(--sidebar)] px-5 py-6 text-foreground lg:flex"><div className="mb-12 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary font-black text-primary-foreground">L</div><span className="text-lg font-semibold tracking-tight text-foreground">LULU AI</span></div><p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[.18em] text-muted-foreground">Business OS</p><nav className="space-y-1"><a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground" href="#"><LayoutDashboard size={17} /><span>Overview</span></a><a className="flex items-center gap-3 rounded-lg bg-secondary px-3 py-2.5 text-sm font-medium text-foreground" href="#"><Zap size={17} className="text-foreground" /><span>Advertising</span><ChevronDown size={15} className="ml-auto" /></a><a className="flex items-center gap-3 rounded-lg px-11 py-2 text-sm text-foreground" href="#">Audiences</a><a className="flex items-center gap-3 rounded-lg px-11 py-2 text-sm text-foreground" href="#">Campaigns</a><a className="mt-5 flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground" href="#"><Users size={17} /><span>Customers</span></a><a className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground" href="#"><Settings2 size={17} /><span>Settings</span></a></nav><div className="mt-auto rounded-xl border border-border bg-secondary p-4"><div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground"><Sparkles size={15} className="text-foreground" /> Ask Lulu</div><p className="text-xs leading-5 text-muted-foreground">Get a clear read on your advertising performance.</p><button className="mt-3 w-full rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">Open assistant</button></div></aside>
+    <main className="lg:pl-64"><header className="flex min-h-20 items-center justify-between border-b border-border bg-card px-5 py-4 sm:px-8"><div><p className="text-xs font-medium text-muted-foreground">Advertising <span className="mx-1">/</span> <span className="text-muted-foreground">Audiences</span></p><h1 className="mt-1 text-xl font-semibold tracking-tight">Audiences</h1></div><div className="flex items-center gap-2"><button onClick={() => setModal('export')} className="hidden rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-card sm:flex"><Download size={16} /></button><button aria-label="Notifications" className="rounded-lg border border-border p-2 text-foreground"><Bell size={17} /></button><button onClick={() => setModal('connect')} className="hidden rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground sm:flex">Connect Platform</button><button onClick={() => setModal('create')} className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary"><Plus size={16} /> <span className="hidden sm:inline">Create Audience</span></button></div></header>
+      <div className="mx-auto max-w-[1600px] px-5 py-7 sm:px-8"><div className="mb-7 flex flex-col justify-between gap-4 xl:flex-row xl:items-end"><div><p className="max-w-xl text-sm text-muted-foreground">Manage and optimize the audiences used across your advertising campaigns.</p></div><div className="flex flex-wrap gap-2"><button onClick={() => setModal('sync')} className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground"><RefreshCw size={15} /> Sync Audiences</button><button className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"><Sparkles size={15} /> Ask Lulu AI</button></div></div>
+        <section aria-labelledby="summary-title"><div className="mb-3 flex items-center justify-between"><h2 id="summary-title" className="text-sm font-semibold text-foreground">Audience portfolio</h2><span className="text-xs text-muted-foreground">Connected data only · updated today</span></div><div className="grid grid-cols-2 gap-3 xl:grid-cols-5">{[['Total audiences', '5', 'Across 2 connected platforms', 'text-foreground'], ['Active audiences', '3', 'Available for delivery', 'text-chart-4'], ['Audiences in use', '4', 'Assigned to campaigns', 'text-foreground'], ['High performing', '3', 'Strong ROAS signals', 'text-foreground'], ['Attention required', '2', 'Errors or limited data', 'text-chart-5']].map(([label, value, note, color]) => <div key={label} className="rounded-xl border border-border bg-card p-4"><p className="text-xs font-medium text-muted-foreground">{label}</p><p className={`mt-2 text-2xl font-semibold tracking-tight ${color}`}>{value}</p><p className="mt-1 text-xs text-muted-foreground">{note}</p></div>)}</div></section>
+        <section className="mt-7 rounded-xl border border-border bg-card p-4"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div className="relative min-w-0 flex-1 lg:max-w-md"><Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={17} /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search audiences..." aria-label="Search audiences" className="w-full rounded-lg border border-border py-2.5 pl-10 pr-4 text-sm outline-none ring-ring placeholder:text-muted-foreground focus:border-border focus:ring-4" /></div><div className="flex items-center gap-2 overflow-x-auto pb-1"><span className="mr-1 shrink-0 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Platform</span>{['All Platforms', 'Google Ads', 'Meta Ads'].map(item => <button key={item} onClick={() => setPlatform(item as 'All Platforms' | Platform)} className={`shrink-0 rounded-lg px-3 py-2 text-sm font-medium ${platform === item ? 'bg-primary text-primary-foreground' : 'border border-border text-foreground hover:bg-card'}`}>{item}</button>)}<button onClick={() => setShowFilters(!showFilters)} className="flex shrink-0 items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground"><SlidersHorizontal size={15} /> Advanced filters</button></div></div>{showFilters && <div className="mt-4 grid gap-3 border-t border-border pt-4 sm:grid-cols-3 lg:grid-cols-5"><label className="text-xs font-semibold text-muted-foreground">Audience type<select className="mt-1.5 w-full rounded-lg border border-border p-2 text-sm font-normal"><option>All types</option><option>Customer List</option><option>Website Visitors</option><option>Lookalike</option></select></label><label className="text-xs font-semibold text-muted-foreground">Status<select className="mt-1.5 w-full rounded-lg border border-border p-2 text-sm font-normal"><option>All statuses</option><option>Active</option><option>Processing</option><option>Error</option></select></label><label className="text-xs font-semibold text-muted-foreground">Usage<select className="mt-1.5 w-full rounded-lg border border-border p-2 text-sm font-normal"><option>All usage</option><option>In Use</option><option>Not Used</option></select></label><label className="text-xs font-semibold text-muted-foreground">Performance<select className="mt-1.5 w-full rounded-lg border border-border p-2 text-sm font-normal"><option>All signals</option><option>High Performing</option><option>Underperforming</option></select></label><div className="flex items-end gap-2"><button className="rounded-lg border border-border p-2 text-sm font-medium text-foreground">Clear</button><button className="rounded-lg bg-secondary p-2 text-sm font-medium text-foreground">Save filter</button></div></div>}</section>
+        {selectedRows.length > 0 && <div className="mt-3 flex items-center gap-3 rounded-xl border border-border bg-secondary px-4 py-3 text-sm"><strong>{selectedRows.length} selected</strong><button className="ml-auto text-foreground">Sync</button><button className="text-foreground">Add Tags</button><button className="text-foreground">Export</button><button className="text-foreground">Archive</button></div>}
+        <section className="mt-4 overflow-hidden rounded-xl border border-border bg-card" aria-labelledby="table-title"><div className="flex items-center justify-between border-b border-border px-4 py-4"><div><h2 id="table-title" className="font-semibold">All audiences</h2><p className="mt-1 text-xs text-muted-foreground">{visibleAudiences.length} connected audience records</p></div><button aria-label="Customize columns" className="rounded-lg border border-border p-2 text-foreground"><Columns3 size={17} /></button></div><div className="overflow-x-auto"><table className="w-full min-w-[1050px] text-left text-sm"><thead className="bg-secondary text-[11px] uppercase tracking-wider text-muted-foreground"><tr><th className="w-10 px-4 py-3"><input type="checkbox" aria-label="Select all audiences" onChange={e => setSelectedRows(e.target.checked ? visibleAudiences.map(item => item.id) : [])} /></th>{['Audience', 'Platform', 'Type', 'Status', 'Estimated size', 'Campaigns', 'Spend', 'Conversions', 'CPA', 'ROAS', 'Last synced', ''].map(heading => <th key={heading} className="whitespace-nowrap px-3 py-3 font-semibold">{heading || <span className="sr-only">Actions</span>}</th>)}</tr></thead><tbody className="divide-y divide-border">{visibleAudiences.map(item => <tr key={item.id} onClick={() => setSelectedId(item.id)} className={`cursor-pointer transition hover:bg-secondary/40 ${selectedId === item.id ? 'bg-secondary/60' : ''}`}><td className="px-4 py-4" onClick={e => e.stopPropagation()}><input type="checkbox" checked={selectedRows.includes(item.id)} onChange={() => toggleRow(item.id)} aria-label={`Select ${item.name}`} /></td><td className="px-3 py-4"><div className="flex items-center gap-3"><div className={`h-2 w-2 rounded-full bg-${item.tone}-500`} /><div><p className="whitespace-nowrap font-medium text-foreground">{item.name}</p><p className="mt-0.5 text-xs text-muted-foreground">{item.id}</p></div></div></td><td className="px-3 py-4"><div className="flex items-center gap-2 whitespace-nowrap"><PlatformMark platform={item.platform} />{item.platform}</div></td><td className="whitespace-nowrap px-3 py-4 text-muted-foreground">{item.type}</td><td className="px-3 py-4"><span className={`rounded-full border px-2 py-1 text-xs font-medium ${statusStyles[item.status]}`}>{item.status}</span></td><td className="px-3 py-4 font-medium text-foreground">{item.size}</td><td className="px-3 py-4 text-muted-foreground">{item.campaigns || '—'}</td><td className="px-3 py-4 text-muted-foreground">{item.spend}</td><td className="px-3 py-4 text-muted-foreground">{item.conversions}</td><td className="px-3 py-4 text-muted-foreground">{item.cpa}</td><td className="px-3 py-4 font-semibold text-foreground">{item.roas}</td><td className="whitespace-nowrap px-3 py-4 text-xs text-muted-foreground">{item.synced}</td><td className="px-3 py-4"><button aria-label={`More actions for ${item.name}`} className="rounded p-1 text-foreground hover:bg-secondary"><MoreHorizontal size={17} /></button></td></tr>)}</tbody></table></div>{visibleAudiences.length === 0 && <div className="p-12 text-center"><p className="font-semibold">No audiences found</p><p className="mt-1 text-sm text-muted-foreground">Try clearing your search or filters.</p><button onClick={() => {
+              setQuery('');
+              setPlatform('All Platforms');
+            }} className="mt-4 text-sm font-semibold text-foreground">Clear filters</button></div>}<div className="flex items-center justify-between border-t border-border px-4 py-3 text-xs text-muted-foreground"><span>Showing {visibleAudiences.length} of 5 audiences</span><div className="flex items-center gap-2"><button disabled className="rounded border border-border px-2 py-1 text-foreground">Previous</button><span className="rounded bg-primary px-2 py-1 text-primary-foreground">1</span><button className="rounded border border-border px-2 py-1">Next</button></div></div></section>
+        <section className="mt-6 grid gap-5 xl:grid-cols-[1.2fr_.8fr]"><div className="rounded-xl border border-border bg-card p-5"><div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"><div className="flex items-start gap-3"><PlatformMark platform={selected.platform} /><div><p className="text-xs font-medium text-muted-foreground">Selected audience</p><h2 className="mt-1 text-xl font-semibold tracking-tight">{selected.name}</h2><p className="mt-1 text-sm text-muted-foreground">{selected.platform} · {selected.type} · <span className="font-medium text-foreground">{selected.status}</span></p></div></div><div className="flex flex-wrap gap-2"><button onClick={() => setModal('sync')} className="rounded-lg border border-border px-3 py-2 text-sm font-medium">Sync</button><button onClick={() => setModal('duplicate')} className="rounded-lg border border-border px-3 py-2 text-sm font-medium">Duplicate</button><button onClick={() => setModal('archive')} className="rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground">Archive</button></div></div><div className="mt-6 grid grid-cols-2 gap-4 border-y border-border py-4 sm:grid-cols-4"><div><p className="text-xs text-muted-foreground">Audience size</p><p className="mt-1 font-semibold">{selected.size}</p></div><div><p className="text-xs text-muted-foreground">Created date</p><p className="mt-1 font-semibold">Mar 18, 2025</p></div><div><p className="text-xs text-muted-foreground">Last synced</p><p className="mt-1 font-semibold">{selected.synced}</p></div><div><p className="text-xs text-muted-foreground">Last updated</p><p className="mt-1 font-semibold">{selected.updated}</p></div></div><div className="mt-5 flex items-center justify-between"><h3 className="font-semibold">Performance · last 30 days</h3><select className="rounded-lg border border-border px-2 py-1.5 text-xs"><option>All campaigns</option></select></div><div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">{performance.map(item => <div key={item.label} className="rounded-lg bg-secondary p-3"><p className="text-xs text-muted-foreground">{item.label}</p><p className="mt-1 text-lg font-semibold">{item.value}</p><p className="mt-1 text-[11px] text-muted-foreground">{item.note}</p></div>)}</div></div><div className="rounded-xl border border-border bg-card p-5"><div className="flex items-center justify-between"><div><h2 className="font-semibold">Audience quality</h2><p className="mt-1 text-xs text-muted-foreground">Platform-provided signals only</p></div><span className="rounded-full bg-secondary px-2 py-1 text-xs font-semibold text-foreground">{selected.quality}</span></div><div className="mt-5 space-y-4">{[['Audience size', selected.size], ['Match rate', selected.id === 'aud_7F2A91' ? '82%' : 'No Data'], ['Availability', selected.status], ['Data freshness', selected.synced], ['Conversion quality', selected.quality]].map(([label, value]) => <div key={label} className="flex items-center justify-between border-b border-border pb-3 text-sm"><span className="text-muted-foreground">{label}</span><strong className="text-foreground">{value}</strong></div>)}</div><div className="mt-5 flex flex-wrap gap-2"><span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-foreground">Retargeting</span><span className="rounded-full bg-secondary px-2.5 py-1 text-xs font-medium text-muted-foreground">High Value</span><button className="rounded-full border border-dashed border-border px-2.5 py-1 text-xs font-medium text-foreground">+ Add tag</button></div></div></section>
+        <section className="mt-6 grid gap-5 xl:grid-cols-3"><div className="rounded-xl border border-border bg-secondary/50 p-5 xl:col-span-2"><div className="flex items-start gap-3"><div className="rounded-lg bg-primary p-2 text-primary-foreground"><Brain size={18} /></div><div><div className="flex flex-wrap items-center gap-2"><h2 className="font-semibold">Lulu AI Audience Analysis</h2><span className="rounded-full bg-card px-2 py-0.5 text-[11px] font-semibold text-foreground">AI-generated</span></div><p className="mt-1 text-xs text-muted-foreground">Observed + AI Inferred · connected advertising data · Today, 9:45 AM · Confidence: High</p></div></div><div className="mt-5 grid gap-3 sm:grid-cols-3"><div className="rounded-lg bg-card p-3"><p className="text-xs text-muted-foreground">Performance</p><p className="mt-2 text-sm font-semibold">Stronger ROAS than account average</p><p className="mt-2 text-xs text-chart-4">Observed · +19% vs account</p></div><div className="rounded-lg bg-card p-3"><p className="text-xs text-muted-foreground">Campaign usage</p><p className="mt-2 text-sm font-semibold">Used across 4 campaigns</p><p className="mt-2 text-xs text-muted-foreground">Observed · Google Ads</p></div><div className="rounded-lg bg-card p-3"><p className="text-xs text-muted-foreground">Opportunity</p><p className="mt-2 text-sm font-semibold">Test increased allocation</p><p className="mt-2 text-xs text-foreground">AI Inferred · no live changes</p></div></div></div><div className="rounded-xl border border-chart-5/30 bg-card p-5"><div className="flex items-center gap-2"><Bell size={17} className="text-chart-5" /><h2 className="font-semibold">Audience risks</h2></div><div className="mt-4 space-y-3"><div className="rounded-lg bg-chart-5/10 p-3"><div className="flex justify-between"><span className="text-sm font-medium text-chart-5">Sync failure</span><span className="text-xs font-semibold text-chart-5">High</span></div><p className="mt-1 text-xs leading-5 text-chart-5">Cart abandoners · 14d is unavailable. Meta Ads reported an error yesterday.</p><button onClick={() => setModal('sync')} className="mt-2 text-xs font-semibold text-chart-5">Review risk <ChevronRight className="inline" size={13} /></button></div><div className="rounded-lg bg-chart-1/10 p-3"><div className="flex justify-between"><span className="text-sm font-medium text-chart-1">Overlap detected</span><span className="text-xs font-semibold text-foreground">Medium</span></div><p className="mt-1 text-xs leading-5 text-foreground">No sufficient platform data to estimate overlap.</p></div></div></div></section>
+        <section className="mt-6 rounded-xl border border-border bg-card p-5"><div className="flex items-center justify-between"><div><h2 className="font-semibold">Campaign usage</h2><p className="mt-1 text-xs text-muted-foreground">Campaigns currently using {selected.name}</p></div><button className="flex items-center gap-1 text-sm font-semibold text-foreground">View all <ExternalLink size={14} /></button></div><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[700px] text-left text-sm"><thead className="text-xs text-muted-foreground"><tr>{['Campaign', 'Platform', 'Status', 'Spend', 'Conversions', 'CPA', 'ROAS', ''].map(heading => <th key={heading} className="border-b border-border px-3 py-3 font-medium">{heading}</th>)}</tr></thead><tbody>{usage.map(item => <tr key={item.campaign} className="border-b border-border"><td className="px-3 py-3 font-medium">{item.campaign}</td><td className="px-3 py-3 text-muted-foreground">{item.platform}</td><td className="px-3 py-3"><span className="rounded-full bg-secondary px-2 py-1 text-xs text-foreground">{item.status}</span></td><td className="px-3 py-3 text-muted-foreground">{item.spend}</td><td className="px-3 py-3 text-muted-foreground">{item.conversions}</td><td className="px-3 py-3 text-muted-foreground">{item.cpa}</td><td className="px-3 py-3 font-semibold">{item.roas}</td><td className="px-3 py-3"><button className="text-xs font-semibold text-foreground">View campaign</button></td></tr>)}</tbody></table></div></section>
+      </div>
+    </main><ModalPanel modal={modal} close={() => setModal(null)} selected={selected} setModal={setModal} />
+  </div>;
+}

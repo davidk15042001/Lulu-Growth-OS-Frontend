@@ -1,0 +1,257 @@
+import * as React from 'react';
+import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BarChart3, Bell, Brain, Check, ChevronDown, ChevronRight, CircleHelp, Database, Download, ExternalLink, Eye, Filter, Gauge, GitBranch, Heart, History, Layers3, LineChart, MoreHorizontal, Pause, Play, Plus, RefreshCw, Search, Settings2, Share2, Sparkles, Star, Target, Trash2, TrendingUp, Upload, Users, X, Zap } from 'lucide-react';
+type Kpi = {
+  name: string;
+  category: string;
+  value: string;
+  change: string;
+  status: 'Healthy' | 'Excellent' | 'Stable' | 'Attention Needed';
+  source: string;
+  updated: string;
+};
+const kpis: Kpi[] = [{
+  name: 'Revenue',
+  category: 'Business',
+  value: '248,400 EUR',
+  change: '+14.8%',
+  status: 'Healthy',
+  source: 'Shopify',
+  updated: '8 min ago'
+}, {
+  name: 'Revenue Growth',
+  category: 'Revenue',
+  value: '+14.8%',
+  change: '+5.6pp',
+  status: 'Excellent',
+  source: 'Shopify',
+  updated: '8 min ago'
+}, {
+  name: 'Customers',
+  category: 'Customers',
+  value: '4,821',
+  change: '+11.4%',
+  status: 'Healthy',
+  source: 'CRM',
+  updated: '12 min ago'
+}, {
+  name: 'Customer Retention',
+  category: 'Customers',
+  value: '87%',
+  change: '+3pp',
+  status: 'Healthy',
+  source: 'CRM',
+  updated: '12 min ago'
+}, {
+  name: 'CAC',
+  category: 'Marketing',
+  value: '87 EUR',
+  change: '+8.8%',
+  status: 'Attention Needed',
+  source: 'Google Ads',
+  updated: '8 min ago'
+}, {
+  name: 'ROAS',
+  category: 'Advertising',
+  value: '3.6',
+  change: '-14%',
+  status: 'Attention Needed',
+  source: 'Google Ads',
+  updated: '8 min ago'
+}, {
+  name: 'Conversion Rate',
+  category: 'Ecommerce',
+  value: '2.97%',
+  change: '+6.2%',
+  status: 'Healthy',
+  source: 'Analytics',
+  updated: '15 min ago'
+}, {
+  name: 'Pipeline',
+  category: 'Sales',
+  value: '842K EUR',
+  change: '+9.4%',
+  status: 'Healthy',
+  source: 'CRM',
+  updated: '1 hr ago'
+}, {
+  name: 'Ad Spend',
+  category: 'Advertising',
+  value: '42,800 EUR',
+  change: '+8%',
+  status: 'Stable',
+  source: 'Google Ads',
+  updated: '8 min ago'
+}, {
+  name: 'Gross Margin',
+  category: 'Finance',
+  value: '42.8%',
+  change: '+1.6pp',
+  status: 'Healthy',
+  source: 'Finance',
+  updated: '2 hr ago'
+}];
+const categories = ['Business', 'Revenue', 'Customers', 'Sales', 'Marketing', 'Advertising', 'Ecommerce', 'Finance', 'Operations', 'Products', 'AI'];
+const recent = [{
+  name: 'Revenue',
+  time: '8 min ago',
+  value: '248,400 EUR'
+}, {
+  name: 'Customers',
+  time: '12 min ago',
+  value: '4,821'
+}, {
+  name: 'ROAS',
+  time: '8 min ago',
+  value: '3.6'
+}, {
+  name: 'Conversion Rate',
+  time: '15 min ago',
+  value: '2.97%'
+}, {
+  name: 'CAC',
+  time: '8 min ago',
+  value: '87 EUR'
+}];
+const breakdown = [{
+  name: 'Direct',
+  value: '+21.4%',
+  width: '88%',
+  color: 'var(--chart-4)'
+}, {
+  name: 'Organic',
+  value: '+18.2%',
+  width: '76%',
+  color: 'var(--chart-4)'
+}, {
+  name: 'Paid',
+  value: '+12.8%',
+  width: '58%',
+  color: 'var(--chart-4)'
+}, {
+  name: 'Referral',
+  value: '+7.4%',
+  width: '34%',
+  color: 'var(--muted-foreground)'
+}];
+const segments = [{
+  name: 'New Customers',
+  revenue: '94,200 EUR',
+  contribution: '38%',
+  growth: '+18.6%',
+  share: '38%'
+}, {
+  name: 'Returning Customers',
+  revenue: '112,400 EUR',
+  contribution: '45%',
+  growth: '+12.2%',
+  share: '45%'
+}, {
+  name: 'Enterprise',
+  revenue: '28,600 EUR',
+  contribution: '12%',
+  growth: '+8.1%',
+  share: '12%'
+}, {
+  name: 'SMB',
+  revenue: '13,200 EUR',
+  contribution: '5%',
+  growth: '+5.4%',
+  share: '5%'
+}];
+const navAnalytics = ['KPI Explorer', 'Reports', 'Comparisons', 'Benchmarks', 'Forecasts', 'Trends', 'Anomalies', 'Attribution'];
+function StatusBadge({
+  status
+}: {
+  status: string;
+}) {
+  const Icon = status === 'Healthy' || status === 'Excellent' ? Check : status === 'Attention Needed' ? AlertTriangle : Activity;
+  return <span className={`status status-${status.toLowerCase().replace(' ', '-')}`}><Icon size={12} /><span>{status}</span></span>;
+}
+function AiBadge({
+  children = 'AI-generated'
+}: {
+  children?: string;
+}) {
+  return <span className="ai-badge"><Sparkles size={12} /><span>{children}</span></span>;
+}
+function Sidebar() {
+  return <aside className="sidebar">
+    <div className="brand"><div className="brand-mark">L</div><span>LULU <b>AI</b></span></div>
+    <div className="workspace"><div className="workspace-icon">N</div><div><strong>Northstar Commerce</strong><small>Enterprise workspace</small></div><ChevronDown size={15} /></div>
+    <nav aria-label="Primary navigation">
+      <p className="nav-label">INTELLIGENCE</p>
+      <a><Brain size={16} /><span>Intelligence Overview</span></a><a><Gauge size={16} /><span>Executive Overview</span></a>
+      <a><BarChart3 size={16} /><span>Business Intelligence</span><ChevronRight size={14} className="nav-caret" /></a>
+      <a className="nav-open"><LineChart size={16} /><span>Analytics</span><ChevronDown size={14} className="nav-caret" /></a>
+      <div className="subnav">{navAnalytics.map(item => <a key={item} className={item === 'KPI Explorer' ? 'active' : ''}><span>{item}</span>{item === 'KPI Explorer' && <span className="active-dot" />}</a>)}</div>
+      <a><Sparkles size={16} /><span>AI Intelligence</span><ChevronRight size={14} className="nav-caret" /></a>
+    </nav>
+    <div className="sidebar-bottom"><a><Settings2 size={16} /><span>Settings</span></a><div className="user"><div className="avatar">AS</div><div><strong>Alex Smith</strong><small>Admin</small></div><MoreHorizontal size={16} /></div></div>
+  </aside>;
+}
+function TrendChart({
+  forecast = false
+}: {
+  forecast?: boolean;
+}) {
+  return <div className="chart-wrap"><div className="chart-legend"><span><i className="legend-green" /> Current period</span><span><i className="legend-gray" /> Previous period</span>{forecast && <span><i className="legend-blue" /> Forecast</span>}<span><i className="legend-target" /> Target 12%</span></div><svg className="trend-chart" viewBox="0 0 760 220" role="img" aria-label="Revenue Growth trend chart showing current period at 14.8 percent, previous period, target at 12 percent, and forecast">
+    <path d="M40 184 H740 M40 140 H740 M40 96 H740 M40 52 H740" stroke="var(--border)" strokeWidth="1" /><path d="M40 140 H740" stroke="var(--border)" strokeDasharray="5 5" /><text x="10" y="144">12%</text><text x="12" y="100">16%</text><text x="12" y="56">20%</text>
+    <path d="M40 166 C85 157 100 148 126 151 S178 138 204 145 S260 126 286 134 S340 116 370 124 S420 102 446 113 S498 92 528 103 S570 76 602 91 S652 62 680 79 S716 56 740 66" fill="none" stroke="var(--chart-4)" strokeWidth="4" strokeLinecap="round" />
+    <path d="M40 175 C90 170 112 168 146 171 S200 155 232 162 S280 148 315 155 S365 139 395 145 S450 131 480 139 S530 122 562 130 S615 110 650 121 S704 102 740 110" fill="none" stroke="var(--border)" strokeWidth="2" strokeDasharray="7 7" />
+    {forecast && <path d="M600 91 C640 77 670 80 700 64 S725 61 760 48" fill="none" stroke="var(--chart-3)" strokeWidth="3" strokeDasharray="6 6" />}
+    <path d="M40 181 L740 181" stroke="var(--border)" strokeDasharray="3 5" />
+    <circle cx="286" cy="134" r="5" fill="var(--chart-1)" /><circle cx="528" cy="103" r="5" fill="var(--chart-1)" />
+    <text x="35" y="210">May 1</text><text x="188" y="210">May 8</text><text x="350" y="210">May 15</text><text x="510" y="210">May 22</text><text x="680" y="210">May 30</text>
+  </svg></div>;
+}
+function KpiDetail({
+  onCreateTask
+}: {
+  onCreateTask: () => void;
+}) {
+  const [tab, setTab] = React.useState('Daily');
+  const [compare, setCompare] = React.useState(true);
+  const [forecast, setForecast] = React.useState(false);
+  const [selectedSegment, setSelectedSegment] = React.useState('New Customers');
+  return <main className="detail-panel">
+    <header className="detail-head"><div><div className="eyebrow">REVENUE / REVENUE INTELLIGENCE</div><h2>Revenue Growth</h2><div className="meta"><span>Category: Revenue</span><span>Source: Shopify</span><span>Updated 8 min ago</span><span className="fresh"><span />Fresh</span></div></div><div className="head-actions"><button className="icon-button" aria-label="Favorite"><Star size={17} /></button><button className="icon-button" aria-label="Share"><Share2 size={17} /></button><button className="icon-button" aria-label="Export"><Download size={17} /></button><button className="button primary"><Sparkles size={15} /> Ask Lulu AI</button><button className="icon-button"><MoreHorizontal size={18} /></button></div></header>
+    <section className="value-strip"><div><strong className="hero-value">+14.8%</strong><span className="positive"><ArrowUpRight size={17} /> +5.6pp vs previous period</span></div><StatusBadge status="Healthy" /></section>
+    <section className="card definition"><div className="section-title"><h3>What is this KPI?</h3><span className="tag">Calculated</span></div><p>Revenue Growth measures the percentage change in total revenue compared with the selected comparison period.</p><code>Revenue Growth = (Current Revenue - Previous Revenue) / Previous Revenue</code><div className="definition-grid"><span><b>Period</b>Last 30 Days</span><span><b>Unit</b>%</span><span><b>Directionality</b>Higher is better</span><span><b>Data source</b>Shopify</span></div><div className="tags"><span className="tag">Observed</span><span className="tag">Calculated</span></div></section>
+    <section className="card performance"><div className="section-title"><h3>Current Performance</h3><span className="muted">Last 30 Days</span></div><div className="performance-grid"><div><small>Current</small><strong className="positive-text">+14.8%</strong></div><div><small>Previous</small><strong>+9.2%</strong></div><div><small>Change</small><strong className="positive-text">+5.6pp</strong></div><div><small>Status</small><StatusBadge status="Healthy" /></div></div><div className="target-row"><span>Target <b>+12%</b></span><span>Current <b>+14.8%</b></span><span className="positive"><Check size={15} /> Above Target</span></div></section>
+    <section className="card chart-card"><div className="section-title"><div><h3>KPI Trend</h3><p className="muted">Revenue Growth over the last 30 days</p></div><div className="chart-controls"><button className={compare ? 'control active' : 'control'} onClick={() => setCompare(!compare)}>Compare Period</button><button className="control">Target</button><button className={forecast ? 'control active' : 'control'} onClick={() => setForecast(!forecast)}>Forecast</button></div></div><div className="tabs">{['Daily', 'Weekly', 'Monthly', 'Quarterly'].map(item => <button key={item} className={tab === item ? 'tab active' : 'tab'} onClick={() => setTab(item)}>{item}</button>)}</div><TrendChart forecast={forecast} /></section>
+    <section className="card"><div className="section-title"><h3>Comparison</h3><span className="muted">Compare against</span></div><div className="tabs comparison-tabs">{['Previous Period', 'Previous Year', 'Target', 'Benchmark', 'Another KPI', 'Custom'].map(item => <button key={item} className={item === 'Previous Period' ? 'tab active' : 'tab'}>{item}</button>)}</div><div className="callout"><TrendingUp size={18} /><span>Revenue Growth <b>(+14.8%)</b> is outpacing Customer Growth <b>(+11.4%)</b> by <strong>3.4pp</strong></span></div></section>
+    <section className="card"><div className="section-title"><h3>Breakdown</h3><button className="select-button">Channel <ChevronDown size={14} /></button></div><div className="bars">{breakdown.map(item => <div className="bar-row" key={item.name}><span>{item.name}</span><div className="bar-track"><div style={{
+              width: item.width,
+              background: item.color
+            }} /></div><strong>{item.value}</strong><span className="change-badge">+{item.name === 'Direct' ? '4.2' : item.name === 'Organic' ? '3.8' : '2.1'}pp</span></div>)}</div></section>
+    <section className="card"><div className="section-title"><h3>Segment Analysis</h3><div className="tabs">{['New Customers', 'Returning Customers', 'Enterprise', 'SMB'].map(item => <button key={item} className={selectedSegment === item ? 'tab active' : 'tab'} onClick={() => setSelectedSegment(item)}>{item}</button>)}</div></div><div className="table-wrap"><table><thead><tr><th>Segment</th><th>Revenue</th><th>Contribution</th><th>Growth</th><th>Share</th></tr></thead><tbody>{segments.map(item => <tr key={item.name}><td><strong>{item.name}</strong></td><td>{item.revenue}</td><td>{item.contribution}</td><td className="positive-text">{item.growth}</td><td>{item.share}</td></tr>)}</tbody></table></div></section>
+    <section className="split-cards"><div className="card contribution"><div className="section-title"><h3>Contribution Analysis</h3><span className="tag">Observed</span></div><div className="donut"><div><strong>248K</strong><small>EUR revenue</small></div></div><div className="legend-list"><span><i style={{
+              background: 'var(--chart-4)'
+            }} />Google Ads <b>32%</b></span><span><i style={{
+              background: 'var(--chart-4)'
+            }} />Organic <b>27%</b></span><span><i style={{
+              background: 'var(--primary)'
+            }} />Direct <b>21%</b></span><span><i style={{
+              background: 'var(--muted)'
+            }} />Meta Ads <b>12%</b></span></div><p className="muted">Observed — Platform data</p></div><div className="card"><div className="section-title"><h3>Target Tracking</h3><span className="status status-healthy"><Check size={12} /> Above Target</span></div><div className="target-large"><strong>+14.8%</strong><span>vs Target +12.0%</span></div><div className="progress"><div /></div><div className="target-foot"><span>Variance <b className="positive-text">+2.8pp above</b></span><span className="tag">User defined</span></div></div></section>
+    <section className="card drivers"><div className="section-title"><h3>KPI Drivers</h3><AiBadge /></div><div className="driver-columns"><div className="driver-column positive-border"><h4>Positive Drivers</h4>{[['Customer growth', 'High', '+11.4%', 'New Customers'], ['AOV', 'Medium', '+3.2%', 'Product Mix'], ['Conversion Rate', 'Medium', '+6.2%', 'Ecommerce']].map(d => <div className="driver" key={d[0]}><div><strong>{d[0]}</strong><span className="muted">Supporting KPI: {d[3]}</span></div><span className="impact">{d[1]}</span><b className="positive-text">{d[2]}</b><button className="link-button">Explore Driver <ExternalLink size={13} /></button></div>)}</div><div className="driver-column negative-border"><h4>Negative Drivers</h4>{[['Customer churn', 'Low', '3.2%', 'Retention'], ['Advertising efficiency', 'Medium', 'ROAS -14%', 'ROAS']].map(d => <div className="driver" key={d[0]}><div><strong>{d[0]}</strong><span className="muted">Supporting KPI: {d[3]}</span></div><span className="impact risk">{d[1]}</span><b className="negative-text">{d[2]}</b><button className="link-button">Explore Driver <ExternalLink size={13} /></button></div>)}</div></div></section>
+    <section className="card"><div className="section-title"><h3>Driver Tree</h3><span className="muted">Click a node to explore</span></div><div className="driver-tree"><button className="tree-root">Revenue Growth <b>+14.8%</b></button><div className="tree-branches"><button>Customers <b>+11.4%</b><small>New · Returning</small></button><button>Conversion Rate <b>2.97%</b><small>Correlation</small></button><button>AOV <b>+3.2%</b><small>Product Mix · Pricing</small></button></div></div><div className="tree-legend"><span><i className="solid-line" /> Known Driver</span><span><i className="dash-line" /> Correlation</span><span><i className="dot-line" /> AI Inference <AiBadge /></span></div></section>
+    <section className="card"><div className="section-title"><h3>Related KPIs</h3><button className="link-button">View all <ChevronRight size={14} /></button></div><div className="related-row">{[['Customers', '4,821', 'Driver', '+11.4%'], ['Conversion Rate', '2.97%', 'Correlation', '+6.2%'], ['AOV', '51.53 EUR', 'Correlation', '+3.2%'], ['Ad Spend', '42.8K EUR', 'Correlation', '+8%'], ['ROAS', '3.6', 'Correlation', '-14%']].map(item => <article className="related-card" key={item[0]}><span className="tag">{item[2]}</span><strong>{item[0]}</strong><b>{item[1]}</b><span className={item[3].startsWith('-') ? 'negative-text' : 'positive-text'}>{item[3]}</span><button className="small-button">Open</button></article>)}</div></section>
+    <section className="card ai-panel"><div className="section-title"><h3>Lulu AI KPI Analysis</h3><AiBadge /></div><p>Revenue growth accelerated during the selected period, primarily alongside increased customer acquisition and a higher average order value. Advertising spend increased, but ROAS declined, suggesting acquisition efficiency may face pressure.</p><div className="ai-grid"><div><b>Key drivers</b><span>Customer acquisition · AOV</span></div><div><b>Important changes</b><span>ROAS declined 14%</span></div><div><b>Risks</b><span>Acquisition efficiency pressure</span></div><div><b>Opportunities</b><span>Scale direct and organic</span></div></div></section>
+    <section className="split-cards"><div className="card anomalies"><div className="section-title"><h3>AI-Detected Anomalies</h3><AiBadge>AI Detected</AiBadge></div>{[['Day 14', 'Revenue -18% below expected', '6,240 EUR vs 7,610 EUR', 'Medium', '89%', 'Weekend traffic pattern'], ['Day 22', 'Conversion spike +24%', 'Observed movement', 'Low', '84%', 'Promotional event']].map(a => <article className="anomaly" key={a[0]}><span className="date-badge">{a[0]}</span><div><strong>{a[1]}</strong><span className="muted">{a[2]} · {a[5]}</span><div className="anomaly-foot"><span className="impact risk">{a[3]}</span><span>Confidence {a[4]}</span><button className="link-button">Investigate</button></div></div></article>)}</div><div className="card forecast"><div className="section-title"><h3>KPI Forecast</h3><span className="forecast-badge"><Zap size={12} /> AI Forecast</span></div><div className="tabs">{['7 Days', '30 Days', '90 Days'].map(item => <button key={item} className={item === '30 Days' ? 'tab active' : 'tab'}>{item}</button>)}</div><TrendChart forecast /><strong className="forecast-value">+13.2%</strong><p className="muted">Range +10.8% to +15.6% · Estimated · 90 days history</p></div></section>
+    <section className="card recommendations"><div className="section-title"><h3>AI Recommendations</h3><AiBadge>AI Recommended</AiBadge></div>{[['Increase investment in high-performing acquisition channels', 'High priority', '+492 new customers'], ['Optimize advertising budget allocation to protect revenue growth', 'High priority', 'ROAS -14%']].map(r => <article className="recommendation" key={r[0]}><div className="rec-icon"><Sparkles size={16} /></div><div><strong>{r[0]}</strong><span className="muted">Evidence: {r[2]}</span></div><span className="impact risk">{r[1]}</span><button className="small-button">Review</button><button className="small-button">Create Task</button><button className="button primary compact">Execute with AI</button></article>)}</section>
+    <section className="card task-panel"><div className="section-title"><h3>Create Task from KPI</h3><button className="button secondary" onClick={onCreateTask}><Plus size={15} /> Create Task</button></div><p className="muted">Turn this KPI insight into an accountable action. Confirmation required.</p></section>
+    <section className="lower-grid"><div className="card"><div className="section-title"><h3>KPI Alerts</h3><button className="link-button"><Plus size={14} /> Create Alert</button></div><div className="alert-row"><Bell size={16} /><span>Revenue Growth falls below 5%</span><span className="status status-healthy"><span />Active</span><button className="link-button">Edit</button><button className="link-button">Pause</button><button className="link-button"><Trash2 size={14} /></button></div></div><div className="card"><div className="section-title"><h3>KPI Watchlist</h3><button className="link-button"><Plus size={14} /> Add</button></div>{[['Revenue Growth', 'Healthy', '8 min'], ['ROAS', 'Attention Needed', '8 min'], ['CAC', 'Attention Needed', '8 min']].map(w => <div className="watch-row" key={w[0]}><Star size={14} fill="currentColor" /><strong>{w[0]}</strong><StatusBadge status={w[1]} /><span className="muted">{w[2]}</span><button className="link-button">Remove</button></div>)}</div></section>
+    <section className="card"><div className="section-title"><h3>Data Sources & Quality</h3><span className="status status-healthy"><Check size={12} /> Good</span></div><div className="source-grid"><div><strong><Database size={15} /> Shopify</strong><span>Connected · 8 min · 100%</span><small>Primary contribution to KPI</small></div><div><strong><Database size={15} /> Google Analytics</strong><span>Connected · 15 min · 97%</span><small>Supporting data</small></div><div><strong><Database size={15} /> Google Ads</strong><span>Connected · 8 min · 100%</span><small>Advertising contribution</small></div></div><div className="quality-row"><span><b>Coverage</b>97%</span><span><b>Freshness</b>Fresh</span><span><b>Completeness</b>97%</span><span><b>Reliability</b>High</span><span><b>Missing</b>None</span></div></section>
+    <section className="card"><div className="section-title"><h3>Historical Events</h3><span className="muted">Last 30 days</span></div><div className="timeline">{[['Day 8', 'Google Ads campaign launched', 'Revenue Growth · ROAS', 'Observed'], ['Day 15', 'Price adjustment -5% on Product B', 'AOV · Conversion', 'Observed'], ['Day 22', 'Promotional event', 'Conversion · Revenue', 'AI Inferred']].map(e => <div className="timeline-item" key={e[0]}><span className="timeline-dot" /><span className="date-badge">{e[0]}</span><div><strong>{e[1]}</strong><span className="muted">{e[2]}</span></div><span className="tag">{e[3]}</span></div>)}</div></section>
+    <section className="card"><div className="section-title"><h3>KPI Relationships</h3><span className="muted">Navigate connected intelligence</span></div><div className="relationship-flow">{['Revenue Growth', 'Conversion Rate', 'Customers', 'AOV', 'Ad Spend', 'ROAS'].map((item, index) => <button key={item} className={index === 0 ? 'relationship active' : 'relationship'}>{item}{index < 5 && <ChevronRight size={14} />}</button>)}</div></section>
+    <section className="ask-ai"><div className="ask-title"><div className="ai-orb"><Sparkles size={18} /></div><div><h3>Ask Lulu AI</h3><p>Explore this KPI with natural language.</p></div></div><div className="ask-input"><input aria-label="Ask anything about this KPI" placeholder="Ask anything about this KPI..." /><button aria-label="Send question"><ArrowUpRight size={17} /></button></div><div className="suggestions">{['Why did this KPI change?', 'What is driving it?', 'What should I do?', 'Is this significant?', 'What happens next?', 'Which KPIs should I investigate?'].map(s => <button key={s}>{s}</button>)}</div></section>
+  </main>;
+}
+export function LuluKpiExplorer() {
+  const [search, setSearch] = React.useState('');
+  const [taskOpen, setTaskOpen] = React.useState(false);
+  const [active, setActive] = React.useState('Revenue Growth');
+  const filtered = kpis.filter(k => k.name.toLowerCase().includes(search.toLowerCase()));
+  return <div className="app-shell"><Sidebar /><div className="page"><header className="page-header"><div><div className="breadcrumbs"><span>Intelligence</span><ChevronRight size={13} /><span>Analytics</span><ChevronRight size={13} /><b>KPI Explorer</b></div><h1>KPI Explorer</h1><p>Explore, analyze and understand the metrics that drive your business.</p></div><div className="top-actions"><button className="button primary"><Sparkles size={15} /> Ask Lulu AI</button><button className="button secondary">Create Report</button><button className="button ghost"><Download size={15} /> Export</button><button className="icon-button"><RefreshCw size={16} /></button></div></header><div className="datebar"><button className="date-button">Last 30 Days <ChevronDown size={15} /></button><label className="toggle-label"><input type="checkbox" defaultChecked /> Compare</label><span className="date-divider" />{['Category', 'Data Source', 'Status', 'Trend', 'Favorite', 'AI Detected Change'].map(f => <button className="filter-chip" key={f}><Filter size={12} /> {f}</button>)}</div><div className="workspace"><aside className="discovery"><div className="panel-title"><div><span className="eyebrow">DISCOVER</span><h2>KPI Library</h2></div><button className="icon-button"><Upload size={16} /></button></div><div className="search-box"><Search size={17} /><input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search revenue, customers, ROAS..." /><kbd>/</kbd></div><section className="discovery-section"><div className="section-title"><h3>Favorites</h3><span className="muted">3</span></div>{[['Revenue Growth', '+14.8%'], ['ROAS', '3.6'], ['Customer Retention', '87%']].map(f => <div className="favorite-row" key={f[0]}><Star size={15} fill="var(--foreground)" color="var(--foreground)" /><button onClick={() => setActive(f[0])}><strong>{f[0]}</strong><span className={f[0] === 'ROAS' ? 'negative-text' : 'positive-text'}>{f[1]}</span></button><button className="tiny-action" aria-label={`Remove ${f[0]}`}>×</button></div>)}</section><section className="discovery-section"><div className="section-title"><h3>Recently Viewed</h3><button className="link-button">Clear</button></div>{recent.map(r => <button className="recent-row" key={r.name} onClick={() => setActive(r.name)}><Eye size={14} /><span><strong>{r.name}</strong><small>{r.time}</small></span><b>{r.value}</b></button>)}</section><section className="discovery-section categories"><div className="section-title"><h3>KPI Categories</h3><button className="link-button">Expand</button></div>{categories.map((c, i) => <button className="category-row" key={c}><ChevronRight size={14} /><span>{c}</span><span className="count">{[42, 18, 24, 16, 20, 14, 19, 12, 16, 21, 8][i]}</span></button>)}</section><section className="library"><div className="section-title"><h3>KPI Library</h3><span className="muted">{filtered.length} metrics</span></div><div className="library-table"><div className="library-head"><span>KPI name</span><span>Value</span><span>Change</span></div>{filtered.map(k => <button className={active === k.name ? 'library-row selected' : 'library-row'} key={k.name} onClick={() => setActive(k.name)}><span><strong>{k.name}</strong><small>{k.category} · {k.source}</small></span><b>{k.value}</b><span className={k.change.startsWith('-') ? 'negative-text' : 'positive-text'}>{k.change}</span><StatusBadge status={k.status} /></button>)}</div></section></aside><KpiDetail onCreateTask={() => setTaskOpen(true)} /></div></div>{taskOpen && <div className="task-drawer"><div className="section-title"><h3>Create Task</h3><button className="icon-button" onClick={() => setTaskOpen(false)}><X size={17} /></button></div><label>Task name<input defaultValue="Review Revenue Growth drivers" /></label><label>Owner<input defaultValue="Alex Smith" /></label><label>Priority<select defaultValue="High"><option>High</option><option>Medium</option><option>Low</option></select></label><label>Description<textarea defaultValue="Review ad budget allocation based on ROAS decline and Revenue Growth performance." /></label><div className="drawer-actions"><button className="button secondary" onClick={() => setTaskOpen(false)}>Cancel</button><button className="button primary" onClick={() => setTaskOpen(false)}>Create Task</button></div></div>}</div>;
+}

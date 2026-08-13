@@ -1,0 +1,290 @@
+import { useMemo, useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import { Activity, AlertTriangle, Archive, ArrowDown, ArrowUp, BarChart3, Bell, Bot, CalendarDays, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Clock3, Columns3, Copy, DollarSign, Download, Ellipsis, Euro, FilePlus2, Filter, FolderKanban, Gauge, Import, LayoutGrid, List, LockKeyhole, Menu, MoreHorizontal, PanelRight, Plus, Search, Send, Settings, ShieldCheck, Sparkles, Target, TrendingUp, Users, X, XCircle } from 'lucide-react';
+type Deal = {
+  id: string;
+  name: string;
+  company: string;
+  contact: string;
+  owner: string;
+  stage: string;
+  status: string;
+  value: string;
+  probability: number;
+  close: string;
+  health: string;
+  priority: string;
+  last: string;
+  next: string;
+};
+const deals: Deal[] = [{
+  id: 'nova',
+  name: 'Enterprise Platform',
+  company: 'Nova Commerce',
+  contact: 'Maria Chen',
+  owner: 'David Liu',
+  stage: 'Negotiation',
+  status: 'Open',
+  value: '€85,000',
+  probability: 72,
+  close: '25 Sep 2026',
+  health: 'Healthy',
+  priority: 'High',
+  last: 'Today',
+  next: 'Executive Meeting'
+}, {
+  id: 'meridian',
+  name: 'Cloud AI Suite',
+  company: 'Meridian Group',
+  contact: 'Tom Reyes',
+  owner: 'Sarah Chen',
+  stage: 'Proposal',
+  status: 'Open',
+  value: '€124,000',
+  probability: 58,
+  close: '15 Oct 2026',
+  health: 'Needs Attention',
+  priority: 'High',
+  last: '3 days ago',
+  next: 'Send revised proposal'
+}, {
+  id: 'vertex',
+  name: 'Data Analytics Hub',
+  company: 'Vertex Corp',
+  contact: 'Lena Müller',
+  owner: 'Marcus Hill',
+  stage: 'Negotiation',
+  status: 'Open',
+  value: '€67,500',
+  probability: 80,
+  close: '30 Sep 2026',
+  health: 'Healthy',
+  priority: 'High',
+  last: 'Yesterday',
+  next: 'Schedule demo'
+}, {
+  id: 'bluewave',
+  name: 'CRM Integration Pro',
+  company: 'BlueWave Ltd',
+  contact: 'James Park',
+  owner: 'Priya Nair',
+  stage: 'Solution',
+  status: 'Open',
+  value: '€42,000',
+  probability: 45,
+  close: '20 Nov 2026',
+  health: 'Healthy',
+  priority: 'Medium',
+  last: '2 days ago',
+  next: 'Prepare RFP'
+}, {
+  id: 'techflow',
+  name: 'Marketing Platform',
+  company: 'TechFlow AG',
+  contact: 'Anna Weber',
+  owner: 'David Liu',
+  stage: 'Discovery',
+  status: 'Open',
+  value: '€38,500',
+  probability: 25,
+  close: '31 Dec 2026',
+  health: 'Needs Attention',
+  priority: 'Low',
+  last: '8 days ago',
+  next: 'Schedule discovery call'
+}, {
+  id: 'globalnet',
+  name: 'Security Suite',
+  company: 'GlobalNet Inc',
+  contact: 'Ravi Singh',
+  owner: 'Sarah Chen',
+  stage: 'Commit',
+  status: 'Open',
+  value: '€156,000',
+  probability: 91,
+  close: '5 Sep 2026',
+  health: 'At Risk',
+  priority: 'High',
+  last: '12 days ago',
+  next: 'Confirm sign-off'
+}, {
+  id: 'altus',
+  name: 'Analytics Dashboard',
+  company: 'Altus Media',
+  contact: 'Fiona Walsh',
+  owner: 'Marcus Hill',
+  stage: 'Closed Won',
+  status: 'Won',
+  value: '€95,000',
+  probability: 100,
+  close: '—',
+  health: 'Healthy',
+  priority: 'High',
+  last: '1 week ago',
+  next: '—'
+}, {
+  id: 'pinnacle',
+  name: 'ERP Connector',
+  company: 'Pinnacle GmbH',
+  contact: 'Klaus Bauer',
+  owner: 'Priya Nair',
+  stage: 'Closed Lost',
+  status: 'Lost',
+  value: '€51,000',
+  probability: 0,
+  close: '—',
+  health: '—',
+  priority: 'Medium',
+  last: '2 weeks ago',
+  next: '—'
+}];
+const kpis: {
+  label: string;
+  value: string;
+  trend: string;
+  icon: LucideIcon;
+  tone: string;
+  calculated?: boolean;
+}[] = [{
+  label: 'Total Deals',
+  value: '312',
+  trend: '↑ 8.4%',
+  icon: FolderKanban,
+  tone: 'violet'
+}, {
+  label: 'Open Deals',
+  value: '186',
+  trend: '↑ 5.2%',
+  icon: Activity,
+  tone: 'violet'
+}, {
+  label: 'Won',
+  value: '94',
+  trend: '↑ 18.4%',
+  icon: CheckCircle2,
+  tone: 'emerald'
+}, {
+  label: 'Lost',
+  value: '32',
+  trend: '↓ 2.1%',
+  icon: XCircle,
+  tone: 'rose'
+}, {
+  label: 'Open Deal Value',
+  value: '€2,840,000',
+  trend: '↑ 12.0%',
+  icon: TrendingUp,
+  tone: 'violet'
+}, {
+  label: 'Won Revenue',
+  value: '€3,120,000',
+  trend: '↑ 22.6%',
+  icon: Euro,
+  tone: 'emerald'
+}, {
+  label: 'Avg Deal Size',
+  value: '€33,200',
+  trend: '↑ 9.4%',
+  icon: BarChart3,
+  tone: 'violet',
+  calculated: true
+}, {
+  label: 'Win Rate',
+  value: '74.6%',
+  trend: '↑ 4.2pp',
+  icon: Target,
+  tone: 'emerald',
+  calculated: true
+}, {
+  label: 'Avg Sales Cycle',
+  value: '38 days',
+  trend: '↓ 6 days',
+  icon: Clock3,
+  tone: 'violet',
+  calculated: true
+}];
+const filters = ['Status', 'Stage', 'Value', 'Probability', 'Health', 'Priority', 'Owner', 'Expected Close'];
+const prompts = ['Which deals should I prioritize today?', 'Which deals are at risk?', 'Which deals are most likely to close?', 'Why is this deal at risk?', 'Which deals have stalled?', 'Which deals have the highest value?', 'Which deals should I follow up on?', 'What is blocking this deal?', 'Which deals may close this month?', 'Show me our largest won deals.'];
+const buttonClass = 'rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-foreground transition hover:border-border/40 hover:bg-secondary hover:text-foreground';
+const stageTone: Record<string, string> = {
+  Negotiation: 'border-border/30 bg-secondary/10 text-foreground',
+  Proposal: 'border-border/30 bg-secondary/10 text-foreground',
+  Solution: 'border-border/30 bg-secondary/10 text-foreground',
+  Discovery: 'border-border/30 bg-secondary/10 text-foreground',
+  Commit: 'border-border/30 bg-secondary/10 text-foreground',
+  'Closed Won': 'border-border/30 bg-secondary/10 text-foreground',
+  'Closed Lost': 'border-chart-5/30 bg-chart-5/10 text-chart-5'
+};
+const statusTone: Record<string, string> = {
+  Open: 'bg-secondary/10 text-foreground',
+  Won: 'bg-secondary/10 text-foreground',
+  Lost: 'bg-chart-5/10 text-chart-5'
+};
+function Sidebar() {
+  const top = [['Dashboard', Gauge], ['AI Insights', Sparkles], ['AI Assistant', Bot], ['AI Agents', Activity]] as [string, LucideIcon][];
+  const sales = ['Overview', 'Leads', 'Opportunities', 'Deals', 'Pipeline', 'Activities', 'Tasks', 'Forecast', 'Analytics'];
+  return <aside className="hidden w-[220px] shrink-0 flex-col border-r border-border bg-[var(--sidebar)] px-3 py-5 lg:flex"><div className="flex items-center gap-3 px-3 pb-8"><div className="grid h-8 w-8 place-items-center rounded-xl bg-primary shadow-lg shadow-black/20 text-primary-foreground"><Sparkles size={16} /></div><strong className="text-[15px] tracking-tight text-foreground">lulu<span className="text-foreground">.</span>ai</strong></div><nav aria-label="Primary navigation" className="space-y-1">{top.map(([label, Icon]) => <button key={label} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground hover:bg-secondary hover:text-foreground"><Icon size={17} /><span>{label}</span></button>)}<div className="pt-5"><p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-foreground">Sales</p>{sales.map(label => <button key={label} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-[13px] ${label === 'Deals' ? 'bg-secondary/15 font-medium text-foreground' : 'text-foreground hover:bg-secondary hover:text-foreground'}`}><span className={`h-1.5 w-1.5 rounded-full ${label === 'Deals' ? 'bg-primary' : 'bg-card'}`} /><span>{label}</span></button>)}</div></nav><div className="mt-auto space-y-4 border-t border-border pt-4"><button className="flex w-full items-center gap-3 px-3 py-2 text-sm text-foreground"><Settings size={17} /><span>Settings</span></button><div className="flex items-center gap-3 px-2"><div className="grid h-8 w-8 place-items-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">JD</div><p><strong className="block text-xs text-foreground">Jordan Davis</strong><span className="text-[11px] text-muted-foreground">Admin workspace</span></p><MoreHorizontal size={16} className="ml-auto text-muted-foreground" /></div></div></aside>;
+}
+function AiBadge() {
+  return <span className="inline-flex items-center gap-1 rounded-full bg-secondary/15 px-2 py-0.5 text-[10px] font-medium text-foreground"><Sparkles size={11} /> AI</span>;
+}
+function SectionTitle({
+  eyebrow,
+  title,
+  badge
+}: {
+  eyebrow: string;
+  title: string;
+  badge?: boolean;
+}) {
+  return <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-foreground">{eyebrow}</p><h2 className="mt-1 text-lg font-semibold text-foreground">{title}</h2></div>{badge && <AiBadge />}</div>;
+}
+function MiniRow({
+  name,
+  company,
+  value,
+  note,
+  action
+}: {
+  name: string;
+  company: string;
+  value: string;
+  note: string;
+  action: string;
+}) {
+  return <article className="flex flex-col gap-3 border-b border-border py-3 last:border-0 sm:flex-row sm:items-center"><div className="min-w-0 flex-1"><strong className="block text-sm text-foreground">{name}</strong><span className="text-xs text-muted-foreground">{company} · {value}</span></div><span className="text-xs text-muted-foreground">{note}</span><button className="text-left text-xs font-medium text-foreground hover:text-foreground">{action} →</button></article>;
+}
+export function LuluSalesDeals() {
+  const [query, setQuery] = useState('');
+  const [selected, setSelected] = useState<string[]>([]);
+  const [period, setPeriod] = useState('Quarter to Date');
+  const [showCreate, setShowCreate] = useState(false);
+  const [ask, setAsk] = useState('');
+  const [answer, setAnswer] = useState('');
+  const visibleDeals = useMemo(() => deals.filter(deal => `${deal.name} ${deal.company} ${deal.contact} ${deal.owner}`.toLowerCase().includes(query.toLowerCase())), [query]);
+  const allSelected = selected.length === visibleDeals.length && visibleDeals.length > 0;
+  const toggle = (id: string) => setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
+  return <div className="min-h-screen bg-[var(--background)] text-foreground"><div className="flex min-h-screen"><Sidebar /><main className="min-w-0 flex-1 bg-[var(--background)]"><header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-[var(--background)]/95 px-5 backdrop-blur md:px-8"><div className="flex items-center gap-3"><button className="lg:hidden" aria-label="Open navigation"><Menu size={19} /></button><span className="text-xs text-muted-foreground">Sales</span><span className="text-foreground">/</span><strong className="text-xs text-foreground">Deals</strong></div><div className="flex items-center gap-4"><button className="relative text-foreground hover:text-foreground" aria-label="Notifications"><Bell size={18} /><span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-primary text-primary-foreground" /></button><span className="hidden text-xs text-muted-foreground sm:block">Last synced 2 min ago</span></div></header><div className="mx-auto max-w-[1500px] px-5 py-7 md:px-8"><section className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end"><div><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-foreground">Sales management</p><h1 className="text-3xl font-semibold tracking-tight text-foreground md:text-[34px]">Deals</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Manage active sales deals, monitor progress and move opportunities toward successful close.</p></div><div className="flex flex-wrap gap-2"><button onClick={() => setShowCreate(true)} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg shadow-black/20 hover:bg-primary"><Plus size={14} /> Create Deal</button><button className={buttonClass}><Sparkles size={13} className="mr-1 inline text-foreground" /> Ask Lulu AI</button><button className={buttonClass}><Import size={14} className="mr-1 inline" /> Import</button><button className={buttonClass}><Download size={14} className="mr-1 inline" /> Export</button><button className={buttonClass}><Ellipsis size={14} /></button></div></section>
+<section className="mt-7 flex flex-wrap items-center gap-2"><span className="mr-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Reporting period</span>{['Today', 'Last 7 Days', 'Last 30 Days', 'Month to Date', 'Previous Month', 'Quarter to Date', 'Previous Quarter', 'Year to Date', 'Previous Year', 'Custom Range'].map(item => <button key={item} onClick={() => setPeriod(item)} className={`rounded-full border px-3 py-1.5 text-[11px] ${period === item ? 'border-border/40 bg-secondary/15 text-foreground' : 'border-border text-foreground hover:text-foreground'}`}>{item}</button>)}</section>
+<section className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">{kpis.map(item => {
+              const Icon = item.icon;
+              return <article key={item.label} className="min-w-0 rounded-xl border border-border bg-[var(--card)] px-4 py-4"><div className="mb-3 flex items-center justify-between"><div className={`grid h-8 w-8 place-items-center rounded-lg ${item.tone === 'emerald' ? 'bg-chart-4/10 text-chart-4' : 'bg-secondary/10 text-foreground'}`}><Icon size={16} /></div><span className={`text-[11px] font-medium ${item.trend.startsWith('↓') && item.label === 'Lost' ? 'text-chart-4' : item.tone === 'emerald' ? 'text-chart-4' : 'text-foreground'}`}>{item.trend}</span></div><p className="text-xs text-muted-foreground">{item.label}</p><strong className="mt-1 block truncate text-[20px] tracking-tight text-foreground">{item.value}</strong>{item.calculated && <span className="mt-2 inline-block rounded-full bg-card/50 px-1.5 py-0.5 text-[9px] text-muted-foreground">Calculated</span>}</article>;
+            })}</section><div className="mt-3 flex flex-wrap gap-4 text-[10px] text-muted-foreground"><span>● Recorded</span><span className="text-foreground">● Calculated</span><span className="text-foreground">● AI-generated</span></div>
+<section className="mt-6"><div className="flex flex-col gap-3 xl:flex-row"><div className="relative min-w-0 flex-1"><Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={17} /><input value={query} onChange={event => setQuery(event.target.value)} className="h-11 w-full rounded-xl border border-border bg-[var(--secondary)] pl-10 pr-14 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-border/60" placeholder="Search deals..." aria-label="Search deals" /><kbd className="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘K</kbd></div><div className="flex rounded-lg border border-border p-1"><button className="rounded bg-primary px-3 text-xs text-primary-foreground">Table</button><button className="rounded px-3 text-xs text-foreground">Kanban</button><button className="rounded px-3 text-xs text-foreground">List</button></div></div><div className="mt-3 flex gap-2 overflow-x-auto pb-1">{filters.map(item => <button key={item} className="inline-flex shrink-0 items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-foreground">{item}<ChevronDown size={13} /></button>)}<button className="shrink-0 px-2 text-xs text-foreground">Clear Filters</button><button className="shrink-0 rounded-lg border border-border/30 px-3 py-2 text-xs text-foreground">Save Filter</button></div><div className="mt-3 flex flex-wrap items-center gap-2"><span className="text-[11px] text-muted-foreground">Active:</span>{['Stage: Negotiation', 'Owner: Sarah Chen'].map(chip => <button key={chip} className="inline-flex items-center gap-1.5 rounded-full border border-border/20 bg-secondary/10 px-2.5 py-1 text-[11px] text-foreground">{chip}<X size={12} /></button>)}<button className="text-[11px] text-foreground">Clear all</button></div></section>
+{selected.length > 0 && <div className="mt-4 flex flex-wrap items-center gap-2 rounded-xl border border-border/20 bg-secondary/10 px-4 py-3 text-xs"><strong className="mr-2 text-foreground">{selected.length} selected</strong>{['Assign Owner', 'Change Stage', 'Change Status', 'Change Priority', 'Update Probability', 'Create Task', 'Export', 'Archive'].map(action => <button key={action} className="rounded-md border border-border bg-[var(--primary)] px-2.5 py-1.5 text-primary-foreground">{action}</button>)}</div>}
+<section className="mt-4 overflow-hidden rounded-xl border border-border bg-[var(--card)]" aria-label="Deals table"><div className="overflow-x-auto"><table className="w-full min-w-[1500px] border-collapse text-left"><thead className="border-b border-border bg-secondary"><tr className="text-[10px] uppercase tracking-[0.13em] text-muted-foreground"><th className="px-4 py-3"><input type="checkbox" checked={allSelected} onChange={() => setSelected(allSelected ? [] : visibleDeals.map(deal => deal.id))} aria-label="Select all deals" /></th>{['Deal', 'Company', 'Contact', 'Owner', 'Stage', 'Status', 'Value', 'Probability', 'Expected Close', 'Health', 'Priority', 'Last Activity', 'Next Action', ''].map(head => <th key={head} className="px-3 py-3">{head}</th>)}</tr></thead><tbody className="divide-y divide-white/[0.055]">{visibleDeals.map(deal => <tr key={deal.id} className="group transition hover:bg-secondary"><td className="px-4 py-3"><input type="checkbox" checked={selected.includes(deal.id)} onChange={() => toggle(deal.id)} aria-label={`Select ${deal.name}`} /></td><td className="px-3 py-3"><button className="text-left"><strong className="block text-[13px] font-medium text-foreground group-hover:text-foreground">{deal.name}</strong></button></td><td className="px-3 py-3 text-xs text-muted-foreground">{deal.company}</td><td className="px-3 py-3 text-xs text-muted-foreground">{deal.contact}</td><td className="px-3 py-3 text-xs text-foreground">{deal.owner}</td><td className="px-3 py-3"><span className={`rounded-full border px-2 py-1 text-[10px] ${stageTone[deal.stage]}`}>{deal.stage}</span></td><td className="px-3 py-3"><span className={`rounded-full px-2 py-1 text-[10px] ${statusTone[deal.status]}`}>{deal.status}</span></td><td className="px-3 py-3 text-xs font-medium text-foreground">{deal.value}</td><td className="px-3 py-3"><div className="flex items-center gap-2 text-xs text-foreground"><span>{deal.probability}%</span><span className="h-1.5 w-14 rounded-full bg-card"><span className="block h-full rounded-full bg-primary text-primary-foreground" style={{
+                            width: `${deal.probability}%`
+                          }} /></span></div></td><td className={`px-3 py-3 text-xs ${deal.name === 'Security Suite' ? 'text-chart-5' : 'text-muted-foreground'}`}>{deal.close}</td><td className="px-3 py-3 text-xs"><span className={`mr-1 inline-block h-1.5 w-1.5 rounded-full ${deal.health === 'Healthy' ? 'bg-chart-4' : deal.health === 'At Risk' ? 'bg-destructive' : 'bg-chart-1'}`} />{deal.health}</td><td className="px-3 py-3 text-xs text-foreground">{deal.priority}</td><td className="px-3 py-3 text-xs text-muted-foreground">{deal.last}</td><td className="px-3 py-3 text-xs text-muted-foreground">{deal.next}</td><td className="px-3"><button aria-label={`Actions for ${deal.name}`} className="text-foreground hover:text-foreground"><Ellipsis size={17} /></button></td></tr>)}</tbody></table></div><div className="flex flex-col gap-3 border-t border-border px-4 py-3 text-[11px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><span>1–50 of 312 deals</span><span>Items per page: <strong className="text-foreground">50</strong> <ChevronDown className="inline" size={12} /></span><div className="flex items-center gap-1"><button aria-label="Previous page"><ChevronLeft size={14} /></button><button className="grid h-7 w-7 place-items-center rounded bg-primary text-primary-foreground">1</button><button className="grid h-7 w-7 place-items-center rounded">2</button><button className="grid h-7 w-7 place-items-center rounded">3</button><button aria-label="Next page"><ChevronRight size={14} /></button></div></div></section>
+<section className="mt-8"><SectionTitle eyebrow="Pipeline health" title="Deal Aging" /><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{[['Avg Deal Age', '28 days'], ['Oldest Open Deal', '142 days'], ['Deals Exceeding Stage Duration', '24'], ['Deals Without Recent Activity', '18']].map(([label, value]) => <article key={label} className="rounded-xl border border-border bg-[var(--card)] p-4"><p className="text-xs text-muted-foreground">{label}</p><strong className="mt-2 block text-2xl text-foreground">{value}</strong></article>)}</div><div className="mt-3 rounded-xl border border-border bg-[var(--secondary)] p-4"><div className="grid grid-cols-2 gap-3 text-[10px] uppercase tracking-wider text-muted-foreground sm:grid-cols-5"><span>Deal</span><span>Company</span><span>Stage</span><span>Age</span><span>Last activity</span></div>{[['Security Suite', 'GlobalNet Inc', 'Commit', '142 days', '12 days ago'], ['Marketing Platform', 'TechFlow AG', 'Discovery', '96 days', '8 days ago'], ['Cloud AI Suite', 'Meridian Group', 'Proposal', '74 days', '3 days ago'], ['Enterprise Platform', 'Nova Commerce', 'Negotiation', '61 days', 'Today'], ['CRM Integration Pro', 'BlueWave Ltd', 'Solution', '49 days', '2 days ago']].map(row => <div key={row[0]} className="grid grid-cols-2 gap-3 border-t border-border py-3 text-xs text-foreground sm:grid-cols-5">{row.map((cell, index) => <span key={`${row[0]}-${cell}`} className={index === 0 ? 'font-medium text-foreground' : ''}>{cell}</span>)}</div>)}</div></section>
+<section className="mt-8 rounded-xl border border-border bg-[var(--card)] p-5"><SectionTitle eyebrow="Pipeline attention" title="Deals at Risk" badge /><div className="divide-y divide-white/[0.06]">{[['Security Suite', 'GlobalNet Inc', '€156,000', 'No activity for 12 days', 'Confirm sign-off'], ['Cloud AI Suite', 'Meridian Group', '€124,000', 'Close date approaching, no next step', 'Send revised proposal'], ['Data Analytics Hub', 'Vertex Corp', '€67,500', 'Probability declined 15pp', 'Schedule demo'], ['Marketing Platform', 'TechFlow AG', '€38,500', 'No decision maker identified', 'Schedule discovery call']].map((row, index) => <article key={row[0]} className="flex flex-col gap-3 py-4 lg:flex-row lg:items-center"><div className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${index < 2 ? 'bg-chart-5/10 text-chart-5' : 'bg-secondary/10 text-foreground'}`}><AlertTriangle size={15} /></div><div className="min-w-0 flex-1"><strong className="text-sm text-foreground">{row[0]}</strong><p className="text-xs text-muted-foreground">{row[1]} · {row[2]}</p></div><span className="text-xs text-foreground">{row[3]}</span><span className="text-xs text-muted-foreground">Last activity: {index === 0 ? '12 days ago' : '3 days ago'}</span><span className="text-xs text-foreground">{row[4]}</span><button className={buttonClass}>Review</button><button className={buttonClass}>Create Task</button></article>)}</div></section>
+<section className="mt-8"><SectionTitle eyebrow="AI-generated intelligence" title="Next Best Actions" badge /><div className="grid gap-3 lg:grid-cols-3">{[['Schedule follow-up', 'Enterprise Platform', 'Nova Commerce', 'High priority'], ['Send proposal', 'Cloud AI Suite', 'Meridian Group', 'High priority'], ['Re-engage customer', 'Marketing Platform', 'TechFlow AG', 'Medium priority']].map(row => <article key={row[0]} className="rounded-xl border border-border bg-[var(--card)] p-4"><div className="flex items-start justify-between"><div className="grid h-8 w-8 place-items-center rounded-lg bg-secondary/10 text-foreground"><CalendarDays size={16} /></div><span className="rounded-full bg-chart-5/10 px-2 py-1 text-[10px] text-chart-5">{row[3]}</span></div><h3 className="mt-4 text-sm font-semibold text-foreground">{row[0]}</h3><p className="mt-1 text-xs text-muted-foreground">{row[1]} · {row[2]}</p><div className="mt-4 flex gap-2"><button className={buttonClass}>Create Task</button><button className={buttonClass}>{row[0] === 'Re-engage customer' ? 'Ask Lulu AI' : 'Open Deal'}</button></div></article>)}</div></section>
+<section className="mt-8 grid gap-5 xl:grid-cols-2"><div className="rounded-xl border border-border/15 bg-[var(--secondary)] p-5"><SectionTitle eyebrow="Recently closed" title="Recently Won" /><MiniRow name="Analytics Dashboard" company="Altus Media" value="€95K" note="25 Aug · 32 day cycle" action="View Deal" /><MiniRow name="Security Suite" company="GlobalNet Inc" value="€156K" note="18 Aug · 47 day cycle" action="View Deal" /><MiniRow name="BI Reporting" company="Northstar Labs" value="€71K" note="12 Aug · 29 day cycle" action="View Customer" /></div><div className="rounded-xl border border-chart-5/15 bg-[var(--secondary)] p-5"><SectionTitle eyebrow="Closed without revenue" title="Recently Lost" /><MiniRow name="ERP Connector" company="Pinnacle GmbH" value="€51K" note="Price · 21 Aug" action="View Deal" /><MiniRow name="Legacy System Upgrade" company="Arc Systems" value="€88K" note="Competitor · 14 Aug" action="View Deal" /><MiniRow name="AI Tools Bundle" company="Brightside Co" value="€44K" note="No Budget · 09 Aug" action="View Deal" /></div></section>
+<section className="mt-8"><SectionTitle eyebrow="AI-generated intelligence" title="AI Deal Insights" badge /><div className="grid gap-3 lg:grid-cols-3">{[['Closing Risk', 'Security Suite has remained in Commit stage for 18 days without customer confirmation. Win probability may be declining.', 'Review Deal', 'border-chart-5/20', 'text-chart-5'], ['Momentum Increase', 'Data Analytics Hub shows increased email engagement and meeting acceptance. Probability may be higher than current estimate.', 'View Deal', 'border-chart-4/20', 'text-chart-4'], ['Value Opportunity', 'Nova Commerce may have expansion potential based on recent CRM activity and increased platform usage signals.', 'View Deal', 'border-border/20', 'text-foreground']].map(row => <article key={row[0]} className={`rounded-xl border ${row[3]} bg-[var(--card)] p-4`}><div className="flex justify-between"><span className={`text-[10px] font-semibold uppercase tracking-wider ${row[4]}`}>{row[0]}</span><Sparkles size={14} className={row[4]} /></div><p className="mt-3 text-xs leading-5 text-muted-foreground">{row[1]}</p><button className="mt-4 text-xs font-medium text-foreground">{row[2]} →</button></article>)}</div><p className="mt-3 text-[10px] text-muted-foreground">• AI-generated · Supporting evidence where available · Does not modify deals automatically</p></section>
+<section className="mt-8"><SectionTitle eyebrow="Prioritized guidance" title="AI Recommendations" badge /><div className="grid gap-3 lg:grid-cols-3">{[['Prioritize Deal', 'Security Suite', 'High priority, near close date', '€156K'], ['Schedule Follow-up', 'Enterprise Platform', 'No activity for 12 days', '72% probability'], ['Contact Decision Maker', 'Cloud AI Suite', 'Missing key stakeholder', '€124K']].map(row => <article key={row[0]} className="rounded-xl border border-border bg-[var(--card)] p-4"><div className="flex items-center justify-between"><strong className="text-sm text-foreground">{row[0]}</strong><span className="rounded-full bg-chart-5/10 px-2 py-1 text-[10px] text-chart-5">High priority</span></div><p className="mt-3 text-xs text-muted-foreground">{row[1]}</p><p className="mt-1 text-xs text-muted-foreground">{row[2]}</p><div className="mt-4 flex items-center justify-between"><span className="text-[11px] text-foreground">Impact {row[3]}</span><button className="text-xs text-foreground">Review →</button></div></article>)}</div></section>
+<section className="mt-8 grid gap-5 xl:grid-cols-2"><article className="rounded-xl border border-border/20 bg-[var(--card)] p-5"><SectionTitle eyebrow="AI-assisted forecast" title="Deal Probability" badge /><div className="flex items-end gap-8"><div><span className="text-xs text-muted-foreground">Current</span><strong className="mt-1 block text-3xl text-foreground">72%</strong></div><div><span className="text-xs text-muted-foreground">Stage probability</span><strong className="mt-1 block text-xl text-foreground">65%</strong></div><div><span className="text-xs text-foreground">AI Recommended</span><strong className="mt-1 block text-xl text-foreground">78%</strong></div></div><div className="mt-5 h-2 rounded-full bg-card"><span className="block h-full w-[72%] rounded-full bg-primary text-primary-foreground" /></div><p className="mt-4 text-xs leading-5 text-muted-foreground">Enterprise Platform · Recent customer engagement and stage progression indicate stronger deal momentum.</p></article><article className="rounded-xl border border-border bg-[var(--card)] p-5"><SectionTitle eyebrow="Signal monitoring" title="Deal Health Monitor" /><div className="grid grid-cols-2 gap-2 sm:grid-cols-4">{[['Healthy', '142', 'bg-chart-4/10 text-chart-4'], ['Needs Attention', '28', 'bg-chart-1/10 text-chart-1'], ['At Risk', '14', 'bg-chart-5/10 text-chart-5'], ['Critical', '2', 'bg-chart-5/10 text-chart-5']].map(row => <div key={row[0]} className={`rounded-lg p-3 ${row[2]}`}><span className="block text-[10px]">{row[0]}</span><strong className="text-xl">{row[1]}</strong></div>)}</div><p className="mt-5 text-xs text-muted-foreground">Signals: Recent activity · Stage duration · Close date · Probability changes · Customer engagement</p></article></section>
+<section className="mt-8 grid gap-5 xl:grid-cols-2"><article className="rounded-xl border border-border/15 bg-[var(--card)] p-5"><SectionTitle eyebrow="Review before action" title="Potential Duplicates" /><p className="mb-3 text-xs text-foreground">⚠ Never automatically merge deals.</p><MiniRow name="Enterprise Platform" company="Nova Commerce · Maria Chen · €85K" value="David Liu" note="Possible match" action="Review / Merge" /><MiniRow name="Cloud AI Suite" company="Meridian Group · Tom Reyes · €124K" value="Sarah Chen" note="Possible match" action="Review / Ignore" /></article><article className="rounded-xl border border-border bg-[var(--card)] p-5"><SectionTitle eyebrow="Data quality" title="Deal Data Quality" /><div className="mb-4 flex items-center gap-3"><strong className="rounded-lg bg-secondary/10 px-3 py-2 text-xl text-foreground">84/100</strong><span className="text-xs text-muted-foreground">Good quality</span></div>{[['Missing probability', '12 deals'], ['Missing next action', '18 deals'], ['Missing expected close', '6 deals'], ['Potential duplicates', '2']].map(row => <div key={row[0]} className="flex items-center justify-between border-t border-border py-2.5 text-xs"><span className="text-muted-foreground">{row[0]} <strong className="text-foreground">({row[1]})</strong></span><button className="text-foreground">Fix</button></div>)}</article></section>
+<section className="mt-8 grid gap-5 xl:grid-cols-2"><article className="rounded-xl border border-border bg-[var(--card)] p-5"><SectionTitle eyebrow="Recorded activity" title="Recent Activity" />{[['Calls', 'Today · David Liu', 'Executive meeting logged for Enterprise Platform', 'text-foreground'], ['Emails', 'Yesterday · Sarah Chen', 'Revised proposal sent to Meridian Group', 'text-foreground'], ['Meetings', '2 days ago · Marcus Hill', 'Demo accepted by Vertex Corp', 'text-foreground'], ['Stage change', '3 days ago · Priya Nair', 'CRM Integration Pro moved to Solution', 'text-foreground'], ['Value update', '4 days ago · David Liu', 'Enterprise Platform value updated', 'text-foreground']].map(row => <div key={row[2]} className="flex gap-3 border-t border-border py-3"><Activity size={15} className={row[3]} /><div><strong className="text-xs text-foreground">{row[0]}</strong><p className="text-[11px] text-muted-foreground">{row[1]} · {row[2]}</p></div></div>)}</article><article className="rounded-xl border border-border bg-[var(--card)] p-5"><SectionTitle eyebrow="Enterprise Platform" title="Deal Timeline" />{['Deal Created', 'Qualification Completed', 'Proposal Sent', 'Meeting Completed', 'Stage Changed', 'Negotiation Started'].map((event, index) => <div key={event} className="relative flex gap-3 pb-4 last:pb-0"><div className="relative flex w-4 justify-center"><span className={`z-[1] mt-1.5 h-2 w-2 rounded-full ${index === 5 ? 'bg-primary' : 'bg-secondary'}`} />{index < 5 && <span className="absolute top-3 h-full w-px bg-secondary" />}</div><div><strong className="text-xs text-foreground">{event}</strong><p className="text-[11px] text-muted-foreground">{index === 5 ? 'Today' : `${index + 1} weeks ago`}</p></div></div>)}</article></section>
+<section className="mt-8 rounded-2xl border border-border/20 bg-gradient-to-r from-secondary/20 via-[var(--card)] to-secondary/10 p-5 md:p-6"><div className="flex items-center gap-3"><div className="grid h-9 w-9 place-items-center rounded-xl bg-secondary/20 text-foreground"><Bot size={18} /></div><div><h2 className="text-lg font-semibold text-foreground">Ask Lulu AI</h2><p className="text-xs text-muted-foreground">Explore your pipeline with natural language.</p></div><AiBadge /></div><div className="mt-5 flex gap-2"><input value={ask} onChange={event => setAsk(event.target.value)} onKeyDown={event => {
+                if (event.key === 'Enter') setAnswer(`Lulu is reviewing ${ask || 'your deals'} and will surface the strongest next steps.`);
+              }} className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-[var(--secondary)]/80 px-3 text-sm text-foreground outline-none placeholder:text-muted-foreground" placeholder="Ask Lulu AI about your deals..." /><button onClick={() => setAnswer(`Lulu is reviewing ${ask || 'your deals'} and will surface the strongest next steps.`)} className="rounded-lg bg-primary px-4 text-primary-foreground"><Send size={16} /></button></div>{answer && <p className="mt-3 rounded-lg bg-[var(--background)]/60 p-3 text-xs text-foreground">{answer}</p>}<div className="mt-4 flex flex-wrap gap-2">{prompts.map(prompt => <button key={prompt} onClick={() => setAsk(prompt)} className="rounded-full border border-border px-3 py-1.5 text-[11px] text-foreground hover:border-border/40 hover:text-foreground">{prompt}</button>)}</div></section><footer className="mt-8 flex flex-col gap-3 border-t border-border py-6 text-[10px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><span>Recorded · Calculated · Rule-based · AI-generated · Forecast · Unavailable</span><span>Sales — Deals · Lulu AI Business OS</span></footer></div></main><aside className="hidden w-10 shrink-0 border-l border-border bg-[var(--sidebar)] xl:block"><button className="flex h-full w-full flex-col items-center gap-3 pt-8 text-foreground hover:text-foreground" aria-label="Open deal preview"><PanelRight size={17} /><span className="[writing-mode:vertical-rl] text-[10px] uppercase tracking-[0.18em]">Deal Preview</span></button></aside></div>{showCreate && <section className="fixed right-0 top-0 z-20 h-full w-full max-w-[520px] overflow-y-auto border-l border-border bg-[var(--card)] p-6 shadow-2xl" aria-label="Create deal form"><div className="flex items-start justify-between"><div><p className="text-[10px] uppercase tracking-[0.18em] text-foreground">New opportunity</p><h2 className="mt-1 text-xl font-semibold text-foreground">Create Deal</h2></div><button onClick={() => setShowCreate(false)} aria-label="Close create deal" className="text-foreground hover:text-foreground"><X size={18} /></button></div><div className="mt-6 grid grid-cols-2 gap-3">{['Deal Name*', 'Description', 'Type', 'Stage', 'Status', 'Owner', 'Priority', 'Company*', 'Primary Contact', 'Value*', 'Currency', 'Probability', 'Expected Close Date*', 'Source', 'Territory', 'Tags'].map(label => <label key={label} className="text-[11px] text-muted-foreground"><span className="mb-1.5 block">{label}</span><input className="h-9 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 text-xs text-foreground outline-none focus:border-border" placeholder={label.replace('*', '')} /></label>)}</div><label className="mt-3 block text-[11px] text-muted-foreground"><span className="mb-1.5 block">Notes</span><textarea className="h-20 w-full resize-none rounded-lg border border-border bg-[var(--secondary)] p-3 text-xs text-foreground outline-none focus:border-border" /></label><p className="mt-4 rounded-lg border border-border/20 bg-secondary/5 p-3 text-[11px] text-foreground">Duplicate detection will run against existing deals when you create this opportunity.</p><div className="mt-6 flex justify-end gap-2"><button onClick={() => setShowCreate(false)} className={buttonClass}>Cancel</button><button onClick={() => setShowCreate(false)} className={buttonClass}>Create &amp; Add Another</button><button onClick={() => setShowCreate(false)} className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">Create Deal</button></div></section>}</div>;
+}
