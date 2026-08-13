@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check, CircleAlert, Eye, EyeOff, LoaderCircle, X } from 'lucide-react';
+import { navigateApp, routes } from '../../../../routing';
 const requirements = [{
   id: 'characters',
   label: '8+ characters'
@@ -75,10 +76,10 @@ function StateCard({
       <StatusIcon kind={kind} />
       <h3 className="mt-4 text-[18px] font-bold tracking-[-0.02em] text-[var(--foreground)]">{title}</h3>
       <p className="mt-1.5 max-w-[292px] text-[13px] leading-5 text-[var(--muted-foreground)]">{description}</p>
-      {primaryAction && <button type="button" className="mt-4 flex h-10 w-full items-center justify-center rounded-md bg-[var(--primary)] px-3 text-[13px] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
+      {primaryAction && <button type="button" onClick={() => navigateApp(primaryAction === 'Request New Link' ? routes.auth.forgotPassword : routes.auth.login)} className="mt-4 flex h-10 w-full items-center justify-center rounded-md bg-[var(--primary)] px-3 text-[13px] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
         <span>{primaryAction}</span>
       </button>}
-      {secondaryAction && <button type="button" className="mt-2.5 flex h-10 w-full items-center justify-center rounded-md border border-[var(--border)] bg-[var(--card)] px-3 text-[13px] font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
+      {secondaryAction && <button type="button" onClick={() => navigateApp(routes.auth.login)} className="mt-2.5 flex h-10 w-full items-center justify-center rounded-md border border-[var(--border)] bg-[var(--card)] px-3 text-[13px] font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
         <span>{secondaryAction}</span>
       </button>}
       {note && <p className="mt-2.5 text-[11px] text-[var(--muted-foreground)]">{note}</p>}
@@ -101,7 +102,10 @@ export function LuluResetPassword() {
           <p className="mb-6 mt-1.5 text-sm leading-5 text-[var(--muted-foreground)]">Create a new password for your Lulu AI account. Your new password must be different from your previous one.</p>
         </header>
 
-        <form className="space-y-4" aria-label="Reset password form">
+        <form onSubmit={event => {
+          event.preventDefault();
+          navigateApp(routes.auth.login);
+        }} className="space-y-4" aria-label="Reset password form">
           <div>
             <label htmlFor="new-password" className="mb-1.5 block text-[13px] font-medium text-[var(--foreground)]">New password</label>
             <div className="relative">
@@ -137,10 +141,10 @@ export function LuluResetPassword() {
             <p id="password-match-message" className="mt-1.5 text-[11px] font-medium text-[var(--foreground)]">Passwords match</p>
           </div>
 
-          <button type="button" className="flex h-11 w-full items-center justify-center rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
+          <button type="submit" className="flex h-11 w-full items-center justify-center rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
             <span>Reset Password</span>
           </button>
-          <button type="button" className="flex h-11 w-full items-center justify-center rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
+          <button type="button" onClick={() => navigateApp(routes.auth.login)} className="flex h-11 w-full items-center justify-center rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
             <span>Back to Login</span>
           </button>
         </form>

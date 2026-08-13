@@ -1,3 +1,5 @@
+import { pageLinkProps } from '../../../../routing';
+
 export function LuluVerificationEmail() {
   return <main className="min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)]">
       <header aria-label="Email preview details" className="border-b border-[var(--border)] bg-[var(--secondary)] px-4 py-3 sm:px-6">
@@ -24,7 +26,7 @@ export function LuluVerificationEmail() {
             <p className="mb-6 text-[15px] font-normal leading-[1.6] text-[var(--muted-foreground)]">Welcome to Lulu AI. Please verify your email address to activate your account and continue setting up your AI business workspace.</p>
 
             <div className="mb-7 text-center">
-              <a href="https://app.lulu.ai/verify-email" className="inline-flex items-center justify-center rounded-md bg-[var(--primary)] px-8 py-3.5 text-[14px] font-semibold text-[var(--primary-foreground)] no-underline transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">Verify Email Address</a>
+              <a {...pageLinkProps('eagerly-bay-9885')} className="inline-flex items-center justify-center rounded-md bg-[var(--primary)] px-8 py-3.5 text-[14px] font-semibold text-[var(--primary-foreground)] no-underline transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">Verify Email Address</a>
             </div>
 
             <hr className="mb-6 border-0 border-t border-[var(--border)]" />
@@ -40,7 +42,7 @@ export function LuluVerificationEmail() {
             <section aria-labelledby="fallback-title" className="mb-6">
               <h2 id="fallback-title" className="mb-1.5 text-[12px] font-semibold text-[var(--foreground)]">Button not working</h2>
               <p className="mb-2 text-[13px] text-[var(--muted-foreground)]">Copy and paste this link into your browser</p>
-              <a href="https://app.lulu.ai/verify-email?token=eyJhbGciOiJIUzI1NiJ9..." className="block break-all rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3.5 py-2.5 font-mono text-[12px] leading-[1.5] text-[var(--foreground)] no-underline transition hover:text-[var(--foreground)]">https://app.lulu.ai/verify-email?token=eyJhbGciOiJIUzI1NiJ9...</a>
+              <a {...pageLinkProps('eagerly-bay-9885')} className="block break-all rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3.5 py-2.5 font-mono text-[12px] leading-[1.5] text-[var(--foreground)] no-underline transition hover:text-[var(--foreground)]">https://app.lulu.ai/verify-email?token=eyJhbGciOiJIUzI1NiJ9...</a>
             </section>
 
             <aside className="border-l-[3px] border-[var(--border)] bg-[var(--sidebar)] px-4 py-3" aria-label="Account security notice">

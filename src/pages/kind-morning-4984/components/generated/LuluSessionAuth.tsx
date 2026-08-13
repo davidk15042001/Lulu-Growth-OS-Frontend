@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, Eye, EyeOff, LockKeyhole, LoaderCircle, ShieldCheck } from 'lucide-react';
+import { navigateApp, routes } from '../../../../routing';
 type Screen = 'expired' | 'reauth' | 'password' | 'success' | 'failure' | 'invalidated';
 type Status = 'idle' | 'loading';
 const footerLinks = [{
@@ -41,6 +42,7 @@ export function LuluSessionAuth() {
       } else {
         setStatus('idle');
         setScreen('success');
+        window.setTimeout(() => navigateApp(routes.app.dashboard), 700);
       }
     }, 900);
   }
@@ -55,6 +57,7 @@ export function LuluSessionAuth() {
     window.setTimeout(() => {
       setStatus('idle');
       setScreen('success');
+      window.setTimeout(() => navigateApp(routes.app.dashboard), 700);
     }, 900);
   }
   const isForm = screen === 'reauth' || screen === 'password';

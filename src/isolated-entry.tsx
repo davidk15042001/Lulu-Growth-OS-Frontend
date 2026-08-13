@@ -1,10 +1,20 @@
 import { StrictMode, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
+import { navigateApp } from "./routing";
 
 type AppModule = { default: ComponentType };
 
 const appModules = import.meta.glob<AppModule>("./pages/*/App.tsx");
 const styleModules = import.meta.glob("./pages/*/index.css");
+
+document.addEventListener("click", (event) => {
+  if (!(event.target instanceof Element)) return;
+  const link = event.target.closest<HTMLAnchorElement>("a[data-lulu-route]");
+  const destination = link?.dataset.luluRoute;
+  if (!destination) return;
+  event.preventDefault();
+  navigateApp(destination);
+});
 
 async function mount() {
   const segments = window.location.pathname.split("/").filter(Boolean);

@@ -552,7 +552,7 @@ function LuluSectionNavigation({
         <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
           {section.pages.map(page => {
             const isActivePage = page.id === activeId;
-            return <a key={page.id} href={`#${page.id}`} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+            return <a key={page.id} {...pageLinkProps(page.id)} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
               {page.label}
             </a>;
           })}
@@ -561,3 +561,4 @@ function LuluSectionNavigation({
     })}
   </nav>;
 }
+import { pageLinkProps } from '../../../../routing';

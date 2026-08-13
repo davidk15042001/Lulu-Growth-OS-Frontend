@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { ArrowRight, Building2, Check, ShieldCheck, Sparkles } from "lucide-react";
+import { navigateApp, routes } from '../../../../routing';
 type CompanyForm = {
   companyName: string;
   industry: string;
@@ -25,6 +26,7 @@ export const CompanyInformation = () => {
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSaved(true);
+    window.setTimeout(() => navigateApp(routes.onboarding.businessDescription), 400);
   };
   return <main className="grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-center justify-center px-5 py-8 sm:px-8 lg:px-12">

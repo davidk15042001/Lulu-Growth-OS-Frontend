@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle, Sparkles } from 'lucide-react';
+import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 const requirements = ['At least 8 characters', 'One uppercase letter', 'One lowercase letter', 'One number', 'One special character'];
 const socialButtonClass = 'flex h-11 w-full items-center justify-center gap-2.5 rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2';
 export function LuluSignupPage() {
@@ -13,7 +14,7 @@ export function LuluSignupPage() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus('loading');
-    window.setTimeout(() => setStatus('idle'), 1000);
+    window.setTimeout(() => navigateApp(routes.auth.verifyEmail), 700);
   }
   return <main className="grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-start justify-center overflow-y-auto px-6 py-10">
@@ -92,21 +93,21 @@ export function LuluSignupPage() {
           </div>
 
           <div className="space-y-2.5">
-            <button type="button" className={socialButtonClass}>
+            <button type="button" onClick={() => navigateApp(routes.auth.verifyEmail)} className={socialButtonClass}>
               <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="var(--foreground)" d="M17.64 9.2c0-.63-.06-1.24-.16-1.82H9v3.44h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.58 2.68-3.9 2.68-6.6Z" /><path fill="var(--foreground)" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.92-2.26c-.8.54-1.82.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.34A9 9 0 0 0 9 18Z" /><path fill="var(--foreground)" d="M3.97 10.7A5.4 5.4 0 0 1 3.69 9c0-.59.1-1.17.28-1.7V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.03l3.01-2.34Z" /><path fill="var(--foreground)" d="M9 3.58c1.32 0 2.5.45 3.43 1.34l2.57-2.57C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.97l3.01 2.34c.71-2.14 2.69-3.73 5.03-3.73Z" /></svg>
               <span>Continue with Google</span>
             </button>
-            <button type="button" className={socialButtonClass}>
+            <button type="button" onClick={() => navigateApp(routes.auth.verifyEmail)} className={socialButtonClass}>
               <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="var(--foreground)" d="M1 1h7.6v7.6H1z" /><path fill="var(--foreground)" d="M9.4 1H17v7.6H9.4z" /><path fill="var(--foreground)" d="M1 9.4h7.6V17H1z" /><path fill="var(--foreground)" d="M9.4 9.4H17V17H9.4z" /></svg>
               <span>Continue with Microsoft</span>
             </button>
-            <button type="button" className={socialButtonClass}>
+            <button type="button" onClick={() => navigateApp(routes.auth.verifyEmail)} className={socialButtonClass}>
               <span aria-hidden="true" className="grid h-[18px] w-[18px] place-items-center rounded-[5px] bg-[var(--primary)] text-[11px] font-bold text-[var(--primary-foreground)]">••</span>
               <span>Continue with WeChat</span>
             </button>
           </div>
 
-          <p className="mt-5 text-center text-[13px] text-[var(--muted-foreground)]">Already have a Lulu AI account? <a href="#sign-in" className="font-medium text-[var(--foreground)] hover:underline">Sign in</a></p>
+          <p className="mt-5 text-center text-[13px] text-[var(--muted-foreground)]">Already have a Lulu AI account? <a {...pageLinkProps('brightly-door-5741')} className="font-medium text-[var(--foreground)] hover:underline">Sign in</a></p>
 
           <nav aria-label="Legal links" className="mt-8 flex justify-center gap-5 text-xs text-[var(--muted-foreground)] lg:hidden">
             <a href="#privacy" className="transition hover:text-[var(--foreground)]">Privacy</a>

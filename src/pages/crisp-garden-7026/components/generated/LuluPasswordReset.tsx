@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Mail, Sparkles } from 'lucide-react';
+import { navigateApp, routes } from '../../../../routing';
 export const LuluPasswordReset = () => {
   const [e, setE] = useState('');
   const [done, setDone] = useState(false);
@@ -27,7 +28,7 @@ export const LuluPasswordReset = () => {
               </label>
               <button className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Send reset link <ArrowRight size={16} /></button>
             </form>}
-          <button className="mt-8 flex items-center gap-2 text-sm text-[var(--foreground)]"><ArrowLeft size={15} /> Back to sign in</button>
+          <button type="button" onClick={() => navigateApp(routes.auth.login)} className="mt-8 flex items-center gap-2 text-sm text-[var(--foreground)]"><ArrowLeft size={15} /> Back to sign in</button>
         </div>
       </section>
       <aside className="hidden border-l border-[var(--border)] bg-[var(--sidebar)] p-12 text-[var(--foreground)] lg:flex lg:flex-col lg:justify-between">

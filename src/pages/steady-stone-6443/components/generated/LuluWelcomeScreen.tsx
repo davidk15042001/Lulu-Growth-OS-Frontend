@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, BarChart3, Check, ChevronDown, CircleHelp, Database, Gauge, Lightbulb, LockKeyhole, Network, X } from 'lucide-react';
+import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 type FeaturePill = {
   id: string;
   label: string;
@@ -76,7 +77,7 @@ export function LuluWelcomeScreen() {
   }, []);
   function handleGetStarted() {
     setStarted(true);
-    window.location.hash = 'company-setup';
+    window.setTimeout(() => navigateApp(routes.onboarding.companyInformation), 220);
   }
   return <div className="lulu-welcome relative flex h-screen max-h-[1024px] min-h-screen w-full flex-col overflow-hidden bg-[var(--background)] font-sans text-[var(--foreground)]">
       <style>{`
@@ -94,7 +95,7 @@ export function LuluWelcomeScreen() {
       `}</style>
 
       <header className="mx-auto flex h-14 w-full max-w-[1280px] shrink-0 items-center justify-between px-5 sm:px-8 lg:px-10">
-        <a href="#lulu-ai" aria-label="Lulu AI home" className="welcome-enter flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--border)]">
+        <a {...pageLinkProps('fancily-leaf-1766')} aria-label="Lulu AI home" className="welcome-enter flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--border)]">
           <span aria-hidden="true" className="grid h-8 w-8 place-items-center rounded-full bg-[var(--primary)] text-base font-bold text-[var(--primary-foreground)]">
             <span>L</span>
           </span>
@@ -117,7 +118,7 @@ export function LuluWelcomeScreen() {
                 <button type="button" role="menuitem" onClick={() => setIsAccountOpen(false)} className="w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">
                   <span>Account settings</span>
                 </button>
-                <button type="button" role="menuitem" onClick={() => setIsAccountOpen(false)} className="w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">
+                <button type="button" role="menuitem" onClick={() => navigateApp(routes.auth.signedOut)} className="w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">
                   <span>Sign out</span>
                 </button>
               </div>}
@@ -251,7 +252,7 @@ export function LuluWelcomeScreen() {
               </button>
               <button type="button" onClick={() => {
             setIsSkipOpen(false);
-            window.location.hash = 'dashboard';
+            navigateApp(routes.app.dashboard);
           }} className="h-11 rounded-lg bg-[var(--primary)] px-4 text-sm font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">
                 <span>Skip Setup</span>
               </button>

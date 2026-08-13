@@ -1,8 +1,13 @@
 import { useState } from 'react';
 import { Check, Mail, RefreshCw, ShieldCheck, Sparkles } from 'lucide-react';
+import { navigateApp, routes } from '../../../../routing';
 export const LuluVerificationPage = () => {
   const [verified, setVerified] = useState(false);
   const [resent, setResent] = useState(false);
+  const handleVerified = () => {
+    setVerified(true);
+    window.setTimeout(() => navigateApp(routes.onboarding.welcome), 650);
+  };
   return <main className="grid min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-center justify-center p-6">
         <div className="w-full max-w-md text-center">
@@ -18,7 +23,7 @@ export const LuluVerificationPage = () => {
               </> : <>
                 <Mail className="mx-auto text-[var(--foreground)]" size={34} />
                 <p className="mt-3 text-sm text-[var(--muted-foreground)]">Open the link in your inbox, then continue here.</p>
-                <button onClick={() => setVerified(true)} className="mt-5 h-10 w-full rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">I’ve verified my email</button>
+                <button onClick={handleVerified} className="mt-5 h-10 w-full rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">I’ve verified my email</button>
               </>}
           </div>
           <button onClick={() => setResent(true)} className="mx-auto mt-5 flex items-center gap-2 text-sm text-[var(--foreground)]"><RefreshCw size={14} /> {resent ? 'Verification email resent' : 'Resend email'}</button>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowRight, Check, Plus, ShieldCheck, Sparkles, X } from "lucide-react";
+import { navigateApp, routes } from '../../../../routing';
 type Tag = {
   id: string;
   label: string;
@@ -76,6 +77,7 @@ export const BusinessDescription = () => {
           <form className="mt-8 space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)]" onSubmit={event => {
           event.preventDefault();
           setSaved(true);
+          window.setTimeout(() => navigateApp(routes.onboarding.productsServices), 400);
         }}>
             
             <label className="block text-sm font-medium text-[var(--muted-foreground)]">

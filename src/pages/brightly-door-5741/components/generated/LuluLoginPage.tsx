@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { ArrowRight, Check, Eye, EyeOff, ShieldCheck, Sparkles } from 'lucide-react';
+import { navigateApp, routes } from '../../../../routing';
 export const LuluLoginPage = () => {
   const [e, setE] = useState('');
   const [p, setP] = useState('');
@@ -7,7 +8,9 @@ export const LuluLoginPage = () => {
   const [show, setShow] = useState(false);
   const submit = (x: React.FormEvent) => {
     x.preventDefault();
-    setS(!!(e && p));
+    const isValid = Boolean(e && p);
+    setS(isValid);
+    if (isValid) window.setTimeout(() => navigateApp(routes.app.dashboard), 450);
   };
   return <main className="grid min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-center justify-center p-6">
@@ -34,8 +37,8 @@ export const LuluLoginPage = () => {
             {s && <p className="flex items-center gap-2 text-sm text-[var(--chart-4)]"><Check size={15} /> Signed in successfully.</p>}
           </form>
           <div className="mt-8 flex justify-between text-sm">
-            <button className="text-[var(--foreground)]">Forgot password?</button>
-            <button className="text-[var(--muted-foreground)]">Create account</button>
+            <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)} className="text-[var(--foreground)]">Forgot password?</button>
+            <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="text-[var(--muted-foreground)]">Create account</button>
           </div>
         </div>
       </section>

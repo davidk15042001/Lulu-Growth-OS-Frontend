@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "audit:routing": "node scripts/audit-routing.mjs"
   },
   "dependencies": {
     "framer-motion": "^12.23.12",

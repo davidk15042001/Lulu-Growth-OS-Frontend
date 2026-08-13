@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, Check, CircleHelp, DollarSign, PackageOpen, Plus, Sparkles, Star, Tags, Trash2, Upload, X } from "lucide-react";
+import { navigateApp, routes } from '../../../../routing';
 type OfferingType = "Product" | "Service";
 type OfferingStatus = "Active" | "Coming Soon" | "Planned" | "Discontinued";
 type Offering = {
@@ -689,16 +690,16 @@ export function LuluProductsServices() {
             </section> : null}
 
           <footer className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <button type="button" className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[var(--border)] px-4 text-sm font-medium text-[var(--muted-foreground)] hover:border-[var(--border)] hover:text-[var(--foreground)]">
+            <button type="button" onClick={() => navigateApp(routes.onboarding.businessDescription)} className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[var(--border)] px-4 text-sm font-medium text-[var(--muted-foreground)] hover:border-[var(--border)] hover:text-[var(--foreground)]">
               
               <ArrowLeft size={16} aria-hidden="true" />
               <span>Back</span>
             </button>
-            <button type="button" onClick={() => setToast("You can return to setup anytime")} className="h-11 rounded-md px-4 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+            <button type="button" onClick={() => navigateApp(routes.app.dashboard)} className="h-11 rounded-md px-4 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
               
               <span>Skip Setup</span>
             </button>
-            <button type="button" onClick={() => setToast("Saved — ready for Existing Platforms")} className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[var(--primary)] px-5 text-sm font-semibold text-primary-foreground hover:bg-[var(--primary)]">
+            <button type="button" onClick={() => navigateApp(routes.onboarding.existingPlatforms)} className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[var(--primary)] px-5 text-sm font-semibold text-primary-foreground hover:bg-[var(--primary)]">
               
               <span>Continue</span>
               <ArrowRight size={16} aria-hidden="true" />

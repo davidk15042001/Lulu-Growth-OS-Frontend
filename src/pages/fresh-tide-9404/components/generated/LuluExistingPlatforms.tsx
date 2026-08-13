@@ -1,5 +1,6 @@
 import { FormEvent, useMemo, useState } from "react";
 import { ArrowRight, BarChart3, Check, CircleCheck, MessageSquareText, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound } from "lucide-react";
+import { navigateApp, routes } from '../../../../routing';
 interface Platform {
   id: string;
   name: string;
@@ -64,6 +65,10 @@ export const LuluExistingPlatforms = () => {
   };
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (synced) {
+      navigateApp(routes.onboarding.aiPreferences);
+      return;
+    }
     if (customPlatform.trim()) {
       const normalizedName = customPlatform.trim();
       setPlatforms(current => [...current, {

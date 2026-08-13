@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, CheckCircle2, ChevronRight, ArrowRight, Sparkles, Shield, Brain, Zap, BarChart2, Globe, AlertTriangle, RefreshCcw, ExternalLink, Building2, Layers, Activity, Target, HelpCircle, User, X } from "lucide-react";
+import { navigateApp, routes } from '../../../../routing';
 type Phase = "setup_complete" | "confirm_analysis" | "analysis_started" | "analysis_complete" | "analysis_error";
 type StageStatus = "pending" | "running" | "complete" | "error";
 type Progress = Record<string, StageStatus>;
@@ -606,7 +607,7 @@ const CompleteView = () => <motion.div initial={{
         Analysis complete in 7.5s
       </p>
     </section>
-    <button className="mt-8 flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-10 py-4 text-base font-semibold shadow-lg shadow-black/25 hover:bg-primary sm:mx-auto sm:w-auto text-primary-foreground">
+    <button onClick={() => navigateApp(routes.app.dashboard)} className="mt-8 flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-10 py-4 text-base font-semibold shadow-lg shadow-black/25 hover:bg-primary sm:mx-auto sm:w-auto text-primary-foreground">
       Open Executive Dashboard <ArrowRight size={18} />
     </button>
     <div className="mt-8 grid grid-cols-3 gap-2 text-center">
@@ -663,7 +664,7 @@ const ErrorView = ({
       <button className="rounded-xl border border-border px-6 py-3 text-sm text-foreground hover:bg-secondary">
         Review Connections
       </button>
-      <button className="text-sm text-foreground underline">
+      <button onClick={() => navigateApp(routes.app.dashboard)} className="text-sm text-foreground underline">
         Continue to Dashboard
       </button>
       <p className="text-xs text-muted-foreground">

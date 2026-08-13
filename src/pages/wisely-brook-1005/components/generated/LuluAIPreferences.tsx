@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, BarChart2, Bell, Brain, Check, ChevronDown, ChevronUp, Clock, DollarSign, Globe, GripVertical, HelpCircle, Megaphone, MessageSquare, RotateCcw, Search, Settings, Shield, Sparkles, Target, TrendingUp, Users, X, Zap } from "lucide-react";
+import { navigateApp, routes } from '../../../../routing';
 const steps = ["Company Information", "Business Description", "Products & Services", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 const priorities = ["Revenue Growth", "Customer Acquisition", "Customer Retention", "Profitability", "Marketing Performance", "Advertising Performance", "SEO", "GEO", "AEO", "Brand Visibility", "Market Expansion", "Operational Efficiency", "Product Growth", "Customer Experience"];
 const priorityIcons: Record<string, typeof TrendingUp> = {
@@ -1030,15 +1031,15 @@ export function LuluAIPreferences() {
           </article>
         </section>
         <footer className="mt-10 flex flex-col-reverse items-stretch gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <button className="inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm text-foreground hover:border-border">
+          <button onClick={() => navigateApp(routes.onboarding.existingPlatforms)} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm text-foreground hover:border-border">
             <ArrowLeft size={16} />
             Back
           </button>
-          <button onClick={() => setToast("Setup skipped — you can return anytime")} className="text-sm text-foreground hover:text-foreground">
+          <button onClick={() => navigateApp(routes.app.dashboard)} className="text-sm text-foreground hover:text-foreground">
             
             Skip Setup
           </button>
-          <button onClick={() => setToast("Saved")} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary">
+          <button onClick={() => navigateApp(routes.onboarding.setupComplete)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary">
             
             Continue
             <ArrowRight size={16} />
