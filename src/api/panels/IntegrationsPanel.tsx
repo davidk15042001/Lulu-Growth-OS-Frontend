@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { onboardingApi, type Platform } from "../onboarding";
+import { getFriendlyErrorMessage } from "../client";
 import { workspaceAppApi } from "../workspace-app";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 
@@ -12,7 +13,7 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
   const load = useCallback(async () => {
     setBusy(true); setError("");
     try { setPlatforms((await onboardingApi.platforms(workspaceId)).data.items); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Integrations could not be loaded."); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load your integrations. Please try again.")); }
     finally { setBusy(false); }
   }, [workspaceId]);
   useEffect(() => { void load(); }, [load]);
@@ -22,13 +23,13 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
     try {
       await onboardingApi.createPlatform(workspaceId, { name: draft.name.trim(), category: draft.category.trim(), integrationKey: draft.integrationKey.trim() || null, connectionStatus: "disconnected" });
       setDraft({ name: "", category: "other", integrationKey: "" }); await load();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Integration could not be created."); setBusy(false); }
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not add this integration. Please try again.")); setBusy(false); }
   }
 
   async function updateStatus(platform: Platform, connectionStatus: string) {
     setBusy(true); setError("");
     try { await onboardingApi.updatePlatform(workspaceId, platform.id, { connectionStatus }); await load(); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Integration status could not be changed."); setBusy(false); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not change this integration. Please try again.")); setBusy(false); }
   }
 
   return <LivePanelShell title="Live integrations" subtitle="Connections and synchronization jobs" onClose={onClose}>
@@ -39,7 +40,7 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
         <small>Last sync: {formatLiveDate(platform.lastSyncedAt)}{platform.lastError ? ` · ${platform.lastError}` : ""}</small>
         <div className="lulu-live-actions" style={{ marginTop: 8 }}>
           <select aria-label={`Status for ${platform.name}`} value={platform.connectionStatus} onChange={(event) => void updateStatus(platform, event.target.value)}><option value="not_connected">Not connected</option><option value="disconnected">Disconnected</option><option value="pending">Pending</option><option value="connected">Connected</option><option value="syncing">Syncing</option><option value="error">Error</option></select>
-          <button className="lulu-live-button" disabled={busy} onClick={async () => { setBusy(true); try { const result = await workspaceAppApi.syncIntegration(workspaceId, platform.id); window.alert(`Sync job ${result.data.jobId} created (${result.data.status}).`); await load(); } catch (cause) { setError(cause instanceof Error ? cause.message : "Sync could not be started."); setBusy(false); } }}>Sync</button>
+          <button className="lulu-live-button" disabled={busy} onClick={async () => { setBusy(true); try { const result = await workspaceAppApi.syncIntegration(workspaceId, platform.id); window.alert(`Sync job ${result.data.jobId} created (${result.data.status}).`); await load(); } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not start the sync. Please try again.")); setBusy(false); } }}>Sync</button>
           <button className="lulu-live-button danger" disabled={busy} onClick={async () => { if (!window.confirm(`Delete ${platform.name}?`)) return; await onboardingApi.deletePlatform(workspaceId, platform.id); await load(); }}>Delete</button>
         </div>
       </article>)}

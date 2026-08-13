@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, CheckCircle2, ChevronRight, ArrowRight, Sparkles, Shield, Brain, Zap, BarChart2, Globe, AlertTriangle, RefreshCcw, ExternalLink, Building2, Layers, Activity, Target, HelpCircle, User, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 type Phase = "setup_complete" | "confirm_analysis" | "analysis_started" | "analysis_complete" | "analysis_error";
 type StageStatus = "pending" | "running" | "complete" | "error";
@@ -97,7 +97,7 @@ export const LuluSetupComplete = () => {
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
     requestApi({ path: `/workspaces/${workspaceId}/onboarding/complete`, method: 'POST', body: {} })
-      .catch(cause => setCompletionError(cause instanceof Error ? cause.message : 'Unable to complete onboarding.'));
+      .catch(cause => setCompletionError(getFriendlyErrorMessage(cause, 'We could not finish the setup. Please try again.')));
   }, []);
   useEffect(() => {
     if (phase !== "analysis_started") return;

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { archiveRecord, createRecord, listRecords, updateRecord, type WorkspaceRecord } from "../records";
+import { getFriendlyErrorMessage } from "../client";
 import { workspaceAppApi, type SavedView } from "../workspace-app";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 
@@ -56,7 +57,7 @@ export function ResourcePanel({ workspaceId, resourceType, onClose }: { workspac
       setRecords(recordResponse.data.items);
       setViews(viewResponse.data.items);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Live records could not be loaded.");
+      setError(getFriendlyErrorMessage(cause, "We could not load these records. Please try again."));
     } finally {
       setBusy(false);
     }
@@ -78,7 +79,7 @@ export function ResourcePanel({ workspaceId, resourceType, onClose }: { workspac
       setDraft(emptyDraft);
       await load();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "The record could not be saved.");
+      setError(getFriendlyErrorMessage(cause, "We could not save this record. Please try again."));
       setBusy(false);
     }
   }
@@ -88,7 +89,7 @@ export function ResourcePanel({ workspaceId, resourceType, onClose }: { workspac
     setBusy(true);
     setError("");
     try { await archiveRecord(resourceType, recordId); await load(); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "The record could not be archived."); setBusy(false); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not archive this record. Please try again.")); setBusy(false); }
   }
 
   async function saveView(event: FormEvent) {
@@ -101,7 +102,7 @@ export function ResourcePanel({ workspaceId, resourceType, onClose }: { workspac
       });
       setViewName("");
       await load();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "The view could not be saved."); setBusy(false); }
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not save this view. Please try again.")); setBusy(false); }
   }
 
   return <LivePanelShell title="Live workspace data" subtitle={resourceType} onClose={onClose}>

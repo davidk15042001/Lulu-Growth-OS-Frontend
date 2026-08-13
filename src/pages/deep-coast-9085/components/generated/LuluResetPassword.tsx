@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Check, CircleAlert, Eye, EyeOff, LoaderCircle, X } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { clearPendingEmail, getPendingEmail } from '../../../../api/session';
 const requirements = [{
   id: 'characters',
@@ -119,7 +119,7 @@ export function LuluResetPassword() {
       clearPendingEmail();
       navigateApp(routes.auth.login);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Unable to reset your password.');
+      setError(getFriendlyErrorMessage(cause, 'We could not reset your password. Please try again.'));
     } finally {
       setLoading(false);
     }

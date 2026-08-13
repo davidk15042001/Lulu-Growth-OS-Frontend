@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Activity, Archive, ArrowRight, BarChart3, Bell, BookOpen, Bot, Brain, CalendarDays, Check, CheckSquare, ChevronDown, ChevronRight, CircleHelp, Copy, FileText, GitBranch, Globe2, Heart, HelpCircle, History, LayoutDashboard, Lightbulb, LineChart, Menu, MessageSquare, Mic, MoreHorizontal, Paperclip, Package, PanelRightClose, Plus, RefreshCw, Search, Send, Settings, ShieldAlert, ShoppingBag, Sparkles, Target, TrendingUp, UserRound, X, Zap } from 'lucide-react';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 const C = {
   bg: 'var(--foreground)',
@@ -276,7 +276,7 @@ export function LuluAIAssistant() {
         content: response.data.assistantMessage.content
       }]);
     } catch (error) {
-      setMessageError(error instanceof Error ? error.message : 'Lulu AI could not generate a response.');
+      setMessageError(getFriendlyErrorMessage(error, 'Lulu AI could not prepare an answer. Please try again.'));
     } finally {
       setProcessingState(false);
     }

@@ -1,9 +1,15 @@
 import { useState, type FormEvent } from 'react';
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle, Sparkles } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { setPendingEmail } from '../../../../api/session';
-const requirements = ['At least 12 characters', 'One uppercase letter', 'One lowercase letter', 'One number', 'One special character'];
+const passwordRules = [
+  { label: 'At least 12 characters', test: (value: string) => value.length >= 12 },
+  { label: 'One uppercase letter', test: (value: string) => /[A-Z]/.test(value) },
+  { label: 'One lowercase letter', test: (value: string) => /[a-z]/.test(value) },
+  { label: 'One number', test: (value: string) => /\d/.test(value) },
+  { label: 'One special character', test: (value: string) => /[^A-Za-z0-9]/.test(value) },
+];
 const socialButtonClass = 'flex h-11 w-full items-center justify-center gap-2.5 rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2';
 export function LuluSignupPage() {
   const [firstName, setFirstName] = useState('');
@@ -11,24 +17,33 @@ export function LuluSignupPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [accepted, setAccepted] = useState(true);
+  const [accepted, setAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading'>('idle');
   const [error, setError] = useState('');
+  const passwordResults = passwordRules.map(rule => ({ ...rule, passed: rule.test(password) }));
+  const passedRules = passwordResults.filter(rule => rule.passed).length;
+  const strengthSegments = password ? Math.max(1, Math.ceil((passedRules / passwordRules.length) * 4)) : 0;
+  const strengthLabel = passedRules <= 1 ? 'Weak' : passedRules <= 3 ? 'Fair' : passedRules === 4 ? 'Good' : 'Strong';
+  const passwordsMatch = Boolean(confirmPassword) && password === confirmPassword;
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!accepted || status === 'loading') return;
     if (!firstName.trim() || !lastName.trim()) {
-      setError('Enter your first and last name.');
+      setError('Please enter your first and last name.');
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (!passwordResults.every(rule => rule.passed)) {
+      setError('Please complete all password requirements shown below.');
       return;
     }
     if (password !== confirmPassword) {
       setError('Passwords do not match.');
-      return;
-    }
-    if (password.length < 12) {
-      setError('Use at least 12 characters for your password.');
       return;
     }
     setStatus('loading');
@@ -42,7 +57,7 @@ export function LuluSignupPage() {
       setPendingEmail(email);
       navigateApp(routes.auth.verifyEmail);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Unable to create your account.');
+      setError(getFriendlyErrorMessage(cause, 'We could not create your account. Please try again.'));
       setStatus('idle');
     }
   }
@@ -57,11 +72,6 @@ export function LuluSignupPage() {
           <header className="mt-10 text-left">
             <h1 id="signup-title" className="text-3xl font-semibold tracking-[-0.03em]">Create your Lulu AI account</h1>
           </header>
-
-          <div aria-hidden="true" className="invisible mt-4 flex h-0 items-start gap-2 overflow-hidden rounded-md border border-[var(--destructive)] bg-[var(--card)] px-3 py-2.5 text-[13px] text-[var(--destructive)]">
-            <AlertCircle size={16} className="shrink-0" />
-            <span>An account already exists with this email. Please sign in instead.</span>
-          </div>
 
           <form className="mt-8" onSubmit={handleSubmit} noValidate>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -87,31 +97,34 @@ export function LuluSignupPage() {
                   {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </span>
-              <div className="mt-2.5 flex items-center gap-1.5" aria-label="Password strength: Strong">
-                <span className="h-1 flex-1 rounded-full bg-[var(--primary)]" />
-                <span className="h-1 flex-1 rounded-full bg-[var(--primary)]" />
-                <span className="h-1 flex-1 rounded-full bg-[var(--primary)]" />
-                <span className="h-1 flex-1 rounded-full bg-[var(--primary)]" />
-                <span className="ml-1 text-[11px] font-medium">Strong</span>
-              </div>
-              <ul className="mt-2 grid gap-1 sm:grid-cols-2" aria-label="Password requirements">
-                {requirements.map(requirement => <li key={requirement} className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
-                    <Check size={11} strokeWidth={3} className="text-[var(--foreground)]" aria-hidden="true" />
-                    <span>{requirement}</span>
-                  </li>)}
-              </ul>
+              {password && <>
+                <div className="mt-2.5 flex items-center gap-1.5" aria-label={`Password strength: ${strengthLabel}`}>
+                  {[1, 2, 3, 4].map(segment => <span key={segment} className={`h-1 flex-1 rounded-full ${segment <= strengthSegments ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'}`} />)}
+                  <span className="ml-1 text-[11px] font-medium">{strengthLabel}</span>
+                </div>
+                <ul className="mt-2 grid gap-1 sm:grid-cols-2" aria-label="Password requirements">
+                  {passwordResults.map(rule => <li key={rule.label} className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
+                      <span aria-hidden="true" className={`grid h-3 w-3 place-items-center rounded-full ${rule.passed ? 'text-[var(--chart-4)]' : 'text-[var(--muted-foreground)]'}`}>
+                        {rule.passed ? <Check size={11} strokeWidth={3} /> : '·'}
+                      </span>
+                      <span>{rule.label}</span>
+                    </li>)}
+                </ul>
+              </>}
             </div>
 
             <div className="mt-4">
               <label htmlFor="confirm-password" className="mb-1 block text-[13px] font-medium">Confirm password</label>
               <span className="relative block">
                 <input id="confirm-password" name="confirmPassword" type={showConfirm ? 'text' : 'password'} autoComplete="new-password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm your password" className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 pr-[68px] text-sm outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-                <span className="absolute right-10 top-0 grid h-11 w-7 place-items-center text-[var(--chart-4)]" aria-label="Passwords match"><Check size={14} strokeWidth={3} /></span>
+                {passwordsMatch && <span className="absolute right-10 top-0 grid h-11 w-7 place-items-center text-[var(--chart-4)]" aria-label="Passwords match"><Check size={14} strokeWidth={3} /></span>}
                 <button type="button" onClick={() => setShowConfirm(!showConfirm)} aria-label={showConfirm ? 'Hide confirmation password' : 'Show confirmation password'} className="absolute right-0 top-0 grid h-11 w-11 place-items-center text-[var(--muted-foreground)] transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">
                   {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
                 </button>
               </span>
-              <p className="mt-1 text-[11px] text-[var(--chart-4)]">Passwords match</p>
+              {confirmPassword && <p className={`mt-1 text-[11px] ${passwordsMatch ? 'text-[var(--chart-4)]' : 'text-[var(--destructive)]'}`}>
+                {passwordsMatch ? 'Passwords match' : 'Passwords do not match yet'}
+              </p>}
             </div>
 
             <label className="mt-4 flex cursor-pointer items-start gap-2 text-[13px] leading-5">

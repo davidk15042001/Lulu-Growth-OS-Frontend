@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { aiApi, type AiMessage, type Conversation } from "../ai";
+import { getFriendlyErrorMessage } from "../client";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 
 export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
@@ -15,13 +16,13 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
       const items = (await aiApi.conversations(workspaceId)).data.items;
       setConversations(items);
       setSelectedId((current) => current && items.some((item) => item.id === current) ? current : items[0]?.id ?? "");
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Conversations could not be loaded."); }
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load your conversations. Please try again.")); }
   }, [workspaceId]);
 
   const loadMessages = useCallback(async () => {
     if (!selectedId) { setMessages([]); return; }
     try { setMessages((await aiApi.messages(workspaceId, selectedId)).data.items); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Messages could not be loaded."); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load these messages. Please try again.")); }
   }, [selectedId, workspaceId]);
 
   useEffect(() => { void loadConversations(); }, [loadConversations]);
@@ -32,7 +33,7 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
     try {
       const conversation = (await aiApi.createConversation(workspaceId, { title: "New conversation" })).data;
       await loadConversations(); setSelectedId(conversation.id); setMessages([]);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Conversation could not be created."); }
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not create the conversation. Please try again.")); }
     finally { setBusy(false); }
   }
 
@@ -46,7 +47,7 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
       await aiApi.respond(workspaceId, conversationId, content.trim());
       setContent(""); setSelectedId(conversationId);
       await Promise.all([loadConversations(), aiApi.messages(workspaceId, conversationId).then((response) => setMessages(response.data.items))]);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "AI response could not be generated."); }
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "Lulu AI could not prepare an answer. Please try again.")); }
     finally { setBusy(false); }
   }
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { approvalApi, type Approval } from "../approvals";
+import { getFriendlyErrorMessage } from "../client";
 import { notificationApi, type Notification } from "../notifications";
 import { workspaceAppApi, type AuditEntry } from "../workspace-app";
 import { workspaceApi } from "../workspaces";
@@ -33,7 +34,7 @@ export function WorkspacePanel({ workspaceId, onClose }: { workspaceId: string; 
       setNotifications(notificationResponse.data.items); setUnread(notificationResponse.data.unread);
       setApprovals(approvalResponse.data.items); setMembers(memberResponse.data.members); setInvitations(memberResponse.data.invitations);
       if (summary.permissions.canAdminister) setAudit((await workspaceAppApi.audit(workspaceId)).data.items);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Workspace data could not be loaded."); }
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load the workspace information. Please try again.")); }
     finally { setBusy(false); }
   }, [workspaceId]);
   useEffect(() => { void load(); }, [load]);
@@ -41,12 +42,12 @@ export function WorkspacePanel({ workspaceId, onClose }: { workspaceId: string; 
   async function sendInvite(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError("");
     try { await workspaceAppApi.invite(workspaceId, invite.email.trim(), invite.role); setInvite({ email: "", role: "member" }); await load(); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Invitation could not be sent."); setBusy(false); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not send the invitation. Please try again.")); setBusy(false); }
   }
   async function requestApproval(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError("");
     try { await approvalApi.create(workspaceId, { title: approval.title.trim(), actionType: approval.actionType.trim(), description: approval.description.trim() || null }); setApproval({ title: "", actionType: "general", description: "" }); await load(); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Approval could not be created."); setBusy(false); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not create the approval request. Please try again.")); setBusy(false); }
   }
 
   const canEdit = bootstrap?.permissions.canEdit ?? false;

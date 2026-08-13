@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, Check, CircleHelp, DollarSign, PackageOpen, Plus, Sparkles, Star, Tags, Trash2, Upload, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 type OfferingType = "Product" | "Service";
 type OfferingStatus = "Active" | "Coming Soon" | "Planned" | "Discontinued";
@@ -354,7 +354,7 @@ export function LuluProductsServices() {
       setEditing(emptyOffering());
       setToast("Offering saved");
     } catch (cause) {
-      setToast(cause instanceof Error ? cause.message : 'Unable to save offering');
+      setToast(getFriendlyErrorMessage(cause, 'We could not save this product or service. Please try again.'));
     }
     window.setTimeout(() => setToast(""), 2200);
   }
@@ -367,7 +367,7 @@ export function LuluProductsServices() {
       setSelectedId(offerings.find(item => item.id !== id)?.id ?? "");
       setToast("Product or service removed");
     } catch (cause) {
-      setToast(cause instanceof Error ? cause.message : 'Unable to remove offering');
+      setToast(getFriendlyErrorMessage(cause, 'We could not remove this product or service. Please try again.'));
     }
     window.setTimeout(() => setToast(""), 2200);
   }

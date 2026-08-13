@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { metricApi, type Metric, type MetricPoint } from "../metrics";
+import { getFriendlyErrorMessage } from "../client";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 
 export function MetricsPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
@@ -18,14 +19,14 @@ export function MetricsPanel({ workspaceId, onClose }: { workspaceId: string; on
       const response = await metricApi.list(workspaceId);
       setMetrics(response.data.items);
       setSelectedId((current) => current && response.data.items.some((item) => item.id === current) ? current : response.data.items[0]?.id ?? "");
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Metrics could not be loaded."); }
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load your metrics. Please try again.")); }
     finally { setBusy(false); }
   }, [workspaceId]);
 
   const loadPoints = useCallback(async () => {
     if (!selectedId) { setPoints([]); return; }
     try { setPoints((await metricApi.points(workspaceId, selectedId, "limit=50&order=desc")).data.items); }
-    catch (cause) { setError(cause instanceof Error ? cause.message : "Metric points could not be loaded."); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load the metric values. Please try again.")); }
   }, [selectedId, workspaceId]);
 
   useEffect(() => { void loadMetrics(); }, [loadMetrics]);
@@ -38,7 +39,7 @@ export function MetricsPanel({ workspaceId, onClose }: { workspaceId: string; on
       await metricApi.create(workspaceId, { ...draft, key: draft.key.trim(), name: draft.name.trim() });
       setDraft({ key: "", name: "", domain: "general", unit: "number" });
       await loadMetrics();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Metric could not be created."); setBusy(false); }
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not create this metric. Please try again.")); setBusy(false); }
   }
 
   async function ingest(event: FormEvent) {
@@ -50,7 +51,7 @@ export function MetricsPanel({ workspaceId, onClose }: { workspaceId: string; on
       await metricApi.ingest(workspaceId, selectedId, [{ recordedAt: new Date().toISOString(), value: number }]);
       setValue("");
       await Promise.all([loadMetrics(), loadPoints()]);
-    } catch (cause) { setError(cause instanceof Error ? cause.message : "Metric point could not be recorded."); setBusy(false); }
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not save this value. Please try again.")); setBusy(false); }
   }
 
   return <LivePanelShell title="Live metrics" subtitle={`${metrics.length} configured metrics`} onClose={onClose}>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, Plus, ShieldCheck, Sparkles, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 type Tag = {
   id: string;
@@ -109,7 +109,7 @@ export const BusinessDescription = () => {
             setSaved(true);
             navigateApp(routes.onboarding.productsServices);
           } catch (cause) {
-            setError(cause instanceof Error ? cause.message : 'Unable to save the business description.');
+            setError(getFriendlyErrorMessage(cause, 'We could not save your business description. Please try again.'));
           } finally {
             setLoading(false);
           }

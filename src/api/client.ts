@@ -18,13 +18,55 @@ type ApiErrorEnvelope = {
   error?: { code?: string; message?: string; details?: unknown };
 };
 
+const FRIENDLY_API_MESSAGES: Record<string, string> = {
+  NETWORK_ERROR: "We could not connect right now. Please check your internet connection and try again.",
+  API_TIMEOUT: "This is taking longer than expected. Please try again.",
+  EMAIL_IN_USE: "An account already exists with this email. Please sign in or use another email.",
+  INVALID_CREDENTIALS: "The email or password is not correct. Please check both and try again.",
+  ACCOUNT_UNVERIFIED: "Please confirm your email before signing in.",
+  ACCOUNT_NOT_FOUND: "We could not find an account with this email.",
+  INVALID_OTP: "This confirmation code is not correct. Please check it and try again.",
+  OTP_USED: "This confirmation code has already been used. Please request a new one.",
+  OTP_EXPIRED: "This confirmation code has expired. Please request a new one.",
+  INVALID_RESET_CODE: "This password reset code is not correct. Please check it and try again.",
+  RESET_CODE_EXPIRED: "This password reset code has expired. Please request a new one.",
+  MISSING_REFRESH_TOKEN: "Your session has ended. Please sign in again.",
+  INVALID_REFRESH_TOKEN: "Your session has ended. Please sign in again.",
+  REFRESH_TOKEN_EXPIRED: "Your session has ended. Please sign in again.",
+  UNAUTHORIZED: "Please sign in to continue.",
+  FORBIDDEN: "You do not have permission to do this. Ask a workspace administrator for help.",
+  NOT_FOUND: "We could not find what you were looking for. It may have been removed.",
+  CONFLICT: "This change could not be saved because the information is already in use.",
+  VALIDATION_ERROR: "Please check your entries. Some information is missing or not valid.",
+  BAD_REQUEST: "We could not complete this request. Please check your entries and try again.",
+  REQUEST_ERROR: "We could not complete this request. Please check your entries and try again.",
+  TOO_MANY_REQUESTS: "There have been too many attempts. Please wait a moment and try again.",
+  AI_NOT_CONFIGURED: "The AI assistant is temporarily unavailable. Please try again later.",
+  AI_EMPTY_RESPONSE: "The AI assistant could not prepare an answer. Please try again.",
+  TRANSLATION_INVALID_RESPONSE: "This language is temporarily unavailable. Please try again in a moment.",
+  METHOD_NOT_ALLOWED: "This action is not available here.",
+  INVALID_API_PATH: "This action could not be opened. Please return to the previous page and try again.",
+};
+
+function friendlyApiMessage(status: number, code: string) {
+  if (FRIENDLY_API_MESSAGES[code]) return FRIENDLY_API_MESSAGES[code];
+  if (status === 401) return FRIENDLY_API_MESSAGES.UNAUTHORIZED;
+  if (status === 403) return FRIENDLY_API_MESSAGES.FORBIDDEN;
+  if (status === 404) return FRIENDLY_API_MESSAGES.NOT_FOUND;
+  if (status === 409) return FRIENDLY_API_MESSAGES.CONFLICT;
+  if (status === 422) return FRIENDLY_API_MESSAGES.VALIDATION_ERROR;
+  if (status === 429) return FRIENDLY_API_MESSAGES.TOO_MANY_REQUESTS;
+  if (status >= 500) return "Something went wrong on our side. Please try again in a moment.";
+  return "Something went wrong. Please try again.";
+}
+
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
   readonly details?: unknown;
 
-  constructor(status: number, code: string, message: string, details?: unknown) {
-    super(message);
+  constructor(status: number, code: string, _message: string, details?: unknown) {
+    super(friendlyApiMessage(status, code));
     this.name = "ApiError";
     this.status = status;
     this.code = code;
@@ -32,11 +74,31 @@ export class ApiError extends Error {
   }
 }
 
+export function getFriendlyErrorMessage(
+  error: unknown,
+  fallback = "Something went wrong. Please try again.",
+) {
+  return error instanceof ApiError ? error.message : fallback;
+}
+
 const API_BASE_URL = (import.meta.env.VITE_API_URL?.trim() || "/api/v1").replace(/\/$/, "");
 const API_REQUEST_MESSAGE = "lulu:api-request";
 const API_RESPONSE_MESSAGE = "lulu:api-response";
 let accessToken: string | null = null;
 let refreshPromise: Promise<boolean> | null = null;
+
+function createMessageId() {
+  const cryptoApi = globalThis.crypto;
+  if (typeof cryptoApi?.randomUUID === "function") return cryptoApi.randomUUID();
+
+  const bytes = new Uint8Array(16);
+  if (typeof cryptoApi?.getRandomValues === "function") {
+    cryptoApi.getRandomValues(bytes);
+    return [...bytes].map((value) => value.toString(16).padStart(2, "0")).join("");
+  }
+
+  return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+}
 
 function validatedPath(path: string) {
   if (!path.startsWith("/") || path.startsWith("//") || path.includes("\\")) {
@@ -158,7 +220,7 @@ export function requestApi<T>(request: ApiRequest): Promise<ApiEnvelope<T>> {
   if (window.parent === window) return executeRequest<T>(request);
 
   return new Promise((resolve, reject) => {
-    const id = crypto.randomUUID();
+    const id = createMessageId();
     const timeout = window.setTimeout(() => {
       cleanup();
       reject(new ApiError(0, "API_TIMEOUT", "The Lulu API request timed out"));

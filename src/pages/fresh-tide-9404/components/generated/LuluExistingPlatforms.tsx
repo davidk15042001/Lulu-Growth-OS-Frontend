@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { ArrowRight, BarChart3, Check, CircleCheck, MessageSquareText, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 interface Platform {
   id: string;
@@ -70,7 +70,7 @@ export const LuluExistingPlatforms = () => {
         type: platform.category,
         status: platform.connectionStatus === 'connected' ? 'Connected' : platform.connectionStatus === 'error' ? 'Needs review' : 'Pending',
       }))))
-      .catch(cause => setError(cause instanceof Error ? cause.message : 'Unable to load platforms.'));
+      .catch(cause => setError(getFriendlyErrorMessage(cause, 'We could not load your platforms. Please try again.')));
   }, []);
   const visiblePlatforms = useMemo(() => {
     return platforms.filter(platform => `${platform.name} ${platform.type} ${platform.status}`.toLowerCase().includes(query.toLowerCase()));
@@ -104,7 +104,7 @@ export const LuluExistingPlatforms = () => {
         setPlatforms(current => [...current, { id: response.data.id, name: normalizedName, type: "Custom", status: "Pending" }]);
         setCustomPlatform("");
       } catch (cause) {
-        setError(cause instanceof Error ? cause.message : 'Unable to save this platform.');
+        setError(getFriendlyErrorMessage(cause, 'We could not save this platform. Please try again.'));
         return;
       }
     }
@@ -117,7 +117,7 @@ export const LuluExistingPlatforms = () => {
       await requestApi({ path: `/workspaces/${workspaceId}/onboarding/platforms/${id}`, method: 'DELETE' });
       setPlatforms(current => current.filter(item => item.id !== id));
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Unable to remove this platform.');
+      setError(getFriendlyErrorMessage(cause, 'We could not remove this platform. Please try again.'));
     }
   };
   return <main className="grid min-h-screen bg-[var(--background)] font-['Inter',sans-serif] text-[var(--foreground)] lg:grid-cols-2">

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { workspaceAppApi, type BillingState } from "../workspace-app";
+import { getFriendlyErrorMessage } from "../client";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 
 export function BillingPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
   const [billing, setBilling] = useState<BillingState | null>(null);
   const [error, setError] = useState("");
-  useEffect(() => { workspaceAppApi.billing(workspaceId).then((response) => setBilling(response.data)).catch((cause: unknown) => setError(cause instanceof Error ? cause.message : "Billing could not be loaded.")); }, [workspaceId]);
+  useEffect(() => { workspaceAppApi.billing(workspaceId).then((response) => setBilling(response.data)).catch((cause: unknown) => setError(getFriendlyErrorMessage(cause, "We could not load your billing information. Please try again."))); }, [workspaceId]);
   const subscription = billing?.subscription;
   return <LivePanelShell title="Live billing" subtitle="Subscription and usage from the backend" onClose={onClose}>
     <LiveError message={error} />

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { ArrowRight, Check, Eye, EyeOff, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, Check, Eye, EyeOff, LoaderCircle, ShieldCheck, Sparkles } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
-import { ApiError, requestApi } from '../../../../api/client';
+import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import {
   clearPendingInvitation,
   getPendingInvitation,
@@ -17,8 +17,11 @@ export const LuluLoginPage = () => {
   const [error, setError] = useState('');
   const submit = async (x: React.FormEvent) => {
     x.preventDefault();
-    const isValid = Boolean(e && p);
-    if (!isValid || loading) return;
+    if (loading) return;
+    if (!e.trim() || !p) {
+      setError('Please enter your email and password.');
+      return;
+    }
     setLoading(true);
     setError('');
     setS(false);
@@ -49,7 +52,7 @@ export const LuluLoginPage = () => {
         navigateApp(routes.auth.verifyEmail);
         return;
       }
-      setError(cause instanceof Error ? cause.message : 'Unable to sign in.');
+      setError(getFriendlyErrorMessage(cause, 'We could not sign you in. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -75,7 +78,7 @@ export const LuluLoginPage = () => {
                 <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-4 text-[var(--muted-foreground)]">{show ? <EyeOff size={16} /> : <Eye size={16} />}</button>
               </div>
             </label>
-            <button disabled={loading} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{loading ? 'Signing in…' : 'Sign in'} <ArrowRight size={16} /></button>
+            <button disabled={loading} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> Signing in…</> : <>Sign in <ArrowRight size={16} /></>}</button>
             {error && <p role="alert" className="text-sm text-[var(--destructive)]">{error}</p>}
             {s && <p className="flex items-center gap-2 text-sm text-[var(--chart-4)]"><Check size={15} /> Signed in successfully.</p>}
           </form>

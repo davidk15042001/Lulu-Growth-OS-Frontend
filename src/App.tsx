@@ -3,12 +3,13 @@ import { Search } from "lucide-react";
 import { Link, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { pages, type PageDefinition } from "./pages-manifest";
 import { isLuluNavigationMessage, pagePath, routes } from "./routing";
-import { ApiError, installApiBroker, requestApi } from "./api/client";
+import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from "./api/client";
 import {
   clearPendingInvitation,
   setPendingInvitation,
   setSelectedWorkspaceId,
 } from "./api/session";
+import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
 
 function Directory() {
   const [query, setQuery] = useState("");
@@ -19,29 +20,32 @@ function Directory() {
   }, [query]);
 
   return (
-    <main className="directory">
-      <header className="directory__header">
-        <div>
-          <p className="eyebrow">Lulu AI application routes</p>
-          <h1>Lulu AI</h1>
-          <p>All {pages.length} pages are connected to the application router.</p>
-        </div>
-        <label className="search">
-          <Search aria-hidden="true" size={17} />
-          <span className="sr-only">Search pages</span>
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search all pages" />
-        </label>
-      </header>
-      <section className="page-grid" aria-label="All application routes">
-        {visiblePages.map((page, index) => (
-          <Link className="page-card" key={page.id} to={pagePath(page.slug)}>
-            <span className="page-card__number">{String(index + 1).padStart(3, "0")}</span>
-            <strong>{page.name}</strong>
-            <span>{pagePath(page.slug)}</span>
-          </Link>
-        ))}
-      </section>
-    </main>
+    <>
+      <main className="directory">
+        <header className="directory__header">
+          <div>
+            <p className="eyebrow">Lulu AI application routes</p>
+            <h1>Lulu AI</h1>
+            <p>All {pages.length} pages are connected to the application router.</p>
+          </div>
+          <label className="search">
+            <Search aria-hidden="true" size={17} />
+            <span className="sr-only">Search pages</span>
+            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search all pages" />
+          </label>
+        </header>
+        <section className="page-grid" aria-label="All application routes">
+          {visiblePages.map((page, index) => (
+            <Link className="page-card" key={page.id} to={pagePath(page.slug)}>
+              <span className="page-card__number">{String(index + 1).padStart(3, "0")}</span>
+              <strong>{page.name}</strong>
+              <span>{pagePath(page.slug)}</span>
+            </Link>
+          ))}
+        </section>
+      </main>
+      <GlobalLanguageSwitcher />
+    </>
   );
 }
 
@@ -85,12 +89,15 @@ function LegacyPageRedirect() {
 
 function NotFound() {
   return (
-    <main className="not-found">
-      <p className="eyebrow">404</p>
-      <h1>Page not found</h1>
-      <p>The requested Lulu AI route does not exist.</p>
-      <Link to={routes.auth.login}>Return to login</Link>
-    </main>
+    <>
+      <main className="not-found">
+        <p className="eyebrow">404</p>
+        <h1>Page not found</h1>
+        <p>The requested Lulu AI route does not exist.</p>
+        <Link to={routes.auth.login}>Return to login</Link>
+      </main>
+      <GlobalLanguageSwitcher />
+    </>
   );
 }
 
@@ -119,12 +126,19 @@ function InvitationAccept() {
           navigate(routes.auth.login, { replace: true });
           return;
         }
-        setStatus(error instanceof Error ? error.message : "Unable to accept this invitation.");
+        setStatus(getFriendlyErrorMessage(error, "We could not accept this invitation. Please ask the sender for a new link."));
       });
     return () => { active = false; };
   }, [navigate, token]);
 
-  return <main className="not-found"><p className="eyebrow">Workspace invitation</p><h1>Joining Lulu AI</h1><p>{status}</p></main>;
+  return <>
+    <main className="not-found">
+      <p className="eyebrow">Workspace invitation</p>
+      <h1>Joining Lulu AI</h1>
+      <p>{status}</p>
+    </main>
+    <GlobalLanguageSwitcher />
+  </>;
 }
 
 export default function App() {

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Check, Mail, RefreshCw, ShieldCheck, Sparkles } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { clearPendingEmail, getPendingEmail } from '../../../../api/session';
 export const LuluVerificationPage = () => {
   const [email, setEmail] = useState(getPendingEmail());
@@ -20,7 +20,7 @@ export const LuluVerificationPage = () => {
       setVerified(true);
       window.setTimeout(() => navigateApp(routes.auth.login), 650);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Unable to verify this code.');
+      setError(getFriendlyErrorMessage(cause, 'We could not confirm this code. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -33,7 +33,7 @@ export const LuluVerificationPage = () => {
       await requestApi({ path: '/auth/resend-otp', method: 'POST', body: { email, purpose: 'verify' } });
       setResent(true);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Unable to resend the code.');
+      setError(getFriendlyErrorMessage(cause, 'We could not send a new code. Please try again.'));
     } finally {
       setLoading(false);
     }

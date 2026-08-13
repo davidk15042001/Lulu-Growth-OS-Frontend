@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, ArrowRight, Check, Mail, Sparkles } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { setPendingEmail } from '../../../../api/session';
 export const LuluPasswordReset = () => {
   const [e, setE] = useState('');
@@ -33,7 +33,7 @@ export const LuluPasswordReset = () => {
               setPendingEmail(e);
               setDone(true);
             })
-            .catch(cause => setError(cause instanceof Error ? cause.message : 'Unable to send the reset code.'))
+            .catch(cause => setError(getFriendlyErrorMessage(cause, 'We could not send the reset code. Please try again.')))
             .finally(() => setLoading(false));
         }} className="mt-8">
               <label className="text-sm text-[var(--muted-foreground)]">

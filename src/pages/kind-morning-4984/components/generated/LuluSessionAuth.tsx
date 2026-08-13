@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, Eye, EyeOff, LockKeyhole, LoaderCircle, ShieldCheck } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { setSelectedWorkspaceId } from '../../../../api/session';
 type Screen = 'expired' | 'reauth' | 'password' | 'success' | 'failure' | 'invalidated';
 type Status = 'idle' | 'loading';
@@ -44,7 +44,7 @@ export function LuluSessionAuth() {
       window.setTimeout(() => navigateApp(workspace ? routes.app.dashboard : routes.onboarding.welcome), 700);
     } catch (cause) {
       setStatus('idle');
-      setError(cause instanceof Error ? cause.message : 'Unable to verify your identity.');
+      setError(getFriendlyErrorMessage(cause, 'We could not verify your sign-in. Please try again.'));
       setScreen('failure');
     }
   }

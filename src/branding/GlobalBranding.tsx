@@ -111,7 +111,7 @@ const globalBrandStyles = `
 .lulu-global-brand-host{min-width:0!important;min-height:52px!important;align-items:center!important;overflow:visible!important;font-size:0!important;color:transparent!important}
 .lulu-global-brand-host>:not(.lulu-global-brand-image):not(button){display:none!important}
 .lulu-global-brand-host>button{font-size:initial!important}
-.lulu-global-brand-image{display:block!important;width:min(184px,100%)!important;height:auto!important;max-height:69px!important;object-fit:contain!important;object-position:left center!important;border:0!important;border-radius:8px!important;background:#020205!important;box-shadow:none!important;user-select:none!important}
+.lulu-global-brand-image{display:block!important;width:min(184px,100%)!important;height:auto!important;max-height:69px!important;object-fit:contain!important;object-position:left center!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;user-select:none!important}
 header .lulu-global-brand-image,footer .lulu-global-brand-image{width:min(176px,100%)!important}
 @media(max-width:900px){aside .lulu-global-brand-host{min-height:42px!important}aside .lulu-global-brand-image{width:min(150px,100%)!important;max-height:56px!important}}
 `;

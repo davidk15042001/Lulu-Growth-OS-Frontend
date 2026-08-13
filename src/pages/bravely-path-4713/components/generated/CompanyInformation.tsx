@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { ArrowRight, Building2, Check, ShieldCheck, Sparkles } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
-import { requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId, setSelectedWorkspaceId } from '../../../../api/session';
 type CompanyForm = {
   companyName: string;
@@ -60,7 +60,7 @@ export const CompanyInformation = () => {
       setSaved(true);
       navigateApp(routes.onboarding.businessDescription);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Unable to save company information.');
+      setError(getFriendlyErrorMessage(cause, 'We could not save your company information. Please try again.'));
     } finally {
       setLoading(false);
     }

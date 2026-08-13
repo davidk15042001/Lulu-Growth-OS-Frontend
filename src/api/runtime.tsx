@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { navigateApp, routes } from "../routing";
 import { GlobalBranding } from "../branding/GlobalBranding";
+import { GlobalLanguageSwitcher } from "../i18n/GlobalLanguageSwitcher";
+import { GlobalUploadFeedback } from "../uploads/GlobalUploadFeedback";
 import { ApiError } from "./client";
 import { LiveApiPanel } from "./LiveApiPanel";
 import { getPageContract } from "./page-contracts";
@@ -70,6 +72,8 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     {state === "offline" && <div role="alert" style={{ position: "fixed", zIndex: 9999, left: "50%", top: 12, transform: "translateX(-50%)", maxWidth: "calc(100% - 24px)", border: "1px solid #d5d5d0", borderRadius: 8, background: "#fff", color: "#171717", padding: "10px 14px", boxShadow: "0 10px 30px rgba(0,0,0,.12)", font: "500 13px Inter, sans-serif" }}>Live data is temporarily unavailable. Your layout remains accessible.</div>}
     {children}
     <GlobalBranding contractKind={contract.kind} />
+    <GlobalLanguageSwitcher />
+    <GlobalUploadFeedback />
     {state === "ready" && workspaceId && <LiveApiPanel workspaceId={workspaceId} contract={contract} />}
   </>;
 }
