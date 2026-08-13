@@ -1,77 +1,49 @@
-# React + TypeScript + Vite
+# Lulu AI — Complete MagicPath React Export
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project contains all **141 components** from MagicPath project `437844461893066814` as a fully routed React application.
 
-Currently, two official plugins are available:
+## Run locally
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
-
-Note: This will impact Vite dev & build performances.
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open the URL printed by Vite. The application starts at `/auth/login` and uses these route families:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `/auth/*` — authentication flow
+- `/onboarding/*` — company onboarding flow
+- `/app/<generatedName>` — all product areas
+- `/all-pages` — searchable route directory
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Legacy `/pages/<generatedName>` URLs redirect to their canonical routes.
 
+Set `VITE_API_URL` to the public backend base URL ending in `/api/v1`. When frontend and backend share a domain through a reverse proxy, the default `/api/v1` works without additional configuration.
+
+## Build
+
+```bash
+npm run build
+npm run preview
 ```
+
+Run the complete frontend verification before deployment:
+
+```bash
+npm run check
+```
+
+This validates TypeScript, all 141 routes, the page-to-API contracts and the production build. If the backend repository is available beside this repository, the API audit also verifies every frontend resource type against the backend catalog.
+
+## Structure
+
+- `src/pages/<generatedName>/` — exact source snapshot for one MagicPath component
+- `entries/<generatedName>/index.html` — isolated build entry for that component
+- `src/pages-manifest.ts` — source metadata for all 141 pages
+- `src/routing.ts` — canonical route registry and embedded-page navigation bridge
+- `src/App.tsx` — application router, route directory and isolated page host
+- `src/api/client.ts` — shared authenticated API client and iframe token broker
+- `src/api/page-contracts.ts` — API contract for every exported page
+- `src/api/runtime.tsx` — authentication, workspace and bootstrap guard for isolated pages
+
+Each design runs inside its own document so its original MagicPath theme and global CSS cannot leak into other pages. Route changes are forwarded to the top-level React router, so browser history, back/forward navigation and deep links continue to work.
