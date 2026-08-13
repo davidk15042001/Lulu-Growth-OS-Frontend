@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Check, CircleAlert, Eye, EyeOff, LoaderCircle, X } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
+import { requestApi } from '../../../../api/client';
+import { clearPendingEmail, getPendingEmail } from '../../../../api/session';
 const requirements = [{
   id: 'characters',
-  label: '8+ characters'
+  label: '12+ characters'
 }, {
   id: 'uppercase',
   label: 'Uppercase letter'
@@ -89,8 +91,39 @@ function StateCard({
 export function LuluResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [password, setPassword] = useState('LuluSecure9!');
-  const [confirmation, setConfirmation] = useState('LuluSecure9!');
+  const [email, setEmail] = useState(getPendingEmail());
+  const [code, setCode] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmation, setConfirmation] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (loading) return;
+    if (!email || code.length !== 6) {
+      setError('Enter your email and six-digit reset code.');
+      return;
+    }
+    if (password.length < 12) {
+      setError('Use at least 12 characters for your new password.');
+      return;
+    }
+    if (password !== confirmation) {
+      setError('Passwords do not match.');
+      return;
+    }
+    setLoading(true);
+    setError('');
+    try {
+      await requestApi({ path: '/auth/reset-password', method: 'POST', body: { email, code, password } });
+      clearPendingEmail();
+      navigateApp(routes.auth.login);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Unable to reset your password.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return <div className="min-h-screen w-full bg-[var(--background)] font-sans text-[var(--foreground)]">
     <main className="flex flex-col items-center px-4 pb-10 pt-9 sm:px-6">
       <section aria-labelledby="reset-password-title" className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-7 shadow-[0_12px_32px_rgba(0,0,0,0.08)] sm:p-9">
@@ -102,10 +135,15 @@ export function LuluResetPassword() {
           <p className="mb-6 mt-1.5 text-sm leading-5 text-[var(--muted-foreground)]">Create a new password for your Lulu AI account. Your new password must be different from your previous one.</p>
         </header>
 
-        <form onSubmit={event => {
-          event.preventDefault();
-          navigateApp(routes.auth.login);
-        }} className="space-y-4" aria-label="Reset password form">
+        <form onSubmit={handleSubmit} className="space-y-4" aria-label="Reset password form">
+          <div>
+            <label htmlFor="reset-email" className="mb-1.5 block text-[13px] font-medium text-[var(--foreground)]">Email</label>
+            <input id="reset-email" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none" />
+          </div>
+          <div>
+            <label htmlFor="reset-code" className="mb-1.5 block text-[13px] font-medium text-[var(--foreground)]">Reset code</label>
+            <input id="reset-code" inputMode="numeric" autoComplete="one-time-code" value={code} onChange={event => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-center font-mono text-lg tracking-[.35em] text-[var(--foreground)] outline-none" />
+          </div>
           <div>
             <label htmlFor="new-password" className="mb-1.5 block text-[13px] font-medium text-[var(--foreground)]">New password</label>
             <div className="relative">
@@ -141,8 +179,9 @@ export function LuluResetPassword() {
             <p id="password-match-message" className="mt-1.5 text-[11px] font-medium text-[var(--foreground)]">Passwords match</p>
           </div>
 
-          <button type="submit" className="flex h-11 w-full items-center justify-center rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
-            <span>Reset Password</span>
+          {error && <p role="alert" className="text-[13px] text-[var(--destructive)]">{error}</p>}
+          <button type="submit" disabled={loading} className="flex h-11 w-full items-center justify-center rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
+            <span>{loading ? 'Resetting…' : 'Reset Password'}</span>
           </button>
           <button type="button" onClick={() => navigateApp(routes.auth.login)} className="flex h-11 w-full items-center justify-center rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
             <span>Back to Login</span>

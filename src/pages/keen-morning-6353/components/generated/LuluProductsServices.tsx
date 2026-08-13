@@ -1,6 +1,8 @@
-import { useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { ArrowLeft, ArrowRight, Check, CircleHelp, DollarSign, PackageOpen, Plus, Sparkles, Star, Tags, Trash2, Upload, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
+import { requestApi } from '../../../../api/client';
+import { getSelectedWorkspaceId } from '../../../../api/session';
 type OfferingType = "Product" | "Service";
 type OfferingStatus = "Active" | "Coming Soon" | "Planned" | "Discontinued";
 type Offering = {
@@ -257,11 +259,48 @@ function RightPanel({
     </aside>;
 }
 export function LuluProductsServices() {
-  const [offerings, setOfferings] = useState<Offering[]>(initialOfferings);
+  const [offerings, setOfferings] = useState<Offering[]>([]);
   const [editing, setEditing] = useState<Offering>(emptyOffering());
-  const [selectedId, setSelectedId] = useState(initialOfferings[0].id);
+  const [selectedId, setSelectedId] = useState("");
   const [showHelp, setShowHelp] = useState(false);
   const [toast, setToast] = useState("");
+  useEffect(() => {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    requestApi<{ offerings: Array<{
+      id: string;
+      name: string;
+      offeringType: 'product' | 'service';
+      category: string | null;
+      description: string | null;
+      targetCustomer: string | null;
+      customerProblem: string | null;
+      valueProposition: string | null;
+      pricingModel: string | null;
+      priceLabel: string | null;
+      status: 'draft' | 'active' | 'inactive' | 'archived';
+      url: string | null;
+    }> }>({ path: `/workspaces/${workspaceId}/onboarding` }).then(response => {
+      const loaded = response.data.offerings.map(item => ({
+        id: item.id,
+        name: item.name,
+        type: item.offeringType === 'product' ? 'Product' as const : 'Service' as const,
+        category: item.category ?? '',
+        description: item.description ?? '',
+        customer: item.targetCustomer ?? '',
+        problem: item.customerProblem ?? '',
+        value: item.valueProposition ?? '',
+        pricing: item.pricingModel ?? 'Subscription',
+        price: item.priceLabel ?? '',
+        status: item.status === 'active' ? 'Active' as const : item.status === 'draft' ? 'Planned' as const : 'Discontinued' as const,
+        primary: false,
+        url: item.url ?? '',
+        tags: [],
+      }));
+      setOfferings(loaded);
+      setSelectedId(loaded[0]?.id ?? '');
+    }).catch(() => setToast('Unable to load offerings'));
+  }, []);
   const completenessItems = useMemo(() => [{
     id: "names",
     label: "Offering names",
@@ -285,28 +324,51 @@ export function LuluProductsServices() {
   }], [offerings]);
   const completeness = offerings.length ? Math.round(completenessItems.filter(item => item.done).length / completenessItems.length * 100) : 0;
   const selectedOffering = offerings.find(item => item.id === selectedId) ?? offerings[0];
-  function saveOffering(event: FormEvent<HTMLFormElement>) {
+  async function saveOffering(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!editing.name.trim()) return;
-    const next = {
-      ...editing,
-      id: editing.id || `${Date.now()}`
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    const body = {
+      name: editing.name,
+      offeringType: editing.type.toLowerCase(),
+      category: editing.category || null,
+      description: editing.description || null,
+      targetCustomer: editing.customer || null,
+      customerProblem: editing.problem || null,
+      valueProposition: editing.value || null,
+      pricingModel: editing.pricing || null,
+      priceLabel: editing.price || null,
+      status: editing.status === 'Active' ? 'active' : editing.status === 'Discontinued' ? 'inactive' : 'draft',
+      url: editing.url || null,
     };
-    setOfferings(current => {
-      if (editing.id) {
-        return current.map(item => item.id === editing.id ? next : item);
-      }
-      return [...current, next];
-    });
-    setSelectedId(next.id);
-    setEditing(emptyOffering());
-    setToast("Offering saved");
+    try {
+      const response = await requestApi<{ id: string }>({
+        path: `/workspaces/${workspaceId}/onboarding/offerings${editing.id ? `/${editing.id}` : ''}`,
+        method: editing.id ? 'PATCH' : 'POST',
+        body,
+      });
+      const next = { ...editing, id: editing.id || response.data.id };
+      setOfferings(current => editing.id ? current.map(item => item.id === editing.id ? next : item) : [...current, next]);
+      setSelectedId(next.id);
+      setEditing(emptyOffering());
+      setToast("Offering saved");
+    } catch (cause) {
+      setToast(cause instanceof Error ? cause.message : 'Unable to save offering');
+    }
     window.setTimeout(() => setToast(""), 2200);
   }
-  function removeOffering(id: string) {
-    setOfferings(current => current.filter(item => item.id !== id));
-    setSelectedId(offerings.find(item => item.id !== id)?.id ?? "");
-    setToast("Product or service removed");
+  async function removeOffering(id: string) {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    try {
+      await requestApi({ path: `/workspaces/${workspaceId}/onboarding/offerings/${id}`, method: 'DELETE' });
+      setOfferings(current => current.filter(item => item.id !== id));
+      setSelectedId(offerings.find(item => item.id !== id)?.id ?? "");
+      setToast("Product or service removed");
+    } catch (cause) {
+      setToast(cause instanceof Error ? cause.message : 'Unable to remove offering');
+    }
     window.setTimeout(() => setToast(""), 2200);
   }
   function loadOffering(item: Offering) {
@@ -699,7 +761,7 @@ export function LuluProductsServices() {
               
               <span>Skip Setup</span>
             </button>
-            <button type="button" onClick={() => navigateApp(routes.onboarding.existingPlatforms)} className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[var(--primary)] px-5 text-sm font-semibold text-primary-foreground hover:bg-[var(--primary)]">
+            <button type="button" disabled={offerings.length === 0} onClick={() => navigateApp(routes.onboarding.existingPlatforms)} className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[var(--primary)] px-5 text-sm font-semibold text-primary-foreground hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50">
               
               <span>Continue</span>
               <ArrowRight size={16} aria-hidden="true" />

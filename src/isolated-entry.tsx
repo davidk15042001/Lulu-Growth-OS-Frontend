@@ -1,6 +1,7 @@
 import { StrictMode, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { navigateApp } from "./routing";
+import { LuluRuntime } from "./api/runtime";
 
 type AppModule = { default: ComponentType };
 
@@ -33,7 +34,9 @@ async function mount() {
   const Page = module.default;
   root.render(
     <StrictMode>
-      <Page />
+      <LuluRuntime slug={slug}>
+        <Page />
+      </LuluRuntime>
     </StrictMode>,
   );
 }

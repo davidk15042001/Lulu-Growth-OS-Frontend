@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Check, Plus, ShieldCheck, Sparkles, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
+import { requestApi } from '../../../../api/client';
+import { getSelectedWorkspaceId } from '../../../../api/session';
 type Tag = {
   id: string;
   label: string;
@@ -17,13 +19,29 @@ const initialTags: Tag[] = [{
 }];
 const setupSteps = ["Company Information", "Business Description", "Products & Services", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 export const BusinessDescription = () => {
-  const [whatBusinessDoes, setWhatBusinessDoes] = useState("Acme Technologies helps growing B2B teams turn complex commercial data into clear, repeatable decisions.");
-  const [valueProposition, setValueProposition] = useState("One intelligent workspace that translates market, customer, and revenue signals into confident next steps.");
-  const [targetMarket, setTargetMarket] = useState("Growing B2B SaaS and revenue teams across Europe.");
-  const [shortBrandDescription, setShortBrandDescription] = useState("Modern revenue intelligence for teams that need clarity before they scale.");
-  const [tags, setTags] = useState<Tag[]>(initialTags);
+  const [whatBusinessDoes, setWhatBusinessDoes] = useState("");
+  const [valueProposition, setValueProposition] = useState("");
+  const [targetMarket, setTargetMarket] = useState("");
+  const [shortBrandDescription, setShortBrandDescription] = useState("");
+  const [tags, setTags] = useState<Tag[]>([]);
   const [draft, setDraft] = useState("");
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    requestApi<{ workspace: { businessDescription: string | null; valueProposition: string | null; targetMarket: string | null; shortBrandDescription: string | null; positioningTags: string[] } }>({ path: `/workspaces/${workspaceId}/onboarding` })
+      .then(response => {
+        const workspace = response.data.workspace;
+        setWhatBusinessDoes(workspace.businessDescription ?? '');
+        setValueProposition(workspace.valueProposition ?? '');
+        setTargetMarket(workspace.targetMarket ?? '');
+        setShortBrandDescription(workspace.shortBrandDescription ?? '');
+        setTags(workspace.positioningTags.map(label => ({ id: label.toLowerCase().replace(/[^a-z0-9]+/g, '-'), label })));
+      })
+      .catch(() => undefined);
+  }, []);
   const add = () => {
     const nextTag = draft.trim();
     if (nextTag && !tags.some(tag => tag.label.toLowerCase() === nextTag.toLowerCase())) {
@@ -74,10 +92,27 @@ export const BusinessDescription = () => {
             generated market insight.
           </p>
 
-          <form className="mt-8 space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)]" onSubmit={event => {
+          <form className="mt-8 space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)]" onSubmit={async event => {
           event.preventDefault();
-          setSaved(true);
-          window.setTimeout(() => navigateApp(routes.onboarding.productsServices), 400);
+          const workspaceId = getSelectedWorkspaceId();
+          if (!workspaceId || !whatBusinessDoes.trim() || loading) return;
+          setLoading(true);
+          setError('');
+          try {
+            await requestApi({ path: `/workspaces/${workspaceId}/onboarding/business-description`, method: 'PATCH', body: {
+              businessDescription: whatBusinessDoes || null,
+              valueProposition: valueProposition || null,
+              targetMarket: targetMarket || null,
+              shortBrandDescription: shortBrandDescription || null,
+              positioningTags: tags.map(tag => tag.label),
+            } });
+            setSaved(true);
+            navigateApp(routes.onboarding.productsServices);
+          } catch (cause) {
+            setError(cause instanceof Error ? cause.message : 'Unable to save the business description.');
+          } finally {
+            setLoading(false);
+          }
         }}>
             
             <label className="block text-sm font-medium text-[var(--muted-foreground)]">
@@ -179,7 +214,7 @@ export const BusinessDescription = () => {
             </section>
 
             <button className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] hover:bg-[var(--primary)]">
-              <span>{saved ? "Saved" : "Save changes"}</span>
+              <span>{loading ? "Saving…" : saved ? "Saved" : "Save changes"}</span>
               <ArrowRight size={16} />
             </button>
 
@@ -187,6 +222,7 @@ export const BusinessDescription = () => {
               <Check size={15} />
               <span>Changes are used across your Lulu AI workspace.</span>
             </p>
+            {error && <p role="alert" className="text-sm text-[var(--destructive)]">{error}</p>}
           </form>
         </div>
       </section>

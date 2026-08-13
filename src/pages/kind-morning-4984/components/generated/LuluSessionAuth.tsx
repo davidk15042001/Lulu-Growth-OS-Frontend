@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, Eye, EyeOff, LockKeyhole, LoaderCircle, ShieldCheck } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
+import { requestApi } from '../../../../api/client';
+import { setSelectedWorkspaceId } from '../../../../api/session';
 type Screen = 'expired' | 'reauth' | 'password' | 'success' | 'failure' | 'invalidated';
 type Status = 'idle' | 'loading';
 const footerLinks = [{
@@ -21,13 +23,10 @@ export function LuluSessionAuth() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   function beginSignIn() {
-    setStatus('loading');
-    window.setTimeout(() => {
-      setStatus('idle');
-      setScreen('reauth');
-    }, 650);
+    setStatus('idle');
+    setScreen('reauth');
   }
-  function handleReauth(event: FormEvent<HTMLFormElement>) {
+  async function handleReauth(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!email || !password) {
       setError('Enter your email and password to continue.');
@@ -35,16 +34,19 @@ export function LuluSessionAuth() {
     }
     setError('');
     setStatus('loading');
-    window.setTimeout(() => {
-      if (password.toLowerCase() === 'error') {
-        setStatus('idle');
-        setScreen('failure');
-      } else {
-        setStatus('idle');
-        setScreen('success');
-        window.setTimeout(() => navigateApp(routes.app.dashboard), 700);
-      }
-    }, 900);
+    try {
+      await requestApi({ path: '/auth/login', method: 'POST', body: { email, password } });
+      const workspaces = await requestApi<{ items: Array<{ id: string }> }>({ path: '/workspaces' });
+      const workspace = workspaces.data.items[0];
+      if (workspace) setSelectedWorkspaceId(workspace.id);
+      setStatus('idle');
+      setScreen('success');
+      window.setTimeout(() => navigateApp(workspace ? routes.app.dashboard : routes.onboarding.welcome), 700);
+    } catch (cause) {
+      setStatus('idle');
+      setError(cause instanceof Error ? cause.message : 'Unable to verify your identity.');
+      setScreen('failure');
+    }
   }
   function handlePassword(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

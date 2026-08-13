@@ -2,6 +2,29 @@ import { useCallback, useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, BarChart2, Bell, Brain, Check, ChevronDown, ChevronUp, Clock, DollarSign, Globe, GripVertical, HelpCircle, Megaphone, MessageSquare, RotateCcw, Search, Settings, Shield, Sparkles, Target, TrendingUp, Users, X, Zap } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
+import { requestApi } from '../../../../api/client';
+import { getSelectedWorkspaceId } from '../../../../api/session';
+
+type AiPreferencesResponse = {
+  businessPriorities: string[];
+  priorityOrder: string[];
+  recommendationStyle: string;
+  riskTolerance: string;
+  actionLevel: string;
+  communicationStyle: string;
+  insightDetail: string;
+  recommendationFrequency: string;
+  taskCreationMode: string;
+  detectionSettings: { opportunity: boolean; risk: boolean; anomaly: boolean; content: boolean };
+  searchPriorities: { SEO: "low" | "medium" | "high"; GEO: "low" | "medium" | "high"; AEO: "low" | "medium" | "high" };
+  approvalPreferences: Record<string, "always_ask" | "ask_high_impact" | "auto">;
+  approvalThreshold: number | null;
+  notificationPreferences: { critical_risks: boolean; important_opportunities: boolean; ai_recommendations: boolean; ai_tasks: boolean; integration_issues: boolean; performance_changes: boolean };
+  notificationChannels: { in_app: boolean; email: boolean; push: boolean };
+  businessHours: { enabled: boolean; timezone?: string; start?: string; end?: string; days?: string[] };
+  responseLanguage: string;
+  transparencySettings: { insights: boolean; recommendations: boolean; content: boolean; labels: boolean; data: boolean };
+};
 const steps = ["Company Information", "Business Description", "Products & Services", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 const priorities = ["Revenue Growth", "Customer Acquisition", "Customer Retention", "Profitability", "Marketing Performance", "Advertising Performance", "SEO", "GEO", "AEO", "Brand Visibility", "Market Expansion", "Operational Efficiency", "Product Growth", "Customer Experience"];
 const priorityIcons: Record<string, typeof TrendingUp> = {
@@ -261,8 +284,39 @@ export function LuluAIPreferences() {
   const [resetModal, setResetModal] = useState(false);
   const [saveError, setSaveError] = useState(false);
   useEffect(() => {
-    const t = window.setTimeout(() => setLoading(false), 800);
-    return () => window.clearTimeout(t);
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    setLoading(true);
+    requestApi<AiPreferencesResponse>({ path: `/workspaces/${workspaceId}/onboarding/ai-preferences` })
+      .then(response => {
+        const preferences = response.data;
+        if (!preferences) return;
+        setSelected(preferences.businessPriorities);
+        setOrder(preferences.priorityOrder);
+        setRecommendation(preferences.recommendationStyle);
+        setRisk(preferences.riskTolerance);
+        setAction(preferences.actionLevel);
+        setCommunication(preferences.communicationStyle);
+        setInsight(preferences.insightDetail);
+        setFrequency(preferences.recommendationFrequency);
+        setTask(preferences.taskCreationMode);
+        setDetect(preferences.detectionSettings);
+        setSearchPriority(preferences.searchPriorities);
+        setApprovals(preferences.approvalPreferences);
+        setThreshold(preferences.approvalThreshold === null ? '' : String(preferences.approvalThreshold));
+        setNotifications(preferences.notificationPreferences);
+        setChannels(preferences.notificationChannels);
+        setBusinessHours(preferences.businessHours.enabled);
+        setTimezone(preferences.businessHours.timezone ?? 'Europe/London');
+        setStart(preferences.businessHours.start ?? '09:00');
+        setEnd(preferences.businessHours.end ?? '18:00');
+        setDays(preferences.businessHours.days ?? ["Mon", "Tue", "Wed", "Thu", "Fri"]);
+        setLanguage(preferences.responseLanguage);
+        setTransparency(preferences.transparencySettings);
+        setSaved(true);
+      })
+      .catch(() => setSaveError(true))
+      .finally(() => setLoading(false));
   }, []);
   useEffect(() => {
     if (!toast) return;
@@ -270,13 +324,47 @@ export function LuluAIPreferences() {
     return () => window.clearTimeout(t);
   }, [toast]);
   const touch = useCallback(() => {
-    setSaving(true);
     setSaved(false);
-    window.setTimeout(() => {
-      setSaving(false);
-      setSaved(true);
-    }, 1000);
   }, []);
+  const savePreferences = async (destination?: string) => {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId || saving) return;
+    setSaving(true);
+    setSaveError(false);
+    try {
+      await requestApi({
+        path: `/workspaces/${workspaceId}/onboarding/ai-preferences`,
+        method: 'PUT',
+        body: {
+          businessPriorities: selected,
+          priorityOrder: order,
+          recommendationStyle: recommendation,
+          riskTolerance: risk,
+          actionLevel: action,
+          communicationStyle: communication,
+          insightDetail: insight,
+          recommendationFrequency: frequency,
+          taskCreationMode: task,
+          detectionSettings: detect,
+          searchPriorities: searchPriority,
+          approvalPreferences: approvals,
+          approvalThreshold: threshold ? Number(threshold) : null,
+          notificationPreferences: notifications,
+          notificationChannels: channels,
+          businessHours: { enabled: businessHours, timezone, start, end, days },
+          responseLanguage: language,
+          transparencySettings: transparency,
+        },
+      });
+      setSaved(true);
+      setToast('Preferences saved');
+      if (destination) navigateApp(destination);
+    } catch {
+      setSaveError(true);
+    } finally {
+      setSaving(false);
+    }
+  };
   const toggle = (key: keyof typeof detect) => {
     setDetect(v => ({
       ...v,
@@ -1035,13 +1123,13 @@ export function LuluAIPreferences() {
             <ArrowLeft size={16} />
             Back
           </button>
-          <button onClick={() => navigateApp(routes.app.dashboard)} className="text-sm text-foreground hover:text-foreground">
+          <button disabled={saving} onClick={() => void savePreferences(routes.app.dashboard)} className="text-sm text-foreground hover:text-foreground disabled:opacity-50">
             
             Skip Setup
           </button>
-          <button onClick={() => navigateApp(routes.onboarding.setupComplete)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary">
+          <button disabled={saving} onClick={() => void savePreferences(routes.onboarding.setupComplete)} className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary disabled:cursor-wait disabled:opacity-60">
             
-            Continue
+            {saving ? 'Saving…' : 'Continue'}
             <ArrowRight size={16} />
           </button>
         </footer>

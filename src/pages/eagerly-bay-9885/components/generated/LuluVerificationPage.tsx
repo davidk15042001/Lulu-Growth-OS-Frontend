@@ -1,12 +1,42 @@
 import { useState } from 'react';
 import { Check, Mail, RefreshCw, ShieldCheck, Sparkles } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
+import { requestApi } from '../../../../api/client';
+import { clearPendingEmail, getPendingEmail } from '../../../../api/session';
 export const LuluVerificationPage = () => {
+  const [email, setEmail] = useState(getPendingEmail());
+  const [code, setCode] = useState('');
   const [verified, setVerified] = useState(false);
   const [resent, setResent] = useState(false);
-  const handleVerified = () => {
-    setVerified(true);
-    window.setTimeout(() => navigateApp(routes.onboarding.welcome), 650);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const handleVerified = async () => {
+    if (!email || code.length !== 6 || loading) return;
+    setLoading(true);
+    setError('');
+    try {
+      await requestApi({ path: '/auth/verify-otp', method: 'POST', body: { email, code } });
+      clearPendingEmail();
+      setVerified(true);
+      window.setTimeout(() => navigateApp(routes.auth.login), 650);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Unable to verify this code.');
+    } finally {
+      setLoading(false);
+    }
+  };
+  const resend = async () => {
+    if (!email || loading) return;
+    setLoading(true);
+    setError('');
+    try {
+      await requestApi({ path: '/auth/resend-otp', method: 'POST', body: { email, purpose: 'verify' } });
+      setResent(true);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Unable to resend the code.');
+    } finally {
+      setLoading(false);
+    }
   };
   return <main className="grid min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-center justify-center p-6">
@@ -14,7 +44,7 @@ export const LuluVerificationPage = () => {
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[var(--primary)] text-xl font-bold text-[var(--primary-foreground)]">L</div>
           <p className="mt-10 text-xs font-medium tracking-[.18em] text-[var(--foreground)]">ONE LAST STEP</p>
           <h1 className="mt-2 text-3xl font-semibold">Verify your email.</h1>
-          <p className="mt-3 text-[var(--muted-foreground)]">We sent a verification link to <b className="text-[var(--foreground)]">you@company.com</b>.</p>
+          <p className="mt-3 text-[var(--muted-foreground)]">We sent a six-digit verification code to your email.</p>
           <div className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-[0_12px_32px_rgba(0,0,0,0.08)]">
             {verified ? <>
                 <Check className="mx-auto text-[var(--chart-4)]" size={34} />
@@ -22,11 +52,13 @@ export const LuluVerificationPage = () => {
                 <p className="mt-1 text-sm text-[var(--muted-foreground)]">Your Lulu workspace is ready.</p>
               </> : <>
                 <Mail className="mx-auto text-[var(--foreground)]" size={34} />
-                <p className="mt-3 text-sm text-[var(--muted-foreground)]">Open the link in your inbox, then continue here.</p>
-                <button onClick={handleVerified} className="mt-5 h-10 w-full rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">I’ve verified my email</button>
+                <label className="mt-4 block text-left text-sm text-[var(--muted-foreground)]">Email<input value={email} onChange={event => setEmail(event.target.value)} type="email" autoComplete="email" className="mt-1 h-10 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none" /></label>
+                <label className="mt-3 block text-left text-sm text-[var(--muted-foreground)]">Verification code<input value={code} onChange={event => setCode(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" className="mt-1 h-10 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-center font-mono text-lg tracking-[.35em] text-[var(--foreground)] outline-none" /></label>
+                <button disabled={loading || code.length !== 6} onClick={handleVerified} className="mt-5 h-10 w-full rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">{loading ? 'Verifying…' : 'Verify email'}</button>
+                {error && <p role="alert" className="mt-3 text-sm text-[var(--destructive)]">{error}</p>}
               </>}
           </div>
-          <button onClick={() => setResent(true)} className="mx-auto mt-5 flex items-center gap-2 text-sm text-[var(--foreground)]"><RefreshCw size={14} /> {resent ? 'Verification email resent' : 'Resend email'}</button>
+          <button disabled={loading || !email} onClick={resend} className="mx-auto mt-5 flex items-center gap-2 text-sm text-[var(--foreground)] disabled:opacity-50"><RefreshCw size={14} /> {resent ? 'Verification code resent' : 'Resend code'}</button>
         </div>
       </section>
       <aside className="hidden border-l border-[var(--border)] bg-[var(--sidebar)] p-12 text-[var(--foreground)] lg:flex lg:flex-col lg:justify-between">

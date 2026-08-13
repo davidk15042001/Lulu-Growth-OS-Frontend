@@ -1,20 +1,50 @@
 import { useState, type FormEvent } from 'react';
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle, Sparkles } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
-const requirements = ['At least 8 characters', 'One uppercase letter', 'One lowercase letter', 'One number', 'One special character'];
+import { requestApi } from '../../../../api/client';
+import { setPendingEmail } from '../../../../api/session';
+const requirements = ['At least 12 characters', 'One uppercase letter', 'One lowercase letter', 'One number', 'One special character'];
 const socialButtonClass = 'flex h-11 w-full items-center justify-center gap-2.5 rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2';
 export function LuluSignupPage() {
-  const [email, setEmail] = useState('sarah@acmecorp.com');
-  const [password, setPassword] = useState('LuluAI!2025');
-  const [confirmPassword, setConfirmPassword] = useState('LuluAI!2025');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [accepted, setAccepted] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading'>('idle');
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  const [error, setError] = useState('');
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!accepted || status === 'loading') return;
+    if (!firstName.trim() || !lastName.trim()) {
+      setError('Enter your first and last name.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+    if (password.length < 12) {
+      setError('Use at least 12 characters for your password.');
+      return;
+    }
     setStatus('loading');
-    window.setTimeout(() => navigateApp(routes.auth.verifyEmail), 700);
+    setError('');
+    try {
+      await requestApi({
+        path: '/auth/register',
+        method: 'POST',
+        body: { email, password, first_name: firstName, last_name: lastName },
+      });
+      setPendingEmail(email);
+      navigateApp(routes.auth.verifyEmail);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Unable to create your account.');
+      setStatus('idle');
+    }
   }
   return <main className="grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-start justify-center overflow-y-auto px-6 py-10">
@@ -34,8 +64,18 @@ export function LuluSignupPage() {
           </div>
 
           <form className="mt-8" onSubmit={handleSubmit} noValidate>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="signup-first-name" className="mb-1 block text-[13px] font-medium">First name</label>
+                <input id="signup-first-name" name="firstName" autoComplete="given-name" value={firstName} onChange={event => setFirstName(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
+              </div>
+              <div>
+                <label htmlFor="signup-last-name" className="mb-1 block text-[13px] font-medium">Last name</label>
+                <input id="signup-last-name" name="lastName" autoComplete="family-name" value={lastName} onChange={event => setLastName(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
+              </div>
+            </div>
             <div>
-              <label htmlFor="signup-email" className="mb-1 block text-[13px] font-medium">Email</label>
+              <label htmlFor="signup-email" className="mb-1 mt-4 block text-[13px] font-medium">Email</label>
               <input id="signup-email" name="email" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@company.com" className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
             </div>
 
@@ -84,6 +124,7 @@ export function LuluSignupPage() {
               {status === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
               <span>{status === 'loading' ? 'Creating account...' : 'Create Account'}</span>
             </button>
+            {error && <p role="alert" className="mt-3 flex items-start gap-2 text-[13px] text-[var(--destructive)]"><AlertCircle size={16} className="mt-0.5 shrink-0" />{error}</p>}
           </form>
 
           <div className="my-5 flex items-center">
@@ -93,15 +134,15 @@ export function LuluSignupPage() {
           </div>
 
           <div className="space-y-2.5">
-            <button type="button" onClick={() => navigateApp(routes.auth.verifyEmail)} className={socialButtonClass}>
+            <button type="button" disabled title="Google sign-in is not configured yet" className={`${socialButtonClass} cursor-not-allowed opacity-50`}>
               <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="var(--foreground)" d="M17.64 9.2c0-.63-.06-1.24-.16-1.82H9v3.44h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.58 2.68-3.9 2.68-6.6Z" /><path fill="var(--foreground)" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.92-2.26c-.8.54-1.82.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.34A9 9 0 0 0 9 18Z" /><path fill="var(--foreground)" d="M3.97 10.7A5.4 5.4 0 0 1 3.69 9c0-.59.1-1.17.28-1.7V4.96H.96A9 9 0 0 0 0 9c0 1.45.35 2.82.96 4.03l3.01-2.34Z" /><path fill="var(--foreground)" d="M9 3.58c1.32 0 2.5.45 3.43 1.34l2.57-2.57C13.46.9 11.43 0 9 0A9 9 0 0 0 .96 4.97l3.01 2.34c.71-2.14 2.69-3.73 5.03-3.73Z" /></svg>
               <span>Continue with Google</span>
             </button>
-            <button type="button" onClick={() => navigateApp(routes.auth.verifyEmail)} className={socialButtonClass}>
+            <button type="button" disabled title="Microsoft sign-in is not configured yet" className={`${socialButtonClass} cursor-not-allowed opacity-50`}>
               <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="var(--foreground)" d="M1 1h7.6v7.6H1z" /><path fill="var(--foreground)" d="M9.4 1H17v7.6H9.4z" /><path fill="var(--foreground)" d="M1 9.4h7.6V17H1z" /><path fill="var(--foreground)" d="M9.4 9.4H17V17H9.4z" /></svg>
               <span>Continue with Microsoft</span>
             </button>
-            <button type="button" onClick={() => navigateApp(routes.auth.verifyEmail)} className={socialButtonClass}>
+            <button type="button" disabled title="WeChat sign-in is not configured yet" className={`${socialButtonClass} cursor-not-allowed opacity-50`}>
               <span aria-hidden="true" className="grid h-[18px] w-[18px] place-items-center rounded-[5px] bg-[var(--primary)] text-[11px] font-bold text-[var(--primary-foreground)]">••</span>
               <span>Continue with WeChat</span>
             </button>

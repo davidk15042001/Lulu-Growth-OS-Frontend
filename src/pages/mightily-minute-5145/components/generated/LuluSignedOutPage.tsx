@@ -1,6 +1,8 @@
 import { Check, RotateCcw } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { pageLinkProps } from '../../../../routing';
+import { requestApi } from '../../../../api/client';
+import { clearSelectedWorkspaceId } from '../../../../api/session';
 type SignOutState = 'success' | 'error';
 interface LuluSignedOutPageProps {
   initialState?: SignOutState;
@@ -19,7 +21,21 @@ export function LuluSignedOutPage({
   initialState = 'success'
 }: LuluSignedOutPageProps) {
   const [state, setState] = useState<SignOutState>(initialState);
+  const attemptedSignOut = useRef(false);
   const isError = state === 'error';
+  const signOut = useCallback(() => {
+    requestApi({ path: '/auth/logout', method: 'POST', body: {} })
+      .then(() => {
+        clearSelectedWorkspaceId();
+        setState('success');
+      })
+      .catch(() => setState('error'));
+  }, []);
+  useEffect(() => {
+    if (attemptedSignOut.current) return;
+    attemptedSignOut.current = true;
+    signOut();
+  }, [signOut]);
   return <div className="flex min-h-screen flex-col bg-[var(--background)] font-sans text-[var(--foreground)]">
       <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
         <section aria-labelledby="signed-out-title" className="w-full max-w-md animate-[lulu-card-enter_0.45s_ease-out] rounded-xl border border-[var(--border)] bg-[var(--card)] p-7 shadow-[0_12px_32px_rgba(0,0,0,0.08)] sm:p-9">
@@ -44,7 +60,7 @@ export function LuluSignedOutPage({
           </header>
 
           <div className="mt-7" role="status" aria-live="polite">
-            {isError ? <button type="button" onClick={() => setState('success')} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
+            {isError ? <button type="button" onClick={signOut} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
                 <RotateCcw size={16} aria-hidden="true" />
                 <span>Try Again</span>
               </button> : <a {...pageLinkProps('brightly-door-5741')} className="flex h-11 w-full items-center justify-center rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">

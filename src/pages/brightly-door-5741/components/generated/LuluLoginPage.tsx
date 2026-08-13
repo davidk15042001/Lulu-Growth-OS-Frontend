@@ -1,16 +1,58 @@
 import { useState } from 'react';
 import { ArrowRight, Check, Eye, EyeOff, ShieldCheck, Sparkles } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
+import { ApiError, requestApi } from '../../../../api/client';
+import {
+  clearPendingInvitation,
+  getPendingInvitation,
+  setPendingEmail,
+  setSelectedWorkspaceId,
+} from '../../../../api/session';
 export const LuluLoginPage = () => {
   const [e, setE] = useState('');
   const [p, setP] = useState('');
   const [s, setS] = useState(false);
   const [show, setShow] = useState(false);
-  const submit = (x: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const submit = async (x: React.FormEvent) => {
     x.preventDefault();
     const isValid = Boolean(e && p);
-    setS(isValid);
-    if (isValid) window.setTimeout(() => navigateApp(routes.app.dashboard), 450);
+    if (!isValid || loading) return;
+    setLoading(true);
+    setError('');
+    setS(false);
+    try {
+      await requestApi({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
+      const pendingInvitation = getPendingInvitation();
+      let invitedWorkspaceId: string | null = null;
+      if (pendingInvitation) {
+        const invitation = await requestApi<{ workspaceId: string }>({
+          path: `/workspaces/invitations/${encodeURIComponent(pendingInvitation)}/accept`,
+          method: 'POST',
+        });
+        invitedWorkspaceId = invitation.data.workspaceId;
+        clearPendingInvitation();
+      }
+      const workspaces = await requestApi<{ items: Array<{ id: string }> }>({ path: '/workspaces' });
+      const workspace = workspaces.data.items.find(item => item.id === invitedWorkspaceId) ?? workspaces.data.items[0];
+      setS(true);
+      if (workspace) {
+        setSelectedWorkspaceId(workspace.id);
+        navigateApp(routes.app.dashboard);
+      } else {
+        navigateApp(routes.onboarding.welcome);
+      }
+    } catch (cause) {
+      if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
+        setPendingEmail(e);
+        navigateApp(routes.auth.verifyEmail);
+        return;
+      }
+      setError(cause instanceof Error ? cause.message : 'Unable to sign in.');
+    } finally {
+      setLoading(false);
+    }
   };
   return <main className="grid min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-center justify-center p-6">
@@ -33,7 +75,8 @@ export const LuluLoginPage = () => {
                 <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-4 text-[var(--muted-foreground)]">{show ? <EyeOff size={16} /> : <Eye size={16} />}</button>
               </div>
             </label>
-            <button className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Sign in <ArrowRight size={16} /></button>
+            <button disabled={loading} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{loading ? 'Signing in…' : 'Sign in'} <ArrowRight size={16} /></button>
+            {error && <p role="alert" className="text-sm text-[var(--destructive)]">{error}</p>}
             {s && <p className="flex items-center gap-2 text-sm text-[var(--chart-4)]"><Check size={15} /> Signed in successfully.</p>}
           </form>
           <div className="mt-8 flex justify-between text-sm">

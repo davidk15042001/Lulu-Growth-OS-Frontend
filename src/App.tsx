@@ -3,6 +3,12 @@ import { Search } from "lucide-react";
 import { Link, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { pages, type PageDefinition } from "./pages-manifest";
 import { isLuluNavigationMessage, pagePath, routes } from "./routing";
+import { ApiError, installApiBroker, requestApi } from "./api/client";
+import {
+  clearPendingInvitation,
+  setPendingInvitation,
+  setSelectedWorkspaceId,
+} from "./api/session";
 
 function Directory() {
   const [query, setQuery] = useState("");
@@ -88,13 +94,49 @@ function NotFound() {
   );
 }
 
+function InvitationAccept() {
+  const { token } = useParams();
+  const navigate = useNavigate();
+  const [status, setStatus] = useState("Accepting your invitation…");
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/not-found", { replace: true });
+      return;
+    }
+    let active = true;
+    requestApi<{ workspaceId: string }>({ path: `/workspaces/invitations/${encodeURIComponent(token)}/accept`, method: "POST" })
+      .then((response) => {
+        if (!active) return;
+        setSelectedWorkspaceId(response.data.workspaceId);
+        clearPendingInvitation();
+        navigate(routes.app.dashboard, { replace: true });
+      })
+      .catch((error) => {
+        if (!active) return;
+        if (error instanceof ApiError && error.status === 401) {
+          setPendingInvitation(token);
+          navigate(routes.auth.login, { replace: true });
+          return;
+        }
+        setStatus(error instanceof Error ? error.message : "Unable to accept this invitation.");
+      });
+    return () => { active = false; };
+  }, [navigate, token]);
+
+  return <main className="not-found"><p className="eyebrow">Workspace invitation</p><h1>Joining Lulu AI</h1><p>{status}</p></main>;
+}
+
 export default function App() {
+  useEffect(() => installApiBroker(), []);
+
   return (
     <Routes>
       <Route path="/" element={<Navigate replace to={routes.auth.login} />} />
       <Route path={routes.allPages} element={<Directory />} />
       <Route path="/pages" element={<Navigate replace to={routes.allPages} />} />
       <Route path="/pages/:slug" element={<LegacyPageRedirect />} />
+      <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
       {pages.map((page) => (
         <Route key={page.id} path={pagePath(page.slug)} element={<PageFrame page={page} />} />
       ))}

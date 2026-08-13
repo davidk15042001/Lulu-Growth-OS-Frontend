@@ -1,6 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { ArrowRight, Building2, Check, ShieldCheck, Sparkles } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
+import { requestApi } from '../../../../api/client';
+import { getSelectedWorkspaceId, setSelectedWorkspaceId } from '../../../../api/session';
 type CompanyForm = {
   companyName: string;
   industry: string;
@@ -10,12 +12,26 @@ type CompanyForm = {
 const setupSteps = ["Company Information", "Business Description", "Products & Services", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 export const CompanyInformation = () => {
   const [saved, setSaved] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [form, setForm] = useState<CompanyForm>({
-    companyName: "Acme Technologies GmbH",
-    industry: "B2B SaaS",
-    companySize: "51–200",
-    countryRegion: "Germany"
+    companyName: "",
+    industry: "",
+    companySize: "",
+    countryRegion: ""
   });
+  useEffect(() => {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    requestApi<{ workspace: CompanyForm }>({ path: `/workspaces/${workspaceId}/onboarding` })
+      .then(response => setForm({
+        companyName: response.data.workspace.companyName,
+        industry: response.data.workspace.industry ?? '',
+        companySize: response.data.workspace.companySize ?? '',
+        countryRegion: response.data.workspace.countryRegion ?? '',
+      }))
+      .catch(() => undefined);
+  }, []);
   const update = (key: keyof CompanyForm, value: string) => {
     setForm({
       ...form,
@@ -23,10 +39,31 @@ export const CompanyInformation = () => {
     });
     setSaved(false);
   };
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSaved(true);
-    window.setTimeout(() => navigateApp(routes.onboarding.businessDescription), 400);
+    if (!form.companyName.trim() || loading) return;
+    setLoading(true);
+    setError('');
+    try {
+      let workspaceId = getSelectedWorkspaceId();
+      if (!workspaceId) {
+        const created = await requestApi<{ id: string }>({ path: '/workspaces', method: 'POST', body: form });
+        workspaceId = created.data.id;
+        setSelectedWorkspaceId(workspaceId);
+      }
+      await requestApi({ path: `/workspaces/${workspaceId}/onboarding/company-information`, method: 'PATCH', body: {
+        companyName: form.companyName,
+        industry: form.industry || null,
+        companySize: form.companySize || null,
+        countryRegion: form.countryRegion || null,
+      } });
+      setSaved(true);
+      navigateApp(routes.onboarding.businessDescription);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Unable to save company information.');
+    } finally {
+      setLoading(false);
+    }
   };
   return <main className="grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
@@ -96,9 +133,9 @@ export const CompanyInformation = () => {
               
             </label>
 
-            <button type="submit" className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-[var(--border)] focus:ring-offset-2 focus:ring-offset-[var(--border)]">
+            <button type="submit" disabled={loading || !form.companyName.trim()} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[var(--border)] focus:ring-offset-2 focus:ring-offset-[var(--border)]">
               
-              <span>{saved ? "Saved" : "Save changes"}</span>
+              <span>{loading ? "Saving…" : saved ? "Saved" : "Save changes"}</span>
               {saved ? <Check size={16} aria-hidden="true" /> : <ArrowRight size={16} aria-hidden="true" />}
             </button>
 
@@ -107,6 +144,7 @@ export const CompanyInformation = () => {
                 <Check size={15} aria-hidden="true" />
                 <span>Company information saved.</span>
               </p> : null}
+            {error && <p role="alert" className="text-sm text-[var(--destructive)]">{error}</p>}
           </form>
         </div>
       </section>

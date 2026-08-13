@@ -1,6 +1,8 @@
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { ArrowRight, BarChart3, Check, CircleCheck, MessageSquareText, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
+import { requestApi } from '../../../../api/client';
+import { getSelectedWorkspaceId } from '../../../../api/session';
 interface Platform {
   id: string;
   name: string;
@@ -52,34 +54,71 @@ const platformCategories: PlatformCategory[] = [{
 }];
 const setupSteps = ["Company Information", "Business Description", "Products & Services", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 export const LuluExistingPlatforms = () => {
-  const [platforms, setPlatforms] = useState<Platform[]>(startingPlatforms);
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [query, setQuery] = useState("");
   const [selectedCategories, setSelectedCategories] = useState<string[]>(["crm", "analytics-tools"]);
   const [customPlatform, setCustomPlatform] = useState("");
   const [synced, setSynced] = useState(false);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    requestApi<{ platforms: Array<{ id: string; name: string; category: string; connectionStatus: string }> }>({ path: `/workspaces/${workspaceId}/onboarding` })
+      .then(response => setPlatforms(response.data.platforms.map(platform => ({
+        id: platform.id,
+        name: platform.name,
+        type: platform.category,
+        status: platform.connectionStatus === 'connected' ? 'Connected' : platform.connectionStatus === 'error' ? 'Needs review' : 'Pending',
+      }))))
+      .catch(cause => setError(cause instanceof Error ? cause.message : 'Unable to load platforms.'));
+  }, []);
   const visiblePlatforms = useMemo(() => {
     return platforms.filter(platform => `${platform.name} ${platform.type} ${platform.status}`.toLowerCase().includes(query.toLowerCase()));
   }, [platforms, query]);
   const toggleCategory = (id: string) => {
     setSelectedCategories(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   };
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (synced) {
       navigateApp(routes.onboarding.aiPreferences);
       return;
     }
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    setError('');
     if (customPlatform.trim()) {
       const normalizedName = customPlatform.trim();
-      setPlatforms(current => [...current, {
-        id: normalizedName.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-        name: normalizedName,
-        type: "Custom",
-        status: "Pending"
-      }]);
-      setCustomPlatform("");
+      try {
+        const response = await requestApi<{ id: string }>({
+          path: `/workspaces/${workspaceId}/onboarding/platforms`,
+          method: 'POST',
+          body: {
+            integrationKey: normalizedName.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-|-$/g, '') || null,
+            name: normalizedName,
+            category: 'custom',
+            connectionStatus: 'pending',
+            settings: { selectedCategories },
+          },
+        });
+        setPlatforms(current => [...current, { id: response.data.id, name: normalizedName, type: "Custom", status: "Pending" }]);
+        setCustomPlatform("");
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : 'Unable to save this platform.');
+        return;
+      }
     }
     setSynced(true);
+  };
+  const removePlatform = async (id: string) => {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    try {
+      await requestApi({ path: `/workspaces/${workspaceId}/onboarding/platforms/${id}`, method: 'DELETE' });
+      setPlatforms(current => current.filter(item => item.id !== id));
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Unable to remove this platform.');
+    }
   };
   return <main className="grid min-h-screen bg-[var(--background)] font-['Inter',sans-serif] text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
@@ -187,7 +226,7 @@ export const LuluExistingPlatforms = () => {
                     
                       {platform.status}
                     </span>
-                    <button type="button" onClick={() => setPlatforms(current => current.filter(item => item.id !== platform.id))} className="rounded-md p-2 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]" aria-label={`Remove ${platform.name}`}>
+                    <button type="button" onClick={() => void removePlatform(platform.id)} className="rounded-md p-2 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]" aria-label={`Remove ${platform.name}`}>
                     
                       <Trash2 size={15} />
                     </button>
@@ -210,6 +249,7 @@ export const LuluExistingPlatforms = () => {
                   </span>
                 </span>
               </p>}
+            {error && <p role="alert" className="text-sm text-[var(--destructive)]">{error}</p>}
           </form>
         </div>
       </section>

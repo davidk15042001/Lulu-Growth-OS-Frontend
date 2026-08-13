@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, CheckCircle2, ChevronRight, ArrowRight, Sparkles, Shield, Brain, Zap, BarChart2, Globe, AlertTriangle, RefreshCcw, ExternalLink, Building2, Layers, Activity, Target, HelpCircle, User, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
+import { requestApi } from '../../../../api/client';
+import { getSelectedWorkspaceId } from '../../../../api/session';
 type Phase = "setup_complete" | "confirm_analysis" | "analysis_started" | "analysis_complete" | "analysis_error";
 type StageStatus = "pending" | "running" | "complete" | "error";
 type Progress = Record<string, StageStatus>;
@@ -86,9 +88,16 @@ export const LuluSetupComplete = () => {
   const [phase, setPhase] = useState<Phase>("setup_complete");
   const [progress, setProgress] = useState<Progress>(() => Object.fromEntries(analysisStages.map(stage => [stage.id, "pending"])) as Progress);
   const [elapsed, setElapsed] = useState(0);
+  const [completionError, setCompletionError] = useState('');
   const reducedMotion = useRef(false);
   useEffect(() => {
     reducedMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  }, []);
+  useEffect(() => {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    requestApi({ path: `/workspaces/${workspaceId}/onboarding/complete`, method: 'POST', body: {} })
+      .catch(cause => setCompletionError(cause instanceof Error ? cause.message : 'Unable to complete onboarding.'));
   }, []);
   useEffect(() => {
     if (phase !== "analysis_started") return;
@@ -99,7 +108,7 @@ export const LuluSetupComplete = () => {
     }));
     if (reducedMotion.current) {
       update(Object.fromEntries(analysisStages.map(stage => [stage.id, "complete"])) as Progress);
-      const done = window.setTimeout(() => setPhase("analysis_complete"), 250);
+      const done = window.setTimeout(() => undefined, 250);
       timers.push(done);
       return () => timers.forEach(window.clearTimeout);
     }
@@ -126,7 +135,6 @@ export const LuluSetupComplete = () => {
       update({
         insights: "complete"
       });
-      setPhase("analysis_complete");
     }, 7500));
     return () => timers.forEach(window.clearTimeout);
   }, [phase]);
@@ -136,12 +144,34 @@ export const LuluSetupComplete = () => {
     const timer = window.setInterval(() => setElapsed((Date.now() - started) / 1000), 100);
     return () => window.clearInterval(timer);
   }, [phase]);
-  const startAnalysis = () => {
+  const startAnalysis = async () => {
     setProgress(Object.fromEntries(analysisStages.map(stage => [stage.id, "pending"])) as Progress);
     setElapsed(0);
     setPhase("analysis_started");
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) {
+      setPhase('analysis_error');
+      return;
+    }
+    try {
+      const conversation = await requestApi<{ id: string }>({
+        path: `/workspaces/${workspaceId}/ai/conversations`,
+        method: 'POST',
+        body: { title: 'Initial company analysis', metadata: { source: 'onboarding' } },
+      });
+      await requestApi({
+        path: `/workspaces/${workspaceId}/ai/conversations/${conversation.data.id}/respond`,
+        method: 'POST',
+        body: { content: 'Analyze the company profile, offerings and connected platform context. Identify the three highest-impact opportunities, the three most important risks, and the recommended next actions. Clearly distinguish observations from inferences.' },
+      });
+      setProgress(Object.fromEntries(analysisStages.map(stage => [stage.id, "complete"])) as Progress);
+      setPhase('analysis_complete');
+    } catch {
+      setPhase('analysis_error');
+    }
   };
   return <div className="min-h-screen bg-[var(--background)] text-foreground">
+      {completionError && <div role="alert" className="fixed left-1/2 top-3 z-50 -translate-x-1/2 rounded-lg border border-border bg-[var(--card)] px-4 py-2 text-sm text-[var(--destructive)] shadow-xl">{completionError}</div>}
       <header className="sticky top-0 z-30 border-b border-border bg-[var(--background)]">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
           <div className="flex items-center gap-2">

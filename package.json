@@ -8,7 +8,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "audit:routing": "node scripts/audit-routing.mjs"
+    "audit:routing": "node scripts/audit-routing.mjs",
+    "audit:api": "node scripts/audit-api-contracts.mjs",
+    "check": "npm run typecheck && npm run audit:routing && npm run audit:api && npm run build"
   },
   "dependencies": {
     "framer-motion": "^12.23.12",
