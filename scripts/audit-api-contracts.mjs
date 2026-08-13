@@ -17,6 +17,30 @@ const resourceTypes = [...contractsSource.matchAll(/:\s*["']([a-z][a-z0-9_]*)["'
 const uniqueResourceTypes = new Set(resourceTypes);
 const issues = [];
 
+const clientContracts = {
+  "src/api/auth.ts": ["/auth/register", "/auth/verify-otp", "/auth/login", "/auth/refresh", "/auth/logout", "/auth/logout-all", "/auth/forgot-password", "/auth/resend-otp", "/auth/reset-password", "/auth/me"],
+  "src/api/workspaces.ts": ["/workspaces", "/invitations/", "/accept", "/bootstrap"],
+  "src/api/onboarding.ts": ["/onboarding", "/company-information", "/business-description", "/offerings", "/platforms", "/ai-preferences", "/complete"],
+  "src/api/records.ts": ["/resource-types", "/records/", "/restore"],
+  "src/api/metrics.ts": ["/metrics", "/points"],
+  "src/api/notifications.ts": ["/notifications", "/read-all", "/read"],
+  "src/api/approvals.ts": ["/approvals", "/decision"],
+  "src/api/ai.ts": ["/ai/conversations", "/messages", "/respond"],
+  "src/api/workspace-app.ts": ["/members", "/saved-views", "/audit", "/billing", "/integrations/", "/sync"],
+};
+
+for (const [relativePath, markers] of Object.entries(clientContracts)) {
+  const absolutePath = resolve(root, relativePath);
+  if (!existsSync(absolutePath)) {
+    issues.push(`Missing frontend API client: ${relativePath}`);
+    continue;
+  }
+  const source = readFileSync(absolutePath, "utf8");
+  for (const marker of markers) {
+    if (!source.includes(marker)) issues.push(`Frontend API client ${relativePath} is missing endpoint ${marker}`);
+  }
+}
+
 for (const slug of manifestSlugs) {
   if (!contractedSlugs.has(slug)) issues.push(`Page has no API contract: ${slug}`);
 }
@@ -47,6 +71,7 @@ console.log(JSON.stringify({
   resourcePages: resourceTypes.length,
   referencedResourceTypes: uniqueResourceTypes.size,
   backendResourceTypes: backendResourceTypes?.size ?? "not checked (backend repository unavailable)",
+  typedApiClients: Object.keys(clientContracts).length,
   issues,
 }, null, 2));
 

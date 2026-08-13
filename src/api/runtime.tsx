@@ -1,20 +1,21 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { navigateApp, routes } from "../routing";
-import { ApiError, requestApi } from "./client";
+import { ApiError } from "./client";
+import { LiveApiPanel } from "./LiveApiPanel";
 import { getPageContract } from "./page-contracts";
 import {
   clearSelectedWorkspaceId,
   getSelectedWorkspaceId,
   setSelectedWorkspaceId,
 } from "./session";
-
-type Workspace = { id: string; onboardingStep: string; onboardingCompletedAt: string | null };
+import { workspaceApi } from "./workspaces";
 
 export function LuluRuntime({ slug, children }: { slug: string; children: ReactNode }) {
   const contract = useMemo(() => getPageContract(slug), [slug]);
   const [state, setState] = useState<"checking" | "ready" | "offline">(
     contract?.kind === "public" ? "ready" : "checking",
   );
+  const [workspaceId, setWorkspaceId] = useState("");
 
   useEffect(() => {
     if (!contract || contract.kind === "public") return;
@@ -22,10 +23,7 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
 
     async function load() {
       try {
-        const response = await requestApi<{ items: Workspace[] }>({
-          path: "/workspaces",
-          signal: controller.signal,
-        });
+        const response = await workspaceApi.list(controller.signal);
         const workspaces = response.data.items;
         let workspace = workspaces.find((item) => item.id === getSelectedWorkspaceId()) ?? workspaces[0];
         if (!workspace) {
@@ -42,8 +40,9 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
           return;
         }
         setSelectedWorkspaceId(workspace.id);
+        setWorkspaceId(workspace.id);
         if (contract?.kind !== "onboarding") {
-          await requestApi({ path: `/workspaces/${workspace.id}/bootstrap`, signal: controller.signal });
+          await workspaceApi.bootstrap(workspace.id, controller.signal);
         }
         setState("ready");
       } catch (error) {
@@ -69,5 +68,6 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     {state === "checking" && <div role="status" style={{ position: "fixed", inset: 0, zIndex: 9999, display: "grid", placeItems: "center", background: "#f7f7f5", color: "#686864", font: "500 14px Inter, sans-serif" }}>Loading workspace…</div>}
     {state === "offline" && <div role="alert" style={{ position: "fixed", zIndex: 9999, left: "50%", top: 12, transform: "translateX(-50%)", maxWidth: "calc(100% - 24px)", border: "1px solid #d5d5d0", borderRadius: 8, background: "#fff", color: "#171717", padding: "10px 14px", boxShadow: "0 10px 30px rgba(0,0,0,.12)", font: "500 13px Inter, sans-serif" }}>Live data is temporarily unavailable. Your layout remains accessible.</div>}
     {children}
+    {state === "ready" && workspaceId && <LiveApiPanel workspaceId={workspaceId} contract={contract} />}
   </>;
 }

@@ -23,6 +23,12 @@ export type RecordInput = Partial<Omit<WorkspaceRecord, "id" | "workspaceId" | "
   name: string;
 };
 
+export type ResourceTypeDefinition = { key: string; domain: string; label: string; description: string };
+
+export function listResourceTypes() {
+  return requestApi<{ items: ResourceTypeDefinition[] }>({ path: "/resource-types" });
+}
+
 function workspacePath(path: string) {
   const workspaceId = getSelectedWorkspaceId();
   if (!workspaceId) throw new Error("No Lulu workspace is selected");
@@ -55,5 +61,17 @@ export function archiveRecord(resourceType: string, recordId: string) {
   return requestApi<null>({
     path: workspacePath(`/records/${resourceType}/${recordId}`),
     method: "DELETE",
+  });
+}
+
+export function getRecord(resourceType: string, recordId: string) {
+  return requestApi<WorkspaceRecord>({ path: workspacePath(`/records/${resourceType}/${recordId}`) });
+}
+
+export function restoreRecord(resourceType: string, recordId: string) {
+  return requestApi<WorkspaceRecord>({
+    path: workspacePath(`/records/${resourceType}/${recordId}/restore`),
+    method: "POST",
+    body: {},
   });
 }

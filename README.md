@@ -20,6 +20,16 @@ Legacy `/pages/<generatedName>` URLs redirect to their canonical routes.
 
 Set `VITE_API_URL` to the public backend base URL ending in `/api/v1`. When frontend and backend share a domain through a reverse proxy, the default `/api/v1` works without additional configuration.
 
+## Live backend integration
+
+Authentication and onboarding forms call the backend directly. Every protected application page also exposes a **Live data** control without replacing the original MagicPath design. Its content follows the page contract:
+
+- resource pages: records, search, create, edit, archive and saved views
+- workspace pages: bootstrap summary, notifications, approvals, members, invitations and audit log
+- special pages: metrics and points, AI conversations, billing, integrations and sync jobs
+
+All calls use the shared authenticated client, automatic access-token refresh, the selected workspace and the `/api/v1` endpoint configured above.
+
 ## Build
 
 ```bash
@@ -47,3 +57,5 @@ This validates TypeScript, all 141 routes, the page-to-API contracts and the pro
 - `src/api/runtime.tsx` — authentication, workspace and bootstrap guard for isolated pages
 
 Each design runs inside its own document so its original MagicPath theme and global CSS cannot leak into other pages. Route changes are forwarded to the top-level React router, so browser history, back/forward navigation and deep links continue to work.
+
+The typed API clients live in `src/api/`, while `src/api/LiveApiPanel.tsx` provides the contract-aware live backend controls for protected pages.
