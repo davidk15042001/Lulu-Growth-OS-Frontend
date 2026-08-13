@@ -5,7 +5,7 @@ const root = process.cwd();
 const languageSource = readFileSync(join(root, "src", "i18n", "languages.ts"), "utf8");
 const runtimeSource = readFileSync(join(root, "src", "api", "runtime.tsx"), "utf8");
 const isolatedEntrySource = readFileSync(join(root, "src", "isolated-entry.tsx"), "utf8");
-const translationApiSource = readFileSync(join(root, "src", "api", "translations.ts"), "utf8");
+const translationsSource = readFileSync(join(root, "src", "i18n", "translations.json"), "utf8");
 const expectedCodes = ["en", "de", "zh-CN", "fr", "nl", "pl", "nb", "sv", "fi", "da", "ar", "lb", "mn", "uk", "ru"];
 const actualCodes = [...languageSource.matchAll(/\{ code: "([^"]+)"/g)].map((match) => match[1]);
 const issues = [];
@@ -19,8 +19,10 @@ if (!runtimeSource.includes("<GlobalLanguageSwitcher />")) {
 if (!isolatedEntrySource.includes("<LuluRuntime slug={slug}>")) {
   issues.push("Isolated pages are not wrapped by LuluRuntime");
 }
-if (!translationApiSource.includes('path: "/translations"')) {
-  issues.push("Frontend translation API path is missing");
+for (const language of expectedCodes) {
+  if (!translationsSource.includes(`\"${language}\"`)) {
+    issues.push(`Static translation bundle is missing ${language}`);
+  }
 }
 if (!languageSource.includes('{ code: "ar"') || !languageSource.includes('direction: "rtl"')) {
   issues.push("Arabic RTL language configuration is missing");

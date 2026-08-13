@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowRight, Check, Eye, EyeOff, LoaderCircle, ShieldCheck, Sparkles } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
+import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import {
   clearPendingInvitation,
   getPendingInvitation,
@@ -9,6 +10,7 @@ import {
   setSelectedWorkspaceId,
 } from '../../../../api/session';
 export const LuluLoginPage = () => {
+  const t = useTranslation();
   const [e, setE] = useState('');
   const [p, setP] = useState('');
   const [s, setS] = useState(false);
@@ -19,7 +21,7 @@ export const LuluLoginPage = () => {
     x.preventDefault();
     if (loading) return;
     if (!e.trim() || !p) {
-      setError('Please enter your email and password.');
+      setError(t('missingCredentials'));
       return;
     }
     setLoading(true);
@@ -52,7 +54,10 @@ export const LuluLoginPage = () => {
         navigateApp(routes.auth.verifyEmail);
         return;
       }
-      setError(getFriendlyErrorMessage(cause, 'We could not sign you in. Please try again.'));
+      if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') setError(t('accountNotFound'));
+      else if (cause instanceof ApiError && cause.code === 'INVALID_CREDENTIALS') setError(t('invalidCredentials'));
+      else if (cause instanceof ApiError && cause.code === 'API_TIMEOUT') setError(t('timeout'));
+      else setError(getFriendlyErrorMessage(cause, 'We could not sign you in. Please try again.'));
     } finally {
       setLoading(false);
     }
@@ -64,27 +69,27 @@ export const LuluLoginPage = () => {
             <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] font-bold text-[var(--primary-foreground)]">L</span>
             <b className="text-xl">Lulu AI</b>
           </div>
-          <p className="mt-12 text-xs font-medium tracking-[.18em] text-[var(--foreground)]">WELCOME BACK</p>
-          <h1 className="mt-2 text-3xl font-semibold">Your business context is waiting.</h1>
+          <p className="mt-12 text-xs font-medium tracking-[.18em] text-[var(--foreground)]">{t('welcome')}</p>
+          <h1 className="mt-2 text-3xl font-semibold">{t('headline')}</h1>
           <form onSubmit={submit} className="mt-8 space-y-4">
             <label className="block text-sm text-[var(--muted-foreground)]">
-              Work email
+              {t('email')}
               <input value={e} onChange={x => setE(x.target.value)} type="email" placeholder="you@company.com" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
             </label>
             <label className="block text-sm text-[var(--muted-foreground)]">
-              Password
+              {t('password')}
               <div className="relative">
                 <input value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 pr-10 text-[var(--foreground)] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
                 <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-4 text-[var(--muted-foreground)]">{show ? <EyeOff size={16} /> : <Eye size={16} />}</button>
               </div>
             </label>
-            <button disabled={loading} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> Signing in…</> : <>Sign in <ArrowRight size={16} /></>}</button>
+            <button disabled={loading} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}</button>
             {error && <p role="alert" className="text-sm text-[var(--destructive)]">{error}</p>}
             {s && <p className="flex items-center gap-2 text-sm text-[var(--chart-4)]"><Check size={15} /> Signed in successfully.</p>}
           </form>
           <div className="mt-8 flex justify-between text-sm">
-            <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)} className="text-[var(--foreground)]">Forgot password?</button>
-            <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="text-[var(--muted-foreground)]">Create account</button>
+            <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)} className="text-[var(--foreground)]">{t('forgotPassword')}</button>
+            <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="text-[var(--muted-foreground)]">{t('createAccount')}</button>
           </div>
         </div>
       </section>
