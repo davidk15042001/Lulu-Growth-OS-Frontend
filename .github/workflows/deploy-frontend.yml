@@ -25,7 +25,7 @@ jobs:
       - name: SSH einrichten
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY_B64 }}
         run: |
           mkdir -p ~/.ssh
           printf '%s' "$DEPLOY_SSH_KEY" | base64 --decode > ~/.ssh/id_ed25519
