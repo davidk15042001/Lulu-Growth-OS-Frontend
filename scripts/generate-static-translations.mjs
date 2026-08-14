@@ -49,7 +49,7 @@ const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
 const batches = (items) => {
   const result = []; let current = []; let size = 0;
   for (const item of items) {
-    if (current.length >= 50 || size + item.length > 8_000) { result.push(current); current = []; size = 0; }
+    if (current.length >= 20 || size + item.length > 4_000) { result.push(current); current = []; size = 0; }
     current.push(item); size += item.length;
   }
   if (current.length) result.push(current);
@@ -75,7 +75,7 @@ async function translate(language, batch) {
   const outputText = payload.output_text ?? payload.output?.flatMap((item) => item.content ?? []).find((item) => item.type === "output_text")?.text;
   if (typeof outputText !== "string" || !outputText.trim()) throw new Error("Translation response was empty.");
   const result = JSON.parse(outputText);
-  if (!Array.isArray(result.translations) || result.translations.length !== batch.length) throw new Error("Translation response did not match the input batch.");
+  if (!Array.isArray(result.translations) || result.translations.length !== batch.length) throw new Error(`Translation response did not match the input batch (${result.translations?.length ?? 0}/${batch.length}).`);
   return result.translations.map((entry, index) => {
     if (entry.id !== String(index) || typeof entry.text !== "string" || !entry.text.trim()) throw new Error("Translation response contained an invalid item.");
     return entry.text.trim();
