@@ -16,6 +16,8 @@ export const languages = [
   { code: "ru", shortCode: "RU", name: "Russian", nativeName: "Русский", direction: "ltr" },
 ] as const;
 
+export const AVAILABLE_LANGUAGE_CODES = ["en", "de", "zh-CN"] as const;
+
 export type LanguageCode = (typeof languages)[number]["code"];
 export type Language = (typeof languages)[number];
 
@@ -24,6 +26,10 @@ export const LANGUAGE_STORAGE_KEY = "lulu:language";
 
 export function isLanguageCode(value: string | null): value is LanguageCode {
   return languages.some((language) => language.code === value);
+}
+
+export function isAvailableLanguageCode(value: string | null): value is (typeof AVAILABLE_LANGUAGE_CODES)[number] {
+  return AVAILABLE_LANGUAGE_CODES.some((language) => language === value);
 }
 
 export function getLanguage(code: LanguageCode) {

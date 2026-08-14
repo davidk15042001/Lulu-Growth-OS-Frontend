@@ -12,6 +12,7 @@
     "audit:api": "node scripts/audit-api-contracts.mjs",
     "audit:branding": "node scripts/audit-branding.mjs",
     "audit:i18n": "node scripts/audit-i18n.mjs",
+    "generate:i18n": "node scripts/generate-static-translations.mjs",
     "audit:feedback": "node scripts/audit-feedback.mjs",
     "check": "npm run typecheck && npm run audit:routing && npm run audit:api && npm run audit:branding && npm run audit:i18n && npm run audit:feedback && npm run build"
   },
