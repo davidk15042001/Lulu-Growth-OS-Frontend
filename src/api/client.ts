@@ -46,6 +46,11 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   TRANSLATION_INVALID_RESPONSE: "This language is temporarily unavailable. Please try again in a moment.",
   METHOD_NOT_ALLOWED: "This action is not available here.",
   INVALID_API_PATH: "This action could not be opened. Please return to the previous page and try again.",
+  FILE_REQUIRED: "Please choose a file before uploading.",
+  FILE_TOO_LARGE: "This file is empty or larger than 25 MB.",
+  UNSUPPORTED_FILE_TYPE: "This file type is not supported. Please choose an image, PDF, Office, TXT, or CSV file.",
+  DOCUMENT_NOT_FOUND: "This document is no longer available.",
+  DOCUMENTS_NOT_READY: "Document storage is not ready yet. Please try again shortly.",
 };
 
 function friendlyApiMessage(status: number, code: string) {
@@ -65,8 +70,8 @@ export class ApiError extends Error {
   readonly code: string;
   readonly details?: unknown;
 
-  constructor(status: number, code: string, _message: string, details?: unknown) {
-    super(friendlyApiMessage(status, code));
+  constructor(status: number, code: string, message: string, details?: unknown) {
+    super(FRIENDLY_API_MESSAGES[code] ?? (message && !/^API request failed/.test(message) ? message : friendlyApiMessage(status, code)));
     this.name = "ApiError";
     this.status = status;
     this.code = code;

@@ -19439,7 +19439,12 @@
     "Lulu nutzt deine Beschreibung und deine Unterlagen, um dein Unternehmen besser zu verstehen und passendere Empfehlungen zu erstellen.": "Lulu nutzt deine Beschreibung und deine Unterlagen, um dein Unternehmen besser zu verstehen und passendere Empfehlungen zu erstellen.",
     "Vorschau schließen": "Vorschau schließen",
     "Wird hochgeladen…": "Wird hochgeladen…",
-    "Gespeicherte Dokumente werden geladen…": "Gespeicherte Dokumente werden geladen…"
+    "Gespeicherte Dokumente werden geladen…": "Gespeicherte Dokumente werden geladen…",
+    "Please choose a file before uploading.": "Bitte wähle vor dem Upload eine Datei aus.",
+    "This file is empty or larger than 25 MB.": "Diese Datei ist leer oder größer als 25 MB.",
+    "This file type is not supported. Please choose an image, PDF, Office, TXT, or CSV file.": "Dieser Dateityp wird nicht unterstützt. Bitte wähle ein Bild, PDF, Office-, TXT- oder CSV-Dokument.",
+    "This document is no longer available.": "Dieses Dokument ist nicht mehr verfügbar.",
+    "Document storage is not ready yet. Please try again shortly.": "Der Dokumentenspeicher ist noch nicht bereit. Bitte versuche es gleich erneut."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -38909,7 +38914,12 @@
     "Lulu nutzt deine Beschreibung und deine Unterlagen, um dein Unternehmen besser zu verstehen und passendere Empfehlungen zu erstellen.": "Lulu nutzt deine Beschreibung und deine Unterlagen, um dein Unternehmen besser zu verstehen und passendere Empfehlungen zu erstellen.",
     "Vorschau schließen": "Vorschau schließen",
     "Wird hochgeladen…": "Wird hochgeladen…",
-    "Gespeicherte Dokumente werden geladen…": "Gespeicherte Dokumente werden geladen…"
+    "Gespeicherte Dokumente werden geladen…": "Gespeicherte Dokumente werden geladen…",
+    "Please choose a file before uploading.": "Please choose a file before uploading.",
+    "This file is empty or larger than 25 MB.": "This file is empty or larger than 25 MB.",
+    "This file type is not supported. Please choose an image, PDF, Office, TXT, or CSV file.": "This file type is not supported. Please choose an image, PDF, Office, TXT, or CSV file.",
+    "This document is no longer available.": "This document is no longer available.",
+    "Document storage is not ready yet. Please try again shortly.": "Document storage is not ready yet. Please try again shortly."
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
