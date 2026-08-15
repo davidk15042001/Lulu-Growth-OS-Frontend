@@ -8,7 +8,7 @@ type StyleModule = string;
 
 const appModules = import.meta.glob<AppModule>("./pages/*/App.tsx");
 const styleModules = import.meta.glob<StyleModule>("./pages/*/index.css", {
-  query: "?raw",
+  query: "?inline",
   import: "default",
 });
 
