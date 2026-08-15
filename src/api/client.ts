@@ -122,7 +122,8 @@ function captureSession(path: string, payload: unknown) {
 async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Promise<ApiEnvelope<T>> {
   const path = validatedPath(request.path);
   const headers = new Headers({ accept: "application/json" });
-  if (request.body !== undefined) headers.set("content-type", "application/json");
+  const isFormData = typeof FormData !== "undefined" && request.body instanceof FormData;
+  if (request.body !== undefined && !isFormData) headers.set("content-type", "application/json");
   if (accessToken) headers.set("authorization", `Bearer ${accessToken}`);
 
   let response: Response;
@@ -131,7 +132,7 @@ async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Prom
       method: request.method ?? "GET",
       headers,
       credentials: "include",
-      body: request.body === undefined ? undefined : JSON.stringify(request.body),
+      body: request.body === undefined ? undefined : isFormData ? request.body as FormData : JSON.stringify(request.body),
       signal: request.signal,
     });
   } catch (error) {
@@ -168,6 +169,29 @@ async function refreshSession() {
     refreshPromise = null;
   });
   return refreshPromise;
+}
+
+export async function requestApiBlob(path: string, signal?: AbortSignal, allowRefresh = true): Promise<Blob> {
+  const validated = validatedPath(path);
+  const headers = new Headers();
+  if (accessToken) headers.set("authorization", `Bearer ${accessToken}`);
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${validated}`, { headers, credentials: "include", signal });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    throw new ApiError(0, "NETWORK_ERROR", "The Lulu API is currently unreachable");
+  }
+  if (response.status === 401 && allowRefresh && validated !== "/auth/refresh") {
+    const refreshed = await refreshSession();
+    if (refreshed) return requestApiBlob(validated, signal, false);
+  }
+  if (!response.ok) {
+    const payload = await response.json().catch(() => null) as ApiErrorEnvelope | null;
+    const error = payload && "error" in payload ? payload.error : undefined;
+    throw new ApiError(response.status, error?.code ?? "API_ERROR", error?.message ?? `API request failed (${response.status})`, error?.details);
+  }
+  return response.blob();
 }
 
 type BrokerRequest = {
