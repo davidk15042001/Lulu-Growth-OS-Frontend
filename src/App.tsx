@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
-import { Link, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { pages, type PageDefinition } from "./pages-manifest";
 import { pagePath, routes } from "./routing";
 import { NativePage } from "./NativePage";
@@ -11,6 +11,8 @@ import {
   setSelectedWorkspaceId,
 } from "./api/session";
 import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
+import { getPageContract } from "./api/page-contracts";
+import { useLuluApp } from "./api/LuluAppContext";
 
 function Directory() {
   const [query, setQuery] = useState("");
@@ -48,6 +50,38 @@ function Directory() {
       <GlobalLanguageSwitcher />
     </>
   );
+}
+
+const onboardingPathByStep: Record<string, string> = {
+  company_information: routes.onboarding.companyInformation,
+  business_description: routes.onboarding.businessDescription,
+  products_services: routes.onboarding.productsServices,
+  existing_platforms: routes.onboarding.existingPlatforms,
+  ai_preferences: routes.onboarding.aiPreferences,
+  setup_complete: routes.onboarding.setupComplete,
+};
+
+function PageRoute({ page }: { page: PageDefinition }) {
+  const contract = getPageContract(page.slug);
+  const location = useLocation();
+  const { currentUser, selectedWorkspace, loading } = useLuluApp();
+  const isPublic = contract?.kind === "public";
+  const isOnboarding = contract?.kind === "onboarding";
+
+  if (!isPublic && !isOnboarding && currentUser && loading) {
+    return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your workspace…</main>;
+  }
+
+  if (!isPublic && !isOnboarding && currentUser && !loading && !selectedWorkspace) {
+    return <Navigate replace to={routes.onboarding.welcome} state={{ from: location.pathname }} />;
+  }
+
+  if (!isPublic && !isOnboarding && currentUser && selectedWorkspace && !selectedWorkspace.onboardingCompletedAt) {
+    const target = onboardingPathByStep[selectedWorkspace.onboardingStep] ?? routes.onboarding.companyInformation;
+    if (location.pathname !== target) return <Navigate replace to={target} state={{ from: location.pathname }} />;
+  }
+
+  return <PageFrame page={page} />;
 }
 
 function PageFrame({ page }: { page: PageDefinition }) {
@@ -133,7 +167,7 @@ export default function App() {
       <Route path="/pages/:slug" element={<LegacyPageRedirect />} />
       <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
       {pages.map((page) => (
-        <Route key={page.id} path={pagePath(page.slug)} element={<PageFrame page={page} />} />
+        <Route key={page.id} path={pagePath(page.slug)} element={<PageRoute page={page} />} />
       ))}
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />
