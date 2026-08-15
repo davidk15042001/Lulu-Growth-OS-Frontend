@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
+import { PageErrorBoundary } from "./PageErrorBoundary";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -74,7 +75,9 @@ export function NativePage({ slug }: { slug: string }) {
 
   return (
     <LuluRuntime slug={slug}>
-      <App />
+      <PageErrorBoundary pageName={slug}>
+        <App />
+      </PageErrorBoundary>
     </LuluRuntime>
   );
 }
