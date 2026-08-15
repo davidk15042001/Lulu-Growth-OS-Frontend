@@ -84,6 +84,24 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .auth-shell {
+    height: auto !important;
+    min-height: 100vh;
+    overflow: visible !important;
+  }
+
+  .auth-shell > section {
+    height: auto !important;
+    min-height: 100vh;
+    overflow: visible !important;
+  }
+
+  .auth-shell > aside {
+    align-self: start;
+  }
+}
+
 @media (max-width: 420px) {
   .auth-shell > section {
     padding-inline: 1rem !important;
