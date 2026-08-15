@@ -19409,7 +19409,13 @@
     "−€72K": "−€72K",
     "−€8K": "−€8K",
     "⌘ K": "⌘ K",
-    "⌘K": "⌘K"
+    "⌘K": "⌘K",
+    "Loading page…": "Seite wird geladen …",
+    "Page error": "Seitenfehler",
+    "This page": "Diese Seite",
+    "could not be displayed.": "konnte nicht angezeigt werden.",
+    "The rest of the application remains available.": "Der Rest der Anwendung bleibt verfügbar.",
+    "Reload page": "Seite neu laden"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -38849,7 +38855,13 @@
     "−€72K": "−€72K",
     "−€8K": "−€8K",
     "⌘ K": "⌘ K",
-    "⌘K": "⌘K"
+    "⌘K": "⌘K",
+    "Loading page…": "正在加载页面……",
+    "Page error": "页面错误",
+    "This page": "此页面",
+    "could not be displayed.": "无法显示。",
+    "The rest of the application remains available.": "应用程序的其他部分仍可用。",
+    "Reload page": "重新加载页面"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",

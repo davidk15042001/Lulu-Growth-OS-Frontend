@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import ts from "typescript";
@@ -19,7 +19,16 @@ const looksLikeUiText = (value) => {
     && !/^(?:https?:\/\/\S+|[./#][\w./:-]+)$/i.test(text) && !text.includes("var(--")
     && !/(?:^|\s)(?:bg-|text-|border-|px-|py-|mt-|mb-|grid|flex|rounded|hover:|focus:|w-|h-|min-|max-)/.test(text);
 };
-const sourceFiles = execFileSync("rg", ["--files", "src", "-g", "*.tsx", "-g", "*.ts"], { encoding: "utf8" }).trim().split(/\r?\n/);
+const sourceFiles = [];
+function collectSourceFiles(directory, relativeDirectory) {
+  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+    const relativePath = join(relativeDirectory, entry.name);
+    const absolutePath = join(directory, entry.name);
+    if (entry.isDirectory()) collectSourceFiles(absolutePath, relativePath);
+    else if (/\.(tsx?|ts)$/.test(entry.name)) sourceFiles.push(relativePath);
+  }
+}
+collectSourceFiles(join(root, "src"), "src");
 for (const file of sourceFiles) {
   const source = readFileSync(join(root, file), "utf8");
   const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
@@ -69,6 +78,7 @@ for (const language of expectedCodes) {
   }
 }
 for (const language of ["de", "zh-CN"]) {
+  values.delete("?raw");
   const missing = [...values].filter((source) => !translations[language]?.[source]);
   if (missing.length) issues.push(`${language} is missing ${missing.length} UI strings (examples: ${missing.slice(0, 5).join(" | ")})`);
   const placeholderErrors = [...values].filter((source) => {
