@@ -13,9 +13,15 @@ export type ApiEnvelope<T> = {
   data: T;
 };
 
+export type ApiDiagnostics = {
+  requestId?: string;
+  endpoint?: string;
+  timestamp?: string;
+};
+
 type ApiErrorEnvelope = {
   success: false;
-  error?: { code?: string; message?: string; details?: unknown };
+  error?: { code?: string; message?: string; details?: unknown; diagnostics?: ApiDiagnostics };
 };
 
 const FRIENDLY_API_MESSAGES: Record<string, string> = {
@@ -51,6 +57,13 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   UNSUPPORTED_FILE_TYPE: "This file type is not supported. Please choose an image, PDF, Office, TXT, or CSV file.",
   DOCUMENT_NOT_FOUND: "This document is no longer available.",
   DOCUMENTS_NOT_READY: "Document storage is not ready yet. Please try again shortly.",
+  FILE_NAME_REQUIRED: "The selected file does not have a usable file name.",
+  DOCUMENT_LIST_FAILED: "The saved documents could not be loaded.",
+  DOCUMENT_CONTENT_FAILED: "The document preview could not be loaded.",
+  DOCUMENT_DELETE_FAILED: "The document could not be deleted.",
+  DATABASE_MIGRATION_MISSING: "Document storage is not enabled on the server yet.",
+  INTERNAL_ERROR: "A server error occurred. Please send the technical details to support.",
+  API_ERROR: "The API returned an unexpected error. Please send the technical details to support.",
 };
 
 function friendlyApiMessage(status: number, code: string) {
@@ -69,13 +82,15 @@ export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
   readonly details?: unknown;
+  readonly diagnostics?: ApiDiagnostics;
 
-  constructor(status: number, code: string, message: string, details?: unknown) {
+  constructor(status: number, code: string, message: string, details?: unknown, diagnostics?: ApiDiagnostics) {
     super(FRIENDLY_API_MESSAGES[code] ?? (message && !/^API request failed/.test(message) ? message : friendlyApiMessage(status, code)));
     this.name = "ApiError";
     this.status = status;
     this.code = code;
     this.details = details;
+    this.diagnostics = diagnostics;
   }
 }
 
@@ -84,6 +99,19 @@ export function getFriendlyErrorMessage(
   fallback = "Something went wrong. Please try again.",
 ) {
   return error instanceof ApiError ? error.message : fallback;
+}
+
+export function getTechnicalErrorDetails(error: unknown) {
+  if (!(error instanceof ApiError)) return "Code: UNKNOWN_ERROR";
+  const diagnostics = error.diagnostics;
+  const lines = [
+    `Code: ${error.code}`,
+    `HTTP status: ${error.status || "n/a"}`,
+    diagnostics?.requestId ? `Request-ID: ${diagnostics.requestId}` : undefined,
+    diagnostics?.endpoint ? `Endpoint: ${diagnostics.endpoint}` : undefined,
+    diagnostics?.timestamp ? `Time (UTC): ${diagnostics.timestamp}` : undefined,
+  ].filter(Boolean);
+  return lines.join(" · ");
 }
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL?.trim() || "/api/v1").replace(/\/$/, "");
@@ -157,6 +185,7 @@ async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Prom
       error?.code ?? "API_ERROR",
       error?.message ?? `API request failed (${response.status})`,
       error?.details,
+      error?.diagnostics,
     );
   }
   captureSession(path, payload);
@@ -194,7 +223,8 @@ export async function requestApiBlob(path: string, signal?: AbortSignal, allowRe
   if (!response.ok) {
     const payload = await response.json().catch(() => null) as ApiErrorEnvelope | null;
     const error = payload && "error" in payload ? payload.error : undefined;
-    throw new ApiError(response.status, error?.code ?? "API_ERROR", error?.message ?? `API request failed (${response.status})`, error?.details);
+    const diagnostics = error?.diagnostics ?? { requestId: response.headers.get("x-request-id") ?? undefined };
+    throw new ApiError(response.status, error?.code ?? "API_ERROR", error?.message ?? `API request failed (${response.status})`, error?.details, diagnostics);
   }
   return response.blob();
 }
@@ -209,7 +239,7 @@ type BrokerResponse = {
   type: typeof API_RESPONSE_MESSAGE;
   id: string;
   result?: unknown;
-  error?: { status: number; code: string; message: string; details?: unknown };
+  error?: { status: number; code: string; message: string; details?: unknown; diagnostics?: ApiDiagnostics };
 };
 
 function isBrokerRequest(value: unknown): value is BrokerRequest {
@@ -237,6 +267,7 @@ export function installApiBroker() {
         code: apiError.code,
         message: apiError.message,
         ...(apiError.details === undefined ? {} : { details: apiError.details }),
+        ...(apiError.diagnostics === undefined ? {} : { diagnostics: apiError.diagnostics }),
       };
     }
     event.source.postMessage(response, event.origin);
@@ -260,7 +291,7 @@ export function requestApi<T>(request: ApiRequest): Promise<ApiEnvelope<T>> {
       if (!response || response.type !== API_RESPONSE_MESSAGE || response.id !== id) return;
       cleanup();
       if (response.error) {
-        reject(new ApiError(response.error.status, response.error.code, response.error.message, response.error.details));
+        reject(new ApiError(response.error.status, response.error.code, response.error.message, response.error.details, response.error.diagnostics));
       } else {
         resolve(response.result as ApiEnvelope<T>);
       }

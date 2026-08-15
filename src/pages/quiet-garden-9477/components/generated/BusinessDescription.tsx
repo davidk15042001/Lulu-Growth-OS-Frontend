@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { ArrowRight, FileText, ShieldCheck, Sparkles, Trash2, UploadCloud, X } from "lucide-react";
 import { navigateApp, routes } from "../../../../routing";
-import { getFriendlyErrorMessage, requestApi, requestApiBlob } from "../../../../api/client";
+import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, requestApiBlob } from "../../../../api/client";
 import { getSelectedWorkspaceId } from "../../../../api/session";
 
 type DocumentRecord = {
@@ -45,6 +45,7 @@ export const BusinessDescription = () => {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [fileError, setFileError] = useState("");
+  const [technicalError, setTechnicalError] = useState("");
   const uploadsRef = useRef<UploadItem[]>([]);
 
   useEffect(() => {
@@ -71,6 +72,7 @@ export const BusinessDescription = () => {
         setUploads(loaded);
       } catch (cause) {
         setError(getFriendlyErrorMessage(cause, "Die gespeicherten Dokumente konnten nicht geladen werden."));
+        setTechnicalError(getTechnicalErrorDetails(cause));
       } finally {
         setLoadingDocuments(false);
       }
@@ -87,6 +89,7 @@ export const BusinessDescription = () => {
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
     setFileError("");
+    setTechnicalError("");
     setUploading(true);
     setError("");
     try {
@@ -104,6 +107,7 @@ export const BusinessDescription = () => {
       }
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "Die Datei konnte nicht hochgeladen werden."));
+      setTechnicalError(getTechnicalErrorDetails(cause));
     } finally {
       setUploading(false);
     }
@@ -113,6 +117,7 @@ export const BusinessDescription = () => {
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
     setError("");
+    setTechnicalError("");
     try {
       await requestApi({ path: `/workspaces/${workspaceId}/onboarding/documents/${item.id}`, method: "DELETE" });
       URL.revokeObjectURL(item.url);
@@ -120,6 +125,7 @@ export const BusinessDescription = () => {
       if (activeUpload?.id === item.id) setActiveUpload(null);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "Das Dokument konnte nicht gelöscht werden."));
+      setTechnicalError(getTechnicalErrorDetails(cause));
     }
   }
 
@@ -129,12 +135,14 @@ export const BusinessDescription = () => {
     if (!workspaceId || (!businessDescription.trim() && uploads.length === 0) || loading || loadingDocuments) return;
     setLoading(true);
     setError("");
+    setTechnicalError("");
     try {
       await requestApi({ path: `/workspaces/${workspaceId}/onboarding/business-description`, method: "PATCH", body: { businessDescription: businessDescription.trim(), valueProposition: null, targetMarket: null, shortBrandDescription: null, positioningTags: [] } });
       setSaved(true);
       navigateApp(routes.onboarding.productsServices);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "Die Firmenbeschreibung konnte nicht gespeichert werden. Bitte versuche es erneut."));
+      setTechnicalError(getTechnicalErrorDetails(cause));
     } finally {
       setLoading(false);
     }
@@ -158,7 +166,7 @@ export const BusinessDescription = () => {
             {loadingDocuments && <p className="text-xs text-[var(--muted-foreground)]">Gespeicherte Dokumente werden geladen…</p>}
             {uploads.length > 0 && <ul className="grid gap-2 sm:grid-cols-2" aria-label="Hochgeladene Dateien">{uploads.map((item) => <li key={item.id} className="group flex min-w-0 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3"><button type="button" className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-md border border-[var(--border)] bg-[var(--secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" onClick={() => setActiveUpload(item)} aria-label={`${item.fileName} öffnen`}>{item.kind === "image" ? <img src={item.url} alt="" className="h-full w-full object-cover" /> : <FileText size={20} className="text-[var(--accent-foreground)]" />}</button><button type="button" className="min-w-0 flex-1 text-left focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" onClick={() => setActiveUpload(item)}><span className="block truncate text-sm font-medium text-[var(--foreground)]">{item.fileName}</span><span className="mt-1 block text-xs text-[var(--muted-foreground)]">{getFileExtension(item.fileName)} · {formatFileSize(item.sizeBytes)}</span></button><button type="button" onClick={() => void removeUpload(item)} className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--destructive)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" aria-label={`${item.fileName} löschen`}><Trash2 size={16} /></button></li>)}</ul>}
           </section>
-          <button type="submit" disabled={loading || loadingDocuments || !canContinue} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><span>{loading ? "Speichern…" : saved ? "Gespeichert" : "Speichern und weiter"}</span><ArrowRight size={16} /></button><p className="flex items-center gap-2 text-sm text-[var(--foreground)]"><ShieldCheck size={15} /><span>Deine Angaben bleiben in deinem sicheren Workspace.</span></p>{error && <p role="alert" className="text-sm text-[var(--destructive)]">{error}</p>}
+          <button type="submit" disabled={loading || loadingDocuments || !canContinue} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><span>{loading ? "Speichern…" : saved ? "Gespeichert" : "Speichern und weiter"}</span><ArrowRight size={16} /></button><p className="flex items-center gap-2 text-sm text-[var(--foreground)]"><ShieldCheck size={15} /><span>Deine Angaben bleiben in deinem sicheren Workspace.</span></p>{error && <div role="alert" className="space-y-2 text-sm text-[var(--destructive)]"><p>{error}</p>{technicalError && <details className="rounded-md border border-[var(--border)] bg-[var(--secondary)] p-2 text-xs text-[var(--muted-foreground)]"><summary className="cursor-pointer font-medium text-[var(--foreground)]">Technische Details anzeigen</summary><p className="mt-2 break-words leading-5">{technicalError}</p></details>}</div>}
         </form>
       </div></section>
       <aside className="hidden border-l border-[var(--border)] bg-[var(--sidebar)] p-12 text-[var(--foreground)] lg:flex lg:flex-col lg:justify-between"><Sparkles size={42} className="text-[var(--foreground)]" /><div><p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">Business Description</p><h2 className="mt-3 max-w-lg text-5xl font-semibold leading-tight tracking-[-0.045em] text-[var(--foreground)]">A sharper company story creates sharper AI recommendations.</h2><p className="mt-5 max-w-md text-lg leading-8 text-[var(--muted-foreground)]">Lulu nutzt deine Beschreibung und deine Unterlagen, um dein Unternehmen besser zu verstehen und passendere Empfehlungen zu erstellen.</p></div><p className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]"><ShieldCheck size={18} /><span>Business context stays inside your secure workspace</span></p></aside>
