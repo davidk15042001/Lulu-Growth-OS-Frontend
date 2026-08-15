@@ -1,4 +1,15 @@
 /* Shared responsive foundation for all authentication surfaces. */
+html:has(.auth-shell),
+body:has(.auth-shell),
+#root:has(.auth-shell) {
+  height: auto !important;
+  min-height: 100% !important;
+}
+
+body:has(.auth-shell) {
+  overflow-y: auto !important;
+}
+
 .auth-shell,
 .auth-card-shell {
   min-height: 100dvh;
