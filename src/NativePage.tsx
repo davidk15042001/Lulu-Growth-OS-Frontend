@@ -11,6 +11,16 @@ const styleModules = import.meta.glob<StyleModule>("./pages/*/index.css", {
   query: "?inline",
   import: "default",
 });
+const authPageSlugs = new Set([
+  "brightly-door-5741",
+  "finely-year-1146",
+  "crisp-garden-7026",
+  "crisp-week-7116",
+  "eagerly-bay-9885",
+  "deep-coast-9085",
+  "kind-morning-4984",
+  "mightily-minute-5145",
+]);
 
 function pageSlugFromPath(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
@@ -26,6 +36,16 @@ export function NativePage({ slug }: { slug: string }) {
     let active = true;
     setApp(null);
     setError(null);
+
+    const pageFrame = document.querySelector<HTMLElement>(".page-frame");
+    const previousPageFrameStyle = pageFrame?.getAttribute("style");
+    const isAuthPage = authPageSlugs.has(slug);
+    if (pageFrame && isAuthPage) {
+      pageFrame.classList.add("page-frame--auth");
+      pageFrame.style.height = "auto";
+      pageFrame.style.minHeight = "100vh";
+      pageFrame.style.overflow = "visible";
+    }
 
     const appLoader = appModules[`./pages/${slug}/App.tsx`];
     const styleLoader = styleModules[`./pages/${slug}/index.css`];
@@ -54,6 +74,11 @@ export function NativePage({ slug }: { slug: string }) {
     return () => {
       active = false;
       styleElement?.remove();
+      if (pageFrame && isAuthPage) {
+        if (previousPageFrameStyle === null) pageFrame.removeAttribute("style");
+        else pageFrame.setAttribute("style", previousPageFrameStyle);
+        pageFrame.classList.remove("page-frame--auth");
+      }
     };
   }, [slug]);
 
