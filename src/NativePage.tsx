@@ -39,7 +39,7 @@ export function NativePage({ slug }: { slug: string }) {
 
     const pageFrame = document.querySelector<HTMLElement>(".page-frame");
     const previousPageFrameStyle = pageFrame?.getAttribute("style");
-    const isAuthPage = authPageSlugs.has(slug);
+    const isAuthPage = authPageSlugs.has(slug) || window.location.pathname.startsWith("/auth/");
     if (pageFrame && isAuthPage) {
       pageFrame.classList.add("page-frame--auth");
       pageFrame.style.height = "auto";
@@ -65,6 +65,13 @@ export function NativePage({ slug }: { slug: string }) {
         styleElement.dataset.luluPageStyle = slug;
         styleElement.textContent = css;
         document.head.appendChild(styleElement);
+      }
+      if (isAuthPage) {
+        const livePageFrame = document.querySelector<HTMLElement>(".page-frame");
+        livePageFrame?.classList.add("page-frame--auth");
+        livePageFrame?.style.setProperty("height", "auto", "important");
+        livePageFrame?.style.setProperty("min-height", "100vh", "important");
+        livePageFrame?.style.setProperty("overflow", "visible", "important");
       }
       setApp(() => module.default);
     }).catch((loadError) => {
