@@ -4,6 +4,7 @@
   min-height: 100dvh;
   min-width: 0;
   overflow-x: clip;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .auth-shell > section,
@@ -21,6 +22,7 @@
 .auth-shell input,
 .auth-card-shell input {
   max-width: 100%;
+  font-size: max(16px, 1em);
 }
 
 .auth-shell button:focus-visible,
@@ -39,7 +41,7 @@
   }
 
   .auth-shell > section {
-    min-height: 100dvh;
+    min-height: 100svh;
     align-items: flex-start !important;
     padding: clamp(1.25rem, 5vw, 3rem) clamp(1rem, 5vw, 2.5rem) 3rem !important;
   }
@@ -63,6 +65,7 @@
   .auth-shell form,
   .auth-shell section {
     min-width: 0;
+    scroll-margin-top: 1rem;
   }
 
   .auth-shell form > div.grid {

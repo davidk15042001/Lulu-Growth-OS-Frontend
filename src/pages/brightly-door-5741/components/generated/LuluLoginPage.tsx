@@ -71,16 +71,16 @@ export const LuluLoginPage = () => {
           </div>
           <p className="mt-12 text-xs font-medium tracking-[.18em] text-[var(--foreground)]">{t('welcome')}</p>
           <h1 className="mt-2 text-3xl font-semibold">{t('headline')}</h1>
-          <form onSubmit={submit} className="mt-8 space-y-4">
-            <label className="block text-sm text-[var(--muted-foreground)]">
+          <form onSubmit={submit} className="mt-8 space-y-4" aria-label="Sign in form">
+            <label htmlFor="login-email" className="block text-sm text-[var(--muted-foreground)]">
               {t('email')}
-              <input value={e} onChange={x => setE(x.target.value)} type="email" placeholder="you@company.com" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
+              <input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder="you@company.com" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
             </label>
-            <label className="block text-sm text-[var(--muted-foreground)]">
+            <label htmlFor="login-password" className="block text-sm text-[var(--muted-foreground)]">
               {t('password')}
               <div className="relative">
-                <input value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 pr-10 text-[var(--foreground)] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-                <button type="button" onClick={() => setShow(!show)} className="absolute right-3 top-4 text-[var(--muted-foreground)]">{show ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+                <input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 pr-10 text-[var(--foreground)] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
+                <button type="button" onClick={() => setShow(!show)} aria-label={show ? 'Hide password' : 'Show password'} className="absolute right-3 top-4 text-[var(--muted-foreground)]">{show ? <EyeOff size={16} /> : <Eye size={16} />}</button>
               </div>
             </label>
             <button disabled={loading} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}</button>
