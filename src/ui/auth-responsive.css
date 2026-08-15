@@ -10,6 +10,12 @@ body:has(.auth-shell) {
   overflow-y: auto !important;
 }
 
+.page-frame:has(.auth-shell) {
+  height: auto !important;
+  min-height: 100vh;
+  overflow: visible !important;
+}
+
 .auth-shell,
 .auth-card-shell {
   min-height: 100dvh;
