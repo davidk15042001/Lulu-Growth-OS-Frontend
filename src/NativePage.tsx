@@ -82,7 +82,7 @@ export function NativePage({ slug }: { slug: string }) {
       active = false;
       styleElement?.remove();
       if (pageFrame && isAuthPage) {
-        if (previousPageFrameStyle === null) pageFrame.removeAttribute("style");
+        if (previousPageFrameStyle == null) pageFrame.removeAttribute("style");
         else pageFrame.setAttribute("style", previousPageFrameStyle);
         pageFrame.classList.remove("page-frame--auth");
       }
