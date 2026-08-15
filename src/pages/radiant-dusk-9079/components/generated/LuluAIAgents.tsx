@@ -226,7 +226,7 @@ export const LuluAIAgents = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All Statuses');
   const [sortBy, setSortBy] = useState('Recently Active');
-  const [showCreateModal, setShowCreateModal] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(true);
   const [selectedAgent, setSelectedAgent] = useState<Agent | null>(null);
   const visibleAgents = useMemo(() => agents.filter(agent => {
@@ -248,7 +248,7 @@ export const LuluAIAgents = () => {
       <main className="lulu-main">
         <header className="page-header">
           <div className="breadcrumb"><span>AI Platform</span><ChevronRight size={13} /><strong>AI Agents</strong></div>
-          <div className="title-row"><div><h1>AI Agents</h1><p>Create and manage specialized AI agents for your business.</p></div><div className="header-actions"><button className="ghost-button"><LayoutTemplate size={15} />Agent Templates</button><button className="ghost-button"><Store size={15} />Agent Marketplace</button><button className="primary-button" onClick={() => setShowCreateModal(true)}><Plus size={15} />Create Agent</button></div></div>
+          <div className="title-row"><div><h1>AI Agents</h1><p>Create and manage specialized AI agents for your business.</p></div><div className="header-actions"><button className="ghost-button"><LayoutTemplate size={15} />Agent Templates</button><button className="ghost-button"><Store size={15} />Agent Marketplace</button><button type="button" className="primary-button" disabled aria-disabled="true" title="Create Agent coming soon" style={{ cursor: 'not-allowed', opacity: 0.55 }}><Plus size={15} />Create Agent <span aria-hidden="true">(soon)</span></button></div></div>
         </header>
 
         <section className="stats-grid" aria-label="Agent overview">
