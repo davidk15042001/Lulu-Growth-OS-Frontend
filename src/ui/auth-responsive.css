@@ -38,10 +38,13 @@
   .auth-shell {
     display: block !important;
     min-height: 100dvh;
+    overflow: visible !important;
   }
 
   .auth-shell > section {
     min-height: 100svh;
+    height: auto !important;
+    overflow: visible !important;
     align-items: flex-start !important;
     padding: clamp(1.25rem, 5vw, 3rem) clamp(1rem, 5vw, 2.5rem) 3rem !important;
   }
