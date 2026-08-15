@@ -135,6 +135,12 @@ body:has(.auth-shell) {
   }
 }
 
+/* Keep the page itself as the scroll owner; overflow-x: clip would otherwise compute overflow-y: visible to auto. */
+.auth-shell {
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .auth-shell *,
   .auth-card-shell * {
