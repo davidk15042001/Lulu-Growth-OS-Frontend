@@ -54,8 +54,12 @@ function PageFrame({ page }: { page: PageDefinition }) {
   useEffect(() => {
     document.title = page.name;
   }, [page]);
+  const isAuthPage = pagePath(page.slug).startsWith("/auth/");
   return (
-    <main className="page-frame">
+    <main
+      className={`page-frame${isAuthPage ? " page-frame--auth" : ""}`}
+      style={isAuthPage ? { height: "auto", minHeight: "100vh", overflow: "visible" } : undefined}
+    >
       <NativePage slug={page.slug} />
     </main>
   );
