@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Link, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { pages, type PageDefinition } from "./pages-manifest";
-import { isLuluNavigationMessage, pagePath, routes } from "./routing";
+import { pagePath, routes } from "./routing";
+import { NativePage } from "./NativePage";
 import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from "./api/client";
 import {
   clearPendingInvitation,
@@ -50,44 +51,20 @@ function Directory() {
 }
 
 function PageFrame({ page }: { page: PageDefinition }) {
-  const navigate = useNavigate();
-  const [loaded, setLoaded] = useState(false);
-
   useEffect(() => {
     document.title = page.name;
-    setLoaded(false);
   }, [page]);
-
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent<unknown>) => {
-      if (event.origin !== window.location.origin || !isLuluNavigationMessage(event.data)) return;
-      navigate(event.data.to, { replace: event.data.replace });
-    };
-
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [navigate]);
-
   return (
-    <main className="page-frame" aria-busy={!loaded}>
-      {!loaded && <div className="page-frame__loading" role="status">Loading {page.name}…</div>}
-      <iframe
-        key={page.slug}
-        title={page.name}
-        src={`/entries/${page.slug}/index.html`}
-        onLoad={() => setLoaded(true)}
-      />
+    <main className="page-frame">
+      <NativePage slug={page.slug} />
     </main>
   );
 }
-
 function LegacyPageRedirect() {
   const { slug } = useParams();
   const page = pages.find((item) => item.slug === slug);
   return page ? <Navigate replace to={pagePath(page.slug)} /> : <Navigate replace to="/not-found" />;
-}
-
-function NotFound() {
+}function NotFound() {
   return (
     <>
       <main className="not-found">
@@ -104,7 +81,7 @@ function NotFound() {
 function InvitationAccept() {
   const { token } = useParams();
   const navigate = useNavigate();
-  const [status, setStatus] = useState("Accepting your invitation…");
+  const [status, setStatus] = useState("Accepting your invitationâ€¦");
 
   useEffect(() => {
     if (!token) {
