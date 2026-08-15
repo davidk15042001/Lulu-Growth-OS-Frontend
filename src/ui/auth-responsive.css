@@ -37,16 +37,19 @@
 @media (max-width: 1023px) {
   .auth-shell {
     display: block !important;
-    min-height: 100dvh;
-    overflow: visible !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
   }
 
   .auth-shell > section {
-    min-height: 100svh;
+    min-height: 0 !important;
     height: auto !important;
     overflow: visible !important;
     align-items: flex-start !important;
-    padding: clamp(1.25rem, 5vw, 3rem) clamp(1rem, 5vw, 2.5rem) 3rem !important;
+    padding: clamp(1.25rem, 5vw, 3rem) clamp(1rem, 5vw, 2.5rem) max(3rem, env(safe-area-inset-bottom)) !important;
   }
 
   .auth-shell > section > div {
