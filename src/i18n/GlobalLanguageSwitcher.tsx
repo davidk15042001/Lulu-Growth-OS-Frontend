@@ -10,7 +10,10 @@ import translations from "./translations.json";
 const LANGUAGE_EVENT = "lulu-language-changed";
 const table = translations as Record<string, Record<string, string>>;
 const originalText = new WeakMap<Text, string>();
+const appliedText = new WeakMap<Text, string>();
 const originalAttributes = new WeakMap<Element, Map<string, string>>();
+const appliedAttributes = new WeakMap<Element, Map<string, string>>();
+const dynamicPatterns = new WeakMap<Record<string, string>, Array<{ regex: RegExp; translation: string }>>();
 const translatableAttributes = ["aria-label", "placeholder", "title"] as const;
 
 function initialLanguage(): LanguageCode {
@@ -32,6 +35,23 @@ function excluded(element: Element | null) {
   return !element || Boolean(element.closest("script,style,noscript,code,pre,svg,[translate='no'],[data-lulu-no-translate],.lulu-global-brand-host"));
 }
 
+function lookup(dictionary: Record<string, string>, source: string) {
+  if (dictionary[source]) return dictionary[source];
+  let patterns = dynamicPatterns.get(dictionary);
+  if (!patterns) {
+    patterns = Object.entries(dictionary).filter(([pattern]) => pattern.includes("{{")).map(([pattern, translation]) => ({
+      regex: new RegExp(`^${pattern.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/\\\{\\\{\d+\\\}\\\}/g, "(.+?)")}$`),
+      translation,
+    }));
+    dynamicPatterns.set(dictionary, patterns);
+  }
+  for (const { regex, translation } of patterns) {
+    const match = source.match(regex);
+    if (!match) continue;
+    return translation.replace(/\{\{(\d+)\}\}/g, (_, index) => match[Number(index) + 1] ?? "");
+  }
+}
+
 function applyStaticTranslations(root: HTMLElement, language: LanguageCode) {
   const dictionary = table[language] ?? {};
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
@@ -39,12 +59,16 @@ function applyStaticTranslations(root: HTMLElement, language: LanguageCode) {
   while (node) {
     const text = node as Text;
     if (!excluded(text.parentElement)) {
-      const original = originalText.get(text) ?? text.data;
+      const current = text.data;
+      const previousOriginal = originalText.get(text);
+      const previousApplied = appliedText.get(text);
+      const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
       originalText.set(text, original);
       const key = original.trim();
-      const translated = language === DEFAULT_LANGUAGE ? original : dictionary[key];
-      if (translated) text.data = original.replace(/^\s*/, (space) => space).replace(original.trim(), translated);
-      else if (language === DEFAULT_LANGUAGE) text.data = original;
+      const translated = language === DEFAULT_LANGUAGE ? key : lookup(dictionary, key);
+      const next = translated ? `${original.match(/^\s*/)?.[0] ?? ""}${translated}${original.match(/\s*$/)?.[0] ?? ""}` : original;
+      text.data = next;
+      appliedText.set(text, next);
     }
     node = walker.nextNode();
   }
@@ -54,12 +78,17 @@ function applyStaticTranslations(root: HTMLElement, language: LanguageCode) {
       const current = element.getAttribute(attribute);
       if (!current) continue;
       let originals = originalAttributes.get(element);
-      const original = originals?.get(attribute) ?? current;
+      let applied = appliedAttributes.get(element);
+      const previousOriginal = originals?.get(attribute);
+      const previousApplied = applied?.get(attribute);
+      const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
       if (!originals) { originals = new Map(); originalAttributes.set(element, originals); }
+      if (!applied) { applied = new Map(); appliedAttributes.set(element, applied); }
       originals.set(attribute, original);
-      const translated = language === DEFAULT_LANGUAGE ? original : dictionary[original.trim()];
-      if (translated) element.setAttribute(attribute, translated);
-      else if (language === DEFAULT_LANGUAGE) element.setAttribute(attribute, original);
+      const translated = language === DEFAULT_LANGUAGE ? original : lookup(dictionary, original.trim());
+      const next = translated ?? original;
+      element.setAttribute(attribute, next);
+      applied.set(attribute, next);
     }
   });
 }
@@ -102,6 +131,7 @@ export function GlobalLanguageSwitcher() {
   }, [language]);
 
   const selectLanguage = (next: LanguageCode) => {
+    try { window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next); } catch { /* no persistence available */ }
     setLanguage(next);
     window.dispatchEvent(new Event(LANGUAGE_EVENT));
     setOpen(false);

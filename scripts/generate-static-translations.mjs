@@ -19,8 +19,8 @@ const files = execFileSync("rg", ["--files", "src", "-g", "*.tsx", "-g", "*.ts"]
 const values = new Set();
 const looksLikeUiText = (value) => {
   const text = value.replace(/\s+/g, " ").trim();
-  return text.length >= 2 && text.length <= 400 && /[A-Za-z]{2,}/.test(text)
-    && !/^(?:[\w./:-]+|https?:\/\/\S+)$/i.test(text) && !text.includes("var(--")
+  return text.length >= 1 && text.length <= 400 && /[A-Za-z]/.test(text)
+    && !/^(?:https?:\/\/\S+|[./#][\w./:-]+)$/i.test(text) && !text.includes("var(--")
     && !/(?:^|\s)(?:bg-|text-|border-|px-|py-|mt-|mb-|grid|flex|rounded|hover:|focus:|w-|h-|min-|max-)/.test(text);
 };
 
@@ -35,9 +35,25 @@ for (const file of files) {
     if (ts.isStringLiteral(node)) {
       const text = node.text.replace(/\s+/g, " ").trim();
       const parent = node.parent;
-      const isAttribute = ts.isJsxAttribute(parent);
-      const isContentValue = ts.isArrayLiteralExpression(parent) || ts.isPropertyAssignment(parent) || ts.isConditionalExpression(parent);
+      const isAttribute = ts.isJsxAttribute(parent) && ["aria-label", "placeholder", "title"].includes(parent.name.getText(tree));
+      let ancestor = parent;
+      while (ancestor && (ts.isConditionalExpression(ancestor) || ts.isBinaryExpression(ancestor) || ts.isParenthesizedExpression(ancestor))) ancestor = ancestor.parent;
+      const jsxAttribute = ancestor && ts.isJsxExpression(ancestor) && ts.isJsxAttribute(ancestor.parent) ? ancestor.parent : undefined;
+      const isVisibleExpression = Boolean(ancestor && ts.isJsxExpression(ancestor) && (!jsxAttribute || ["aria-label", "placeholder", "title"].includes(jsxAttribute.name.getText(tree))));
+      const isStructuredContent = ts.isArrayLiteralExpression(parent) || ts.isPropertyAssignment(parent);
+      const isContentValue = isVisibleExpression || (isStructuredContent && !/^[\w./:-]+$/.test(text));
       if ((isAttribute || isContentValue) && looksLikeUiText(text)) values.add(text);
+    }
+    if (ts.isTemplateExpression(node)) {
+      const parent = node.parent;
+      const jsxExpression = ts.isJsxExpression(parent) ? parent : undefined;
+      const attribute = jsxExpression && ts.isJsxAttribute(jsxExpression.parent) ? jsxExpression.parent : undefined;
+      const attributeName = attribute?.name.getText(tree);
+      const isVisible = Boolean(jsxExpression && (!attribute || ["aria-label", "placeholder", "title"].includes(attributeName ?? "")));
+      if (isVisible) {
+        const text = `${node.head.text}${node.templateSpans.map((span, index) => `{{${index}}}${span.literal.text}`).join("")}`.replace(/\s+/g, " ").trim();
+        if (looksLikeUiText(text)) values.add(text);
+      }
     }
     ts.forEachChild(node, visit);
   };
@@ -57,7 +73,10 @@ const batches = (items) => {
 };
 
 async function translate(language, batch) {
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  let response;
+  for (let attempt = 1; attempt <= 5; attempt += 1) {
+    try {
+      response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
     body: JSON.stringify({
@@ -69,7 +88,14 @@ async function translate(language, batch) {
       input: JSON.stringify(batch.map((text, id) => ({ id: String(id), text }))),
       text: { format: { type: "json_schema", name: "ui_translations", strict: true, schema: { type: "object", properties: { translations: { type: "array", items: { type: "object", properties: { id: { type: "string" }, text: { type: "string" } }, required: ["id", "text"], additionalProperties: false } } }, required: ["translations"], additionalProperties: false } } },
     }),
-  });
+      });
+      if (response.ok || response.status < 500) break;
+    } catch (error) {
+      if (attempt === 5) throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, attempt * 1_000));
+  }
+  if (!response) throw new Error("OpenAI request failed without a response.");
   if (!response.ok) throw new Error(`OpenAI request failed: ${response.status} ${await response.text()}`);
   const payload = await response.json();
   const outputText = payload.output_text ?? payload.output?.flatMap((item) => item.content ?? []).find((item) => item.type === "output_text")?.text;
