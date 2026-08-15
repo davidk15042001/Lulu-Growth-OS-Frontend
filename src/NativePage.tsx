@@ -6,8 +6,8 @@ import { PageErrorBoundary } from "./PageErrorBoundary";
 type AppModule = { default: ComponentType };
 type StyleModule = string;
 
-const appModules = import.meta.glob<AppModule>("../pages/*/App.tsx");
-const styleModules = import.meta.glob<StyleModule>("../pages/*/index.css", {
+const appModules = import.meta.glob<AppModule>("./pages/*/App.tsx");
+const styleModules = import.meta.glob<StyleModule>("./pages/*/index.css", {
   query: "?raw",
   import: "default",
 });
