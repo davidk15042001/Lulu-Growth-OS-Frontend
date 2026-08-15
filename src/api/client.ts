@@ -53,7 +53,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   METHOD_NOT_ALLOWED: "This action is not available here.",
   INVALID_API_PATH: "This action could not be opened. Please return to the previous page and try again.",
   FILE_REQUIRED: "Please choose a file before uploading.",
-  FILE_TOO_LARGE: "This file is empty or larger than 25 MB.",
+  FILE_TOO_LARGE: "This file is empty or larger than 5,000 KB.",
   UNSUPPORTED_FILE_TYPE: "This file type is not supported. Please choose an image, PDF, Office, TXT, or CSV file.",
   DOCUMENT_NOT_FOUND: "This document is no longer available.",
   DOCUMENTS_NOT_READY: "Document storage is not ready yet. Please try again shortly.",

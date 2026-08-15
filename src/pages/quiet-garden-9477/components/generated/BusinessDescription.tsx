@@ -19,7 +19,7 @@ type UploadItem = DocumentRecord & {
 };
 
 const setupSteps = ["Company Information", "Business Description", "Products & Services", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
-const MAX_FILE_SIZE = 25 * 1024 * 1024;
+const MAX_FILE_SIZE = 5000 * 1024;
 const ACCEPTED_FILES = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv";
 
 function isImage(mimeType: string) {
@@ -95,7 +95,7 @@ export const BusinessDescription = () => {
     try {
       for (const file of Array.from(fileList)) {
         if (file.size <= 0 || file.size > MAX_FILE_SIZE) {
-          setFileError(`${file.name} ist größer als 25 MB oder leer und wurde nicht hinzugefügt.`);
+          setFileError(`${file.name} ist größer als 5.000 KB oder leer und wurde nicht hinzugefügt.`);
           continue;
         }
         const formData = new FormData();
@@ -160,7 +160,7 @@ export const BusinessDescription = () => {
         <p className="mt-3 max-w-lg text-sm leading-6 text-[var(--muted-foreground)]">Beschreibe dein Unternehmen in deinen eigenen Worten. Diese Informationen helfen Lulu, dein Unternehmen besser zu verstehen.</p>
         <form className="mt-8 space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)]" onSubmit={saveAndContinue}>
           <label className="block text-sm font-medium text-[var(--muted-foreground)]" htmlFor="business-description"><span className="text-[var(--foreground)]">Über dein Unternehmen</span><textarea id="business-description" value={businessDescription} onChange={(event) => { setBusinessDescription(event.target.value); setSaved(false); }} maxLength={2000} placeholder="Was macht dein Unternehmen, für wen ist es da und welches Problem löst ihr?" className="mt-2 min-h-48 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /><span className="mt-2 block text-right text-xs text-[var(--muted-foreground)]">{businessDescription.length}/2000</span></label>
-          <section className="space-y-3" aria-labelledby="business-files-title"><div className="flex items-end justify-between gap-3"><div><h2 id="business-files-title" className="text-sm font-semibold text-[var(--foreground)]">Bilder und Dokumente</h2><p className="mt-1 text-xs leading-5 text-[var(--muted-foreground)]">Lade Unterlagen hoch, die Lulu über dein Unternehmen informieren sollen.</p></div><span className="shrink-0 text-xs text-[var(--muted-foreground)]">Max. 25 MB</span></div>
+          <section className="space-y-3" aria-labelledby="business-files-title"><div className="flex items-end justify-between gap-3"><div><h2 id="business-files-title" className="text-sm font-semibold text-[var(--foreground)]">Bilder und Dokumente</h2><p className="mt-1 text-xs leading-5 text-[var(--muted-foreground)]">Lade Unterlagen hoch, die Lulu über dein Unternehmen informieren sollen.</p></div><span className="shrink-0 text-xs text-[var(--muted-foreground)]">Max. 5.000 KB</span></div>
             <label htmlFor="business-file-upload" className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--secondary)] px-5 py-8 text-center transition hover:border-[var(--ring)] hover:bg-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--ring)]/20"><UploadCloud size={24} className="text-[var(--accent-foreground)]" aria-hidden="true" /><span className="mt-3 text-sm font-semibold text-[var(--foreground)]">{uploading ? "Wird hochgeladen…" : "Dateien auswählen"}</span><span className="mt-1 text-xs text-[var(--muted-foreground)]">Bilder, PDF-, Word-, Excel-, PowerPoint-, TXT- oder CSV-Dateien</span><input id="business-file-upload" type="file" multiple accept={ACCEPTED_FILES} className="sr-only" disabled={uploading} onChange={(event) => { void addFiles(event.target.files); event.currentTarget.value = ""; }} /></label>
             {fileError && <p className="text-xs text-[var(--destructive)]" role="alert">{fileError}</p>}
             {loadingDocuments && <p className="text-xs text-[var(--muted-foreground)]">Gespeicherte Dokumente werden geladen…</p>}

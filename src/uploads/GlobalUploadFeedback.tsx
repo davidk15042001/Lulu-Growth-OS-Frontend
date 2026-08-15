@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, LoaderCircle, X, XCircle } from "lucide-react";
 
-const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 5000 * 1024;
 
 type UploadState =
   | { kind: "idle" }
@@ -67,7 +67,7 @@ export function GlobalUploadFeedback() {
         finish({
           kind: "error",
           fileName: file.name,
-          message: "This file is too large. Please choose a file smaller than 25 MB.",
+          message: "This file is too large. Please choose a file smaller than 5,000 KB.",
         });
         return;
       }
