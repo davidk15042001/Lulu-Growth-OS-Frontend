@@ -12,8 +12,10 @@ import {
   setSelectedWorkspaceId,
 } from "./session";
 import { workspaceApi } from "./workspaces";
+import { useLuluApp } from "./LuluAppContext";
 
 export function LuluRuntime({ slug, children }: { slug: string; children: ReactNode }) {
+  const appContext = useLuluApp();
   const contract = useMemo(() => getPageContract(slug), [slug]);
   const [state, setState] = useState<"checking" | "ready" | "offline">(
     contract?.kind === "public" ? "ready" : "checking",
@@ -74,6 +76,6 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     <GlobalBranding contractKind={contract.kind} />
     <GlobalLanguageSwitcher />
     <GlobalUploadFeedback />
-    {state === "ready" && workspaceId && <LiveApiPanel workspaceId={workspaceId} contract={contract} />}
+    {state === "ready" && workspaceId && <LiveApiPanel workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} contract={contract} />}
   </>;
 }
