@@ -30,7 +30,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
       setCapabilities({ aiGeneration: true, transactionalEmail: true });
     } catch (cause) {
       if (cause instanceof ApiError && cause.status === 401) { setCurrentUser(null); setWorkspaces([]); setPermissions(empty); setCapabilities({ aiGeneration: false, transactionalEmail: false }); setError(null); }
-      else setError(cause instanceof Error ? cause.message : "Workspace data could not be loaded.");
+      else setError("Workspace data could not be loaded. Please try again.");
     } finally { setLoading(false); }
   }, [selectedId]);
   useEffect(() => { void refresh(); }, [refresh]);
