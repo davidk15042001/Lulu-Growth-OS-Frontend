@@ -48,11 +48,10 @@ body:has(.auth-shell) {
 @media (max-width: 1023px) {
   .auth-shell {
     display: block !important;
-    height: 100dvh !important;
+    height: auto !important;
     min-height: 100dvh !important;
-    overflow-x: hidden !important;
-    overflow-y: auto !important;
-    overscroll-behavior-y: contain;
+    overflow: visible !important;
+    overscroll-behavior-y: auto;
   }
 
   .auth-shell > section {
