@@ -15,7 +15,9 @@ const issues = [];
 const values = new Set();
 const looksLikeUiText = (value) => {
   const text = value.replace(/\s+/g, " ").trim();
+  const technicalStyleLiteral = /(?:\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw)|rgba?\([^)]*\)|#[0-9a-f]{3,8})/i;
   return text.length >= 1 && text.length <= 400 && /[A-Za-z]/.test(text)
+    && !technicalStyleLiteral.test(text)
     && !/^(?:https?:\/\/\S+|[./#][\w./:-]+)$/i.test(text) && !text.includes("var(--")
     && !/(?:^|\s)(?:bg-|text-|border-|px-|py-|mt-|mb-|grid|flex|rounded|hover:|focus:|w-|h-|min-|max-)/.test(text);
 };
