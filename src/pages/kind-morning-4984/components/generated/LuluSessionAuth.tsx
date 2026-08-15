@@ -65,7 +65,7 @@ export function LuluSessionAuth() {
   const isForm = screen === 'reauth' || screen === 'password';
   const title = screen === 'expired' ? 'Your session has expired' : screen === 'reauth' ? 'Please verify your identity' : screen === 'password' ? 'Confirm your password' : screen === 'invalidated' ? 'Please sign in again' : screen === 'failure' ? 'We couldn’t verify your identity' : 'You’re verified';
   const description = screen === 'expired' ? 'For your security, your session has ended. Please sign in again to continue.' : screen === 'reauth' ? 'For your security, please sign in again before continuing.' : screen === 'password' ? 'For your security, please enter your password to continue.' : screen === 'invalidated' ? 'Your previous session is no longer available. Sign in again to continue using Lulu AI.' : screen === 'failure' ? 'Please sign in again to continue.' : 'Continuing...';
-  return <div className="flex min-h-screen flex-col bg-[var(--background)] font-sans text-[var(--foreground)]">
+  return <div className="auth-card-shell flex min-h-screen flex-col bg-[var(--background)] font-sans text-[var(--foreground)]">
       <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
         <section aria-labelledby="session-title" className="w-full max-w-md animate-[session-enter_0.45s_ease-out] rounded-xl border border-[var(--border)] bg-[var(--card)] p-7 shadow-[0_12px_32px_rgba(0,0,0,0.08)] sm:p-9">
           <header className="text-center">

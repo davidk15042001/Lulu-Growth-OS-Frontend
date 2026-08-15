@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App";
 import { LuluAppProvider } from "./api/LuluAppContext";
 import "./app.css";
+import "./ui/auth-responsive.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

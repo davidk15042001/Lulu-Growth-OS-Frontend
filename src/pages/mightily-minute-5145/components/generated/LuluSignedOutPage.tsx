@@ -36,7 +36,7 @@ export function LuluSignedOutPage({
     attemptedSignOut.current = true;
     signOut();
   }, [signOut]);
-  return <div className="flex min-h-screen flex-col bg-[var(--background)] font-sans text-[var(--foreground)]">
+  return <div className="auth-card-shell flex min-h-screen flex-col bg-[var(--background)] font-sans text-[var(--foreground)]">
       <main className="flex flex-1 items-center justify-center px-4 py-10 sm:px-6">
         <section aria-labelledby="signed-out-title" className="w-full max-w-md animate-[lulu-card-enter_0.45s_ease-out] rounded-xl border border-[var(--border)] bg-[var(--card)] p-7 shadow-[0_12px_32px_rgba(0,0,0,0.08)] sm:p-9">
           <header className="text-center">

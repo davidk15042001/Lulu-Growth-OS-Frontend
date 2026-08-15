@@ -61,7 +61,7 @@ export function LuluSignupPage() {
       setStatus('idle');
     }
   }
-  return <main className="grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-2">
+  return <main className="auth-shell grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-start justify-center overflow-y-auto px-6 py-10">
         <div className="w-full max-w-md">
           <div className="flex items-center gap-2">

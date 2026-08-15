@@ -38,7 +38,7 @@ export const LuluVerificationPage = () => {
       setLoading(false);
     }
   };
-  return <main className="grid min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:grid-cols-2">
+  return <main className="auth-shell grid min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-center justify-center p-6">
         <div className="w-full max-w-md text-center">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-[var(--primary)] text-xl font-bold text-[var(--primary-foreground)]">L</div>

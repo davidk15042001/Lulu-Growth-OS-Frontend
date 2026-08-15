@@ -1,0 +1,108 @@
+/* Shared responsive foundation for all authentication surfaces. */
+.auth-shell,
+.auth-card-shell {
+  min-height: 100dvh;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.auth-shell > section,
+.auth-shell > aside {
+  min-width: 0;
+}
+
+.auth-shell input,
+.auth-shell button,
+.auth-card-shell input,
+.auth-card-shell button {
+  touch-action: manipulation;
+}
+
+.auth-shell input,
+.auth-card-shell input {
+  max-width: 100%;
+}
+
+.auth-shell button:focus-visible,
+.auth-shell input:focus-visible,
+.auth-card-shell button:focus-visible,
+.auth-card-shell input:focus-visible,
+.auth-card-shell a:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1023px) {
+  .auth-shell {
+    display: block !important;
+    min-height: 100dvh;
+  }
+
+  .auth-shell > section {
+    min-height: 100dvh;
+    align-items: flex-start !important;
+    padding: clamp(1.25rem, 5vw, 3rem) clamp(1rem, 5vw, 2.5rem) 3rem !important;
+  }
+
+  .auth-shell > section > div {
+    width: min(100%, 34rem);
+    margin-inline: auto;
+  }
+
+  .auth-shell > aside {
+    display: none !important;
+  }
+
+  .auth-shell h1 {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    font-size: clamp(1.75rem, 7vw, 2.5rem);
+    line-height: 1.1;
+  }
+
+  .auth-shell form,
+  .auth-shell section {
+    min-width: 0;
+  }
+
+  .auth-shell form > div.grid {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-shell nav[aria-label="Legal links"] {
+    flex-wrap: wrap;
+    row-gap: 0.75rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .auth-shell > section {
+    padding-inline: 1rem !important;
+  }
+
+  .auth-shell .text-5xl,
+  .auth-shell .text-4xl,
+  .auth-shell .text-3xl {
+    letter-spacing: -0.035em;
+  }
+
+  .auth-shell input,
+  .auth-shell button,
+  .auth-card-shell input,
+  .auth-card-shell button {
+    min-height: 2.75rem;
+  }
+
+  .auth-card-shell {
+    padding-inline: 1rem !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-shell *,
+  .auth-card-shell * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

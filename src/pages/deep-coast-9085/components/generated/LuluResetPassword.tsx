@@ -124,7 +124,7 @@ export function LuluResetPassword() {
       setLoading(false);
     }
   };
-  return <div className="min-h-screen w-full bg-[var(--background)] font-sans text-[var(--foreground)]">
+  return <div className="auth-card-shell min-h-screen w-full bg-[var(--background)] font-sans text-[var(--foreground)]">
     <main className="flex flex-col items-center px-4 pb-10 pt-9 sm:px-6">
       <section aria-labelledby="reset-password-title" className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-7 shadow-[0_12px_32px_rgba(0,0,0,0.08)] sm:p-9">
         <header className="text-center">
