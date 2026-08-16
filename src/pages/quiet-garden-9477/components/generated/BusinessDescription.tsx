@@ -95,7 +95,7 @@ export const BusinessDescription = () => {
     try {
       for (const file of Array.from(fileList)) {
         if (file.size <= 0 || file.size > MAX_FILE_SIZE) {
-          setFileError(`${file.name} ist größer als 5.000 KB oder leer und wurde nicht hinzugefügt.`);
+          setFileError(file.size > MAX_FILE_SIZE ? "Dateigröße ist zu groß." : `${file.name} ist leer und wurde nicht hinzugefügt.`);
           continue;
         }
         const formData = new FormData();

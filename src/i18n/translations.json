@@ -19444,7 +19444,8 @@
     "This file is empty or larger than 25 MB.": "Diese Datei ist leer oder größer als 25 MB.",
     "This file type is not supported. Please choose an image, PDF, Office, TXT, or CSV file.": "Dieser Dateityp wird nicht unterstützt. Bitte wähle ein Bild, PDF, Office-, TXT- oder CSV-Dokument.",
     "This document is no longer available.": "Dieses Dokument ist nicht mehr verfügbar.",
-    "Document storage is not ready yet. Please try again shortly.": "Der Dokumentenspeicher ist noch nicht bereit. Bitte versuche es gleich erneut."
+    "Document storage is not ready yet. Please try again shortly.": "Der Dokumentenspeicher ist noch nicht bereit. Bitte versuche es gleich erneut.",
+    "Dateigröße ist zu groß.": "Dateigröße ist zu groß."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -38919,7 +38920,8 @@
     "This file is empty or larger than 25 MB.": "This file is empty or larger than 25 MB.",
     "This file type is not supported. Please choose an image, PDF, Office, TXT, or CSV file.": "This file type is not supported. Please choose an image, PDF, Office, TXT, or CSV file.",
     "This document is no longer available.": "This document is no longer available.",
-    "Document storage is not ready yet. Please try again shortly.": "Document storage is not ready yet. Please try again shortly."
+    "Document storage is not ready yet. Please try again shortly.": "Document storage is not ready yet. Please try again shortly.",
+    "Dateigröße ist zu groß.": "文件太大。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",

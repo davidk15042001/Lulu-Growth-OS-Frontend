@@ -67,7 +67,7 @@ export function GlobalUploadFeedback() {
         finish({
           kind: "error",
           fileName: file.name,
-          message: "This file is too large. Please choose a file smaller than 5,000 KB.",
+          message: "Dateigröße ist zu groß.",
         });
         return;
       }
