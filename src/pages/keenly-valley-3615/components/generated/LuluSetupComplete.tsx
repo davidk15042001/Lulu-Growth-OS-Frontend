@@ -21,7 +21,6 @@ const setupRows = [{
   name: "Integrations",
   status: "Configured"
 }];
-const profileRows = [["Company", "Acme Corporation (example)"], ["Business Model", "B2B / B2C"], ["Industry", "Technology"], ["Primary Markets", "United Kingdom, Europe"], ["Products & Services", "3 product categories"], ["Connected Platforms", "3 platforms"], ["Analytics", "Google Analytics, Google Search Console"], ["Advertising", "Google Ads"]];
 const analysisStages = [{
   id: "profile",
   label: "Business Profile",
@@ -273,19 +272,6 @@ const SetupView = ({
                 Edit
               </button>
             </div>
-          </div>)}
-      </div>
-    </section>
-    <section className="mt-4 rounded-xl border border-border bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.06)] md:p-6">
-      <h2 className="text-lg font-semibold">Your Business Profile</h2>
-      <div className="mt-5 grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
-        {profileRows.map(([label, value]) => <div key={label}>
-            <p className="text-xs uppercase tracking-[0.1em] text-muted-foreground">
-              {label}
-            </p>
-            <p className="mt-0.5 text-sm font-medium text-foreground">
-              {value}
-            </p>
           </div>)}
       </div>
     </section>
