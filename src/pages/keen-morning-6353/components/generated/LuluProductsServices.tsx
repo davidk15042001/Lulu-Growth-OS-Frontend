@@ -199,7 +199,7 @@ function RightPanel({
   total: number;
   completeness: number;
 }) {
-  return <aside className="hidden border-l border-[var(--border)] bg-[var(--sidebar)] p-10 text-[var(--foreground)] lg:flex lg:flex-col lg:justify-between xl:p-12">
+  return <aside className="hidden border-l border-[var(--border)] bg-[var(--sidebar)] p-8 text-[var(--foreground)] lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:justify-between xl:p-12">
       <div className="flex items-center justify-between">
         <Sparkles size={42} className="text-[var(--foreground)]" aria-hidden="true" />
         
@@ -208,7 +208,7 @@ function RightPanel({
         </span>
       </div>
 
-      <section aria-labelledby="context-heading" className="max-w-lg">
+      <section aria-labelledby="context-heading" className="max-w-xl">
         <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
           <span>Your offerings</span>
         </p>
@@ -225,7 +225,7 @@ function RightPanel({
         </p>
       </section>
 
-      <section aria-label="Products and services profile summary" className="rounded-2xl border border-[var(--border)] bg-secondary p-5">
+      <section aria-label="Products and services profile summary" className="rounded-2xl border border-[var(--border)] bg-[var(--card)]/70 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.10)] backdrop-blur-sm">
         
         <div className="grid grid-cols-2 gap-4">
           <div>
@@ -375,12 +375,12 @@ export function LuluProductsServices() {
     setEditing(item);
     setSelectedId(item.id);
   }
-  return <main className="grid min-h-screen bg-[var(--background)] font-[Inter,sans-serif] text-[var(--foreground)] lg:grid-cols-2">
-      <section className="flex justify-center px-5 py-6 sm:px-8 lg:items-center lg:px-10 lg:py-10">
-        <div className="w-full max-w-xl">
+  return <main className="min-h-screen bg-[var(--background)] font-[Inter,sans-serif] text-[var(--foreground)] lg:grid lg:grid-cols-[minmax(0,1.12fr)_minmax(360px,.88fr)]">
+      <section className="flex justify-center px-4 py-6 sm:px-8 lg:items-start lg:px-12 lg:py-12 xl:px-16">
+        <div className="w-full max-w-2xl">
           <Logo />
 
-          <nav aria-label="Setup progress" className="mt-10">
+          <nav aria-label="Setup progress" className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--card)]/60 p-4 shadow-[0_14px_40px_rgba(0,0,0,0.05)] sm:p-5">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
                 <span>Company setup</span>
@@ -399,26 +399,26 @@ export function LuluProductsServices() {
             </ol>
           </nav>
 
-          <section className="mt-10" aria-labelledby="products-heading">
+          <section className="mt-8" aria-labelledby="products-heading">
             <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
               <span>03 / 07 · Your offerings</span>
             </p>
-            <h1 id="products-heading" className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-[var(--foreground)] sm:text-4xl">
+            <h1 id="products-heading" className="mt-3 max-w-2xl text-4xl font-semibold leading-[1.05] tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
               
               <span>Products &amp; Services</span>
             </h1>
-            <p className="mt-3 max-w-xl text-base leading-7 text-[var(--muted-foreground)]">
+            <p className="mt-4 max-w-xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg">
               <span>
                 Tell Lulu AI what you sell, provide and deliver to your
                 customers.
               </span>
             </p>
-            <button type="button" onClick={() => setShowHelp(!showHelp)} className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-[var(--foreground)] transition hover:text-[var(--foreground)]">
+            <button type="button" onClick={() => setShowHelp(!showHelp)} className="mt-5 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-3.5 py-2 text-sm font-medium text-[var(--foreground)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:shadow-md">
               
               <CircleHelp size={16} aria-hidden="true" />
               <span>Why does Lulu AI need my products and services?</span>
             </button>
-            {showHelp ? <p role="status" className="mt-3 rounded-md border border-[var(--border)] bg-[var(--secondary)] p-3 text-sm leading-6 text-[var(--muted-foreground)]">
+            {showHelp ? <p role="status" className="mt-3 rounded-2xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm leading-6 text-[var(--muted-foreground)] shadow-sm">
               
                 <span>
                   Your offerings help Lulu AI understand what your business
@@ -428,10 +428,10 @@ export function LuluProductsServices() {
               </p> : null}
           </section>
 
-          <section className="mt-8 rounded-xl border border-[var(--border)] bg-card p-4 shadow-[0_20px_60px_rgba(0,0,0,0.08)] sm:p-5" aria-labelledby="offer-question">
+          <section className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--primary)]/[0.045] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.06)] sm:p-6" aria-labelledby="offer-question">
             
             <div className="flex gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-[var(--secondary)] text-[var(--foreground)]">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-[var(--primary)] text-primary-foreground shadow-sm">
                 <Sparkles size={18} aria-hidden="true" />
               </span>
               <div>
@@ -450,7 +450,7 @@ export function LuluProductsServices() {
             </div>
           </section>
 
-          <form onSubmit={saveOffering} className="mt-6 space-y-5 rounded-xl border border-[var(--border)] bg-card p-4 shadow-[0_20px_60px_rgba(0,0,0,0.08)] sm:p-5">
+          <form onSubmit={saveOffering} className="mt-6 space-y-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_22px_70px_rgba(0,0,0,0.09)] sm:p-7">
             
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
@@ -462,7 +462,7 @@ export function LuluProductsServices() {
                   <span>Choose the offering types you want to add.</span>
                 </p>
               </div>
-              <button type="button" onClick={() => setEditing(emptyOffering())} className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm font-medium text-[var(--foreground)] hover:border-[var(--border)]">
+              <button type="button" onClick={() => setEditing(emptyOffering())} className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-semibold text-[var(--foreground)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:shadow-md">
                 
                 <Plus size={16} aria-hidden="true" />
                 <span>Add Product or Service</span>
@@ -606,7 +606,7 @@ export function LuluProductsServices() {
               </div>
             </div>
 
-            <button type="submit" className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-primary-foreground transition hover:bg-[var(--primary)]">
+            <button type="submit" className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] font-semibold text-primary-foreground shadow-[0_12px_28px_color-mix(in_srgb,var(--primary)_24%,transparent)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_color-mix(in_srgb,var(--primary)_30%,transparent)] active:translate-y-0">
               
               <span>
                 {editing.id ? "Save offering" : "Add Product or Service"}
@@ -615,7 +615,7 @@ export function LuluProductsServices() {
             </button>
           </form>
 
-          <section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-4 shadow-[0_20px_60px_rgba(0,0,0,0.08)] sm:p-5" aria-labelledby="overview-heading">
+          <section className="mt-7 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.07)] sm:p-6" aria-labelledby="overview-heading">
             
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -633,7 +633,7 @@ export function LuluProductsServices() {
             </div>
 
             <div className="mt-4 space-y-3">
-              {offerings.map(item => <article key={item.id} className={`rounded-md border p-4 transition ${selectedId === item.id ? "border-[var(--border)] bg-[var(--secondary)]" : "border-[var(--border)] bg-card"}`}>
+              {offerings.map(item => <article key={item.id} className={`rounded-2xl border p-5 transition duration-200 ${selectedId === item.id ? "border-[var(--primary)] bg-[var(--primary)]/[0.06] shadow-[0_12px_35px_rgba(0,0,0,0.07)]" : "border-[var(--border)] bg-[var(--card)] hover:-translate-y-0.5 hover:border-[var(--primary)]/50 hover:shadow-[0_12px_35px_rgba(0,0,0,0.06)]"}`}>
                 
                   <div className="flex items-start justify-between gap-3">
                     <button type="button" onClick={() => loadOffering(item)} className="min-w-0 text-left">
@@ -684,7 +684,7 @@ export function LuluProductsServices() {
             </div>
           </section>
 
-          <section className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 sm:p-5" aria-labelledby="profile-heading">
+          <section className="mt-7 rounded-2xl border border-[var(--border)] bg-[var(--secondary)] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.05)] sm:p-6" aria-labelledby="profile-heading">
             
             <div className="flex items-center justify-between gap-4">
               <div>
@@ -717,7 +717,7 @@ export function LuluProductsServices() {
             </ul>
           </section>
 
-          {selectedOffering ? <section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-4 shadow-[0_20px_60px_rgba(0,0,0,0.08)] sm:p-5" aria-labelledby="understanding-heading">
+          {selectedOffering ? <section className="mt-7 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.07)] sm:p-6" aria-labelledby="understanding-heading">
             
               <div className="flex items-center gap-2">
                 <Sparkles size={17} className="text-[var(--foreground)]" aria-hidden="true" />
@@ -752,16 +752,16 @@ export function LuluProductsServices() {
             </section> : null}
 
           <footer className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <button type="button" onClick={() => navigateApp(routes.onboarding.businessDescription)} className="inline-flex h-11 items-center justify-center gap-2 rounded-md border border-[var(--border)] px-4 text-sm font-medium text-[var(--muted-foreground)] hover:border-[var(--border)] hover:text-[var(--foreground)]">
+            <button type="button" onClick={() => navigateApp(routes.onboarding.businessDescription)} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-semibold text-[var(--foreground)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:shadow-md">
               
               <ArrowLeft size={16} aria-hidden="true" />
               <span>Back</span>
             </button>
-            <button type="button" onClick={() => navigateApp(routes.app.dashboard)} className="h-11 rounded-md px-4 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+            <button type="button" onClick={() => navigateApp(routes.app.dashboard)} className="h-11 rounded-xl px-4 text-sm font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)]">
               
               <span>Skip Setup</span>
             </button>
-            <button type="button" disabled={offerings.length === 0} onClick={() => navigateApp(routes.onboarding.existingPlatforms)} className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[var(--primary)] px-5 text-sm font-semibold text-primary-foreground hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="button" disabled={offerings.length === 0} onClick={() => navigateApp(routes.onboarding.existingPlatforms)} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 text-sm font-semibold text-primary-foreground shadow-[0_12px_28px_color-mix(in_srgb,var(--primary)_24%,transparent)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:cursor-not-allowed disabled:opacity-50">
               
               <span>Continue</span>
               <ArrowRight size={16} aria-hidden="true" />
