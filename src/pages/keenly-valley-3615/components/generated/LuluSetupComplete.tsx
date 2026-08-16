@@ -336,29 +336,6 @@ const SetupView = ({
         Only sources you have provided or authorized are included.
       </p>
     </section>
-    <section className="mt-4 rounded-xl border border-border bg-secondary p-4">
-      <div className="flex items-start gap-3">
-        <Shield size={16} className="mt-0.5 shrink-0 text-muted-foreground" />
-        <div>
-          <h2 className="text-sm font-semibold text-foreground">
-            You're in control.
-          </h2>
-          <p className="mt-1 text-xs leading-5 text-muted-foreground">
-            Lulu AI only uses the information and platforms you have provided or
-            authorized. You can manage your integrations, permissions and AI
-            settings at any time.
-          </p>
-          <div className="mt-3 flex gap-4">
-            <button className="flex items-center gap-1 text-xs text-foreground hover:text-foreground">
-              Manage Integrations <ExternalLink size={10} />
-            </button>
-            <button className="flex items-center gap-1 text-xs text-foreground hover:text-foreground">
-              AI Settings <ExternalLink size={10} />
-            </button>
-          </div>
-        </div>
-      </div>
-    </section>
     <div className="mt-8 flex flex-col items-center gap-3">
       <motion.button whileHover={{
       scale: 1.02
