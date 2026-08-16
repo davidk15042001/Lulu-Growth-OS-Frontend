@@ -412,7 +412,7 @@ const FlowNode = ({
   y: 0
 }} transition={{
   duration: 0.35
-}} className={`flex min-h-[70px] min-w-0 flex-[1.45] items-center justify-center rounded-2xl border px-1.5 py-2 text-center text-[10px] font-semibold leading-4 sm:min-h-[76px] sm:px-3 sm:text-xs sm:leading-5 ${success ? "border-chart-4/30 bg-chart-4/[0.05] text-chart-4" : ai ? "border-border bg-[var(--foreground)] text-[var(--background)] shadow-[0_0_24px_rgba(0,0,0,0.18)]" : violet ? "border-border/30 bg-secondary/[0.06] text-foreground" : "border-border bg-[var(--card)] text-foreground"}`}>
+}} className={`flex min-h-[70px] min-w-0 flex-[1.45] items-center justify-center rounded-2xl border px-1.5 py-2 text-center text-[10px] font-semibold leading-4 sm:min-h-[76px] sm:px-3 sm:text-xs sm:leading-5 ${success ? "border-chart-4/30 bg-chart-4/[0.05] text-chart-4" : ai ? "border-[var(--primary)]/40 bg-[var(--secondary)] text-[var(--foreground)] shadow-[0_0_24px_rgba(0,0,0,0.10)]" : violet ? "border-border/30 bg-secondary/[0.06] text-foreground" : "border-border bg-[var(--card)] text-foreground"}`}>
   {ai ? <span className="flex items-center gap-1.5"><Sparkles size={14} aria-hidden="true" />{label}</span> : label}
 </motion.div>;
 const FlowLine = () => <div className="relative h-px min-w-1 flex-1 bg-gradient-to-r from-border/40 to-border">
