@@ -14,6 +14,8 @@ type Plan = {
   accent: string;
   features: string[];
   limitations: string;
+  price: string;
+  pricePeriod: string;
   cta: string;
 };
 
@@ -27,6 +29,8 @@ const plans: Plan[] = [
     accent: "bg-[var(--secondary)]",
     features: ["View connected data and dashboards", "Explore reports, insights and history", "Read recommendations and opportunities"],
     limitations: "No changes, actions or automation",
+    price: "Free",
+    pricePeriod: "Read-only access",
     cta: "Choose Explorer",
   },
   {
@@ -38,6 +42,8 @@ const plans: Plan[] = [
     accent: "bg-[var(--primary)] text-[var(--primary-foreground)]",
     features: ["Everything in Explorer", "Create, edit and manage workspace data", "Manage connected websites and platforms", "Run actions manually with your approval"],
     limitations: "AI functions and recommendations are not included",
+    price: "RMB 4,200",
+    pricePeriod: "per year",
     cta: "Choose Starter",
   },
   {
@@ -49,6 +55,8 @@ const plans: Plan[] = [
     accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20",
     features: ["Everything in Starter", "AI insights and recommendations", "AI-assisted content and decisions", "Full automation of supported workflows"],
     limitations: "You stay in control with configurable approvals and safeguards",
+    price: "RMB 30,000",
+    pricePeriod: "per year",
     cta: "Choose AI",
   },
 ];
@@ -114,7 +122,7 @@ export function BillingOnboarding() {
           </div>
           <p className="mt-6 text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Choose your workspace access</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Select the way you want Lulu to work.</h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Start with the level of control that fits your business. You can change your plan later as your needs grow.</p>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Choose the level of control that fits your business. Starter and AI are billed annually in RMB.</p>
         </section>
 
         <section aria-label="Available plans" className="grid gap-5 lg:grid-cols-3">
@@ -123,10 +131,11 @@ export function BillingOnboarding() {
             const isSelected = selectedPlan === plan.id;
             return (
               <article key={plan.id} className={`relative flex flex-col rounded-2xl border p-6 transition sm:p-7 ${isSelected ? "border-[var(--foreground)] shadow-[0_20px_60px_rgba(0,0,0,0.10)]" : "border-[var(--border)] bg-[var(--card)]"}`}>
-                {plan.id === "starter" && <span className="absolute right-5 top-5 rounded-full bg-[var(--foreground)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[var(--background)]">Recommended</span>}
+                {plan.id === "ai" && <span className="absolute right-5 top-5 rounded-full bg-[var(--foreground)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[var(--background)]">Recommended</span>}
                 <div className={`grid h-10 w-10 place-items-center rounded-xl ${plan.accent}`}><Icon size={19} aria-hidden="true" /></div>
                 <p className="mt-6 text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">{plan.eyebrow}</p>
                 <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{plan.name}</h2>
+                <div className="mt-4 flex items-baseline gap-2"><span className="text-2xl font-semibold tracking-[-0.04em]">{plan.price}</span><span className="text-xs text-[var(--muted-foreground)]">{plan.pricePeriod}</span></div>
                 <p className="mt-3 min-h-20 text-sm leading-6 text-[var(--muted-foreground)]">{plan.description}</p>
                 <div className="my-6 h-px bg-[var(--border)]" />
                 <ul className="space-y-3 text-sm leading-6">
