@@ -1,5 +1,5 @@
-import { FormEvent, useEffect, useMemo, useState } from "react";
-import { ArrowRight, BarChart3, Check, CircleCheck, MessageSquareText, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound } from "lucide-react";
+import { FormEvent, useEffect, useState } from "react";
+import { ArrowRight, BarChart3, Check, CircleCheck, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
@@ -9,55 +9,36 @@ interface Platform {
   type: string;
   status: string;
 }
-interface PlatformCategory {
+interface PlatformGroup {
   id: string;
   label: string;
   description: string;
   icon: typeof UsersRound;
+  platforms: string[];
 }
-const startingPlatforms: Platform[] = [{
-  id: "hubspot",
-  name: "HubSpot",
-  type: "CRM",
-  status: "Connected"
-}, {
-  id: "google-analytics",
-  name: "Google Analytics",
-  type: "Analytics",
-  status: "Connected"
-}, {
-  id: "stripe",
-  name: "Stripe",
-  type: "Payments",
-  status: "Needs review"
-}];
-const platformCategories: PlatformCategory[] = [{
+const platformGroups: PlatformGroup[] = [{
   id: "crm",
   label: "CRM",
-  description: "Customer records, deals, pipeline notes",
-  icon: UsersRound
+  description: "Customer records, deals and pipeline context.",
+  icon: UsersRound,
+  platforms: ["Salesforce", "Pipedrive", "HubSpot"]
 }, {
-  id: "marketing-tools",
-  label: "Marketing tools",
-  description: "Campaigns, audiences, content performance",
-  icon: Store
+  id: "marketing",
+  label: "Marketing",
+  description: "Campaign performance and audience activation.",
+  icon: Store,
+  platforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API"]
 }, {
-  id: "analytics-tools",
-  label: "Analytics tools",
-  description: "Traffic, attribution, product usage signal",
-  icon: BarChart3
-}, {
-  id: "communication-platforms",
-  label: "Communication platforms",
-  description: "Team conversations and customer touchpoints",
-  icon: MessageSquareText
+  id: "analytics",
+  label: "Analyse",
+  description: "Measurement, attribution and conversion signals.",
+  icon: BarChart3,
+  platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "Ad Analytics API", "LinkedIn Conversion Tracking API"]
 }];
 const setupSteps = ["Company Information", "Business Description", "Products & Services", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 export const LuluExistingPlatforms = () => {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [query, setQuery] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(["crm", "analytics-tools"]);
-  const [customPlatform, setCustomPlatform] = useState("");
   const [synced, setSynced] = useState(false);
   const [error, setError] = useState('');
   useEffect(() => {
@@ -72,41 +53,32 @@ export const LuluExistingPlatforms = () => {
       }))))
       .catch(cause => setError(getFriendlyErrorMessage(cause, 'We could not load your platforms. Please try again.')));
   }, []);
-  const visiblePlatforms = useMemo(() => {
-    return platforms.filter(platform => `${platform.name} ${platform.type} ${platform.status}`.toLowerCase().includes(query.toLowerCase()));
-  }, [platforms, query]);
-  const toggleCategory = (id: string) => {
-    setSelectedCategories(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
+  const connectPlatform = async (name: string, category: string) => {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId || platforms.some(platform => platform.name === name)) return;
+    setError('');
+    try {
+      const response = await requestApi<{ id: string }>({
+        path: `/workspaces/${workspaceId}/onboarding/platforms`,
+        method: 'POST',
+        body: {
+          integrationKey: name.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-|-$/g, '') || null,
+          name,
+          category,
+          connectionStatus: 'pending',
+          settings: { provider: name, category },
+        },
+      });
+      setPlatforms(current => [...current, { id: response.data.id, name, type: category, status: "Pending" }]);
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, 'We could not start this connection. Please try again.'));
+    }
   };
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
+  const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (synced) {
       navigateApp(routes.onboarding.aiPreferences);
       return;
-    }
-    const workspaceId = getSelectedWorkspaceId();
-    if (!workspaceId) return;
-    setError('');
-    if (customPlatform.trim()) {
-      const normalizedName = customPlatform.trim();
-      try {
-        const response = await requestApi<{ id: string }>({
-          path: `/workspaces/${workspaceId}/onboarding/platforms`,
-          method: 'POST',
-          body: {
-            integrationKey: normalizedName.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-|-$/g, '') || null,
-            name: normalizedName,
-            category: 'custom',
-            connectionStatus: 'pending',
-            settings: { selectedCategories },
-          },
-        });
-        setPlatforms(current => [...current, { id: response.data.id, name: normalizedName, type: "Custom", status: "Pending" }]);
-        setCustomPlatform("");
-      } catch (cause) {
-        setError(getFriendlyErrorMessage(cause, 'We could not save this platform. Please try again.'));
-        return;
-      }
     }
     setSynced(true);
   };
@@ -160,78 +132,41 @@ export const LuluExistingPlatforms = () => {
           </p>
           <form onSubmit={submit} className="mt-8 space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
             
-            <fieldset>
-              <legend className="text-sm font-medium text-[var(--muted-foreground)]">
-                Connected platforms
-              </legend>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2">
-                {platformCategories.map(category => {
-                const Icon = category.icon;
-                const active = selectedCategories.includes(category.id);
-                return <label key={category.id} className={active ? "flex cursor-pointer items-start gap-3 rounded-md border border-[var(--border)] bg-[var(--secondary)] p-3 text-[var(--foreground)]" : "flex cursor-pointer items-start gap-3 rounded-md border border-[var(--border)] bg-[var(--secondary)] p-3 text-[var(--foreground)] hover:border-[var(--border)]"}>
-                      
-                      <input type="checkbox" checked={active} onChange={() => toggleCategory(category.id)} className="sr-only" />
-                      
-                      <span className={active ? "mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]" : "mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[var(--card)] text-[var(--foreground)]"}>
-                        
-                        {active ? <Check size={15} /> : <Icon size={15} />}
-                      </span>
-                      <span className="min-w-0">
-                        <strong className="block text-sm font-semibold">
-                          {category.label}
-                        </strong>
-                        <span className="mt-1 block text-xs leading-5 text-[var(--muted-foreground)]">
-                          {category.description}
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]">
+              Search platforms
+              <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search Salesforce, Google Ads, Analytics…" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none transition focus:border-[var(--border)]" />
+            </label>
+            <div className="space-y-5">
+              {platformGroups.map(group => {
+              const Icon = group.icon;
+              const groupPlatforms = group.platforms.filter(name => name.toLowerCase().includes(query.toLowerCase()));
+              return <section key={group.id} className="rounded-xl border border-[var(--border)] bg-[var(--secondary)]/45 p-4" aria-labelledby={`${group.id}-heading`}>
+                  <div className="flex items-start gap-3">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]">
+                      <Icon size={16} />
+                    </span>
+                    <div>
+                      <h2 id={`${group.id}-heading`} className="text-base font-semibold text-[var(--foreground)]">{group.label}</h2>
+                      <p className="mt-1 text-xs leading-5 text-[var(--muted-foreground)]">{group.description}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 space-y-2">
+                    {groupPlatforms.map(name => {
+                    const connected = platforms.find(platform => platform.name === name);
+                    return <article key={name} className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3">
+                        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[var(--secondary)] text-[var(--foreground)]">
+                          {connected ? <CircleCheck size={16} /> : <Icon size={15} />}
                         </span>
-                      </span>
-                    </label>;
+                        <span className="min-w-0 flex-1">
+                          <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}</strong>
+                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : "Not connected"}</span>
+                        </span>
+                        {connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name, group.id)} className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Connect</button>}
+                      </article>;
+                  })}
+                  </div>
+                </section>;
               })}
-              </div>
-            </fieldset>
-            <label className="block text-sm font-medium text-[var(--muted-foreground)]">
-              Add another platform
-              <input value={customPlatform} onChange={event => setCustomPlatform(event.target.value)} placeholder="e.g. Salesforce, Slack, Mailchimp" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none transition focus:border-[var(--border)]" />
-              
-            </label>
-            <label className="block text-sm font-medium text-[var(--muted-foreground)]">
-              Search
-              <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search connected platforms" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none transition focus:border-[var(--border)]" />
-              
-            </label>
-            <div className="rounded-md border border-[var(--border)] bg-[var(--card)]">
-              <div className="flex items-center justify-between border-b border-[var(--border)] px-3 py-3">
-                <span className="flex items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
-                  <Search size={15} className="text-[var(--foreground)]" />
-                  Connected platforms
-                </span>
-                <span className="rounded-full bg-[var(--secondary)] px-2 py-1 text-xs font-medium text-[var(--foreground)]">
-                  {platforms.length}
-                </span>
-              </div>
-              <div className="divide-y divide-[var(--foreground)]">
-                {visiblePlatforms.map(platform => <article key={platform.id} className="flex items-center gap-3 px-3 py-3">
-                  
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-[var(--secondary)] text-[var(--foreground)]">
-                      <CircleCheck size={16} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <strong className="block truncate text-sm font-semibold text-[var(--foreground)]">
-                        {platform.name}
-                      </strong>
-                      <span className="block text-xs text-[var(--muted-foreground)]">
-                        {platform.type}
-                      </span>
-                    </span>
-                    <span className={platform.status === "Connected" ? "rounded-full bg-[var(--secondary)] px-2 py-1 text-xs font-medium text-[var(--foreground)]" : "rounded-full bg-[var(--card)] px-2 py-1 text-xs font-medium text-[var(--muted-foreground)]"}>
-                    
-                      {platform.status}
-                    </span>
-                    <button type="button" onClick={() => void removePlatform(platform.id)} className="rounded-md p-2 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]" aria-label={`Remove ${platform.name}`}>
-                    
-                      <Trash2 size={15} />
-                    </button>
-                  </article>)}
-              </div>
             </div>
             <button type="submit" className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)]">
               
