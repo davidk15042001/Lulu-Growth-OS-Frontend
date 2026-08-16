@@ -7,7 +7,7 @@ import { getSelectedWorkspaceId } from '../../../../api/session';
 type Phase = "setup_complete" | "confirm_analysis" | "analysis_started" | "analysis_complete" | "analysis_error";
 type StageStatus = "pending" | "running" | "complete" | "error";
 type Progress = Record<string, StageStatus>;
-const steps = ["Company Information", "Business Description", "Products & Services", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
+const steps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 const setupRows = [{
   name: "Company Information",
   status: "Complete"
@@ -201,10 +201,10 @@ export const LuluSetupComplete = () => {
                 Company setup
               </span>
               <span className="text-xs font-medium text-foreground">
-                Step 7 of 7
+                Step 6 of 6
               </span>
             </div>
-            <div className="grid grid-cols-7 gap-1.5">
+            <div className="grid grid-cols-6 gap-1.5">
               {steps.map(step => <div key={step} className="h-1.5 rounded-full bg-primary" title={step} />)}
             </div>
           </nav>}
@@ -240,7 +240,7 @@ const SetupView = ({
   
     <section className="text-center">
       <p className="text-xs font-medium uppercase tracking-[.18em] text-foreground">
-        07 / 07 · Company Setup
+        06 / 06 · Company Setup
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">
         You're all set.

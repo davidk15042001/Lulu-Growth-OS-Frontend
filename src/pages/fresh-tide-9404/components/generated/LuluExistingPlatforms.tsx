@@ -35,7 +35,7 @@ const platformGroups: PlatformGroup[] = [{
   icon: BarChart3,
   platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "Ad Analytics API", "LinkedIn Conversion Tracking API"]
 }];
-const setupSteps = ["Company Information", "Business Description", "Products & Services", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
+const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 export const LuluExistingPlatforms = () => {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [query, setQuery] = useState("");
@@ -109,19 +109,19 @@ export const LuluExistingPlatforms = () => {
                 Company setup
               </p>
               <p className="text-xs font-medium text-[var(--foreground)]">
-                Step 4 of 7
+                Step 3 of 6
               </p>
             </div>
-            <ol className="grid grid-cols-7 gap-1.5">
+            <ol className="grid grid-cols-6 gap-1.5">
               {setupSteps.map((step, index) => <li key={step} className="min-w-0">
-                  <span className={`block h-1.5 rounded-full ${index <= 3 ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={step} />
+                  <span className={`block h-1.5 rounded-full ${index <= 2 ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={step} />
                 
                   <span className="sr-only">{step}</span>
                 </li>)}
             </ol>
           </nav>
           <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-            04 / 07 · Company profile
+            03 / 06 · Company profile
           </p>
           <h1 className="mt-2 text-3xl font-semibold leading-tight text-[var(--foreground)]">
             Your existing platforms

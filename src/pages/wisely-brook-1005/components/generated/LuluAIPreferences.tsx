@@ -25,7 +25,7 @@ type AiPreferencesResponse = {
   responseLanguage: string;
   transparencySettings: { insights: boolean; recommendations: boolean; content: boolean; labels: boolean; data: boolean };
 };
-const steps = ["Company Information", "Business Description", "Products & Services", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
+const steps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 const priorities = ["Revenue Growth", "Customer Acquisition", "Customer Retention", "Profitability", "Marketing Performance", "Advertising Performance", "SEO", "GEO", "AEO", "Brand Visibility", "Market Expansion", "Operational Efficiency", "Product Growth", "Customer Experience"];
 const priorityIcons: Record<string, typeof TrendingUp> = {
   "Revenue Growth": TrendingUp,
@@ -549,12 +549,12 @@ export function LuluAIPreferences() {
               Company setup
             </span>
             <span className="text-xs font-medium text-foreground">
-              Step 6 of 7
+              Step 5 of 6
             </span>
           </div>
-          <ol className="grid grid-cols-7 gap-1.5">
+          <ol className="grid grid-cols-6 gap-1.5">
             {steps.map((step, i) => <li key={step} className="min-w-0">
-                <span className={`block h-1.5 rounded-full ${i <= 5 ? "bg-primary" : "bg-secondary"}`} title={step} />
+                <span className={`block h-1.5 rounded-full ${i <= 4 ? "bg-primary" : "bg-secondary"}`} title={step} />
               
                 <span className="sr-only">{step}</span>
               </li>)}
@@ -564,7 +564,7 @@ export function LuluAIPreferences() {
           <div className="max-w-2xl">
             <div className="mb-3 flex items-center gap-3">
               <span className="text-xs font-semibold uppercase tracking-[0.18em] text-foreground">
-                06 / 07 · Intelligent configuration
+                05 / 06 · Intelligent configuration
               </span>
             </div>
             <h1 className="text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">
