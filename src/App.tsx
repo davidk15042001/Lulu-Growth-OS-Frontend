@@ -58,6 +58,7 @@ const onboardingPathByStep: Record<string, string> = {
   business_description: routes.onboarding.businessDescription,
   products_services: routes.onboarding.productsServices,
   existing_platforms: routes.onboarding.existingPlatforms,
+  billing: routes.onboarding.billing,
   setup_complete: routes.onboarding.billing,
 };
 
@@ -89,11 +90,6 @@ function PageRoute({ page }: { page: PageDefinition }) {
     if (location.pathname !== target) return <Navigate replace to={target} state={{ from: location.pathname }} />;
   }
 
-  if (!isPublic && !isOnboarding && currentUser && selectedWorkspace && selectedWorkspace.onboardingCompletedAt) {
-    const selectedPlan = window.localStorage.getItem(`lulu:selected-plan:${selectedWorkspace.id}`);
-    const validPlan = selectedPlan === "explorer" || selectedPlan === "starter" || selectedPlan === "ai";
-    if (!validPlan && location.pathname !== routes.onboarding.billing) return <Navigate replace to={routes.onboarding.billing} state={{ from: location.pathname }} />;
-  }
 
   return <PageFrame page={page} />;
 }

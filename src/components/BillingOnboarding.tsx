@@ -98,12 +98,22 @@ export function BillingOnboarding() {
     setSubmitting(true);
     setError(null);
     try {
-      await onboardingApi.complete(selectedWorkspace.id);
+      const billingResponse = await onboardingApi.createBillingCheckout(selectedWorkspace.id, {
+        planKey: selectedPlan,
+        successUrl: `${window.location.origin}${routes.onboarding.billing}?payment=success`,
+        backUrl: `${window.location.origin}${routes.onboarding.billing}?payment=cancelled`,
+      });
+      const billingResult = billingResponse.data;
       window.localStorage.setItem(`lulu:selected-plan:${selectedWorkspace.id}`, selectedPlan);
-      await refresh();
-      navigateApp(routes.app.dashboard, { replace: true });
+      if (billingResult.free) {
+        await refresh();
+        navigateApp(routes.app.dashboard, { replace: true });
+        return;
+      }
+      if (!billingResult.checkoutUrl) throw new Error("Airwallex did not return a checkout URL.");
+      window.location.assign(billingResult.checkoutUrl);
     } catch (cause) {
-      setError(getFriendlyErrorMessage(cause, "We could not complete your workspace setup. Please try again."));
+      setError(getFriendlyErrorMessage(cause, "We could not start the Airwallex checkout. Please try again."));
       setSubmitting(false);
     }
   };
@@ -162,7 +172,7 @@ export function BillingOnboarding() {
 
         <footer className="mt-8 flex flex-col gap-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)] p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
           <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{selected ? selected.description : "Select Explorer, Starter or AI above. This step is required before entering your workspace."}</p>{error && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">{error}</p>}</div></div>
-          <button type="button" onClick={() => void continueToWorkspace()} disabled={!selectedPlan || submitting} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{submitting ? "Completing setup…" : selected ? `Confirm ${selected.name}` : "Select a plan first"}<ArrowRight size={16} /></button>
+          <button type="button" onClick={() => void continueToWorkspace()} disabled={!selectedPlan || submitting} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{submitting ? (selected?.id === "explorer" ? "Activating Explorer…" : "Opening secure checkout…") : selected ? `Confirm ${selected.name}` : "Select a plan first"}<ArrowRight size={16} /></button>
         </footer>
       </div>
     </main>
