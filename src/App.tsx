@@ -58,6 +58,7 @@ const onboardingPathByStep: Record<string, string> = {
   business_description: routes.onboarding.businessDescription,
   products_services: routes.onboarding.productsServices,
   existing_platforms: routes.onboarding.existingPlatforms,
+  setup_complete: routes.onboarding.billing,
 };
 
 function PageRoute({ page }: { page: PageDefinition }) {
@@ -71,11 +72,15 @@ function PageRoute({ page }: { page: PageDefinition }) {
     return <Navigate replace to={routes.onboarding.existingPlatforms} state={{ from: location.pathname }} />;
   }
 
-  if (!isPublic && !isOnboarding && currentUser && loading) {
-    return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your workspace…</main>;
+  if (!isPublic && loading) {
+    return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
   }
 
-  if (!isPublic && !isOnboarding && currentUser && !loading && !selectedWorkspace) {
+  if (!isPublic && !loading && !currentUser) {
+    return <Navigate replace to={routes.auth.login} state={{ from: location.pathname }} />;
+  }
+
+  if (!isPublic && !isOnboarding && currentUser && !selectedWorkspace) {
     return <Navigate replace to={routes.onboarding.welcome} state={{ from: location.pathname }} />;
   }
 

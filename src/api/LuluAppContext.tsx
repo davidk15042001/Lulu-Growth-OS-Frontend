@@ -17,7 +17,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
   const [selectedId, setSelectedId] = useState<string | null>(() => getSelectedWorkspaceId());
   const [permissions, setPermissions] = useState<Permissions>(empty);
   const [capabilities, setCapabilities] = useState({ aiGeneration: false, transactionalEmail: false });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const refresh = useCallback(async () => {
     setLoading(true); setError(null);
