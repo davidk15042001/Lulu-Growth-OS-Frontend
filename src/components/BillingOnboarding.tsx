@@ -4,6 +4,7 @@ import { navigateApp, routes } from "../routing";
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { onboardingApi } from "../api/onboarding";
+import { OnboardingHeader } from "./OnboardingHeader";
 
 type PlanId = "explorer" | "starter" | "ai";
 
@@ -110,23 +111,7 @@ export function BillingOnboarding() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
-        <header className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] text-sm font-bold text-[var(--primary-foreground)]">L</span>
-            <strong className="text-xl font-semibold">Lulu AI</strong>
-          </div>
-          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)]">Company setup · Complete</span>
-        </header>
-
-        <nav aria-label="Setup progress" className="mx-auto mt-8 max-w-7xl">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--foreground)]">Company setup</p>
-            <p className="text-xs font-semibold text-[var(--foreground)]">Step 4 of 4</p>
-          </div>
-          <ol className="grid grid-cols-4 gap-1.5" aria-label="Billing is the final onboarding step">
-            {["Company Information", "Business Description", "Existing Platforms", "Billing"].map((step) => <li key={step} className="min-w-0"><span className="block h-1.5 rounded-full bg-[var(--primary)]" title={step} /><span className="sr-only">{step}</span></li>)}
-          </ol>
-        </nav>
+        <OnboardingHeader step={4} />
 
         <section className="mx-auto max-w-3xl py-14 text-center sm:py-16">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--card)]">

@@ -1,15 +1,15 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { ArrowRight, Building2, Check, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId, setSelectedWorkspaceId } from '../../../../api/session';
+import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 type CompanyForm = {
   companyName: string;
   industry: string;
   companySize: string;
   countryRegion: string;
 };
-const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Billing"];
 export const CompanyInformation = () => {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -68,32 +68,7 @@ export const CompanyInformation = () => {
   return <main className="min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)]">
       <section className="flex items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
         <div className="w-full max-w-xl">
-          <div className="flex items-center gap-2">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] font-bold text-[var(--primary-foreground)]">
-              <span>L</span>
-            </span>
-            <strong className="text-xl font-semibold text-[var(--foreground)]">
-              Lulu AI
-            </strong>
-          </div>
-
-          <nav aria-label="Setup progress" className="mt-10">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-                Company setup
-              </p>
-              <p className="text-xs font-medium text-[var(--foreground)]">
-                Step 1 of 4
-              </p>
-            </div>
-            <ol className="grid grid-cols-4 gap-1.5">
-              {setupSteps.map((step, index) => <li key={step} className="min-w-0">
-                  <span className={`block h-1.5 rounded-full ${index === 0 ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={step} />
-                
-                  <span className="sr-only">{step}</span>
-                </li>)}
-            </ol>
-          </nav>
+          <OnboardingHeader step={1} />
 
           <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
             <span>01 / 04 · Company profile</span>

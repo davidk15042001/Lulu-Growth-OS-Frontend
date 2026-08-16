@@ -1,8 +1,9 @@
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowRight, BarChart3, Check, CircleCheck, Globe, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound, X } from "lucide-react";
+import { ArrowRight, BarChart3, Check, CircleCheck, Globe, Search, Store, Trash2, UsersRound, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
+import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 interface Platform {
   id: string;
   name: string;
@@ -47,7 +48,6 @@ const platformGroups: PlatformGroup[] = [{
   platforms: ["Webflow", "WordPress", "Shopify", "Google Business"],
   comingSoonPlatforms: ["Shopify", "Google Business"]
 }];
-  const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Billing"];
   const guideContent: Record<string, { intro: string; steps: string[]; links?: Array<{ label: string; url: string }> }> = {
     Salesforce: { intro: "Connect a Salesforce organization through a Connected App. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/salesforce/callback", steps: ["Open Salesforce Setup → App Manager → New Connected App.", "Enable OAuth Settings and add the callback URL shown above.", "Add the `api`, `refresh_token` and `offline_access` scopes, then save.", "Wait for Salesforce to activate the app, return here and click Connect.", "Approve Lulu in Salesforce and choose the organization you want to connect."], links: [{ label: "Open Salesforce Developer Portal", url: "https://developer.salesforce.com/" }] },
     Pipedrive: { intro: "Connect the Pipedrive account that contains your sales pipeline. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/pipedrive/callback", steps: ["Open the Pipedrive Developer Hub and create an OAuth app.", "Enter the callback URL shown above as the app redirect URL.", "Copy the Client ID and Client Secret to the backend environment; never put them in the browser.", "Click Connect here and approve the requested `base` access in Pipedrive."], links: [{ label: "Open Pipedrive Developer Hub", url: "https://developers.pipedrive.com/" }] },
@@ -160,31 +160,7 @@ export const LuluExistingPlatforms = () => {
   return <main className="min-h-screen bg-[var(--background)] font-['Inter',sans-serif] text-[var(--foreground)]">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
         <div className="w-full max-w-3xl">
-          <div className="flex items-center gap-2">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] font-bold text-[var(--primary-foreground)]">
-              L
-            </span>
-            <strong className="text-xl font-semibold text-[var(--foreground)]">
-              Lulu AI
-            </strong>
-          </div>
-          <nav aria-label="Setup progress" className="mt-10">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-                Company setup
-              </p>
-              <p className="text-xs font-medium text-[var(--foreground)]">
-                Step 3 of 4
-              </p>
-            </div>
-            <ol className="grid grid-cols-4 gap-1.5">
-              {setupSteps.map((step, index) => <li key={step} className="min-w-0">
-                  <span className={`block h-1.5 rounded-full ${index <= 2 ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={step} />
-                
-                  <span className="sr-only">{step}</span>
-                </li>)}
-            </ol>
-          </nav>
+          <OnboardingHeader step={3} />
           <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
             03 / 04 · Company profile
           </p>
