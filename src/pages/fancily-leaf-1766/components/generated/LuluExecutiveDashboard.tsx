@@ -677,7 +677,7 @@ const luluDropdownNavigation = [{
     "label": "Billing"
   }]
 }] as const;
-function LuluSectionNavigation({
+export function LuluSectionNavigation({
   activeId
 }: {
   activeId: string;

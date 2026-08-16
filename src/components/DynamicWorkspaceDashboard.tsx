@@ -4,6 +4,7 @@ import { getFriendlyErrorMessage } from "../api/client";
 import { workspaceAppApi, type BillingState } from "../api/workspace-app";
 import { workspaceApi } from "../api/workspaces";
 import type { WorkspaceBootstrap } from "../api/types";
+import { LuluSectionNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 import { useLuluApp } from "../api/LuluAppContext";
 
 function formatDate(value: string | null | undefined) {
@@ -22,7 +23,7 @@ function EmptyState({ children }: { children: string }) {
 }
 
 export function DynamicWorkspaceDashboard() {
-  const { selectedWorkspace } = useLuluApp();
+  const { currentUser, selectedWorkspace } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? "";
   const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null);
   const [billing, setBilling] = useState<BillingState | null>(null);
@@ -62,7 +63,19 @@ export function DynamicWorkspaceDashboard() {
   const integrationRows = Object.entries(bootstrap.integrations);
 
   return (
-    <main className="min-h-screen bg-[var(--background)] px-5 py-8 text-[var(--foreground)] sm:px-8 lg:px-12">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-[var(--border)] bg-[var(--card)] p-5 lg:flex">
+        <div className="mb-8 flex items-center gap-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary)] text-lg font-bold text-[var(--primary-foreground)]">L</span>
+          <span className="text-lg font-semibold tracking-tight">Lulu AI</span>
+        </div>
+        <LuluSectionNavigation activeId="fancily-leaf-1766" />
+        <div className="mt-5 border-t border-[var(--border)] pt-4">
+          <p className="truncate text-sm font-medium">{currentUser?.firstName || currentUser?.email || "Workspace user"}</p>
+          <p className="mt-1 text-xs text-[var(--muted-foreground)]">{bootstrap.permissions.role || "Workspace member"}</p>
+        </div>
+      </aside>
+      <main className="min-h-screen px-5 py-8 text-[var(--foreground)] sm:px-8 lg:ml-64 lg:px-12">
       <div className="mx-auto max-w-7xl">
         <header className="flex flex-col gap-5 border-b border-[var(--border)] pb-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -87,6 +100,7 @@ export function DynamicWorkspaceDashboard() {
 
         <section className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6"><h2 className="text-lg font-semibold">Recent activity</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">Real audit events from this workspace.</p><div className="mt-6">{bootstrap.recentActivity.length === 0 ? <EmptyState>No activity has been recorded yet.</EmptyState> : <div className="space-y-3">{bootstrap.recentActivity.map((entry) => <div key={entry.id} className="flex flex-col gap-1 border-b border-[var(--border)] py-3 last:border-0 sm:flex-row sm:items-center sm:justify-between"><span className="text-sm font-medium">{entry.action}</span><span className="text-xs text-[var(--muted-foreground)]">{entry.entityType} · {formatDate(entry.createdAt)}</span></div>)}</div>}</div></section>
       </div>
-    </main>
+      </main>
+    </div>
   );
 }
