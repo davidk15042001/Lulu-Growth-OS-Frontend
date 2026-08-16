@@ -46,7 +46,7 @@ const plans: Plan[] = [
     eyebrow: "Let Lulu run growth",
     description: "Give Lulu the authority to recommend, execute and automate the work across your workspace.",
     icon: WandSparkles,
-    accent: "bg-foreground text-background",
+    accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20",
     features: ["Everything in Starter", "AI insights and recommendations", "AI-assisted content and decisions", "Full automation of supported workflows"],
     limitations: "You stay in control with configurable approvals and safeguards",
     cta: "Choose AI",
@@ -144,7 +144,7 @@ export function BillingOnboarding() {
           </div>
         </section>
 
-        <footer className="mt-8 flex flex-col gap-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/40 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+        <footer className="mt-8 flex flex-col gap-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)] p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
           <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{selected ? selected.description : "Select Explorer, Starter or AI above. This step is required before entering your workspace."}</p></div></div>
           <button type="button" onClick={continueToWorkspace} disabled={!selectedPlan} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{selected ? `Confirm ${selected.name}` : "Select a plan first"}<ArrowRight size={16} aria-hidden="true" /></button>
         </footer>
