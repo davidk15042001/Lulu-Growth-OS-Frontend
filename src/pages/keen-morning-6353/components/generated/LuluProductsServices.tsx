@@ -548,27 +548,6 @@ export function LuluProductsServices() {
                 </select>
               </Field>
 
-              <div className="sm:col-span-2">
-                <Field label="Customer Problem">
-                  <textarea value={editing.problem} onChange={event => setEditing({
-                  ...editing,
-                  problem: event.target.value
-                })} placeholder="What customer problem does this product or service solve?" className={textareaClass} />
-                  
-                </Field>
-              </div>
-
-              <div className="sm:col-span-2">
-                <Field label="Value Proposition" hint="Use this space for key differentiators, proof points and reasons customers choose you.">
-                  
-                  <textarea value={editing.value} onChange={event => setEditing({
-                  ...editing,
-                  value: event.target.value
-                })} placeholder="Why should customers choose this product or service?" className={textareaClass} />
-                  
-                </Field>
-              </div>
-
               <Field label="Product / Service URL">
                 <input type="url" value={editing.url} onChange={event => setEditing({
                 ...editing,
