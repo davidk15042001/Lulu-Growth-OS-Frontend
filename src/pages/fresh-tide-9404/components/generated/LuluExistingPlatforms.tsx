@@ -47,7 +47,7 @@ const platformGroups: PlatformGroup[] = [{
   platforms: ["Webflow", "WordPress", "Shopify", "Google Business"],
   comingSoonPlatforms: ["Shopify", "Google Business"]
 }];
-  const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "Setup Complete"];
+  const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Billing"];
   const guideContent: Record<string, { intro: string; steps: string[]; links?: Array<{ label: string; url: string }> }> = {
     Salesforce: { intro: "Connect a Salesforce organization through a Connected App. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/salesforce/callback", steps: ["Open Salesforce Setup → App Manager → New Connected App.", "Enable OAuth Settings and add the callback URL shown above.", "Add the `api`, `refresh_token` and `offline_access` scopes, then save.", "Wait for Salesforce to activate the app, return here and click Connect.", "Approve Lulu in Salesforce and choose the organization you want to connect."], links: [{ label: "Open Salesforce Developer Portal", url: "https://developer.salesforce.com/" }] },
     Pipedrive: { intro: "Connect the Pipedrive account that contains your sales pipeline. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/pipedrive/callback", steps: ["Open the Pipedrive Developer Hub and create an OAuth app.", "Enter the callback URL shown above as the app redirect URL.", "Copy the Client ID and Client Secret to the backend environment; never put them in the browser.", "Click Connect here and approve the requested `base` access in Pipedrive."], links: [{ label: "Open Pipedrive Developer Hub", url: "https://developers.pipedrive.com/" }] },
@@ -174,10 +174,10 @@ export const LuluExistingPlatforms = () => {
                 Company setup
               </p>
               <p className="text-xs font-medium text-[var(--foreground)]">
-                Step 3 of 5
+                Step 3 of 4
               </p>
             </div>
-            <ol className="grid grid-cols-5 gap-1.5">
+            <ol className="grid grid-cols-4 gap-1.5">
               {setupSteps.map((step, index) => <li key={step} className="min-w-0">
                   <span className={`block h-1.5 rounded-full ${index <= 2 ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={step} />
                 
@@ -186,7 +186,7 @@ export const LuluExistingPlatforms = () => {
             </ol>
           </nav>
           <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-            03 / 05 · Company profile
+            03 / 04 · Company profile
           </p>
           <h1 className="mt-2 text-3xl font-semibold leading-tight text-[var(--foreground)]">
             Your existing platforms

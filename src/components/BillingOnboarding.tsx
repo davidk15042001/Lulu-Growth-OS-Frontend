@@ -98,6 +98,16 @@ export function BillingOnboarding() {
           <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)]">Company setup · Complete</span>
         </header>
 
+        <nav aria-label="Setup progress" className="mx-auto mt-8 max-w-7xl">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--foreground)]">Company setup</p>
+            <p className="text-xs font-semibold text-[var(--foreground)]">Step 4 of 4</p>
+          </div>
+          <ol className="grid grid-cols-4 gap-1.5" aria-label="Billing is the final onboarding step">
+            {["Company Information", "Business Description", "Existing Platforms", "Billing"].map((step) => <li key={step} className="min-w-0"><span className="block h-1.5 rounded-full bg-[var(--primary)]" title={step} /><span className="sr-only">{step}</span></li>)}
+          </ol>
+        </nav>
+
         <section className="mx-auto max-w-3xl py-14 text-center sm:py-16">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--card)]">
             <Sparkles size={22} aria-hidden="true" />
