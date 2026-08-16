@@ -20,6 +20,7 @@ export const routes = {
   },
   app: {
     dashboard: "/app/fancily-leaf-1766",
+    website: "/app/website",
   },
   allPages: "/all-pages",
 } as const;
@@ -40,6 +41,7 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "fresh-tide-9404": routes.onboarding.existingPlatforms,
   "wisely-brook-1005": routes.onboarding.aiPreferences,
   "keenly-valley-3615": routes.onboarding.setupComplete,
+  "lulu-website-portal-9012": routes.app.website,
 };
 
 export const LULU_NAVIGATION_MESSAGE = "lulu:navigate";

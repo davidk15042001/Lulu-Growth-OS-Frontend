@@ -1135,5 +1135,13 @@ export const pages: PageDefinition[] = [
     "generatedName": "crisp-week-7116",
     "selectedRevisionId": "438652346042564608",
     "previewImageUrl": "https://storage.googleapis.com/storage.magicpath.ai/component-previews/73152a09-4cf2-4b71-a4a5-785a68b43aad.png"
+  },
+  {
+    "id": "lulu-website-management",
+    "name": "Lulu AI — Website",
+    "slug": "lulu-website-portal-9012",
+    "generatedName": "lulu-website-portal-9012",
+    "selectedRevisionId": "local-website-management",
+    "previewImageUrl": null
   }
 ];

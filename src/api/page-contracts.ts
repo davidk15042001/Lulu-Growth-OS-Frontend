@@ -51,6 +51,7 @@ const WORKSPACE_SLUGS = new Set([
   "proudly-river-8017",
   "nicely-hour-4035",
   "fine-park-8079",
+  "lulu-website-portal-9012",
 ]);
 
 const SPECIAL_CONTRACTS: Record<string, PageContract> = {

@@ -682,6 +682,12 @@ const luluDropdownNavigation = [{
     "label": "Settings"
   }]
 }, {
+  "label": "Website",
+  "pages": [{
+    "id": "lulu-website-portal-9012",
+    "label": "Website"
+  }]
+}, {
   "label": "Integrations",
   "pages": [{
     "id": "glad-coast-1428",
