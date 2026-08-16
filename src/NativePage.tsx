@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluExecutiveDashboard } from "./pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
-import { DashboardBilling } from "./components/DashboardBilling";
+import { LuluBilling } from "./pages/pure-minute-5446/components/generated/LuluBilling";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -62,7 +62,7 @@ export function NativePage({ slug }: { slug: string }) {
     }
 
     if (slug === "pure-minute-5446") {
-      setApp(() => DashboardBilling);
+      setApp(() => LuluBilling);
       return () => {
         active = false;
         if (pageFrame && isAuthPage) {
