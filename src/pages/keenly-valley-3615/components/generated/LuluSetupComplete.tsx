@@ -345,17 +345,6 @@ const SetupView = ({
       
         <Sparkles size={18} /> Start AI Analysis
       </motion.button>
-      <div className="flex items-center gap-5 text-sm">
-        <button className="text-foreground underline hover:text-foreground">
-          Review Setup
-        </button>
-        <button className="flex items-center gap-1 text-foreground hover:text-foreground">
-          Go to Dashboard <ArrowRight size={14} />
-        </button>
-      </div>
-      <p className="text-xs text-muted-foreground">
-        Analysis can be started at any time from your dashboard.
-      </p>
     </div>
   </motion.div>;
 const FlowDiagram = () => <div aria-label="AI intelligence pipeline" className="mx-auto mt-9 w-full max-w-2xl px-0.5">
