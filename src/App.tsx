@@ -182,6 +182,7 @@ export default function App() {
       <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
       <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<Navigate replace to={routes.onboarding.billing} />} />
       <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
+      <Route path={routes.onboarding.billings} element={<BillingOnboarding />} />
       {pages.map((page) => (
         <Route key={page.id} path={pagePath(page.slug)} element={<PageRoute page={page} />} />
       ))}
