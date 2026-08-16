@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ArrowRight, Check, Eye, Lock, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
 import { navigateApp, routes } from "../routing";
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { onboardingApi } from "../api/onboarding";
+import { workspaceAppApi } from "../api/workspace-app";
 import { OnboardingHeader } from "./OnboardingHeader";
 
 type PlanId = "explorer" | "starter" | "ai";
@@ -78,6 +79,41 @@ export function BillingOnboarding() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const selected = selectedPlan ? plans.find((plan) => plan.id === selectedPlan) : undefined;
+  const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
+  const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
+
+  useEffect(() => {
+    if (!paymentSucceeded || !selectedWorkspace) return;
+    let active = true;
+    let attempts = 0;
+    let timer: number | undefined;
+
+    const pollBilling = async () => {
+      try {
+        const response = await workspaceAppApi.billing(selectedWorkspace.id);
+        const subscription = response.data.subscription;
+        if (subscription?.status === "active") {
+          await refresh();
+          if (active) navigateApp(routes.app.dashboard, { replace: true });
+          return;
+        }
+        attempts += 1;
+        if (attempts >= 30) {
+          if (active) setPaymentStatus("error");
+          return;
+        }
+        timer = window.setTimeout(() => void pollBilling(), 2000);
+      } catch {
+        if (active) setPaymentStatus("error");
+      }
+    };
+
+    void pollBilling();
+    return () => {
+      active = false;
+      if (timer !== undefined) window.clearTimeout(timer);
+    };
+  }, [paymentSucceeded, refresh, selectedWorkspace]);
 
   if (loading) {
     return <main className="grid min-h-screen place-items-center bg-[var(--background)] text-sm text-[var(--muted-foreground)]">Loading your workspace…</main>;
@@ -171,8 +207,8 @@ export function BillingOnboarding() {
         </section>
 
         <footer className="mt-8 flex flex-col gap-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)] p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{selected ? selected.description : "Select Explorer, Starter or AI above. This step is required before entering your workspace."}</p>{error && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">{error}</p>}</div></div>
-          <button type="button" onClick={() => void continueToWorkspace()} disabled={!selectedPlan || submitting} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{submitting ? (selected?.id === "explorer" ? "Activating Explorer…" : "Opening secure checkout…") : selected ? `Confirm ${selected.name}` : "Select a plan first"}<ArrowRight size={16} /></button>
+          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{paymentStatus === "waiting" ? "Payment received — confirming your subscription…" : selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{paymentStatus === "waiting" ? "We are waiting for Airwallex to confirm the payment. This page will continue automatically." : selected ? selected.description : "Select Explorer, Starter or AI above. This step is required before entering your workspace."}</p>{paymentStatus === "error" && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">Payment was returned, but the subscription confirmation has not arrived yet. Please wait a moment and refresh this page.</p>}{error && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">{error}</p>}</div></div>
+          <button type="button" onClick={() => void continueToWorkspace()} disabled={!selectedPlan || submitting || paymentStatus === "waiting"} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{paymentStatus === "waiting" ? "Confirming payment…" : submitting ? (selected?.id === "explorer" ? "Activating Explorer…" : "Opening secure checkout…") : selected ? `Confirm ${selected.name}` : "Select a plan first"}<ArrowRight size={16} /></button>
         </footer>
       </div>
     </main>
