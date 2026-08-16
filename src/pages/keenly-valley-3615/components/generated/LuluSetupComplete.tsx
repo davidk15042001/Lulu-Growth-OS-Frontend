@@ -394,37 +394,29 @@ const SetupView = ({
       </p>
     </div>
   </motion.div>;
-const FlowDiagram = () => <div aria-label="AI intelligence pipeline" className="mx-auto mt-9 flex max-w-md flex-col items-center">
-  
+const FlowDiagram = () => <div aria-label="AI intelligence pipeline" className="mx-auto mt-9 w-full max-w-2xl overflow-x-auto pb-2">
+  <div className="flex min-w-[680px] items-center gap-2 px-1">
     <FlowNode label="Your Business" />
     <FlowLine />
     <FlowNode label="Company Data" />
     <FlowLine />
-    <motion.div initial={{
-    opacity: 0,
-    scale: 0.8
-  }} animate={{
-    opacity: 1,
-    scale: 1
-  }} transition={{
-    delay: 0.3
-  }} className="flex items-center gap-2 rounded-2xl border border-border bg-secondary/[0.12] px-7 py-3 text-sm font-medium text-foreground shadow-[0_0_24px_rgba(0,0,0,0.18)]">
-    
-      <Sparkles size={16} /> Lulu AI
-    </motion.div>
+    <FlowNode label="Lulu AI" ai />
     <FlowLine />
     <FlowNode label="AI Analysis" violet />
     <FlowLine />
     <FlowNode label="Business Intelligence" success />
-  </div>;
+  </div>
+</div>;
 const FlowNode = ({
   label,
   violet = false,
-  success = false
+  success = false,
+  ai = false
 }: {
   label: string;
   violet?: boolean;
   success?: boolean;
+  ai?: boolean;
 }) => <motion.div initial={{
   opacity: 0,
   y: 8
@@ -433,20 +425,18 @@ const FlowNode = ({
   y: 0
 }} transition={{
   duration: 0.35
-}} className={`rounded-2xl border px-6 py-3 text-sm font-medium ${success ? "border-chart-4/30 bg-chart-4/[0.05] text-chart-4" : violet ? "border-border/30 bg-secondary/[0.06] text-foreground" : "border-border bg-[var(--card)] text-foreground"}`}>
-  
-    {label}
-  </motion.div>;
-const FlowLine = () => <div className="relative h-8 w-px bg-gradient-to-b from-white/[0.07] to-secondary/30">
-    <motion.span animate={{
-    y: [0, 24],
+}} className={`flex min-h-[76px] min-w-[116px] flex-1 items-center justify-center rounded-2xl border px-3 py-3 text-center text-xs font-semibold leading-5 ${success ? "border-chart-4/30 bg-chart-4/[0.05] text-chart-4" : ai ? "border-border bg-foreground text-background shadow-[0_0_24px_rgba(0,0,0,0.18)]" : violet ? "border-border/30 bg-secondary/[0.06] text-foreground" : "border-border bg-[var(--card)] text-foreground"}`}>
+  {ai ? <span className="flex items-center gap-1.5"><Sparkles size={14} aria-hidden="true" />{label}</span> : label}
+</motion.div>;
+const FlowLine = () => <div className="relative h-px min-w-6 flex-1 bg-gradient-to-r from-border/40 to-border">
+  <motion.span animate={{
+    x: [0, 28],
     opacity: [0, 1, 0]
   }} transition={{
     repeat: Infinity,
     duration: 1.4
-  }} className="absolute -left-[2px] top-0 h-1 w-1 rounded-full bg-primary text-primary-foreground" />
-  
-  </div>;
+  }} className="absolute -top-[2px] left-0 h-1 w-1 rounded-full bg-primary" />
+</div>;
 const ConfirmModal = ({
   onBack,
   onStart
