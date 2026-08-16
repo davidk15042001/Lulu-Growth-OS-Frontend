@@ -1,7 +1,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import { ArrowRight, BarChart3, Check, CircleCheck, Globe, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
-import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
+import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 interface Platform {
   id: string;
@@ -63,9 +63,18 @@ export const LuluExistingPlatforms = () => {
   const [query, setQuery] = useState("");
   const [synced, setSynced] = useState(false);
   const [error, setError] = useState('');
+  const [technicalDetails, setTechnicalDetails] = useState('');
   const [guidePlatform, setGuidePlatform] = useState<string | null>(null);
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthError = params.get('oauthError');
+    const oauthCode = params.get('oauthCode');
+    const oauthRequestId = params.get('oauthRequestId');
+    if (oauthError) {
+      setError(oauthError);
+      setTechnicalDetails([oauthCode ? `Code: ${oauthCode}` : '', oauthRequestId ? `Request-ID: ${oauthRequestId}` : ''].filter(Boolean).join(' · '));
+    }
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
     requestApi<{ platforms: Array<{ id: string; name: string; category: string; connectionStatus: string }> }>({ path: `/workspaces/${workspaceId}/onboarding` })
@@ -75,7 +84,10 @@ export const LuluExistingPlatforms = () => {
         type: platform.category,
         status: platform.connectionStatus === 'connected' ? 'Connected' : platform.connectionStatus === 'error' ? 'Needs review' : 'Pending',
       }))))
-      .catch(cause => setError(getFriendlyErrorMessage(cause, 'We could not load your platforms. Please try again.')));
+      .catch(cause => {
+        setError(getFriendlyErrorMessage(cause, 'We could not load your platforms. Please try again.'));
+        setTechnicalDetails(getTechnicalErrorDetails(cause));
+      });
   }, []);
   const connectPlatform = async (name: string) => {
     const workspaceId = getSelectedWorkspaceId();
@@ -100,6 +112,7 @@ export const LuluExistingPlatforms = () => {
       return;
     }
     setError('');
+    setTechnicalDetails('');
     setConnectingPlatform(name);
     try {
       const shop = provider === 'shopify' ? window.prompt('Enter your Shopify shop domain (example.myshopify.com)')?.trim() : undefined;
@@ -112,6 +125,7 @@ export const LuluExistingPlatforms = () => {
       window.location.assign(response.data.authorizationUrl);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, 'We could not start this connection. Please try again.'));
+      setTechnicalDetails(getTechnicalErrorDetails(cause));
       setConnectingPlatform(null);
     }
   };
@@ -177,7 +191,7 @@ export const LuluExistingPlatforms = () => {
               <span className="flex items-center justify-between gap-3"><span>Search platforms</span><span className="text-xs font-normal text-[var(--muted-foreground)]">{platformGroups.reduce((count, group) => count + group.platforms.length, 0)} available</span></span>
               <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search Salesforce, Google Ads, Analytics…" className="mt-2 h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-4 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15" />
             </label>
-            {error && <div role="alert" className="rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm leading-6 text-[var(--destructive)]">{error}</div>}
+            {error && <div role="alert" className="space-y-2 rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm leading-6 text-[var(--destructive)]"><p className="font-medium text-[var(--destructive)]">{error}</p>{technicalDetails && <details><summary className="cursor-pointer text-xs font-semibold text-[var(--destructive)]">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--destructive)]">{technicalDetails}</p></details>}</div>}
             <div className="space-y-5">
               {platformGroups.map(group => {
               const Icon = group.icon;
