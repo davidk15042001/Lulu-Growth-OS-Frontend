@@ -16,6 +16,7 @@ export const routes = {
     productsServices: "/onboarding/products-services",
     existingPlatforms: "/onboarding/existing-platforms",
     setupComplete: "/onboarding/setup-complete",
+    billing: "/onboarding/billing",
   },
   app: {
     dashboard: "/app/fancily-leaf-1766",

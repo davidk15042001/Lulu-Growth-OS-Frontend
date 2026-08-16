@@ -13,6 +13,7 @@ import {
 import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
 import { getPageContract } from "./api/page-contracts";
 import { useLuluApp } from "./api/LuluAppContext";
+import { BillingOnboarding } from "./components/BillingOnboarding";
 
 function Directory() {
   const [query, setQuery] = useState("");
@@ -169,6 +170,7 @@ export default function App() {
       <Route path="/pages" element={<Navigate replace to={routes.allPages} />} />
       <Route path="/pages/:slug" element={<LegacyPageRedirect />} />
       <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
+      <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
       {pages.map((page) => (
         <Route key={page.id} path={pagePath(page.slug)} element={<PageRoute page={page} />} />
       ))}

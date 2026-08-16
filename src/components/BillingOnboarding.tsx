@@ -1,0 +1,147 @@
+import { useState } from "react";
+import { ArrowRight, Check, Eye, Lock, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
+import { navigateApp, routes } from "../routing";
+import { useLuluApp } from "../api/LuluAppContext";
+
+type PlanId = "explorer" | "starter" | "ai";
+
+type Plan = {
+  id: PlanId;
+  name: string;
+  eyebrow: string;
+  description: string;
+  icon: typeof Eye;
+  accent: string;
+  features: string[];
+  limitations: string;
+  cta: string;
+};
+
+const plans: Plan[] = [
+  {
+    id: "explorer",
+    name: "Explorer",
+    eyebrow: "See the full picture",
+    description: "Understand your business with read-only access to the complete Lulu workspace.",
+    icon: Eye,
+    accent: "bg-[var(--secondary)]",
+    features: ["View connected data and dashboards", "Explore reports, insights and history", "Read recommendations and opportunities"],
+    limitations: "No changes, actions or automation",
+    cta: "Choose Explorer",
+  },
+  {
+    id: "starter",
+    name: "Starter",
+    eyebrow: "Take action yourself",
+    description: "Manage your workspace and connected platforms without AI-powered actions or recommendations.",
+    icon: Zap,
+    accent: "bg-[var(--primary)] text-[var(--primary-foreground)]",
+    features: ["Everything in Explorer", "Create, edit and manage workspace data", "Manage connected websites and platforms", "Run actions manually with your approval"],
+    limitations: "AI functions and recommendations are not included",
+    cta: "Choose Starter",
+  },
+  {
+    id: "ai",
+    name: "AI",
+    eyebrow: "Let Lulu run growth",
+    description: "Give Lulu the authority to recommend, execute and automate the work across your workspace.",
+    icon: WandSparkles,
+    accent: "bg-foreground text-background",
+    features: ["Everything in Starter", "AI insights and recommendations", "AI-assisted content and decisions", "Full automation of supported workflows"],
+    limitations: "You stay in control with configurable approvals and safeguards",
+    cta: "Choose AI",
+  },
+];
+
+const capabilityRows = [
+  ["View dashboards, reports and connected data", true, true, true],
+  ["Manage workspace content and settings", false, true, true],
+  ["Manage connected websites and platforms", false, true, true],
+  ["AI functions and recommendations", false, false, true],
+  ["Full automation of supported workflows", false, false, true],
+];
+
+export function BillingOnboarding() {
+  const { currentUser, loading } = useLuluApp();
+  const [selectedPlan, setSelectedPlan] = useState<PlanId>("starter");
+  const selected = plans.find((plan) => plan.id === selectedPlan) ?? plans[1];
+
+  if (loading) {
+    return <main className="grid min-h-screen place-items-center bg-[var(--background)] text-sm text-[var(--muted-foreground)]">Loading your workspace…</main>;
+  }
+
+  if (!currentUser) {
+    navigateApp(routes.auth.login, { replace: true });
+    return null;
+  }
+
+  const continueToWorkspace = () => {
+    window.localStorage.setItem("lulu:selected-plan", selectedPlan);
+    navigateApp(routes.app.dashboard);
+  };
+
+  return (
+    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
+        <header className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] text-sm font-bold text-[var(--primary-foreground)]">L</span>
+            <strong className="text-xl font-semibold">Lulu AI</strong>
+          </div>
+          <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)]">Company setup · Complete</span>
+        </header>
+
+        <section className="mx-auto max-w-3xl py-14 text-center sm:py-16">
+          <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--card)]">
+            <Sparkles size={22} aria-hidden="true" />
+          </div>
+          <p className="mt-6 text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Choose your workspace access</p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Select the way you want Lulu to work.</h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Start with the level of control that fits your business. You can change your plan later as your needs grow.</p>
+        </section>
+
+        <section aria-label="Available plans" className="grid gap-5 lg:grid-cols-3">
+          {plans.map((plan) => {
+            const Icon = plan.icon;
+            const isSelected = selectedPlan === plan.id;
+            return (
+              <article key={plan.id} className={`relative flex flex-col rounded-2xl border p-6 transition sm:p-7 ${isSelected ? "border-[var(--foreground)] shadow-[0_20px_60px_rgba(0,0,0,0.10)]" : "border-[var(--border)] bg-[var(--card)]"}`}>
+                {plan.id === "starter" && <span className="absolute right-5 top-5 rounded-full bg-[var(--foreground)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[var(--background)]">Recommended</span>}
+                <div className={`grid h-10 w-10 place-items-center rounded-xl ${plan.accent}`}><Icon size={19} aria-hidden="true" /></div>
+                <p className="mt-6 text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">{plan.eyebrow}</p>
+                <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{plan.name}</h2>
+                <p className="mt-3 min-h-20 text-sm leading-6 text-[var(--muted-foreground)]">{plan.description}</p>
+                <div className="my-6 h-px bg-[var(--border)]" />
+                <ul className="space-y-3 text-sm leading-6">
+                  {plan.features.map((feature) => <li key={feature} className="flex items-start gap-2.5"><Check size={16} className="mt-1 shrink-0" aria-hidden="true" /><span>{feature}</span></li>)}
+                </ul>
+                <p className="mt-6 flex items-start gap-2 text-xs leading-5 text-[var(--muted-foreground)]"><Lock size={14} className="mt-0.5 shrink-0" aria-hidden="true" /><span>{plan.limitations}</span></p>
+                <button type="button" onClick={() => setSelectedPlan(plan.id)} aria-pressed={isSelected} className={`mt-7 inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition ${isSelected ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "border border-[var(--border)] bg-[var(--card)] hover:border-[var(--foreground)]"}`}>
+                  {isSelected ? <Check size={16} aria-hidden="true" /> : null}{isSelected ? "Selected" : plan.cta}
+                </button>
+              </article>
+            );
+          })}
+        </section>
+
+        <section className="mt-8 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
+          <div className="border-b border-[var(--border)] px-5 py-5 sm:px-7">
+            <h2 className="text-lg font-semibold">Compare access levels</h2>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Every plan starts with the same connected business context. The difference is what Lulu can do with it.</p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[680px] text-left text-sm">
+              <thead><tr className="border-b border-[var(--border)] text-xs uppercase tracking-[.12em] text-[var(--muted-foreground)]"><th className="px-5 py-4 font-semibold sm:px-7">Capability</th>{plans.map((plan) => <th key={plan.id} className="px-4 py-4 text-center font-semibold">{plan.name}</th>)}</tr></thead>
+              <tbody>{capabilityRows.map(([label, explorer, starter, ai]) => <tr key={String(label)} className="border-b border-[var(--border)] last:border-0"><th className="px-5 py-4 font-medium sm:px-7">{label}</th>{[explorer, starter, ai].map((enabled, index) => <td key={`${label}-${index}`} className="px-4 py-4 text-center">{enabled ? <Check className="mx-auto" size={17} aria-label="Included" /> : <span className="text-[var(--muted-foreground)]" aria-label="Not included">—</span>}</td>)}</tr>)}</tbody>
+            </table>
+          </div>
+        </section>
+
+        <footer className="mt-8 flex flex-col gap-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/40 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
+          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">Your selected plan</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{selected.name}: {selected.description}</p></div></div>
+          <button type="button" onClick={continueToWorkspace} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Continue with {selected.name}<ArrowRight size={16} aria-hidden="true" /></button>
+        </footer>
+      </div>
+    </main>
+  );
+}

@@ -631,8 +631,8 @@ const CompleteView = () => <motion.div initial={{
         Analysis complete in 7.5s
       </p>
     </section>
-    <button onClick={() => navigateApp(routes.app.dashboard)} className="mt-8 flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-10 py-4 text-base font-semibold shadow-lg shadow-black/25 hover:bg-primary sm:mx-auto sm:w-auto text-primary-foreground">
-      Open Executive Dashboard <ArrowRight size={18} />
+    <button onClick={() => navigateApp(routes.onboarding.billing)} className="mt-8 flex w-full items-center justify-center gap-2.5 rounded-xl bg-primary px-10 py-4 text-base font-semibold shadow-lg shadow-black/25 hover:bg-primary sm:mx-auto sm:w-auto text-primary-foreground">
+      Choose your plan <ArrowRight size={18} />
     </button>
     <div className="mt-8 grid grid-cols-3 gap-2 text-center">
       {[{
