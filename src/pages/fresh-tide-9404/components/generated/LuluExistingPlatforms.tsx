@@ -31,7 +31,7 @@ const platformGroups: PlatformGroup[] = [{
   description: "Campaign performance and audience activation.",
   icon: Store,
   platforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API", "TikTok Ads"],
-  comingSoonPlatforms: ["Google Ads API", "Meta Marketing API"]
+  comingSoonPlatforms: ["Google Ads API", "Meta Marketing API", "TikTok Ads"]
 }, {
   id: "analytics",
   label: "Analyse",
