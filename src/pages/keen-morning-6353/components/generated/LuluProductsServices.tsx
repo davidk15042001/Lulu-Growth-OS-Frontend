@@ -263,7 +263,6 @@ export function LuluProductsServices() {
   const [editing, setEditing] = useState<Offering>(emptyOffering());
   const [selectedId, setSelectedId] = useState("");
   const [showHelp, setShowHelp] = useState(false);
-  const [isSkipOpen, setIsSkipOpen] = useState(false);
   const [toast, setToast] = useState("");
   useEffect(() => {
     const workspaceId = getSelectedWorkspaceId();
@@ -547,108 +546,6 @@ export function LuluProductsServices() {
             </button>
           </form>
 
-          <section className="mt-7 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.07)] sm:p-6" aria-labelledby="overview-heading">
-            
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <h2 id="overview-heading" className="text-base font-semibold text-[var(--foreground)]">
-                  
-                  <span>Offering overview</span>
-                </h2>
-                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                  <span>Live profile data · Products &amp; Services</span>
-                </p>
-              </div>
-              <span className="rounded-full bg-[var(--secondary)] px-3 py-1 text-xs font-medium text-[var(--foreground)]">
-                <span>{offerings.length} offerings</span>
-              </span>
-            </div>
-
-            <div className="mt-4 space-y-3">
-              {offerings.map(item => <article key={item.id} className={`rounded-2xl border p-5 transition duration-200 ${selectedId === item.id ? "border-[var(--primary)] bg-[var(--primary)]/[0.06] shadow-[0_12px_35px_rgba(0,0,0,0.07)]" : "border-[var(--border)] bg-[var(--card)] hover:-translate-y-0.5 hover:border-[var(--primary)]/50 hover:shadow-[0_12px_35px_rgba(0,0,0,0.06)]"}`}>
-                
-                  <div className="flex items-start justify-between gap-3">
-                    <button type="button" onClick={() => loadOffering(item)} className="min-w-0 text-left">
-                    
-                      <h3 className="flex flex-wrap items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
-                        <span>{item.name}</span>
-                        {item.primary ? <span className="inline-flex items-center gap-1 rounded-full bg-card px-2 py-0.5 text-[11px] font-medium text-[var(--foreground)]">
-                            <Star size={11} fill="currentColor" aria-hidden="true" />
-                        
-                            <span>Primary</span>
-                          </span> : null}
-                      </h3>
-                      <p className="mt-1 text-xs text-[var(--muted-foreground)]">
-                        <span>{item.type}</span>
-                        <span> · </span>
-                        <span>{item.category || "Uncategorized"}</span>
-                        <span> · </span>
-                        <span>{item.status}</span>
-                      </p>
-                    </button>
-                    <button type="button" onClick={() => removeOffering(item.id)} aria-label={`Delete ${item.name}`} className="rounded-md p-2 text-[var(--muted-foreground)] hover:bg-card hover:text-[var(--foreground)]">
-                    
-                      <Trash2 size={15} aria-hidden="true" />
-                    </button>
-                  </div>
-                  <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-                    <span>
-                      {item.description || "No description added yet."}
-                    </span>
-                  </p>
-                  <div className="mt-3 grid gap-2 text-xs text-[var(--muted-foreground)] sm:grid-cols-3">
-                    <p className="flex items-center gap-1.5">
-                      <PackageOpen size={13} aria-hidden="true" />
-                      <span>
-                        {item.customer || "Target customer not specified"}
-                      </span>
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <DollarSign size={13} aria-hidden="true" />
-                      <span>{item.price || item.pricing}</span>
-                    </p>
-                    <p className="flex items-center gap-1.5">
-                      <Tags size={13} aria-hidden="true" />
-                      <span>{item.value || "Key differentiators pending"}</span>
-                    </p>
-                  </div>
-                </article>)}
-            </div>
-          </section>
-
-          <section className="mt-7 rounded-2xl border border-[var(--border)] bg-[var(--secondary)] p-5 shadow-[0_14px_40px_rgba(0,0,0,0.05)] sm:p-6" aria-labelledby="profile-heading">
-            
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <h2 id="profile-heading" className="text-base font-semibold text-[var(--foreground)]">
-                  
-                  <span>Product &amp; Service Profile</span>
-                </h2>
-                <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-                  <span>Optional details improve Lulu AI recommendations.</span>
-                </p>
-              </div>
-              <strong className="text-lg font-semibold text-[var(--foreground)]">
-                <span>{completeness}% </span>
-                <span className="text-xs font-normal text-[var(--muted-foreground)]">
-                  Complete
-                </span>
-              </strong>
-            </div>
-            <div className="mt-5 h-1.5 overflow-hidden rounded-full bg-[var(--primary)] text-primary-foreground">
-              <div className="h-full rounded-full bg-[var(--primary)] transition-all text-primary-foreground" style={{
-              width: `${completeness}%`
-            }} />
-              
-            </div>
-            <ul className="mt-5 grid gap-3 text-sm text-[var(--muted-foreground)] sm:grid-cols-2">
-              {completenessItems.map(item => <li key={item.id} className="flex items-center gap-2">
-                  {item.done ? <Check size={15} className="text-[var(--foreground)]" aria-hidden="true" /> : <span className="h-3.5 w-3.5 rounded-full border border-[var(--border)]" />}
-                  <span>{item.label}</span>
-                </li>)}
-            </ul>
-          </section>
-
           {selectedOffering ? <section className="mt-7 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_18px_55px_rgba(0,0,0,0.07)] sm:p-6" aria-labelledby="understanding-heading">
             
               <div className="flex items-center gap-2">
@@ -689,10 +586,6 @@ export function LuluProductsServices() {
               <ArrowLeft size={16} aria-hidden="true" />
               <span>Back</span>
             </button>
-            <button type="button" onClick={() => setIsSkipOpen(true)} className="h-11 rounded-xl px-4 text-sm font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)]">
-              
-              <span>Skip Setup</span>
-            </button>
             <button type="button" disabled={offerings.length === 0} onClick={() => navigateApp(routes.onboarding.existingPlatforms)} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 text-sm font-semibold text-primary-foreground shadow-[0_12px_28px_color-mix(in_srgb,var(--primary)_24%,transparent)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:cursor-not-allowed disabled:opacity-50">
               
               <span>Continue</span>
@@ -703,23 +596,6 @@ export function LuluProductsServices() {
       </section>
 
       <RightPanel total={offerings.length} completeness={completeness} />
-
-      {isSkipOpen ? <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--background)]/45 px-5 backdrop-blur-sm" role="presentation" onMouseDown={() => setIsSkipOpen(false)}>
-          <section role="dialog" aria-modal="true" aria-labelledby="skip-setup-title" onMouseDown={event => event.stopPropagation()} className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 text-[var(--foreground)] shadow-[0_24px_80px_rgba(0,0,0,0.20)] sm:p-7">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Company setup</p>
-                <h2 id="skip-setup-title" className="mt-2 text-xl font-semibold tracking-[-0.03em]">Onboarding is required</h2>
-                <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">To protect your workspace setup, the dashboard becomes available after the onboarding steps are completed. Your current progress is saved.</p>
-              </div>
-              <button type="button" aria-label="Close dialog" onClick={() => setIsSkipOpen(false)} className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"><X size={17} /></button>
-            </div>
-            <div className="mt-6 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
-              <button type="button" onClick={() => setIsSkipOpen(false)} className="h-11 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--secondary)]">Stay in setup</button>
-              <button type="button" onClick={() => { setIsSkipOpen(false); setToast("Complete the onboarding steps to unlock the dashboard."); window.setTimeout(() => setToast(""), 2800); }} className="h-11 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5">Continue onboarding</button>
-            </div>
-          </section>
-        </div> : null}
 
       {toast ? <div role="status" className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-[var(--border)] bg-card px-4 py-2.5 text-sm font-medium text-[var(--foreground)] shadow-[0_18px_50px_rgba(0,0,0,0.18)]">
         
