@@ -185,14 +185,6 @@ export const pages: PageDefinition[] = [
     "previewImageUrl": "https://storage.googleapis.com/storage.magicpath.ai/component-previews/b8f44718-fd31-4555-8607-7d8682ef92e4.png"
   },
   {
-    "id": "437844461901455392",
-    "name": "Lulu AI — AI Preferences",
-    "slug": "wisely-brook-1005",
-    "generatedName": "wisely-brook-1005",
-    "selectedRevisionId": "438651103635185664",
-    "previewImageUrl": "https://storage.googleapis.com/storage.magicpath.ai/component-previews/1f3a06c4-bcfb-4450-b65a-2c40acee7047.png"
-  },
-  {
     "id": "437844461897261133",
     "name": "Lulu AI — AI Recommendations",
     "slug": "daring-home-4179",

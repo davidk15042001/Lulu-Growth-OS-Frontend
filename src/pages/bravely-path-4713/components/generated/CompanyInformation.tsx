@@ -9,7 +9,7 @@ type CompanyForm = {
   companySize: string;
   countryRegion: string;
 };
-const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
+const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "Setup Complete"];
 export const CompanyInformation = () => {
   const [saved, setSaved] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -83,10 +83,10 @@ export const CompanyInformation = () => {
                 Company setup
               </p>
               <p className="text-xs font-medium text-[var(--foreground)]">
-                Step 1 of 6
+                Step 1 of 5
               </p>
             </div>
-            <ol className="grid grid-cols-6 gap-1.5">
+            <ol className="grid grid-cols-5 gap-1.5">
               {setupSteps.map((step, index) => <li key={step} className="min-w-0">
                   <span className={`block h-1.5 rounded-full ${index === 0 ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={step} />
                 
@@ -96,7 +96,7 @@ export const CompanyInformation = () => {
           </nav>
 
           <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-            <span>01 / 06 · Company profile</span>
+            <span>01 / 05 · Company profile</span>
           </p>
           <h1 className="mt-2 text-3xl font-semibold leading-tight text-[var(--foreground)] sm:text-4xl">
             <span>Company information</span>

@@ -38,7 +38,6 @@ export type OnboardingSnapshot = {
   workspace: Workspace;
   offerings: Offering[];
   platforms: Platform[];
-  aiPreferences: Record<string, unknown> | null;
   completion: Record<string, unknown>;
 };
 
@@ -69,10 +68,6 @@ export const onboardingApi = {
   }),
   deletePlatform: (workspaceId: string, platformId: string) => requestApi<null>({
     path: workspaceApiPath(workspaceId, `/onboarding/platforms/${platformId}`), method: "DELETE",
-  }),
-  aiPreferences: (workspaceId: string) => requestApi<Record<string, unknown> | null>({ path: workspaceApiPath(workspaceId, "/onboarding/ai-preferences") }),
-  saveAiPreferences: (workspaceId: string, input: Record<string, unknown>) => requestApi<Record<string, unknown>>({
-    path: workspaceApiPath(workspaceId, "/onboarding/ai-preferences"), method: "PUT", body: input,
   }),
   complete: (workspaceId: string) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/complete"), method: "POST", body: {} }),
 };

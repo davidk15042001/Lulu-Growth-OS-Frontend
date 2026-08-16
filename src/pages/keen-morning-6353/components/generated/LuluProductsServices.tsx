@@ -78,11 +78,7 @@ const stepItems = [{
   id: "integrations",
   label: "Integrations",
   state: "upcoming"
-}, {
-  id: "ai-preferences",
-  label: "AI Preferences",
-  state: "upcoming"
-}, {
+  }, {
   id: "setup-complete",
   label: "Setup Complete",
   state: "upcoming"
@@ -198,7 +194,7 @@ function RightPanel() {
         <Sparkles size={42} className="text-[var(--foreground)]" aria-hidden="true" />
         
         <span className="rounded-full border border-[var(--border)] bg-card px-3 py-1 text-xs font-medium text-[var(--foreground)]">
-          <span>Step 3 of 7</span>
+          <span>Step 3 of 5</span>
         </span>
       </div>
 
@@ -349,10 +345,10 @@ export function LuluProductsServices() {
                 <span>Company setup</span>
               </p>
               <p className="text-xs font-medium text-[var(--foreground)]">
-                <span>Step 3 of 7</span>
+                <span>Step 3 of 5</span>
               </p>
             </div>
-            <ol className="grid grid-cols-7 gap-1.5" aria-label="Company setup steps">
+            <ol className="grid grid-cols-5 gap-1.5" aria-label="Company setup steps">
               
               {stepItems.map(step => <li key={step.id} className="min-w-0">
                   <span className={`block h-1.5 rounded-full ${step.state === "complete" ? "bg-[var(--primary)]" : step.state === "current" ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={step.label} />
@@ -364,7 +360,7 @@ export function LuluProductsServices() {
 
           <section className="mt-8" aria-labelledby="products-heading">
             <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-              <span>03 / 07 · Your offerings</span>
+              <span>03 / 05 · Your offerings</span>
             </p>
             <h1 id="products-heading" className="mt-3 max-w-2xl text-4xl font-semibold leading-[1.05] tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
               

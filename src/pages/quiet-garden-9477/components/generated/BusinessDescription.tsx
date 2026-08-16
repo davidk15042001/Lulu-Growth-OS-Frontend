@@ -18,7 +18,7 @@ type UploadItem = DocumentRecord & {
   kind: "image" | "document";
 };
 
-const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
+const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "Setup Complete"];
 const MAX_FILE_SIZE = 5000 * 1024;
 const ACCEPTED_FILES = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv";
 
@@ -139,7 +139,7 @@ export const BusinessDescription = () => {
     try {
       await requestApi({ path: `/workspaces/${workspaceId}/onboarding/business-description`, method: "PATCH", body: { businessDescription: businessDescription.trim(), valueProposition: null, targetMarket: null, shortBrandDescription: null, positioningTags: [] } });
       setSaved(true);
-      navigateApp(routes.onboarding.productsServices);
+      navigateApp(routes.onboarding.existingPlatforms);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "Die Firmenbeschreibung konnte nicht gespeichert werden. Bitte versuche es erneut."));
       setTechnicalError(getTechnicalErrorDetails(cause));
@@ -154,8 +154,8 @@ export const BusinessDescription = () => {
     <main className="grid min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-start justify-center px-6 py-8 sm:px-8 lg:px-12"><div className="w-full max-w-xl">
         <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] font-bold text-[var(--primary-foreground)]">L</span><b className="text-xl text-[var(--foreground)]">Lulu AI</b></div>
-        <nav aria-label="Setup progress" className="mt-10"><div className="mb-3 flex items-center justify-between"><p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">Company setup</p><p className="text-xs font-medium text-[var(--foreground)]">Step 2 of 6</p></div><ol className="grid grid-cols-6 gap-1.5">{setupSteps.map((step, index) => <li key={step} className="min-w-0"><span className={`block h-1.5 rounded-full ${index <= 1 ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={step} /><span className="sr-only">{step}</span></li>)}</ol></nav>
-        <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">02 / 06 · Company profile</p>
+        <nav aria-label="Setup progress" className="mt-10"><div className="mb-3 flex items-center justify-between"><p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">Company setup</p><p className="text-xs font-medium text-[var(--foreground)]">Step 2 of 5</p></div><ol className="grid grid-cols-5 gap-1.5">{setupSteps.map((step, index) => <li key={step} className="min-w-0"><span className={`block h-1.5 rounded-full ${index <= 1 ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={step} /><span className="sr-only">{step}</span></li>)}</ol></nav>
+        <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">02 / 05 · Company profile</p>
         <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-[-0.03em] text-[var(--foreground)] sm:text-4xl">Tell Lulu what makes your business matter.</h1>
         <p className="mt-3 max-w-lg text-sm leading-6 text-[var(--muted-foreground)]">Beschreibe dein Unternehmen in deinen eigenen Worten. Diese Informationen helfen Lulu, dein Unternehmen besser zu verstehen.</p>
         <form className="mt-8 space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)]" onSubmit={saveAndContinue}>

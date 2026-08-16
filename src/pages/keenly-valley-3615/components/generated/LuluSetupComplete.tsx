@@ -7,7 +7,7 @@ import { getSelectedWorkspaceId } from '../../../../api/session';
 type Phase = "setup_complete" | "confirm_analysis" | "analysis_started" | "analysis_complete" | "analysis_error";
 type StageStatus = "pending" | "running" | "complete" | "error";
 type Progress = Record<string, StageStatus>;
-const steps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
+const steps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "Setup Complete"];
 const setupRows = [{
   name: "Company Information",
   status: "Complete"
@@ -15,17 +15,11 @@ const setupRows = [{
   name: "Business Description",
   status: "Complete"
 }, {
-  name: "Products & Services",
-  status: "Complete"
-}, {
   name: "Existing Platforms",
   status: "Complete"
 }, {
   name: "Integrations",
   status: "Configured"
-}, {
-  name: "AI Preferences",
-  status: "Complete"
 }];
 const profileRows = [["Company", "Acme Corporation (example)"], ["Business Model", "B2B / B2C"], ["Industry", "Technology"], ["Primary Markets", "United Kingdom, Europe"], ["Products & Services", "3 product categories"], ["Connected Platforms", "3 platforms"], ["Analytics", "Google Analytics, Google Search Console"], ["Advertising", "Google Ads"]];
 const analysisStages = [{
@@ -49,7 +43,7 @@ const analysisStages = [{
   label: "AI Insights",
   icon: Sparkles
 }];
-const sources = ["Business Profile", "Products & Services", "Google Analytics", "Google Search Console", "Google Ads", "AI Preferences"];
+const sources = ["Business Profile", "Products & Services", "Google Analytics", "Google Search Console", "Google Ads"];
 const categories = [{
   label: "Business Profile",
   icon: Building2
@@ -201,10 +195,10 @@ export const LuluSetupComplete = () => {
                 Company setup
               </span>
               <span className="text-xs font-medium text-foreground">
-                Step 6 of 6
+                Step 5 of 5
               </span>
             </div>
-            <div className="grid grid-cols-6 gap-1.5">
+            <div className="grid grid-cols-5 gap-1.5">
               {steps.map(step => <div key={step} className="h-1.5 rounded-full bg-primary" title={step} />)}
             </div>
           </nav>}
@@ -240,7 +234,7 @@ const SetupView = ({
   
     <section className="text-center">
       <p className="text-xs font-medium uppercase tracking-[.18em] text-foreground">
-        06 / 06 · Company Setup
+        05 / 05 · Company Setup
       </p>
       <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">
         You're all set.

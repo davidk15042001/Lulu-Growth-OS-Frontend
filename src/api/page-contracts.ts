@@ -25,7 +25,6 @@ const ONBOARDING_SLUGS = new Set([
   "quiet-garden-9477",
   "keen-morning-6353",
   "fresh-tide-9404",
-  "wisely-brook-1005",
   "keenly-valley-3615",
 ]);
 

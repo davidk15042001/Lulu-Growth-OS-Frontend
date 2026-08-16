@@ -57,7 +57,6 @@ const onboardingPathByStep: Record<string, string> = {
   business_description: routes.onboarding.businessDescription,
   products_services: routes.onboarding.productsServices,
   existing_platforms: routes.onboarding.existingPlatforms,
-  ai_preferences: routes.onboarding.aiPreferences,
   setup_complete: routes.onboarding.setupComplete,
 };
 
@@ -68,8 +67,8 @@ function PageRoute({ page }: { page: PageDefinition }) {
   const isPublic = contract?.kind === "public";
   const isOnboarding = contract?.kind === "onboarding";
 
-  if (location.pathname === routes.onboarding.productsServices) {
-    return <Navigate replace to={routes.onboarding.aiPreferences} state={{ from: location.pathname }} />;
+  if (location.pathname === routes.onboarding.productsServices || location.pathname === "/onboarding/ai-preferences") {
+    return <Navigate replace to={routes.onboarding.existingPlatforms} state={{ from: location.pathname }} />;
   }
 
   if (!isPublic && !isOnboarding && currentUser && loading) {

@@ -15,7 +15,6 @@ export const routes = {
     businessDescription: "/onboarding/business-description",
     productsServices: "/onboarding/products-services",
     existingPlatforms: "/onboarding/existing-platforms",
-    aiPreferences: "/onboarding/ai-preferences",
     setupComplete: "/onboarding/setup-complete",
   },
   app: {
@@ -39,7 +38,6 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "quiet-garden-9477": routes.onboarding.businessDescription,
   "keen-morning-6353": routes.onboarding.productsServices,
   "fresh-tide-9404": routes.onboarding.existingPlatforms,
-  "wisely-brook-1005": routes.onboarding.aiPreferences,
   "keenly-valley-3615": routes.onboarding.setupComplete,
   "lulu-website-portal-9012": routes.app.website,
 };
