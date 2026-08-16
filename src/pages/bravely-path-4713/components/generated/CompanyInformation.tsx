@@ -65,7 +65,7 @@ export const CompanyInformation = () => {
       setLoading(false);
     }
   };
-  return <main className="grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-[7fr_3fr]">
+  return <main className="min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)]">
       <section className="flex items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
         <div className="w-full max-w-xl">
           <div className="flex items-center gap-2">
@@ -149,28 +149,5 @@ export const CompanyInformation = () => {
         </div>
       </section>
 
-      <aside className="hidden border-l border-[var(--border)] bg-[var(--sidebar)] p-12 text-[var(--foreground)] lg:flex lg:flex-col lg:justify-between">
-        <Sparkles size={42} className="text-[var(--foreground)]" aria-hidden="true" />
-        
-        <div>
-          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-sm font-medium text-[var(--foreground)]">
-            <Building2 size={16} aria-hidden="true" />
-            <span>Business context</span>
-          </div>
-          <h2 className="max-w-lg text-5xl font-semibold leading-tight text-[var(--foreground)]">
-            <span>Give Lulu the company signal it needs.</span>
-          </h2>
-          <p className="mt-5 max-w-md text-lg leading-8 text-[var(--muted-foreground)]">
-            <span>
-              Your profile helps Lulu understand your market, size and operating
-              region before it generates recommendations.
-            </span>
-          </p>
-        </div>
-        <p className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]">
-          <ShieldCheck size={18} aria-hidden="true" />
-          <span>Secure business onboarding</span>
-        </p>
-      </aside>
     </main>;
 };

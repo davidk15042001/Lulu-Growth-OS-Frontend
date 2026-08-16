@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { ArrowRight, Check, Eye, Lock, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
 import { navigateApp, routes } from "../routing";
+import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
+import { onboardingApi } from "../api/onboarding";
 
 type PlanId = "explorer" | "starter" | "ai";
 
@@ -70,8 +72,10 @@ const capabilityRows = [
 ];
 
 export function BillingOnboarding() {
-  const { currentUser, selectedWorkspace, loading } = useLuluApp();
+  const { currentUser, selectedWorkspace, loading, refresh } = useLuluApp();
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const selected = selectedPlan ? plans.find((plan) => plan.id === selectedPlan) : undefined;
 
   if (loading) {
@@ -88,11 +92,19 @@ export function BillingOnboarding() {
     return null;
   }
 
-  const continueToWorkspace = () => {
-    if (!selectedPlan) return;
-    if (!selectedWorkspace) return;
-    window.localStorage.setItem(`lulu:selected-plan:${selectedWorkspace.id}`, selectedPlan);
-    navigateApp(routes.app.dashboard);
+  const continueToWorkspace = async () => {
+    if (!selectedPlan || !selectedWorkspace || submitting) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      await onboardingApi.complete(selectedWorkspace.id);
+      window.localStorage.setItem(`lulu:selected-plan:${selectedWorkspace.id}`, selectedPlan);
+      await refresh();
+      navigateApp(routes.app.dashboard, { replace: true });
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, "We could not complete your workspace setup. Please try again."));
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -164,8 +176,8 @@ export function BillingOnboarding() {
         </section>
 
         <footer className="mt-8 flex flex-col gap-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)] p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{selected ? selected.description : "Select Explorer, Starter or AI above. This step is required before entering your workspace."}</p></div></div>
-          <button type="button" onClick={continueToWorkspace} disabled={!selectedPlan} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{selected ? `Confirm ${selected.name}` : "Select a plan first"}<ArrowRight size={16} aria-hidden="true" /></button>
+          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{selected ? selected.description : "Select Explorer, Starter or AI above. This step is required before entering your workspace."}</p>{error && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">{error}</p>}</div></div>
+          <button type="button" onClick={() => void continueToWorkspace()} disabled={!selectedPlan || submitting} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{submitting ? "Completing setup…" : selected ? `Confirm ${selected.name}` : "Select a plan first"}<ArrowRight size={16} /></button>
         </footer>
       </div>
     </main>

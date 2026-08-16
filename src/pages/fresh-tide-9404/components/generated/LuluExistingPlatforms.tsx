@@ -157,7 +157,7 @@ export const LuluExistingPlatforms = () => {
       setError(getFriendlyErrorMessage(cause, 'We could not remove this platform. Please try again.'));
     }
   };
-  return <main className="grid min-h-screen bg-[var(--background)] font-['Inter',sans-serif] text-[var(--foreground)] lg:grid-cols-[7fr_3fr]">
+  return <main className="min-h-screen bg-[var(--background)] font-['Inter',sans-serif] text-[var(--foreground)]">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
         <div className="w-full max-w-3xl">
           <div className="flex items-center gap-2">
@@ -257,24 +257,7 @@ export const LuluExistingPlatforms = () => {
           </form>
         </div>
       </section>
-      <aside className="hidden border-l border-[var(--border)] bg-[var(--sidebar)] p-12 text-[var(--foreground)] lg:flex lg:flex-col lg:justify-between">
-        <Sparkles size={42} className="text-[var(--foreground)]" />
-        <div>
-          <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-            Signal layer
-          </p>
-          <h2 className="mt-3 text-5xl font-semibold leading-tight text-[var(--foreground)]">
-            Bring every platform into one clear business context.
-          </h2>
-          <p className="mt-5 max-w-md text-lg leading-8 text-[var(--muted-foreground)]">
-            CRM, marketing, analytics, and communication data stay connected so
-            Lulu can understand how your company actually works.
-          </p>
-        </div>
-        <p className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]">
-          <ShieldCheck size={18} /> Secure platform connections
-        </p>
-      </aside>
+
       {guidePlatform && guideContent[guidePlatform] && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-labelledby="platform-guide-title" onClick={() => setGuidePlatform(null)}>
         <div className="w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl" onClick={event => event.stopPropagation()}>
           <div className="flex items-start justify-between gap-4">
