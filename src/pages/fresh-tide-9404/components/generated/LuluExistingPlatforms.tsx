@@ -39,7 +39,7 @@ const platformGroups: PlatformGroup[] = [{
   label: "Digital Appearance",
   description: "Website builders and storefront platforms for your digital presence.",
   icon: Globe,
-  platforms: ["Webflow", "WordPress", "Shopify", "Lovable"]
+  platforms: ["Webflow", "WordPress", "Shopify"]
 }];
 const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 export const LuluExistingPlatforms = () => {
@@ -59,23 +59,34 @@ export const LuluExistingPlatforms = () => {
       }))))
       .catch(cause => setError(getFriendlyErrorMessage(cause, 'We could not load your platforms. Please try again.')));
   }, []);
-  const connectPlatform = async (name: string, category: string) => {
+  const connectPlatform = async (name: string) => {
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId || platforms.some(platform => platform.name === name)) return;
+    const providerMap: Record<string, string> = {
+      Salesforce: 'salesforce',
+      Pipedrive: 'pipedrive',
+      HubSpot: 'hubspot',
+      'Google Ads API': 'google-ads',
+      'Google Ads': 'google-ads',
+      'Meta Marketing API': 'meta',
+      'Meta Conversion API': 'meta',
+      'LinkedIn Ads Advertising API': 'linkedin',
+      'LinkedIn Conversion Tracking API': 'linkedin',
+      Webflow: 'webflow',
+      WordPress: 'wordpress',
+      Shopify: 'shopify',
+    };
+    const provider = providerMap[name];
+    if (!provider) {
+      setError(`${name} connection is not configured yet.`);
+      return;
+    }
     setError('');
     try {
-      const response = await requestApi<{ id: string }>({
-        path: `/workspaces/${workspaceId}/onboarding/platforms`,
-        method: 'POST',
-        body: {
-          integrationKey: name.toLowerCase().replace(/[^a-z0-9_-]+/g, '-').replace(/^-|-$/g, '') || null,
-          name,
-          category,
-          connectionStatus: 'pending',
-          settings: { provider: name, category },
-        },
-      });
-      setPlatforms(current => [...current, { id: response.data.id, name, type: category, status: "Pending" }]);
+      const shop = provider === 'shopify' ? window.prompt('Enter your Shopify shop domain (example.myshopify.com)')?.trim() : undefined;
+      if (provider === 'shopify' && !shop) return;
+      const response = await requestApi<{ authorizationUrl: string }>({ path: `/workspaces/${workspaceId}/onboarding/platforms/${provider}/connect${shop ? `?shop=${encodeURIComponent(shop)}` : ''}` });
+      window.location.assign(response.data.authorizationUrl);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, 'We could not start this connection. Please try again.'));
     }
@@ -167,7 +178,7 @@ export const LuluExistingPlatforms = () => {
                           <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}</strong>
                           <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : "Not connected"}</span>
                         </span>
-                        {connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name, group.id)} className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Connect</button>}
+                        {connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Connect</button>}
                       </article>;
                   })}
                   </div>
