@@ -62,9 +62,9 @@ const capabilityRows = [
 ];
 
 export function BillingOnboarding() {
-  const { currentUser, loading } = useLuluApp();
-  const [selectedPlan, setSelectedPlan] = useState<PlanId>("starter");
-  const selected = plans.find((plan) => plan.id === selectedPlan) ?? plans[1];
+  const { currentUser, selectedWorkspace, loading } = useLuluApp();
+  const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
+  const selected = selectedPlan ? plans.find((plan) => plan.id === selectedPlan) : undefined;
 
   if (loading) {
     return <main className="grid min-h-screen place-items-center bg-[var(--background)] text-sm text-[var(--muted-foreground)]">Loading your workspace…</main>;
@@ -75,8 +75,15 @@ export function BillingOnboarding() {
     return null;
   }
 
+  if (!selectedWorkspace) {
+    navigateApp(routes.onboarding.welcome, { replace: true });
+    return null;
+  }
+
   const continueToWorkspace = () => {
-    window.localStorage.setItem("lulu:selected-plan", selectedPlan);
+    if (!selectedPlan) return;
+    if (!selectedWorkspace) return;
+    window.localStorage.setItem(`lulu:selected-plan:${selectedWorkspace.id}`, selectedPlan);
     navigateApp(routes.app.dashboard);
   };
 
@@ -138,8 +145,8 @@ export function BillingOnboarding() {
         </section>
 
         <footer className="mt-8 flex flex-col gap-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/40 p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">Your selected plan</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{selected.name}: {selected.description}</p></div></div>
-          <button type="button" onClick={continueToWorkspace} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Continue with {selected.name}<ArrowRight size={16} aria-hidden="true" /></button>
+          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{selected ? selected.description : "Select Explorer, Starter or AI above. This step is required before entering your workspace."}</p></div></div>
+          <button type="button" onClick={continueToWorkspace} disabled={!selectedPlan} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{selected ? `Confirm ${selected.name}` : "Select a plan first"}<ArrowRight size={16} aria-hidden="true" /></button>
         </footer>
       </div>
     </main>

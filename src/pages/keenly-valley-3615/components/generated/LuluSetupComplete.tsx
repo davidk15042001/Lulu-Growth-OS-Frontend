@@ -688,8 +688,8 @@ const ErrorView = ({
       <button className="rounded-xl border border-border px-6 py-3 text-sm text-foreground hover:bg-secondary">
         Review Connections
       </button>
-      <button onClick={() => navigateApp(routes.app.dashboard)} className="text-sm text-foreground underline">
-        Continue to Dashboard
+      <button onClick={() => navigateApp(routes.onboarding.billing)} className="text-sm text-foreground underline">
+        Continue to plan selection
       </button>
       <p className="text-xs text-muted-foreground">
         Analysis can be started again from your dashboard.
