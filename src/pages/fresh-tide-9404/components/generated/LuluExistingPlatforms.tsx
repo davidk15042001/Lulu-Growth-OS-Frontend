@@ -142,7 +142,7 @@ export const LuluExistingPlatforms = () => {
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (synced) {
-      navigateApp(routes.onboarding.setupComplete);
+      navigateApp(routes.onboarding.billing);
       return;
     }
     setSynced(true);

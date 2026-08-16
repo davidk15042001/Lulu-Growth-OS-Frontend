@@ -1073,14 +1073,6 @@ export const pages: PageDefinition[] = [
     "previewImageUrl": "https://storage.googleapis.com/storage.magicpath.ai/component-previews/a5eb67f7-291a-4cb2-a908-4f60d24a58f0.png"
   },
   {
-    "id": "437844461897261109",
-    "name": "Lulu AI — Setup Complete",
-    "slug": "keenly-valley-3615",
-    "generatedName": "keenly-valley-3615",
-    "selectedRevisionId": "438652298231685120",
-    "previewImageUrl": "https://storage.googleapis.com/storage.magicpath.ai/component-previews/c26b9294-da25-4c2c-99bc-e9c4e82ba2f7.png"
-  },
-  {
     "id": "437844461897261128",
     "name": "Lulu AI — Sign Up",
     "slug": "finely-year-1146",

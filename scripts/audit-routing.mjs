@@ -14,8 +14,8 @@ const appSource = readFileSync(join(root, "src", "App.tsx"), "utf8");
 const routingSource = readFileSync(join(root, "src", "routing.ts"), "utf8");
 const issues = [];
 
-if (pages.length !== 141) issues.push(`Expected 141 manifest pages, found ${pages.length}`);
-if (pageDirectories.length !== 141) issues.push(`Expected 141 page directories, found ${pageDirectories.length}`);
+if (pages.length !== 140) issues.push(`Expected 140 manifest pages, found ${pages.length}`);
+if (pageDirectories.length !== 140) issues.push(`Expected 140 page directories, found ${pageDirectories.length}`);
 
 for (const page of pages) {
   if (!pageDirectories.includes(page.slug)) issues.push(`Missing page directory: ${page.slug}`);

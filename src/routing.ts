@@ -15,7 +15,6 @@ export const routes = {
     businessDescription: "/onboarding/business-description",
     productsServices: "/onboarding/products-services",
     existingPlatforms: "/onboarding/existing-platforms",
-    setupComplete: "/onboarding/setup-complete",
     billing: "/onboarding/billing",
   },
   app: {
@@ -39,10 +38,10 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "quiet-garden-9477": routes.onboarding.businessDescription,
   "keen-morning-6353": routes.onboarding.productsServices,
   "fresh-tide-9404": routes.onboarding.existingPlatforms,
-  "keenly-valley-3615": routes.onboarding.setupComplete,
   "lulu-website-portal-9012": routes.app.website,
 };
 
+export const LEGACY_SETUP_COMPLETE_PATH = "/onboarding/setup-complete";
 export const LULU_NAVIGATION_MESSAGE = "lulu:navigate";
 
 export type LuluNavigationMessage = {

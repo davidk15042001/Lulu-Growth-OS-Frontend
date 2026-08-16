@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { pages, type PageDefinition } from "./pages-manifest";
-import { pagePath, routes } from "./routing";
+import { LEGACY_SETUP_COMPLETE_PATH, pagePath, routes } from "./routing";
 import { NativePage } from "./NativePage";
 import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from "./api/client";
 import {
@@ -58,7 +58,6 @@ const onboardingPathByStep: Record<string, string> = {
   business_description: routes.onboarding.businessDescription,
   products_services: routes.onboarding.productsServices,
   existing_platforms: routes.onboarding.existingPlatforms,
-  setup_complete: routes.onboarding.setupComplete,
 };
 
 function PageRoute({ page }: { page: PageDefinition }) {
@@ -176,6 +175,7 @@ export default function App() {
       <Route path="/pages" element={<Navigate replace to={routes.allPages} />} />
       <Route path="/pages/:slug" element={<LegacyPageRedirect />} />
       <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
+      <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<Navigate replace to={routes.onboarding.billing} />} />
       <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
       {pages.map((page) => (
         <Route key={page.id} path={pagePath(page.slug)} element={<PageRoute page={page} />} />
