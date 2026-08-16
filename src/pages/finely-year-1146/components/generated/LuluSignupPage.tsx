@@ -2,7 +2,6 @@ import { useState, type FormEvent } from 'react';
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle, Sparkles } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
-import { setPendingEmail } from '../../../../api/session';
 const passwordRules = [
   { label: 'At least 12 characters', test: (value: string) => value.length >= 12 },
   { label: 'One uppercase letter', test: (value: string) => /[A-Z]/.test(value) },
@@ -54,8 +53,7 @@ export function LuluSignupPage() {
         method: 'POST',
         body: { email, password, first_name: firstName, last_name: lastName },
       });
-      setPendingEmail(email);
-      navigateApp(routes.auth.verifyEmail);
+      navigateApp(routes.auth.login);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, 'We could not create your account. Please try again.'));
       setStatus('idle');
