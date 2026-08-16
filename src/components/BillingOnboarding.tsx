@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, Eye, Lock, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
 import { navigateApp, routes } from "../routing";
-import { getFriendlyErrorMessage } from "../api/client";
+import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { onboardingApi } from "../api/onboarding";
 import { workspaceAppApi } from "../api/workspace-app";
@@ -78,6 +78,7 @@ export function BillingOnboarding() {
   const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [technicalError, setTechnicalError] = useState<string | null>(null);
   const selected = selectedPlan ? plans.find((plan) => plan.id === selectedPlan) : undefined;
   const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
@@ -98,13 +99,19 @@ export function BillingOnboarding() {
           return;
         }
         attempts += 1;
-        if (attempts >= 30) {
-          if (active) setPaymentStatus("error");
+          if (attempts >= 30) {
+          if (active) {
+            setPaymentStatus("error");
+            setTechnicalError("Code: PAYMENT_CONFIRMATION_TIMEOUT · Webhook confirmation was not observed after 60 seconds");
+          }
           return;
         }
         timer = window.setTimeout(() => void pollBilling(), 2000);
-      } catch {
-        if (active) setPaymentStatus("error");
+      } catch (cause) {
+        if (active) {
+          setPaymentStatus("error");
+          setTechnicalError(getTechnicalErrorDetails(cause));
+        }
       }
     };
 
@@ -133,6 +140,7 @@ export function BillingOnboarding() {
     if (!selectedPlan || !selectedWorkspace || submitting) return;
     setSubmitting(true);
     setError(null);
+    setTechnicalError(null);
     try {
       const billingResponse = await onboardingApi.createBillingCheckout(selectedWorkspace.id, {
         planKey: selectedPlan,
@@ -150,6 +158,7 @@ export function BillingOnboarding() {
       window.location.assign(billingResult.checkoutUrl);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "We could not start the Airwallex checkout. Please try again."));
+      setTechnicalError(getTechnicalErrorDetails(cause));
       setSubmitting(false);
     }
   };
@@ -207,7 +216,7 @@ export function BillingOnboarding() {
         </section>
 
         <footer className="mt-8 flex flex-col gap-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)] p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{paymentStatus === "waiting" ? "Payment received — confirming your subscription…" : selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{paymentStatus === "waiting" ? "We are waiting for Airwallex to confirm the payment. This page will continue automatically." : selected ? selected.description : "Select Explorer, Starter or AI above. This step is required before entering your workspace."}</p>{paymentStatus === "error" && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">Payment was returned, but the subscription confirmation has not arrived yet. Please wait a moment and refresh this page.</p>}{error && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">{error}</p>}</div></div>
+          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{paymentStatus === "waiting" ? "Payment received — confirming your subscription…" : selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{paymentStatus === "waiting" ? "We are waiting for Airwallex to confirm the payment. This page will continue automatically." : selected ? selected.description : "Select Explorer, Starter or AI above. This step is required before entering your workspace."}</p>{paymentStatus === "error" && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">Payment was returned, but the subscription confirmation has not arrived yet. Please wait a moment and refresh this page.</p>}{error && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">{error}</p>}{technicalError && <details className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 text-left"><summary className="cursor-pointer text-xs font-semibold">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--muted-foreground)]">{technicalError}</p></details>}</div></div>
           <button type="button" onClick={() => void continueToWorkspace()} disabled={!selectedPlan || submitting || paymentStatus === "waiting"} className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{paymentStatus === "waiting" ? "Confirming payment…" : submitting ? (selected?.id === "explorer" ? "Activating Explorer…" : "Opening secure checkout…") : selected ? `Confirm ${selected.name}` : "Select a plan first"}<ArrowRight size={16} /></button>
         </footer>
       </div>

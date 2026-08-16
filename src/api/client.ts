@@ -68,6 +68,20 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   DATABASE_MIGRATION_MISSING: "Document storage is not enabled on the server yet.",
   INTERNAL_ERROR: "A server error occurred. Please send the technical details to support.",
   API_ERROR: "The API returned an unexpected error. Please send the technical details to support.",
+  BILLING_PLAN_INVALID: "The selected billing plan is not supported.",
+  AIRWALLEX_CREDENTIALS_MISSING: "Airwallex is not configured on the server yet.",
+  AIRWALLEX_AUTH_FAILED: "Airwallex could not authenticate the billing request.",
+  AIRWALLEX_PRICE_NOT_CONFIGURED: "The selected annual plan is not configured in Airwallex yet.",
+  AIRWALLEX_CHECKOUT_CREATE_FAILED: "Airwallex rejected the checkout setup.",
+  AIRWALLEX_CHECKOUT_ID_MISSING: "Airwallex did not return a checkout identifier.",
+  AIRWALLEX_CHECKOUT_URL_MISSING: "Airwallex did not return a hosted checkout URL.",
+  AIRWALLEX_WEBHOOK_SECRET_MISSING: "The Airwallex webhook is not configured on the server.",
+  AIRWALLEX_WEBHOOK_HEADERS_MISSING: "Airwallex sent an incomplete webhook request.",
+  AIRWALLEX_WEBHOOK_TIMESTAMP_INVALID: "Airwallex sent an invalid webhook timestamp.",
+  AIRWALLEX_WEBHOOK_TIMESTAMP_EXPIRED: "The Airwallex webhook arrived outside the allowed time window.",
+  AIRWALLEX_WEBHOOK_SIGNATURE_INVALID: "The Airwallex webhook signature could not be verified.",
+  AIRWALLEX_WEBHOOK_EVENT_ID_MISSING: "Airwallex sent a webhook without an event ID.",
+  PAYMENT_CONFIRMATION_TIMEOUT: "Payment returned, but the subscription confirmation did not arrive in time.",
 };
 
 function friendlyApiMessage(status: number, code: string) {
@@ -105,12 +119,26 @@ export function getFriendlyErrorMessage(
   return error instanceof ApiError ? error.message : fallback;
 }
 
+function safeTechnicalDetails(details: unknown) {
+  if (!details || typeof details !== "object") return [] as string[];
+  const value = details as Record<string, unknown>;
+  const allowed = ['providerHttpStatus', 'providerCode', 'providerMessage', 'path', 'requiredEnv', 'requiredHeaders', 'signatureFormat', 'toleranceSeconds', 'reason'];
+  return allowed.flatMap((key) => {
+    const item = value[key];
+    if (item === undefined || item === null || item === "") return [];
+    if (Array.isArray(item)) return [`${key}: ${item.join(", ")}`];
+    if (typeof item === "string" || typeof item === "number" || typeof item === "boolean") return [`${key}: ${String(item)}`];
+    return [];
+  });
+}
+
 export function getTechnicalErrorDetails(error: unknown) {
   if (!(error instanceof ApiError)) return "Code: UNKNOWN_ERROR";
   const diagnostics = error.diagnostics;
   const lines = [
     `Code: ${error.code}`,
     `HTTP status: ${error.status || "n/a"}`,
+    ...safeTechnicalDetails(error.details),
     diagnostics?.requestId ? `Request-ID: ${diagnostics.requestId}` : undefined,
     diagnostics?.endpoint ? `Endpoint: ${diagnostics.endpoint}` : undefined,
     diagnostics?.timestamp ? `Time (UTC): ${diagnostics.timestamp}` : undefined,
