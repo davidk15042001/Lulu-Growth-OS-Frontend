@@ -481,18 +481,6 @@ export function LuluProductsServices() {
                 </Field>
               </div>
 
-              <Field label="Type" required>
-                <div className="mt-1 grid h-11 grid-cols-2 rounded-md border border-[var(--border)] bg-[var(--secondary)] p-1">
-                  {offeringTypeOptions.map(option => <button type="button" key={option.id} onClick={() => setEditing({
-                  ...editing,
-                  type: option.id
-                })} className={`rounded-[0.3125rem] text-sm font-medium transition ${editing.type === option.id ? "bg-[var(--primary)] text-primary-foreground" : "text-[var(--primary-foreground)] hover:text-[var(--primary-foreground)]"}`}>
-                    
-                      <span>{option.label}</span>
-                    </button>)}
-                </div>
-              </Field>
-
               <Field label="Category">
                 <input value={editing.category} onChange={event => setEditing({
                 ...editing,
@@ -511,34 +499,6 @@ export function LuluProductsServices() {
                   
                 </Field>
               </div>
-
-              <Field label="Pricing Model">
-                <select value={editing.pricing} onChange={event => setEditing({
-                ...editing,
-                pricing: event.target.value
-              })} className={inputClass}>
-                  
-                  {pricingModels.map(model => <option key={model.id}>{model.label}</option>)}
-                </select>
-              </Field>
-
-              <Field label="Price">
-                <input value={editing.price} onChange={event => setEditing({
-                ...editing,
-                price: event.target.value
-              })} placeholder="e.g. $299 / month" className={inputClass} />
-                
-              </Field>
-
-              <Field label="Status">
-                <select value={editing.status} onChange={event => setEditing({
-                ...editing,
-                status: event.target.value as OfferingStatus
-              })} className={inputClass}>
-                  
-                  {statusOptions.map(status => <option key={status.id}>{status.label}</option>)}
-                </select>
-              </Field>
 
               <Field label="Product / Service URL">
                 <input type="url" value={editing.url} onChange={event => setEditing({
