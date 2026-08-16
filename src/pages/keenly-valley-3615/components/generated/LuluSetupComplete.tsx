@@ -275,19 +275,6 @@ const SetupView = ({
           </div>)}
       </div>
     </section>
-    <section className="mt-4 flex items-start gap-4 rounded-xl border border-border bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.06)]">
-      <CheckCircle2 size={32} className="shrink-0 text-foreground" />
-      <div>
-        <h2 className="text-lg font-semibold">Ready for Analysis</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Lulu AI has enough information to begin your initial business
-          analysis.
-        </p>
-        <span className="mt-3 inline-block rounded-full bg-secondary/15 px-2 py-0.5 text-xs text-foreground">
-          AI Readiness: High
-        </span>
-      </div>
-    </section>
     <h2 className="mt-8 text-lg font-semibold">What happens next?</h2>
     <div className="mt-3 grid gap-3 md:grid-cols-3">
       {[{
