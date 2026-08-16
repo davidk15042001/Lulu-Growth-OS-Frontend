@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowRight, BarChart3, Check, CircleCheck, Globe, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound } from "lucide-react";
+import { ArrowRight, BarChart3, Check, CircleCheck, Globe, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
@@ -41,12 +41,29 @@ const platformGroups: PlatformGroup[] = [{
   icon: Globe,
   platforms: ["Webflow", "WordPress", "Shopify"]
 }];
-const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
+  const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
+  const guideContent: Record<string, { intro: string; steps: string[] }> = {
+    Salesforce: { intro: "Connect your Salesforce organization securely through OAuth.", steps: ["Open Salesforce Setup and create or select a Connected App.", "Enable OAuth and add the callback URL supplied by Lulu.", "Select the minimum CRM scopes required by your organization.", "Return here and click Connect, then approve Lulu in Salesforce."] },
+    Pipedrive: { intro: "Connect the Pipedrive account that contains your sales pipeline.", steps: ["Open the Pipedrive Developer Hub and create an OAuth app.", "Add the Lulu callback URL to the app settings.", "Copy the client credentials to your server configuration.", "Click Connect here and approve the requested access in Pipedrive."] },
+    HubSpot: { intro: "Connect a HubSpot portal using a HubSpot OAuth app.", steps: ["Create a public OAuth app in the HubSpot developer account.", "Add the Lulu callback URL and select the CRM read scopes you need.", "Make sure a HubSpot Super Admin can install the app.", "Click Connect here and select the portal to authorize."] },
+    "Google Ads API": { intro: "Authorize Lulu to access your Google Ads account.", steps: ["Create OAuth credentials in Google Cloud and enable the Google Ads API.", "Configure the Lulu callback URL in the OAuth client.", "Ensure your Google Ads developer token and account access are active.", "Click Connect here and choose the Google account with Ads access."] },
+    "Google Ads": { intro: "Use the same Google authorization to connect Ads reporting.", steps: ["Confirm that your Google account can access the required Ads customer account.", "Make sure the Google Ads API is enabled for the OAuth project.", "Configure the Lulu callback URL and developer token on the server.", "Click Connect here and approve access with Google."] },
+    "Google Analytics": { intro: "Prepare your Google account for analytics access.", steps: ["Confirm that the Google account has access to the Analytics property.", "Enable the relevant Google Analytics API in Google Cloud.", "Add the Lulu callback URL to the OAuth client configuration.", "Click Connect here and select the account that owns the property."] },
+    "Meta Marketing API": { intro: "Connect a Meta Business account for marketing data.", steps: ["Create or select a Meta app in Meta for Developers.", "Add the Marketing API product and configure the OAuth redirect URL.", "Request the business and ads permissions required by your use case.", "Click Connect here and approve the Meta Business authorization."] },
+    "Meta Conversion API": { intro: "Authorize the Meta business assets used for conversion data.", steps: ["Confirm that your Meta Business account owns or manages the relevant assets.", "Configure the Meta app and request the required business permissions.", "Make sure the app is allowed to access the selected ad account.", "Click Connect here and complete the Meta authorization screen."] },
+    "Ad Analytics API": { intro: "Prepare the ad analytics provider account before connecting.", steps: ["Confirm which advertising account should provide the analytics data.", "Create the provider API/OAuth app and register the Lulu callback URL.", "Grant only the read/reporting permissions needed for analytics.", "Click Connect here after the provider credentials are configured."] },
+    "LinkedIn Ads Advertising API": { intro: "Connect a LinkedIn Campaign Manager account.", steps: ["Create or select a LinkedIn developer application.", "Request the approved Marketing API permissions and add the Lulu callback URL.", "Confirm that your LinkedIn user has access to the ad account.", "Click Connect here and authorize the application with LinkedIn."] },
+    "LinkedIn Conversion Tracking API": { intro: "Authorize LinkedIn conversion and reporting access.", steps: ["Confirm access to the LinkedIn Campaign Manager account and conversions.", "Request the required LinkedIn Marketing API permissions in the developer portal.", "Register the Lulu callback URL for the application.", "Click Connect here and approve the requested access."] },
+    Webflow: { intro: "Connect a Webflow workspace or site through a Webflow Data Client app.", steps: ["Create a Webflow Data Client app and copy its client credentials.", "Register the Lulu callback URL and configure the sites:read scope.", "Make sure you are an administrator of the Webflow workspace.", "Click Connect here and authorize the Webflow app."] },
+    WordPress: { intro: "Connect a WordPress.com or Jetpack account through OAuth.", steps: ["Create an OAuth application in the WordPress.com developer portal.", "Add the Lulu callback URL and configure the required REST API scope.", "Confirm that the account has access to the intended WordPress.com or Jetpack site.", "Click Connect here and approve the WordPress authorization."] },
+    Shopify: { intro: "Connect a Shopify store using its myshopify.com domain.", steps: ["Copy your store domain in the format example.myshopify.com.", "Make sure the Shopify app has the required Admin API scopes and callback URL.", "Click Connect here and enter the store domain when prompted.", "Approve the app installation in Shopify."] },
+  };
 export const LuluExistingPlatforms = () => {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [query, setQuery] = useState("");
   const [synced, setSynced] = useState(false);
   const [error, setError] = useState('');
+  const [guidePlatform, setGuidePlatform] = useState<string | null>(null);
   useEffect(() => {
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
@@ -178,7 +195,7 @@ export const LuluExistingPlatforms = () => {
                           <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}</strong>
                           <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : "Not connected"}</span>
                         </span>
-                        {connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Connect</button>}
+                        <div className="flex shrink-0 items-center gap-2">{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Connect</button>}<button type="button" onClick={() => setGuidePlatform(name)} className="rounded-md border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--foreground)] hover:text-[var(--foreground)]">Guide</button></div>
                       </article>;
                   })}
                   </div>
@@ -223,5 +240,26 @@ export const LuluExistingPlatforms = () => {
           <ShieldCheck size={18} /> Secure platform connections
         </p>
       </aside>
+      {guidePlatform && guideContent[guidePlatform] && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-labelledby="platform-guide-title" onClick={() => setGuidePlatform(null)}>
+        <div className="w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl" onClick={event => event.stopPropagation()}>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--muted-foreground)]">Step-by-step guide</p>
+              <h2 id="platform-guide-title" className="mt-2 text-2xl font-semibold text-[var(--foreground)]">Connect {guidePlatform}</h2>
+              <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">{guideContent[guidePlatform].intro}</p>
+            </div>
+            <button type="button" onClick={() => setGuidePlatform(null)} className="rounded-md p-2 text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)]" aria-label="Close guide"><X size={18} /></button>
+          </div>
+          <ol className="mt-6 space-y-4">
+            {guideContent[guidePlatform].steps.map((step, index) => <li key={step} className="flex gap-3">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--primary)] text-xs font-bold text-[var(--primary-foreground)]">{index + 1}</span>
+              <span className="pt-0.5 text-sm leading-6 text-[var(--foreground)]">{step}</span>
+            </li>)}
+          </ol>
+          <div className="mt-6 flex justify-end">
+            <button type="button" onClick={() => { setGuidePlatform(null); void connectPlatform(guidePlatform); }} className="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Connect {guidePlatform}<ArrowRight size={15} /></button>
+          </div>
+        </div>
+      </div>}
     </main>;
 };
