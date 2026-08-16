@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowRight, BarChart3, Check, CircleCheck, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound } from "lucide-react";
+import { ArrowRight, BarChart3, Check, CircleCheck, Globe, Search, ShieldCheck, Sparkles, Store, Trash2, UsersRound } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
@@ -34,6 +34,12 @@ const platformGroups: PlatformGroup[] = [{
   description: "Measurement, attribution and conversion signals.",
   icon: BarChart3,
   platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "Ad Analytics API", "LinkedIn Conversion Tracking API"]
+}, {
+  id: "digital-appearance",
+  label: "Digital Appearance",
+  description: "Website builders and storefront platforms for your digital presence.",
+  icon: Globe,
+  platforms: ["Webflow", "WordPress", "Shopify", "Lovable"]
 }];
 const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
 export const LuluExistingPlatforms = () => {
