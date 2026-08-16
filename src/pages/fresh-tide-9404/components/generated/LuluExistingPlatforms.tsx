@@ -16,6 +16,7 @@ interface PlatformGroup {
   icon: typeof UsersRound;
   platforms: string[];
   comingSoon?: boolean;
+  comingSoonPlatforms?: string[];
 }
 const platformGroups: PlatformGroup[] = [{
   id: "crm",
@@ -29,19 +30,22 @@ const platformGroups: PlatformGroup[] = [{
   label: "Marketing",
   description: "Campaign performance and audience activation.",
   icon: Store,
-  platforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API"]
+  platforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API"],
+  comingSoonPlatforms: ["Google Ads API"]
 }, {
   id: "analytics",
   label: "Analyse",
   description: "Measurement, attribution and conversion signals.",
   icon: BarChart3,
-  platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "LinkedIn Conversion Tracking API"]
+  platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "LinkedIn Conversion Tracking API"],
+  comingSoonPlatforms: ["Google Ads", "Google Analytics"]
 }, {
   id: "digital-appearance",
   label: "Digital Appearance",
   description: "Website builders and storefront platforms for your digital presence.",
   icon: Globe,
-  platforms: ["Webflow", "WordPress", "Shopify", "Google Business"]
+  platforms: ["Webflow", "WordPress", "Shopify", "Google Business"],
+  comingSoonPlatforms: ["Google Business"]
 }];
   const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
   const guideContent: Record<string, { intro: string; steps: string[]; links?: Array<{ label: string; url: string }> }> = {
@@ -215,15 +219,16 @@ export const LuluExistingPlatforms = () => {
                   <div className={`mt-5 grid gap-3 md:grid-cols-2 ${comingSoon ? 'pointer-events-none' : ''}`}>
                     {groupPlatforms.map(name => {
                     const connected = platforms.find(platform => platform.name === name);
-                    return <article key={name} className="grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.03)] transition hover:-translate-y-0.5 hover:border-[var(--primary)]/45 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] [grid-template-columns:auto_minmax(0,1fr)]">
+                    const platformComingSoon = comingSoon || group.comingSoonPlatforms?.includes(name) === true;
+                    return <article key={name} className={`grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.03)] transition hover:-translate-y-0.5 hover:border-[var(--primary)]/45 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] [grid-template-columns:auto_minmax(0,1fr)] ${platformComingSoon ? 'opacity-65' : ''}`}>
                         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[var(--secondary)] text-[var(--foreground)]">
                           {connected ? <CircleCheck size={16} /> : <Icon size={15} />}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}</strong>
+                          <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}{platformComingSoon && <span className="ml-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)]">(soon)</span>}</strong>
                           <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : "Not connected"}</span>
                         </span>
-                        <div className="col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3">{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={comingSoon || connectingPlatform === name} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{comingSoon ? "(soon)" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={comingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{comingSoon ? "(soon)" : "Guide"}</button></div>
+                        <div className={`col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3 ${platformComingSoon ? 'pointer-events-none' : ''}`}>{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={platformComingSoon || connectingPlatform === name} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{platformComingSoon ? "(soon)" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={platformComingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{platformComingSoon ? "(soon)" : "Guide"}</button></div>
                       </article>;
                   })}
                   </div>
