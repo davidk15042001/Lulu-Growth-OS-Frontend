@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { DynamicWorkspaceDashboard } from "./components/DynamicWorkspaceDashboard";
+import { DashboardBilling } from "./components/DashboardBilling";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -50,6 +51,18 @@ export function NativePage({ slug }: { slug: string }) {
 
     if (slug === "fancily-leaf-1766") {
       setApp(() => DynamicWorkspaceDashboard);
+      return () => {
+        active = false;
+        if (pageFrame && isAuthPage) {
+          if (previousPageFrameStyle == null) pageFrame.removeAttribute("style");
+          else pageFrame.setAttribute("style", previousPageFrameStyle);
+          pageFrame.classList.remove("page-frame--auth");
+        }
+      };
+    }
+
+    if (slug === "pure-minute-5446") {
+      setApp(() => DashboardBilling);
       return () => {
         active = false;
         if (pageFrame && isAuthPage) {
