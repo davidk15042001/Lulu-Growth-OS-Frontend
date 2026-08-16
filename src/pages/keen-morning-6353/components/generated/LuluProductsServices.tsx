@@ -512,14 +512,6 @@ export function LuluProductsServices() {
                 </Field>
               </div>
 
-              <Field label="Target Customer">
-                <input value={editing.customer} onChange={event => setEditing({
-                ...editing,
-                customer: event.target.value
-              })} placeholder="e.g. B2B, Enterprise, Startups" className={inputClass} />
-                
-              </Field>
-
               <Field label="Pricing Model">
                 <select value={editing.pricing} onChange={event => setEditing({
                 ...editing,
