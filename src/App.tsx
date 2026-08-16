@@ -68,6 +68,10 @@ function PageRoute({ page }: { page: PageDefinition }) {
   const isPublic = contract?.kind === "public";
   const isOnboarding = contract?.kind === "onboarding";
 
+  if (location.pathname === routes.onboarding.productsServices) {
+    return <Navigate replace to={routes.onboarding.existingPlatforms} state={{ from: location.pathname }} />;
+  }
+
   if (!isPublic && !isOnboarding && currentUser && loading) {
     return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your workspace…</main>;
   }
