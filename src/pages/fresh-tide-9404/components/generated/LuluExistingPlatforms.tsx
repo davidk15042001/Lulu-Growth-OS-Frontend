@@ -128,7 +128,7 @@ export const LuluExistingPlatforms = () => {
   };
   return <main className="grid min-h-screen bg-[var(--background)] font-['Inter',sans-serif] text-[var(--foreground)] lg:grid-cols-[7fr_3fr]">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
-        <div className="w-full max-w-xl">
+        <div className="w-full max-w-3xl">
           <div className="flex items-center gap-2">
             <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] font-bold text-[var(--primary-foreground)]">
               L
@@ -164,30 +164,31 @@ export const LuluExistingPlatforms = () => {
             Connect the systems that hold your business signal. Lulu turns them
             into one context layer.
           </p>
-          <form onSubmit={submit} className="mt-8 space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
+          <form onSubmit={submit} className="mt-8 space-y-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.08)] sm:p-6 lg:p-7">
             
-            <label className="block text-sm font-medium text-[var(--muted-foreground)]">
-              Search platforms
-              <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search Salesforce, Google Ads, Analytics…" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none transition focus:border-[var(--border)]" />
+            <label className="block text-sm font-medium text-[var(--foreground)]">
+              <span className="flex items-center justify-between gap-3"><span>Search platforms</span><span className="text-xs font-normal text-[var(--muted-foreground)]">{platformGroups.reduce((count, group) => count + group.platforms.length, 0)} available</span></span>
+              <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search Salesforce, Google Ads, Analytics…" className="mt-2 h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-4 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15" />
             </label>
             <div className="space-y-5">
               {platformGroups.map(group => {
               const Icon = group.icon;
               const groupPlatforms = group.platforms.filter(name => name.toLowerCase().includes(query.toLowerCase()));
-              return <section key={group.id} className="rounded-xl border border-[var(--border)] bg-[var(--secondary)]/45 p-4" aria-labelledby={`${group.id}-heading`}>
-                  <div className="flex items-start gap-3">
+              return <section key={group.id} className="rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-4 shadow-sm sm:p-5" aria-labelledby={`${group.id}-heading`}>
+                  <div className="flex items-start justify-between gap-4">
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]">
                       <Icon size={16} />
                     </span>
-                    <div>
-                      <h2 id={`${group.id}-heading`} className="text-base font-semibold text-[var(--foreground)]">{group.label}</h2>
-                      <p className="mt-1 text-xs leading-5 text-[var(--muted-foreground)]">{group.description}</p>
+                    <div className="min-w-0 flex-1">
+                      <h2 id={`${group.id}-heading`} className="text-base font-semibold tracking-tight text-[var(--foreground)]">{group.label}</h2>
+                      <p className="mt-1 max-w-xl text-xs leading-5 text-[var(--muted-foreground)]">{group.description}</p>
                     </div>
+                    <span className="shrink-0 rounded-full border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-[11px] font-semibold text-[var(--muted-foreground)]">{groupPlatforms.length}</span>
                   </div>
-                  <div className="mt-4 space-y-2">
+                  <div className="mt-5 grid gap-3 md:grid-cols-2">
                     {groupPlatforms.map(name => {
                     const connected = platforms.find(platform => platform.name === name);
-                    return <article key={name} className="flex items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3">
+                    return <article key={name} className="flex min-h-[88px] flex-col justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.03)] transition hover:-translate-y-0.5 hover:border-[var(--primary)]/45 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] sm:flex-row sm:items-center">
                         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[var(--secondary)] text-[var(--foreground)]">
                           {connected ? <CircleCheck size={16} /> : <Icon size={15} />}
                         </span>
@@ -195,7 +196,7 @@ export const LuluExistingPlatforms = () => {
                           <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}</strong>
                           <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : "Not connected"}</span>
                         </span>
-                        <div className="flex shrink-0 items-center gap-2">{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Connect</button>}<button type="button" onClick={() => setGuidePlatform(name)} className="rounded-md border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--foreground)] hover:text-[var(--foreground)]">Guide</button></div>
+                        <div className="flex w-full shrink-0 items-center gap-2 sm:w-auto">{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="inline-flex items-center gap-1.5 rounded-md border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} className="flex-1 rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">Connect</button>}<button type="button" onClick={() => setGuidePlatform(name)} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] sm:flex-none">Guide</button></div>
                       </article>;
                   })}
                   </div>
