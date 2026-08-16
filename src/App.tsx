@@ -69,7 +69,7 @@ function PageRoute({ page }: { page: PageDefinition }) {
   const isOnboarding = contract?.kind === "onboarding";
 
   if (location.pathname === routes.onboarding.productsServices) {
-    return <Navigate replace to={routes.onboarding.existingPlatforms} state={{ from: location.pathname }} />;
+    return <Navigate replace to={routes.onboarding.aiPreferences} state={{ from: location.pathname }} />;
   }
 
   if (!isPublic && !isOnboarding && currentUser && loading) {
