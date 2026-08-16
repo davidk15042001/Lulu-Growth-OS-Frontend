@@ -2,8 +2,6 @@ import { StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
-import { LuluExecutiveDashboard } from "./pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
-import { LuluBilling } from "./pages/pure-minute-5446/components/generated/LuluBilling";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -47,30 +45,6 @@ export function NativePage({ slug }: { slug: string }) {
       pageFrame.style.height = "auto";
       pageFrame.style.minHeight = "100vh";
       pageFrame.style.overflow = "visible";
-    }
-
-    if (slug === "fancily-leaf-1766") {
-      setApp(() => LuluExecutiveDashboard);
-      return () => {
-        active = false;
-        if (pageFrame && isAuthPage) {
-          if (previousPageFrameStyle == null) pageFrame.removeAttribute("style");
-          else pageFrame.setAttribute("style", previousPageFrameStyle);
-          pageFrame.classList.remove("page-frame--auth");
-        }
-      };
-    }
-
-    if (slug === "pure-minute-5446") {
-      setApp(() => LuluBilling);
-      return () => {
-        active = false;
-        if (pageFrame && isAuthPage) {
-          if (previousPageFrameStyle == null) pageFrame.removeAttribute("style");
-          else pageFrame.setAttribute("style", previousPageFrameStyle);
-          pageFrame.classList.remove("page-frame--auth");
-        }
-      };
     }
 
     const appLoader = appModules[`./pages/${slug}/App.tsx`];
