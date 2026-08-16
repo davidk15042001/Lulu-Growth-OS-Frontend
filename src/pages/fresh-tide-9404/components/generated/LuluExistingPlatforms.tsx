@@ -24,28 +24,26 @@ const platformGroups: PlatformGroup[] = [{
   description: "Customer records, deals and pipeline context.",
   icon: UsersRound,
   platforms: ["Salesforce", "Pipedrive", "HubSpot"],
-  comingSoon: true
+  comingSoonPlatforms: ["Salesforce", "Pipedrive"]
 }, {
   id: "marketing",
   label: "Marketing",
   description: "Campaign performance and audience activation.",
   icon: Store,
-  platforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API"],
-  comingSoonPlatforms: ["Google Ads API"]
+  platforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API"]
 }, {
   id: "analytics",
   label: "Analyse",
   description: "Measurement, attribution and conversion signals.",
   icon: BarChart3,
-  platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "LinkedIn Conversion Tracking API"],
-  comingSoonPlatforms: ["Google Ads", "Google Analytics"]
+  platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "LinkedIn Conversion Tracking API"]
 }, {
   id: "digital-appearance",
   label: "Digital Appearance",
   description: "Website builders and storefront platforms for your digital presence.",
   icon: Globe,
   platforms: ["Webflow", "WordPress", "Shopify", "Google Business"],
-  comingSoonPlatforms: ["Google Business"]
+  comingSoonPlatforms: ["Shopify"]
 }];
   const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
   const guideContent: Record<string, { intro: string; steps: string[]; links?: Array<{ label: string; url: string }> }> = {
