@@ -2,7 +2,7 @@ import { StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
-import { DynamicWorkspaceDashboard } from "./components/DynamicWorkspaceDashboard";
+import { LuluExecutiveDashboard } from "./pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 import { DashboardBilling } from "./components/DashboardBilling";
 
 type AppModule = { default: ComponentType };
@@ -50,7 +50,7 @@ export function NativePage({ slug }: { slug: string }) {
     }
 
     if (slug === "fancily-leaf-1766") {
-      setApp(() => DynamicWorkspaceDashboard);
+      setApp(() => LuluExecutiveDashboard);
       return () => {
         active = false;
         if (pageFrame && isAuthPage) {
