@@ -192,13 +192,7 @@ function Field({
         </span> : null}
     </label>;
 }
-function RightPanel({
-  total,
-  completeness
-}: {
-  total: number;
-  completeness: number;
-}) {
+function RightPanel() {
   return <aside className="hidden border-l border-[var(--border)] bg-[var(--sidebar)] p-8 text-[var(--foreground)] lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:justify-between xl:p-12">
       <div className="flex items-center justify-between">
         <Sparkles size={42} className="text-[var(--foreground)]" aria-hidden="true" />
@@ -225,37 +219,6 @@ function RightPanel({
         </p>
       </section>
 
-      <section aria-label="Products and services profile summary" className="rounded-2xl border border-[var(--border)] bg-[var(--card)]/70 p-5 shadow-[0_24px_70px_rgba(0,0,0,0.10)] backdrop-blur-sm">
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <p className="text-3xl font-semibold tracking-[-0.04em] text-[var(--foreground)]">
-              <span>{total}</span>
-            </p>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-              <span>Products & Services</span>
-            </p>
-          </div>
-          <div>
-            <p className="text-3xl font-semibold tracking-[-0.04em] text-[var(--foreground)]">
-              <span>{completeness}%</span>
-            </p>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">
-              <span>Profile Complete</span>
-            </p>
-          </div>
-        </div>
-        <div className="mt-5 h-2 overflow-hidden rounded-full bg-[var(--primary)] text-primary-foreground">
-          <div className="h-full rounded-full bg-[var(--primary)] transition-all text-primary-foreground" style={{
-          width: `${completeness}%`
-        }} />
-          
-        </div>
-        <p className="mt-4 flex items-center gap-2 text-sm font-medium text-[var(--foreground)]">
-          <Check size={16} aria-hidden="true" />
-          <span>AI-generated summary ready after setup</span>
-        </p>
-      </section>
     </aside>;
 }
 export function LuluProductsServices() {
@@ -590,7 +553,7 @@ export function LuluProductsServices() {
         </div>
       </section>
 
-      <RightPanel total={offerings.length} completeness={completeness} />
+      <RightPanel />
 
       {toast ? <div role="status" className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-[var(--border)] bg-card px-4 py-2.5 text-sm font-medium text-[var(--foreground)] shadow-[0_18px_50px_rgba(0,0,0,0.18)]">
         
