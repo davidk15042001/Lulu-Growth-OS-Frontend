@@ -15,13 +15,15 @@ interface PlatformGroup {
   description: string;
   icon: typeof UsersRound;
   platforms: string[];
+  comingSoon?: boolean;
 }
 const platformGroups: PlatformGroup[] = [{
   id: "crm",
   label: "CRM",
   description: "Customer records, deals and pipeline context.",
   icon: UsersRound,
-  platforms: ["Salesforce", "Pipedrive", "HubSpot"]
+  platforms: ["Salesforce", "Pipedrive", "HubSpot"],
+  comingSoon: true
 }, {
   id: "marketing",
   label: "Marketing",
@@ -195,18 +197,19 @@ export const LuluExistingPlatforms = () => {
               {platformGroups.map(group => {
               const Icon = group.icon;
               const groupPlatforms = group.platforms.filter(name => name.toLowerCase().includes(query.toLowerCase()));
-              return <section key={group.id} className="rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-4 shadow-sm sm:p-5" aria-labelledby={`${group.id}-heading`}>
+              const comingSoon = group.comingSoon === true;
+              return <section key={group.id} className={`rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-4 shadow-sm sm:p-5 ${comingSoon ? 'opacity-70' : ''}`} aria-labelledby={`${group.id}-heading`} aria-disabled={comingSoon}>
                   <div className="flex items-start justify-between gap-4">
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]">
                       <Icon size={16} />
                     </span>
                     <div className="min-w-0 flex-1">
-                      <h2 id={`${group.id}-heading`} className="text-base font-semibold tracking-tight text-[var(--foreground)]">{group.label}</h2>
+                      <h2 id={`${group.id}-heading`} className="text-base font-semibold tracking-tight text-[var(--foreground)]">{group.label}{comingSoon && <span className="ml-2 text-xs font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)]">(soon)</span>}</h2>
                       <p className="mt-1 max-w-xl text-xs leading-5 text-[var(--muted-foreground)]">{group.description}</p>
                     </div>
                     <span className="shrink-0 rounded-full border border-[var(--border)] bg-[var(--card)] px-2.5 py-1 text-[11px] font-semibold text-[var(--muted-foreground)]">{groupPlatforms.length}</span>
                   </div>
-                  <div className="mt-5 grid gap-3 md:grid-cols-2">
+                  <div className={`mt-5 grid gap-3 md:grid-cols-2 ${comingSoon ? 'pointer-events-none' : ''}`}>
                     {groupPlatforms.map(name => {
                     const connected = platforms.find(platform => platform.name === name);
                     return <article key={name} className="grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.03)] transition hover:-translate-y-0.5 hover:border-[var(--primary)]/45 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] [grid-template-columns:auto_minmax(0,1fr)]">
@@ -217,7 +220,7 @@ export const LuluExistingPlatforms = () => {
                           <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}</strong>
                           <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : "Not connected"}</span>
                         </span>
-                        <div className="col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3">{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={connectingPlatform === name} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-wait disabled:opacity-60 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] sm:flex-none">Guide</button></div>
+                        <div className="col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3">{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={comingSoon || connectingPlatform === name} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{comingSoon ? "(soon)" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={comingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{comingSoon ? "(soon)" : "Guide"}</button></div>
                       </article>;
                   })}
                   </div>
