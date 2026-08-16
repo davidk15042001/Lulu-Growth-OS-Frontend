@@ -2,6 +2,7 @@ import { StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
+import { DynamicWorkspaceDashboard } from "./components/DynamicWorkspaceDashboard";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -45,6 +46,18 @@ export function NativePage({ slug }: { slug: string }) {
       pageFrame.style.height = "auto";
       pageFrame.style.minHeight = "100vh";
       pageFrame.style.overflow = "visible";
+    }
+
+    if (slug === "fancily-leaf-1766") {
+      setApp(() => DynamicWorkspaceDashboard);
+      return () => {
+        active = false;
+        if (pageFrame && isAuthPage) {
+          if (previousPageFrameStyle == null) pageFrame.removeAttribute("style");
+          else pageFrame.setAttribute("style", previousPageFrameStyle);
+          pageFrame.classList.remove("page-frame--auth");
+        }
+      };
     }
 
     const appLoader = appModules[`./pages/${slug}/App.tsx`];
