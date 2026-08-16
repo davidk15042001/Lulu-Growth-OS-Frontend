@@ -122,6 +122,11 @@ export function BillingOnboarding() {
     };
   }, [paymentSucceeded, refresh, selectedWorkspace]);
 
+  useEffect(() => {
+    if (loading || !selectedWorkspace?.onboardingCompletedAt || paymentSucceeded) return;
+    navigateApp(routes.app.dashboard, { replace: true });
+  }, [loading, paymentSucceeded, selectedWorkspace]);
+
   if (loading) {
     return <main className="grid min-h-screen place-items-center bg-[var(--background)] text-sm text-[var(--muted-foreground)]">Loading your workspace…</main>;
   }
