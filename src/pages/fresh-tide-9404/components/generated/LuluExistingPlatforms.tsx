@@ -30,20 +30,22 @@ const platformGroups: PlatformGroup[] = [{
   label: "Marketing",
   description: "Campaign performance and audience activation.",
   icon: Store,
-  platforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API", "TikTok Ads"]
+  platforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API", "TikTok Ads"],
+  comingSoonPlatforms: ["Google Ads API"]
 }, {
   id: "analytics",
   label: "Analyse",
   description: "Measurement, attribution and conversion signals.",
   icon: BarChart3,
-  platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "LinkedIn Conversion Tracking API"]
+  platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "LinkedIn Conversion Tracking API"],
+  comingSoonPlatforms: ["Google Ads", "Google Analytics"]
 }, {
   id: "digital-appearance",
   label: "Digital Appearance",
   description: "Website builders and storefront platforms for your digital presence.",
   icon: Globe,
   platforms: ["Webflow", "WordPress", "Shopify", "Google Business"],
-  comingSoonPlatforms: ["Shopify"]
+  comingSoonPlatforms: ["Shopify", "Google Business"]
 }];
   const setupSteps = ["Company Information", "Business Description", "Existing Platforms", "Integrations", "AI Preferences", "Setup Complete"];
   const guideContent: Record<string, { intro: string; steps: string[]; links?: Array<{ label: string; url: string }> }> = {
