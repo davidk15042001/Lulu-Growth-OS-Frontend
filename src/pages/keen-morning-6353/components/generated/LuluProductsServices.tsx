@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, Check, CircleHelp, DollarSign, PackageOpen, Plus, Sparkles, Star, Tags, Trash2, Upload, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CircleHelp, DollarSign, PackageOpen, Sparkles, Star, Tags, Trash2, Upload, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
@@ -462,11 +462,6 @@ export function LuluProductsServices() {
                   <span>Choose the offering types you want to add.</span>
                 </p>
               </div>
-              <button type="button" onClick={() => setEditing(emptyOffering())} className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-semibold text-[var(--foreground)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:shadow-md">
-                
-                <Plus size={16} aria-hidden="true" />
-                <span>Add Product or Service</span>
-              </button>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
