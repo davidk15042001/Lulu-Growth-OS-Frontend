@@ -120,7 +120,7 @@ export const LuluExistingPlatforms = () => {
       setError(getFriendlyErrorMessage(cause, 'We could not remove this platform. Please try again.'));
     }
   };
-  return <main className="grid min-h-screen bg-[var(--background)] font-['Inter',sans-serif] text-[var(--foreground)] lg:grid-cols-2">
+  return <main className="grid min-h-screen bg-[var(--background)] font-['Inter',sans-serif] text-[var(--foreground)] lg:grid-cols-[7fr_3fr]">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
         <div className="w-full max-w-xl">
           <div className="flex items-center gap-2">

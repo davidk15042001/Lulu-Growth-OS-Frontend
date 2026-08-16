@@ -65,7 +65,7 @@ export const CompanyInformation = () => {
       setLoading(false);
     }
   };
-  return <main className="grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-2">
+  return <main className="grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-[7fr_3fr]">
       <section className="flex items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
         <div className="w-full max-w-xl">
           <div className="flex items-center gap-2">
