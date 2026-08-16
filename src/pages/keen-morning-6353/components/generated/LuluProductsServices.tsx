@@ -263,6 +263,7 @@ export function LuluProductsServices() {
   const [editing, setEditing] = useState<Offering>(emptyOffering());
   const [selectedId, setSelectedId] = useState("");
   const [showHelp, setShowHelp] = useState(false);
+  const [isSkipOpen, setIsSkipOpen] = useState(false);
   const [toast, setToast] = useState("");
   useEffect(() => {
     const workspaceId = getSelectedWorkspaceId();
@@ -757,7 +758,7 @@ export function LuluProductsServices() {
               <ArrowLeft size={16} aria-hidden="true" />
               <span>Back</span>
             </button>
-            <button type="button" onClick={() => navigateApp(routes.app.dashboard)} className="h-11 rounded-xl px-4 text-sm font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)]">
+            <button type="button" onClick={() => setIsSkipOpen(true)} className="h-11 rounded-xl px-4 text-sm font-medium text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)]">
               
               <span>Skip Setup</span>
             </button>
@@ -771,6 +772,23 @@ export function LuluProductsServices() {
       </section>
 
       <RightPanel total={offerings.length} completeness={completeness} />
+
+      {isSkipOpen ? <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--background)]/45 px-5 backdrop-blur-sm" role="presentation" onMouseDown={() => setIsSkipOpen(false)}>
+          <section role="dialog" aria-modal="true" aria-labelledby="skip-setup-title" onMouseDown={event => event.stopPropagation()} className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 text-[var(--foreground)] shadow-[0_24px_80px_rgba(0,0,0,0.20)] sm:p-7">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Company setup</p>
+                <h2 id="skip-setup-title" className="mt-2 text-xl font-semibold tracking-[-0.03em]">Onboarding is required</h2>
+                <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">To protect your workspace setup, the dashboard becomes available after the onboarding steps are completed. Your current progress is saved.</p>
+              </div>
+              <button type="button" aria-label="Close dialog" onClick={() => setIsSkipOpen(false)} className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]"><X size={17} /></button>
+            </div>
+            <div className="mt-6 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
+              <button type="button" onClick={() => setIsSkipOpen(false)} className="h-11 rounded-xl border border-[var(--border)] px-4 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--secondary)]">Stay in setup</button>
+              <button type="button" onClick={() => { setIsSkipOpen(false); setToast("Complete the onboarding steps to unlock the dashboard."); window.setTimeout(() => setToast(""), 2800); }} className="h-11 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-primary-foreground transition hover:-translate-y-0.5">Continue onboarding</button>
+            </div>
+          </section>
+        </div> : null}
 
       {toast ? <div role="status" className="fixed bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border border-[var(--border)] bg-card px-4 py-2.5 text-sm font-medium text-[var(--foreground)] shadow-[0_18px_50px_rgba(0,0,0,0.18)]">
         
