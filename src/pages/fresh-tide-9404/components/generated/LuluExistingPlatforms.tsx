@@ -64,6 +64,7 @@ export const LuluExistingPlatforms = () => {
   const [synced, setSynced] = useState(false);
   const [error, setError] = useState('');
   const [guidePlatform, setGuidePlatform] = useState<string | null>(null);
+  const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   useEffect(() => {
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
@@ -99,13 +100,19 @@ export const LuluExistingPlatforms = () => {
       return;
     }
     setError('');
+    setConnectingPlatform(name);
     try {
       const shop = provider === 'shopify' ? window.prompt('Enter your Shopify shop domain (example.myshopify.com)')?.trim() : undefined;
-      if (provider === 'shopify' && !shop) return;
+      if (provider === 'shopify' && !shop) {
+        setConnectingPlatform(null);
+        return;
+      }
       const response = await requestApi<{ authorizationUrl: string }>({ path: `/workspaces/${workspaceId}/onboarding/platforms/${provider}/connect${shop ? `?shop=${encodeURIComponent(shop)}` : ''}` });
+      if (!response.data?.authorizationUrl) throw new Error('The provider authorization URL was not returned by the backend.');
       window.location.assign(response.data.authorizationUrl);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, 'We could not start this connection. Please try again.'));
+      setConnectingPlatform(null);
     }
   };
   const submit = (event: FormEvent<HTMLFormElement>) => {
@@ -170,6 +177,7 @@ export const LuluExistingPlatforms = () => {
               <span className="flex items-center justify-between gap-3"><span>Search platforms</span><span className="text-xs font-normal text-[var(--muted-foreground)]">{platformGroups.reduce((count, group) => count + group.platforms.length, 0)} available</span></span>
               <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search Salesforce, Google Ads, Analytics…" className="mt-2 h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-4 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15" />
             </label>
+            {error && <div role="alert" className="rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm leading-6 text-[var(--destructive)]">{error}</div>}
             <div className="space-y-5">
               {platformGroups.map(group => {
               const Icon = group.icon;
@@ -196,7 +204,7 @@ export const LuluExistingPlatforms = () => {
                           <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}</strong>
                           <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : "Not connected"}</span>
                         </span>
-                        <div className="col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3">{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} className="flex-1 rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">Connect</button>}<button type="button" onClick={() => setGuidePlatform(name)} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] sm:flex-none">Guide</button></div>
+                        <div className="col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3">{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={connectingPlatform === name} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-wait disabled:opacity-60 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] sm:flex-none">Guide</button></div>
                       </article>;
                   })}
                   </div>
@@ -219,7 +227,7 @@ export const LuluExistingPlatforms = () => {
                   </span>
                 </span>
               </p>}
-            {error && <p role="alert" className="text-sm text-[var(--destructive)]">{error}</p>}
+
           </form>
         </div>
       </section>
