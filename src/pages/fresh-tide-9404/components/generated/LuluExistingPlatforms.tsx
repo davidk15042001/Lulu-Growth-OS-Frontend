@@ -31,14 +31,14 @@ const platformGroups: PlatformGroup[] = [{
   description: "Campaign performance and audience activation.",
   icon: Store,
   platforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API", "TikTok Ads"],
-  comingSoonPlatforms: ["Google Ads API"]
+  comingSoonPlatforms: ["Google Ads API", "Meta Marketing API"]
 }, {
   id: "analytics",
   label: "Analyse",
   description: "Measurement, attribution and conversion signals.",
   icon: BarChart3,
   platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "LinkedIn Conversion Tracking API"],
-  comingSoonPlatforms: ["Google Ads", "Google Analytics"]
+  comingSoonPlatforms: ["Google Ads", "Google Analytics", "Meta Conversion API"]
 }, {
   id: "digital-appearance",
   label: "Digital Appearance",
