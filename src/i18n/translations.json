@@ -19935,7 +19935,12 @@
     "Today · Workspace assignee": "Heute · Workspace assignee",
     "Workspace assignee": "Workspace assignee",
     "Workspace assignee has 5 overdue tasks; consider rebalancing workload": "Workspace assignee hat 5 überfällige Aufgaben; erwägen Sie eine Neuverteilung der Arbeitslast",
-    "Workspace assignee · 2 days ago": "Workspace assignee · vor 2 Tagen"
+    "Workspace assignee · 2 days ago": "Workspace assignee · vor 2 Tagen",
+    "Loading live marketing strategy…": "Live-Marketing-Strategie wird geladen…",
+    "No live marketing strategies are available yet. Create a strategy or connect your marketing platform to begin.": "Für Live-Marketing-Strategien sind noch keine Einträge verfügbar. Erstellen Sie eine Strategie oder verbinden Sie Ihre Marketing-Plattform, um zu beginnen.",
+    "Published Q4 objectives · Draft → Active · Workspace owner M · 2d ago": "Veröffentlichte Q4-Ziele · Entwurf → Aktiv · Workspace‑Owner M · vor 2 Tagen",
+    "Updated Content Alignment · 68 → 72 · Workspace owner M · 2h ago": "Content-Ausrichtung aktualisiert · 68 → 72 · Workspace‑Owner M · vor 2 Stunden",
+    "Workspace owner M": "Workspace‑Owner M"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39901,7 +39906,12 @@
     "Today · Workspace assignee": "今天 · 工作区负责人",
     "Workspace assignee": "工作区负责人",
     "Workspace assignee has 5 overdue tasks; consider rebalancing workload": "工作区负责人有 5 个逾期任务；考虑重新分配工作量",
-    "Workspace assignee · 2 days ago": "工作区负责人 · 2 天前"
+    "Workspace assignee · 2 days ago": "工作区负责人 · 2 天前",
+    "Loading live marketing strategy…": "正在加载实时营销策略…",
+    "No live marketing strategies are available yet. Create a strategy or connect your marketing platform to begin.": "目前尚无实时营销策略。创建策略或连接您的营销平台以开始。",
+    "Published Q4 objectives · Draft → Active · Workspace owner M · 2d ago": "已发布的 Q4 目标 · 草案 → 生效 · 工作区所有者 M · 2天前",
+    "Updated Content Alignment · 68 → 72 · Workspace owner M · 2h ago": "已更新的内容一致性 · 68 → 72 · 工作区所有者 M · 2小时前",
+    "Workspace owner M": "工作区所有者 M"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
