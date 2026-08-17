@@ -19962,7 +19962,10 @@
     "Loading live collections…": "Live-Sammlungen werden geladen…",
     "No live collections are available yet. Add a collection or connect your commerce platform to begin.": "Noch keine Live-Sammlungen verfügbar. Fügen Sie eine Sammlung hinzu oder verbinden Sie Ihre Commerce-Plattform, um zu beginnen.",
     "Loading live subscriptions…": "Live-Abonnements werden geladen…",
-    "No live subscriptions are available yet. Connect your commerce platform or create a subscription to begin.": "Noch keine Live-Abonnements verfügbar. Verbinden Sie Ihre Handelsplattform oder erstellen Sie ein Abonnement, um zu beginnen."
+    "No live subscriptions are available yet. Connect your commerce platform or create a subscription to begin.": "Noch keine Live-Abonnements verfügbar. Verbinden Sie Ihre Handelsplattform oder erstellen Sie ein Abonnement, um zu beginnen.",
+    "Emil Larsen → Workspace owner": "Emil Larsen → Arbeitsbereichsinhaber",
+    "Loading live sales leads…": "Lade Live-Verkaufschancen…",
+    "No live sales leads are available yet. Add a lead or connect your CRM to begin.": "Es sind noch keine Live-Verkaufschancen verfügbar. Fügen Sie eine Chance hinzu oder verbinden Sie Ihr CRM, um zu beginnen."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39955,7 +39958,10 @@
     "Loading live collections…": "正在加载实时集合…",
     "No live collections are available yet. Add a collection or connect your commerce platform to begin.": "目前还没有可用的实时集合。添加一个集合或连接您的电商平台以开始。",
     "Loading live subscriptions…": "正在加载实时订阅…",
-    "No live subscriptions are available yet. Connect your commerce platform or create a subscription to begin.": "暂无可用的实时订阅。请连接您的电商平台或创建订阅以开始。"
+    "No live subscriptions are available yet. Connect your commerce platform or create a subscription to begin.": "暂无可用的实时订阅。请连接您的电商平台或创建订阅以开始。",
+    "Emil Larsen → Workspace owner": "Emil Larsen → 工作区所有者",
+    "Loading live sales leads…": "正在加载实时销售线索…",
+    "No live sales leads are available yet. Add a lead or connect your CRM to begin.": "暂无实时销售线索。添加线索或连接您的 CRM 开始。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
