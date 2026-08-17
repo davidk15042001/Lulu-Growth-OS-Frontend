@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ArrowRight, BarChart3, Check, ChevronDown, CircleHelp, Database, Gauge, Lightbulb, LockKeyhole, Network, X } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
+import { useLuluApp } from '../../../../api/LuluAppContext';
 type FeaturePill = {
   id: string;
   label: string;
@@ -64,7 +65,12 @@ const progressSteps: ProgressStep[] = [{
   current: false
 }];
 export function LuluWelcomeScreen() {
+  const { currentUser } = useLuluApp();
   const [isSkipOpen, setIsSkipOpen] = useState(false);
+  const displayName = [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ').trim();
+  const accountLabel = displayName || currentUser?.email || 'Account';
+  const greetingName = displayName ? `, ${displayName.toUpperCase()}` : '';
+  const accountInitial = (displayName || currentUser?.email || 'A').charAt(0).toUpperCase();
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [started, setStarted] = useState(false);
   useEffect(() => {
@@ -109,12 +115,12 @@ export function LuluWelcomeScreen() {
           <div className="relative">
             <button type="button" aria-expanded={isAccountOpen} aria-haspopup="menu" onClick={() => setIsAccountOpen(!isAccountOpen)} className="flex h-9 items-center gap-2 rounded-lg px-2 text-left transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">
               <span aria-hidden="true" className="grid h-7 w-7 place-items-center rounded-full bg-[var(--secondary)] text-xs font-semibold text-[var(--foreground)]">
-                <span>D</span>
+                <span>{accountInitial}</span>
               </span>
               <ChevronDown size={14} className={`text-[var(--muted-foreground)] transition ${isAccountOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
             </button>
             {isAccountOpen && <div role="menu" className="absolute right-0 top-11 z-20 w-44 rounded-xl border border-[var(--border)] bg-[var(--card)] p-1.5 shadow-[0_12px_32px_rgba(0,0,0,.12)]">
-                <p className="px-3 py-2 text-xs text-[var(--muted-foreground)]">David Morgan</p>
+                <p className="px-3 py-2 text-xs text-[var(--muted-foreground)]">{accountLabel}</p>
                 <button type="button" role="menuitem" onClick={() => setIsAccountOpen(false)} className="w-full rounded-lg px-3 py-2 text-left text-sm text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">
                   <span>Account settings</span>
                 </button>
@@ -130,7 +136,7 @@ export function LuluWelcomeScreen() {
         <section aria-labelledby="welcome-title" className="grid w-full items-center gap-7 lg:grid-cols-[1.03fr_.97fr] lg:gap-10">
           <div className="text-center lg:text-left">
             <p className="welcome-enter welcome-delay-1 text-[13px] font-semibold tracking-[.08em] text-[var(--foreground)]">
-              <span>WELCOME, DAVID</span>
+              <span>WELCOME{greetingName}</span>
             </p>
             <h1 id="welcome-title" className="welcome-enter welcome-delay-2 mx-auto mt-3 max-w-[720px] text-[38px] font-bold leading-[.96] tracking-[-.06em] text-[var(--foreground)] sm:text-[56px] lg:mx-0 lg:text-[72px]">
               <span>Put Lulu AI to work for your business.</span>
