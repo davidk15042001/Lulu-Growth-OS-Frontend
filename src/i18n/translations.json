@@ -19902,7 +19902,9 @@
     "No live sales trend data is available yet.": "Für Live-Sales-Trenddaten sind noch keine Einträge vorhanden.",
     "No live trend data is available yet.": "Für Live-Trenddaten sind noch keine Einträge vorhanden.",
     "Loading live sales overview…": "Lade Live‑Verkaufsübersicht…",
-    "No live sales records are available yet. Connect a CRM platform or add deals to begin.": "Es sind noch keine Live‑Verkaufsdaten verfügbar. Verbinden Sie eine CRM‑Plattform oder fügen Sie Deals hinzu, um zu beginnen."
+    "No live sales records are available yet. Connect a CRM platform or add deals to begin.": "Es sind noch keine Live‑Verkaufsdaten verfügbar. Verbinden Sie eine CRM‑Plattform oder fügen Sie Deals hinzu, um zu beginnen.",
+    "Loading live marketing data…": "Live-Marketing-Daten werden geladen…",
+    "No live marketing campaigns are available yet. Connect a marketing platform or add a campaign to begin.": "Es sind noch keine Live-Marketing-Kampagnen verfügbar. Verbinden Sie eine Marketing-Plattform oder fügen Sie eine Kampagne hinzu, um zu beginnen."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39835,7 +39837,9 @@
     "No live sales trend data is available yet.": "尚无实时销售趋势数据。",
     "No live trend data is available yet.": "尚无实时趋势数据。",
     "Loading live sales overview…": "正在加载实时销售概览…",
-    "No live sales records are available yet. Connect a CRM platform or add deals to begin.": "尚无实时销售记录。连接 CRM 平台或添加交易以开始。"
+    "No live sales records are available yet. Connect a CRM platform or add deals to begin.": "尚无实时销售记录。连接 CRM 平台或添加交易以开始。",
+    "Loading live marketing data…": "正在加载实时营销数据…",
+    "No live marketing campaigns are available yet. Connect a marketing platform or add a campaign to begin.": "暂无实时营销活动。连接营销平台或添加活动以开始。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
