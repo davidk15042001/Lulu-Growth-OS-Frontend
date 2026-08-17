@@ -19924,7 +19924,9 @@
     "No live audiences are available yet. Connect your marketing platform or create an audience to begin.": "Noch keine Live-Zielgruppen verfügbar. Verbinden Sie Ihre Marketingplattform oder erstellen Sie eine Zielgruppe, um zu beginnen.",
     "Loading live stores…": "Live-Shops werden geladen…",
     "No live stores are available yet. Connect your commerce platform or add a store to begin.": "Es sind noch keine Live-Shops verfügbar. Verbinden Sie Ihre Handelsplattform oder fügen Sie einen Shop hinzu, um zu beginnen.",
-    "Workspace stores": "Workspace-Shops"
+    "Workspace stores": "Workspace-Shops",
+    "Loading live CRM activities…": "Live-CRM-Aktivitäten werden geladen…",
+    "No live CRM activities are available yet. Add an activity or connect your CRM to begin.": "Es sind noch keine Live-CRM-Aktivitäten verfügbar. Fügen Sie eine Aktivität hinzu oder verbinden Sie Ihr CRM, um zu beginnen."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39879,7 +39881,9 @@
     "No live audiences are available yet. Connect your marketing platform or create an audience to begin.": "当前暂无实时受众。连接您的营销平台或创建受众以开始。",
     "Loading live stores…": "正在加载实时店铺…",
     "No live stores are available yet. Connect your commerce platform or add a store to begin.": "尚无可用的实时店铺。连接您的电商平台或添加店铺以开始。",
-    "Workspace stores": "工作区店铺"
+    "Workspace stores": "工作区店铺",
+    "Loading live CRM activities…": "正在加载实时 CRM 活动…",
+    "No live CRM activities are available yet. Add an activity or connect your CRM to begin.": "尚无可用的实时 CRM 活动。添加活动或连接您的 CRM 即可开始。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
