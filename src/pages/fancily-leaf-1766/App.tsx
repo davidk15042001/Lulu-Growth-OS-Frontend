@@ -1,5 +1,5 @@
 import { Theme } from './settings/types';
-import { LuluExecutiveDashboard } from './components/generated/LuluExecutiveDashboard';
+import { DynamicWorkspaceDashboard } from '../../components/DynamicWorkspaceDashboard';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +15,7 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluExecutiveDashboard />; // %EXPORT_STATEMENT%
+  return <DynamicWorkspaceDashboard />; // %EXPORT_STATEMENT%
 }
 
 export default App;
