@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, AlertCircle, Archive, ArrowDown, ArrowUp, BarChart3, Bell, Bot, BriefcaseBusiness, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Columns3, Download, Ellipsis, FilePlus2, Filter, FolderKanban, Gauge, Globe2, Import, LayoutGrid, ListFilter, Menu, MoreHorizontal, PanelRight, Plus, Search, Settings, Sparkles, Target, Trash2, TrendingUp, UserRound, Users, X, Zap, CheckCircle2, SlidersHorizontal } from 'lucide-react';
 type Stage = 'New' | 'Qualified' | 'Proposal' | 'Negotiation' | 'Won' | 'Lost';
 type Status = 'Open' | 'Won' | 'Lost' | 'Archived';
@@ -17,112 +18,7 @@ type Deal = {
   last: string;
   status: Status;
 };
-const deals: Deal[] = [{
-  id: 'enterprise-expansion',
-  name: 'Enterprise Expansion',
-  company: 'TechCorp GmbH',
-  contact: 'Anna Weber',
-  stage: 'Negotiation',
-  value: 84000,
-  probability: 72,
-  close: '30 Sep 2026',
-  owner: 'Sarah Chen',
-  initials: 'SC',
-  last: 'Yesterday',
-  status: 'Open'
-}, {
-  id: 'marketing-platform',
-  name: 'Marketing Platform',
-  company: 'Bluewave Ltd',
-  contact: 'James Park',
-  stage: 'Proposal',
-  value: 52000,
-  probability: 55,
-  close: '15 Oct 2026',
-  owner: 'Marcus Hill',
-  initials: 'MH',
-  last: '3 days ago',
-  status: 'Open'
-}, {
-  id: 'cloud-migration',
-  name: 'Cloud Migration Suite',
-  company: 'DataStream AG',
-  contact: 'Lena Müller',
-  stage: 'Qualified',
-  value: 128000,
-  probability: 40,
-  close: '20 Nov 2026',
-  owner: 'Sarah Chen',
-  initials: 'SC',
-  last: '2 days ago',
-  status: 'Open'
-}, {
-  id: 'analytics-dashboard',
-  name: 'Analytics Dashboard',
-  company: 'Vertex Corp',
-  contact: 'Tom Reyes',
-  stage: 'Negotiation',
-  value: 37500,
-  probability: 80,
-  close: '5 Oct 2026',
-  owner: 'Priya Nair',
-  initials: 'PN',
-  last: 'Today',
-  status: 'Open'
-}, {
-  id: 'crm-integration',
-  name: 'CRM Integration',
-  company: 'NexGen Systems',
-  contact: 'Olivia Stone',
-  stage: 'Proposal',
-  value: 29000,
-  probability: 60,
-  close: '28 Sep 2026',
-  overdue: true,
-  owner: 'Marcus Hill',
-  initials: 'MH',
-  last: '7 days ago',
-  status: 'Open'
-}, {
-  id: 'sales-automation',
-  name: 'Sales Automation',
-  company: 'GlobalTech Inc',
-  contact: 'Ravi Singh',
-  stage: 'New',
-  value: 94000,
-  probability: 20,
-  close: '31 Dec 2026',
-  owner: 'Sarah Chen',
-  initials: 'SC',
-  last: '5 days ago',
-  status: 'Open'
-}, {
-  id: 'erp-connector',
-  name: 'ERP Connector',
-  company: 'Pinnacle GmbH',
-  contact: 'Klaus Bauer',
-  stage: 'Won',
-  value: 46000,
-  probability: 100,
-  close: '—',
-  owner: 'Priya Nair',
-  initials: 'PN',
-  last: '1 week ago',
-  status: 'Won'
-}, {
-  id: 'bi-reporting',
-  name: 'BI Reporting Suite',
-  company: 'Altus Media',
-  contact: 'Fiona Walsh',
-  stage: 'Lost',
-  value: 31000,
-  probability: 0,
-  close: '—',
-  owner: 'Marcus Hill',
-  initials: 'MH',
-  last: '2 weeks ago',
-  status: 'Lost'
-}];
+const deals: Deal[] = [];
 const stageMeta: Record<Stage, {
   tone: string;
   dot: string;
@@ -152,75 +48,14 @@ const stageMeta: Record<Stage, {
     dot: 'bg-destructive'
   }
 };
-const stageFunnel = [{
-  stage: 'New',
-  count: 24,
-  value: '€210K',
-  share: '12%'
-}, {
-  stage: 'Qualified',
-  count: 38,
-  value: '€890K',
-  share: '28%'
-}, {
-  stage: 'Proposal',
-  count: 31,
-  value: '€520K',
-  share: '19%'
-}, {
-  stage: 'Negotiation',
-  count: 22,
-  value: '€340K',
-  share: '16%'
-}, {
-  stage: 'Won',
-  count: 67,
-  value: '€184K',
-  share: '25%'
-}];
-const attention = [{
-  icon: AlertCircle,
-  color: 'text-chart-5 bg-chart-5/10',
-  name: 'Enterprise Expansion',
-  reason: 'No activity for 16 days',
-  severity: 'High',
-  owner: 'Sarah Chen',
-  initials: 'SC',
-  action: 'Schedule follow-up call'
-}, {
-  icon: Clock3,
-  color: 'text-chart-1 bg-chart-1/10',
-  name: 'CRM Integration',
-  reason: 'Close date in 2 days, no recent activity',
-  severity: 'Medium',
-  owner: 'Marcus Hill',
-  initials: 'MH',
-  action: 'Confirm close plan'
-}, {
-  icon: TrendingUp,
-  color: 'text-chart-1 bg-chart-1/10',
-  name: 'Analytics Dashboard',
-  reason: 'Probability declined from 85% to 80%',
-  severity: 'Medium',
-  owner: 'Priya Nair',
-  initials: 'PN',
-  action: 'Review qualification'
-}, {
-  icon: Clock3,
-  color: 'text-foreground bg-secondary/10',
-  name: 'Cloud Migration Suite',
-  reason: 'In Qualified stage for 34 days',
-  severity: 'Low',
-  owner: 'Sarah Chen',
-  initials: 'SC',
-  action: 'Schedule stage review'
-}];
+const stageFunnel: { stage: string; count: number; value: string; share: string }[] = [];
+const attention: { icon: typeof AlertCircle; color: string; name: string; reason: string; severity: string; owner: string; initials: string; action: string }[] = [];
 const formatEuro = (value: number) => `€${value.toLocaleString('en-US')}`;
 function Sidebar() {
   return <aside className="hidden w-[220px] shrink-0 flex-col border-r border-border bg-[var(--sidebar)] px-3 py-5 lg:flex">
     <div className="flex items-center gap-3 px-3 pb-8"><div className="grid h-8 w-8 place-items-center rounded-xl bg-primary shadow-lg shadow-black/20 text-primary-foreground"><Sparkles size={16} /></div><strong className="text-[15px] tracking-tight text-foreground">lulu<span className="text-foreground">.</span>ai</strong></div>
     <LuluSectionNavigation activeId="smartly-shade-4619" />
-    <div className="mt-auto border-t border-border pt-4"><button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-secondary"><div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-primary text-[11px] font-bold text-primary-foreground">JD</div><span><strong className="block text-xs text-foreground">Jordan Davis</strong><small className="text-[11px] text-muted-foreground">Admin workspace</small></span><MoreHorizontal size={16} className="ml-auto text-muted-foreground" /></button></div>
+    <div className="mt-auto border-t border-border pt-4"><button className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left hover:bg-secondary"><div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-primary text-[11px] font-bold text-primary-foreground">—</div><span><strong className="block text-xs text-foreground">Workspace user</strong><small className="text-[11px] text-muted-foreground">CRM access</small></span><MoreHorizontal size={16} className="ml-auto text-muted-foreground" /></button></div>
   </aside>;
 }
 function KpiCard({
@@ -239,24 +74,34 @@ function KpiCard({
   return <article className="min-w-0 rounded-xl border border-border bg-[var(--card)] px-4 py-4"><div className="mb-3 flex items-center justify-between"><div className={`grid h-8 w-8 place-items-center rounded-lg ${warning ? 'bg-chart-1/10 text-chart-1' : 'bg-secondary/10 text-foreground'}`}><Icon size={16} /></div><span className={`text-[11px] font-medium ${warning ? 'text-chart-1' : 'text-chart-4'}`}>{trend}</span></div><p className="text-xs text-muted-foreground">{label}</p><strong className="mt-1 block text-[21px] tracking-tight text-foreground">{value}</strong></article>;
 }
 export function LuluDealsPage() {
+  const { items: liveRecords, loading: liveLoading, error: liveError } = useLiveRecords('crm_deals');
+  const liveDeals: Deal[] = liveRecords.map((record, index) => {
+    const fields = record as unknown as Record<string, unknown>;
+    const name = record.name || String(fields.dealName ?? 'Unnamed deal');
+    const initials = name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase();
+    return { id: record.id || `deal-${index + 1}`, name, company: String(fields.company ?? '—'), contact: String(fields.contact ?? '—'), stage: (String(fields.stage ?? 'New') as Stage), value: Number(record.valueAmount ?? 0), probability: Number(fields.probability ?? 0), close: String(fields.closeDate ?? '—'), overdue: Boolean(fields.overdue ?? false), owner: String(fields.owner ?? '—'), initials, last: String(fields.lastActivity ?? '—'), status: (String(record.status ?? 'Open') as Status) };
+  });
+  const dealsForView = liveLoading ? [] : liveDeals;
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
   const [view, setView] = useState('Table');
   const [showCreate, setShowCreate] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
-  const visibleDeals = useMemo(() => deals.filter(deal => `${deal.name} ${deal.company} ${deal.contact}`.toLowerCase().includes(query.toLowerCase())), [query]);
+  const visibleDeals = useMemo(() => dealsForView.filter(deal => `${deal.name} ${deal.company} ${deal.contact}`.toLowerCase().includes(query.toLowerCase())), [query]);
   const toggleSelected = (id: string) => setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const allSelected = selected.length === visibleDeals.length && visibleDeals.length > 0;
   return <div className="min-h-screen bg-[var(--background)] text-foreground">
     <div className="flex min-h-screen">
       <Sidebar />
       <main className="min-w-0 flex-1 bg-[var(--background)]">
+    {liveError && <div className="mx-5 mt-4 rounded-lg border border-chart-5/30 bg-chart-5/5 px-4 py-3 text-sm text-chart-5">{liveError}</div>}
+    {!liveLoading && liveDeals.length === 0 && <div className="mx-5 mt-4 rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">No deal records are available yet. Add a deal or connect a CRM platform.</div>}
         <header className="flex h-16 items-center justify-between border-b border-border px-5 md:px-8"><div className="flex items-center gap-3"><button className="lg:hidden"><Menu size={19} /></button><span className="text-xs text-muted-foreground">CRM</span><span className="text-foreground">/</span><strong className="text-xs text-foreground">Deals</strong></div><div className="flex items-center gap-4"><button className="relative text-foreground hover:text-foreground" aria-label="Notifications"><Bell size={18} /><span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 rounded-full bg-primary text-primary-foreground" /></button><span className="hidden text-xs text-muted-foreground sm:block">Last synced 2 min ago</span></div></header>
         <div className="mx-auto max-w-[1500px] px-5 py-7 md:px-8">
           <section className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end"><div><p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.2em] text-foreground">Revenue operations</p><h1 className="text-3xl font-semibold tracking-[-0.04em] text-foreground md:text-[34px]">Deals</h1><p className="mt-2 text-sm text-muted-foreground">Manage your sales opportunities, pipeline value and revenue potential.</p></div><div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-foreground hover:bg-secondary"><Import size={14} /> Import</button><button className="inline-flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-foreground hover:bg-secondary"><Download size={14} /> Export</button><button onClick={() => setShowCreate(true)} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg shadow-black/20 hover:bg-primary"><Plus size={15} /> Create Deal</button></div></section>
-          <section className="mt-7 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6"><KpiCard icon={FolderKanban} label="Total Deals" value="186" trend="↑ 8.4%" /><KpiCard icon={Activity} label="Open Deals" value="142" trend="↑ 5.2%" /><KpiCard icon={BarChart3} label="Pipeline Value" value="€482,400" trend="↑ 12.0%" /><KpiCard icon={Target} label="Weighted Pipeline" value="€318,700" trend="↑ 9.6%" /><KpiCard icon={CheckCircle2} label="Won Revenue" value="€184,200" trend="↑ 18.4%" /><KpiCard icon={AlertCircle} label="Requiring Attention" value="18" trend="Needs review" warning /></section>
-          <section className="mt-6 flex flex-col gap-3 xl:flex-row"><div className="relative min-w-0 flex-1"><Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={17} /><input value={query} onChange={event => setQuery(event.target.value)} className="h-11 w-full rounded-xl border border-border bg-[var(--secondary)] pl-10 pr-14 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-border/60" placeholder="Search deals..." /><kbd className="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘K</kbd></div><div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-lg border border-border px-3 text-xs text-foreground"><Filter size={14} /> Filters <span className="grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground">2</span></button><div className="relative"><button onClick={() => setSavedOpen(!savedOpen)} className="inline-flex h-11 items-center gap-2 rounded-lg border border-border px-3 text-xs text-foreground">Saved Filters <ChevronDown size={14} /></button>{savedOpen && <div className="absolute right-0 top-12 z-10 w-48 rounded-lg border border-border bg-[var(--secondary)] p-1 shadow-2xl">{['My Open Deals', 'High Value Deals', 'Closing This Month', 'Stalled Deals', 'At Risk Deals', 'Recently Won', 'Recently Lost'].map(item => <button key={item} className="block w-full rounded px-3 py-2 text-left text-xs text-foreground hover:bg-secondary hover:text-foreground">{item}</button>)}</div>}</div><div className="flex h-11 rounded-lg border border-border p-1">{['Table', 'Compact', 'Card'].map(item => <button key={item} onClick={() => setView(item)} className={`rounded px-3 text-xs ${view === item ? 'bg-primary text-primary-foreground' : 'text-primary-foreground hover:text-primary-foreground'}`}>{item}</button>)}</div><button className="inline-flex h-11 items-center gap-2 rounded-lg border border-border px-3 text-xs text-foreground"><Columns3 size={14} /> Columns</button></div></section>
-          <div className="mt-4 flex flex-wrap items-center gap-2"><span className="text-[11px] text-muted-foreground">Active:</span>{['Stage: Negotiation', 'Owner: Sarah Chen'].map(chip => <button key={chip} className="inline-flex items-center gap-1.5 rounded-full border border-border/20 bg-secondary/10 px-2.5 py-1 text-[11px] text-foreground">{chip}<X size={12} /></button>)}<button className="text-[11px] text-foreground hover:text-foreground">Clear All</button></div>
+          <section className="mt-7 rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground">Live deal KPIs will appear when CRM deal records are available.</section>
+          <section className="mt-6 flex flex-col gap-3 xl:flex-row"><div className="relative min-w-0 flex-1"><Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" size={17} /><input value={query} onChange={event => setQuery(event.target.value)} className="h-11 w-full rounded-xl border border-border bg-[var(--secondary)] pl-10 pr-14 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-border/60" placeholder="Search deals..." /><kbd className="absolute right-3 top-1/2 -translate-y-1/2 rounded border border-border px-1.5 py-0.5 text-[10px] text-muted-foreground">⌘K</kbd></div><div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-lg border border-border px-3 text-xs text-foreground"><Filter size={14} /> Filters <span className="grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] text-primary-foreground">2</span></button><div className="relative"><button onClick={() => setSavedOpen(!savedOpen)} className="inline-flex h-11 items-center gap-2 rounded-lg border border-border px-3 text-xs text-foreground">Saved Filters <ChevronDown size={14} /></button>{savedOpen && <div className="absolute right-0 top-12 z-10 w-48 rounded-lg border border-border bg-[var(--secondary)] p-1 shadow-2xl">{([] as string[]).map(item => <button key={item} className="block w-full rounded px-3 py-2 text-left text-xs text-foreground hover:bg-secondary hover:text-foreground">{item}</button>)}</div>}</div><div className="flex h-11 rounded-lg border border-border p-1">{['Table', 'Compact', 'Card'].map(item => <button key={item} onClick={() => setView(item)} className={`rounded px-3 text-xs ${view === item ? 'bg-primary text-primary-foreground' : 'text-primary-foreground hover:text-primary-foreground'}`}>{item}</button>)}</div><button className="inline-flex h-11 items-center gap-2 rounded-lg border border-border px-3 text-xs text-foreground"><Columns3 size={14} /> Columns</button></div></section>
+          <div className="mt-4 flex flex-wrap items-center gap-2"><span className="text-[11px] text-muted-foreground">Active:</span>{([] as string[]).map(chip => <button key={chip} className="inline-flex items-center gap-1.5 rounded-full border border-border/20 bg-secondary/10 px-2.5 py-1 text-[11px] text-foreground">{chip}<X size={12} /></button>)}<button className="text-[11px] text-foreground hover:text-foreground">Clear All</button></div>
           {selected.length > 0 && <div className="mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-border/20 bg-secondary/10 px-4 py-3 text-xs"><strong className="text-foreground">{selected.length} selected</strong>{['Assign Owner', 'Change Stage', 'Add Tag', 'Create Task', 'Export', 'Archive', 'Delete'].map(item => <button key={item} className="rounded-md border border-border bg-[var(--primary)] px-2.5 py-1.5 text-primary-foreground hover:text-primary-foreground">{item}</button>)}</div>}
           <section className="mt-4 overflow-hidden rounded-xl border border-border bg-[var(--card)]" aria-label="Deals table">{view === 'Table' ? <div className="overflow-x-auto"><table className="w-full min-w-[1240px] border-collapse text-left"><thead className="border-b border-border bg-secondary"><tr className="text-[10px] font-semibold uppercase tracking-[0.13em] text-muted-foreground"><th className="w-10 px-4 py-3"><input type="checkbox" checked={allSelected} onChange={() => setSelected(allSelected ? [] : visibleDeals.map(deal => deal.id))} aria-label="Select all deals" /></th>{['Deal', 'Stage', 'Value', 'Probability', 'Weighted Value', 'Expected Close', 'Owner', 'Last Activity', 'Status', ''].map(heading => <th key={heading} className="px-3 py-3">{heading}</th>)}</tr></thead><tbody className="divide-y divide-white/[0.055]">{visibleDeals.map(deal => <tr key={deal.id} className="group transition hover:bg-secondary"><td className="px-4 py-3"><input type="checkbox" checked={selected.includes(deal.id)} onChange={() => toggleSelected(deal.id)} aria-label={`Select ${deal.name}`} /></td><td className="px-3 py-3"><button className="text-left"><strong className="block text-[13px] font-medium text-foreground group-hover:text-foreground">{deal.name}</strong><span className="mt-1 block text-[11px] text-muted-foreground">{deal.company} · {deal.contact}</span></button></td><td className="px-3 py-3"><span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] font-medium ${stageMeta[deal.stage].tone}`}><span className={`h-1.5 w-1.5 rounded-full ${stageMeta[deal.stage].dot}`} />{deal.stage}</span></td><td className="px-3 py-3 text-xs font-medium text-foreground">{formatEuro(deal.value)}</td><td className="px-3 py-3"><div className="flex items-center gap-2 text-xs text-foreground"><span className="w-7">{deal.probability}%</span><span className="h-1.5 w-16 rounded-full bg-card"><span className="block h-full rounded-full bg-primary text-primary-foreground" style={{
                             width: `${deal.probability}%`
@@ -272,8 +117,8 @@ export function LuluDealsPage() {
                   return <article key={item.name} className="flex gap-3 py-3"><div className={`grid h-7 w-7 shrink-0 place-items-center rounded-lg ${item.color}`}><Icon size={14} /></div><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><strong className="truncate text-xs text-foreground">{item.name}</strong><span className={`text-[10px] ${item.severity === 'High' ? 'text-chart-5' : item.severity === 'Medium' ? 'text-foreground' : 'text-foreground'}`}>{item.severity}</span></div><p className="mt-1 truncate text-[11px] text-muted-foreground">{item.reason} · {item.owner}</p><button className="mt-1.5 text-[11px] font-medium text-foreground">{item.action} <span>→</span></button></div></article>;
                 })}</div></div>
           </section>
-          <section className="mt-8"><div className="mb-4 flex items-center gap-2"><div className="grid h-7 w-7 place-items-center rounded-lg bg-secondary/15 text-foreground"><Sparkles size={14} /></div><div><h2 className="text-lg font-semibold text-foreground">Lulu AI Deal Insights</h2><span className="text-[10px] uppercase tracking-widest text-muted-foreground">AI-generated intelligence</span></div><span className="rounded-full bg-secondary/15 px-2 py-0.5 text-[10px] font-medium text-foreground">AI</span></div><div className="grid gap-3 lg:grid-cols-3">{[['Deal Risk', 'Enterprise Expansion has had no recorded activity for 16 days. Win probability may be declining.', 'Review Deal', 'border-chart-5/20', 'text-chart-5'], ['Deal Opportunity', 'Analytics Dashboard account is showing increased email engagement. Probability may be higher than current estimate.', 'View Deal', 'border-chart-4/20', 'text-chart-4'], ['Close-Date Risk', '4 open deals are approaching expected close dates without recent activity.', 'Review Pipeline', 'border-chart-1/20', 'text-chart-1']].map(([type, text, action, border, tone]) => <article key={type} className={`rounded-xl border ${border} bg-[var(--card)] p-4`}><div className="flex items-center justify-between"><span className={`text-[10px] font-semibold uppercase tracking-wider ${tone}`}>{type}</span><Sparkles size={14} className={tone} /></div><p className="mt-3 text-xs leading-5 text-muted-foreground">{text}</p><button className="mt-4 text-xs font-medium text-foreground">{action} <span>→</span></button></article>)}</div></section>
-          <section className="mt-8 mb-10"><div className="mb-4 flex items-center gap-2"><h2 className="text-lg font-semibold text-foreground">AI Recommendations</h2><span className="rounded-full bg-secondary/15 px-2 py-0.5 text-[10px] font-medium text-foreground">AI</span></div><div className="grid gap-3 lg:grid-cols-3">{[['Follow Up', 'Contact Anna Weber re: Enterprise Expansion', 'High', 'High', 'Create Task'], ['Update Stage', 'CRM Integration should move from Proposal to Negotiation based on recent activity', 'Medium', 'Medium', 'Review Deal'], ['Add Decision Maker', 'GlobalTech Inc deal missing key stakeholder', 'Medium', 'Medium', 'Review Deal']].map(([action, reason, priority, impact, cta]) => <article key={action} className="rounded-xl border border-border bg-[var(--card)] p-4"><div className="flex items-center justify-between"><strong className="text-sm text-foreground">{action}</strong><span className={`rounded-full px-2 py-1 text-[10px] ${priority === 'High' ? 'bg-chart-5/10 text-chart-5' : 'bg-secondary/10 text-foreground'}`}>Priority: {priority}</span></div><p className="mt-3 text-xs leading-5 text-muted-foreground">{reason}</p><div className="mt-4 flex items-center justify-between"><span className="text-[11px] text-muted-foreground">Expected impact: <strong className="text-foreground">{impact}</strong></span><button className="text-xs font-medium text-foreground">{cta} →</button></div></article>)}</div></section>
+          <section className="mt-8"><div className="mb-4 flex items-center gap-2"><div className="grid h-7 w-7 place-items-center rounded-lg bg-secondary/15 text-foreground"><Sparkles size={14} /></div><div><h2 className="text-lg font-semibold text-foreground">Lulu AI Deal Insights</h2><span className="text-[10px] uppercase tracking-widest text-muted-foreground">AI-generated intelligence</span></div><span className="rounded-full bg-secondary/15 px-2 py-0.5 text-[10px] font-medium text-foreground">AI</span></div><div className="grid gap-3 lg:grid-cols-3">{([] as string[][]).map(([type, text, action, border, tone]) => <article key={type} className={`rounded-xl border ${border} bg-[var(--card)] p-4`}><div className="flex items-center justify-between"><span className={`text-[10px] font-semibold uppercase tracking-wider ${tone}`}>{type}</span><Sparkles size={14} className={tone} /></div><p className="mt-3 text-xs leading-5 text-muted-foreground">{text}</p><button className="mt-4 text-xs font-medium text-foreground">{action} <span>→</span></button></article>)}</div></section>
+          <section className="mt-8 mb-10"><div className="mb-4 flex items-center gap-2"><h2 className="text-lg font-semibold text-foreground">AI Recommendations</h2><span className="rounded-full bg-secondary/15 px-2 py-0.5 text-[10px] font-medium text-foreground">AI</span></div><div className="grid gap-3 lg:grid-cols-3">{([] as string[][]).map(([action, reason, priority, impact, cta]) => <article key={action} className="rounded-xl border border-border bg-[var(--card)] p-4"><div className="flex items-center justify-between"><strong className="text-sm text-foreground">{action}</strong><span className={`rounded-full px-2 py-1 text-[10px] ${priority === 'High' ? 'bg-chart-5/10 text-chart-5' : 'bg-secondary/10 text-foreground'}`}>Priority: {priority}</span></div><p className="mt-3 text-xs leading-5 text-muted-foreground">{reason}</p><div className="mt-4 flex items-center justify-between"><span className="text-[11px] text-muted-foreground">Expected impact: <strong className="text-foreground">{impact}</strong></span><button className="text-xs font-medium text-foreground">{cta} →</button></div></article>)}</div></section>
         </div>
       </main>
       <aside className="hidden w-10 shrink-0 border-l border-border bg-[var(--sidebar)] xl:block"><button className="flex h-full w-full flex-col items-center gap-3 pt-8 text-foreground hover:text-foreground" aria-label="Open deal preview"><PanelRight size={17} /><span className="[writing-mode:vertical-rl] text-[10px] uppercase tracking-[0.18em]">Deal Preview</span></button></aside>
