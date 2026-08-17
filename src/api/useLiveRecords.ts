@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { getFriendlyErrorMessage } from "./client";
 import { listRecords, type WorkspaceRecord } from "./records";
 
 export type LiveRecordsState = {
@@ -32,7 +33,7 @@ export function useLiveRecords(resourceType: string | null, query = ""): LiveRec
     } catch (cause) {
       setItems([]);
       setTotal(0);
-      setError(cause instanceof Error ? cause.message : "Live records could not be loaded.");
+      setError(getFriendlyErrorMessage(cause, "Live records could not be loaded. Please try again."));
     } finally {
       setLoading(false);
     }
