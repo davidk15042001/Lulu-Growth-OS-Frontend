@@ -22,15 +22,30 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
   const refresh = useCallback(async () => {
     setLoading(true); setError(null);
     try {
-      const [user, result] = await Promise.all([authApi.me(), workspaceApi.list()]);
-      setCurrentUser(user.data); setWorkspaces(result.data.items);
-      const id = selectedId && result.data.items.some((item) => item.id === selectedId) ? selectedId : result.data.items[0]?.id ?? null;
-      if (id && id !== selectedId) { setSelectedWorkspaceId(id); setSelectedId(id); }
-      setPermissions(permissionsFor(result.data.items.find((item) => item.id === id)));
-      setCapabilities({ aiGeneration: true, transactionalEmail: true });
+      // Restore the authenticated user first. Requesting workspaces in parallel with
+      // `/auth/me` caused both requests to race through refresh-token rotation after a reload.
+      const user = await authApi.me();
+      setCurrentUser(user.data);
+
+      try {
+        const result = await workspaceApi.list();
+        setWorkspaces(result.data.items);
+        const id = selectedId && result.data.items.some((item) => item.id === selectedId) ? selectedId : result.data.items[0]?.id ?? null;
+        if (id && id !== selectedId) { setSelectedWorkspaceId(id); setSelectedId(id); }
+        setPermissions(permissionsFor(result.data.items.find((item) => item.id === id)));
+        setCapabilities({ aiGeneration: true, transactionalEmail: true });
+      } catch (workspaceCause) {
+        if (workspaceCause instanceof ApiError && workspaceCause.status === 401) {
+          // The user session is valid; do not turn a workspace/API problem into a logout loop.
+          setWorkspaces([]); setPermissions(empty); setCapabilities({ aiGeneration: false, transactionalEmail: false });
+          setError("Your session is valid, but workspace data could not be loaded. Please try again.");
+        } else {
+          setError("Your session is valid, but workspace data could not be loaded. Please try again.");
+        }
+      }
     } catch (cause) {
       if (cause instanceof ApiError && cause.status === 401) { setCurrentUser(null); setWorkspaces([]); setPermissions(empty); setCapabilities({ aiGeneration: false, transactionalEmail: false }); setError(null); }
-      else setError("Workspace data could not be loaded. Please try again.");
+      else setError("Your session could not be restored. Please sign in again.");
     } finally { setLoading(false); }
   }, [selectedId]);
   useEffect(() => { void refresh(); }, [refresh]);
