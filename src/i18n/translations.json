@@ -19998,7 +19998,8 @@
     "Derived from live records": "Abgeleitet aus Live-Daten",
     "From expenses": "Aus Ausgaben",
     "From invoices": "Aus Rechnungen",
-    "Revenue minus expenses": "Umsatz minus Ausgaben"
+    "Revenue minus expenses": "Umsatz minus Ausgaben",
+    "Avg. Deal": "Ø. Dealwert"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40027,7 +40028,8 @@
     "Derived from live records": "基于实时记录",
     "From expenses": "来自费用",
     "From invoices": "来自发票",
-    "Revenue minus expenses": "收入减去费用"
+    "Revenue minus expenses": "收入减去费用",
+    "Avg. Deal": "平均交易额"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
