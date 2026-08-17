@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts';
 import { Activity, Archive, ArrowDownUp, ArrowLeft, ArrowRight, BarChart3, Bell, CalendarDays, Check, ChevronDown, ChevronRight, CircleHelp, ClipboardList, Copy, Edit3, Ellipsis, FileText, Filter, Gauge, Globe2, Layers3, LayoutDashboard, Megaphone, Menu, MoreHorizontal, Pause, Plus, Search, Send, Settings2, Share2, Sparkles, Target, Trash2, Users, X, Zap } from 'lucide-react';
 type Status = 'Active' | 'Scheduled' | 'Completed' | 'Paused' | 'Draft' | 'Cancelled' | 'Archived';
@@ -201,16 +202,18 @@ export function LuluCampaigns() {
   const [selectedRows, setSelectedRows] = useState<string[]>([]);
   const [modal, setModal] = useState<'create' | 'pause' | 'duplicate' | 'archive' | null>(null);
   const [step, setStep] = useState(1);
+  const { items: liveCampaigns, loading: liveLoading, error: liveError } = useLiveRecords('marketing_campaigns');
+  const liveEmpty = !liveLoading && !liveError && liveCampaigns.length === 0;
   const filtered = useMemo(() => campaigns.filter(c => c.name.toLowerCase().includes(query.toLowerCase())), [query]);
   const current = campaigns[selected];
   return <div className="lulu-shell">
     <aside className="sidebar">
       <div className="brand"><div className="brand-mark"><Sparkles size={17} /></div><span>Lulu <b>AI</b></span></div>
-      <div className="workspace"><div className="workspace-avatar">AC</div><div><strong>Acme Corporation</strong><small>Business OS</small></div><ChevronDown size={15} /></div>
+      <div className="workspace"><div className="workspace-avatar">AC</div><div><strong>Workspace campaigns</strong><small>Business OS</small></div><ChevronDown size={15} /></div>
       <LuluSectionNavigation activeId="gently-shade-2476" />
       <div className="sidebar-bottom"><button className="nav-item"><Settings2 size={17} /><span>Settings</span></button><div className="user"><div className="user-avatar">JD</div><div><strong>Jordan Davis</strong><small>Administrator</small></div><MoreHorizontal size={16} /></div></div>
     </aside>
-    <main className="main-content">
+    <main className="main-content">{liveLoading ? <div className="border-b border-border bg-secondary/30 px-4 py-3 text-xs text-muted-foreground">Loading live campaigns…</div> : liveError ? <div className="border-b border-destructive/30 bg-destructive/5 px-4 py-3 text-xs text-destructive">{liveError}</div> : liveEmpty ? <div className="border-b border-dashed border-border bg-card px-4 py-3 text-xs text-muted-foreground">No live marketing campaigns are available yet. Create or connect a campaign to begin.</div> : null}
       <header className="topbar"><button className="mobile-menu" aria-label="Open menu"><Menu size={19} /></button><div className="crumb"><span>Marketing</span><ChevronRight size={14} /><strong>Campaigns</strong></div><div className="top-actions"><button aria-label="Notifications" className="icon-button"><Bell size={18} /><i></i></button><div className="top-avatar">JD</div></div></header>
       <section className="page-content">
         <div className="page-heading"><div><div className="eyebrow">MARKETING WORKSPACE</div><h1>Campaigns</h1><p>Create, manage and optimize multi-channel marketing campaigns from one workspace.</p></div><div className="heading-actions"><button className="ghost-button"><Filter size={16} /><span>Filter</span></button><button className="ghost-button"><ArrowDownUp size={16} /><span>Export</span></button><button className="primary-button" onClick={() => {
