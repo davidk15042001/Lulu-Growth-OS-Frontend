@@ -19940,7 +19940,9 @@
     "No live marketing strategies are available yet. Create a strategy or connect your marketing platform to begin.": "Für Live-Marketing-Strategien sind noch keine Einträge verfügbar. Erstellen Sie eine Strategie oder verbinden Sie Ihre Marketing-Plattform, um zu beginnen.",
     "Published Q4 objectives · Draft → Active · Workspace owner M · 2d ago": "Veröffentlichte Q4-Ziele · Entwurf → Aktiv · Workspace‑Owner M · vor 2 Tagen",
     "Updated Content Alignment · 68 → 72 · Workspace owner M · 2h ago": "Content-Ausrichtung aktualisiert · 68 → 72 · Workspace‑Owner M · vor 2 Stunden",
-    "Workspace owner M": "Workspace‑Owner M"
+    "Workspace owner M": "Workspace‑Owner M",
+    "Loading live marketing keywords…": "Live-Marketing-Schlüsselwörter werden geladen…",
+    "No live marketing keywords are available yet. Add keywords or connect your marketing platform to begin.": "Noch keine Live-Marketing-Schlüsselwörter verfügbar. Fügen Sie Schlüsselwörter hinzu oder verbinden Sie Ihre Marketingplattform, um zu beginnen."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39911,7 +39913,9 @@
     "No live marketing strategies are available yet. Create a strategy or connect your marketing platform to begin.": "目前尚无实时营销策略。创建策略或连接您的营销平台以开始。",
     "Published Q4 objectives · Draft → Active · Workspace owner M · 2d ago": "已发布的 Q4 目标 · 草案 → 生效 · 工作区所有者 M · 2天前",
     "Updated Content Alignment · 68 → 72 · Workspace owner M · 2h ago": "已更新的内容一致性 · 68 → 72 · 工作区所有者 M · 2小时前",
-    "Workspace owner M": "工作区所有者 M"
+    "Workspace owner M": "工作区所有者 M",
+    "Loading live marketing keywords…": "正在加载实时营销关键词…",
+    "No live marketing keywords are available yet. Add keywords or connect your marketing platform to begin.": "暂无实时营销关键词。添加关键词或连接您的营销平台以开始。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
