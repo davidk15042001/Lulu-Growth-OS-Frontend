@@ -311,10 +311,11 @@ export function LuluInvoices() {
   const [search, setSearch] = useState('');
   const [dismissed, setDismissed] = useState(false);
   const [activeTab, setActiveTab] = useState('Overview');
-  const visibleInvoices = useMemo(() => invoices.filter(invoice => invoice.id.toLowerCase().includes(search.toLowerCase()) || invoice.customer.toLowerCase().includes(search.toLowerCase())), [search]);
   const toggle = (id: string) => setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const { items: liveInvoices, loading: liveLoading, error: liveError } = useLiveRecords('finance_invoices');
   const liveEmpty = !liveLoading && !liveError && liveInvoices.length === 0;
+  const liveInvoiceRows: Invoice[] = liveInvoices.map(record => ({ id: String(record.data?.invoiceNumber || record.name), customer: String(record.data?.customerName || record.data?.customer || 'Workspace customer'), date: String(record.data?.issueDate || record.createdAt || '—'), due: String(record.data?.dueDate || '—'), amount: new Intl.NumberFormat(undefined, { style: 'currency', currency: record.currency || 'EUR', maximumFractionDigits: 2 }).format(Number(record.valueAmount || record.data?.amount || 0)), currency: record.currency || 'EUR', payment: String(record.data?.paymentStatus || record.status || 'RECORDED').toUpperCase(), status: String(record.status || 'RECORDED').toUpperCase(), source: String(record.data?.source || 'Connected finance system'), overdue: /overdue/i.test(`${record.status} ${record.data?.paymentStatus || ''}`) }));
+  const visibleInvoices = useMemo(() => liveInvoiceRows.filter(invoice => invoice.id.toLowerCase().includes(search.toLowerCase()) || invoice.customer.toLowerCase().includes(search.toLowerCase())), [liveInvoiceRows, search]);
   return <div className="min-h-screen bg-[var(--background)] text-foreground">
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-[224px] flex-col bg-[var(--sidebar)] text-foreground lg:flex">
       <div className="flex h-[72px] items-center gap-3 border-b border-border px-6"><div className="grid h-8 w-8 place-items-center rounded-lg bg-[var(--primary)] text-primary-foreground"><Sparkles size={17} /></div><strong className="text-[17px] tracking-tight text-foreground">lulu<span className="text-[var(--foreground)]">.ai</span></strong></div>
