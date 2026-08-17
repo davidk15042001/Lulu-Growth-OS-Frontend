@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, Check, Eye, EyeOff, LoaderCircle, ShieldCheck, Sparkles } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
-import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
+import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import {
   clearPendingInvitation,
@@ -9,6 +9,17 @@ import {
   setPendingEmail,
   setSelectedWorkspaceId,
 } from '../../../../api/session';
+
+async function requestWithTimeout<T>(request: ApiRequest, timeoutMs = 15000) {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await requestApi<T>({ ...request, signal: controller.signal });
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
 export const LuluLoginPage = () => {
   const t = useTranslation();
   const [e, setE] = useState('');
@@ -17,6 +28,8 @@ export const LuluLoginPage = () => {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [errorDetails, setErrorDetails] = useState('');
+  const [statusMessage, setStatusMessage] = useState('');
   const submit = async (x: React.FormEvent) => {
     x.preventDefault();
     if (loading) return;
@@ -26,22 +39,27 @@ export const LuluLoginPage = () => {
     }
     setLoading(true);
     setError('');
+    setErrorDetails('');
+    setStatusMessage('Checking your account…');
     setS(false);
     try {
-      await requestApi({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
+      await requestWithTimeout({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
       const pendingInvitation = getPendingInvitation();
       let invitedWorkspaceId: string | null = null;
       if (pendingInvitation) {
-        const invitation = await requestApi<{ workspaceId: string }>({
+        setStatusMessage('Accepting your workspace invitation…');
+        const invitation = await requestWithTimeout<{ workspaceId: string }>({
           path: `/workspaces/invitations/${encodeURIComponent(pendingInvitation)}/accept`,
           method: 'POST',
         });
         invitedWorkspaceId = invitation.data.workspaceId;
         clearPendingInvitation();
       }
-      const workspaces = await requestApi<{ items: Array<{ id: string }> }>({ path: '/workspaces' });
+      setStatusMessage('Loading your workspace…');
+      const workspaces = await requestWithTimeout<{ items: Array<{ id: string }> }>({ path: '/workspaces' });
       const workspace = workspaces.data.items.find(item => item.id === invitedWorkspaceId) ?? workspaces.data.items[0];
       setS(true);
+      setStatusMessage('Signed in successfully.');
       if (workspace) {
         setSelectedWorkspaceId(workspace.id);
         navigateApp(routes.app.dashboard);
@@ -49,12 +67,17 @@ export const LuluLoginPage = () => {
         navigateApp(routes.onboarding.welcome);
       }
     } catch (cause) {
-      if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
+      setStatusMessage('');
+      if (cause instanceof DOMException && cause.name === 'AbortError') {
+        setError('The login request timed out. Please try again.');
+        setErrorDetails('Code: API_TIMEOUT · The server did not respond within 15 seconds.');
+      } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
         setError('This account uses an outdated verification state. Please try signing in again after the latest deployment. Email OTP is no longer required for registration.');
       } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') setError(t('accountNotFound'));
       else if (cause instanceof ApiError && cause.code === 'INVALID_CREDENTIALS') setError(t('invalidCredentials'));
       else if (cause instanceof ApiError && cause.code === 'API_TIMEOUT') setError(t('timeout'));
       else setError(getFriendlyErrorMessage(cause, 'We could not sign you in. Please try again.'));
+      if (!(cause instanceof DOMException && cause.name === 'AbortError')) setErrorDetails(getTechnicalErrorDetails(cause));
     } finally {
       setLoading(false);
     }
@@ -81,7 +104,8 @@ export const LuluLoginPage = () => {
               </div>
             </label>
             <button disabled={loading} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}</button>
-            {error && <p role="alert" className="text-sm text-[var(--destructive)]">{error}</p>}
+            {statusMessage && <p role="status" className="text-sm text-[var(--muted-foreground)]">{statusMessage}</p>}
+            {error && <div role="alert" className="space-y-1 text-sm text-[var(--destructive)]"><p>{error}</p>{errorDetails && <p className="break-words text-xs opacity-80">{errorDetails}</p>}</div>}
             {s && <p className="flex items-center gap-2 text-sm text-[var(--chart-4)]"><Check size={15} /> Signed in successfully.</p>}
           </form>
           <div className="mt-8 flex justify-between text-sm">
