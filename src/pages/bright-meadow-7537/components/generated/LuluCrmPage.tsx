@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Activity, ArrowRight, Brain, Building2, Check, CheckSquare, ChevronDown, CircleDollarSign, Download, GitBranch, Layers, Menu, Plus, Search, Settings, Sparkles, Upload, User, UserPlus, Users, X } from 'lucide-react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 type IconType = typeof Users;
 type TaskItem = {
   title: string;
@@ -88,13 +89,13 @@ const activities = [{
   icon: UserPlus
 }, {
   title: 'Deal stage changed',
-  desc: 'Acme Corp deal moved to Negotiation',
+  desc: 'Workspace account deal moved to Negotiation',
   time: '14 min ago',
   color: 'amber',
   icon: GitBranch
 }, {
   title: 'Meeting completed',
-  desc: 'Discovery call with TechVision logged',
+  desc: 'Discovery call with Connected account logged',
   time: '32 min ago',
   color: 'emerald',
   icon: Check
@@ -106,7 +107,7 @@ const activities = [{
   icon: UserPlus
 }, {
   title: 'Email logged',
-  desc: 'Follow-up sent to GlobalTech',
+  desc: 'Follow-up sent to Connected account',
   time: '2 hours ago',
   color: 'blue',
   icon: Activity
@@ -118,36 +119,36 @@ const activities = [{
   icon: Check
 }];
 const tasks: TaskItem[] = [{
-  title: 'Review Acme expansion proposal',
-  entity: 'Acme Corp',
+  title: 'Review workspace expansion proposal',
+  entity: 'Workspace account',
   owner: 'SJ',
   due: 'Today, 10:00',
   status: 'Overdue',
   priority: 'critical'
 }, {
-  title: 'Follow up with TechVision',
-  entity: 'TechVision Inc',
+  title: 'Follow up with Connected account',
+  entity: 'Connected account',
   owner: 'MK',
   due: 'Today, 14:30',
   status: 'Due today',
   priority: 'high'
 }, {
   title: 'Send renewal brief',
-  entity: 'GlobalTech',
+  entity: 'Connected account',
   owner: 'DR',
   due: 'Today, 16:00',
   status: 'Due today',
   priority: 'high'
 }, {
   title: 'Prepare Q4 account review',
-  entity: 'Northstar',
+  entity: 'Workspace account',
   owner: 'JD',
   due: 'Tomorrow',
   status: 'Upcoming',
   priority: 'medium'
 }, {
   title: 'Update lead qualification notes',
-  entity: 'Lumen Labs',
+  entity: 'Workspace account',
   owner: 'AN',
   due: 'Tomorrow',
   status: 'Upcoming',
@@ -176,7 +177,7 @@ const insights = [{
   action: 'View Leads',
   tone: 'violet'
 }];
-const priorityRows = [['Critical', 'Deal: Acme Corp Expansion (€84K)', 'No activity 18 days', 'Sarah', 'Review Deal'], ['High', 'Lead: TechVision Inc', 'Score 94, not contacted', 'Mark', 'Contact Now'], ['High', 'Customer: GlobalTech Solutions', 'Declining engagement', 'David', 'Review Account'], ['Medium', 'Task: Q4 contract renewals', 'Due today', 'Anna', 'Open Task'], ['Medium', 'Deal: Innovation Labs (€42K)', 'Proposal overdue', 'James', 'Send Follow-up']];
+const priorityRows = [['Critical', 'Deal: Workspace account Expansion (€84K)', 'No activity 18 days', 'Workspace owner', 'Review Deal'], ['High', 'Lead: Connected account', 'Score 94, not contacted', 'Workspace owner', 'Contact Now'], ['High', 'Customer: Connected account', 'Declining engagement', 'Workspace owner', 'Review Account'], ['Medium', 'Task: Q4 contract renewals', 'Due today', 'Workspace owner', 'Open Task'], ['Medium', 'Deal: Innovation Labs (€42K)', 'Proposal overdue', 'Workspace owner', 'Send Follow-up']];
 function Sidebar({
   open,
   onClose
@@ -189,7 +190,7 @@ function Sidebar({
     <p className="mb-3 mt-8 px-2 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Workspace</p>
     <LuluSectionNavigation activeId="bright-meadow-7537" />
     <div className="my-5 border-t border-border" /><button className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground hover:text-foreground"><Settings size={17} /><span>Settings</span></button>
-    <div className="mt-auto border-t border-border pt-4"><div className="flex items-center gap-3"><div className="grid h-9 w-9 place-items-center rounded-full bg-card text-xs font-semibold text-foreground">JD</div><div><p className="text-sm font-medium text-foreground">Jordan Davis</p><p className="text-xs text-muted-foreground">CRM Manager</p></div></div><div className="mt-4 flex items-center gap-2 text-xs text-chart-4"><span className="h-2 w-2 rounded-full bg-chart-4" />AI Active</div></div>
+    <div className="mt-auto border-t border-border pt-4"><div className="flex items-center gap-3"><div className="grid h-9 w-9 place-items-center rounded-full bg-card text-xs font-semibold text-foreground">—</div><div><p className="text-sm font-medium text-foreground">Workspace owner</p><p className="text-xs text-muted-foreground">CRM Manager</p></div></div><div className="mt-4 flex items-center gap-2 text-xs text-chart-4"><span className="h-2 w-2 rounded-full bg-chart-4" />AI Active</div></div>
   </aside>;
 }
 function Panel({
@@ -210,9 +211,17 @@ export function LuluCrmPage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [filters, setFilters] = useState<string[]>([]);
   const [tab, setTab] = useState('Due Today');
-  const [isLoading] = useState(false);
-  const [isEmpty] = useState(false);
-  const [hasError] = useState(false);
+  const { items: contactRecords, loading: contactsLoading, error: contactsError } = useLiveRecords('crm_contacts');
+  const { items: leadRecords, loading: leadsLoading, error: leadsError } = useLiveRecords('crm_leads');
+  const { items: dealRecords, loading: dealsLoading, error: dealsError } = useLiveRecords('crm_deals');
+  const { items: taskRecords, loading: tasksLoading, error: tasksError } = useLiveRecords('crm_tasks');
+  const isLoading = contactsLoading || leadsLoading || dealsLoading || tasksLoading;
+  const liveError = contactsError || leadsError || dealsError || tasksError;
+  const isEmpty = !isLoading && contactRecords.length + leadRecords.length + dealRecords.length + taskRecords.length === 0;
+  const hasError = Boolean(liveError);
+  const openDealRecords = dealRecords.filter(record => !/won|lost|closed/i.test(record.status || ''));
+  const wonDealRecords = dealRecords.filter(record => /won|closed/i.test(record.status || ''));
+  const liveCrmKpis = [['Total Contacts', String(contactRecords.length), 'Live records', 'emerald'], ['Companies', '—', 'No company contract on this page', 'emerald'], ['Open Leads', String(leadRecords.length), 'Live records', 'emerald'], ['Open Deals', String(openDealRecords.length), `${openDealRecords.length} live records`, 'violet'], ['Won Revenue', wonDealRecords.reduce((sum, record) => sum + (Number(String(record.valueAmount ?? '').replace(/[^0-9.-]/g, '')) || 0), 0).toLocaleString(), 'Live deal records', 'emerald'], ['Tasks Due', String(taskRecords.length), 'Live records', 'rose']];
   const toggleFilter = (filter: string) => setFilters(filters.includes(filter) ? filters.filter(item => item !== filter) : [...filters, filter]);
   const filterLabels = ['Owner', 'Status', 'Stage', 'Date Range', 'Segment', 'Lead Source'];
   return <div className="min-h-screen bg-[var(--background)] font-sans text-foreground">
@@ -220,7 +229,7 @@ export function LuluCrmPage() {
     <main className="lg:ml-60"><div className="mx-auto max-w-[1600px] px-4 py-5 sm:px-6 lg:px-8">
       <header className="mb-8"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-[0.12em] text-foreground">Lulu AI / CRM</p><h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">CRM</h1><p className="mt-2 max-w-xl text-sm text-muted-foreground">Manage your customer relationships, sales pipeline and customer intelligence in one place.</p></div><div className="flex items-center gap-2"><button onClick={() => setMenuOpen(true)} className="rounded-lg border border-border p-2 text-foreground lg:hidden" aria-label="Open navigation"><Menu size={20} /></button><button className="hidden items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-foreground transition hover:border-border hover:text-foreground sm:flex"><Upload size={16} />Import</button><button className="hidden items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-foreground transition hover:border-border hover:text-foreground md:flex"><Download size={16} />Export</button><div className="relative"><button onClick={() => setCreateOpen(!createOpen)} className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Plus size={16} />Create<ChevronDown size={15} /></button>{createOpen && <div className="mt-2 w-48 rounded-lg border border-border bg-[var(--secondary)] p-1 shadow-2xl">{['New Contact', 'New Company', 'New Lead', 'New Deal', 'New Task', 'New Activity'].map(item => <button key={item} onClick={() => setCreateOpen(false)} className="block w-full rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-secondary/15 hover:text-foreground">{item}</button>)}</div>}</div></div></div><div className="mt-7 flex items-center gap-3 rounded-xl border border-border bg-[var(--secondary)] px-4 py-3"><Search size={18} className="text-muted-foreground" /><input aria-label="Search CRM" placeholder="Search CRM... (Contacts, Companies, Leads, Deals, Tasks)" className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground" /></div><div className="mt-3 flex flex-wrap gap-2">{filterLabels.map(filter => <button key={filter} onClick={() => toggleFilter(filter)} className={`rounded-md border px-3 py-1.5 text-xs transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${filters.includes(filter) ? 'border-border/50 bg-secondary/15 text-foreground' : 'border-border text-foreground hover:border-border hover:text-foreground'}`}>{filter}<ChevronDown size={12} className="ml-1 inline" /></button>)}</div></header>
       {isLoading ? <div className="grid grid-cols-2 gap-3 xl:grid-cols-6">{[1, 2, 3, 4, 5, 6].map(item => <div key={item} className="h-28 animate-pulse rounded-xl bg-[var(--secondary)]" />)}</div> : hasError ? <div className="rounded-xl border border-chart-5/20 bg-chart-5/10 p-12 text-center"><h2 className="text-xl font-semibold text-foreground">CRM Couldn't Be Loaded</h2><button className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground">Try Again</button></div> : isEmpty ? <div className="rounded-xl border border-border p-16 text-center"><h2 className="text-xl font-semibold text-foreground">Your CRM Is Ready</h2><p className="mt-2 text-muted-foreground">Create your first contact or import your customer data to get started.</p></div> : <div>
-        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">{[['Total Contacts', '12,482', '+8.4% vs previous period', 'emerald'], ['Companies', '1,284', '+4.2%', 'emerald'], ['Open Leads', '428', '+12.1%', 'emerald'], ['Open Deals', '186', '€482,400 pipeline value', 'violet'], ['Won Revenue', '€184,200', '+14.6%', 'emerald'], ['Tasks Due', '24', '7 overdue', 'rose']].map(([label, value, support, tone]) => <article key={label} className="rounded-xl border border-border bg-[var(--card)] p-4 transition hover:-translate-y-0.5 hover:border-border"><p className="text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">{label}</p><p className="mt-3 text-2xl font-semibold tracking-tight text-foreground">{value}</p><p className={`mt-1 text-xs ${tone === 'emerald' ? 'text-foreground' : tone === 'rose' ? 'text-chart-5' : 'text-foreground'}`}>{support}</p></article>)}</div>
+        <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6">{liveCrmKpis.map(([label, value, support, tone]) => <article key={label} className="rounded-xl border border-border bg-[var(--card)] p-4 transition hover:-translate-y-0.5 hover:border-border"><p className="text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">{label}</p><p className="mt-3 text-2xl font-semibold tracking-tight text-foreground">{value}</p><p className={`mt-1 text-xs ${tone === 'emerald' ? 'text-foreground' : tone === 'rose' ? 'text-chart-5' : 'text-foreground'}`}>{support}</p></article>)}</div>
         <div className="grid gap-6 xl:grid-cols-2"><Panel eyebrow="Overview" title="CRM Health"><div className="flex flex-col items-center gap-6 sm:flex-row"><div className="relative grid h-36 w-36 shrink-0 place-items-center"><svg className="col-start-1 row-start-1 h-full w-full -rotate-90" viewBox="0 0 120 120"><circle cx="60" cy="60" r="48" fill="none" stroke="var(--muted-foreground)" strokeWidth="10" /><circle cx="60" cy="60" r="48" fill="none" stroke="var(--chart-2)" strokeWidth="10" strokeDasharray="260 302" strokeLinecap="round" /></svg><div className="col-start-1 row-start-1 self-center text-center"><strong className="block text-3xl text-foreground">86</strong><span className="text-xs text-muted-foreground">/ 100</span></div></div><div className="w-full"><span className="inline-flex rounded-md bg-chart-4/10 px-2 py-1 text-xs text-chart-4">Healthy</span><p className="mt-3 text-xs text-muted-foreground">AI-calculated · Updated 4 min ago</p></div></div><div className="mt-6 grid grid-cols-2 gap-x-5 gap-y-4">{[['Contact Data Quality', '91', 'up'], ['Lead Activity', '84', 'up'], ['Pipeline Health', '88', 'up'], ['Deal Velocity', '79', 'flat'], ['Customer Engagement', '82', 'up'], ['Task Completion', '76', 'down']].map(([label, value, direction]) => <div key={label} className="flex items-center justify-between border-b border-border pb-2"><span className="text-xs text-muted-foreground">{label}</span><span className={`text-xs ${direction === 'down' ? 'text-foreground' : direction === 'flat' ? 'text-foreground' : 'text-foreground'}`}>{value} {direction === 'up' ? '↑' : direction === 'down' ? '↓' : '→'}</span></div>)}</div></Panel>
           <Panel eyebrow="Sales performance" title="Pipeline Snapshot"><div className="space-y-4">{stages.map(stage => <div key={stage.name}><div className="mb-1.5 flex items-center justify-between text-xs"><span className="flex items-center gap-2 text-foreground"><span className={`h-2 w-2 rounded-full ${stage.color}`} />{stage.name}<span className="rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">{stage.deals}</span></span><span className="text-muted-foreground">{stage.value}</span></div><div className="h-1.5 rounded-full bg-secondary"><div className={`h-full rounded-full ${stage.color}`} style={{
                       width: stage.width
@@ -263,7 +272,7 @@ const luluDropdownNavigation = [{
     "label": "Agents"
   }, {
     "id": "calmly-park-3313",
-    "label": "Agent Marketplace"
+    "label": "Agent Workspace owneretplace"
   }, {
     "id": "rich-field-1880",
     "label": "Knowledge"
@@ -311,7 +320,7 @@ const luluDropdownNavigation = [{
     "label": "Customer Intelligence"
   }]
 }, {
-  "label": "Marketing",
+  "label": "Workspace ownereting",
   "pages": [{
     "id": "dreamily-soil-9290",
     "label": "Campaigns"
@@ -410,7 +419,7 @@ const luluDropdownNavigation = [{
     "label": "Sales"
   }, {
     "id": "eagerly-winter-3152",
-    "label": "Marketing"
+    "label": "Workspace ownereting"
   }, {
     "id": "sharply-wood-4560",
     "label": "Advertising Intelligence"

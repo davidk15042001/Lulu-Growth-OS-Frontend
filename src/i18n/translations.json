@@ -19999,7 +19999,20 @@
     "From expenses": "Aus Ausgaben",
     "From invoices": "Aus Rechnungen",
     "Revenue minus expenses": "Umsatz minus Ausgaben",
-    "Avg. Deal": "Ø. Dealwert"
+    "Avg. Deal": "Ø. Dealwert",
+    "Agent Workspace owneretplace": "Agent-Arbeitsbereich Marktplatz",
+    "Connected account": "Verbundenes Konto",
+    "Customer: Connected account": "Kunde: Verbundenes Konto",
+    "Deal: Workspace account Expansion (€84K)": "Deal: Arbeitsbereichskonto Expansion (€84K)",
+    "Discovery call with Connected account logged": "Discovery-Call mit Verbundenem Konto protokolliert",
+    "Follow up with Connected account": "Nachfassen bei Verbundenem Konto",
+    "Follow-up sent to Connected account": "Nachfass-E-Mail an Verbundenes Konto gesendet",
+    "Lead: Connected account": "Lead: Verbundenes Konto",
+    "Live deal records": "Aktive Deal-Datensätze",
+    "No company contract on this page": "Kein Unternehmensvertrag auf dieser Seite",
+    "Review workspace expansion proposal": "Vorschlag zur Erweiterung des Arbeitsbereichs prüfen",
+    "Workspace account deal moved to Negotiation": "Deal des Arbeitsbereichskontos in Verhandlung verschoben",
+    "Workspace ownereting": "Arbeitsbereichs-Marketing"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40029,7 +40042,20 @@
     "From expenses": "来自费用",
     "From invoices": "来自发票",
     "Revenue minus expenses": "收入减去费用",
-    "Avg. Deal": "平均交易额"
+    "Avg. Deal": "平均交易额",
+    "Agent Workspace owneretplace": "Agent 工作区 owneretplace",
+    "Connected account": "已连接帐户",
+    "Customer: Connected account": "客户：已连接帐户",
+    "Deal: Workspace account Expansion (€84K)": "交易：工作区帐户 扩展（€84K）",
+    "Discovery call with Connected account logged": "与已连接帐户的需求发现通话已记录",
+    "Follow up with Connected account": "跟进已连接帐户",
+    "Follow-up sent to Connected account": "已向已连接帐户发送跟进",
+    "Lead: Connected account": "潜在客户：已连接帐户",
+    "Live deal records": "活跃交易记录",
+    "No company contract on this page": "此页面无公司合同",
+    "Review workspace expansion proposal": "审核工作区扩展提案",
+    "Workspace account deal moved to Negotiation": "工作区帐户交易已移动至谈判阶段",
+    "Workspace ownereting": "Workspace ownereting"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
