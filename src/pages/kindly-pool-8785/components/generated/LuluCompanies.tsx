@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, AlertCircle, AlertTriangle, Bookmark, Brain, Building2, BriefcaseBusiness, CheckSquare, ChevronDown, ChevronLeft, ChevronRight, ChevronsUpDown, CircleDollarSign, Download, ExternalLink, FileSpreadsheet, Globe2, GitBranch, Layers, LayoutDashboard, MoreHorizontal, Plus, Search, SearchX, Settings, SlidersHorizontal, Sparkles, Upload, UserPlus, Users, X, Zap, CloudUpload, Menu, TrendingUp, Pencil } from 'lucide-react';
 type Company = {
   id: number;
@@ -17,167 +18,7 @@ type Company = {
   color: string;
   domain: string;
 };
-const companies: Company[] = [{
-  id: 1,
-  name: 'Nexus Solutions',
-  industry: 'Technology',
-  city: 'Berlin',
-  country: 'DE',
-  contacts: 18,
-  deals: 4,
-  revenue: '€284,200',
-  owner: 'Jordan D.',
-  initials: 'JD',
-  type: 'Customer',
-  status: 'Active',
-  activity: '2h ago',
-  color: 'var(--foreground)',
-  domain: 'nexusolutions.com'
-}, {
-  id: 2,
-  name: 'Quantum Dynamics',
-  industry: 'Manufacturing',
-  city: 'Munich',
-  country: 'DE',
-  contacts: 12,
-  deals: 2,
-  revenue: '€148,400',
-  owner: 'Sarah K.',
-  initials: 'SK',
-  type: 'Customer',
-  status: 'Active',
-  activity: '1d ago',
-  color: 'var(--foreground)',
-  domain: 'quantumdynamics.de'
-}, {
-  id: 3,
-  name: 'TechVision GmbH',
-  industry: 'Software',
-  city: 'Hamburg',
-  country: 'DE',
-  contacts: 8,
-  deals: 3,
-  revenue: '€94,800',
-  owner: 'Mark R.',
-  initials: 'MR',
-  type: 'Prospect',
-  status: 'Active',
-  activity: '3d ago',
-  color: 'var(--chart-4)',
-  domain: 'techvision.io'
-}, {
-  id: 4,
-  name: 'GlobalTech AG',
-  industry: 'Consulting',
-  city: 'Zurich',
-  country: 'CH',
-  contacts: 24,
-  deals: 6,
-  revenue: '€412,600',
-  owner: 'Jordan D.',
-  initials: 'JD',
-  type: 'Customer',
-  status: 'Active',
-  activity: '5h ago',
-  color: 'var(--foreground)',
-  domain: 'globaltech.ch'
-}, {
-  id: 5,
-  name: 'Synapse Labs',
-  industry: 'Biotech',
-  city: 'Amsterdam',
-  country: 'NL',
-  contacts: 6,
-  deals: 1,
-  revenue: '€48,200',
-  owner: 'Anna P.',
-  initials: 'AP',
-  type: 'Prospect',
-  status: 'Active',
-  activity: '8d ago',
-  color: 'var(--foreground)',
-  domain: 'synapselabs.eu'
-}, {
-  id: 6,
-  name: 'Acme Corp',
-  industry: 'Retail',
-  city: 'Vienna',
-  country: 'AT',
-  contacts: 9,
-  deals: 0,
-  revenue: '€62,400',
-  owner: 'David M.',
-  initials: 'DM',
-  type: 'Customer',
-  status: 'Inactive',
-  activity: '2wk ago',
-  color: 'var(--foreground)',
-  domain: 'acme.corp'
-}, {
-  id: 7,
-  name: 'InnovateCo',
-  industry: 'Fintech',
-  city: 'Frankfurt',
-  country: 'DE',
-  contacts: 14,
-  deals: 3,
-  revenue: '€224,000',
-  owner: 'Sarah K.',
-  initials: 'SK',
-  type: 'Partner',
-  status: 'Active',
-  activity: '1d ago',
-  color: 'var(--foreground)',
-  domain: 'innovateco.finance'
-}, {
-  id: 8,
-  name: 'DataBridge',
-  industry: 'Data & Analytics',
-  city: 'London',
-  country: 'UK',
-  contacts: 7,
-  deals: 2,
-  revenue: '€118,600',
-  owner: 'Mark R.',
-  initials: 'MR',
-  type: 'Prospect',
-  status: 'Active',
-  activity: '4d ago',
-  color: 'var(--foreground)',
-  domain: 'databridge.co'
-}, {
-  id: 9,
-  name: 'EuroTech Solutions',
-  industry: 'Engineering',
-  city: 'Paris',
-  country: 'FR',
-  contacts: 11,
-  deals: 2,
-  revenue: '€86,400',
-  owner: 'Anna P.',
-  initials: 'AP',
-  type: 'Customer',
-  status: 'Active',
-  activity: '6h ago',
-  color: 'var(--foreground)',
-  domain: 'eurotech.fr'
-}, {
-  id: 10,
-  name: 'MexiGlobal SA',
-  industry: 'Logistics',
-  city: 'Barcelona',
-  country: 'ES',
-  contacts: 5,
-  deals: 1,
-  revenue: '€34,800',
-  owner: 'Jordan D.',
-  initials: 'JD',
-  type: 'Prospect',
-  status: 'Active',
-  activity: '3h ago',
-  color: 'var(--foreground)',
-  domain: 'mexiglobal.es'
-}];
+const companies: Company[] = [];
 const navItems = [['CRM', LayoutDashboard], ['Contacts', Users], ['Companies', Building2], ['Leads', UserPlus], ['Deals', CircleDollarSign], ['Pipeline', GitBranch], ['Activities', Activity], ['Tasks', CheckSquare], ['Customer Segments', Layers], ['Customer Intelligence', Brain]] as const;
 const filters = ['Company Type', 'Status', 'Industry', 'Owner', 'Revenue Range', 'Company Size', 'Location', 'Created Date', 'Last Activity', 'Tags'];
 const savedFilters = ['My Companies', 'Enterprise Customers', 'At Risk Accounts', 'High Revenue'];
@@ -193,38 +34,16 @@ type KpiItem = {
   Icon: typeof Building2;
   trend: string;
 };
-const kpis: KpiItem[] = [{
-  label: 'Total Companies',
-  value: '1,284',
-  Icon: Building2,
-  trend: ''
-}, {
-  label: 'New Companies',
-  value: '84',
-  Icon: TrendingUp,
-  trend: '+9.2%'
-}, {
-  label: 'Active Companies',
-  value: '1,106',
-  Icon: Zap,
-  trend: 'Active'
-}, {
-  label: 'Customers',
-  value: '742',
-  Icon: Users,
-  trend: ''
-}, {
-  label: 'Prospects',
-  value: '318',
-  Icon: UserPlus,
-  trend: ''
-}, {
-  label: 'Requiring Attention',
-  value: '42',
-  Icon: AlertCircle,
-  trend: ''
-}];
+const kpis: KpiItem[] = [];
 export const LuluCompanies = () => {
+  const { items: liveRecords, loading: liveLoading, error: liveError } = useLiveRecords('crm_companies');
+  const liveCompanies: Company[] = liveRecords.map((record, index) => {
+    const fields = record as unknown as Record<string, unknown>;
+    const name = record.name || String(fields.companyName ?? 'Unnamed company');
+    const initials = name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase();
+    return { id: index + 1, name, industry: String(fields.industry ?? '—'), city: String(fields.city ?? '—'), country: String(fields.country ?? '—'), contacts: Number(fields.contacts ?? 0), deals: Number(fields.deals ?? 0), revenue: record.valueAmount ?? '—', owner: String(fields.owner ?? '—'), initials, type: (String(fields.type ?? 'Prospect') as Company['type']), status: (String(record.status ?? 'Active') as Company['status']), activity: String(fields.activity ?? '—'), color: 'var(--foreground)', domain: String(fields.domain ?? '—') };
+  });
+  const companiesForView = liveLoading ? [] : liveCompanies;
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<number[]>([]);
   const [preview, setPreview] = useState<Company | null>(null);
@@ -234,7 +53,7 @@ export const LuluCompanies = () => {
   const [showSearch, setShowSearch] = useState(false);
   const [filter, setFilter] = useState<string | null>(null);
   const [mobileNav, setMobileNav] = useState(false);
-  const filtered = useMemo(() => companies.filter(c => `${c.name} ${c.domain} ${c.industry} ${c.city}`.toLowerCase().includes(query.toLowerCase())), [query]);
+  const filtered = useMemo(() => companiesForView.filter(c => `${c.name} ${c.domain} ${c.industry} ${c.city}`.toLowerCase().includes(query.toLowerCase())), [query]);
   const allSelected = selected.length === filtered.length && filtered.length > 0;
   const toggleAll = () => setSelected(allSelected ? [] : filtered.map(c => c.id));
   const toggleRow = (id: number) => setSelected(items => items.includes(id) ? items.filter(item => item !== id) : [...items, id]);
@@ -247,21 +66,23 @@ export const LuluCompanies = () => {
           <div className="my-5 flex items-center gap-3 px-3"><span className="h-px flex-1 bg-secondary" /><span className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">Workspace</span></div><button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-foreground hover:bg-secondary hover:text-foreground"><Settings size={17} className="text-muted-foreground" /><span>Settings</span></button>
         </div><div className="mt-auto border-t border-border p-4"><div className="flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-xs font-semibold text-foreground">JD</div><div className="min-w-0"><p className="truncate text-sm font-medium text-foreground">Jordan Davis</p><p className="text-xs text-muted-foreground">CRM Manager</p></div><span className="ml-auto h-2 w-2 animate-pulse rounded-full bg-chart-4" /></div><p className="mt-3 pl-12 text-[11px] text-chart-4">AI Active</p></div>
       </aside>
-      <main id="companies-content" className="lg:pl-60"><header className="flex h-16 items-center justify-between border-b border-border px-4 sm:px-6 lg:hidden"><button onClick={() => setMobileNav(true)} aria-label="Open navigation" className="rounded-md p-2 text-foreground hover:bg-secondary"><Menu size={20} /></button><span className="font-semibold text-foreground">Companies</span><button onClick={() => setModal('create')} aria-label="Create company" className="rounded-md bg-primary p-2 text-primary-foreground"><Plus size={18} /></button></header>
+      <main id="companies-content" className="lg:pl-60">
+    {liveError && <div className="mx-5 mt-4 rounded-lg border border-chart-5/30 bg-chart-5/5 px-4 py-3 text-sm text-chart-5">{liveError}</div>}
+    {!liveLoading && liveCompanies.length === 0 && <div className="mx-5 mt-4 rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">No company records are available yet. Add a company or connect a CRM platform.</div>}<header className="flex h-16 items-center justify-between border-b border-border px-4 sm:px-6 lg:hidden"><button onClick={() => setMobileNav(true)} aria-label="Open navigation" className="rounded-md p-2 text-foreground hover:bg-secondary"><Menu size={20} /></button><span className="font-semibold text-foreground">Companies</span><button onClick={() => setModal('create')} aria-label="Create company" className="rounded-md bg-primary p-2 text-primary-foreground"><Plus size={18} /></button></header>
         <div className="mx-auto max-w-[1600px] px-4 py-7 sm:px-6 lg:px-8"><div className="mb-7 flex flex-col justify-between gap-5 xl:flex-row xl:items-end"><div><div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"><span>Lulu AI</span><ChevronRight size={13} /><span>CRM</span><ChevronRight size={13} /><span className="text-muted-foreground">Companies</span></div><h1 className="text-3xl font-semibold tracking-tight text-foreground">Companies</h1><p className="mt-2 text-sm text-muted-foreground">Manage the organizations, accounts and business relationships connected to your company.</p></div><div className="flex gap-2"><button onClick={() => setModal('import')} className="flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-sm text-foreground transition-colors duration-150 hover:border-border hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Upload size={16} />Import</button><button onClick={() => setModal('export')} className="flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-sm text-foreground transition-colors duration-150 hover:border-border hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Download size={16} />Export</button><button onClick={() => setModal('create')} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors duration-150 hover:bg-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"><Plus size={17} />Create Company</button></div></div>
-          <section className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">{kpis.map(({
+          <section className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">{(liveLoading ? [] : kpis).map(({
             label,
             value,
             Icon,
             trend
           }) => <div key={String(label)} className="rounded-xl border border-border bg-[var(--secondary)] px-4 py-4 transition-colors duration-150 hover:border-border"><div className="flex items-center justify-between"><p className="text-[10px] font-medium uppercase tracking-[0.12em] text-muted-foreground">{label}</p><Icon size={16} className={label === 'Requiring Attention' ? 'text-chart-5' : label === 'Customers' ? 'text-foreground' : 'text-muted-foreground'} /></div><p className="mt-2 text-2xl font-semibold text-foreground">{value}</p><p className={`mt-1 text-xs ${label === 'New Companies' ? 'text-chart-4' : label === 'Active Companies' ? 'text-chart-4' : label === 'Prospects' ? 'text-chart-1' : label === 'Requiring Attention' ? 'text-chart-5' : 'text-muted-foreground'}`}>{label === 'Active Companies' ? '● Active' : trend || ' '}</p></div>)}</section>
-          <div className="relative mb-4"><Search className="absolute left-4 top-3.5 text-muted-foreground" size={18} /><input value={query} onFocus={() => setShowSearch(true)} onChange={e => setQuery(e.target.value)} placeholder="Search companies... (Name, Domain, Industry, Location, ID)" className="h-12 w-full rounded-xl border border-border bg-[var(--secondary)] pl-11 pr-16 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-border/60 focus:ring-2 focus:ring-ring/20" /><kbd className="absolute right-4 top-3 rounded-md bg-card/60 px-2 py-1 text-[11px] text-muted-foreground">⌘K</kbd>{showSearch && !query && <div className="absolute left-0 right-0 top-14 z-20 rounded-xl border border-border bg-[var(--secondary)] p-4 shadow-2xl"><p className="mb-2 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Recent searches</p><div className="flex gap-2">{['Acme Corp', 'nexusolutions.com', 'Technology Germany'].map(item => <button key={item} onClick={() => {
+          <div className="relative mb-4"><Search className="absolute left-4 top-3.5 text-muted-foreground" size={18} /><input value={query} onFocus={() => setShowSearch(true)} onChange={e => setQuery(e.target.value)} placeholder="Search companies... (Name, Domain, Industry, Location, ID)" className="h-12 w-full rounded-xl border border-border bg-[var(--secondary)] pl-11 pr-16 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-border/60 focus:ring-2 focus:ring-ring/20" /><kbd className="absolute right-4 top-3 rounded-md bg-card/60 px-2 py-1 text-[11px] text-muted-foreground">⌘K</kbd>{showSearch && !query && <div className="absolute left-0 right-0 top-14 z-20 rounded-xl border border-border bg-[var(--secondary)] p-4 shadow-2xl"><p className="mb-2 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Recent searches</p><div className="flex gap-2">{([] as string[]).map(item => <button key={item} onClick={() => {
                 setQuery(item);
                 setShowSearch(false);
               }} className="rounded-md bg-secondary px-3 py-2 text-xs text-foreground hover:bg-secondary/15">{item}</button>)}</div><p className="mb-2 mt-4 text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Suggestions</p><button onClick={() => {
               setQuery('Nexus');
               setShowSearch(false);
-            }} className="flex items-center gap-3 text-sm text-foreground"><Building2 size={16} className="text-foreground" /><span>Nexus Solutions <em className="not-italic text-muted-foreground">· Technology</em></span></button></div>}</div>
+            }} className="flex items-center gap-3 text-sm text-foreground"><Building2 size={16} className="text-foreground" /><span>No recent company result</span></button></div>}</div>
           <div className="mb-5 flex flex-wrap items-center gap-2"><button className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-foreground hover:bg-secondary"><SlidersHorizontal size={16} />Filters</button>{filters.map(item => <button key={item} onClick={() => setFilter(filter === item ? null : item)} className={`flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs transition-colors duration-150 ${filter === item ? 'border-border/40 bg-secondary/20 text-foreground' : 'border-border text-foreground hover:border-border hover:text-foreground'}`}>{item}<ChevronDown size={13} /></button>)}{filter && <button onClick={() => setFilter(null)} className="text-xs text-foreground hover:text-foreground">Clear Filters</button>}<button className="ml-auto flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs text-foreground hover:text-foreground"><Bookmark size={14} />Save Filter</button></div>
           <div className="mb-4 flex flex-wrap items-center gap-2 border-b border-border pb-4"><span className="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">Saved</span>{savedFilters.map(item => <button key={item} className="rounded-md bg-secondary px-2.5 py-1.5 text-xs text-foreground hover:bg-secondary/10 hover:text-foreground">{item}</button>)}<div className="ml-auto flex items-center gap-2"><div className="flex rounded-lg border border-border p-0.5">{[['table', FileSpreadsheet], ['compact', ChevronsUpDown], ['cards', Layers]].map(([key, Icon]) => <button key={String(key)} onClick={() => setView(key as typeof view)} aria-label={`${key} view`} className={`rounded-md p-1.5 ${view === key ? 'bg-secondary/20 text-foreground' : 'text-foreground hover:text-foreground'}`}><Icon size={15} /></button>)}</div><button className="flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs text-foreground"><SlidersHorizontal size={14} />Columns</button></div></div>
           <div className="relative overflow-hidden rounded-xl border border-border bg-[var(--secondary)]">{selected.length > 0 && <div className="flex flex-wrap items-center gap-3 border-b border-border/30 bg-[var(--card)] px-4 py-3 text-xs"><span className="font-medium text-foreground">{selected.length} companies selected</span><button onClick={() => setSelected([])} aria-label="Deselect all" className="text-foreground hover:text-foreground"><X size={14} /></button>{['Assign Owner', 'Add Tag', 'Change Status', 'Add to Segment', 'Export', 'Archive'].map(item => <button key={item} className="rounded-md px-2 py-1 text-foreground hover:bg-secondary hover:text-foreground">{item}</button>)}<button onClick={() => setModal('delete')} className="ml-auto rounded-md px-2 py-1 text-chart-5 hover:bg-chart-5/10">Delete</button></div>}
@@ -279,7 +100,7 @@ export const LuluCompanies = () => {
                         setMenuId(null);
                       }} className={`block w-full rounded-md px-3 py-2 text-xs hover:bg-secondary ${item === 'Delete' ? 'text-chart-5' : 'text-foreground'}`}>{item}</button>)}</div>}</td></tr>)}</tbody></table></div>}
             {filtered.length === 0 && <div className="p-16 text-center"><SearchX className="mx-auto text-muted-foreground" size={34} /><h2 className="mt-4 text-lg font-semibold text-foreground">No Companies Found</h2><p className="mt-2 text-sm text-muted-foreground">No companies match your current filters.</p><button onClick={() => setQuery('')} className="mt-5 rounded-lg border border-border/30 px-4 py-2 text-sm text-foreground">Clear Filters</button></div>}
-            <div className="flex flex-col gap-3 border-t border-border px-4 py-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><span>1–{filtered.length} of 1,284 companies</span><nav aria-label="Pagination" className="flex items-center gap-1"><button aria-label="Previous page" className="rounded-md p-1.5 hover:bg-secondary"><ChevronLeft size={15} /></button>{['1', '2', '3', '…', '26'].map(page => <button key={page} aria-current={page === '1' ? 'page' : undefined} className={`h-7 min-w-7 rounded-md px-2 ${page === '1' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'}`}>{page}</button>)}<button aria-label="Next page" className="rounded-md p-1.5 hover:bg-secondary"><ChevronRight size={15} /></button></nav><label className="flex items-center gap-2">Items per page <select className="rounded-md border border-border bg-[var(--secondary)] px-2 py-1 text-foreground"><option>50</option><option>25</option><option>100</option></select></label></div>
+            <div className="flex flex-col gap-3 border-t border-border px-4 py-3 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between"><span>{filtered.length === 0 ? 'No live companies available' : `1–${filtered.length} live companies`}</span><nav aria-label="Pagination" className="flex items-center gap-1"><button aria-label="Previous page" className="rounded-md p-1.5 hover:bg-secondary"><ChevronLeft size={15} /></button>{['1', '2', '3', '…', '26'].map(page => <button key={page} aria-current={page === '1' ? 'page' : undefined} className={`h-7 min-w-7 rounded-md px-2 ${page === '1' ? 'bg-primary text-primary-foreground' : 'hover:bg-secondary'}`}>{page}</button>)}<button aria-label="Next page" className="rounded-md p-1.5 hover:bg-secondary"><ChevronRight size={15} /></button></nav><label className="flex items-center gap-2">Items per page <select className="rounded-md border border-border bg-[var(--secondary)] px-2 py-1 text-foreground"><option>50</option><option>25</option><option>100</option></select></label></div>
           </div>
         </div>
       </main>
@@ -289,7 +110,7 @@ export const LuluCompanies = () => {
       {modal && <div className="fixed inset-0 z-[60] flex items-center justify-center bg-primary/70 p-4" role="dialog" aria-modal="true" aria-labelledby="modal-title"><div className={`w-full ${modal === 'delete' ? 'max-w-md' : 'max-w-2xl'} max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-[var(--secondary)] shadow-2xl`}><div className="flex items-center justify-between border-b border-border px-6 py-5"><div><h2 id="modal-title" className="text-lg font-semibold text-foreground">{modal === 'delete' ? 'Delete Companies?' : modal === 'import' ? 'Import Companies' : modal === 'export' ? 'Export Companies' : modal === 'edit' ? 'Edit Company' : 'Create Company'}</h2>{modal === 'edit' && <p className="mt-1 text-xs text-foreground">● Unsaved changes</p>}</div><button onClick={() => setModal(null)} aria-label="Close dialog" className="rounded-md p-2 text-foreground hover:bg-secondary"><X size={18} /></button></div>{modal === 'delete' ? <div className="p-6"><div className="flex gap-3"><div className="rounded-full bg-chart-5/15 p-3 text-chart-5"><AlertTriangle size={22} /></div><p className="text-sm leading-6 text-foreground">You are about to permanently delete the selected companies. This action may also affect associated contacts, deals, and activities.</p></div><div className="mt-6 flex justify-end gap-2"><button onClick={() => setModal(null)} className="rounded-lg px-4 py-2 text-sm text-muted-foreground hover:bg-secondary">Cancel</button><button onClick={() => {
               setSelected([]);
               setModal(null);
-            }} className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-destructive">Delete Companies</button></div></div> : modal === 'import' ? <div className="p-6"><div className="mb-6 flex items-center justify-between">{['Upload', 'Map Fields', 'Validate', 'Review', 'Import', 'Results'].map((step, i) => <div key={step} className="flex items-center gap-2"><span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${i === 0 ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>{i === 0 ? '1' : i + 1}</span><span className="hidden text-[11px] text-muted-foreground sm:inline">{step}</span>{i < 5 && <span className="hidden h-px w-5 bg-secondary sm:block" />}</div>)}</div><div className="rounded-xl border border-dashed border-border bg-secondary p-12 text-center"><CloudUpload className="mx-auto text-foreground" size={38} /><h3 className="mt-4 font-medium text-foreground">Drag CSV or Excel file here</h3><p className="mt-2 text-sm text-muted-foreground">Accepted formats: .csv, .xlsx</p><button className="mt-5 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary">Browse files</button></div><p className="mt-5 flex items-center gap-2 text-xs text-foreground"><AlertTriangle size={14} />Existing company records will not be overwritten without your confirmation.</p></div> : modal === 'export' ? <div className="p-6"><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Export scope</p><div className="mt-3 space-y-3 text-sm text-foreground">{['All Companies (1,284)', 'Current Filter', 'Selected Companies'].map((item, i) => <label key={item} className="flex items-center gap-3"><input type="radio" name="scope" defaultChecked={i === 0} className="accent-primary" />{item}</label>)}</div><p className="mt-6 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Format</p><div className="mt-3 flex gap-4 text-sm text-foreground"><label><input type="radio" name="format" defaultChecked className="mr-2 accent-primary" />CSV</label><label><input type="radio" name="format" className="mr-2 accent-primary" />Excel</label></div><p className="mt-6 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Data fields</p><div className="mt-3 grid grid-cols-2 gap-3 text-xs text-foreground">{['Company name', 'Domain', 'Industry', 'Contacts', 'Revenue', 'Owner', 'Status', 'Last activity'].map(item => <label key={item}><input type="checkbox" defaultChecked className="mr-2 accent-primary" />{item}</label>)}</div><div className="mt-7 flex justify-end gap-2"><button onClick={() => setModal(null)} className="rounded-lg px-4 py-2 text-sm text-muted-foreground">Cancel</button><button onClick={() => setModal(null)} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Export</button></div></div> : <div className="p-6"><div className="grid gap-4 sm:grid-cols-2">{['Company Name *', 'Legal Name', 'Domain', 'Industry *', 'Company Type *', 'Status *', 'Owner', 'Email', 'Phone', 'Website', 'Country', 'Region', 'City', 'Postal Code', 'Company Size', 'Annual Revenue'].map(field => <label key={field} className="text-xs text-muted-foreground">{field}<input defaultValue={modal === 'edit' && field === 'Company Name *' ? 'Nexus Solutions' : ''} placeholder={field.replace(' *', '')} className="mt-2 h-10 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 text-sm text-foreground outline-none focus:border-border/60 focus:ring-2 focus:ring-ring/20" /></label>)}</div><label className="mt-4 block text-xs text-muted-foreground">Tags <input placeholder="Add tags" className="mt-2 h-10 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 text-sm text-foreground outline-none focus:border-border/60" /></label><label className="mt-4 block text-xs text-muted-foreground">Notes<textarea rows={3} className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] p-3 text-sm text-foreground outline-none focus:border-border/60" /></label><div className="mt-6 flex justify-end gap-2 border-t border-border pt-5"><button onClick={() => setModal(null)} className="rounded-lg px-4 py-2 text-sm text-muted-foreground hover:bg-secondary">{modal === 'edit' ? 'Discard' : 'Cancel'}</button><button onClick={() => setModal(null)} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary">{modal === 'edit' ? 'Save Changes' : 'Create Company'}</button></div></div>}</div></div>}
+            }} className="rounded-lg bg-destructive px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-destructive">Delete Companies</button></div></div> : modal === 'import' ? <div className="p-6"><div className="mb-6 flex items-center justify-between">{['Upload', 'Map Fields', 'Validate', 'Review', 'Import', 'Results'].map((step, i) => <div key={step} className="flex items-center gap-2"><span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs ${i === 0 ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>{i === 0 ? '1' : i + 1}</span><span className="hidden text-[11px] text-muted-foreground sm:inline">{step}</span>{i < 5 && <span className="hidden h-px w-5 bg-secondary sm:block" />}</div>)}</div><div className="rounded-xl border border-dashed border-border bg-secondary p-12 text-center"><CloudUpload className="mx-auto text-foreground" size={38} /><h3 className="mt-4 font-medium text-foreground">Drag CSV or Excel file here</h3><p className="mt-2 text-sm text-muted-foreground">Accepted formats: .csv, .xlsx</p><button className="mt-5 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary">Browse files</button></div><p className="mt-5 flex items-center gap-2 text-xs text-foreground"><AlertTriangle size={14} />Existing company records will not be overwritten without your confirmation.</p></div> : modal === 'export' ? <div className="p-6"><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Export scope</p><div className="mt-3 space-y-3 text-sm text-foreground">{['All live companies', 'Current Filter', 'Selected Companies'].map((item, i) => <label key={item} className="flex items-center gap-3"><input type="radio" name="scope" defaultChecked={i === 0} className="accent-primary" />{item}</label>)}</div><p className="mt-6 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Format</p><div className="mt-3 flex gap-4 text-sm text-foreground"><label><input type="radio" name="format" defaultChecked className="mr-2 accent-primary" />CSV</label><label><input type="radio" name="format" className="mr-2 accent-primary" />Excel</label></div><p className="mt-6 text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Data fields</p><div className="mt-3 grid grid-cols-2 gap-3 text-xs text-foreground">{['Company name', 'Domain', 'Industry', 'Contacts', 'Revenue', 'Owner', 'Status', 'Last activity'].map(item => <label key={item}><input type="checkbox" defaultChecked className="mr-2 accent-primary" />{item}</label>)}</div><div className="mt-7 flex justify-end gap-2"><button onClick={() => setModal(null)} className="rounded-lg px-4 py-2 text-sm text-muted-foreground">Cancel</button><button onClick={() => setModal(null)} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Export</button></div></div> : <div className="p-6"><div className="grid gap-4 sm:grid-cols-2">{['Company Name *', 'Legal Name', 'Domain', 'Industry *', 'Company Type *', 'Status *', 'Owner', 'Email', 'Phone', 'Website', 'Country', 'Region', 'City', 'Postal Code', 'Company Size', 'Annual Revenue'].map(field => <label key={field} className="text-xs text-muted-foreground">{field}<input defaultValue={''} placeholder={field.replace(' *', '')} className="mt-2 h-10 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 text-sm text-foreground outline-none focus:border-border/60 focus:ring-2 focus:ring-ring/20" /></label>)}</div><label className="mt-4 block text-xs text-muted-foreground">Tags <input placeholder="Add tags" className="mt-2 h-10 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 text-sm text-foreground outline-none focus:border-border/60" /></label><label className="mt-4 block text-xs text-muted-foreground">Notes<textarea rows={3} className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] p-3 text-sm text-foreground outline-none focus:border-border/60" /></label><div className="mt-6 flex justify-end gap-2 border-t border-border pt-5"><button onClick={() => setModal(null)} className="rounded-lg px-4 py-2 text-sm text-muted-foreground hover:bg-secondary">{modal === 'edit' ? 'Discard' : 'Cancel'}</button><button onClick={() => setModal(null)} className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary">{modal === 'edit' ? 'Save Changes' : 'Create Company'}</button></div></div>}</div></div>}
       <button onClick={() => setModal('create')} aria-label="Create company" className="fixed bottom-5 right-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-black/30 lg:hidden"><Plus size={24} /></button>
     </div>;
 };
