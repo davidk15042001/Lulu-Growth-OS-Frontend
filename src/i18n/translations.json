@@ -19988,7 +19988,11 @@
     "From live records": "Aus Live-Daten",
     "Live commit stages": "Live-Commit-Phasen",
     "Live deal values": "Live-Deal-Werte",
-    "Workspace pipeline": "Arbeitsbereich-Pipeline"
+    "Workspace pipeline": "Arbeitsbereich-Pipeline",
+    "Live status": "Live-Status",
+    "Live valueAmount": "Live-WertAmount",
+    "Needs churn events": "Benötigt Churn-Ereignisse",
+    "Needs retention events": "Benötigt Retention-Ereignisse"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40007,7 +40011,11 @@
     "From live records": "来自实时记录",
     "Live commit stages": "实时提交阶段",
     "Live deal values": "实时成交金额",
-    "Workspace pipeline": "工作区销售管道"
+    "Workspace pipeline": "工作区销售管道",
+    "Live status": "实时状态",
+    "Live valueAmount": "实时 valueAmount",
+    "Needs churn events": "需要流失事件",
+    "Needs retention events": "需要留存事件"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
