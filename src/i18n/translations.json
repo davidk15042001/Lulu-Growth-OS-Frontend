@@ -20018,7 +20018,10 @@
     "Observed platform data, calculated metrics, and AI insights are clearly labeled. Live values appear when connected records are available.": "Beobachtete Plattformdaten, berechnete Kennzahlen und AI-Erkenntnisse sind deutlich gekennzeichnet. Live-Werte werden angezeigt, sobald verbundene Datensätze vorliegen.",
     "Product contract required": "Produktvertrag erforderlich",
     "Returns contract required": "Rücksendungsvertrag erforderlich",
-    "Store performance data could not be loaded. Check the connected ecommerce platforms and try again.": "Die Leistungsdaten des Shops konnten nicht geladen werden. Überprüfen Sie die verbundenen E‑Commerce‑Plattformen und versuchen Sie es erneut."
+    "Store performance data could not be loaded. Check the connected ecommerce platforms and try again.": "Die Leistungsdaten des Shops konnten nicht geladen werden. Überprüfen Sie die verbundenen E‑Commerce‑Plattformen und versuchen Sie es erneut.",
+    "No revenue records are available yet.": "Es sind noch keine Umsatzaufzeichnungen verfügbar.",
+    "Requires prior-period data": "Erfordert Daten aus Vorperioden",
+    "Revenue intelligence data could not be loaded. Check finance records and try again.": "Revenue Intelligence-Daten konnten nicht geladen werden. Überprüfen Sie die Finanzunterlagen und versuchen Sie es erneut."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40067,7 +40070,10 @@
     "Observed platform data, calculated metrics, and AI insights are clearly labeled. Live values appear when connected records are available.": "已标注观测平台数据、计算指标和 AI 洞察。连接记录可用时会显示实时数值。",
     "Product contract required": "需要 Product 合同",
     "Returns contract required": "需要 Returns 合同",
-    "Store performance data could not be loaded. Check the connected ecommerce platforms and try again.": "无法加载店铺绩效数据。请检查已连接的电商平台并重试。"
+    "Store performance data could not be loaded. Check the connected ecommerce platforms and try again.": "无法加载店铺绩效数据。请检查已连接的电商平台并重试。",
+    "No revenue records are available yet.": "尚无收入记录。",
+    "Requires prior-period data": "需要上一期间的数据",
+    "Revenue intelligence data could not be loaded. Check finance records and try again.": "无法加载收入智能数据。请检查财务记录后重试。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
