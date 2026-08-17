@@ -2,6 +2,8 @@ import { StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
+import { getPageContract } from "./api/page-contracts";
+import { LiveResourceRoute } from "./components/LiveResourceRoute";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -103,6 +105,11 @@ export function NativePage({ slug }: { slug: string }) {
         Loading page…
       </main>
     );
+  }
+
+  const contract = getPageContract(slug);
+  if (contract?.kind === "resource") {
+    return <LuluRuntime slug={slug}><LiveResourceRoute resourceType={contract.resourceType} /></LuluRuntime>;
   }
 
   return (
