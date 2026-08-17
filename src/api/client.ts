@@ -75,6 +75,28 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   AIRWALLEX_CHECKOUT_CREATE_FAILED: "Airwallex rejected the checkout setup.",
   AIRWALLEX_CHECKOUT_ID_MISSING: "Airwallex did not return a checkout identifier.",
   AIRWALLEX_CHECKOUT_URL_MISSING: "Airwallex did not return a hosted checkout URL.",
+  AIRWALLEX_INVOICE_LOOKUP_FAILED: "Airwallex could not load the invoice yet. Please try again shortly.",
+  AIRWALLEX_INVOICE_PDF_URL_MISSING: "The invoice is not ready as a PDF yet. Please try again shortly.",
+  AIRWALLEX_INVOICE_PDF_DOWNLOAD_FAILED: "Airwallex could not download the invoice PDF.",
+  AIRWALLEX_RAW_BODY_MISSING: "The Airwallex webhook request body could not be read.",
+  AIRWALLEX_SUBSCRIPTION_STATUS_UNSUPPORTED: "Airwallex sent a subscription status that Lulu does not recognize yet.",
+  AIRWALLEX_WEBHOOK_WORKSPACE_ID_MISSING: "The Airwallex webhook did not identify a Lulu workspace.",
+  MAILCOW_SMTP_CONFIGURATION_MISSING: "Transactional email is not configured on the server yet.",
+  MAILCOW_SMTP_SEND_FAILED: "The email service could not send this message. Please try again shortly.",
+  BILLING_INVOICE_EMAIL_FAILED: "The payment succeeded, but the invoice email could not be sent yet.",
+  OAUTH_PROVIDER_CREDENTIALS_MISSING: "This platform connection is not configured on the server yet.",
+  OAUTH_PROVIDER_NOT_SUPPORTED: "This platform connection is not supported yet.",
+  OAUTH_CALLBACK_BASE_URL: "The platform callback address is not configured on the server.",
+  OAUTH_CALLBACK_NOT_CONFIGURED: "The platform callback is not configured on the server yet.",
+  OAUTH_CALLBACK_INCOMPLETE: "The platform callback returned incomplete connection data.",
+  OAUTH_CALLBACK_FAILED: "The platform connection could not be completed.",
+  OAUTH_PROVIDER_DENIED: "The provider declined the connection. Please try again.",
+  OAUTH_STATE_INVALID: "The platform connection session is invalid. Please start again.",
+  OAUTH_STATE_EXPIRED: "The platform connection session expired. Please start again.",
+  OAUTH_STATE_SIGNATURE_INVALID: "The platform connection session could not be verified.",
+  OAUTH_TOKEN_EXCHANGE_FAILED: "The platform did not accept the authorization exchange.",
+  OAUTH_ACCESS_TOKEN_MISSING: "The platform did not return an access token.",
+  OAUTH_ACCOUNT_LOOKUP_FAILED: "The connected platform account could not be loaded.",
   AIRWALLEX_WEBHOOK_SECRET_MISSING: "The Airwallex webhook is not configured on the server.",
   AIRWALLEX_WEBHOOK_HEADERS_MISSING: "Airwallex sent an incomplete webhook request.",
   AIRWALLEX_WEBHOOK_TIMESTAMP_INVALID: "Airwallex sent an invalid webhook timestamp.",
@@ -122,7 +144,7 @@ export function getFriendlyErrorMessage(
 function safeTechnicalDetails(details: unknown) {
   if (!details || typeof details !== "object") return [] as string[];
   const value = details as Record<string, unknown>;
-  const allowed = ['providerHttpStatus', 'providerCode', 'providerMessage', 'path', 'requiredEnv', 'requiredHeaders', 'signatureFormat', 'toleranceSeconds', 'reason'];
+  const allowed = ['providerHttpStatus', 'providerCode', 'providerMessage', 'path', 'requiredEnv', 'missingEnv', 'requiredHeaders', 'signatureFormat', 'toleranceSeconds', 'reason', 'recipient', 'attachmentCount'];
   return allowed.flatMap((key) => {
     const item = value[key];
     if (item === undefined || item === null || item === "") return [];
