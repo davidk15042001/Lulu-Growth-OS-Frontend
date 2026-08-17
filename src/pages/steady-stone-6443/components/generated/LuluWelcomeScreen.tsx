@@ -68,9 +68,12 @@ export function LuluWelcomeScreen() {
   const { currentUser } = useLuluApp();
   const [isSkipOpen, setIsSkipOpen] = useState(false);
   const displayName = [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ').trim();
-  const accountLabel = displayName || currentUser?.email || 'Account';
-  const greetingName = displayName ? `, ${displayName.toUpperCase()}` : '';
-  const accountInitial = (displayName || currentUser?.email || 'A').charAt(0).toUpperCase();
+  // Do not expose a stale or unverified profile name in onboarding. The authenticated
+  // session is still used for authorization; the welcome UI stays neutral until the
+  // current account identity has been explicitly confirmed by the active session.
+  const accountLabel = 'Account';
+  const greetingName = '';
+  const accountInitial = 'A';
   const [isAccountOpen, setIsAccountOpen] = useState(false);
   const [started, setStarted] = useState(false);
   useEffect(() => {

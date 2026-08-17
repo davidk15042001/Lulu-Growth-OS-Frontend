@@ -76,6 +76,6 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     <GlobalBranding contractKind={contract.kind} />
     <GlobalLanguageSwitcher />
     <GlobalUploadFeedback />
-    {state === "ready" && workspaceId && <LiveApiPanel workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} contract={contract} />}
+    {state === "ready" && workspaceId && slug !== "fancily-leaf-1766" && <LiveApiPanel workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} contract={contract} />}
   </>;
 }
