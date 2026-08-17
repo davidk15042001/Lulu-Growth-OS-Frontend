@@ -19972,7 +19972,9 @@
     "Workspace representative is handling 26.2% of all leads. Consider rebalancing Round Robin weights. Calculated.": "Workspace-Vertreter bearbeitet 26,2 % aller Leads. Erwägen Sie, die Round-Robin-Gewichte neu auszubalancieren. Berechnet.",
     "Loading live recurring revenue…": "Live wiederkehrende Umsätze werden geladen…",
     "No live recurring revenue records are available yet. Connect billing data or record revenue to begin.": "Noch keine Live-Datensätze zu wiederkehrenden Umsätzen verfügbar. Verbinden Sie Abrechnungsdaten oder erfassen Sie Umsätze, um zu beginnen.",
-    "Workspace finance": "Arbeitsbereich Finanzen"
+    "Workspace finance": "Arbeitsbereich Finanzen",
+    "Loading live reconciliations…": "Live-Abstimmungen werden geladen…",
+    "No live reconciliation records are available yet. Connect your finance accounts or run a reconciliation to begin.": "Es sind noch keine Live-Abstimmungsdatensätze verfügbar. Verbinden Sie Ihre Finanzkonten oder führen Sie eine Abstimmung durch, um zu beginnen."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39975,7 +39977,9 @@
     "Workspace representative is handling 26.2% of all leads. Consider rebalancing Round Robin weights. Calculated.": "工作区代表处理了 26.2% 的全部线索。请考虑重新平衡轮询（Round Robin）权重。已计算。",
     "Loading live recurring revenue…": "正在加载实时经常性收入…",
     "No live recurring revenue records are available yet. Connect billing data or record revenue to begin.": "尚无实时经常性收入记录。连接计费数据或记录收入以开始使用。",
-    "Workspace finance": "工作区财务"
+    "Workspace finance": "工作区财务",
+    "Loading live reconciliations…": "正在加载实时对账…",
+    "No live reconciliation records are available yet. Connect your finance accounts or run a reconciliation to begin.": "目前暂无实时对账记录。连接您的财务账户或运行对账以开始。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
