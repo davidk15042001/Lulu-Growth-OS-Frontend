@@ -19896,7 +19896,11 @@
     "Select a live stage": "Wählen Sie eine Live-Phase",
     "Total —": "Gesamt —",
     "Unavailable": "Nicht verfügbar",
-    "of live prospects": "von aktiven Interessenten"
+    "of live prospects": "von aktiven Interessenten",
+    "Loading live sales intelligence…": "Live-Sales-Intelligence wird geladen…",
+    "No live sales records are available yet. Connect a CRM platform or add sales deals to begin.": "Für Live-Sales-Daten sind noch keine Einträge vorhanden. Verbinden Sie eine CRM-Plattform oder fügen Sie Sales-Deals hinzu, um zu beginnen.",
+    "No live sales trend data is available yet.": "Für Live-Sales-Trenddaten sind noch keine Einträge vorhanden.",
+    "No live trend data is available yet.": "Für Live-Trenddaten sind noch keine Einträge vorhanden."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39823,7 +39827,11 @@
     "Select a live stage": "请选择一个实时阶段",
     "Total —": "总计 —",
     "Unavailable": "不可用",
-    "of live prospects": "的活跃潜在客户"
+    "of live prospects": "的活跃潜在客户",
+    "Loading live sales intelligence…": "正在加载实时销售情报…",
+    "No live sales records are available yet. Connect a CRM platform or add sales deals to begin.": "尚无实时销售记录。连接 CRM 平台或添加销售项目以开始。",
+    "No live sales trend data is available yet.": "尚无实时销售趋势数据。",
+    "No live trend data is available yet.": "尚无实时趋势数据。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
