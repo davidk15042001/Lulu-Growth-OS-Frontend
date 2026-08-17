@@ -19982,7 +19982,13 @@
     "Across live records": "Über alle Live-Datensätze",
     "Average Deal": "Durchschnittlicher Deal",
     "Calculated from probability": "Berechnet aus Wahrscheinlichkeit",
-    "Current workspace": "Aktueller Arbeitsbereich"
+    "Current workspace": "Aktueller Arbeitsbereich",
+    "Based on live records": "Basierend auf Live-Daten",
+    "Forecast minus actual": "Prognose minus Ist-Wert",
+    "From live records": "Aus Live-Daten",
+    "Live commit stages": "Live-Commit-Phasen",
+    "Live deal values": "Live-Deal-Werte",
+    "Workspace pipeline": "Arbeitsbereich-Pipeline"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39995,7 +40001,13 @@
     "Across live records": "跨实时记录",
     "Average Deal": "平均成交额",
     "Calculated from probability": "基于概率计算",
-    "Current workspace": "当前工作区"
+    "Current workspace": "当前工作区",
+    "Based on live records": "基于实时记录",
+    "Forecast minus actual": "预测值减实际值",
+    "From live records": "来自实时记录",
+    "Live commit stages": "实时提交阶段",
+    "Live deal values": "实时成交金额",
+    "Workspace pipeline": "工作区销售管道"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
