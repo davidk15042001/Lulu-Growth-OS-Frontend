@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, Archive, ArrowDown, ArrowUp, BarChart3, Bell, Bot, ChevronDown, CircleAlert, CircleHelp, Download, Ellipsis, FileText, Filter, Gauge, Grid2X2, LayoutDashboard, List, Menu, MoreHorizontal, Plus, RefreshCw, Search, Settings, Sparkles, Target, Users, X, Zap } from 'lucide-react';
 type Audience = {
   name: string;
@@ -175,16 +176,18 @@ export const LuluAudiencesWorkspace = () => {
     setRefreshing(true);
     window.setTimeout(() => setRefreshing(false), 700);
   };
+  const { items: liveAudiences, loading: liveLoading, error: liveError } = useLiveRecords('marketing_audiences');
+  const liveEmpty = !liveLoading && !liveError && liveAudiences.length === 0;
   return <div className="min-h-screen bg-card text-[var(--foreground)]" style={{
     fontFamily: 'Inter, sans-serif'
   }}>
   <aside className={`${mobileNav ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-20 w-[220px] flex-col bg-[var(--sidebar)] px-3 py-5 lg:flex`}>
    <div className="mb-8 flex items-center gap-2 px-2"><span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--primary)] text-sm font-bold text-[var(--primary-foreground)]">L</span><strong className="text-[16px] text-foreground">Lulu AI</strong></div>
    <LuluSectionNavigation activeId="breezily-wood-5980" />
-   <div className="flex items-center gap-2 border-t border-[var(--muted-foreground)] pt-4"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-xs font-semibold text-foreground">DM</span><div><p className="text-xs font-medium text-foreground">David M</p><p className="text-[11px] text-[var(--muted-foreground)]">Growth operator</p></div><MoreHorizontal size={15} className="ml-auto text-[var(--muted-foreground)]" /></div>
+   <div className="flex items-center gap-2 border-t border-[var(--muted-foreground)] pt-4"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-xs font-semibold text-foreground">DM</span><div><p className="text-xs font-medium text-foreground">Workspace owner</p><p className="text-[11px] text-[var(--muted-foreground)]">Growth operator</p></div><MoreHorizontal size={15} className="ml-auto text-[var(--muted-foreground)]" /></div>
   </aside>
   {mobileNav && <button aria-label="Close navigation" className="fixed inset-0 z-10 bg-primary/40 lg:hidden" onClick={() => setMobileNav(false)} />} 
-  <main className="min-h-screen lg:ml-[220px]">
+  <main className="min-h-screen lg:ml-[220px]">{liveLoading ? <div className="border-b border-border bg-secondary/30 px-4 py-3 text-xs text-muted-foreground sm:px-8">Loading live audiences…</div> : liveError ? <div className="border-b border-destructive/30 bg-destructive/5 px-4 py-3 text-xs text-destructive sm:px-8">{liveError}</div> : liveEmpty ? <div className="border-b border-dashed border-border bg-card px-4 py-3 text-xs text-muted-foreground sm:px-8">No live audiences are available yet. Connect your marketing platform or create an audience to begin.</div> : null}
    <header className="flex h-14 items-center justify-between border-b border-[var(--muted-foreground)] bg-[var(--sidebar)] px-4 text-foreground sm:px-7"><div className="flex items-center gap-3"><button className="lg:hidden" onClick={() => setMobileNav(true)} aria-label="Open navigation"><Menu size={19} /></button><span className="text-[13px] text-[var(--muted-foreground)]">Marketing</span><span className="text-[var(--muted-foreground)]">/</span><span className="text-[13px] text-foreground">Audiences</span></div><div className="flex items-center gap-2"><button onClick={refresh} aria-label="Refresh" className="rounded p-2 text-[var(--primary-foreground)] hover:bg-[var(--primary)] hover:text-primary-foreground"><RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} /></button><button className="hidden px-2 text-[13px] text-[var(--foreground)] sm:block"><Download size={14} className="mr-1 inline" />Export</button><button className="hidden px-2 text-[13px] text-[var(--foreground)] sm:block"><Filter size={14} className="mr-1 inline" />Filter</button><button className="hidden px-2 text-[13px] text-[var(--foreground)] md:block"><Sparkles size={14} className="mr-1 inline" />Discover with Lulu AI</button><button className="rounded-md bg-[var(--primary)] px-3 py-2 text-[13px] font-semibold text-[var(--primary-foreground)] hover:bg-[var(--primary)]"><Plus size={14} className="mr-1 inline" />Create Audience</button><Bell size={17} className="ml-2 text-[var(--muted-foreground)]" /><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-xs font-semibold">DM</span></div></header>
    <div className="px-4 py-6 sm:px-8">
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3"><div><h1 className="text-2xl font-bold tracking-tight">Audiences</h1><p className="mt-1 text-sm text-[var(--muted-foreground)]">Understand, segment and activate the audiences that matter most to your business.</p></div><time className="text-xs text-[var(--muted-foreground)]">Last refreshed 14 minutes ago</time></div>
