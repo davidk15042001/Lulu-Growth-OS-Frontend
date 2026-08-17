@@ -83,6 +83,18 @@ export const workspaceAppApi = {
   billing: (workspaceId: string, query = "") => requestApi<BillingState>({
     path: workspaceApiPath(workspaceId, `/billing${query ? `?${query}` : ""}`),
   }),
+  syncBillingCheckout: (workspaceId: string, checkoutId: string) => requestApi<{
+    checkoutId: string;
+    planKey: string;
+    status: "pending" | "active";
+    providerStatus: string;
+    subscriptionId?: string | null;
+    invoiceId?: string | null;
+  }>({
+    path: workspaceApiPath(workspaceId, `/billing/checkouts/${encodeURIComponent(checkoutId)}/sync`),
+    method: "POST",
+    body: {},
+  }),
   syncIntegration: (workspaceId: string, platformId: string) => requestApi<{
     id: string; platformId: string; jobId: string; status: string; createdAt: string;
   }>({ path: workspaceApiPath(workspaceId, `/integrations/${platformId}/sync`), method: "POST", body: {} }),

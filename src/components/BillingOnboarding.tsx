@@ -91,9 +91,19 @@ export function BillingOnboarding() {
 
     const pollBilling = async () => {
       try {
+        const checkoutId = window.localStorage.getItem(`lulu:checkout-id:${selectedWorkspace.id}`);
+        if (checkoutId) {
+          const syncResponse = await workspaceAppApi.syncBillingCheckout(selectedWorkspace.id, checkoutId);
+          if (syncResponse.data.status === "active") {
+            window.localStorage.removeItem(`lulu:checkout-id:${selectedWorkspace.id}`);
+            await refresh();
+            if (active) navigateApp(routes.app.dashboard, { replace: true });
+            return;
+          }
+        }
         const response = await workspaceAppApi.billing(selectedWorkspace.id);
         const subscription = response.data.subscription;
-        if (subscription?.status === "active") {
+        if (subscription?.status === "active" && subscription.provider === "airwallex") {
           await refresh();
           if (active) navigateApp(routes.app.dashboard, { replace: true });
           return;
@@ -160,6 +170,7 @@ export function BillingOnboarding() {
         return;
       }
       if (!billingResult.checkoutUrl) throw new Error("Airwallex did not return a checkout URL.");
+      if (billingResult.checkoutId) window.localStorage.setItem(`lulu:checkout-id:${selectedWorkspace.id}`, billingResult.checkoutId);
       window.location.assign(billingResult.checkoutUrl);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "We could not start the Airwallex checkout. Please try again."));
