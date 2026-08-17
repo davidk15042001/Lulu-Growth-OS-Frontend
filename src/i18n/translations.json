@@ -19992,7 +19992,13 @@
     "Live status": "Live-Status",
     "Live valueAmount": "Live-WertAmount",
     "Needs churn events": "Benötigt Churn-Ereignisse",
-    "Needs retention events": "Benötigt Retention-Ereignisse"
+    "Needs retention events": "Benötigt Retention-Ereignisse",
+    "Account balances": "Kontostände",
+    "Connected accounts": "Verbundene Konten",
+    "Derived from live records": "Abgeleitet aus Live-Daten",
+    "From expenses": "Aus Ausgaben",
+    "From invoices": "Aus Rechnungen",
+    "Revenue minus expenses": "Umsatz minus Ausgaben"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40015,7 +40021,13 @@
     "Live status": "实时状态",
     "Live valueAmount": "实时 valueAmount",
     "Needs churn events": "需要流失事件",
-    "Needs retention events": "需要留存事件"
+    "Needs retention events": "需要留存事件",
+    "Account balances": "账户余额",
+    "Connected accounts": "已连接账户",
+    "Derived from live records": "基于实时记录",
+    "From expenses": "来自费用",
+    "From invoices": "来自发票",
+    "Revenue minus expenses": "收入减去费用"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
