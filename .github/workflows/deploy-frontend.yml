@@ -81,8 +81,10 @@ jobs:
           set -euo pipefail
           rsync -az --delete \
             --exclude .env \
+            --exclude .git \
             --exclude node_modules \
+            --exclude dist \
             backend-source/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
           ssh "$DEPLOY_USER@$DEPLOY_HOST" \
-            'set -e; cd /var/www/lulu-growth-os/backend; npm ci; npm run build; npm run migrate; sudo systemctl restart lulu-growth-backend; sleep 3; sudo systemctl is-active --quiet lulu-growth-backend; git rev-parse --short HEAD'
+            'set -e; cd /var/www/lulu-growth-os/backend; sudo chown -R "$(id -un)":"$(id -gn)" .; npm ci; npm run build; npm run migrate; sudo systemctl restart lulu-growth-backend; sleep 3; sudo systemctl is-active --quiet lulu-growth-backend; git rev-parse --short HEAD 2>/dev/null || true'
