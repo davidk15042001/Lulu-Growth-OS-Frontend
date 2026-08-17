@@ -19978,7 +19978,11 @@
     "Loading live financial plans…": "Live-Finanzpläne werden geladen…",
     "No live financial plans are available yet. Create a plan or connect finance data to begin.": "Noch keine Live-Finanzpläne verfügbar. Erstellen Sie einen Plan oder verbinden Sie Finanzdaten, um zu beginnen.",
     "Loading live tax records…": "Lade Live-Steuerdaten…",
-    "No live tax records are available yet. Add tax data or connect your finance platform to begin.": "Keine Live-Steuerdaten verfügbar. Fügen Sie Steuerdaten hinzu oder verbinden Sie Ihre Finanzplattform, um zu beginnen."
+    "No live tax records are available yet. Add tax data or connect your finance platform to begin.": "Keine Live-Steuerdaten verfügbar. Fügen Sie Steuerdaten hinzu oder verbinden Sie Ihre Finanzplattform, um zu beginnen.",
+    "Across live records": "Über alle Live-Datensätze",
+    "Average Deal": "Durchschnittlicher Deal",
+    "Calculated from probability": "Berechnet aus Wahrscheinlichkeit",
+    "Current workspace": "Aktueller Arbeitsbereich"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39987,7 +39991,11 @@
     "Loading live financial plans…": "正在加载实时财务计划…",
     "No live financial plans are available yet. Create a plan or connect finance data to begin.": "尚无可用的实时财务计划。创建计划或连接财务数据以开始。",
     "Loading live tax records…": "正在加载实时税务记录…",
-    "No live tax records are available yet. Add tax data or connect your finance platform to begin.": "尚无实时税务记录。添加税务数据或连接您的财务平台以开始。"
+    "No live tax records are available yet. Add tax data or connect your finance platform to begin.": "尚无实时税务记录。添加税务数据或连接您的财务平台以开始。",
+    "Across live records": "跨实时记录",
+    "Average Deal": "平均成交额",
+    "Calculated from probability": "基于概率计算",
+    "Current workspace": "当前工作区"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
