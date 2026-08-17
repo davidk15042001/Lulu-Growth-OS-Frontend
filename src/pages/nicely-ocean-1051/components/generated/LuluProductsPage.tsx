@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, AlertCircle, Archive, ArrowDownAZ, ArrowLeft, ArrowRight, Bot, Boxes, ChevronDown, ChevronRight, CircleCheck, CircleX, Clock3, Copy, Download, Edit3, ExternalLink, FileImage, Filter, Grid2X2, HelpCircle, ImagePlus, Layers3, List, MoreHorizontal, Package, Plus, RefreshCw, Search, Settings2, Sparkles, Store, Tag, Trash2, Upload, X, Zap } from 'lucide-react';
 type Product = {
   id: string;
@@ -213,16 +214,18 @@ export function LuluProductsPage() {
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [detailTab, setDetailTab] = useState('Overview');
   const [showFilters, setShowFilters] = useState(false);
+  const { items: liveProducts, loading: liveLoading, error: liveError } = useLiveRecords('ecommerce_products');
+  const liveEmpty = !liveLoading && !liveError && liveProducts.length === 0;
   const filteredProducts = useMemo(() => products.filter(product => product.name.toLowerCase().includes(query.toLowerCase()) && (activeSummary === 'Total Products' || activeSummary === 'Active' ? product.status === 'Active' || activeSummary === 'Total Products' : activeSummary === 'Draft' ? product.status === 'Draft' : activeSummary === 'Out of Stock' ? product.inventory === 0 : activeSummary === 'Low Stock' ? product.inventory > 0 && product.inventory < 30 : product.operational !== 'Healthy')), [query, activeSummary]);
   const toggleAll = () => setSelected(selected.length === filteredProducts.length ? [] : filteredProducts.map(product => product.id));
   const status = (value: string) => value === 'Active' ? <span className="status healthy"><CircleCheck className="h-3.5 w-3.5" />Active</span> : <span className="status draft"><Clock3 className="h-3.5 w-3.5" />Draft</span>;
   const inventory = (value: number) => value === 0 ? <span className="status critical"><CircleX className="h-3.5 w-3.5" />0 units · Out of Stock</span> : value < 30 ? <span className="status attention"><AlertCircle className="h-3.5 w-3.5" />{value} units · Low Stock</span> : <span className="status healthy"><CircleCheck className="h-3.5 w-3.5" />{value} units · In Stock</span>;
   const operational = (value: Product['operational']) => value === 'Healthy' ? <span className="status healthy"><CircleCheck className="h-3.5 w-3.5" />Healthy</span> : value === 'Attention' ? <span className="status attention"><AlertCircle className="h-3.5 w-3.5" />Attention</span> : <span className="status critical"><CircleX className="h-3.5 w-3.5" />Critical</span>;
-  return <main className="min-h-screen bg-[var(--background)] text-foreground">
+  return <main className="min-h-screen bg-[var(--background)] text-foreground">{liveLoading ? <div className="border-b border-border bg-secondary/30 px-5 py-3 text-xs text-muted-foreground lg:pl-[268px]">Loading live products…</div> : liveError ? <div className="border-b border-destructive/30 bg-destructive/5 px-5 py-3 text-xs text-destructive lg:pl-[268px]">{liveError}</div> : liveEmpty ? <div className="border-b border-dashed border-border bg-card px-5 py-3 text-xs text-muted-foreground lg:pl-[268px]">No live products are available yet. Add a product or connect your commerce platform to begin.</div> : null}
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-[248px] flex-col bg-[var(--sidebar)] text-foreground lg:flex">
       <header className="flex h-20 items-center gap-3 border-b border-border px-6"><div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">L</div><div><p className="font-semibold tracking-tight text-foreground">LULU AI</p><p className="text-[10px] uppercase tracking-[.18em] text-muted-foreground">Core platform</p></div></header>
       <LuluSectionNavigation activeId="nicely-ocean-1051" />
-      <footer className="border-t border-border p-4"><button className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-secondary"><div className="grid h-8 w-8 place-items-center rounded-full bg-secondary/30 text-sm font-semibold text-foreground">AM</div><span className="flex-1 text-sm text-foreground">Alex Morgan<small className="block text-xs text-muted-foreground">Administrator</small></span><Settings2 className="h-4 w-4" /></button></footer>
+      <footer className="border-t border-border p-4"><button className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-secondary"><div className="grid h-8 w-8 place-items-center rounded-full bg-secondary/30 text-sm font-semibold text-foreground">AM</div><span className="flex-1 text-sm text-foreground">Workspace administrator<small className="block text-xs text-muted-foreground">Administrator</small></span><Settings2 className="h-4 w-4" /></button></footer>
     </aside>
 
     <div className="lg:pl-[248px]"><div className="mx-auto max-w-[1540px] px-5 py-5 sm:px-8 lg:px-10">
