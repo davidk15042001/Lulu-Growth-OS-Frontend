@@ -19974,7 +19974,9 @@
     "No live recurring revenue records are available yet. Connect billing data or record revenue to begin.": "Noch keine Live-Datensätze zu wiederkehrenden Umsätzen verfügbar. Verbinden Sie Abrechnungsdaten oder erfassen Sie Umsätze, um zu beginnen.",
     "Workspace finance": "Arbeitsbereich Finanzen",
     "Loading live reconciliations…": "Live-Abstimmungen werden geladen…",
-    "No live reconciliation records are available yet. Connect your finance accounts or run a reconciliation to begin.": "Es sind noch keine Live-Abstimmungsdatensätze verfügbar. Verbinden Sie Ihre Finanzkonten oder führen Sie eine Abstimmung durch, um zu beginnen."
+    "No live reconciliation records are available yet. Connect your finance accounts or run a reconciliation to begin.": "Es sind noch keine Live-Abstimmungsdatensätze verfügbar. Verbinden Sie Ihre Finanzkonten oder führen Sie eine Abstimmung durch, um zu beginnen.",
+    "Loading live financial plans…": "Live-Finanzpläne werden geladen…",
+    "No live financial plans are available yet. Create a plan or connect finance data to begin.": "Noch keine Live-Finanzpläne verfügbar. Erstellen Sie einen Plan oder verbinden Sie Finanzdaten, um zu beginnen."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39979,7 +39981,9 @@
     "No live recurring revenue records are available yet. Connect billing data or record revenue to begin.": "尚无实时经常性收入记录。连接计费数据或记录收入以开始使用。",
     "Workspace finance": "工作区财务",
     "Loading live reconciliations…": "正在加载实时对账…",
-    "No live reconciliation records are available yet. Connect your finance accounts or run a reconciliation to begin.": "目前暂无实时对账记录。连接您的财务账户或运行对账以开始。"
+    "No live reconciliation records are available yet. Connect your finance accounts or run a reconciliation to begin.": "目前暂无实时对账记录。连接您的财务账户或运行对账以开始。",
+    "Loading live financial plans…": "正在加载实时财务计划…",
+    "No live financial plans are available yet. Create a plan or connect finance data to begin.": "尚无可用的实时财务计划。创建计划或连接财务数据以开始。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
