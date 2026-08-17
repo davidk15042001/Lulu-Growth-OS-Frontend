@@ -19954,7 +19954,9 @@
     "Loading live finance payments…": "Live-Finanzzahlungen werden geladen…",
     "No live finance payments are available yet. Connect your payment provider or record a payment to begin.": "Noch keine Live-Finanzzahlungen verfügbar. Verbinden Sie Ihren Zahlungsanbieter oder erfassen Sie eine Zahlung, um zu beginnen.",
     "PAY-00391 · Workspace customer · EUR 480": "PAY-00391 · Workspace-Kunde · EUR 480",
-    "PAY-00411 · Workspace customer · EUR 4,850": "PAY-00411 · Workspace-Kunde · EUR 4.850"
+    "PAY-00411 · Workspace customer · EUR 4,850": "PAY-00411 · Workspace-Kunde · EUR 4.850",
+    "Loading live coupons…": "Live-Rabatte werden geladen…",
+    "No live coupons are available yet. Add a coupon or connect your commerce platform to begin.": "Noch keine Live-Rabatte verfügbar. Fügen Sie einen Rabatt hinzu oder verbinden Sie Ihre Commerce-Plattform, um zu beginnen."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39939,7 +39941,9 @@
     "Loading live finance payments…": "正在加载实时财务付款…",
     "No live finance payments are available yet. Connect your payment provider or record a payment to begin.": "尚无实时财务付款。连接您的支付提供商或记录一笔付款以开始。",
     "PAY-00391 · Workspace customer · EUR 480": "PAY-00391 · Workspace customer · EUR 480",
-    "PAY-00411 · Workspace customer · EUR 4,850": "PAY-00411 · Workspace customer · EUR 4,850"
+    "PAY-00411 · Workspace customer · EUR 4,850": "PAY-00411 · Workspace customer · EUR 4,850",
+    "Loading live coupons…": "正在加载实时优惠券…",
+    "No live coupons are available yet. Add a coupon or connect your commerce platform to begin.": "暂无实时优惠券。添加优惠券或连接您的电商平台以开始。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
