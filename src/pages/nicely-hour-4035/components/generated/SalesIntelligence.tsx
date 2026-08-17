@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BarChart3, Bell, Bot, CalendarDays, Check, ChevronDown, ChevronRight, CircleHelp, Download, FilePlus2, Filter, LayoutDashboard, LineChart, Menu, MessageSquare, MoreHorizontal, RefreshCw, Search, Settings, Sparkles, Target, TrendingUp, Users } from 'lucide-react';
 type Source = 'Observed' | 'Calculated' | 'Target' | 'Benchmark' | 'Forecast' | 'AI Explanation';
 type Metric = {
@@ -9,146 +10,15 @@ type Metric = {
   source: Source;
   tone?: 'good' | 'warn';
 };
-const metrics: Metric[] = [{
-  label: 'Sales Revenue',
-  value: '€3,840,000',
-  previous: '€3,280,000',
-  change: '+17.1% ↑',
-  source: 'Observed'
-}, {
-  label: 'Sales Growth',
-  value: '+17.1%',
-  previous: '+12.4%',
-  change: 'Accelerating ↑',
-  source: 'Calculated'
-}, {
-  label: 'Pipeline Value',
-  value: '€6,240,000',
-  previous: '€5,120,000',
-  change: '+21.9% ↑',
-  source: 'Observed'
-}, {
-  label: 'Pipeline Growth',
-  value: '+21.9%',
-  previous: '+14.6%',
-  change: 'Accelerating ↑',
-  source: 'Calculated'
-}, {
-  label: 'Win Rate',
-  value: '38.4%',
-  previous: '34.2%',
-  change: '+4.2pp ↑',
-  source: 'Calculated'
-}, {
-  label: 'Average Deal Value',
-  value: '€24,800',
-  previous: '€22,400',
-  change: '+10.7% ↑',
-  source: 'Calculated'
-}];
-const months = [{
-  n: 'Apr',
-  revenue: 48,
-  pipeline: 54,
-  deals: 32
-}, {
-  n: 'May',
-  revenue: 53,
-  pipeline: 58,
-  deals: 38
-}, {
-  n: 'Jun',
-  revenue: 55,
-  pipeline: 61,
-  deals: 41
-}, {
-  n: 'Jul',
-  revenue: 61,
-  pipeline: 64,
-  deals: 44
-}, {
-  n: 'Aug',
-  revenue: 58,
-  pipeline: 67,
-  deals: 48
-}, {
-  n: 'Sep',
-  revenue: 66,
-  pipeline: 70,
-  deals: 52
-}, {
-  n: 'Oct',
-  revenue: 69,
-  pipeline: 75,
-  deals: 57
-}, {
-  n: 'Nov',
-  revenue: 74,
-  pipeline: 78,
-  deals: 61
-}, {
-  n: 'Dec',
-  revenue: 77,
-  pipeline: 81,
-  deals: 65
-}, {
-  n: 'Jan',
-  revenue: 82,
-  pipeline: 87,
-  deals: 70
-}, {
-  n: 'Feb',
-  revenue: 88,
-  pipeline: 91,
-  deals: 76
-}, {
-  n: 'Mar',
-  revenue: 96,
-  pipeline: 98,
-  deals: 84
-}];
-const stages = [{
-  name: 'Lead',
-  count: '486',
-  value: '€12,150,000',
-  width: '100%',
-  color: 'var(--foreground)'
-}, {
-  name: 'Qualified',
-  count: '312',
-  value: '€7,800,000',
-  width: '78%',
-  color: 'var(--foreground)'
-}, {
-  name: 'Opportunity',
-  count: '248',
-  value: '€6,240,000',
-  width: '63%',
-  color: 'var(--foreground)'
-}, {
-  name: 'Proposal',
-  count: '124',
-  value: '€3,100,000',
-  width: '48%',
-  color: 'var(--foreground)'
-}, {
-  name: 'Negotiation',
-  count: '68',
-  value: '€1,836,000',
-  width: '34%',
-  color: 'var(--foreground)'
-}, {
-  name: 'Won',
-  count: '156',
-  value: '€3,840,000',
-  width: '25%',
-  color: 'var(--foreground)'
-}];
-const teams = [['Enterprise', '€1,728,000', '€2,808,000', '52.4%', '28', '€61,714', '84 days', '108%'], ['Mid-Market', '€1,344,000', '€1,872,000', '38.6%', '64', '€21,000', '48 days', '84%'], ['SMB', '€576,000', '€936,000', '28.4%', '48', '€12,000', '22 days', '72%'], ['Partner', '€192,000', '€624,000', '34.2%', '16', '€12,000', '36 days', '64%']];
-const reps = [['A. Thompson', '€684,000', '24', '52.4%', '€28,500', '42 days', '€1,248,000', '114%'], ['S. Martinez', '€612,000', '18', '48.8%', '€34,000', '38 days', '€1,124,000', '102%'], ['J. Chen', '€528,000', '22', '44.2%', '€24,000', '52 days', '€968,000', '88%'], ['M. Williams', '€480,000', '18', '38.4%', '€26,700', '56 days', '€880,000', '80%'], ['K. Patel', '€444,000', '16', '36.8%', '€27,750', '48 days', '€814,000', '74%'], ['L. Roberts', '€408,000', '14', '34.8%', '€29,143', '62 days', '€748,000', '68%']];
-const products = [['Lulu AI Enterprise', '€1,605,000', '28', '€2,496,000', '48.2%', '€57,321', '+28%'], ['Lulu AI Pro', '€1,236,000', '48', '€1,920,000', '42.6%', '€25,750', '+18%'], ['Lulu AI Business', '€739,200', '52', '€1,148,800', '34.8%', '€14,215', '+12%'], ['Professional Services', '€192,000', '24', '€480,000', '38.4%', '€8,000', '+8%'], ['Add-ons', '€67,800', '4', '€195,200', '32.4%', '€16,950', '+22%']];
-const lossReasons = [['Competitor', '32 deals', '€832,000', '38.1%', 100], ['Price', '22 deals', '€572,000', '26.2%', 69], ['Timing', '14 deals', '€364,000', '16.7%', 44], ['Budget', '10 deals', '€260,000', '11.9%', 31], ['No Decision', '4 deals', '€104,000', '4.8%', 13], ['Product Fit', '2 deals', '€52,000', '2.4%', 7]];
-const prompts = ['How is our sales performance?', 'What is our win rate?', 'How much pipeline do we have?', 'What is our average deal value?', 'Which products generate the most sales?', 'Which sales team performs best?', 'Which channels convert best?', 'Compare sales with last year.'];
+const metrics: Metric[] = [];
+const months: { n: string; revenue: number; pipeline: number; deals: number }[] = [];
+const stages: { name: string; count: string; value: string; width: string; color: string }[] = [];
+const teams: string[][] = [];
+const reps: string[][] = [];
+const products: string[][] = [];
+const lossReasons: (string | number)[][] = [];
+const prompts: string[] = [];
+
 function Badge({
   children
 }: {
@@ -194,19 +64,23 @@ export function SalesIntelligence() {
   const [date, setDate] = React.useState('Last 12 Months');
   const [ask, setAsk] = React.useState('');
   const [geoMode, setGeoMode] = React.useState('Map');
+  const { items: liveDeals, loading: liveLoading, error: liveError } = useLiveRecords('sales_deals');
+  const liveDealCount = liveDeals.length;
+  const livePipelineValue = liveDeals.reduce((sum, record) => { const fields = record as Record<string, unknown>; return sum + Number(fields.amount ?? fields.value ?? 0); }, 0);
+  const liveEmpty = !liveLoading && !liveError && liveDealCount === 0;
   const submit = (event: React.FormEvent) => {
     event.preventDefault();
     if (ask.trim()) setAsk('');
   };
-  return <main className="min-h-screen bg-[var(--background)] text-foreground"><div className="flex min-h-screen"><Sidebar /><div className="min-w-0 flex-1"><header className="sticky top-0 z-10 flex min-h-[70px] items-center justify-between border-b border-border/[.07] bg-[var(--background)]/95 px-5 backdrop-blur-xl lg:px-8"><div className="flex items-center gap-3"><button className="rounded-lg p-2 text-foreground lg:hidden" aria-label="Open navigation"><Menu size={19} /></button><p className="text-xs text-muted-foreground">Intelligence <span className="mx-1 text-foreground">/</span> Business Intelligence <span className="mx-1 text-foreground">/</span> <span className="text-foreground">Sales</span></p></div><div className="flex items-center gap-2"><button className="hidden rounded-lg border border-border p-2 text-foreground sm:block" aria-label="Search"><Search size={17} /></button><button className="rounded-lg border border-border p-2 text-foreground" aria-label="Notifications"><Bell size={17} /></button><div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-primary text-xs font-bold text-[var(--primary-foreground)]">LS</div></div></header><div className="mx-auto max-w-[1450px] px-5 py-7 lg:px-8"><div className="mb-8 flex flex-col justify-between gap-6 xl:flex-row xl:items-end"><div><div className="mb-3 flex items-center gap-2 text-xs font-medium text-foreground"><span className="h-1.5 w-1.5 rounded-full bg-primary text-primary-foreground" />Live intelligence</div><h1 className="text-4xl font-bold tracking-[-.04em] text-foreground sm:text-5xl">Sales</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Understand sales performance, pipeline development, conversion and revenue generation.</p></div><div className="flex flex-wrap items-center gap-2"><select value={date} onChange={e => setDate(e.target.value)} className="rounded-lg border border-border bg-[var(--secondary)] px-3 py-2 text-xs font-medium text-foreground" aria-label="Date range">{['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Last 90 Days', 'Last 12 Months', 'Year to Date', 'Previous Year', 'Custom Range'].map(item => <option key={item}>{item}</option>)}</select><button className="hidden rounded-lg border border-border bg-secondary px-3 py-2 text-xs text-foreground md:block">Compare: Previous Year <ChevronDown size={13} className="ml-1 inline" /></button><button className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-lg shadow-black/20 hover:bg-primary"><Bot size={14} />Ask Lulu AI</button><button className="rounded-lg border border-border p-2 text-foreground" aria-label="Refresh data"><RefreshCw size={15} /></button><button className="hidden rounded-lg border border-border px-3 py-2 text-xs text-foreground md:block"><FilePlus2 size={14} className="mr-1 inline" />Create Report</button><button className="rounded-lg border border-border p-2 text-foreground" aria-label="Export"><Download size={15} /></button></div></div><div className="mb-8 flex items-center justify-between border-y border-border/[.07] py-3"><div><p className="text-[10px] font-semibold uppercase tracking-[.18em] text-muted-foreground">Sales overview</p><p className="mt-1 text-xs text-muted-foreground">Last updated 2 minutes ago · All sources synced</p></div><div className="hidden items-center gap-2 sm:flex"><span className="rounded-md bg-secondary px-2 py-1 text-[10px] text-muted-foreground">EUR</span><span className="rounded-md bg-chart-4/10 px-2 py-1 text-[10px] text-chart-4">5 sources connected</span></div></div><div className="mb-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">{metrics.map(metric => <article key={metric.label} className="group rounded-2xl border border-border/[.08] bg-[var(--card)] p-4 transition hover:-translate-y-0.5 hover:border-border/30"><div className="flex items-start justify-between"><p className="text-xs text-muted-foreground">{metric.label}</p><Badge>{metric.source}</Badge></div><p className="mt-4 text-xl font-semibold tracking-tight text-foreground">{metric.value}</p><p className="mt-1 text-[11px] text-muted-foreground">Prev. {metric.previous}</p><div className="mt-3 flex items-end justify-between"><span className="flex items-center gap-1 text-xs font-semibold text-chart-4"><ArrowUpRight size={13} />{metric.change}</span><Sparkline /></div></article>)}</div>
+  return <main className="min-h-screen bg-[var(--background)] text-foreground"><div className="flex min-h-screen"><Sidebar /><div className="min-w-0 flex-1"><header className="sticky top-0 z-10 flex min-h-[70px] items-center justify-between border-b border-border/[.07] bg-[var(--background)]/95 px-5 backdrop-blur-xl lg:px-8"><div className="flex items-center gap-3"><button className="rounded-lg p-2 text-foreground lg:hidden" aria-label="Open navigation"><Menu size={19} /></button><p className="text-xs text-muted-foreground">Intelligence <span className="mx-1 text-foreground">/</span> Business Intelligence <span className="mx-1 text-foreground">/</span> <span className="text-foreground">Sales</span></p></div><div className="flex items-center gap-2"><button className="hidden rounded-lg border border-border p-2 text-foreground sm:block" aria-label="Search"><Search size={17} /></button><button className="rounded-lg border border-border p-2 text-foreground" aria-label="Notifications"><Bell size={17} /></button><div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-primary text-xs font-bold text-[var(--primary-foreground)]">LS</div></div></header><div className="mx-auto max-w-[1450px] px-5 py-7 lg:px-8"><div className="mb-8 flex flex-col justify-between gap-6 xl:flex-row xl:items-end"><div><div className="mb-3 flex items-center gap-2 text-xs font-medium text-foreground"><span className="h-1.5 w-1.5 rounded-full bg-primary text-primary-foreground" />Live intelligence</div><h1 className="text-4xl font-bold tracking-[-.04em] text-foreground sm:text-5xl">Sales</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Understand sales performance, pipeline development, conversion and revenue generation.</p></div><div className="flex flex-wrap items-center gap-2"><select value={date} onChange={e => setDate(e.target.value)} className="rounded-lg border border-border bg-[var(--secondary)] px-3 py-2 text-xs font-medium text-foreground" aria-label="Date range">{['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Last 90 Days', 'Last 12 Months', 'Year to Date', 'Previous Year', 'Custom Range'].map(item => <option key={item}>{item}</option>)}</select><button className="hidden rounded-lg border border-border bg-secondary px-3 py-2 text-xs text-foreground md:block">Compare: Previous Year <ChevronDown size={13} className="ml-1 inline" /></button><button className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-lg shadow-black/20 hover:bg-primary"><Bot size={14} />Ask Lulu AI</button><button className="rounded-lg border border-border p-2 text-foreground" aria-label="Refresh data"><RefreshCw size={15} /></button><button className="hidden rounded-lg border border-border px-3 py-2 text-xs text-foreground md:block"><FilePlus2 size={14} className="mr-1 inline" />Create Report</button><button className="rounded-lg border border-border p-2 text-foreground" aria-label="Export"><Download size={15} /></button></div></div><div className="mb-8 flex items-center justify-between border-y border-border/[.07] py-3"><div><p className="text-[10px] font-semibold uppercase tracking-[.18em] text-muted-foreground">Sales overview</p><p className="mt-1 text-xs text-muted-foreground">Last updated 2 minutes ago · All sources synced</p></div><div className="hidden items-center gap-2 sm:flex"><span className="rounded-md bg-secondary px-2 py-1 text-[10px] text-muted-foreground">EUR</span><span className="rounded-md bg-chart-4/10 px-2 py-1 text-[10px] text-chart-4">5 sources connected</span></div></div><div className="mb-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">{liveLoading ? <div className="col-span-full rounded-2xl border border-border/[.08] bg-[var(--card)] p-5 text-sm text-muted-foreground">Loading live sales intelligence…</div> : liveError ? <div className="col-span-full rounded-2xl border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">{liveError}</div> : liveEmpty ? <div className="col-span-full rounded-2xl border border-dashed border-border/[.18] bg-[var(--card)] p-8 text-center text-sm text-muted-foreground">No live sales records are available yet. Connect a CRM platform or add sales deals to begin.</div> : metrics.map(metric => <article key={metric.label} className="group rounded-2xl border border-border/[.08] bg-[var(--card)] p-4 transition hover:-translate-y-0.5 hover:border-border/30"><div className="flex items-start justify-between"><p className="text-xs text-muted-foreground">{metric.label}</p><Badge>{metric.source}</Badge></div><p className="mt-4 text-xl font-semibold tracking-tight text-foreground">{metric.value}</p><p className="mt-1 text-[11px] text-muted-foreground">Prev. {metric.previous}</p><div className="mt-3 flex items-end justify-between"><span className="flex items-center gap-1 text-xs font-semibold text-chart-4"><ArrowUpRight size={13} />{metric.change}</span><Sparkline /></div></article>)}</div>
 
-<Section title="Sales Trend" eyebrow="12 month performance" className="mb-5"><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div className="flex gap-4 text-[11px] text-muted-foreground"><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-primary text-primary-foreground" />Sales Revenue</span><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-primary text-primary-foreground" />Won Revenue</span><span><i className="mr-2 inline-block h-2 w-2 rounded-full border border-dashed border-border" />Pipeline</span></div><div className="flex gap-1 rounded-lg border border-border/[.07] p-1">{['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'].map(item => <button key={item} onClick={() => setPeriod(item)} className={`rounded-md px-2.5 py-1 text-[11px] ${period === item ? 'bg-primary text-primary-foreground' : 'text-primary-foreground'}`}>{item}</button>)}</div></div><div className="grid grid-cols-12 items-end gap-2 border-b border-l border-border/[.08] bg-[linear-gradient(rgba(0,0,0,.035)_1px,transparent_1px)] bg-[length:100%_38px] px-3 pt-7" style={{
+<Section title="Sales Trend" eyebrow="12 month performance" className="mb-5"><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div className="flex gap-4 text-[11px] text-muted-foreground"><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-primary text-primary-foreground" />Sales Revenue</span><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-primary text-primary-foreground" />Won Revenue</span><span><i className="mr-2 inline-block h-2 w-2 rounded-full border border-dashed border-border" />Pipeline</span></div><div className="flex gap-1 rounded-lg border border-border/[.07] p-1">{['Daily', 'Weekly', 'Monthly', 'Quarterly', 'Yearly'].map(item => <button key={item} onClick={() => setPeriod(item)} className={`rounded-md px-2.5 py-1 text-[11px] ${period === item ? 'bg-primary text-primary-foreground' : 'text-primary-foreground'}`}>{item}</button>)}</div></div>{liveEmpty ? <div className="rounded-xl border border-dashed border-border/[.18] p-8 text-center text-sm text-muted-foreground">No live sales trend data is available yet.</div> : <div className="grid grid-cols-12 items-end gap-2 border-b border-l border-border/[.08] bg-[linear-gradient(rgba(0,0,0,.035)_1px,transparent_1px)] bg-[length:100%_38px] px-3 pt-7" style={{
               height: 260
             }}>{months.map(item => <div key={item.n} className="flex h-full flex-col items-center justify-end gap-2"><div className="flex h-[calc(100%-22px)] w-full items-end justify-center gap-1"><div className="w-1/2 rounded-t bg-secondary/80" style={{
                     height: `${item.revenue}%`
                   }} /><div className="w-1/3 rounded-t bg-secondary/70" style={{
                     height: `${item.deals}%`
-                  }} /></div><span className="text-[10px] text-muted-foreground">{item.n}</span></div>)}</div><p className="mt-3 text-[11px] text-muted-foreground">Revenue €3.84M · Closed deals 156 · Lost revenue shown below baseline · Comparison overlay: Previous Year</p></Section>
+                  }} /></div><span className="text-[10px] text-muted-foreground">{item.n}</span></div>)}</div>}<p className="mt-3 text-[11px] text-muted-foreground">{liveEmpty ? 'No live trend data is available yet.' : `Live pipeline value ${livePipelineValue.toLocaleString()} · ${liveDealCount} deals`}</p></Section>
 <div className="mb-5 grid gap-5 xl:grid-cols-3"><Section title="Sales Growth" eyebrow="Momentum"><div className="mb-4 flex items-center gap-2"><span className="rounded-full bg-chart-4/10 px-2.5 py-1 text-xs font-semibold text-chart-4">Accelerating</span><span className="text-xs text-muted-foreground">vs previous year</span></div><div className="grid grid-cols-2 gap-4">{[['Sales Revenue Growth', '+17.1%'], ['Pipeline Growth', '+21.9%'], ['Deal Volume Growth', '+12.4%'], ['New Business Growth', '+22.6%'], ['Existing Business Growth', '+8.4%']].map(item => <div key={item[0]}><p className="text-[11px] text-muted-foreground">{item[0]}</p><p className="mt-1 text-lg font-semibold text-foreground">{item[1]}</p></div>)}</div><div className="mt-5 flex flex-wrap gap-1">{['Accelerating', 'Growing', 'Stable', 'Slowing', 'Declining', 'Volatile'].map((item, index) => <span key={item} className={`rounded px-2 py-1 text-[10px] ${index === 0 ? 'bg-chart-4/10 text-chart-4' : 'bg-secondary text-muted-foreground'}`}>{item}</span>)}</div></Section><Section title="Pipeline Coverage" eyebrow="Calculated — Qualified Pipeline / Sales Target"><div className="flex items-center gap-6"><div className="grid h-32 w-32 shrink-0 place-items-center rounded-full" style={{
                   background: 'conic-gradient(var(--primary) 0 53%, var(--secondary) 53% 100%)'
                 }}><div className="grid h-24 w-24 place-items-center rounded-full bg-[var(--secondary)]"><strong className="text-3xl text-foreground">1.6×</strong></div></div><div><p className="text-[11px] text-muted-foreground">Target Coverage</p><p className="text-lg font-semibold text-foreground">3.0×</p><p className="mt-1 text-xs text-foreground">Gap −1.4×</p></div></div><div className="mt-5 space-y-2 text-xs">{[['Enterprise', '2.4×'], ['Mid-Market', '1.8×'], ['SMB', '0.9×']].map(item => <div key={item[0]} className="flex justify-between border-b border-border/[.05] pb-2"><span className="text-muted-foreground">{item[0]}</span><strong className="text-foreground">{item[1]}</strong></div>)}</div><p className="mt-4 text-[11px] text-muted-foreground">Sales targets are organization-defined.</p></Section><Section title="Pipeline Movement" eyebrow="Net movement analysis"><div className="space-y-3 text-xs">{[['New Opportunities', '+82 · +€2,108,000', 'text-chart-4'], ['Opportunities Advanced', '+124', 'text-chart-4'], ['Opportunities Stalled', '38 deals', 'text-foreground'], ['Opportunities Won', '+156 · +€3,840,000', 'text-foreground'], ['Opportunities Lost', '−84 · −€2,184,000', 'text-chart-5'], ['Opportunities Removed', '−12 · −€312,000', 'text-chart-5']].map(item => <div key={item[0]} className="flex justify-between border-b border-border/[.05] pb-3"><span className="text-muted-foreground">{item[0]}</span><strong className={item[2]}>{item[1]}</strong></div>)}</div><div className="mt-5 flex h-12 items-end gap-1">{[32, 40, 27, 44, 38, 52, 46, 64, 58, 70, 76, 84].map((h, i) => <div key={`movement-${i}`} className="flex-1 rounded-t bg-gradient-to-t from-primary to-primary text-primary-foreground" style={{
