@@ -1,7 +1,8 @@
-name: Frontend veröffentlichen
+name: Frontend und Backend veröffentlichen
 
 on:
   push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -12,24 +13,54 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v6
+      - name: Frontend auschecken
+        uses: actions/checkout@v6
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
-      - run: npm ci
-      - run: npm run build
+      - name: Frontend installieren und bauen
+        run: |
+          npm ci
+          npm run build
+
+      - name: Backend auschecken
+        uses: actions/checkout@v6
+        with:
+          repository: davidk15042001/Lulu-Growth-OS-Backend
+          ref: main
+          path: backend-source
+
+      - name: Backend-Abhängigkeiten prüfen
+        working-directory: backend-source
+        run: |
+          npm ci
+          npm run typecheck
+          npm run build
 
       - name: SSH einrichten
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
         run: |
+          set -euo pipefail
+          test -n "$DEPLOY_HOST" || { echo 'DEPLOY_HOST is missing'; exit 1; }
+          test -n "$DEPLOY_SSH_KEY" || { echo 'DEPLOY_SSH_KEY is missing'; exit 1; }
           mkdir -p ~/.ssh
-          echo "$DEPLOY_SSH_KEY" > ~/.ssh/id_ed25519
+          printf '%s\n' "$DEPLOY_SSH_KEY" | sed 's/\r$//; s/\\n/\n/g' > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
+          if ! ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null 2>&1; then
+            if printf '%s' "$DEPLOY_SSH_KEY" | tr -d '\r\n ' | base64 --decode > ~/.ssh/id_ed25519.base64 2>/dev/null \
+              && chmod 600 ~/.ssh/id_ed25519.base64 \
+              && ssh-keygen -y -f ~/.ssh/id_ed25519.base64 >/dev/null 2>&1; then
+              mv ~/.ssh/id_ed25519.base64 ~/.ssh/id_ed25519
+            else
+              echo 'DEPLOY_SSH_KEY is neither a valid OpenSSH key nor valid base64-encoded key material.'
+              exit 1
+            fi
+          fi
           ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
 
       - name: Frontend hochladen
@@ -37,5 +68,21 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
+          set -euo pipefail
+          test -n "$DEPLOY_USER" || { echo 'DEPLOY_USER is missing'; exit 1; }
           rsync -az --delete dist/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-ai.cn/html/"
+
+      - name: Backend hochladen, migrieren und starten
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          rsync -az --delete \
+            --exclude .env \
+            --exclude node_modules \
+            backend-source/ \
+            "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" \
+            'set -e; cd /var/www/lulu-growth-os/backend; npm ci; npm run build; npm run migrate; sudo systemctl restart lulu-growth-backend; sleep 3; sudo systemctl is-active --quiet lulu-growth-backend; git rev-parse --short HEAD'
