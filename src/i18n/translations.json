@@ -20021,7 +20021,10 @@
     "Store performance data could not be loaded. Check the connected ecommerce platforms and try again.": "Die Leistungsdaten des Shops konnten nicht geladen werden. Überprüfen Sie die verbundenen E‑Commerce‑Plattformen und versuchen Sie es erneut.",
     "No revenue records are available yet.": "Es sind noch keine Umsatzaufzeichnungen verfügbar.",
     "Requires prior-period data": "Erfordert Daten aus Vorperioden",
-    "Revenue intelligence data could not be loaded. Check finance records and try again.": "Revenue Intelligence-Daten konnten nicht geladen werden. Überprüfen Sie die Finanzunterlagen und versuchen Sie es erneut."
+    "Revenue intelligence data could not be loaded. Check finance records and try again.": "Revenue Intelligence-Daten konnten nicht geladen werden. Überprüfen Sie die Finanzunterlagen und versuchen Sie es erneut.",
+    "Billing administrator": "Abrechnungsadministrator",
+    "Billing data could not be loaded. Check invoices and payments, then try again.": "Abrechnungsdaten konnten nicht geladen werden. Überprüfen Sie Rechnungen und Zahlungen und versuchen Sie es erneut.",
+    "No billing records are available yet.": "Es sind noch keine Abrechnungsunterlagen verfügbar."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40073,7 +40076,10 @@
     "Store performance data could not be loaded. Check the connected ecommerce platforms and try again.": "无法加载店铺绩效数据。请检查已连接的电商平台并重试。",
     "No revenue records are available yet.": "尚无收入记录。",
     "Requires prior-period data": "需要上一期间的数据",
-    "Revenue intelligence data could not be loaded. Check finance records and try again.": "无法加载收入智能数据。请检查财务记录后重试。"
+    "Revenue intelligence data could not be loaded. Check finance records and try again.": "无法加载收入智能数据。请检查财务记录后重试。",
+    "Billing administrator": "计费管理员",
+    "Billing data could not be loaded. Check invoices and payments, then try again.": "无法加载计费数据。请检查发票和付款，然后重试。",
+    "No billing records are available yet.": "暂无计费记录。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
