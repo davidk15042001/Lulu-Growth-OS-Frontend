@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { ArrowDownRight, ArrowUpRight, Bell, Bot, CalendarDays, ChevronDown, ChevronRight, FileText, Filter, Gauge, KanbanSquare, LayoutDashboard, Mail, MoreHorizontal, Plus, Search, Settings2, ShieldAlert, Sparkles, Target, TrendingUp, Users, X, CheckCircle2, AlertTriangle, DollarSign, Menu, Activity, Zap } from 'lucide-react';
 type Tone = 'positive' | 'negative' | 'warning' | 'neutral' | 'ai' | 'forecast';
 interface Kpi {
@@ -88,170 +89,14 @@ const navGroups = [{
     label: 'Commissions'
   }]
 }];
-const kpis: Kpi[] = [{
-  label: 'Revenue',
-  value: '€1,240,000',
-  delta: '12.4%',
-  tone: 'positive',
-  points: '18,24,20,32,35,40,44,51,49,62'
-}, {
-  label: 'New Revenue',
-  value: '€380,000',
-  delta: '8.1%',
-  tone: 'positive',
-  points: '16,19,17,23,28,25,33,36,39,42'
-}, {
-  label: 'Pipeline Value',
-  value: '€4,820,000',
-  delta: '5.3%',
-  tone: 'positive',
-  points: '30,28,35,32,42,39,48,51,55,60'
-}, {
-  label: 'Weighted Pipeline',
-  value: '€2,140,000',
-  delta: '2.1%',
-  tone: 'negative',
-  note: 'Calculated',
-  points: '55,51,52,47,49,44,43,39,41,37'
-}, {
-  label: 'Won Deals',
-  value: '47',
-  delta: '6',
-  tone: 'positive',
-  points: '20,21,25,24,28,34,31,39,42,48'
-}, {
-  label: 'Lost Deals',
-  value: '18',
-  delta: '3',
-  tone: 'negative',
-  points: '46,44,42,40,39,37,34,33,30,28'
-}, {
-  label: 'Win Rate',
-  value: '72.3%',
-  delta: '4.2%',
-  tone: 'positive',
-  points: '38,41,40,47,50,49,57,60,65,72'
-}, {
-  label: 'Avg Deal Size',
-  value: '€26,383',
-  delta: '3.8%',
-  tone: 'positive'
-}, {
-  label: 'Sales Cycle',
-  value: '24 days',
-  delta: '2 days',
-  tone: 'positive'
-}, {
-  label: 'Target Achievement',
-  value: '62%',
-  delta: '5%',
-  tone: 'positive',
-  points: '32,36,38,41,44,47,53,55,58,62'
-}];
-const stages: Stage[] = [{
-  name: 'Lead',
-  value: '€120,000',
-  opps: '34 opps',
-  conversion: '100%',
-  time: '4 days',
-  color: 'var(--foreground)'
-}, {
-  name: 'Qualified',
-  value: '€280,000',
-  opps: '28 opps',
-  conversion: '82%',
-  time: '8 days',
-  color: 'var(--foreground)'
-}, {
-  name: 'Proposal',
-  value: '€450,000',
-  opps: '22 opps',
-  conversion: '79%',
-  time: '11 days',
-  color: 'var(--foreground)'
-}, {
-  name: 'Negotiation',
-  value: '€310,000',
-  opps: '15 opps',
-  conversion: '68%',
-  time: '16 days',
-  color: 'var(--foreground)'
-}, {
-  name: 'Closed Won',
-  value: '€520,000',
-  opps: '47 opps',
-  conversion: '72%',
-  time: '24 days',
-  color: 'var(--foreground)'
-}];
-const reps: Rep[] = [{
-  name: 'Sarah Chen',
-  initials: 'SC',
-  color: 'var(--foreground)',
-  revenue: '€340,000',
-  target: '€400,000',
-  achievement: 85,
-  won: 14,
-  lost: 3,
-  pipeline: '€920,000',
-  win: '82%',
-  avg: '€24,286',
-  cycle: '21d'
-}, {
-  name: 'Marcus Rodriguez',
-  initials: 'MR',
-  color: 'var(--foreground)',
-  revenue: '€284,000',
-  target: '€350,000',
-  achievement: 81,
-  won: 12,
-  lost: 2,
-  pipeline: '€760,000',
-  win: '84%',
-  avg: '€23,667',
-  cycle: '19d'
-}, {
-  name: 'James Park',
-  initials: 'JP',
-  color: 'var(--foreground)',
-  revenue: '€246,000',
-  target: '€330,000',
-  achievement: 75,
-  won: 9,
-  lost: 5,
-  pipeline: '€680,000',
-  win: '64%',
-  avg: '€27,333',
-  cycle: '29d'
-}, {
-  name: 'Emma Wilson',
-  initials: 'EW',
-  color: 'var(--foreground)',
-  revenue: '€218,000',
-  target: '€320,000',
-  achievement: 68,
-  won: 8,
-  lost: 4,
-  pipeline: '€1,240,000',
-  win: '67%',
-  avg: '€27,250',
-  cycle: '25d'
-}, {
-  name: 'Tom Mitchell',
-  initials: 'TM',
-  color: 'var(--foreground)',
-  revenue: '€152,000',
-  target: '€300,000',
-  achievement: 51,
-  won: 4,
-  lost: 4,
-  pipeline: '€520,000',
-  win: '50%',
-  avg: '€38,000',
-  cycle: '31d'
-}];
-const activities = [['Deal Won', 'Acme Corp', 'Sarah Chen', '2h ago', 'green'], ['Stage Changed', 'TechVision deal → Negotiation', 'Marcus R.', '3h ago', 'purple'], ['Meeting Completed', 'Discovery call with DataFlow', 'James P.', '4h ago', 'blue'], ['Deal Created', 'CloudBase · €45,000', 'Emma W.', '5h ago', 'violet'], ['Task Completed', 'Follow-up with RetailMax', 'Tom M.', '6h ago', 'amber'], ['Note Added', 'Opportunity updated', 'Sarah C.', '8h ago', 'slate']];
-const periodOptions = ['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Month to Date', 'Previous Month', 'Quarter to Date', 'Previous Quarter', 'Year to Date', 'Previous Year', 'Custom Range'];
+const kpis: Kpi[] = [];
+
+const stages: Stage[] = [];
+
+const reps: Rep[] = [];
+
+const activities: string[][] = [];
+
 function Badge({
   children,
   tone = 'neutral'
@@ -289,6 +134,8 @@ function Sparkline({
   const coords = points.split(',').map((point, index) => `${index * 11},${62 - Number(point)}`).join(' ');
   return <svg viewBox="0 0 100 64" className="h-10 w-20" role="img" aria-label="Trend sparkline"><polyline points={coords} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>;
 }
+const periodOptions = ['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Last 90 Days', 'Last 12 Months', 'Year to Date'];
+
 export function SalesOverview() {
   const [period, setPeriod] = useState('Last 30 Days');
   const [periodOpen, setPeriodOpen] = useState(false);
@@ -296,6 +143,8 @@ export function SalesOverview() {
   const [mobileNav, setMobileNav] = useState(false);
   const [chartPeriod, setChartPeriod] = useState('Weekly');
   const [search, setSearch] = useState('');
+  const { items: liveDeals, loading: liveLoading, error: liveError } = useLiveRecords('sales_deals');
+  const liveEmpty = !liveLoading && !liveError && liveDeals.length === 0;
   const filteredTeams = useMemo(() => ['Entire Sales Team', 'Enterprise', 'Mid-Market', 'Commercial'].filter(team => team.toLowerCase().includes(search.toLowerCase())), [search]);
   return <div className="min-h-screen bg-[var(--background)] text-foreground">
     <aside className={`fixed inset-y-0 left-0 z-20 w-[244px] bg-[var(--sidebar)] text-foreground transition-transform lg:translate-x-0 ${mobileNav ? 'translate-x-0' : '-translate-x-full'}`}><div className="mb-5 flex items-center gap-3 px-2 py-3"><div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-lg font-bold text-primary-foreground">L</div><span className="font-semibold text-foreground">Lulu AI</span></div><LuluSectionNavigation activeId="fine-park-8079" /></aside>
@@ -305,7 +154,7 @@ export function SalesOverview() {
                 setPeriod(option);
                 setPeriodOpen(false);
               }} className={`w-full rounded-md px-3 py-2 text-left text-xs ${period === option ? 'bg-secondary font-semibold text-foreground' : 'text-foreground hover:bg-card'}`}>{option}</button>)}</div>}</div><div className="relative"><button onClick={() => setTeamOpen(!teamOpen)} className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2.5 text-sm font-medium text-foreground shadow-sm"><Users size={16} className="text-muted-foreground" />Entire Sales Team<ChevronDown size={15} className="text-muted-foreground" /></button>{teamOpen && <div className="absolute left-0 top-12 z-10 w-56 rounded-lg border border-border bg-card p-2 shadow-xl"><div className="mb-1 flex items-center gap-2 rounded-md border border-border px-2"><Search size={14} className="text-muted-foreground" /><input autoFocus value={search} onChange={event => setSearch(event.target.value)} placeholder="Search teams" className="w-full py-2 text-xs outline-none" /></div>{filteredTeams.map(team => <button key={team} onClick={() => setTeamOpen(false)} className="w-full rounded-md px-2 py-2 text-left text-xs text-foreground hover:bg-card">{team}</button>)}</div>}</div><span className="ml-auto hidden items-center gap-1.5 text-xs text-muted-foreground md:flex"><span className="h-2 w-2 rounded-full bg-primary text-primary-foreground" />Updated just now</span></div>
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">{kpis.map(kpi => <Card key={kpi.label} className="p-4"><div className="flex items-start justify-between gap-2"><p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>{kpi.note && <Badge tone="forecast">{kpi.note}</Badge>}</div><p className="mt-3 text-xl font-bold tracking-[-.03em] text-foreground">{kpi.value}</p><div className="mt-2 flex items-center justify-between"><span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${kpi.tone === 'negative' ? 'text-chart-5' : 'text-chart-4'}`}>{kpi.tone === 'negative' ? <ArrowDownRight size={14} /> : <ArrowUpRight size={14} />}{kpi.delta} <span className="font-normal text-muted-foreground">vs prev</span></span>{kpi.points && <Sparkline points={kpi.points} tone={kpi.tone} />}</div>{kpi.label === 'Target Achievement' && <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-secondary"><div className="h-full w-[62%] rounded-full bg-primary text-primary-foreground" /></div>}</Card>)}</div>
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5">{liveLoading ? <div className="col-span-full rounded-xl border border-border bg-card p-6 text-sm text-muted-foreground">Loading live sales overview…</div> : liveError ? <div className="col-span-full rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">{liveError}</div> : liveEmpty ? <div className="col-span-full rounded-xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">No live sales records are available yet. Connect a CRM platform or add deals to begin.</div> : kpis.map(kpi => <Card key={kpi.label} className="p-4"><div className="flex items-start justify-between gap-2"><p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>{kpi.note && <Badge tone="forecast">{kpi.note}</Badge>}</div><p className="mt-3 text-xl font-bold tracking-[-.03em] text-foreground">{kpi.value}</p><div className="mt-2 flex items-center justify-between"><span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${kpi.tone === 'negative' ? 'text-chart-5' : 'text-chart-4'}`}>{kpi.tone === 'negative' ? <ArrowDownRight size={14} /> : <ArrowUpRight size={14} />}{kpi.delta}<span className="font-normal text-muted-foreground">vs prev</span></span>{kpi.points && <Sparkline points={kpi.points} tone={kpi.tone} />}</div></Card>)}</div>
         <div className="mt-5 grid gap-5 xl:grid-cols-3"><Card className="p-5 xl:col-span-1"><div className="flex items-start justify-between"><div><div className="flex items-center gap-2"><h2 className="font-semibold text-foreground">Sales Health Score</h2><Badge tone="ai">AI / Calculated</Badge></div><p className="mt-1 text-xs text-muted-foreground">A composite view of your sales engine</p></div><span className="rounded-full bg-chart-4/10 px-2.5 py-1 text-xs font-bold text-chart-4">Healthy</span></div><div className="mt-5 flex items-center gap-5"><div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-[9px] border-border border-t-border"><div className="text-center"><p className="text-2xl font-bold text-foreground">84</p><p className="text-[10px] text-muted-foreground">/ 100</p></div></div><div className="w-full space-y-2.5">{[['Revenue Performance', 88], ['Pipeline Health', 79], ['Conversion', 85], ['Sales Velocity', 76], ['Forecast Accuracy', 91], ['Activity Level', 82]].map(([label, score]) => <div key={String(label)}><div className="mb-1 flex justify-between text-[11px]"><span className="text-muted-foreground">{label}</span><strong className="text-foreground">{score}</strong></div><div className="h-1.5 rounded-full bg-secondary"><div className="h-full rounded-full bg-primary text-primary-foreground" style={{
                       width: `${score}%`
                     }} /></div></div>)}</div></div></Card><Card className="p-5 xl:col-span-2"><div className="flex flex-wrap items-center justify-between gap-3"><div><div className="flex items-center gap-2"><h2 className="font-semibold text-foreground">Revenue Performance</h2><Badge>Actual</Badge><Badge tone="forecast">Forecast</Badge></div><p className="mt-1 text-xs text-muted-foreground">Revenue against target and previous period</p></div><div className="flex rounded-lg bg-secondary p-1">{['Daily', 'Weekly', 'Monthly', 'Quarterly'].map(item => <button key={item} onClick={() => setChartPeriod(item)} className={`rounded-md px-2.5 py-1.5 text-[11px] font-medium ${chartPeriod === item ? 'bg-card text-foreground shadow-sm' : 'text-foreground'}`}>{item}</button>)}</div></div><div className="mt-5 h-[190px] w-full"><svg viewBox="0 0 700 190" className="h-full w-full" preserveAspectRatio="none" role="img" aria-label="Revenue performance chart"><defs><linearGradient id="purpleArea" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor="var(--chart-2)" stopOpacity=".28" /><stop offset="1" stopColor="var(--chart-2)" stopOpacity="0" /></linearGradient></defs><path d="M0 150 C70 135,80 130,140 138 S210 95,270 112 S350 78,410 96 S500 45,555 65 S640 31,700 42 V190 H0Z" fill="url(#purpleArea)" /><path d="M0 150 C70 135,80 130,140 138 S210 95,270 112 S350 78,410 96 S500 45,555 65 S640 31,700 42" fill="none" stroke="var(--chart-2)" strokeWidth="3" /><path d="M0 120 C85 112,115 108,180 116 S280 92,350 100 S480 70,550 82 S640 61,700 60" fill="none" stroke="var(--border)" strokeWidth="2" strokeDasharray="5 6" /><path d="M0 165 C90 148,120 150,190 142 S280 122,350 130 S470 105,540 112 S620 92,700 98" fill="none" stroke="var(--border)" strokeWidth="2" /><g className="fill-muted-foreground text-[10px]"><text x="0" y="188">01 Jun</text><text x="220" y="188">08 Jun</text><text x="440" y="188">15 Jun</text><text x="650" y="188">30 Jun</text></g></svg></div><div className="mt-1 flex gap-5 text-[11px] text-muted-foreground"><span className="flex items-center gap-2"><i className="h-2 w-2 rounded-full bg-primary text-primary-foreground" />Actual Revenue</span><span className="flex items-center gap-2"><i className="h-2 w-2 rounded-full border border-border" />Target Revenue</span><span className="flex items-center gap-2"><i className="h-2 w-2 rounded-full bg-muted" />Previous Period</span></div></Card></div>

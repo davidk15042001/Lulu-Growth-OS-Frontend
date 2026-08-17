@@ -19900,7 +19900,9 @@
     "Loading live sales intelligence…": "Live-Sales-Intelligence wird geladen…",
     "No live sales records are available yet. Connect a CRM platform or add sales deals to begin.": "Für Live-Sales-Daten sind noch keine Einträge vorhanden. Verbinden Sie eine CRM-Plattform oder fügen Sie Sales-Deals hinzu, um zu beginnen.",
     "No live sales trend data is available yet.": "Für Live-Sales-Trenddaten sind noch keine Einträge vorhanden.",
-    "No live trend data is available yet.": "Für Live-Trenddaten sind noch keine Einträge vorhanden."
+    "No live trend data is available yet.": "Für Live-Trenddaten sind noch keine Einträge vorhanden.",
+    "Loading live sales overview…": "Lade Live‑Verkaufsübersicht…",
+    "No live sales records are available yet. Connect a CRM platform or add deals to begin.": "Es sind noch keine Live‑Verkaufsdaten verfügbar. Verbinden Sie eine CRM‑Plattform oder fügen Sie Deals hinzu, um zu beginnen."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39831,7 +39833,9 @@
     "Loading live sales intelligence…": "正在加载实时销售情报…",
     "No live sales records are available yet. Connect a CRM platform or add sales deals to begin.": "尚无实时销售记录。连接 CRM 平台或添加销售项目以开始。",
     "No live sales trend data is available yet.": "尚无实时销售趋势数据。",
-    "No live trend data is available yet.": "尚无实时趋势数据。"
+    "No live trend data is available yet.": "尚无实时趋势数据。",
+    "Loading live sales overview…": "正在加载实时销售概览…",
+    "No live sales records are available yet. Connect a CRM platform or add deals to begin.": "尚无实时销售记录。连接 CRM 平台或添加交易以开始。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
