@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, Archive, ArrowDownToLine, ArrowUpRight, BarChart3, Bell, Box, CalendarDays, Check, CheckCircle2, CheckSquare2, ChevronDown, CircleHelp, Clock3, Copy, Download, Ellipsis, FileBarChart, Filter, Filter as Funnel, FolderOpen, Gauge, KanbanSquare, LayoutDashboard, ListFilter, Map, Menu, MoreHorizontal, Package, Pencil, Pin, Plus, Search, Settings, Share2, ShieldCheck, SlidersHorizontal, Sparkles, Target, TrendingUp, Users, UsersRound, X, Zap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 type Report = {
@@ -26,198 +27,9 @@ type ActivityItem = {
   time: string;
   ai?: boolean;
 };
-const reports: Report[] = [{
-  name: 'Monthly Revenue Report',
-  category: 'Revenue',
-  owner: 'David Chen',
-  updated: 'Today',
-  schedule: 'Monthly',
-  shared: 'Sales Leadership',
-  status: 'Active',
-  views: 24
-}, {
-  name: 'Q4 Pipeline Summary',
-  category: 'Pipeline',
-  owner: 'Sarah Kim',
-  updated: 'Yesterday',
-  schedule: 'Quarterly',
-  shared: 'All Sales',
-  status: 'Active',
-  views: 18
-}, {
-  name: 'Deal Performance — Oct',
-  category: 'Deal',
-  owner: 'Marcus Reid',
-  updated: '2d ago',
-  schedule: 'None',
-  shared: 'Private',
-  status: 'Draft',
-  views: 3
-}, {
-  name: 'Top Products by Revenue',
-  category: 'Product',
-  owner: 'Elena Vasquez',
-  updated: '1w ago',
-  schedule: 'Monthly',
-  shared: 'Organization',
-  status: 'Active',
-  views: 41
-}, {
-  name: 'Team Activity Report',
-  category: 'Activity',
-  owner: 'David Chen',
-  updated: 'Today',
-  schedule: 'Weekly',
-  shared: 'Sales Team',
-  status: 'Active',
-  views: 15
-}, {
-  name: 'Win/Loss Analysis Q3',
-  category: 'Conversion',
-  owner: 'Sarah Kim',
-  updated: '3d ago',
-  schedule: 'None',
-  shared: 'Team',
-  status: 'Active',
-  views: 9
-}, {
-  name: 'Territory Performance',
-  category: 'Territory',
-  owner: 'Marcus Reid',
-  updated: '1w ago',
-  schedule: 'Quarterly',
-  shared: 'Leadership',
-  status: 'Archived',
-  views: 7
-}, {
-  name: 'Customer Revenue Trends',
-  category: 'Customer',
-  owner: 'Elena Vasquez',
-  updated: '2w ago',
-  schedule: 'Monthly',
-  shared: 'Organization',
-  status: 'Active',
-  views: 33
-}, {
-  name: 'Forecast Accuracy — AI',
-  category: 'Forecast',
-  owner: 'AI Generated',
-  updated: 'Today',
-  schedule: 'None',
-  shared: 'Leadership',
-  status: 'Active',
-  views: 11,
-  ai: true
-}, {
-  name: 'Lead Conversion Funnel',
-  category: 'Conversion',
-  owner: 'Sarah Kim',
-  updated: '5d ago',
-  schedule: 'Weekly',
-  shared: 'Sales Team',
-  status: 'Active',
-  views: 22
-}];
-const categories: Category[] = [{
-  label: 'Revenue Reports',
-  count: 8,
-  icon: TrendingUp,
-  tone: 'var(--chart-2)'
-}, {
-  label: 'Pipeline Reports',
-  count: 5,
-  icon: KanbanSquare,
-  tone: 'var(--chart-1)'
-}, {
-  label: 'Deal Reports',
-  count: 4,
-  icon: CheckCircle2,
-  tone: 'var(--chart-3)'
-}, {
-  label: 'Opportunity Reports',
-  count: 3,
-  icon: Target,
-  tone: 'var(--chart-4)'
-}, {
-  label: 'Activity Reports',
-  count: 6,
-  icon: Activity,
-  tone: 'var(--chart-5)'
-}, {
-  label: 'Task Reports',
-  count: 2,
-  icon: CheckSquare2,
-  tone: 'var(--chart-2)'
-}, {
-  label: 'Customer Reports',
-  count: 4,
-  icon: Users,
-  tone: 'var(--chart-1)'
-}, {
-  label: 'Product Reports',
-  count: 3,
-  icon: Package,
-  tone: 'var(--chart-3)'
-}, {
-  label: 'Team Reports',
-  count: 5,
-  icon: UsersRound,
-  tone: 'var(--chart-4)'
-}, {
-  label: 'Territory Reports',
-  count: 2,
-  icon: Map,
-  tone: 'var(--chart-5)'
-}, {
-  label: 'Conversion Reports',
-  count: 3,
-  icon: Funnel,
-  tone: 'var(--chart-1)'
-}, {
-  label: 'Forecast Reports',
-  count: 2,
-  icon: BarChart3,
-  tone: 'var(--chart-2)'
-}, {
-  label: 'Custom Reports',
-  count: 7,
-  icon: SlidersHorizontal,
-  tone: 'var(--ai)'
-}];
-const activities: ActivityItem[] = [{
-  person: 'DC',
-  action: 'created',
-  report: 'Monthly Revenue Report',
-  time: '2h ago'
-}, {
-  person: 'SK',
-  action: 'shared',
-  report: 'Q4 Pipeline Summary',
-  detail: 'with Sales Leadership',
-  time: '4h ago'
-}, {
-  person: 'AI',
-  action: 'generated',
-  report: 'Forecast Accuracy Report',
-  time: 'Today',
-  ai: true
-}, {
-  person: 'EV',
-  action: 'exported',
-  report: 'Top Products by Revenue',
-  detail: 'as PDF',
-  time: 'Yesterday'
-}, {
-  person: 'MR',
-  action: 'updated schedule for',
-  report: 'Territory Performance',
-  time: '2d ago'
-}, {
-  person: 'DC',
-  action: 'viewed',
-  report: 'Team Activity Report',
-  time: '3h ago'
-}];
+const reports: Report[] = [];
+const categories: Category[] = [];
+const activities: ActivityItem[] = [];
 const navGroups = [{
   label: 'Workspace',
   items: [['Overview', LayoutDashboard], ['Executive Dashboard', Gauge]]
@@ -252,34 +64,52 @@ function Sidebar({
   return <aside className={`${open ? 'w-[244px]' : 'w-[72px]'} shrink-0 border-r border-border bg-card px-3 py-4 transition-all duration-200 max-md:fixed max-md:inset-y-0 max-md:left-0 max-md:z-20 ${open ? 'max-md:w-[244px]' : 'max-md:-translate-x-full'}`}>
     <div className="mb-8 flex items-center justify-between px-2"><div className="flex items-center gap-2.5"><div className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground"><Sparkles size={17} /></div>{open && <strong className="text-lg tracking-tight">lulu<span className="text-foreground">.</span></strong>}</div><button onClick={() => setOpen(!open)} aria-label="Collapse sidebar" className="rounded-md p-1.5 text-muted-foreground hover:bg-muted max-md:hidden"><Menu size={17} /></button></div>
     <LuluSectionNavigation activeId="rich-moon-9195" />
-    {open && <div className="absolute inset-x-3 bottom-4 border-t border-border pt-4"><button className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-muted"><span className="grid size-8 place-items-center rounded-full bg-[var(--sidebar-accent)] text-xs font-semibold text-[var(--sidebar-foreground)]">DC</span><span><strong className="block text-sm">David Chen</strong><span className="text-xs text-muted-foreground">Admin</span></span><ChevronDown size={15} className="ml-auto text-muted-foreground" /></button></div>}
+    {open && <div className="absolute inset-x-3 bottom-4 border-t border-border pt-4"><button className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-muted"><span className="grid size-8 place-items-center rounded-full bg-[var(--sidebar-accent)] text-xs font-semibold text-[var(--sidebar-foreground)]">DC</span><span><strong className="block text-sm">—</strong><span className="text-xs text-muted-foreground">Admin</span></span><ChevronDown size={15} className="ml-auto text-muted-foreground" /></button></div>}
   </aside>;
 }
 export function SalesReports() {
+  const { items: liveReports, loading: liveLoading, error: liveError } = useLiveRecords('sales_reports');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const liveReportRows: Report[] = liveReports.map((record) => {
+    const fields = record as unknown as Record<string, unknown>;
+    return {
+      name: String(record.name ?? fields.title ?? 'Untitled report'),
+      category: String(fields.category ?? 'Uncategorized'),
+      owner: String(fields.owner ?? '—'),
+      updated: String(record.updatedAt ?? fields.updated_at ?? '—'),
+      schedule: String(fields.schedule ?? '—'),
+      shared: String(fields.shared ?? '—'),
+      status: record.status === 'Draft' || record.status === 'Archived' ? record.status : 'Active',
+      views: Number(fields.views ?? 0),
+      ai: Boolean(fields.ai),
+    };
+  });
+
   const [query, setQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('');
   const [favorite, setFavorite] = useState<string | null>(null);
   const [aiPrompt, setAiPrompt] = useState('');
-  const filteredReports = reports.filter(report => report.name.toLowerCase().includes(query.toLowerCase()));
+  const filteredReports = liveReportRows.filter(report => report.name.toLowerCase().includes(query.toLowerCase()));
   return <div className="flex min-h-screen bg-background text-foreground"><Sidebar open={sidebarOpen} setOpen={setSidebarOpen} /><main className="min-w-0 flex-1"><header className="sticky top-0 z-10 border-b border-border bg-background/95 px-5 py-4 backdrop-blur md:px-8"><div className="mx-auto flex max-w-[1440px] items-start justify-between gap-4"><div className="flex items-start gap-3"><button onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle navigation" className="mt-1 rounded-md p-1.5 text-muted-foreground hover:bg-muted md:hidden"><Menu size={20} /></button><div><div className="mb-2 flex items-center gap-2 text-xs font-medium text-muted-foreground"><span>Sales</span><span>/</span><span className="text-foreground">Sales Reports</span></div><h1 className="text-2xl font-bold tracking-tight md:text-3xl">Sales Reports</h1><p className="mt-1 text-sm text-muted-foreground">Build, analyze and share structured reports across your sales organization.</p></div></div><div className="flex shrink-0 flex-wrap justify-end gap-2"><button className="hidden items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-sm font-semibold text-foreground sm:flex"><Sparkles size={16} />Ask Lulu AI</button><button className="hidden items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium hover:bg-muted sm:flex"><ArrowDownToLine size={16} />Import</button><button className="hidden items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium hover:bg-muted lg:flex"><Download size={16} />Export</button><button aria-label="More actions" className="rounded-lg border border-border bg-card p-2 hover:bg-muted"><MoreHorizontal size={18} /></button><button className="flex items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:opacity-90"><Plus size={16} />Create Report</button></div></div></header>
   <div className="mx-auto max-w-[1440px] space-y-6 px-5 py-6 md:px-8">
-    <section aria-label="Report summary" className="flex gap-3 overflow-x-auto pb-1">{[['Total Reports', '38', 'Recorded'], ['Scheduled Reports', '12', 'Active schedules'], ['Shared Reports', '21', 'Shared'], ['Recently Updated', '7', 'Last 7 days'], ['Most Viewed', 'Monthly Revenue Report', '124 views'], ['AI Reports', '9', 'AI-generated']].map(([label, value, sub], index) => <article key={label} className="min-w-[178px] flex-1 rounded-xl border border-border bg-card p-4 shadow-sm"><div className="flex items-start justify-between"><p className="text-xs font-medium text-muted-foreground">{label}</p>{index === 5 ? <Sparkles size={15} className="text-foreground" /> : <span className="text-xs text-[var(--success)]">{index < 4 ? ['+8.2%', '+2', '+4', '+3'][index] : ''}</span>}</div><strong className={`${index === 4 ? 'mt-3 text-base' : 'mt-2 text-2xl'} block tracking-tight`}>{value}</strong><div className="mt-2 flex items-center justify-between text-xs text-muted-foreground"><span>{sub}</span>{index < 4 && <Sparkline reverse={index === 3} />}</div></article>)}</section>
+    <section aria-label="Report summary" className="flex gap-3 overflow-x-auto pb-1">{[['Total Reports', String(liveReportRows.length), 'Recorded'], ['Scheduled Reports', String(liveReportRows.filter(report => report.schedule !== '—' && report.schedule !== 'None').length), 'Active schedules'], ['Shared Reports', String(liveReportRows.filter(report => report.shared !== '—').length), 'Shared'], ['Recently Updated', String(liveReportRows.length), 'Recorded'], ['Most Viewed', liveReportRows.length ? String(Math.max(...liveReportRows.map(report => report.views))) : '—', 'Views'], ['AI Reports', String(liveReportRows.filter(report => report.ai).length), 'AI-generated']].map(([label, value, sub], index) => <article key={label} className="min-w-[178px] flex-1 rounded-xl border border-border bg-card p-4 shadow-sm"><div className="flex items-start justify-between"><p className="text-xs font-medium text-muted-foreground">{label}</p>{index === 5 ? <Sparkles size={15} className="text-foreground" /> : <span className="text-xs text-[var(--success)]">{liveReportRows.length > 0 && index < 4 ? 'Live' : ''}</span>}</div><strong className={`${index === 4 ? 'mt-3 text-base' : 'mt-2 text-2xl'} block tracking-tight`}>{value}</strong><div className="mt-2 flex items-center justify-between text-xs text-muted-foreground"><span>{sub}</span>{index < 4 && <Sparkline reverse={index === 3} />}</div></article>)}</section>
+    {liveError && <div className="mb-4 rounded-lg border border-chart-5/30 bg-chart-5/5 px-4 py-3 text-sm text-chart-5">{liveError}</div>}
+    {!liveLoading && liveReportRows.length === 0 && <div className="mb-4 rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">No live sales reports have been created yet.</div>}
     <section className="rounded-xl border border-border bg-card p-3 shadow-sm"><div className="flex flex-wrap items-center gap-2"><label className="relative min-w-[220px] flex-1"><Search size={16} className="absolute left-3 top-2.5 text-muted-foreground" /><input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search reports..." aria-label="Search reports" className="h-9 w-full rounded-lg border border-input bg-background pl-9 pr-3 text-sm outline-none focus:ring-2 ring-ring" /></label>{['Category', 'Owner', 'Status', 'Schedule', 'Shared', 'Last Updated'].map(filter => <button key={filter} onClick={() => setActiveFilter(activeFilter === filter ? '' : filter)} className={`flex h-9 items-center gap-2 rounded-lg border px-3 text-sm ${activeFilter === filter ? 'border-border bg-secondary text-foreground' : 'border-input text-muted-foreground hover:bg-muted'}`}>{filter}<ChevronDown size={14} /></button>)}<button onClick={() => {
               setQuery('');
               setActiveFilter('');
             }} className="h-9 px-2 text-sm text-muted-foreground hover:text-foreground">Clear Filters</button><button className="h-9 rounded-lg border border-border px-3 text-sm font-medium hover:bg-muted">Save Filter</button></div></section>
-    <section><div className="mb-3 flex items-center gap-2"><Pin size={16} className="text-foreground" /><h2 className="text-base font-semibold">Favorites</h2><span className="text-xs text-muted-foreground">3 pinned reports</span></div><div className="grid gap-3 md:grid-cols-3">{reports.slice(0, 3).map(report => <article key={report.name} className="group rounded-xl border border-border bg-card p-4 shadow-sm transition hover:border-border"><div className="flex items-start justify-between"><div><h3 className="font-semibold">{report.name}</h3><div className="mt-2"><Badge>{report.category}</Badge></div></div><button onClick={() => setFavorite(favorite === report.name ? null : report.name)} aria-label={`Unpin ${report.name}`} className={`rounded-md p-1.5 ${favorite === report.name ? 'text-foreground' : 'text-muted-foreground'} hover:bg-muted`}><Pin size={15} fill={favorite === report.name ? 'currentColor' : 'none'} /></button></div><div className="mt-5 flex items-center justify-between text-xs text-muted-foreground"><span className="flex items-center gap-2"><span className="grid size-6 place-items-center rounded-full bg-[var(--sidebar-accent)] text-[10px] font-semibold">{report.owner.split(' ').map(part => part[0]).join('')}</span>{report.owner} · {report.updated}</span><span className="flex gap-1 opacity-0 transition group-hover:opacity-100"><button aria-label="Open report" className="rounded p-1 hover:bg-muted"><ArrowUpRight size={15} /></button><button aria-label="Export report" className="rounded p-1 hover:bg-muted"><Download size={15} /></button><button aria-label="Share report" className="rounded p-1 hover:bg-muted"><Share2 size={15} /></button></span></div></article>)}</div></section>
-    <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"><div className="flex items-center justify-between border-b border-border px-5 py-4"><div><h2 className="font-semibold">All reports</h2><p className="mt-0.5 text-xs text-muted-foreground">{filteredReports.length} of {reports.length} reports</p></div><button className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted"><Filter size={15} />Filters</button></div><div className="overflow-x-auto"><table className="w-full min-w-[1000px] text-left text-sm"><thead className="bg-muted/40 text-xs text-muted-foreground"><tr>{['Report', 'Category', 'Owner', 'Last Updated', 'Schedule', 'Shared With', 'Status', 'Views', 'Actions'].map(heading => <th key={heading} scope="col" className="whitespace-nowrap px-5 py-3 font-medium">{heading}{heading === 'Last Updated' && <ChevronDown size={13} className="ml-1 inline" />}</th>)}</tr></thead><tbody className="divide-y divide-border">{filteredReports.map(report => <tr key={report.name} className="group hover:bg-muted/30"><td className="px-5 py-3.5"><div className="flex items-center gap-2 font-medium">{report.ai && <Sparkles size={14} className="text-foreground" />}{report.name}</div></td><td className="px-5 py-3.5"><Badge>{report.category}</Badge></td><td className="whitespace-nowrap px-5 py-3.5 text-muted-foreground">{report.owner}</td><td className="whitespace-nowrap px-5 py-3.5 text-muted-foreground">{report.updated}</td><td className="px-5 py-3.5">{report.schedule !== 'None' ? <span className="flex items-center gap-1.5 text-foreground"><CalendarDays size={14} className="text-[var(--info)]" />{report.schedule}</span> : <span className="text-muted-foreground">None</span>}</td><td className="whitespace-nowrap px-5 py-3.5 text-muted-foreground">{report.shared}</td><td className="px-5 py-3.5"><Badge tone={report.status.toLowerCase()}>{report.status}</Badge></td><td className="px-5 py-3.5 text-muted-foreground">{report.views}</td><td className="px-5 py-3.5"><button aria-label={`Actions for ${report.name}`} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"><Ellipsis size={17} /></button></td></tr>)}</tbody></table></div></section>
-    <section><div className="mb-3 flex items-center justify-between"><div><h2 className="font-semibold">Report categories</h2><p className="mt-0.5 text-xs text-muted-foreground">Explore your reporting library by team need.</p></div><button className="text-sm font-medium text-foreground hover:underline">View all</button></div><div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">{categories.map(category => <button key={category.label} className="rounded-xl border border-border bg-card p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-border"><span className="mb-4 grid size-8 place-items-center rounded-lg" style={{
+    <section><div className="mb-3 flex items-center gap-2"><Pin size={16} className="text-foreground" /><h2 className="text-base font-semibold">Favorites</h2><span className="text-xs text-muted-foreground">{Math.min(liveReportRows.length, 3)} pinned reports</span></div><div className="grid gap-3 md:grid-cols-3">{liveReportRows.slice(0, 3).map(report => <article key={report.name} className="group rounded-xl border border-border bg-card p-4 shadow-sm transition hover:border-border"><div className="flex items-start justify-between"><div><h3 className="font-semibold">{report.name}</h3><div className="mt-2"><Badge>{report.category}</Badge></div></div><button onClick={() => setFavorite(favorite === report.name ? null : report.name)} aria-label={`Unpin ${report.name}`} className={`rounded-md p-1.5 ${favorite === report.name ? 'text-foreground' : 'text-muted-foreground'} hover:bg-muted`}><Pin size={15} fill={favorite === report.name ? 'currentColor' : 'none'} /></button></div><div className="mt-5 flex items-center justify-between text-xs text-muted-foreground"><span className="flex items-center gap-2"><span className="grid size-6 place-items-center rounded-full bg-[var(--sidebar-accent)] text-[10px] font-semibold">{report.owner.split(' ').map(part => part[0]).join('')}</span>{report.owner} · {report.updated}</span><span className="flex gap-1 opacity-0 transition group-hover:opacity-100"><button aria-label="Open report" className="rounded p-1 hover:bg-muted"><ArrowUpRight size={15} /></button><button aria-label="Export report" className="rounded p-1 hover:bg-muted"><Download size={15} /></button><button aria-label="Share report" className="rounded p-1 hover:bg-muted"><Share2 size={15} /></button></span></div></article>)}</div></section>
+    <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm"><div className="flex items-center justify-between border-b border-border px-5 py-4"><div><h2 className="font-semibold">All reports</h2><p className="mt-0.5 text-xs text-muted-foreground">{filteredReports.length} of {liveReportRows.length} reports</p></div><button className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-muted"><Filter size={15} />Filters</button></div><div className="overflow-x-auto"><table className="w-full min-w-[1000px] text-left text-sm"><thead className="bg-muted/40 text-xs text-muted-foreground"><tr>{['Report', 'Category', 'Owner', 'Last Updated', 'Schedule', 'Shared With', 'Status', 'Views', 'Actions'].map(heading => <th key={heading} scope="col" className="whitespace-nowrap px-5 py-3 font-medium">{heading}{heading === 'Last Updated' && <ChevronDown size={13} className="ml-1 inline" />}</th>)}</tr></thead><tbody className="divide-y divide-border">{filteredReports.map(report => <tr key={report.name} className="group hover:bg-muted/30"><td className="px-5 py-3.5"><div className="flex items-center gap-2 font-medium">{report.ai && <Sparkles size={14} className="text-foreground" />}{report.name}</div></td><td className="px-5 py-3.5"><Badge>{report.category}</Badge></td><td className="whitespace-nowrap px-5 py-3.5 text-muted-foreground">{report.owner}</td><td className="whitespace-nowrap px-5 py-3.5 text-muted-foreground">{report.updated}</td><td className="px-5 py-3.5">{report.schedule !== 'None' ? <span className="flex items-center gap-1.5 text-foreground"><CalendarDays size={14} className="text-[var(--info)]" />{report.schedule}</span> : <span className="text-muted-foreground">None</span>}</td><td className="whitespace-nowrap px-5 py-3.5 text-muted-foreground">{report.shared}</td><td className="px-5 py-3.5"><Badge tone={report.status.toLowerCase()}>{report.status}</Badge></td><td className="px-5 py-3.5 text-muted-foreground">{report.views}</td><td className="px-5 py-3.5"><button aria-label={`Actions for ${report.name}`} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground"><Ellipsis size={17} /></button></td></tr>)}</tbody></table></div></section>
+    <section><div className="mb-3 flex items-center justify-between"><div><h2 className="font-semibold">Report categories</h2><p className="mt-0.5 text-xs text-muted-foreground">Explore your reporting library by team need.</p></div><button className="text-sm font-medium text-foreground hover:underline">View all</button></div><div className="grid grid-cols-2 gap-3 md:grid-cols-4 lg:grid-cols-7">{(liveLoading ? [] : categories).map(category => <button key={category.label} className="rounded-xl border border-border bg-card p-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-border"><span className="mb-4 grid size-8 place-items-center rounded-lg" style={{
                 color: category.tone,
                 backgroundColor: 'var(--muted)'
               }}><category.icon size={16} /></span><strong className="block text-sm leading-tight">{category.label}</strong><span className="mt-1 block text-xs text-muted-foreground">{category.count} reports</span>{category.label === 'Custom Reports' && <Badge tone="ai"><Sparkles size={11} />AI</Badge>}</button>)}</div></section>
-    <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]"><section className="rounded-xl border border-border bg-card p-5 shadow-sm"><div className="mb-5 flex items-center gap-2"><Activity size={17} className="text-muted-foreground" /><h2 className="font-semibold">Recent Activity</h2></div><div className="space-y-4">{activities.map(item => <div key={`${item.person}-${item.report}`} className="flex items-start gap-3"><span className={`grid size-8 shrink-0 place-items-center rounded-full text-[10px] font-semibold ${item.ai ? 'bg-secondary text-foreground' : 'bg-[var(--sidebar-accent)]'}`}>{item.ai ? <Sparkles size={14} /> : item.person}</span><p className="min-w-0 flex-1 text-sm leading-5"><span className="font-medium">{item.ai ? 'AI' : ({
-                      DC: 'David Chen',
-                      SK: 'Sarah Kim',
-                      EV: 'Elena Vasquez',
-                      MR: 'Marcus Reid'
+    <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]"><section className="rounded-xl border border-border bg-card p-5 shadow-sm"><div className="mb-5 flex items-center gap-2"><Activity size={17} className="text-muted-foreground" /><h2 className="font-semibold">Recent Activity</h2></div><div className="space-y-4">{(liveLoading ? [] : activities).map(item => <div key={`${item.person}-${item.report}`} className="flex items-start gap-3"><span className={`grid size-8 shrink-0 place-items-center rounded-full text-[10px] font-semibold ${item.ai ? 'bg-secondary text-foreground' : 'bg-[var(--sidebar-accent)]'}`}>{item.ai ? <Sparkles size={14} /> : item.person}</span><p className="min-w-0 flex-1 text-sm leading-5"><span className="font-medium">{item.ai ? 'AI' : ({
+                      DC: '—',
+                      SK: '—',
+                      EV: '—',
+                      MR: '—'
                     } as Record<string, string>)[item.person]}</span>{' '}{item.action}{' '}<strong>{item.report}</strong>{item.detail && <span className="text-muted-foreground"> {item.detail}</span>}<span className="ml-2 whitespace-nowrap text-xs text-muted-foreground">{item.time}</span></p></div>)}</div></section><section className="rounded-xl border border-border bg-card p-5 shadow-sm"><div className="flex items-start justify-between"><div className="flex items-center gap-2"><ShieldCheck size={18} className="text-[var(--success)]" /><h2 className="font-semibold">Report Data Quality</h2></div><button aria-label="Data quality help" className="text-muted-foreground"><CircleHelp size={16} /></button></div><div className="mt-5 flex items-center gap-5"><div className="grid size-24 place-items-center rounded-full" style={{
                 background: 'conic-gradient(var(--success) 84%, var(--muted) 0)'
               }}><div className="grid size-[76px] place-items-center rounded-full bg-card"><strong className="text-xl">84</strong><span className="-mt-2 text-[10px] text-muted-foreground">/100</span></div></div><div><p className="text-sm font-semibold">Good data health</p><p className="mt-1 text-xs text-muted-foreground">4 areas need attention</p></div></div><ul className="mt-5 space-y-2.5 text-sm">{['Missing close dates: 12 deals', 'Incomplete company records: 8 entries', 'Missing owners: 5 leads', 'Duplicate contacts: 3 detected'].map(issue => <li key={issue} className="flex items-center gap-2 text-muted-foreground"><span className="size-1.5 rounded-full bg-[var(--warning)]" />{issue}</li>)}</ul><p className="mt-5 text-[11px] leading-4 text-muted-foreground">Data quality score reflects CRM completeness. A higher score does not guarantee report accuracy.</p><button className="mt-4 w-full rounded-lg border border-border py-2 text-sm font-semibold hover:bg-muted">Review Data Issues</button></section></div>
