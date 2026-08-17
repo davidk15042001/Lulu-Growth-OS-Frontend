@@ -1,6 +1,5 @@
+@reference "../../app.css";
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-@import 'tailwindcss';
-
 * { box-sizing: border-box; }
 :root { font-family: Inter, sans-serif; color: var(--foreground); background: var(--background); font-synthesis: none; }
 body { margin: 0; min-width: 320px; background: var(--background); color: var(--foreground); }
