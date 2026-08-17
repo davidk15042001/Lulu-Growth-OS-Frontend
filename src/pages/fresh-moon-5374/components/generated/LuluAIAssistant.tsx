@@ -3,21 +3,21 @@ import { Activity, Archive, ArrowRight, BarChart3, Bell, BookOpen, Bot, Brain, C
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 const C = {
-  bg: 'var(--foreground)',
-  sidebar: 'var(--foreground)',
-  surface: 'var(--foreground)',
-  elevated: 'var(--foreground)',
-  border: 'rgba(0,0,0,0.06)',
-  borderHover: 'rgba(0,0,0,0.12)',
-  violet: 'var(--border)',
-  soft: 'var(--border)',
-  text: 'var(--border)',
-  secondary: 'var(--muted-foreground)',
+  bg: 'var(--background)',
+  sidebar: 'var(--sidebar)',
+  surface: 'var(--card)',
+  elevated: 'var(--popover)',
+  border: 'var(--border)',
+  borderHover: 'var(--ring)',
+  violet: 'var(--primary)',
+  soft: 'var(--primary-foreground)',
+  text: 'var(--foreground)',
+  secondary: 'var(--secondary-foreground)',
   muted: 'var(--muted-foreground)',
   green: 'var(--chart-4)',
-  amber: 'var(--foreground)',
-  red: 'var(--foreground)',
-  blue: 'var(--primary)'
+  amber: 'var(--chart-1)',
+  red: 'var(--destructive)',
+  blue: 'var(--ring)'
 };
 type IconType = typeof LayoutDashboard;
 type Conversation = {
