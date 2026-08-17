@@ -19914,7 +19914,10 @@
     "Workspace administrator": "Workspace-Administrator",
     "Loading live campaigns…": "Lade Live‑Kampagnen…",
     "No live marketing campaigns are available yet. Create or connect a campaign to begin.": "Es sind noch keine Live‑Marketingkampagnen verfügbar. Erstellen oder verbinden Sie eine Kampagne, um zu beginnen.",
-    "Workspace campaigns": "Arbeitsbereichs‑Kampagnen"
+    "Workspace campaigns": "Arbeitsbereichs‑Kampagnen",
+    "Loading live finance customers…": "Live-Finanzkunden werden geladen…",
+    "No live finance customer records are available yet. Add customers or connect your finance system to begin.": "Noch keine Live-Finanzkundendaten vorhanden. Fügen Sie Kunden hinzu oder verbinden Sie Ihr Finanzsystem, um zu beginnen.",
+    "Workspace customer": "Arbeitsbereich-Kunde"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39859,7 +39862,10 @@
     "Workspace administrator": "工作区管理员",
     "Loading live campaigns…": "正在加载实时活动…",
     "No live marketing campaigns are available yet. Create or connect a campaign to begin.": "当前暂无实时营销活动。创建或连接活动以开始。",
-    "Workspace campaigns": "工作区活动"
+    "Workspace campaigns": "工作区活动",
+    "Loading live finance customers…": "正在加载实时财务客户…",
+    "No live finance customer records are available yet. Add customers or connect your finance system to begin.": "尚无实时财务客户记录。添加客户或连接您的财务系统以开始。",
+    "Workspace customer": "工作区客户"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
