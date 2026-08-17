@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, AlertTriangle, ArrowDownToLine, ArrowUpRight, Bell, Bot, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, CreditCard, Ellipsis, ExternalLink, Filter, LayoutDashboard, LifeBuoy, Menu, MoreHorizontal, Package, PanelLeft, Pause, RefreshCw, Search, Settings2, ShoppingBag, Sparkles, Store, Tags, Users, X, Zap } from 'lucide-react';
 interface Subscription {
   customer: string;
@@ -296,6 +297,8 @@ export function LuluSubscriptions() {
   const [selected, setSelected] = useState<string[]>([]);
   const [query, setQuery] = useState('');
   const [aiMessage, setAiMessage] = useState('');
+  const { items: liveSubscriptions, loading: liveLoading, error: liveError } = useLiveRecords('ecommerce_subscriptions');
+  const liveEmpty = !liveLoading && !liveError && liveSubscriptions.length === 0;
   const toggle = (id: string) => setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const filtered = subscriptions.filter(item => `${item.customer} ${item.id} ${item.plan} ${item.store}`.toLowerCase().includes(query.toLowerCase()));
   const nav = [{
@@ -318,7 +321,7 @@ export function LuluSubscriptions() {
     icon: Activity,
     label: 'Analytics'
   }];
-  return <div className="flex min-h-screen bg-[var(--background)] text-foreground">
+  return <div className="flex min-h-screen bg-[var(--background)] text-foreground">{liveLoading ? <div className="fixed inset-x-0 top-0 z-50 border-b border-border bg-secondary px-4 py-3 text-xs text-muted-foreground">Loading live subscriptions…</div> : liveError ? <div className="fixed inset-x-0 top-0 z-50 border-b border-destructive/30 bg-destructive/5 px-4 py-3 text-xs text-destructive">{liveError}</div> : liveEmpty ? <div className="fixed inset-x-0 top-0 z-50 border-b border-dashed border-border bg-card px-4 py-3 text-xs text-muted-foreground">No live subscriptions are available yet. Connect your commerce platform or create a subscription to begin.</div> : null}
     <aside className="hidden w-[240px] shrink-0 flex-col bg-[var(--sidebar)] text-foreground lg:flex">
       <div className="flex h-[68px] items-center gap-3 border-b border-border px-6"><div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--primary)] text-sm font-black text-[var(--primary-foreground)]">L</div><strong className="text-[17px] tracking-tight text-foreground">LULU AI</strong></div>
       <div className="flex items-center gap-3 px-5 py-5"><div className="h-8 w-8 rounded-full bg-gradient-to-br from-primary to-primary text-primary-foreground" /><div><p className="text-xs font-semibold text-foreground">Lulu workspace</p><p className="text-[11px] text-muted-foreground">Admin account</p></div><ChevronDown size={14} className="ml-auto" /></div>

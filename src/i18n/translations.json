@@ -19960,7 +19960,9 @@
     "Loading live products…": "Live-Produkte laden…",
     "No live products are available yet. Add a product or connect your commerce platform to begin.": "Noch keine Live-Produkte verfügbar. Fügen Sie ein Produkt hinzu oder verbinden Sie Ihre Commerce-Plattform, um zu beginnen.",
     "Loading live collections…": "Live-Sammlungen werden geladen…",
-    "No live collections are available yet. Add a collection or connect your commerce platform to begin.": "Noch keine Live-Sammlungen verfügbar. Fügen Sie eine Sammlung hinzu oder verbinden Sie Ihre Commerce-Plattform, um zu beginnen."
+    "No live collections are available yet. Add a collection or connect your commerce platform to begin.": "Noch keine Live-Sammlungen verfügbar. Fügen Sie eine Sammlung hinzu oder verbinden Sie Ihre Commerce-Plattform, um zu beginnen.",
+    "Loading live subscriptions…": "Live-Abonnements werden geladen…",
+    "No live subscriptions are available yet. Connect your commerce platform or create a subscription to begin.": "Noch keine Live-Abonnements verfügbar. Verbinden Sie Ihre Handelsplattform oder erstellen Sie ein Abonnement, um zu beginnen."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39951,7 +39953,9 @@
     "Loading live products…": "正在加载实时产品…",
     "No live products are available yet. Add a product or connect your commerce platform to begin.": "尚无可用的实时产品。添加产品或连接您的电商平台以开始。",
     "Loading live collections…": "正在加载实时集合…",
-    "No live collections are available yet. Add a collection or connect your commerce platform to begin.": "目前还没有可用的实时集合。添加一个集合或连接您的电商平台以开始。"
+    "No live collections are available yet. Add a collection or connect your commerce platform to begin.": "目前还没有可用的实时集合。添加一个集合或连接您的电商平台以开始。",
+    "Loading live subscriptions…": "正在加载实时订阅…",
+    "No live subscriptions are available yet. Connect your commerce platform or create a subscription to begin.": "暂无可用的实时订阅。请连接您的电商平台或创建订阅以开始。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
