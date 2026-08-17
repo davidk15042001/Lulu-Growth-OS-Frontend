@@ -19926,7 +19926,9 @@
     "No live stores are available yet. Connect your commerce platform or add a store to begin.": "Es sind noch keine Live-Shops verfügbar. Verbinden Sie Ihre Handelsplattform oder fügen Sie einen Shop hinzu, um zu beginnen.",
     "Workspace stores": "Workspace-Shops",
     "Loading live CRM activities…": "Live-CRM-Aktivitäten werden geladen…",
-    "No live CRM activities are available yet. Add an activity or connect your CRM to begin.": "Es sind noch keine Live-CRM-Aktivitäten verfügbar. Fügen Sie eine Aktivität hinzu oder verbinden Sie Ihr CRM, um zu beginnen."
+    "No live CRM activities are available yet. Add an activity or connect your CRM to begin.": "Es sind noch keine Live-CRM-Aktivitäten verfügbar. Fügen Sie eine Aktivität hinzu oder verbinden Sie Ihr CRM, um zu beginnen.",
+    "Loading live sales deals…": "Live-Verkaufsabschlüsse werden geladen…",
+    "No live sales deals are available yet. Add a deal or connect your CRM to begin.": "Noch keine Live-Verkaufsabschlüsse verfügbar. Fügen Sie einen Abschluss hinzu oder verbinden Sie Ihr CRM, um zu beginnen."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39883,7 +39885,9 @@
     "No live stores are available yet. Connect your commerce platform or add a store to begin.": "尚无可用的实时店铺。连接您的电商平台或添加店铺以开始。",
     "Workspace stores": "工作区店铺",
     "Loading live CRM activities…": "正在加载实时 CRM 活动…",
-    "No live CRM activities are available yet. Add an activity or connect your CRM to begin.": "尚无可用的实时 CRM 活动。添加活动或连接您的 CRM 即可开始。"
+    "No live CRM activities are available yet. Add an activity or connect your CRM to begin.": "尚无可用的实时 CRM 活动。添加活动或连接您的 CRM 即可开始。",
+    "Loading live sales deals…": "正在加载实时销售交易…",
+    "No live sales deals are available yet. Add a deal or connect your CRM to begin.": "当前暂无实时销售交易。添加交易或连接您的 CRM 即可开始。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
