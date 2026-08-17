@@ -116,7 +116,7 @@ export function NativePage({ slug }: { slug: string }) {
   if (contract?.kind === "workspace") {
     return <LuluRuntime slug={slug}><LiveWorkspaceRoute /></LuluRuntime>;
   }
-  if (contract?.kind === "metrics" || contract?.kind === "integrations") {
+  if (contract?.kind === "metrics" || contract?.kind === "integrations" || contract?.kind === "ai" || contract?.kind === "billing") {
     return <LuluRuntime slug={slug}><LiveSpecialRoute kind={contract.kind} /></LuluRuntime>;
   }
 
