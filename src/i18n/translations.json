@@ -19908,7 +19908,10 @@
     "Loading live customer intelligence…": "Live-Kundeninformationen werden geladen…",
     "No live customer insight records are available yet. Connect your CRM or add customer activity to begin.": "Noch keine Live-Kunden-Insights verfügbar. Verbinden Sie Ihr CRM oder fügen Sie Kundenaktivitäten hinzu, um zu beginnen.",
     "Loading live marketing analytics…": "Live-Marketing-Analysen werden geladen…",
-    "Workspace owner": "Arbeitsbereichsinhaber"
+    "Workspace owner": "Arbeitsbereichsinhaber",
+    "Loading live advertising data…": "Live-Werbedaten werden geladen…",
+    "No live advertising campaigns are available yet. Connect an advertising platform or add a campaign to begin.": "Es sind noch keine Live-Werbekampagnen verfügbar. Verbinden Sie eine Werbeplattform oder fügen Sie eine Kampagne hinzu, um zu beginnen.",
+    "Workspace administrator": "Workspace-Administrator"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39847,7 +39850,10 @@
     "Loading live customer intelligence…": "正在加载实时客户洞察…",
     "No live customer insight records are available yet. Connect your CRM or add customer activity to begin.": "尚无实时客户洞察记录。连接您的 CRM 或添加客户活动以开始。",
     "Loading live marketing analytics…": "正在加载实时营销分析…",
-    "Workspace owner": "工作区所有者"
+    "Workspace owner": "工作区所有者",
+    "Loading live advertising data…": "正在加载实时广告数据…",
+    "No live advertising campaigns are available yet. Connect an advertising platform or add a campaign to begin.": "目前暂无实时广告活动。连接广告平台或添加活动以开始。",
+    "Workspace administrator": "工作区管理员"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
