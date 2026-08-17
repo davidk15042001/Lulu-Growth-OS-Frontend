@@ -19965,7 +19965,11 @@
     "No live subscriptions are available yet. Connect your commerce platform or create a subscription to begin.": "Noch keine Live-Abonnements verfügbar. Verbinden Sie Ihre Handelsplattform oder erstellen Sie ein Abonnement, um zu beginnen.",
     "Emil Larsen → Workspace owner": "Emil Larsen → Arbeitsbereichsinhaber",
     "Loading live sales leads…": "Lade Live-Verkaufschancen…",
-    "No live sales leads are available yet. Add a lead or connect your CRM to begin.": "Es sind noch keine Live-Verkaufschancen verfügbar. Fügen Sie eine Chance hinzu oder verbinden Sie Ihr CRM, um zu beginnen."
+    "No live sales leads are available yet. Add a lead or connect your CRM to begin.": "Es sind noch keine Live-Verkaufschancen verfügbar. Fügen Sie eine Chance hinzu oder verbinden Sie Ihr CRM, um zu beginnen.",
+    "Loading live lead assignments…": "Live-Lead-Zuweisungen werden geladen…",
+    "No live lead assignments are available yet. Configure a routing rule or connect your CRM to begin.": "Noch keine Live-Lead-Zuweisungen verfügbar. Konfigurieren Sie eine Routing-Regel oder verbinden Sie Ihr CRM, um zu beginnen.",
+    "Workspace representative": "Workspace-Vertreter",
+    "Workspace representative is handling 26.2% of all leads. Consider rebalancing Round Robin weights. Calculated.": "Workspace-Vertreter bearbeitet 26,2 % aller Leads. Erwägen Sie, die Round-Robin-Gewichte neu auszubalancieren. Berechnet."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39961,7 +39965,11 @@
     "No live subscriptions are available yet. Connect your commerce platform or create a subscription to begin.": "暂无可用的实时订阅。请连接您的电商平台或创建订阅以开始。",
     "Emil Larsen → Workspace owner": "Emil Larsen → 工作区所有者",
     "Loading live sales leads…": "正在加载实时销售线索…",
-    "No live sales leads are available yet. Add a lead or connect your CRM to begin.": "暂无实时销售线索。添加线索或连接您的 CRM 开始。"
+    "No live sales leads are available yet. Add a lead or connect your CRM to begin.": "暂无实时销售线索。添加线索或连接您的 CRM 开始。",
+    "Loading live lead assignments…": "正在加载实时线索分配…",
+    "No live lead assignments are available yet. Configure a routing rule or connect your CRM to begin.": "当前暂无实时线索分配。请配置路由规则或连接您的 CRM 开始。",
+    "Workspace representative": "工作区代表",
+    "Workspace representative is handling 26.2% of all leads. Consider rebalancing Round Robin weights. Calculated.": "工作区代表处理了 26.2% 的全部线索。请考虑重新平衡轮询（Round Robin）权重。已计算。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
