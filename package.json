@@ -14,7 +14,8 @@
     "audit:i18n": "node scripts/audit-i18n.mjs",
     "generate:i18n": "node scripts/generate-static-translations.mjs",
     "audit:feedback": "node scripts/audit-feedback.mjs",
-    "check": "npm run typecheck && npm run audit:routing && npm run audit:api && npm run audit:branding && npm run audit:i18n && npm run audit:feedback && npm run build"
+    "audit:errors": "node scripts/audit-error-scenarios.mjs",
+    "check": "npm run typecheck && npm run audit:routing && npm run audit:api && npm run audit:branding && npm run audit:i18n && npm run audit:feedback && npm run audit:errors && npm run build"
   },
   "dependencies": {
     "framer-motion": "^12.23.12",

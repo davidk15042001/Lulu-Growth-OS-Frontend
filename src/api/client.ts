@@ -1,3 +1,5 @@
+import { getErrorScenario, type ErrorScenario } from "./error-scenarios";
+
 export type ApiMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type ApiRequest = {
@@ -123,6 +125,7 @@ export class ApiError extends Error {
   readonly code: string;
   readonly details?: unknown;
   readonly diagnostics?: ApiDiagnostics;
+  readonly scenario: ErrorScenario;
 
   constructor(status: number, code: string, message: string, details?: unknown, diagnostics?: ApiDiagnostics) {
     super(FRIENDLY_API_MESSAGES[code] ?? (message && !/^API request failed/.test(message) ? message : friendlyApiMessage(status, code)));
@@ -131,6 +134,7 @@ export class ApiError extends Error {
     this.code = code;
     this.details = details;
     this.diagnostics = diagnostics;
+    this.scenario = getErrorScenario(code, status);
   }
 }
 
