@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { AlertTriangle, Bot, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Download, Ellipsis, FileDown, Filter, LayoutGrid, Menu, MoreHorizontal, Plus, RefreshCw, Search, Send, Settings, Sparkles, Upload, Users, X, Zap } from 'lucide-react';
 type Invoice = {
@@ -23,7 +24,7 @@ type Overdue = {
 };
 const invoices: Invoice[] = [{
   id: 'INV-2026-00124',
-  customer: 'Acme GmbH',
+  customer: 'Workspace customer',
   date: '10 Aug 2026',
   due: '24 Aug 2026',
   amount: '€4,850.00',
@@ -207,7 +208,7 @@ const chartData = [{
   overdue: 10
 }];
 const customers = [{
-  name: 'Acme GmbH',
+  name: 'Workspace customer',
   invoices: '28',
   total: '€46,820',
   paid: '€42,100',
@@ -249,7 +250,7 @@ const customers = [{
 }];
 const recurring = [{
   schedule: 'INV-REC-0042',
-  customer: 'Acme GmbH',
+  customer: 'Workspace customer',
   amount: '€4,850.00',
   frequency: 'Monthly',
   next: '01 Sep 2026',
@@ -312,13 +313,15 @@ export function LuluInvoices() {
   const [activeTab, setActiveTab] = useState('Overview');
   const visibleInvoices = useMemo(() => invoices.filter(invoice => invoice.id.toLowerCase().includes(search.toLowerCase()) || invoice.customer.toLowerCase().includes(search.toLowerCase())), [search]);
   const toggle = (id: string) => setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
+  const { items: liveInvoices, loading: liveLoading, error: liveError } = useLiveRecords('finance_invoices');
+  const liveEmpty = !liveLoading && !liveError && liveInvoices.length === 0;
   return <div className="min-h-screen bg-[var(--background)] text-foreground">
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-[224px] flex-col bg-[var(--sidebar)] text-foreground lg:flex">
       <div className="flex h-[72px] items-center gap-3 border-b border-border px-6"><div className="grid h-8 w-8 place-items-center rounded-lg bg-[var(--primary)] text-primary-foreground"><Sparkles size={17} /></div><strong className="text-[17px] tracking-tight text-foreground">lulu<span className="text-[var(--foreground)]">.ai</span></strong></div>
       <LuluSectionNavigation activeId="breezy-soil-2475" />
-      <div className="border-t border-border p-4"><button className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-secondary"><div className="grid h-8 w-8 place-items-center rounded-full bg-[var(--primary)] text-xs font-bold text-[var(--primary-foreground)]">JS</div><div className="min-w-0"><p className="truncate text-xs font-semibold text-foreground">Jordan Smith</p><p className="truncate text-[11px] text-muted-foreground">Admin account</p></div><MoreHorizontal size={15} className="ml-auto" /></button></div>
+      <div className="border-t border-border p-4"><button className="flex w-full items-center gap-3 rounded-lg p-2 text-left hover:bg-secondary"><div className="grid h-8 w-8 place-items-center rounded-full bg-[var(--primary)] text-xs font-bold text-[var(--primary-foreground)]">JS</div><div className="min-w-0"><p className="truncate text-xs font-semibold text-foreground">Workspace administrator</p><p className="truncate text-[11px] text-muted-foreground">Admin account</p></div><MoreHorizontal size={15} className="ml-auto" /></button></div>
     </aside>
-    <main className="lg:ml-[224px]">
+    <main className="lg:ml-[224px]">{liveLoading ? <div className="border-b border-border bg-secondary/30 px-5 py-3 text-xs text-muted-foreground sm:px-8">Loading live invoices…</div> : liveError ? <div className="border-b border-destructive/30 bg-destructive/5 px-5 py-3 text-xs text-destructive sm:px-8">{liveError}</div> : liveEmpty ? <div className="border-b border-dashed border-border bg-card px-5 py-3 text-xs text-muted-foreground sm:px-8">No live invoices are available yet. Create an invoice or connect your finance system to begin.</div> : null}
       <header className="border-b border-border bg-card px-5 py-5 sm:px-8"><div className="flex flex-wrap items-end justify-between gap-5"><div><div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"><span>Finance</span><ChevronRight size={13} /><strong className="font-medium text-muted-foreground">Invoices</strong></div><h1 className="text-3xl font-bold tracking-[-.04em] text-foreground">Invoices</h1><p className="mt-1 text-sm text-muted-foreground">Create, manage and track your customer invoices.</p></div><div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-xs font-semibold text-primary-foreground hover:bg-[var(--primary)]"><Plus size={15} />Create Invoice</button><button className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3.5 py-2.5 text-xs font-semibold text-[var(--foreground)] hover:bg-[var(--secondary)]"><Sparkles size={14} />Ask Lulu AI</button><button className="inline-flex items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium text-foreground hover:bg-secondary"><Upload size={14} />Import</button><button className="inline-flex items-center gap-2 rounded-lg px-3 py-2.5 text-xs font-medium text-foreground hover:bg-secondary"><Download size={14} />Export</button><button className="rounded-lg px-2.5 py-2.5 text-foreground hover:bg-secondary"><Ellipsis size={17} /></button></div></div></header>
       <div className="space-y-5 p-5 sm:p-8">
         <section className="flex flex-wrap items-center justify-between gap-3"><div className="flex max-w-full gap-1 overflow-x-auto rounded-lg border border-border bg-card p-1">{dateRanges.map(item => <button key={item} onClick={() => setRange(item)} className={`whitespace-nowrap rounded-md px-3 py-2 text-[11px] font-medium ${range === item ? 'bg-[var(--secondary)] text-[var(--foreground)]' : 'text-foreground hover:bg-card'}`}>{item}</button>)}</div><div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1 text-[11px]"><span className="px-2 text-muted-foreground">Compare:</span>{['Previous Period', 'Previous Year', 'None'].map(item => <button key={item} className={`rounded-md px-2.5 py-1.5 ${item === 'Previous Period' ? 'bg-secondary font-semibold text-foreground' : 'text-foreground'}`}>{item}</button>)}</div></section>
