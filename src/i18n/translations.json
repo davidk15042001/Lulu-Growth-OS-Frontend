@@ -19950,7 +19950,11 @@
     "Jun 3 · Workspace owner": "3. Juni · Arbeitsbereichsinhaber",
     "Jun 4 · Workspace administrator": "4. Juni · Arbeitsbereichsadministrator",
     "Loading live risk items…": "Live-Risikoelemente werden geladen…",
-    "No live risk items are available yet. Add a risk or connect your business systems to begin.": "Noch keine Live-Risikoelemente verfügbar. Fügen Sie ein Risiko hinzu oder verbinden Sie Ihre Geschäftssysteme, um zu beginnen."
+    "No live risk items are available yet. Add a risk or connect your business systems to begin.": "Noch keine Live-Risikoelemente verfügbar. Fügen Sie ein Risiko hinzu oder verbinden Sie Ihre Geschäftssysteme, um zu beginnen.",
+    "Loading live finance payments…": "Live-Finanzzahlungen werden geladen…",
+    "No live finance payments are available yet. Connect your payment provider or record a payment to begin.": "Noch keine Live-Finanzzahlungen verfügbar. Verbinden Sie Ihren Zahlungsanbieter oder erfassen Sie eine Zahlung, um zu beginnen.",
+    "PAY-00391 · Workspace customer · EUR 480": "PAY-00391 · Workspace-Kunde · EUR 480",
+    "PAY-00411 · Workspace customer · EUR 4,850": "PAY-00411 · Workspace-Kunde · EUR 4.850"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39931,7 +39935,11 @@
     "Jun 3 · Workspace owner": "6月3日 · 工作区所有者",
     "Jun 4 · Workspace administrator": "6月4日 · 工作区管理员",
     "Loading live risk items…": "正在加载实时风险项…",
-    "No live risk items are available yet. Add a risk or connect your business systems to begin.": "目前暂无实时风险项。添加风险或连接您的业务系统以开始。"
+    "No live risk items are available yet. Add a risk or connect your business systems to begin.": "目前暂无实时风险项。添加风险或连接您的业务系统以开始。",
+    "Loading live finance payments…": "正在加载实时财务付款…",
+    "No live finance payments are available yet. Connect your payment provider or record a payment to begin.": "尚无实时财务付款。连接您的支付提供商或记录一笔付款以开始。",
+    "PAY-00391 · Workspace customer · EUR 480": "PAY-00391 · Workspace customer · EUR 480",
+    "PAY-00411 · Workspace customer · EUR 4,850": "PAY-00411 · Workspace customer · EUR 4,850"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
