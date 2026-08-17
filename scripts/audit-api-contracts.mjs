@@ -20,7 +20,7 @@ const issues = [];
 const clientContracts = {
   "src/api/auth.ts": ["/auth/register", "/auth/verify-otp", "/auth/login", "/auth/refresh", "/auth/logout", "/auth/logout-all", "/auth/forgot-password", "/auth/resend-otp", "/auth/reset-password", "/auth/me"],
   "src/api/workspaces.ts": ["/workspaces", "/invitations/", "/accept", "/bootstrap"],
-  "src/api/onboarding.ts": ["/onboarding", "/company-information", "/business-description", "/offerings", "/platforms", "/ai-preferences", "/complete"],
+  "src/api/onboarding.ts": ["/onboarding", "/company-information", "/business-description", "/offerings", "/platforms", "/complete"],
   "src/api/records.ts": ["/resource-types", "/records/", "/restore"],
   "src/api/metrics.ts": ["/metrics", "/points"],
   "src/api/notifications.ts": ["/notifications", "/read-all", "/read"],

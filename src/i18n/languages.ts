@@ -16,7 +16,23 @@ export const languages = [
   { code: "ru", shortCode: "RU", name: "Russian", nativeName: "Русский", direction: "ltr" },
 ] as const;
 
-export const AVAILABLE_LANGUAGE_CODES = ["en", "de", "zh-CN"] as const;
+export const AVAILABLE_LANGUAGE_CODES = [
+  "en",
+  "de",
+  "zh-CN",
+  "fr",
+  "nl",
+  "pl",
+  "nb",
+  "sv",
+  "fi",
+  "da",
+  "ar",
+  "lb",
+  "mn",
+  "uk",
+  "ru",
+] as const;
 
 export type LanguageCode = (typeof languages)[number]["code"];
 export type Language = (typeof languages)[number];

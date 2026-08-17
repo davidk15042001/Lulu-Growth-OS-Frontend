@@ -1,19 +1,37 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 import ts from "typescript";
 
 const root = process.cwd();
-const backendEnv = join(root, "..", "Lulu-Growth-OS-Backend", ".env");
+const backendEnv = process.env.LULU_BACKEND_ENV ?? join(root, "..", "Lulu-Growth-OS-Backend", ".env");
 const catalogPath = join(root, "src", "i18n", "translations.json");
-const apiKey = readFileSync(backendEnv, "utf8").match(/^\s*OPENAI_API_KEY\s*=\s*(.+)\s*$/m)?.[1]?.trim();
-if (!apiKey) throw new Error("OPENAI_API_KEY is missing from the backend .env file.");
+const envText = existsSync(backendEnv) ? readFileSync(backendEnv, "utf8") : "";
+const apiKey = process.env.OPENAI_API_KEY ?? envText.match(/^\s*OPENAI_API_KEY\s*=\s*(.+)\s*$/m)?.[1]?.trim();
+if (!apiKey) throw new Error("OPENAI_API_KEY is missing from the environment or backend .env file.");
 
+const languageMetadata = {
+  en: "English",
+  de: "German",
+  "zh-CN": "Simplified Chinese",
+  fr: "French",
+  nl: "Dutch",
+  pl: "Polish",
+  nb: "Norwegian Bokmål",
+  sv: "Swedish",
+  fi: "Finnish",
+  da: "Danish",
+  ar: "Arabic",
+  lb: "Luxembourgish",
+  mn: "Mongolian",
+  uk: "Ukrainian",
+  ru: "Russian",
+};
 const supported = process.env.I18N_LANGUAGE
   ? [process.env.I18N_LANGUAGE]
-  : ["de", "zh-CN"];
-if (!supported.every((language) => ["de", "zh-CN"].includes(language))) {
-  throw new Error("I18N_LANGUAGE must be either de or zh-CN.");
+  : Object.keys(languageMetadata).filter((language) => language !== "en");
+if (!supported.every((language) => language in languageMetadata)) {
+  throw new Error(`I18N_LANGUAGE must be one of: ${Object.keys(languageMetadata).join(", ")}`);
 }
 const files = execFileSync("rg", ["--files", "src", "-g", "*.tsx", "-g", "*.ts"], { encoding: "utf8" }).trim().split(/\r?\n/);
 const values = new Set();
@@ -76,15 +94,16 @@ async function translate(language, batch) {
   let response;
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     try {
-      response = await fetch("https://api.openai.com/v1/responses", {
+      const endpoint = `${(process.env.OPENAI_API_BASE ?? "https://api.openai.com/v1").replace(/\/$/, "")}/responses`;
+      response = await fetch(endpoint, {
     method: "POST",
     headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
     body: JSON.stringify({
-      model: "gpt-5.6-terra",
+      model: process.env.OPENAI_MODEL ?? "gpt-5-mini",
       store: false,
-      reasoning: { effort: "none" },
+      reasoning: { effort: "minimal" },
       max_output_tokens: 12_000,
-      instructions: `You translate English UI text for Lulu Growth OS into ${language === "de" ? "German" : "Simplified Chinese"}. Preserve product names (Lulu AI, Lulu Intelligence), variables, URLs, emails, numbers, punctuation, shortcut keys, and markup-like tokens. Use concise, natural business-software terminology. Return one translation per input id and no commentary.`,
+      instructions: `You translate English UI text for Lulu Growth OS into ${languageMetadata[language]}. Preserve product names (Lulu AI, Lulu Intelligence), variables, URLs, emails, numbers, punctuation, shortcut keys, and markup-like tokens. Use concise, natural business-software terminology. Return one translation per input id and no commentary.`,
       input: JSON.stringify(batch.map((text, id) => ({ id: String(id), text }))),
       text: { format: { type: "json_schema", name: "ui_translations", strict: true, schema: { type: "object", properties: { translations: { type: "array", items: { type: "object", properties: { id: { type: "string" }, text: { type: "string" } }, required: ["id", "text"], additionalProperties: false } } }, required: ["translations"], additionalProperties: false } } },
     }),
