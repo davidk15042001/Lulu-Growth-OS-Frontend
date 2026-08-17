@@ -19921,7 +19921,10 @@
     "Loading live invoices…": "Live-Rechnungen werden geladen…",
     "No live invoices are available yet. Create an invoice or connect your finance system to begin.": "Noch keine Live-Rechnungen verfügbar. Erstellen Sie eine Rechnung oder verbinden Sie Ihr Finanzsystem, um zu beginnen.",
     "Loading live audiences…": "Live-Zielgruppen werden geladen…",
-    "No live audiences are available yet. Connect your marketing platform or create an audience to begin.": "Noch keine Live-Zielgruppen verfügbar. Verbinden Sie Ihre Marketingplattform oder erstellen Sie eine Zielgruppe, um zu beginnen."
+    "No live audiences are available yet. Connect your marketing platform or create an audience to begin.": "Noch keine Live-Zielgruppen verfügbar. Verbinden Sie Ihre Marketingplattform oder erstellen Sie eine Zielgruppe, um zu beginnen.",
+    "Loading live stores…": "Live-Shops werden geladen…",
+    "No live stores are available yet. Connect your commerce platform or add a store to begin.": "Es sind noch keine Live-Shops verfügbar. Verbinden Sie Ihre Handelsplattform oder fügen Sie einen Shop hinzu, um zu beginnen.",
+    "Workspace stores": "Workspace-Shops"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39873,7 +39876,10 @@
     "Loading live invoices…": "正在加载实时发票…",
     "No live invoices are available yet. Create an invoice or connect your finance system to begin.": "目前暂无实时发票。创建发票或连接您的财务系统以开始。",
     "Loading live audiences…": "正在加载实时受众…",
-    "No live audiences are available yet. Connect your marketing platform or create an audience to begin.": "当前暂无实时受众。连接您的营销平台或创建受众以开始。"
+    "No live audiences are available yet. Connect your marketing platform or create an audience to begin.": "当前暂无实时受众。连接您的营销平台或创建受众以开始。",
+    "Loading live stores…": "正在加载实时店铺…",
+    "No live stores are available yet. Connect your commerce platform or add a store to begin.": "尚无可用的实时店铺。连接您的电商平台或添加店铺以开始。",
+    "Workspace stores": "工作区店铺"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
