@@ -50,11 +50,8 @@ export const LuluLoginPage = () => {
       }
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
-        setPendingEmail(e);
-        navigateApp(routes.auth.verifyEmail);
-        return;
-      }
-      if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') setError(t('accountNotFound'));
+        setError('This account uses an outdated verification state. Please try signing in again after the latest deployment. Email OTP is no longer required for registration.');
+      } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') setError(t('accountNotFound'));
       else if (cause instanceof ApiError && cause.code === 'INVALID_CREDENTIALS') setError(t('invalidCredentials'));
       else if (cause instanceof ApiError && cause.code === 'API_TIMEOUT') setError(t('timeout'));
       else setError(getFriendlyErrorMessage(cause, 'We could not sign you in. Please try again.'));
