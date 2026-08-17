@@ -19928,7 +19928,14 @@
     "Loading live CRM activities…": "Live-CRM-Aktivitäten werden geladen…",
     "No live CRM activities are available yet. Add an activity or connect your CRM to begin.": "Es sind noch keine Live-CRM-Aktivitäten verfügbar. Fügen Sie eine Aktivität hinzu oder verbinden Sie Ihr CRM, um zu beginnen.",
     "Loading live sales deals…": "Live-Verkaufsabschlüsse werden geladen…",
-    "No live sales deals are available yet. Add a deal or connect your CRM to begin.": "Noch keine Live-Verkaufsabschlüsse verfügbar. Fügen Sie einen Abschluss hinzu oder verbinden Sie Ihr CRM, um zu beginnen."
+    "No live sales deals are available yet. Add a deal or connect your CRM to begin.": "Noch keine Live-Verkaufsabschlüsse verfügbar. Fügen Sie einen Abschluss hinzu oder verbinden Sie Ihr CRM, um zu beginnen.",
+    "Assignee: Workspace assignee": "Zuständiger: Workspace assignee",
+    "Loading live CRM tasks…": "Live-CRM-Aufgaben werden geladen…",
+    "No live CRM tasks are available yet. Add a task or connect your CRM to begin.": "Es sind noch keine Live-CRM-Aufgaben verfügbar. Fügen Sie eine Aufgabe hinzu oder verbinden Sie Ihr CRM, um zu beginnen.",
+    "Today · Workspace assignee": "Heute · Workspace assignee",
+    "Workspace assignee": "Workspace assignee",
+    "Workspace assignee has 5 overdue tasks; consider rebalancing workload": "Workspace assignee hat 5 überfällige Aufgaben; erwägen Sie eine Neuverteilung der Arbeitslast",
+    "Workspace assignee · 2 days ago": "Workspace assignee · vor 2 Tagen"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -39887,7 +39894,14 @@
     "Loading live CRM activities…": "正在加载实时 CRM 活动…",
     "No live CRM activities are available yet. Add an activity or connect your CRM to begin.": "尚无可用的实时 CRM 活动。添加活动或连接您的 CRM 即可开始。",
     "Loading live sales deals…": "正在加载实时销售交易…",
-    "No live sales deals are available yet. Add a deal or connect your CRM to begin.": "当前暂无实时销售交易。添加交易或连接您的 CRM 即可开始。"
+    "No live sales deals are available yet. Add a deal or connect your CRM to begin.": "当前暂无实时销售交易。添加交易或连接您的 CRM 即可开始。",
+    "Assignee: Workspace assignee": "负责人：工作区负责人",
+    "Loading live CRM tasks…": "正在加载实时 CRM 任务…",
+    "No live CRM tasks are available yet. Add a task or connect your CRM to begin.": "当前尚无实时 CRM 任务。添加任务或连接您的 CRM 即可开始。",
+    "Today · Workspace assignee": "今天 · 工作区负责人",
+    "Workspace assignee": "工作区负责人",
+    "Workspace assignee has 5 overdue tasks; consider rebalancing workload": "工作区负责人有 5 个逾期任务；考虑重新分配工作量",
+    "Workspace assignee · 2 days ago": "工作区负责人 · 2 天前"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",

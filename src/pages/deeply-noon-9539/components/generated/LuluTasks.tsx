@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, AlertTriangle, ArrowDown, ArrowUp, Bot, CalendarDays, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, Circle, Clock3, Filter, Gem, GripVertical, LayoutDashboard, ListFilter, Menu, MoreHorizontal, Plus, RefreshCcw, Search, Settings, Sparkles, Target, Users, X, Zap, UserRound, BriefcaseBusiness, SlidersHorizontal, CheckSquare2, Ban, CalendarClock, Trash2, Pencil, UserPlus, Download, ArrowRight, CircleDot, Link2, WandSparkles, PanelRight, MoveRight } from 'lucide-react';
 type Task = {
   id: string;
@@ -17,7 +18,7 @@ const tasks: Task[] = [{
   related: 'Enterprise Expansion · TechCorp GmbH',
   due: 'Today 14:30',
   priority: 'High',
-  assignee: 'Sarah Chen',
+  assignee: 'Workspace assignee',
   status: 'Not Started',
   source: 'Manual'
 }, {
@@ -26,7 +27,7 @@ const tasks: Task[] = [{
   related: 'Marketing Platform',
   due: 'Today 16:00',
   priority: 'Medium',
-  assignee: 'Marcus Hill',
+  assignee: 'Workspace assignee',
   status: 'In Progress',
   source: 'Manual'
 }, {
@@ -35,7 +36,7 @@ const tasks: Task[] = [{
   related: 'Cloud Migration Suite',
   due: 'Tomorrow',
   priority: 'High',
-  assignee: 'Sarah Chen',
+  assignee: 'Workspace assignee',
   status: 'Not Started',
   source: 'AI-generated'
 }, {
@@ -44,7 +45,7 @@ const tasks: Task[] = [{
   related: 'TechCorp GmbH',
   due: 'This Week',
   priority: 'Medium',
-  assignee: 'Priya Nair',
+  assignee: 'Workspace assignee',
   status: 'Not Started',
   source: 'Automation'
 }, {
@@ -53,7 +54,7 @@ const tasks: Task[] = [{
   related: 'Sales Automation',
   due: '2 days ago',
   priority: 'High',
-  assignee: 'Marcus Hill',
+  assignee: 'Workspace assignee',
   status: 'Overdue',
   source: 'Manual'
 }, {
@@ -62,7 +63,7 @@ const tasks: Task[] = [{
   related: 'Automation Hub',
   due: '3 days ago',
   priority: 'Critical',
-  assignee: 'Marcus Hill',
+  assignee: 'Workspace assignee',
   status: 'Blocked',
   source: 'Manual'
 }, {
@@ -71,7 +72,7 @@ const tasks: Task[] = [{
   related: 'Sales Automation',
   due: 'Next Week',
   priority: 'Low',
-  assignee: 'Sarah Chen',
+  assignee: 'Workspace assignee',
   status: 'Not Started',
   source: 'AI-generated'
 }, {
@@ -80,7 +81,7 @@ const tasks: Task[] = [{
   related: 'CRM Integration',
   due: 'Completed',
   priority: 'Medium',
-  assignee: 'Marcus Hill',
+  assignee: 'Workspace assignee',
   status: 'Completed',
   source: 'Manual',
   checked: true
@@ -90,7 +91,7 @@ const tasks: Task[] = [{
   related: 'Analytics Dashboard',
   due: 'Tomorrow',
   priority: 'Medium',
-  assignee: 'Priya Nair',
+  assignee: 'Workspace assignee',
   status: 'Not Started',
   source: 'AI-generated'
 }, {
@@ -99,7 +100,7 @@ const tasks: Task[] = [{
   related: 'Pinnacle GmbH',
   due: 'Completed',
   priority: 'Low',
-  assignee: 'Priya Nair',
+  assignee: 'Workspace assignee',
   status: 'Completed',
   source: 'Automation',
   checked: true
@@ -109,7 +110,7 @@ const tasks: Task[] = [{
   related: 'Vertex Corp',
   due: 'This Week',
   priority: 'High',
-  assignee: 'Sarah Chen',
+  assignee: 'Workspace assignee',
   status: 'In Progress',
   source: 'Manual'
 }, {
@@ -118,30 +119,30 @@ const tasks: Task[] = [{
   related: '—',
   due: 'Next Week',
   priority: 'Medium',
-  assignee: 'Marcus Hill',
+  assignee: 'Workspace assignee',
   status: 'Not Started',
   source: 'Internal'
 }];
 const workload = [{
-  name: 'Sarah Chen',
+  name: 'Workspace assignee',
   open: 24,
   overdue: 3,
   high: 8,
   rate: 78
 }, {
-  name: 'Marcus Hill',
+  name: 'Workspace assignee',
   open: 19,
   overdue: 5,
   high: 7,
   rate: 62
 }, {
-  name: 'Priya Nair',
+  name: 'Workspace assignee',
   open: 14,
   overdue: 2,
   high: 5,
   rate: 84
 }, {
-  name: 'David Kim',
+  name: 'Workspace assignee',
   open: 7,
   overdue: 1,
   high: 3,
@@ -171,17 +172,17 @@ const aiPriority = [{
   level: 'Critical',
   title: 'Follow up with Enterprise Expansion',
   reason: 'High-value deal approaching close date with no recent activity',
-  assignee: 'Sarah Chen'
+  assignee: 'Workspace assignee'
 }, {
   level: 'High',
   title: 'Send contract to MicroSoft AG',
   reason: 'Overdue 2 days; deal probability declining',
-  assignee: 'Marcus Hill'
+  assignee: 'Workspace assignee'
 }, {
   level: 'High',
   title: 'Schedule Q4 review with DataStream AG',
   reason: 'No activity in 12 days on 128K EUR deal',
-  assignee: 'Priya Nair'
+  assignee: 'Workspace assignee'
 }];
 function Priority({
   value
@@ -235,11 +236,13 @@ export function LuluTasks() {
     setToast(message);
     window.setTimeout(() => setToast(''), 2200);
   };
-  return <main className="min-h-screen bg-[var(--background)] text-foreground font-sans">
+  const { items: liveTasks, loading: liveLoading, error: liveError } = useLiveRecords('crm_tasks');
+  const liveEmpty = !liveLoading && !liveError && liveTasks.length === 0;
+  return <main className="min-h-screen bg-[var(--background)] text-foreground font-sans">{liveLoading ? <div className="border-b border-border bg-secondary/30 px-5 py-3 text-xs text-muted-foreground lg:pl-[244px]">Loading live CRM tasks…</div> : liveError ? <div className="border-b border-destructive/30 bg-destructive/5 px-5 py-3 text-xs text-destructive lg:pl-[244px]">{liveError}</div> : liveEmpty ? <div className="border-b border-dashed border-border bg-card px-5 py-3 text-xs text-muted-foreground lg:pl-[244px]">No live CRM tasks are available yet. Add a task or connect your CRM to begin.</div> : null}
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-[224px] border-r border-border/[.07] bg-[var(--sidebar)] px-4 py-5 lg:flex lg:flex-col">
       <div className="mb-9 flex items-center gap-3 px-2"><span className="grid h-9 w-9 place-items-center rounded-xl bg-primary shadow-lg shadow-black/30 text-primary-foreground"><Gem size={18} fill="currentColor" /></span><strong className="text-[17px] tracking-tight">Lulu <span className="text-foreground">AI</span></strong></div>
       <LuluSectionNavigation activeId="deeply-noon-9539" />
-      <div className="mt-auto border-t border-border/[.07] pt-4"><div className="flex items-center gap-3 rounded-lg px-2 py-2"><Avatar name="Olivia Martin" /><div><p className="text-xs font-medium">Olivia Martin</p><p className="text-[11px] text-muted-foreground">Workspace admin</p></div><MoreHorizontal size={16} className="ml-auto text-muted-foreground" /></div></div>
+      <div className="mt-auto border-t border-border/[.07] pt-4"><div className="flex items-center gap-3 rounded-lg px-2 py-2"><Avatar name="Workspace administrator" /><div><p className="text-xs font-medium">Workspace administrator</p><p className="text-[11px] text-muted-foreground">Workspace admin</p></div><MoreHorizontal size={16} className="ml-auto text-muted-foreground" /></div></div>
     </aside>
     <section className="lg:ml-[224px]">
       <header className="flex items-center justify-between border-b border-border/[.07] px-5 py-4 sm:px-8"><button className="rounded-lg p-2 text-foreground lg:hidden"><Menu size={20} /></button><div className="text-xs text-muted-foreground"><span>CRM</span><span className="mx-2 text-foreground">/</span><span className="text-foreground">Tasks</span></div><div className="flex gap-2"><button onClick={() => action('Filters opened')} className="hidden items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs font-medium text-foreground hover:bg-secondary sm:flex"><Filter size={14} /> Filter</button><button onClick={() => setModal('create')} className="flex items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-lg shadow-black/40 hover:bg-primary"><Plus size={15} /> Create Task</button></div></header>
@@ -288,7 +291,7 @@ export function LuluTasks() {
             c,
             t
           }) => <article key={l} className="rounded-xl border border-border/[.08] bg-[var(--card)] p-4"><div className="mb-4 flex items-center justify-between"><span className="text-xs text-muted-foreground">{l}</span><Icon size={17} className={c} /></div><strong className="block text-2xl tracking-tight text-foreground">{v}</strong><span className="mt-1 block text-[11px] text-muted-foreground">{t}</span></article>)}</section>
-        <section className="mt-8 rounded-xl border border-border/[.08] bg-[var(--card)] p-4 sm:p-5"><div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"><div className="flex rounded-lg bg-[var(--secondary)] p-1">{['List', 'Board', 'Calendar'].map(item => <button key={item} onClick={() => setView(item)} className={`rounded-md px-4 py-2 text-xs font-semibold ${view === item ? 'bg-primary text-primary-foreground' : 'text-primary-foreground hover:text-primary-foreground'}`}>{item}</button>)}</div><div className="flex flex-1 flex-wrap items-center gap-2 xl:justify-end"><label className="flex min-w-[230px] flex-1 items-center gap-2 rounded-lg border border-border bg-[var(--card)] px-3 py-2 text-xs text-muted-foreground xl:max-w-[280px]"><Search size={15} /><input aria-label="Search tasks" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search tasks..." className="w-full bg-transparent outline-none placeholder:text-muted-foreground" /></label><button className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-foreground"><SlidersHorizontal size={14} /> Filters <span className="rounded-full bg-primary px-1.5 text-[10px] text-primary-foreground">3</span></button><button className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-foreground">My Tasks <ChevronDown size={14} /></button></div></div><div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/[.06] pt-4"><span className="text-[11px] text-muted-foreground">Active:</span>{['Priority: High', 'Due: This Week', 'Assignee: Sarah Chen'].map(chip => <button key={chip} className="inline-flex items-center gap-2 rounded-full border border-border/20 bg-secondary/10 px-2.5 py-1 text-[11px] text-foreground">{chip}<X size={12} /></button>)}<button className="text-[11px] font-medium text-foreground hover:text-foreground">Clear All</button></div></section>
+        <section className="mt-8 rounded-xl border border-border/[.08] bg-[var(--card)] p-4 sm:p-5"><div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between"><div className="flex rounded-lg bg-[var(--secondary)] p-1">{['List', 'Board', 'Calendar'].map(item => <button key={item} onClick={() => setView(item)} className={`rounded-md px-4 py-2 text-xs font-semibold ${view === item ? 'bg-primary text-primary-foreground' : 'text-primary-foreground hover:text-primary-foreground'}`}>{item}</button>)}</div><div className="flex flex-1 flex-wrap items-center gap-2 xl:justify-end"><label className="flex min-w-[230px] flex-1 items-center gap-2 rounded-lg border border-border bg-[var(--card)] px-3 py-2 text-xs text-muted-foreground xl:max-w-[280px]"><Search size={15} /><input aria-label="Search tasks" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search tasks..." className="w-full bg-transparent outline-none placeholder:text-muted-foreground" /></label><button className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-foreground"><SlidersHorizontal size={14} /> Filters <span className="rounded-full bg-primary px-1.5 text-[10px] text-primary-foreground">3</span></button><button className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-foreground">My Tasks <ChevronDown size={14} /></button></div></div><div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/[.06] pt-4"><span className="text-[11px] text-muted-foreground">Active:</span>{['Priority: High', 'Due: This Week', 'Assignee: Workspace assignee'].map(chip => <button key={chip} className="inline-flex items-center gap-2 rounded-full border border-border/20 bg-secondary/10 px-2.5 py-1 text-[11px] text-foreground">{chip}<X size={12} /></button>)}<button className="text-[11px] font-medium text-foreground hover:text-foreground">Clear All</button></div></section>
         <section className="mt-8"><div className="mb-4 flex items-end justify-between"><div><h2 className="text-xl font-semibold text-foreground">My Tasks</h2><p className="mt-1 text-xs text-muted-foreground">Your highest-impact work, grouped by urgency</p></div><button className="text-xs text-foreground hover:text-foreground">View all my tasks <ArrowRight className="ml-1 inline" size={13} /></button></div><div className="grid gap-3 lg:grid-cols-2">{[{
               group: 'Overdue',
               count: 3,
@@ -317,19 +320,19 @@ export function LuluTasks() {
         <section className="mt-10"><div className="mb-4 flex items-center justify-between"><div><h2 className="text-xl font-semibold text-foreground">Overdue Tasks <span className="ml-2 rounded-full bg-chart-5/15 px-2 py-1 text-xs text-chart-5">11</span></h2><p className="mt-1 text-xs text-muted-foreground">Needs attention before it impacts your pipeline</p></div><button className="text-xs text-foreground">View all 11 overdue tasks <ArrowRight className="ml-1 inline" size={13} /></button></div><div className="grid gap-3 lg:grid-cols-3">{[{
               title: 'Call Zentrix Ltd',
               detail: 'Blocked · Overdue 3 days',
-              person: 'Marcus Hill',
+              person: 'Workspace assignee',
               related: 'Automation Hub',
               level: 'Critical'
             }, {
               title: 'Send contract to MicroSoft AG',
               detail: 'Overdue 2 days',
-              person: 'Marcus Hill',
+              person: 'Workspace assignee',
               related: 'Sales Automation',
               level: 'High'
             }, {
               title: 'Follow up with Example GmbH',
               detail: 'Overdue 1 day',
-              person: 'Sarah Chen',
+              person: 'Workspace assignee',
               related: 'Enterprise Expansion',
               level: 'High'
             }].map(item => <article key={item.title} className="rounded-xl border border-border bg-[var(--card)] p-4"><div className="flex items-center justify-between"><Priority value={item.level as Task['priority']} /><button onClick={() => setDrawer(true)} className="rounded-md border border-border px-2.5 py-1 text-[11px] text-foreground">Review</button></div><h3 className="mt-4 text-sm font-semibold">{item.title}</h3><p className="mt-1 text-xs text-chart-5">{item.detail}</p><div className="mt-4 flex items-center justify-between text-[11px] text-muted-foreground"><span className="flex items-center gap-2"><Avatar name={item.person} />{item.person}</span><span>{item.related}</span></div></article>)}</div></section>
@@ -338,13 +341,13 @@ export function LuluTasks() {
                           }} /></span>{person.rate}%</span></td></tr>)}</tbody></table></div></div><div><div className="mb-4 flex items-center gap-2"><h2 className="text-xl font-semibold">Blocked Tasks</h2><span className="rounded-full bg-chart-5/15 px-2 py-1 text-xs text-chart-5">4</span></div><div className="space-y-3">{[{
                 title: 'Call Zentrix Ltd',
                 why: 'Waiting for contact confirmation',
-                who: 'Marcus Hill',
+                who: 'Workspace assignee',
                 days: '3 days',
                 p: 'Critical'
               }, {
                 title: 'Contract review',
                 why: 'Waiting for legal team',
-                who: 'Priya Nair',
+                who: 'Workspace assignee',
                 days: '5 days',
                 p: 'High'
               }].map(item => <article key={item.title} className="flex items-center gap-3 rounded-xl border border-border/[.08] bg-[var(--card)] p-4"><span className="grid h-8 w-8 place-items-center rounded-lg bg-chart-5/10 text-chart-5"><Ban size={15} /></span><div className="min-w-0 flex-1"><h3 className="text-sm font-medium">{item.title}</h3><p className="mt-1 text-xs text-muted-foreground">{item.why} · {item.days}</p><p className="mt-2 text-[11px] text-muted-foreground">{item.who} · <Priority value={item.p as Task['priority']} /></p></div><button onClick={() => setDrawer(true)} className="rounded-md border border-border px-2.5 py-1 text-[11px]">Review</button></article>)}</div><button className="mt-3 text-xs text-foreground">View all 4 blocked tasks <ArrowRight className="ml-1 inline" size={13} /></button></div></section>
@@ -353,17 +356,17 @@ export function LuluTasks() {
               icon: Zap,
               text: 'When a deal enters negotiation',
               date: 'Created Aug 12',
-              person: 'Sarah Chen'
+              person: 'Workspace assignee'
             }, {
               icon: Activity,
               text: 'After a meeting is completed',
               date: 'Created Aug 08',
-              person: 'Priya Nair'
+              person: 'Workspace assignee'
             }, {
               icon: RefreshCcw,
               text: 'When lead score changes',
               date: 'Created Jul 29',
-              person: 'Marcus Hill'
+              person: 'Workspace assignee'
             }].map(({
               icon: Icon,
               text,
@@ -372,8 +375,8 @@ export function LuluTasks() {
             }) => <article key={text} className="rounded-xl border border-border/[.07] bg-[var(--card)] p-4"><Icon size={16} className="text-foreground" /><p className="mt-3 text-sm text-foreground">{text}</p><p className="mt-3 text-[11px] text-muted-foreground">{date} · {person}</p><Status value="In Progress" /></article>)}</div></section>
       </div>
     </section>
-    {drawer && <aside className="fixed inset-y-0 right-0 z-30 w-full max-w-[400px] border-l border-border bg-[var(--sidebar)] p-6 shadow-2xl shadow-black/50"><div className="flex items-center justify-between"><span className="text-xs font-semibold uppercase tracking-wider text-foreground">Task preview</span><button onClick={() => setDrawer(false)} className="rounded-lg p-2 text-foreground hover:bg-secondary"><X size={18} /></button></div><h2 className="mt-8 text-2xl font-bold">Follow up with Anna Weber</h2><p className="mt-2 text-sm text-muted-foreground">Enterprise Expansion / TechCorp GmbH / Anna Weber</p><div className="mt-6 flex gap-2"><Status value="Not Started" /><Priority value="High" /></div><dl className="mt-8 space-y-5 border-y border-border/[.08] py-6 text-sm"><div className="flex justify-between"><dt className="text-muted-foreground">Assignee</dt><dd className="flex items-center gap-2"><Avatar name="Sarah Chen" /> Sarah Chen</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">Due</dt><dd>Today 14:30</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">Source</dt><dd>Manual</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">Created by</dt><dd>Sarah Chen · 2 days ago</dd></div></dl><div className="mt-6 grid grid-cols-2 gap-2"><button className="rounded-lg bg-primary px-3 py-2.5 text-xs font-semibold text-primary-foreground">Open</button><button onClick={() => setModal('complete')} className="rounded-lg border border-border px-3 py-2.5 text-xs">Mark Complete</button><button onClick={() => setModal('reassign')} className="rounded-lg border border-border px-3 py-2.5 text-xs">Reassign</button><button onClick={() => setModal('reschedule')} className="rounded-lg border border-border px-3 py-2.5 text-xs">Reschedule</button><button className="col-span-2 rounded-lg border border-chart-5/20 py-2.5 text-xs text-chart-5">Delete</button></div></aside>}
-    {modal && <dialog open className="fixed inset-0 z-40 m-0 flex min-h-full w-full items-center justify-center bg-[var(--background)]/80 p-4"><div className="w-full max-w-[500px] rounded-2xl border border-border bg-[var(--secondary)] p-6 shadow-2xl shadow-black/60"><div className="flex items-start justify-between"><div><h2 className="text-xl font-semibold">{modal === 'create' ? 'Create Task' : modal === 'complete' ? 'Task Completed!' : modal === 'reassign' ? 'Reassign Task' : 'Reschedule Task'}</h2><p className="mt-1 text-xs text-muted-foreground">{modal === 'create' ? 'Capture a clear next action for your team.' : 'Update this task and keep the workflow moving.'}</p></div><button onClick={() => setModal(null)} className="text-foreground"><X size={18} /></button></div>{modal === 'create' ? <div className="mt-6 space-y-4"><label className="block text-xs text-muted-foreground">Task Title <em className="text-chart-5">*</em><input className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5 text-sm outline-none focus:border-border" placeholder="What needs to be done?" /></label><label className="block text-xs text-muted-foreground">Description<textarea className="mt-2 h-20 w-full resize-none rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5 text-sm outline-none" placeholder="Add context for the assignee..." /></label><div className="grid gap-4 sm:grid-cols-2"><label className="block text-xs text-muted-foreground">Assignee <em className="text-chart-5">*</em><select className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5"><option>Sarah Chen</option><option>Marcus Hill</option><option>Priya Nair</option></select></label><label className="block text-xs text-muted-foreground">Due Date <em className="text-chart-5">*</em><input type="date" className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5" /></label></div><div className="grid gap-4 sm:grid-cols-2"><label className="block text-xs text-muted-foreground">Priority<select className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5"><option>High</option><option>Critical</option><option>Medium</option><option>Low</option></select></label><label className="block text-xs text-muted-foreground">Related Deal<input placeholder="Search records..." className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5" /></label></div></div> : modal === 'complete' ? <div className="mt-6 space-y-4"><label className="block text-xs text-muted-foreground">Completion Note<textarea className="mt-2 h-24 w-full rounded-lg border border-border bg-[var(--secondary)] p-3" placeholder="Optional note..." /></label><label className="flex items-center gap-2 text-sm text-muted-foreground"><input type="checkbox" className="accent-primary" /> Create follow-up task</label></div> : <div className="mt-6 space-y-4"><p className="text-sm text-muted-foreground">Current assignee: <strong className="text-foreground">Marcus Hill</strong></p><label className="block text-xs text-muted-foreground">{modal === 'reassign' ? 'New Assignee' : 'Due Date'}<select className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5"><option>{modal === 'reassign' ? 'Sarah Chen' : 'Tomorrow'}</option><option>Priya Nair</option><option>David Kim</option></select></label><label className="flex items-center gap-2 text-sm text-foreground"><input type="checkbox" defaultChecked className="accent-primary" /> {modal === 'reassign' ? 'Notify assignee' : 'Keep existing due time'}</label></div>}<div className="mt-7 flex justify-end gap-2"><button onClick={() => setModal(null)} className="rounded-lg border border-border px-4 py-2.5 text-xs text-foreground">Cancel</button><button onClick={() => {
+    {drawer && <aside className="fixed inset-y-0 right-0 z-30 w-full max-w-[400px] border-l border-border bg-[var(--sidebar)] p-6 shadow-2xl shadow-black/50"><div className="flex items-center justify-between"><span className="text-xs font-semibold uppercase tracking-wider text-foreground">Task preview</span><button onClick={() => setDrawer(false)} className="rounded-lg p-2 text-foreground hover:bg-secondary"><X size={18} /></button></div><h2 className="mt-8 text-2xl font-bold">Follow up with Anna Weber</h2><p className="mt-2 text-sm text-muted-foreground">Enterprise Expansion / TechCorp GmbH / Anna Weber</p><div className="mt-6 flex gap-2"><Status value="Not Started" /><Priority value="High" /></div><dl className="mt-8 space-y-5 border-y border-border/[.08] py-6 text-sm"><div className="flex justify-between"><dt className="text-muted-foreground">Assignee</dt><dd className="flex items-center gap-2"><Avatar name="Workspace assignee" /> Workspace assignee</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">Due</dt><dd>Today 14:30</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">Source</dt><dd>Manual</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">Created by</dt><dd>Workspace assignee · 2 days ago</dd></div></dl><div className="mt-6 grid grid-cols-2 gap-2"><button className="rounded-lg bg-primary px-3 py-2.5 text-xs font-semibold text-primary-foreground">Open</button><button onClick={() => setModal('complete')} className="rounded-lg border border-border px-3 py-2.5 text-xs">Mark Complete</button><button onClick={() => setModal('reassign')} className="rounded-lg border border-border px-3 py-2.5 text-xs">Reassign</button><button onClick={() => setModal('reschedule')} className="rounded-lg border border-border px-3 py-2.5 text-xs">Reschedule</button><button className="col-span-2 rounded-lg border border-chart-5/20 py-2.5 text-xs text-chart-5">Delete</button></div></aside>}
+    {modal && <dialog open className="fixed inset-0 z-40 m-0 flex min-h-full w-full items-center justify-center bg-[var(--background)]/80 p-4"><div className="w-full max-w-[500px] rounded-2xl border border-border bg-[var(--secondary)] p-6 shadow-2xl shadow-black/60"><div className="flex items-start justify-between"><div><h2 className="text-xl font-semibold">{modal === 'create' ? 'Create Task' : modal === 'complete' ? 'Task Completed!' : modal === 'reassign' ? 'Reassign Task' : 'Reschedule Task'}</h2><p className="mt-1 text-xs text-muted-foreground">{modal === 'create' ? 'Capture a clear next action for your team.' : 'Update this task and keep the workflow moving.'}</p></div><button onClick={() => setModal(null)} className="text-foreground"><X size={18} /></button></div>{modal === 'create' ? <div className="mt-6 space-y-4"><label className="block text-xs text-muted-foreground">Task Title <em className="text-chart-5">*</em><input className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5 text-sm outline-none focus:border-border" placeholder="What needs to be done?" /></label><label className="block text-xs text-muted-foreground">Description<textarea className="mt-2 h-20 w-full resize-none rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5 text-sm outline-none" placeholder="Add context for the assignee..." /></label><div className="grid gap-4 sm:grid-cols-2"><label className="block text-xs text-muted-foreground">Assignee <em className="text-chart-5">*</em><select className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5"><option>Workspace assignee</option><option>Workspace assignee</option><option>Workspace assignee</option></select></label><label className="block text-xs text-muted-foreground">Due Date <em className="text-chart-5">*</em><input type="date" className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5" /></label></div><div className="grid gap-4 sm:grid-cols-2"><label className="block text-xs text-muted-foreground">Priority<select className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5"><option>High</option><option>Critical</option><option>Medium</option><option>Low</option></select></label><label className="block text-xs text-muted-foreground">Related Deal<input placeholder="Search records..." className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5" /></label></div></div> : modal === 'complete' ? <div className="mt-6 space-y-4"><label className="block text-xs text-muted-foreground">Completion Note<textarea className="mt-2 h-24 w-full rounded-lg border border-border bg-[var(--secondary)] p-3" placeholder="Optional note..." /></label><label className="flex items-center gap-2 text-sm text-muted-foreground"><input type="checkbox" className="accent-primary" /> Create follow-up task</label></div> : <div className="mt-6 space-y-4"><p className="text-sm text-muted-foreground">Current assignee: <strong className="text-foreground">Workspace assignee</strong></p><label className="block text-xs text-muted-foreground">{modal === 'reassign' ? 'New Assignee' : 'Due Date'}<select className="mt-2 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 py-2.5"><option>{modal === 'reassign' ? 'Workspace assignee' : 'Tomorrow'}</option><option>Workspace assignee</option><option>Workspace assignee</option></select></label><label className="flex items-center gap-2 text-sm text-foreground"><input type="checkbox" defaultChecked className="accent-primary" /> {modal === 'reassign' ? 'Notify assignee' : 'Keep existing due time'}</label></div>}<div className="mt-7 flex justify-end gap-2"><button onClick={() => setModal(null)} className="rounded-lg border border-border px-4 py-2.5 text-xs text-foreground">Cancel</button><button onClick={() => {
             setModal(null);
             action(modal === 'complete' ? 'Task marked complete' : 'Task updated');
           }} className="rounded-lg bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground">{modal === 'create' ? 'Create Task' : modal === 'complete' ? 'Done' : modal === 'reassign' ? 'Reassign' : 'Reschedule'}</button></div></div></dialog>}
@@ -402,7 +405,7 @@ function Board({
     count: 247,
     items: ['Discovery call with NexGen Systems', 'Send intro email']
   }];
-  return <section className="mt-5 overflow-x-auto"><div className="grid min-w-[980px] grid-cols-4 gap-4">{columns.map(column => <div key={column.name} className="rounded-xl border border-border/[.08] bg-[var(--secondary)] p-3"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-semibold">{column.name}</h2><span className="text-xs text-muted-foreground">{column.count}</span></div><div className="space-y-3">{column.items.map(title => <button key={title} onClick={onOpen} className="w-full rounded-lg border border-border/[.07] bg-[var(--primary)] p-3 text-left hover:border-border/40 text-primary-foreground"><strong className="text-xs font-medium">{title}</strong><p className="mt-3 text-[11px] text-muted-foreground">Today · Sarah Chen</p><Priority value="High" /></button>)}</div><button className="mt-3 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border py-2 text-[11px] text-foreground"><MoveRight size={13} /> Move stage</button></div>)}</div></section>;
+  return <section className="mt-5 overflow-x-auto"><div className="grid min-w-[980px] grid-cols-4 gap-4">{columns.map(column => <div key={column.name} className="rounded-xl border border-border/[.08] bg-[var(--secondary)] p-3"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-semibold">{column.name}</h2><span className="text-xs text-muted-foreground">{column.count}</span></div><div className="space-y-3">{column.items.map(title => <button key={title} onClick={onOpen} className="w-full rounded-lg border border-border/[.07] bg-[var(--primary)] p-3 text-left hover:border-border/40 text-primary-foreground"><strong className="text-xs font-medium">{title}</strong><p className="mt-3 text-[11px] text-muted-foreground">Today · Workspace assignee</p><Priority value="High" /></button>)}</div><button className="mt-3 flex w-full items-center justify-center gap-1 rounded-lg border border-dashed border-border py-2 text-[11px] text-foreground"><MoveRight size={13} /> Move stage</button></div>)}</div></section>;
 }
 function CalendarView() {
   const dates = ['Mon 14', 'Tue 15', 'Wed 16', 'Thu 17', 'Fri 18'];
@@ -423,7 +426,7 @@ function AiSections({
           priority: 'High'
         }, {
           title: 'Reassign Overdue Tasks',
-          body: 'Marcus Hill has 5 overdue tasks; consider rebalancing workload',
+          body: 'Workspace assignee has 5 overdue tasks; consider rebalancing workload',
           impact: 'Balance capacity',
           priority: 'Medium'
         }, {
