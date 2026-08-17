@@ -4,6 +4,7 @@ import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { getPageContract } from "./api/page-contracts";
 import { LiveResourceRoute } from "./components/LiveResourceRoute";
+import { LiveWorkspaceRoute } from "./components/LiveWorkspaceRoute";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -110,6 +111,9 @@ export function NativePage({ slug }: { slug: string }) {
   const contract = getPageContract(slug);
   if (contract?.kind === "resource") {
     return <LuluRuntime slug={slug}><LiveResourceRoute resourceType={contract.resourceType} /></LuluRuntime>;
+  }
+  if (contract?.kind === "workspace") {
+    return <LuluRuntime slug={slug}><LiveWorkspaceRoute /></LuluRuntime>;
   }
 
   return (
