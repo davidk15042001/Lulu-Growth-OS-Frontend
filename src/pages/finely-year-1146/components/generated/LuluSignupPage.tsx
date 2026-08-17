@@ -28,7 +28,11 @@ export function LuluSignupPage() {
   const passwordsMatch = Boolean(confirmPassword) && password === confirmPassword;
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!accepted || status === 'loading') return;
+    if (status === 'loading') return;
+    if (!accepted) {
+      setError('Please accept the Terms of Service and Privacy Policy to create your account.');
+      return;
+    }
     if (!firstName.trim() || !lastName.trim()) {
       setError('Please enter your first and last name.');
       return;
@@ -131,7 +135,7 @@ export function LuluSignupPage() {
               <span>I agree to the <a href="https://lulu.ai/terms" target="_blank" rel="noreferrer" className="underline">Terms of Service</a> and <a href="https://lulu.ai/privacy" target="_blank" rel="noreferrer" className="underline">Privacy Policy</a>.</span>
             </label>
 
-            <button type="submit" disabled={status === 'loading' || !accepted} className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="submit" disabled={status === 'loading'} className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50">
               {status === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
               <span>{status === 'loading' ? 'Creating account...' : 'Create Account'}</span>
             </button>
