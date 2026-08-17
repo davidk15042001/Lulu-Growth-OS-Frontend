@@ -20012,7 +20012,13 @@
     "No company contract on this page": "Kein Unternehmensvertrag auf dieser Seite",
     "Review workspace expansion proposal": "Vorschlag zur Erweiterung des Arbeitsbereichs prüfen",
     "Workspace account deal moved to Negotiation": "Deal des Arbeitsbereichskontos in Verhandlung verschoben",
-    "Workspace ownereting": "Arbeitsbereichs-Marketing"
+    "Workspace ownereting": "Arbeitsbereichs-Marketing",
+    "Analytics contract required": "Analytics-Vertrag erforderlich",
+    "No connected store performance records are available yet.": "Für verbundene Shops sind noch keine Leistungsdaten verfügbar.",
+    "Observed platform data, calculated metrics, and AI insights are clearly labeled. Live values appear when connected records are available.": "Beobachtete Plattformdaten, berechnete Kennzahlen und AI-Erkenntnisse sind deutlich gekennzeichnet. Live-Werte werden angezeigt, sobald verbundene Datensätze vorliegen.",
+    "Product contract required": "Produktvertrag erforderlich",
+    "Returns contract required": "Rücksendungsvertrag erforderlich",
+    "Store performance data could not be loaded. Check the connected ecommerce platforms and try again.": "Die Leistungsdaten des Shops konnten nicht geladen werden. Überprüfen Sie die verbundenen E‑Commerce‑Plattformen und versuchen Sie es erneut."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40055,7 +40061,13 @@
     "No company contract on this page": "此页面无公司合同",
     "Review workspace expansion proposal": "审核工作区扩展提案",
     "Workspace account deal moved to Negotiation": "工作区帐户交易已移动至谈判阶段",
-    "Workspace ownereting": "Workspace ownereting"
+    "Workspace ownereting": "Workspace ownereting",
+    "Analytics contract required": "需要 Analytics 合同",
+    "No connected store performance records are available yet.": "尚无已连接店铺的绩效记录。",
+    "Observed platform data, calculated metrics, and AI insights are clearly labeled. Live values appear when connected records are available.": "已标注观测平台数据、计算指标和 AI 洞察。连接记录可用时会显示实时数值。",
+    "Product contract required": "需要 Product 合同",
+    "Returns contract required": "需要 Returns 合同",
+    "Store performance data could not be loaded. Check the connected ecommerce platforms and try again.": "无法加载店铺绩效数据。请检查已连接的电商平台并重试。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
