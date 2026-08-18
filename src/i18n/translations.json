@@ -20066,7 +20066,11 @@
     "Meeting criteria": "Erfüllte Kriterien",
     "No customer segments are available yet.": "Noch keine Kundensegmente verfügbar.",
     "Competitor data could not be loaded. Check marketing competitor records and try again.": "Konkurrentendaten konnten nicht geladen werden. Überprüfen Sie die Marketing-Konkurrenteneinträge und versuchen Sie es erneut.",
-    "No competitor records are available yet.": "Es sind noch keine Konkurrenteneinträge verfügbar."
+    "No competitor records are available yet.": "Es sind noch keine Konkurrenteneinträge verfügbar.",
+    "Workspace owner · Jun 1, 2025": "Workspace-Inhaber · 1. Juni 2025",
+    "Workspace owner · Jun 3, 2025": "Workspace-Inhaber · 3. Juni 2025",
+    "Workspace owner · May 20, 2025": "Workspace-Inhaber · 20. Mai 2025",
+    "Workspace owner · May 28, 2025": "Workspace-Inhaber · 28. Mai 2025"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40163,7 +40167,11 @@
     "Meeting criteria": "符合条件的会议",
     "No customer segments are available yet.": "尚无可用的客户细分。",
     "Competitor data could not be loaded. Check marketing competitor records and try again.": "无法加载竞争对手数据。请检查营销竞争对手记录并重试。",
-    "No competitor records are available yet.": "尚无竞争对手记录。"
+    "No competitor records are available yet.": "尚无竞争对手记录。",
+    "Workspace owner · Jun 1, 2025": "工作区拥有者 · 2025年6月1日",
+    "Workspace owner · Jun 3, 2025": "工作区拥有者 · 2025年6月3日",
+    "Workspace owner · May 20, 2025": "工作区拥有者 · 2025年5月20日",
+    "Workspace owner · May 28, 2025": "工作区拥有者 · 2025年5月28日"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
