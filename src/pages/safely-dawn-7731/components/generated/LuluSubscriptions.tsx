@@ -37,7 +37,7 @@ const subscriptions: Subscription[] = [{
   payment: 'Paid',
   updated: '10 Aug'
 }, {
-  customer: 'Sarah Chen',
+  customer: 'Connected customer',
   id: 'SUB-10471',
   plan: 'Starter Plan',
   store: 'Lulu WooCommerce',
@@ -136,7 +136,7 @@ const attention: Attention[] = [{
   severity: 'Critical',
   time: '2h ago'
 }, {
-  customer: 'Sarah Chen',
+  customer: 'Connected customer',
   id: 'SUB-10471',
   issue: 'Past due payment',
   store: 'Lulu WooCommerce',
