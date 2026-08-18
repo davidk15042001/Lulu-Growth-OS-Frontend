@@ -20057,7 +20057,9 @@
     "No attribution records are available yet.": "Es sind noch keine Attributionseinträge verfügbar.",
     "Tracking attribution data could not be loaded. Check connected advertising sources and try again.": "Attributionsdaten konnten nicht geladen werden. Überprüfen Sie die verbundenen Werbequellen und versuchen Sie es erneut.",
     "Activity data could not be loaded. Check workspace activity records and try again.": "Aktivitätsdaten konnten nicht geladen werden. Überprüfen Sie die Aktivitätsaufzeichnungen des Arbeitsbereichs und versuchen Sie es erneut.",
-    "No activity records are available yet.": "Noch keine Aktivitätsaufzeichnungen verfügbar."
+    "No activity records are available yet.": "Noch keine Aktivitätsaufzeichnungen verfügbar.",
+    "Connected workspace GmbH": "Connected workspace GmbH",
+    "Workspace billing contacts": "Abrechnungskontakte des Workspaces"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40145,7 +40147,9 @@
     "No attribution records are available yet.": "尚无归因记录可用。",
     "Tracking attribution data could not be loaded. Check connected advertising sources and try again.": "无法加载归因跟踪数据。请检查已连接的广告来源后重试。",
     "Activity data could not be loaded. Check workspace activity records and try again.": "活动数据无法加载。请检查工作区活动记录后重试。",
-    "No activity records are available yet.": "目前暂无活动记录。"
+    "No activity records are available yet.": "目前暂无活动记录。",
+    "Connected workspace GmbH": "Connected workspace 有限公司",
+    "Workspace billing contacts": "工作区计费联系人"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
