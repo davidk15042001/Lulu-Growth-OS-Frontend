@@ -20073,7 +20073,9 @@
     "Workspace owner · May 28, 2025": "Workspace-Inhaber · 28. Mai 2025",
     "No offer records are available yet.": "Es sind noch keine Angebotsdatensätze verfügbar.",
     "Offer data could not be loaded. Check finance quote records and try again.": "Angebotsdaten konnten nicht geladen werden. Überprüfen Sie die Finanzangebotsdatensätze und versuchen Sie es erneut.",
-    "live offers": "Live-Angebote"
+    "live offers": "Live-Angebote",
+    "Executive data could not be loaded. Check income, customer and deal records and try again.": "Exekutivdaten konnten nicht geladen werden. Überprüfen Sie Einkommens-, Kunden- und Deal-Datensätze und versuchen Sie es erneut.",
+    "No executive records are available yet.": "Es sind noch keine Exekutivdatensätze verfügbar."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40177,7 +40179,9 @@
     "Workspace owner · May 28, 2025": "工作区拥有者 · 2025年5月28日",
     "No offer records are available yet.": "尚无报价记录。",
     "Offer data could not be loaded. Check finance quote records and try again.": "无法加载报价数据。请检查财务报价记录后重试。",
-    "live offers": "实时报价"
+    "live offers": "实时报价",
+    "Executive data could not be loaded. Check income, customer and deal records and try again.": "高层数据无法加载。请检查收入、客户和交易记录后重试。",
+    "No executive records are available yet.": "尚无高层记录可用。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
