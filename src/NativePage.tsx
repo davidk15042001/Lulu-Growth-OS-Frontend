@@ -2,6 +2,8 @@ import { StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
+import { LiveDataRequired } from "./components/LiveDataRequired";
+import { getPageContract } from "./api/page-contracts";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
 
 type AppModule = { default: ComponentType };
@@ -12,6 +14,8 @@ const styleModules = import.meta.glob<StyleModule>("./pages/*/index.css", {
   query: "?inline",
   import: "default",
 });
+const liveDataBackedSlugs = new Set(["lulu-website-portal-9012"]);
+
 const authPageSlugs = new Set([
   "brightly-door-5741",
   "finely-year-1146",
@@ -32,6 +36,10 @@ function pageSlugFromPath(pathname: string) {
 export function NativePage({ slug }: { slug: string }) {
   const [App, setApp] = useState<ComponentType | null>(null);
   const [error, setError] = useState<unknown>(null);
+  const contract = getPageContract(slug);
+  const isAuthPage = authPageSlugs.has(slug) || window.location.pathname.startsWith("/auth/");
+  const isOnboardingPage = contract?.kind === "onboarding";
+  const showLiveDataGate = !isAuthPage && !isOnboardingPage && !liveDataBackedSlugs.has(slug);
 
   useEffect(() => {
     let active = true;
@@ -40,7 +48,6 @@ export function NativePage({ slug }: { slug: string }) {
 
     const pageFrame = document.querySelector<HTMLElement>(".page-frame");
     const previousPageFrameStyle = pageFrame?.getAttribute("style");
-    const isAuthPage = authPageSlugs.has(slug) || window.location.pathname.startsWith("/auth/");
     if (pageFrame && isAuthPage) {
       pageFrame.classList.add("page-frame--auth");
       pageFrame.style.height = "auto";
@@ -114,11 +121,15 @@ export function NativePage({ slug }: { slug: string }) {
 
   return (
     <LuluRuntime slug={slug}>
-      <div className="lulu-native-page">
-        <PageErrorBoundary pageName={slug}>
-          <App />
-        </PageErrorBoundary>
-      </div>
+      {showLiveDataGate ? (
+        <LiveDataRequired pageName={slug} />
+      ) : (
+        <div className="lulu-native-page">
+          <PageErrorBoundary pageName={slug}>
+            <App />
+          </PageErrorBoundary>
+        </div>
+      )}
     </LuluRuntime>
   );
 }
