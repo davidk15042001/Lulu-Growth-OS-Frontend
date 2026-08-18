@@ -20083,7 +20083,10 @@
     "Finance approver": "Finanzfreigeberechtigter",
     "Finance automation data could not be loaded. Check finance automation records and try again.": "Finanzautomationsdaten konnten nicht geladen werden. Überprüfen Sie die Finanzautomationsdatensätze und versuchen Sie es erneut.",
     "Finance operator": "Finanzoperator",
-    "No finance automation records are available yet.": "Es sind noch keine Finanzautomationsdatensätze verfügbar."
+    "No finance automation records are available yet.": "Es sind noch keine Finanzautomationsdatensätze verfügbar.",
+    "Content data could not be loaded. Check marketing content records and try again.": "Inhalte konnten nicht geladen werden. Überprüfen Sie die Marketing-Inhaltseinträge und versuchen Sie es erneut.",
+    "Customer Success Story — Connected customer": "Customer Success Story – Vernetzter Kunde",
+    "No marketing content records are available yet.": "Es sind noch keine Marketing-Inhaltseinträge verfügbar."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40197,7 +40200,10 @@
     "Finance approver": "财务审批人",
     "Finance automation data could not be loaded. Check finance automation records and try again.": "无法加载财务自动化数据。请检查财务自动化记录并重试。",
     "Finance operator": "财务操作员",
-    "No finance automation records are available yet.": "尚无财务自动化记录。"
+    "No finance automation records are available yet.": "尚无财务自动化记录。",
+    "Content data could not be loaded. Check marketing content records and try again.": "无法加载内容数据。请检查营销内容记录后重试。",
+    "Customer Success Story — Connected customer": "客户成功案例 — 已连接的客户",
+    "No marketing content records are available yet.": "尚无可用的营销内容记录。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
