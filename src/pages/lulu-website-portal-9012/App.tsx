@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { getSelectedWorkspaceId } from "../../api/session";
-import { websitesApi, type WebsiteGenerationJob, type WebsiteSite } from "../../api/websites";
+import { websitesApi, type WebsiteSite } from "../../api/websites";
 import { getFriendlyErrorMessage } from "../../api/client";
 import {
   ArrowRight,
@@ -16,7 +16,6 @@ import {
   RefreshCw,
   Search,
   Settings,
-  Sparkles,
   X,
 } from "lucide-react";
 import { pageLinkProps } from "../../routing";
@@ -88,9 +87,6 @@ export default function App() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [sites, setSites] = useState<WebsiteSite[]>([]);
   const [selectedSiteId, setSelectedSiteId] = useState("");
-  const [prompt, setPrompt] = useState("");
-  const [generationJob, setGenerationJob] = useState<WebsiteGenerationJob | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState("");
   const workspaceId = getSelectedWorkspaceId();
   const content = useMemo(() => providerContent[provider], [provider]);
@@ -110,20 +106,6 @@ export default function App() {
     setError("");
     if (workspaceId) websitesApi.list(workspaceId).then((response) => setSites(response.data.items)).catch((requestError) => setError(getFriendlyErrorMessage(requestError, "Die Websites konnten nicht geladen werden."))).finally(() => setIsRefreshing(false));
     else window.setTimeout(() => setIsRefreshing(false), 800);
-  };
-
-  const generatePreview = async () => {
-    if (!workspaceId || !selectedSite || prompt.trim().length < 10) return;
-    setIsGenerating(true);
-    setError("");
-    try {
-      const response = await websitesApi.createGenerationJob(workspaceId, selectedSite.id, prompt);
-      setGenerationJob(response.data);
-    } catch (requestError) {
-      setError(getFriendlyErrorMessage(requestError, "Die Website-Vorschau konnte nicht erstellt werden."));
-    } finally {
-      setIsGenerating(false);
-    }
   };
 
   const changeProvider = (nextProvider: Provider) => {
@@ -166,7 +148,6 @@ export default function App() {
 
           <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{content.metrics.map((metric) => <article key={metric.label} className="rounded-xl border border-border bg-card p-4"><div className="mb-4 flex items-center justify-between"><span className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">{metric.label}</span><metric.icon size={16} className="text-muted-foreground" /></div><strong className="text-2xl font-semibold tracking-tight text-foreground">{metric.label === "Seiten" ? String(selectedSite ? 1 : 0) : metric.value}</strong><p className="mt-1 text-xs text-muted-foreground">{metric.hint}</p></article>)}</div>
 
-          <section className="mb-7 rounded-xl border border-border bg-secondary/[0.05] p-5"><div className="flex flex-col gap-4 sm:flex-row"><div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-foreground"><Sparkles size={18} /></div><div className="min-w-0 flex-1"><div className="mb-1 flex items-center gap-2"><h2 className="text-base font-semibold text-foreground">Lulu Website Intelligence</h2><span className="rounded-full border border-border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">{generationJob?.status ?? "Bereit"}</span></div><p className="max-w-3xl text-sm leading-6 text-muted-foreground">Gib einen Prompt ein. Lulu erstellt automatisch einen Seitenplan, Inhalte und SEO-Metadaten als Vorschau.</p><textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Zum Beispiel: Erstelle eine mehrsprachige B2B-Website für ..." className="mt-4 min-h-24 w-full rounded-lg border border-border bg-background p-3 text-sm text-foreground outline-none focus:border-primary/50" /><div className="mt-3 flex flex-wrap items-center gap-3"><button type="button" disabled={!connected || isGenerating || prompt.trim().length < 10} onClick={generatePreview} className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"><Sparkles size={14} />{isGenerating ? "Vorschau wird erstellt ..." : "Website-Vorschau erstellen"}</button>{!connected && <span className="text-xs text-muted-foreground">Verbinde zuerst {content.shortLabel}.</span>}</div>{error && <p className="mt-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive">{error}</p>}{generationJob?.preview && <div className="mt-4 rounded-lg border border-border bg-card p-4"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Vorschau</p><div className="mt-3 grid gap-2 sm:grid-cols-2">{((generationJob.preview.pages as Array<{ title: string; slug: string }>) ?? []).map((page) => <div key={page.slug} className="rounded-md border border-border p-3"><p className="text-sm font-medium text-foreground">{page.title}</p><p className="mt-1 text-xs text-muted-foreground">/{page.slug}</p></div>)}</div></div>}</div></div></section>
 
           <section><div className="mb-3 flex items-end justify-between"><div><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Arbeitsbereich</p><h2 className="mt-1 text-lg font-semibold tracking-tight text-foreground">{activeSection} · {content.shortLabel}</h2></div><button type="button" className="rounded-lg p-2 text-muted-foreground hover:bg-secondary" aria-label="Website-Einstellungen"><Settings size={17} /></button></div><div className="grid gap-3 md:grid-cols-3">{content.actions.map((action) => <button key={action.title} type="button" className="group rounded-xl border border-border bg-card p-4 text-left transition hover:-translate-y-px hover:border-primary/40"><div className="mb-5 flex items-center justify-between"><span className="grid h-9 w-9 place-items-center rounded-lg bg-secondary text-muted-foreground group-hover:text-foreground"><action.icon size={17} /></span><ArrowRight size={16} className="text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" /></div><h3 className="text-sm font-semibold text-foreground">{action.title}</h3><p className="mt-2 text-xs leading-5 text-muted-foreground">{action.description}</p></button>)}</div></section>
         </div>
