@@ -52,14 +52,16 @@ export type LuluNavigationMessage = {
 };
 
 export function pagePath(slug: string) {
+  if (slug.startsWith("website-")) return `${routes.app.website}?section=${encodeURIComponent(slug.slice("website-".length))}`;
   return canonicalPathsBySlug[slug] ?? `/app/${slug}`;
 }
 
 const WEBSITE_PAGE_SLUG = "lulu-website-portal-9012";
+const WEBSITE_PAGE_PREFIX = "website-";
 
 export function pageLinkProps(slug: string) {
   const href = pagePath(slug);
-  const isAvailable = slug === WEBSITE_PAGE_SLUG;
+  const isAvailable = slug === WEBSITE_PAGE_SLUG || slug.startsWith(WEBSITE_PAGE_PREFIX);
   return {
     href: isAvailable ? href : undefined,
     target: "_top" as const,
