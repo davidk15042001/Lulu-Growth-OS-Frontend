@@ -20061,7 +20061,10 @@
     "Connected workspace GmbH": "Connected workspace GmbH",
     "Workspace billing contacts": "Abrechnungskontakte des Workspaces",
     "Intelligence insights could not be loaded. Check AI insight records and try again.": "Intelligence Insights konnten nicht geladen werden. Überprüfen Sie die KI-Insight-Datensätze und versuchen Sie es erneut.",
-    "No intelligence insights are available yet.": "Noch keine Intelligence Insights verfügbar."
+    "No intelligence insights are available yet.": "Noch keine Intelligence Insights verfügbar.",
+    "Customer segment data could not be loaded. Check sales segment records and try again.": "Kundensegmentdaten konnten nicht geladen werden. Überprüfen Sie die Vertriebssegment‑Datensätze und versuchen Sie es erneut.",
+    "Meeting criteria": "Erfüllte Kriterien",
+    "No customer segments are available yet.": "Noch keine Kundensegmente verfügbar."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40153,7 +40156,10 @@
     "Connected workspace GmbH": "Connected workspace 有限公司",
     "Workspace billing contacts": "工作区计费联系人",
     "Intelligence insights could not be loaded. Check AI insight records and try again.": "无法加载 Intelligence 洞察。请检查 AI 洞察记录后重试。",
-    "No intelligence insights are available yet.": "尚无 Intelligence 洞察可用。"
+    "No intelligence insights are available yet.": "尚无 Intelligence 洞察可用。",
+    "Customer segment data could not be loaded. Check sales segment records and try again.": "无法加载客户细分数据。请检查销售细分记录并重试。",
+    "Meeting criteria": "符合条件的会议",
+    "No customer segments are available yet.": "尚无可用的客户细分。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
