@@ -20093,7 +20093,9 @@
     "No GEO records are available yet.": "Noch keine GEO-Einträge verfügbar.",
     "Advertising optimization data could not be loaded. Check optimization records and try again.": "Daten zur Werbeoptimierung konnten nicht geladen werden. Überprüfen Sie die Optimierungsaufzeichnungen und versuchen Sie es erneut.",
     "No advertising optimization records are available yet.": "Es sind noch keine Aufzeichnungen zur Werbeoptimierung verfügbar.",
-    "Connected customer": "Verbundener Kunde"
+    "Connected customer": "Verbundener Kunde",
+    "Connected customer added Wireless Earbuds": "Verbundenem Kunden wurden kabellose Ohrhörer hinzugefügt",
+    "New order #10847 from Connected customer — $142.00": "Neue Bestellung #10847 von verbundenem Kunden – $142.00"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40217,7 +40219,9 @@
     "No GEO records are available yet.": "尚无可用的 GEO 记录。",
     "Advertising optimization data could not be loaded. Check optimization records and try again.": "广告优化数据无法加载。请检查优化记录并重试。",
     "No advertising optimization records are available yet.": "尚无广告优化记录可用。",
-    "Connected customer": "已连接客户"
+    "Connected customer": "已连接客户",
+    "Connected customer added Wireless Earbuds": "已添加连接客户 无线耳机",
+    "New order #10847 from Connected customer — $142.00": "来自连接客户的新订单 #10847 — $142.00"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
