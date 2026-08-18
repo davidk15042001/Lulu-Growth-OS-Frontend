@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { aiApi, type AiMessage, type Conversation } from "../ai";
+import { agentApi, type AgentRunDetails } from "../agents";
 import { getFriendlyErrorMessage } from "../client";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 
@@ -10,6 +11,9 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
   const [content, setContent] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [agentGoal, setAgentGoal] = useState("");
+  const [agentRuns, setAgentRuns] = useState<AgentRunDetails[]>([]);
+  const [agentBusy, setAgentBusy] = useState(false);
 
   const loadConversations = useCallback(async () => {
     try {
@@ -27,6 +31,23 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
 
   useEffect(() => { void loadConversations(); }, [loadConversations]);
   useEffect(() => { void loadMessages(); }, [loadMessages]);
+
+  const loadAgentRuns = useCallback(async () => {
+    try {
+      const runs = (await agentApi.list(workspaceId)).data.items;
+      setAgentRuns(await Promise.all(runs.slice(0, 8).map((run) => agentApi.detail(workspaceId, run.id).then((response) => response.data))));
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load agent runs. Please try again.")); }
+  }, [workspaceId]);
+  useEffect(() => { void loadAgentRuns(); }, [loadAgentRuns]);
+
+  async function startAgentRun(event: FormEvent) {
+    event.preventDefault();
+    if (!agentGoal.trim()) return;
+    setAgentBusy(true); setError("");
+    try { await agentApi.create(workspaceId, agentGoal.trim()); setAgentGoal(""); await loadAgentRuns(); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "Lulu could not start the coordinated agent run.")); }
+    finally { setAgentBusy(false); }
+  }
 
   async function newConversation() {
     setBusy(true); setError("");
@@ -56,6 +77,11 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
     <LiveSection title="Conversations" action={<button className="lulu-live-button" onClick={() => void newConversation()} disabled={busy}>New</button>}>
       {conversations.length === 0 ? <LiveEmpty>No conversations yet.</LiveEmpty> : <div className="lulu-live-form"><label>Conversation<select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>{conversations.map((conversation) => <option key={conversation.id} value={conversation.id}>{conversation.title}</option>)}</select></label></div>}
       {selectedId && <button className="lulu-live-button danger" style={{ marginTop: 10 }} onClick={async () => { if (!window.confirm("Archive this conversation?")) return; await aiApi.archiveConversation(workspaceId, selectedId); setSelectedId(""); await loadConversations(); }}>Archive</button>}
+    </LiveSection>
+    <LiveSection title="Coordinated agent runs">
+      <p style={{ marginTop: 0 }}>Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.</p>
+      <form className="lulu-live-form" onSubmit={startAgentRun}><label>Business goal<textarea value={agentGoal} onChange={(event) => setAgentGoal(event.target.value)} placeholder="Tell Lulu what outcome to achieve…" /></label><button className="lulu-live-button primary" disabled={agentBusy || !agentGoal.trim()}>{agentBusy ? "Starting…" : "Start agent run"}</button></form>
+      {agentRuns.length === 0 ? <LiveEmpty>No coordinated agent runs yet.</LiveEmpty> : agentRuns.map((details) => <article className="lulu-live-message" key={details.run.id}><strong>{details.run.goal}</strong><small>{details.run.status} · {details.steps.filter((step) => step.status === "completed").length}/{details.steps.length} steps completed · {formatLiveDate(details.run.updatedAt)}</small>{details.run.errorMessage && <span>{details.run.errorCode}: {details.run.errorMessage}</span>}{details.steps.filter((step) => step.status === "waiting_approval").map((step) => <button className="lulu-live-button" key={step.id} onClick={async () => { await agentApi.approve(workspaceId, details.run.id, step.id); await loadAgentRuns(); }}>Approve {step.toolName ?? "step"}</button>)}</article>)}
     </LiveSection>
     <LiveSection title="Messages">
       {messages.length === 0 ? <LiveEmpty>Start the conversation below.</LiveEmpty> : messages.map((message) => <article className={`lulu-live-message ${message.role}`} key={message.id}><small>{message.role} · {formatLiveDate(message.createdAt)}</small>{message.content}</article>)}

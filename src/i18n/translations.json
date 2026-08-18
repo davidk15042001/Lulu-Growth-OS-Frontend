@@ -11,7 +11,17 @@
     "missingCredentials": "Please enter your email and password.",
     "accountNotFound": "We could not find an account with this email.",
     "invalidCredentials": "The email or password is not correct. Please check both and try again.",
-    "timeout": "The server is not responding. Please try again shortly."
+    "timeout": "The server is not responding. Please try again shortly.",
+    "Coordinated agent runs": "Coordinated agent runs",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.",
+    "Business goal": "Business goal",
+    "Tell Lulu what outcome to achieve…": "Tell Lulu what outcome to achieve…",
+    "Starting…": "Starting…",
+    "Start agent run": "Start agent run",
+    "No coordinated agent runs yet.": "No coordinated agent runs yet.",
+    "steps completed ·": "steps completed ·",
+    "Approve ": "Approve ",
+    "step": "step"
   },
   "de": {
     "welcome": "WILLKOMMEN ZURÜCK",
@@ -20102,7 +20112,17 @@
     "Last submitted 2 days ago by Workspace owner": "Zuletzt vor 2 Tagen eingereicht vom Workspace‑Eigentümer",
     "Workspace owner · Scheduled": "Arbeitsbereichsinhaber · Geplant",
     "Owner: Workspace owner": "Eigentümer: Workspace-Eigentümer",
-    "Yesterday · Workspace owner": "Gestern · Workspace-Eigentümer"
+    "Yesterday · Workspace owner": "Gestern · Workspace-Eigentümer",
+    "Coordinated agent runs": "Agentenläufe",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Planer, Analyst, Stratege und Prüfer arbeiten in einem gespeicherten Orchestrierungslauf zusammen. Riskante Tools warten auf eine Freigabe.",
+    "Business goal": "Geschäftsziel",
+    "Tell Lulu what outcome to achieve…": "Beschreiben Sie Lulu das gewünschte Ergebnis …",
+    "Starting…": "Wird gestartet …",
+    "Start agent run": "Agentenlauf starten",
+    "No coordinated agent runs yet.": "Noch keine koordinierten Agentenläufe.",
+    "steps completed ·": "Schritte abgeschlossen ·",
+    "Approve ": "Freigeben ",
+    "step": "Schritt"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -20116,7 +20136,17 @@
     "missingCredentials": "Saisissez votre e-mail et votre mot de passe.",
     "accountNotFound": "Aucun compte n’a été trouvé pour cet e-mail.",
     "invalidCredentials": "L’e-mail ou le mot de passe est incorrect.",
-    "timeout": "Le serveur ne répond pas. Réessayez bientôt."
+    "timeout": "Le serveur ne répond pas. Réessayez bientôt.",
+    "Coordinated agent runs": "协调代理运行",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "规划器、分析师、策略师和审查员在一次持久化编排运行中协同工作。高风险工具会暂停并等待批准。",
+    "Business goal": "业务目标",
+    "Tell Lulu what outcome to achieve…": "告诉 Lulu 要实现什么结果…",
+    "Starting…": "正在启动…",
+    "Start agent run": "启动代理运行",
+    "No coordinated agent runs yet.": "尚无协调代理运行。",
+    "steps completed ·": "步骤已完成 ·",
+    "Approve ": "批准 ",
+    "step": "步骤"
   },
   "nl": {
     "welcome": "WELKOM TERUG",
@@ -20130,7 +20160,17 @@
     "missingCredentials": "Vul uw e-mail en wachtwoord in.",
     "accountNotFound": "Er is geen account voor dit e-mailadres gevonden.",
     "invalidCredentials": "E-mail of wachtwoord is onjuist.",
-    "timeout": "De server reageert niet. Probeer het zo opnieuw."
+    "timeout": "De server reageert niet. Probeer het zo opnieuw.",
+    "Coordinated agent runs": "Exécutions d’agents coordonnées",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Le planificateur, l’analyste, le stratège et le réviseur travaillent dans une exécution d’orchestration persistante. Les outils risqués attendent une approbation.",
+    "Business goal": "Objectif commercial",
+    "Tell Lulu what outcome to achieve…": "Indiquez à Lulu le résultat à atteindre…",
+    "Starting…": "Démarrage…",
+    "Start agent run": "Démarrer l’exécution des agents",
+    "No coordinated agent runs yet.": "Aucune exécution d’agents coordonnée pour le moment.",
+    "steps completed ·": "étapes terminées ·",
+    "Approve ": "Approuver ",
+    "step": "étape"
   },
   "pl": {
     "welcome": "WITAMY PONOWNIE",
@@ -20144,7 +20184,17 @@
     "missingCredentials": "Podaj e-mail i hasło.",
     "accountNotFound": "Nie znaleziono konta dla tego e-maila.",
     "invalidCredentials": "E-mail lub hasło są nieprawidłowe.",
-    "timeout": "Serwer nie odpowiada. Spróbuj ponownie za chwilę."
+    "timeout": "Serwer nie odpowiada. Spróbuj ponownie za chwilę.",
+    "Coordinated agent runs": "Gecoördineerde agentruns",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Planner, analist, strateeg en reviewer werken samen in één opgeslagen orchestratie-run. Risicovolle tools wachten op goedkeuring.",
+    "Business goal": "Bedrijfsdoel",
+    "Tell Lulu what outcome to achieve…": "Vertel Lulu welk resultaat moet worden bereikt…",
+    "Starting…": "Wordt gestart…",
+    "Start agent run": "Agentrun starten",
+    "No coordinated agent runs yet.": "Nog geen gecoördineerde agentruns.",
+    "steps completed ·": "stappen voltooid ·",
+    "Approve ": "Goedkeuren ",
+    "step": "stap"
   },
   "zh-CN": {
     "welcome": "欢迎回来",
@@ -40235,7 +40285,17 @@
     "Last submitted 2 days ago by Workspace owner": "最后由工作区所有者提交于 2 天前",
     "Workspace owner · Scheduled": "工作区拥有者 · 已安排",
     "Owner: Workspace owner": "所有者：工作区所有者",
-    "Yesterday · Workspace owner": "昨天 · 工作区所有者"
+    "Yesterday · Workspace owner": "昨天 · 工作区所有者",
+    "Coordinated agent runs": "Skoordynowane uruchomienia agentów",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Planista, analityk, strateg i recenzent pracują w jednym zapisanym przebiegu orkiestracji. Ryzykowne narzędzia czekają na zatwierdzenie.",
+    "Business goal": "Cel biznesowy",
+    "Tell Lulu what outcome to achieve…": "Powiedz Lulu, jaki rezultat osiągnąć…",
+    "Starting…": "Uruchamianie…",
+    "Start agent run": "Uruchom przebieg agentów",
+    "No coordinated agent runs yet.": "Brak skoordynowanych uruchomień agentów.",
+    "steps completed ·": "ukończonych kroków ·",
+    "Approve ": "Zatwierdź ",
+    "step": "krok"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
@@ -40249,7 +40309,17 @@
     "missingCredentials": "Skriv inn e-post og passord.",
     "accountNotFound": "Ingen konto ble funnet for denne e-posten.",
     "invalidCredentials": "E-post eller passord er feil.",
-    "timeout": "Serveren svarer ikke. Prøv igjen snart."
+    "timeout": "Serveren svarer ikke. Prøv igjen snart.",
+    "Coordinated agent runs": "Koordinerte agentkjøringer",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Planlegger, analytiker, strateg og gjennomgår arbeider i én vedvarende orkestreringskjøring. Risikoverktøy venter på godkjenning.",
+    "Business goal": "Forretningsmål",
+    "Tell Lulu what outcome to achieve…": "Fortell Lulu hvilket resultat som skal oppnås…",
+    "Starting…": "Starter…",
+    "Start agent run": "Start agentkjøring",
+    "No coordinated agent runs yet.": "Ingen koordinerte agentkjøringer ennå.",
+    "steps completed ·": "trinn fullført ·",
+    "Approve ": "Godkjenn ",
+    "step": "trinn"
   },
   "sv": {
     "welcome": "VÄLKOMMEN TILLBAKA",
@@ -40263,7 +40333,17 @@
     "missingCredentials": "Ange e-post och lösenord.",
     "accountNotFound": "Inget konto hittades för den här e-postadressen.",
     "invalidCredentials": "E-post eller lösenord är fel.",
-    "timeout": "Servern svarar inte. Försök igen snart."
+    "timeout": "Servern svarar inte. Försök igen snart.",
+    "Coordinated agent runs": "Samordnade agentkörningar",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Planerare, analytiker, strateg och granskare arbetar i en beständig orkestreringskörning. Riskfyllda verktyg väntar på godkännande.",
+    "Business goal": "Affärsmål",
+    "Tell Lulu what outcome to achieve…": "Berätta för Lulu vilket resultat som ska uppnås…",
+    "Starting…": "Startar…",
+    "Start agent run": "Starta agentkörning",
+    "No coordinated agent runs yet.": "Inga samordnade agentkörningar ännu.",
+    "steps completed ·": "steg slutförda ·",
+    "Approve ": "Godkänn ",
+    "step": "steg"
   },
   "fi": {
     "welcome": "TERVETULOA TAKAISIN",
@@ -40277,7 +40357,17 @@
     "missingCredentials": "Anna sähköposti ja salasana.",
     "accountNotFound": "Tälle sähköpostille ei löytynyt tiliä.",
     "invalidCredentials": "Sähköposti tai salasana on virheellinen.",
-    "timeout": "Palvelin ei vastaa. Yritä pian uudelleen."
+    "timeout": "Palvelin ei vastaa. Yritä pian uudelleen.",
+    "Coordinated agent runs": "Koordinoidut agenttiajot",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Suunnittelija, analyytikko, strategi ja tarkistaja työskentelevät yhdessä pysyvässä orkestrointiajossa. Riskialttiit työkalut odottavat hyväksyntää.",
+    "Business goal": "Liiketoimintatavoite",
+    "Tell Lulu what outcome to achieve…": "Kerro Lululle, mikä tulos saavutetaan…",
+    "Starting…": "Käynnistetään…",
+    "Start agent run": "Käynnistä agenttiajo",
+    "No coordinated agent runs yet.": "Koordinoituja agenttiajoja ei vielä ole.",
+    "steps completed ·": "vaihetta valmis ·",
+    "Approve ": "Hyväksy ",
+    "step": "vaihe"
   },
   "da": {
     "welcome": "VELKOMMEN TILBAGE",
@@ -40291,7 +40381,17 @@
     "missingCredentials": "Indtast e-mail og adgangskode.",
     "accountNotFound": "Der blev ikke fundet en konto til denne e-mail.",
     "invalidCredentials": "E-mail eller adgangskode er forkert.",
-    "timeout": "Serveren svarer ikke. Prøv snart igen."
+    "timeout": "Serveren svarer ikke. Prøv snart igen.",
+    "Coordinated agent runs": "Koordinerede agentkørsler",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Planlægger, analytiker, strateg og kontrollør arbejder i én vedvarende orkestreringskørsel. Risikable værktøjer afventer godkendelse.",
+    "Business goal": "Forretningsmål",
+    "Tell Lulu what outcome to achieve…": "Fortæl Lulu, hvilket resultat der skal opnås…",
+    "Starting…": "Starter…",
+    "Start agent run": "Start agentkørsel",
+    "No coordinated agent runs yet.": "Ingen koordinerede agentkørsler endnu.",
+    "steps completed ·": "trin fuldført ·",
+    "Approve ": "Godkend ",
+    "step": "trin"
   },
   "ar": {
     "welcome": "مرحبًا بعودتك",
@@ -40305,7 +40405,17 @@
     "missingCredentials": "أدخل البريد الإلكتروني وكلمة المرور.",
     "accountNotFound": "لم يتم العثور على حساب لهذا البريد الإلكتروني.",
     "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-    "timeout": "الخادم لا يستجيب. حاول مرة أخرى قريبًا."
+    "timeout": "الخادم لا يستجيب. حاول مرة أخرى قريبًا.",
+    "Coordinated agent runs": "تشغيلات الوكلاء المنسقة",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "يعمل المخطط والمحلل والاستراتيجي والمراجع ضمن تشغيل تنسيق محفوظ واحد. تتوقف الأدوات الخطرة بانتظار الموافقة.",
+    "Business goal": "هدف العمل",
+    "Tell Lulu what outcome to achieve…": "أخبر Lulu بالنتيجة المطلوب تحقيقها…",
+    "Starting…": "جارٍ البدء…",
+    "Start agent run": "بدء تشغيل الوكلاء",
+    "No coordinated agent runs yet.": "لا توجد تشغيلات منسقة للوكلاء بعد.",
+    "steps completed ·": "خطوات مكتملة ·",
+    "Approve ": "موافقة ",
+    "step": "خطوة"
   },
   "lb": {
     "welcome": "WËLLKOMM ZERÉCK",
@@ -40319,7 +40429,17 @@
     "missingCredentials": "Gitt Är E-Mail an Äert Passwuert an.",
     "accountNotFound": "Kee Kont fir dës E-Mail fonnt.",
     "invalidCredentials": "E-Mail oder Passwuert ass falsch.",
-    "timeout": "De Server äntwert net. Probéiert et geschwënn nach eng Kéier."
+    "timeout": "De Server äntwert net. Probéiert et geschwënn nach eng Kéier.",
+    "Coordinated agent runs": "Koordinéiert Agentelafen",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "De Planner, Analyst, Strateg an de Reviewer schaffen an engem gespäicherten Orchestratiounslaf zesummen. Risikoreich Tools waarden op Geneemegung.",
+    "Business goal": "Geschäftszil",
+    "Tell Lulu what outcome to achieve…": "Sot dem Lulu, wéi e Resultat erreecht soll ginn…",
+    "Starting…": "Gëtt gestart…",
+    "Start agent run": "Agentelaf starten",
+    "No coordinated agent runs yet.": "Nach keng koordonnéiert Agentelaf.",
+    "steps completed ·": "Schrëtt ofgeschloss ·",
+    "Approve ": "Geneemegen ",
+    "step": "Schrëtt"
   },
   "mn": {
     "welcome": "БУЦАЖ ИРСЭНД ТАВТАЙ МОРИЛ",
@@ -40333,7 +40453,17 @@
     "missingCredentials": "Имэйл болон нууц үгээ оруулна уу.",
     "accountNotFound": "Энэ имэйлд бүртгэл олдсонгүй.",
     "invalidCredentials": "Имэйл эсвэл нууц үг буруу байна.",
-    "timeout": "Сервер хариу өгөхгүй байна. Дахин оролдоно уу."
+    "timeout": "Сервер хариу өгөхгүй байна. Дахин оролдоно уу.",
+    "Coordinated agent runs": "Зохицуулсан агентын ажиллуулалт",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Төлөвлөгч, шинжээч, стратегич болон хянагч нэг хадгалагдсан зохион байгуулалтын ажиллуулалтад хамтран ажиллана. Эрсдэлтэй хэрэгслүүд зөвшөөрөл хүлээн түр зогсоно.",
+    "Business goal": "Бизнесийн зорилго",
+    "Tell Lulu what outcome to achieve…": "Lulu-д хүрэх үр дүнг хэлнэ үү…",
+    "Starting…": "Эхэлж байна…",
+    "Start agent run": "Агентын ажиллуулалтыг эхлүүлэх",
+    "No coordinated agent runs yet.": "Одоогоор зохицуулсан агентын ажиллуулалт алга.",
+    "steps completed ·": "алхам дууссан ·",
+    "Approve ": "Зөвшөөрөх ",
+    "step": "алхам"
   },
   "uk": {
     "welcome": "З ПОВЕРНЕННЯМ",
@@ -40347,7 +40477,17 @@
     "missingCredentials": "Введіть електронну пошту та пароль.",
     "accountNotFound": "Обліковий запис для цієї пошти не знайдено.",
     "invalidCredentials": "Електронна пошта або пароль неправильні.",
-    "timeout": "Сервер не відповідає. Спробуйте ще раз незабаром."
+    "timeout": "Сервер не відповідає. Спробуйте ще раз незабаром.",
+    "Coordinated agent runs": "Координовані запуски агентів",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Планувальник, аналітик, стратег і рецензент працюють в одному збереженому запуску оркестрації. Ризиковані інструменти призупиняються до схвалення.",
+    "Business goal": "Бізнес-ціль",
+    "Tell Lulu what outcome to achieve…": "Скажіть Lulu, якого результату потрібно досягти…",
+    "Starting…": "Запускається…",
+    "Start agent run": "Запустити запуск агентів",
+    "No coordinated agent runs yet.": "Скоординованих запусків агентів ще немає.",
+    "steps completed ·": "кроків завершено ·",
+    "Approve ": "Схвалити ",
+    "step": "крок"
   },
   "ru": {
     "welcome": "С ВОЗВРАЩЕНИЕМ",
@@ -40361,6 +40501,16 @@
     "missingCredentials": "Введите электронную почту и пароль.",
     "accountNotFound": "Аккаунт для этого адреса не найден.",
     "invalidCredentials": "Электронная почта или пароль неверны.",
-    "timeout": "Сервер не отвечает. Повторите попытку позже."
+    "timeout": "Сервер не отвечает. Повторите попытку позже.",
+    "Coordinated agent runs": "Скоординированные запуски агентов",
+    "Planner, Analyst, Strategist and Reviewer work through one persisted orchestration run. Risky tools pause for approval.": "Планировщик, аналитик, стратег и рецензент работают в одном сохранённом запуске оркестрации. Рискованные инструменты приостанавливаются до одобрения.",
+    "Business goal": "Бизнес-цель",
+    "Tell Lulu what outcome to achieve…": "Скажите Lulu, какого результата нужно достичь…",
+    "Starting…": "Запускается…",
+    "Start agent run": "Запустить агентов",
+    "No coordinated agent runs yet.": "Скоординированных запусков агентов пока нет.",
+    "steps completed ·": "шагов завершено ·",
+    "Approve ": "Одобрить ",
+    "step": "шаг"
   }
 }
