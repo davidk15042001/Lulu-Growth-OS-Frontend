@@ -20024,7 +20024,19 @@
     "Revenue intelligence data could not be loaded. Check finance records and try again.": "Revenue Intelligence-Daten konnten nicht geladen werden. Überprüfen Sie die Finanzunterlagen und versuchen Sie es erneut.",
     "Billing administrator": "Abrechnungsadministrator",
     "Billing data could not be loaded. Check invoices and payments, then try again.": "Abrechnungsdaten konnten nicht geladen werden. Überprüfen Sie Rechnungen und Zahlungen und versuchen Sie es erneut.",
-    "No billing records are available yet.": "Es sind noch keine Abrechnungsunterlagen verfügbar."
+    "No billing records are available yet.": "Es sind noch keine Abrechnungsunterlagen verfügbar.",
+    "At Risk Value": "Risiko­wert",
+    "Close-date data required": "Abschlussdatum erforderlich",
+    "Connected account Annual License": "Verknüpftes Konto Jahreslizenz",
+    "Connected account Annual License €42K": "Verknüpftes Konto Jahreslizenz €42K",
+    "Connected account Expansion": "Verknüpftes Konto Expansion",
+    "Health data required": "Health‑Daten erforderlich",
+    "No sales deals are available yet.": "Es sind noch keine Verkaufschancen verfügbar.",
+    "Outcome data required": "Ergebnisdaten erforderlich",
+    "Probability data required": "Wahrscheinlichkeitsdaten erforderlich",
+    "Sales pipeline data could not be loaded. Check sales deal records and try again.": "Verkaufs-Pipeline konnte nicht geladen werden. Überprüfen Sie Verkaufschancen‑Einträge und versuchen Sie es erneut.",
+    "Sales team member": "Vertriebsmitarbeiter",
+    "Target contract required": "Zielvertrag erforderlich"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40079,7 +40091,19 @@
     "Revenue intelligence data could not be loaded. Check finance records and try again.": "无法加载收入智能数据。请检查财务记录后重试。",
     "Billing administrator": "计费管理员",
     "Billing data could not be loaded. Check invoices and payments, then try again.": "无法加载计费数据。请检查发票和付款，然后重试。",
-    "No billing records are available yet.": "暂无计费记录。"
+    "No billing records are available yet.": "暂无计费记录。",
+    "At Risk Value": "风险价值",
+    "Close-date data required": "需要成交日期数据",
+    "Connected account Annual License": "已连接账户年许可",
+    "Connected account Annual License €42K": "已连接账户年许可 €42K",
+    "Connected account Expansion": "已连接账户扩展",
+    "Health data required": "需要健康状况数据",
+    "No sales deals are available yet.": "尚无可用销售机会。",
+    "Outcome data required": "需要结果数据",
+    "Probability data required": "需要概率数据",
+    "Sales pipeline data could not be loaded. Check sales deal records and try again.": "无法加载销售管道数据。请检查销售机会记录并重试。",
+    "Sales team member": "销售团队成员",
+    "Target contract required": "需要目标合同"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",

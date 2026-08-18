@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Activity, ArrowUpRight, BarChart3, Bell, Bot, BriefcaseBusiness, CalendarDays, ChevronDown, Download, Filter, GripVertical, LayoutDashboard, MoreHorizontal, Plus, RefreshCw, Search, Settings2, Sparkles } from 'lucide-react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Deal = {
   name: string;
   company: string;
@@ -74,9 +75,9 @@ const stages = [{
   total: '€180,000',
   weighted: '€129,600',
   deals: [{
-    name: 'Acme Corp Expansion',
-    company: 'Acme Corp',
-    owner: 'Sarah Johnson',
+    name: 'Connected account Expansion',
+    company: 'Connected account',
+    owner: 'Workspace owner',
     initials: 'SJ',
     value: '€25,000',
     probability: '72%',
@@ -143,7 +144,7 @@ const stages = [{
   deals: [{
     name: 'Quantum Retail AI',
     company: 'Quantum Retail',
-    owner: 'David Torres',
+    owner: 'Sales team member',
     initials: 'DT',
     value: '€120,000',
     probability: '78%',
@@ -154,7 +155,7 @@ const stages = [{
   }, {
     name: 'Vantage Group',
     company: 'Vantage Group',
-    owner: 'Sarah Johnson',
+    owner: 'Workspace owner',
     initials: 'SJ',
     value: '€52,000',
     probability: '72%',
@@ -182,7 +183,7 @@ const stages = [{
   }, {
     name: 'SkyLine Systems',
     company: 'SkyLine Systems',
-    owner: 'David Torres',
+    owner: 'Sales team member',
     initials: 'DT',
     value: '€95,000',
     probability: '76%',
@@ -197,9 +198,9 @@ const stages = [{
   total: '€1,195,000',
   weighted: '',
   deals: [{
-    name: 'Acme Corp Annual License',
-    company: 'Acme Corp',
-    owner: 'Sarah Johnson',
+    name: 'Connected account Annual License',
+    company: 'Connected account',
+    owner: 'Workspace owner',
     initials: 'SJ',
     value: '€42,000',
     probability: '100%',
@@ -220,8 +221,8 @@ const stages = [{
     action: 'Handoff complete'
   }]
 }];
-const owners = [['Sarah Johnson', 'SJ', '11', '€620K', '€428K', '€180K', '€42K', '38.4%'], ['Maria Chen', 'MC', '9', '€710K', '€492K', '€210K', '€105K', '36.1%'], ['David Torres', 'DT', '8', '€840K', '€516K', '€320K', '€120K', '33.8%'], ['James Park', 'JP', '10', '€590K', '€302K', '€210K', '€55K', '31.4%'], ['Ava Williams', 'AW', '9', '€480K', '€286K', '€275K', '€40K', '29.7%']];
-const activity = [['Deal moved', 'Enterprise Expansion → Negotiation', 'Maria Chen', '2h ago'], ['Deal created', 'Brightwave Solutions', 'James Park', '5h ago'], ['Probability changed', 'Quantum Retail AI 72% → 78%', 'Auto-updated', '1d ago'], ['Value changed', 'SkyLine Systems €88K → €95K', 'David Torres', '1d ago'], ['Deal won', 'Acme Corp Annual License €42K', 'Sarah Johnson', '2d ago'], ['Expected close updated', 'Clearpath Industries → Sep 18', 'James Park', '2d ago'], ['Stage health updated', 'Vantage Group marked Healthy', 'Lulu AI', '3d ago'], ['Task completed', 'Nova Commerce stakeholder map', 'Maria Chen', '3d ago']];
+const owners = [['Workspace owner', 'SJ', '11', '€620K', '€428K', '€180K', '€42K', '38.4%'], ['Maria Chen', 'MC', '9', '€710K', '€492K', '€210K', '€105K', '36.1%'], ['Sales team member', 'DT', '8', '€840K', '€516K', '€320K', '€120K', '33.8%'], ['James Park', 'JP', '10', '€590K', '€302K', '€210K', '€55K', '31.4%'], ['Ava Williams', 'AW', '9', '€480K', '€286K', '€275K', '€40K', '29.7%']];
+const activity = [['Deal moved', 'Enterprise Expansion → Negotiation', 'Maria Chen', '2h ago'], ['Deal created', 'Brightwave Solutions', 'James Park', '5h ago'], ['Probability changed', 'Quantum Retail AI 72% → 78%', 'Auto-updated', '1d ago'], ['Value changed', 'SkyLine Systems €88K → €95K', 'Sales team member', '1d ago'], ['Deal won', 'Connected account Annual License €42K', 'Workspace owner', '2d ago'], ['Expected close updated', 'Clearpath Industries → Sep 18', 'James Park', '2d ago'], ['Stage health updated', 'Vantage Group marked Healthy', 'Lulu AI', '3d ago'], ['Task completed', 'Nova Commerce stakeholder map', 'Maria Chen', '3d ago']];
 const aging = [['New', '0–14 days', '12 deals', '€280K', '8.6%', 'bg-chart-4'], ['Normal', '15–30 days', '19 deals', '€1.1M', '33.9%', 'bg-primary'], ['Aging', '31–60 days', '11 deals', '€1.4M', '43.2%', 'bg-primary'], ['Stalled', '60+ days', '5 deals', '€460K', '14.2%', 'bg-destructive']];
 const insights = [['Pipeline Bottleneck', 'Negotiation contains a high concentration of pipeline value (€420K) and 2 deals have exceeded the 45-day stage threshold.'], ['Pipeline Risk', 'A significant portion of Q3 expected pipeline is associated with deals showing reduced recent activity (last contact 12+ days).'], ['Growth Opportunity', 'Three high-value opportunities in Proposal stage are progressing 22% faster than the historical average.']];
 function Badge({
@@ -249,7 +250,13 @@ export function LuluSalesPipeline() {
   const [query, setQuery] = useState('');
   const [view, setView] = useState('Kanban');
   const [selectedFilter, setSelectedFilter] = useState('Stage');
-  const filteredStages = stages.map(stage => ({
+  const { items: dealRecords, loading: dealsLoading, error: dealsError } = useLiveRecords('sales_deals');
+  const getDealField = (record: typeof dealRecords[number], key: string) => String((record as unknown as Record<string, unknown>)[key] ?? '');
+  const liveDealValue = dealRecords.reduce((sum, record) => sum + (Number(getDealField(record, 'valueAmount').replace(/[^0-9.-]/g, '')) || 0), 0);
+  const formatAmount = (value: number) => value ? value.toLocaleString() : '—';
+  const liveKpis: Kpi[] = [{ label: 'Total Pipeline', value: formatAmount(liveDealValue), note: 'Live records', delta: '—', tone: 'blue' }, { label: 'Weighted Pipeline', value: '—', note: 'Probability data required', delta: '—', tone: 'purple' }, { label: 'Open Deals', value: String(dealRecords.length), note: 'Live records', delta: '—', tone: 'blue' }, { label: 'Average Deal Size', value: dealRecords.length ? formatAmount(liveDealValue / dealRecords.length) : '—', note: 'Calculated', delta: '—', tone: 'purple' }, { label: 'Win Rate', value: '—', note: 'Outcome data required', delta: '—', tone: 'green' }, { label: 'Pipeline Coverage', value: '—', note: 'Target contract required', delta: '—', tone: 'orange' }, { label: 'At Risk Value', value: '—', note: 'Health data required', delta: '—', tone: 'amber' }, { label: 'Expected Close', value: '—', note: 'Close-date data required', delta: '—', tone: 'blue' }];
+  const liveStages = stages.map(stage => ({ ...stage, deals: dealRecords.filter(record => (getDealField(record, 'stage') || 'Discovery').toLowerCase() === stage.name.toLowerCase()).map(record => ({ name: getDealField(record, 'name') || record.id, company: getDealField(record, 'company') || 'Connected account', owner: getDealField(record, 'ownerName') || 'Workspace owner', initials: '—', value: getDealField(record, 'valueAmount') || '—', probability: getDealField(record, 'probability') ? `${getDealField(record, 'probability')}%` : '—', health: getDealField(record, 'health') || 'Unclassified', priority: getDealField(record, 'priority') || 'Standard', close: getDealField(record, 'closeDate') || '—', action: getDealField(record, 'nextAction') || 'Review deal details' })) }));
+  const filteredStages = (dealsLoading ? [] : liveStages).map(stage => ({
     ...stage,
     deals: stage.deals.filter(deal => `${deal.name} ${deal.company} ${deal.owner}`.toLowerCase().includes(query.toLowerCase()))
   }));
@@ -261,11 +268,11 @@ export function LuluSalesPipeline() {
         <div className="mt-[260px] rounded-xl border border-border bg-secondary p-3"><div className="mb-2 flex items-center gap-2 text-xs font-medium text-foreground"><Bot size={15} className="text-foreground" /> Lulu AI</div><p className="text-[11px] leading-5 text-muted-foreground">Your revenue copilot is ready to help.</p><button className="mt-3 text-[11px] font-semibold text-foreground">Ask Lulu →</button></div>
       </aside>
       <section className="min-w-0 flex-1">
-        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-[var(--background)]/95 px-5 backdrop-blur md:px-8"><div className="flex items-center gap-3 text-xs text-muted-foreground"><span>Sales</span><span>/</span><span className="text-foreground">Pipeline</span></div><div className="flex items-center gap-4"><button aria-label="Notifications" className="text-foreground hover:text-foreground"><Bell size={17} /></button><div className="flex items-center gap-2 border-l border-border pl-4"><div className="grid h-7 w-7 place-items-center rounded-full bg-secondary/20 text-[10px] font-bold text-foreground">SJ</div><span className="hidden text-xs text-foreground sm:block">Sarah Johnson</span><ChevronDown size={14} className="text-muted-foreground" /></div></div></header>
-        <div className="space-y-8 px-5 py-7 md:px-8 lg:px-10">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border bg-[var(--background)]/95 px-5 backdrop-blur md:px-8"><div className="flex items-center gap-3 text-xs text-muted-foreground"><span>Sales</span><span>/</span><span className="text-foreground">Pipeline</span></div><div className="flex items-center gap-4"><button aria-label="Notifications" className="text-foreground hover:text-foreground"><Bell size={17} /></button><div className="flex items-center gap-2 border-l border-border pl-4"><div className="grid h-7 w-7 place-items-center rounded-full bg-secondary/20 text-[10px] font-bold text-foreground">SJ</div><span className="hidden text-xs text-foreground sm:block">Workspace owner</span><ChevronDown size={14} className="text-muted-foreground" /></div></div></header>
+        <div className="space-y-8 px-5 py-7 md:px-8 lg:px-10">{dealsError && <div role="alert" className="rounded-lg border border-chart-5/30 bg-chart-5/10 px-4 py-3 text-sm text-chart-5">Sales pipeline data could not be loaded. Check sales deal records and try again.</div>}{!dealsLoading && !dealsError && dealRecords.length === 0 && <div className="rounded-lg border border-dashed border-border bg-card px-4 py-3 text-sm text-muted-foreground">No sales deals are available yet.</div>}
           <div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end"><div><p className="mb-2 text-[11px] font-bold uppercase tracking-[0.2em] text-foreground">Revenue intelligence</p><h1 className="text-3xl font-semibold tracking-[-0.04em] text-foreground md:text-4xl">Sales Pipeline</h1><p className="mt-2 text-sm text-muted-foreground">Visualize, manage and optimize your sales pipeline from opportunity to close.</p></div><div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-black/20 hover:bg-primary"><Plus size={16} /> Create Deal</button><button className="inline-flex items-center gap-2 rounded-lg border border-border/30 bg-secondary/10 px-3 py-2.5 text-sm font-medium text-foreground hover:bg-secondary/20"><Bot size={15} /> Ask Lulu AI</button><button className="hidden items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm text-foreground hover:bg-secondary md:inline-flex"><Settings2 size={15} /> Pipeline Settings</button><button className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2.5 text-sm text-foreground hover:bg-secondary"><Download size={15} /> Export</button><button aria-label="More actions" className="rounded-lg border border-border px-3 text-foreground hover:bg-secondary"><MoreHorizontal size={17} /></button></div></div>
           <div className="flex flex-col gap-3 rounded-xl border border-border bg-[var(--secondary)] p-4 sm:flex-row sm:items-center"><div className="flex items-center gap-3"><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Pipeline</span><button className="flex min-w-[210px] items-center justify-between rounded-lg border border-border bg-secondary px-3 py-2 text-sm text-foreground">Default Sales Pipeline <ChevronDown size={15} className="text-muted-foreground" /></button></div><div className="h-px flex-1 bg-secondary" /><div className="flex gap-1 overflow-x-auto">{['Today', 'Last 7 Days', 'Last 30 Days', 'Month to Date', 'Previous Month', 'Quarter to Date', 'Previous Quarter', 'Year to Date', 'Previous Year'].map(item => <button key={item} onClick={() => setPeriod(item)} className={`whitespace-nowrap rounded-md px-2.5 py-2 text-[11px] ${period === item ? 'bg-secondary font-semibold text-foreground' : 'text-foreground hover:text-foreground'}`}>{item}</button>)}</div></div>
-          <section aria-label="Pipeline summary" className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">{kpis.map(kpi => <article key={kpi.label} className="rounded-xl border border-border bg-[var(--card)] p-4"><div className="mb-4 flex items-start justify-between gap-2"><p className="text-[11px] leading-4 text-muted-foreground">{kpi.label}</p><span className={`h-1.5 w-1.5 shrink-0 rounded-full ${kpi.tone === 'green' ? 'bg-chart-4' : kpi.tone === 'orange' ? 'bg-chart-1' : kpi.tone === 'amber' ? 'bg-chart-1' : kpi.tone === 'purple' ? 'bg-primary' : 'bg-primary'}`} /></div><p className="text-xl font-semibold tracking-tight text-foreground">{kpi.value}</p><div className="mt-3 flex flex-wrap items-center gap-1.5"><span className="text-[10px] text-chart-4">{kpi.delta}</span><Badge className="border-border bg-secondary text-muted-foreground">{kpi.note}</Badge></div></article>)}</section>
+          <section aria-label="Pipeline summary" className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">{(dealsLoading ? [] : liveKpis).map(kpi => <article key={kpi.label} className="rounded-xl border border-border bg-[var(--card)] p-4"><div className="mb-4 flex items-start justify-between gap-2"><p className="text-[11px] leading-4 text-muted-foreground">{kpi.label}</p><span className={`h-1.5 w-1.5 shrink-0 rounded-full ${kpi.tone === 'green' ? 'bg-chart-4' : kpi.tone === 'orange' ? 'bg-chart-1' : kpi.tone === 'amber' ? 'bg-chart-1' : kpi.tone === 'purple' ? 'bg-primary' : 'bg-primary'}`} /></div><p className="text-xl font-semibold tracking-tight text-foreground">{kpi.value}</p><div className="mt-3 flex flex-wrap items-center gap-1.5"><span className="text-[10px] text-chart-4">{kpi.delta}</span><Badge className="border-border bg-secondary text-muted-foreground">{kpi.note}</Badge></div></article>)}</section>
           <section><div className="mb-3 flex flex-wrap items-center justify-between gap-3"><div className="flex items-center gap-2"><div className="relative"><Search size={15} className="absolute left-3 top-2.5 text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search pipeline..." className="w-56 rounded-lg border border-border bg-[var(--secondary)] py-2 pl-9 pr-3 text-xs text-foreground outline-none placeholder:text-muted-foreground focus:border-border/50" /></div><div className="hidden items-center gap-1 xl:flex">{['Stage', 'Owner', 'Team', 'Value', 'Probability', 'Health', 'Priority', 'Expected Close'].map(filter => <button key={filter} onClick={() => setSelectedFilter(filter)} className={`inline-flex items-center gap-1 rounded-md border px-2 py-2 text-[11px] ${selectedFilter === filter ? 'border-border/40 bg-secondary/10 text-foreground' : 'border-border text-foreground hover:text-foreground'}`}>{filter}<ChevronDown size={12} /></button>)}</div></div><div className="flex items-center gap-2"><button className="hidden items-center gap-1 text-xs text-foreground hover:text-foreground md:flex"><Filter size={14} /> Clear Filters</button><button className="hidden rounded-md border border-border px-2.5 py-2 text-xs text-foreground hover:text-foreground md:block">Save Filter</button><div className="flex rounded-lg border border-border p-0.5">{['Kanban', 'Table', 'Compact'].map(item => <button key={item} onClick={() => setView(item)} className={`rounded-md px-2.5 py-1.5 text-[11px] ${view === item ? 'bg-secondary text-foreground' : 'text-foreground'}`}>{item}</button>)}</div></div></div>
             <div className="mb-4 flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground">{period}</p><h2 className="mt-1 text-lg font-semibold text-foreground">Pipeline board</h2></div><div className="flex items-center gap-2 text-[11px] text-muted-foreground"><RefreshCw size={13} /> Updated 4 min ago</div></div>
             <div className="overflow-x-auto rounded-xl border border-border bg-[var(--secondary)] p-3"><div className="flex min-w-[1120px] gap-3">{filteredStages.map(stage => <div key={stage.name} className={`flex w-[218px] shrink-0 flex-col rounded-lg ${stage.name === 'Closed Won' ? 'bg-secondary/[0.04]' : 'bg-secondary'} p-2`}><div className="mb-3 border-b border-border px-2 pb-3"><div className="flex items-center justify-between"><h3 className="text-[11px] font-bold uppercase tracking-[0.14em] text-foreground">{stage.name}</h3><MoreHorizontal size={14} className="text-muted-foreground" /></div><p className="mt-2 text-[11px] text-muted-foreground">{stage.count} · {stage.total}</p>{stage.weighted && <p className="mt-1 text-[10px] text-foreground/70">{stage.weighted} weighted</p>}</div><div className="space-y-2">{stage.deals.map(deal => <article key={deal.name} className={`rounded-lg border p-3 shadow-lg shadow-black/10 ${stage.name === 'Closed Won' ? 'border-border/20 bg-secondary/[0.08]' : 'border-border bg-[var(--card)]'} hover:border-border/40`}><div className="mb-2 flex items-start justify-between gap-2"><div><h4 className="text-xs font-semibold leading-4 text-foreground">{deal.name}</h4><p className="mt-0.5 text-[10px] text-muted-foreground">{deal.company}</p></div><GripVertical size={14} className="shrink-0 text-muted-foreground" /></div><div className="mb-3 flex items-center gap-2"><span className="grid h-5 w-5 place-items-center rounded-full bg-secondary/15 text-[8px] font-bold text-foreground">{deal.initials}</span><span className="text-[10px] text-muted-foreground">{deal.owner}</span></div><div className="flex items-center justify-between text-xs"><strong className="text-foreground">{deal.value}</strong><span className="text-chart-4">{deal.probability}</span></div><div className="mt-2 flex flex-wrap gap-1"><Badge className={deal.health === 'Healthy' || deal.health === 'Won' ? 'border-chart-4/20 bg-chart-4/10 text-chart-4' : deal.health === 'At Risk' ? 'border-chart-1/20 bg-chart-1/10 text-chart-1' : 'border-chart-1/20 bg-chart-1/10 text-chart-1'}>{deal.health}</Badge><Badge className={deal.priority === 'High' ? 'border-chart-5/20 bg-chart-5/10 text-chart-5' : 'border-border text-muted-foreground'}>{deal.priority}</Badge></div><div className="mt-3 flex items-center justify-between border-t border-border pt-2 text-[10px] text-muted-foreground"><span className="flex items-center gap-1"><CalendarDays size={11} />{deal.close}</span></div><p className="mt-2 truncate text-[10px] text-foreground/80">Next: {deal.action}</p></article>)}{stage.deals.length < 3 && <p className="px-2 py-2 text-[10px] text-muted-foreground">+{stage.name === 'Closed Won' ? '16' : stage.name === 'Negotiation' ? '2' : stage.name === 'Proposal' ? '5' : stage.name === 'Discovery' ? '7' : '9'} more</p>}</div><button className="mt-3 flex w-full items-center justify-center gap-1 rounded-md border border-dashed border-border py-2 text-[11px] text-foreground hover:border-border/40 hover:text-foreground"><Plus size={13} /> Add Deal</button></div>)}</div></div>
