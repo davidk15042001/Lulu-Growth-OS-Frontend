@@ -683,7 +683,7 @@ function LuluSectionNavigation({
       const isActiveSection = section.pages.some(page => page.id === activeId);
       return <details key={section.label} open={isActiveSection} className="group rounded-lg">
         <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
-          <span>{section.label}</span>
+          <span data-lulu-section-soon={section.label !== "Website" ? "true" : undefined}>{section.label}</span>
           <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
         </summary>
         <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
@@ -691,6 +691,7 @@ function LuluSectionNavigation({
             const isActivePage = page.id === activeId;
             return <a key={page.id} {...pageLinkProps(page.id)} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
               {page.label}
+              {!pageLinkProps(page.id)["data-lulu-soon"] ? null : null}
             </a>;
           })}
         </div>

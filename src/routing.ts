@@ -55,12 +55,18 @@ export function pagePath(slug: string) {
   return canonicalPathsBySlug[slug] ?? `/app/${slug}`;
 }
 
+const WEBSITE_PAGE_SLUG = "lulu-website-portal-9012";
+
 export function pageLinkProps(slug: string) {
   const href = pagePath(slug);
+  const isAvailable = slug === WEBSITE_PAGE_SLUG;
   return {
-    href,
+    href: isAvailable ? href : undefined,
     target: "_top" as const,
-    "data-lulu-route": href,
+    "data-lulu-route": isAvailable ? href : undefined,
+    "data-lulu-soon": isAvailable ? undefined : "true",
+    "aria-disabled": isAvailable ? undefined : ("true" as const),
+    tabIndex: isAvailable ? undefined : -1,
   };
 }
 
