@@ -20070,7 +20070,10 @@
     "Workspace owner · Jun 1, 2025": "Workspace-Inhaber · 1. Juni 2025",
     "Workspace owner · Jun 3, 2025": "Workspace-Inhaber · 3. Juni 2025",
     "Workspace owner · May 20, 2025": "Workspace-Inhaber · 20. Mai 2025",
-    "Workspace owner · May 28, 2025": "Workspace-Inhaber · 28. Mai 2025"
+    "Workspace owner · May 28, 2025": "Workspace-Inhaber · 28. Mai 2025",
+    "No offer records are available yet.": "Es sind noch keine Angebotsdatensätze verfügbar.",
+    "Offer data could not be loaded. Check finance quote records and try again.": "Angebotsdaten konnten nicht geladen werden. Überprüfen Sie die Finanzangebotsdatensätze und versuchen Sie es erneut.",
+    "live offers": "Live-Angebote"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40171,7 +40174,10 @@
     "Workspace owner · Jun 1, 2025": "工作区拥有者 · 2025年6月1日",
     "Workspace owner · Jun 3, 2025": "工作区拥有者 · 2025年6月3日",
     "Workspace owner · May 20, 2025": "工作区拥有者 · 2025年5月20日",
-    "Workspace owner · May 28, 2025": "工作区拥有者 · 2025年5月28日"
+    "Workspace owner · May 28, 2025": "工作区拥有者 · 2025年5月28日",
+    "No offer records are available yet.": "尚无报价记录。",
+    "Offer data could not be loaded. Check finance quote records and try again.": "无法加载报价数据。请检查财务报价记录后重试。",
+    "live offers": "实时报价"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
