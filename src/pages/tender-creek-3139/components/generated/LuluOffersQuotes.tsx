@@ -628,9 +628,6 @@ const luluDropdownNavigation = [{
   }, {
     "id": "friendly-tower-1528",
     "label": "Lead Assignment"
-  }, {
-    "id": "nicely-land-1864",
-    "label": "Settings"
   }]
 }, {
   "label": "Website",
@@ -660,14 +657,14 @@ const luluDropdownNavigation = [{
     "label": "Website Settings"
   }]
 }, {
-  "label": "Integrations",
+  "label": "Settings",
   "pages": [{
+    "id": "nicely-land-1864",
+    "label": "Settings"
+  }, {
     "id": "glad-coast-1428",
     "label": "Integrations"
-  }]
-}, {
-  "label": "Billing",
-  "pages": [{
+  }, {
     "id": "pure-minute-5446",
     "label": "Billing"
   }]
@@ -682,7 +679,7 @@ function LuluSectionNavigation({
       const isActiveSection = section.pages.some(page => page.id === activeId);
       return <details key={section.label} open={isActiveSection} className="group rounded-lg">
         <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
-          <span data-lulu-section-soon={section.label !== "Website" ? "true" : undefined}>{section.label}</span>
+          <span data-lulu-section-soon={section.label !== "Website" && section.label !== "Settings" ? "true" : undefined}>{section.label}</span>
           <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
         </summary>
         <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
