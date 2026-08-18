@@ -115,14 +115,16 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-foreground" style={{ fontFamily: "Inter, sans-serif" }}>
-      <aside className={`${mobileNav ? "flex" : "hidden"} fixed inset-y-0 left-0 z-30 w-64 flex-col border-r border-border bg-[var(--sidebar)] p-4 lg:flex`}>
+      <aside className={`${mobileNav ? "flex" : "hidden"} fixed inset-y-0 left-0 z-30 h-dvh min-h-0 w-64 flex-col border-r border-border bg-[var(--sidebar)] p-4 lg:flex`}>
         <div className="mb-8 flex items-center gap-3 px-2 py-2">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-lg font-bold text-primary-foreground shadow-lg shadow-black/20">L</div>
           <div><strong className="text-base tracking-tight text-foreground">Lulu AI</strong><p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Growth workspace</p></div>
           <button className="ml-auto rounded-lg p-2 text-muted-foreground hover:bg-secondary lg:hidden" aria-label="Navigation schließen" onClick={() => setMobileNav(false)}><X size={17} /></button>
         </div>
-        <LuluSectionNavigation activeId="lulu-website-portal-9012" />
-        <div className="relative mt-4 border-t border-border pt-4">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
+          <LuluSectionNavigation activeId="lulu-website-portal-9012" />
+        </div>
+        <div className="sticky bottom-0 z-10 relative mt-4 shrink-0 border-t border-border bg-[var(--sidebar)] pt-4">
           <div className="flex items-center gap-3"><div className="grid h-8 w-8 place-items-center rounded-full bg-card text-xs font-semibold text-foreground">LU</div><div className="min-w-0"><p className="truncate text-sm font-medium text-foreground">Workspace account</p><p className="text-xs text-muted-foreground">Workspace member</p></div><button type="button" className="ml-auto rounded-lg p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground" aria-label="Account-Menü öffnen" aria-expanded={accountMenuOpen} onClick={() => setAccountMenuOpen((open) => !open)}><MoreHorizontal size={16} /></button></div>
           {accountMenuOpen && <div className="absolute bottom-12 right-0 z-40 w-44 rounded-lg border border-border bg-card p-1 shadow-xl"><button type="button" onClick={() => void logout()} className="w-full rounded-md px-3 py-2 text-left text-xs font-medium text-foreground transition hover:bg-secondary">Abmelden</button></div>}
         </div>
