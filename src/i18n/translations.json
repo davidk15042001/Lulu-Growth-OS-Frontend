@@ -20047,7 +20047,10 @@
     "Fulfillment data required": "Erforderliche Fulfillment-Daten",
     "Live order records": "Echtzeit-Bestellaufzeichnungen",
     "No ecommerce records are available yet.": "Es sind noch keine E-Commerce-Datensätze verfügbar.",
-    "Status data required": "Erforderliche Statusdaten"
+    "Status data required": "Erforderliche Statusdaten",
+    "Campaign data could not be loaded. Check marketing campaign records and try again.": "Kampagnendaten konnten nicht geladen werden. Überprüfen Sie die Marketingkampagnen und versuchen Sie es erneut.",
+    "Marketing team member": "Mitglied des Marketingteams",
+    "No marketing campaigns are available yet.": "Es sind noch keine Marketingkampagnen verfügbar."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40125,7 +40128,10 @@
     "Fulfillment data required": "需要履约数据",
     "Live order records": "实时订单记录",
     "No ecommerce records are available yet.": "尚无电商记录。",
-    "Status data required": "需要状态数据"
+    "Status data required": "需要状态数据",
+    "Campaign data could not be loaded. Check marketing campaign records and try again.": "无法加载活动数据。请检查营销活动记录后重试。",
+    "Marketing team member": "营销团队成员",
+    "No marketing campaigns are available yet.": "尚无可用的营销活动。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
