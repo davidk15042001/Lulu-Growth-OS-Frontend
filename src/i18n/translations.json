@@ -20098,7 +20098,8 @@
     "New order #10847 from Connected customer — $142.00": "Neue Bestellung #10847 von verbundenem Kunden – $142.00",
     "Connected customer Corp": "Verbundenes Unternehmen Corp",
     "Connected customer Corp · €185,000 · no activity in 14 days": "Verbundenes Unternehmen Corp · €185.000 · keine Aktivität in 14 Tagen",
-    "TechVision · €94,000 closed by Connected customer": "TechVision · €94.000 abgeschlossen von Connected customer"
+    "TechVision · €94,000 closed by Connected customer": "TechVision · €94.000 abgeschlossen von Connected customer",
+    "Last submitted 2 days ago by Workspace owner": "Zuletzt vor 2 Tagen eingereicht vom Workspace‑Eigentümer"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40227,7 +40228,8 @@
     "New order #10847 from Connected customer — $142.00": "来自连接客户的新订单 #10847 — $142.00",
     "Connected customer Corp": "已关联客户 Corp",
     "Connected customer Corp · €185,000 · no activity in 14 days": "已关联客户 Corp · €185,000 · 14 天无活动",
-    "TechVision · €94,000 closed by Connected customer": "TechVision · €94,000 由已关联客户关闭"
+    "TechVision · €94,000 closed by Connected customer": "TechVision · €94,000 由已关联客户关闭",
+    "Last submitted 2 days ago by Workspace owner": "最后由工作区所有者提交于 2 天前"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
