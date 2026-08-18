@@ -117,7 +117,7 @@ const months = [{
   c: 4
 }];
 const customers: Customer[] = [{
-  name: 'Acme Corporation',
+  name: 'Connected customer',
   revenue: '€428,000',
   share: '10.0%',
   growth: '+18%',
