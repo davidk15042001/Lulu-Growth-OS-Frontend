@@ -106,6 +106,15 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   AIRWALLEX_WEBHOOK_SIGNATURE_INVALID: "The Airwallex webhook signature could not be verified.",
   AIRWALLEX_WEBHOOK_EVENT_ID_MISSING: "Airwallex sent a webhook without an event ID.",
   PAYMENT_CONFIRMATION_TIMEOUT: "Payment returned, but the subscription confirmation did not arrive in time.",
+  WEBSITE_SITE_NOT_FOUND: "The connected website could not be found in this workspace.",
+  WEBSITE_OWNERSHIP_MODE_INVALID: "The website ownership mode does not match the selected provider.",
+  WEBSITE_DOMAIN_NOT_FOUND: "The website domain could not be found.",
+  WEBSITE_GENERATION_JOB_NOT_FOUND: "The website generation job could not be found.",
+  WEBSITE_PROVIDER_NOT_CONNECTED: "The selected website provider is not connected yet.",
+  WEBSITE_PROVIDER_WRITE_SCOPE_MISSING: "The connected provider does not have permission to change this website.",
+  WEBSITE_GENERATION_FAILED: "The website could not be generated from this prompt.",
+  WEBSITE_PUBLISH_FAILED: "The generated website could not be published.",
+  WEBSITE_DOMAIN_VERIFICATION_FAILED: "The domain could not be verified. Please check the DNS record and try again.",
 };
 
 function friendlyApiMessage(status: number, code: string) {

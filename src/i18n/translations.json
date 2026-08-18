@@ -20136,7 +20136,16 @@
     "General recommendations and actions remain disabled": "Allgemeine Empfehlungen und Aktionen bleiben deaktiviert",
     "No general recommendations or actions outside SEO, GEO, AEO and Website": "Keine allgemeinen Empfehlungen oder Aktionen außerhalb von SEO, GEO, AEO und Website",
     "Automatic AI analysis and statistics": "Automatische KI-Analysen und Statistiken",
-    "SEO, GEO, AEO and Website automation": "SEO-, GEO-, AEO- und Website-Automation"
+    "SEO, GEO, AEO and Website automation": "SEO-, GEO-, AEO- und Website-Automation",
+    "The connected website could not be found in this workspace.": "Die verbundene Website wurde in diesem Workspace nicht gefunden.",
+    "The website ownership mode does not match the selected provider.": "Der Website-Besitzmodus passt nicht zum ausgewählten Anbieter.",
+    "The website domain could not be found.": "Die Website-Domain wurde nicht gefunden.",
+    "The website generation job could not be found.": "Der Website-Generierungsauftrag wurde nicht gefunden.",
+    "The selected website provider is not connected yet.": "Der ausgewählte Website-Anbieter ist noch nicht verbunden.",
+    "The connected provider does not have permission to change this website.": "Der verbundene Anbieter darf diese Website nicht ändern.",
+    "The website could not be generated from this prompt.": "Die Website konnte aus diesem Prompt nicht erstellt werden.",
+    "The generated website could not be published.": "Die erstellte Website konnte nicht veröffentlicht werden.",
+    "The domain could not be verified. Please check the DNS record and try again.": "Die Domain konnte nicht verifiziert werden. Bitte prüfe den DNS-Eintrag und versuche es erneut."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40323,7 +40332,16 @@
     "General recommendations and actions remain disabled": "一般建议和操作保持关闭",
     "No general recommendations or actions outside SEO, GEO, AEO and Website": "除 SEO、GEO、AEO 和 Website 外，不提供一般建议或操作",
     "Automatic AI analysis and statistics": "自动 AI 分析和统计",
-    "SEO, GEO, AEO and Website automation": "SEO、GEO、AEO 和 Website 自动化"
+    "SEO, GEO, AEO and Website automation": "SEO、GEO、AEO 和 Website 自动化",
+    "The connected website could not be found in this workspace.": "在此工作区中找不到已连接的网站。",
+    "The website ownership mode does not match the selected provider.": "网站所有权模式与所选服务商不匹配。",
+    "The website domain could not be found.": "找不到网站域名。",
+    "The website generation job could not be found.": "找不到网站生成任务。",
+    "The selected website provider is not connected yet.": "所选网站服务商尚未连接。",
+    "The connected provider does not have permission to change this website.": "已连接的服务商没有修改此网站的权限。",
+    "The website could not be generated from this prompt.": "无法根据此提示生成网站。",
+    "The generated website could not be published.": "生成的网站无法发布。",
+    "The domain could not be verified. Please check the DNS record and try again.": "无法验证域名。请检查 DNS 记录后重试。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",

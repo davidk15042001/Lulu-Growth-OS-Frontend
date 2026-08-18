@@ -47,6 +47,15 @@ const exactScenarios: Record<string, ErrorScenario> = {
   INVALID_API_PATH: { category: "request", userAction: "contact-support", retryable: false },
   DOCUMENTS_NOT_READY: { category: "storage", userAction: "retry", retryable: true },
   DATABASE_MIGRATION_MISSING: { category: "storage", userAction: "contact-support", retryable: false },
+  WEBSITE_SITE_NOT_FOUND: { category: "resource", userAction: "retry", retryable: false },
+  WEBSITE_OWNERSHIP_MODE_INVALID: { category: "validation", userAction: "check-input", retryable: false },
+  WEBSITE_DOMAIN_NOT_FOUND: { category: "resource", userAction: "retry", retryable: false },
+  WEBSITE_GENERATION_JOB_NOT_FOUND: { category: "resource", userAction: "retry", retryable: false },
+  WEBSITE_PROVIDER_NOT_CONNECTED: { category: "integration", userAction: "connect-platform", retryable: false },
+  WEBSITE_PROVIDER_WRITE_SCOPE_MISSING: { category: "authorization", userAction: "connect-platform", retryable: false },
+  WEBSITE_GENERATION_FAILED: { category: "ai", userAction: "retry", retryable: true },
+  WEBSITE_PUBLISH_FAILED: { category: "integration", userAction: "retry", retryable: true },
+  WEBSITE_DOMAIN_VERIFICATION_FAILED: { category: "integration", userAction: "check-input", retryable: true },
 };
 
 export function getErrorScenario(code: string, status = 0): ErrorScenario {
