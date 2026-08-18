@@ -452,6 +452,27 @@ const luluDropdownNavigation = [{
   "pages": [{
     "id": "lulu-website-portal-9012",
     "label": "Website"
+  }, {
+    "id": "website-wordpress-jetpack-9013",
+    "label": "WordPress / Jetpack"
+  }, {
+    "id": "website-webflow-9014",
+    "label": "Webflow"
+  }, {
+    "id": "website-pages-cms-9015",
+    "label": "Pages & CMS"
+  }, {
+    "id": "website-posts-9016",
+    "label": "Posts"
+  }, {
+    "id": "website-media-assets-9017",
+    "label": "Media & Assets"
+  }, {
+    "id": "website-domains-9018",
+    "label": "Domains"
+  }, {
+    "id": "website-settings-9019",
+    "label": "Website Settings"
   }]
 }, {
   "label": "Integrations",
