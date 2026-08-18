@@ -55,7 +55,7 @@ const metrics: Metric[] = [{
   source: 'Calculated'
 }];
 const customers: Row[] = [{
-  name: 'Acme Corporation',
+  name: 'Connected customer',
   revenue: '€428,000',
   share: '10.0%',
   growth: '+18%',
