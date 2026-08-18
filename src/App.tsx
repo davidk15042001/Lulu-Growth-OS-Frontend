@@ -14,6 +14,7 @@ import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
 import { getPageContract } from "./api/page-contracts";
 import { useLuluApp } from "./api/LuluAppContext";
 import { BillingOnboarding } from "./components/BillingOnboarding";
+import AdminBillingPage from "./pages/admin-billing-overview-9901/App";
 
 function Directory() {
   const [query, setQuery] = useState("");
@@ -108,6 +109,16 @@ function PageFrame({ page }: { page: PageDefinition }) {
     </main>
   );
 }
+const ADMIN_BILLING_PATH = "/app/admin-billing-overview-9901";
+
+function AdminBillingRoute() {
+  const { currentUser, loading } = useLuluApp();
+  if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
+  if (!currentUser) return <Navigate replace to={routes.auth.login} state={{ from: ADMIN_BILLING_PATH }} />;
+  if (currentUser.role !== "admin") return <Navigate replace to="/not-found" />;
+  return <AdminBillingPage />;
+}
+
 function LegacyPageRedirect() {
   const { slug } = useParams();
   const page = pages.find((item) => item.slug === slug);
@@ -180,6 +191,7 @@ export default function App() {
       <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<Navigate replace to={routes.onboarding.billing} />} />
       <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
       <Route path={routes.onboarding.billings} element={<BillingOnboarding />} />
+      <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
       {pages.map((page) => (
         <Route key={page.id} path={pagePath(page.slug)} element={<PageRoute page={page} />} />
       ))}
