@@ -20095,7 +20095,10 @@
     "No advertising optimization records are available yet.": "Es sind noch keine Aufzeichnungen zur Werbeoptimierung verfügbar.",
     "Connected customer": "Verbundener Kunde",
     "Connected customer added Wireless Earbuds": "Verbundenem Kunden wurden kabellose Ohrhörer hinzugefügt",
-    "New order #10847 from Connected customer — $142.00": "Neue Bestellung #10847 von verbundenem Kunden – $142.00"
+    "New order #10847 from Connected customer — $142.00": "Neue Bestellung #10847 von verbundenem Kunden – $142.00",
+    "Connected customer Corp": "Verbundenes Unternehmen Corp",
+    "Connected customer Corp · €185,000 · no activity in 14 days": "Verbundenes Unternehmen Corp · €185.000 · keine Aktivität in 14 Tagen",
+    "TechVision · €94,000 closed by Connected customer": "TechVision · €94.000 abgeschlossen von Connected customer"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40221,7 +40224,10 @@
     "No advertising optimization records are available yet.": "尚无广告优化记录可用。",
     "Connected customer": "已连接客户",
     "Connected customer added Wireless Earbuds": "已添加连接客户 无线耳机",
-    "New order #10847 from Connected customer — $142.00": "来自连接客户的新订单 #10847 — $142.00"
+    "New order #10847 from Connected customer — $142.00": "来自连接客户的新订单 #10847 — $142.00",
+    "Connected customer Corp": "已关联客户 Corp",
+    "Connected customer Corp · €185,000 · no activity in 14 days": "已关联客户 Corp · €185,000 · 14 天无活动",
+    "TechVision · €94,000 closed by Connected customer": "TechVision · €94,000 由已关联客户关闭"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
