@@ -14,7 +14,7 @@ const styleModules = import.meta.glob<StyleModule>("./pages/*/index.css", {
   query: "?inline",
   import: "default",
 });
-const liveDataBackedSlugs = new Set(["lulu-website-portal-9012"]);
+const liveDataBackedSlugs = new Set(["lulu-website-portal-9012", "fancily-leaf-1766"]);
 
 const authPageSlugs = new Set([
   "brightly-door-5741",

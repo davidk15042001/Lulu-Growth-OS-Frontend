@@ -1,21 +1,5 @@
-import { Theme } from './settings/types';
-import { LuluExecutiveDashboard } from './components/generated/LuluExecutiveDashboard';
-// %IMPORT_STATEMENT
+import { DynamicWorkspaceDashboard } from '../../components/DynamicWorkspaceDashboard';
 
-let theme: Theme = 'light';
-
-function App() {
-  function setTheme(theme: Theme) {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }
-
-  setTheme(theme);
-
-  return <LuluExecutiveDashboard />; // %EXPORT_STATEMENT%
+export default function App() {
+  return <DynamicWorkspaceDashboard />;
 }
-
-export default App;
