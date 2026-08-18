@@ -20059,7 +20059,9 @@
     "Activity data could not be loaded. Check workspace activity records and try again.": "Aktivitätsdaten konnten nicht geladen werden. Überprüfen Sie die Aktivitätsaufzeichnungen des Arbeitsbereichs und versuchen Sie es erneut.",
     "No activity records are available yet.": "Noch keine Aktivitätsaufzeichnungen verfügbar.",
     "Connected workspace GmbH": "Connected workspace GmbH",
-    "Workspace billing contacts": "Abrechnungskontakte des Workspaces"
+    "Workspace billing contacts": "Abrechnungskontakte des Workspaces",
+    "Intelligence insights could not be loaded. Check AI insight records and try again.": "Intelligence Insights konnten nicht geladen werden. Überprüfen Sie die KI-Insight-Datensätze und versuchen Sie es erneut.",
+    "No intelligence insights are available yet.": "Noch keine Intelligence Insights verfügbar."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40149,7 +40151,9 @@
     "Activity data could not be loaded. Check workspace activity records and try again.": "活动数据无法加载。请检查工作区活动记录后重试。",
     "No activity records are available yet.": "目前暂无活动记录。",
     "Connected workspace GmbH": "Connected workspace 有限公司",
-    "Workspace billing contacts": "工作区计费联系人"
+    "Workspace billing contacts": "工作区计费联系人",
+    "Intelligence insights could not be loaded. Check AI insight records and try again.": "无法加载 Intelligence 洞察。请检查 AI 洞察记录后重试。",
+    "No intelligence insights are available yet.": "尚无 Intelligence 洞察可用。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
