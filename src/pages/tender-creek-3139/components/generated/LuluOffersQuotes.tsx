@@ -15,7 +15,7 @@ type Offer = {
 };
 const offers: Offer[] = [{
   id: 'OFF-2026-00124',
-  customer: 'Acme GmbH',
+  customer: 'Connected customer',
   created: '10 Aug 2026',
   valid: '24 Aug 2026',
   amount: '12,500',
