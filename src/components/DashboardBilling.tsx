@@ -11,7 +11,7 @@ type Plan = { id: PlanId; name: string; eyebrow: string; description: string; ic
 
 const plans: Plan[] = [
   { id: "explorer", name: "Explorer", eyebrow: "See the full picture", description: "Understand your business with read-only access to the complete Lulu workspace.", icon: Eye, accent: "bg-[var(--secondary)]", features: ["View connected data and dashboards", "Explore reports, insights and history", "Read recommendations and opportunities"], limitations: "No changes, actions or automation", price: "Free", pricePeriod: "Read-only access", cta: "Choose Explorer" },
-  { id: "starter", name: "Starter", eyebrow: "Take action yourself", description: "Manage your workspace and connected platforms without AI-powered actions or recommendations.", icon: Zap, accent: "bg-[var(--primary)] text-[var(--primary-foreground)]", features: ["Everything in Explorer", "Create, edit and manage workspace data", "Manage connected websites and platforms", "Run actions manually with your approval"], limitations: "AI functions and recommendations are not included", price: "RMB 4,200", pricePeriod: "per year", cta: "Choose Starter" },
+  { id: "starter", name: "Starter", eyebrow: "Take action yourself", description: "Automatically analyze all workspace statistics with AI. General recommendations and actions stay off; SEO, GEO, AEO and Website are automated exceptions.", icon: Zap, accent: "bg-[var(--primary)] text-[var(--primary-foreground)]", features: ["Automatic AI analysis and statistics across the workspace", "All workspace and platform data stays available", "Automatic SEO, GEO, AEO and Website recommendations and actions", "General recommendations and actions remain disabled"], limitations: "No general recommendations or actions outside SEO, GEO, AEO and Website", price: "RMB 4,200", pricePeriod: "per year", cta: "Choose Starter" },
   { id: "ai", name: "AI", eyebrow: "Let Lulu run growth", description: "Give Lulu the authority to recommend, execute and automate the work across your workspace.", icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20", features: ["Everything in Starter", "AI insights and recommendations", "AI-assisted content and decisions", "Full automation of supported workflows"], limitations: "You stay in control with configurable approvals and safeguards", price: "RMB 30,000", pricePeriod: "per year", cta: "Choose AI" },
 ];
 
@@ -19,8 +19,8 @@ const capabilityRows = [
   ["View dashboards, reports and connected data", true, true, true],
   ["Manage workspace content and settings", false, true, true],
   ["Manage connected websites and platforms", false, true, true],
-  ["AI functions and recommendations", false, false, true],
-  ["Full automation of supported workflows", false, false, true],
+  ["Automatic AI analysis and statistics", false, true, true],
+  ["SEO, GEO, AEO and Website automation", false, true, true],
 ] as const;
 
 export function DashboardBilling() {

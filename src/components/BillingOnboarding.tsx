@@ -41,11 +41,11 @@ const plans: Plan[] = [
     id: "starter",
     name: "Starter",
     eyebrow: "Take action yourself",
-    description: "Manage your workspace and connected platforms without AI-powered actions or recommendations.",
+    description: "Automatically analyze all workspace statistics with AI. General recommendations and actions stay off; SEO, GEO, AEO and Website are automated exceptions.",
     icon: Zap,
     accent: "bg-[var(--primary)] text-[var(--primary-foreground)]",
-    features: ["Everything in Explorer", "Create, edit and manage workspace data", "Manage connected websites and platforms", "Run actions manually with your approval"],
-    limitations: "AI functions and recommendations are not included",
+    features: ["Automatic AI analysis and statistics across the workspace", "All workspace and platform data stays available", "Automatic SEO, GEO, AEO and Website recommendations and actions", "General recommendations and actions remain disabled"],
+    limitations: "No general recommendations or actions outside SEO, GEO, AEO and Website",
     price: "RMB 4,200",
     pricePeriod: "per year",
     cta: "Choose Starter",
@@ -69,8 +69,8 @@ const capabilityRows = [
   ["View dashboards, reports and connected data", true, true, true],
   ["Manage workspace content and settings", false, true, true],
   ["Manage connected websites and platforms", false, true, true],
-  ["AI functions and recommendations", false, false, true],
-  ["Full automation of supported workflows", false, false, true],
+  ["Automatic AI analysis and statistics", false, true, true],
+  ["SEO, GEO, AEO and Website automation", false, true, true],
 ];
 
 export function BillingOnboarding() {
