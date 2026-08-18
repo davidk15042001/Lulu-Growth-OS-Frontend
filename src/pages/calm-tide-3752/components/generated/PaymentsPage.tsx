@@ -77,7 +77,20 @@ export function PaymentsPage() {
   const [period, setPeriod] = useState('Daily');
   const { items: livePayments, loading: liveLoading, error: liveError } = useLiveRecords('finance_payments');
   const liveEmpty = !liveLoading && !liveError && livePayments.length === 0;
-  const filtered = useMemo(() => payments.filter(p => `${p.id} ${p.customer} ${p.invoice}`.toLowerCase().includes(query.toLowerCase())), [query]);
+  const livePaymentRows: Payment[] = livePayments.map(record => ({
+    id: String(record.data?.paymentId || record.name),
+    date: String(record.data?.paymentDate || record.createdAt || '—'),
+    customer: String(record.data?.customerName || record.data?.customer || 'Workspace customer'),
+    invoice: String(record.data?.invoiceNumber || '—'),
+    amount: String(record.valueAmount ?? record.data?.amount ?? '—'),
+    status: String(record.status || 'Recorded'),
+    method: String(record.data?.method || '—'),
+    provider: String(record.data?.provider || record.data?.source || '—'),
+    fees: String(record.data?.fees ?? '—'),
+    net: String(record.data?.netAmount ?? '—'),
+    reference: String(record.data?.reference || 'masked'),
+  }));
+  const filtered = useMemo(() => livePaymentRows.filter(p => `${p.id} ${p.customer} ${p.invoice}`.toLowerCase().includes(query.toLowerCase())), [livePaymentRows, query]);
   return <div className="min-h-screen bg-[var(--background)] text-foreground" style={{
     fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
   }}>
