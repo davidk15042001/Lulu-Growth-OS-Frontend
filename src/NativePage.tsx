@@ -2,6 +2,7 @@ import { StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
+import nativeMobileCss from "./ui/native-mobile.css?inline";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -58,6 +59,7 @@ export function NativePage({ slug }: { slug: string }) {
     }
 
     let styleElement: HTMLStyleElement | null = null;
+    let mobileStyleElement: HTMLStyleElement | null = null;
     void Promise.all([appLoader(), styleLoader?.()]).then(([module, css]) => {
       if (!active) return;
       if (css) {
@@ -66,6 +68,10 @@ export function NativePage({ slug }: { slug: string }) {
         styleElement.textContent = css;
         document.head.appendChild(styleElement);
       }
+      mobileStyleElement = document.createElement("style");
+      mobileStyleElement.dataset.luluNativeMobile = slug;
+      mobileStyleElement.textContent = nativeMobileCss;
+      document.head.appendChild(mobileStyleElement);
       if (isAuthPage) {
         const livePageFrame = document.querySelector<HTMLElement>(".page-frame");
         livePageFrame?.classList.add("page-frame--auth");
@@ -81,6 +87,7 @@ export function NativePage({ slug }: { slug: string }) {
     return () => {
       active = false;
       styleElement?.remove();
+      mobileStyleElement?.remove();
       if (pageFrame && isAuthPage) {
         if (previousPageFrameStyle == null) pageFrame.removeAttribute("style");
         else pageFrame.setAttribute("style", previousPageFrameStyle);
@@ -107,9 +114,11 @@ export function NativePage({ slug }: { slug: string }) {
 
   return (
     <LuluRuntime slug={slug}>
-      <PageErrorBoundary pageName={slug}>
-        <App />
-      </PageErrorBoundary>
+      <div className="lulu-native-page">
+        <PageErrorBoundary pageName={slug}>
+          <App />
+        </PageErrorBoundary>
+      </div>
     </LuluRuntime>
   );
 }
