@@ -20086,7 +20086,11 @@
     "No finance automation records are available yet.": "Es sind noch keine Finanzautomationsdatensätze verfügbar.",
     "Content data could not be loaded. Check marketing content records and try again.": "Inhalte konnten nicht geladen werden. Überprüfen Sie die Marketing-Inhaltseinträge und versuchen Sie es erneut.",
     "Customer Success Story — Connected customer": "Customer Success Story – Vernetzter Kunde",
-    "No marketing content records are available yet.": "Es sind noch keine Marketing-Inhaltseinträge verfügbar."
+    "No marketing content records are available yet.": "Es sind noch keine Marketing-Inhaltseinträge verfügbar.",
+    "Connected workspace's Lulu AI Platform is mentioned as a leading option for unified operations.": "Die verbundene Workspace-Lulu AI-Plattform wird als führende Option für einheitliche Abläufe genannt.",
+    "Connected workspace's platform is mentioned": "Die verbundene Workspace-Plattform wird genannt",
+    "GEO data could not be loaded. Check marketing GEO records and try again.": "GEO-Daten konnten nicht geladen werden. Überprüfen Sie die Marketing-GEO-Einträge und versuchen Sie es erneut.",
+    "No GEO records are available yet.": "Noch keine GEO-Einträge verfügbar."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40203,7 +40207,11 @@
     "No finance automation records are available yet.": "尚无财务自动化记录。",
     "Content data could not be loaded. Check marketing content records and try again.": "无法加载内容数据。请检查营销内容记录后重试。",
     "Customer Success Story — Connected customer": "客户成功案例 — 已连接的客户",
-    "No marketing content records are available yet.": "尚无可用的营销内容记录。"
+    "No marketing content records are available yet.": "尚无可用的营销内容记录。",
+    "Connected workspace's Lulu AI Platform is mentioned as a leading option for unified operations.": "已连接工作区的 Lulu AI Platform 被誉为统一运营的领先选择。",
+    "Connected workspace's platform is mentioned": "已连接工作区的平台被提及",
+    "GEO data could not be loaded. Check marketing GEO records and try again.": "无法加载 GEO 数据。请检查营销 GEO 记录并重试。",
+    "No GEO records are available yet.": "尚无可用的 GEO 记录。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
