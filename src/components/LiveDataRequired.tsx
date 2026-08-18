@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 
 const cardStyle: CSSProperties = {
   minHeight: "min(60vh, 620px)",
@@ -9,6 +10,7 @@ const cardStyle: CSSProperties = {
 };
 
 export function LiveDataRequired({ pageName }: { pageName: string }) {
+  const t = useTranslation();
   return (
     <main style={cardStyle} data-live-data-state="unavailable" data-page={pageName}>
       <section
@@ -25,16 +27,16 @@ export function LiveDataRequired({ pageName }: { pageName: string }) {
         }}
       >
         <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: ".16em", textTransform: "uppercase", color: "var(--muted-foreground, #686864)" }}>
-          Live workspace data required
+          {t("Live workspace data")}
         </p>
         <h1 style={{ margin: "14px 0 10px", fontSize: "clamp(24px, 4vw, 34px)", lineHeight: 1.1 }}>
-          Keine Demo-Daten angezeigt
+          {t("No Data")}
         </h1>
         <p style={{ margin: 0, fontSize: 15, lineHeight: 1.7, color: "var(--muted-foreground, #686864)" }}>
-          Für diese Seite sind noch keine verifizierten Workspace-Daten verbunden. Lulu zeigt deshalb bewusst keine Beispielwerte, simulierten Aktivitäten oder erfundenen Kennzahlen an.
+          {t("Connect your data sources to unlock strategic intelligence.")}
         </p>
         <p style={{ margin: "16px 0 0", fontSize: 13, lineHeight: 1.6, color: "var(--muted-foreground, #686864)" }}>
-          Verbinde eine passende Datenquelle oder füge echte Workspace-Daten hinzu, um diese Seite mit Live-Werten zu verwenden.
+          {t("Connect Data")} · {t("Unavailable")}
         </p>
       </section>
     </main>

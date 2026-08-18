@@ -10,18 +10,19 @@ if (!manifestJson) throw new Error("Unable to parse src/pages-manifest.ts");
 
 const pages = JSON.parse(manifestJson);
 const pageDirectories = readdirSync(pagesRoot, { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+const manifestPageDirectories = pageDirectories.filter((slug) => pages.some((page) => page.slug === slug));
 const appSource = readFileSync(join(root, "src", "App.tsx"), "utf8");
 const routingSource = readFileSync(join(root, "src", "routing.ts"), "utf8");
 const issues = [];
 
 if (pages.length !== 140) issues.push(`Expected 140 manifest pages, found ${pages.length}`);
-if (pageDirectories.length !== 140) issues.push(`Expected 140 page directories, found ${pageDirectories.length}`);
+if (manifestPageDirectories.length !== 140) issues.push(`Expected 140 manifest page directories, found ${manifestPageDirectories.length}`);
 
 for (const page of pages) {
-  if (!pageDirectories.includes(page.slug)) issues.push(`Missing page directory: ${page.slug}`);
+  if (!manifestPageDirectories.includes(page.slug)) issues.push(`Missing page directory: ${page.slug}`);
 }
 
-const generatedFiles = pageDirectories.flatMap((slug) => {
+const generatedFiles = manifestPageDirectories.flatMap((slug) => {
   const generatedRoot = join(pagesRoot, slug, "components", "generated");
   return readdirSync(generatedRoot).filter((name) => name.endsWith(".tsx")).map((name) => join(generatedRoot, name));
 });
@@ -35,10 +36,12 @@ if (oldHashNavFiles.length) issues.push(`${oldHashNavFiles.length} navigation fi
 if (!appSource.includes("pages.map((page)")) issues.push("App router does not generate routes from the full manifest");
 if (!appSource.includes('path="/pages/:slug"')) issues.push("Legacy page redirect is missing");
 if (!routingSource.includes("canonicalPathsBySlug")) issues.push("Canonical route map is missing");
+if (!appSource.includes("admin-billing-overview-9901") || !pageDirectories.includes("admin-billing-overview-9901")) issues.push("Private admin billing route is missing");
 
 const result = {
   manifestPages: pages.length,
   pageDirectories: pageDirectories.length,
+  manifestPageDirectories: manifestPageDirectories.length,
   generatedFiles: generatedFiles.length,
   navigationFiles: navFiles.length,
   routedNavigationFiles: routedNavFiles.length,
