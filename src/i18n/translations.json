@@ -20038,7 +20038,11 @@
     "Sales team member": "Vertriebsmitarbeiter",
     "Target contract required": "Zielvertrag erforderlich",
     "No sales tasks are available yet.": "Es sind noch keine Vertriebsaufgaben verfügbar.",
-    "Sales task data could not be loaded. Check task records and try again.": "Vertriebsaufgabendaten konnten nicht geladen werden. Überprüfen Sie die Aufgabenaufzeichnungen und versuchen Sie es erneut."
+    "Sales task data could not be loaded. Check task records and try again.": "Vertriebsaufgabendaten konnten nicht geladen werden. Überprüfen Sie die Aufgabenaufzeichnungen und versuchen Sie es erneut.",
+    "Connected account contract overdue": "Verknüpftes Konto - Vertrag überfällig",
+    "Loading activities": "Aktivitäten werden geladen",
+    "No sales activities are available yet.": "Noch keine Vertriebsaktivitäten verfügbar.",
+    "Sales activity data could not be loaded. Check activity records and try again.": "Vertriebsaktivitätsdaten konnten nicht geladen werden. Prüfen Sie die Aktivitätsaufzeichnungen und versuchen Sie es erneut."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40107,7 +40111,11 @@
     "Sales team member": "销售团队成员",
     "Target contract required": "需要目标合同",
     "No sales tasks are available yet.": "暂无销售任务。",
-    "Sales task data could not be loaded. Check task records and try again.": "无法加载销售任务数据。请检查任务记录后重试。"
+    "Sales task data could not be loaded. Check task records and try again.": "无法加载销售任务数据。请检查任务记录后重试。",
+    "Connected account contract overdue": "已连接账户合约已逾期",
+    "Loading activities": "正在加载活动",
+    "No sales activities are available yet.": "尚无销售活动。",
+    "Sales activity data could not be loaded. Check activity records and try again.": "无法加载销售活动数据。请检查活动记录并重试。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
