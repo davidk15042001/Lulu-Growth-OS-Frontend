@@ -20075,7 +20075,15 @@
     "Offer data could not be loaded. Check finance quote records and try again.": "Angebotsdaten konnten nicht geladen werden. Überprüfen Sie die Finanzangebotsdatensätze und versuchen Sie es erneut.",
     "live offers": "Live-Angebote",
     "Executive data could not be loaded. Check income, customer and deal records and try again.": "Exekutivdaten konnten nicht geladen werden. Überprüfen Sie Einkommens-, Kunden- und Deal-Datensätze und versuchen Sie es erneut.",
-    "No executive records are available yet.": "Es sind noch keine Exekutivdatensätze verfügbar."
+    "No executive records are available yet.": "Es sind noch keine Exekutivdatensätze verfügbar.",
+    "07 Aug 2026 · Finance approver": "07. Aug. 2026 · Finanzfreigeberechtigter",
+    "07 Aug 2026 · Workspace owner": "07. Aug. 2026 · Arbeitsbereichsinhaber",
+    "08 Aug 2026 · Workspace owner": "08. Aug. 2026 · Arbeitsbereichsinhaber",
+    "18 Jul 2026 · Workspace owner": "18. Juli 2026 · Arbeitsbereichsinhaber",
+    "Finance approver": "Finanzfreigeberechtigter",
+    "Finance automation data could not be loaded. Check finance automation records and try again.": "Finanzautomationsdaten konnten nicht geladen werden. Überprüfen Sie die Finanzautomationsdatensätze und versuchen Sie es erneut.",
+    "Finance operator": "Finanzoperator",
+    "No finance automation records are available yet.": "Es sind noch keine Finanzautomationsdatensätze verfügbar."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40181,7 +40189,15 @@
     "Offer data could not be loaded. Check finance quote records and try again.": "无法加载报价数据。请检查财务报价记录后重试。",
     "live offers": "实时报价",
     "Executive data could not be loaded. Check income, customer and deal records and try again.": "高层数据无法加载。请检查收入、客户和交易记录后重试。",
-    "No executive records are available yet.": "尚无高层记录可用。"
+    "No executive records are available yet.": "尚无高层记录可用。",
+    "07 Aug 2026 · Finance approver": "2026年8月7日 · 财务审批人",
+    "07 Aug 2026 · Workspace owner": "2026年8月7日 · 工作区所有者",
+    "08 Aug 2026 · Workspace owner": "2026年8月8日 · 工作区所有者",
+    "18 Jul 2026 · Workspace owner": "2026年7月18日 · 工作区所有者",
+    "Finance approver": "财务审批人",
+    "Finance automation data could not be loaded. Check finance automation records and try again.": "无法加载财务自动化数据。请检查财务自动化记录并重试。",
+    "Finance operator": "财务操作员",
+    "No finance automation records are available yet.": "尚无财务自动化记录。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
