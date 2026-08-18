@@ -20052,7 +20052,10 @@
     "Marketing team member": "Mitglied des Marketingteams",
     "No marketing campaigns are available yet.": "Es sind noch keine Marketingkampagnen verfügbar.",
     "No saved sales settings are available yet. Current form values are local until saved.": "Es sind noch keine gespeicherten Verkaufs-Einstellungen vorhanden. Die aktuellen Formularwerte sind lokal, bis sie gespeichert werden.",
-    "Sales settings data could not be loaded. Check the settings record and try again.": "Verkaufs-Einstellungen konnten nicht geladen werden. Prüfen Sie den Einstellungsdatensatz und versuchen Sie es erneut."
+    "Sales settings data could not be loaded. Check the settings record and try again.": "Verkaufs-Einstellungen konnten nicht geladen werden. Prüfen Sie den Einstellungsdatensatz und versuchen Sie es erneut.",
+    "Connected workspace": "Verbundenes Workspace",
+    "No attribution records are available yet.": "Es sind noch keine Attributionseinträge verfügbar.",
+    "Tracking attribution data could not be loaded. Check connected advertising sources and try again.": "Attributionsdaten konnten nicht geladen werden. Überprüfen Sie die verbundenen Werbequellen und versuchen Sie es erneut."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40135,7 +40138,10 @@
     "Marketing team member": "营销团队成员",
     "No marketing campaigns are available yet.": "尚无可用的营销活动。",
     "No saved sales settings are available yet. Current form values are local until saved.": "尚未保存任何销售设置。当前表单数值在保存前仅存于本地。",
-    "Sales settings data could not be loaded. Check the settings record and try again.": "无法加载销售设置数据。请检查设置记录并重试。"
+    "Sales settings data could not be loaded. Check the settings record and try again.": "无法加载销售设置数据。请检查设置记录并重试。",
+    "Connected workspace": "已连接的工作区",
+    "No attribution records are available yet.": "尚无归因记录可用。",
+    "Tracking attribution data could not be loaded. Check connected advertising sources and try again.": "无法加载归因跟踪数据。请检查已连接的广告来源后重试。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
