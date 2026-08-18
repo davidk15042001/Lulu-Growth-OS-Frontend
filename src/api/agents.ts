@@ -11,5 +11,5 @@ export const agentApi = {
   create: (workspaceId: string, goal: string) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, '/agent-runs'), method: 'POST', body: { goal } }),
   detail: (workspaceId: string, runId: string) => requestApi<AgentRunDetails>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}`) }),
   cancel: (workspaceId: string, runId: string) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/cancel`), method: 'POST', body: {} }),
-  approve: (workspaceId: string, runId: string, stepId: string) => requestApi<AgentRunDetails>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/steps/${stepId}/approve`), method: 'POST', body: {} }),
+  approve: (workspaceId: string, runId: string, stepId: string, decision: 'approved' | 'rejected' | 'cancelled' = 'approved') => requestApi<AgentRunDetails>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/steps/${stepId}/approve`), method: 'POST', body: { decision } }),
 };
