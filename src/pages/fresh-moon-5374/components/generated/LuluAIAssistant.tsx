@@ -38,70 +38,9 @@ type LiveMessage = {
 };
 type ConversationResponse = { id: string };
 type AiResponse = { assistantMessage: { id: string; content: string } };
-const conversations: Conversation[] = [{
-  title: 'Business Performance Overview',
-  preview: 'How is my business performing...',
-  time: 'Just now'
-}, {
-  title: 'Growth Opportunities Q4',
-  preview: 'What is my biggest growth...',
-  time: '2h ago'
-}, {
-  title: 'Marketing Analysis',
-  preview: 'How is my marketing performing...',
-  time: 'Yesterday'
-}, {
-  title: 'Risk Assessment Review',
-  preview: 'Are there any risks I should...',
-  time: 'Dec 12'
-}, {
-  title: 'Advertising ROAS Analysis',
-  preview: 'Why did my ROAS decline...',
-  time: 'Dec 10'
-}, {
-  title: 'Customer Retention Strategy',
-  preview: 'What can I do to reduce churn...',
-  time: 'Dec 8'
-}, {
-  title: 'SEO Opportunity Report',
-  preview: 'Show me our top SEO opportunities...',
-  time: 'Dec 5'
-}];
-const prompts = [{
-  category: 'Business',
-  text: 'How is my business performing today?'
-}, {
-  category: 'Growth',
-  text: 'What is my biggest growth opportunity?'
-}, {
-  category: 'Risks',
-  text: 'Are there any risks I should know about?'
-}, {
-  category: 'Marketing',
-  text: 'How is my marketing performing?'
-}, {
-  category: 'Tasks',
-  text: 'What should I work on first?'
-}, {
-  category: 'AI Insights',
-  text: 'What changed in my business recently?'
-}];
-const kpis: Kpi[] = [{
-  label: 'Revenue',
-  value: '€48,240',
-  delta: '↑ 8.4%',
-  tone: 'good'
-}, {
-  label: 'New Customers',
-  value: '142',
-  delta: '↑ 12.1%',
-  tone: 'good'
-}, {
-  label: 'Conversion Rate',
-  value: '3.8%',
-  delta: '↓ 0.4pp',
-  tone: 'watch'
-}];
+const conversations: Conversation[] = [];
+const prompts: Array<Record<string, any>> = [];
+const kpis: Kpi[] = [];
 const navMain: {
   label: string;
   icon: IconType;
@@ -124,101 +63,11 @@ const navMain: {
 const navAi: {
   label: string;
   icon: IconType;
-}[] = [{
-  label: 'AI Assistant',
-  icon: Sparkles
-}, {
-  label: 'AI Recommendations',
-  icon: Lightbulb
-}, {
-  label: 'AI Tasks',
-  icon: CheckSquare
-}, {
-  label: 'Opportunity Center',
-  icon: Target
-}, {
-  label: 'Risk Center',
-  icon: ShieldAlert
-}, {
-  label: 'AI Decision Center',
-  icon: GitBranch
-}, {
-  label: 'AI Agents',
-  icon: Bot
-}, {
-  label: 'AI Knowledge',
-  icon: BookOpen
-}, {
-  label: 'AI Actions',
-  icon: Zap
-}, {
-  label: 'AI Conversations',
-  icon: MessageSquare
-}, {
-  label: 'AI Activity',
-  icon: Activity
-}];
-const platforms = [{
-  name: 'Shopify',
-  icon: ShoppingBag,
-  dot: C.green
-}, {
-  name: 'Google Analytics',
-  icon: BarChart3,
-  dot: C.blue
-}, {
-  name: 'Google Ads',
-  icon: Target,
-  dot: C.red
-}, {
-  name: 'Meta Ads',
-  icon: Globe2,
-  dot: C.blue
-}];
-const sources = [{
-  name: 'Shopify',
-  dot: C.green
-}, {
-  name: 'Google Analytics',
-  dot: C.blue
-}, {
-  name: 'Google Ads',
-  dot: C.red
-}, {
-  name: 'Meta Ads',
-  dot: C.blue
-}];
-const contextKpis = [{
-  label: 'Revenue',
-  value: '€1.24M',
-  delta: '↑8.4%',
-  tone: 'good'
-}, {
-  label: 'Customers',
-  value: '12,480',
-  delta: '↑11.4%',
-  tone: 'good'
-}, {
-  label: 'Conv. Rate',
-  value: '3.8%',
-  delta: '↓0.4pp',
-  tone: 'watch'
-}, {
-  label: 'ROAS',
-  value: '5.4x',
-  delta: '↓6%',
-  tone: 'watch'
-}];
-const knowledge = [{
-  label: 'Company Information',
-  icon: BookOpen
-}, {
-  label: 'Products & Services',
-  icon: Package
-}, {
-  label: 'Business Description',
-  icon: FileText
-}];
+}[] = [];
+const platforms: Array<{ name: string; icon: IconType; dot: string }> = [];
+const sources: Array<Record<string, any>> = [];
+const contextKpis: Array<Record<string, any>> = [];
+const knowledge: Array<Record<string, any>> = [];
 function Avatar() {
   return <span className="ai-avatar" aria-label="Lulu AI">L</span>;
 }

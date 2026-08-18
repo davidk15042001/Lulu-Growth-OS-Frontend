@@ -1,70 +1,16 @@
 import { useState } from 'react';
 import { Activity, AlertTriangle, ArrowRight, BarChart3, Bell, Bot, Check, ChevronDown, Clock3, Database, Download, FileText, Filter, HelpCircle, LayoutDashboard, Lightbulb, MessageCircle, MoreHorizontal, Plus, RefreshCw, Search, Settings, ShieldAlert, Sparkles, Target, TrendingUp, UserRound, Users, X, Zap } from 'lucide-react';
-const stats = [['8', 'Open Decisions', 'indigo'], ['2', 'Awaiting Input', 'amber'], ['3', 'Awaiting Approval', 'amber pulse'], ['5', 'High Impact', 'red'], ['1', 'Overdue', 'red pulse'], ['4', 'Recently Resolved', 'green'], ['3', 'Monitoring', 'indigo pulse']];
-const decisions = [{
-  title: 'Increase Google Ads Budget by 20%',
-  area: 'Advertising',
-  priority: 'High',
-  owner: 'Marketing Director',
-  deadline: 'In 3 days',
-  status: 'Awaiting Decision',
-  rec: 'Option B recommended',
-  risk: 'Medium'
-}, {
-  title: 'Enter Southern European Market',
-  area: 'Strategic',
-  priority: 'Critical',
-  owner: 'CEO',
-  deadline: 'In 7 days',
-  status: 'Awaiting Input',
-  rec: 'Insufficient data',
-  risk: 'High'
-}, {
-  title: 'Launch New Product Bundle',
-  area: 'Product',
-  priority: 'High',
-  owner: 'Product Director',
-  deadline: 'In 5 days',
-  status: 'Under Review',
-  rec: 'Option A recommended',
-  risk: 'Low'
-}, {
-  title: 'Reduce Operating Costs Q3',
-  area: 'Finance',
-  priority: 'High',
-  owner: 'CFO',
-  deadline: 'Overdue',
-  status: 'Awaiting Approval',
-  rec: 'Option C recommended',
-  risk: 'Medium'
-}, {
-  title: 'Change Email Marketing Frequency',
-  area: 'Marketing',
-  priority: 'Medium',
-  owner: 'CMO',
-  deadline: 'In 14 days',
-  status: 'Open',
-  rec: 'No recommendation yet',
-  risk: 'Low'
-}, {
-  title: 'Invest in Process Automation',
-  area: 'Operations',
-  priority: 'Medium',
-  owner: 'COO',
-  deadline: 'In 30 days',
-  status: 'Draft',
-  rec: 'In analysis',
-  risk: 'Low'
-}];
-const evidence = [['KPI', 'ROAS', 'Current: 2.6x', 'Target: ≥2.0x', 'Stable', 'Google Ads', 'Observed'], ['Trend', 'Conversion Volume', '+14% after last increase', '90 days', 'Positive', 'Marketing data', 'Observed'], ['Benchmark', 'Industry average ROAS', 'Business: 2.6x', '+44% above benchmark', 'Strong', 'Industry data', 'Calculated'], ['Forecast', 'Estimated Q3 revenue', 'With 10% increase', 'Confidence: Medium', 'Projected', 'Lulu AI', 'Forecast / Estimated']];
-const scenarios = [['Best Case', 'Conversion rate +5%', 'ROAS 3.1x', 'Revenue +$34K', 'bg-chart-4/10 border-chart-4/30'], ['Expected Case', 'Conversion stable', 'ROAS 2.5x', 'Revenue +$28K', 'bg-secondary/10 border-border/30'], ['Worst Case', 'CPA +18%', 'ROAS drops to 1.7x', 'Revenue +$8K', 'bg-chart-5/10 border-chart-5/30']];
+const stats: any[][] = [];
+const decisions: Array<Record<string, any>> = [];
+const evidence: any[][] = [];
+const scenarios: any[][] = [];
 const compareRows = [['Expected Impact', '+$52K', '+$28K', 'Stable', '-$22K'], ['Revenue Potential', 'High', 'Favorable', 'None', 'Negative'], ['Cost', '+$20,000/mo', '+$10,000/mo', '$0', '-$10,000/mo'], ['Profitability', 'Neutral', 'Favorable', 'Neutral', 'Unfavorable'], ['Risk', 'Medium', 'Low', 'Low', 'Medium'], ['Confidence', 'Medium', 'High', 'High', 'Medium'], ['Effort', 'Low', 'Low', 'None', 'Low'], ['Time to Impact', '30 days', '30 days', '—', '30 days'], ['Reversibility', 'High', 'High', 'High', 'High'], ['Strategic Alignment', 'Strong', 'Strong', 'Neutral', 'Weak']];
 const navItems = [['Overview', LayoutDashboard], ['Signals', Activity], ['Opportunities', Target], ['Decisions', Lightbulb], ['Risks', ShieldAlert], ['Scenarios', BarChart3], ['Reports', FileText]];
 function Sidebar() {
   return <aside className="hidden lg:flex w-[248px] shrink-0 border-r border-border/80 bg-[var(--background)] flex-col min-h-screen">
     <div className="h-20 px-6 flex items-center gap-3 border-b border-border/70"><div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary grid place-items-center shadow-lg shadow-black/20 text-primary-foreground"><Sparkles size={19} /></div><div><strong className="text-foreground tracking-tight">Lulu AI</strong><p className="text-[10px] text-muted-foreground uppercase tracking-[.18em]">Core Platform</p></div></div>
     <div className="min-h-0 flex flex-1 flex-col overflow-hidden px-4 py-4"><LuluSectionNavigation activeId="radiant-cave-9340" /></div>
-    <div className="p-4 border-t border-border/70"><button className="flex items-center gap-3 px-3 py-2 text-sm text-foreground"><Settings size={17} /> Settings</button><div className="mt-4 flex items-center gap-3 px-3"><div className="h-8 w-8 rounded-full bg-secondary/30 grid place-items-center text-xs text-foreground">JD</div><div><p className="text-xs text-foreground">Jordan Davis</p><p className="text-[11px] text-muted-foreground">Admin workspace</p></div></div></div>
+    <div className="p-4 border-t border-border/70"><button className="flex items-center gap-3 px-3 py-2 text-sm text-foreground"><Settings size={17} /> Settings</button><div className="mt-4 flex items-center gap-3 px-3"><div className="h-8 w-8 rounded-full bg-secondary/30 grid place-items-center text-xs text-foreground">JD</div><div><p className="text-xs text-foreground">Workspace member</p><p className="text-[11px] text-muted-foreground">Admin workspace</p></div></div></div>
   </aside>;
 }
 function Pill({

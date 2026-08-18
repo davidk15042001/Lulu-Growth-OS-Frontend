@@ -11,51 +11,11 @@ type ScoreRow = {
   tone: Tone;
 };
 const navGroups = [['WORKSPACE', ['Dashboard', 'Company Profile']], ['INTELLIGENCE', ['Executive Dashboard', 'Analytics', 'Comparisons', 'KPI Explorer', 'Benchmarks', 'Reports', 'Trends', 'Anomalies', 'Forecasts']], ['AI', ['AI Assistant', 'AI Agents', 'AI Knowledge', 'AI Actions', 'AI Conversations']], ['CRM', ['Contacts', 'Companies', 'Leads', 'Deals', 'Pipeline']], ['MARKETING', ['Campaigns', 'SEO', 'GEO', 'AEO', 'Marketing Analytics']], ['ADVERTISING', ['Ad Campaigns', 'Advertising Analytics']], ['SETTINGS', ['Integrations', 'Team']]] as const;
-const metrics = ['Revenue', 'ROAS', 'CAC', 'Customers', 'Conversion Rate', 'Orders', 'AOV', 'Leads', 'Marketing ROI'];
-const scoreRows: ScoreRow[] = [{
-  kpi: 'Revenue',
-  a: '€82,400',
-  b: '€71,200',
-  diff: '+€11,200',
-  change: '+15.7%',
-  better: 'A',
-  tone: 'green'
-}, {
-  kpi: 'ROAS',
-  a: '4.2x',
-  b: '3.6x',
-  diff: '+0.6x',
-  change: '+16.7%',
-  better: 'A',
-  tone: 'green'
-}, {
-  kpi: 'CAC',
-  a: '€42',
-  b: '€48',
-  diff: '−€6',
-  change: '−12.5%',
-  better: 'A',
-  tone: 'green'
-}, {
-  kpi: 'Conversion Rate',
-  a: '4.8%',
-  b: '5.1%',
-  diff: '−0.3pp',
-  change: '−5.9%',
-  better: 'B',
-  tone: 'blue'
-}, {
-  kpi: 'Customers',
-  a: '1,840',
-  b: '1,420',
-  diff: '+420',
-  change: '+29.6%',
-  better: 'A',
-  tone: 'green'
-}];
+const metrics: string[] = [];
+const scoreRows: ScoreRow[] = [];
 const countries = [['🇩🇪', 'Germany', '€28,400', '€24,200', '+€4,200', '34.5%'], ['🇦🇹', 'Austria', '€18,200', '€16,400', '+€1,800', '22.1%'], ['🇨🇭', 'Switzerland', '€14,800', '€12,400', '+€2,400', '18.0%'], ['🇬🇧', 'United Kingdom', '€12,200', '€10,800', '+€1,400', '14.8%'], ['🇳🇱', 'Netherlands', '€8,800', '€7,400', '+€1,400', '10.7%']];
-const campaigns = [['Brand Search (G)', 'Brand Awareness (M)', '€12K', '€8K', '8.2x', '4.1x', 'A better'], ['Retargeting (G)', 'Retargeting (M)', '€8K', '€6K', '5.4x', '3.8x', 'A better'], ['Prospecting (G)', 'Prospecting (M)', '€32K', '€14K', '2.8x', '2.9x', 'B slightly better']];
-const history = [['Comparison created', 'Anna M.', 'Created Google Ads vs Meta Ads', 'Today 09:41'], ['Configuration changed', 'Anna M.', 'Added Customers metric', 'Today 09:43'], ['Refreshed', 'System', 'Auto-refresh', 'Today 09:45'], ['Shared', 'Anna M.', 'Shared via internal link', 'Today 09:52']];
+const campaigns: any[][] = [];
+const history: any[][] = [];
 const sources = [['Google Ads', '2 min ago', 'Excellent', Search], ['Meta Ads', '5 min ago', 'Good', Globe2], ['Google Analytics', '3 min ago', 'Excellent', BarChart3], ['Shopify', '8 min ago', 'Good', Target]] as const;
 const toneClasses: Record<Tone, string> = {
   green: 'bg-secondary/10 text-foreground',

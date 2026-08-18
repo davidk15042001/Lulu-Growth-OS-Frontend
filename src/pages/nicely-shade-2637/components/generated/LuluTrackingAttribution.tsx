@@ -6,62 +6,11 @@ type Modal = 'event' | 'issue' | 'task' | 'check' | 'complete' | 'export' | null
 type PageState = 'main' | 'empty' | 'limited' | 'no-issues' | 'loading' | 'error' | 'permission';
 const nav = ['Dashboard', 'Campaigns', 'Content', 'SEO', 'GEO', 'AEO', 'Social', 'Advertising', 'Audiences', 'Automations', 'Analytics'];
 const sub = ['Overview', 'Campaigns', 'Audiences', 'Creatives', 'Budgets', 'AI Optimization', 'Tracking & Attribution'];
-const sources = [['Google Ads Conversion Tracking', 'Google Ads', 'Healthy', '9 min ago', '12,847', 'Fresh', 'None'], ['Google Analytics 4', 'Google', 'Healthy', '14 min ago', '284,293', 'Fresh', 'None'], ['Meta Pixel', 'Meta Ads', 'Healthy', '18 min ago', '98,742', 'Fresh', 'None'], ['Meta Conversions API', 'Meta Ads', 'Warning', '2h 14m ago', '31,284', 'Delayed', '1 issue'], ['LinkedIn Insight Tag', 'LinkedIn Ads', 'Healthy', '22 min ago', '8,421', 'Fresh', 'None'], ['TikTok Pixel', 'TikTok Ads', 'Warning', '4h 32m ago', '2,847', 'Delayed', '1 issue'], ['First-Party Business Data', 'Lulu AI', 'Healthy', '8 min ago', '1,284', 'Real Time', 'None']];
+const sources: any[][] = [];
 const events = [['Purchase', 'Google Ads Conv. Tracking', 'Google Ads', 'Active', '1,240', '9 min ago', 'Google Ads', 'None'], ['Purchase', 'Meta Pixel + CAPI', 'Meta Ads', 'Active', '987', '18 min ago', 'Meta Ads', '1 discrepancy'], ['Lead', 'Google Ads Conv. Tracking', 'Google Ads', 'Active', '428', '22 min ago', 'Google Ads', 'None'], ['Lead', 'LinkedIn Insight Tag', 'LinkedIn Ads', 'Active', '106', '22 min ago', 'LinkedIn Ads', 'None'], ['Add to Cart', 'Meta Pixel', 'Meta Ads', 'Active', '4,284', '18 min ago', 'Meta Ads', 'None'], ['Form Submission', 'First-Party Data', 'Lulu AI', 'Active', '312', '8 min ago', 'Lulu AI', 'None'], ['Registration', 'TikTok Pixel', 'TikTok Ads', 'Warning', '84', '4h 32m ago', 'TikTok Ads', 'Delayed'], ['Contact Request', 'Meta Conversions API', 'Meta Ads', 'Warning', '148', '2h 14m ago', 'Meta Ads', 'Delayed']];
-const channels = [{
-  name: 'Paid Search',
-  value: 42,
-  color: 'var(--foreground)',
-  conv: '1,668',
-  money: '€43,368'
-}, {
-  name: 'Paid Social',
-  value: 31,
-  color: 'var(--foreground)',
-  conv: '1,231',
-  money: '€30,775'
-}, {
-  name: 'Organic Search',
-  value: 14,
-  color: 'var(--chart-4)',
-  conv: '556',
-  money: '€13,900'
-}, {
-  name: 'Direct',
-  value: 8,
-  color: 'var(--muted-foreground)',
-  conv: '318',
-  money: '€7,950'
-}, {
-  name: 'Referral',
-  value: 3,
-  color: 'var(--foreground)',
-  conv: '119',
-  money: '€2,975'
-}, {
-  name: 'Email',
-  value: 2,
-  color: 'var(--foreground)',
-  conv: '79',
-  money: '€1,975'
-}];
-const healthHistory = [{
-  day: 'Jun 1',
-  score: 97
-}, {
-  day: 'Jun 8',
-  score: 98
-}, {
-  day: 'Jun 15',
-  score: 96
-}, {
-  day: 'Jun 18',
-  score: 98
-}, {
-  day: 'Jun 22',
-  score: 94
-}];
-const healthRows = [['Google Ads Conv. Tracking', '9 min ago', '9 min ago', '<1 min', 'Fresh'], ['Google Analytics 4', '14 min ago', '14 min ago', '<1 min', 'Fresh'], ['Meta Pixel', '18 min ago', '18 min ago', '<1 min', 'Fresh'], ['Meta Conversions API', '2h 14m ago', '2h 14m ago', '2h 14m', 'Delayed'], ['LinkedIn Insight Tag', '22 min ago', '22 min ago', '<1 min', 'Fresh'], ['TikTok Pixel', '4h 32m ago', '4h 32m ago', '4h 32m', 'Delayed'], ['First-Party Data', '8 min ago', '8 min ago', 'Real Time', 'Real Time']];
+const channels: Array<Record<string, any>> = [];
+const healthHistory: Array<Record<string, any>> = [];
+const healthRows: any[][] = [];
 const Button = ({
   children,
   primary = false,

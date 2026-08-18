@@ -7,7 +7,7 @@ export function LuluVerificationEmail() {
           <span className="font-medium text-[var(--muted-foreground)]">From</span>
           <span>noreply@lulu.ai</span>
           <span className="font-medium text-[var(--muted-foreground)]">To</span>
-          <span>sarah@acmecorp.com</span>
+          <span>sarah@your-company.com</span>
           <span className="font-medium text-[var(--muted-foreground)]">Subject</span>
           <span>Verify your Lulu AI email address</span>
         </div>

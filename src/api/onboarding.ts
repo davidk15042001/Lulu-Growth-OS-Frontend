@@ -60,6 +60,9 @@ export const onboardingApi = {
     path: workspaceApiPath(workspaceId, `/onboarding/offerings/${offeringId}`), method: "DELETE",
   }),
   platforms: (workspaceId: string) => requestApi<{ items: Platform[] }>({ path: workspaceApiPath(workspaceId, "/onboarding/platforms") }),
+  startOAuth: (workspaceId: string, provider: string, shop?: string) => requestApi<{ provider: string; authorizationUrl: string }>({
+    path: workspaceApiPath(workspaceId, `/onboarding/platforms/${encodeURIComponent(provider)}/connect${shop ? `?shop=${encodeURIComponent(shop)}` : ""}`),
+  }),
   createPlatform: (workspaceId: string, input: Record<string, unknown>) => requestApi<Platform>({
     path: workspaceApiPath(workspaceId, "/onboarding/platforms"), method: "POST", body: input,
   }),

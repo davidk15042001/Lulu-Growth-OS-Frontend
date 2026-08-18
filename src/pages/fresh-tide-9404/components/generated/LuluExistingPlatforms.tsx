@@ -19,35 +19,7 @@ interface PlatformGroup {
   comingSoon?: boolean;
   comingSoonPlatforms?: string[];
 }
-const platformGroups: PlatformGroup[] = [{
-  id: "crm",
-  label: "CRM",
-  description: "Customer records, deals and pipeline context.",
-  icon: UsersRound,
-  platforms: ["Salesforce", "Pipedrive", "HubSpot"],
-  comingSoonPlatforms: ["Salesforce", "Pipedrive"]
-}, {
-  id: "marketing",
-  label: "Marketing",
-  description: "Campaign performance and audience activation.",
-  icon: Store,
-  platforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API", "TikTok Ads"],
-  comingSoonPlatforms: ["Google Ads API", "Meta Marketing API", "LinkedIn Ads Advertising API", "TikTok Ads"]
-}, {
-  id: "analytics",
-  label: "Analyse",
-  description: "Measurement, attribution and conversion signals.",
-  icon: BarChart3,
-  platforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "LinkedIn Conversion Tracking API"],
-  comingSoonPlatforms: ["Google Ads", "Google Analytics", "Meta Conversion API", "LinkedIn Conversion Tracking API"]
-}, {
-  id: "digital-appearance",
-  label: "Digital Appearance",
-  description: "Website builders and storefront platforms for your digital presence.",
-  icon: Globe,
-  platforms: ["Webflow", "WordPress", "Shopify", "Google Business"],
-  comingSoonPlatforms: ["Shopify", "Google Business"]
-}];
+const platformGroups: PlatformGroup[] = [];
   const guideContent: Record<string, { intro: string; steps: string[]; links?: Array<{ label: string; url: string }> }> = {
     Salesforce: { intro: "Connect a Salesforce organization through a Connected App. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/salesforce/callback", steps: ["Open Salesforce Setup → App Manager → New Connected App.", "Enable OAuth Settings and add the callback URL shown above.", "Add the `api`, `refresh_token` and `offline_access` scopes, then save.", "Wait for Salesforce to activate the app, return here and click Connect.", "Approve Lulu in Salesforce and choose the organization you want to connect."], links: [{ label: "Open Salesforce Developer Portal", url: "https://developer.salesforce.com/" }] },
     Pipedrive: { intro: "Connect the Pipedrive account that contains your sales pipeline. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/pipedrive/callback", steps: ["Open the Pipedrive Developer Hub and create an OAuth app.", "Enter the callback URL shown above as the app redirect URL.", "Copy the Client ID and Client Secret to the backend environment; never put them in the browser.", "Click Connect here and approve the requested `base` access in Pipedrive."], links: [{ label: "Open Pipedrive Developer Hub", url: "https://developers.pipedrive.com/" }] },

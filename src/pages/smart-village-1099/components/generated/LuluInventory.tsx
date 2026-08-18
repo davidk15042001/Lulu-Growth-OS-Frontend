@@ -31,142 +31,9 @@ const navPrimary = [{
   icon: BarChart3
 }];
 const ecommerceNav = ['Overview', 'Stores', 'Products', 'Categories', 'Orders', 'Customers', 'Carts', 'Inventory', 'Reviews', 'Merchandising', 'Automation'];
-const rows: InventoryItem[] = [{
-  product: 'Premium Hoodie',
-  variant: 'Black / XL',
-  sku: 'SKU-10082',
-  store: 'Lulu Store',
-  location: 'Main Warehouse',
-  available: 42,
-  reserved: 8,
-  incoming: 20,
-  total: 70,
-  status: 'In Stock',
-  sync: 'Synced',
-  updated: '10 Aug'
-}, {
-  product: 'Classic Tee',
-  variant: 'White / M',
-  sku: 'SKU-10045',
-  store: 'Lulu Store',
-  location: 'Main Warehouse',
-  available: 4,
-  reserved: 2,
-  incoming: 0,
-  total: 6,
-  status: 'Low Stock',
-  sync: 'Synced',
-  updated: '10 Aug'
-}, {
-  product: 'Yoga Pants',
-  variant: 'Black / S',
-  sku: 'SKU-20031',
-  store: 'Webflow Store',
-  location: '—',
-  available: 0,
-  reserved: 0,
-  incoming: 10,
-  total: 10,
-  status: 'Out of Stock',
-  sync: 'Delayed',
-  updated: '9 Aug'
-}, {
-  product: 'Running Shoes',
-  variant: 'Blue / 42',
-  sku: 'SKU-30019',
-  store: 'WooCommerce',
-  location: 'Retail Store',
-  available: 88,
-  reserved: 12,
-  incoming: 0,
-  total: 100,
-  status: 'In Stock',
-  sync: 'Synced',
-  updated: '10 Aug'
-}, {
-  product: 'Canvas Backpack',
-  variant: '—',
-  sku: 'SKU-40007',
-  store: 'Lulu Store',
-  location: 'Main Warehouse',
-  available: 3,
-  reserved: 1,
-  incoming: 0,
-  total: 4,
-  status: 'Low Stock',
-  sync: 'Synced',
-  updated: '10 Aug'
-}, {
-  product: 'Denim Jacket',
-  variant: 'Grey / L',
-  sku: 'SKU-10091',
-  store: 'Lulu Store',
-  location: '—',
-  available: 0,
-  reserved: 0,
-  incoming: 0,
-  total: 0,
-  status: 'Out of Stock',
-  sync: 'Failed',
-  updated: '8 Aug'
-}];
-const lowStock = [{
-  product: 'Classic Tee',
-  sku: 'SKU-10045',
-  store: 'Lulu Store',
-  available: '4',
-  threshold: '8'
-}, {
-  product: 'Canvas Backpack',
-  sku: 'SKU-40007',
-  store: 'Lulu Store',
-  available: '3',
-  threshold: '6'
-}, {
-  product: 'Linen Shirt',
-  sku: 'SKU-10221',
-  store: 'Webflow Store',
-  available: '5',
-  threshold: '10'
-}, {
-  product: 'Wool Beanie',
-  sku: 'SKU-10402',
-  store: 'Lulu Store',
-  available: '7',
-  threshold: '12'
-}, {
-  product: 'Everyday Socks',
-  sku: 'SKU-20311',
-  store: 'WooCommerce',
-  available: '8',
-  threshold: '15'
-}];
-const outStock = [{
-  product: 'Yoga Pants',
-  sku: 'SKU-20031',
-  store: 'Webflow Store',
-  updated: '9 Aug'
-}, {
-  product: 'Denim Jacket',
-  sku: 'SKU-10091',
-  store: 'Lulu Store',
-  updated: '8 Aug'
-}, {
-  product: 'Silk Scarf',
-  sku: 'SKU-30112',
-  store: 'WooCommerce',
-  updated: '7 Aug'
-}, {
-  product: 'Travel Mug',
-  sku: 'SKU-20403',
-  store: 'Lulu Store',
-  updated: '6 Aug'
-}, {
-  product: 'Merino Sweater',
-  sku: 'SKU-10942',
-  store: 'Webflow Store',
-  updated: '5 Aug'
-}];
+const rows: InventoryItem[] = [];
+const lowStock: Array<Record<string, any>> = [];
+const outStock: Array<Record<string, any>> = [];
 const prompts = ['Which products are low in stock?', 'Find out of stock items', 'Detect inventory discrepancies', 'Show sync problems', 'Summarize today’s activity'];
 const filters = ['Stock Status', 'Store', 'Category', 'Location', 'Sync Status', 'Quantity range'];
 function StatusPill({
@@ -236,18 +103,18 @@ export function LuluInventory() {
             hint: '2 stores affected',
             tone: 'yellow'
           }].map(card => <article key={card.label} className="rounded-xl border border-[var(--muted-foreground)] bg-[var(--card)]/90 p-4 shadow-[inset_0_1px_rgba(0,0,0,.025)]"><div className="mb-3 flex items-center gap-2 text-xs text-muted-foreground"><span className={`h-2 w-2 rounded-full ${card.tone === 'green' ? 'bg-chart-4 shadow-[0_0_9px_var(--chart-4)]' : card.tone === 'red' ? 'bg-destructive shadow-[0_0_9px_var(--chart-5)]' : card.tone === 'amber' ? 'bg-chart-1 shadow-[0_0_9px_var(--chart-1)]' : card.tone === 'yellow' ? 'bg-chart-1/20 shadow-[0_0_9px_var(--chart-1)]' : 'bg-muted'}`} /><span>{card.label}</span></div><strong className="block text-2xl font-bold tracking-tight text-foreground">{card.value}</strong><span className="mt-1 block text-[11px] text-muted-foreground">{card.hint}</span></article>)}</div>
-    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/25 border-l-4 border-l-border bg-[var(--secondary)] px-4 py-3 shadow-[0_0_25px_rgba(0,0,0,.06)]"><AlertTriangle size={18} className="text-foreground" /><div className="flex flex-1 flex-wrap gap-2">{['Premium Hoodie — Black/XL — Out of Stock — Lulu Store', 'Sync Failure — WooCommerce — 3 records', 'Low Stock Alert — 12 SKUs below threshold'].map(alert => <span key={alert} className="rounded-md border border-border/15 bg-secondary/[.06] px-2.5 py-1.5 text-xs text-foreground">{alert}<button className="ml-2 text-foreground/70 hover:text-foreground"><X size={12} /></button></span>)}</div><button className="flex items-center gap-1 text-xs font-medium text-[var(--foreground)]">Ask Lulu AI <ArrowRight size={13} /></button></div>
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border/25 border-l-4 border-l-border bg-[var(--secondary)] px-4 py-3 shadow-[0_0_25px_rgba(0,0,0,.06)]"><AlertTriangle size={18} className="text-foreground" /><div className="flex flex-1 flex-wrap gap-2">{['Premium Hoodie — Black/XL — Out of Stock — Connected store', 'Sync Failure — WooCommerce — 3 records', 'Low Stock Alert — 12 SKUs below threshold'].map(alert => <span key={alert} className="rounded-md border border-border/15 bg-secondary/[.06] px-2.5 py-1.5 text-xs text-foreground">{alert}<button className="ml-2 text-foreground/70 hover:text-foreground"><X size={12} /></button></span>)}</div><button className="flex items-center gap-1 text-xs font-medium text-[var(--foreground)]">Ask Lulu AI <ArrowRight size={13} /></button></div>
     <section className="overflow-hidden rounded-xl border border-[var(--muted-foreground)] bg-[var(--card)]/90"><div className="flex items-center justify-between border-b border-[var(--muted-foreground)] bg-[var(--background)] px-4 py-3"><div><h2 className="text-sm font-semibold text-foreground">Inventory records</h2><p className="mt-0.5 text-xs text-muted-foreground">Showing {visibleRows.length} of 1,284 SKUs</p></div><div className="flex items-center gap-2 text-xs text-muted-foreground"><ArrowDownUp size={14} /> Last updated <span className="text-foreground">just now</span></div></div>{cards ? <div className="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-3">{visibleRows.map(row => <article key={row.sku} className="rounded-lg border border-[var(--muted-foreground)] bg-[var(--card)] p-4"><div className="flex justify-between"><div><h3 className="font-semibold text-foreground">{row.product}</h3><p className="text-xs text-muted-foreground">{row.variant} · {row.sku}</p></div><StatusPill tone={row.status === 'In Stock' ? 'green' : row.status === 'Low Stock' ? 'amber' : 'red'}>{row.status}</StatusPill></div><div className="mt-5 grid grid-cols-3 gap-2 text-center"><div><strong className="block text-lg text-foreground">{row.available}</strong><span className="text-[10px] text-muted-foreground">Available</span></div><div><strong className="block text-lg text-foreground">{row.reserved}</strong><span className="text-[10px] text-muted-foreground">Reserved</span></div><div><strong className="block text-lg text-foreground">{row.incoming}</strong><span className="text-[10px] text-muted-foreground">Incoming</span></div></div></article>)}</div> : <div className="overflow-x-auto"><table className="w-full min-w-[1160px] border-collapse text-left text-xs"><thead><tr className="border-b border-[var(--muted-foreground)] text-[10px] uppercase tracking-[.1em] text-muted-foreground"><th className="w-10 px-4 py-3"><input type="checkbox" aria-label="Select all" checked={selected.length === visibleRows.length} onChange={() => setSelected(selected.length === visibleRows.length ? [] : visibleRows.map(r => r.sku))} /></th>{['Product', 'Variant', 'SKU', 'Store', 'Location', 'Available', 'Reserved', 'Incoming', 'Total', 'Status', 'Sync', 'Last Updated', 'Actions'].map(head => <th key={head} className="whitespace-nowrap px-3 py-3 font-medium">{head}</th>)}</tr></thead><tbody>{visibleRows.map(row => <tr key={row.sku} className="border-b border-[var(--muted-foreground)]/70 transition hover:bg-[var(--primary)]/[.045]"><td className="px-4 py-3"><input type="checkbox" aria-label={`Select ${row.product}`} checked={selected.includes(row.sku)} onChange={() => toggle(row.sku)} /></td><td className="px-3 py-3"><strong className="block whitespace-nowrap text-sm font-medium text-foreground">{row.product}</strong><span className="text-[11px] text-muted-foreground">{row.variant}</span></td><td className="whitespace-nowrap px-3 py-3 text-foreground">{row.variant}</td><td className="whitespace-nowrap px-3 py-3 font-mono text-[11px] text-muted-foreground">{row.sku}</td><td className="whitespace-nowrap px-3 py-3 text-foreground">{row.store}</td><td className="whitespace-nowrap px-3 py-3 text-muted-foreground">{row.location}</td><td className="px-3 py-3 font-semibold text-foreground">{row.available}</td><td className="px-3 py-3 text-muted-foreground">{row.reserved}</td><td className="px-3 py-3 text-muted-foreground">{row.incoming}</td><td className="px-3 py-3 font-semibold text-foreground">{row.total}</td><td className="px-3 py-3"><StatusPill tone={row.status === 'In Stock' ? 'green' : row.status === 'Low Stock' ? 'amber' : 'red'}>{row.status}</StatusPill></td><td className="px-3 py-3"><StatusPill tone={row.sync === 'Synced' ? 'green' : row.sync === 'Delayed' ? 'yellow' : 'red'}>{row.sync}</StatusPill></td><td className="whitespace-nowrap px-3 py-3 text-muted-foreground">{row.updated}</td><td className="px-3 py-3"><div className="flex items-center gap-1"><button className="rounded border border-[var(--muted-foreground)] px-2 py-1 text-[11px] text-foreground hover:border-[var(--border)]">Open</button><button onClick={() => setModal(true)} className="rounded border border-[var(--muted-foreground)] px-2 py-1 text-[11px] text-foreground hover:border-[var(--border)]">Adjust</button><button className="p-1 text-foreground hover:text-foreground"><Ellipsis size={15} /></button></div></td></tr>)}</tbody></table></div>}<div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--muted-foreground)] px-4 py-3 text-xs text-muted-foreground"><span>Rows per page <strong className="ml-1 text-foreground">25</strong> <ChevronDown className="inline" size={12} /></span><div className="flex items-center gap-2"><span>1–6 of 1,284</span><button className="rounded border border-[var(--muted-foreground)] p-1 hover:text-foreground"><ChevronLeft size={14} /></button><button className="rounded border border-[var(--border)]/50 bg-[var(--primary)]/10 p-1 text-foreground">1</button><button className="rounded border border-[var(--muted-foreground)] p-1 hover:text-foreground">2</button><button className="rounded border border-[var(--muted-foreground)] p-1 hover:text-foreground"><ChevronRight size={14} /></button></div></div>{selected.length > 0 && <div className="flex items-center gap-3 border-t border-[var(--border)]/25 bg-[var(--primary)]/10 px-4 py-2 text-xs text-[var(--foreground)]"><CheckCircle2 size={15} />{selected.length} selected <button className="ml-3 rounded bg-[var(--primary)] px-2 py-1 text-primary-foreground" onClick={() => setModal(true)}>Adjust selected</button><button className="ml-auto" onClick={() => setSelected([])}>Clear</button></div>}</section>
-    <div className="grid gap-5 xl:grid-cols-3"><section className="rounded-xl border border-border/25 border-l-4 border-l-border bg-[var(--card)] p-4"><h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground"><AlertTriangle size={16} className="text-foreground" />Low Stock <span className="ml-auto text-xs font-normal text-muted-foreground">Top 5</span></h2>{lowStock.map(item => <div key={item.sku} className="flex items-center gap-3 border-b border-[var(--muted-foreground)] py-2.5 last:border-0"><div className="min-w-0 flex-1"><strong className="block truncate text-xs text-foreground">{item.product}</strong><span className="text-[10px] text-muted-foreground">{item.sku} · {item.store}</span></div><span className="text-xs font-semibold text-foreground">{item.available}<small className="font-normal text-muted-foreground"> / {item.threshold}</small></span><button className="text-[11px] text-[var(--foreground)]">Adjust</button></div>)}</section><section className="rounded-xl border border-chart-5/25 border-l-4 border-l-chart-5 bg-[var(--card)] p-4"><h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground"><Archive size={16} className="text-chart-5" />Out of Stock <span className="ml-auto text-xs font-normal text-muted-foreground">Top 5</span></h2>{outStock.map(item => <div key={item.sku} className="flex items-center gap-3 border-b border-[var(--muted-foreground)] py-2.5 last:border-0"><div className="min-w-0 flex-1"><strong className="block truncate text-xs text-foreground">{item.product}</strong><span className="text-[10px] text-muted-foreground">{item.sku} · {item.store}</span></div><span className="text-[11px] text-muted-foreground">{item.updated}</span><button className="text-[11px] text-[var(--foreground)]">View</button></div>)}</section><section className="rounded-xl border border-[var(--border)]/25 border-l-4 border-l-[var(--border)] bg-[var(--card)] p-4"><h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground"><ArrowDownUp size={16} className="text-[var(--foreground)]" />Inventory Discrepancies</h2>{[['Premium Hoodie', 'SKU-10082', 'Lulu Store', '70', '68', '-2', 'Medium'], ['Classic Tee', 'SKU-10045', 'Lulu Store', '8', '6', '-2', 'High'], ['Yoga Pants', 'SKU-20031', 'Webflow Store', '10', '12', '+2', 'Low']].map(item => <div key={item[1]} className="flex items-center gap-2 border-b border-[var(--muted-foreground)] py-2.5 last:border-0"><div className="min-w-0 flex-1"><strong className="block truncate text-xs text-foreground">{item[0]}</strong><span className="text-[10px] text-muted-foreground">{item[1]} · {item[2]}</span></div><span className="text-[11px] text-muted-foreground">{item[3]} → {item[4]}</span><StatusPill tone={item[6] === 'High' ? 'red' : item[6] === 'Medium' ? 'amber' : 'purple'}>{item[6]}</StatusPill><button className="text-[11px] text-[var(--foreground)]">Review</button></div>)}</section></div>
+    <div className="grid gap-5 xl:grid-cols-3"><section className="rounded-xl border border-border/25 border-l-4 border-l-border bg-[var(--card)] p-4"><h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground"><AlertTriangle size={16} className="text-foreground" />Low Stock <span className="ml-auto text-xs font-normal text-muted-foreground">Top 5</span></h2>{lowStock.map(item => <div key={item.sku} className="flex items-center gap-3 border-b border-[var(--muted-foreground)] py-2.5 last:border-0"><div className="min-w-0 flex-1"><strong className="block truncate text-xs text-foreground">{item.product}</strong><span className="text-[10px] text-muted-foreground">{item.sku} · {item.store}</span></div><span className="text-xs font-semibold text-foreground">{item.available}<small className="font-normal text-muted-foreground"> / {item.threshold}</small></span><button className="text-[11px] text-[var(--foreground)]">Adjust</button></div>)}</section><section className="rounded-xl border border-chart-5/25 border-l-4 border-l-chart-5 bg-[var(--card)] p-4"><h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground"><Archive size={16} className="text-chart-5" />Out of Stock <span className="ml-auto text-xs font-normal text-muted-foreground">Top 5</span></h2>{outStock.map(item => <div key={item.sku} className="flex items-center gap-3 border-b border-[var(--muted-foreground)] py-2.5 last:border-0"><div className="min-w-0 flex-1"><strong className="block truncate text-xs text-foreground">{item.product}</strong><span className="text-[10px] text-muted-foreground">{item.sku} · {item.store}</span></div><span className="text-[11px] text-muted-foreground">{item.updated}</span><button className="text-[11px] text-[var(--foreground)]">View</button></div>)}</section><section className="rounded-xl border border-[var(--border)]/25 border-l-4 border-l-[var(--border)] bg-[var(--card)] p-4"><h2 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground"><ArrowDownUp size={16} className="text-[var(--foreground)]" />Inventory Discrepancies</h2>{[['Premium Hoodie', 'SKU-10082', 'Connected store', '70', '68', '-2', 'Medium'], ['Classic Tee', 'SKU-10045', 'Connected store', '8', '6', '-2', 'High'], ['Yoga Pants', 'SKU-20031', 'Webflow Store', '10', '12', '+2', 'Low']].map(item => <div key={item[1]} className="flex items-center gap-2 border-b border-[var(--muted-foreground)] py-2.5 last:border-0"><div className="min-w-0 flex-1"><strong className="block truncate text-xs text-foreground">{item[0]}</strong><span className="text-[10px] text-muted-foreground">{item[1]} · {item[2]}</span></div><span className="text-[11px] text-muted-foreground">{item[3]} → {item[4]}</span><StatusPill tone={item[6] === 'High' ? 'red' : item[6] === 'Medium' ? 'amber' : 'purple'}>{item[6]}</StatusPill><button className="text-[11px] text-[var(--foreground)]">Review</button></div>)}</section></div>
     <div className="grid gap-5 xl:grid-cols-3"><section className="rounded-xl border border-[var(--muted-foreground)] bg-[var(--card)] p-5"><div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-semibold text-foreground">Inventory Operations Health</h2><GaugeIcon /></div><div className="flex items-center gap-5 border-b border-[var(--muted-foreground)] pb-5"><div className="grid h-24 w-24 place-items-center rounded-full border-[7px] border-[var(--border)] text-2xl font-bold text-foreground shadow-[0_0_25px_rgba(0,0,0,.18)]">87%</div><p className="text-xs leading-5 text-muted-foreground">Your inventory is in good shape.<br /><span className="text-chart-4">↑ 3.2%</span> from last week</p></div>{[['Stock Availability', 'Healthy', '92%', 'bg-chart-4'], ['Data Completeness', 'Healthy', '98%', 'bg-chart-4'], ['Synchronization Health', 'Attention', '81%', 'bg-chart-1'], ['SKU Consistency', 'Healthy', '96%', 'bg-[var(--chart-3)]']].map(x => <div key={x[0]} className="mt-3 flex items-center gap-3 text-xs"><span className="w-36 text-muted-foreground">{x[0]}</span><div className="h-1.5 flex-1 rounded-full bg-muted"><div className={`h-full rounded-full ${x[3]}`} style={{
                   width: x[2]
-                }} /></div><span className="w-8 text-right text-foreground">{x[2]}</span><span className={x[1] === 'Attention' ? 'text-chart-1' : 'text-foreground'}>{x[1]}</span></div>)}</section><section className="rounded-xl border border-[var(--muted-foreground)] bg-[var(--card)] p-5"><div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-semibold text-foreground">Inventory Synchronization</h2><RefreshCw size={15} className="text-muted-foreground" /></div>{[['Lulu Store', 'Shopify', 'Just now', '1,284', '0', 'Synced', 'green'], ['Webflow Store', 'Webflow', '2 min ago', '482', '0', 'Syncing', 'blue'], ['WooCommerce', 'WooCommerce', '18 min ago', '726', '3', 'Delayed', 'amber'], ['Main Shop', 'Shopify', 'Yesterday', '310', '8', 'Failed', 'red']].map(x => <div key={x[0]} className="flex items-center gap-2 border-b border-[var(--muted-foreground)] py-3 text-xs last:border-0"><span className={`h-2 w-2 rounded-full bg-${x[6]}-400 shadow-[0_0_8px_currentColor]`} /><span className="w-24 font-medium text-foreground">{x[0]}</span><span className="w-20 text-muted-foreground">{x[1]}</span><span className="w-16 text-muted-foreground">{x[2]}</span><span className="text-muted-foreground">{x[3]} <span className="text-chart-5">({x[4]})</span></span><span className="ml-auto text-muted-foreground">{x[5]}</span></div>)}<button className="mt-3 text-xs text-[var(--foreground)]">View synchronization log <ArrowRight className="inline" size={13} /></button></section><section className="rounded-xl border border-[var(--border)]/30 bg-[var(--card)] p-5 shadow-[0_-3px_30px_rgba(0,0,0,.08)]"><div className="mb-3 flex items-center gap-2"><div className="grid h-8 w-8 place-items-center rounded-lg bg-[var(--primary)]/15 text-[var(--foreground)]"><Bot size={17} /></div><div><h2 className="text-sm font-semibold text-foreground">Ask Lulu AI</h2><p className="text-[11px] text-muted-foreground">Inventory intelligence, on demand</p></div></div><div className="flex items-center rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2"><input className="min-w-0 flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground" placeholder="Ask Lulu AI about your inventory..." /><button className="text-[var(--foreground)]"><ArrowRight size={16} /></button></div><div className="mt-3 flex flex-wrap gap-1.5">{prompts.map(p => <button key={p} className="rounded-md border border-[var(--muted-foreground)] px-2 py-1 text-[10px] text-foreground hover:border-[var(--border)]/60 hover:text-[var(--foreground)]">{p}</button>)}</div><div className="mt-4 rounded-lg border border-[var(--border)]/20 bg-[var(--primary)]/[.06] p-3"><p className="mb-1 flex items-center gap-1 text-[11px] font-semibold text-[var(--foreground)]"><Sparkles size={12} />AI Insight</p><p className="text-xs leading-5 text-foreground">12 products are below their configured low-stock threshold across 2 stores.</p><button className="mt-2 text-xs text-[var(--foreground)]">View Low Stock <ArrowRight className="inline" size={12} /></button></div></section></div>
+                }} /></div><span className="w-8 text-right text-foreground">{x[2]}</span><span className={x[1] === 'Attention' ? 'text-chart-1' : 'text-foreground'}>{x[1]}</span></div>)}</section><section className="rounded-xl border border-[var(--muted-foreground)] bg-[var(--card)] p-5"><div className="mb-4 flex items-center justify-between"><h2 className="text-sm font-semibold text-foreground">Inventory Synchronization</h2><RefreshCw size={15} className="text-muted-foreground" /></div>{[['Connected store', 'Shopify', 'Just now', '1,284', '0', 'Synced', 'green'], ['Webflow Store', 'Webflow', '2 min ago', '482', '0', 'Syncing', 'blue'], ['WooCommerce', 'WooCommerce', '18 min ago', '726', '3', 'Delayed', 'amber'], ['Main Shop', 'Shopify', 'Yesterday', '310', '8', 'Failed', 'red']].map(x => <div key={x[0]} className="flex items-center gap-2 border-b border-[var(--muted-foreground)] py-3 text-xs last:border-0"><span className={`h-2 w-2 rounded-full bg-${x[6]}-400 shadow-[0_0_8px_currentColor]`} /><span className="w-24 font-medium text-foreground">{x[0]}</span><span className="w-20 text-muted-foreground">{x[1]}</span><span className="w-16 text-muted-foreground">{x[2]}</span><span className="text-muted-foreground">{x[3]} <span className="text-chart-5">({x[4]})</span></span><span className="ml-auto text-muted-foreground">{x[5]}</span></div>)}<button className="mt-3 text-xs text-[var(--foreground)]">View synchronization log <ArrowRight className="inline" size={13} /></button></section><section className="rounded-xl border border-[var(--border)]/30 bg-[var(--card)] p-5 shadow-[0_-3px_30px_rgba(0,0,0,.08)]"><div className="mb-3 flex items-center gap-2"><div className="grid h-8 w-8 place-items-center rounded-lg bg-[var(--primary)]/15 text-[var(--foreground)]"><Bot size={17} /></div><div><h2 className="text-sm font-semibold text-foreground">Ask Lulu AI</h2><p className="text-[11px] text-muted-foreground">Inventory intelligence, on demand</p></div></div><div className="flex items-center rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2"><input className="min-w-0 flex-1 bg-transparent text-xs text-foreground outline-none placeholder:text-muted-foreground" placeholder="Ask Lulu AI about your inventory..." /><button className="text-[var(--foreground)]"><ArrowRight size={16} /></button></div><div className="mt-3 flex flex-wrap gap-1.5">{prompts.map(p => <button key={p} className="rounded-md border border-[var(--muted-foreground)] px-2 py-1 text-[10px] text-foreground hover:border-[var(--border)]/60 hover:text-[var(--foreground)]">{p}</button>)}</div><div className="mt-4 rounded-lg border border-[var(--border)]/20 bg-[var(--primary)]/[.06] p-3"><p className="mb-1 flex items-center gap-1 text-[11px] font-semibold text-[var(--foreground)]"><Sparkles size={12} />AI Insight</p><p className="text-xs leading-5 text-foreground">12 products are below their configured low-stock threshold across 2 stores.</p><button className="mt-2 text-xs text-[var(--foreground)]">View Low Stock <ArrowRight className="inline" size={12} /></button></div></section></div>
    </div>
   </section>
   {modal && <div role="dialog" aria-modal="true" aria-labelledby="adjust-title" className="fixed inset-0 z-50 grid place-items-center bg-primary/70 p-4 backdrop-blur-sm"><form onSubmit={e => {
         e.preventDefault();
         setModal(false);
-      }} className="w-full max-w-xl rounded-2xl border border-[var(--muted-foreground)] bg-[var(--background)] p-6 shadow-[0_0_60px_rgba(0,0,0,.55)]"><div className="mb-5 flex items-start justify-between"><div><h2 id="adjust-title" className="text-xl font-bold text-foreground">Adjust inventory</h2><p className="mt-1 text-xs text-muted-foreground">Record a manual stock adjustment for a product.</p></div><button type="button" onClick={() => setModal(false)} className="text-foreground hover:text-foreground"><X size={18} /></button></div><div className="grid gap-4 sm:grid-cols-2">{[['Product', 'Premium Hoodie'], ['Variant', 'Black / XL'], ['SKU', 'SKU-10082'], ['Store', 'Lulu Store'], ['Location', 'Main Warehouse']].map(field => <label key={field[0]} className="text-xs text-muted-foreground">{field[0]}<input defaultValue={field[1]} readOnly={field[0] === 'SKU'} className="mt-1.5 w-full rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2.5 text-sm text-foreground outline-none focus:border-[var(--border)]" /></label>)}<label className="text-xs text-muted-foreground">Current Qty<input value="42" readOnly className="mt-1.5 w-full rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2.5 text-sm text-muted-foreground" /></label><label className="text-xs text-muted-foreground">Adjustment (±)<input defaultValue="0" type="number" className="mt-1.5 w-full rounded-lg border border-[var(--border)]/60 bg-[var(--secondary)] px-3 py-2.5 text-sm text-foreground outline-none" /></label><label className="text-xs text-muted-foreground">New Qty<input value="42" readOnly className="mt-1.5 w-full rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2.5 text-sm font-semibold text-foreground" /></label><label className="text-xs text-muted-foreground">Reason<select className="mt-1.5 w-full rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2.5 text-sm text-foreground"><option>Stock Count</option><option>Damage</option><option>Loss</option><option>Correction</option><option>Return</option><option>Manual</option></select></label><label className="text-xs text-muted-foreground sm:col-span-2">Notes<textarea rows={3} placeholder="Add context for this adjustment..." className="mt-1.5 w-full resize-none rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground" /></label></div><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setModal(false)} className="rounded-lg border border-[var(--muted-foreground)] px-4 py-2.5 text-xs text-muted-foreground">Cancel</button><button type="submit" className="rounded-lg bg-[var(--primary)] px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-[0_0_18px_rgba(0,0,0,.3)]">Confirm Adjustment</button></div></form></div>}
+      }} className="w-full max-w-xl rounded-2xl border border-[var(--muted-foreground)] bg-[var(--background)] p-6 shadow-[0_0_60px_rgba(0,0,0,.55)]"><div className="mb-5 flex items-start justify-between"><div><h2 id="adjust-title" className="text-xl font-bold text-foreground">Adjust inventory</h2><p className="mt-1 text-xs text-muted-foreground">Record a manual stock adjustment for a product.</p></div><button type="button" onClick={() => setModal(false)} className="text-foreground hover:text-foreground"><X size={18} /></button></div><div className="grid gap-4 sm:grid-cols-2">{[['Product', 'Premium Hoodie'], ['Variant', 'Black / XL'], ['SKU', 'SKU-10082'], ['Store', 'Connected store'], ['Location', 'Main Warehouse']].map(field => <label key={field[0]} className="text-xs text-muted-foreground">{field[0]}<input defaultValue={field[1]} readOnly={field[0] === 'SKU'} className="mt-1.5 w-full rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2.5 text-sm text-foreground outline-none focus:border-[var(--border)]" /></label>)}<label className="text-xs text-muted-foreground">Current Qty<input value="42" readOnly className="mt-1.5 w-full rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2.5 text-sm text-muted-foreground" /></label><label className="text-xs text-muted-foreground">Adjustment (±)<input defaultValue="0" type="number" className="mt-1.5 w-full rounded-lg border border-[var(--border)]/60 bg-[var(--secondary)] px-3 py-2.5 text-sm text-foreground outline-none" /></label><label className="text-xs text-muted-foreground">New Qty<input value="42" readOnly className="mt-1.5 w-full rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2.5 text-sm font-semibold text-foreground" /></label><label className="text-xs text-muted-foreground">Reason<select className="mt-1.5 w-full rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2.5 text-sm text-foreground"><option>Stock Count</option><option>Damage</option><option>Loss</option><option>Correction</option><option>Return</option><option>Manual</option></select></label><label className="text-xs text-muted-foreground sm:col-span-2">Notes<textarea rows={3} placeholder="Add context for this adjustment..." className="mt-1.5 w-full resize-none rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] px-3 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground" /></label></div><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setModal(false)} className="rounded-lg border border-[var(--muted-foreground)] px-4 py-2.5 text-xs text-muted-foreground">Cancel</button><button type="submit" className="rounded-lg bg-[var(--primary)] px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-[0_0_18px_rgba(0,0,0,.3)]">Confirm Adjustment</button></div></form></div>}
  </main>;
 }
 function GaugeIcon() {

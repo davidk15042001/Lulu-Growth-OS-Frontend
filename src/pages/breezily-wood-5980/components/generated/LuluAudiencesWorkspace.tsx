@@ -19,122 +19,7 @@ type Audience = {
   risk?: boolean;
   archived?: boolean;
 };
-const audiences: Audience[] = [{
-  name: 'High-Value Customers',
-  description: 'Top 15% by revenue',
-  type: 'Customer',
-  members: '12,840',
-  growth: '+14.2%',
-  value: 'High',
-  engagement: 82,
-  conversion: '11.4%',
-  revenue: '€428K',
-  campaigns: '4',
-  source: 'CRM + Shopify',
-  updated: 'Today',
-  tone: 'blue'
-}, {
-  name: 'Engaged Subscribers',
-  description: 'Email + web active 30d',
-  type: 'Subscriber',
-  members: '38,420',
-  growth: '+6.8%',
-  value: 'Medium',
-  engagement: 74,
-  conversion: '4.2%',
-  revenue: '€186K',
-  campaigns: '6',
-  source: 'Email + Website',
-  updated: 'Today',
-  tone: 'teal'
-}, {
-  name: 'High-Intent Visitors',
-  description: 'Product pages 3+ visits',
-  type: 'Website Visitor',
-  members: '9,210',
-  growth: '+22.1%',
-  value: 'Medium',
-  engagement: 68,
-  conversion: '2.8%',
-  revenue: '—',
-  campaigns: '2',
-  source: 'Website Analytics',
-  updated: 'Yesterday',
-  tone: 'purple',
-  ai: true
-}, {
-  name: 'Repeat Buyers',
-  description: 'Purchased 2+ times',
-  type: 'Buyer',
-  members: '6,480',
-  growth: '+3.1%',
-  value: 'High',
-  engagement: 91,
-  conversion: '28.4%',
-  revenue: '€312K',
-  campaigns: '3',
-  source: 'Shopify',
-  updated: '2d ago',
-  tone: 'green'
-}, {
-  name: 'At-Risk Customers',
-  description: '90d+ no engagement',
-  type: 'Customer',
-  members: '4,220',
-  growth: '-8.4%',
-  value: 'High',
-  engagement: 18,
-  conversion: '0.4%',
-  revenue: '€94K',
-  campaigns: '1',
-  source: 'CRM',
-  updated: '3d ago',
-  tone: 'blue',
-  risk: true
-}, {
-  name: 'New Leads',
-  description: 'Signed up last 30d',
-  type: 'Lead',
-  members: '2,840',
-  growth: '+31.4%',
-  value: 'Low',
-  engagement: 42,
-  conversion: '1.2%',
-  revenue: '—',
-  campaigns: '0',
-  source: 'Website + CRM',
-  updated: 'Today',
-  tone: 'orange'
-}, {
-  name: 'Enterprise Prospects',
-  description: 'B2B 100+ employees',
-  type: 'Prospect',
-  members: '1,240',
-  growth: '+4.8%',
-  value: 'High',
-  engagement: 58,
-  conversion: '6.4%',
-  revenue: '€148K',
-  campaigns: '2',
-  source: 'CRM + LinkedIn',
-  updated: '1d ago',
-  tone: 'indigo'
-}, {
-  name: 'Churned Customers',
-  description: 'No activity 180d+',
-  type: 'Customer',
-  members: '8,840',
-  growth: '-2.1%',
-  value: 'Low',
-  engagement: 4,
-  conversion: '0.1%',
-  revenue: '—',
-  campaigns: '0',
-  source: 'CRM',
-  updated: '1w ago',
-  tone: 'gray',
-  archived: true
-}];
+const audiences: Audience[] = [];
 const navGroups = [{
   label: 'WORKSPACE',
   items: [['Dashboard', LayoutDashboard], ['Company Profile', FileText]]
@@ -162,7 +47,7 @@ function GlobeIcon({
 }
 const filters = ['Type', 'Lifecycle', 'Value', 'Growth', 'Source', 'Campaign'];
 const detailTabs = ['Overview', 'Growth', 'Value', 'Engagement', 'Conversion', 'Composition', 'Behavior', 'AI Insights', 'Opportunities', 'Risks', 'Campaigns', 'Content', 'Activation', 'Members'];
-const health = [['High-Value', 92, 'var(--chart-4)'], ['Engaged', 74, 'var(--chart-1)'], ['New Leads', 42, 'var(--primary)'], ['At-Risk', 18, 'var(--foreground)'], ['Churned', 4, 'var(--muted-foreground)']];
+const health: any[][] = [];
 export const LuluAudiencesWorkspace = () => {
   const [selected, setSelected] = useState<string[]>([]);
   const [query, setQuery] = useState('');

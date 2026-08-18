@@ -22,123 +22,12 @@ type Platform = {
   revenue: string;
   roas: string;
 };
-const platforms: Platform[] = [{
-  name: 'Google Ads',
-  color: 'var(--foreground)',
-  spend: '$142,300',
-  impressions: '22.4M',
-  clicks: '680,200',
-  ctr: '3.04%',
-  cpc: '$0.209',
-  conversions: '24,600',
-  cpa: '$5.79',
-  revenue: '$1,167,300',
-  roas: '8.20×'
-}, {
-  name: 'Meta Ads',
-  color: 'var(--foreground)',
-  spend: '$84,200',
-  impressions: '16.8M',
-  clicks: '388,100',
-  ctr: '2.31%',
-  cpc: '$0.217',
-  conversions: '11,840',
-  cpa: '$7.11',
-  revenue: '$497,100',
-  roas: '5.90×'
-}, {
-  name: 'LinkedIn Ads',
-  color: 'var(--foreground)',
-  spend: '$38,100',
-  impressions: '5.6M',
-  clicks: '142,800',
-  ctr: '2.55%',
-  cpc: '$0.267',
-  conversions: '4,280',
-  cpa: '$8.90',
-  revenue: '$118,200',
-  roas: '3.10×'
-}, {
-  name: 'TikTok Ads',
-  color: 'var(--foreground)',
-  spend: '$20,110',
-  impressions: '3.4M',
-  clicks: '73,500',
-  ctr: '2.16%',
-  cpc: '$0.274',
-  conversions: '2,120',
-  cpa: '$9.49',
-  revenue: '$96,700',
-  roas: '4.81×'
-}];
-const kpis: Kpi[] = [{
-  label: 'Advertising Spend',
-  value: '$284,710',
-  prev: '$261,430',
-  delta: '+$23,280',
-  pct: '+8.9%',
-  good: true,
-  spark: 'M2 31 L14 25 L26 27 L38 19 L50 22 L62 13 L74 16 L88 5'
-}, {
-  label: 'Impressions',
-  value: '48.2M',
-  prev: '44.1M',
-  delta: '+4.1M',
-  pct: '+9.3%',
-  good: true,
-  spark: 'M2 28 L14 22 L26 24 L38 15 L50 19 L62 10 L74 13 L88 4'
-}, {
-  label: 'Reach',
-  value: '31.4M',
-  prev: '29.8M',
-  delta: '+1.6M',
-  pct: '+5.4%',
-  good: true,
-  spark: 'M2 27 L14 25 L26 20 L38 22 L50 14 L62 16 L74 8 L88 11'
-}, {
-  label: 'Clicks',
-  value: '1,284,600',
-  prev: '1,198,200',
-  delta: '+86,400',
-  pct: '+7.2%',
-  good: true,
-  spark: 'M2 28 L14 23 L26 26 L38 18 L50 20 L62 9 L74 15 L88 3'
-}, {
-  label: 'Conversions',
-  value: '42,840',
-  prev: '38,920',
-  delta: '+3,920',
-  pct: '+10.1%',
-  good: true,
-  spark: 'M2 30 L14 26 L26 21 L38 23 L50 14 L62 17 L74 8 L88 5'
-}, {
-  label: 'Revenue',
-  value: '$1,842,300',
-  prev: '$1,694,100',
-  delta: '+$148,200',
-  pct: '+8.7%',
-  good: true,
-  spark: 'M2 30 L14 27 L26 19 L38 22 L50 13 L62 15 L74 7 L88 3'
-}, {
-  label: 'ROAS',
-  value: '6.47×',
-  prev: '6.48×',
-  delta: '-0.01',
-  pct: '-0.2%',
-  good: false,
-  spark: 'M2 8 L14 12 L26 10 L38 17 L50 14 L62 19 L74 18 L88 24'
-}, {
-  label: 'CAC',
-  value: '$47.20',
-  prev: '$49.80',
-  delta: '-$2.60',
-  pct: '-5.2%',
-  good: true,
-  spark: 'M2 8 L14 11 L26 16 L38 12 L50 19 L62 17 L74 24 L88 26'
-}];
-const campaigns = ['Brand Awareness Q1', 'Product Launch — Spring', 'Retargeting — High Intent', 'Competitor Keywords', 'LinkedIn Enterprise Outreach', 'Meta Lookalike — Buyers', 'TikTok Gen Z — App', 'Google Shopping — Core Products'];
-const audiences = ['In-Market: Business Software', 'Lookalike — Top Customers', 'Retargeting — Site Visitors 30d', 'LinkedIn: Director+', 'TikTok: 25-34 Tech Interest'];
-const funnel = [['Impressions', '48,200,000', '100%'], ['Reach', '31,400,000', '65.1%'], ['Clicks', '1,284,600', '2.66%'], ['Landing Page Visits', '1,102,400', '85.8%'], ['Leads', '87,300', '7.9%'], ['Customers', '6,032', '6.9%'], ['Revenue', '$1,842,300', '$305 avg']];
+const platforms: Platform[] = []; /* Live advertising records populate this list when a paid-media connection is available. */
+
+const kpis: Kpi[] = [];
+const campaigns: string[] = [];
+const audiences: string[] = [];
+const funnel: any[][] = [];
 function Sparkline({
   path,
   color = 'var(--chart-1)'
@@ -177,22 +66,22 @@ function Bars({
         }} /></div><b>{item.display || `${item.value}%`}</b></div>)}</div>;
 }
 function LineChart({
-  green = false
+  green: _green = false
 }: {
   green?: boolean;
 }) {
-  return <svg className="chart" viewBox="0 0 620 190" preserveAspectRatio="none" aria-label="30 day performance trend" role="img"><path d="M0 157 C36 142 50 153 78 122 S126 140 157 108 S203 125 235 91 S278 117 310 80 S355 105 390 66 S438 92 468 51 S520 72 550 40 S590 57 620 22 L620 190 L0 190 Z" fill={green ? 'rgba(0,0,0,.12)' : 'rgba(0,0,0,.16)'} /><path d="M0 157 C36 142 50 153 78 122 S126 140 157 108 S203 125 235 91 S278 117 310 80 S355 105 390 66 S438 92 468 51 S520 72 550 40 S590 57 620 22" fill="none" stroke={green ? 'var(--chart-4)' : 'var(--chart-1)'} strokeWidth="3" /><path d="M0 171 C45 164 68 175 102 148 S152 167 187 136 S239 150 274 123 S320 146 355 104 S402 133 445 93 S494 120 530 83 S570 101 620 70" fill="none" stroke="var(--muted-foreground)" strokeWidth="1.5" strokeDasharray="5 6" opacity=".7" /><line x1="0" y1="190" x2="620" y2="190" stroke="var(--muted-foreground)" /></svg>;
+  return <div className="chart flex min-h-[190px] items-center justify-center text-sm text-muted-foreground" role="status">Advertising trend appears when live campaign data is available.</div>;
 }
 function Donut({
-  label = '31.4M'
+  label = '—'
 }: {
   label?: string;
 }) {
   return <div className="donut-wrap"><div className="donut"><div><strong>{label}</strong><small>Total</small></div></div></div>;
 }
 function Gauge({
-  value = '6.47×',
-  score = 74
+  value = '—',
+  score = 0
 }: {
   value?: string;
   score?: number;
@@ -210,36 +99,9 @@ export function LuluAdvertising() {
     <style>{styles}</style>
     <header className="header"><div><nav className="crumb">Intelligence <span>/</span> Business Intelligence <span>/</span> Advertising</nav><h1>Advertising</h1><p>Understand advertising spend, performance, conversions and revenue across every connected paid media platform.</p></div><div className="actions"><button className="ask-btn"><Sparkles size={15} /> Ask Lulu AI</button><button><RefreshCw size={14} /> Refresh</button><button><Plus size={14} /> Create Report</button><button><Download size={14} /> Export</button></div></header>
     {error && <div className="alert error"><X size={16} /> Advertising analysis couldn’t be loaded <button onClick={() => setError(false)}>Try Again</button></div>}
-    <div className="alert partial">⚠ Advertising analysis is based on partial data — LinkedIn Ads data unavailable for Jan 12–15.</div>
-    <div className="filters"><button>Date Range <b>Last 30 Days</b><ChevronDown size={14} /></button><span className="vs">vs</span><button><b>Previous Period</b><ChevronDown size={14} /></button><i></i><button><span className="dots"><em style={{
-                background: 'var(--primary)'
-              }} /><em style={{
-                background: 'var(--primary)'
-              }} /><em style={{
-                background: 'var(--primary)'
-              }} /><em style={{
-                background: 'var(--primary)'
-              }} /></span><b>All Platforms</b><ChevronDown size={14} /></button><button>Accounts <b>All Accounts</b><ChevronDown size={14} /></button><small>Data as of 2 min ago</small></div>
+    <div className="filters"><button>Date Range <b>Live records</b><ChevronDown size={14} /></button><span className="vs">vs</span><button><b>Live comparison</b><ChevronDown size={14} /></button><i></i><button><b>Connected platforms</b><ChevronDown size={14} /></button><button>Accounts <b>Connected accounts</b><ChevronDown size={14} /></button><small>Live status</small></div>
     <div className="section"><label className="eyebrow">Advertising Overview</label><div className="kpi-grid">{kpis.map(k => <article className="kpi" key={k.label}><span className="eyebrow">{k.label}</span><strong>{k.value}</strong><small>vs previous {k.prev}</small><div className="kpi-bottom"><b className={k.good ? 'positive' : 'negative'}>{k.good ? <ArrowUp size={13} /> : <ArrowDown size={13} />} {k.delta} <span>{k.pct}</span></b><span className="coverage">4 platforms</span></div><Sparkline path={k.spark} /></article>)}</div></div>
-    <Panel title="Advertising Performance Score" className="score-panel"><div className="score-content"><div className="score-left"><div className="score-gauge"><div><strong>74</strong><small>/100</small></div></div><b>Good</b><span>AI Assessment</span></div><div className="score-breakdown"><Bars items={[{
-                label: 'ROAS',
-                value: 82
-              }, {
-                label: 'Conversion Rate',
-                value: 71
-              }, {
-                label: 'CTR',
-                value: 68
-              }, {
-                label: 'CPC Efficiency',
-                value: 76
-              }, {
-                label: 'CPM Efficiency',
-                value: 69
-              }, {
-                label: 'CAC',
-                value: 80
-              }]} /></div><small className="disclaimer">⚠ AI-generated performance assessment — not an objective financial measure</small></div></Panel>
+    <Panel title="Advertising Performance Score" className="score-panel"><div className="score-content"><div className="score-left"><div className="score-gauge"><div><strong>—</strong><small>Live</small></div></div><b>Awaiting live data</b><span>AI assessment appears after connected advertising records are available.</span></div><div className="score-breakdown"><div className="py-6 text-sm text-muted-foreground">Live advertising metrics will appear here after a connection is available.</div></div><small className="disclaimer">⚠ AI-generated performance assessment — not an objective financial measure</small></div></Panel>
     <div className="two-col"><Panel title="Advertising Spend Trend"><LineChart /><div className="chart-meta"><div className="legend"><span className="amber-dot" />Current period <span className="gray-line" />Previous period</div><div className="segmented"><button>Daily</button><button>Weekly</button><button>Monthly</button></div></div><Bars items={platforms.map(p => ({
               label: p.name,
               value: Math.round(parseInt(p.spend.replace(/[$,]/g, '')) / 2847),
@@ -349,7 +211,7 @@ export function LuluAdvertising() {
     <Panel title="Ad & Creative Performance"><div className="table-scroll"><table><thead><tr>{['Platform', 'Campaign', 'Ad', 'Format', 'Impressions', 'Reach', 'Clicks', 'CTR', 'Spend', 'Conversions', 'CPA', 'Revenue', 'ROAS'].map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{['Spring hero — blue', 'Founder story — 30s', 'Customer proof — carousel', 'Search text — enterprise'].map((ad, i) => <tr key={ad}><td>{platforms[i].name.replace(' Ads', '')}</td><td>{campaigns[i]}</td><td>{ad}</td><td><span className="badge">{['Image', 'Video', 'Carousel', 'Search Text'][i]}</span></td><td>{['2.4M', '1.8M', '1.2M', '980K'][i]}</td><td>1.5M</td><td>84K</td><td>2.66%</td><td>$18,400</td><td>2,840</td><td>$6.48</td><td>$104K</td><td className="positive">5.65×</td></tr>)}</tbody></table></div></Panel>
     <Panel title="Audience Performance"><div className="table-scroll"><table><thead><tr>{['Platform', 'Audience', 'Reach', 'Impressions', 'Frequency', 'Clicks', 'CTR', 'Conversions', 'CPA', 'Revenue', 'ROAS'].map(h => <th key={h}>{h}</th>)}</tr></thead><tbody>{audiences.map((a, i) => <tr key={a}><td>{platforms[i % 4].name.replace(' Ads', '')}</td><td>{a}</td><td>6.2M</td><td>9.4M</td><td>1.53×</td><td>248K</td><td>2.66%</td><td>8,420</td><td>$6.65</td><td>$342K</td><td className="positive">6.47×</td></tr>)}</tbody></table></div></Panel>
     <div className="two-col"><Panel title="Device Performance"><Donut label="68%" /><div className="mini-table">{['Desktop', 'Mobile', 'Tablet', 'Other'].map((d, i) => <div key={d}><span>{d}</span><b>{[68, 27, 4, 1][i]}%</b></div>)}</div></Panel><Panel title="Geographic Performance"><div className="geo"><svg viewBox="0 0 500 190" aria-label="Simplified world map" role="img"><path d="M25 67l39-23 33 8 24-20 48 8 21 27 47-8 37 16 58-13 50 17 66-4 48 27-27 24-51-8-39 23-58-8-45 26-43-18-40 12-50-26-48 8-34-20z" fill="var(--muted-foreground)" stroke="var(--muted-foreground)" strokeWidth="1" /><path d="M106 75l42-16 22 15-17 29-39 5zM276 72l42-12 18 18-19 24-40-7zM374 86l31-9 31 20-34 16z" fill="var(--chart-1)" opacity=".8" /></svg></div><div className="ranked">{['United States', 'United Kingdom', 'Canada', 'Australia', 'Germany'].map((c, i) => <div key={c}><b>{i + 1}</b><span>{c}</span><strong>{['$142K', '$38K', '$31K', '$22K', '$18K'][i]}</strong><em>{['8.20×', '6.42×', '5.91×', '5.20×', '4.88×'][i]}</em></div>)}</div></Panel></div>
-    <Panel title="Demographic Performance"><div className="tabs"><button>Age</button><button>Gender</button><button>Seniority</button><button>Industry</button></div><Bars items={[{
+    <Panel title="Workspacegraphic Performance"><div className="tabs"><button>Age</button><button>Gender</button><button>Seniority</button><button>Industry</button></div><Bars items={[{
             label: '18–24',
             value: 38,
             display: '12%'

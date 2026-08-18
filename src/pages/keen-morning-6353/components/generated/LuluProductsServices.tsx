@@ -27,122 +27,17 @@ type FieldProps = {
   hint?: string;
   required?: boolean;
 };
-const initialOfferings: Offering[] = [{
-  id: "lulu-platform",
-  name: "Lulu AI Platform",
-  type: "Product",
-  category: "Software · Marketing",
-  description: "An intelligent growth platform that turns customer signals into clear, actionable marketing opportunities.",
-  customer: "B2B · Mid-market",
-  problem: "Growth teams need a faster way to connect insight with execution.",
-  value: "One intelligent workspace for finding and acting on the next best opportunity.",
-  pricing: "Subscription",
-  price: "$299 / month",
-  status: "Active",
-  primary: true,
-  url: "https://www.lulu.ai/platform",
-  tags: ["Enterprise", "SaaS", "Best Seller"]
-}, {
-  id: "growth-consulting",
-  name: "Growth Strategy Consulting",
-  type: "Service",
-  category: "Consulting",
-  description: "Focused advisory engagements for teams building a more intelligent, measurable growth system.",
-  customer: "B2B · Startups",
-  problem: "Leaders need experienced guidance to prioritize the work that matters.",
-  value: "A practical growth roadmap shaped around your customers, market, and team.",
-  pricing: "Project-based",
-  price: "From $4,500",
-  status: "Active",
-  primary: false,
-  url: "",
-  tags: ["Consulting", "High Margin"]
-}];
-const stepItems = [{
-  id: "company-information",
-  label: "Company Information",
-  state: "complete"
-}, {
-  id: "business-description",
-  label: "Business Description",
-  state: "complete"
-}, {
-  id: "products-services",
-  label: "Products & Services",
-  state: "current"
-}, {
-  id: "existing-platforms",
-  label: "Existing Platforms",
-  state: "upcoming"
-}, {
-  id: "integrations",
-  label: "Integrations",
-  state: "upcoming"
-  }, {
-  id: "setup-complete",
-  label: "Setup Complete",
-  state: "upcoming"
-}];
+const initialOfferings: Offering[] = [];
+const stepItems: Array<Record<string, any>> = [];
 const offeringTypeOptions: {
   id: OfferingType;
   label: string;
-}[] = [{
-  id: "Product",
-  label: "Product"
-}, {
-  id: "Service",
-  label: "Service"
-}];
-const pricingModels = [{
-  id: "one-time",
-  label: "One-time purchase"
-}, {
-  id: "subscription",
-  label: "Subscription"
-}, {
-  id: "usage-based",
-  label: "Usage-based"
-}, {
-  id: "freemium",
-  label: "Freemium"
-}, {
-  id: "commission",
-  label: "Commission"
-}, {
-  id: "hourly",
-  label: "Hourly"
-}, {
-  id: "project-based",
-  label: "Project-based"
-}, {
-  id: "quote-based",
-  label: "Quote-based"
-}, {
-  id: "custom",
-  label: "Custom"
-}, {
-  id: "free",
-  label: "Free"
-}, {
-  id: "other",
-  label: "Other"
-}];
+}[] = [];
+const pricingModels: Array<Record<string, any>> = [];
 const statusOptions: {
   id: OfferingStatus;
   label: OfferingStatus;
-}[] = [{
-  id: "Active",
-  label: "Active"
-}, {
-  id: "Coming Soon",
-  label: "Coming Soon"
-}, {
-  id: "Planned",
-  label: "Planned"
-}, {
-  id: "Discontinued",
-  label: "Discontinued"
-}];
+}[] = [];
 const emptyOffering = (): Offering => ({
   id: "",
   name: "",

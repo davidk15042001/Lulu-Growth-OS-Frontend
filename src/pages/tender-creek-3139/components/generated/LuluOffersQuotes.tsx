@@ -13,87 +13,7 @@ type Offer = {
   source: string;
   updated: string;
 };
-const offers: Offer[] = [{
-  id: 'OFF-2026-00124',
-  customer: 'Connected customer',
-  created: '10 Aug 2026',
-  valid: '24 Aug 2026',
-  amount: '12,500',
-  currency: 'EUR',
-  status: 'Sent',
-  source: 'CRM',
-  updated: '10 Aug 2026'
-}, {
-  id: 'OFF-2026-00123',
-  customer: 'TechVision Ltd',
-  created: '09 Aug 2026',
-  valid: '23 Aug 2026',
-  amount: '8,750',
-  currency: 'EUR',
-  status: 'Viewed',
-  source: 'Manual',
-  updated: '09 Aug 2026'
-}, {
-  id: 'OFF-2026-00122',
-  customer: 'Nexus Solutions',
-  created: '08 Aug 2026',
-  valid: '29 Aug 2026',
-  amount: '34,200',
-  currency: 'EUR',
-  status: 'Accepted',
-  source: 'AI-assisted',
-  updated: '09 Aug 2026'
-}, {
-  id: 'OFF-2026-00121',
-  customer: 'GlobalTech SA',
-  created: '07 Aug 2026',
-  valid: '21 Aug 2026',
-  amount: '5,400',
-  currency: 'USD',
-  status: 'Expired',
-  source: 'CRM',
-  updated: '07 Aug 2026'
-}, {
-  id: 'OFF-2026-00120',
-  customer: 'Meridian Corp',
-  created: '06 Aug 2026',
-  valid: '20 Aug 2026',
-  amount: '22,100',
-  currency: 'EUR',
-  status: 'Draft',
-  source: 'Manual',
-  updated: '06 Aug 2026'
-}, {
-  id: 'OFF-2026-00119',
-  customer: 'Alpine Systems',
-  created: '05 Aug 2026',
-  valid: '19 Aug 2026',
-  amount: '15,800',
-  currency: 'EUR',
-  status: 'Converted',
-  source: 'Ecommerce',
-  updated: '06 Aug 2026'
-}, {
-  id: 'OFF-2026-00118',
-  customer: 'DataCore AG',
-  created: '04 Aug 2026',
-  valid: '18 Aug 2026',
-  amount: '9,300',
-  currency: 'CHF',
-  status: 'Rejected',
-  source: 'Manual',
-  updated: '04 Aug 2026'
-}, {
-  id: 'OFF-2026-00117',
-  customer: 'Vertex Partners',
-  created: '03 Aug 2026',
-  valid: '17 Aug 2026',
-  amount: '6,700',
-  currency: 'EUR',
-  status: 'Cancelled',
-  source: 'CRM',
-  updated: '03 Aug 2026'
-}];
+const offers: Offer[] = [];
 const navMain = [{
   label: 'Dashboard',
   icon: LayoutDashboard
@@ -114,45 +34,9 @@ const navMain = [{
   icon: TrendingUp
 }];
 const financeNav = ['Overview', 'Offers & Quotes', 'Invoices', 'Payments', 'Expenses', 'Income', 'Reports'];
-const periods = ['Today', 'Last 7 Days', 'Last 30 Days', 'Month to Date', 'Previous Month', 'Quarter to Date', 'Year to Date', 'Previous Year', 'Custom Range'];
-const kpis = [{
-  label: 'Total Offers',
-  value: '147',
-  detail: '↑ 12% vs prev period',
-  tone: 'violet',
-  icon: FileText
-}, {
-  label: 'Total Value',
-  value: '€284,500',
-  detail: '↑ 8% vs prev period',
-  tone: 'violet',
-  icon: WalletCards
-}, {
-  label: 'Accepted Value',
-  value: '€118,200',
-  detail: '↑ 15% vs prev period',
-  tone: 'green',
-  icon: Check
-}, {
-  label: 'Pending Value',
-  value: '€89,300',
-  detail: '34 offers',
-  tone: 'amber',
-  icon: Clock3
-}, {
-  label: 'Expired Value',
-  value: '€41,800',
-  detail: '↓ 4% vs prev period',
-  tone: 'red',
-  icon: CalendarDays
-}, {
-  label: 'Conversion Rate',
-  value: '41.5%',
-  detail: '↑ 3.2pp vs prev period',
-  tone: 'violet',
-  icon: Gauge
-}];
-const recommendations = [['Follow up on stalled offers', '4 offers sent over 7 days ago have no customer activity.', Bell], ['Contact before expiration', '6 offers expire within 7 days totaling €28,400.', Clock3], ['Review rejected offers', '3 recent rejections share similar pricing patterns.', Lightbulb]];
+const periods: string[] = [];
+const kpis: Array<Record<string, any>> = [];
+const recommendations: any[][] = [];
 const statusIcons = {
   Draft: Pencil,
   Sent: Send,

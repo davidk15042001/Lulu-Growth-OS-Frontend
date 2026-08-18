@@ -28,132 +28,12 @@ const navItems = [{
   label: 'Settings',
   icon: Settings
 }];
-const stores = [{
-  name: 'All Stores',
-  platform: '',
-  color: ''
-}, {
-  name: 'Lulu Store',
-  platform: 'Shopify Connected',
-  color: 'bg-chart-4'
-}, {
-  name: 'Style and Co',
-  platform: 'WooCommerce Connected',
-  color: 'bg-primary'
-}, {
-  name: 'Webflow Shop',
-  platform: 'Webflow Pending',
-  color: 'bg-primary'
-}];
-const attentionRows = [['FLASH50', 'Summer Flash Sale', 'Lulu Store', 'Shopify', 'Activation failure - platform returned error 422', 'Critical', 'Failed', '2 hours ago'], ['NEWCUST15', 'New Customer Welcome', 'Style and Co', 'WooCommerce', 'Duplicate discount code detected on platform', 'High', 'Draft', '5 hours ago'], ['FREESHIP', 'Free Shipping Summer', 'Lulu Store', 'Shopify', 'Usage limit reached - 500 of 500 used', 'Medium', 'Usage Limit Reached', '1 day ago'], ['WINTER30', '', 'Webflow Shop', 'Webflow', 'Synchronization delayed - platform not responding', 'High', 'Delayed', '3 hours ago']];
-const discounts = [{
-  name: 'Summer Promotion',
-  code: 'SUMMER20',
-  store: 'Lulu Store',
-  platform: 'Shopify',
-  type: 'Percentage',
-  value: '20%',
-  applies: 'Entire Store',
-  start: '01 Aug',
-  end: '31 Aug',
-  usage: '142/500',
-  pct: 28,
-  status: 'Active'
-}, {
-  name: 'New Customer Welcome',
-  code: 'NEWCUST15',
-  store: 'Style and Co',
-  platform: 'WooCommerce',
-  type: 'Percentage',
-  value: '15%',
-  applies: 'First-time customers',
-  start: '15 Jul',
-  end: 'No expiry',
-  usage: '89/Unlimited',
-  pct: 0,
-  status: 'Active'
-}, {
-  name: 'Free Shipping Summer',
-  code: 'FREESHIP',
-  store: 'Lulu Store',
-  platform: 'Shopify',
-  type: 'Free Shipping',
-  value: 'Free',
-  applies: 'Orders over 50 EUR',
-  start: '01 Aug',
-  end: '31 Aug',
-  usage: '500/500',
-  pct: 100,
-  status: 'Usage Limit Reached'
-}, {
-  name: 'Black Friday Teaser',
-  code: 'BF2024',
-  store: 'Lulu Store',
-  platform: 'Shopify',
-  type: 'Percentage',
-  value: '30%',
-  applies: 'Entire Store',
-  start: '25 Nov',
-  end: '30 Nov',
-  usage: '0/1000',
-  pct: 0,
-  status: 'Scheduled'
-}, {
-  name: 'Loyal Customer Reward',
-  code: 'LOYAL10',
-  store: 'Style and Co',
-  platform: 'WooCommerce',
-  type: 'Fixed Amount',
-  value: '10 EUR',
-  applies: 'Loyalty segment',
-  start: '01 Jul',
-  end: '31 Dec',
-  usage: '234/Unlimited',
-  pct: 0,
-  status: 'Active'
-}, {
-  name: 'End of Season Sale',
-  code: 'SEASON25',
-  store: 'Lulu Store',
-  platform: 'Shopify',
-  type: 'Percentage',
-  value: '25%',
-  applies: 'Collections: Sale',
-  start: '01 Aug',
-  end: '10 Aug',
-  usage: '78/200',
-  pct: 78,
-  status: 'Expiring Soon'
-}, {
-  name: 'Buy 2 Get 1 Free',
-  code: 'B2G1',
-  store: 'Lulu Store',
-  platform: 'Shopify',
-  type: 'Buy X Get Y',
-  value: 'B2G1',
-  applies: 'Selected products',
-  start: '05 Aug',
-  end: '20 Aug',
-  usage: '45/300',
-  pct: 15,
-  status: 'Active'
-}, {
-  name: 'Flash Sale 50pct Off',
-  code: 'FLASH50',
-  store: 'Lulu Store',
-  platform: 'Shopify',
-  type: 'Percentage',
-  value: '50%',
-  applies: 'Selected products',
-  start: '12 Aug',
-  end: '12 Aug',
-  usage: '0/100',
-  pct: 0,
-  status: 'Failed'
-}];
-const expiring = [['SEASON25', 'End of Season Sale', 'Lulu Store', 'Expires in 1 day', '78/200 used', 'Extend'], ['SUMMERSALE', 'Summer Flash', 'Lulu Store', 'Expires in 3 days', '142/500 used', 'Edit'], ['B2G1', 'Buy 2 Get 1', 'Lulu Store', 'Expires in 8 days', '45/300', 'Edit'], ['WELCOME', 'Welcome Discount', 'Style and Co', 'Expires in 12 days', '234/Unlimited', 'Edit'], ['LOYAL', 'Loyalty Reward', 'Style and Co', 'Expires in 14 days', '89/200', 'Edit']];
+const stores: Array<Record<string, any>> = [];
+const attentionRows = [['FLASH50', 'Summer Flash Sale', 'Connected store', 'Shopify', 'Activation failure - platform returned error 422', 'Critical', 'Failed', '2 hours ago'], ['NEWCUST15', 'New Customer Welcome', 'Connected store', 'WooCommerce', 'Duplicate discount code detected on platform', 'High', 'Draft', '5 hours ago'], ['FREESHIP', 'Free Shipping Summer', 'Connected store', 'Shopify', 'Usage limit reached - 500 of 500 used', 'Medium', 'Usage Limit Reached', '1 day ago'], ['WINTER30', '', 'Connected store', 'Webflow', 'Synchronization delayed - platform not responding', 'High', 'Delayed', '3 hours ago']];
+const discounts: Array<Record<string, any>> = [];
+const expiring: any[][] = [];
 const prompts = ['Which discounts are active', 'Which expire soon', 'Find usage limit issues', 'Find duplicate codes', 'Create a new discount', 'Show unused discounts', 'Summarize today activity'];
-const health = [['Discount Synchronization', 'Healthy', 'check'], ['Active Discount Validity', 'Attention Required', 'warn'], ['Configuration Integrity', 'Healthy', 'check'], ['Platform Connectivity', 'Critical · Webflow', 'bad'], ['Usage Data', 'Healthy', 'check'], ['Expiration Monitoring', 'Attention Required', 'warn']];
+const health: any[][] = [];
 function PlatformDot({
   platform
 }: {
@@ -208,8 +88,8 @@ export function DiscountsPromotions() {
       <section className="mb-6"><div className="mb-3 flex items-center justify-between"><div className="flex items-center gap-2"><h2 className="text-lg font-semibold">Discounts</h2><span className="text-sm text-muted-foreground">46</span></div><div className="flex rounded-lg border border-border bg-card p-0.5 text-xs"><button onClick={() => setView('table')} className={`rounded-md px-3 py-1.5 ${view === 'table' ? 'bg-secondary font-medium' : 'text-foreground'}`}>Table</button><button onClick={() => setView('cards')} className={`rounded-md px-3 py-1.5 ${view === 'cards' ? 'bg-secondary font-medium' : 'text-foreground'}`}>Cards</button></div></div>{view === 'table' ? <div className="overflow-x-auto rounded-lg border border-border bg-card"><table className="w-full min-w-[1250px] text-left text-sm"><thead className="bg-card/80 text-[11px] uppercase tracking-wide text-muted-foreground"><tr>{['', 'Discount', 'Code', 'Store', 'Type', 'Value', 'Applies To', 'Start', 'End', 'Usage', 'Status', 'Actions'].map((h, i) => <th scope="col" key={h || 'check'} className="px-3 py-3 font-semibold">{i === 0 ? <input type="checkbox" aria-label="Select all discounts" /> : <span className="inline-flex items-center gap-1">{h}<ArrowUpDown size={12} /></span>}</th>)}</tr></thead><tbody className="divide-y divide-border">{visibleDiscounts.map(d => <tr key={d.code} className={`${d.status === 'Expiring Soon' ? 'bg-chart-1/70' : ''} hover:bg-secondary`}><td className="px-3 py-3"><input type="checkbox" defaultChecked={d.code === 'SUMMER20'} aria-label={`Select ${d.code}`} /></td><td className="whitespace-nowrap px-3 py-3 font-medium">{d.name}</td><td className="px-3 py-3"><code className="rounded border border-border bg-secondary px-1.5 py-1 font-mono text-xs text-foreground">{d.code}</code></td><td className="whitespace-nowrap px-3 py-3"><span className="inline-flex items-center gap-1.5"><PlatformDot platform={d.platform} />{d.store}</span></td><td className="whitespace-nowrap px-3 py-3 text-muted-foreground">{d.type}</td><td className="px-3 py-3 font-medium">{d.value}</td><td className="whitespace-nowrap px-3 py-3 text-muted-foreground">{d.applies}</td><td className="whitespace-nowrap px-3 py-3 text-muted-foreground">{d.start}</td><td className="whitespace-nowrap px-3 py-3 text-muted-foreground">{d.end}</td><td className="px-3 py-3"><Usage usage={d.usage} pct={d.pct} /></td><td className="px-3 py-3"><StatusBadge status={d.status} /></td><td className="px-3 py-3"><div className="flex items-center gap-1 text-xs"><button className="rounded border border-border px-2 py-1 hover:bg-card">{d.status === 'Failed' ? 'Review' : 'Open'}</button><button aria-label={`Edit ${d.code}`} className="rounded p-1.5 text-foreground hover:bg-secondary"><Pencil size={14} /></button>{d.status !== 'Usage Limit Reached' && d.status !== 'Failed' && <button aria-label={`Pause ${d.code}`} className="rounded p-1.5 text-foreground hover:bg-secondary"><PauseCircle size={14} /></button>}<button aria-label={`More actions for ${d.code}`} className="rounded p-1.5 text-foreground hover:bg-secondary"><MoreHorizontal size={14} /></button></div></td></tr>)}</tbody></table></div> : <div className="grid gap-3 rounded-lg border border-border bg-card p-4 sm:grid-cols-2 xl:grid-cols-4">{visibleDiscounts.map(d => <article key={d.code} className="rounded-lg border border-border p-4"><div className="flex justify-between"><strong>{d.name}</strong><StatusBadge status={d.status} /></div><code className="mt-2 inline-block rounded bg-secondary px-1.5 py-1 font-mono text-xs">{d.code}</code><p className="mt-3 text-sm text-muted-foreground">{d.store} · {d.type}</p><p className="mt-1 text-sm font-medium">{d.value} · {d.usage}</p></article>)}</div>}<div className="flex flex-col items-center justify-between gap-3 border-t border-border pt-3 text-sm text-muted-foreground sm:flex-row"><span>Showing 1-{visibleDiscounts.length || 0} of 46 discounts</span><div className="flex gap-1"><button className="rounded border border-border bg-card px-3 py-1.5">Prev</button><button className="rounded bg-primary px-3 py-1.5 text-primary-foreground">1</button><button className="rounded border border-border bg-card px-3 py-1.5">2</button><button className="rounded border border-border bg-card px-3 py-1.5">Next</button></div><span>Per page <button className="ml-1 rounded border border-border bg-card px-2 py-1">25 <ChevronDown size={13} className="inline" /></button></span></div></section>
       <section className="rounded-lg border border-border bg-card p-4"><div className="mb-3 flex items-center justify-between"><div className="flex items-center gap-2"><h2 className="text-lg font-semibold">Expiring Soon</h2><span className="rounded-full bg-chart-1/10 px-2 py-0.5 text-xs font-semibold text-chart-1">5</span></div><button className="inline-flex items-center gap-1 text-sm text-foreground hover:text-foreground">See all <ChevronRight size={15} /></button></div><div className="flex gap-3 overflow-x-auto pb-1">{expiring.map(e => <article key={e[0]} className="min-w-[210px] flex-1 rounded-lg border border-border border-l-4 border-l-chart-1 p-3 transition-shadow hover:shadow-md"><div className="flex items-start justify-between gap-2"><div><code className="font-mono text-xs font-semibold">{e[0]}</code><h3 className="mt-1 text-sm font-medium">{e[1]}</h3></div><StatusBadge status="Active" /></div><p className="mt-3 text-xs text-muted-foreground">{e[2]} · {e[3]}</p><p className="mt-1 text-xs text-muted-foreground">{e[4]}</p><div className="mt-3 flex gap-1.5"><button className="rounded border border-border px-2 py-1 text-xs">Open</button><button className="rounded border border-border px-2 py-1 text-xs">{e[5]}</button>{e[0] === 'SEASON25' && <button className="rounded bg-secondary px-2 py-1 text-xs text-foreground">Ask AI</button>}</div></article>)}</div></section>
       <section className="mt-4 grid gap-4 xl:grid-cols-3"><article className="rounded-lg border border-border border-l-4 border-l-border bg-card p-4"><div className="flex items-center justify-between"><h3 className="flex items-center gap-2 font-semibold text-foreground"><Sparkles size={17} className="text-foreground" />Ask Lulu AI</h3><button aria-label="Collapse AI assistant"><ChevronDown size={16} /></button></div><p className="mt-1 text-xs text-muted-foreground">Powered by Lulu AI</p><div className="mt-3 rounded-lg border border-border bg-secondary p-3"><div className="flex items-center justify-between gap-2"><strong className="flex items-center gap-1.5 text-sm"><Sparkles size={14} className="text-foreground" />AI Draft Ready</strong><span className="rounded border border-border bg-secondary px-1.5 py-0.5 text-[10px] text-foreground">AI Generated Draft - Not Published</span></div><dl className="mt-3 grid grid-cols-2 gap-y-1 text-xs"><dt className="text-muted-foreground">Discount Name</dt><dd>Welcome Back 10%</dd><dt className="text-muted-foreground">Code</dt><dd className="font-mono">WLCMBACK10</dd><dt className="text-muted-foreground">Type / Value</dt><dd>Percentage · 10%</dd><dt className="text-muted-foreground">Applies To</dt><dd>Returning customers</dd><dt className="text-muted-foreground">Schedule</dt><dd>Immediate · No expiry</dd><dt className="text-muted-foreground">Usage</dt><dd>Unlimited</dd></dl><p className="mt-3 text-[11px] italic text-muted-foreground">AI Generated Draft - Not Published</p><div className="mt-3 flex gap-1.5"><button className="rounded border border-border bg-card px-2.5 py-1.5 text-xs">Edit</button><button className="rounded bg-primary px-2.5 py-1.5 text-xs font-medium text-primary-foreground">Approve and Create</button><button className="rounded px-2.5 py-1.5 text-xs text-foreground">Discard</button></div></div><div className="mt-3 flex gap-2 overflow-x-auto pb-1">{prompts.map(prompt => <button key={prompt} onClick={() => setAiMessage(prompt)} className="whitespace-nowrap rounded-full border border-border bg-secondary px-2.5 py-1 text-xs text-foreground">{prompt}</button>)}</div><div className="mt-2 flex gap-2"><input value={aiMessage} onChange={e => setAiMessage(e.target.value)} placeholder="Ask Lulu AI about your discounts..." className="min-w-0 flex-1 rounded-lg border border-border px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-ring" /><button aria-label="Send message" className="rounded-lg p-2 text-foreground hover:bg-secondary"><Send size={16} /></button></div></article>
-        <article className="rounded-lg border border-border bg-card p-4"><h3 className="font-semibold">Discount Operations Health</h3><div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">{health.map(([name, state, kind]) => <div key={name} className="flex items-start gap-2 text-sm">{kind === 'check' ? <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-foreground" /> : kind === 'warn' ? <AlertTriangle size={17} className="mt-0.5 shrink-0 text-chart-1" /> : <XCircle size={17} className="mt-0.5 shrink-0 text-chart-5" />}<span>{name}<strong className={`block text-xs ${kind === 'check' ? 'text-foreground' : kind === 'warn' ? 'text-chart-1' : 'text-chart-5'}`}>{state}</strong></span></div>)}</div><div className="my-4 border-t border-border" /><h3 className="text-sm font-semibold">Discount Synchronization</h3><div className="mt-3 space-y-2 text-xs"><div className="grid grid-cols-[1fr_auto_auto] items-center gap-2"><span><PlatformDot platform="Shopify" /> Lulu Store</span><strong className="text-foreground">✓ Synced</strong><span className="text-muted-foreground">Last: 3 min ago · 2 updated</span></div><div className="grid grid-cols-[1fr_auto_auto] items-center gap-2"><span><PlatformDot platform="WooCommerce" /> Style and Co</span><strong className="text-foreground">✓ Synced</strong><span className="text-muted-foreground">Last: 8 min ago · 1 updated</span></div><div className="grid grid-cols-[1fr_auto_auto] items-center gap-2"><span><PlatformDot platform="Webflow" /> Webflow Shop</span><strong className="text-chart-5">× Failed</strong><span className="text-muted-foreground">Last: 4 hours ago · 3 failed</span></div></div><button className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-foreground">Open Integrations <ExternalLink size={13} /></button></article>
-        <article className="rounded-lg border border-border bg-card p-4"><h3 className="font-semibold">Recent Discount Activity</h3><ol className="mt-4 space-y-3 text-sm">{[['bg-primary', 'AI Draft created for Welcome Back 10%', 'AI', '5 min ago'], ['bg-primary', 'Discount SUMMER20 activated on Lulu Store', 'System', '12 min ago'], ['bg-primary', 'New discount NEWCUST15 created', 'Admin', '1 hour ago'], ['bg-chart-1', 'SEASON25 expiring in 1 day flagged for review', 'System', '2 hours ago'], ['bg-destructive', 'FLASH50 activation failed on Lulu Store', 'System', '2 hours ago'], ['bg-muted', 'Discount synchronization completed for Style and Co', 'System', '3 hours ago']].map(([color, text, tag, time]) => <li key={text} className="flex gap-2.5"><span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${color}`} /><span className="min-w-0 flex-1"><span>{text}</span><span className="mt-0.5 block text-xs text-muted-foreground"><strong className={tag === 'AI' ? 'text-foreground' : tag === 'Admin' ? 'text-foreground' : ''}>{tag}</strong> · {time}</span></span></li>)}</ol><button className="mt-3 text-sm text-foreground hover:text-foreground">View All Activity</button></article></section>
+        <article className="rounded-lg border border-border bg-card p-4"><h3 className="font-semibold">Discount Operations Health</h3><div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">{health.map(([name, state, kind]) => <div key={name} className="flex items-start gap-2 text-sm">{kind === 'check' ? <CheckCircle2 size={17} className="mt-0.5 shrink-0 text-foreground" /> : kind === 'warn' ? <AlertTriangle size={17} className="mt-0.5 shrink-0 text-chart-1" /> : <XCircle size={17} className="mt-0.5 shrink-0 text-chart-5" />}<span>{name}<strong className={`block text-xs ${kind === 'check' ? 'text-foreground' : kind === 'warn' ? 'text-chart-1' : 'text-chart-5'}`}>{state}</strong></span></div>)}</div><div className="my-4 border-t border-border" /><h3 className="text-sm font-semibold">Discount Synchronization</h3><div className="mt-3 space-y-2 text-xs"><div className="grid grid-cols-[1fr_auto_auto] items-center gap-2"><span><PlatformDot platform="Shopify" /> Connected store</span><strong className="text-foreground">✓ Synced</strong><span className="text-muted-foreground">Last: 3 min ago · 2 updated</span></div><div className="grid grid-cols-[1fr_auto_auto] items-center gap-2"><span><PlatformDot platform="WooCommerce" /> Connected store</span><strong className="text-foreground">✓ Synced</strong><span className="text-muted-foreground">Last: 8 min ago · 1 updated</span></div><div className="grid grid-cols-[1fr_auto_auto] items-center gap-2"><span><PlatformDot platform="Webflow" /> Connected store</span><strong className="text-chart-5">× Failed</strong><span className="text-muted-foreground">Last: 4 hours ago · 3 failed</span></div></div><button className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-foreground">Open Integrations <ExternalLink size={13} /></button></article>
+        <article className="rounded-lg border border-border bg-card p-4"><h3 className="font-semibold">Recent Discount Activity</h3><ol className="mt-4 space-y-3 text-sm">{[['bg-primary', 'AI Draft created for Welcome Back 10%', 'AI', '5 min ago'], ['bg-primary', 'Discount SUMMER20 activated on Connected store', 'System', '12 min ago'], ['bg-primary', 'New discount NEWCUST15 created', 'Admin', '1 hour ago'], ['bg-chart-1', 'SEASON25 expiring in 1 day flagged for review', 'System', '2 hours ago'], ['bg-destructive', 'FLASH50 activation failed on Connected store', 'System', '2 hours ago'], ['bg-muted', 'Discount synchronization completed for Connected store', 'System', '3 hours ago']].map(([color, text, tag, time]) => <li key={text} className="flex gap-2.5"><span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${color}`} /><span className="min-w-0 flex-1"><span>{text}</span><span className="mt-0.5 block text-xs text-muted-foreground"><strong className={tag === 'AI' ? 'text-foreground' : tag === 'Admin' ? 'text-foreground' : ''}>{tag}</strong> · {time}</span></span></li>)}</ol><button className="mt-3 text-sm text-foreground hover:text-foreground">View All Activity</button></article></section>
     </main></div>;
 }
 

@@ -28,63 +28,13 @@ const navGroups = [{
   label: 'SETTINGS',
   items: [['Integrations', Zap], ['Team', Users], ['Billing', FileText]]
 }];
-const objectives: Row[] = [{
-  name: 'Increase Qualified Leads',
-  desc: 'High-intent lead acquisition',
-  target: '+25%',
-  current: '+14%',
-  progress: 56,
-  deadline: 'Q4 2026',
-  priority: 'Critical',
-  owner: 'Growth',
-  status: 'On Track'
-}, {
-  name: 'Improve Organic Visibility',
-  desc: 'Grow organic traffic share',
-  target: '+40%',
-  current: '+18%',
-  progress: 45,
-  deadline: 'Q4 2026',
-  priority: 'High',
-  owner: 'SEO Team',
-  status: 'On Track'
-}, {
-  name: 'Reduce Customer Acquisition Cost',
-  desc: 'Optimize spend efficiency',
-  target: '-20%',
-  current: '-8%',
-  progress: 40,
-  deadline: 'Q3 2026',
-  priority: 'High',
-  owner: 'Marketing',
-  status: 'At Risk'
-}, {
-  name: 'Increase Brand Awareness',
-  desc: 'DACH region awareness',
-  target: '+30% NPS',
-  current: '+12%',
-  progress: 40,
-  deadline: 'Q4 2026',
-  priority: 'Medium',
-  owner: 'Brand',
-  status: 'On Track'
-}, {
-  name: 'Improve AI Visibility (GEO/AEO)',
-  desc: 'Presence in AI search',
-  target: '+50%',
-  current: '+22%',
-  progress: 44,
-  deadline: 'Q4 2026',
-  priority: 'High',
-  owner: 'SEO',
-  status: 'On Track'
-}];
-const markets = [['Germany', 'Core', 'Strong', '+8.2%', '€284K', 'Core Market'], ['Austria', 'Core', 'Strong', '+6.4%', '€142K', 'Core Market'], ['Switzerland', 'Growth', 'Growing', '+14.8%', '€94K', 'Growth Market'], ['UK', 'Emerging', 'Early', '+28.4%', '€28K', 'Emerging Market']];
-const audiences = [['High-Value Customers', '12,840', '€428K', '+14.2%', 'Critical', 'amber'], ['High-Intent Prospects', '9,210', '—', '+22.1%', 'High', 'indigo'], ['Enterprise Buyers', '1,240', '€148K', '+4.8%', 'High', 'blue'], ['At-Risk Customers', '4,220', '€94K', '-8.4%', 'Critical', 'red']];
-const dimensions = [['Goal Alignment', 91, 'var(--chart-4)'], ['Audience Alignment', 86, 'var(--chart-1)'], ['Channel Alignment', 78, 'var(--chart-1)'], ['Content Alignment', 72, 'var(--chart-5)'], ['Performance', 81, 'var(--chart-4)'], ['Market Coverage', 74, 'var(--foreground)'], ['Competitive Position', 68, 'var(--foreground)'], ['Execution Readiness', 88, 'var(--chart-4)']];
-const channels = [['Organic Search', 'Long-term acquisition', 'High', '82%', 'High', 'Active'], ['Paid Search', 'High-intent conversion', 'High', '74%', 'Medium', 'Active'], ['Content Marketing', 'Authority + SEO', 'High', '68%', 'Medium', 'Active'], ['Paid Social', 'Awareness + retargeting', 'Medium', '61%', 'Low', 'Active'], ['Email', 'Nurture + retention', 'High', '91%', 'Low', 'Active'], ['GEO/AEO', 'AI visibility', 'High', '44%', 'Medium', 'Growing']];
-const initiatives = [['Expand Organic Acquisition', 'On Track', 'High', '+20% qualified leads', 'Q4 2026', 'Marketing'], ['Regional Market Expansion', 'On Track', 'High', '2 new markets', 'Q4 2026', 'Regional'], ['AI Visibility Program', 'In Progress', 'High', '+50% GEO/AEO', 'Q3 2026', 'SEO Team'], ['Customer Retention Initiative', 'At Risk', 'Critical', '-15% churn', 'Q3 2026', 'CS Team']];
-const kpis = [['Marketing Revenue', '€486K', '€600K', '81%', '+12.4%'], ['Qualified Leads', '2,840', '3,500', '81%', '+18.2%'], ['CAC', '€148', '€120', 'Need -19%', '↑ At Risk'], ['Conversion Rate', '4.2%', '5.5%', '76%', '+0.4%'], ['Marketing ROI', '3.8x', '4.5x', '84%', 'Stable'], ['Organic Traffic', '128K', '180K', '71%', '+22.1%']];
+const objectives: Row[] = [];
+const markets: any[][] = [];
+const audiences: any[][] = [];
+const dimensions: any[][] = [];
+const channels: any[][] = [];
+const initiatives: any[][] = [];
+const kpis: any[][] = [];
 const insights = ['Your current positioning strongly emphasizes automation capabilities. This is a strong differentiator in the enterprise market.', 'Your value proposition is not consistently reflected across all marketing channels. Content alignment score is 72/100.', 'Competitors are increasingly competing on integration breadth — your multi-channel approach is a defensible advantage.'];
 const recommendations = ['Increase focus on high-intent audience segments', 'Rebalance channel priorities — deprioritize low-ROI paid social', 'Improve content alignment with positioning', 'Reduce dependency on single acquisition channel'];
 const pill = (value: string) => <span className={`rounded-full px-2 py-1 text-[11px] font-medium ${value === 'At Risk' || value === 'Critical' ? 'bg-chart-5/10 text-[var(--chart-5)]' : value === 'High' || value === 'Medium' ? 'bg-chart-1/10 text-[var(--chart-1)]' : value === 'Growing' ? 'bg-secondary text-foreground' : 'bg-chart-4/10 text-[var(--chart-4)]'}`}>{value}</span>;
@@ -145,7 +95,7 @@ export const LuluMarketingStrategy = () => {
    <Section title="Lulu AI Recommendations"><div className="grid gap-3 md:grid-cols-2">{recommendations.map((x, i) => <article key={x} className="rounded-xl border border-[var(--border)] bg-card p-4"><div className="flex items-start gap-3"><Sparkles size={17} className="mt-0.5 text-[var(--foreground)]" /><div><h3 className="text-sm font-bold">{x}</h3><div className="mt-2">{pill(i === 0 ? 'Critical' : 'High')}</div><p className="mt-2 text-xs text-[var(--muted-foreground)]">Lulu AI found a material opportunity to improve strategic performance based on connected data.</p><div className="mt-4 flex gap-2"><button className="rounded border px-2 py-1 text-xs">Review</button><button className="rounded border px-2 py-1 text-xs">Accept</button><button className="rounded bg-[var(--primary)] px-2 py-1 text-xs text-primary-foreground">Create Initiative</button></div></div></div></article>)}</div><p className="mt-3 text-xs text-[var(--muted-foreground)]">AI recommendations require your review and confirmation before any changes are applied.</p></Section>
    <div className="mt-7 grid gap-4 xl:grid-cols-2"><article className="rounded-xl border border-[var(--border)] bg-card p-5"><h2 className="font-bold">Change History</h2>{['Updated Content Alignment · 68 → 72 · Workspace owner M · 2h ago', 'Added UK market coverage · — → Emerging · Sarah K · 1d ago', 'Published Q4 objectives · Draft → Active · Workspace owner M · 2d ago', 'Updated channel priorities · v1 → v2 · Lulu AI · 4d ago'].map(x => <div key={x} className="border-l-2 border-[var(--border)] py-3 pl-3 text-xs">{x}</div>)}</article><article className="rounded-xl border border-[var(--border)] bg-card p-5"><h2 className="font-bold">Strategy Versioning</h2>{[['Marketing Strategy 2026', 'Active · Published'], ['Marketing Strategy Q1 2026', 'Archived'], ['Strategy 2026 Update Draft', 'Draft']].map(v => <div key={v[0]} className="flex items-center justify-between border-b border-[var(--border)] py-3 text-xs"><span className="font-medium">{v[0]}<small className="ml-2 text-[var(--muted-foreground)]">{v[1]}</small></span><MoreHorizontal size={15} /></div>)}<div className="mt-4 flex gap-2"><button className="rounded border px-2 py-1 text-xs">Create Draft</button><button className="rounded border px-2 py-1 text-xs">Compare Versions</button><button className="rounded bg-[var(--primary)] px-2 py-1 text-xs text-primary-foreground">Publish Strategy</button></div></article></div>
    <article className="mt-7 rounded-xl bg-[var(--card)] p-5 text-foreground"><h2 className="text-lg font-bold">Ask Lulu AI about your Marketing Strategy</h2><div className="mt-3 flex flex-wrap gap-2">{['Review my marketing strategy', 'What should we prioritize next?', 'Which channel needs more attention?', 'Where are our biggest gaps?'].map(x => <button key={x} className="rounded-full border border-[var(--muted-foreground)] px-3 py-2 text-xs text-[var(--foreground)]">{x}</button>)}</div><div className="mt-4 flex"><input placeholder="Ask anything about your strategy..." className="flex-1 rounded-l-md bg-[var(--secondary)] px-3 py-3 text-xs text-foreground outline-none" /><button className="rounded-r-md bg-[var(--primary)] px-4 text-[var(--primary-foreground)]"><Send size={15} /></button></div></article>
-   <div className="mt-7 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{[['No Marketing Strategy Yet', 'Create Strategy', 'Generate with Lulu AI'], ['Strategy Intelligence Is Limited', 'Connect Integration', ''], ["Marketing Strategy Couldn't Be Loaded", 'Try Again', ''], ['Marketing Strategy Restricted', 'Request access', '']].map(s => <article key={s[0]} className="rounded-xl border border-dashed border-[var(--border)] bg-card p-4"><h3 className="text-sm font-bold">{s[0]}</h3><p className="mt-2 text-xs text-[var(--muted-foreground)]">{s[0].includes('Limited') ? 'Connect your data sources to unlock strategic intelligence.' : s[0].includes('Restricted') ? 'You do not have permission to view this workspace.' : 'Illustrative state for this workspace.'}</p><button className="mt-4 rounded bg-[var(--primary)] px-2 py-1 text-xs font-semibold text-primary-foreground">{s[1]}</button>{s[2] && <button className="ml-2 rounded border px-2 py-1 text-xs">{s[2]}</button>}</article>)}</div><article className="mt-3 rounded-xl border border-[var(--border)] bg-card p-4"><div className="h-3 w-40 animate-pulse rounded bg-[var(--secondary)]" /><div className="mt-3 h-2 w-full animate-pulse rounded bg-[var(--secondary)]" /><div className="mt-2 h-2 w-3/4 animate-pulse rounded bg-[var(--secondary)]" /><span className="mt-3 block text-[10px] text-[var(--muted-foreground)]">Loading strategy data…</span></article>
+   <div className="mt-7 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{[['No Marketing Strategy Yet', 'Create Strategy', 'Generate with Lulu AI'], ['Strategy Intelligence Is Limited', 'Connect Integration', ''], ["Marketing Strategy Couldn't Be Loaded", 'Try Again', ''], ['Marketing Strategy Restricted', 'Request access', '']].map(s => <article key={s[0]} className="rounded-xl border border-dashed border-[var(--border)] bg-card p-4"><h3 className="text-sm font-bold">{s[0]}</h3><p className="mt-2 text-xs text-[var(--muted-foreground)]">{s[0].includes('Limited') ? 'Connect your data sources to unlock strategic intelligence.' : s[0].includes('Restricted') ? 'You do not have permission to view this workspace.' : 'No live data available for this workspace.'}</p><button className="mt-4 rounded bg-[var(--primary)] px-2 py-1 text-xs font-semibold text-primary-foreground">{s[1]}</button>{s[2] && <button className="ml-2 rounded border px-2 py-1 text-xs">{s[2]}</button>}</article>)}</div><article className="mt-3 rounded-xl border border-[var(--border)] bg-card p-4"><div className="h-3 w-40 animate-pulse rounded bg-[var(--secondary)]" /><div className="mt-3 h-2 w-full animate-pulse rounded bg-[var(--secondary)]" /><div className="mt-2 h-2 w-3/4 animate-pulse rounded bg-[var(--secondary)]" /><span className="mt-3 block text-[10px] text-[var(--muted-foreground)]">Loading strategy data…</span></article>
   </div></main>
   {modal && <aside className="fixed bottom-4 right-4 z-10 hidden w-[330px] rounded-xl border border-[var(--border)] bg-card p-5 shadow-xl lg:block"><div className="flex items-center justify-between"><h2 className="font-bold">Edit Strategy</h2><button onClick={() => setModal(false)} aria-label="Close edit strategy"><X size={17} /></button></div><span className="mt-3 inline-block rounded-full bg-secondary px-2 py-1 text-[10px] text-[var(--foreground)]">Unsaved changes</span><div className="mt-4 flex gap-3 overflow-x-auto border-b border-[var(--border)]">{['Objectives', 'Markets', 'Positioning', 'Channels', 'Initiatives'].map((x, i) => <button key={x} className={`shrink-0 pb-2 text-[11px] ${i === 0 ? 'border-b-2 border-[var(--border)] font-semibold' : ''}`}>{x}</button>)}</div><label className="mt-5 block text-xs font-semibold">Strategy objective<textarea className="mt-2 h-20 w-full rounded border border-[var(--border)] p-2 text-xs" defaultValue="Increase qualified acquisition while expanding sustainable market coverage." /></label><div className="mt-5 flex justify-end gap-2"><button onClick={() => setModal(false)} className="rounded border px-3 py-2 text-xs">Cancel</button><button className="rounded border px-3 py-2 text-xs">Save Draft</button><button className="rounded bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-primary-foreground">Publish</button></div></aside>}
  </div>;

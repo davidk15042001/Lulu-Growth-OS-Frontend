@@ -5,16 +5,7 @@ import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { setSelectedWorkspaceId } from '../../../../api/session';
 type Screen = 'expired' | 'reauth' | 'password' | 'success' | 'failure' | 'invalidated';
 type Status = 'idle' | 'loading';
-const footerLinks = [{
-  label: 'Privacy',
-  href: '#privacy'
-}, {
-  label: 'Terms',
-  href: '#terms'
-}, {
-  label: 'Security',
-  href: '#security'
-}];
+const footerLinks: Array<Record<string, any>> = [];
 export function LuluSessionAuth() {
   const [screen, setScreen] = useState<Screen>('expired');
   const [status, setStatus] = useState<Status>('idle');

@@ -22,133 +22,9 @@ type AlertItem = {
   severity: 'Critical' | 'Warning' | 'Info';
 };
 type Tone = 'green' | 'amber' | 'red' | 'blue' | 'purple' | 'gray';
-const returns: ReturnItem[] = [{
-  id: 'RET-10482',
-  order: '#ORD-10482',
-  customer: 'John Smith',
-  store: 'Lulu Store',
-  products: '2 items',
-  reason: 'Wrong Size',
-  refund: 'Pending',
-  amount: '€129.00',
-  status: 'Processing',
-  date: '10 Aug',
-  refundTone: 'blue',
-  statusTone: 'amber'
-}, {
-  id: 'RET-10479',
-  order: '#ORD-10479',
-  customer: 'Maria Gonzalez',
-  store: 'WooCommerce',
-  products: '1 item',
-  reason: 'Defective',
-  refund: 'Completed',
-  amount: '€64.99',
-  status: 'Completed',
-  date: '10 Aug',
-  refundTone: 'green',
-  statusTone: 'green'
-}, {
-  id: 'RET-10476',
-  order: '#ORD-10476',
-  customer: 'Alex Chen',
-  store: 'Lulu Store',
-  products: '3 items',
-  reason: 'Not as Expected',
-  refund: 'Pending',
-  amount: '€234.50',
-  status: 'Processing',
-  date: '9 Aug',
-  refundTone: 'blue',
-  statusTone: 'amber'
-}, {
-  id: 'RET-10471',
-  order: '#ORD-10471',
-  customer: 'Sophie Müller',
-  store: 'Webflow Store',
-  products: '1 item',
-  reason: 'Wrong Item',
-  refund: 'Approved',
-  amount: '€45.00',
-  status: 'Pending',
-  date: '9 Aug',
-  refundTone: 'gray',
-  statusTone: 'blue'
-}, {
-  id: 'RET-10468',
-  order: '#ORD-10468',
-  customer: 'James Wilson',
-  store: 'WooCommerce',
-  products: '2 items',
-  reason: 'Damaged',
-  refund: 'Failed',
-  amount: '€178.00',
-  status: 'Failed',
-  date: '8 Aug',
-  refundTone: 'red',
-  statusTone: 'red'
-}, {
-  id: 'RET-10461',
-  order: '#ORD-10461',
-  customer: 'Lisa Park',
-  store: 'Lulu Store',
-  products: '1 item',
-  reason: 'Changed Mind',
-  refund: 'Completed',
-  amount: '€32.00',
-  status: 'Refunded',
-  date: '7 Aug',
-  refundTone: 'green',
-  statusTone: 'green'
-}];
-const alerts: AlertItem[] = [{
-  id: 'RET-10491',
-  title: 'Refund Failed',
-  store: 'Lulu Store',
-  amount: '€89.00',
-  severity: 'Critical'
-}, {
-  id: 'RET-10477',
-  title: 'Return Pending 8 Days',
-  store: 'WooCommerce',
-  severity: 'Warning'
-}, {
-  id: 'RET-10465',
-  title: 'Sync Failure',
-  store: 'Webflow Store',
-  severity: 'Info'
-}];
-const reasons = [{
-  name: 'Wrong Size',
-  count: 28,
-  width: '100%',
-  percent: '34%'
-}, {
-  name: 'Defective',
-  count: 21,
-  width: '75%',
-  percent: '25%'
-}, {
-  name: 'Not as Expected',
-  count: 15,
-  width: '54%',
-  percent: '18%'
-}, {
-  name: 'Wrong Item',
-  count: 10,
-  width: '36%',
-  percent: '12%'
-}, {
-  name: 'Damaged',
-  count: 7,
-  width: '25%',
-  percent: '8%'
-}, {
-  name: 'Other',
-  count: 3,
-  width: '12%',
-  percent: '3%'
-}];
+const returns: ReturnItem[] = [];
+const alerts: AlertItem[] = [];
+const reasons: Array<Record<string, any>> = [];
 const nav = [{
   label: 'Overview',
   icon: Activity
@@ -271,10 +147,10 @@ export function ReturnsRefundsPage() {
                   }} /></div><span className="text-right text-[var(--muted-foreground)]">{reason.percent}</span></div>)}</div></article></section>
         <section className="grid gap-4 xl:grid-cols-3"><article className="rounded-xl border border-[var(--muted-foreground)] bg-secondary p-5 backdrop-blur-sm"><SectionTitle title="Returns Operations Health" /><div className="mb-5 flex items-center gap-6"><div className="grid h-24 w-24 place-items-center rounded-full border-[7px] border-chart-4/20 border-t-chart-4 border-r-chart-4 text-2xl font-extrabold text-foreground shadow-[0_0_20px_rgba(0,0,0,.12)]">78%</div><p className="max-w-[150px] text-xs leading-5 text-[var(--muted-foreground)]">Strong operational health across connected stores.</p></div>{[['Return Synchronization', 'Healthy', 'green', '100%'], ['Refund Synchronization', 'Attention Required', 'amber', '66%'], ['Return Data Completeness', 'Healthy', 'green', '92%'], ['Platform Connectivity', 'Healthy', 'green', '97%'], ['Processing Issues', 'Attention Required', 'amber', '42%']].map(row => <div key={row[0]} className="mb-3 grid grid-cols-[1fr_auto] gap-2 text-xs"><span className="text-[var(--foreground)]">{row[0]}</span><span className={row[2] === 'green' ? 'text-chart-4' : 'text-chart-1'}>{row[1]}</span><div className="col-span-2 h-1 rounded bg-secondary"><div className={`h-full rounded bg-${row[2]}-400`} style={{
                   width: row[3]
-                }} /></div></div>)}</article><article className="rounded-xl border border-[var(--muted-foreground)] bg-secondary p-5 backdrop-blur-sm"><SectionTitle title="Returns & Refunds Synchronization" /><div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead className="text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]"><tr>{['Store', 'Platform', 'Last Sync', 'Records', 'Failed', 'Status'].map(head => <th key={head} className="pb-3 pr-3">{head}</th>)}</tr></thead><tbody>{[['Lulu Store', 'Shopify', '2 min ago', '284', '0', 'Synced', 'green'], ['WooCommerce', 'WooCommerce', '8 min ago', '112', '2', 'Attention', 'amber'], ['Webflow Store', 'Webflow', '45 min ago', '31', '1', 'Delayed', 'amber']].map(store => <tr key={store[0]} className="border-t border-[var(--muted-foreground)]"><td className="py-3 pr-2 font-semibold text-foreground">{store[0]}</td><td className="pr-2 text-[var(--muted-foreground)]">{store[1]}</td><td className="pr-2 text-[var(--muted-foreground)]">{store[2]}</td><td className="pr-2 text-[var(--foreground)]">{store[3]}</td><td className="pr-2 text-[var(--foreground)]">{store[4]}</td><td className={store[6] === 'green' ? 'text-chart-4' : 'text-foreground'}><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current shadow-[0_0_8px_currentColor]" />{store[5]}</td></tr>)}</tbody></table></div><div className="mt-4 flex flex-wrap gap-2"><button onClick={() => showToast('Sync retry queued')} className="rounded border border-[var(--muted-foreground)] px-3 py-2 text-xs font-semibold text-[var(--foreground)] hover:bg-secondary">Retry Sync</button><button className="rounded border border-[var(--muted-foreground)] px-3 py-2 text-xs font-semibold text-[var(--foreground)]">View Details</button><button className="rounded border border-[var(--muted-foreground)] px-3 py-2 text-xs font-semibold text-[var(--foreground)]">Open Integrations</button></div></article><article id="ai-card" className="rounded-xl border border-[var(--border)]/30 border-t-2 border-t-[var(--border)] bg-[var(--card)] p-5 shadow-[0_0_24px_rgba(0,0,0,.1)]"><SectionTitle title="Ask Lulu AI" subtitle="AI-generated interpretation" /><div className="flex rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] p-1"><input value={aiText} onChange={e => setAiText(e.target.value)} onKeyDown={e => e.key === 'Enter' && ask()} placeholder="Ask Lulu AI about returns and refunds..." className="min-w-0 flex-1 bg-transparent px-3 py-2 text-xs text-foreground outline-none placeholder:text-[var(--muted-foreground)]" /><button onClick={() => ask()} aria-label="Send question" className="rounded-md bg-[var(--primary)] p-2 text-primary-foreground shadow-[0_0_15px_rgba(0,0,0,.35)]"><Send className="h-3.5 w-3.5" /></button></div><div className="mt-3 flex flex-wrap gap-1.5">{['Which returns need attention?', 'Find failed refunds', 'Pending refunds', 'Sync problems', 'Today’s activity'].map(prompt => <button key={prompt} onClick={() => ask(prompt)} className="rounded-full border border-[var(--muted-foreground)] px-2.5 py-1.5 text-[11px] text-[var(--muted-foreground)] hover:border-[var(--border)]/50 hover:text-[var(--foreground)]">{prompt}</button>)}</div><div className="mt-4 rounded-lg border border-[var(--border)]/20 bg-[var(--primary)]/[0.07] p-3 text-xs leading-5 text-[var(--foreground)]"><div className="mb-1 flex items-center gap-2 font-bold text-[var(--foreground)]"><Sparkles className="h-3.5 w-3.5" />AI Insight</div>{aiAnswer || '8 return or refund records currently require review based on their status and sync data. 3 failed refunds and 5 long-pending returns identified.'}<button onClick={() => showToast('Attention queue opened')} className="mt-2 block font-semibold text-[var(--foreground)]">View Attention Required →</button></div></article></section>
-        <section className="rounded-xl border border-[var(--muted-foreground)] bg-[var(--card)] p-4"><button onClick={() => setActivityOpen(!activityOpen)} className="flex w-full items-center justify-between text-left"><span className="flex items-center gap-2 text-sm font-extrabold text-foreground"><Activity className="h-4 w-4 text-[var(--foreground)]" />Return Activity</span>{activityOpen ? <ChevronDown className="h-4 w-4 text-[var(--muted-foreground)]" /> : <ChevronRight className="h-4 w-4 text-[var(--muted-foreground)]" />}</button>{activityOpen && <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{[['Refund completed', 'RET-10479 · €64.99', '2 hours ago', 'green'], ['Return received', 'RET-10476 · Lulu Store', '3 hours ago', 'purple'], ['Return requested', 'RET-10491 · WooCommerce', '5 hours ago', 'blue'], ['Refund failed', 'RET-10468 · Platform error', '6 hours ago', 'red']].map(event => <div key={event[0]} className="flex gap-3 rounded-lg bg-secondary p-3 text-xs"><span className={`mt-1 h-2 w-2 shrink-0 rounded-full bg-${event[3]}-400 shadow-[0_0_9px_currentColor]`} /><div><strong className="text-foreground">{event[0]}</strong><p className="mt-1 text-[var(--muted-foreground)]">{event[1]}</p><time className="mt-2 block text-[var(--muted-foreground)]">{event[2]}</time></div></div>)}</div>}</section>
+                }} /></div></div>)}</article><article className="rounded-xl border border-[var(--muted-foreground)] bg-secondary p-5 backdrop-blur-sm"><SectionTitle title="Returns & Refunds Synchronization" /><div className="overflow-x-auto"><table className="w-full text-left text-xs"><thead className="text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]"><tr>{['Store', 'Platform', 'Last Sync', 'Records', 'Failed', 'Status'].map(head => <th key={head} className="pb-3 pr-3">{head}</th>)}</tr></thead><tbody>{[['Connected store', 'Shopify', '2 min ago', '284', '0', 'Synced', 'green'], ['WooCommerce', 'WooCommerce', '8 min ago', '112', '2', 'Attention', 'amber'], ['Webflow Store', 'Webflow', '45 min ago', '31', '1', 'Delayed', 'amber']].map(store => <tr key={store[0]} className="border-t border-[var(--muted-foreground)]"><td className="py-3 pr-2 font-semibold text-foreground">{store[0]}</td><td className="pr-2 text-[var(--muted-foreground)]">{store[1]}</td><td className="pr-2 text-[var(--muted-foreground)]">{store[2]}</td><td className="pr-2 text-[var(--foreground)]">{store[3]}</td><td className="pr-2 text-[var(--foreground)]">{store[4]}</td><td className={store[6] === 'green' ? 'text-chart-4' : 'text-foreground'}><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-current shadow-[0_0_8px_currentColor]" />{store[5]}</td></tr>)}</tbody></table></div><div className="mt-4 flex flex-wrap gap-2"><button onClick={() => showToast('Sync retry queued')} className="rounded border border-[var(--muted-foreground)] px-3 py-2 text-xs font-semibold text-[var(--foreground)] hover:bg-secondary">Retry Sync</button><button className="rounded border border-[var(--muted-foreground)] px-3 py-2 text-xs font-semibold text-[var(--foreground)]">View Details</button><button className="rounded border border-[var(--muted-foreground)] px-3 py-2 text-xs font-semibold text-[var(--foreground)]">Open Integrations</button></div></article><article id="ai-card" className="rounded-xl border border-[var(--border)]/30 border-t-2 border-t-[var(--border)] bg-[var(--card)] p-5 shadow-[0_0_24px_rgba(0,0,0,.1)]"><SectionTitle title="Ask Lulu AI" subtitle="AI-generated interpretation" /><div className="flex rounded-lg border border-[var(--muted-foreground)] bg-[var(--secondary)] p-1"><input value={aiText} onChange={e => setAiText(e.target.value)} onKeyDown={e => e.key === 'Enter' && ask()} placeholder="Ask Lulu AI about returns and refunds..." className="min-w-0 flex-1 bg-transparent px-3 py-2 text-xs text-foreground outline-none placeholder:text-[var(--muted-foreground)]" /><button onClick={() => ask()} aria-label="Send question" className="rounded-md bg-[var(--primary)] p-2 text-primary-foreground shadow-[0_0_15px_rgba(0,0,0,.35)]"><Send className="h-3.5 w-3.5" /></button></div><div className="mt-3 flex flex-wrap gap-1.5">{['Which returns need attention?', 'Find failed refunds', 'Pending refunds', 'Sync problems', 'Today’s activity'].map(prompt => <button key={prompt} onClick={() => ask(prompt)} className="rounded-full border border-[var(--muted-foreground)] px-2.5 py-1.5 text-[11px] text-[var(--muted-foreground)] hover:border-[var(--border)]/50 hover:text-[var(--foreground)]">{prompt}</button>)}</div><div className="mt-4 rounded-lg border border-[var(--border)]/20 bg-[var(--primary)]/[0.07] p-3 text-xs leading-5 text-[var(--foreground)]"><div className="mb-1 flex items-center gap-2 font-bold text-[var(--foreground)]"><Sparkles className="h-3.5 w-3.5" />AI Insight</div>{aiAnswer || '8 return or refund records currently require review based on their status and sync data. 3 failed refunds and 5 long-pending returns identified.'}<button onClick={() => showToast('Attention queue opened')} className="mt-2 block font-semibold text-[var(--foreground)]">View Attention Required →</button></div></article></section>
+        <section className="rounded-xl border border-[var(--muted-foreground)] bg-[var(--card)] p-4"><button onClick={() => setActivityOpen(!activityOpen)} className="flex w-full items-center justify-between text-left"><span className="flex items-center gap-2 text-sm font-extrabold text-foreground"><Activity className="h-4 w-4 text-[var(--foreground)]" />Return Activity</span>{activityOpen ? <ChevronDown className="h-4 w-4 text-[var(--muted-foreground)]" /> : <ChevronRight className="h-4 w-4 text-[var(--muted-foreground)]" />}</button>{activityOpen && <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{[['Refund completed', 'RET-10479 · €64.99', '2 hours ago', 'green'], ['Return received', 'RET-10476 · Connected store', '3 hours ago', 'purple'], ['Return requested', 'RET-10491 · WooCommerce', '5 hours ago', 'blue'], ['Refund failed', 'RET-10468 · Platform error', '6 hours ago', 'red']].map(event => <div key={event[0]} className="flex gap-3 rounded-lg bg-secondary p-3 text-xs"><span className={`mt-1 h-2 w-2 shrink-0 rounded-full bg-${event[3]}-400 shadow-[0_0_9px_currentColor]`} /><div><strong className="text-foreground">{event[0]}</strong><p className="mt-1 text-[var(--muted-foreground)]">{event[1]}</p><time className="mt-2 block text-[var(--muted-foreground)]">{event[2]}</time></div></div>)}</div>}</section>
       </div></section>
-    {modalOpen && <div className="fixed inset-0 z-50 grid place-items-center bg-primary/70 p-5 backdrop-blur-sm"><section role="dialog" aria-modal="true" aria-labelledby="refund-title" className="w-full max-w-md rounded-2xl border border-[var(--muted-foreground)] bg-[var(--card)] p-6 shadow-[0_0_35px_rgba(0,0,0,.2)]"><div className="flex items-start justify-between"><div><h2 id="refund-title" className="text-xl font-extrabold tracking-tight text-foreground">Confirm Refund</h2><p className="mt-1 text-xs text-[var(--muted-foreground)]">Review the refund details before continuing.</p></div><button onClick={() => setModalOpen(false)} aria-label="Close modal" className="text-[var(--muted-foreground)] hover:text-foreground"><X className="h-5 w-5" /></button></div><dl className="mt-5 grid grid-cols-2 gap-4 rounded-xl border border-[var(--muted-foreground)] bg-[var(--background)] p-4 text-xs"><div><dt className="text-[var(--muted-foreground)]">Order</dt><dd className="mt-1 font-bold text-foreground">#ORD-10482</dd></div><div><dt className="text-[var(--muted-foreground)]">Customer</dt><dd className="mt-1 font-bold text-foreground">John Smith</dd></div><div><dt className="text-[var(--muted-foreground)]">Amount</dt><dd className="mt-1 font-bold text-foreground">€129.00</dd></div><div><dt className="text-[var(--muted-foreground)]">Method</dt><dd className="mt-1 text-[var(--foreground)]">Original Payment</dd></div><div><dt className="text-[var(--muted-foreground)]">Store</dt><dd className="mt-1 text-[var(--foreground)]">Lulu Store</dd></div><div><dt className="text-[var(--muted-foreground)]">Products</dt><dd className="mt-1 text-[var(--foreground)]">2 items</dd></div></dl><div className="mt-4 flex gap-3 rounded-lg border border-border/20 bg-secondary/10 p-3 text-xs leading-5 text-foreground"><AlertCircle className="h-4 w-4 shrink-0" />This action will initiate a refund of €129.00. This cannot be undone.</div><div className="mt-6 flex justify-end gap-2"><button onClick={() => setModalOpen(false)} className="rounded-lg border border-[var(--muted-foreground)] px-4 py-2.5 text-xs font-bold text-[var(--muted-foreground)]">Cancel</button><button onClick={() => {
+    {modalOpen && <div className="fixed inset-0 z-50 grid place-items-center bg-primary/70 p-5 backdrop-blur-sm"><section role="dialog" aria-modal="true" aria-labelledby="refund-title" className="w-full max-w-md rounded-2xl border border-[var(--muted-foreground)] bg-[var(--card)] p-6 shadow-[0_0_35px_rgba(0,0,0,.2)]"><div className="flex items-start justify-between"><div><h2 id="refund-title" className="text-xl font-extrabold tracking-tight text-foreground">Confirm Refund</h2><p className="mt-1 text-xs text-[var(--muted-foreground)]">Review the refund details before continuing.</p></div><button onClick={() => setModalOpen(false)} aria-label="Close modal" className="text-[var(--muted-foreground)] hover:text-foreground"><X className="h-5 w-5" /></button></div><dl className="mt-5 grid grid-cols-2 gap-4 rounded-xl border border-[var(--muted-foreground)] bg-[var(--background)] p-4 text-xs"><div><dt className="text-[var(--muted-foreground)]">Order</dt><dd className="mt-1 font-bold text-foreground">#ORD-10482</dd></div><div><dt className="text-[var(--muted-foreground)]">Customer</dt><dd className="mt-1 font-bold text-foreground">John Smith</dd></div><div><dt className="text-[var(--muted-foreground)]">Amount</dt><dd className="mt-1 font-bold text-foreground">€129.00</dd></div><div><dt className="text-[var(--muted-foreground)]">Method</dt><dd className="mt-1 text-[var(--foreground)]">Original Payment</dd></div><div><dt className="text-[var(--muted-foreground)]">Store</dt><dd className="mt-1 text-[var(--foreground)]">Connected store</dd></div><div><dt className="text-[var(--muted-foreground)]">Products</dt><dd className="mt-1 text-[var(--foreground)]">2 items</dd></div></dl><div className="mt-4 flex gap-3 rounded-lg border border-border/20 bg-secondary/10 p-3 text-xs leading-5 text-foreground"><AlertCircle className="h-4 w-4 shrink-0" />This action will initiate a refund of €129.00. This cannot be undone.</div><div className="mt-6 flex justify-end gap-2"><button onClick={() => setModalOpen(false)} className="rounded-lg border border-[var(--muted-foreground)] px-4 py-2.5 text-xs font-bold text-[var(--muted-foreground)]">Cancel</button><button onClick={() => {
             setModalOpen(false);
             showToast('Refund confirmed for €129.00');
           }} className="rounded-lg bg-destructive px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-[0_0_18px_rgba(0,0,0,.35)]">Confirm Refund</button></div></section></div>}

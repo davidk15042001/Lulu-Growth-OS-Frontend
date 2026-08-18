@@ -57,33 +57,9 @@ const platforms: Platform[] = [{
   note: 'AI inferred',
   selected: false
 }];
-const audiences: Audience[] = [{
-  title: 'High-Intent Website Visitors',
-  type: 'Retargeting',
-  platform: 'Meta Ads',
-  size: '~12,400',
-  reason: 'Visited /pricing or /demo pages, did not convert. Last 30 days.',
-  role: 'Bottom-funnel conversion',
-  confidence: 'High'
-}, {
-  title: 'CRM Lookalike — Top Customers',
-  type: 'Lookalike',
-  platform: 'Meta Ads + Google Ads',
-  size: '~890,000',
-  reason: '1% lookalike of 340 top customers from CRM. Strong income and firmographic match.',
-  role: 'Prospecting',
-  confidence: 'High'
-}, {
-  title: 'Enterprise Decision-Makers — DACH',
-  type: 'Interest + Demographic',
-  platform: 'LinkedIn Ads',
-  size: '~67,000',
-  reason: 'Operations/Finance/Tech titles, company size 50–500, DACH geo.',
-  role: 'Awareness + Lead Gen',
-  confidence: 'Medium'
-}];
+const audiences: Audience[] = [];
 const briefFields = [['Objective', 'Generate qualified leads for consulting business'], ['Business Goal', 'Increase MQL volume by 40% in Q1'], ['Target Market', 'Enterprise B2B, 50–500 employees'], ['Audience', 'Decision-makers in operations, finance, technology'], ['Geography', 'Germany, Austria, Switzerland'], ['Language', 'German, English'], ['Offer', 'Free AI Business Audit consultation'], ['Budget', '€5,000/month'], ['Expected Outcome', '80–120 qualified leads/month'], ['Primary Tracking', 'Lead form submission'], ['Recommended Platforms', 'Google Ads (Primary), Meta Ads (Secondary)']];
-const strategyItems = [['Platform Strategy', 'Google Ads for high-intent search, Meta for retargeting and awareness. Estimated 70/30 budget split.'], ['Audience Strategy', 'Prospecting via intent keywords + lookalike audiences from CRM. Retarget site visitors 30 days.'], ['Budget Strategy', 'Front-load first 2 weeks for learning phase. Daily cap €167. Increase after 50 conversions.'], ['Creative Strategy', '3 messaging angles: Efficiency, Growth, Data Intelligence. A/B test headlines.'], ['Conversion Strategy', 'Primary: Lead form. Secondary: Demo booking. Attribution: 30-day click, 1-day view.'], ['Measurement Strategy', 'ROAS, CPL, MQL rate tracked weekly. AI anomaly detection enabled.']];
+const strategyItems = [['Platform Strategy', 'Google Ads for high-intent search, Meta for retargeting and awareness. Estimated 70/30 budget split.'], ['Audience Strategy', 'Prospecting via intent keywords + lookalike audiences from CRM. Retarget site visitors 30 days.'], ['Budget Strategy', 'Front-load first 2 weeks for learning phase. Daily cap €167. Increase after 50 conversions.'], ['Creative Strategy', '3 messaging angles: Efficiency, Growth, Data Intelligence. A/B test headlines.'], ['Conversion Strategy', 'Primary: Lead form. Secondary: Workspace booking. Attribution: 30-day click, 1-day view.'], ['Measurement Strategy', 'ROAS, CPL, MQL rate tracked weekly. AI anomaly detection enabled.']];
 const AIBadge = ({
   children = 'AI Generated'
 }: {

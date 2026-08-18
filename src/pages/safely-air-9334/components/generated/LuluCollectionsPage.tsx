@@ -21,147 +21,13 @@ type Attention = {
   action: string;
 };
 const navItems = ['Overview', 'Stores', 'Products', 'Collections', 'Categories', 'Orders', 'Customers', 'Carts', 'Abandoned Carts', 'Returns', 'Shipping', 'Inventory', 'Reviews', 'Discounts & Promotions', 'Analytics', 'Settings'];
-const stores = ['Lulu Store', 'Brand Store', 'International Store'];
+const stores: string[] = [];
 const tabs = ['Basic Info', 'Products', 'Rules', 'Media', 'SEO', 'Visibility'];
-const collections: Collection[] = [{
-  id: 'c1',
-  name: 'Summer Collection',
-  type: 'Manual',
-  store: 'Lulu Store',
-  products: 24,
-  visibility: 'Online Store',
-  status: 'Published',
-  updated: '10 Aug',
-  sync: 'Synced',
-  handle: '#summer-collection'
-}, {
-  id: 'c2',
-  name: 'New Arrivals',
-  type: 'Automated',
-  store: 'Brand Store',
-  products: 67,
-  visibility: 'Online Store',
-  status: 'Published',
-  updated: '9 Aug',
-  sync: 'Synced',
-  handle: '#new-arrivals'
-}, {
-  id: 'c3',
-  name: 'Flash Sale',
-  type: 'Manual',
-  store: 'All Stores',
-  products: 0,
-  visibility: 'Hidden',
-  status: 'Draft',
-  updated: '8 Aug',
-  sync: 'Syncing',
-  handle: '#flash-sale'
-}, {
-  id: 'c4',
-  name: 'Best Sellers',
-  type: 'Automated',
-  store: 'Lulu Store',
-  products: 142,
-  visibility: 'Online Store',
-  status: 'Published',
-  updated: '7 Aug',
-  sync: 'Synced',
-  handle: '#best-sellers'
-}, {
-  id: 'c5',
-  name: 'Clearance Items',
-  type: 'Manual',
-  store: 'International Store',
-  products: 18,
-  visibility: 'Online Store',
-  status: 'Published',
-  updated: '6 Aug',
-  sync: 'Failed',
-  handle: '#clearance-items'
-}, {
-  id: 'c6',
-  name: 'Spring Collection',
-  type: 'Manual',
-  store: 'Brand Store',
-  products: 31,
-  visibility: 'Online Store',
-  status: 'Published',
-  updated: '5 Aug',
-  sync: 'Synced',
-  handle: '#spring-collection'
-}, {
-  id: 'c7',
-  name: 'Winter Essentials',
-  type: 'Automated',
-  store: 'Lulu Store',
-  products: 89,
-  visibility: 'Hidden',
-  status: 'Draft',
-  updated: '4 Aug',
-  sync: 'Delayed',
-  handle: '#winter-essentials'
-}, {
-  id: 'c8',
-  name: 'VIP Members Only',
-  type: 'Platform',
-  store: 'Brand Store',
-  products: 12,
-  visibility: 'Hidden',
-  status: 'Published',
-  updated: '3 Aug',
-  sync: 'Synced',
-  handle: '#vip-members-only'
-}, {
-  id: 'c9',
-  name: 'Accessories Bundle',
-  type: 'Manual',
-  store: 'All Stores',
-  products: 5,
-  visibility: 'Online Store',
-  status: 'Draft',
-  updated: '2 Aug',
-  sync: 'Synced',
-  handle: 'var(--muted-foreground)ssories-bundle'
-}, {
-  id: 'c10',
-  name: 'Limited Edition',
-  type: 'Unknown',
-  store: 'International Store',
-  products: 0,
-  visibility: 'Unknown',
-  status: 'Unknown',
-  updated: '1 Aug',
-  sync: 'Failed',
-  handle: '#limited-edition'
-}];
-const attention: Attention[] = [{
-  name: 'Summer Essentials',
-  issue: 'Missing SEO metadata',
-  severity: 'Medium',
-  store: 'Lulu Store',
-  action: 'Edit'
-}, {
-  name: 'Flash Sale',
-  issue: 'Empty collection — no products',
-  severity: 'High',
-  store: 'Brand Store',
-  action: 'Add Products'
-}, {
-  name: 'Winter Clearance',
-  issue: 'Sync failed — rule mismatch',
-  severity: 'High',
-  store: 'International Store',
-  action: 'View Details'
-}, {
-  name: 'Spring Collection',
-  issue: 'Duplicate name across stores',
-  severity: 'Medium',
-  store: 'All Stores',
-  action: 'Review'
-}];
-const activities = [['📝', 'Collection updated', 'Summer Collection description edited', 'Admin · 1h ago', 'Lulu Store'], ['➕', 'Collection created', 'Holiday Gift Guide', 'Admin · 3h ago', 'Brand Store'], ['✅', 'Collection published', 'Spring Collection — Draft → Published', 'Admin · 5h ago', 'Brand Store'], ['🚫', 'Collection unpublished', 'Flash Sale', 'Admin · 8h ago', 'All Stores'], ['🔄', 'Sync completed', '1,284 collections synchronized', 'System · 1d ago', 'All Stores'], ['⚠️', 'Sync failed', 'Winter Clearance — rule mismatch', 'System · 1d ago', 'International Store'], ['📦', 'Product added', '12 products added to Best Sellers', 'Admin · 2d ago', 'Lulu Store'], ['🗑️', 'Product removed', '3 products removed from Clearance Items', 'Admin · 2d ago', 'International Store']];
-const health = [['Collection Synchronization', 'Attention Required', '2 stores with sync issues', 'amber'], ['Product Membership Sync', 'Healthy', 'All product assignments synchronized', 'teal'], ['Collection Rules', 'Critical', '4 automated collection rules require review', 'red'], ['Media Synchronization', 'Healthy', 'Collection images synchronized', 'teal'], ['Visibility Synchronization', 'Healthy', 'Visibility consistent across stores', 'teal'], ['SEO Metadata', 'Attention Required', '203 collections missing SEO metadata', 'amber'], ['Platform Connectivity', 'Healthy', 'All 3 platforms connected', 'teal']];
-const summary = [['Total Collections', '1,284', 'neutral'], ['Active', '1,041', 'green'], ['Draft', '143', 'blue'], ['Automated', '387', 'purple'], ['Manual', '754', 'blue'], ['Empty', '67', 'amber'], ['Attention Required', '38', 'red']];
+const collections: Collection[] = [];
+const attention: Attention[] = [];
+const activities: any[][] = [];
+const health: any[][] = [];
+const summary: any[][] = [];
 export function LuluCollectionsPage() {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
@@ -181,7 +47,7 @@ export function LuluCollectionsPage() {
       {showFilters ? <div className="mb-5 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-secondary/60 p-4 text-sm"><strong className="text-foreground">Filter collections</strong><span className="filter-pill">Store: All Stores <X className="h-3 w-3" /></span><button className="text-foreground underline underline-offset-4">Clear all</button></div> : null}
       <section className="mb-7 grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-7">{summary.map(item => <button key={item[0]} onClick={() => setActiveSummary(item[0])} className={`summary-card ${activeSummary === item[0] ? 'summary-active' : ''}`}><span className={`summary-icon ${item[2]}`}>{item[0] === 'Total Collections' ? <Layers3 className="h-4 w-4" /> : item[0] === 'Active' ? <CircleCheck className="h-4 w-4" /> : item[0] === 'Draft' ? <FileImage className="h-4 w-4" /> : item[0] === 'Automated' ? <Zap className="h-4 w-4" /> : item[0] === 'Manual' ? <Hand className="h-4 w-4" /> : item[0] === 'Empty' ? <Inbox className="h-4 w-4" /> : <AlertCircle className="h-4 w-4" />}</span><span className="text-left"><span className="block text-xs font-medium text-muted-foreground">{item[0]}</span><strong className="mt-1 block text-xl tracking-tight text-foreground">{item[1]}</strong></span></button>)}</section>
       <section className="panel mb-7"><header className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="section-title">Collection Data Quality <span className="ai-badge">AI Generated</span></h2><p className="mt-1 text-sm text-muted-foreground">A quick view of the information quality across your collection catalog.</p></div><span className="severity medium">Attention Required</span></header><div className="mt-5 grid gap-x-8 gap-y-4 md:grid-cols-3">{[['Collections with descriptions', '1,147 (92%)', 'Healthy', 'teal'], ['Collections missing descriptions', '94 (8%)', 'Attention', 'amber'], ['Collections missing images', '61', 'Attention', 'amber'], ['Collections missing SEO metadata', '203 (16%)', 'Attention', 'amber'], ['Empty collections', '67', 'Attention', 'amber'], ['Invalid collection rules', '4', 'Critical', 'red'], ['Synchronization issues', '6', 'Critical', 'red'], ['Duplicate names', '11', 'Attention', 'amber']].map(item => <div key={item[0]} className="flex items-start gap-2"><span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-${item[3]}-500`} /><div><p className="text-sm font-semibold text-foreground">{item[0]}</p><p className="mt-1 text-sm text-muted-foreground">{item[1]} · <span className={item[3] === 'teal' ? 'text-foreground' : item[3] === 'red' ? 'text-chart-5' : 'text-foreground'}>{item[2]}</span></p></div></div>)}</div></section>
-      <section className="panel mb-7 border-l-4 border-l-border"><header><h2 className="section-title">AI Insight <span className="ai-badge">AI Generated</span></h2><p className="mt-2 text-sm text-muted-foreground">38 collections contain incomplete descriptions, missing SEO metadata, or synchronization issues and may require review.</p></header><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[650px] text-left text-sm"><thead className="border-y border-border text-[11px] uppercase tracking-wider text-muted-foreground"><tr><th className="py-3">Collection</th><th>Store</th><th>Missing Field</th><th>Last Updated</th></tr></thead><tbody className="divide-y divide-border">{[['Summer Essentials', 'Lulu Store', 'SEO metadata', '15 Aug'], ['New Arrivals', 'Brand Store', 'Description', '12 Aug'], ['Clearance', 'International Store', 'Image + Description', '8 Aug'], ['Best Sellers', 'All Stores', 'SEO title', '5 Aug']].map(row => <tr key={row[0]}><td className="py-3 font-semibold">{row[0]}</td><td>{row[1]}</td><td className="text-foreground">{row[2]}</td><td className="text-muted-foreground">{row[3]}</td></tr>)}</tbody></table></div><p className="mt-3 text-xs text-muted-foreground">AI-generated · Not a performance claim</p></section>
+      <section className="panel mb-7 border-l-4 border-l-border"><header><h2 className="section-title">AI Insight <span className="ai-badge">AI Generated</span></h2><p className="mt-2 text-sm text-muted-foreground">38 collections contain incomplete descriptions, missing SEO metadata, or synchronization issues and may require review.</p></header><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[650px] text-left text-sm"><thead className="border-y border-border text-[11px] uppercase tracking-wider text-muted-foreground"><tr><th className="py-3">Collection</th><th>Store</th><th>Missing Field</th><th>Last Updated</th></tr></thead><tbody className="divide-y divide-border">{[['Summer Essentials', 'Connected store', 'SEO metadata', '15 Aug'], ['New Arrivals', 'Brand Store', 'Description', '12 Aug'], ['Clearance', 'International Store', 'Image + Description', '8 Aug'], ['Best Sellers', 'All Stores', 'SEO title', '5 Aug']].map(row => <tr key={row[0]}><td className="py-3 font-semibold">{row[0]}</td><td>{row[1]}</td><td className="text-foreground">{row[2]}</td><td className="text-muted-foreground">{row[3]}</td></tr>)}</tbody></table></div><p className="mt-3 text-xs text-muted-foreground">AI-generated · Not a performance claim</p></section>
       <section className="panel mb-7 border-l-4 border-l-chart-1"><header className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="section-title">Collections Requiring Attention <span className="count-badge amber">38</span></h2><p className="mt-1 text-sm text-muted-foreground">Resolve collection information and synchronization issues before they impact your store.</p></div><button className="text-sm font-semibold text-foreground">View All <ChevronRight className="inline h-4 w-4" /></button></header><div className="mt-5 divide-y divide-border">{attention.map(item => <div key={item.name} className="grid items-center gap-3 py-3 md:grid-cols-[minmax(180px,1.2fr)_minmax(180px,1.5fr)_80px_150px_120px]"><strong className="text-sm">{item.name}</strong><span className="text-sm text-muted-foreground">{item.issue}</span><span className={`severity ${item.severity.toLowerCase()}`}>{item.severity}</span><span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"><Store className="h-3 w-3 text-foreground" />{item.store}</span><button className="secondary-btn text-xs">{item.action}</button></div>)}</div><button className="mt-3 w-full rounded-md border border-border py-2.5 text-sm font-semibold text-foreground hover:bg-card">View All 38 Collections Requiring Attention</button></section>
       <section className="panel mb-7"><header className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="section-title">Collections <span className="text-sm font-normal text-muted-foreground">1,284 collections</span></h2><div className="mt-3 flex items-center gap-2"><span className="filter-pill">Status: Active <X className="h-3 w-3" /></span><button className="text-sm font-semibold text-foreground">+ Add Filter</button></div></div><button className="text-sm font-semibold text-foreground">Manage columns</button></header><div className="mt-5 overflow-x-auto"><table className="w-full min-w-[1100px] border-collapse text-left"><thead><tr className="border-y border-border text-[11px] uppercase tracking-wider text-muted-foreground"><th className="w-10 py-3"><input aria-label="Select all visible collections" type="checkbox" checked={selected.length === filtered.length && filtered.length > 0} onChange={toggleAll} /></th><th>Collection</th><th>Type</th><th>Store</th><th>Products</th><th>Visibility</th><th>Status</th><th>Updated</th><th>Sync Status</th><th>Actions</th></tr></thead><tbody className="divide-y divide-border">{filtered.map(c => <tr key={c.id} className="group hover:bg-secondary/30"><td className="py-3"><input aria-label={`Select ${c.name}`} type="checkbox" checked={selected.includes(c.id)} onChange={() => setSelected(selected.includes(c.id) ? selected.filter(id => id !== c.id) : [...selected, c.id])} /></td><td className="py-3"><div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-lg bg-secondary text-foreground"><Layers3 className="h-4 w-4" /></span><div><strong className="block whitespace-nowrap text-sm text-foreground">{c.name}</strong><span className="text-xs text-muted-foreground">{c.handle}</span></div></div></td><td><span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${c.type === 'Manual' ? 'bg-secondary text-foreground' : c.type === 'Automated' ? 'bg-secondary text-foreground' : c.type === 'Platform' ? 'bg-secondary text-muted-foreground' : 'bg-secondary text-muted-foreground'}`}>{c.type}</span></td><td><span className="inline-flex max-w-[145px] items-center gap-1.5 truncate rounded-full border border-border px-2.5 py-1 text-xs font-medium text-muted-foreground"><Store className="h-3 w-3 text-foreground" />{c.store}</span></td><td className="text-sm"><strong>{c.products}</strong> products {c.products === 0 ? <AlertCircle className="inline h-3.5 w-3.5 text-foreground" aria-label="Empty collection" /> : null}</td><td className="text-sm text-muted-foreground">{c.visibility}</td><td>{c.status === 'Published' ? <span className="status healthy"><CircleCheck className="h-3.5 w-3.5" />Published</span> : c.status === 'Draft' ? <span className="status draft"><Clock3 className="h-3.5 w-3.5" />Draft</span> : <span className="text-sm text-muted-foreground">Unknown</span>}</td><td className="text-xs text-muted-foreground">{c.updated}</td><td>{c.sync === 'Synced' ? <span className="status healthy"><CircleCheck className="h-3.5 w-3.5" />Synced</span> : c.sync === 'Syncing' ? <span className="status draft"><RefreshCw className="h-3.5 w-3.5" />Syncing</span> : c.sync === 'Delayed' ? <span className="status attention"><AlertCircle className="h-3.5 w-3.5" />Delayed</span> : <span className="status critical"><CircleX className="h-3.5 w-3.5" />Failed</span>}</td><td><div className="flex items-center gap-1"><button className="row-action">Open</button><button className="row-action">Edit</button><button aria-label={`More actions for ${c.name}`} className="icon-btn h-8 w-8"><MoreHorizontal className="h-4 w-4" /></button></div></td></tr>)}</tbody></table></div><footer className="mt-5 flex items-center justify-between border-t border-border pt-4 text-sm text-muted-foreground"><span>Showing 1–10 of 1,284 collections</span><div className="flex gap-2"><button aria-label="Previous page" className="icon-btn"><ArrowLeft className="h-4 w-4" /></button><button aria-label="Next page" className="icon-btn"><ArrowRight className="h-4 w-4" /></button></div></footer></section>
       <div className="grid gap-7 xl:grid-cols-[1.35fr_1fr]"><section className="panel"><header className="flex items-center justify-between"><h2 className="section-title">Collection Activity</h2><button className="text-sm font-semibold text-foreground">View All Activity</button></header><div className="mt-4 divide-y divide-border">{activities.map(item => <div key={item[1]} className="flex gap-3 py-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-secondary text-sm">{item[0]}</span><div><p className="text-sm"><strong>{item[1]}</strong> <span className="text-muted-foreground">— {item[2]}</span></p><p className="mt-1 text-xs text-muted-foreground">{item[3]} · {item[4]}</p></div></div>)}</div></section><section className="panel"><header className="flex flex-wrap items-center justify-between gap-2"><h2 className="section-title">Collection Operations Health</h2><span className="severity high">⚠ Attention Required</span></header><div className="mt-4 divide-y divide-border">{health.map(item => <div key={item[0]} className="flex items-start gap-3 py-3"><span className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-${item[3]}-500`} /><div><p className="text-sm font-semibold">{item[0]} <span className={item[3] === 'teal' ? 'text-foreground' : item[3] === 'red' ? 'text-chart-5' : 'text-foreground'}>· {item[1]}</span></p><p className="mt-1 text-xs text-muted-foreground">{item[2]}</p></div></div>)}</div><h3 className="mt-5 border-t border-border pt-5 text-sm font-bold">Collection Synchronization</h3>{stores.map((store, i) => <div key={store} className="mt-3 rounded-md bg-card p-3"><div className="flex items-center justify-between gap-2"><strong className="text-sm">{store}</strong><span className={i === 2 ? 'status critical' : i === 1 ? 'status draft' : 'status healthy'}>{i === 2 ? 'Failed' : i === 1 ? 'Syncing' : 'Synced'}</span></div><p className="mt-1 text-xs text-muted-foreground">{i === 0 ? 'Last sync: 2 min ago · 847 collections · 0 failed' : i === 1 ? 'Last sync: 14 min ago · 312 collections · 0 failed' : 'Last sync: 2h ago · 125 collections · 2 failed'}</p><div className="mt-2 flex gap-3"><button className="row-action">View Details</button><button className="row-action">Retry Sync</button></div></div>)}</section></div>

@@ -4,95 +4,14 @@ import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Modal = 'rec-detail' | 'action' | 'task' | 'run-analysis' | 'analysis-complete' | 'export' | null;
 type PageState = 'main' | 'empty' | 'limited' | 'no-recs' | 'loading' | 'error' | 'permission';
 const navItems = ['Dashboard', 'Campaigns', 'Content', 'SEO', 'GEO', 'AEO', 'Social', 'Advertising', 'Audiences', 'Automations', 'Analytics'];
-const priorities = [{
-  level: 'HIGH',
-  title: 'Review Rising CPA — LinkedIn Ads',
-  area: 'Budget + Audience',
-  evidence: 'LinkedIn Ads CPA has increased 18% over the previous 14-day period, from €42 to €49.60. Audience frequency is elevated.',
-  impact: 'High',
-  confidence: '84%',
-  updated: '2h ago'
-}, {
-  level: 'HIGH',
-  title: 'Budget Exhaustion Risk — Summer Campaign',
-  area: 'Budget',
-  evidence: 'Summer Product Launch (Google Ads) is at 78% budget utilization with 8 days remaining. Current pace may exhaust the budget before period end.',
-  impact: 'High',
-  confidence: '91%',
-  updated: '14 min ago'
-}, {
-  level: 'MEDIUM',
-  title: 'Underspending — LinkedIn & TikTok Ads',
-  area: 'Budget',
-  evidence: 'LinkedIn Ads and TikTok Ads are collectively €6,340 below expected pacing. Consider reallocation or campaign delivery review.',
-  impact: 'Medium',
-  confidence: '78%',
-  updated: '14 min ago'
-}];
-const opportunities = [{
-  category: 'Campaign Scaling',
-  title: 'Scale Summer Product Launch — Google Ads',
-  evidence: 'CTR 2.41%, ROAS 3.82x, both above platform benchmarks. Creative is not showing fatigue signals.',
-  meta: 'Summer Product Launch · Google Ads',
-  impact: 'High',
-  confidence: '88%',
-  source: 'Observed',
-  tone: 'blue'
-}, {
-  category: 'Budget Allocation',
-  title: 'Reallocate LinkedIn Ads underspend to Meta Ads',
-  evidence: 'LinkedIn Ads €4,720 remaining, underdelivering. Meta Ads showing 4.1x ROAS with remaining capacity.',
-  meta: 'LinkedIn Ads → Meta Ads',
-  impact: 'High',
-  confidence: '82%',
-  source: 'AI Inferred',
-  tone: 'indigo'
-}, {
-  category: 'Creative Testing',
-  title: 'Test video creative variant for Brand Awareness Drive',
-  evidence: 'Video format outperforms image by avg 18% CTR on Meta Ads. Current creative is image-only.',
-  meta: 'Brand Awareness Drive · Meta Ads',
-  impact: 'Medium',
-  confidence: '74%',
-  source: 'AI Inferred',
-  tone: 'purple'
-}, {
-  category: 'Audience Expansion',
-  title: 'Expand 25–34 audience segment — Google Ads',
-  evidence: '25–34 demographic converting 31% above avg CPA in Summer Product Launch. Audience headroom available.',
-  meta: 'Summer Product Launch · Google Ads',
-  impact: 'Medium',
-  confidence: '79%',
-  source: 'Observed',
-  tone: 'teal'
-}];
-const risks = [{
-  level: 'HIGH',
-  title: 'Budget exhaustion before period end — Summer Product Launch',
-  meta: 'Google Ads · Summer Product Launch',
-  evidence: '78% utilized, day 22 of 30. Current pace: €648/day. Estimated exhaustion: Jun 29.',
-  time: 'Updated 14 min ago',
-  source: 'Observed'
-}, {
-  level: 'HIGH',
-  title: 'Rising CPA reducing campaign efficiency — LinkedIn Ads',
-  meta: 'LinkedIn Ads · Q3 Lead Generation',
-  evidence: 'CPA increased from €42.00 to €49.60 (+18%) over past 14 days. Conversion rate declining.',
-  time: 'Updated 2h ago',
-  source: 'Observed'
-}, {
-  level: 'MEDIUM',
-  title: 'Potential creative fatigue — TikTok UGC Launch',
-  meta: 'TikTok Ads · TikTok UGC Launch',
-  evidence: 'CTR declined 14% over 10 days. Frequency increasing. Possible creative fatigue signal.',
-  time: 'Updated 6h ago',
-  source: 'AI Detected'
-}];
-const breakdown = [['Performance', 84, 'good'], ['Efficiency', 76, 'good'], ['Budget', 71, 'warn'], ['Audience', 68, 'warn'], ['Creative', 72, 'good'], ['Platform', 80, 'good']];
+const priorities: Array<Record<string, any>> = [];
+const opportunities: Array<Record<string, any>> = [];
+const risks: Array<Record<string, any>> = [];
+const breakdown: any[][] = [];
 const platforms = [['Google Ads', '€14,240', '€54,397', '3.82x', '€26.20', '543', 'Strong'], ['Meta Ads', '€10,260', '€42,066', '4.10x', '€24.40', '420', 'Strong'], ['LinkedIn Ads', '€5,280', '€14,784', '2.80x', '€49.60', '106', 'Declining'], ['TikTok Ads', '€1,380', '€2,898', '2.10x', '€34.50', '40', 'Weak']];
-const campaigns = [['Q3 Lead Generation', 'LinkedIn Ads', 'Rising CPA', 'CPA +18% last 14d', 'Review audience targeting', 'High'], ['TikTok UGC Launch', 'TikTok Ads', 'Underspending', '46% utilized, day 22', 'Review delivery settings', 'Medium'], ['Summer Product Launch', 'Google Ads', 'Budget risk', '78% used, 8d remain', 'Monitor daily spend', 'High'], ['Brand Awareness Drive', 'Meta Ads', 'Creative test opportunity', 'Video outperforms image 18%', 'Test video variant', 'Medium'], ['New Market Expansion', 'Meta Ads', 'Stable', 'No issues detected', 'Continue monitoring', 'Low']];
+const campaigns: any[][] = [];
 const questions = ['Why is CPA increasing on LinkedIn?', 'Which campaign should I optimize first?', 'Where should I move budget?', 'Which creative should I scale?', 'What is causing TikTok underdelivery?', 'What are my biggest risks?'];
-const roasData: Array<[string, number]> = [['Google Ads', 3.82], ['Meta Ads', 4.1], ['LinkedIn Ads', 2.8], ['TikTok Ads', 2.1]];
+const roasData: Array<[string, number]> = [];
 const Button = ({
   children,
   primary = false,

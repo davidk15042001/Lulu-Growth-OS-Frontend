@@ -18,105 +18,9 @@ const nav = [{
   g: 'SETTINGS',
   i: [['Settings', Settings]]
 }];
-const competitors = [{
-  n: 'HubSpot',
-  l: 'H',
-  c: 'var(--foreground)',
-  type: 'Direct',
-  market: 'Germany · Global',
-  pos: 'Stronger',
-  growth: '+18.4%',
-  vis: 'High',
-  pri: 'Critical',
-  intel: 'Full',
-  when: 'Today'
-}, {
-  n: 'Salesforce',
-  l: 'S',
-  c: 'var(--primary)',
-  type: 'Direct',
-  market: 'Germany · Global',
-  pos: 'Stronger',
-  growth: '+8.2%',
-  vis: 'High',
-  pri: 'Critical',
-  intel: 'Full',
-  when: 'Today'
-}, {
-  n: 'Pipedrive',
-  l: 'P',
-  c: 'var(--foreground)',
-  type: 'Direct',
-  market: 'Germany · Austria',
-  pos: 'Similar',
-  growth: '+4.8%',
-  vis: 'Medium',
-  pri: 'High',
-  intel: 'Partial',
-  when: '2d ago'
-}, {
-  n: 'Monday.com',
-  l: 'M',
-  c: 'var(--primary)',
-  type: 'Indirect',
-  market: 'Germany',
-  pos: 'Similar',
-  growth: '+12.1%',
-  vis: 'Medium',
-  pri: 'High',
-  intel: 'Partial',
-  when: '1d ago'
-}, {
-  n: 'Zoho',
-  l: 'Z',
-  c: 'var(--primary)',
-  type: 'Direct',
-  market: 'Germany · India',
-  pos: 'Weaker',
-  growth: '+2.4%',
-  vis: 'Low',
-  pri: 'Medium',
-  intel: 'Limited',
-  when: '3d ago'
-}, {
-  n: 'Freshworks',
-  l: 'F',
-  c: 'var(--chart-5)',
-  type: 'Direct',
-  market: 'Germany',
-  pos: 'Weaker',
-  growth: '-1.2%',
-  vis: 'Low',
-  pri: 'Medium',
-  intel: 'Partial',
-  when: '4d ago'
-}, {
-  n: 'Notion',
-  l: 'N',
-  c: 'var(--foreground)',
-  type: 'Indirect',
-  market: 'Global',
-  pos: 'Similar',
-  growth: '+22.8%',
-  vis: 'High',
-  pri: 'Low',
-  intel: 'Limited',
-  when: '5d ago'
-}, {
-  n: 'Airtable',
-  l: 'A',
-  c: 'var(--primary)',
-  type: 'Indirect',
-  market: 'Global',
-  pos: 'Weaker',
-  growth: '+6.4%',
-  vis: 'Medium',
-  pri: 'Low',
-  intel: 'Limited',
-  when: '7d ago'
-}];
-const kpis = [['Tracked Competitors', '14', '+2 this month', 'Users'], ['Primary Competitors', '6', 'Direct market set', 'Target'], ['Gaining Momentum', '3', 'Watch closely', 'TrendingUp'], ['Market Opportunities', '18', 'AI identified', 'Sparkles'], ['Competitive Risks', '7', 'Requires attention', 'AlertTriangle'], ['Updated Today', '9', 'Fresh intelligence', 'RefreshCw']];
-const movements = ['Website positioning update · HubSpot', 'Search visibility increased +22% · HubSpot', 'New content category · HubSpot', 'Market signal in DACH region · Salesforce', 'Advertising activity change · HubSpot'];
+const competitors: Array<Record<string, any>> = [];
+const kpis: any[][] = [];
+const movements: string[] = [];
 const insights = ['HubSpot gaining visibility in DACH enterprise segment — your core strategic market.', 'Salesforce AI product messaging overlaps your primary positioning.', 'Your strongest differentiation is a unified AI operating system; competitors focus on point solutions.', 'AI business intelligence has limited competitor content coverage — a content acquisition opportunity.'];
 const actions = ['Strengthen enterprise positioning to create distance from HubSpot SMB focus.', 'Develop content for the AI business intelligence topic cluster.', 'Review growing Salesforce AI feature overlap and assess strategic response.', 'Increase GEO and AEO coverage for queries where competitors are more visible.'];
 const Pill = ({
@@ -158,7 +62,7 @@ export const LuluCompetitors = () => {
                 }} /></div></div>)}</article><article className="rounded-xl border bg-card p-5"><h2 className="font-bold">Competitive Scorecard</h2>{['Market Presence', 'Search Visibility', 'Content Presence', 'AI Visibility', 'Marketing Activity', 'Audience Reach', 'Revenue', 'Advertising Spend'].map(x => <div key={x} className="flex items-center justify-between border-b py-3 text-xs"><span>{x}</span><span className="font-semibold">{x === 'Revenue' || x === 'Advertising Spend' ? <span className="text-muted-foreground">Not Available</span> : <><span className="text-foreground">Your 7</span> · <span className="text-chart-5">HubSpot 8</span> · <b className="text-chart-5">-1</b></>}</span></div>)}<p className="mt-3 text-[11px] text-muted-foreground">Scores marked Not Available cannot be reliably calculated from current data.</p></article></section>
 <section className="mt-6 rounded-xl border bg-card p-5"><h2 className="text-lg font-bold">Market Positioning Comparison</h2><div className="mt-4 grid gap-4 md:grid-cols-2"><div className="border-l-2 border-[var(--border)] p-4"><Pill tone="amber">Your Business</Pill><h3 className="mt-3 font-bold">The AI Business Operating System for enterprise growth.</h3><p className="mt-2 text-xs text-muted-foreground">Target: Enterprise businesses</p><ul className="mt-4 space-y-2 text-sm"><li>AI-native platform</li><li>End-to-end automation</li><li>Unified business intelligence</li></ul></div><div className="border-l-2 border-border p-4"><Pill>HubSpot</Pill><h3 className="mt-3 font-bold">The easy-to-use CRM for growing businesses.</h3><p className="mt-2 text-xs text-muted-foreground">Target: SMB to mid-market</p><ul className="mt-4 space-y-2 text-sm"><li>Ease of use</li><li>All-in-one marketing suite</li><li>Large partner ecosystem</li></ul></div></div><div className="mt-4 rounded-xl bg-[var(--secondary)] p-5 text-foreground"><h3 className="font-bold"><Sparkles className="mr-2 inline text-[var(--foreground)]" size={16} />AI Positioning Analysis <Pill tone="amber">AI-generated</Pill></h3><div className="mt-4 grid gap-4 md:grid-cols-3">{['Positioning Overlap · CRM automation overlap, with an AI-native advantage.', 'Differentiation Opportunity · Enterprise AI OS is not replicated by HubSpot.', 'Messaging Gap · Enterprise vs SMB awareness gap.'].map((x, i) => <p key={x} className={`border-l-2 ${i === 1 ? 'border-border' : i === 2 ? 'border-border' : 'border-[var(--border)]'} pl-3 text-xs text-foreground`}>{x}</p>)}</div></div></section>
 <div className="mt-6 grid gap-4 xl:grid-cols-2"><section className="rounded-xl border bg-card p-5"><h2 className="font-bold">Marketing Strategy Comparison</h2>{[['Target Audiences', 'Enterprise Growth SME', 'SMB Mid-market RevOps'], ['Primary Channels', 'Organic Search · GEO · AEO', 'Content · Inbound · Paid · Partner'], ['Content Strategy', 'AI insights · business intelligence', 'Education · tutorials · case studies'], ['Search Strategy', 'SEO plus GEO/AEO focus', 'Heavy SEO · paid search'], ['Market Focus', 'DACH Enterprise', 'Global SMB-focused']].map(r => <div key={r[0]} className="grid grid-cols-3 border-b py-3 text-xs"><b>{r[0]}</b><span>{r[1]}</span><span className="text-muted-foreground">{r[2]}</span></div>)}<div className="mt-4 rounded-lg bg-[var(--secondary)] p-4 text-xs text-foreground"><Sparkles size={14} className="mr-2 inline text-[var(--foreground)]" />HubSpot invests significantly more in content volume. Your stronger AI search focus is defensible. <Pill tone="amber">Confidence High</Pill></div></section><section className="rounded-xl border bg-card p-5"><h2 className="font-bold">Products and Services Comparison</h2>{[['AI Business OS', '✓', '—'], ['CRM', '✓', '✓'], ['Marketing Automation', '✓', '✓'], ['AI Business Intelligence', '✓', '~'], ['Workflow Automation', '✓', '~'], ['Content Management', '~', '✓']].map(r => <div key={r[0]} className="grid grid-cols-3 border-b py-3 text-xs"><span>{r[0]}</span><b className="text-foreground">{r[1]}</b><b className={r[2] === '✓' ? 'text-foreground' : 'text-foreground'}>{r[2]}</b></div>)}<p className="mt-3 text-[11px] text-muted-foreground">Comparison based on publicly available information, AI Inferred where marked.</p></section></div>
-<section className="mt-6 rounded-xl border-t-2 border-[var(--border)] bg-card p-5"><h2 className="font-bold">Advertising Intelligence <Pill tone="amber">Limited Data</Pill></h2><p className="mt-3 rounded-lg bg-secondary p-3 text-xs text-[var(--foreground)]">Advertising intelligence is based on publicly observable signals only. Lulu AI does not access private advertising accounts or confidential competitor data.</p><div className="mt-4 grid gap-3 md:grid-cols-4">{[['Advertising Activity', 'Active', 'Observed'], ['Active Channels', 'Google Ads · LinkedIn Ads · Meta Ads', 'Observed'], ['Creative Themes', 'Product demos · customer success · free trial', 'AI Inferred'], ['Landing Page Focus', 'Free trial signups · product tours', 'Observed']].map(x => <div key={x[0]} className="rounded-lg border p-3 text-xs"><p className="text-muted-foreground">{x[0]}</p><b className="mt-2 block">{x[1]}</b><Pill tone={x[2] === 'AI Inferred' ? 'purple' : 'green'}>{x[2]}</Pill></div>)}</div></section>
+<section className="mt-6 rounded-xl border-t-2 border-[var(--border)] bg-card p-5"><h2 className="font-bold">Advertising Intelligence <Pill tone="amber">Limited Data</Pill></h2><p className="mt-3 rounded-lg bg-secondary p-3 text-xs text-[var(--foreground)]">Advertising intelligence is based on publicly observable signals only. Lulu AI does not access private advertising accounts or confidential competitor data.</p><div className="mt-4 grid gap-3 md:grid-cols-4">{[['Advertising Activity', 'Active', 'Observed'], ['Active Channels', 'Google Ads · LinkedIn Ads · Meta Ads', 'Observed'], ['Creative Themes', 'Product workspaces · customer success · free trial', 'AI Inferred'], ['Landing Page Focus', 'Free trial signups · product tours', 'Observed']].map(x => <div key={x[0]} className="rounded-lg border p-3 text-xs"><p className="text-muted-foreground">{x[0]}</p><b className="mt-2 block">{x[1]}</b><Pill tone={x[2] === 'AI Inferred' ? 'purple' : 'green'}>{x[2]}</Pill></div>)}</div></section>
 <section className="mt-6 grid gap-4 xl:grid-cols-2"><article className="rounded-xl bg-[var(--card)] p-5 text-foreground"><h2 className="font-bold"><Sparkles className="mr-2 inline text-[var(--chart-1)]" />Competitive Opportunities <Pill tone="amber">AI-generated · 18</Pill></h2>{['HubSpot weak enterprise AI positioning', 'AI business intelligence topic cluster gap', 'Pipedrive declining DACH visibility', 'GEO coverage gap in AI queries'].map((x, i) => <div key={x} className="mt-4 flex gap-3 border-b border-border pb-3"><span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 border-[var(--chart-1)] text-xs text-[var(--foreground)]">{88 - i * 6}</span><div><p className="text-sm">{x}</p><Pill tone={i === 2 ? 'green' : 'amber'}>{i === 2 ? 'Medium' : 'High'} impact</Pill><button className="ml-2 text-xs text-[var(--foreground)]">Create Task</button></div></div>)}</article><article className="rounded-xl border bg-card p-5"><h2 className="font-bold">Competitive Risks <Pill tone="red">7</Pill></h2>{['Salesforce AI features overlapping core Lulu AI positioning', 'HubSpot gaining search share on commercial keywords', 'Monday.com rapid growth creates indirect pressure', 'New competitor DACH market signals'].map((x, i) => <div key={x} className="mt-4 border-b pb-3"><Pill tone={i === 0 ? 'red' : i === 3 ? 'gray' : 'amber'}>{i === 0 ? 'Critical' : i === 3 ? 'Medium' : 'High'}</Pill><p className="mt-2 text-sm">{x}</p><button className="mt-2 text-xs text-[var(--chart-1)]">View Risk · Create Task</button></div>)}</article></section>
 <section className="mt-6 rounded-xl bg-[var(--card)] p-5 text-foreground"><div className="flex flex-wrap justify-between gap-3"><h2 className="text-lg font-bold"><Sparkles className="mr-2 inline text-[var(--chart-1)]" />Lulu AI Competitive Insights <Pill tone="amber">AI-generated</Pill></h2><span className="text-xs text-muted-foreground">Analyzed 2 hours ago</span></div><div className="mt-5 grid gap-3 md:grid-cols-2">{insights.map((x, i) => <article key={x} className={`rounded-lg border-l-4 ${i < 2 ? 'border-chart-5' : 'border-border'} bg-[var(--background)] p-4`}><p className="text-sm text-foreground">{x}</p><div className="mt-3 flex gap-2"><Pill tone={i === 1 ? 'red' : 'green'}>Impact {i === 1 ? 'Critical' : 'High'}</Pill><Pill tone="amber">Confidence High</Pill></div></article>)}</div><div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-xs text-muted-foreground"><span>Sources: Website · SEO Data · GEO Monitoring · Content Analysis</span><button className="rounded-lg bg-[var(--primary)] px-4 py-2 font-semibold text-primary-foreground">Run Full Competitive Analysis</button></div></section>
 <section className="mt-6 rounded-xl border bg-card p-5"><h2 className="text-lg font-bold"><Sparkles className="mr-2 inline text-[var(--foreground)]" />Lulu AI Recommendations</h2><div className="mt-4 grid gap-3 md:grid-cols-2">{actions.map((x, i) => <article key={x} className="border-l-4 border-[var(--border)] p-4"><Pill tone={i === 0 ? 'red' : 'amber'}>{i === 0 ? 'Critical' : 'High'}</Pill><h3 className="mt-2 text-sm font-bold">{x}</h3><p className="mt-2 text-xs text-muted-foreground">Lulu AI found a material opportunity based on connected competitive intelligence.</p><button className="mt-4 rounded border px-3 py-2 text-xs">Review</button><button className="ml-2 rounded bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-primary-foreground">{i === 1 ? 'Create Content' : 'Create Task'}</button></article>)}</div><p className="mt-4 text-xs text-muted-foreground">Recommendations require your review and confirmation. No campaigns, budgets or strategic settings are changed automatically.</p></section>

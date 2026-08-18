@@ -20,63 +20,7 @@ type Kpi = {
   positive: boolean;
   note: string;
 };
-const kpis: Kpi[] = [{
-  label: 'Advertising Spend',
-  value: '$84,290',
-  previous: '$78,440',
-  change: '+7.5%',
-  positive: false,
-  note: 'Observed · Previous period'
-}, {
-  label: 'Advertising Revenue',
-  value: '$312,840',
-  previous: '$286,100',
-  change: '+9.3%',
-  positive: true,
-  note: 'Attributed · Previous period'
-}, {
-  label: 'ROAS',
-  value: '3.71x',
-  previous: '3.65x',
-  change: '+1.6%',
-  positive: true,
-  note: 'Observed · Previous period'
-}, {
-  label: 'Conversions',
-  value: '4,286',
-  previous: '4,010',
-  change: '+6.9%',
-  positive: true,
-  note: 'Observed · Previous period'
-}, {
-  label: 'CPA',
-  value: '$19.68',
-  previous: '$19.56',
-  change: '+0.6%',
-  positive: false,
-  note: 'Observed · Previous period'
-}, {
-  label: 'CTR',
-  value: '2.84%',
-  previous: '2.72%',
-  change: '+4.4%',
-  positive: true,
-  note: 'Observed · Previous period'
-}, {
-  label: 'CPC',
-  value: '$1.34',
-  previous: '$1.29',
-  change: '+3.9%',
-  positive: false,
-  note: 'Observed · Previous period'
-}, {
-  label: 'Conversion Rate',
-  value: '5.12%',
-  previous: '4.94%',
-  change: '+3.6%',
-  positive: true,
-  note: 'Observed · Previous period'
-}];
+const kpis: Kpi[] = [];
 const platforms = [{
   name: 'Google Ads',
   spend: '$42,180',
@@ -122,93 +66,10 @@ const platforms = [{
   color: 'var(--foreground)',
   share: 5
 }];
-const campaigns: Campaign[] = [{
-  name: 'Brand — Core Terms',
-  platform: 'Google Ads',
-  spend: '$18,420',
-  revenue: '$92,640',
-  roas: '5.03x',
-  cpa: '$14.98',
-  trend: 'up',
-  status: 'Healthy'
-}, {
-  name: 'Spring Collection Prospecting',
-  platform: 'Meta Ads',
-  spend: '$12,880',
-  revenue: '$48,220',
-  roas: '3.74x',
-  cpa: '$16.42',
-  trend: 'up',
-  status: 'Scaling'
-}, {
-  name: 'High Intent — Nonbrand',
-  platform: 'Google Ads',
-  spend: '$9,760',
-  revenue: '$34,870',
-  roas: '3.57x',
-  cpa: '$21.04',
-  trend: 'up',
-  status: 'Healthy'
-}, {
-  name: 'Enterprise Demand Gen',
-  platform: 'LinkedIn Ads',
-  spend: '$6,230',
-  revenue: '$14,260',
-  roas: '2.29x',
-  cpa: '$31.15',
-  trend: 'down',
-  status: 'Review'
-}];
-const channels = [{
-  name: 'Search',
-  spend: '$48,680',
-  revenue: '$203,120',
-  roas: '4.17x',
-  conversions: '2,510',
-  cpa: '$19.39',
-  width: '82%'
-}, {
-  name: 'Social',
-  spend: '$25,820',
-  revenue: '$83,540',
-  roas: '3.24x',
-  conversions: '1,340',
-  cpa: '$19.27',
-  width: '58%'
-}, {
-  name: 'Display',
-  spend: '$5,480',
-  revenue: '$14,880',
-  roas: '2.72x',
-  conversions: '286',
-  cpa: '$19.16',
-  width: '23%'
-}, {
-  name: 'Video',
-  spend: '$4,310',
-  revenue: '$11,300',
-  roas: '2.62x',
-  conversions: '150',
-  cpa: '$28.73',
-  width: '18%'
-}];
+const campaigns: Campaign[] = [];
+const channels: Array<Record<string, any>> = [];
 const trendPoints = [34, 38, 31, 46, 43, 56, 52, 60, 56, 69, 64, 78, 74, 87, 82, 92, 88, 96, 90, 100];
-const alertItems = [{
-  category: 'Warning',
-  title: 'ROAS decreased significantly',
-  detail: 'Enterprise Demand Gen · -18.4% over 7 days',
-  icon: AlertTriangle
-}, {
-  category: 'Opportunity',
-  title: 'Search efficiency is improving',
-  detail: 'Brand — Core Terms · +12.6% ROAS over 14 days',
-  icon: Sparkles
-}, {
-  category: 'Positive',
-  title: 'Conversions increased strongly',
-  detail: 'All platforms · +6.9% vs previous period',
-  icon: ArrowUpRight
-}];
+const alertItems: Array<Record<string, any>> = [];
 function SectionHeader({
   eyebrow,
   title,

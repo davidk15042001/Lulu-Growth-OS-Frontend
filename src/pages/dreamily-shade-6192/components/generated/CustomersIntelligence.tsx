@@ -17,166 +17,13 @@ type Customer = {
   previous: string;
   segment: string;
 };
-const overview: Metric[] = [{
-  label: 'Total Customers',
-  value: '1,068',
-  prev: '980',
-  change: '+9.0%',
-  source: 'Observed'
-}, {
-  label: 'Active Customers',
-  value: '892',
-  prev: '801',
-  change: '+11.4%',
-  source: 'Observed'
-}, {
-  label: 'New Customers',
-  value: '156',
-  prev: '132',
-  change: '+18.2%',
-  source: 'Observed'
-}, {
-  label: 'Returning Customers',
-  value: '736',
-  prev: '668',
-  change: '+10.2%',
-  source: 'Observed'
-}, {
-  label: 'Retention Rate',
-  value: '84.6%',
-  prev: '82.1%',
-  change: '+2.5pp',
-  source: 'Calculated'
-}, {
-  label: 'Churn Rate',
-  value: '5.8%',
-  prev: '7.2%',
-  change: '-1.4pp',
-  source: 'Calculated',
-  down: true
-}];
-const months = [{
-  m: 'Apr',
-  v: 48,
-  n: 34,
-  c: 8
-}, {
-  m: 'May',
-  v: 52,
-  n: 38,
-  c: 7
-}, {
-  m: 'Jun',
-  v: 55,
-  n: 40,
-  c: 8
-}, {
-  m: 'Jul',
-  v: 59,
-  n: 43,
-  c: 7
-}, {
-  m: 'Aug',
-  v: 63,
-  n: 45,
-  c: 6
-}, {
-  m: 'Sep',
-  v: 67,
-  n: 48,
-  c: 7
-}, {
-  m: 'Oct',
-  v: 71,
-  n: 51,
-  c: 6
-}, {
-  m: 'Nov',
-  v: 76,
-  n: 54,
-  c: 6
-}, {
-  m: 'Dec',
-  v: 80,
-  n: 57,
-  c: 5
-}, {
-  m: 'Jan',
-  v: 85,
-  n: 61,
-  c: 5
-}, {
-  m: 'Feb',
-  v: 91,
-  n: 64,
-  c: 4
-}, {
-  m: 'Mar',
-  v: 98,
-  n: 68,
-  c: 4
-}];
-const customers: Customer[] = [{
-  name: 'Connected customer',
-  revenue: '€428,000',
-  share: '10.0%',
-  growth: '+18%',
-  previous: '€362,700',
-  segment: 'Enterprise'
-}, {
-  name: 'Meridian Group',
-  revenue: '€312,000',
-  share: '7.3%',
-  growth: '+12%',
-  previous: '€278,600',
-  segment: 'Enterprise'
-}, {
-  name: 'BlueWave Ltd',
-  revenue: '€264,000',
-  share: '6.2%',
-  growth: '+24%',
-  previous: '€212,900',
-  segment: 'Mid-Market'
-}, {
-  name: 'Vertex Systems',
-  revenue: '€198,000',
-  share: '4.6%',
-  growth: '-3%',
-  previous: '€204,100',
-  segment: 'SMB'
-}, {
-  name: 'Orion Partners',
-  revenue: '€176,000',
-  share: '4.1%',
-  growth: '+31%',
-  previous: '€134,400',
-  segment: 'Mid-Market'
-}, {
-  name: 'Summit Tech',
-  revenue: '€148,000',
-  share: '3.5%',
-  growth: '+9%',
-  previous: '€135,800',
-  segment: 'Enterprise'
-}, {
-  name: 'Coastal Industries',
-  revenue: '€124,000',
-  share: '2.9%',
-  growth: '-8%',
-  previous: '€134,800',
-  segment: 'SMB'
-}, {
-  name: 'Nova Analytics',
-  revenue: '€116,000',
-  share: '2.7%',
-  growth: '+44%',
-  previous: '€80,600',
-  segment: 'Mid-Market'
-}];
-const channels = [['Direct Sales', '52', '33%', '+14%', '€320'], ['Organic Search', '36', '23%', '+31%', '€84'], ['Referral', '22', '14%', '+22%', '€148'], ['Paid Search', '18', '12%', '+6%', '€442'], ['Partner', '14', '9%', '+19%', '€268'], ['Email', '8', '5%', '+9%', '€124'], ['Other', '6', '4%', '+3%', 'varies']];
-const segments = [['Enterprise', '52', '€1,712,000', '+16%', '96.2%', '1.8%', '€48,600'], ['Mid-Market', '156', '€1,284,000', '+22%', '88.4%', '4.2%', '€18,400'], ['SMB', '340', '€856,000', '+11%', '80.2%', '8.4%', '€6,240'], ['Startup', '520', '€428,000', '+18%', '74.6%', '12.8%', '€2,840']];
+const overview: Metric[] = [];
+const months: Array<Record<string, any>> = [];
+const customers: Customer[] = [];
+const channels: any[][] = [];
+const segments: any[][] = [];
 const geo = [['United Kingdom', '374', '35%', '+12%', '€1.5M'], ['Germany', '214', '20%', '+19%', '€856k'], ['United States', '160', '15%', '+24%', '€642k'], ['France', '107', '10%', '+8%', '€428k'], ['Netherlands', '85', '8%', '+28%', '€342k'], ['Other', '128', '12%', '+14%', '€512k']];
-const sources = [['Organic Search', '228', '+31%', '€84', '86.4%', '€940,800', '€12,400'], ['Direct', '214', '+14%', '€320', '88.2%', '€856,000', '€14,800'], ['Referral', '128', '+22%', '€148', '91.4%', '€513,600', '€18,200'], ['Paid Search', '107', '+6%', '€442', '78.6%', '€428,000', '€8,400'], ['Partner', '96', '+19%', '€268', '89.6%', '€384,000', '€16,200'], ['Email', '64', '+9%', '€124', '84.2%', '€256,800', '€10,800'], ['Other', '231', '+8%', 'varies', '80.4%', '€900,800', 'varies']];
+const sources: any[][] = [];
 const cohort = ['Jan 2024', 'Feb 2024', 'Mar 2024', 'Apr 2024', 'May 2024', 'Jun 2024', 'Jul 2024', 'Aug 2024', 'Sep 2024', 'Oct 2024', 'Nov 2024', 'Dec 2024'];
 function Spark({
   color = 'var(--primary)'
@@ -228,7 +75,7 @@ export function CustomersIntelligence() {
   const formatMoney = (amount: number) => new Intl.NumberFormat(undefined, { style: 'currency', currency: liveCustomerInsights[0]?.currency || 'EUR', maximumFractionDigits: 0 }).format(amount);
   const liveCustomers: Customer[] = liveCustomerInsights.map(record => { const revenue = Number(record.valueAmount || record.data?.revenue || 0); return { name: record.name, revenue: formatMoney(revenue), share: 'Live', growth: String(record.data?.growth || '—'), previous: String(record.data?.previousRevenue || '—'), segment: String(record.data?.segment || record.stage || 'Unclassified') }; });
   const liveRevenue = liveCustomers.reduce((sum, customer) => sum + Number(customer.revenue.replace(/[^0-9.-]/g, '') || 0), 0);
-  const liveOverview: Metric[] = [{ label: 'Total Customers', value: String(liveCustomerInsights.length), prev: '—', change: 'Live records', source: 'Observed' }, { label: 'Active Customers', value: String(liveCustomerInsights.filter(record => !/inactive|churn/i.test(`${record.status} ${record.data?.status || ''}`)).length), prev: '—', change: 'Live status', source: 'Observed' }, { label: 'New Customers', value: String(liveCustomerInsights.filter(record => /new/i.test(`${record.status} ${record.stage || ''}`)).length), prev: '—', change: 'Live status', source: 'Observed' }, { label: 'Customer Revenue', value: formatMoney(liveRevenue), prev: '—', change: 'Live valueAmount', source: 'Observed' }, { label: 'Retention Rate', value: 'Not available', prev: '—', change: 'Needs retention events', source: 'Calculated' }, { label: 'Churn Rate', value: 'Not available', prev: '—', change: 'Needs churn events', source: 'Calculated' }];
+  const liveOverview: Metric[] = [];
   return <main className="min-h-screen bg-[var(--background)] text-foreground"><div className="flex min-h-screen"><Sidebar /><div className="min-w-0 flex-1">{liveLoading ? <div className="border-b border-border/[.07] bg-secondary/30 px-5 py-3 text-xs text-muted-foreground lg:px-8">Loading live customer intelligence…</div> : liveError ? <div className="border-b border-destructive/30 bg-destructive/5 px-5 py-3 text-xs text-destructive lg:px-8">{liveError}</div> : liveEmpty ? <div className="border-b border-dashed border-border bg-card px-5 py-3 text-xs text-muted-foreground lg:px-8">No live customer insight records are available yet. Connect your CRM or add customer activity to begin.</div> : null}<header className="sticky top-0 z-10 flex min-h-[70px] items-center justify-between border-b border-border/[.07] bg-[var(--background)]/95 px-5 backdrop-blur-xl lg:px-8"><div className="flex items-center gap-3"><button className="rounded-lg p-2 text-foreground lg:hidden" aria-label="Open navigation"><Menu size={19} /></button><p className="text-xs text-muted-foreground">Intelligence <span className="mx-1 text-foreground">/</span> Business Intelligence <span className="mx-1 text-foreground">/</span> <span className="text-foreground">Customers</span></p></div><div className="flex items-center gap-2"><button className="hidden rounded-lg border border-border p-2 text-foreground sm:block" aria-label="Search"><Search size={17} /></button><button className="rounded-lg border border-border p-2 text-foreground" aria-label="Notifications"><Bell size={17} /></button><div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-primary text-xs font-bold text-[var(--primary-foreground)]">LS</div></div></header><div className="mx-auto max-w-[1450px] px-5 py-7 lg:px-8"><div className="mb-8 flex flex-col justify-between gap-6 xl:flex-row xl:items-end"><div><div className="mb-3 flex items-center gap-2 text-xs font-medium text-foreground"><span className="h-1.5 w-1.5 rounded-full bg-chart-4" />Live intelligence</div><h1 className="text-4xl font-bold tracking-[-.04em] text-foreground sm:text-5xl">Customers</h1><p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Understand your customer base, customer growth, retention, value and behavior.</p></div><div className="flex flex-wrap items-center gap-2"><div className="relative"><button onClick={() => setDateOpen(!dateOpen)} className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2 text-xs font-medium text-foreground" aria-expanded={dateOpen}><CalendarDays size={14} className="text-foreground" />Last 12 Months<ChevronDown size={13} /></button>{dateOpen && <div className="absolute right-0 top-11 z-20 w-48 rounded-xl border border-border bg-[var(--secondary)] p-1.5 shadow-2xl">{['Today', 'Yesterday', 'Last 7 Days', 'Last 30 Days', 'Last 90 Days', 'Last 12 Months', 'Year to Date', 'Previous Year', 'Custom Range'].map(item => <button key={item} onClick={() => setDateOpen(false)} className="w-full rounded-lg px-3 py-2 text-left text-xs text-foreground hover:bg-secondary/15">{item}</button>)}</div>}</div><button className="hidden rounded-lg border border-border bg-secondary px-3 py-2 text-xs text-foreground md:block">Compare: Previous Year <ChevronDown size={13} className="ml-1 inline" /></button><button className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground"><Bot size={14} />Ask Lulu AI</button><button className="rounded-lg border border-border p-2 text-foreground" aria-label="Refresh data"><RefreshCw size={15} /></button><button className="hidden rounded-lg border border-border px-3 py-2 text-xs text-foreground md:block"><FilePlus2 size={14} className="mr-1 inline" />Create Report</button><button className="rounded-lg border border-border p-2 text-foreground" aria-label="Export data"><Download size={15} /></button></div></div><div className="mb-8 flex items-center justify-between border-y border-border/[.07] py-3"><div><p className="text-[10px] font-semibold uppercase tracking-[.18em] text-muted-foreground">Customer overview</p><p className="mt-1 text-xs text-muted-foreground">Last updated 2 minutes ago · All sources synced</p></div><span className="rounded-md bg-chart-4/10 px-2 py-1 text-[10px] text-chart-4">5 sources connected</span></div><div className="mb-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">{liveOverview.map(metric => <article key={metric.label} className="rounded-2xl border border-border/[.08] bg-[var(--card)] p-4 transition hover:-translate-y-0.5 hover:border-border/30"><div className="flex items-start justify-between"><p className="text-xs text-muted-foreground">{metric.label}</p><span className={`rounded px-1.5 py-0.5 text-[9px] ${metric.source === 'Observed' ? 'bg-card/60 text-foreground' : 'bg-secondary/10 text-foreground'}`}>{metric.source}</span></div><p className="mt-4 text-xl font-semibold text-foreground">{metric.value}</p><p className="mt-1 text-[11px] text-muted-foreground">Prev. {metric.prev}</p><div className="mt-3 flex items-end justify-between"><span className={`flex items-center gap-1 text-xs font-semibold ${metric.down ? 'text-foreground' : 'text-chart-4'}`}>{metric.down ? <ArrowDownRight size={13} /> : <ArrowUpRight size={13} />} {metric.change} {metric.down && '(improving)'}</span><Spark /></div></article>)}</div>
 <div className="grid gap-5 xl:grid-cols-2"><Card title="Customer Growth" eyebrow="12 month performance"><div className="mb-4 flex items-center gap-2"><span className="rounded-full bg-chart-4/10 px-2.5 py-1 text-xs font-semibold text-chart-4">Growing</span><span className="text-xs text-muted-foreground">vs previous year</span></div><div className="grid grid-cols-2 gap-4">{[['Customer Growth Rate', '+9.0%'], ['New Customer Growth', '+18.2%'], ['Active Customer Growth', '+11.4%'], ['Returning Customer Growth', '+10.2%']].map(item => <div key={item[0]}><p className="text-[11px] text-muted-foreground">{item[0]}</p><p className="mt-1 text-lg font-semibold text-foreground">{item[1]}</p></div>)}</div><Bars /></Card><Card title="Customer Retention" eyebrow="Calculated"><div className="flex items-center gap-6"><div className="grid h-32 w-32 shrink-0 place-items-center rounded-full" style={{
                   background: 'conic-gradient(var(--primary) 0 84.6%, var(--secondary) 84.6% 100%)'

@@ -20,211 +20,12 @@ type Kpi = {
   delta: string;
   tone: string;
 };
-const kpis: Kpi[] = [{
-  label: 'Total Pipeline',
-  value: '€3,240,000',
-  note: 'Recorded',
-  delta: '+8.4%',
-  tone: 'blue'
-}, {
-  label: 'Weighted Pipeline',
-  value: '€1,847,500',
-  note: 'Calculated',
-  delta: '+5.8%',
-  tone: 'purple'
-}, {
-  label: 'Open Deals',
-  value: '47',
-  note: 'Recorded',
-  delta: '+4',
-  tone: 'blue'
-}, {
-  label: 'Average Deal Size',
-  value: '€68,936',
-  note: 'Calculated',
-  delta: '+3.2%',
-  tone: 'purple'
-}, {
-  label: 'Win Rate',
-  value: '34.2%',
-  note: 'Calculated',
-  delta: '+2.1%',
-  tone: 'green'
-}, {
-  label: 'Pipeline Coverage',
-  value: '3.2×',
-  note: 'Calculated',
-  delta: 'vs €1M target',
-  tone: 'green'
-}, {
-  label: 'At Risk',
-  value: '€420,000',
-  note: 'AI-generated',
-  delta: 'Needs review',
-  tone: 'orange'
-}, {
-  label: 'Stalled',
-  value: '€186,500',
-  note: 'Rule-based',
-  delta: '5 deals',
-  tone: 'amber'
-}];
-const stages = [{
-  name: 'Qualification',
-  count: '12 Deals',
-  total: '€180,000',
-  weighted: '€129,600',
-  deals: [{
-    name: 'Connected account Expansion',
-    company: 'Connected account',
-    owner: 'Workspace owner',
-    initials: 'SJ',
-    value: '€25,000',
-    probability: '72%',
-    health: 'Healthy',
-    priority: 'High',
-    close: '15 Aug 2026',
-    action: 'Confirm stakeholders'
-  }, {
-    name: 'Meridian Tech Suite',
-    company: 'Meridian Tech',
-    owner: 'James Park',
-    initials: 'JP',
-    value: '€45,000',
-    probability: '55%',
-    health: 'Needs Attention',
-    priority: 'Medium',
-    close: '22 Aug 2026',
-    action: 'Send discovery brief'
-  }, {
-    name: 'Brightwave Solutions',
-    company: 'Brightwave',
-    owner: 'James Park',
-    initials: 'JP',
-    value: '€18,000',
-    probability: '48%',
-    health: 'Healthy',
-    priority: 'Low',
-    close: '30 Aug 2026',
-    action: 'Book intro call'
-  }]
-}, {
-  name: 'Discovery',
-  count: '9 Deals',
-  total: '€240,000',
-  weighted: '€168,000',
-  deals: [{
-    name: 'Nova Commerce Platform',
-    company: 'Nova Commerce',
-    owner: 'Maria Chen',
-    initials: 'MC',
-    value: '€70,000',
-    probability: '65%',
-    health: 'Healthy',
-    priority: 'High',
-    close: '10 Sep 2026',
-    action: 'Map buying committee'
-  }, {
-    name: 'Clearpath Industries',
-    company: 'Clearpath',
-    owner: 'Maria Chen',
-    initials: 'MC',
-    value: '€38,000',
-    probability: '58%',
-    health: 'Needs Attention',
-    priority: 'Medium',
-    close: '18 Sep 2026',
-    action: 'Re-engage champion'
-  }]
-}, {
-  name: 'Proposal',
-  count: '7 Deals',
-  total: '€310,000',
-  weighted: '€232,500',
-  deals: [{
-    name: 'Quantum Retail AI',
-    company: 'Quantum Retail',
-    owner: 'Sales team member',
-    initials: 'DT',
-    value: '€120,000',
-    probability: '78%',
-    health: 'High Priority',
-    priority: 'High',
-    close: '5 Sep 2026',
-    action: 'Review commercial terms'
-  }, {
-    name: 'Vantage Group',
-    company: 'Vantage Group',
-    owner: 'Workspace owner',
-    initials: 'SJ',
-    value: '€52,000',
-    probability: '72%',
-    health: 'Healthy',
-    priority: 'High',
-    close: '12 Sep 2026',
-    action: 'Share final proposal'
-  }]
-}, {
-  name: 'Negotiation',
-  count: '4 Deals',
-  total: '€420,000',
-  weighted: '€344,400',
-  deals: [{
-    name: 'Enterprise Expansion',
-    company: 'Nova Commerce',
-    owner: 'Maria Chen',
-    initials: 'MC',
-    value: '€210,000',
-    probability: '82%',
-    health: 'At Risk',
-    priority: 'High',
-    close: '25 Sep 2026',
-    action: 'Schedule executive follow-up'
-  }, {
-    name: 'SkyLine Systems',
-    company: 'SkyLine Systems',
-    owner: 'Sales team member',
-    initials: 'DT',
-    value: '€95,000',
-    probability: '76%',
-    health: 'Healthy',
-    priority: 'High',
-    close: '28 Sep 2026',
-    action: 'Approve redlines'
-  }]
-}, {
-  name: 'Closed Won',
-  count: '18 Deals',
-  total: '€1,195,000',
-  weighted: '',
-  deals: [{
-    name: 'Connected account Annual License',
-    company: 'Connected account',
-    owner: 'Workspace owner',
-    initials: 'SJ',
-    value: '€42,000',
-    probability: '100%',
-    health: 'Won',
-    priority: 'Low',
-    close: '2 Aug 2026',
-    action: 'Onboarding queued'
-  }, {
-    name: 'Northstar Rollout',
-    company: 'Northstar',
-    owner: 'James Park',
-    initials: 'JP',
-    value: '€86,000',
-    probability: '100%',
-    health: 'Won',
-    priority: 'Low',
-    close: '31 Jul 2026',
-    action: 'Handoff complete'
-  }]
-}];
-const owners = [['Workspace owner', 'SJ', '11', '€620K', '€428K', '€180K', '€42K', '38.4%'], ['Maria Chen', 'MC', '9', '€710K', '€492K', '€210K', '€105K', '36.1%'], ['Sales team member', 'DT', '8', '€840K', '€516K', '€320K', '€120K', '33.8%'], ['James Park', 'JP', '10', '€590K', '€302K', '€210K', '€55K', '31.4%'], ['Ava Williams', 'AW', '9', '€480K', '€286K', '€275K', '€40K', '29.7%']];
-const activity = [['Deal moved', 'Enterprise Expansion → Negotiation', 'Maria Chen', '2h ago'], ['Deal created', 'Brightwave Solutions', 'James Park', '5h ago'], ['Probability changed', 'Quantum Retail AI 72% → 78%', 'Auto-updated', '1d ago'], ['Value changed', 'SkyLine Systems €88K → €95K', 'Sales team member', '1d ago'], ['Deal won', 'Connected account Annual License €42K', 'Workspace owner', '2d ago'], ['Expected close updated', 'Clearpath Industries → Sep 18', 'James Park', '2d ago'], ['Stage health updated', 'Vantage Group marked Healthy', 'Lulu AI', '3d ago'], ['Task completed', 'Nova Commerce stakeholder map', 'Maria Chen', '3d ago']];
-const aging = [['New', '0–14 days', '12 deals', '€280K', '8.6%', 'bg-chart-4'], ['Normal', '15–30 days', '19 deals', '€1.1M', '33.9%', 'bg-primary'], ['Aging', '31–60 days', '11 deals', '€1.4M', '43.2%', 'bg-primary'], ['Stalled', '60+ days', '5 deals', '€460K', '14.2%', 'bg-destructive']];
-const insights = [['Pipeline Bottleneck', 'Negotiation contains a high concentration of pipeline value (€420K) and 2 deals have exceeded the 45-day stage threshold.'], ['Pipeline Risk', 'A significant portion of Q3 expected pipeline is associated with deals showing reduced recent activity (last contact 12+ days).'], ['Growth Opportunity', 'Three high-value opportunities in Proposal stage are progressing 22% faster than the historical average.']];
+const kpis: Kpi[] = [];
+const stages: Array<{ name: string; count?: string; total?: string; weighted?: string; deals: Deal[] }> = [];
+const owners: any[][] = [];
+const activity: any[][] = [];
+const aging: any[][] = [];
+const insights: any[][] = [];
 function Badge({
   children,
   className = ''
@@ -254,7 +55,7 @@ export function LuluSalesPipeline() {
   const getDealField = (record: typeof dealRecords[number], key: string) => String((record as unknown as Record<string, unknown>)[key] ?? '');
   const liveDealValue = dealRecords.reduce((sum, record) => sum + (Number(getDealField(record, 'valueAmount').replace(/[^0-9.-]/g, '')) || 0), 0);
   const formatAmount = (value: number) => value ? value.toLocaleString() : '—';
-  const liveKpis: Kpi[] = [{ label: 'Total Pipeline', value: formatAmount(liveDealValue), note: 'Live records', delta: '—', tone: 'blue' }, { label: 'Weighted Pipeline', value: '—', note: 'Probability data required', delta: '—', tone: 'purple' }, { label: 'Open Deals', value: String(dealRecords.length), note: 'Live records', delta: '—', tone: 'blue' }, { label: 'Average Deal Size', value: dealRecords.length ? formatAmount(liveDealValue / dealRecords.length) : '—', note: 'Calculated', delta: '—', tone: 'purple' }, { label: 'Win Rate', value: '—', note: 'Outcome data required', delta: '—', tone: 'green' }, { label: 'Pipeline Coverage', value: '—', note: 'Target contract required', delta: '—', tone: 'orange' }, { label: 'At Risk Value', value: '—', note: 'Health data required', delta: '—', tone: 'amber' }, { label: 'Expected Close', value: '—', note: 'Close-date data required', delta: '—', tone: 'blue' }];
+  const liveKpis: Kpi[] = [];
   const liveStages = stages.map(stage => ({ ...stage, deals: dealRecords.filter(record => (getDealField(record, 'stage') || 'Discovery').toLowerCase() === stage.name.toLowerCase()).map(record => ({ name: getDealField(record, 'name') || record.id, company: getDealField(record, 'company') || 'Connected account', owner: getDealField(record, 'ownerName') || 'Workspace owner', initials: '—', value: getDealField(record, 'valueAmount') || '—', probability: getDealField(record, 'probability') ? `${getDealField(record, 'probability')}%` : '—', health: getDealField(record, 'health') || 'Unclassified', priority: getDealField(record, 'priority') || 'Standard', close: getDealField(record, 'closeDate') || '—', action: getDealField(record, 'nextAction') || 'Review deal details' })) }));
   const filteredStages = (dealsLoading ? [] : liveStages).map(stage => ({
     ...stage,
@@ -283,8 +84,8 @@ export function LuluSalesPipeline() {
           <section className="rounded-xl border border-border bg-[var(--card)] p-5"><SectionTitle eyebrow="Stage performance" title="Stage Conversion" /><div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-xs"><thead className="border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground"><tr>{['Stage', 'Entered', 'Advanced', 'Won', 'Lost', 'Conversion Rate', 'Avg Time in Stage'].map(x => <th key={x} className="pb-3 font-semibold">{x}</th>)}</tr></thead><tbody>{[['Qualification', '18', '12', '—', '2', '66.7%', '14 days'], ['Discovery', '14', '9', '—', '1', '64.3%', '21 days'], ['Proposal', '9', '7', '—', '1', '77.8%', '18 days'], ['Negotiation', '7', '4', '2', '—', '57.1%', '34 days'], ['Closed Won', '18', '—', '18', '—', '34.2%', '—']].map(row => <tr key={row[0]} className="border-b border-border last:border-0"><td className="py-3 font-medium text-foreground">{row[0]}</td>{row.slice(1).map((cell, i) => <td key={`${row[0]}-${i}`} className="py-3 text-muted-foreground">{cell}{i === 4 && <span className="ml-2 text-foreground">↗ 2.1%</span>}</td>)}</tr>)}</tbody></table></div></section>
           <section><SectionTitle eyebrow="Velocity" title="Pipeline Velocity" /><div className="grid grid-cols-2 gap-3 md:grid-cols-5">{[['Avg Qualification to Close', '87 days'], ['Avg Stage Duration', '18 days'], ['Deals Progressing / Week', '4.2'], ['Avg Deal Value', '€68,936'], ['Win Rate', '34.2%']].map(item => <article key={item[0]} className="rounded-xl border border-border bg-[var(--card)] p-4"><p className="text-[11px] text-muted-foreground">{item[0]}</p><p className="mt-3 text-xl font-semibold text-foreground">{item[1]}</p><p className="mt-2 text-[10px] text-foreground">↗ 4.8% <span className="text-muted-foreground">· Calculated</span></p></article>)}</div></section>
           <section><SectionTitle eyebrow="Time intelligence" title="Pipeline Aging" /><div className="grid gap-3 md:grid-cols-4">{aging.map(item => <article key={item[0]} className="rounded-xl border border-border bg-[var(--card)] p-4"><div className="flex items-center gap-2"><span className={`h-2.5 w-2.5 rounded-full ${item[5]}`} /><h3 className="text-sm font-semibold text-foreground">{item[0]}</h3><span className="text-[10px] text-muted-foreground">{item[1]}</span></div><p className="mt-4 text-xl font-semibold text-foreground">{item[3]}</p><p className="mt-1 text-xs text-muted-foreground">{item[2]} <span className="text-muted-foreground">· {item[4]} of pipeline</span></p><div className="mt-4 flex gap-2"><button className="rounded-md bg-secondary px-2.5 py-1.5 text-[10px] text-foreground hover:bg-secondary">Review Deals</button><button className="rounded-md px-2 py-1.5 text-[10px] text-foreground hover:bg-secondary/10">Ask Lulu AI</button></div></article>)}</div></section>
-          <section className="rounded-xl border border-chart-1/15 bg-[var(--card)] p-5"><SectionTitle eyebrow="Requires attention" title="Stalled Deals" action="View all 5" /><div className="overflow-x-auto"><table className="w-full min-w-[900px] text-left text-xs"><thead className="border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground"><tr>{['Deal', 'Company', 'Stage', 'Value', 'Days in Stage', 'Last Activity', 'Expected Close', 'Risk', 'Recommended Action'].map(x => <th key={x} className="pb-3 font-semibold">{x}</th>)}</tr></thead><tbody>{[['Enterprise Expansion', 'Nova Commerce', 'Negotiation', '€210K', '68 days', '12 days ago', 'Sep 25', 'High', 'Schedule follow-up'], ['Clearpath Industries', 'Clearpath', 'Discovery', '€38K', '45 days', '8 days ago', 'Sep 18', 'Medium', 'Re-engage champion']].map(row => <tr key={row[0]} className="border-b border-border last:border-0">{row.map((cell, i) => <td key={`${row[0]}-${i}`} className="py-3 text-muted-foreground">{i === 0 ? <strong className="text-foreground">{cell}</strong> : i === 7 ? <Badge className="border-chart-1/20 bg-chart-1/10 text-chart-1">{cell}</Badge> : cell}</td>)}</tr>)}</tbody></table></div></section>
-          <section className="rounded-xl border border-chart-5/15 bg-[var(--card)] p-5"><SectionTitle eyebrow="AI monitored" title="At-Risk Pipeline" action="View all risks" /><div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left text-xs"><thead className="border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground"><tr>{['Deal', 'Value', 'Stage', 'Probability', 'Health', 'Risk Signal', 'Expected Close', 'Actions'].map(x => <th key={x} className="pb-3 font-semibold">{x}</th>)}</tr></thead><tbody>{[['Enterprise Expansion', '€210K', 'Negotiation', '82%', 'At Risk', 'No recent activity (7+ days)', 'Sep 25'], ['Meridian Tech Suite', '€45K', 'Qualification', '55%', 'Needs Attention', 'Probability decline detected', 'Aug 22'], ['Clearpath Industries', '€38K', 'Discovery', '58%', 'Needs Attention', 'Stage aging threshold exceeded', 'Sep 18']].map(row => <tr key={row[0]} className="border-b border-border last:border-0">{row.map((cell, i) => <td key={`${row[0]}-${i}`} className="py-3 text-muted-foreground">{i === 0 ? <strong className="text-foreground">{cell}</strong> : i === 4 ? <Badge className="border-border/20 bg-secondary/10 text-foreground">{cell}</Badge> : i === 5 ? <span className="text-foreground">{cell}</span> : cell}</td>)}<td className="py-3"><button className="text-[11px] text-foreground hover:text-foreground">Open →</button></td></tr>)}</tbody></table></div></section>
+          <section className="rounded-xl border border-chart-1/15 bg-[var(--card)] p-5"><SectionTitle eyebrow="Requires attention" title="Stalled Deals" action="View all 5" /><div className="overflow-x-auto"><table className="w-full min-w-[900px] text-left text-xs"><thead className="border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground"><tr>{['Deal', 'Company', 'Stage', 'Value', 'Days in Stage', 'Last Activity', 'Expected Close', 'Risk', 'Recommended Action'].map(x => <th key={x} className="pb-3 font-semibold">{x}</th>)}</tr></thead><tbody>{[['Enterprise Expansion', 'Connected account', 'Negotiation', '€210K', '68 days', '12 days ago', 'Sep 25', 'High', 'Schedule follow-up'], ['Connected account', 'Clearpath', 'Discovery', '€38K', '45 days', '8 days ago', 'Sep 18', 'Medium', 'Re-engage champion']].map(row => <tr key={row[0]} className="border-b border-border last:border-0">{row.map((cell, i) => <td key={`${row[0]}-${i}`} className="py-3 text-muted-foreground">{i === 0 ? <strong className="text-foreground">{cell}</strong> : i === 7 ? <Badge className="border-chart-1/20 bg-chart-1/10 text-chart-1">{cell}</Badge> : cell}</td>)}</tr>)}</tbody></table></div></section>
+          <section className="rounded-xl border border-chart-5/15 bg-[var(--card)] p-5"><SectionTitle eyebrow="AI monitored" title="At-Risk Pipeline" action="View all risks" /><div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left text-xs"><thead className="border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground"><tr>{['Deal', 'Value', 'Stage', 'Probability', 'Health', 'Risk Signal', 'Expected Close', 'Actions'].map(x => <th key={x} className="pb-3 font-semibold">{x}</th>)}</tr></thead><tbody>{[['Enterprise Expansion', '€210K', 'Negotiation', '82%', 'At Risk', 'No recent activity (7+ days)', 'Sep 25'], ['Meridian Tech Suite', '€45K', 'Qualification', '55%', 'Needs Attention', 'Probability decline detected', 'Aug 22'], ['Connected account', '€38K', 'Discovery', '58%', 'Needs Attention', 'Stage aging threshold exceeded', 'Sep 18']].map(row => <tr key={row[0]} className="border-b border-border last:border-0">{row.map((cell, i) => <td key={`${row[0]}-${i}`} className="py-3 text-muted-foreground">{i === 0 ? <strong className="text-foreground">{cell}</strong> : i === 4 ? <Badge className="border-border/20 bg-secondary/10 text-foreground">{cell}</Badge> : i === 5 ? <span className="text-foreground">{cell}</span> : cell}</td>)}<td className="py-3"><button className="text-[11px] text-foreground hover:text-foreground">Open →</button></td></tr>)}</tbody></table></div></section>
           <section className="rounded-xl border border-border bg-[var(--card)] p-5"><SectionTitle eyebrow="Target health" title="Pipeline Coverage" /><div className="grid gap-5 md:grid-cols-3"><div><p className="text-[11px] text-muted-foreground">Revenue Target <span className="text-muted-foreground">· Configured</span></p><p className="mt-2 text-2xl font-semibold text-foreground">€1,000,000</p></div><div><p className="text-[11px] text-muted-foreground">Open Pipeline <span className="text-muted-foreground">· Recorded</span></p><p className="mt-2 text-2xl font-semibold text-foreground">€3,240,000</p></div><div><p className="text-[11px] text-muted-foreground">Weighted Pipeline <span className="text-muted-foreground">· Calculated</span></p><p className="mt-2 text-2xl font-semibold text-foreground">€1,847,500</p></div></div><div className="mt-6"><div className="mb-2 flex justify-between text-xs"><span className="text-muted-foreground">Coverage ratio</span><strong className="text-foreground">3.2×</strong></div><div className="h-2 rounded-full bg-secondary"><div className="h-2 w-[80%] rounded-full bg-gradient-to-r from-primary to-primary text-primary-foreground" /></div><p className="mt-3 text-[11px] text-muted-foreground">Coverage does not guarantee revenue outcomes.</p></div></section>
           <section><SectionTitle eyebrow="Forecast horizon" title="Expected Close Distribution" /><div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">{[['This Week', '3 deals', '€125K weighted'], ['Next Week', '5 deals', '€290K'], ['This Month', '9 deals', '€680K'], ['Next Month', '14 deals', '€1.1M'], ['Later', '12 deals', '€780K'], ['No Close Date', '4 deals', '€265K']].map(item => <button key={item[0]} className="rounded-xl border border-border bg-[var(--primary)] p-4 text-left hover:border-border/40 text-primary-foreground"><p className="text-xs font-medium text-foreground">{item[0]}</p><p className="mt-3 text-lg font-semibold text-foreground">{item[2]}</p><p className="mt-1 text-[11px] text-muted-foreground">{item[1]}</p></button>)}</div></section>
           <section className="rounded-xl border border-border bg-[var(--card)] p-5"><SectionTitle eyebrow="Performance" title="Pipeline by Owner" action="Sort columns" /><div className="overflow-x-auto"><table className="w-full min-w-[800px] text-left text-xs"><thead className="border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground"><tr>{['Owner', 'Open Deals', 'Pipeline Value', 'Weighted Pipeline', 'Won Value', 'At-Risk Value', 'Win Rate'].map(x => <th key={x} className="pb-3 font-semibold">{x} ↕</th>)}</tr></thead><tbody>{owners.map(row => <tr key={row[0]} className="border-b border-border last:border-0"><td className="flex items-center gap-2 py-3 font-medium text-foreground"><span className="grid h-6 w-6 place-items-center rounded-full bg-secondary/15 text-[9px] text-foreground">{row[1]}</span>{row[0]}</td>{row.slice(2).map((cell, i) => <td key={`${row[0]}-${i}`} className="py-3 text-muted-foreground">{cell}</td>)}</tr>)}</tbody></table></div></section>

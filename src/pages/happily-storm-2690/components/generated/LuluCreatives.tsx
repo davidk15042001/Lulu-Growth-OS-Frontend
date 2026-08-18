@@ -64,85 +64,10 @@ const platforms = [{
   label: 'TikTok Ads',
   tone: 'tiktok'
 }];
-const creatives: Creative[] = [{
-  name: 'Summer Sale — Hero Image',
-  platform: 'Google Ads',
-  format: 'Image Ad',
-  campaign: 'Summer Product Launch',
-  status: 'Active',
-  performance: 'Top Performing',
-  updated: '2 days ago',
-  gradient: 'sunset'
-}, {
-  name: 'Q3 Brand Awareness Video',
-  platform: 'Meta Ads',
-  format: 'Video Ad',
-  campaign: 'Brand Awareness Drive',
-  status: 'Active',
-  performance: 'Stable',
-  updated: '4 days ago',
-  gradient: 'violet'
-}, {
-  name: 'Product Carousel — EU Markets',
-  platform: 'Meta Ads',
-  format: 'Carousel',
-  campaign: 'New Market Expansion',
-  status: 'Active',
-  performance: 'Top Performing',
-  updated: '5 days ago',
-  gradient: 'sky'
-}, {
-  name: 'Retargeting — Dynamic Display',
-  platform: 'Google Ads',
-  format: 'Responsive Ad',
-  campaign: 'Customer Retention Q2',
-  status: 'Active',
-  performance: 'Declining',
-  updated: '1 week ago',
-  gradient: 'ink'
-}, {
-  name: 'LinkedIn Lead Gen — Enterprise',
-  platform: 'LinkedIn Ads',
-  format: 'Image Ad',
-  campaign: 'Q3 Lead Generation',
-  status: 'Paused',
-  performance: 'Stable',
-  updated: '1 week ago',
-  gradient: 'blue'
-}, {
-  name: 'TikTok UGC — Product Launch',
-  platform: 'TikTok Ads',
-  format: 'Video Ad',
-  campaign: 'Summer Product Launch',
-  status: 'Active',
-  performance: 'Underperforming',
-  updated: '2 weeks ago',
-  gradient: 'pink'
-}];
-const chartData = [{
-  day: 'Jun 10',
-  value: 28
-}, {
-  day: 'Jun 15',
-  value: 34
-}, {
-  day: 'Jun 20',
-  value: 31
-}, {
-  day: 'Jun 25',
-  value: 46
-}, {
-  day: 'Jun 30',
-  value: 42
-}, {
-  day: 'Jul 05',
-  value: 57
-}, {
-  day: 'Jul 08',
-  value: 64
-}];
+const creatives: Creative[] = [];
+const chartData: Array<Record<string, any>> = [];
 const filters = ['Platform', 'Creative Type', 'Status', 'Campaign', 'Performance', 'Date', 'Tags'];
-const stats = [['Total Creatives', '247', 'Across all platforms', 'indigo'], ['Active Creatives', '184', '+12 this week', 'green'], ['Top Performing', '38', 'Above average CTR', 'blue'], ['Underperforming', '24', 'Declining performance', 'amber'], ['Needs Attention', '9', 'Errors or issues', 'red']];
+const stats: any[][] = [];
 export function LuluCreatives() {
   const [activeView, setActiveView] = useState<ViewMode>('grid');
   const [activePlatform, setActivePlatform] = useState('All Platforms');
@@ -202,7 +127,7 @@ export function LuluCreatives() {
                   margin: '8px 0 0',
                   color: 'var(--muted-foreground)',
                   fontSize: 9
-                }}>Impression frequency: 2.4 per user</p></section><section className="ai-section"><div className="ai-heading"><Sparkles size={17} /><div><h3>Lulu AI Creative Analysis</h3><small>AI-GENERATED · UPDATED 6 MIN AGO</small></div><span className="confidence">91%</span></div>{[['What Is Working', 'CTR is 2.41%, significantly above platform average of 1.57%. Strong creative-audience alignment in the 25–44 demographic.'], ['What Is Declining', 'CPA has increased 12% in the last 7 days. Monitor frequency and ad fatigue potential.'], ['Why It Matters', 'This creative contributes 23% of total campaign revenue. Performance shifts have significant campaign-level impact.'], ['Recommended Next Step', 'Test a headline variant targeting the 35–44 age segment to improve CPA efficiency.']].map(item => <div className="insight" key={item[0]}><strong>{item[0]}</strong><span>{item[1]}</span></div>)}<small style={{
+                }}>Impression frequency: 2.4 per user</p></section><section className="ai-section"><div className="ai-heading"><Sparkles size={17} /><div><h3>Lulu AI Creative Analysis</h3><small>AI-GENERATED · UPDATED 6 MIN AGO</small></div><span className="confidence">91%</span></div>{[['What Is Working', 'CTR is 2.41%, significantly above platform average of 1.57%. Strong creative-audience alignment in the 25–44 workspacegraphic.'], ['What Is Declining', 'CPA has increased 12% in the last 7 days. Monitor frequency and ad fatigue potential.'], ['Why It Matters', 'This creative contributes 23% of total campaign revenue. Performance shifts have significant campaign-level impact.'], ['Recommended Next Step', 'Test a headline variant targeting the 35–44 age segment to improve CPA efficiency.']].map(item => <div className="insight" key={item[0]}><strong>{item[0]}</strong><span>{item[1]}</span></div>)}<small style={{
                   color: 'var(--muted-foreground)',
                   fontSize: 8
                 }}>Data source: Google Ads API · Observed</small></section><section className="ai-section"><div className="ai-heading"><Sparkles size={17} /><div><h3>Lulu AI Recommendations</h3><small>AI-GENERATED · PRIORITIZED ACTIONS</small></div></div>{[['Test an additional headline variant for this creative.', 'High'], ['Consider duplicating this creative for the Q3 campaign.', 'Medium'], ['Monitor CPA trend over the next 7 days.', 'Medium']].map(item => <div className="recommendation" key={item[0]}><strong>{item[0]}</strong><small>Priority: {item[1]}</small><div className="rec-actions"><button>Create Task</button><button>Review</button></div></div>)}</section><section className="panel-section"><div className="section-title"><h3>Creative Variants</h3><span className="panel-label">SUMMER SALE VARIANTS</span></div>{[['Headline Variant A — Current', 'Active · CTR: 2.41%'], ['Headline Variant B', 'Paused · CTR: 1.82%'], ['Image Variant A', 'Scheduled · CTR: —']].map(item => <div className="variant-row" key={item[0]}><div><strong>{item[0]}</strong><small>{item[1]}</small></div><ChevronRight size={13} /></div>)}<button className="add-variant"><Plus size={12} /> Add Variant</button></section><section className="panel-section"><div className="section-title"><h3>Creative Opportunities</h3><Sparkles size={14} color="var(--primary)" /></div><div className="opportunity"><div><strong>Expand this high-performing creative to Meta Ads</strong><small>Strong CTR and ROAS · Potential: High</small></div><button className="mini-button">Create Task</button></div><div className="opportunity"><div><strong>Test video format variant</strong><small>Video outperforms image 18% on avg · Potential: Medium</small></div><button className="mini-button">Create Task</button></div></section><section className="panel-section"><div className="section-title"><h3>Creative Risks</h3><CircleAlert size={14} color="var(--chart-1)" /></div><div className="risk"><div><strong>Rising CPA</strong><small>Medium · Campaign efficiency · +12% CPA last 7 days</small></div><button className="mini-button">Review</button></div></section></div></aside></div>

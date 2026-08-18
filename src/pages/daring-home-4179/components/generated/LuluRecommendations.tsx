@@ -3,67 +3,13 @@ import type { ReactNode } from 'react';
 import { Bell, Bot, BrainCircuit, ChevronDown, ChevronRight, CircleHelp, Clock3, Download, ExternalLink, FileText, Filter, Gauge, LayoutDashboard, Menu, MoreHorizontal, Play, Plus, RefreshCw, Search, Send, Settings, ShieldCheck, Sparkles, Star, Target, ThumbsDown, ThumbsUp, X, Zap } from 'lucide-react';
 type Priority = 'High' | 'Medium' | 'Low';
 type ModalKind = 'reject' | 'defer' | 'execute' | 'task' | null;
-const stats = [['12', 'Active Recommendations', 'text-foreground'], ['4', 'High-Priority', 'text-foreground'], ['3', 'Awaiting Approval', 'text-foreground'], ['1', 'Executing', 'text-foreground'], ['28', 'Completed', 'text-chart-4'], ['6', 'Dismissed', 'text-muted-foreground'], ['14 min ago', 'Last Analysis', 'text-foreground'], ['Excellent', 'Data Freshness', 'text-chart-4']];
-const recommendations = [{
-  id: 'paid-spend',
-  title: 'Reduce Inefficient Paid Acquisition Spend',
-  area: 'Advertising',
-  priority: 'High' as Priority,
-  impact: '+$24K/mo savings',
-  confidence: 'High',
-  urgency: 'Immediate',
-  effort: 'Low',
-  text: 'Advertising spend increased significantly while attributed revenue growth remained comparatively lower. Several campaigns show declining efficiency.',
-  ai: true
-}, {
-  id: 'retention',
-  title: 'Improve Retention for High-Value Customer Segment',
-  area: 'Customers',
-  priority: 'High' as Priority,
-  impact: '+8% retention',
-  confidence: 'Medium',
-  urgency: 'High',
-  effort: 'Medium',
-  text: 'Churn signals detected in top 20% of customers by LTV. Early intervention recommended before next billing cycle.',
-  ai: false
-}, {
-  id: 'mobile-conversion',
-  title: 'Address Declining Mobile Conversion Rate',
-  area: 'Ecommerce',
-  priority: 'Medium' as Priority,
-  impact: '+3.2% conversion',
-  confidence: 'High',
-  urgency: 'High',
-  effort: 'Medium',
-  text: 'Mobile conversion rate declined 18% over the past 30 days while desktop performance remained stable.',
-  ai: false
-}];
-const rows = [['Rebalance regional sales coverage', 'Sales', 'High', '+$31K pipeline', 'High', 'High', 'Medium', 'New'], ['Reduce invoice processing delays', 'Finance', 'Medium', '−14 hrs / week', 'High', 'Medium', 'Low', 'Reviewed'], ['Refresh dormant lead sequences', 'Marketing', 'Medium', '+6% reactivation', 'Medium', 'High', 'Low', 'Awaiting Approval'], ['Consolidate duplicate workflows', 'Operations', 'Low', '−$8K / yr', 'High', 'Low', 'Low', 'Deferred'], ['Expand enterprise onboarding', 'Revenue', 'High', '+11% activation', 'Medium', 'Immediate', 'High', 'Approved'], ['Fix search zero-result paths', 'Products', 'Medium', '+2.1% conversion', 'High', 'High', 'Medium', 'New'], ['Review pricing page messaging', 'Marketing', 'Low', '+4% engagement', 'Medium', 'Low', 'Low', 'Reviewed']];
+const stats: any[][] = [];
+const recommendations: Array<Record<string, any>> = [];
+const rows: any[][] = [];
 const filters = ['All', 'Business Area', 'Priority', 'Status', 'Confidence', 'Urgency', 'Effort', 'Expected Impact', 'Requires Approval', 'Saved', 'Source', 'Date'];
-const navWorkspace = [{
-  Icon: LayoutDashboard,
-  label: 'Overview'
-}, {
-  Icon: Gauge,
-  label: 'Performance'
-}, {
-  Icon: Target,
-  label: 'Goals'
-}];
-const navManage = [{
-  Icon: FileText,
-  label: 'Reports'
-}, {
-  Icon: Settings,
-  label: 'Settings'
-}];
-const navIntelligence = [{
-  Icon: Zap,
-  label: 'AI Actions'
-}, {
-  Icon: ShieldCheck,
-  label: 'Risks & Opportunities'
-}];
+const navWorkspace: Array<Record<string, any>> = [];
+const navManage: Array<Record<string, any>> = [];
+const navIntelligence: Array<Record<string, any>> = [];
 const states = [['Awaiting Approval', 'bg-card text-foreground'], ['Approved', 'bg-secondary/15 text-foreground'], ['Scheduled', 'bg-secondary/15 text-foreground'], ['Executing', 'bg-secondary/15 text-foreground'], ['Completed', 'bg-chart-4/15 text-chart-4'], ['Partially Completed', 'bg-secondary/15 text-foreground'], ['Failed', 'bg-chart-5/15 text-chart-5'], ['Paused', 'bg-secondary/15 text-foreground'], ['Cancelled', 'bg-card text-muted-foreground']];
 const Badge = ({
   children,

@@ -27,149 +27,10 @@ const tone: Record<Tone, string> = {
   purple: 'border-border bg-secondary text-foreground',
   slate: 'border-border bg-card text-muted-foreground'
 };
-const kpis: Kpi[] = [{
-  name: 'Revenue',
-  value: '€248,400',
-  previous: '€216,400',
-  change: '+14.8%',
-  tone: 'green',
-  icon: WalletCards
-}, {
-  name: 'Revenue Growth',
-  value: '+14.8%',
-  previous: '+9.2%',
-  change: 'Accelerating',
-  tone: 'green',
-  icon: TrendingUp
-}, {
-  name: 'Gross Margin',
-  value: '42.8%',
-  previous: '41.2%',
-  change: '+1.6pp',
-  tone: 'green',
-  icon: Gauge
-}, {
-  name: 'Customers',
-  value: '4,821',
-  previous: '4,329',
-  change: '+11.4%',
-  tone: 'green',
-  icon: Users
-}, {
-  name: 'Retention',
-  value: '87%',
-  previous: '84%',
-  change: '+3pp',
-  tone: 'green',
-  icon: ShieldCheck
-}, {
-  name: 'Conversion Rate',
-  value: '2.97%',
-  previous: '2.80%',
-  change: '+6.2%',
-  tone: 'green',
-  icon: Target
-}, {
-  name: 'Advertising ROAS',
-  value: '3.6',
-  previous: '4.2',
-  change: '-14%',
-  tone: 'red',
-  icon: BarChart3
-}, {
-  name: 'CAC',
-  value: '€87',
-  previous: '€80',
-  change: '+8.8%',
-  tone: 'amber',
-  icon: Activity
-}, {
-  name: 'Pipeline',
-  value: '€842K',
-  previous: '€770K',
-  change: '+9.4%',
-  tone: 'green',
-  icon: Layers3
-}];
-const changes: Row[] = [{
-  name: 'Revenue',
-  previous: '€216,400',
-  current: '€248,400',
-  change: '+14.8%',
-  tone: 'green',
-  impact: 'High Impact',
-  source: 'Revenue data'
-}, {
-  name: 'Customer acquisition',
-  previous: '4,329',
-  current: '4,821',
-  change: '+11.4%',
-  tone: 'green',
-  impact: 'High Impact',
-  source: 'CRM'
-}, {
-  name: 'Advertising ROAS',
-  previous: '4.2',
-  current: '3.6',
-  change: '-14%',
-  tone: 'red',
-  impact: 'High Impact',
-  source: 'Google Ads / Meta Ads'
-}, {
-  name: 'Conversion rate',
-  previous: '2.80%',
-  current: '2.97%',
-  change: '+6.2%',
-  tone: 'green',
-  impact: 'Medium Impact',
-  source: 'Google Analytics'
-}, {
-  name: 'Customer retention',
-  previous: '84%',
-  current: '87%',
-  change: '+3pp',
-  tone: 'green',
-  impact: 'Medium Impact',
-  source: 'CRM'
-}];
-const opportunities = [{
-  title: 'Increase investment in high-performing acquisition channels',
-  score: 94,
-  confidence: 89,
-  area: 'Advertising',
-  impact: 'High',
-  evidence: 'Google Ads ROAS 4.8 is outperforming the channel average.'
-}, {
-  title: 'Expand high-LTV customer segment',
-  score: 88,
-  confidence: 85,
-  area: 'CRM',
-  impact: 'High',
-  evidence: '€1,240 average LTV with retention holding at 87%.'
-}, {
-  title: 'Optimize advertising budget allocation',
-  score: 82,
-  confidence: 91,
-  area: 'Advertising',
-  impact: 'Medium',
-  evidence: 'A 15% shift could improve blended ROAS.'
-}];
-const risks = [{
-  title: 'Advertising efficiency declining',
-  score: 91,
-  area: 'Advertising',
-  evidence: 'ROAS -14% during the selected period.'
-}, {
-  title: 'Customer acquisition cost increasing',
-  score: 87,
-  area: 'Advertising / CRM',
-  evidence: 'CAC +8.8% while spend continues to rise.'
-}, {
-  title: 'Margin compression detected',
-  score: 74,
-  area: 'Finance',
-  evidence: 'Finance data requires closer review.'
-}];
+const kpis: Kpi[] = [];
+const changes: Row[] = [];
+const opportunities: Array<Record<string, any>> = [];
+const risks: Array<Record<string, any>> = [];
 const questions = ['How is my business performing?', 'What changed this month?', 'What should I focus on?', 'What is the biggest risk?', 'What is my biggest opportunity?', 'Why is revenue changing?', 'What decisions should I make?'];
 const Sparkline = ({
   color = 'var(--chart-3)'
@@ -209,7 +70,7 @@ export const LuluExecutiveOverview = () => {
   const { items: dealRecords, loading: dealsLoading, error: dealsError } = useLiveRecords('sales_deals');
   const getExecutiveField = (record: typeof incomeRecords[number], key: string) => String((record as unknown as Record<string, unknown>)[key] ?? '');
   const totalIncome = incomeRecords.reduce((sum, record) => sum + (Number(getExecutiveField(record, 'amount')) || Number(getExecutiveField(record, 'revenue')) || 0), 0);
-  const liveKpis: Kpi[] = [{ name: 'Revenue', value: totalIncome ? `€${totalIncome.toLocaleString()}` : '—', previous: '—', change: 'Live', tone: 'green', icon: WalletCards }, { name: 'Revenue Growth', value: totalIncome ? 'Live' : '—', previous: '—', change: 'Observed', tone: 'green', icon: TrendingUp }, { name: 'Customers', value: String(customerRecords.length), previous: '—', change: 'Live', tone: 'blue', icon: Users }, { name: 'Open Deals', value: String(dealRecords.length), previous: '—', change: 'Live', tone: 'purple', icon: Target }];
+  const liveKpis: Kpi[] = [];
   const executiveLoading = incomeLoading || customersLoading || dealsLoading;
   const executiveError = incomeError || customersError || dealsError;
   return <div className="min-h-screen bg-[var(--background)] text-foreground">

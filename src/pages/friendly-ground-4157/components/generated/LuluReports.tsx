@@ -10,71 +10,7 @@ type Report = {
   schedule?: string;
   starred?: boolean;
 };
-const reports: Report[] = [{
-  name: 'Monthly Executive Report',
-  type: 'Executive',
-  description: 'Comprehensive overview of business performance, changes, opportunities and risks.',
-  status: 'Ready',
-  updated: '2h ago',
-  ai: true,
-  schedule: 'Monthly',
-  starred: true
-}, {
-  name: 'Advertising Performance Report',
-  type: 'Advertising',
-  description: 'Channel efficiency, spend allocation and return on advertising investment.',
-  status: 'Ready',
-  updated: '1d ago',
-  ai: true,
-  starred: true
-}, {
-  name: 'Customer Retention Analysis',
-  type: 'Customer',
-  description: 'Retention health, cohort movement and the signals behind customer loyalty.',
-  status: 'Ready',
-  updated: '3d ago',
-  schedule: 'Weekly',
-  starred: true
-}, {
-  name: 'Q2 Business Review',
-  type: 'Executive',
-  description: 'Quarterly review of goals, outcomes and the decisions ahead.',
-  status: 'Draft',
-  updated: '5d ago',
-  ai: true
-}, {
-  name: 'Marketing Performance',
-  type: 'Marketing',
-  description: 'Campaign performance across acquisition and lifecycle channels.',
-  status: 'Ready',
-  updated: '2d ago'
-}, {
-  name: 'Sales Pipeline Report',
-  type: 'Sales',
-  description: 'Pipeline coverage, movement and forecast-ready sales activity.',
-  status: 'Ready',
-  updated: '4h ago'
-}, {
-  name: 'Revenue Growth Analysis',
-  type: 'Revenue',
-  description: 'Revenue momentum, growth drivers and areas requiring attention.',
-  status: 'Generating',
-  updated: 'Updating status',
-  ai: true
-}, {
-  name: 'AI Intelligence Report',
-  type: 'AI',
-  description: 'A living brief of important changes detected across the business.',
-  status: 'Ready',
-  updated: '6h ago',
-  ai: true
-}, {
-  name: 'Ecommerce Performance',
-  type: 'Ecommerce',
-  description: 'Store performance, conversion health and customer value signals.',
-  status: 'Ready',
-  updated: '1d ago'
-}];
+const reports: Report[] = [];
 const templates = [['Executive Overview', 'Executive', 'KPIs · Charts · AI Insights', 'Shopify · CRM'], ['Monthly Business Review', 'Executive', 'KPIs · Charts · Recommendations', 'Shopify · Analytics'], ['Advertising Performance', 'Advertising', 'KPIs · Charts · AI Insights', 'Google Ads · Meta Ads'], ['Customer Retention', 'Customer', 'KPIs · Charts · Risks', 'CRM · Shopify'], ['Sales Performance', 'Sales', 'KPIs · Charts · Opportunities', 'CRM'], ['Marketing Performance', 'Marketing', 'KPIs · Charts · AI Insights', 'Ads · Analytics'], ['AI Intelligence Report', 'AI', 'AI Insights · Recommendations', 'Connected sources'], ['Financial Performance', 'Finance', 'KPIs · Charts · Risks', 'Finance · Shopify']];
 const navItems = ['KPI Explorer', 'Reports', 'Comparisons', 'Benchmarks', 'Forecasts', 'Trends', 'Anomalies', 'Attribution'];
 const suggestions = ['Create my monthly executive report', 'Analyze my marketing performance', 'Create an advertising performance report', 'Show me what changed this month', 'Create a customer retention report'];

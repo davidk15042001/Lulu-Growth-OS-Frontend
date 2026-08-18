@@ -34,39 +34,7 @@ const navGroups = [{
   label: 'Security',
   items: ['Audit & Activity']
 }];
-const fields = [{
-  label: 'Default Currency',
-  value: 'USD — US Dollar',
-  description: 'Used for your primary financial reporting.'
-}, {
-  label: 'Default Country',
-  value: 'United States',
-  description: 'Determines regional defaults and tax behavior.'
-}, {
-  label: 'Default Business Entity',
-  value: 'Lulu AI Inc.',
-  description: 'The entity used on new financial documents.'
-}, {
-  label: 'Default Financial Account',
-  value: 'Primary Operating Account',
-  description: 'Account used for default transaction categorization.'
-}, {
-  label: 'Default Language for Financial Documents',
-  value: 'English (US)',
-  description: 'Language applied to generated documents.'
-}, {
-  label: 'Date Format',
-  value: 'MM/DD/YYYY',
-  description: 'How dates appear throughout Finance.'
-}, {
-  label: 'Number Format',
-  value: '1,234,567.89',
-  description: 'How currencies and amounts are displayed.'
-}, {
-  label: 'Decimal Precision',
-  value: '2 decimal places',
-  description: 'Precision used for financial calculations.'
-}];
+const fields: Array<Record<string, any>> = [];
 const prompts = ['What finance settings should I review?', 'Which settings are currently incomplete?', 'Are there configuration issues?'];
 export const LuluFinanceSettings = () => {
   const [active, setActive] = useState('General');

@@ -2,102 +2,11 @@ import { useState } from 'react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Bell, Bot, BriefcaseBusiness, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Download, FileText, Filter, LayoutDashboard, MoreHorizontal, Plus, Search, Settings2, Sparkles, WalletCards, X, ArrowUpRight, AlertTriangle, CheckCircle2, Clock3, ShieldCheck, SlidersHorizontal, Receipt, CircleDollarSign } from 'lucide-react';
 type Status = 'Paid' | 'Partially Paid' | 'Due' | 'Overdue' | 'Estimated' | 'Draft';
-const records = [{
-  type: 'VAT',
-  country: 'Germany',
-  period: 'Q3 2026',
-  taxable: '€125,000',
-  tax: '€23,750',
-  paid: '€20,000',
-  remaining: '€3,750',
-  due: '31 Oct 2026',
-  status: 'Partially Paid' as Status,
-  updated: '08 Aug 2026'
-}, {
-  type: 'Corporate Tax',
-  country: 'United Kingdom',
-  period: 'FY 2026',
-  taxable: '€280,000',
-  tax: '€53,200',
-  paid: '€53,200',
-  remaining: '€0',
-  due: '31 Jan 2027',
-  status: 'Paid' as Status,
-  updated: '05 Aug 2026'
-}, {
-  type: 'Withholding Tax',
-  country: 'Germany',
-  period: 'Q3 2026',
-  taxable: '€45,000',
-  tax: '€6,750',
-  paid: '€0',
-  remaining: '€6,750',
-  due: '31 Oct 2026',
-  status: 'Due' as Status,
-  updated: '01 Aug 2026'
-}, {
-  type: 'VAT',
-  country: 'France',
-  period: 'Q2 2026',
-  taxable: '€98,000',
-  tax: '€19,600',
-  paid: '€19,600',
-  remaining: '€0',
-  due: '31 Jul 2026',
-  status: 'Overdue' as Status,
-  updated: '12 Jul 2026'
-}, {
-  type: 'Local Business Tax',
-  country: 'Germany',
-  period: 'H1 2026',
-  taxable: '€210,000',
-  tax: '€4,200',
-  paid: '€0',
-  remaining: '€4,200',
-  due: '15 Sep 2026',
-  status: 'Estimated' as Status,
-  updated: '03 Aug 2026'
-}];
-const deadlines = [{
-  icon: '▦',
-  type: 'VAT',
-  country: 'Germany',
-  period: 'Q3 2026',
-  date: '31 Oct 2026',
-  amount: '€3,750',
-  status: 'Due',
-  days: '84 days'
-}, {
-  icon: '◈',
-  type: 'Withholding Tax',
-  country: 'Germany',
-  period: 'Q3 2026',
-  date: '31 Oct 2026',
-  amount: '€6,750',
-  status: 'Due',
-  days: '84 days'
-}, {
-  icon: '▤',
-  type: 'Local Business Tax',
-  country: 'Germany',
-  period: 'H1 2026',
-  date: '15 Sep 2026',
-  amount: '€4,200',
-  status: 'Estimated',
-  days: '38 days'
-}, {
-  icon: '◇',
-  type: 'Corporate Tax',
-  country: 'France',
-  period: 'FY 2026',
-  date: '15 Dec 2026',
-  amount: 'TBD',
-  status: 'Draft',
-  days: '130 days'
-}];
+const records: Array<Record<string, any>> = [];
+const deadlines: Array<Record<string, any>> = [];
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
 const calendarDays = [27, 28, 29, 30, 31, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 1, 2, 3, 4, 5, 6];
-const expenses = [['Software & SaaS', '€18,200', '€3,458', 'Deductible', 'Classified', 'green'], ['Travel & Entertainment', '€12,400', '€2,356', 'Partially Deductible', 'Needs Review', 'amber'], ['Office Supplies', '€3,200', '€608', 'Deductible', 'Classified', 'green'], ['Contractor Payments', '€24,000', '€4,560', 'Deductible', 'Classified', 'green'], ['Miscellaneous', '€8,400', '—', '—', 'Unclassified', 'red']];
+const expenses: any[][] = [];
 function StatusBadge({
   status
 }: {

@@ -31,110 +31,9 @@ const navItems = [{
   label: 'Automations',
   icon: Zap
 }];
-const reviews: Review[] = [{
-  id: '1842',
-  title: 'Love the fit and feel',
-  text: 'The fabric is so soft and it fits perfectly. Will be ordering another color.',
-  rating: 5,
-  product: 'Premium Hoodie',
-  customer: 'Sarah Johnson',
-  store: 'Lulu Store',
-  date: 'Aug 12, 2024',
-  response: 'Responded',
-  classification: 'Positive',
-  tone: 'positive'
-}, {
-  id: '1901',
-  title: 'Great quality',
-  text: 'Really happy with this purchase, arrived quickly and looks exactly like the photos.',
-  rating: 4,
-  product: 'Canvas Tote Bag',
-  customer: 'Michael Chen',
-  store: 'Style and Co',
-  date: 'Aug 11, 2024',
-  response: 'Unanswered',
-  classification: 'Positive',
-  tone: 'positive'
-}, {
-  id: '1798',
-  title: 'The zipper broke after one week',
-  text: 'Disappointed. The zipper broke after only a few wears and support has not replied.',
-  rating: 1,
-  product: 'Premium Hoodie',
-  customer: 'Emma Wilson',
-  store: 'Lulu Store',
-  date: 'Aug 10, 2024',
-  response: 'AI Draft Ready',
-  classification: 'Negative',
-  tone: 'negative',
-  rowTone: 'red'
-}, {
-  id: '1887',
-  title: 'Beautiful scarf',
-  text: 'The colors are even better in person. A lovely lightweight scarf for summer.',
-  rating: 5,
-  product: 'Silk Scarf',
-  customer: 'Priya Patel',
-  store: 'Lulu Store',
-  date: 'Aug 10, 2024',
-  response: 'Unanswered',
-  classification: 'Positive',
-  tone: 'positive'
-}, {
-  id: '1764',
-  title: 'Shipping took too long',
-  text: 'The bag is nice, but it arrived two weeks late with no updates along the way.',
-  rating: 2,
-  product: 'Canvas Tote Bag',
-  customer: 'David Lee',
-  store: 'Style and Co',
-  date: 'Aug 9, 2024',
-  response: 'AI Draft Ready',
-  classification: 'Negative',
-  tone: 'negative',
-  rowTone: 'amber'
-}, {
-  id: '1721',
-  title: 'Good, but size runs small',
-  text: 'The material is great. I would recommend sizing up for a more relaxed fit.',
-  rating: 3,
-  product: 'Slim Fit Chino',
-  customer: 'Alex Torres',
-  store: 'Lulu Store',
-  date: 'Aug 8, 2024',
-  response: 'Unanswered',
-  classification: 'Mixed',
-  tone: 'mixed'
-}];
+const reviews: Review[] = [];
 const prompts = ['Which reviews need attention', 'Show unanswered reviews', 'Draft today responses', 'Find shipping complaints', 'Find product issues', 'Summarize feedback'];
-const attentionRows = [{
-  title: 'The zipper broke after one week',
-  product: 'Premium Hoodie',
-  store: 'Lulu Store',
-  issue: 'Product Quality',
-  rating: 1,
-  severity: 'Critical',
-  status: 'Unanswered',
-  actions: ['Generate Response', 'Open Product', 'Ask AI']
-}, {
-  title: 'Shipping took too long',
-  product: 'Canvas Tote Bag',
-  store: 'Style and Co',
-  issue: 'Shipping Delay',
-  rating: 2,
-  severity: 'High',
-  status: 'AI Draft Ready',
-  actions: ['Approve Draft', 'Edit', 'Ask AI']
-}, {
-  title: 'Wrong size received',
-  product: 'Slim Fit Chino',
-  store: 'Lulu Store',
-  issue: 'Wrong Item',
-  rating: 2,
-  severity: 'High',
-  status: 'Response Pending',
-  actions: ['Publish', 'Edit', 'Ask AI']
-}];
+const attentionRows: Array<{ title: string; rating: number; product: string; store: string; issue: string; severity: string; status: string; actions: string[] }> = [];
 function Stars({
   rating
 }: {
@@ -179,11 +78,11 @@ export function LuluReviewsPage() {
         <div className="mt-auto flex flex-col gap-3"><button className="flex h-10 w-10 items-center justify-center rounded-xl text-foreground hover:bg-secondary hover:text-foreground" aria-label="Help"><CircleHelp size={19} /></button><button className="flex h-10 w-10 items-center justify-center rounded-xl text-foreground hover:bg-secondary hover:text-foreground" aria-label="Settings"><Settings size={19} /></button><div className="flex h-9 w-9 items-center justify-center rounded-full bg-sidebar text-xs font-bold text-foreground">JD</div></div>
       </aside>
       <section className="min-h-screen md:pl-[72px]">
-        <header className="flex h-16 items-center justify-between border-b border-border bg-card px-5 md:px-8"><div className="flex items-center gap-3"><button className="text-foreground md:hidden" aria-label="Open navigation"><PanelLeft size={20} /></button><div className="flex items-center gap-2 text-sm"><span className="text-muted-foreground">Ecommerce</span><ChevronRight size={14} className="text-foreground" /><span className="font-semibold">Reviews</span></div></div><div className="flex items-center gap-4"><button aria-label="Notifications" className="text-foreground hover:text-foreground"><Bell size={19} /></button><span className="hidden text-sm text-muted-foreground sm:inline">Jordan Davis</span><div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-xs font-bold text-foreground">JD</div></div></header>
+        <header className="flex h-16 items-center justify-between border-b border-border bg-card px-5 md:px-8"><div className="flex items-center gap-3"><button className="text-foreground md:hidden" aria-label="Open navigation"><PanelLeft size={20} /></button><div className="flex items-center gap-2 text-sm"><span className="text-muted-foreground">Ecommerce</span><ChevronRight size={14} className="text-foreground" /><span className="font-semibold">Reviews</span></div></div><div className="flex items-center gap-4"><button aria-label="Notifications" className="text-foreground hover:text-foreground"><Bell size={19} /></button><span className="hidden text-sm text-muted-foreground sm:inline">Workspace member</span><div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-xs font-bold text-foreground">JD</div></div></header>
         <div className="mx-auto max-w-[1600px] px-5 py-7 md:px-8">
           <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end"><div><p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-foreground">Customer voice</p><h1 className="text-3xl font-bold tracking-tight">Reviews</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Manage customer reviews, responses and review activity across your connected ecommerce stores.</p></div><div className="flex flex-wrap gap-2"><button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary focus:outline-none focus:ring-2 focus:ring-ring"><Sparkles size={16} />Ask Lulu AI</button><button className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground transition hover:bg-card focus:outline-none focus:ring-2 focus:ring-ring"><RefreshCw size={15} />Refresh</button><button className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground transition hover:bg-card"><Download size={15} />Export</button><button className="rounded-lg px-3 py-2.5 text-foreground hover:bg-card" aria-label="More actions"><MoreHorizontal size={19} /></button></div></div>
 
-          <section className="mt-7 rounded-lg border border-border bg-card p-4" aria-label="Review toolbar"><div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between"><div className="flex flex-wrap gap-2"><label className="relative"><span className="sr-only">Store selector</span><select className="h-10 appearance-none rounded-lg border border-border bg-card py-2 pl-3 pr-9 text-sm font-medium outline-none focus:ring-2 focus:ring-ring"><option>All Stores</option><option>Lulu Store · Shopify · Connected</option><option>Style and Co · WooCommerce · Connected</option><option>Webflow Shop · Webflow · Pending</option></select><ChevronDown size={15} className="pointer-events-none absolute right-3 top-3 text-muted-foreground" /></label><label className="relative"><span className="sr-only">Date range selector</span><select className="h-10 appearance-none rounded-lg border border-border bg-card py-2 pl-3 pr-9 text-sm font-medium outline-none focus:ring-2 focus:ring-ring"><option>Last 30 Days</option><option>Today</option><option>Yesterday</option><option>Last 7 Days</option><option>Last 90 Days</option><option>Year to Date</option><option>Custom Range</option></select><ChevronDown size={15} className="pointer-events-none absolute right-3 top-3 text-muted-foreground" /></label></div><div className="flex flex-col gap-2 sm:flex-row"><label className="relative"><Search size={16} className="absolute left-3 top-3 text-muted-foreground" /><span className="sr-only">Search reviews products customers</span><input value={query} onChange={event => setQuery(event.target.value)} className="h-10 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring sm:w-72" placeholder="Search reviews products customers" /></label><button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground hover:bg-card"><Filter size={15} />Filters <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[10px] text-foreground">2</span></button></div></div><div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">{chips.map(chip => <span key={chip} className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-foreground">{chip}<button onClick={() => setChips(chips.filter(item => item !== chip))} aria-label={`Remove ${chip} filter`}><X size={13} /></button></span>)}<button onClick={() => setChips([])} className="text-xs font-semibold text-foreground hover:text-foreground">Clear all</button></div></section>
+          <section className="mt-7 rounded-lg border border-border bg-card p-4" aria-label="Review toolbar"><div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between"><div className="flex flex-wrap gap-2"><label className="relative"><span className="sr-only">Store selector</span><select className="h-10 appearance-none rounded-lg border border-border bg-card py-2 pl-3 pr-9 text-sm font-medium outline-none focus:ring-2 focus:ring-ring"><option>All Stores</option><option>Connected store · Shopify · Connected</option><option>Connected store · WooCommerce · Connected</option><option>Connected store · Webflow · Pending</option></select><ChevronDown size={15} className="pointer-events-none absolute right-3 top-3 text-muted-foreground" /></label><label className="relative"><span className="sr-only">Date range selector</span><select className="h-10 appearance-none rounded-lg border border-border bg-card py-2 pl-3 pr-9 text-sm font-medium outline-none focus:ring-2 focus:ring-ring"><option>Last 30 Days</option><option>Today</option><option>Yesterday</option><option>Last 7 Days</option><option>Last 90 Days</option><option>Year to Date</option><option>Custom Range</option></select><ChevronDown size={15} className="pointer-events-none absolute right-3 top-3 text-muted-foreground" /></label></div><div className="flex flex-col gap-2 sm:flex-row"><label className="relative"><Search size={16} className="absolute left-3 top-3 text-muted-foreground" /><span className="sr-only">Search reviews products customers</span><input value={query} onChange={event => setQuery(event.target.value)} className="h-10 w-full rounded-lg border border-border bg-card pl-9 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring sm:w-72" placeholder="Search reviews products customers" /></label><button className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-border px-3 text-sm font-semibold text-foreground hover:bg-card"><Filter size={15} />Filters <span className="rounded-full bg-secondary px-1.5 py-0.5 text-[10px] text-foreground">2</span></button></div></div><div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">{chips.map(chip => <span key={chip} className="inline-flex items-center gap-1.5 rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-foreground">{chip}<button onClick={() => setChips(chips.filter(item => item !== chip))} aria-label={`Remove ${chip} filter`}><X size={13} /></button></span>)}<button onClick={() => setChips([])} className="text-xs font-semibold text-foreground hover:text-foreground">Clear all</button></div></section>
 
           <section className="mt-5 grid grid-cols-2 gap-3 xl:grid-cols-6">{[['Total Reviews', '2,847', 'Across all stores', 'border-border'], ['New Reviews', '34', 'Last 30 days', 'border-border'], ['Unanswered', '127', 'Require response', 'border-chart-1'], ['Negative Reviews', '43', 'One to two star ratings', 'border-chart-5'], ['Needs Attention', '18', 'Action required', 'border-chart-1'], ['AI Response Ready', '89', 'Drafts prepared', 'border-border']].map(([label, value, detail, accent]) => <article key={label} className={`rounded-lg border border-border border-l-4 ${accent} bg-card p-4 ${label === 'AI Response Ready' ? 'bg-secondary/50' : ''}`}><div className="flex items-center justify-between"><p className="text-xs font-semibold text-muted-foreground">{label}</p>{label === 'AI Response Ready' && <Sparkles size={15} className="text-foreground" />}</div><p className="mt-2 text-2xl font-bold tracking-tight">{value}</p><p className="mt-1 text-xs text-muted-foreground">{detail}</p></article>)}</section>
 
@@ -193,7 +92,7 @@ export function LuluReviewsPage() {
 
           <section className="mt-7 grid gap-5 xl:grid-cols-3">
             <article className="rounded-lg border border-border border-l-4 border-l-border bg-card p-5"><div className="flex items-center gap-2"><Sparkles size={17} className="text-foreground" /><h2 className="font-bold">Ask Lulu AI</h2></div><div className="mt-4 rounded-lg bg-secondary p-4"><div className="flex items-start gap-3"><Bot size={18} className="mt-0.5 text-foreground" /><div><h3 className="text-sm font-bold text-foreground">Shipping delays are trending</h3><p className="mt-1 text-xs leading-5 text-foreground">8 reviews mention shipping delays across 2 stores and 3 products. Reviews var(--chart-4), var(--chart-4) and var(--chart-4) may need follow-up.</p><p className="mt-2 text-[10px] text-foreground">AI-generated analysis · Not verified</p><button className="mt-3 rounded-md bg-card px-3 py-2 text-xs font-semibold text-foreground shadow-sm hover:bg-secondary">View Reviews</button></div></div></div><div className="mt-4 flex gap-2 overflow-x-auto pb-1">{prompts.map(item => <button key={item} onClick={() => setPrompt(item)} className="whitespace-nowrap rounded-full border border-border px-3 py-1.5 text-[11px] text-foreground hover:border-border hover:text-foreground">{item}</button>)}</div><div className="mt-4 flex items-center gap-2 rounded-lg border border-border p-2"><input value={prompt} onChange={event => setPrompt(event.target.value)} className="min-w-0 flex-1 bg-transparent px-2 text-xs outline-none" placeholder="Ask Lulu AI about your reviews" /><button aria-label="Send prompt" className="rounded-md bg-primary p-2 text-primary-foreground hover:bg-primary"><Send size={14} /></button></div></article>
-            <article className="rounded-lg border border-border bg-card p-5"><div className="flex items-center justify-between"><h2 className="font-bold">Review Operations Health</h2><button aria-label="Health details" className="text-foreground"><MoreHorizontal size={18} /></button></div><div className="mt-4 grid grid-cols-2 gap-2">{['Review Synchronization', 'Unanswered Reviews', 'Response Publishing', 'Moderation', 'AI Response Generation', 'Platform Connectivity'].map(label => <div key={label} className="rounded-lg bg-card p-3"><div className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground"><span className={`h-2 w-2 rounded-full ${label === 'Unanswered Reviews' ? 'bg-chart-1' : 'bg-chart-4'}`} />{label}</div><p className={`mt-1 text-[10px] font-bold ${label === 'Unanswered Reviews' ? 'text-chart-1' : 'text-chart-4'}`}>{label === 'Unanswered Reviews' ? 'Attention Required' : 'Healthy'}</p></div>)}</div><div className="my-4 border-t border-border" /><h3 className="text-xs font-bold">Review Synchronization</h3><div className="mt-2 space-y-2">{[['Lulu Store', 'Synced', '2 min ago', '8 new'], ['Style and Co', 'Synced', '5 min ago', '4 new'], ['Webflow Shop', 'Delayed', '2 hours ago', '1 delayed']].map(([store, status, time, count]) => <div key={store} className="flex items-center justify-between text-xs"><span className="font-medium text-foreground">{store}</span><span className={status === 'Delayed' ? 'text-chart-1' : 'text-foreground'}>{status}</span><span className="text-muted-foreground">{time}</span><span className="text-muted-foreground">{count}</span></div>)}</div><div className="mt-4 flex items-center justify-between"><button className="text-xs font-semibold text-foreground hover:text-foreground">Open Integrations <ExternalLink className="ml-1 inline" size={12} /></button><button className="text-xs font-semibold text-foreground hover:text-foreground">Retry Sync</button></div></article>
+            <article className="rounded-lg border border-border bg-card p-5"><div className="flex items-center justify-between"><h2 className="font-bold">Review Operations Health</h2><button aria-label="Health details" className="text-foreground"><MoreHorizontal size={18} /></button></div><div className="mt-4 grid grid-cols-2 gap-2">{['Review Synchronization', 'Unanswered Reviews', 'Response Publishing', 'Moderation', 'AI Response Generation', 'Platform Connectivity'].map(label => <div key={label} className="rounded-lg bg-card p-3"><div className="flex items-center gap-1.5 text-[11px] font-semibold text-foreground"><span className={`h-2 w-2 rounded-full ${label === 'Unanswered Reviews' ? 'bg-chart-1' : 'bg-chart-4'}`} />{label}</div><p className={`mt-1 text-[10px] font-bold ${label === 'Unanswered Reviews' ? 'text-chart-1' : 'text-chart-4'}`}>{label === 'Unanswered Reviews' ? 'Attention Required' : 'Healthy'}</p></div>)}</div><div className="my-4 border-t border-border" /><h3 className="text-xs font-bold">Review Synchronization</h3><div className="mt-2 space-y-2">{[['Connected store', 'Synced', '2 min ago', '8 new'], ['Connected store', 'Synced', '5 min ago', '4 new'], ['Connected store', 'Delayed', '2 hours ago', '1 delayed']].map(([store, status, time, count]) => <div key={store} className="flex items-center justify-between text-xs"><span className="font-medium text-foreground">{store}</span><span className={status === 'Delayed' ? 'text-chart-1' : 'text-foreground'}>{status}</span><span className="text-muted-foreground">{time}</span><span className="text-muted-foreground">{count}</span></div>)}</div><div className="mt-4 flex items-center justify-between"><button className="text-xs font-semibold text-foreground hover:text-foreground">Open Integrations <ExternalLink className="ml-1 inline" size={12} /></button><button className="text-xs font-semibold text-foreground hover:text-foreground">Retry Sync</button></div></article>
             <article className="rounded-lg border border-border bg-card p-5"><div className="flex items-center justify-between"><h2 className="font-bold">Recent Review Activity</h2><button aria-label="Activity options" className="text-foreground"><MoreHorizontal size={18} /></button></div><ol className="mt-5 space-y-4">{[['AI response generated for review 1842', 'Lulu AI', '2 min ago', 'violet'], ['Review 1901 synchronized', 'System', '5 min ago', 'gray'], ['Response approved for review 1798', 'Admin', '12 min ago', 'gray'], ['Review 1887 flagged', 'Admin', '1 hour ago', 'gray'], ['AI classification generated for 12 reviews', 'Lulu AI', '2 hours ago', 'violet']].map(([event, by, time, tone]) => <li key={event} className="flex gap-3"><span className={`mt-1 flex h-6 w-6 shrink-0 items-center justify-center rounded-full ${tone === 'violet' ? 'bg-secondary text-foreground' : 'bg-secondary text-muted-foreground'}`}>{tone === 'violet' ? <Sparkles size={12} /> : <Check size={12} />}</span><div className="min-w-0"><p className="text-xs font-semibold text-foreground">{event}</p><p className="mt-0.5 text-[11px] text-muted-foreground">{by} · {time}</p></div></li>)}</ol><button className="mt-5 text-xs font-semibold text-foreground hover:text-foreground">View All Activity <ChevronRight className="ml-1 inline" size={13} /></button></article>
           </section>
         </div>

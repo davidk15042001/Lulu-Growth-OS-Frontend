@@ -14,95 +14,13 @@ interface Task {
   due: string;
   progress?: number;
 }
-const stats = [['18', 'Active Tasks', 'blue'], ['4', 'Pending Approval', 'amber'], ['3', 'Executing', 'green'], ['11', 'Completed Today', 'green'], ['1', 'Failed', 'red'], ['6', 'Scheduled', 'indigo'], ['2', 'Blocked', 'orange']];
+const stats: any[][] = [];
 const tabs = ['All Tasks (18)', 'My Tasks (5)', 'AI Tasks (13)', 'Human Tasks (5)', 'Pending Approval (4)', 'Executing (3)', 'Scheduled (6)', 'Completed (11)', 'Failed (1)', 'Blocked (2)', 'Archived'];
 const filters = ['Status', 'Priority', 'Business Area', 'Owner', 'AI / Human', 'Source', 'Platform', 'Due Date', 'Requires Approval', 'Execution Capability'];
-const approvals = [['Optimize underperforming Google Ads campaigns', 'AI Recommendation', 'Advertising', 'High', 'Pause 3 campaigns, reallocate $4,200 budget', 'Estimated +$1,800/mo', 'Low', 'Google Ads write access'], ['Adjust Meta Ads audience targeting', 'AI Insight', 'Advertising', 'High', 'Update audience segments', 'Estimated +12% efficiency', 'Low', 'Authorized'], ['Identify high-value customers at churn risk', 'AI Recommendation', 'Customers', 'High', 'Run churn risk analysis', 'Estimated retain 8 accounts', 'None', 'CRM read access'], ['Generate SEO content recommendations', 'Scheduled Workflow', 'Marketing', 'Medium', 'Analyze top 20 keywords', '—', 'None', 'Search Console access']];
-const tasks: Task[] = [{
-  id: 'conversion',
-  name: 'Analyze declining conversion rates',
-  source: 'AI Insight',
-  area: 'Ecommerce',
-  priority: 'High',
-  status: 'In Progress',
-  owner: 'Lulu AI',
-  mode: 'AI',
-  due: 'Today',
-  progress: 60
-}, {
-  id: 'opportunities',
-  name: 'Review stalled sales opportunities',
-  source: 'AI Recommendation',
-  area: 'Sales',
-  priority: 'High',
-  status: 'Approved',
-  owner: 'Lulu AI + User',
-  mode: 'AI+Human',
-  due: 'Tomorrow'
-}, {
-  id: 'cac',
-  name: 'Monitor customer acquisition cost',
-  source: 'Monitoring',
-  area: 'Marketing',
-  priority: 'Medium',
-  status: 'Executing',
-  owner: 'Lulu AI',
-  mode: 'AI',
-  due: 'Ongoing'
-}, {
-  id: 'anomaly',
-  name: 'Investigate revenue anomaly',
-  source: 'Anomaly',
-  area: 'Finance',
-  priority: 'Critical',
-  status: 'Awaiting Approval',
-  owner: 'User',
-  mode: 'Human+AI',
-  due: 'Today'
-}, {
-  id: 'data',
-  name: 'Validate missing ecommerce data',
-  source: 'AI Insight',
-  area: 'Ecommerce',
-  priority: 'Medium',
-  status: 'Blocked',
-  owner: 'Lulu AI',
-  mode: 'AI',
-  due: 'Yesterday · overdue'
-}, {
-  id: 'report',
-  name: 'Create monthly executive report',
-  source: 'Scheduled Workflow',
-  area: 'Operations',
-  priority: 'Low',
-  status: 'Scheduled',
-  owner: 'Lulu AI',
-  mode: 'AI',
-  due: 'Fri'
-}, {
-  id: 'ads',
-  name: 'Analyze Google Ads campaign efficiency',
-  source: 'AI Recommendation',
-  area: 'Advertising',
-  priority: 'High',
-  status: 'In Progress',
-  owner: 'Lulu AI',
-  mode: 'AI',
-  due: 'Today',
-  progress: 40
-}, {
-  id: 'bottlenecks',
-  name: 'Identify process bottlenecks',
-  source: 'User',
-  area: 'Operations',
-  priority: 'Medium',
-  status: 'New',
-  owner: 'Unassigned',
-  mode: 'Human',
-  due: 'Next Week'
-}];
-const logs = [['09:28', 'Identified 3 underperforming campaigns', 'Google Ads', 'Completed'], ['09:31', 'Analyzed attribution and conversion data', 'GA4', 'Completed'], ['09:35', 'Compared audience performance', 'Google Ads', 'Completed'], ['09:42', 'Generated optimization proposal', 'Internal', 'Completed'], ['09:44', 'Sent approval request', 'System', 'Sent']];
-const sources = [['Google Ads', '2 min', 'Ready'], ['Meta Ads', '5 min', 'Ready'], ['GA4', '8 min', 'Ready'], ['Shopify', '12 min', 'Ready'], ['CRM', '22 min', 'Ready'], ['Finance', '4 hrs', 'Limited']];
+const approvals: any[][] = [];
+const tasks: Task[] = [];
+const logs: any[][] = [];
+const sources: any[][] = [];
 const toneClass: Record<Tone, string> = {
   gray: 'bg-card/50 text-foreground border-border',
   amber: 'bg-secondary/10 text-foreground border-border/30',
@@ -156,7 +74,7 @@ export function LuluAITasks() {
     <aside className="hidden lg:flex w-[248px] shrink-0 border-r border-border bg-[var(--background)] flex-col p-4 sticky top-0 h-screen">
       <div className="flex items-center gap-3 px-3 py-4 mb-5"><div className="h-9 w-9 rounded-xl bg-gradient-to-br from-primary to-primary flex items-center justify-center shadow-lg shadow-black/20 text-primary-foreground"><Sparkles size={18} className="text-foreground" /></div><div><strong className="text-foreground tracking-tight">lulu<span className="text-foreground">.</span>ai</strong><p className="text-[10px] text-muted-foreground mt-0.5">BUSINESS OS</p></div></div>
       <LuluSectionNavigation activeId="wispy-leaf-3778" />
-      <div className="mt-auto border-t border-border pt-4"><div className="flex items-center gap-3 px-2"><div className="h-8 w-8 rounded-full bg-gradient-to-br from-secondary to-card flex items-center justify-center text-xs font-bold">JD</div><div className="min-w-0"><p className="text-xs text-foreground">Jordan Davis</p><p className="text-[10px] text-muted-foreground truncate">Operations lead</p></div><MoreHorizontal size={16} className="ml-auto text-muted-foreground" /></div></div>
+      <div className="mt-auto border-t border-border pt-4"><div className="flex items-center gap-3 px-2"><div className="h-8 w-8 rounded-full bg-gradient-to-br from-secondary to-card flex items-center justify-center text-xs font-bold">JD</div><div className="min-w-0"><p className="text-xs text-foreground">Workspace member</p><p className="text-[10px] text-muted-foreground truncate">Operations lead</p></div><MoreHorizontal size={16} className="ml-auto text-muted-foreground" /></div></div>
     </aside>
     <section className="flex-1 min-w-0">
       <header className="h-16 border-b border-border bg-[var(--card)]/90 px-5 lg:px-8 flex items-center justify-between sticky top-0 z-20 backdrop-blur-md"><button className="lg:hidden text-foreground" aria-label="Open navigation"><Menu /></button><div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground"><span>Intelligence</span><ChevronRight size={13} /><span>AI Intelligence</span><ChevronRight size={13} /><span className="text-foreground">AI Tasks</span></div><div className="flex items-center gap-2"><button onClick={() => notify('No new notifications')} className="p-2 text-foreground hover:text-foreground" aria-label="Notifications"><Bell size={17} /></button><button onClick={() => notify('Help center opened')} className="p-2 text-foreground hover:text-foreground" aria-label="Help"><CircleHelp size={17} /></button></div></header>

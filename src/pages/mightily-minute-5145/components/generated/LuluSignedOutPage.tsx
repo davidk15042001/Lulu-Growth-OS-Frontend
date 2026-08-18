@@ -7,16 +7,7 @@ type SignOutState = 'success' | 'error';
 interface LuluSignedOutPageProps {
   initialState?: SignOutState;
 }
-const footerLinks = [{
-  label: 'Privacy',
-  href: '#privacy'
-}, {
-  label: 'Terms',
-  href: '#terms'
-}, {
-  label: 'Security',
-  href: '#security'
-}];
+const footerLinks: Array<Record<string, any>> = [];
 export function LuluSignedOutPage({
   initialState = 'success'
 }: LuluSignedOutPageProps) {

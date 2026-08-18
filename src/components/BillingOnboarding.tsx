@@ -33,7 +33,7 @@ const plans: Plan[] = [
     accent: "bg-[var(--secondary)]",
     features: ["View connected data and dashboards", "Explore reports, insights and history", "Read recommendations and opportunities"],
     limitations: "No changes, actions or automation",
-    price: "Free",
+    price: "Included",
     pricePeriod: "Read-only access",
     cta: "Choose Explorer",
   },

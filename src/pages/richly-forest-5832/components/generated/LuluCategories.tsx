@@ -2,61 +2,7 @@ import * as React from 'react';
 import { ChevronDown, ChevronRight, ChevronsUpDown, CircleAlert, CircleCheck, Clock3, Copy, Ellipsis, GripVertical, LayoutGrid, List, MoreHorizontal, Package, Plus, RefreshCw, Search, Settings2, Sparkles, Store, Tags, Trash2, Users, X, Zap } from 'lucide-react';
 const navItems = ['Dashboard', 'AI Platform', 'CRM', 'Marketing', 'Advertising', 'Ecommerce', 'Reports', 'Settings'];
 const subItems = ['Overview', 'Stores', 'Products', 'Categories', 'Orders', 'Inventory', 'Reviews', 'Merchandising', 'Automation'];
-const treeItems = [{
-  id: 'electronics',
-  name: 'Electronics',
-  count: 23,
-  stores: ['Shopify', 'WooCommerce'],
-  children: [{
-    id: 'smartphones',
-    name: 'Smartphones',
-    count: 8
-  }, {
-    id: 'laptops',
-    name: 'Laptops',
-    count: 11
-  }, {
-    id: 'accessories-electronics',
-    name: 'Accessories',
-    count: 4
-  }]
-}, {
-  id: 'clothing',
-  name: 'Clothing',
-  count: 31,
-  stores: ['Shopify'],
-  children: [{
-    id: 'mens',
-    name: "Men's",
-    count: 14
-  }, {
-    id: 'womens',
-    name: "Women's",
-    count: 13
-  }, {
-    id: 'accessories-clothing',
-    name: 'Accessories',
-    count: 4
-  }]
-}, {
-  id: 'home',
-  name: 'Home',
-  count: 18,
-  stores: ['WooCommerce'],
-  children: [{
-    id: 'furniture',
-    name: 'Furniture',
-    count: 7
-  }, {
-    id: 'lighting',
-    name: 'Lighting',
-    count: 5
-  }, {
-    id: 'decor',
-    name: 'Decor',
-    count: 6
-  }]
-}];
+const treeItems: Array<{ id: string; name: string; count: number; stores: string[]; children: Array<{ id: string; name: string; count: number }> }> = [];
 const categories = [{
   id: 'electronics-row',
   name: 'Electronics',
@@ -113,114 +59,10 @@ const categories = [{
   updated: '3d ago',
   operational: 'Synced ✓'
 }];
-const emptyCategories = [{
-  id: 'empty-summer',
-  name: 'Summer Collection',
-  store: 'WooCommerce',
-  updated: '5d ago'
-}, {
-  id: 'empty-sale',
-  name: 'Old Specials',
-  store: 'Shopify',
-  updated: '3d ago'
-}, {
-  id: 'empty-gifts',
-  name: 'Gift Ideas',
-  store: 'Webflow',
-  updated: '8d ago'
-}, {
-  id: 'empty-new',
-  name: 'New Arrivals',
-  store: 'Shopify',
-  updated: '12d ago'
-}];
-const uncategorized = [{
-  id: 'p1',
-  name: 'Canvas Travel Backpack',
-  sku: 'LUL-2041',
-  store: 'Shopify',
-  status: 'Active'
-}, {
-  id: 'p2',
-  name: 'Minimal Desk Lamp',
-  sku: 'HOM-1180',
-  store: 'WooCommerce',
-  status: 'Active'
-}, {
-  id: 'p3',
-  name: 'Everyday Cotton Shirt',
-  sku: 'APP-3309',
-  store: 'Shopify',
-  status: 'Draft'
-}];
-const quality = [{
-  id: 'q1',
-  label: 'Name',
-  state: 'Complete',
-  percent: 100,
-  tone: 'good'
-}, {
-  id: 'q2',
-  label: 'Description',
-  state: '6 incomplete',
-  percent: 84,
-  tone: 'warn'
-}, {
-  id: 'q3',
-  label: 'Image',
-  state: '11 missing',
-  percent: 71,
-  tone: 'bad'
-}, {
-  id: 'q4',
-  label: 'SEO Metadata',
-  state: '8 incomplete',
-  percent: 78,
-  tone: 'warn'
-}, {
-  id: 'q5',
-  label: 'Parent Assignment',
-  state: 'Complete',
-  percent: 100,
-  tone: 'good'
-}, {
-  id: 'q6',
-  label: 'Store Sync',
-  state: 'Synced',
-  percent: 96,
-  tone: 'good'
-}];
-const activity = [{
-  id: 'a1',
-  text: "Category 'Laptops' synced",
-  who: 'System',
-  time: '2h ago',
-  store: 'Shopify'
-}, {
-  id: 'a2',
-  text: "New category 'Summer Sale' created",
-  who: 'Admin',
-  time: '5h ago',
-  store: 'WooCommerce'
-}, {
-  id: 'a3',
-  text: "3 products assigned to 'Accessories'",
-  who: 'Admin',
-  time: '1d ago',
-  store: 'Shopify'
-}, {
-  id: 'a4',
-  text: 'AI categorized 5 products',
-  who: 'Lulu AI',
-  time: '2d ago',
-  store: 'All Stores'
-}, {
-  id: 'a5',
-  text: "Category 'Old Specials' archived",
-  who: 'Admin',
-  time: '3d ago',
-  store: 'Shopify'
-}];
+const emptyCategories: Array<{ id: string; name: string; store: string; updated: string }> = [];
+const uncategorized: Array<{ id: string; name: string; sku: string; store: string; status: string }> = [];
+const quality: Array<{ id: string; tone: string; label: string; state: string; percent: number }> = [];
+const activity: Array<{ id: string; who: string; text: string; time: string; store: string }> = [];
 function StoreMark({
   store
 }: {
@@ -244,7 +86,7 @@ function Sidebar({
   activeNav: string;
   setActiveNav: (value: string) => void;
 }) {
-  return <aside className="sidebar"><div className="brand"><span className="brand-mark"><Sparkles size={16} /></span><span>Lulu<span className="brand-ai">AI</span></span></div><div className="workspace"><span className="workspace-avatar">L</span><span><strong>Lulu Workspace</strong><small>Admin workspace</small></span><ChevronsUpDown size={15} /></div><LuluSectionNavigation activeId="richly-forest-5832" /><div className="sidebar-bottom"><button className="help-button"><CircleAlert size={16} />Help & Support</button><div className="profile"><span className="profile-avatar">JD</span><span><strong>Jordan Davis</strong><small>jordan@lulu.ai</small></span><Ellipsis size={17} /></div></div></aside>;
+  return <aside className="sidebar"><div className="brand"><span className="brand-mark"><Sparkles size={16} /></span><span>Lulu<span className="brand-ai">AI</span></span></div><div className="workspace"><span className="workspace-avatar">L</span><span><strong>Lulu Workspace</strong><small>Admin workspace</small></span><ChevronsUpDown size={15} /></div><LuluSectionNavigation activeId="richly-forest-5832" /><div className="sidebar-bottom"><button className="help-button"><CircleAlert size={16} />Help & Support</button><div className="profile"><span className="profile-avatar">JD</span><span><strong>Workspace member</strong><small>jordan@lulu.ai</small></span><Ellipsis size={17} /></div></div></aside>;
 }
 export function LuluCategories() {
   const [activeNav, setActiveNav] = React.useState('Ecommerce');

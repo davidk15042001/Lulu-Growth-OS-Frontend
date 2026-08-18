@@ -3,22 +3,7 @@ import { Check, CircleAlert, Eye, EyeOff, LoaderCircle, X } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { clearPendingEmail, getPendingEmail } from '../../../../api/session';
-const requirements = [{
-  id: 'characters',
-  label: '12+ characters'
-}, {
-  id: 'uppercase',
-  label: 'Uppercase letter'
-}, {
-  id: 'lowercase',
-  label: 'Lowercase letter'
-}, {
-  id: 'number',
-  label: 'Number'
-}, {
-  id: 'special',
-  label: 'Special character'
-}];
+const requirements: Array<Record<string, any>> = [];
 type StateKind = 'success' | 'expired' | 'invalid' | 'loading';
 type StateCardProps = {
   kind: StateKind;

@@ -17,182 +17,13 @@ interface Campaign {
   owner: string;
   dates: string;
 }
-const campaigns: Campaign[] = [{
-  id: 'summer',
-  name: 'Summer Product Launch',
-  status: 'Active',
-  type: 'Product Launch',
-  channels: 'Email · SEO · Social · Paid',
-  audience: 'High-Value Customers',
-  goal: 'Revenue',
-  revenue: '€42,800',
-  leads: '1,284',
-  customers: '184',
-  roi: '4.8x',
-  owner: 'Marketing Team',
-  dates: 'Jun 01 → Jul 15'
-}, {
-  id: 'q4',
-  name: 'Q4 Enterprise Acquisition',
-  status: 'Active',
-  type: 'Customer Acquisition',
-  channels: 'Email · Content · CRM · SEO',
-  audience: 'Enterprise Prospects',
-  goal: 'Leads',
-  revenue: '€28,600',
-  leads: '847',
-  customers: '96',
-  roi: '3.9x',
-  owner: 'Marketing team member',
-  dates: 'Jul 01 → Sep 30'
-}, {
-  id: 'holiday',
-  name: 'Holiday Retention Campaign',
-  status: 'Scheduled',
-  type: 'Customer Retention',
-  channels: 'Email · Social · Automation',
-  audience: 'Loyal Customers',
-  goal: 'Retention',
-  revenue: '—',
-  leads: '—',
-  customers: '—',
-  roi: '—',
-  owner: 'Emma Davis',
-  dates: 'Dec 01 → Jan 15'
-}, {
-  id: 'brand',
-  name: 'Brand Awareness Q3',
-  status: 'Active',
-  type: 'Brand Awareness',
-  channels: 'SEO · GEO · Content · Social',
-  audience: 'All Segments',
-  goal: 'Awareness',
-  revenue: '€12,400',
-  leads: '394',
-  customers: '—',
-  roi: '—',
-  owner: 'Marketing Team',
-  dates: 'Jul 15 → Sep 15'
-}, {
-  id: 'webinar',
-  name: 'Lead Gen Webinar Series',
-  status: 'Paused',
-  type: 'Lead Generation',
-  channels: 'Email · Content · Social',
-  audience: 'SMB Leaders',
-  goal: 'Leads',
-  revenue: '€8,200',
-  leads: '312',
-  customers: '44',
-  roi: '2.1x',
-  owner: 'James Liu',
-  dates: 'Jun 15 → Aug 30'
-}, {
-  id: 'spring',
-  name: 'Spring Promotion',
-  status: 'Completed',
-  type: 'Promotion',
-  channels: 'Email · Paid · Social',
-  audience: 'All Customers',
-  goal: 'Revenue',
-  revenue: '€64,200',
-  leads: '2,108',
-  customers: '312',
-  roi: '6.2x',
-  owner: 'Marketing Team',
-  dates: 'Mar 01 → Apr 30'
-}, {
-  id: 'feature',
-  name: 'New Feature Launch',
-  status: 'Draft',
-  type: 'Product Launch',
-  channels: 'Email · Content · SEO',
-  audience: 'Current Users',
-  goal: 'Engagement',
-  revenue: '—',
-  leads: '—',
-  customers: '—',
-  roi: '—',
-  owner: 'Marketing team member',
-  dates: 'TBD'
-}];
+const campaigns: Campaign[] = [];
 const navItems = ['Campaigns', 'Content', 'SEO', 'GEO', 'AEO', 'Audiences', 'Analytics', 'Automations'];
 const filterItems = ['Status', 'Campaign Type', 'Channel', 'Owner', 'Audience', 'Goal', 'Date'];
 const savedFilters = ['Active Campaigns', 'My Campaigns', 'High ROI', 'Underperforming', 'Scheduled', 'Completed', 'AI Optimizations', 'Requires Attention'];
-const channels = [{
-  name: 'Email',
-  icon: Mail,
-  revenue: '€14,800',
-  leads: '482',
-  conversion: '8.2%',
-  tone: 'violet'
-}, {
-  name: 'SEO',
-  icon: Globe2,
-  revenue: '€12,400',
-  leads: '394',
-  conversion: '7.1%',
-  tone: 'emerald'
-}, {
-  name: 'Organic Social',
-  icon: Users,
-  revenue: '€6,800',
-  leads: '234',
-  conversion: '4.8%',
-  tone: 'blue'
-}, {
-  name: 'Paid Advertising',
-  icon: Target,
-  revenue: '€9,800',
-  leads: '302',
-  conversion: '3.9x ROI',
-  tone: 'amber'
-}];
-const funnel = [{
-  label: 'Audience',
-  value: '8,400',
-  detail: 'contacts'
-}, {
-  label: 'Reach',
-  value: '62,400',
-  detail: '+18% vs target'
-}, {
-  label: 'Engagement',
-  value: '18,200',
-  detail: '29.2% conversion'
-}, {
-  label: 'Leads',
-  value: '1,284',
-  detail: '7.1% conversion'
-}, {
-  label: 'Qualified Leads',
-  value: '847',
-  detail: '66% conversion'
-}, {
-  label: 'Customers',
-  value: '184',
-  detail: '21.7% conversion'
-}, {
-  label: 'Revenue',
-  value: '€42,800',
-  detail: '86% of target'
-}];
-const insightCards = [{
-  title: 'Email is the highest-converting channel',
-  body: '8.2% vs 5.4% campaign average',
-  impact: 'High',
-  color: 'violet'
-}, {
-  title: 'Organic search is gaining momentum',
-  body: 'Increasing traffic at a lower acquisition cost',
-  impact: 'Medium',
-  color: 'blue'
-}, {
-  title: 'Paid advertising performance is declining',
-  body: 'Review recommended versus campaign start',
-  impact: 'Critical',
-  color: 'red'
-}];
+const channels: Array<Record<string, any>> = [];
+const funnel: Array<Record<string, any>> = [];
+const insightCards: Array<Record<string, any>> = [];
 function statusIcon(status: CampaignStatus) {
   if (status === 'Active') return <Play size={11} fill="currentColor" />;
   if (status === 'Scheduled') return <Clock3 size={12} />;
@@ -215,7 +46,7 @@ export function LuluCampaigns() {
   const getCampaignField = (record: typeof campaignRecords[number], key: string) => String((record as unknown as Record<string, unknown>)[key] ?? '');
   const liveCampaigns: Campaign[] = campaignRecords.map(record => ({ id: record.id, name: getCampaignField(record, 'name') || 'Marketing campaign', status: (getCampaignField(record, 'status') || 'Draft') as CampaignStatus, type: getCampaignField(record, 'type') || 'Campaign', channels: getCampaignField(record, 'channels') || 'Connected channels', audience: getCampaignField(record, 'audience') || 'Connected audience', goal: getCampaignField(record, 'goal') || '—', revenue: record.valueAmount || '—', leads: getCampaignField(record, 'leads') || '—', customers: getCampaignField(record, 'customers') || '—', roi: getCampaignField(record, 'roi') || '—', owner: getCampaignField(record, 'ownerName') || 'Workspace owner', dates: getCampaignField(record, 'dates') || record.updatedAt || '—' }));
   const visible = (campaignsLoading ? [] : liveCampaigns).filter(campaign => campaign.name.toLowerCase().includes(query.toLowerCase()));
-  const liveMetrics = [{ label: 'Active Campaigns', value: String(liveCampaigns.filter(campaign => campaign.status === 'Active').length), icon: Play, trend: 'Live records', color: 'emerald' }, { label: 'Scheduled', value: String(liveCampaigns.filter(campaign => campaign.status === 'Scheduled').length), icon: Clock3, trend: 'Live records', color: 'blue' }, { label: 'Completed', value: String(liveCampaigns.filter(campaign => campaign.status === 'Completed').length), icon: Check, trend: 'Live records', color: 'slate' }, { label: 'Total Campaign Revenue', value: liveCampaigns.length ? liveCampaigns.map(campaign => campaign.revenue).join(', ') : '—', icon: ArrowUpRight, trend: 'Live records', color: 'emerald' }, { label: 'Campaign ROI', value: '—', icon: Gauge, trend: 'Analytics contract required', color: 'emerald' }, { label: 'Needs Attention', value: String(liveCampaigns.filter(campaign => campaign.status === 'Paused').length), icon: CircleAlert, trend: 'Calculated', color: 'amber' }];
+  const liveMetrics: Array<Record<string, any>> = [];
   const notify = (message: string) => {
     setToast(message);
     window.setTimeout(() => setToast(''), 2600);

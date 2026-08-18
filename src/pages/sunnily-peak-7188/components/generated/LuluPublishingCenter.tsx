@@ -3,46 +3,9 @@ import type { ReactNode } from 'react';
 import { Activity, AlertTriangle, ArrowRight, Bell, Bot, Check, ChevronDown, ChevronRight, Clock3, FileCheck2, Filter, HelpCircle, History, LayoutGrid, Link2, Megaphone, MoreHorizontal, Pause, Play, Plus, RefreshCw, Search, Send, Settings2, ShieldCheck, Sparkles, Tag, TrendingUp, Upload, Users, X, Zap } from 'lucide-react';
 type Risk = 'High' | 'Medium' | 'Low';
 type Platform = 'Google' | 'Meta' | 'LinkedIn' | 'TikTok';
-const approvals = [{
-  id: 'lead-gen',
-  platform: 'Google' as Platform,
-  title: 'Q1 Lead Generation Campaign',
-  type: 'New Campaign',
-  risk: 'High' as Risk,
-  impact: '€6,000 Budget Impact',
-  meta: 'Created by Lulu AI · Requested 14 min ago · Deadline: Today 17:00',
-  summary: 'Lulu AI built this campaign from scratch targeting DACH decision-makers. 2 platforms, 3 ad groups, 8 creatives. Tracking validated.'
-}, {
-  id: 'retarget',
-  platform: 'Meta' as Platform,
-  title: 'DACH Retargeting — Budget Increase',
-  type: 'Budget Change',
-  risk: 'Medium' as Risk,
-  impact: '€1,000 impact',
-  meta: 'Current: €3,000/mo → Proposed: €4,000/mo',
-  summary: 'ROAS improved 18% over 14 days. Lulu AI recommends increasing budget to scale performance.',
-  evidence: 'Observed · Google Analytics + Meta Ads data · Updated 8 min ago'
-}, {
-  id: 'enterprise',
-  platform: 'LinkedIn' as Platform,
-  title: 'Enterprise DACH — Audience Update',
-  type: 'Audience Change',
-  risk: 'Low' as Risk,
-  impact: 'No budget impact',
-  meta: 'AI added lookalike expansion: Top 200 CRM customers · ~+340,000 estimated reach',
-  summary: 'Audience expansion is ready for review with no financial commitment.'
-}, {
-  id: 'summer',
-  platform: 'TikTok' as Platform,
-  title: 'Summer Collection — Creative B Swap',
-  type: 'Creative Update',
-  risk: 'Low' as Risk,
-  impact: 'No budget impact',
-  meta: 'AI Recommended replacing Creative A (CTR 0.8%) with Creative B (CTR 2.1% in test).',
-  summary: 'Creative B is outperforming the current asset in the controlled test.'
-}];
-const operations = [['Brand Awareness — DE', 'Google', 'Create Campaign', 'Publishing', 'Lulu AI', 'Sarah M.', '2 min ago'], ['Retargeting — DACH', 'Meta', 'Budget Update', 'Published', 'Lulu AI', 'Sarah M.', '18 min ago'], ['B2B Enterprise', 'LinkedIn', 'Create Campaign', 'Failed', 'Lulu AI', 'Tom K.', '1 hr ago'], ['Summer Collection', 'TikTok', 'Create Campaign', 'Scheduled', 'User', 'Sarah M.', 'Sep 12, 09:00'], ['Q4 Performance Max', 'Google', 'Activate Campaign', 'Published', 'User', 'Auto-Policy', 'Yesterday']];
-const history = [['DACH Retargeting', 'Meta Ads', 'Budget Update ↑', 'Lulu AI', 'Sarah M.', 'Published', '18 min ago'], ['Q4 Perf Max', 'Google Ads', 'Campaign Activate', 'User', 'Auto-Policy', 'Published', 'Yesterday'], ['Brand Awareness Q3', 'Multiple', 'Create Campaign', 'Lulu AI', 'Tom K.', 'Published', 'Sep 8'], ['Summer Sale — Test', 'Meta Ads', 'Creative Swap', 'Lulu AI', 'Sarah M.', 'Rejected', 'Sep 7']];
+const approvals: Array<Record<string, any>> = [];
+const operations = [['Brand Awareness — DE', 'Google', 'Create Campaign', 'Publishing', 'Lulu AI', 'Workspace member', '2 min ago'], ['Retargeting — DACH', 'Meta', 'Budget Update', 'Published', 'Lulu AI', 'Workspace member', '18 min ago'], ['B2B Enterprise', 'LinkedIn', 'Create Campaign', 'Failed', 'Lulu AI', 'Tom K.', '1 hr ago'], ['Summer Collection', 'TikTok', 'Create Campaign', 'Scheduled', 'User', 'Workspace member', 'Sep 12, 09:00'], ['Q4 Performance Max', 'Google', 'Activate Campaign', 'Published', 'User', 'Auto-Policy', 'Yesterday']];
+const history: any[][] = [];
 const platformInfo: Record<Platform, {
   label: string;
   className: string;
@@ -134,7 +97,7 @@ export function LuluPublishingCenter() {
         <article className="side-card assistant"><div className="side-head"><div><h2><Sparkles size={17} /> Ask Lulu AI</h2><p>Publishing context loaded</p></div><Bot size={22} /></div><div className="chat"><p className="user-msg">Is the Q1 Lead Gen campaign ready to publish?</p><div className="ai-msg"><AiBadge>AI Inferred</AiBadge><p>The Q1 Lead Generation campaign has passed AI validation with a score of 8/10. Two warnings remain: LinkedIn Insight Tag not verified and no uploaded creative assets — AI-generated drafts are available. Tracking is ready on Google and Meta. The campaign is awaiting Finance approval before it can be published. Estimated financial exposure: €9,000/month across both platforms.</p><small>Campaign context · Updated just now</small></div></div><div className="suggestions">{['What will this campaign spend?', 'Which platform to publish first?', 'What risks should I review?', 'What changed since v2?'].map(q => <button key={q} onClick={() => notify('Question added to Lulu AI')}>{q}</button>)}</div><label className="chat-input"><input placeholder="Ask about this campaign..." /><button aria-label="Send"><Send size={15} /></button></label></article>
         <article className="side-card"><div className="side-head"><div><h2>Advertising Automation Policy</h2><p>Current Policy <span className="policy">Recommend Changes</span></p></div><button className="text-link">Edit Policy</button></div><div className="policy-level">{['Notify Only', 'Recommend Changes (ACTIVE)', 'Auto-Apply Approved Rules', 'Fully Automated'].map((x, i) => <p key={x}><span className={i === 1 ? 'radio on' : 'radio'} />{x}</p>)}</div><h3 className="subhead">Financial Safeguards</h3><ul className="safeguards"><li>Max budget change: <strong>€2,000 per action</strong></li><li>Max daily spend increase: <strong>20%</strong></li><li>Allowed platforms: Google Ads, Meta Ads</li><li>Requires approval: New campaigns, Budget changes, Audience changes</li><li>Required roles: Marketing Manager + Finance (&gt;€5K)</li></ul><small className="muted-note">Automation cannot exceed these organization-configured limits. Changes require Admin access to modify.</small></article>
         <article className="side-card"><div className="side-head"><h2>AI Alerts <span className="alert-count">2</span></h2><Bell size={16} /></div><div className="alert amber"><h3><AlertTriangle size={14} /> DACH Retargeting — CPA Increased</h3><p>CPA increased 23% over the last 72 hours since budget change was published.</p><small>Observed · Meta Ads · Updated 4 min ago</small><div><button>Review</button><button>Ask Lulu AI</button></div></div><div className="alert blue"><h3><HelpCircle size={14} /> Brand Awareness — Learning Phase</h3><p>Campaign entered learning phase on Google Ads. Expect performance fluctuation for 7–10 days. No action required.</p><small>Observed · Google Ads · Updated 2 min ago</small><div><button>Dismiss</button></div></div></article>
-        <article className="side-card"><div className="side-head"><div><h2><Sparkles size={16} /> Lulu AI Change Summary</h2><p>DACH Retargeting — Version 3</p></div></div><p className="change-intro">Lulu AI proposed 4 changes before this publication:</p><ol className="change-list"><li>Budget increased 33% (€3,000 → €4,000) <AiBadge /></li><li>New CRM lookalike audience added <AiBadge /></li><li>Creative B selected over Creative A (CTR +162%) <AiBadge /></li><li>Conversion optimization changed to Target CPA <AiBadge /></li></ol><small>Approved by: Sarah M. · Published: Today 11:42 CET</small></article>
+        <article className="side-card"><div className="side-head"><div><h2><Sparkles size={16} /> Lulu AI Change Summary</h2><p>DACH Retargeting — Version 3</p></div></div><p className="change-intro">Lulu AI proposed 4 changes before this publication:</p><ol className="change-list"><li>Budget increased 33% (€3,000 → €4,000) <AiBadge /></li><li>New CRM lookalike audience added <AiBadge /></li><li>Creative B selected over Creative A (CTR +162%) <AiBadge /></li><li>Conversion optimization changed to Target CPA <AiBadge /></li></ol><small>Approved by: Workspace member · Published: Today 11:42 CET</small></article>
         <article className="side-card monitoring"><div className="side-head"><h2><span className="green-dot" /> Post-Publish Monitoring</h2></div><p>Active campaigns being monitored: <strong>3</strong></p>{[['DACH Retargeting · Meta', 'ROAS 3.2 · CPL €41 · Spend €1,240', 'Healthy'], ['Q4 Perf Max · Google', 'ROAS 4.1 · CPL €38 · Spend €2,890', 'Healthy'], ['Brand Awareness · Google', 'CTR 2.8% · Reach 48K', 'Learning']].map(row => <div className="monitor-row" key={row[0]}><strong>{row[0]}</strong><span>{row[1]}</span><em>{row[2]}</em></div>)}<button className="outline-btn full">Monitor All Campaigns <ArrowRight size={14} /></button></article>
       </aside></div>
     </main><div className="sticky"><span><strong>1 campaign</strong> selected for review</span><div><button onClick={() => notify('Change rejected')}>Reject <X size={14} /></button><button>Request Changes</button><button className="primary" onClick={() => notify('Approval advanced to Finance')}>Approve & Advance <ArrowRight size={14} /></button></div><span>Finance approval required for budgets over €5,000</span></div>{toast && <div className="toast"><Check size={15} /> {toast}</div>}

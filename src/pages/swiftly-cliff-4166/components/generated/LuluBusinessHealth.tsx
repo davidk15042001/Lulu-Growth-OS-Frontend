@@ -18,129 +18,9 @@ interface Kpi {
   trend: 'up' | 'down';
   kind: string;
 }
-const dimensions: Dimension[] = [{
-  name: 'Revenue Health',
-  score: 79,
-  status: 'Stable',
-  trend: 'Stable',
-  color: 'var(--foreground)',
-  kpis: [['Total Revenue', '$284K', '↓ -2.1%'], ['Revenue Growth', '-2.1%', '↓'], ['Revenue Stability', 'Moderate', '']],
-  points: [42, 48, 45, 50, 47, 52, 49, 54, 51]
-}, {
-  name: 'Customer Health',
-  score: 91,
-  status: 'Excellent',
-  trend: 'Improving',
-  color: 'var(--chart-4)',
-  kpis: [['Active Customers', '1,847', '↑ +4.2%'], ['Retention Rate', '87.2%', '↑ +1.1pp'], ['Churn Rate', '4.8%', '↓ concern']],
-  points: [40, 44, 45, 50, 49, 56, 60, 62, 67]
-}, {
-  name: 'Financial Health',
-  score: 88,
-  status: 'Healthy',
-  trend: 'Improving',
-  color: 'var(--chart-4)',
-  kpis: [['Gross Margin', '64.2%', '↑ +1.3pp'], ['Operating Expenses', '$98K', '→ Stable'], ['Net Profit', '$43K', '↑ +8.4%']],
-  points: [46, 48, 47, 53, 56, 54, 60, 63, 68]
-}, {
-  name: 'Sales Health',
-  score: 74,
-  status: 'Stable',
-  trend: 'Declining',
-  color: 'var(--chart-1)',
-  kpis: [['Pipeline Value', '$1.2M', '↓ -8.3%'], ['Win Rate', '28%', '↓ -2pp'], ['Conversion Rate', '3.4%', '↓ -0.6pp']],
-  points: [66, 64, 62, 61, 58, 60, 56, 52, 50]
-}, {
-  name: 'Marketing Health',
-  score: 80,
-  status: 'Healthy',
-  trend: 'Improving',
-  color: 'var(--chart-4)',
-  kpis: [['Organic Traffic', '42.8K', '↑ +12.4%'], ['Leads', '387', '↑ +6.2%'], ['Cost per Lead', '$24.80', '↓ Improving']],
-  points: [44, 49, 47, 55, 57, 60, 64, 63, 70]
-}, {
-  name: 'Advertising Health',
-  score: 69,
-  status: 'Needs Attention',
-  trend: 'Declining',
-  color: 'var(--chart-1)',
-  kpis: [['ROAS', '2.4x', '↓ -0.6x'], ['CPA', '$48', '↑ +$12'], ['Ad Spend', '$18.4K', '↑ +4.2%']],
-  points: [70, 68, 65, 67, 61, 59, 57, 53, 48]
-}, {
-  name: 'Ecommerce Health',
-  score: 85,
-  status: 'Healthy',
-  trend: 'Improving',
-  color: 'var(--chart-4)',
-  kpis: [['Orders', '1,284', '↑ +7.3%'], ['Conversion Rate', '3.8%', '↑ +0.4pp'], ['Average Order Value', '$221', '↑ +$14']],
-  points: [42, 45, 49, 48, 56, 59, 63, 67, 72]
-}, {
-  name: 'Product Health',
-  score: 83,
-  status: 'Healthy',
-  trend: 'Stable',
-  color: 'var(--chart-4)',
-  kpis: [['Product Revenue', '$194K', '↑ +3.1%'], ['Units Sold', '1,847', '↑ +5.4%'], ['Product Margin', '58.3%', '→ Stable']],
-  points: [48, 50, 49, 56, 55, 60, 60, 64, 65]
-}, {
-  name: 'Operations Health',
-  score: 77,
-  status: 'Stable',
-  trend: 'Stable',
-  color: 'var(--foreground)',
-  kpis: [['Completion Rate', '94.2%', '→ Stable'], ['Processing Time', '1.8 days avg', '→ Stable'], ['Automation Rate', '68%', '↑ +3pp']],
-  points: [54, 54, 58, 57, 59, 61, 60, 64, 64]
-}, {
-  name: 'Growth Health',
-  score: 81,
-  status: 'Healthy',
-  trend: 'Improving',
-  color: 'var(--chart-4)',
-  kpis: [['Revenue Growth', '-2.1% MoM', '↓'], ['Customer Growth', '+4.2% MoM', '↑'], ['Overall Growth Trend', 'Stable', '']],
-  points: [44, 45, 49, 51, 53, 58, 59, 64, 67]
-}];
-const kpis: Kpi[] = [['Total Revenue', 'Revenue', '$284K', '$290K', '-2.1%', 'down', 'Observed'], ['Gross Margin', 'Finance', '64.2%', '62.9%', '+1.3pp', 'up', 'Calculated'], ['Customer Retention', 'Customers', '87.2%', '86.1%', '+1.1pp', 'up', 'Observed'], ['Churn Rate', 'Customers', '4.8%', '3.1%', '+1.7pp', 'down', 'Observed'], ['ROAS', 'Advertising', '2.4x', '3.0x', '-0.6x', 'down', 'Observed'], ['CPA', 'Advertising', '$48', '$36', '+$12', 'down', 'Observed'], ['Pipeline Value', 'Sales', '$1.2M', '$1.31M', '-8.3%', 'down', 'Observed'], ['Ecommerce CVR', 'Ecommerce', '3.8%', '3.4%', '+0.4pp', 'up', 'Observed'], ['Organic Traffic', 'Marketing', '42.8K', '38.1K', '+12.4%', 'up', 'Observed'], ['AOV', 'Ecommerce', '$221', '$207', '+$14', 'up', 'Observed'], ['Net Profit', 'Finance', '$43K', '$39.7K', '+8.4%', 'up', 'Observed'], ['Win Rate', 'Sales', '28%', '30%', '-2pp', 'down', 'Observed']].map(row => ({
-  name: row[0],
-  area: row[1],
-  current: row[2],
-  previous: row[3],
-  change: row[4],
-  trend: row[5] as 'up' | 'down',
-  kind: row[6]
-}));
-const sources = [{
-  name: 'Shopify',
-  detail: 'Connected • Live',
-  quality: 'Excellent'
-}, {
-  name: 'Google Analytics',
-  detail: 'Connected • 2 min ago',
-  quality: 'Good'
-}, {
-  name: 'Google Ads',
-  detail: 'Connected • 5 min ago',
-  quality: 'Good'
-}, {
-  name: 'Meta Ads',
-  detail: 'Connected • 3 min ago',
-  quality: 'Good'
-}, {
-  name: 'CRM',
-  detail: 'Connected • 1 min ago',
-  quality: 'Excellent'
-}, {
-  name: 'Finance',
-  detail: 'Connected • 15 min ago',
-  quality: 'Good'
-}, {
-  name: 'LinkedIn Ads',
-  detail: 'Not Connected',
-  quality: 'Available'
-}, {
-  name: 'TikTok Ads',
-  detail: 'Not Connected',
-  quality: 'Available'
-}];
+const dimensions: Dimension[] = [];
+const kpis: Kpi[] = [];
+const sources: Array<Record<string, string>> = [];
 const trendPoints = [74, 75, 73, 76, 77, 76, 78, 78, 79, 80, 78, 80, 81, 80, 82];
 const tabs = ['Overview', 'Business Health', 'Performance'];
 function Sparkline({
@@ -169,7 +49,7 @@ export function LuluBusinessHealth() {
     <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border/80 bg-[var(--card)]/95 px-5 backdrop-blur-xl lg:pl-72">
       <button className="rounded-lg p-2 text-foreground hover:bg-sidebar hover:text-foreground lg:hidden" onClick={() => setMobileNav(!mobileNav)} aria-label="Open navigation"><Menu size={20} /></button>
       <div className="hidden items-center gap-2 text-sm text-muted-foreground sm:flex"><span>Intelligence</span><ChevronRight size={14} /><span>Business Intelligence</span><ChevronRight size={14} /><strong className="text-foreground">Business Health</strong></div>
-      <div className="flex items-center gap-3"><button className="rounded-lg p-2 text-foreground hover:bg-card hover:text-foreground" aria-label="Search"><Search size={18} /></button><button className="relative rounded-lg p-2 text-foreground hover:bg-card hover:text-foreground" aria-label="Notifications"><Bell size={18} /><span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-primary text-primary-foreground" /></button><div className="hidden h-8 w-px bg-card sm:block" /><div className="flex items-center gap-2"><div className="grid h-8 w-8 place-items-center rounded-full bg-secondary/20 text-xs font-semibold text-foreground">JD</div><span className="hidden text-sm font-medium text-foreground sm:block">Jordan Davis</span><ChevronDown size={15} className="text-muted-foreground" /></div></div>
+      <div className="flex items-center gap-3"><button className="rounded-lg p-2 text-foreground hover:bg-card hover:text-foreground" aria-label="Search"><Search size={18} /></button><button className="relative rounded-lg p-2 text-foreground hover:bg-card hover:text-foreground" aria-label="Notifications"><Bell size={18} /><span className="absolute right-1 top-1 h-1.5 w-1.5 rounded-full bg-primary text-primary-foreground" /></button><div className="hidden h-8 w-px bg-card sm:block" /><div className="flex items-center gap-2"><div className="grid h-8 w-8 place-items-center rounded-full bg-secondary/20 text-xs font-semibold text-foreground">JD</div><span className="hidden text-sm font-medium text-foreground sm:block">Workspace member</span><ChevronDown size={15} className="text-muted-foreground" /></div></div>
     </header>
     <aside className={`${mobileNav ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-30 w-64 flex-col border-r border-border bg-[var(--sidebar)] p-4 lg:flex`}>
       <div className="mb-9 flex items-center gap-3 px-2"><div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-black/20"><Sparkles size={19} /></div><div><strong className="block text-lg tracking-tight">lulu<span className="text-foreground">.ai</span></strong><span className="text-[10px] uppercase tracking-[.22em] text-muted-foreground">Core Platform</span></div><button className="ml-auto text-foreground lg:hidden" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={18} /></button></div>

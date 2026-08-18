@@ -28,7 +28,7 @@ const nav: {
   label: 'Enablement',
   items: [['Automation', Zap], ['Playbooks', FileText], ['Sequences', FileText], ['Products & Pricing', Target], ['Territories', Users]]
 }];
-const kpis = [['Revenue Target', '—', 'Configured', ''], ['Actual Revenue', '—', 'Recorded', ''], ['Current Forecast', '—', 'Forecast', ''], ['Commit', '—', 'Forecast', ''], ['Best Case', '—', 'Forecast', ''], ['Upside', '—', 'Forecast', ''], ['Forecast Gap', '—', 'Calculated', ''], ['Forecast Coverage', '—', 'Calculated', '']];
+const kpis: any[][] = [];
 const categories = [['Closed Won', '0', '—', '0%', '—', 'bg-primary'], ['Commit', '0', '—', '0%', '—', 'bg-primary'], ['Best Case', '0', '—', '0%', '—', 'bg-primary'], ['Upside', '0', '—', '0%', '—', 'bg-primary'], ['Omitted', '0', '—', '0%', '—', 'bg-muted'], ['At Risk', '0', '—', '0%', '—', 'bg-destructive']];
 const owners: Row[] = [];
 const teams: string[][] = [];
@@ -83,7 +83,7 @@ export function SalesForecast() {
   const forecastAmounts = liveForecasts.map(record => Number(record.valueAmount || record.data?.value || 0)).filter(Number.isFinite);
   const actualRevenue = liveForecasts.filter(record => /won|closed/i.test(`${record.status} ${record.stage || ''}`)).reduce((sum, record) => sum + Number(record.valueAmount || record.data?.value || 0), 0);
   const totalForecast = forecastAmounts.reduce((sum, amount) => sum + amount, 0);
-  const liveKpis = [['Revenue Target', 'Not configured', 'Configured', ''], ['Actual Revenue', formatMoney(actualRevenue), 'Recorded', `${liveForecasts.length} live records`], ['Current Forecast', formatMoney(totalForecast), 'Forecast', 'From live records'], ['Commit', formatMoney(liveForecasts.filter(record => /commit/i.test(`${record.stage || ''} ${record.status}`)).reduce((sum, record) => sum + Number(record.valueAmount || record.data?.value || 0), 0)), 'Forecast', 'Live commit stages'], ['Best Case', formatMoney(totalForecast), 'Forecast', 'Live deal values'], ['Upside', formatMoney(totalForecast - actualRevenue), 'Forecast', 'Calculated'], ['Forecast Gap', formatMoney(Math.max(0, totalForecast - actualRevenue)), 'Calculated', 'Forecast minus actual'], ['Forecast Coverage', actualRevenue ? `${Math.round(totalForecast / actualRevenue * 100)}%` : 'Not available', 'Calculated', 'Based on live records']];
+  const liveKpis: any[][] = [];
   const liveCategories = ['Closed Won', 'Commit', 'Best Case', 'Upside', 'At Risk'].map(category => { const records = liveForecasts.filter(record => `${record.stage || record.status || ''}`.toLowerCase().includes(category.toLowerCase().split(' ')[0])); const amount = records.reduce((sum, record) => sum + Number(record.valueAmount || record.data?.value || 0), 0); return [category, String(records.length), formatMoney(amount), totalForecast ? `${Math.round(amount / totalForecast * 100)}%` : '0%', 'Live records', category === 'At Risk' ? 'bg-destructive' : 'bg-primary']; });
   const liveOwners: Row[] = liveForecasts.length ? [{ name: 'Workspace pipeline', target: 'Not configured', actual: formatMoney(actualRevenue), commit: formatMoney(totalForecast), best: formatMoney(totalForecast), upside: formatMoney(totalForecast), gap: formatMoney(Math.max(0, totalForecast - actualRevenue)), coverage: actualRevenue ? `${Math.round(totalForecast / actualRevenue * 100)}%` : 'N/A', risk: 'Live data' }] : [];
   return <div className="min-h-screen bg-[var(--background)] text-foreground">

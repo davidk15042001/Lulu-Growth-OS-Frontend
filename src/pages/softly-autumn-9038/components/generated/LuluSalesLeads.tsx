@@ -19,167 +19,7 @@ type Lead = {
   created: string;
   action: string;
 };
-const leads: Lead[] = [{
-  id: '1',
-  name: 'Maria Chen',
-  initials: 'MC',
-  title: 'VP Commerce',
-  company: 'Nova Commerce',
-  email: 'maria@novacommerce.com',
-  source: 'Website',
-  owner: 'Workspace owner',
-  ownerInitials: 'DM',
-  status: 'Qualified',
-  score: 87,
-  priority: 'High',
-  activity: '2 hours ago',
-  created: '10 Aug 2026',
-  action: 'Follow Up'
-}, {
-  id: '2',
-  name: 'Marcus Johnson',
-  initials: 'MJ',
-  title: 'VP Sales',
-  company: 'Quantum Dynamics',
-  email: 'marcus@quantumdynamics.com',
-  source: 'Google Ads',
-  owner: 'Sarah K.',
-  ownerInitials: 'SK',
-  status: 'Qualified',
-  score: 92,
-  priority: 'High',
-  activity: '1 day ago',
-  created: '8 Aug 2026',
-  action: 'Schedule Demo'
-}, {
-  id: '3',
-  name: 'Lena Fischer',
-  initials: 'LF',
-  title: 'CEO',
-  company: 'BrightPath GmbH',
-  email: 'lena@brightpath.de',
-  source: 'Organic Search',
-  owner: 'Workspace owner',
-  ownerInitials: 'JD',
-  status: 'Engaged',
-  score: 78,
-  priority: 'High',
-  activity: '3 hours ago',
-  created: '7 Aug 2026',
-  action: 'Send Proposal'
-}, {
-  id: '4',
-  name: 'Anika Mehta',
-  initials: 'AM',
-  title: 'Founder',
-  company: 'Indigo Labs',
-  email: 'anika@indigolabs.io',
-  source: 'Website',
-  owner: 'Workspace owner',
-  ownerInitials: 'JD',
-  status: 'Qualified',
-  score: 94,
-  priority: 'High',
-  activity: '2 hours ago',
-  created: '6 Aug 2026',
-  action: 'Close Deal'
-}, {
-  id: '5',
-  name: 'Tom Bergmann',
-  initials: 'TB',
-  title: 'CTO',
-  company: 'DataStream AG',
-  email: 'tom@datastream.ag',
-  source: 'Referral',
-  owner: 'Mark R.',
-  ownerInitials: 'MR',
-  status: 'Contacted',
-  score: 71,
-  priority: 'Medium',
-  activity: '5 days ago',
-  created: '3 Aug 2026',
-  action: 'Follow Up'
-}, {
-  id: '6',
-  name: 'Carlos Vega',
-  initials: 'CV',
-  title: 'Head of Ops',
-  company: 'PanAm Logistics',
-  email: 'carlos@panamlogistics.com',
-  source: 'Meta Ads',
-  owner: 'Anna P.',
-  ownerInitials: 'AP',
-  status: 'New',
-  score: 65,
-  priority: 'Medium',
-  activity: '8 days ago',
-  created: '1 Aug 2026',
-  action: 'Contact'
-}, {
-  id: '7',
-  name: 'Sophie Kim',
-  initials: 'SK',
-  title: 'CFO',
-  company: 'NovaTech',
-  email: 'sophie@novatech.co',
-  source: 'Social',
-  owner: 'Workspace owner',
-  ownerInitials: 'DM',
-  status: 'Contacted',
-  score: 68,
-  priority: 'Medium',
-  activity: '4 days ago',
-  created: '29 Jul 2026',
-  action: 'Follow Up'
-}, {
-  id: '8',
-  name: 'James Osei',
-  initials: 'JO',
-  title: 'Director',
-  company: 'Accra Ventures',
-  email: 'james@accraventures.com',
-  source: 'Referral',
-  owner: 'Sarah K.',
-  ownerInitials: 'SK',
-  status: 'Nurture',
-  score: 55,
-  priority: 'Low',
-  activity: '2 days ago',
-  created: '25 Jul 2026',
-  action: 'Nurture'
-}, {
-  id: '9',
-  name: 'Emil Larsen',
-  initials: 'EL',
-  title: 'Sales Manager',
-  company: 'NordRetail',
-  email: 'emil@nordretail.no',
-  source: 'Organic Search',
-  owner: 'Workspace owner',
-  ownerInitials: 'JD',
-  status: 'Qualified',
-  score: 82,
-  priority: 'High',
-  activity: '6 hours ago',
-  created: '20 Jul 2026',
-  action: 'Close Deal'
-}, {
-  id: '10',
-  name: 'Priya Nair',
-  initials: 'PN',
-  title: 'COO',
-  company: 'TechBridge India',
-  email: 'priya@techbridge.in',
-  source: 'Website',
-  owner: 'Anna P.',
-  ownerInitials: 'AP',
-  status: 'Disqualified',
-  score: 32,
-  priority: 'Low',
-  activity: '12 days ago',
-  created: '15 Jul 2026',
-  action: 'Review'
-}];
+const leads: Lead[] = [];
 const nav = [{
   label: 'Sales Overview',
   icon: LayoutDashboard
@@ -208,7 +48,7 @@ const nav = [{
   label: 'Sales Analytics',
   icon: Globe2
 }];
-const kpis = [['Total Leads', '428', 'Recorded', 'slate', UserPlus], ['New Leads', '84', '+18.4% vs last period', 'Recorded', TrendingUp, 'emerald'], ['Qualified Leads', '126', '29.4% of total', 'Recorded', CheckCircle2, 'emerald'], ['Unqualified Leads', '43', '10.0% of total', 'Recorded', XCircle, 'rose'], ['Leads to Contact', '37', 'Requires follow-up', 'Calculated', Bell, 'amber'], ['Conversion Rate', '24.6%', '+4.2% this month', 'Calculated', ArrowUpRight, 'violet'], ['Avg Lead Score', '73.2', 'Across all active leads', 'AI-generated', Zap, 'violet'], ['High-Priority Leads', '58', 'AI identified', 'AI-generated', AlertCircle, 'rose']] as const;
+const kpis: any[][] = [] as const;
 const statusStyles: Record<Status, string> = {
   New: 'bg-secondary/15 text-foreground',
   Contacted: 'bg-secondary/15 text-foreground',
@@ -219,8 +59,8 @@ const statusStyles: Record<Status, string> = {
   Nurture: 'bg-secondary/15 text-foreground',
   Unresponsive: 'bg-secondary/15 text-foreground'
 };
-const sources = [['Website', '98', '34', '34.7%', '81'], ['Referral', '76', '28', '36.8%', '84'], ['Organic Search', '68', '22', '32.4%', '77'], ['Google Ads', '54', '14', '25.9%', '71'], ['Social', '42', '10', '23.8%', '65'], ['Meta Ads', '38', '8', '21.1%', '62']];
-const funnel = [['New', '428', '100%', '—', 'bg-secondary/50', '100%'], ['Contacted', '284', '66%', '34% drop-off', 'bg-secondary/60', '82%'], ['Engaged', '198', '46%', '30% drop-off', 'bg-secondary/60', '67%'], ['Qualified', '126', '29%', '36% drop-off', 'bg-secondary/60', '52%'], ['Converted', '105', '24%', '17% drop-off', 'bg-secondary/60', '43%']];
+const sources: any[][] = [];
+const funnel: any[][] = [];
 function Sidebar({
   open,
   close
@@ -253,9 +93,9 @@ export function LuluSalesLeads() {
 <div className="grid gap-5 xl:grid-cols-3"><section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="mb-5 flex items-center gap-2"><GitBranch size={18} className="text-foreground" /><h2 className="font-medium text-foreground">Lead Funnel</h2></div><div className="space-y-3">{funnel.map(([name, count, pct, drop, color, width]) => <button key={name} onClick={() => action(`${name} stage selected`)} className="block w-full text-left"><div className="mb-1 flex items-center justify-between text-xs"><span className="text-foreground">{name}</span><span className="text-muted-foreground">{count} · {pct}</span></div><div className="h-7 rounded-md bg-secondary"><div className={`h-7 rounded-md ${color} transition hover:brightness-125`} style={{
                       width
                     }} /></div><p className="mt-1 text-[11px] text-muted-foreground">{drop}</p></button>)}</div></section><section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="mb-5 flex items-center gap-2"><Globe2 size={18} className="text-foreground" /><h2 className="font-medium text-foreground">Lead Sources</h2></div><div className="space-y-1">{sources.map(([source, count, qualified, rate, score]) => <div key={source} className="grid grid-cols-[1.4fr_.5fr_.7fr_.7fr_.5fr] items-center gap-2 rounded-md px-2 py-2 text-xs even:bg-secondary"><span className="flex items-center gap-2 truncate text-foreground"><span className="h-2 w-2 shrink-0 rounded-full bg-primary text-primary-foreground" />{source}</span><span className="text-muted-foreground">{count}</span><span className="text-muted-foreground">{qualified}</span><span className="text-foreground">{rate}</span><strong className="text-foreground">{score}</strong></div>)}</div><div className="mt-3 grid grid-cols-[1.4fr_.5fr_.7fr_.7fr_.5fr] px-2 text-[10px] uppercase tracking-wide text-muted-foreground"><span>Source</span><span>Leads</span><span>Qualified</span><span>Conv.</span><span>Score</span></div></section><section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="mb-4 flex items-center gap-2"><Bell size={18} className="text-foreground" /><h2 className="font-medium text-foreground">Leads to Contact</h2><span className="rounded-full bg-secondary/15 px-2 py-0.5 text-xs text-foreground">37</span></div><div className="space-y-2">{leads.filter(lead => ['Maria Chen', 'Carlos Vega', 'Tom Bergmann'].includes(lead.name)).map(lead => <article key={lead.id} className="rounded-lg bg-secondary p-3"><div className="flex items-center gap-2"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/20 text-[10px] text-foreground">{lead.initials}</span><div className="min-w-0 flex-1"><strong className="block truncate text-sm text-foreground">{lead.name}</strong><span className="block truncate text-xs text-muted-foreground">{lead.company}</span></div><span className="text-xs text-foreground">{lead.score}</span></div><p className="mt-2 text-[11px] text-muted-foreground">Last activity {lead.activity}</p><div className="mt-2 flex gap-2"><button onClick={() => action(`Contacting ${lead.name}`)} className="rounded-md bg-secondary/15 px-2 py-1 text-[11px] text-foreground hover:bg-secondary/25">Contact</button><button onClick={() => action('Task created')} className="rounded-md border border-border px-2 py-1 text-[11px] text-foreground hover:text-foreground">Create Task</button></div></article>)}</div><button onClick={() => action('Showing all leads to contact')} className="mt-4 text-xs text-foreground hover:text-foreground">View all 37 →</button></section></div>
-<section className="rounded-xl border border-border/20 bg-[var(--card)] p-5"><div className="mb-5 flex flex-wrap items-center gap-2"><Sparkles size={18} className="text-foreground" /><h2 className="font-medium text-foreground">AI Recommendations</h2><span className="rounded-full bg-secondary/15 px-2 py-1 text-[10px] text-foreground">AI-generated</span><span className="text-xs text-muted-foreground">Last updated 5 min ago</span></div><div className="grid gap-3 lg:grid-cols-3">{[['⚡ Prioritize Anika Mehta', 'Strong company fit and recent engagement suggest high sales potential. Score: 94.', 'Open Lead'], ['📞 Follow Up: Nova Commerce', 'Maria Chen has not been contacted in 2 days. High-priority lead at risk of going cold.', 'Contact'], ['📊 Review Lead Source', 'Referral leads show 36.8% conversion rate — above your 24.6% average. Consider increasing referral investment.', 'Review']].map(([title, description, cta]) => <article key={title} className="rounded-xl border-l-2 border-border/50 bg-secondary p-4"><h3 className="font-medium text-foreground">{title}</h3><p className="mt-2 min-h-12 text-sm leading-5 text-muted-foreground">{description}</p><div className="mt-4 flex gap-2"><button onClick={() => action(`${cta} opened`)} className="rounded-md bg-secondary/15 px-3 py-1.5 text-xs text-foreground hover:bg-secondary/25">{cta}</button><button onClick={() => action('Task created')} className="rounded-md border border-border px-3 py-1.5 text-xs text-foreground hover:text-foreground">Create Task</button></div></article>)}</div></section>
+<section className="rounded-xl border border-border/20 bg-[var(--card)] p-5"><div className="mb-5 flex flex-wrap items-center gap-2"><Sparkles size={18} className="text-foreground" /><h2 className="font-medium text-foreground">AI Recommendations</h2><span className="rounded-full bg-secondary/15 px-2 py-1 text-[10px] text-foreground">AI-generated</span><span className="text-xs text-muted-foreground">Last updated 5 min ago</span></div><div className="grid gap-3 lg:grid-cols-3">{[['⚡ Prioritize Anika Mehta', 'Strong company fit and recent engagement suggest high sales potential. Score: 94.', 'Open Lead'], ['📞 Follow Up: Connected account', 'Maria Chen has not been contacted in 2 days. High-priority lead at risk of going cold.', 'Contact'], ['📊 Review Lead Source', 'Referral leads show 36.8% conversion rate — above your 24.6% average. Consider increasing referral investment.', 'Review']].map(([title, description, cta]) => <article key={title} className="rounded-xl border-l-2 border-border/50 bg-secondary p-4"><h3 className="font-medium text-foreground">{title}</h3><p className="mt-2 min-h-12 text-sm leading-5 text-muted-foreground">{description}</p><div className="mt-4 flex gap-2"><button onClick={() => action(`${cta} opened`)} className="rounded-md bg-secondary/15 px-3 py-1.5 text-xs text-foreground hover:bg-secondary/25">{cta}</button><button onClick={() => action('Task created')} className="rounded-md border border-border px-3 py-1.5 text-xs text-foreground hover:text-foreground">Create Task</button></div></article>)}</div></section>
 <section className="rounded-xl border border-border/20 bg-gradient-to-br from-secondary/10 to-transparent p-6"><div className="flex items-center gap-2"><Sparkles size={19} className="text-muted-foreground" /><h2 className="font-medium text-foreground">Ask Lulu AI</h2></div><p className="mt-1 text-sm text-muted-foreground">Get instant insights about your leads, priorities, and pipeline opportunities.</p><div className="mt-4 flex gap-2"><input placeholder="Ask Lulu AI about your leads..." className="min-w-0 flex-1 rounded-xl bg-secondary px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring" /><button onClick={() => action('Lulu is thinking...')} className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary"><Send size={15} />Send</button></div><div className="mt-3 flex gap-2 overflow-x-auto pb-1">{['Which leads should I contact today?', 'Show me my highest-value leads.', 'Which leads are most likely to convert?', 'Why is this lead scored highly?', 'Which lead sources perform best?'].map(prompt => <button key={prompt} onClick={() => action(prompt)} className="whitespace-nowrap rounded-full bg-secondary px-3 py-1.5 text-xs text-foreground hover:bg-secondary hover:text-foreground">{prompt}</button>)}</div></section>
-<div className="grid gap-5 lg:grid-cols-2"><section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="flex items-center justify-between"><h2 className="font-medium text-foreground">Data Quality</h2><strong className="text-2xl text-foreground">82<span className="text-sm text-muted-foreground">/100</span></strong></div><div className="mt-4 space-y-3">{[['Missing email', '3'], ['Missing owner', '7'], ['Duplicate records', '2'], ['Incomplete profiles', '12']].map(([issue, count]) => <div key={issue} className="flex items-center justify-between border-b border-border pb-2 text-sm"><span className="text-foreground">{issue} <span className="text-muted-foreground">({count})</span></span><button onClick={() => action(`Fixing ${issue}`)} className="text-xs text-foreground hover:text-foreground">Fix</button></div>)}</div></section><section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="flex items-center justify-between"><h2 className="font-medium text-foreground">Potential Duplicates</h2><span className="text-xs text-muted-foreground">2 pairs found</span></div><div className="mt-4 space-y-3">{[['Maria Chen', 'Maria C. · Nova Commerce'], ['Tom Bergmann', 'Thomas Bergmann · DataStream AG']].map(([name, match]) => <div key={name} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-secondary p-3"><div><strong className="block text-sm text-foreground">{name}</strong><span className="text-xs text-muted-foreground">Possible match: {match}</span></div><div className="flex gap-2"><button onClick={() => action('Merge review opened')} className="rounded-md bg-secondary/15 px-2.5 py-1 text-xs text-foreground">Merge</button><button onClick={() => action('Duplicate ignored')} className="rounded-md border border-border px-2.5 py-1 text-xs text-foreground">Ignore</button></div></div>)}</div></section></div>
+<div className="grid gap-5 lg:grid-cols-2"><section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="flex items-center justify-between"><h2 className="font-medium text-foreground">Data Quality</h2><strong className="text-2xl text-foreground">82<span className="text-sm text-muted-foreground">/100</span></strong></div><div className="mt-4 space-y-3">{[['Missing email', '3'], ['Missing owner', '7'], ['Duplicate records', '2'], ['Incomplete profiles', '12']].map(([issue, count]) => <div key={issue} className="flex items-center justify-between border-b border-border pb-2 text-sm"><span className="text-foreground">{issue} <span className="text-muted-foreground">({count})</span></span><button onClick={() => action(`Fixing ${issue}`)} className="text-xs text-foreground hover:text-foreground">Fix</button></div>)}</div></section><section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="flex items-center justify-between"><h2 className="font-medium text-foreground">Potential Duplicates</h2><span className="text-xs text-muted-foreground">2 pairs found</span></div><div className="mt-4 space-y-3">{[['Maria Chen', 'Maria C. · Connected account'], ['Tom Bergmann', 'Thomas Bergmann · DataStream AG']].map(([name, match]) => <div key={name} className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-secondary p-3"><div><strong className="block text-sm text-foreground">{name}</strong><span className="text-xs text-muted-foreground">Possible match: {match}</span></div><div className="flex gap-2"><button onClick={() => action('Merge review opened')} className="rounded-md bg-secondary/15 px-2.5 py-1 text-xs text-foreground">Merge</button><button onClick={() => action('Duplicate ignored')} className="rounded-md border border-border px-2.5 py-1 text-xs text-foreground">Ignore</button></div></div>)}</div></section></div>
 <section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="mb-5 flex items-center gap-2"><Clock3 size={18} className="text-foreground" /><h2 className="font-medium text-foreground">Recent Activity</h2></div><div className="grid gap-4 md:grid-cols-5">{[['Lead created', 'Anika Mehta', '2h ago', 'text-foreground'], ['Lead qualified', 'Marcus Johnson', '4h ago', 'text-foreground'], ['Score changed', 'Maria Chen 81→87', '6h ago', 'text-foreground'], ['Lead assigned', 'Emil Larsen → Workspace owner', '1d ago', 'text-foreground'], ['Lead converted', 'Carlos Vega → Opportunity', '2d ago', 'text-foreground']].map(([event, detail, time, color]) => <div key={event} className="border-l border-border pl-3"><span className={`text-xs ${color}`}>● {event}</span><strong className="mt-1 block text-sm text-foreground">{detail}</strong><span className="mt-1 block text-xs text-muted-foreground">{time}</span></div>)}</div></section></div></main></div>{notice && <div className="fixed bottom-5 right-5 z-50 rounded-lg border border-border/30 bg-[var(--secondary)] px-4 py-3 text-sm text-foreground shadow-2xl" role="status">{notice}</div>}</div>;
 }
 

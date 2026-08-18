@@ -13,171 +13,13 @@ type TaskItem = {
 const navigation: {
   label: string;
   icon: IconType;
-}[] = [{
-  label: 'CRM',
-  icon: Users
-}, {
-  label: 'Contacts',
-  icon: User
-}, {
-  label: 'Companies',
-  icon: Building2
-}, {
-  label: 'Leads',
-  icon: UserPlus
-}, {
-  label: 'Deals',
-  icon: CircleDollarSign
-}, {
-  label: 'Pipeline',
-  icon: GitBranch
-}, {
-  label: 'Activities',
-  icon: Activity
-}, {
-  label: 'Tasks',
-  icon: CheckSquare
-}, {
-  label: 'Customer Segments',
-  icon: Layers
-}, {
-  label: 'Customer Intelligence',
-  icon: Brain
-}];
-const stages = [{
-  name: 'New',
-  deals: 42,
-  value: '€128,400',
-  width: '70%',
-  color: 'bg-primary'
-}, {
-  name: 'Qualified',
-  deals: 38,
-  value: '€96,200',
-  width: '56%',
-  color: 'bg-primary'
-}, {
-  name: 'Proposal',
-  deals: 31,
-  value: '€124,800',
-  width: '67%',
-  color: 'bg-primary'
-}, {
-  name: 'Negotiation',
-  deals: 22,
-  value: '€94,600',
-  width: '51%',
-  color: 'bg-primary'
-}, {
-  name: 'Won',
-  deals: 18,
-  value: '€184,200',
-  width: '88%',
-  color: 'bg-primary'
-}, {
-  name: 'Lost',
-  deals: 12,
-  value: '€38,400',
-  width: '34%',
-  color: 'bg-destructive'
-}];
-const activities = [{
-  title: 'Contact created',
-  desc: 'Maria Santos added',
-  time: '5 min ago',
-  color: 'violet',
-  icon: UserPlus
-}, {
-  title: 'Deal stage changed',
-  desc: 'Workspace account deal moved to Negotiation',
-  time: '14 min ago',
-  color: 'amber',
-  icon: GitBranch
-}, {
-  title: 'Meeting completed',
-  desc: 'Discovery call with Connected account logged',
-  time: '32 min ago',
-  color: 'emerald',
-  icon: Check
-}, {
-  title: 'Lead created',
-  desc: 'New lead from website form',
-  time: '1 hour ago',
-  color: 'violet',
-  icon: UserPlus
-}, {
-  title: 'Email logged',
-  desc: 'Follow-up sent to Connected account',
-  time: '2 hours ago',
-  color: 'blue',
-  icon: Activity
-}, {
-  title: 'Task completed',
-  desc: 'Contract review finished',
-  time: '3 hours ago',
-  color: 'emerald',
-  icon: Check
-}];
-const tasks: TaskItem[] = [{
-  title: 'Review workspace expansion proposal',
-  entity: 'Workspace account',
-  owner: 'SJ',
-  due: 'Today, 10:00',
-  status: 'Overdue',
-  priority: 'critical'
-}, {
-  title: 'Follow up with Connected account',
-  entity: 'Connected account',
-  owner: 'MK',
-  due: 'Today, 14:30',
-  status: 'Due today',
-  priority: 'high'
-}, {
-  title: 'Send renewal brief',
-  entity: 'Connected account',
-  owner: 'DR',
-  due: 'Today, 16:00',
-  status: 'Due today',
-  priority: 'high'
-}, {
-  title: 'Prepare Q4 account review',
-  entity: 'Workspace account',
-  owner: 'JD',
-  due: 'Tomorrow',
-  status: 'Upcoming',
-  priority: 'medium'
-}, {
-  title: 'Update lead qualification notes',
-  entity: 'Workspace account',
-  owner: 'AN',
-  due: 'Tomorrow',
-  status: 'Upcoming',
-  priority: 'medium'
-}];
-const segments = [['High Value Customers', '284', '€2.4M', 'up'], ['New Customers', '428', '€184K', 'up'], ['Returning Customers', '1,842', '', 'up'], ['At Risk', '94', '', 'down'], ['Dormant', '186', '', 'flat'], ['Enterprise', '42', '€1.2M', 'up'], ['High Growth Potential', '128', '', 'ai']];
-const insights = [{
-  title: 'High-Value Customer Opportunity',
-  text: 'Four accounts have reached the engagement threshold for an expansion conversation.',
-  confidence: '89%',
-  time: '12 min ago',
-  action: 'View Opportunity',
-  tone: 'violet'
-}, {
-  title: 'Pipeline Risk',
-  text: '3 deals have no recorded activity for more than 14 days and may need an intervention.',
-  confidence: '94%',
-  time: '28 min ago',
-  action: 'Review Deals',
-  tone: 'amber'
-}, {
-  title: 'Lead Conversion Signal',
-  text: 'Organic search leads are converting 34% better than the current channel average.',
-  confidence: '82%',
-  time: '1 hour ago',
-  action: 'View Leads',
-  tone: 'violet'
-}];
-const priorityRows = [['Critical', 'Deal: Workspace account Expansion (€84K)', 'No activity 18 days', 'Workspace owner', 'Review Deal'], ['High', 'Lead: Connected account', 'Score 94, not contacted', 'Workspace owner', 'Contact Now'], ['High', 'Customer: Connected account', 'Declining engagement', 'Workspace owner', 'Review Account'], ['Medium', 'Task: Q4 contract renewals', 'Due today', 'Workspace owner', 'Open Task'], ['Medium', 'Deal: Innovation Labs (€42K)', 'Proposal overdue', 'Workspace owner', 'Send Follow-up']];
+}[] = [];
+const stages: Array<Record<string, any>> = [];
+const activities: Array<Record<string, any>> = [];
+const tasks: TaskItem[] = [];
+const segments: any[][] = [];
+const insights: Array<Record<string, any>> = [];
+const priorityRows: any[][] = [];
 function Sidebar({
   open,
   onClose
@@ -221,7 +63,7 @@ export function LuluCrmPage() {
   const hasError = Boolean(liveError);
   const openDealRecords = dealRecords.filter(record => !/won|lost|closed/i.test(record.status || ''));
   const wonDealRecords = dealRecords.filter(record => /won|closed/i.test(record.status || ''));
-  const liveCrmKpis = [['Total Contacts', String(contactRecords.length), 'Live records', 'emerald'], ['Companies', '—', 'No company contract on this page', 'emerald'], ['Open Leads', String(leadRecords.length), 'Live records', 'emerald'], ['Open Deals', String(openDealRecords.length), `${openDealRecords.length} live records`, 'violet'], ['Won Revenue', wonDealRecords.reduce((sum, record) => sum + (Number(String(record.valueAmount ?? '').replace(/[^0-9.-]/g, '')) || 0), 0).toLocaleString(), 'Live deal records', 'emerald'], ['Tasks Due', String(taskRecords.length), 'Live records', 'rose']];
+  const liveCrmKpis: any[][] = [];
   const toggleFilter = (filter: string) => setFilters(filters.includes(filter) ? filters.filter(item => item !== filter) : [...filters, filter]);
   const filterLabels = ['Owner', 'Status', 'Stage', 'Date Range', 'Segment', 'Lead Source'];
   return <div className="min-h-screen bg-[var(--background)] font-sans text-foreground">

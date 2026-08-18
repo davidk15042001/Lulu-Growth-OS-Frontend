@@ -10,55 +10,7 @@ type Item = {
   score: string;
   updated: string;
 };
-const items: Item[] = [{
-  title: 'Ultimate Guide to E-Commerce Growth',
-  type: 'Blog Article',
-  status: 'Published',
-  campaign: 'Summer Growth Campaign',
-  audience: 'High-Value Customers',
-  score: '92',
-  updated: 'Today'
-}, {
-  title: 'Q4 Product Launch Landing Page',
-  type: 'Landing Page',
-  status: 'Scheduled',
-  campaign: 'Product Launch Q4',
-  audience: 'All Users',
-  score: '85',
-  updated: 'Yesterday'
-}, {
-  title: 'Customer Success Story — Connected customer',
-  type: 'Case Study',
-  status: 'Review',
-  campaign: 'Brand Awareness',
-  audience: 'Enterprise',
-  score: '—',
-  updated: '2 days ago'
-}, {
-  title: '10 Ways AI Transforms Operations',
-  type: 'Blog Article',
-  status: 'Draft',
-  campaign: '—',
-  audience: 'SMB Leaders',
-  score: '—',
-  updated: '3 days ago'
-}, {
-  title: 'Holiday Campaign Email Series',
-  type: 'Email',
-  status: 'Approved',
-  campaign: 'Holiday Campaign',
-  audience: 'Loyal Customers',
-  score: '71',
-  updated: '1 week ago'
-}, {
-  title: 'LinkedIn Thought Leadership Post',
-  type: 'Social Post',
-  status: 'Published',
-  campaign: 'Brand Q4',
-  audience: 'Executives',
-  score: '88',
-  updated: '5 days ago'
-}];
+const items: Item[] = [];
 const nav = ['Campaigns', 'Content', 'SEO', 'GEO', 'AEO', 'Audiences', 'Analytics', 'Automations'];
 const filterItems = ['Status', 'Content Type', 'Channel', 'Campaign', 'Audience', 'Content Score', 'SEO Status', 'GEO Status', 'AEO Status', 'Date'];
 const insights = ['This article generates 3.2× more qualified traffic than similar content', 'Landing page has strong traffic but 23% below-average conversion rate', "Content around 'AI automation' is gaining significant search visibility"];

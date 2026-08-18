@@ -16,98 +16,7 @@ interface Segment {
   owner: string;
   ai?: boolean;
 }
-const segments: Segment[] = [{
-  name: 'Enterprise Customers',
-  type: 'Dynamic',
-  records: 128,
-  customers: 96,
-  prospects: 32,
-  value: '€4.2M',
-  growth: '+12%',
-  status: 'Active',
-  updated: 'Today',
-  owner: 'David K.'
-}, {
-  name: 'High-Value Accounts',
-  type: 'Dynamic',
-  records: 84,
-  customers: 71,
-  prospects: 13,
-  value: '€6.1M',
-  growth: '+8%',
-  status: 'Active',
-  updated: 'Yesterday',
-  owner: 'Sarah M.'
-}, {
-  name: 'DACH Region Prospects',
-  type: 'Static',
-  records: 67,
-  customers: 12,
-  prospects: 55,
-  value: '€890K',
-  growth: '+3%',
-  status: 'Active',
-  updated: '3 days ago',
-  owner: 'Marcus L.'
-}, {
-  name: 'Inactive Q3 Customers',
-  type: 'Static',
-  records: 203,
-  customers: 198,
-  prospects: 5,
-  value: '€1.4M',
-  growth: '−14%',
-  status: 'Paused',
-  updated: '5 days ago',
-  owner: 'David K.'
-}, {
-  name: 'Fast-Growing SMBs',
-  type: 'Dynamic',
-  records: 156,
-  customers: 98,
-  prospects: 58,
-  value: '€2.3M',
-  growth: '+22%',
-  status: 'Active',
-  updated: 'Today',
-  owner: 'AI-generated',
-  ai: true
-}, {
-  name: 'At-Risk Enterprise',
-  type: 'Dynamic',
-  records: 31,
-  customers: 28,
-  prospects: 3,
-  value: '€3.8M',
-  growth: '−19%',
-  status: 'Active',
-  updated: 'Today',
-  owner: 'Lulu AI',
-  ai: true
-}, {
-  name: 'Strategic Accounts 2025',
-  type: 'Static',
-  records: 45,
-  customers: 45,
-  prospects: 0,
-  value: '€8.2M',
-  growth: '+5%',
-  status: 'Draft',
-  updated: '1 week ago',
-  owner: 'Emma R.'
-}, {
-  name: 'High-Intent Prospects',
-  type: 'Dynamic',
-  records: 89,
-  customers: 0,
-  prospects: 89,
-  value: '€1.1M',
-  growth: '+31%',
-  status: 'Active',
-  updated: 'Today',
-  owner: 'Lulu AI',
-  ai: true
-}];
+const segments: Segment[] = [];
 const nav = [{
   label: 'Dashboard',
   icon: LayoutDashboard
@@ -139,10 +48,10 @@ const nav = [{
   label: 'Settings',
   icon: Settings
 }];
-const kpis = [['Total Segments', '24', 'Active segments', 'Recorded'], ['Customers Segmented', '1,847', 'Customer records in segments', 'Recorded'], ['Prospects Segmented', '634', 'Prospect records in segments', 'Calculated'], ['Largest Segment', 'Enterprise Customers', '312 records', 'Rule-based'], ['High-Value Customers', '284', 'Meeting HV criteria', 'AI-generated'], ['At-Risk Customers', '47', 'Matching risk signals', 'Rule-based'], ['Recently Active', '892', 'With recent engagement', 'Calculated'], ['Unsegmented', '203', 'Records not in any segment', 'Recorded']];
-const recommendations = [['Create an enterprise segment', 'Separate enterprise vs SMB for targeted outreach', 'Target'], ['Separate high-value customers', 'Focus top 20% by revenue for strategic attention', 'Lightbulb'], ['Create an inactive customer segment', 'Re-engage customers with 60+ day inactivity', 'RefreshCw'], ['Create an expansion opportunity segment', 'Identify accounts ready for upsell', 'ArrowUpRight'], ['Review overlapping segments', '3 segments have >50% overlap — consolidate', 'Layers3'], ['Improve segment criteria', '2 segments have incomplete criteria', 'CircleHelp']];
-const aiDiscoveries = [['High Expansion Potential', '67 accounts', 'Strong engagement + active commercial relationships', '3+ deals closed, 85% email response rate, growing order volume'], ['Inactive High-Value Customers', '28 accounts', 'High value + declining recent activity', 'Top 15% by LTV, no activity in 38 days, 2 open deals stalling'], ['Fast-Growing Accounts', '43 accounts', 'Increased commercial activity +34%', '3× deal frequency vs last quarter']];
-const examples = ['Find my highest-value customers', "Find customers who haven't purchased recently", 'Find enterprise customers in Germany', 'Find prospects ready for follow-up', 'Find customers with declining engagement'];
+const kpis: any[][] = [];
+const recommendations: Array<readonly [string, string, string]> = [];
+const aiDiscoveries: Array<readonly [string, string, string, string]> = [];
+const examples: string[] = [];
 export const CustomerSegments = () => {
   const [selected, setSelected] = React.useState<string[]>([]);
   const [query, setQuery] = React.useState('');

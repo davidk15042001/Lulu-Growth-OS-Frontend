@@ -32,6 +32,29 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
     catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not change this integration. Please try again.")); setBusy(false); }
   }
 
+  async function connect(platform: Platform) {
+    const provider = platform.integrationKey?.trim();
+    if (!provider) { setError("CONNECT_PROVIDER_MISSING: Add the provider integration key before connecting this integration."); return; }
+    setBusy(true); setError("");
+    try {
+      const response = await onboardingApi.startOAuth(workspaceId, provider);
+      if (!response.data.authorizationUrl) throw new Error("CONNECT_AUTHORIZATION_URL_MISSING: The provider did not return an authorization URL.");
+      window.location.assign(response.data.authorizationUrl);
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not start the provider connection. Check the integration key and provider configuration.")); setBusy(false); }
+  }
+
+  async function disconnect(platform: Platform) {
+    if (!window.confirm(`Disconnect ${platform.name}? Existing records will remain available, but synchronization will stop.`)) return;
+    await updateStatus(platform, "disconnected");
+  }
+
+  async function remove(platform: Platform) {
+    if (!window.confirm(`Remove ${platform.name} from this workspace?`)) return;
+    setBusy(true); setError("");
+    try { await onboardingApi.deletePlatform(workspaceId, platform.id); await load(); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not remove this integration. No data was deleted.")); setBusy(false); }
+  }
+
   return <LivePanelShell title="Live integrations" subtitle="Connections and synchronization jobs" onClose={onClose}>
     <LiveError message={error} />
     <LiveSection title={`${platforms.length} connections`} action={<button className="lulu-live-button" onClick={() => void load()} disabled={busy}>Refresh</button>}>
@@ -40,8 +63,10 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
         <small>Last sync: {formatLiveDate(platform.lastSyncedAt)}{platform.lastError ? ` · ${platform.lastError}` : ""}</small>
         <div className="lulu-live-actions" style={{ marginTop: 8 }}>
           <select aria-label={`Status for ${platform.name}`} value={platform.connectionStatus} onChange={(event) => void updateStatus(platform, event.target.value)}><option value="not_connected">Not connected</option><option value="disconnected">Disconnected</option><option value="pending">Pending</option><option value="connected">Connected</option><option value="syncing">Syncing</option><option value="error">Error</option></select>
-          <button className="lulu-live-button" disabled={busy} onClick={async () => { setBusy(true); try { const result = await workspaceAppApi.syncIntegration(workspaceId, platform.id); window.alert(`Sync job ${result.data.jobId} created (${result.data.status}).`); await load(); } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not start the sync. Please try again.")); setBusy(false); } }}>Sync</button>
-          <button className="lulu-live-button danger" disabled={busy} onClick={async () => { if (!window.confirm(`Delete ${platform.name}?`)) return; await onboardingApi.deletePlatform(workspaceId, platform.id); await load(); }}>Delete</button>
+          {platform.connectionStatus !== "connected" && <button className="lulu-live-button primary" disabled={busy} onClick={() => void connect(platform)}>Connect</button>}
+          {platform.connectionStatus === "connected" && <button className="lulu-live-button" disabled={busy} onClick={() => void disconnect(platform)}>Disconnect</button>}
+          <button className="lulu-live-button" disabled={busy} onClick={async () => { setBusy(true); setError(""); try { const result = await workspaceAppApi.syncIntegration(workspaceId, platform.id); window.alert(`Sync job ${result.data.jobId} created (${result.data.status}).`); await load(); } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not start the sync. Check that the provider is connected and available.")); setBusy(false); } }}>Sync</button>
+          <button className="lulu-live-button danger" disabled={busy} onClick={() => void remove(platform)}>Remove</button>
         </div>
       </article>)}
     </LiveSection>

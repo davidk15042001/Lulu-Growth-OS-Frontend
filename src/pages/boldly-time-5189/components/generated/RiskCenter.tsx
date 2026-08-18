@@ -15,85 +15,7 @@ type Risk = {
   color: string;
   detected: string;
 };
-const risks: Risk[] = [{
-  title: 'Customer Churn Risk',
-  type: 'Customer Risk',
-  area: 'Customers / Revenue',
-  severity: 'High',
-  probability: 'Medium',
-  exposure: '$48K–$92K',
-  trend: 'Increasing ↑',
-  status: 'Under Monitoring',
-  owner: 'Workspace owner',
-  initials: 'SC',
-  color: 'var(--foreground)',
-  detected: '2 hours ago'
-}, {
-  title: 'Advertising Efficiency Decline',
-  type: 'Advertising Risk',
-  area: 'Advertising',
-  severity: 'High',
-  probability: 'High',
-  exposure: '$22K–$41K',
-  trend: 'Increasing ↑',
-  status: 'Mitigating',
-  owner: 'James Park',
-  initials: 'JP',
-  color: 'var(--chart-1)',
-  detected: '4 hours ago'
-}, {
-  title: 'Sales Pipeline Deterioration',
-  type: 'Sales Risk',
-  area: 'Sales',
-  severity: 'Medium',
-  probability: 'Medium',
-  exposure: '$31K–$67K',
-  trend: 'Stable →',
-  status: 'Under Review',
-  owner: 'Maria Lopez',
-  initials: 'ML',
-  color: 'var(--foreground)',
-  detected: 'Yesterday'
-}, {
-  title: 'Margin Compression',
-  type: 'Finance Risk',
-  area: 'Finance',
-  severity: 'High',
-  probability: 'Medium',
-  exposure: '$15K–$28K',
-  trend: 'Increasing ↑',
-  status: 'Detected',
-  owner: 'Workspace owner',
-  initials: 'DK',
-  color: 'var(--foreground)',
-  detected: 'Yesterday'
-}, {
-  title: 'Google Ads Platform Dependency',
-  type: 'Advertising Risk',
-  area: 'Advertising',
-  severity: 'Medium',
-  probability: 'Low',
-  exposure: '$18K–$35K',
-  trend: 'Stable →',
-  status: 'Monitoring',
-  owner: 'James Park',
-  initials: 'JP',
-  color: 'var(--chart-1)',
-  detected: 'Jun 2, 2025'
-}, {
-  title: 'Inventory Shortage Risk',
-  type: 'Ecommerce Risk',
-  area: 'Ecommerce / Operations',
-  severity: 'Medium',
-  probability: 'Medium',
-  exposure: '$9K–$18K',
-  trend: 'Newly Detected',
-  status: 'Detected',
-  owner: 'Unassigned',
-  initials: '—',
-  color: 'var(--muted-foreground)',
-  detected: 'Today, 08:42'
-}];
+const risks: Risk[] = [];
 const nav = [{
   label: 'Overview',
   icon: LayoutDashboard
@@ -113,52 +35,8 @@ const nav = [{
   label: 'Reports',
   icon: FileText
 }];
-const evidence = [{
-  source: 'CRM',
-  metric: 'Churn Rate',
-  value: '4.8%',
-  change: '↑ +1.7pp'
-}, {
-  source: 'CRM',
-  metric: 'Retention Rate',
-  value: '87.2%',
-  change: '↓ -3.1pp'
-}, {
-  source: 'Revenue',
-  metric: 'Recurring Revenue',
-  value: '$284K',
-  change: '↓ -8.2%'
-}, {
-  source: 'CRM',
-  metric: 'Customer LTV',
-  value: '$1,240',
-  change: '↓ -12%'
-}];
-const sources = [{
-  name: 'Shopify',
-  sync: 'Live',
-  quality: 'Excellent'
-}, {
-  name: 'Google Analytics',
-  sync: '2 min ago',
-  quality: 'Good'
-}, {
-  name: 'Google Ads',
-  sync: '5 min ago',
-  quality: 'Good'
-}, {
-  name: 'Meta Ads',
-  sync: '3 min ago',
-  quality: 'Good'
-}, {
-  name: 'CRM',
-  sync: '1 min ago',
-  quality: 'Excellent'
-}, {
-  name: 'Finance',
-  sync: '15 min ago',
-  quality: 'Good'
-}];
+const evidence: Array<Record<string, any>> = [];
+const sources: Array<Record<string, any>> = [];
 const priority = ['Customer Churn Risk', 'Advertising Efficiency Decline', 'Margin Compression', 'Sales Pipeline Deterioration', 'Inventory Shortage Risk'];
 function Sidebar() {
   return <aside className="sidebar"><div className="brand"><span className="brand-mark"><Sparkles size={17} /></span><strong>Lulu AI</strong><span className="brand-tag">CORE</span></div><div className="workspace"><span className="workspace-dot" /> Northstar Commerce <ChevronDown size={14} /></div><p className="nav-label">WORKSPACE</p><LuluSectionNavigation activeId="boldly-time-5189" /><p className="nav-label intelligence">INTELLIGENCE</p><button className="nav-item"><BarChart3 size={17} /><span>Performance</span></button><button className="nav-item"><Users size={17} /><span>Customers</span></button><div className="sidebar-bottom"><button className="nav-item"><Settings size={17} /><span>Settings</span></button><div className="profile"><span className="avatar">AC</span><span><strong>Workspace administrator</strong><small>Administrator</small></span><MoreHorizontal size={17} /></div></div></aside>;

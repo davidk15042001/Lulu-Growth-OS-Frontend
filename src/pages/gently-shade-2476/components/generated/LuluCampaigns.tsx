@@ -51,133 +51,8 @@ const navItems = [{
   label: 'Analytics',
   icon: Activity
 }];
-const campaigns: Campaign[] = [{
-  name: 'Summer Product Launch',
-  type: 'Product Launch',
-  status: 'Active',
-  channels: ['Email', 'SEO', 'Social', 'Ads'],
-  audience: 'High-Value Customers',
-  goal: 'Revenue',
-  revenue: '€42,800',
-  leads: '1,284',
-  customers: '184',
-  roi: '4.8x',
-  owner: 'Marketing Team',
-  dates: 'Jun 01 → Jul 15'
-}, {
-  name: 'Q3 Lead Generation',
-  type: 'Lead Generation',
-  status: 'Active',
-  channels: ['Email', 'Content', 'SEO'],
-  audience: 'SMB Europe',
-  goal: 'Leads',
-  revenue: '€28,400',
-  leads: '892',
-  customers: '124',
-  roi: '3.9x',
-  owner: 'Growth',
-  dates: 'Jul 01 → Sep 30'
-}, {
-  name: 'Customer Retention Q2',
-  type: 'Retention',
-  status: 'Active',
-  channels: ['Email', 'CRM'],
-  audience: 'At-Risk Accounts',
-  goal: 'Retention',
-  revenue: '€18,200',
-  leads: '—',
-  customers: '48',
-  roi: '5.2x',
-  owner: 'CS Team',
-  dates: 'May 15 → Jul 31'
-}, {
-  name: 'Brand Awareness Drive',
-  type: 'Brand Awareness',
-  status: 'Paused',
-  channels: ['Social', 'Content', 'Ads'],
-  audience: 'Broad Audience',
-  goal: 'Awareness',
-  revenue: '€8,400',
-  leads: '342',
-  customers: '28',
-  roi: '2.1x',
-  owner: 'Marketing',
-  dates: 'Jun 10 → Aug 01'
-}, {
-  name: 'New Market Expansion',
-  type: 'Customer Acquisition',
-  status: 'Scheduled',
-  channels: ['Email', 'SEO', 'GEO'],
-  audience: 'New Markets',
-  goal: 'Customers',
-  revenue: '—',
-  leads: '—',
-  customers: '—',
-  roi: '—',
-  owner: 'Regional',
-  dates: 'Aug 01 → Oct 31'
-}, {
-  name: 'Product Feature Launch',
-  type: 'Product Launch',
-  status: 'Scheduled',
-  channels: ['Email', 'Social', 'Content'],
-  audience: 'Existing Customers',
-  goal: 'Engagement',
-  revenue: '—',
-  leads: '—',
-  customers: '—',
-  roi: '—',
-  owner: 'Product',
-  dates: 'Aug 15 → Sep 15'
-}, {
-  name: 'Spring Promotion',
-  type: 'Promotion',
-  status: 'Completed',
-  channels: ['Email', 'Social', 'Ads'],
-  audience: 'All Customers',
-  goal: 'Revenue',
-  revenue: '€84,200',
-  leads: '2,140',
-  customers: '342',
-  roi: '6.1x',
-  owner: 'Marketing',
-  dates: 'Apr 01 → May 31'
-}, {
-  name: 'Partner Referral Program',
-  type: 'Lead Generation',
-  status: 'Active',
-  channels: ['CRM', 'Email'],
-  audience: 'Strategic Partners',
-  goal: 'Leads',
-  revenue: '€12,800',
-  leads: '184',
-  customers: '32',
-  roi: '7.4x',
-  owner: 'Sales',
-  dates: 'Jun 15 → Sep 30'
-}];
-const chartData = [{
-  day: 'Jun 10',
-  value: 12
-}, {
-  day: 'Jun 15',
-  value: 20
-}, {
-  day: 'Jun 20',
-  value: 28
-}, {
-  day: 'Jun 25',
-  value: 27
-}, {
-  day: 'Jun 30',
-  value: 36
-}, {
-  day: 'Jul 05',
-  value: 39
-}, {
-  day: 'Jul 08',
-  value: 43
-}];
+const campaigns: Campaign[] = [];
+const chartData: Array<Record<string, any>> = [];
 const channelIcons: Record<string, typeof Send> = {
   Email: Send,
   SEO: Search,
@@ -211,7 +86,7 @@ export function LuluCampaigns() {
       <div className="brand"><div className="brand-mark"><Sparkles size={17} /></div><span>Lulu <b>AI</b></span></div>
       <div className="workspace"><div className="workspace-avatar">AC</div><div><strong>Workspace campaigns</strong><small>Business OS</small></div><ChevronDown size={15} /></div>
       <LuluSectionNavigation activeId="gently-shade-2476" />
-      <div className="sidebar-bottom"><button className="nav-item"><Settings2 size={17} /><span>Settings</span></button><div className="user"><div className="user-avatar">JD</div><div><strong>Jordan Davis</strong><small>Administrator</small></div><MoreHorizontal size={16} /></div></div>
+      <div className="sidebar-bottom"><button className="nav-item"><Settings2 size={17} /><span>Settings</span></button><div className="user"><div className="user-avatar">JD</div><div><strong>Workspace member</strong><small>Administrator</small></div><MoreHorizontal size={16} /></div></div>
     </aside>
     <main className="main-content">{liveLoading ? <div className="border-b border-border bg-secondary/30 px-4 py-3 text-xs text-muted-foreground">Loading live campaigns…</div> : liveError ? <div className="border-b border-destructive/30 bg-destructive/5 px-4 py-3 text-xs text-destructive">{liveError}</div> : liveEmpty ? <div className="border-b border-dashed border-border bg-card px-4 py-3 text-xs text-muted-foreground">No live marketing campaigns are available yet. Create or connect a campaign to begin.</div> : null}
       <header className="topbar"><button className="mobile-menu" aria-label="Open menu"><Menu size={19} /></button><div className="crumb"><span>Marketing</span><ChevronRight size={14} /><strong>Campaigns</strong></div><div className="top-actions"><button aria-label="Notifications" className="icon-button"><Bell size={18} /><i></i></button><div className="top-avatar">JD</div></div></header>
@@ -281,7 +156,7 @@ export function LuluCampaigns() {
         </div>
       </section>
     </main>
-    {modal && <div className="modal-backdrop" role="presentation"><div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">{modal === 'create' ? <><div className="modal-header"><div><span className="eyebrow">CAMPAIGN SETUP</span><h2 id="modal-title">Create Campaign</h2></div><button onClick={() => setModal(null)} aria-label="Close"><X size={18} /></button></div><div className="steps">{['Information', 'Goal', 'Audience', 'Channels', 'Schedule', 'Budget', 'Review'].map((s, i) => <div className={step > i + 1 ? 'done' : step === i + 1 ? 'current' : ''} key={s}><span>{step > i + 1 ? <Check size={12} /> : i + 1}</span><small>{s}</small></div>)}</div><div className="modal-body"><label>Campaign Name<input placeholder="e.g. Summer Product Launch" /></label><label>Description<textarea placeholder="What is this campaign designed to achieve?" /></label><div className="two-fields"><label>Campaign Type<select><option>Product Launch</option><option>Lead Generation</option><option>Customer Acquisition</option><option>Retention</option><option>Promotion</option><option>Brand Awareness</option></select></label><label>Owner<select><option>Marketing Team</option><option>Jordan Davis</option><option>Growth</option></select></label></div><p className="validation"><CircleHelp size={14} /> You can update these details at any time.</p></div><div className="modal-footer"><button className="ghost-button" onClick={() => setModal(null)}>Cancel</button><div><button className="save-button">Save Draft</button><button className="primary-button" onClick={() => step < 7 ? setStep(step + 1) : setModal(null)}>{step < 7 ? 'Continue' : 'Create Campaign'} <ArrowRight size={15} /></button></div></div></> : <><div className="modal-header"><div><span className="eyebrow">CAMPAIGN ACTION</span><h2 id="modal-title">{modal === 'pause' ? 'Pause Campaign?' : modal === 'archive' ? 'Archive Campaign?' : 'Duplicate Campaign'}</h2></div><button onClick={() => setModal(null)} aria-label="Close"><X size={18} /></button></div><div className="confirm-body">{modal === 'pause' && <p>Pausing this campaign may stop or suspend connected campaign activities.</p>}{modal === 'archive' && <p>This campaign will be removed from active campaign views.</p>}{modal === 'duplicate' && <>{['Copy configuration', 'Copy audience', 'Copy channels', 'Copy content references', 'Copy schedule'].map(o => <label className="toggle-row" key={o}><span>{o}</span><input type="checkbox" defaultChecked /></label>)}<p className="muted-label">Default status: Draft</p></>}</div><div className="modal-footer"><button className="ghost-button" onClick={() => setModal(null)}>Cancel</button><button className={modal === 'pause' ? 'warning-button' : 'primary-button'} onClick={() => setModal(null)}>{modal === 'pause' ? 'Pause Campaign' : modal === 'archive' ? 'Archive' : 'Duplicate'} </button></div></>}</div></div>}
+    {modal && <div className="modal-backdrop" role="presentation"><div className="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">{modal === 'create' ? <><div className="modal-header"><div><span className="eyebrow">CAMPAIGN SETUP</span><h2 id="modal-title">Create Campaign</h2></div><button onClick={() => setModal(null)} aria-label="Close"><X size={18} /></button></div><div className="steps">{['Information', 'Goal', 'Audience', 'Channels', 'Schedule', 'Budget', 'Review'].map((s, i) => <div className={step > i + 1 ? 'done' : step === i + 1 ? 'current' : ''} key={s}><span>{step > i + 1 ? <Check size={12} /> : i + 1}</span><small>{s}</small></div>)}</div><div className="modal-body"><label>Campaign Name<input placeholder="e.g. Summer Product Launch" /></label><label>Description<textarea placeholder="What is this campaign designed to achieve?" /></label><div className="two-fields"><label>Campaign Type<select><option>Product Launch</option><option>Lead Generation</option><option>Customer Acquisition</option><option>Retention</option><option>Promotion</option><option>Brand Awareness</option></select></label><label>Owner<select><option>Marketing Team</option><option>Workspace member</option><option>Growth</option></select></label></div><p className="validation"><CircleHelp size={14} /> You can update these details at any time.</p></div><div className="modal-footer"><button className="ghost-button" onClick={() => setModal(null)}>Cancel</button><div><button className="save-button">Save Draft</button><button className="primary-button" onClick={() => step < 7 ? setStep(step + 1) : setModal(null)}>{step < 7 ? 'Continue' : 'Create Campaign'} <ArrowRight size={15} /></button></div></div></> : <><div className="modal-header"><div><span className="eyebrow">CAMPAIGN ACTION</span><h2 id="modal-title">{modal === 'pause' ? 'Pause Campaign?' : modal === 'archive' ? 'Archive Campaign?' : 'Duplicate Campaign'}</h2></div><button onClick={() => setModal(null)} aria-label="Close"><X size={18} /></button></div><div className="confirm-body">{modal === 'pause' && <p>Pausing this campaign may stop or suspend connected campaign activities.</p>}{modal === 'archive' && <p>This campaign will be removed from active campaign views.</p>}{modal === 'duplicate' && <>{['Copy configuration', 'Copy audience', 'Copy channels', 'Copy content references', 'Copy schedule'].map(o => <label className="toggle-row" key={o}><span>{o}</span><input type="checkbox" defaultChecked /></label>)}<p className="muted-label">Default status: Draft</p></>}</div><div className="modal-footer"><button className="ghost-button" onClick={() => setModal(null)}>Cancel</button><button className={modal === 'pause' ? 'warning-button' : 'primary-button'} onClick={() => setModal(null)}>{modal === 'pause' ? 'Pause Campaign' : modal === 'archive' ? 'Archive' : 'Duplicate'} </button></div></>}</div></div>}
   </div>;
 }
 

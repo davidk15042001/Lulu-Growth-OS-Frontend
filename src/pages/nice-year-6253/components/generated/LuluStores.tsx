@@ -22,92 +22,14 @@ interface Store {
   customers: string;
   lowStock: string;
 }
-const stores: Store[] = [{
-  id: 'lulu',
-  name: 'Lulu Store',
-  initial: 'L',
-  platform: 'Shopify',
-  domain: 'lulustore.myshopify.com',
-  status: 'connected',
-  sync: 'Synced',
-  syncTime: '2 min ago',
-  currency: 'USD',
-  timezone: 'America/New_York',
-  market: 'United States',
-  coverage: ['Products', 'Orders', 'Customers', 'Inventory', 'Payments'],
-  gradient: 'linear-gradient(135deg,var(--primary),var(--primary))',
-  orders: '142',
-  products: '1,247',
-  customers: '892',
-  lowStock: '23'
-}, {
-  id: 'brand',
-  name: 'Brand Store',
-  initial: 'B',
-  platform: 'WooCommerce',
-  domain: 'brandstore.example.com',
-  status: 'attention',
-  sync: 'Sync Delayed',
-  syncTime: '23 min ago',
-  currency: 'EUR',
-  timezone: 'Europe/Berlin',
-  market: 'Germany',
-  coverage: ['Products', 'Orders', 'Customers', 'Payments'],
-  gradient: 'linear-gradient(135deg,var(--chart-1),var(--chart-1))',
-  orders: '105',
-  products: '892',
-  customers: '567',
-  lowStock: '18'
-}, {
-  id: 'international',
-  name: 'International Store',
-  initial: 'I',
-  platform: 'Shopify',
-  domain: 'international.myshopify.com',
-  status: 'connected',
-  sync: 'Synced',
-  syncTime: '5 min ago',
-  currency: 'GBP',
-  timezone: 'Europe/London',
-  market: 'United Kingdom',
-  coverage: ['Products', 'Orders', 'Customers', 'Inventory', 'Payments'],
-  gradient: 'linear-gradient(135deg,var(--primary),var(--primary))',
-  orders: '67',
-  products: '634',
-  customers: '389',
-  lowStock: '12'
-}];
+const stores: Store[] = [];
 const navItems = ['Overview', 'Stores', 'Products', 'Categories', 'Orders', 'Customers', 'Carts', 'Abandoned Carts', 'Returns', 'Refunds', 'Shipping', 'Inventory', 'Ecommerce Automation', 'Ecommerce Settings'];
 const filterTabs: {
   id: Filter;
   label: string;
   count: number;
-}[] = [{
-  id: 'all',
-  label: 'All Stores',
-  count: 3
-}, {
-  id: 'connected',
-  label: 'Connected',
-  count: 3
-}, {
-  id: 'operational',
-  label: 'Operational',
-  count: 2
-}, {
-  id: 'attention',
-  label: 'Attention Required',
-  count: 1
-}, {
-  id: 'disconnected',
-  label: 'Disconnected',
-  count: 0
-}, {
-  id: 'sync',
-  label: 'Sync Issues',
-  count: 1
-}];
-const activityItems = [['check', 'Sync completed successfully', 'Lulu Store', '2 min ago', 'System'], ['warn', 'Inventory sync delayed', 'Brand Store', '23 min ago', 'System'], ['box', 'Product catalog synchronized · 1,247 products', 'International Store', '5 min ago', 'System'], ['sync', 'Synchronization started', 'All Stores', '25 min ago', 'System'], ['check', 'Order synchronization complete · 142 orders', 'Lulu Store', '25 min ago', 'System'], ['check', 'Customer data synchronized · 892 customers', 'Brand Store', '25 min ago', 'System'], ['user', 'User updated store settings', 'International Store', '1h ago', 'Admin'], ['link', 'Store connection verified', 'International Store', '2h ago', 'System'], ['check', 'Sync completed successfully', 'Lulu Store', '2h ago', 'System'], ['check', 'Sync completed successfully', 'Brand Store', '2h ago', 'System']];
+}[] = [];
+const activityItems: any[][] = [];
 const prompts = ['Is this store operating normally?', 'What needs attention?', 'Are there sync issues?', 'Which stores need attention?', 'Compare my stores', 'What happened during the last sync?'];
 function Sidebar() {
   return <aside className="sidebar"><div className="brand"><span className="brand-mark"><Sparkles size={16} /></span><strong>LULU</strong><span className="brand-ai">AI</span></div><div className="workspace"><span className="workspace-dot" /> <span>Workspace stores</span><ChevronDown size={14} /></div><LuluSectionNavigation activeId="nice-year-6253" /><div className="sidebar-bottom"><a className="nav-item"><Settings2 size={16} /><span>Workspace Settings</span></a><div className="user-row"><span className="user-avatar">AM</span><span><strong>Workspace administrator</strong><small>Administrator</small></span><Ellipsis size={16} /></div></div></aside>;

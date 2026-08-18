@@ -20,123 +20,8 @@ type Campaign = {
   updated: string;
 };
 type Tone = 'green' | 'yellow' | 'red' | 'purple' | 'blue' | 'gray';
-const campaigns: Campaign[] = [{
-  name: 'Q4 Enterprise Expansion',
-  platform: 'Google Ads',
-  status: 'Active',
-  objective: 'Sales',
-  spend: '$84,240',
-  impressions: '1.24M',
-  clicks: '34,810',
-  ctr: '2.81%',
-  cpc: '$2.42',
-  conversions: '842',
-  cpa: '$100.05',
-  revenue: '$284,910',
-  roas: '3.38x',
-  budget: '$100k',
-  trend: '+18.4%',
-  updated: '12 min ago'
-}, {
-  name: 'Winter Demand Gen',
-  platform: 'Meta Ads',
-  status: 'Active',
-  objective: 'Leads',
-  spend: '$51,680',
-  impressions: '892k',
-  clicks: '29,441',
-  ctr: '3.30%',
-  cpc: '$1.76',
-  conversions: '1,104',
-  cpa: '$46.81',
-  revenue: '$168,520',
-  roas: '3.26x',
-  budget: '$60k',
-  trend: '+12.1%',
-  updated: '18 min ago'
-}, {
-  name: 'Product-Led Retargeting',
-  platform: 'LinkedIn Ads',
-  status: 'Paused',
-  objective: 'Conversions',
-  spend: '$28,450',
-  impressions: '188k',
-  clicks: '7,920',
-  ctr: '4.21%',
-  cpc: '$3.59',
-  conversions: '318',
-  cpa: '$89.47',
-  revenue: '$72,110',
-  roas: '2.53x',
-  budget: '$35k',
-  trend: '-4.7%',
-  updated: '1 hr ago'
-}, {
-  name: 'Brand Search — Core',
-  platform: 'Google Ads',
-  status: 'Active',
-  objective: 'Traffic',
-  spend: '$19,860',
-  impressions: '68k',
-  clicks: '12,910',
-  ctr: '18.98%',
-  cpc: '$1.54',
-  conversions: '522',
-  cpa: '$38.05',
-  revenue: '$94,600',
-  roas: '4.76x',
-  budget: '$22k',
-  trend: '+9.8%',
-  updated: '34 min ago'
-}, {
-  name: 'Partner Awareness Test',
-  platform: 'Microsoft Advertising',
-  status: 'Scheduled',
-  objective: 'Awareness',
-  spend: '$0',
-  impressions: 'No Data',
-  clicks: 'No Data',
-  ctr: 'No Data',
-  cpc: 'No Data',
-  conversions: 'No Data',
-  cpa: 'No Data',
-  revenue: 'No Data',
-  roas: 'No Data',
-  budget: '$12k',
-  trend: '—',
-  updated: 'Yesterday'
-}];
-const platforms = [{
-  name: 'Google Ads',
-  initials: 'G',
-  tone: 'bg-secondary text-foreground',
-  spend: '$104,100',
-  revenue: '$379,510',
-  roas: '3.65x',
-  conversions: '1,364',
-  cpa: '$76.32',
-  status: 'Healthy'
-}, {
-  name: 'Meta Ads',
-  initials: 'M',
-  tone: 'bg-secondary text-foreground',
-  spend: '$51,680',
-  revenue: '$168,520',
-  roas: '3.26x',
-  conversions: '1,104',
-  cpa: '$46.81',
-  status: 'Healthy'
-}, {
-  name: 'LinkedIn Ads',
-  initials: 'in',
-  tone: 'bg-secondary text-foreground',
-  spend: '$28,450',
-  revenue: '$72,110',
-  roas: '2.53x',
-  conversions: '318',
-  cpa: '$89.47',
-  status: 'Watch'
-}];
+const campaigns: Campaign[] = [];
+const platforms: Array<{ name: string; initials: string; tone: string; spend: string; revenue: string; roas: string; conversions: string; cpa: string; status: string }> = [];
 const navItems = [{
   label: 'Overview',
   icon: BarChart3
@@ -154,7 +39,7 @@ const navItems = [{
   label: 'Attribution',
   icon: Activity
 }];
-const chartValues = [46, 51, 44, 58, 62, 57, 68, 73, 66, 79, 76, 86, 81, 93, 88, 97, 92, 105, 99, 112, 108, 118, 114, 126, 121, 132, 127, 141, 136, 150];
+const chartValues: number[] = [];
 const statusStyles: Record<CampaignStatus, string> = {
   Active: 'bg-chart-4/10 text-chart-4 border-chart-4/30',
   Paused: 'bg-secondary text-foreground border-border',

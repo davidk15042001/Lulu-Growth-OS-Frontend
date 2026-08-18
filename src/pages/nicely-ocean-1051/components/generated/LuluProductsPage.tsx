@@ -15,167 +15,9 @@ type Product = {
   operational: 'Healthy' | 'Attention' | 'Critical';
   image: string;
 };
-const products: Product[] = [{
-  id: 'p1',
-  name: 'Premium Wireless Headphones',
-  sku: 'SKU-10291',
-  store: 'Lulu Store',
-  category: 'Electronics',
-  price: '$149.99',
-  inventory: 284,
-  variants: 3,
-  status: 'Active',
-  updated: '2h ago',
-  operational: 'Healthy',
-  image: 'headphones'
-}, {
-  id: 'p2',
-  name: 'Smart Home Hub',
-  sku: 'SKU-20847',
-  store: 'Lulu Store + Brand Store',
-  category: 'Smart Home',
-  price: '$89.99',
-  inventory: 156,
-  variants: 1,
-  status: 'Active',
-  updated: '4h ago',
-  operational: 'Healthy',
-  image: 'hub'
-}, {
-  id: 'p3',
-  name: 'Cotton Tee — Classic',
-  sku: 'SKU-30124',
-  store: 'Brand Store',
-  category: 'Apparel',
-  price: '$34.99',
-  inventory: 8,
-  variants: 12,
-  status: 'Active',
-  updated: '1d ago',
-  operational: 'Attention',
-  image: 'tee'
-}, {
-  id: 'p4',
-  name: 'Yoga Mat Pro',
-  sku: 'SKU-40381',
-  store: 'International Store',
-  category: 'Fitness',
-  price: '$79.99',
-  inventory: 0,
-  variants: 2,
-  status: 'Active',
-  updated: '2d ago',
-  operational: 'Critical',
-  image: 'mat'
-}, {
-  id: 'p5',
-  name: 'Phone Case — Series X',
-  sku: 'SKU-50219',
-  store: 'All Stores',
-  category: 'Accessories',
-  price: '$24.99',
-  inventory: 412,
-  variants: 8,
-  status: 'Active',
-  updated: '3h ago',
-  operational: 'Healthy',
-  image: 'case'
-}, {
-  id: 'p6',
-  name: 'Insulated Water Bottle',
-  sku: 'SKU-60847',
-  store: 'Lulu Store',
-  category: 'Lifestyle',
-  price: '$39.99',
-  inventory: 67,
-  variants: 4,
-  status: 'Active',
-  updated: '5h ago',
-  operational: 'Healthy',
-  image: 'bottle'
-}, {
-  id: 'p7',
-  name: 'Running Shorts — Pro',
-  sku: 'SKU-70124',
-  store: 'Brand Store',
-  category: 'Apparel',
-  price: '$59.99',
-  inventory: 23,
-  variants: 6,
-  status: 'Active',
-  updated: '1d ago',
-  operational: 'Attention',
-  image: 'shorts'
-}, {
-  id: 'p8',
-  name: 'Leather Wallet',
-  sku: 'SKU-80381',
-  store: 'Lulu Store',
-  category: 'Accessories',
-  price: '$69.99',
-  inventory: 189,
-  variants: 3,
-  status: 'Active',
-  updated: '6h ago',
-  operational: 'Healthy',
-  image: 'wallet'
-}, {
-  id: 'p9',
-  name: 'Wireless Charger Pad',
-  sku: 'SKU-90219',
-  store: 'All Stores',
-  category: 'Electronics',
-  price: '$44.99',
-  inventory: 0,
-  variants: 2,
-  status: 'Draft',
-  updated: '2d ago',
-  operational: 'Attention',
-  image: 'charger'
-}, {
-  id: 'p10',
-  name: 'Canvas Backpack',
-  sku: 'SKU-100847',
-  store: 'International Store',
-  category: 'Bags',
-  price: '$129.99',
-  inventory: 34,
-  variants: 5,
-  status: 'Active',
-  updated: 'Sync Failed',
-  operational: 'Critical',
-  image: 'backpack'
-}];
-const attentionItems = [{
-  name: 'Running Shorts (Black)',
-  issue: 'Missing product image',
-  severity: 'Medium',
-  store: 'Lulu Store',
-  action: 'Edit',
-  image: 'shorts'
-}, {
-  name: 'Smart Watch Band — S/M',
-  issue: 'Out of stock — no inventory',
-  severity: 'High',
-  store: 'Brand Store',
-  action: 'View Inventory',
-  image: 'watch'
-}, {
-  name: 'Premium Hoodie',
-  issue: 'Price missing on variant (XL)',
-  severity: 'High',
-  store: 'All Stores',
-  action: 'Edit',
-  image: 'hoodie'
-}, {
-  name: 'Canvas Backpack (Blue)',
-  issue: 'Sync failed — product mismatch',
-  severity: 'High',
-  store: 'International Store',
-  action: 'View Details',
-  image: 'backpack'
-}];
-const activities = [['Product updated', 'Premium Wireless Headphones — description edited', 'Admin', '2h ago', 'Lulu Store', '✏️'], ['New product created', 'Ceramic Coffee Mug', 'Admin', '4h ago', 'Brand Store', '📦'], ['Price changed', 'Smart Home Hub — $99.99 → $89.99', 'Admin', '6h ago', 'All Stores', '💰'], ['Product published', 'Running Shorts Pro — Draft → Active', 'Admin', '1d ago', 'Brand Store', '✅'], ['Sync completed', '1,247 products synchronized', 'System', '1d ago', 'All Stores', '🔄'], ['Sync failed', 'Canvas Backpack — product mismatch', 'System', '1d ago', 'International Store', '⚠'], ['Images updated', 'Yoga Mat Pro — 3 images added', 'Admin', '2d ago', 'International Store', '📸'], ['Variant added', 'Leather Wallet — Brown / Large', 'Admin', '2d ago', 'Lulu Store', '📦']];
+const products: Product[] = [];
+const attentionItems: Array<Record<string, any>> = [];
+const activities: any[][] = [];
 function Thumbnail({
   kind,
   large = false
@@ -243,14 +85,14 @@ export function LuluProductsPage() {
         <footer className="mt-5 flex items-center justify-between border-t border-border pt-4 text-sm text-muted-foreground"><span>Showing 1–{filteredProducts.length} of 3,624 products</span><div className="flex gap-2"><button className="icon-btn"><ArrowLeft className="h-4 w-4" /></button><button className="icon-btn"><ArrowRight className="h-4 w-4" /></button></div></footer>
       </section>
 
-      <section className="panel mb-7"><header className="flex flex-wrap items-center justify-between"><h2 className="section-title">Product Detail <span className="observed-badge">Observed</span></h2><button className="secondary-btn">Close detail <X className="h-4 w-4" /></button></header><nav className="mt-4 flex gap-5 overflow-x-auto border-b border-border" aria-label="Product detail tabs">{['Overview', 'Product Information', 'Variants', 'Pricing', 'Inventory', 'Orders', 'Customers', 'Revenue', 'Performance', 'Reviews', 'AI Insights', 'Operational'].map(tab => <button key={tab} onClick={() => setDetailTab(tab)} className={`tab-btn ${detailTab === tab ? 'active' : ''}`}>{tab}</button>)}</nav>{detailTab === 'Variants' ? <div className="pt-5"><div className="flex items-center justify-between"><h3 className="text-lg font-semibold">Variants <span className="text-sm font-normal text-muted-foreground">4 variants</span></h3><button className="primary-btn"><Plus className="h-4 w-4" />Add Variant</button></div><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[700px] text-left text-sm"><thead className="border-y border-border text-xs uppercase text-muted-foreground"><tr><th className="py-3">Variant</th><th>SKU</th><th>Price</th><th>Inventory</th><th>Image</th><th>Status</th><th>Actions</th></tr></thead><tbody className="divide-y divide-border">{[['Color: Black / Size: S', 'SKU-10291-BS', '94', 'Active', 'headphones'], ['Color: Black / Size: M', 'SKU-10291-BM', '67', 'Active', 'headphones'], ['Color: White / Size: S', 'SKU-10291-WS', '23', 'Active', 'headphones'], ['Color: White / Size: M', 'SKU-10291-WM', '0', 'Out of Stock', 'headphones']].map(variant => <tr key={variant[1]}><td className="py-3 font-medium">{variant[0]}</td><td className="text-muted-foreground">{variant[1]}</td><td>$149.99</td><td>{variant[2]} {variant[2] === '0' ? '❌' : variant[2] === '23' ? '⚠' : ''}</td><td><Thumbnail kind={variant[4]} /></td><td>{variant[3] === 'Active' ? status('Active') : <span className="status critical"><CircleX className="h-3.5 w-3.5" />Out of Stock</span>}</td><td><button className="row-action">Edit</button> <MoreHorizontal className="inline h-4 w-4 text-muted-foreground" /></td></tr>)}</tbody></table></div></div> : <div className="pt-5"><div className="flex flex-wrap items-center gap-4"><Thumbnail kind="headphones" large /><div><h3 className="text-xl font-bold">Premium Wireless Headphones <span className="observed-badge">Observed</span></h3><p className="mt-1 text-sm text-muted-foreground">SKU-10291 · {status('Active')}</p><div className="mt-2 flex flex-wrap gap-2"><StoreBadge store="Lulu Store" /><StoreBadge store="Brand Store" /></div></div></div><div className="mt-6 grid gap-3 sm:grid-cols-4">{[['Orders', '247'], ['Units Sold', '1,284'], ['Revenue', '$186,247'], ['Inventory', '284 units']].map(([label, value]) => <div key={label} className="rounded-lg border border-border bg-card p-4"><p className="text-xs text-muted-foreground">{label}</p><strong className="mt-1 block text-xl">{value}</strong>{label === 'Revenue' ? <span className="mt-1 block text-[11px] text-muted-foreground">View in Intelligence for full analytics</span> : null}</div>)}</div><div className="mt-6 overflow-x-auto"><table className="w-full min-w-[650px] text-left text-sm"><caption className="mb-3 text-left text-base font-semibold">Store availability</caption><thead className="border-y border-border text-xs uppercase text-muted-foreground"><tr><th className="py-3">Store</th><th>Availability</th><th>Price</th><th>Inventory</th><th>Sync</th></tr></thead><tbody className="divide-y divide-border">{[['Lulu Store', 'Active', '$149.99', '184 units'], ['Brand Store', 'Active', '$149.99', '67 units'], ['International Store', 'Draft', '£119.99', '33 units']].map(store => <tr key={store[0]}><td className="py-3"><StoreBadge store={store[0]} /></td><td>{status(store[1])}</td><td>{store[2]}</td><td>{store[3]}</td><td><span className="status healthy"><CircleCheck className="h-3.5 w-3.5" />Synced</span></td></tr>)}</tbody></table></div><button className="secondary-btn mt-4">Manage Store Availability</button></div>}</section>
+      <section className="panel mb-7"><header className="flex flex-wrap items-center justify-between"><h2 className="section-title">Product Detail <span className="observed-badge">Observed</span></h2><button className="secondary-btn">Close detail <X className="h-4 w-4" /></button></header><nav className="mt-4 flex gap-5 overflow-x-auto border-b border-border" aria-label="Product detail tabs">{['Overview', 'Product Information', 'Variants', 'Pricing', 'Inventory', 'Orders', 'Customers', 'Revenue', 'Performance', 'Reviews', 'AI Insights', 'Operational'].map(tab => <button key={tab} onClick={() => setDetailTab(tab)} className={`tab-btn ${detailTab === tab ? 'active' : ''}`}>{tab}</button>)}</nav>{detailTab === 'Variants' ? <div className="pt-5"><div className="flex items-center justify-between"><h3 className="text-lg font-semibold">Variants <span className="text-sm font-normal text-muted-foreground">4 variants</span></h3><button className="primary-btn"><Plus className="h-4 w-4" />Add Variant</button></div><div className="mt-4 overflow-x-auto"><table className="w-full min-w-[700px] text-left text-sm"><thead className="border-y border-border text-xs uppercase text-muted-foreground"><tr><th className="py-3">Variant</th><th>SKU</th><th>Price</th><th>Inventory</th><th>Image</th><th>Status</th><th>Actions</th></tr></thead><tbody className="divide-y divide-border">{[['Color: Black / Size: S', 'SKU-10291-BS', '94', 'Active', 'headphones'], ['Color: Black / Size: M', 'SKU-10291-BM', '67', 'Active', 'headphones'], ['Color: White / Size: S', 'SKU-10291-WS', '23', 'Active', 'headphones'], ['Color: White / Size: M', 'SKU-10291-WM', '0', 'Out of Stock', 'headphones']].map(variant => <tr key={variant[1]}><td className="py-3 font-medium">{variant[0]}</td><td className="text-muted-foreground">{variant[1]}</td><td>$149.99</td><td>{variant[2]} {variant[2] === '0' ? '❌' : variant[2] === '23' ? '⚠' : ''}</td><td><Thumbnail kind={variant[4]} /></td><td>{variant[3] === 'Active' ? status('Active') : <span className="status critical"><CircleX className="h-3.5 w-3.5" />Out of Stock</span>}</td><td><button className="row-action">Edit</button> <MoreHorizontal className="inline h-4 w-4 text-muted-foreground" /></td></tr>)}</tbody></table></div></div> : <div className="pt-5"><div className="flex flex-wrap items-center gap-4"><Thumbnail kind="headphones" large /><div><h3 className="text-xl font-bold">Premium Wireless Headphones <span className="observed-badge">Observed</span></h3><p className="mt-1 text-sm text-muted-foreground">SKU-10291 · {status('Active')}</p><div className="mt-2 flex flex-wrap gap-2"><StoreBadge store="Connected store" /><StoreBadge store="Brand Store" /></div></div></div><div className="mt-6 grid gap-3 sm:grid-cols-4">{[['Orders', '247'], ['Units Sold', '1,284'], ['Revenue', '$186,247'], ['Inventory', '284 units']].map(([label, value]) => <div key={label} className="rounded-lg border border-border bg-card p-4"><p className="text-xs text-muted-foreground">{label}</p><strong className="mt-1 block text-xl">{value}</strong>{label === 'Revenue' ? <span className="mt-1 block text-[11px] text-muted-foreground">View in Intelligence for full analytics</span> : null}</div>)}</div><div className="mt-6 overflow-x-auto"><table className="w-full min-w-[650px] text-left text-sm"><caption className="mb-3 text-left text-base font-semibold">Store availability</caption><thead className="border-y border-border text-xs uppercase text-muted-foreground"><tr><th className="py-3">Store</th><th>Availability</th><th>Price</th><th>Inventory</th><th>Sync</th></tr></thead><tbody className="divide-y divide-border">{[['Connected store', 'Active', '$149.99', '184 units'], ['Brand Store', 'Active', '$149.99', '67 units'], ['International Store', 'Draft', '£119.99', '33 units']].map(store => <tr key={store[0]}><td className="py-3"><StoreBadge store={store[0]} /></td><td>{status(store[1])}</td><td>{store[2]}</td><td>{store[3]}</td><td><span className="status healthy"><CircleCheck className="h-3.5 w-3.5" />Synced</span></td></tr>)}</tbody></table></div><button className="secondary-btn mt-4">Manage Store Availability</button></div>}</section>
 
       <div className="grid gap-7 xl:grid-cols-[1.35fr_1fr]"><section className="panel"><header className="flex items-center justify-between"><h2 className="section-title">Recent Product Activity</h2><button className="text-sm font-semibold text-foreground">View All Activity</button></header><div className="mt-4 divide-y divide-border">{activities.map(activity => <div key={`${activity[0]}-${activity[1]}`} className="flex gap-3 py-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-secondary text-sm">{activity[5]}</span><div className="min-w-0 flex-1"><p className="text-sm"><strong>{activity[0]}</strong> <span className="text-muted-foreground">— {activity[1]}</span></p><p className="mt-1 text-xs text-muted-foreground">{activity[2]} · {activity[3]} · <StoreBadge store={activity[4]} /></p></div></div>)}</div></section><section className="panel"><header className="flex items-center justify-between"><h2 className="section-title">Product Operational Health</h2><span className="severity high">⚠ Attention Required</span></header><div className="mt-4 divide-y divide-border">{[['Data Quality', 'Attention Required', '43 products have missing or incomplete information'], ['Synchronization', 'Attention Required', '1 product sync failure in International Store'], ['Availability', 'Healthy', 'Products active and available across stores'], ['Inventory', 'Attention Required', '87 out of stock, 124 low stock'], ['Store Consistency', 'Healthy', 'Pricing and availability consistent across stores'], ['Variant Integrity', 'Healthy', 'No critical variant issues detected']].map(health => <div key={health[0]} className="flex items-start gap-3 py-3"><span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${health[1] === 'Healthy' ? 'bg-primary' : 'bg-primary'}`} /><div><p className="text-sm font-semibold">{health[0]} <span className={health[1] === 'Healthy' ? 'text-foreground' : 'text-foreground'}>· {health[1]}</span></p><p className="mt-1 text-xs text-muted-foreground">{health[2]}</p></div></div>)}</div></section></div>
 
       <section className="ai-panel mt-7"><div className="flex items-start gap-4"><div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-secondary"><Sparkles className="h-5 w-5" /></div><div className="flex-1"><h2 className="text-xl font-bold">Ask Lulu AI</h2><p className="mt-1 text-sm text-foreground">Turn product operations into your next clear action.</p><label className="mt-5 flex items-center gap-3 rounded-lg bg-card p-3 text-muted-foreground"><Bot className="h-5 w-5 text-muted-foreground" /><input className="min-w-0 flex-1 bg-transparent text-sm outline-none" placeholder="Ask Lulu AI about your products..." /><button className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">Ask</button></label><div className="mt-4 flex flex-wrap gap-2">{['Improve this product description', 'Generate SEO metadata', 'Identify missing product info', 'Check product data quality', 'Find out of stock products', 'Compare products across stores'].map(prompt => <button key={prompt} className="rounded-full border border-border bg-secondary px-3 py-1.5 text-xs text-foreground hover:bg-secondary">{prompt}</button>)}</div><div className="mt-5 flex flex-wrap gap-2">{['Improve Product Description', 'Generate SEO Metadata', 'Generate Alt Text', 'Check Product Quality', 'Find Missing Information', 'Prepare for Publishing'].map(action => <button key={action} className="rounded-md bg-card px-3 py-2 text-xs font-semibold text-foreground">{action}</button>)}</div><p className="mt-4 text-xs text-foreground">AI suggestions require user review before saving. <span className="ai-badge">AI Generated</span></p></div></div></section>
     </div></div>
 
-    {drawerOpen ? <aside className="fixed inset-y-0 right-0 z-30 flex w-full max-w-[430px] flex-col border-l border-border bg-card shadow-2xl" aria-label="Add Product panel"><header className="flex items-center justify-between border-b border-border px-6 py-5"><div><h2 className="text-xl font-bold">Add Product</h2><p className="mt-1 text-xs text-muted-foreground">Create a product across your connected stores</p></div><button aria-label="Close add product panel" onClick={() => setDrawerOpen(false)} className="icon-btn"><X className="h-4 w-4" /></button></header><nav className="flex gap-5 overflow-x-auto border-b border-border px-6" aria-label="Add product tabs">{['Basic Info', 'Media', 'Pricing', 'Inventory', 'Variants', 'Availability'].map((tab, index) => <button key={tab} className={`tab-btn whitespace-nowrap ${index === 0 ? 'active' : ''}`}>{tab}</button>)}</nav><form className="flex-1 space-y-5 overflow-y-auto px-6 py-6"><label className="form-label">Product Name<input className="form-input" placeholder="e.g. Premium Wireless Headphones" /></label><label className="form-label">Description<textarea className="form-input min-h-24 resize-none" placeholder="Describe your product..." /></label><button type="button" className="ai-create"><Sparkles className="h-4 w-4" />Create with AI ✨</button><p className="-mt-2 text-xs text-muted-foreground"><span className="ai-badge">AI Generated</span> Lulu AI can suggest title, description, tags, category, SEO metadata and alt text.</p><div className="grid gap-4 sm:grid-cols-2"><label className="form-label">Product Type<select className="form-input"><option>Physical product</option><option>Digital product</option></select></label><label className="form-label">Brand<input className="form-input" placeholder="Brand name" /></label></div><label className="form-label">Category<div className="form-input flex items-center"><Search className="mr-2 h-4 w-4 text-muted-foreground" /><input className="min-w-0 flex-1 outline-none" placeholder="Search categories" /></div><button type="button" className="mt-2 text-xs font-semibold text-foreground">Manage Categories</button></label><label className="form-label">Collections<div className="form-input flex flex-wrap gap-2"><span className="filter-pill">Summer 2025 <X className="h-3 w-3" /></span><span className="text-sm text-muted-foreground">Add collection…</span></div></label><label className="form-label">Tags<input className="form-input" placeholder="Add tags" /></label><fieldset><legend className="form-label">Store assignment</legend><div className="space-y-2 rounded-lg border border-border p-3">{['Lulu Store', 'Brand Store', 'International Store'].map(store => <label key={store} className="flex items-center gap-2 text-sm"><input type="checkbox" defaultChecked />{store}</label>)}</div></fieldset></form><footer className="flex gap-3 border-t border-border p-5"><button className="secondary-btn flex-1 justify-center" onClick={() => setDrawerOpen(false)}>Cancel</button><button className="secondary-btn flex-1 justify-center">Save as Draft</button><button className="primary-btn flex-1 justify-center">Publish</button></footer></aside> : null}
+    {drawerOpen ? <aside className="fixed inset-y-0 right-0 z-30 flex w-full max-w-[430px] flex-col border-l border-border bg-card shadow-2xl" aria-label="Add Product panel"><header className="flex items-center justify-between border-b border-border px-6 py-5"><div><h2 className="text-xl font-bold">Add Product</h2><p className="mt-1 text-xs text-muted-foreground">Create a product across your connected stores</p></div><button aria-label="Close add product panel" onClick={() => setDrawerOpen(false)} className="icon-btn"><X className="h-4 w-4" /></button></header><nav className="flex gap-5 overflow-x-auto border-b border-border px-6" aria-label="Add product tabs">{['Basic Info', 'Media', 'Pricing', 'Inventory', 'Variants', 'Availability'].map((tab, index) => <button key={tab} className={`tab-btn whitespace-nowrap ${index === 0 ? 'active' : ''}`}>{tab}</button>)}</nav><form className="flex-1 space-y-5 overflow-y-auto px-6 py-6"><label className="form-label">Product Name<input className="form-input" placeholder="e.g. Premium Wireless Headphones" /></label><label className="form-label">Description<textarea className="form-input min-h-24 resize-none" placeholder="Describe your product..." /></label><button type="button" className="ai-create"><Sparkles className="h-4 w-4" />Create with AI ✨</button><p className="-mt-2 text-xs text-muted-foreground"><span className="ai-badge">AI Generated</span> Lulu AI can suggest title, description, tags, category, SEO metadata and alt text.</p><div className="grid gap-4 sm:grid-cols-2"><label className="form-label">Product Type<select className="form-input"><option>Physical product</option><option>Digital product</option></select></label><label className="form-label">Brand<input className="form-input" placeholder="Brand name" /></label></div><label className="form-label">Category<div className="form-input flex items-center"><Search className="mr-2 h-4 w-4 text-muted-foreground" /><input className="min-w-0 flex-1 outline-none" placeholder="Search categories" /></div><button type="button" className="mt-2 text-xs font-semibold text-foreground">Manage Categories</button></label><label className="form-label">Collections<div className="form-input flex flex-wrap gap-2"><span className="filter-pill">Summer 2025 <X className="h-3 w-3" /></span><span className="text-sm text-muted-foreground">Add collection…</span></div></label><label className="form-label">Tags<input className="form-input" placeholder="Add tags" /></label><fieldset><legend className="form-label">Store assignment</legend><div className="space-y-2 rounded-lg border border-border p-3">{['Connected store', 'Brand Store', 'International Store'].map(store => <label key={store} className="flex items-center gap-2 text-sm"><input type="checkbox" defaultChecked />{store}</label>)}</div></fieldset></form><footer className="flex gap-3 border-t border-border p-5"><button className="secondary-btn flex-1 justify-center" onClick={() => setDrawerOpen(false)}>Cancel</button><button className="secondary-btn flex-1 justify-center">Save as Draft</button><button className="primary-btn flex-1 justify-center">Publish</button></footer></aside> : null}
   </main>;
 }
 

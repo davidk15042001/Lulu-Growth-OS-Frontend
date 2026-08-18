@@ -5,50 +5,14 @@ import { useLiveRecords } from '../../../../api/useLiveRecords';
 type ModalName = 'analysis' | 'complete' | 'question' | 'topic' | 'task' | 'faq' | 'optimize' | 'export' | 'refresh' | null;
 type DetailType = 'question' | 'page' | null;
 const nav = ['Dashboard', 'Campaigns', 'Content', 'SEO', 'GEO', 'AEO', 'Social', 'Advertising', 'Audiences', 'Automations', 'Analytics'];
-const chartData = [{
-  w: 'May 06',
-  v: 43
-}, {
-  w: 'May 13',
-  v: 47
-}, {
-  w: 'May 20',
-  v: 46
-}, {
-  w: 'May 27',
-  v: 50
-}, {
-  w: 'Jun 03',
-  v: 48
-}, {
-  w: 'Jun 10',
-  v: 52
-}, {
-  w: 'Jun 17',
-  v: 49
-}, {
-  w: 'Jun 24',
-  v: 55
-}, {
-  w: 'Jul 01',
-  v: 53
-}, {
-  w: 'Jul 08',
-  v: 57
-}, {
-  w: 'Jul 15',
-  v: 54
-}, {
-  w: 'Jul 22',
-  v: 59
-}];
+const chartData: Array<Record<string, any>> = [];
 const questions = [['What is enterprise AI and how does it work?', 'AI Platforms', 'Informational', 'Answered', '/blog/enterprise-ai', '88', 'Low', '3h ago'], ['How does Lulu AI compare to Salesforce?', 'Comparison', 'Commercial', 'Partially Answered', '/compare', '61', 'High', '1h ago'], ['What is the pricing for Lulu AI?', 'Pricing', 'Commercial', 'Not Answered', '—', '0', 'Critical', '45m ago'], ['How do I integrate Lulu AI with my CRM?', 'Integrations', 'Transactional', 'Answered', '/integrations', '79', 'Low', '2h ago'], ['What support options are available?', 'Support', 'Support', 'Needs Improvement', '/support', '54', 'Medium', '4h ago'], ['Can Lulu AI automate my business workflows?', 'Automation', 'Informational', 'Partially Answered', '/features', '66', 'Medium', '6h ago'], ['How long does Lulu AI onboarding take?', 'Onboarding', 'Support', 'Not Answered', '—', '0', 'High', '2h ago'], ['What industries does Lulu AI serve?', 'Industries', 'Informational', 'Answered', '/industries', '83', 'Low', '5h ago']];
-const health = [['Question Coverage', '68', 'Needs Attention', '↓', '8 issues'], ['Answer Quality', '74', 'Stable', '↑', '5 issues'], ['Content Completeness', '61', 'Needs Attention', '↓', '12 issues'], ['Structured Information', '55', 'Critical', '↓', '17 issues'], ['FAQ Coverage', '63', 'Stable', '→', '6 issues'], ['Semantic Clarity', '79', 'Healthy', '↑', '2 issues'], ['Search Intent Alignment', '82', 'Excellent', '↑', '1 issue']];
+const health: any[][] = [];
 const clusters = [['Product Questions', '38', '71%', '74', '44'], ['Pricing Questions', '12', '22%', '31', '94'], ['Comparison Questions', '24', '48%', '62', '81'], ['Problem-Solving Questions', '29', '58%', '68', '67'], ['Service Questions', '18', '64%', '73', '52'], ['Buying Questions', '21', '39%', '57', '88'], ['Support Questions', '31', '52%', '59', '71'], ['Local Questions', '13', '47%', '61', '58']];
-const opportunities = [['High-intent pricing question has no dedicated answer', '96', 'Critical Impact', '/pricing · Pricing Questions cluster'], ['Comparison page answers the question indirectly', '84', 'High Impact', '/compare'], ['FAQ content does not fully address customer onboarding intent', '78', 'High Impact', 'Onboarding cluster'], ['Support question missing supporting evidence', '64', 'Medium Impact', '/support']];
-const gaps = [['What is the ROI of enterprise AI implementation?', 'Commercial', '91', '—'], ['How does Lulu AI pricing compare to competitors?', 'Commercial', '89', '/pricing'], ['What onboarding resources does Lulu AI provide?', 'Support', '77', '/onboarding'], ['Can I migrate data from my existing CRM?', 'Transactional', '74', '/integrations'], ['Does Lulu AI support GDPR compliance?', 'Informational', '69', '/security']];
-const insights = [['Several high-intent customer questions are not directly answered by current content.', 'High Impact', '88% confidence'], ['FAQ content covers informational questions but has gaps around pricing and comparison queries.', 'High Impact', '85% confidence'], ['Several pages contain relevant information but lack clear answer structures.', 'Medium Impact', '81% confidence'], ['Structured information issues are affecting answer visibility on 12 pages.', 'High Impact', '92% confidence']];
-const recommendations = [['Add direct answers to high-intent customer questions', 'Critical', 'Expected: +11% Answer Coverage', '14 high-intent questions lack direct answers'], ['Expand FAQ coverage for pricing and comparison topics', 'High', 'Expected: +8 FAQ questions covered', 'Pricing and comparison clusters need dedicated answers'], ['Improve answer structure on important landing pages', 'High', 'Expected: +9pp Answer Quality', 'Make direct answers easier to extract'], ['Add missing structured information to 12 affected pages', 'Medium', 'Expected: Structured data coverage +34%', 'Validate FAQ and Article properties']];
+const opportunities: any[][] = [];
+const gaps: any[][] = [];
+const insights: any[][] = [];
+const recommendations: any[][] = [];
 function Ring({
   score,
   color = 'var(--border)',

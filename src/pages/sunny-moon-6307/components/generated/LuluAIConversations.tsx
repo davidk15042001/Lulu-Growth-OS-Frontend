@@ -14,8 +14,10 @@ type Conversation = {
 };
 type ModalType = 'rename' | 'archive' | 'delete' | 'export' | 'share' | null;
 const platformNav = [['AI Assistant', MessageSquare], ['AI Agents', Bot], ['Agent Marketplace', FolderOpen], ['Agent Templates', FileText], ['AI Memory', Brain], ['AI Knowledge', BookOpen], ['AI Actions', Zap], ['AI Activity', Activity]] as const;
-const metrics = [['Total Conversations', '284', MessagesSquare, 'neutral'], ['Active', '12', Activity, 'green'], ['Today', '8', Clock3, 'blue'], ['This Week', '47', BarChart3, 'purple'], ['AI Agents Used', '6', Bot, 'cyan'], ['Archived', '39', Archive, 'dim']] as const;
-const conversations: Conversation[] = [{
+const metrics: Array<readonly [string, string, typeof MessagesSquare, string]> = [];
+const conversations: Conversation[] = []; /* populated from live records */
+const emptyConversation: Conversation = { id: '', title: '', preview: '', participant: '', agent: '', time: '', messages: '', status: 'Active', context: '' };
+/*
   id: 'q4',
   title: 'Q4 Marketing Strategy Review',
   preview: 'Can you analyze our Q4 marketing performance and identify...',
@@ -95,16 +97,15 @@ const conversations: Conversation[] = [{
   time: 'Today',
   messages: '11',
   status: 'Active',
-  context: 'General'
-}];
-const activityItems = [['Conversation started', '10:22 AM', MessageSquare], ['AI Assistant joined', '10:22 AM', Bot], ['Knowledge accessed', 'Marketing Analytics Report · 10:22 AM', BookOpen], ['Tool used', 'Analytics tool · 10:22 AM', Wrench], ['Action requested', 'Pause Ad Campaign · 10:29 AM', Zap], ['Knowledge accessed', 'Google Ads Performance Data · 10:29 AM', BookOpen]] as const;
+  context: 'General'\n}]; */
+const activityItems: Array<readonly [string, string, typeof MessageSquare]> = [];
 export const LuluAIConversations = () => {
-  const [selectedId, setSelectedId] = useState('q4');
+  const [selectedId, setSelectedId] = useState('');
   const [query, setQuery] = useState('');
   const [contextOpen, setContextOpen] = useState(true);
   const [expanded, setExpanded] = useState<string | null>('first');
   const [modal, setModal] = useState<ModalType>(null);
-  const selected = conversations.find(item => item.id === selectedId) ?? conversations[0];
+  const selected = conversations.find(item => item.id === selectedId) ?? emptyConversation;
   const filtered = useMemo(() => conversations.filter(item => `${item.title} ${item.preview} ${item.context} ${item.agent}`.toLowerCase().includes(query.toLowerCase())), [query]);
   return <div className="conversation-shell">
     <style>{`

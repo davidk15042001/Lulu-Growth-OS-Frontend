@@ -36,184 +36,16 @@ const navGroups = [{
   label: 'Enablement',
   items: [['Automation', Zap], ['Playbooks', FileText], ['Sequences', Mail], ['Products & Pricing', DollarSign], ['Territories', Users], ['Commissions', Target]]
 }] as const;
-const periods = ['Today', 'Tomorrow', 'This Week', 'Next Week', 'This Month', 'Previous Month', 'Last 30 Days', 'Custom Range'];
-const kpis = [['Total Tasks', '124', 'neutral'], ['Due Today', '18', 'warning'], ['Upcoming', '67', 'neutral'], ['Overdue', '9', 'negative'], ['Completed', '31', 'positive'], ['High Priority', '22', 'warning'], ['Unassigned', '5', 'warning'], ['Completion Rate', '72.4%', 'positive']] as const;
-const dueToday = [['09:00', 'Call Maria Chen about renewal', 'High', 'Nova Commerce', 'Sales team member', 'Enterprise Platform'], ['10:30', 'Send enterprise proposal to Apex', 'Critical', 'Apex Global', 'Workspace owner', 'Apex Expansion'], ['11:00', 'Follow up on pricing objection', 'High', 'DataFlow Inc', 'Marcus R.', 'DataFlow SaaS'], ['14:00', 'Demo with RetailMax stakeholders', 'High', 'RetailMax', 'James P.', 'RetailMax Q3'], ['15:00', 'Follow up on enterprise proposal', 'High', 'Nova Commerce', 'Sales team member', 'Enterprise Platform']] as const;
-const overdue = [['Reconnect with Apex decision maker', 'Sales team member', 'Apex Global', 'Apex Expansion', 'Apex Platform', '3 days ago', '3 days', 'Critical', 'Contact decision maker before close date'], ['Update deal timeline for TechVision', 'Sarah C.', 'TechVision', 'TechVision Renewal', 'TechVision Ent.', '5 days ago', '5 days', 'High', 'Update deal record and reschedule'], ['Send ROI analysis to DataFlow', 'Marcus R.', 'DataFlow Inc', 'DataFlow SaaS', 'DataFlow Ent.', '2 days ago', '2 days', 'High', 'Prepare and send analysis'], ['Confirm meeting with CloudBase exec', 'Emma W.', 'CloudBase', 'CloudBase Growth', 'CloudBase Pro', '1 day ago', '1 day', 'Medium', 'Confirm attendance']] as const;
-const tasks: Task[] = [{
-  id: 't1',
-  task: 'Follow up on enterprise proposal',
-  status: 'Open',
-  priority: 'High',
-  due: 'Today · 15:00',
-  owner: 'Sales team member',
-  contact: 'Maria Chen',
-  company: 'Nova Commerce',
-  opportunity: 'Enterprise Expansion',
-  deal: 'Enterprise Platform',
-  activity: 'Proposal Review',
-  updated: 'Today'
-}, {
-  id: 't2',
-  task: 'Schedule pricing review with Apex',
-  status: 'In Progress',
-  priority: 'Critical',
-  due: 'Today · 09:00',
-  owner: 'Workspace owner',
-  contact: 'John Kim',
-  company: 'Apex Global',
-  opportunity: 'Apex Growth',
-  deal: 'Apex Platform',
-  activity: '—',
-  updated: '2h ago'
-}, {
-  id: 't3',
-  task: 'Send ROI analysis',
-  status: 'Open',
-  priority: 'High',
-  due: 'Tomorrow',
-  owner: 'Marcus R.',
-  contact: 'Amy Torres',
-  company: 'DataFlow Inc',
-  opportunity: 'DataFlow SaaS',
-  deal: 'DataFlow Ent.',
-  activity: '—',
-  updated: 'Yesterday'
-}, {
-  id: 't4',
-  task: 'Confirm Q3 meeting',
-  status: 'Open',
-  priority: 'Medium',
-  due: 'Thu',
-  owner: 'James P.',
-  contact: 'Peter White',
-  company: 'RetailMax',
-  opportunity: 'RetailMax Q3',
-  deal: 'RetailMax Deal',
-  activity: 'Meeting Request',
-  updated: '2 days ago'
-}, {
-  id: 't5',
-  task: 'Update deal notes',
-  status: 'Completed',
-  priority: 'Low',
-  due: 'Yesterday',
-  owner: 'Emma W.',
-  contact: 'Susan Lake',
-  company: 'CloudBase',
-  opportunity: 'CloudBase Growth',
-  deal: 'CloudBase Pro',
-  activity: '—',
-  updated: 'Yesterday'
-}, {
-  id: 't6',
-  task: 'Request legal review',
-  status: 'In Progress',
-  priority: 'High',
-  due: 'Fri',
-  owner: 'Tom M.',
-  contact: 'Derek Stone',
-  company: 'TechVision',
-  opportunity: 'TechVision Renewal',
-  deal: 'TechVision Ent.',
-  activity: 'Contract Draft',
-  updated: '3 days ago'
-}, {
-  id: 't7',
-  task: 'Prepare executive brief',
-  status: 'Open',
-  priority: 'Critical',
-  due: 'Today · 11:00',
-  owner: 'Workspace owner',
-  contact: 'Amy Torres',
-  company: 'Apex Global',
-  opportunity: 'Apex Expansion',
-  deal: 'Apex Platform',
-  activity: '—',
-  updated: '1h ago'
-}, {
-  id: 't8',
-  task: 'Follow up post-demo',
-  status: 'Overdue',
-  priority: 'High',
-  due: 'Mon · 3 days',
-  owner: 'Sales team member',
-  contact: 'Maria Chen',
-  company: 'Nova Commerce',
-  opportunity: 'Enterprise Expansion',
-  deal: 'Enterprise Platform',
-  activity: 'Demo Recording',
-  updated: '3 days ago'
-}];
-const owners: Owner[] = [{
-  name: 'Sales team member',
-  initials: 'DL',
-  open: 18,
-  progress: 4,
-  completed: 12,
-  overdue: 3,
-  rate: 71,
-  color: 'var(--foreground)'
-}, {
-  name: 'Workspace owner',
-  initials: 'SC',
-  open: 22,
-  progress: 3,
-  completed: 15,
-  overdue: 1,
-  rate: 83,
-  color: 'var(--chart-4)'
-}, {
-  name: 'Marcus Rodriguez',
-  initials: 'MR',
-  open: 16,
-  progress: 5,
-  completed: 9,
-  overdue: 2,
-  rate: 75,
-  color: 'var(--chart-1)'
-}, {
-  name: 'James Park',
-  initials: 'JP',
-  open: 14,
-  progress: 2,
-  completed: 8,
-  overdue: 2,
-  rate: 71,
-  color: 'var(--chart-4)'
-}, {
-  name: 'Emma Wilson',
-  initials: 'EW',
-  open: 19,
-  progress: 3,
-  completed: 11,
-  overdue: 1,
-  rate: 74,
-  color: 'var(--foreground)'
-}, {
-  name: 'Tom Mitchell',
-  initials: 'TM',
-  open: 12,
-  progress: 1,
-  completed: 7,
-  overdue: 0,
-  rate: 88,
-  color: 'var(--muted-foreground)'
-}];
-const upcomingGroups = [{
-  label: 'Tomorrow',
-  items: [['Send ROI analysis to DataFlow', 'Tomorrow · 10:00', 'High', 'MR', 'DataFlow Inc', 'DataFlow Ent.'], ['Confirm Q3 meeting', 'Tomorrow · 14:00', 'Medium', 'JP', 'RetailMax', 'RetailMax Deal']]
-}, {
-  label: 'This Week',
-  items: [['Request legal review', 'Friday', 'High', 'TM', 'TechVision', 'TechVision Ent.'], ['Prepare account plan', 'Friday', 'Low', 'EW', 'CloudBase', 'CloudBase Pro']]
-}, {
-  label: 'Next Week',
-  items: [['Schedule renewal check-in', 'Mon, 21 Oct', 'Medium', 'DL', 'Nova Commerce', 'Enterprise Platform'], ['Share customer story', 'Tue, 22 Oct', 'Low', 'SC', 'Apex Global', 'Apex Platform']]
-}] as const;
-const performance = [['Completed Tasks', '31'], ['Completion Rate', '72.4%'], ['Overdue Rate', '7.3%'], ['Avg Completion Time', '2.4 days'], ['Tasks per Owner', '24.8 avg'], ['High-Priority Completion', '68%'], ['Deferred Tasks', '12'], ['On-Time Rate', '84.2%']] as const;
-const aiPriority = [['Critical Task', 'Follow up on Enterprise Platform before the expected close date.', 'Close date is 3 days away. No contact in 8 days.', 'red', 'Create Task', 'Open Deal'], ['High Priority', 'Contact Apex decision-maker — has not been reached in 14 days.', 'Decision-maker engagement dropped. Deal value: €320,000.', 'amber', 'Create Task', 'Ask Lulu AI'], ['Overdue Risk', 'Overdue task linked to high-value DataFlow deal (€180,000).', 'Task 5 days overdue. Deal close date approaching.', 'orange', 'Complete Task', 'Reschedule']] as const;
-const recommendations = [['Schedule customer follow-up with Nova Commerce', 'High'], ['Contact decision maker at Apex Global', 'Critical'], ['Send proposal to RetailMax', 'High'], ['Review pricing with DataFlow', 'Medium'], ['Schedule meeting with CloudBase exec', 'High'], ['Complete overdue TechVision task', 'Critical']] as const;
-const prompts = ['What should I do today?', 'Which tasks are most important?', 'What tasks are overdue?', 'Which tasks are linked to high-value deals?', 'What should I prioritize before Friday?', 'Which sales tasks can be postponed?', 'Show me all critical tasks.', 'Summarize my outstanding sales tasks.'];
+const periods: string[] = [];
+const kpis: any[][] = [] as const;
+const dueToday: any[][] = [];
+const overdue: any[][] = [];
+const owners: Owner[] = [];
+const upcomingGroups: Array<{ label: string; items: Array<readonly [string, string, string, string, string, string]> }> = [];
+const performance: Array<readonly [string, string]> = [];
+const aiPriority: Array<readonly [string, string, string, string, string, string]> = [];
+const recommendations: Array<readonly [string, string]> = [];
+const prompts: string[] = [];
 function Badge({
   children,
   tone = 'neutral'
@@ -299,7 +131,7 @@ export function SalesTasks() {
         <Card className="mt-5 border-border bg-secondary/30 p-5"><div className="flex items-center justify-between"><div className="flex items-center gap-2"><Sparkles size={18} className="text-foreground" /><h2 className="font-semibold text-foreground">AI Task Prioritization</h2><Badge tone="ai">AI-generated</Badge></div><span className="hidden text-xs text-muted-foreground sm:block">All actions require your confirmation.</span></div><p className="mt-2 text-sm text-muted-foreground">AI identifies critical tasks based on deal value, contact engagement, and close date proximity. All actions require your confirmation.</p><div className="mt-5 grid gap-3 lg:grid-cols-3">{aiPriority.map(item => <article key={item[0]} className={`rounded-lg border-l-4 bg-card p-4 shadow-sm ${item[3] === 'red' ? 'border-chart-5' : 'border-border'}`}><div className="flex items-center justify-between gap-2"><strong className="text-sm">{item[0]}</strong><Badge tone="ai">AI-generated</Badge></div><p className="mt-3 text-sm font-medium leading-relaxed">{item[1]}</p><p className="mt-2 text-xs text-muted-foreground">Signal: {item[2]}</p><div className="mt-4 flex gap-2"><button className="rounded-md bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground">{item[4]}</button><button className="rounded-md border border-border px-2.5 py-1.5 text-[11px] font-semibold text-foreground">{item[5]}</button></div></article>)}</div></Card>
         <Card className="mt-5 border-border bg-secondary/30 p-5"><div className="flex items-center gap-2"><Sparkles size={18} className="text-foreground" /><h2 className="font-semibold text-foreground">AI Recommended Tasks</h2><Badge tone="ai">AI-generated</Badge></div><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{recommendations.map(item => <div key={item[0]} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3"><Sparkles size={15} className="shrink-0 text-foreground" /><div className="min-w-0 flex-1"><p className="text-xs font-semibold">{item[0]}</p><p className="mt-1 text-[10px] text-muted-foreground">AI-generated · {item[1]}</p></div><button className="shrink-0 rounded-md border border-border px-2 py-1 text-[10px] font-semibold text-foreground">{item[1] === 'Critical' ? 'Complete Task' : 'Create Task'}</button></div>)}</div><p className="mt-4 text-[11px] text-muted-foreground">AI recommendations require your confirmation before creating or changing tasks.</p></Card>
         <Card className="mt-5 border-border bg-card p-5"><div className="flex items-center gap-2"><Bot size={19} className="text-foreground" /><h2 className="font-semibold">Ask Lulu AI</h2><Badge tone="ai">AI assistant</Badge></div><div className="mt-4 flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-3 shadow-sm"><input className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground" placeholder="Ask Lulu AI about your sales tasks..." aria-label="Ask Lulu AI about your sales tasks" /><button className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground">Ask</button></div><div className="mt-4 flex flex-wrap gap-2">{prompts.map(prompt => <button key={prompt} className="rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-[11px] text-foreground hover:bg-secondary">{prompt}</button>)}</div></Card>
-        <div className="mt-5 grid gap-5 lg:grid-cols-2"><Card className="p-5"><div className="flex items-center justify-between"><h2 className="font-semibold">Potential Duplicate Tasks</h2><Badge tone="warning">2 pairs</Badge></div><div className="mt-4 space-y-3">{[['Follow up on enterprise proposal', 'Follow up on Enterprise Platform proposal'], ['Confirm Q3 meeting', 'Confirm RetailMax stakeholder meeting']].map(pair => <div key={pair[0]} className="rounded-lg border border-border p-3"><p className="text-xs font-semibold">{pair[0]}</p><p className="mt-1 text-xs text-muted-foreground">Possible duplicate: {pair[1]}</p><div className="mt-3 flex gap-3 text-[11px] font-semibold"><button className="text-foreground">Review</button><button className="text-foreground">Merge</button><button className="text-foreground">Ignore</button></div></div>)}</div></Card><Card className="p-5"><div className="flex items-center justify-between"><h2 className="font-semibold">Task Data Quality Score</h2><Badge>Recorded</Badge></div><div className="mt-4 flex items-center gap-6"><div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-[9px] border-border border-t-border border-r-border"><span className="text-2xl font-bold">84%</span></div><ul className="space-y-2 text-xs text-muted-foreground"><li>5 missing owners</li><li>3 missing due dates</li><li>2 missing priorities</li><li>1 duplicate</li></ul></div></Card></div>
+        <div className="mt-5 grid gap-5 lg:grid-cols-2"><Card className="p-5"><div className="flex items-center justify-between"><h2 className="font-semibold">Potential Duplicate Tasks</h2><Badge tone="warning">2 pairs</Badge></div><div className="mt-4 space-y-3">{[['Follow up on enterprise proposal', 'Follow up on Enterprise Platform proposal'], ['Confirm Q3 meeting', 'Confirm Connected account stakeholder meeting']].map(pair => <div key={pair[0]} className="rounded-lg border border-border p-3"><p className="text-xs font-semibold">{pair[0]}</p><p className="mt-1 text-xs text-muted-foreground">Possible duplicate: {pair[1]}</p><div className="mt-3 flex gap-3 text-[11px] font-semibold"><button className="text-foreground">Review</button><button className="text-foreground">Merge</button><button className="text-foreground">Ignore</button></div></div>)}</div></Card><Card className="p-5"><div className="flex items-center justify-between"><h2 className="font-semibold">Task Data Quality Score</h2><Badge>Recorded</Badge></div><div className="mt-4 flex items-center gap-6"><div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-[9px] border-border border-t-border border-r-border"><span className="text-2xl font-bold">84%</span></div><ul className="space-y-2 text-xs text-muted-foreground"><li>5 missing owners</li><li>3 missing due dates</li><li>2 missing priorities</li><li>1 duplicate</li></ul></div></Card></div>
         <details className="mt-5 mb-8 rounded-xl border border-border bg-card p-5"><summary className="cursor-pointer font-semibold">Empty and error states</summary><div className="mt-4 grid gap-3 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-3"><div className="rounded-lg bg-card p-4"><strong className="text-foreground">No sales tasks yet</strong><p className="mt-1">Create your first sales task to get started.</p></div><div className="rounded-lg bg-card p-4"><strong className="text-foreground">You’re all caught up</strong><p className="mt-1">There are no overdue sales tasks based on current data.</p></div><div className="rounded-lg bg-card p-4"><strong className="text-foreground">Loading Error</strong><p className="mt-1">We couldn’t load task data. Try again.</p></div><div className="rounded-lg bg-card p-4">Save Error · Calendar Error · AI Error · Permission Error</div></div></details>
       </div>
     </main>
