@@ -115,6 +115,12 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   WEBSITE_GENERATION_FAILED: "The website could not be generated from this prompt.",
   WEBSITE_PUBLISH_FAILED: "The generated website could not be published.",
   WEBSITE_DOMAIN_VERIFICATION_FAILED: "The domain could not be verified. Please check the DNS record and try again.",
+  WEBSITE_PROVIDER_REQUEST_FAILED: "The website provider rejected the request.",
+  WEBSITE_PROVIDER_TOKEN_INVALID: "The saved website connection could not be opened securely.",
+  WEBSITE_PROVIDER_CONFIGURATION_MISSING: "The website provider configuration is incomplete.",
+  WEBSITE_PROVIDER_SITE_ID_MISSING: "The connected website does not have a provider site ID.",
+  WEBSITE_PUBLISH_STATE_INVALID: "Only a generated website preview can be published.",
+  WEBSITE_MANAGED_HOSTING_NOT_CONFIGURED: "Managed website hosting is not configured yet.",
 };
 
 function friendlyApiMessage(status: number, code: string) {

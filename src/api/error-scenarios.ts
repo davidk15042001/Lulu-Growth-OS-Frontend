@@ -56,6 +56,12 @@ const exactScenarios: Record<string, ErrorScenario> = {
   WEBSITE_GENERATION_FAILED: { category: "ai", userAction: "retry", retryable: true },
   WEBSITE_PUBLISH_FAILED: { category: "integration", userAction: "retry", retryable: true },
   WEBSITE_DOMAIN_VERIFICATION_FAILED: { category: "integration", userAction: "check-input", retryable: true },
+  WEBSITE_PROVIDER_REQUEST_FAILED: { category: "integration", userAction: "retry", retryable: true },
+  WEBSITE_PROVIDER_TOKEN_INVALID: { category: "integration", userAction: "connect-platform", retryable: false },
+  WEBSITE_PROVIDER_CONFIGURATION_MISSING: { category: "integration", userAction: "contact-admin", retryable: false },
+  WEBSITE_PROVIDER_SITE_ID_MISSING: { category: "integration", userAction: "connect-platform", retryable: false },
+  WEBSITE_PUBLISH_STATE_INVALID: { category: "validation", userAction: "check-input", retryable: false },
+  WEBSITE_MANAGED_HOSTING_NOT_CONFIGURED: { category: "integration", userAction: "contact-admin", retryable: false },
 };
 
 export function getErrorScenario(code: string, status = 0): ErrorScenario {
