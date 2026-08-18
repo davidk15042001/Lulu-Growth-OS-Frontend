@@ -20064,7 +20064,9 @@
     "No intelligence insights are available yet.": "Noch keine Intelligence Insights verfügbar.",
     "Customer segment data could not be loaded. Check sales segment records and try again.": "Kundensegmentdaten konnten nicht geladen werden. Überprüfen Sie die Vertriebssegment‑Datensätze und versuchen Sie es erneut.",
     "Meeting criteria": "Erfüllte Kriterien",
-    "No customer segments are available yet.": "Noch keine Kundensegmente verfügbar."
+    "No customer segments are available yet.": "Noch keine Kundensegmente verfügbar.",
+    "Competitor data could not be loaded. Check marketing competitor records and try again.": "Konkurrentendaten konnten nicht geladen werden. Überprüfen Sie die Marketing-Konkurrenteneinträge und versuchen Sie es erneut.",
+    "No competitor records are available yet.": "Es sind noch keine Konkurrenteneinträge verfügbar."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40159,7 +40161,9 @@
     "No intelligence insights are available yet.": "尚无 Intelligence 洞察可用。",
     "Customer segment data could not be loaded. Check sales segment records and try again.": "无法加载客户细分数据。请检查销售细分记录并重试。",
     "Meeting criteria": "符合条件的会议",
-    "No customer segments are available yet.": "尚无可用的客户细分。"
+    "No customer segments are available yet.": "尚无可用的客户细分。",
+    "Competitor data could not be loaded. Check marketing competitor records and try again.": "无法加载竞争对手数据。请检查营销竞争对手记录并重试。",
+    "No competitor records are available yet.": "尚无竞争对手记录。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
