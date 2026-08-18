@@ -20050,7 +20050,9 @@
     "Status data required": "Erforderliche Statusdaten",
     "Campaign data could not be loaded. Check marketing campaign records and try again.": "Kampagnendaten konnten nicht geladen werden. Überprüfen Sie die Marketingkampagnen und versuchen Sie es erneut.",
     "Marketing team member": "Mitglied des Marketingteams",
-    "No marketing campaigns are available yet.": "Es sind noch keine Marketingkampagnen verfügbar."
+    "No marketing campaigns are available yet.": "Es sind noch keine Marketingkampagnen verfügbar.",
+    "No saved sales settings are available yet. Current form values are local until saved.": "Es sind noch keine gespeicherten Verkaufs-Einstellungen vorhanden. Die aktuellen Formularwerte sind lokal, bis sie gespeichert werden.",
+    "Sales settings data could not be loaded. Check the settings record and try again.": "Verkaufs-Einstellungen konnten nicht geladen werden. Prüfen Sie den Einstellungsdatensatz und versuchen Sie es erneut."
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40131,7 +40133,9 @@
     "Status data required": "需要状态数据",
     "Campaign data could not be loaded. Check marketing campaign records and try again.": "无法加载活动数据。请检查营销活动记录后重试。",
     "Marketing team member": "营销团队成员",
-    "No marketing campaigns are available yet.": "尚无可用的营销活动。"
+    "No marketing campaigns are available yet.": "尚无可用的营销活动。",
+    "No saved sales settings are available yet. Current form values are local until saved.": "尚未保存任何销售设置。当前表单数值在保存前仅存于本地。",
+    "Sales settings data could not be loaded. Check the settings record and try again.": "无法加载销售设置数据。请检查设置记录并重试。"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
