@@ -352,7 +352,7 @@ export function LuluProductsServices() {
                 <input type="url" value={editing.url} onChange={event => setEditing({
                 ...editing,
                 url: event.target.value
-              })} placeholder="https://www.example.com/product" className={inputClass} />
+              })} placeholder="https://your-domain.example/product" className={inputClass} />
                 
               </Field>
 
