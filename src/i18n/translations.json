@@ -20099,7 +20099,8 @@
     "Connected customer Corp": "Verbundenes Unternehmen Corp",
     "Connected customer Corp · €185,000 · no activity in 14 days": "Verbundenes Unternehmen Corp · €185.000 · keine Aktivität in 14 Tagen",
     "TechVision · €94,000 closed by Connected customer": "TechVision · €94.000 abgeschlossen von Connected customer",
-    "Last submitted 2 days ago by Workspace owner": "Zuletzt vor 2 Tagen eingereicht vom Workspace‑Eigentümer"
+    "Last submitted 2 days ago by Workspace owner": "Zuletzt vor 2 Tagen eingereicht vom Workspace‑Eigentümer",
+    "Workspace owner · Scheduled": "Arbeitsbereichsinhaber · Geplant"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40229,7 +40230,8 @@
     "Connected customer Corp": "已关联客户 Corp",
     "Connected customer Corp · €185,000 · no activity in 14 days": "已关联客户 Corp · €185,000 · 14 天无活动",
     "TechVision · €94,000 closed by Connected customer": "TechVision · €94,000 由已关联客户关闭",
-    "Last submitted 2 days ago by Workspace owner": "最后由工作区所有者提交于 2 天前"
+    "Last submitted 2 days ago by Workspace owner": "最后由工作区所有者提交于 2 天前",
+    "Workspace owner · Scheduled": "工作区拥有者 · 已安排"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
