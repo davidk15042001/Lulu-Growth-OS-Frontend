@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { getSelectedWorkspaceId } from "../../api/session";
+import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../../api/session";
 import { websitesApi, type WebsiteSite } from "../../api/websites";
+import { authApi } from "../../api/auth";
 import { getFriendlyErrorMessage } from "../../api/client";
 import {
   ArrowRight,
@@ -73,6 +74,7 @@ const providerContent: Record<Provider, {
 
 export default function App() {
   const [mobileNav, setMobileNav] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("Übersicht");
   const [provider, setProvider] = useState<Provider>("wordpress");
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -99,6 +101,13 @@ export default function App() {
     else window.setTimeout(() => setIsRefreshing(false), 800);
   };
 
+  const logout = async () => {
+    setAccountMenuOpen(false);
+    try { await authApi.logout(); } catch { /* The local session is cleared even if the server is unreachable. */ }
+    clearSelectedWorkspaceId();
+    window.location.assign("/auth/login");
+  };
+
   const changeProvider = (nextProvider: Provider) => {
     setProvider(nextProvider);
     setActiveSection("Übersicht");
@@ -113,7 +122,10 @@ export default function App() {
           <button className="ml-auto rounded-lg p-2 text-muted-foreground hover:bg-secondary lg:hidden" aria-label="Navigation schließen" onClick={() => setMobileNav(false)}><X size={17} /></button>
         </div>
         <LuluSectionNavigation activeId="lulu-website-portal-9012" />
-        <div className="mt-4 space-y-3 border-t border-border pt-4"><div className="flex items-center gap-3"><div className="grid h-8 w-8 place-items-center rounded-full bg-card text-xs font-semibold text-foreground">LU</div><div><p className="text-sm font-medium text-foreground">Workspace account</p><p className="text-xs text-muted-foreground">Workspace member</p></div><MoreHorizontal className="ml-auto text-muted-foreground" size={16} /></div><div className="flex items-center gap-2 rounded-lg border border-chart-4/20 bg-chart-4/5 px-3 py-2 text-xs text-chart-4"><span className="h-2 w-2 rounded-full bg-chart-4" /> AI Active <span className="ml-auto text-muted-foreground">Live</span></div></div>
+        <div className="relative mt-4 border-t border-border pt-4">
+          <div className="flex items-center gap-3"><div className="grid h-8 w-8 place-items-center rounded-full bg-card text-xs font-semibold text-foreground">LU</div><div className="min-w-0"><p className="truncate text-sm font-medium text-foreground">Workspace account</p><p className="text-xs text-muted-foreground">Workspace member</p></div><button type="button" className="ml-auto rounded-lg p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground" aria-label="Account-Menü öffnen" aria-expanded={accountMenuOpen} onClick={() => setAccountMenuOpen((open) => !open)}><MoreHorizontal size={16} /></button></div>
+          {accountMenuOpen && <div className="absolute bottom-12 right-0 z-40 w-44 rounded-lg border border-border bg-card p-1 shadow-xl"><button type="button" onClick={() => void logout()} className="w-full rounded-md px-3 py-2 text-left text-xs font-medium text-foreground transition hover:bg-secondary">Abmelden</button></div>}
+        </div>
       </aside>
       {mobileNav && <button aria-label="Navigation schließen" className="fixed inset-0 z-20 bg-black/40 lg:hidden" onClick={() => setMobileNav(false)} />}
 
