@@ -4,7 +4,6 @@ import { websitesApi, type WebsiteSite } from "../../api/websites";
 import { getFriendlyErrorMessage } from "../../api/client";
 import {
   ArrowRight,
-  ChevronDown,
   FileEdit,
   Globe2,
   Image,
@@ -19,17 +18,9 @@ import {
   X,
 } from "lucide-react";
 import { pageLinkProps } from "../../routing";
+import { LuluSectionNavigation } from "../fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 
 type Provider = "wordpress" | "webflow";
-
-const websiteItems = [
-  { label: "Übersicht", active: true },
-  { label: "Seiten", count: "0" },
-  { label: "Beiträge", count: "0" },
-  { label: "Medien", count: "0" },
-  { label: "Entwürfe", count: "0" },
-  { label: "Website-Einstellungen", soon: true },
-];
 
 const providerOptions: Array<{ id: Provider; label: string; description: string }> = [
   { id: "wordpress", label: "WordPress / Jetpack", description: "Seiten, Beiträge und Medien" },
@@ -121,16 +112,7 @@ export default function App() {
           <div><strong className="text-base tracking-tight text-foreground">Lulu AI</strong><p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Growth workspace</p></div>
           <button className="ml-auto rounded-lg p-2 text-muted-foreground hover:bg-secondary lg:hidden" aria-label="Navigation schließen" onClick={() => setMobileNav(false)}><X size={17} /></button>
         </div>
-        <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI Hauptnavigation">
-          <a {...pageLinkProps("fancily-leaf-1766")} className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-secondary hover:text-foreground"><LayoutDashboard size={17} /> Dashboard</a>
-          <details open className="group rounded-lg">
-            <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg bg-secondary/15 px-3 py-2.5 text-sm font-medium text-foreground [&::-webkit-details-marker]:hidden"><span className="flex items-center gap-3"><Globe2 size={17} /> Website</span><ChevronDown size={15} className="transition-transform group-open:rotate-180" /></summary>
-            <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2">
-              {websiteItems.map((item) => <button key={item.label} type="button" disabled={item.soon} onClick={() => !item.soon && setActiveSection(item.label)} className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-xs transition ${activeSection === item.label ? "bg-primary text-primary-foreground" : item.soon ? "cursor-not-allowed text-muted-foreground/50" : "text-muted-foreground hover:bg-secondary hover:text-foreground"}`}><span>{item.label}</span>{item.soon ? <span className="text-[10px] uppercase tracking-wide">soon</span> : item.count ? <span className="opacity-70">{item.count}</span> : null}</button>)}
-            </div>
-          </details>
-          {["AI", "CRM", "Marketing", "Sales", "Integrations", "Billing"].map((label) => <details key={label} className="group rounded-lg"><summary className="flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition hover:bg-secondary hover:text-foreground [&::-webkit-details-marker]:hidden"><span>{label}</span><ChevronDown size={15} className="transition-transform group-open:rotate-180" /></summary></details>)}
-        </nav>
+        <LuluSectionNavigation activeId="lulu-website-portal-9012" />
         <div className="mt-4 space-y-3 border-t border-border pt-4"><div className="flex items-center gap-3"><div className="grid h-8 w-8 place-items-center rounded-full bg-card text-xs font-semibold text-foreground">LU</div><div><p className="text-sm font-medium text-foreground">Workspace account</p><p className="text-xs text-muted-foreground">Workspace member</p></div><MoreHorizontal className="ml-auto text-muted-foreground" size={16} /></div><div className="flex items-center gap-2 rounded-lg border border-chart-4/20 bg-chart-4/5 px-3 py-2 text-xs text-chart-4"><span className="h-2 w-2 rounded-full bg-chart-4" /> AI Active <span className="ml-auto text-muted-foreground">Live</span></div></div>
       </aside>
       {mobileNav && <button aria-label="Navigation schließen" className="fixed inset-0 z-20 bg-black/40 lg:hidden" onClick={() => setMobileNav(false)} />}
