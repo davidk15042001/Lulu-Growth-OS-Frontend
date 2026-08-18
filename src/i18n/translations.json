@@ -20042,7 +20042,12 @@
     "Connected account contract overdue": "Verknüpftes Konto - Vertrag überfällig",
     "Loading activities": "Aktivitäten werden geladen",
     "No sales activities are available yet.": "Noch keine Vertriebsaktivitäten verfügbar.",
-    "Sales activity data could not be loaded. Check activity records and try again.": "Vertriebsaktivitätsdaten konnten nicht geladen werden. Prüfen Sie die Aktivitätsaufzeichnungen und versuchen Sie es erneut."
+    "Sales activity data could not be loaded. Check activity records and try again.": "Vertriebsaktivitätsdaten konnten nicht geladen werden. Prüfen Sie die Aktivitätsaufzeichnungen und versuchen Sie es erneut.",
+    "Ecommerce overview data could not be loaded. Check connected stores, orders and customers, then try again.": "E-Commerce-Übersichtsdaten konnten nicht geladen werden. Überprüfen Sie verbundene Shops, Bestellungen und Kunden und versuchen Sie es erneut.",
+    "Fulfillment data required": "Erforderliche Fulfillment-Daten",
+    "Live order records": "Echtzeit-Bestellaufzeichnungen",
+    "No ecommerce records are available yet.": "Es sind noch keine E-Commerce-Datensätze verfügbar.",
+    "Status data required": "Erforderliche Statusdaten"
   },
   "fr": {
     "welcome": "BON RETOUR",
@@ -40115,7 +40120,12 @@
     "Connected account contract overdue": "已连接账户合约已逾期",
     "Loading activities": "正在加载活动",
     "No sales activities are available yet.": "尚无销售活动。",
-    "Sales activity data could not be loaded. Check activity records and try again.": "无法加载销售活动数据。请检查活动记录并重试。"
+    "Sales activity data could not be loaded. Check activity records and try again.": "无法加载销售活动数据。请检查活动记录并重试。",
+    "Ecommerce overview data could not be loaded. Check connected stores, orders and customers, then try again.": "无法加载电商概览数据。请检查已连接的店铺、订单和客户，然后重试。",
+    "Fulfillment data required": "需要履约数据",
+    "Live order records": "实时订单记录",
+    "No ecommerce records are available yet.": "尚无电商记录。",
+    "Status data required": "需要状态数据"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
