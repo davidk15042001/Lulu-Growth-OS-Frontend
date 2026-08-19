@@ -48,7 +48,15 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
       else setError("Your session could not be restored. Please sign in again.");
     } finally { setLoading(false); }
   }, [selectedId]);
-  useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    const publicAuthPath = window.location.pathname.startsWith("/auth/");
+    if (publicAuthPath) {
+      setLoading(false);
+      setError(null);
+      return;
+    }
+    void refresh();
+  }, [refresh]);
   const selectedWorkspace = useMemo(() => workspaces.find((item) => item.id === selectedId) ?? null, [selectedId, workspaces]);
   const selectWorkspace = useCallback((id: string) => { const workspace = workspaces.find((item) => item.id === id); if (!workspace) return; setSelectedWorkspaceId(id); setSelectedId(id); setPermissions(permissionsFor(workspace)); }, [workspaces]);
   const value = useMemo<AppValue>(() => ({ currentUser, workspaces, selectedWorkspace, permissions, capabilities, loading, error, refresh, selectWorkspace, can: (permission) => permission === "edit" ? permissions.canEdit : permissions.canAdminister }), [currentUser, workspaces, selectedWorkspace, permissions, capabilities, loading, error, refresh, selectWorkspace]);

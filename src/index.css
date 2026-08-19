@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+@media (min-width: 1024px) {
+  .page-frame aside[class*="w-60"],
+  .page-frame aside[class*="w-64"],
+  .page-frame aside[class*="w-[238px]"],
+  .page-frame aside.sidebar,
+  .page-frame aside.actions-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+  }
+
+  .page-frame aside[class*="w-60"] nav,
+  .page-frame aside[class*="w-64"] nav,
+  .page-frame aside[class*="w-[238px]"] nav,
+  .page-frame aside.sidebar nav,
+  .page-frame aside.actions-sidebar nav {
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
