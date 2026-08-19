@@ -192,7 +192,27 @@ export function getTechnicalErrorDetails(error: unknown) {
 const API_BASE_URL = (import.meta.env.VITE_API_URL?.trim() || "/api/v1").replace(/\/$/, "");
 const API_REQUEST_MESSAGE = "lulu:api-request";
 const API_RESPONSE_MESSAGE = "lulu:api-response";
-let accessToken: string | null = null;
+const ACCESS_TOKEN_STORAGE_KEY = "lulu_access_token";
+
+function readStoredAccessToken() {
+  try {
+    return window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function storeAccessToken(token: string | null) {
+  accessToken = token;
+  try {
+    if (token) window.sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
+    else window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+  } catch {
+    // Private browsing/storage restrictions must not break authentication.
+  }
+}
+
+let accessToken: string | null = readStoredAccessToken();
 let refreshPromise: Promise<boolean> | null = null;
 
 function createMessageId() {
@@ -217,14 +237,14 @@ function validatedPath(path: string) {
 
 function captureSession(path: string, payload: unknown) {
   if (path === "/auth/logout") {
-    accessToken = null;
+    storeAccessToken(null);
     return;
   }
   if (!payload || typeof payload !== "object") return;
   const data = (payload as { data?: unknown }).data;
   if (!data || typeof data !== "object") return;
   const token = (data as { token?: unknown }).token;
-  if (typeof token === "string" && token) accessToken = token;
+  if (typeof token === "string" && token) storeAccessToken(token);
 }
 
 async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Promise<ApiEnvelope<T>> {
@@ -272,7 +292,7 @@ async function refreshSession() {
     { path: "/auth/refresh", method: "POST", body: {} },
     false,
   ).then(() => true).catch(() => {
-    accessToken = null;
+    storeAccessToken(null);
     return false;
   }).finally(() => {
     refreshPromise = null;
