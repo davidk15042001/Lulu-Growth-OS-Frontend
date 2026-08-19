@@ -52,6 +52,8 @@ const exactScenarios: Record<string, ErrorScenario> = {
   WEBSITE_DOMAIN_NOT_FOUND: { category: "resource", userAction: "retry", retryable: false },
   WEBSITE_GENERATION_JOB_NOT_FOUND: { category: "resource", userAction: "retry", retryable: false },
   WEBSITE_PROVIDER_NOT_CONNECTED: { category: "integration", userAction: "connect-platform", retryable: false },
+  WEBSITE_PROVIDER_NO_SITE_AVAILABLE: { category: "integration", userAction: "connect-platform", retryable: false },
+  WEBSITE_PROVIDER_COLLECTION_REQUIRED: { category: "integration", userAction: "check-input", retryable: false },
   WEBSITE_PROVIDER_WRITE_SCOPE_MISSING: { category: "authorization", userAction: "connect-platform", retryable: false },
   WEBSITE_GENERATION_FAILED: { category: "ai", userAction: "retry", retryable: true },
   WEBSITE_PUBLISH_FAILED: { category: "integration", userAction: "retry", retryable: true },

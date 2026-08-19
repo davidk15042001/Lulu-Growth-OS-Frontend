@@ -111,6 +111,8 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   WEBSITE_DOMAIN_NOT_FOUND: "The website domain could not be found.",
   WEBSITE_GENERATION_JOB_NOT_FOUND: "The website generation job could not be found.",
   WEBSITE_PROVIDER_NOT_CONNECTED: "The selected website provider is not connected yet.",
+  WEBSITE_PROVIDER_NO_SITE_AVAILABLE: "The provider account is connected, but it has no website yet. Create a site in the provider first, then try again.",
+  WEBSITE_PROVIDER_COLLECTION_REQUIRED: "The Webflow account is connected, but the selected site has no CMS collection for generated content.",
   WEBSITE_PROVIDER_WRITE_SCOPE_MISSING: "The connected provider does not have permission to change this website.",
   WEBSITE_GENERATION_FAILED: "The website could not be generated from this prompt.",
   WEBSITE_PUBLISH_FAILED: "The generated website could not be published.",
