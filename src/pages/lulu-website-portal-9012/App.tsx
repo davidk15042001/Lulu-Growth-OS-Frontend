@@ -98,8 +98,8 @@ export default function App() {
   const workspaceId = getSelectedWorkspaceId();
   const content = useMemo(() => providerContent[provider], [provider]);
   const selectedSite = sites.find((site) => site.id === selectedSiteId) ?? sites.find((site) => site.provider === provider);
-  const connected = Boolean(selectedSite);
   const connectedPlatform = platforms.find((platform) => platform.integrationKey === provider || platform.name.toLowerCase().includes(provider));
+  const connected = Boolean(selectedSite && (connectedPlatform?.connectionStatus === "connected" || connectedPlatform?.connectionStatus === "active"));
 
   useEffect(() => {
     if (!workspaceId) return;
