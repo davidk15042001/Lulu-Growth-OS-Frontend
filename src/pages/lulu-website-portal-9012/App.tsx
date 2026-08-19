@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../../api/session";
 import { websitesApi, type WebsiteSite } from "../../api/websites";
+import { onboardingApi, type Platform } from "../../api/onboarding";
 import { authApi } from "../../api/auth";
 import { getFriendlyErrorMessage } from "../../api/client";
 import {
@@ -90,26 +91,60 @@ export default function App() {
   const [provider, setProvider] = useState<Provider>(initialProvider);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [sites, setSites] = useState<WebsiteSite[]>([]);
+  const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [selectedSiteId, setSelectedSiteId] = useState("");
+  const [connectionBusy, setConnectionBusy] = useState<Provider | null>(null);
   const [error, setError] = useState("");
   const workspaceId = getSelectedWorkspaceId();
   const content = useMemo(() => providerContent[provider], [provider]);
   const selectedSite = sites.find((site) => site.id === selectedSiteId) ?? sites.find((site) => site.provider === provider);
   const connected = Boolean(selectedSite);
+  const connectedPlatform = platforms.find((platform) => platform.integrationKey === provider || platform.name.toLowerCase().includes(provider));
 
   useEffect(() => {
     if (!workspaceId) return;
-    websitesApi.list(workspaceId).then((response) => {
-      setSites(response.data.items);
-      setSelectedSiteId(response.data.items.find((site) => site.provider === provider)?.id ?? response.data.items[0]?.id ?? "");
-    }).catch((requestError) => setError(getFriendlyErrorMessage(requestError, "Die Websites konnten nicht geladen werden.")));
+    Promise.all([websitesApi.list(workspaceId), onboardingApi.platforms(workspaceId)]).then(([websiteResponse, platformResponse]) => {
+      setSites(websiteResponse.data.items);
+      setPlatforms(platformResponse.data.items);
+      setSelectedSiteId(websiteResponse.data.items.find((site) => site.provider === provider)?.id ?? websiteResponse.data.items[0]?.id ?? "");
+    }).catch((requestError) => setError(getFriendlyErrorMessage(requestError, "Die Websites und Verbindungen konnten nicht geladen werden.")));
   }, [workspaceId, provider]);
 
   const refresh = () => {
     setIsRefreshing(true);
     setError("");
-    if (workspaceId) websitesApi.list(workspaceId).then((response) => setSites(response.data.items)).catch((requestError) => setError(getFriendlyErrorMessage(requestError, "Die Websites konnten nicht geladen werden."))).finally(() => setIsRefreshing(false));
+    if (workspaceId) Promise.all([websitesApi.list(workspaceId), onboardingApi.platforms(workspaceId)]).then(([websiteResponse, platformResponse]) => { setSites(websiteResponse.data.items); setPlatforms(platformResponse.data.items); }).catch((requestError) => setError(getFriendlyErrorMessage(requestError, "Die Websites und Verbindungen konnten nicht geladen werden."))).finally(() => setIsRefreshing(false));
     else window.setTimeout(() => setIsRefreshing(false), 800);
+  };
+
+  const connectProvider = async (nextProvider: Provider) => {
+    if (!workspaceId) { setError("Für diese Aktion ist kein Workspace ausgewählt."); return; }
+    setConnectionBusy(nextProvider);
+    setError("");
+    try {
+      const response = await onboardingApi.startOAuth(workspaceId, nextProvider, undefined, `/app/website?section=${nextProvider === "webflow" ? "webflow-9014" : "wordpress-jetpack-9013"}`);
+      window.location.assign(response.data.authorizationUrl);
+    } catch (requestError) {
+      setError(getFriendlyErrorMessage(requestError, `${nextProvider === "webflow" ? "Webflow" : "WordPress"} konnte nicht verbunden werden.`));
+      setConnectionBusy(null);
+    }
+  };
+
+  const disconnectProvider = async (nextProvider: Provider) => {
+    if (!workspaceId) return;
+    const platform = platforms.find((item) => item.integrationKey === nextProvider || item.name.toLowerCase().includes(nextProvider));
+    if (!platform) return;
+    setConnectionBusy(nextProvider);
+    setError("");
+    try {
+      await onboardingApi.deletePlatform(workspaceId, platform.id);
+      setPlatforms((current) => current.filter((item) => item.id !== platform.id));
+      setSites((current) => current.filter((site) => site.provider !== nextProvider));
+    } catch (requestError) {
+      setError(getFriendlyErrorMessage(requestError, `${nextProvider === "webflow" ? "Webflow" : "WordPress"} konnte nicht getrennt werden.`));
+    } finally {
+      setConnectionBusy(null);
+    }
   };
 
   const logout = async () => {
@@ -148,6 +183,8 @@ export default function App() {
             <div className="flex items-start gap-3"><button className="mt-1 rounded-lg p-2 text-muted-foreground hover:bg-secondary lg:hidden" aria-label="Navigation öffnen" onClick={() => setMobileNav(true)}><Menu size={20} /></button><div><p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Lulu AI / Website</p><h1 className="text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">Website</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{content.description}</p></div></div>
             <div className="flex flex-wrap items-center gap-2"><button onClick={refresh} className="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-foreground transition hover:border-primary/40"><RefreshCw size={15} className={isRefreshing ? "animate-spin" : ""} /> Aktualisieren</button><button type="button" className="flex h-10 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-lg shadow-black/10"><Plus size={15} /> Neue Seite</button></div>
           </header>
+
+          <section className="mb-6 rounded-xl border border-border bg-card p-5 sm:p-6"><div className="flex flex-col gap-2"><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Integrationen</p><h2 className="text-lg font-semibold tracking-tight text-foreground">Plattformen später verbinden</h2><p className="max-w-2xl text-sm leading-6 text-muted-foreground">WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.</p></div><div className="mt-5 grid gap-3 md:grid-cols-2">{providerOptions.map((option) => { const platform = platforms.find((item) => item.integrationKey === option.id || item.name.toLowerCase().includes(option.id)); const isConnected = platform?.connectionStatus === "connected" || platform?.connectionStatus === "active"; const isBusy = connectionBusy === option.id; return <article key={option.id} className="flex min-w-0 flex-col justify-between gap-4 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center"><div className="flex min-w-0 items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-muted-foreground"><Globe2 size={18} /></span><div className="min-w-0"><h3 className="truncate text-sm font-semibold text-foreground">{option.label}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{isConnected ? `Verbunden${platform?.settings?.accountName ? ` · ${String(platform.settings.accountName)}` : ""}` : "Noch nicht verbunden"}</p>{platform?.lastError && <p className="mt-1 break-words text-xs text-destructive">{platform.lastError}</p>}</div></div><div className="flex shrink-0 flex-wrap gap-2"><button type="button" disabled={isBusy} onClick={() => isConnected ? void disconnectProvider(option.id) : void connectProvider(option.id)} className={`inline-flex h-9 items-center justify-center rounded-lg px-3 text-xs font-medium transition disabled:cursor-wait disabled:opacity-60 ${isConnected ? "border border-border text-foreground hover:bg-secondary" : "bg-primary text-primary-foreground hover:opacity-90"}`}>{isBusy ? "Bitte warten…" : isConnected ? "Trennen" : "Verbinden"}</button></div></article>; })}</div>{error && <p role="alert" className="mt-4 break-words text-sm text-destructive">{error}</p>}</section>
 
           <section className="mb-6 rounded-xl border border-border bg-card px-5 py-4"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-muted-foreground"><Globe2 size={19} /></span><div><p className="text-sm font-semibold text-foreground">Website-Provider</p><p className="mt-1 text-xs text-muted-foreground">Wähle die Plattform, die du mit Lulu verwalten möchtest.</p></div></div><label className="flex min-w-0 flex-col gap-1.5 text-xs font-medium text-muted-foreground sm:min-w-[300px]"><span className="sr-only">Website-Provider auswählen</span><select value={provider} onChange={(event) => changeProvider(event.target.value as Provider)} className="h-10 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary/50"><option value="wordpress">WordPress / Jetpack</option><option value="webflow">Webflow</option></select></label></div><div className="mt-4 flex flex-wrap gap-2">{providerOptions.map((option) => <button key={option.id} type="button" onClick={() => changeProvider(option.id)} className={`rounded-lg border px-3 py-2 text-left transition ${provider === option.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:border-primary/40"}`}><span className="block text-xs font-semibold">{option.label}</span><span className={`mt-0.5 block text-[11px] ${provider === option.id ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{option.description}</span></button>)}</div></section>
 
