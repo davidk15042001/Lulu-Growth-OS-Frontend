@@ -39,7 +39,13 @@
     "Aktualisieren": "Refresh",
     "Neue Seite": "New page",
     "Abmelden": "Sign out",
-    "Wähle die Plattform, die du mit Lulu verwalten möchtest.": "Choose the platform you want to manage with Lulu."
+    "Wähle die Plattform, die du mit Lulu verwalten möchtest.": "Choose the platform you want to manage with Lulu.",
+    "Loading live data…": "Loading live data…",
+    "Connecting to your workspace data.": "Connecting to your workspace data.",
+    "Live data could not be loaded": "Live data could not be loaded",
+    "No live data available yet": "No live data available yet",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Connect a data source or complete an action to populate this page. No example metrics are displayed.",
+    "Try again": "Try again"
   },
   "de": {
     "welcome": "WILLKOMMEN ZURÜCK",
@@ -20560,7 +20566,13 @@
     "Schließen": "Schließen",
     "The provider account is connected, but it has no website yet. Create a site in the provider first, then try again.": "Das Provider-Konto ist verbunden, enthält aber noch keine Website. Erstellen Sie zuerst eine Website beim Provider und versuchen Sie es anschließend erneut.",
     "The Webflow account is connected, but the selected site has no CMS collection for generated content.": "Das Webflow-Konto ist verbunden, aber die ausgewählte Website verfügt über keine CMS-Collection für generierte Inhalte.",
-    "Setting up…": "Wird eingerichtet…"
+    "Setting up…": "Wird eingerichtet…",
+    "Loading live data…": "Live-Daten werden geladen…",
+    "Connecting to your workspace data.": "Verbindung zu Ihren Arbeitsbereichsdaten wird hergestellt.",
+    "Live data could not be loaded": "Live-Daten konnten nicht geladen werden",
+    "No live data available yet": "Noch keine Live-Daten verfügbar",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Verbinden Sie eine Datenquelle oder führen Sie eine Aktion aus, um diese Seite zu füllen. Es werden keine Beispielkennzahlen angezeigt.",
+    "resource": "Ressource"
   },
   "fr": {
     "welcome": "BIENVENUE DE RETOUR",
@@ -40245,7 +40257,7 @@
     "The selected billing plan is not supported.": "Le plan de facturation sélectionné n'est pas pris en charge.",
     "The selected file does not have a usable file name.": "Le fichier sélectionné n'a pas de nom de fichier utilisable.",
     "This dashboard only shows information returned by your connected workspace. No sample or demo metrics are displayed.": "Ce tableau de bord affiche uniquement les informations renvoyées par votre espace de travail connecté. Aucun exemple ou métrique de démonstration n’est affiché.",
-    "Try again": "Réessayez",
+    "Try again": "Réessayer",
     "Understand your business with read-only access to the complete Lulu workspace.": "Gagnez en visibilité sur votre entreprise avec un accès en lecture seule à l'ensemble de l'espace de travail Lulu.",
     "Verbinde": "Se connecter",
     "Verbinde Webflow, um Seiten, CMS-Collections und Assets zu verwalten.": "Connectez Webflow pour gérer les pages, les collections CMS et les actifs.",
@@ -40733,7 +40745,12 @@
     "published": "publié",
     "wordpress": "wordpress",
     "Schließen": "Fermer",
-    "Setting up…": "Configuration…"
+    "Setting up…": "Configuration…",
+    "Loading live data…": "Chargement des données en direct…",
+    "Connecting to your workspace data.": "Connexion aux données de votre espace de travail.",
+    "Live data could not be loaded": "Impossible de charger les données en direct",
+    "No live data available yet": "Aucune donnée en direct disponible pour le moment",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Connectez une source de données ou effectuez une action pour remplir cette page. Aucun indicateur d’exemple n’est affiché."
   },
   "nl": {
     "welcome": "WELKOM TERUG",
@@ -60418,7 +60435,7 @@
     "The selected billing plan is not supported.": "Het geselecteerde factureringsplan wordt niet ondersteund.",
     "The selected file does not have a usable file name.": "Het geselecteerde bestand heeft geen bruikbare bestandsnaam.",
     "This dashboard only shows information returned by your connected workspace. No sample or demo metrics are displayed.": "Dit dashboard geeft alleen informatie weer die door uw verbonden werkruimte wordt geretourneerd. Er worden geen voorbeeld- of demostatistieken weergegeven.",
-    "Try again": "Probeer het opnieuw",
+    "Try again": "Opnieuw proberen",
     "Understand your business with read-only access to the complete Lulu workspace.": "Krijg inzicht in uw bedrijf met alleen-lezen toegang tot de volledige Lulu-werkruimte.",
     "Verbinde": "Verbinden",
     "Verbinde Webflow, um Seiten, CMS-Collections und Assets zu verwalten.": "Verbind Webflow om pagina's, CMS-collecties en assets te beheren.",
@@ -60906,7 +60923,12 @@
     "published": "gepubliceerd",
     "wordpress": "wordpress",
     "Schließen": "Sluiten",
-    "Setting up…": "Wordt ingesteld…"
+    "Setting up…": "Wordt ingesteld…",
+    "Loading live data…": "Livegegevens worden geladen…",
+    "Connecting to your workspace data.": "Verbinding maken met de gegevens van je werkruimte.",
+    "Live data could not be loaded": "Livegegevens konden niet worden geladen",
+    "No live data available yet": "Nog geen livegegevens beschikbaar",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Verbind een gegevensbron of voltooi een actie om deze pagina te vullen. Er worden geen voorbeeldcijfers weergegeven."
   },
   "pl": {
     "welcome": "WITAJ PONOWNIE",
@@ -81079,7 +81101,12 @@
     "published": "opublikowano",
     "wordpress": "wordpress",
     "Schließen": "Zamknij",
-    "Setting up…": "Konfigurowanie…"
+    "Setting up…": "Konfigurowanie…",
+    "Loading live data…": "Ładowanie danych na żywo…",
+    "Connecting to your workspace data.": "Łączenie z danymi obszaru roboczego.",
+    "Live data could not be loaded": "Nie można załadować danych na żywo",
+    "No live data available yet": "Brak danych na żywo",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Połącz źródło danych lub wykonaj działanie, aby wypełnić tę stronę. Nie wyświetlamy przykładowych danych."
   },
   "zh-CN": {
     "welcome": "欢迎回来",
@@ -101600,7 +101627,13 @@
     "Schließen": "关闭",
     "The provider account is connected, but it has no website yet. Create a site in the provider first, then try again.": "提供商账户已连接，但目前还没有网站。请先在提供商处创建网站，然后重试。",
     "The Webflow account is connected, but the selected site has no CMS collection for generated content.": "Webflow 账户已连接，但所选网站没有用于生成内容的 CMS 集合。",
-    "Setting up…": "正在设置…"
+    "Setting up…": "正在设置…",
+    "Loading live data…": "正在加载实时数据…",
+    "Connecting to your workspace data.": "正在连接到您的工作区数据。",
+    "Live data could not be loaded": "无法加载实时数据",
+    "No live data available yet": "暂时没有可用的实时数据",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "连接数据源或完成一项操作以填充此页面。不会显示示例指标。",
+    "resource": "资源"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
@@ -121773,7 +121806,12 @@
     "published": "publisert",
     "wordpress": "wordpress",
     "Schließen": "Lukk",
-    "Setting up…": "Setter opp…"
+    "Setting up…": "Setter opp…",
+    "Loading live data…": "Laster inn livedata…",
+    "Connecting to your workspace data.": "Kobler til arbeidsområdedataene dine.",
+    "Live data could not be loaded": "Livedata kunne ikke lastes inn",
+    "No live data available yet": "Ingen livedata tilgjengelig ennå",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Koble til en datakilde eller fullfør en handling for å fylle ut denne siden. Ingen eksempelberegninger vises."
   },
   "sv": {
     "welcome": "VÄLKOMMEN TILLBAKA",
@@ -141945,7 +141983,12 @@
     "Verbinden": "Anslut",
     "published": "publicerad",
     "wordpress": "wordpress",
-    "Schließen": "Stäng"
+    "Schließen": "Stäng",
+    "Loading live data…": "Läser in live-data…",
+    "Connecting to your workspace data.": "Ansluter till arbetsytans data.",
+    "Live data could not be loaded": "Live-data kunde inte läsas in",
+    "No live data available yet": "Inga live-data tillgängliga ännu",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Anslut en datakälla eller slutför en åtgärd för att fylla sidan. Inga exempelvärden visas."
   },
   "fi": {
     "welcome": "TERVETULOA TAKAISIN",
@@ -162117,7 +162160,12 @@
     "Verbinden": "Yhdistä",
     "published": "julkaistu",
     "wordpress": "wordpress",
-    "Schließen": "Sulje"
+    "Schließen": "Sulje",
+    "Loading live data…": "Live-tietoja ladataan…",
+    "Connecting to your workspace data.": "Yhdistetään työtilasi tietoihin.",
+    "Live data could not be loaded": "Live-tietoja ei voitu ladata",
+    "No live data available yet": "Live-tietoja ei ole vielä saatavilla",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Yhdistä tietolähde tai suorita toiminto tämän sivun täyttämiseksi. Esimerkkimittareita ei näytetä."
   },
   "da": {
     "welcome": "VELKOMMEN TILBAGE",
@@ -182289,7 +182337,12 @@
     "Verbinden": "Forbind",
     "published": "udgivet",
     "wordpress": "wordpress",
-    "Schließen": "Luk"
+    "Schließen": "Luk",
+    "Loading live data…": "Indlæser livedata…",
+    "Connecting to your workspace data.": "Opretter forbindelse til arbejdsområdets data.",
+    "Live data could not be loaded": "Livedata kunne ikke indlæses",
+    "No live data available yet": "Ingen livedata tilgængelig endnu",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Tilslut en datakilde eller fuldfør en handling for at udfylde denne side. Ingen eksempelværdier vises."
   },
   "ar": {
     "welcome": "مرحبا بكم مرة أخرى",
@@ -202462,7 +202515,12 @@
     "published": "منشور",
     "wordpress": "ووردبريس",
     "Schließen": "إغلاق",
-    "Setting up…": "جارٍ الإعداد…"
+    "Setting up…": "جارٍ الإعداد…",
+    "Loading live data…": "جارٍ تحميل البيانات المباشرة…",
+    "Connecting to your workspace data.": "جارٍ الاتصال ببيانات مساحة العمل.",
+    "Live data could not be loaded": "تعذر تحميل البيانات المباشرة",
+    "No live data available yet": "لا تتوفر بيانات مباشرة بعد",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "اربط مصدر بيانات أو أكمل إجراءً لملء هذه الصفحة. لن تُعرض مقاييس تجريبية."
   },
   "lb": {
     "welcome": "WELCOME BACK",
@@ -222147,7 +222205,7 @@
     "The selected billing plan is not supported.": "De gewielte Rechnungsplang gëtt net ënnerstëtzt.",
     "The selected file does not have a usable file name.": "Déi gewielte Datei huet keen benotzbaren Dateinumm.",
     "This dashboard only shows information returned by your connected workspace. No sample or demo metrics are displayed.": "Dësen Dashboard weist nëmmen Informatioun zréck, déi vun Ärem verbonnen Aarbechtsberäich zréckkomm ass. Keng Probe oder Demo Metriken ginn gewisen.",
-    "Try again": "Probéiert nach eng Kéier",
+    "Try again": "Nach eng Kéier probéieren",
     "Understand your business with read-only access to the complete Lulu workspace.": "Gitt Visibilitéit an Äert Geschäft mam Liesen Zougang zum ganze Lulu Aarbechtsberäich.",
     "Verbinde": "Connect",
     "Verbinde Webflow, um Seiten, CMS-Collections und Assets zu verwalten.": "Connect Webflow fir Säiten, CMS Sammlungen a Verméigen ze managen.",
@@ -222634,7 +222692,12 @@
     "Verbinden": "Verbannen",
     "published": "publizéiert",
     "wordpress": "WordPress",
-    "Schließen": "Zoumaachen"
+    "Schließen": "Zoumaachen",
+    "Loading live data…": "Live-Donnéeë gi gelueden…",
+    "Connecting to your workspace data.": "Verbindung mat Ären Aarbechtsberäich-Donnéeën.",
+    "Live data could not be loaded": "Live-Donnéeë konnten net geluede ginn",
+    "No live data available yet": "Nach keng Live-Donnéeë verfügbar",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Verbannt eng Datequell oder maacht eng Aktioun fäerdeg fir dës Säit ze fëllen. Et gi keng Beispillkennzuelen ugewisen."
   },
   "mn": {
     "welcome": "БУЦАЖ ТАВТАЙ БАЙНА",
@@ -242319,7 +242382,7 @@
     "The selected billing plan is not supported.": "Сонгосон төлбөрийн төлөвлөгөөг дэмждэггүй.",
     "The selected file does not have a usable file name.": "Сонгосон файлд ашиглах боломжтой файлын нэр байхгүй байна.",
     "This dashboard only shows information returned by your connected workspace. No sample or demo metrics are displayed.": "Энэ хяналтын самбар нь зөвхөн таны холбогдсон ажлын талбараас буцаж ирсэн мэдээллийг харуулдаг. Түүвэр эсвэл үзүүлэнгийн хэмжүүр харагдахгүй байна.",
-    "Try again": "Дахин оролдоно уу",
+    "Try again": "Дахин оролдох",
     "Understand your business with read-only access to the complete Lulu workspace.": "Lulu-н ажлын талбарт зөвхөн уншигдах хандалт хийснээр бизнесээ харагдуулна уу.",
     "Verbinde": "Холбох",
     "Verbinde Webflow, um Seiten, CMS-Collections und Assets zu verwalten.": "Хуудас, CMS цуглуулга болон хөрөнгийг удирдахын тулд Webflow-г холбоно уу.",
@@ -242806,7 +242869,12 @@
     "Verbinden": "Холбох",
     "published": "нийтлэгдсэн",
     "wordpress": "wordpress",
-    "Schließen": "Хаах"
+    "Schließen": "Хаах",
+    "Loading live data…": "Шууд өгөгдлийг ачаалж байна…",
+    "Connecting to your workspace data.": "Таны ажлын талбайн өгөгдөлтэй холбогдож байна.",
+    "Live data could not be loaded": "Шууд өгөгдлийг ачаалж чадсангүй",
+    "No live data available yet": "Одоогоор шууд өгөгдөл алга",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Энэ хуудсыг бөглөхийн тулд өгөгдлийн эх үүсвэр холбоно уу эсвэл үйлдэл гүйцэтгэнэ үү. Жишээ хэмжүүр харуулахгүй."
   },
   "uk": {
     "welcome": "ВІТАЄМО З ПОВЕРНЕННЯМ",
@@ -262491,7 +262559,7 @@
     "The selected billing plan is not supported.": "Вибраний тарифний план не підтримується.",
     "The selected file does not have a usable file name.": "Вибраний файл не має придатного імені.",
     "This dashboard only shows information returned by your connected workspace. No sample or demo metrics are displayed.": "На цій інформаційній панелі відображається лише інформація, яку повертає ваша підключена робоча область. Не показано зразки чи демонстраційні показники.",
-    "Try again": "Спробуйте знову",
+    "Try again": "Спробувати ще раз",
     "Understand your business with read-only access to the complete Lulu workspace.": "Отримайте видимість свого бізнесу завдяки доступу лише для читання до всього робочого простору Lulu.",
     "Verbinde": "Підключитися",
     "Verbinde Webflow, um Seiten, CMS-Collections und Assets zu verwalten.": "Підключіть Webflow, щоб керувати сторінками, колекціями та ресурсами CMS.",
@@ -262979,7 +263047,12 @@
     "published": "опубліковано",
     "wordpress": "wordpress",
     "Schließen": "Закрити",
-    "Setting up…": "Налаштування…"
+    "Setting up…": "Налаштування…",
+    "Loading live data…": "Завантаження даних у реальному часі…",
+    "Connecting to your workspace data.": "Підключення до даних робочого простору.",
+    "Live data could not be loaded": "Не вдалося завантажити дані в реальному часі",
+    "No live data available yet": "Даних у реальному часі ще немає",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Підключіть джерело даних або виконайте дію, щоб заповнити цю сторінку. Приклади показників не відображаються."
   },
   "ru": {
     "welcome": "ДОБРО ПОЖАЛОВАТЬ НАЗАД",
@@ -282664,7 +282737,7 @@
     "The selected billing plan is not supported.": "Выбранный тарифный план не поддерживается.",
     "The selected file does not have a usable file name.": "У выбранного файла нет пригодного имени.",
     "This dashboard only shows information returned by your connected workspace. No sample or demo metrics are displayed.": "На этой информационной панели отображается только информация, возвращаемая вашим подключенным рабочим пространством. Никаких образцов или демонстрационных показателей не отображается.",
-    "Try again": "Попробуйте еще раз",
+    "Try again": "Повторить",
     "Understand your business with read-only access to the complete Lulu workspace.": "Получите прозрачность своего бизнеса благодаря доступу только для чтения ко всему рабочему пространству Lulu.",
     "Verbinde": "Подключиться",
     "Verbinde Webflow, um Seiten, CMS-Collections und Assets zu verwalten.": "Подключите Webflow для управления страницами, коллекциями и ресурсами CMS.",
@@ -283151,7 +283224,12 @@
     "Verbinden": "Подключить",
     "published": "опубликовано",
     "wordpress": "wordpress",
-    "Schließen": "Закрыть"
+    "Schließen": "Закрыть",
+    "Loading live data…": "Загрузка данных в реальном времени…",
+    "Connecting to your workspace data.": "Подключение к данным рабочего пространства.",
+    "Live data could not be loaded": "Не удалось загрузить данные в реальном времени",
+    "No live data available yet": "Данные в реальном времени пока недоступны",
+    "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Подключите источник данных или выполните действие, чтобы заполнить эту страницу. Примерные показатели не отображаются."
   },
   "es": {
     "Setting up…": "Configurando…",
