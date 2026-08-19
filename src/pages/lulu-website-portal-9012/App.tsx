@@ -73,10 +73,21 @@ const providerContent: Record<Provider, {
 };
 
 export default function App() {
+  const sectionParam = new URLSearchParams(window.location.search).get("section") ?? "";
+  const sectionLabels: Record<string, string> = {
+    "wordpress-jetpack-9013": "WordPress / Jetpack",
+    "webflow-9014": "Webflow",
+    "pages-cms-9015": "Pages & CMS",
+    "posts-9016": "Posts",
+    "media-assets-9017": "Media & Assets",
+    "domains-9018": "Domains",
+    "settings-9019": "Website Settings",
+  };
+  const initialProvider: Provider = sectionParam.startsWith("webflow") ? "webflow" : "wordpress";
   const [mobileNav, setMobileNav] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("Übersicht");
-  const [provider, setProvider] = useState<Provider>("wordpress");
+  const [activeSection, setActiveSection] = useState(sectionLabels[sectionParam] ?? "Übersicht");
+  const [provider, setProvider] = useState<Provider>(initialProvider);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [sites, setSites] = useState<WebsiteSite[]>([]);
   const [selectedSiteId, setSelectedSiteId] = useState("");
@@ -110,12 +121,12 @@ export default function App() {
 
   const changeProvider = (nextProvider: Provider) => {
     setProvider(nextProvider);
-    setActiveSection("Übersicht");
+    setActiveSection(nextProvider === "webflow" ? "Webflow" : "WordPress / Jetpack");
   };
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-foreground" style={{ fontFamily: "Inter, sans-serif" }}>
-      <aside className={`${mobileNav ? "flex" : "hidden"} fixed inset-y-0 left-0 z-30 h-dvh min-h-0 w-64 flex-col border-r border-border bg-[var(--sidebar)] p-4 lg:flex`}>
+      <aside className={`${mobileNav ? "flex" : "hidden"} fixed inset-y-0 left-0 z-30 flex h-dvh min-h-0 w-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden border-r border-border bg-[var(--sidebar)] p-4 lg:flex`}>
         <div className="mb-8 flex items-center gap-3 px-2 py-2">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-lg font-bold text-primary-foreground shadow-lg shadow-black/20">L</div>
           <div><strong className="text-base tracking-tight text-foreground">Lulu AI</strong><p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Growth workspace</p></div>
@@ -131,7 +142,7 @@ export default function App() {
       </aside>
       {mobileNav && <button aria-label="Navigation schließen" className="fixed inset-0 z-20 bg-black/40 lg:hidden" onClick={() => setMobileNav(false)} />}
 
-      <main className="min-h-screen lg:ml-64">
+      <main className="min-h-screen min-w-0 overflow-x-hidden lg:ml-64">
         <div className="mx-auto max-w-[1400px] px-5 py-6 sm:px-8 sm:py-8">
           <header className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div className="flex items-start gap-3"><button className="mt-1 rounded-lg p-2 text-muted-foreground hover:bg-secondary lg:hidden" aria-label="Navigation öffnen" onClick={() => setMobileNav(true)}><Menu size={20} /></button><div><p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Lulu AI / Website</p><h1 className="text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">Website</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{content.description}</p></div></div>

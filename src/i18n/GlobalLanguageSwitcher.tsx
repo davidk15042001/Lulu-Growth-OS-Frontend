@@ -20,6 +20,10 @@ function initialLanguage(): LanguageCode {
   try {
     const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
     if (isAvailableLanguageCode(stored)) return stored;
+    const cookie = document.cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith(`${LANGUAGE_STORAGE_KEY}=`))?.split("=")[1] ?? null;
+    if (isAvailableLanguageCode(cookie)) return cookie;
+    const documentLanguage = document.documentElement.lang || null;
+    if (isAvailableLanguageCode(documentLanguage)) return documentLanguage;
   } catch { /* Browser storage may be unavailable. */ }
   const candidates = typeof navigator === "undefined" ? [] : [...navigator.languages, navigator.language].filter(Boolean);
   for (const candidate of candidates) {
@@ -132,7 +136,10 @@ export function GlobalLanguageSwitcher() {
     let active = true;
     document.documentElement.lang = language;
     document.documentElement.dir = getLanguage(language).direction;
-    try { window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language); } catch { /* no persistence available */ }
+    try {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+      document.cookie = `${LANGUAGE_STORAGE_KEY}=${encodeURIComponent(language)}; Max-Age=31536000; Path=/; SameSite=Lax`;
+    } catch { /* no persistence available */ }
     const root = document.getElementById("root");
     if (!root) return;
     const translate = () => applyStaticTranslations(root, language);
@@ -150,7 +157,10 @@ export function GlobalLanguageSwitcher() {
   }, [language]);
 
   const selectLanguage = (next: LanguageCode) => {
-    try { window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next); } catch { /* no persistence available */ }
+    try {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
+      document.cookie = `${LANGUAGE_STORAGE_KEY}=${encodeURIComponent(next)}; Max-Age=31536000; Path=/; SameSite=Lax`;
+    } catch { /* no persistence available */ }
     setLanguage(next);
     window.dispatchEvent(new Event(LANGUAGE_EVENT));
     setOpen(false);

@@ -1,7 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle, Sparkles } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
-import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
+import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
+import { clearSelectedWorkspaceId } from '../../../../api/session';
 const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 8 characters', test: value => value.length >= 8 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
 const socialButtonClass = 'flex h-11 w-full items-center justify-center gap-2.5 rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2';
 export function LuluSignupPage() {
@@ -45,6 +46,7 @@ export function LuluSignupPage() {
     }
     setStatus('loading');
     setError('');
+    clearSelectedWorkspaceId();
     try {
       await requestApi({
         path: '/auth/register',
@@ -53,14 +55,18 @@ export function LuluSignupPage() {
       });
       navigateApp(routes.auth.login);
     } catch (cause) {
-      setError(getFriendlyErrorMessage(cause, 'We could not create your account. Please try again.'));
+      if (cause instanceof ApiError && cause.code === 'EMAIL_IN_USE') {
+        setError('An account already exists for this email address. Sign in or use a different email address.');
+      } else {
+        setError(getFriendlyErrorMessage(cause, 'We could not create your account. Please try again.'));
+      }
       setStatus('idle');
     }
   }
   return <main className="auth-shell grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-2">
       <section className="flex items-start justify-center overflow-y-auto px-6 py-10">
         <div className="w-full max-w-md">
-          <div className="flex items-center gap-2">
+          <div className="lulu-global-brand-host flex items-center gap-2" data-lulu-no-translate="true" translate="no">
             <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] text-lg font-bold text-[var(--primary-foreground)]">L</span>
             <span className="text-xl font-bold tracking-[-0.02em]">Lulu AI</span>
           </div>

@@ -599,11 +599,11 @@ export function LuluSectionNavigation({
   activeId: string;
 }) {
   const t = useTranslation();
-  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label={t("Lulu AI sections")}>
+  return <nav className="min-h-0 min-w-0 flex-1 space-y-1 overflow-x-hidden overflow-y-auto pr-1" aria-label={t("Lulu AI sections")}>
     {luluDropdownNavigation.map(section => {
       const isActiveSection = section.pages.some(page => page.id === activeId);
       return <details key={section.label} open={isActiveSection} className="group rounded-lg">
-        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+        <summary className={`flex min-w-0 cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm leading-5 transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
           <span data-lulu-section-soon={section.label !== "Website" && section.label !== "Settings" ? "true" : undefined}>{t(section.label)}</span>
           <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
         </summary>
@@ -611,7 +611,7 @@ export function LuluSectionNavigation({
           {section.pages.map(page => {
             const isActivePage = page.id === activeId;
             const linkProps = pageLinkProps(page.id);
-            return <a key={page.id} {...linkProps} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+            return <a key={page.id} {...linkProps} aria-current={isActivePage ? 'page' : undefined} className={`block min-w-0 break-words rounded-md px-3 py-2 text-xs leading-5 transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
               {t(page.label)}
             </a>;
           })}

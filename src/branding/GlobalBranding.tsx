@@ -78,7 +78,11 @@ export function GlobalBranding({ contractKind }: { contractKind: PageContract["k
       const next = findBrandHosts(root, contractKind);
       setHosts((current) => {
         current.filter((host) => !next.includes(host)).forEach((host) => host.classList.remove("lulu-global-brand-host"));
-        next.forEach((host) => host.classList.add("lulu-global-brand-host"));
+        next.forEach((host) => {
+          host.classList.add("lulu-global-brand-host");
+          host.setAttribute("data-lulu-no-translate", "true");
+          host.setAttribute("translate", "no");
+        });
         return sameHosts(current, next) ? current : next;
       });
     };
@@ -108,7 +112,7 @@ export function GlobalBranding({ contractKind }: { contractKind: PageContract["k
 }
 
 const globalBrandStyles = `
-.lulu-global-brand-host{min-width:0!important;min-height:52px!important;align-items:center!important;overflow:visible!important;font-size:0!important;color:transparent!important}
+.lulu-global-brand-host{min-width:0!important;min-height:52px!important;align-items:center!important;overflow:visible!important;font-size:0!important;color:transparent!important;white-space:nowrap!important}
 .lulu-global-brand-host>:not(.lulu-global-brand-image):not(button){display:none!important}
 .lulu-global-brand-host>button{font-size:initial!important}
 .lulu-global-brand-image{display:block!important;width:min(184px,100%)!important;height:auto!important;max-height:69px!important;object-fit:contain!important;object-position:left center!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;user-select:none!important}
