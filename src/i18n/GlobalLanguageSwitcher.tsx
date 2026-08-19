@@ -5,10 +5,10 @@ import {
   DEFAULT_LANGUAGE, getLanguage, isAvailableLanguageCode, isLanguageCode, LANGUAGE_STORAGE_KEY, languages,
   type LanguageCode,
 } from "./languages";
-import translations from "./translations.json";
-
 const LANGUAGE_EVENT = "lulu-language-changed";
-const table = translations as Record<string, Record<string, string>>;
+const LANGUAGE_LOADED_EVENT = "lulu-language-loaded";
+const localeLoaders = import.meta.glob<Record<string, string>>("./locales/*.json", { import: "default" });
+const loadedTables: Record<string, Record<string, string>> = { en: {} };
 const originalText = new WeakMap<Text, string>();
 const appliedText = new WeakMap<Text, string>();
 const originalAttributes = new WeakMap<Element, Map<string, string>>();
@@ -52,8 +52,16 @@ function lookup(dictionary: Record<string, string>, source: string) {
   }
 }
 
-function applyStaticTranslations(root: HTMLElement, language: LanguageCode) {
-  const dictionary = table[language] ?? {};
+async function loadDictionary(language: LanguageCode) {
+  if (loadedTables[language]) return loadedTables[language];
+  const loader = localeLoaders[`./locales/${language}.json`];
+  if (!loader) return loadedTables.en;
+  const dictionary = await loader();
+  loadedTables[language] = dictionary;
+  return dictionary;
+}
+
+function applyStaticTranslations(root: HTMLElement, language: LanguageCode, dictionary = loadedTables[language] ?? {}) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   let node = walker.nextNode();
   while (node) {
@@ -105,7 +113,13 @@ export function useLanguage() {
 
 export function useTranslation() {
   const language = useLanguage();
-  return (key: string) => table[language]?.[key] ?? table.en[key] ?? key;
+  const [, refresh] = useState(0);
+  useEffect(() => {
+    const sync = () => refresh((value) => value + 1);
+    window.addEventListener(LANGUAGE_LOADED_EVENT, sync);
+    return () => window.removeEventListener(LANGUAGE_LOADED_EVENT, sync);
+  }, []);
+  return (key: string) => loadedTables[language]?.[key] ?? loadedTables.en?.[key] ?? key;
 }
 
 export function GlobalLanguageSwitcher() {
@@ -115,19 +129,24 @@ export function GlobalLanguageSwitcher() {
   const current = getLanguage(language);
 
   useEffect(() => {
+    let active = true;
     document.documentElement.lang = language;
     document.documentElement.dir = getLanguage(language).direction;
     try { window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language); } catch { /* no persistence available */ }
     const root = document.getElementById("root");
     if (!root) return;
     const translate = () => applyStaticTranslations(root, language);
-    translate();
+    void loadDictionary(language).then(() => {
+      if (!active) return;
+      translate();
+      window.dispatchEvent(new Event(LANGUAGE_LOADED_EVENT));
+    });
     const observer = new MutationObserver(() => {
       window.clearTimeout(timer.current);
       timer.current = window.setTimeout(translate, 50);
     });
     observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...translatableAttributes] });
-    return () => { observer.disconnect(); window.clearTimeout(timer.current); };
+    return () => { active = false; observer.disconnect(); window.clearTimeout(timer.current); };
   }, [language]);
 
   const selectLanguage = (next: LanguageCode) => {

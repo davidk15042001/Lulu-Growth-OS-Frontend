@@ -23,6 +23,12 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) return "vendor";
+          const localeRoot = `${resolve(root, "src")}/i18n/locales/`;
+          if (id.includes(localeRoot)) {
+            const localeName = id.slice(localeRoot.length).split("/")[0].replace(/\.json$/, "");
+            if (localeName) return `locale-${localeName}`;
+          }
+          if (id.includes(`${resolve(root, "src")}/i18n/`) || id.includes("translations.json")) return "i18n-runtime";
           const pageRoot = `${resolve(root, "src")}/pages/`;
           if (id.includes(pageRoot)) {
             const pageName = id.slice(pageRoot.length).split("/")[0];
