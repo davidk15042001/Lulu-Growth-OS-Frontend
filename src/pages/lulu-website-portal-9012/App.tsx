@@ -24,6 +24,17 @@ import { LuluSectionNavigation } from "../fancily-leaf-1766/components/generated
 
 type Provider = "wordpress" | "webflow";
 
+function platformMatchesProvider(platform: Platform, provider: Provider) {
+  const key = (platform.integrationKey ?? "").toLowerCase();
+  const name = platform.name.toLowerCase();
+  return key.includes(provider) || (provider === "wordpress" ? name.includes("wordpress") || name.includes("jetpack") : name.includes("webflow"));
+}
+
+function platformIsConnected(platform: Platform) {
+  const status = platform.connectionStatus.toLowerCase();
+  return ["connected", "active", "enabled", "authorized", "connected_with_warning"].includes(status);
+}
+
 const providerOptions: Array<{ id: Provider; label: string; description: string }> = [
   { id: "wordpress", label: "WordPress / Jetpack", description: "Seiten, Beiträge und Medien" },
   { id: "webflow", label: "Webflow", description: "Seiten, CMS und Assets" },
@@ -100,8 +111,9 @@ export default function App() {
   const workspaceId = getSelectedWorkspaceId();
   const content = useMemo(() => providerContent[provider], [provider]);
   const selectedSite = sites.find((site) => site.id === selectedSiteId) ?? sites.find((site) => site.provider === provider);
-  const connectedPlatform = platforms.find((platform) => platform.integrationKey === provider || platform.name.toLowerCase().includes(provider));
-  const connected = Boolean(selectedSite && (connectedPlatform?.connectionStatus === "connected" || connectedPlatform?.connectionStatus === "active"));
+  const connectedPlatform = platforms.find((platform) => platformMatchesProvider(platform, provider));
+  const providerConnected = Boolean(connectedPlatform && platformIsConnected(connectedPlatform));
+  const connected = Boolean(selectedSite && providerConnected);
 
   useEffect(() => {
     if (!workspaceId) return;
@@ -126,12 +138,12 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (!workspaceId || !connectedPlatform || sites.some((site) => site.provider === provider)) return;
+    if (!workspaceId || !providerConnected || sites.some((site) => site.provider === provider)) return;
     const key = `${workspaceId}:${provider}`;
     if (autoStartedRef.current === key) return;
     autoStartedRef.current = key;
     void startAutomaticGeneration(provider);
-  }, [workspaceId, connectedPlatform, sites, provider]);
+  }, [workspaceId, providerConnected, sites, provider]);
 
   useEffect(() => {
     if (!workspaceId || !generationJob || ["published", "failed", "cancelled"].includes(generationJob.job.status)) return;
@@ -174,7 +186,7 @@ export default function App() {
 
   const disconnectProvider = async (nextProvider: Provider) => {
     if (!workspaceId) return;
-    const platform = platforms.find((item) => item.integrationKey === nextProvider || item.name.toLowerCase().includes(nextProvider));
+    const platform = platforms.find((item) => platformMatchesProvider(item, nextProvider));
     if (!platform) return;
     setConnectionBusy(nextProvider);
     setError("");
@@ -232,7 +244,7 @@ export default function App() {
             <div className="flex flex-wrap items-center gap-2"><button onClick={refresh} className="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-foreground transition hover:border-primary/40"><RefreshCw size={15} className={isRefreshing ? "animate-spin" : ""} /> Aktualisieren</button><button type="button" className="flex h-10 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-lg shadow-black/10"><Plus size={15} /> Neue Seite</button></div>
           </header>
 
-          <section className="mb-6 rounded-xl border border-border bg-card p-5 sm:p-6"><div className="flex flex-col gap-2"><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Integrationen</p><h2 className="text-lg font-semibold tracking-tight text-foreground">Plattformen später verbinden</h2><p className="max-w-2xl text-sm leading-6 text-muted-foreground">WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.</p></div><div className="mt-5 grid gap-3 md:grid-cols-2">{providerOptions.map((option) => { const platform = platforms.find((item) => item.integrationKey === option.id || item.name.toLowerCase().includes(option.id)); const isConnected = platform?.connectionStatus === "connected" || platform?.connectionStatus === "active"; const isBusy = connectionBusy === option.id; return <article key={option.id} className="flex min-w-0 flex-col justify-between gap-4 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center"><div className="flex min-w-0 items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-muted-foreground"><Globe2 size={18} /></span><div className="min-w-0"><h3 className="truncate text-sm font-semibold text-foreground">{option.label}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{isConnected ? `Verbunden${platform?.settings?.accountName ? ` · ${String(platform.settings.accountName)}` : ""}` : "Noch nicht verbunden"}</p>{platform?.lastError && <p className="mt-1 break-words text-xs text-destructive">{platform.lastError}</p>}</div></div><div className="flex shrink-0 flex-wrap gap-2"><button type="button" disabled={isBusy} onClick={() => isConnected ? void disconnectProvider(option.id) : void connectProvider(option.id)} className={`inline-flex h-9 items-center justify-center rounded-lg px-3 text-xs font-medium transition disabled:cursor-wait disabled:opacity-60 ${isConnected ? "border border-border text-foreground hover:bg-secondary" : "bg-primary text-primary-foreground hover:opacity-90"}`}>{isBusy ? "Bitte warten…" : isConnected ? "Trennen" : "Verbinden"}</button></div></article>; })}</div>{error && <p role="alert" className="mt-4 break-words text-sm text-destructive">{error}</p>}</section>
+          <section className="mb-6 rounded-xl border border-border bg-card p-5 sm:p-6"><div className="flex flex-col gap-2"><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Integrationen</p><h2 className="text-lg font-semibold tracking-tight text-foreground">Plattformen später verbinden</h2><p className="max-w-2xl text-sm leading-6 text-muted-foreground">WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.</p></div><div className="mt-5 grid gap-3 md:grid-cols-2">{providerOptions.map((option) => { const platform = platforms.find((item) => platformMatchesProvider(item, option.id)); const isConnected = Boolean(platform && platformIsConnected(platform)); const isBusy = connectionBusy === option.id; return <article key={option.id} className="flex min-w-0 flex-col justify-between gap-4 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center"><div className="flex min-w-0 items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-muted-foreground"><Globe2 size={18} /></span><div className="min-w-0"><h3 className="truncate text-sm font-semibold text-foreground">{option.label}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{isConnected ? `Verbunden${platform?.settings?.accountName ? ` · ${String(platform.settings.accountName)}` : ""}` : "Noch nicht verbunden"}</p>{platform?.lastError && <p className="mt-1 break-words text-xs text-destructive">{platform.lastError}</p>}</div></div><div className="flex shrink-0 flex-wrap gap-2"><button type="button" disabled={isBusy} onClick={() => isConnected ? void disconnectProvider(option.id) : void connectProvider(option.id)} className={`inline-flex h-9 items-center justify-center rounded-lg px-3 text-xs font-medium transition disabled:cursor-wait disabled:opacity-60 ${isConnected ? "border border-border text-foreground hover:bg-secondary" : "bg-primary text-primary-foreground hover:opacity-90"}`}>{isBusy ? "Bitte warten…" : isConnected ? "Trennen" : "Verbinden"}</button></div></article>; })}</div>{error && <p role="alert" className="mt-4 break-words text-sm text-destructive">{error}</p>}</section>
 
           <section className="mb-6 rounded-xl border border-border bg-card px-5 py-4"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-secondary text-muted-foreground"><Globe2 size={19} /></span><div><p className="text-sm font-semibold text-foreground">Website-Provider</p><p className="mt-1 text-xs text-muted-foreground">Wähle die Plattform, die du mit Lulu verwalten möchtest.</p></div></div><label className="flex min-w-0 flex-col gap-1.5 text-xs font-medium text-muted-foreground sm:min-w-[300px]"><span className="sr-only">Website-Provider auswählen</span><select value={provider} onChange={(event) => changeProvider(event.target.value as Provider)} className="h-10 rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary/50"><option value="wordpress">WordPress / Jetpack</option><option value="webflow">Webflow</option></select></label></div><div className="mt-4 flex flex-wrap gap-2">{providerOptions.map((option) => <button key={option.id} type="button" onClick={() => changeProvider(option.id)} className={`rounded-lg border px-3 py-2 text-left transition ${provider === option.id ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background text-foreground hover:border-primary/40"}`}><span className="block text-xs font-semibold">{option.label}</span><span className={`mt-0.5 block text-[11px] ${provider === option.id ? "text-primary-foreground/70" : "text-muted-foreground"}`}>{option.description}</span></button>)}</div></section>
 
