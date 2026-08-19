@@ -1,5 +1,5 @@
 @reference "../../app.css";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Roboto:wght@400&display=swap');
+
 body {
   margin: 0;
   padding: 0;
@@ -139,7 +139,7 @@ body {
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-body);
+    font-family: 'Poppins', sans-serif;
   }
   h1,
   h2,
@@ -147,7 +147,7 @@ body {
   h4,
   h5,
   h6 {
-    font-family: var(--font-heading);
+    font-family: 'Poppins', sans-serif;
   }
   html,
   body,
@@ -185,7 +185,7 @@ img.broken-image-fallback {
   }
 }
 
-.ops-page { min-height: 100vh; background: var(--ops-bg); color: var(--ops-text); padding: 34px 48px 0; font-family: Inter, Arial, sans-serif; font-size: 14px; }
+.ops-page { min-height: 100vh; background: var(--ops-bg); color: var(--ops-text); padding: 34px 48px 0; font-family: 'Poppins', sans-serif; font-size: 14px; }
 .ops-page * { box-sizing: border-box; }
 .ops-page button, .ops-page input { font: inherit; }
 .ops-page button, .ops-page a { transition: border-color .2s, background .2s, color .2s, transform .2s; }
@@ -339,7 +339,7 @@ html.dark {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: 'Poppins', sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

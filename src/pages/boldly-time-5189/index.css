@@ -1,6 +1,6 @@
 @reference "../../app.css";
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&display=swap');
-:root { font-family: Inter, sans-serif; color-scheme: dark; background: var(--background); }
+
+:root { font-family: 'Poppins', sans-serif; color-scheme: dark; background: var(--background); }
 * { box-sizing: border-box; }
 body { margin: 0; min-width: 320px; background: var(--background); color: var(--foreground); }
 button, input, textarea, select { font: inherit; }
@@ -8,7 +8,7 @@ button { cursor: pointer; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible { outline: 2px solid var(--border); outline-offset: 2px; }
 .app-shell { min-height: 100vh; display: flex; background: var(--sidebar); }
 .sidebar { width: 232px; flex: 0 0 232px; min-height: 100vh; padding: 22px 14px 16px; background: var(--sidebar); border-right: 1px solid var(--muted-foreground); display: flex; flex-direction: column; }
-.brand { display: flex; align-items: center; gap: 9px; padding: 0 10px 24px; font-family: 'Space Grotesk', sans-serif; letter-spacing: -.03em; font-size: 18px; }.brand-mark { width: 28px; height: 28px; display: grid; place-items: center; color: var(--primary-foreground); background: var(--primary); border-radius: 8px; }.brand-tag { font: 600 9px Inter; letter-spacing: .12em; color: var(--muted-foreground); margin-left: auto; }
+.brand { display: flex; align-items: center; gap: 9px; padding: 0 10px 24px; font-family: 'Poppins', sans-serif; letter-spacing: -.03em; font-size: 18px; }.brand-mark { width: 28px; height: 28px; display: grid; place-items: center; color: var(--primary-foreground); background: var(--primary); border-radius: 8px; }.brand-tag { font: 600 9px Inter; letter-spacing: .12em; color: var(--muted-foreground); margin-left: auto; }
 .workspace { height: 36px; display: flex; align-items: center; gap: 7px; padding: 0 10px; margin-bottom: 23px; color: var(--muted-foreground); font-size: 12px; border: 1px solid var(--muted-foreground); border-radius: 7px; }.workspace svg { margin-left: auto; }.workspace-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 3px var(--background);color:var(--primary-foreground)}
 .nav-label { padding: 0 11px; margin: 0 0 8px; color: var(--muted-foreground); font-size: 10px; font-weight: 700; letter-spacing: .12em; }.intelligence { margin-top: 25px; }.nav-item { width: 100%; display: flex; align-items: center; gap: 11px; color: var(--muted-foreground); border: 0; background: transparent; padding: 10px 11px; border-radius: 7px; text-align: left; font-size: 13px; margin: 2px 0; }.nav-item:hover { color: var(--foreground); background: var(--background); }.nav-item.active { color: var(--foreground); background: var(--background); box-shadow: inset 3px 0 var(--primary); }.nav-count { margin-left: auto; min-width: 20px; padding: 2px 6px; color: var(--primary-foreground); background: var(--primary); border-radius: 10px; text-align: center; font-size: 11px; }.sidebar-bottom { margin-top: auto; }.profile { display: flex; align-items: center; gap: 9px; border-top: 1px solid var(--muted-foreground); margin-top: 14px; padding: 16px 8px 0; color: var(--muted-foreground); font-size: 12px; }.profile small { display: block; margin-top: 3px; color: var(--muted-foreground); font-size: 10px; }.profile svg { margin-left: auto; color: var(--muted-foreground); }.avatar, .top-avatar, .mini-avatar { display: inline-grid; place-items: center; border-radius: 50%; color: var(--foreground); font-size: 10px; font-weight: 700; }.avatar { width: 28px; height: 28px; background: var(--muted); }
 .content { flex: 1; min-width: 0; max-width: calc(100vw - 232px); }.topbar { height: 62px; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; border-bottom: 1px solid var(--muted-foreground); }.breadcrumbs { display: flex; align-items: center; gap: 8px; color: var(--muted-foreground); font-size: 12px; }.breadcrumbs strong { color: var(--muted-foreground); font-weight: 500; }.header-tools { display: flex; align-items: center; gap: 16px; }.icon-btn { color: var(--muted-foreground); background: none; border: 0; }.top-avatar { width: 30px; height: 30px; background: var(--primary);color:var(--primary-foreground)}
@@ -246,7 +246,7 @@ html.dark {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: 'Poppins', sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

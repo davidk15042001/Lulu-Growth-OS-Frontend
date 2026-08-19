@@ -58,13 +58,15 @@
   --muted-foreground: #73736d;
   --chart-4: #3f8f68;
   --destructive: #b42318;
-  font-family: 'Poppins', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: 'Poppins', sans-serif;
   font-synthesis: none;
 }
 
 * { box-sizing: border-box; }
 html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
-body { min-height: 100vh; }
+body { min-height: 100vh; font-family: 'Poppins', sans-serif; }
+html, body, #root, #root * , #root *::before, #root *::after { font-family: 'Poppins', sans-serif; }
+button, input, textarea, select { font-family: 'Poppins', sans-serif; }
 a { color: inherit; }
 button, input { font: inherit; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }

@@ -1,5 +1,5 @@
 @reference "../../app.css";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
   --font-body: 'Inter', sans-serif;
   --font-heading: 'Inter', sans-serif;
@@ -42,7 +42,7 @@ html, body, #root {
   margin: 0;
   padding: 0;
   background: var(--sidebar);
-  font-family: var(--font-body);
+  font-family: 'Poppins', sans-serif;
 }
 
 body { min-width: 320px; overflow-x: hidden; }
@@ -90,7 +90,7 @@ button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-v
 @layer base {
   * { box-sizing: border-box; }
   body { background: var(--background); color: var(--foreground); }
-  h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
+  h1, h2, h3, h4, h5, h6 { font-family: 'Poppins', sans-serif; }
 }
 
 /* Broken Image Fallback Styles */
@@ -277,7 +277,7 @@ html.dark {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: 'Poppins', sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

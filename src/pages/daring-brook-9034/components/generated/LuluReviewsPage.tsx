@@ -70,7 +70,7 @@ export function LuluReviewsPage() {
   const [prompt, setPrompt] = useState('');
   const visibleReviews = useMemo(() => reviews.filter(review => `${review.title} ${review.product} ${review.customer}`.toLowerCase().includes(query.toLowerCase())), [query]);
   return <main className="min-h-screen bg-[var(--background)] text-foreground" style={{
-    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+    fontFamily: 'Poppins'
   }}>
       <aside className="fixed inset-y-0 left-0 z-20 hidden w-[72px] flex-col items-center border-r border-border bg-[var(--sidebar)] py-5 md:flex" aria-label="Primary navigation">
         <div className="mb-8 flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Sparkles size={18} /></div>

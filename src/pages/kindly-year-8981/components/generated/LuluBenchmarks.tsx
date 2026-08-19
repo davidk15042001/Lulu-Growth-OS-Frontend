@@ -42,7 +42,7 @@ export const LuluBenchmarks = () => {
     window.setTimeout(() => setRefreshing(false), 900);
   };
   return <div className="min-h-screen bg-[var(--background)] text-foreground" style={{
-    fontFamily: 'Inter, sans-serif'
+    fontFamily: 'Poppins'
   }}>
     <aside className={`${mobileNav ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-30 w-60 flex-col border-r border-border/[.07] bg-[var(--sidebar)] p-4 lg:flex`}>
       <div className="mb-7 flex items-center gap-3 px-2"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-lg font-bold text-primary-foreground">L</span><strong className="text-lg text-foreground">Lulu AI</strong></div>

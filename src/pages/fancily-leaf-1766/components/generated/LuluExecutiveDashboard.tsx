@@ -106,7 +106,7 @@ export const LuluExecutiveDashboard = () => {
     window.setTimeout(() => setIsRefreshing(false), 900);
   };
   return <div className="min-h-screen bg-[var(--background)] text-foreground" style={{
-    fontFamily: 'Inter, sans-serif'
+    fontFamily: 'Poppins'
   }}>
     <aside className={`${mobileNav ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-20 flex h-dvh min-h-0 w-60 max-w-[calc(100vw-1rem)] flex-col overflow-hidden border-r border-border bg-[var(--sidebar)] p-5 lg:flex`}>
       <div className="mb-10 flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-lg font-bold text-primary-foreground shadow-lg shadow-black/20">L</span><span className="text-lg font-semibold tracking-tight text-foreground">Lulu AI</span></div>

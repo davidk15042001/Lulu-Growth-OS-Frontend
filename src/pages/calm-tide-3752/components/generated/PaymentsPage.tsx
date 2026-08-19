@@ -92,7 +92,7 @@ export function PaymentsPage() {
   }));
   const filtered = useMemo(() => livePaymentRows.filter(p => `${p.id} ${p.customer} ${p.invoice}`.toLowerCase().includes(query.toLowerCase())), [livePaymentRows, query]);
   return <div className="min-h-screen bg-[var(--background)] text-foreground" style={{
-    fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif'
+    fontFamily: 'Poppins'
   }}>
     <div className="flex min-h-screen">
       <aside className="hidden w-[220px] shrink-0 flex-col bg-[var(--sidebar)] text-foreground lg:flex">

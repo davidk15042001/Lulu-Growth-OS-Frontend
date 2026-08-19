@@ -59,7 +59,7 @@ export const LuluMarketingStrategy = () => {
   const { items: liveStrategies, loading: liveLoading, error: liveError } = useLiveRecords('marketing_strategies');
   const liveEmpty = !liveLoading && !liveError && liveStrategies.length === 0;
   return <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]" style={{
-    fontFamily: 'Inter, sans-serif'
+    fontFamily: 'Poppins'
   }}>
   <aside className={`${mobileNav ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-30 w-[220px] flex-col bg-[var(--sidebar)] px-3 py-5 lg:flex`}><div className="mb-7 flex items-center gap-2 px-2"><span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--primary)] font-bold text-primary-foreground">L</span><strong className="text-foreground">Lulu AI</strong></div><LuluSectionNavigation activeId="sparklingly-home-7386" /><div className="flex items-center gap-2 border-t border-[var(--muted-foreground)] pt-4"><span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-xs text-foreground">DM</span><div><p className="text-xs text-foreground">Workspace owner M</p><p className="text-[10px] text-[var(--muted-foreground)]">Growth operator</p></div><MoreHorizontal size={15} className="ml-auto text-[var(--muted-foreground)]" /></div></aside>
   {mobileNav && <button aria-label="Close navigation" onClick={() => setMobileNav(false)} className="fixed inset-0 z-20 bg-primary/40 lg:hidden" />}

@@ -58,7 +58,7 @@ export const LuluComparisons = () => {
     window.setTimeout(() => setRefreshing(false), 800);
   };
   return <div className="min-h-screen bg-[var(--background)] text-foreground" style={{
-    fontFamily: 'Inter, sans-serif'
+    fontFamily: 'Poppins'
   }}>
     <aside className={`${mobileNav ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-20 w-60 flex-col border-r border-border bg-[var(--sidebar)] p-4 lg:flex`}>
       <div className="mb-7 flex items-center gap-3 px-2"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-lg font-bold text-primary-foreground">L</span><span className="text-lg font-semibold text-foreground">Lulu AI</span></div>

@@ -129,7 +129,7 @@ export const LuluExistingPlatforms = () => {
       setError(getFriendlyErrorMessage(cause, 'We could not remove this platform. Please try again.'));
     }
   };
-  return <main className="min-h-screen bg-[var(--background)] font-['Inter',sans-serif] text-[var(--foreground)]">
+  return <main className="min-h-screen bg-[var(--background)] font-['Poppins',sans-serif] text-[var(--foreground)]">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
         <div className="w-full max-w-3xl">
           <OnboardingHeader step={3} />

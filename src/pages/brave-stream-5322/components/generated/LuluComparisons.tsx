@@ -38,7 +38,7 @@ export const LuluComparisons = () => {
   };
   const stateMessage = pageState === 'loading' ? 'Loading comparison intelligence…' : pageState === 'empty' ? 'No comparisons yet' : pageState === 'error' ? 'Comparison data could not be loaded' : pageState === 'restricted' ? 'You do not have access to comparison intelligence' : 'Not enough data to generate a comparison';
   return <div className="min-h-screen bg-[var(--background)] text-foreground" style={{
-    fontFamily: 'Inter, sans-serif'
+    fontFamily: 'Poppins'
   }}>
     <aside className={`${sidebarOpen ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-20 w-[228px] flex-col border-r border-border/[.07] bg-[var(--sidebar)] p-4 lg:flex`}>
       <div className="mb-8 flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary)] font-bold text-primary-foreground shadow-lg shadow-black/20">L</span><span className="text-lg font-semibold text-foreground">Lulu AI</span></div>

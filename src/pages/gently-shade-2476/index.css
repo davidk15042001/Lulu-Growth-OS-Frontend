@@ -1,5 +1,5 @@
 @reference "../../app.css";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Roboto:wght@400&display=swap');
+
 body {
   margin: 0;
   padding: 0;
@@ -136,7 +136,7 @@ body {
   }
   body {
     @apply bg-background text-foreground;
-    font-family: var(--font-body);
+    font-family: 'Poppins', sans-serif;
   }
   h1,
   h2,
@@ -144,7 +144,7 @@ body {
   h4,
   h5,
   h6 {
-    font-family: var(--font-heading);
+    font-family: 'Poppins', sans-serif;
   }
   html,
   body,
@@ -185,7 +185,7 @@ img.broken-image-fallback {
 * { box-sizing: border-box; }
 button, input, select, textarea { font: inherit; }
 button { cursor: pointer; }
-.lulu-shell { display:flex; min-height:100vh; width:100%; background:var(--canvas); color:var(--ink); font-family:Inter, Arial, sans-serif; font-size:12px; }
+.lulu-shell { display:flex; min-height:100vh; width:100%; background:var(--canvas); color:var(--ink); font-family: 'Poppins', sans-serif; font-size:12px; }
 .sidebar { width:232px; flex:0 0 232px; background:var(--sidebar); color:var(--muted-foreground); display:flex; flex-direction:column; padding:22px 12px 14px; }
 .brand { display:flex; align-items:center; gap:9px; color:var(--foreground); font-size:18px; letter-spacing:-.5px; padding:0 12px 25px; }.brand b { color:var(--foreground); font-weight:700; }.brand-mark { width:27px; height:27px; display:grid; place-items:center; border-radius:8px; background:var(--primary); color:var(--primary-foreground); }
 .workspace { border:1px solid var(--muted-foreground); background:var(--background); border-radius:9px; padding:10px; display:flex; align-items:center; gap:8px; margin-bottom:25px; }.workspace strong,.user strong { display:block; font-size:11px; color:var(--foreground); font-weight:600; }.workspace small,.user small { display:block; font-size:10px; margin-top:3px; color:var(--muted-foreground); }.workspace svg { margin-left:auto; }.workspace-avatar,.user-avatar,.top-avatar { display:grid; place-items:center; font-size:10px; font-weight:700; }.workspace-avatar { width:27px;height:27px;border-radius:7px;background:var(--primary);color:var(--primary-foreground); }
@@ -325,7 +325,7 @@ html.dark {
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans);
+  font-family: 'Poppins', sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;

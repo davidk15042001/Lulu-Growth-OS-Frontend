@@ -35,6 +35,7 @@ export function NativePage({ slug }: { slug: string }) {
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname.startsWith("/auth/");
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
     let active = true;
     setApp(null);
     setError(null);
