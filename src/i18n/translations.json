@@ -45,7 +45,20 @@
     "Live data could not be loaded": "Live data could not be loaded",
     "No live data available yet": "No live data available yet",
     "Connect a data source or complete an action to populate this page. No example metrics are displayed.": "Connect a data source or complete an action to populate this page. No example metrics are displayed.",
-    "Try again": "Try again"
+    "Try again": "Try again",
+    "Lulu AI application routes": "Lulu AI application routes",
+    "Lulu AI": "Lulu AI",
+    "All": "All",
+    "pages are connected to the application router.": "pages are connected to the application router.",
+    "Search pages": "Search pages",
+    "Search all pages": "Search all pages",
+    "All application routes": "All application routes",
+    "Loading your session…": "Loading your session…",
+    "Page not found": "Page not found",
+    "The requested Lulu AI route does not exist.": "The requested Lulu AI route does not exist.",
+    "Return to login": "Return to login",
+    "Workspace invitation": "Workspace invitation",
+    "Joining Lulu AI": "Joining Lulu AI"
   },
   "de": {
     "welcome": "WILLKOMMEN ZURÜCK",
