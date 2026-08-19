@@ -8,7 +8,7 @@ import {
 const LANGUAGE_EVENT = "lulu-language-changed";
 const LANGUAGE_LOADED_EVENT = "lulu-language-loaded";
 const localeLoaders = import.meta.glob<Record<string, string>>("./locales/*.json", { import: "default" });
-const loadedTables: Record<string, Record<string, string>> = { en: {} };
+const loadedTables: Record<string, Record<string, string>> = {};
 const originalText = new WeakMap<Text, string>();
 const appliedText = new WeakMap<Text, string>();
 const originalAttributes = new WeakMap<Element, Map<string, string>>();
