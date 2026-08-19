@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLuluApp } from '../../../../api/LuluAppContext';
+import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import { Activity, AlertTriangle, ArrowDownRight, ArrowRight, ArrowUpRight, BarChart3, Bell, Check, ChevronDown, CircleHelp, Clock3, Cloud, Database, Eye, Gauge, GitBranch, Globe2, LayoutDashboard, LifeBuoy, LineChart, Mail, Megaphone, Menu, MoreHorizontal, Pause, RefreshCw, Search, Settings, ShoppingBag, Sparkles, Target, Users, X, Zap } from 'lucide-react';
 type IconType = typeof LayoutDashboard;
 type Metric = {
@@ -596,20 +597,21 @@ export function LuluSectionNavigation({
 }: {
   activeId: string;
 }) {
-  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
+  const t = useTranslation();
+  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label={t("Lulu AI sections")}>
     {luluDropdownNavigation.map(section => {
       const isActiveSection = section.pages.some(page => page.id === activeId);
       return <details key={section.label} open={isActiveSection} className="group rounded-lg">
         <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
-          <span data-lulu-section-soon={section.label !== "Website" && section.label !== "Settings" ? "true" : undefined}>{section.label}</span>
+          <span data-lulu-section-soon={section.label !== "Website" && section.label !== "Settings" ? "true" : undefined}>{t(section.label)}</span>
           <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
         </summary>
         <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
           {section.pages.map(page => {
             const isActivePage = page.id === activeId;
-            return <a key={page.id} {...pageLinkProps(page.id)} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
-              {page.label}
-              {!pageLinkProps(page.id)["data-lulu-soon"] ? null : null}
+            const linkProps = pageLinkProps(page.id);
+            return <a key={page.id} {...linkProps} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+              {t(page.label)}
             </a>;
           })}
         </div>
