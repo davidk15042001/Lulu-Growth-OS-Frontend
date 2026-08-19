@@ -33,7 +33,13 @@
     "published": "published",
     "wordpress": "wordpress",
     "Schließen": "Close",
-    "Setting up…": "Setting up…"
+    "Setting up…": "Setting up…",
+    "Wird nach der Verbindung geladen": "Loads after connection",
+    "Website-Provider": "Website provider",
+    "Aktualisieren": "Refresh",
+    "Neue Seite": "New page",
+    "Abmelden": "Sign out",
+    "Wähle die Plattform, die du mit Lulu verwalten möchtest.": "Choose the platform you want to manage with Lulu."
   },
   "de": {
     "welcome": "WILLKOMMEN ZURÜCK",
@@ -283148,21 +283154,105 @@
     "Schließen": "Закрыть"
   },
   "es": {
-    "Setting up…": "Configurando…"
+    "Setting up…": "Configurando…",
+    "Integrationen": "Integraciones",
+    "Plattformen später verbinden": "Conectar plataformas más tarde",
+    "WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.": "WordPress/Jetpack y Webflow se pueden añadir, reconectar o desconectar en cualquier momento después de la configuración inicial.",
+    "Noch nicht verbunden": "Aún no conectado",
+    "Wird nach der Verbindung geladen": "Se carga después de la conexión",
+    "Website-Provider": "Proveedor de sitios web",
+    "Verbunden": "Conectado",
+    "Verbinden": "Conectar",
+    "Trennen": "Desconectar",
+    "Bitte warten…": "Espera…",
+    "Aktualisieren": "Actualizar",
+    "Neue Seite": "Nueva página",
+    "Abmelden": "Cerrar sesión",
+    "Wähle die Plattform, die du mit Lulu verwalten möchtest.": "Elige la plataforma que quieres gestionar con Lulu."
   },
   "it": {
-    "Setting up…": "Configurazione…"
+    "Setting up…": "Configurazione…",
+    "Integrationen": "Integrazioni",
+    "Plattformen später verbinden": "Collega le piattaforme più tardi",
+    "WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.": "WordPress/Jetpack e Webflow possono essere aggiunti, ricollegati o disconnessi in qualsiasi momento dopo la configurazione iniziale.",
+    "Noch nicht verbunden": "Non ancora collegato",
+    "Wird nach der Verbindung geladen": "Viene caricato dopo la connessione",
+    "Website-Provider": "Provider del sito web",
+    "Verbunden": "Connesso",
+    "Verbinden": "Connetti",
+    "Trennen": "Disconnetti",
+    "Bitte warten…": "Attendi…",
+    "Aktualisieren": "Aggiorna",
+    "Neue Seite": "Nuova pagina",
+    "Abmelden": "Disconnetti",
+    "Wähle die Plattform, die du mit Lulu verwalten möchtest.": "Scegli la piattaforma che vuoi gestire con Lulu."
   },
   "pt": {
-    "Setting up…": "Configurando…"
+    "Setting up…": "Configurando…",
+    "Integrationen": "Integrações",
+    "Plattformen später verbinden": "Conectar plataformas mais tarde",
+    "WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.": "WordPress/Jetpack e Webflow podem ser adicionados, reconectados ou desconectados a qualquer momento após a configuração inicial.",
+    "Noch nicht verbunden": "Ainda não conectado",
+    "Wird nach der Verbindung geladen": "Carrega após a conexão",
+    "Website-Provider": "Provedor de website",
+    "Verbunden": "Conectado",
+    "Verbinden": "Conectar",
+    "Trennen": "Desconectar",
+    "Bitte warten…": "Aguarde…",
+    "Aktualisieren": "Atualizar",
+    "Neue Seite": "Nova página",
+    "Abmelden": "Sair",
+    "Wähle die Plattform, die du mit Lulu verwalten möchtest.": "Escolha a plataforma que deseja gerir com a Lulu."
   },
   "ja": {
-    "Setting up…": "設定中…"
+    "Setting up…": "設定中…",
+    "Integrationen": "連携",
+    "Plattformen später verbinden": "後でプラットフォームを接続",
+    "WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.": "WordPress/Jetpack と Webflow は初期設定後いつでも追加、再接続、切断できます。",
+    "Noch nicht verbunden": "未接続",
+    "Wird nach der Verbindung geladen": "接続後に読み込まれます",
+    "Website-Provider": "ウェブサイトプロバイダー",
+    "Verbunden": "接続済み",
+    "Verbinden": "接続",
+    "Trennen": "切断",
+    "Bitte warten…": "お待ちください…",
+    "Aktualisieren": "更新",
+    "Neue Seite": "新しいページ",
+    "Abmelden": "ログアウト",
+    "Wähle die Plattform, die du mit Lulu verwalten möchtest.": "Lulu で管理するプラットフォームを選択してください。"
   },
   "ko": {
-    "Setting up…": "설정 중…"
+    "Setting up…": "설정 중…",
+    "Integrationen": "통합",
+    "Plattformen später verbinden": "나중에 플랫폼 연결",
+    "WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.": "WordPress/Jetpack과 Webflow는 초기 설정 후 언제든지 추가, 재연결 또는 연결 해제할 수 있습니다.",
+    "Noch nicht verbunden": "아직 연결되지 않음",
+    "Wird nach der Verbindung geladen": "연결 후 로드됩니다",
+    "Website-Provider": "웹사이트 제공업체",
+    "Verbunden": "연결됨",
+    "Verbinden": "연결",
+    "Trennen": "연결 해제",
+    "Bitte warten…": "잠시 기다려 주세요…",
+    "Aktualisieren": "새로고침",
+    "Neue Seite": "새 페이지",
+    "Abmelden": "로그아웃",
+    "Wähle die Plattform, die du mit Lulu verwalten möchtest.": "Lulu로 관리할 플랫폼을 선택하세요."
   },
   "tr": {
-    "Setting up…": "Kuruluyor…"
+    "Setting up…": "Kuruluyor…",
+    "Integrationen": "Entegrasyonlar",
+    "Plattformen später verbinden": "Platformları daha sonra bağla",
+    "WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.": "WordPress/Jetpack ve Webflow, ilk kurulumdan sonra istediğiniz zaman eklenebilir, yeniden bağlanabilir veya bağlantısı kesilebilir.",
+    "Noch nicht verbunden": "Henüz bağlı değil",
+    "Wird nach der Verbindung geladen": "Bağlantıdan sonra yüklenir",
+    "Website-Provider": "Web sitesi sağlayıcısı",
+    "Verbunden": "Bağlandı",
+    "Verbinden": "Bağlan",
+    "Trennen": "Bağlantıyı kes",
+    "Bitte warten…": "Lütfen bekleyin…",
+    "Aktualisieren": "Yenile",
+    "Neue Seite": "Yeni sayfa",
+    "Abmelden": "Çıkış yap",
+    "Wähle die Plattform, die du mit Lulu verwalten möchtest.": "Lulu ile yönetmek istediğiniz platformu seçin."
   }
 }
