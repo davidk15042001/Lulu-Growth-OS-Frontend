@@ -64,7 +64,7 @@ export function DynamicWorkspaceDashboard() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-[var(--border)] bg-[var(--card)] p-5 lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-20 hidden flex h-dvh min-h-0 w-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden border-r border-[var(--border)] bg-[var(--card)] p-5 lg:flex">
         <div className="mb-8 flex items-center gap-3">
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--primary)] text-lg font-bold text-[var(--primary-foreground)]">L</span>
           <span className="text-lg font-semibold tracking-tight">Lulu AI</span>
@@ -75,7 +75,7 @@ export function DynamicWorkspaceDashboard() {
           <p className="mt-1 text-xs text-[var(--muted-foreground)]">{bootstrap.permissions.role || "Workspace member"}</p>
         </div>
       </aside>
-      <main className="min-h-screen px-5 py-8 text-[var(--foreground)] sm:px-8 lg:ml-64 lg:px-12">
+      <main className="min-h-screen min-w-0 overflow-x-hidden px-5 py-8 text-[var(--foreground)] sm:px-8 lg:ml-64 lg:px-12">
       <div className="mx-auto max-w-7xl">
         <header className="flex flex-col gap-5 border-b border-[var(--border)] pb-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
