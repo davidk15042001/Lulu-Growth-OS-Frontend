@@ -20,6 +20,17 @@ export default defineConfig({
         app: resolve(root, "index.html"),
         ...pageInputs,
       },
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) return "vendor";
+          const pageRoot = `${resolve(root, "src")}/pages/`;
+          if (id.includes(pageRoot)) {
+            const pageName = id.slice(pageRoot.length).split("/")[0];
+            if (pageName) return `page-${pageName}`;
+          }
+          return undefined;
+        },
+      },
     },
   },
 });
