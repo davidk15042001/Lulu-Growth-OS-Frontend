@@ -1,5 +1,5 @@
-import { DynamicWorkspaceDashboard } from '../../components/DynamicWorkspaceDashboard';
+import { LiveExecutiveDashboard } from '../../components/LiveExecutiveDashboard';
 
 export default function App() {
-  return <DynamicWorkspaceDashboard />;
+  return <LiveExecutiveDashboard />;
 }
