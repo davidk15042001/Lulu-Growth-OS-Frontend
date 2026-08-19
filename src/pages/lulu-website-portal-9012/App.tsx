@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../../api/session";
-import { websitesApi, type WebsiteSite } from "../../api/websites";
+import { websitesApi, type WebsiteGenerationJob, type WebsiteSite } from "../../api/websites";
 import { onboardingApi, type Platform } from "../../api/onboarding";
 import { authApi } from "../../api/auth";
 import { getFriendlyErrorMessage } from "../../api/client";
@@ -94,7 +94,9 @@ export default function App() {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [selectedSiteId, setSelectedSiteId] = useState("");
   const [connectionBusy, setConnectionBusy] = useState<Provider | null>(null);
+  const [generationJob, setGenerationJob] = useState<{ siteId: string; job: WebsiteGenerationJob; provider: Provider } | null>(null);
   const [error, setError] = useState("");
+  const autoStartedRef = useRef("");
   const workspaceId = getSelectedWorkspaceId();
   const content = useMemo(() => providerContent[provider], [provider]);
   const selectedSite = sites.find((site) => site.id === selectedSiteId) ?? sites.find((site) => site.provider === provider);
@@ -109,6 +111,46 @@ export default function App() {
       setSelectedSiteId(websiteResponse.data.items.find((site) => site.provider === provider)?.id ?? websiteResponse.data.items[0]?.id ?? "");
     }).catch((requestError) => setError(getFriendlyErrorMessage(requestError, "Die Websites und Verbindungen konnten nicht geladen werden.")));
   }, [workspaceId, provider]);
+
+  const startAutomaticGeneration = async (nextProvider: Provider) => {
+    if (!workspaceId) return;
+    setError("");
+    try {
+      const response = await websitesApi.startAutomaticGeneration(workspaceId, nextProvider, document.documentElement.lang || undefined);
+      setSites((current) => current.some((site) => site.id === response.data.site.id) ? current.map((site) => site.id === response.data.site.id ? response.data.site : site) : [response.data.site, ...current]);
+      setSelectedSiteId(response.data.site.id);
+      setGenerationJob({ siteId: response.data.site.id, job: response.data.job, provider: nextProvider });
+    } catch (requestError) {
+      setError(getFriendlyErrorMessage(requestError, nextProvider === "wordpress" ? "WordPress ist verbunden, aber es wurde noch keine WordPress-Website gefunden." : "Webflow ist verbunden, aber es wurde noch keine CMS-Collection gefunden."));
+    }
+  };
+
+  useEffect(() => {
+    if (!workspaceId || !connectedPlatform || sites.some((site) => site.provider === provider)) return;
+    const key = `${workspaceId}:${provider}`;
+    if (autoStartedRef.current === key) return;
+    autoStartedRef.current = key;
+    void startAutomaticGeneration(provider);
+  }, [workspaceId, connectedPlatform, sites, provider]);
+
+  useEffect(() => {
+    if (!workspaceId || !generationJob || ["published", "failed", "cancelled"].includes(generationJob.job.status)) return;
+    let cancelled = false;
+    const poll = async () => {
+      try {
+        const response = await websitesApi.getGenerationJob(workspaceId, generationJob.siteId, generationJob.job.id);
+        if (cancelled) return;
+        setGenerationJob((current) => current ? { ...current, job: response.data } : current);
+        if (!["published", "failed", "cancelled"].includes(response.data.status)) window.setTimeout(poll, 2000);
+        else if (response.data.status === "failed") setError(response.data.errorMessage ?? "Die Website konnte nicht automatisch generiert werden.");
+        else if (response.data.status === "published") void refresh();
+      } catch (requestError) {
+        if (!cancelled) { setError(getFriendlyErrorMessage(requestError, "Der Status der Website-Generierung konnte nicht geladen werden.")); window.setTimeout(poll, 4000); }
+      }
+    };
+    void poll();
+    return () => { cancelled = true; };
+  }, [workspaceId, generationJob?.siteId, generationJob?.job.id, generationJob?.job.status]);
 
   const refresh = () => {
     setIsRefreshing(true);
@@ -159,8 +201,14 @@ export default function App() {
     setActiveSection(nextProvider === "webflow" ? "Webflow" : "WordPress / Jetpack");
   };
 
+  const generationStatus = generationJob?.job.status;
+  const generationLabel = generationStatus === "published" ? "Website veröffentlicht" : generationStatus === "failed" ? "Generierung fehlgeschlagen" : generationStatus === "publishing" ? "Website wird veröffentlicht" : generationStatus === "preview" ? "Website wird vorbereitet" : "Website wird generiert";
+  const generationDetail = generationStatus === "planning" ? "Lulu analysiert die Unternehmensdaten und erstellt die Seitenstruktur." : generationStatus === "preview" ? "Die Inhalte, SEO-Metadaten und Seiten werden für den verbundenen Anbieter vorbereitet." : generationStatus === "publishing" ? "Die generierten Seiten werden jetzt im verbundenen CMS angelegt." : generationStatus === "published" ? "Die Website wurde erfolgreich im verbundenen CMS erstellt." : generationStatus === "failed" ? (generationJob?.job.errorMessage ?? "Bitte prüfe die Verbindung und versuche es erneut.") : "Lulu führt die automatische Website-Erstellung im Hintergrund aus.";
+
   return (
     <div className="min-h-screen bg-[var(--background)] text-foreground" style={{ fontFamily: "Inter, sans-serif" }}>
+      {generationJob && <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-title" className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl sm:p-7"><div className="flex items-start gap-4"><div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${generationStatus === "failed" ? "bg-destructive/10 text-destructive" : generationStatus === "published" ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>{generationStatus === "failed" || generationStatus === "published" ? <Globe2 size={22} /> : <RefreshCw size={22} className="animate-spin" />}</div><div className="min-w-0"><h2 id="website-generation-title" className="text-lg font-semibold text-foreground">{generationLabel}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{generationDetail}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className={`h-full rounded-full transition-all duration-500 ${generationStatus === "failed" ? "w-full bg-destructive" : generationStatus === "published" ? "w-full bg-emerald-500" : generationStatus === "publishing" ? "w-4/5 bg-primary" : generationStatus === "preview" ? "w-3/5 bg-primary" : generationStatus === "planning" ? "w-2/5 bg-primary" : "w-1/5 bg-primary"}`} /></div><div className="mt-5 flex items-center justify-between gap-3 text-xs text-muted-foreground"><span>{generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</span><span className="capitalize">{generationStatus}</span></div>{["published", "failed", "cancelled"].includes(generationStatus ?? "") && <button type="button" onClick={() => setGenerationJob(null)} className="mt-6 w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary">Schließen</button>}</div></div>}
+
       <aside className={`${mobileNav ? "flex" : "hidden"} fixed inset-y-0 left-0 z-30 flex h-dvh min-h-0 w-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden border-r border-border bg-[var(--sidebar)] p-4 lg:flex`}>
         <div className="mb-8 flex items-center gap-3 px-2 py-2">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-lg font-bold text-primary-foreground shadow-lg shadow-black/20">L</div>
