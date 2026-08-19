@@ -21,9 +21,12 @@ jobs:
           node-version: 22
           cache: npm
 
-      - name: Frontend installieren und bauen
+      - name: Frontend installieren, prüfen und bauen
         run: |
+          set -euo pipefail
           npm ci
+          npm run typecheck
+          npm run audit:i18n
           npm run build
 
       - name: Backend auschecken
@@ -36,9 +39,13 @@ jobs:
       - name: Backend-Abhängigkeiten prüfen
         working-directory: backend-source
         run: |
+          set -euo pipefail
           npm ci
           npm run typecheck
+          npm run test:migrations
+          npm test
           npm run build
+          npm run test:smoke
 
       - name: SSH einrichten
         env:
@@ -86,4 +93,4 @@ jobs:
             backend-source/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
           ssh "$DEPLOY_USER@$DEPLOY_HOST" \
-            'set -e; sudo systemctl restart lulu-growth-backend; sleep 3; sudo systemctl is-active --quiet lulu-growth-backend; git rev-parse --short HEAD 2>/dev/null || true'
+            'set -e; sudo systemctl restart lulu-growth-backend; for attempt in $(seq 1 30); do if curl -fsS http://127.0.0.1:4000/api/v1/ready >/tmp/lulu-ready.json; then cat /tmp/lulu-ready.json; exit 0; fi; sleep 2; done; echo "Backend readiness check failed" >&2; sudo systemctl --no-pager --full status lulu-growth-backend; exit 1'
