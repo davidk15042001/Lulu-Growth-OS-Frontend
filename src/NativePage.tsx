@@ -36,6 +36,10 @@ export function NativePage({ slug }: { slug: string }) {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    document.querySelectorAll<HTMLElement>("main, [data-lulu-scroll-container]").forEach((element) => {
+      element.scrollTop = 0;
+      element.scrollLeft = 0;
+    });
     let active = true;
     setApp(null);
     setError(null);

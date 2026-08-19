@@ -87,7 +87,13 @@ export function navigateApp(to: string, options: { replace?: boolean } = {}) {
   };
 
   if (window.parent !== window) {
+    const target = new URL(to, window.location.href);
+    const before = `${window.location.pathname}${window.location.search}`;
     window.parent.postMessage(message, window.location.origin);
+    window.setTimeout(() => {
+      const current = `${window.location.pathname}${window.location.search}`;
+      if (current === before && `${target.pathname}${target.search}` !== before) window.location.assign(target.pathname + target.search + target.hash);
+    }, 180);
     return;
   }
 

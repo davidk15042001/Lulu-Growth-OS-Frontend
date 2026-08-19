@@ -3,7 +3,7 @@ import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../../api/sess
 import { websitesApi, type WebsiteGenerationJob, type WebsiteSite } from "../../api/websites";
 import { onboardingApi, type Platform } from "../../api/onboarding";
 import { authApi } from "../../api/auth";
-import { getFriendlyErrorMessage } from "../../api/client";
+import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../../api/client";
 import {
   ArrowRight,
   FileEdit,
@@ -150,7 +150,10 @@ export default function App() {
       setSelectedSiteId(response.data.site.id);
       setGenerationJob({ siteId: response.data.site.id, job: response.data.job, provider: nextProvider });
     } catch (requestError) {
-      setError(getFriendlyErrorMessage(requestError, nextProvider === "wordpress" ? "WordPress ist verbunden, aber es wurde noch keine WordPress-Website gefunden." : "Webflow ist verbunden, aber es wurde noch keine CMS-Collection gefunden."));
+      const friendly = getFriendlyErrorMessage(requestError, nextProvider === "wordpress" ? "WordPress ist verbunden, aber es wurde noch keine WordPress-Website gefunden." : "Webflow ist verbunden, aber es wurde noch keine CMS-Collection gefunden.");
+      const details = requestError instanceof Error && "status" in requestError ? getTechnicalErrorDetails(requestError) : "";
+      setError(details && details !== "Code: UNKNOWN_ERROR" ? `${friendly} — ${details}` : friendly);
+      void refresh();
     }
   };
 
@@ -171,7 +174,7 @@ export default function App() {
         if (cancelled) return;
         setGenerationJob((current) => current ? { ...current, job: response.data } : current);
         if (!["published", "failed", "cancelled"].includes(response.data.status)) window.setTimeout(poll, 2000);
-        else if (response.data.status === "failed") setError(response.data.errorMessage ?? "Die Website konnte nicht automatisch generiert werden.");
+        else if (response.data.status === "failed") { setError(response.data.errorMessage ?? "Die Website konnte nicht automatisch generiert werden."); void refresh(); }
         else if (response.data.status === "published") void refresh();
       } catch (requestError) {
         if (!cancelled) { setError(getFriendlyErrorMessage(requestError, "Der Status der Website-Generierung konnte nicht geladen werden.")); window.setTimeout(poll, 4000); }
@@ -255,7 +258,7 @@ export default function App() {
       </aside>
       {mobileNav && <button aria-label="Navigation schließen" className="fixed inset-0 z-20 bg-black/40 lg:hidden" onClick={() => setMobileNav(false)} />}
 
-      <main className="min-h-screen min-w-0 overflow-x-hidden lg:ml-64">
+      <main data-lulu-scroll-container className="min-h-screen min-w-0 overflow-x-hidden lg:ml-64">
         <div className="mx-auto max-w-[1400px] px-5 py-6 sm:px-8 sm:py-8">
           <header className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div className="flex items-start gap-3"><button className="mt-1 rounded-lg p-2 text-muted-foreground hover:bg-secondary lg:hidden" aria-label="Navigation öffnen" onClick={() => setMobileNav(true)}><Menu size={20} /></button><div><p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Lulu AI / Website</p><h1 className="text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">Website</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{content.description}</p></div></div>
