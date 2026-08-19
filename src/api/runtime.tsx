@@ -66,12 +66,12 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
   }, [contract, slug]);
 
   if (!contract) {
-    return <main style={{ padding: 24, fontFamily: "sans-serif" }}>This page has no API contract.</main>;
+    return <main style={{ padding: 24 }}>This page has no API contract.</main>;
   }
 
   return <>
-    {state === "checking" && <div role="status" style={{ position: "fixed", inset: 0, zIndex: 9999, display: "grid", placeItems: "center", background: "#f7f7f5", color: "#686864", font: "500 14px Inter, sans-serif" }}>Loading workspace…</div>}
-    {state === "offline" && <div role="alert" style={{ position: "fixed", zIndex: 9999, left: "50%", top: 12, transform: "translateX(-50%)", maxWidth: "calc(100% - 24px)", border: "1px solid #d5d5d0", borderRadius: 8, background: "#fff", color: "#171717", padding: "10px 14px", boxShadow: "0 10px 30px rgba(0,0,0,.12)", font: "500 13px Inter, sans-serif" }}>Live data is temporarily unavailable. Your layout remains accessible.</div>}
+    {state === "checking" && <div role="status" style={{ position: "fixed", inset: 0, zIndex: 9999, display: "grid", placeItems: "center", background: "#f7f7f5", color: "#686864" }}>Loading workspace…</div>}
+    {state === "offline" && <div role="alert" style={{ position: "fixed", zIndex: 9999, left: "50%", top: 12, transform: "translateX(-50%)", maxWidth: "calc(100% - 24px)", border: "1px solid #d5d5d0", borderRadius: 8, background: "#fff", color: "#171717", padding: "10px 14px", boxShadow: "0 10px 30px rgba(0,0,0,.12)" }}>Live data is temporarily unavailable. Your layout remains accessible.</div>}
     {children}
     <GlobalBranding contractKind={contract.kind} />
     <GlobalLanguageSwitcher />

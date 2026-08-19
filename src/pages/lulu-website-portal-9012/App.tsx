@@ -116,6 +116,22 @@ export default function App() {
   const connected = Boolean(selectedSite && providerConnected);
 
   useEffect(() => {
+    const syncSectionFromUrl = () => {
+      const nextSection = new URLSearchParams(window.location.search).get("section") ?? "";
+      const nextProvider: Provider = nextSection.startsWith("webflow") ? "webflow" : "wordpress";
+      setActiveSection(sectionLabels[nextSection] ?? "Übersicht");
+      if (nextSection.startsWith("webflow") || nextSection.startsWith("wordpress")) setProvider(nextProvider);
+    };
+    syncSectionFromUrl();
+    window.addEventListener("popstate", syncSectionFromUrl);
+    window.addEventListener("lulu:navigate", syncSectionFromUrl);
+    return () => {
+      window.removeEventListener("popstate", syncSectionFromUrl);
+      window.removeEventListener("lulu:navigate", syncSectionFromUrl);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!workspaceId) return;
     Promise.all([websitesApi.list(workspaceId), onboardingApi.platforms(workspaceId)]).then(([websiteResponse, platformResponse]) => {
       setSites(websiteResponse.data.items);
@@ -218,7 +234,7 @@ export default function App() {
   const generationDetail = generationStatus === "planning" ? "Lulu analysiert die Unternehmensdaten und erstellt die Seitenstruktur." : generationStatus === "preview" ? "Die Inhalte, SEO-Metadaten und Seiten werden für den verbundenen Anbieter vorbereitet." : generationStatus === "publishing" ? "Die generierten Seiten werden jetzt im verbundenen CMS angelegt." : generationStatus === "published" ? "Die Website wurde erfolgreich im verbundenen CMS erstellt." : generationStatus === "failed" ? (generationJob?.job.errorMessage ?? "Bitte prüfe die Verbindung und versuche es erneut.") : "Lulu führt die automatische Website-Erstellung im Hintergrund aus.";
 
   return (
-    <div className="min-h-screen bg-[var(--background)] text-foreground" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="min-h-screen bg-[var(--background)] text-foreground">
       {generationJob && <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4 backdrop-blur-sm"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-title" className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl sm:p-7"><div className="flex items-start gap-4"><div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${generationStatus === "failed" ? "bg-destructive/10 text-destructive" : generationStatus === "published" ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>{generationStatus === "failed" || generationStatus === "published" ? <Globe2 size={22} /> : <RefreshCw size={22} className="animate-spin" />}</div><div className="min-w-0"><h2 id="website-generation-title" className="text-lg font-semibold text-foreground">{generationLabel}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{generationDetail}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className={`h-full rounded-full transition-all duration-500 ${generationStatus === "failed" ? "w-full bg-destructive" : generationStatus === "published" ? "w-full bg-emerald-500" : generationStatus === "publishing" ? "w-4/5 bg-primary" : generationStatus === "preview" ? "w-3/5 bg-primary" : generationStatus === "planning" ? "w-2/5 bg-primary" : "w-1/5 bg-primary"}`} /></div><div className="mt-5 flex items-center justify-between gap-3 text-xs text-muted-foreground"><span>{generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</span><span className="capitalize">{generationStatus}</span></div>{["published", "failed", "cancelled"].includes(generationStatus ?? "") && <button type="button" onClick={() => setGenerationJob(null)} className="mt-6 w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary">Schließen</button>}</div></div>}
 
       <aside className={`${mobileNav ? "flex" : "hidden"} fixed inset-y-0 left-0 z-30 flex h-dvh min-h-0 w-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden border-r border-border bg-[var(--sidebar)] p-4 lg:flex`}>

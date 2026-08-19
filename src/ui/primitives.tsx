@@ -59,7 +59,7 @@ export function LuluButton({ variant = "primary", style, ...props }: ButtonHTMLA
         background: variant === "primary" ? "#171717" : "#ffffff",
         color: variant === "primary" ? "#ffffff" : "#171717",
         padding: "9px 14px",
-        font: "600 13px Inter, sans-serif",
+        font: "600 13px Poppins, sans-serif",
         cursor: "pointer",
         ...style,
       }}

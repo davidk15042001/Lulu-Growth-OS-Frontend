@@ -103,7 +103,7 @@ export function GlobalBranding({ contractKind }: { contractKind: PageContract["k
 
   return <>
     {hosts.map((host, index) => createPortal(
-      <img className="lulu-global-brand-image" src={LOGO_PATH} alt="Lulu Intelligence" draggable={false} />,
+      <img className="lulu-global-brand-image" src={LOGO_PATH} alt="Lulu AI" draggable={false} />,
       host,
       `lulu-brand-${index}`,
     ))}
