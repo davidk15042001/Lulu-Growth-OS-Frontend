@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowRight, BarChart3, Check, ChevronDown, CircleHelp, Database, Gauge, Lightbulb, LockKeyhole, Network, X } from 'lucide-react';
+import { BarChart3, Check, ChevronDown, CircleHelp, Database, LockKeyhole, Network, X } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { authApi } from '../../../../api/auth';
@@ -193,41 +193,6 @@ export function LuluWelcomeScreen() {
           </div>
 
           <div className="welcome-enter welcome-delay-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[0_12px_32px_rgba(0,0,0,.08)] sm:p-5 lg:p-6">
-            <section aria-labelledby="ecosystem-title" className="rounded-lg border border-[var(--border)] bg-[var(--secondary)] px-4 py-5 sm:px-5">
-              <h2 id="ecosystem-title" className="text-[17px] font-semibold tracking-[-.025em] text-[var(--foreground)]">
-                <span>Business intelligence flow</span>
-              </h2>
-              <p className="mt-1 text-[12px] leading-5 text-[var(--muted-foreground)]">
-                <span>From your business data to sharper actions.</span>
-              </p>
-              <div className="mt-5 grid grid-cols-4 items-start gap-2 sm:gap-3">
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <span className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)]">
-                    <Database size={17} strokeWidth={1.7} />
-                  </span>
-                  <span className="text-[10px] font-medium leading-3 text-[var(--muted-foreground)] sm:text-[11px]">Business Data</span>
-                </div>
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <span className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--primary)] text-[var(--primary-foreground)] shadow-[0_0_24px_rgba(0,0,0,.24)]">
-                    <Gauge size={18} strokeWidth={2} />
-                  </span>
-                  <span className="text-[10px] font-semibold leading-3 text-[var(--foreground)] sm:text-[11px]">Lulu AI</span>
-                </div>
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <span className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)]">
-                    <Lightbulb size={17} strokeWidth={1.7} />
-                  </span>
-                  <span className="text-[10px] font-medium leading-3 text-[var(--muted-foreground)] sm:text-[11px]">Insights</span>
-                </div>
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <span className="grid h-10 w-10 place-items-center rounded-xl border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)]">
-                    <ArrowRight size={17} strokeWidth={1.7} />
-                  </span>
-                  <span className="text-[10px] font-medium leading-3 text-[var(--muted-foreground)] sm:text-[11px]">Growth Actions</span>
-                </div>
-              </div>
-            </section>
-
             <section aria-labelledby="steps-title" className="mt-3">
               <h2 id="steps-title" className="sr-only">Setup steps</h2>
               <div className="grid gap-2.5">
