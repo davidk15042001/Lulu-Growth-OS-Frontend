@@ -276,5 +276,17 @@
   "RISK DETAIL": "Détail du risque",
   "Area": "Zone",
   "Cart": "Panier",
-  "Checkout": "Paiement"
+  "Checkout": "Paiement",
+  "Soon": "Bientôt",
+  "soon": "bientôt",
+  "(Soon)": "(Bientôt)",
+  "(soon)": "(bientôt)",
+  "Customer Intelligence": "Intelligence client",
+  "Customer Intelligence ↗": "Intelligence client ↗",
+  "Operations Intelligence": "Intelligence opérationnelle",
+  "Advertising Intelligence": "Intelligence publicitaire",
+  "Sales Intelligence": "Intelligence commerciale",
+  "Marketing Intelligence": "Intelligence marketing",
+  "Business Intelligence": "Intelligence métier",
+  "Executive Overview": "Vue d’ensemble exécutive"
 }

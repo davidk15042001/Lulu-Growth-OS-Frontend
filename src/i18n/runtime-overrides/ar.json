@@ -276,5 +276,17 @@
   "RISK DETAIL": "تفاصيل المخاطر",
   "Area": "المنطقة",
   "Cart": "سلة التسوق",
-  "Checkout": "إتمام الشراء"
+  "Checkout": "إتمام الشراء",
+  "Soon": "قريبًا",
+  "soon": "قريبًا",
+  "(Soon)": "(قريبًا)",
+  "(soon)": "(قريبًا)",
+  "Customer Intelligence": "ذكاء العملاء",
+  "Customer Intelligence ↗": "ذكاء العملاء ↗",
+  "Operations Intelligence": "الذكاء التشغيلي",
+  "Advertising Intelligence": "ذكاء الإعلانات",
+  "Sales Intelligence": "ذكاء المبيعات",
+  "Marketing Intelligence": "ذكاء التسويق",
+  "Business Intelligence": "ذكاء الأعمال",
+  "Executive Overview": "نظرة تنفيذية عامة"
 }

@@ -276,5 +276,17 @@
   "RISK DETAIL": "Riskdetalj",
   "Area": "Område",
   "Cart": "Varukorg",
-  "Checkout": "Kassa"
+  "Checkout": "Kassa",
+  "Soon": "Snart",
+  "soon": "snart",
+  "(Soon)": "(Snart)",
+  "(soon)": "(snart)",
+  "Customer Intelligence": "Kundintelligens",
+  "Customer Intelligence ↗": "Kundintelligens ↗",
+  "Operations Intelligence": "Operativ intelligens",
+  "Advertising Intelligence": "Annonsintelligens",
+  "Sales Intelligence": "Försäljningsintelligens",
+  "Marketing Intelligence": "Marknadsföringsintelligens",
+  "Business Intelligence": "Affärsintelligens",
+  "Executive Overview": "Ledningsöversikt"
 }

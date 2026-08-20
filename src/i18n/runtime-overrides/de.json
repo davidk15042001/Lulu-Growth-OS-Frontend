@@ -26,5 +26,17 @@
   "RISK DETAIL": "Risikodetail",
   "Area": "Bereich",
   "Cart": "Warenkorb",
-  "Checkout": "Kasse"
+  "Checkout": "Kasse",
+  "Soon": "Bald",
+  "soon": "bald",
+  "(Soon)": "(Bald)",
+  "(soon)": "(bald)",
+  "Customer Intelligence": "Kundenintelligenz",
+  "Customer Intelligence ↗": "Kundenintelligenz ↗",
+  "Operations Intelligence": "Betriebsintelligenz",
+  "Advertising Intelligence": "Werbeintelligenz",
+  "Sales Intelligence": "Vertriebsintelligenz",
+  "Marketing Intelligence": "Marketingintelligenz",
+  "Business Intelligence": "Geschäftsintelligenz",
+  "Executive Overview": "Management-Übersicht"
 }

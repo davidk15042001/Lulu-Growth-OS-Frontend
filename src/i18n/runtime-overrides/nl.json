@@ -276,5 +276,17 @@
   "RISK DETAIL": "Risicodetail",
   "Area": "Gebied",
   "Cart": "Winkelwagen",
-  "Checkout": "Afrekenen"
+  "Checkout": "Afrekenen",
+  "Soon": "Binnenkort",
+  "soon": "binnenkort",
+  "(Soon)": "(Binnenkort)",
+  "(soon)": "(binnenkort)",
+  "Customer Intelligence": "Klantintelligentie",
+  "Customer Intelligence ↗": "Klantintelligentie ↗",
+  "Operations Intelligence": "Operationele intelligentie",
+  "Advertising Intelligence": "Advertentie-intelligentie",
+  "Sales Intelligence": "Verkoopintelligentie",
+  "Marketing Intelligence": "Marketingintelligentie",
+  "Business Intelligence": "Bedrijfsintelligentie",
+  "Executive Overview": "Managementoverzicht"
 }

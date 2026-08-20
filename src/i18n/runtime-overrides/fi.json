@@ -276,5 +276,17 @@
   "RISK DETAIL": "Riskin tiedot",
   "Area": "Alue",
   "Cart": "Ostoskori",
-  "Checkout": "Kassalle"
+  "Checkout": "Kassalle",
+  "Soon": "Tulossa",
+  "soon": "tulossa",
+  "(Soon)": "(Tulossa)",
+  "(soon)": "(tulossa)",
+  "Customer Intelligence": "Asiakasälykkyys",
+  "Customer Intelligence ↗": "Asiakasälykkyys ↗",
+  "Operations Intelligence": "Operatiivinen älykkyys",
+  "Advertising Intelligence": "Mainonnan älykkyys",
+  "Sales Intelligence": "Myynnin älykkyys",
+  "Marketing Intelligence": "Markkinoinnin älykkyys",
+  "Business Intelligence": "Liiketoimintaälykkyys",
+  "Executive Overview": "Johdon yleiskatsaus"
 }

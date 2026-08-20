@@ -276,5 +276,17 @@
   "RISK DETAIL": "Эрсдэлийн дэлгэрэнгүй",
   "Area": "Бүс",
   "Cart": "Сагс",
-  "Checkout": "Төлбөр тооцоо"
+  "Checkout": "Төлбөр тооцоо",
+  "Soon": "Тун удахгүй",
+  "soon": "тун удахгүй",
+  "(Soon)": "(Тун удахгүй)",
+  "(soon)": "(тун удахгүй)",
+  "Customer Intelligence": "Хэрэглэгчийн ухаалаг мэдээлэл",
+  "Customer Intelligence ↗": "Хэрэглэгчийн ухаалаг мэдээлэл ↗",
+  "Operations Intelligence": "Үйл ажиллагааны ухаалаг мэдээлэл",
+  "Advertising Intelligence": "Зар сурталчилгааны ухаалаг мэдээлэл",
+  "Sales Intelligence": "Борлуулалтын ухаалаг мэдээлэл",
+  "Marketing Intelligence": "Маркетингийн ухаалаг мэдээлэл",
+  "Business Intelligence": "Бизнесийн ухаалаг мэдээлэл",
+  "Executive Overview": "Удирдлагын тойм"
 }

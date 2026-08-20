@@ -276,5 +276,17 @@
   "RISK DETAIL": "Детали риска",
   "Area": "Область",
   "Cart": "Корзина",
-  "Checkout": "Оформление заказа"
+  "Checkout": "Оформление заказа",
+  "Soon": "Скоро",
+  "soon": "скоро",
+  "(Soon)": "(Скоро)",
+  "(soon)": "(скоро)",
+  "Customer Intelligence": "Интеллект клиентов",
+  "Customer Intelligence ↗": "Интеллект клиентов ↗",
+  "Operations Intelligence": "Операционный интеллект",
+  "Advertising Intelligence": "Рекламный интеллект",
+  "Sales Intelligence": "Интеллект продаж",
+  "Marketing Intelligence": "Маркетинговый интеллект",
+  "Business Intelligence": "Бизнес-интеллект",
+  "Executive Overview": "Обзор для руководства"
 }

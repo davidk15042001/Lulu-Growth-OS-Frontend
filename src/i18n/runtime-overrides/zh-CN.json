@@ -26,5 +26,17 @@
   "RISK DETAIL": "风险详情",
   "Area": "区域",
   "Cart": "购物车",
-  "Checkout": "结账"
+  "Checkout": "结账",
+  "Soon": "即将推出",
+  "soon": "即将推出",
+  "(Soon)": "（即将推出）",
+  "(soon)": "（即将推出）",
+  "Customer Intelligence": "客户智能",
+  "Customer Intelligence ↗": "客户智能 ↗",
+  "Operations Intelligence": "运营智能",
+  "Advertising Intelligence": "广告智能",
+  "Sales Intelligence": "销售智能",
+  "Marketing Intelligence": "营销智能",
+  "Business Intelligence": "商业智能",
+  "Executive Overview": "管理概览"
 }

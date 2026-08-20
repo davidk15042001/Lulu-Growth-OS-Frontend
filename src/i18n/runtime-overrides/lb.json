@@ -276,5 +276,17 @@
   "RISK DETAIL": "Risikodetailer",
   "Area": "Beräich",
   "Cart": "Wuerekuerf",
-  "Checkout": "Bezuelen"
+  "Checkout": "Bezuelen",
+  "Soon": "Geschwënn",
+  "soon": "geschwënn",
+  "(Soon)": "(Geschwënn)",
+  "(soon)": "(geschwënn)",
+  "Customer Intelligence": "Client-Intelligenz",
+  "Customer Intelligence ↗": "Client-Intelligenz ↗",
+  "Operations Intelligence": "Operatiounsintelligenz",
+  "Advertising Intelligence": "Reklammenintelligenz",
+  "Sales Intelligence": "Verkafsintelligenz",
+  "Marketing Intelligence": "Marketingintelligenz",
+  "Business Intelligence": "Geschäftsintelligenz",
+  "Executive Overview": "Management-Iwwersiicht"
 }

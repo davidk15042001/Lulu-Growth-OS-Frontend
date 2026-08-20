@@ -276,5 +276,17 @@
   "RISK DETAIL": "Деталі ризику",
   "Area": "Область",
   "Cart": "Кошик",
-  "Checkout": "Оформлення замовлення"
+  "Checkout": "Оформлення замовлення",
+  "Soon": "Незабаром",
+  "soon": "незабаром",
+  "(Soon)": "(Незабаром)",
+  "(soon)": "(незабаром)",
+  "Customer Intelligence": "Інтелект клієнтів",
+  "Customer Intelligence ↗": "Інтелект клієнтів ↗",
+  "Operations Intelligence": "Операційний інтелект",
+  "Advertising Intelligence": "Рекламний інтелект",
+  "Sales Intelligence": "Інтелект продажів",
+  "Marketing Intelligence": "Маркетинговий інтелект",
+  "Business Intelligence": "Бізнес-інтелект",
+  "Executive Overview": "Огляд для керівництва"
 }
