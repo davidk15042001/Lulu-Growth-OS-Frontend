@@ -14,6 +14,7 @@ import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
 import { getPageContract } from "./api/page-contracts";
 import { useLuluApp } from "./api/LuluAppContext";
 import { conversationApi } from "./api/conversations";
+import { usageApi, type WorkspaceCredits } from "./api/usage";
 import { BillingOnboarding } from "./components/BillingOnboarding";
 import AdminBillingPage from "./pages/admin-billing-overview-9901/App";
 
@@ -108,11 +109,23 @@ function AuthenticatedSearchBar() {
   const [open, setOpen] = useState(false);
   const [answer, setAnswer] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [credits, setCredits] = useState<WorkspaceCredits | null>(null);
   const matches = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return [];
     return pages.filter((item) => `${item.name} ${item.generatedName}`.toLowerCase().includes(normalized)).slice(0, 6);
   }, [query]);
+  useEffect(() => {
+    let cancelled = false;
+    if (!selectedWorkspace) {
+      setCredits(null);
+      return () => { cancelled = true; };
+    }
+    usageApi.credits(selectedWorkspace.id)
+      .then((response) => { if (!cancelled) setCredits(response.data); })
+      .catch(() => { if (!cancelled) setCredits(null); });
+    return () => { cancelled = true; };
+  }, [selectedWorkspace]);
   if (!currentUser || !selectedWorkspace) return null;
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -136,6 +149,10 @@ function AuthenticatedSearchBar() {
       <input id="lulu-global-search" value={query} onFocus={() => setOpen(true)} onChange={(event) => { setQuery(event.target.value); setOpen(true); }} placeholder="Search Lulu AI" autoComplete="off" />
       <button type="submit" aria-label="Search" title="Search" className="lulu-auth-search-button"><img src="/branding/lulu-intelligence-logo.png" alt="Lulu AI" draggable={false} /></button>
     </form>
+    {credits && <div className="lulu-auth-credits" title="Credits" aria-label="Credits">
+      <span className="lulu-auth-credits-label">Credits</span>
+      <strong>{credits.creditsUsed.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong>
+    </div>}
     {open && query.trim() && <div className="lulu-auth-search-results">{matches.length ? matches.map((item) => <button type="button" key={item.id} onClick={() => { navigate(pagePath(item.slug)); setQuery(""); setAnswer(null); setOpen(false); }}><strong>{item.name}</strong><span>{item.generatedName}</span></button>) : busy ? <p>Working on your Lulu AI request…</p> : answer ? <p className="lulu-auth-search-answer">{answer}</p> : <p>Ask Lulu AI about your workspace or type a page name.</p>}</div>}
   </div>;
 }
