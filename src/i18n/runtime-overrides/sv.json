@@ -297,5 +297,8 @@
   "Intelligence (Soon)": "Intelligens (Snart)",
   "Ecommerce (Soon)": "E-handel (Snart)",
   "Finance (Soon)": "Ekonomi (Snart)",
-  "Sales (Soon)": "Försäljning (Snart)"
+  "Sales (Soon)": "Försäljning (Snart)",
+  "Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.": "Om WordPress.com inte kan initiera Google-inloggningen loggar du in direkt med din WordPress-e-postadress eller ditt användarnamn och lösenord. Lulu får OAuth-koden efter en lyckad inloggning.",
+  "WordPress-Verbindung neu starten": "Starta om WordPress-anslutningen",
+  "Der neue Start erzeugt einen frischen OAuth-State.": "En ny start skapar ett nytt OAuth-tillstånd."
 }

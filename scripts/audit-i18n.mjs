@@ -10,6 +10,12 @@ const isolatedEntrySource = readFileSync(join(root, "src", "isolated-entry.tsx")
 const translationsSource = readFileSync(join(root, "src", "i18n", "translations.json"), "utf8");
 const translations = JSON.parse(translationsSource);
 const expectedCodes = ["en", "de", "zh-CN", "fr", "nl", "pl", "nb", "sv", "fi", "da", "ar", "lb", "mn", "uk", "ru"];
+const overrideDir = join(root, "src", "i18n", "runtime-overrides");
+const mergedTranslations = Object.fromEntries(expectedCodes.map((language) => {
+  const overridePath = join(overrideDir, `${language}.json`);
+  const overrides = (() => { try { return JSON.parse(readFileSync(overridePath, "utf8")); } catch { return {}; } })();
+  return [language, { ...(translations[language] ?? {}), ...overrides }];
+}));
 const actualCodes = [...languageSource.matchAll(/\{ code: "([^"]+)"/g)].map((match) => match[1]);
 const issues = [];
 const values = new Set();
@@ -81,11 +87,11 @@ for (const language of expectedCodes) {
 }
 for (const language of ["de", "zh-CN"]) {
   values.delete("?raw");
-  const missing = [...values].filter((source) => !translations[language]?.[source]);
+  const missing = [...values].filter((source) => !mergedTranslations[language]?.[source]);
   if (missing.length) issues.push(`${language} is missing ${missing.length} UI strings (examples: ${missing.slice(0, 5).join(" | ")})`);
   const placeholderErrors = [...values].filter((source) => {
     const expected = [...source.matchAll(/\{\{\d+\}\}/g)].map((match) => match[0]).sort();
-    const actual = [...String(translations[language]?.[source] ?? "").matchAll(/\{\{\d+\}\}/g)].map((match) => match[0]).sort();
+    const actual = [...String(mergedTranslations[language]?.[source] ?? "").matchAll(/\{\{\d+\}\}/g)].map((match) => match[0]).sort();
     return JSON.stringify(expected) !== JSON.stringify(actual);
   });
   if (placeholderErrors.length) issues.push(`${language} has ${placeholderErrors.length} placeholder mismatches (examples: ${placeholderErrors.slice(0, 5).join(" | ")})`);

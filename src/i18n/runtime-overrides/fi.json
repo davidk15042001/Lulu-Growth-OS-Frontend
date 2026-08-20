@@ -297,5 +297,8 @@
   "Intelligence (Soon)": "Älykkyys (Tulossa)",
   "Ecommerce (Soon)": "Verkkokauppa (Tulossa)",
   "Finance (Soon)": "Talous (Tulossa)",
-  "Sales (Soon)": "Myynti (Tulossa)"
+  "Sales (Soon)": "Myynti (Tulossa)",
+  "Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.": "Jos WordPress.com ei voi alustaa Google-kirjautumista, kirjaudu suoraan WordPress-sähköpostiosoitteellasi tai käyttäjänimelläsi ja salasanallasi. Lulu saa OAuth-koodin onnistuneen kirjautumisen jälkeen.",
+  "WordPress-Verbindung neu starten": "Käynnistä WordPress-yhteys uudelleen",
+  "Der neue Start erzeugt einen frischen OAuth-State.": "Uusi käynnistys luo uuden OAuth-tilan."
 }

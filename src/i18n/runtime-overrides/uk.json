@@ -297,5 +297,8 @@
   "Intelligence (Soon)": "Інтелект (Незабаром)",
   "Ecommerce (Soon)": "Електронна комерція (Незабаром)",
   "Finance (Soon)": "Фінанси (Незабаром)",
-  "Sales (Soon)": "Продажі (Незабаром)"
+  "Sales (Soon)": "Продажі (Незабаром)",
+  "Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.": "Якщо WordPress.com не може ініціалізувати вхід через Google, увійдіть безпосередньо за допомогою електронної пошти або імені користувача WordPress і пароля. Lulu отримає код OAuth після успішного входу.",
+  "WordPress-Verbindung neu starten": "Перезапустити підключення WordPress",
+  "Der neue Start erzeugt einen frischen OAuth-State.": "Повторний запуск створює новий стан OAuth."
 }

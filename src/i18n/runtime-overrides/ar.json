@@ -297,5 +297,8 @@
   "Intelligence (Soon)": "الذكاء (قريبًا)",
   "Ecommerce (Soon)": "التجارة الإلكترونية (قريبًا)",
   "Finance (Soon)": "المالية (قريبًا)",
-  "Sales (Soon)": "المبيعات (قريبًا)"
+  "Sales (Soon)": "المبيعات (قريبًا)",
+  "Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.": "إذا تعذر على WordPress.com تهيئة تسجيل الدخول باستخدام Google، فسجّل الدخول مباشرة باستخدام بريد WordPress الإلكتروني أو اسم المستخدم وكلمة المرور. ستتلقى Lulu رمز OAuth بعد تسجيل الدخول بنجاح.",
+  "WordPress-Verbindung neu starten": "إعادة تشغيل اتصال WordPress",
+  "Der neue Start erzeugt einen frischen OAuth-State.": "سيؤدي البدء من جديد إلى إنشاء حالة OAuth جديدة."
 }

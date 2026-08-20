@@ -47,5 +47,8 @@
   "Intelligence (Soon)": "智能（即将推出）",
   "Ecommerce (Soon)": "电子商务（即将推出）",
   "Finance (Soon)": "财务（即将推出）",
-  "Sales (Soon)": "销售（即将推出）"
+  "Sales (Soon)": "销售（即将推出）",
+  "Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.": "如果 WordPress.com 无法初始化 Google 登录，请直接使用 WordPress 电子邮件、用户名和密码登录。成功登录后，Lulu 才能收到 OAuth 代码。",
+  "WordPress-Verbindung neu starten": "重新启动 WordPress 连接",
+  "Der neue Start erzeugt einen frischen OAuth-State.": "重新启动会生成新的 OAuth 状态。"
 }
