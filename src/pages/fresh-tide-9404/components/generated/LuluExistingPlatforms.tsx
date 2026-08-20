@@ -3,6 +3,7 @@ import { ArrowRight, BarChart3, Check, CircleCheck, Globe, Search, Store, Trash2
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
+import { onboardingApi } from '../../../../api/onboarding';
 import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 interface Platform {
   id: string;
@@ -107,7 +108,8 @@ export const LuluExistingPlatforms = () => {
         setConnectingPlatform(null);
         return;
       }
-      const response = await requestApi<{ authorizationUrl: string }>({ path: `/workspaces/${workspaceId}/onboarding/platforms/${provider}/connect${shop ? `?shop=${encodeURIComponent(shop)}` : ''}` });
+      const returnTo = `${window.location.pathname}${window.location.search}`;
+      const response = await onboardingApi.startOAuth(workspaceId, provider, shop, returnTo);
       if (!response.data?.authorizationUrl) throw new Error('The provider authorization URL was not returned by the backend.');
       window.location.assign(response.data.authorizationUrl);
     } catch (cause) {

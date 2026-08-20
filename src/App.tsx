@@ -86,7 +86,12 @@ function PageRoute({ page }: { page: PageDefinition }) {
     return <Navigate replace to={routes.onboarding.welcome} state={{ from: location.pathname }} />;
   }
 
-  if (!isPublic && !isOnboarding && currentUser && selectedWorkspace && !selectedWorkspace.onboardingCompletedAt) {
+  const oauthReturn = (() => {
+    const params = new URLSearchParams(location.search);
+    return params.has("connected") || params.has("oauthCode") || params.has("oauthError");
+  })();
+
+  if (!isPublic && !isOnboarding && !oauthReturn && currentUser && selectedWorkspace && !selectedWorkspace.onboardingCompletedAt) {
     const target = onboardingPathByStep[selectedWorkspace.onboardingStep] ?? routes.onboarding.companyInformation;
     if (location.pathname !== target) return <Navigate replace to={target} state={{ from: location.pathname }} />;
   }
