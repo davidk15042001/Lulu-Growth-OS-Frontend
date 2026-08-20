@@ -298,5 +298,8 @@
   "Enter the Test password": "Enter the Test password",
   "Checking Test password…": "Checking Test password…",
   "Confirm free Test plan": "Confirm free Test plan",
-  "TEST_PASSWORD_INVALID": "TEST_PASSWORD_INVALID"
+  "TEST_PASSWORD_INVALID": "TEST_PASSWORD_INVALID",
+  "Website wird generiert": "Website is being generated",
+  "Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website.": "The connection was confirmed. Lulu is now analyzing your business data and creating the website.",
+  "Generierung fehlgeschlagen": "Generation failed"
 }

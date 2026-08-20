@@ -21027,5 +21027,8 @@
   "Enter the Test password": "输入 Test 密码",
   "Checking Test password…": "正在检查 Test 密码…",
   "Confirm free Test plan": "确认免费 Test 套餐",
-  "TEST_PASSWORD_INVALID": "Test 密码不正确。"
+  "TEST_PASSWORD_INVALID": "Test 密码不正确。",
+  "Website wird generiert": "正在生成网站",
+  "Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website.": "连接已确认。Lulu 正在分析你的企业数据并创建网站。",
+  "Generierung fehlgeschlagen": "生成失败"
 }

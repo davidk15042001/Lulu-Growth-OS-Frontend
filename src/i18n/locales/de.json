@@ -21027,5 +21027,8 @@
   "Enter the Test password": "Test-Passwort eingeben",
   "Checking Test password…": "Test-Passwort wird geprüft …",
   "Confirm free Test plan": "Kostenloses Testpaket bestätigen",
-  "TEST_PASSWORD_INVALID": "Das Test-Passwort ist nicht korrekt."
+  "TEST_PASSWORD_INVALID": "Das Test-Passwort ist nicht korrekt.",
+  "Website wird generiert": "Website wird generiert",
+  "Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website.": "Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website.",
+  "Generierung fehlgeschlagen": "Generierung fehlgeschlagen"
 }

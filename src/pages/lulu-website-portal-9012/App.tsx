@@ -106,9 +106,12 @@ export default function App() {
   const [selectedSiteId, setSelectedSiteId] = useState("");
   const [connectionBusy, setConnectionBusy] = useState<Provider | null>(null);
   const [generationJob, setGenerationJob] = useState<{ siteId: string; job: WebsiteGenerationJob; provider: Provider } | null>(null);
+  const [generationStarting, setGenerationStarting] = useState<Provider | null>(null);
+  const [generationFailure, setGenerationFailure] = useState<{ provider: Provider; message: string } | null>(null);
   const [error, setError] = useState("");
   const [oauthHelpVisible, setOauthHelpVisible] = useState(false);
   const autoStartedRef = useRef("");
+  const oauthReturnRef = useRef<Provider | null>(null);
   const workspaceId = getSelectedWorkspaceId();
   const content = useMemo(() => providerContent[provider], [provider]);
   const selectedSite = sites.find((site) => site.id === selectedSiteId) ?? sites.find((site) => site.provider === provider);
@@ -127,6 +130,13 @@ export default function App() {
       const providerLabel = provider === "wordpress" ? "WordPress.com" : "Webflow";
       setError(`${providerLabel}-Verbindung: ${oauthError}${oauthRequestId ? ` (Request-ID: ${oauthRequestId})` : ""}`);
       setOauthHelpVisible(provider === "wordpress");
+      setGenerationStarting(null);
+    } else if (oauthCode) {
+      oauthReturnRef.current = provider;
+      autoStartedRef.current = "";
+      setGenerationJob(null);
+      setGenerationFailure(null);
+      setGenerationStarting(provider);
     }
     const cleanUrl = `${window.location.pathname}${window.location.search.replace(/([?&])(oauthCode|oauthError|oauthRequestId)=[^&]*/g, "").replace(/[?&]$/, "")}${window.location.hash}`;
     window.history.replaceState({}, "", cleanUrl);
@@ -160,24 +170,32 @@ export default function App() {
   const startAutomaticGeneration = async (nextProvider: Provider) => {
     if (!workspaceId) return;
     setError("");
+    setGenerationFailure(null);
+    setGenerationStarting(nextProvider);
     try {
       const response = await websitesApi.startAutomaticGeneration(workspaceId, nextProvider, document.documentElement.lang || undefined);
       setSites((current) => current.some((site) => site.id === response.data.site.id) ? current.map((site) => site.id === response.data.site.id ? response.data.site : site) : [response.data.site, ...current]);
       setSelectedSiteId(response.data.site.id);
+      setGenerationStarting(null);
       setGenerationJob({ siteId: response.data.site.id, job: response.data.job, provider: nextProvider });
     } catch (requestError) {
       const friendly = getFriendlyErrorMessage(requestError, nextProvider === "wordpress" ? "WordPress ist verbunden, aber es wurde noch keine WordPress-Website gefunden." : "Webflow ist verbunden, aber es wurde noch keine CMS-Collection gefunden.");
       const details = requestError instanceof Error && "status" in requestError ? getTechnicalErrorDetails(requestError) : "";
-      setError(details && details !== "Code: UNKNOWN_ERROR" ? `${friendly} — ${details}` : friendly);
+      const message = details && details !== "Code: UNKNOWN_ERROR" ? `${friendly} — ${details}` : friendly;
+      setGenerationStarting(null);
+      setGenerationFailure({ provider: nextProvider, message });
+      setError(message);
       void refresh();
     }
   };
 
   useEffect(() => {
-    if (!workspaceId || !providerAuthorized || sites.some((site) => site.provider === provider)) return;
+    const oauthReturn = oauthReturnRef.current === provider;
+    if (!workspaceId || !providerAuthorized || (sites.some((site) => site.provider === provider) && !oauthReturn)) return;
     const key = `${workspaceId}:${provider}`;
-    if (autoStartedRef.current === key) return;
+    if (!oauthReturn && autoStartedRef.current === key) return;
     autoStartedRef.current = key;
+    oauthReturnRef.current = null;
     void startAutomaticGeneration(provider);
   }, [workspaceId, providerAuthorized, sites, provider]);
 
@@ -257,6 +275,8 @@ export default function App() {
     <div className="min-h-screen bg-[var(--background)] text-foreground">
       {(error || connectionBusy) && <div role={error ? "alert" : "status"} className="fixed left-1/2 top-4 z-[70] w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground shadow-2xl" aria-live="polite">{error || `${connectionBusy === "wordpress" ? "WordPress / Jetpack" : "Webflow"} wird verbunden…`}</div>}
       {generationJob && <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/45 p-4 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm sm:pt-8"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-title" className="my-2 w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl sm:my-8 sm:p-7"><div className="flex items-start gap-4"><div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${generationStatus === "failed" ? "bg-destructive/10 text-destructive" : generationStatus === "published" ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>{generationStatus === "failed" || generationStatus === "published" ? <Globe2 size={22} /> : <RefreshCw size={22} className="animate-spin" />}</div><div className="min-w-0"><h2 id="website-generation-title" className="text-lg font-semibold text-foreground">{generationLabel}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{generationDetail}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className={`h-full rounded-full transition-all duration-500 ${generationStatus === "failed" ? "w-full bg-destructive" : generationStatus === "published" ? "w-full bg-emerald-500" : generationStatus === "publishing" ? "w-4/5 bg-primary" : generationStatus === "preview" ? "w-3/5 bg-primary" : generationStatus === "planning" ? "w-2/5 bg-primary" : "w-1/5 bg-primary"}`} /></div><div className="mt-5 flex items-center justify-between gap-3 text-xs text-muted-foreground"><span>{generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</span><span className="capitalize">{generationStatus}</span></div>{["published", "failed", "cancelled"].includes(generationStatus ?? "") && <button type="button" onClick={() => setGenerationJob(null)} className="mt-6 w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary">Schließen</button>}</div></div>}
+      {generationStarting && !generationJob && <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/45 p-4 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm sm:pt-8"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-start-title" className="my-2 w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl sm:my-8 sm:p-7"><div className="flex items-start gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><RefreshCw size={22} className="animate-spin" /></div><div><h2 id="website-generation-start-title" className="text-lg font-semibold text-foreground">Website wird generiert</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website.</p><p className="mt-3 text-xs text-muted-foreground">{generationStarting === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/4 animate-pulse rounded-full bg-primary" /></div></div></div>}
+      {generationFailure && !generationJob && !generationStarting && <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/45 p-4 pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm sm:pt-8"><div role="alertdialog" aria-modal="true" className="my-2 w-full max-w-md rounded-2xl border border-destructive/30 bg-card p-6 shadow-2xl sm:my-8 sm:p-7"><h2 className="text-lg font-semibold text-destructive">Generierung fehlgeschlagen</h2><p className="mt-3 break-words text-sm leading-6 text-muted-foreground">{generationFailure.message}</p><button type="button" onClick={() => setGenerationFailure(null)} className="mt-6 w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-secondary">Schließen</button></div></div>}
 
       <aside className={`${mobileNav ? "flex" : "hidden"} fixed inset-y-0 left-0 z-30 flex h-dvh min-h-0 w-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden border-r border-border bg-[var(--sidebar)] p-4 lg:flex`}>
         <div className="mb-8 flex items-center gap-3 px-2 py-2">
