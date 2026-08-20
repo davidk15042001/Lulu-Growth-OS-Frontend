@@ -3,7 +3,7 @@ import { AlertCircle, Check, Eye, EyeOff, LoaderCircle, Sparkles } from 'lucide-
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { clearSelectedWorkspaceId } from '../../../../api/session';
-const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 12 characters', test: value => value.length >= 12 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
+const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 8 characters', test: value => value.length >= 8 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
 const socialButtonClass = 'flex h-11 w-full items-center justify-center gap-2.5 rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2';
 export function LuluSignupPage() {
   const [firstName, setFirstName] = useState('');
