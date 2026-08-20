@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Check, Eye, Lock, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
+import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
 import { navigateApp, routes } from "../routing";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
@@ -7,14 +7,14 @@ import { onboardingApi } from "../api/onboarding";
 import { workspaceAppApi } from "../api/workspace-app";
 import { OnboardingHeader } from "./OnboardingHeader";
 
-type PlanId = "explorer" | "starter" | "ai" | "test";
+type PlanId = "starter" | "ai" | "test";
 
 type Plan = {
   id: PlanId;
   name: string;
   eyebrow: string;
   description: string;
-  icon: typeof Eye;
+  icon: typeof Zap;
   accent: string;
   features: string[];
   limitations: string;
@@ -24,19 +24,6 @@ type Plan = {
 };
 
 const plans: Plan[] = [
-  {
-    id: "explorer",
-    name: "Explorer",
-    eyebrow: "See the full picture",
-    description: "Understand your business with read-only access to the complete Lulu workspace.",
-    icon: Eye,
-    accent: "bg-[var(--secondary)]",
-    features: ["View connected data and dashboards", "Explore reports, insights and history", "Read recommendations and opportunities"],
-    limitations: "No changes, actions or automation",
-    price: "Included",
-    pricePeriod: "Read-only access",
-    cta: "Choose Explorer",
-  },
   {
     id: "starter",
     name: "Starter",
@@ -79,11 +66,11 @@ const plans: Plan[] = [
 ];
 
 const capabilityRows = [
-  ["View dashboards, reports and connected data", true, true, true, true],
-  ["Manage workspace content and settings", false, true, true, true],
-  ["Manage connected websites and platforms", false, true, true, true],
-  ["Automatic AI analysis and statistics", false, true, true, true],
-  ["SEO, GEO, AEO and Website automation", false, true, true, true],
+  ["View dashboards, reports and connected data", true, true, true],
+  ["Manage workspace content and settings", true, true, true],
+  ["Manage connected websites and platforms", true, true, true],
+  ["Automatic AI analysis and statistics", true, true, true],
+  ["SEO, GEO, AEO and Website automation", true, true, true],
 ];
 
 export function BillingOnboarding() {
@@ -251,16 +238,16 @@ export function BillingOnboarding() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[680px] text-left text-sm">
               <thead><tr className="border-b border-[var(--border)] text-xs uppercase tracking-[.12em] text-[var(--muted-foreground)]"><th className="px-5 py-4 font-semibold sm:px-7">Capability</th>{plans.map((plan) => <th key={plan.id} className="px-4 py-4 text-center font-semibold">{plan.name}</th>)}</tr></thead>
-              <tbody>{capabilityRows.map(([label, explorer, starter, ai, test]) => <tr key={String(label)} className="border-b border-[var(--border)] last:border-0"><th className="px-5 py-4 font-medium sm:px-7">{label}</th>{[explorer, starter, ai, test].map((enabled, index) => <td key={`${label}-${index}`} className="px-4 py-4 text-center">{enabled ? <Check className="mx-auto" size={17} aria-label="Included" /> : <span className="text-[var(--muted-foreground)]" aria-label="Not included">—</span>}</td>)}</tr>)}</tbody>
+              <tbody>{capabilityRows.map(([label, starter, ai, test]) => <tr key={String(label)} className="border-b border-[var(--border)] last:border-0"><th className="px-5 py-4 font-medium sm:px-7">{label}</th>{[starter, ai, test].map((enabled, index) => <td key={`${label}-${index}`} className="px-4 py-4 text-center">{enabled ? <Check className="mx-auto" size={17} aria-label="Included" /> : <span className="text-[var(--muted-foreground)]" aria-label="Not included">—</span>}</td>)}</tr>)}</tbody>
             </table>
           </div>
         </section>
 
         <footer className="mt-8 flex flex-col gap-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)] p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{paymentStatus === "waiting" ? "Payment received — confirming your subscription…" : selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{paymentStatus === "waiting" ? "We are waiting for Airwallex to confirm the payment. This page will continue automatically." : selected ? selected.description : "Select Explorer, Starter, AI or Test above. This step is required before entering your workspace."}</p>{paymentStatus === "error" && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">Payment was returned, but the subscription confirmation has not arrived yet. Please wait a moment and refresh this page.</p>}{error && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">{error}</p>}{technicalError && <details className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 text-left"><summary className="cursor-pointer text-xs font-semibold">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--muted-foreground)]">{technicalError}</p></details>}</div></div>
+          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{paymentStatus === "waiting" ? "Payment received — confirming your subscription…" : selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{paymentStatus === "waiting" ? "We are waiting for Airwallex to confirm the payment. This page will continue automatically." : selected ? selected.description : "Choose a plan to continue"}</p>{paymentStatus === "error" && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">Payment was returned, but the subscription confirmation has not arrived yet. Please wait a moment and refresh this page.</p>}{error && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">{error}</p>}{technicalError && <details className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 text-left"><summary className="cursor-pointer text-xs font-semibold">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--muted-foreground)]">{technicalError}</p></details>}</div></div>
           <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[280px]">
             {testCodeRequired && selectedPlan === "test" && <label className="text-xs font-semibold text-[var(--foreground)]">One-time Test access password<input value={testCode} onChange={(event) => setTestCode(event.target.value)} autoComplete="one-time-code" inputMode="text" placeholder="Enter the password from your email" className="mt-1 h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 text-sm outline-none focus:border-[var(--primary)]" /></label>}
-            <button type="button" onClick={() => void continueToWorkspace()} disabled={!selectedPlan || submitting || paymentStatus === "waiting" || (testCodeRequired && selectedPlan === "test" && testCode.length < 8)} className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{paymentStatus === "waiting" ? "Confirming payment…" : submitting ? (selected?.id === "explorer" ? "Activating Explorer…" : selected?.id === "test" ? "Sending access password…" : "Opening secure checkout…") : testCodeRequired ? "Activate free Test plan" : selected ? `Continue with ${selected.name}` : "Select a plan first"}<ArrowRight size={16} /></button>
+            <button type="button" onClick={() => void continueToWorkspace()} disabled={!selectedPlan || submitting || paymentStatus === "waiting" || (testCodeRequired && selectedPlan === "test" && testCode.length < 8)} className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{paymentStatus === "waiting" ? "Confirming payment…" : submitting ? (selected?.id === "test" ? "Sending access password…" : "Opening secure checkout…") : testCodeRequired ? "Activate free Test plan" : selected ? `Continue with ${selected.name}` : "Select a plan first"}<ArrowRight size={16} /></button>
           </div>
         </footer>
       </div>
