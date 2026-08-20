@@ -21038,5 +21038,7 @@
   "Read-only. No write actions are available.": "Nur Lesen. Es sind keine Schreibaktionen verfügbar.",
   "Choose Viewer": "Viewer auswählen",
   "Search Lulu AI": "Lulu AI durchsuchen",
-  "No matching page found.": "Keine passende Seite gefunden."
+  "No matching page found.": "Keine passende Seite gefunden.",
+  "Working on your Lulu AI request…": "Ihre Lulu-AI-Anfrage wird verarbeitet …",
+  "Ask Lulu AI about your workspace or type a page name.": "Fragen Sie Lulu AI zu Ihrem Workspace oder geben Sie einen Seitennamen ein."
 }

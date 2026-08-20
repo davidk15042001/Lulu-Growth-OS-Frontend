@@ -21038,5 +21038,7 @@
   "Read-only. No write actions are available.": "只读模式，不提供写入操作。",
   "Choose Viewer": "选择 Viewer",
   "Search Lulu AI": "搜索 Lulu AI",
-  "No matching page found.": "未找到匹配的页面。"
+  "No matching page found.": "未找到匹配的页面。",
+  "Working on your Lulu AI request…": "正在处理您的 Lulu AI 请求……",
+  "Ask Lulu AI about your workspace or type a page name.": "您可以询问 Lulu AI 有关工作区的问题，或输入页面名称。"
 }
