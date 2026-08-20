@@ -1,7 +1,8 @@
 import { requestApi } from "./client";
 
 export type WorkspaceCredits = {
-  period: string;
+  periodStart: string;
+  periodEnd: string;
   inputTokens: number;
   outputTokens: number;
   totalTokens: number;
