@@ -20964,7 +20964,11 @@
     "Create shop": "Shop erstellen",
     "Generate website": "Website generieren",
     "The creation workspace could not be opened. Please try again.": "Der Erstellungsbereich konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
-    "public": "öffentlich"
+    "public": "öffentlich",
+    "{{0}} öffnen{{1}}": "{{0}} öffnen{{1}}",
+    " · Vorschau nicht verfügbar": " · Vorschau nicht verfügbar",
+    "Einige Dateien sind gespeichert, aber ihre Vorschau ist momentan nicht verfügbar. Die Dateien bleiben erhalten.": "Einige Dateien sind gespeichert, aber ihre Vorschau ist momentan nicht verfügbar. Die Dateien bleiben erhalten.",
+    "· Vorschau nicht verfügbar": "· Vorschau nicht verfügbar"
   },
   "fr": {
     "welcome": "BIENVENUE DE RETOUR",
@@ -102404,7 +102408,11 @@
     "Create shop": "创建商店",
     "Generate website": "生成网站",
     "The creation workspace could not be opened. Please try again.": "无法打开创建工作区。请重试。",
-    "public": "公开"
+    "public": "公开",
+    "{{0}} öffnen{{1}}": "打开 {{0}}{{1}}",
+    " · Vorschau nicht verfügbar": " · 预览不可用",
+    "Einige Dateien sind gespeichert, aber ihre Vorschau ist momentan nicht verfügbar. Die Dateien bleiben erhalten.": "部分文件已保存，但目前无法预览。文件仍保留在系统中。",
+    "· Vorschau nicht verfügbar": "· 预览不可用"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",

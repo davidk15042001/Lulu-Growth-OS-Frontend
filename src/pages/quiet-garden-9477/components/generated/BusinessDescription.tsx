@@ -17,6 +17,7 @@ type DocumentRecord = {
 type UploadItem = DocumentRecord & {
   url: string;
   kind: "image" | "document";
+  contentAvailable: boolean;
 };
 
 const MAX_FILE_SIZE = 5000 * 1024;
@@ -66,10 +67,15 @@ export const BusinessDescription = () => {
         ]);
         setBusinessDescription(workspaceResponse.data.workspace.businessDescription ?? "");
         const loaded = await Promise.all(documentsResponse.data.items.map(async (document) => {
-          const blob = await requestApiBlob(`/workspaces/${workspaceId}/onboarding/documents/${document.id}/content`);
-          return { ...document, url: URL.createObjectURL(blob), kind: isImage(document.mimeType) ? "image" as const : "document" as const };
+          try {
+            const blob = await requestApiBlob(`/workspaces/${workspaceId}/onboarding/documents/${document.id}/content`);
+            return { ...document, url: URL.createObjectURL(blob), kind: isImage(document.mimeType) ? "image" as const : "document" as const, contentAvailable: true };
+          } catch {
+            return { ...document, url: "", kind: isImage(document.mimeType) ? "image" as const : "document" as const, contentAvailable: false };
+          }
         }));
         setUploads(loaded);
+        if (loaded.some((item) => !item.contentAvailable)) setFileError("Einige Dateien sind gespeichert, aber ihre Vorschau ist momentan nicht verfügbar. Die Dateien bleiben erhalten.");
       } catch (cause) {
         setError(getFriendlyErrorMessage(cause, "Die gespeicherten Dokumente konnten nicht geladen werden."));
         setTechnicalError(getTechnicalErrorDetails(cause));
@@ -103,7 +109,7 @@ export const BusinessDescription = () => {
         const response = await requestApi<DocumentRecord>({ path: `/workspaces/${workspaceId}/onboarding/documents`, method: "POST", body: formData });
         const document = response.data;
         const url = URL.createObjectURL(file);
-        setUploads((current) => [{ ...document, url, kind: isImage(document.mimeType) ? "image" : "document" }, ...current]);
+        setUploads((current) => [{ ...document, url, kind: isImage(document.mimeType) ? "image" : "document", contentAvailable: true }, ...current]);
       }
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "Die Datei konnte nicht hochgeladen werden."));
@@ -163,7 +169,7 @@ export const BusinessDescription = () => {
             <label htmlFor="business-file-upload" className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--secondary)] px-5 py-8 text-center transition hover:border-[var(--ring)] hover:bg-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--ring)]/20"><UploadCloud size={24} className="text-[var(--accent-foreground)]" aria-hidden="true" /><span className="mt-3 text-sm font-semibold text-[var(--foreground)]">{uploading ? "Wird hochgeladen…" : "Dateien auswählen"}</span><span className="mt-1 text-xs text-[var(--muted-foreground)]">Bilder, PDF-, Word-, Excel-, PowerPoint-, TXT- oder CSV-Dateien</span><input id="business-file-upload" type="file" multiple accept={ACCEPTED_FILES} className="sr-only" disabled={uploading} onChange={(event) => { void addFiles(event.target.files); event.currentTarget.value = ""; }} /></label>
             {fileError && <p className="text-xs text-[var(--destructive)]" role="alert">{fileError}</p>}
             {loadingDocuments && <p className="text-xs text-[var(--muted-foreground)]">Gespeicherte Dokumente werden geladen…</p>}
-            {uploads.length > 0 && <ul className="grid gap-2 sm:grid-cols-2" aria-label="Hochgeladene Dateien">{uploads.map((item) => <li key={item.id} className="group flex min-w-0 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3"><button type="button" className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-md border border-[var(--border)] bg-[var(--secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" onClick={() => setActiveUpload(item)} aria-label={`${item.fileName} öffnen`}>{item.kind === "image" ? <img src={item.url} alt="" className="h-full w-full object-cover" /> : <FileText size={20} className="text-[var(--accent-foreground)]" />}</button><button type="button" className="min-w-0 flex-1 text-left focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" onClick={() => setActiveUpload(item)}><span className="block truncate text-sm font-medium text-[var(--foreground)]">{item.fileName}</span><span className="mt-1 block text-xs text-[var(--muted-foreground)]">{getFileExtension(item.fileName)} · {formatFileSize(item.sizeBytes)}</span></button><button type="button" onClick={() => void removeUpload(item)} className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--destructive)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" aria-label={`${item.fileName} löschen`}><Trash2 size={16} /></button></li>)}</ul>}
+            {uploads.length > 0 && <ul className="grid gap-2 sm:grid-cols-2" aria-label="Hochgeladene Dateien">{uploads.map((item) => <li key={item.id} className="group flex min-w-0 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3"><button type="button" className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-md border border-[var(--border)] bg-[var(--secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" onClick={() => item.contentAvailable && setActiveUpload(item)} aria-label={`${item.fileName} öffnen${item.contentAvailable ? "" : " (Vorschau nicht verfügbar)"}`} disabled={!item.contentAvailable}>{item.kind === "image" ? <img src={item.url} alt="" className="h-full w-full object-cover" /> : <FileText size={20} className="text-[var(--accent-foreground)]" />}</button><button type="button" className="min-w-0 flex-1 text-left focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" onClick={() => item.contentAvailable && setActiveUpload(item)}><span className="block truncate text-sm font-medium text-[var(--foreground)]">{item.fileName}</span><span className="mt-1 block text-xs text-[var(--muted-foreground)]">{getFileExtension(item.fileName)} · {formatFileSize(item.sizeBytes)}{!item.contentAvailable ? " · Vorschau nicht verfügbar" : ""}</span></button><button type="button" onClick={() => void removeUpload(item)} className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--destructive)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" aria-label={`${item.fileName} löschen`}><Trash2 size={16} /></button></li>)}</ul>}
           </section>
           <button type="submit" disabled={loading || loadingDocuments || !canContinue} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"><span>{loading ? "Speichern…" : saved ? "Gespeichert" : "Speichern und weiter"}</span><ArrowRight size={16} /></button><p className="flex items-center gap-2 text-sm text-[var(--foreground)]"><ShieldCheck size={15} /><span>Deine Angaben bleiben in deinem sicheren Workspace.</span></p>{error && <div role="alert" className="space-y-2 text-sm text-[var(--destructive)]"><p>{error}</p>{technicalError && <details className="rounded-md border border-[var(--border)] bg-[var(--secondary)] p-2 text-xs text-[var(--muted-foreground)]"><summary className="cursor-pointer font-medium text-[var(--foreground)]">Technische Details anzeigen</summary><p className="mt-2 break-words leading-5">{technicalError}</p></details>}</div>}
         </form>
