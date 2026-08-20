@@ -3,6 +3,7 @@ import { ArrowRight, Check, Eye, EyeOff, LoaderCircle, ShieldCheck, Sparkles } f
 import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
+import { LoginFeaturesLanding } from './LoginFeaturesLanding';
 import {
   clearPendingInvitation,
   getPendingInvitation,
@@ -82,7 +83,7 @@ export const LuluLoginPage = () => {
       setLoading(false);
     }
   };
-  return <main className="auth-shell grid min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:grid-cols-2">
+  return <main className="auth-shell min-h-screen bg-[var(--background)] text-[var(--foreground)]"><div className="grid min-h-screen lg:grid-cols-2">
       <section className="flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="lulu-global-brand-host flex items-center gap-2" data-lulu-no-translate="true" translate="no">
@@ -122,5 +123,5 @@ export const LuluLoginPage = () => {
         </div>
         <p className="flex items-center gap-2 text-sm font-medium text-[var(--foreground)]"><ShieldCheck size={18} /> Secure workspace access</p>
       </aside>
-    </main>;
+    </div><LoginFeaturesLanding /></main>;
 };
