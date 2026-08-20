@@ -24,6 +24,7 @@ export type Workspace = {
   createdAt: string;
   updatedAt: string;
   role: WorkspaceRole;
+  planKey?: "explorer" | "viewer" | "starter" | "ai" | "test";
 };
 
 export type WorkspaceBootstrap = {

@@ -301,5 +301,12 @@
   "TEST_PASSWORD_INVALID": "TEST_PASSWORD_INVALID",
   "Website wird generiert": "Website is being generated",
   "Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website.": "The connection was confirmed. Lulu is now analyzing your business data and creating the website.",
-  "Generierung fehlgeschlagen": "Generation failed"
+  "Generierung fehlgeschlagen": "Generation failed",
+  "Browse every available page, dashboard and report without changing data or running actions.": "Browse every available page, dashboard and report without changing data or running actions.",
+  "View all available pages and dashboards": "View all available pages and dashboards",
+  "View reports, statistics and connected data": "View reports, statistics and connected data",
+  "No edits, integrations, generation or automation": "No edits, integrations, generation or automation",
+  "Read-only. No write actions are available.": "Read-only. No write actions are available.",
+  "Read-only access": "Read-only access",
+  "Choose Viewer": "Choose Viewer"
 }

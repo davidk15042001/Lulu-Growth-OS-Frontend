@@ -9,7 +9,7 @@ type Permissions = { role: WorkspaceRole | null; canEdit: boolean; canAdminister
 type AppValue = { currentUser: CurrentUser | null; workspaces: Workspace[]; selectedWorkspace: Workspace | null; permissions: Permissions; capabilities: { aiGeneration: boolean; transactionalEmail: boolean }; loading: boolean; error: string | null; refresh: () => Promise<void>; selectWorkspace: (id: string) => void; can: (permission: "edit" | "administer") => boolean };
 const empty: Permissions = { role: null, canEdit: false, canAdminister: false };
 const Context = createContext<AppValue | null>(null);
-const permissionsFor = (workspace: Workspace | undefined): Permissions => workspace ? { role: workspace.role, canEdit: ["owner", "admin", "member"].includes(workspace.role), canAdminister: ["owner", "admin"].includes(workspace.role) } : empty;
+const permissionsFor = (workspace: Workspace | undefined): Permissions => workspace ? { role: workspace.role, canEdit: workspace.planKey !== "viewer" && ["owner", "admin", "member"].includes(workspace.role), canAdminister: workspace.planKey !== "viewer" && ["owner", "admin"].includes(workspace.role) } : empty;
 
 export function LuluAppProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);

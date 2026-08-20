@@ -21030,5 +21030,11 @@
   "TEST_PASSWORD_INVALID": "Test 密码不正确。",
   "Website wird generiert": "正在生成网站",
   "Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website.": "连接已确认。Lulu 正在分析你的企业数据并创建网站。",
-  "Generierung fehlgeschlagen": "生成失败"
+  "Generierung fehlgeschlagen": "生成失败",
+  "Browse every available page, dashboard and report without changing data or running actions.": "浏览所有可用页面、仪表盘和报告，但不能更改数据或执行操作。",
+  "View all available pages and dashboards": "查看所有可用页面和仪表盘",
+  "View reports, statistics and connected data": "查看报告、统计数据和已连接的数据",
+  "No edits, integrations, generation or automation": "不支持编辑、集成、生成或自动化",
+  "Read-only. No write actions are available.": "只读模式，不提供写入操作。",
+  "Choose Viewer": "选择 Viewer"
 }

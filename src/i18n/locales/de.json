@@ -19645,7 +19645,7 @@
   "Read Webflow OAuth Guide": "Webflow OAuth-Anleitung lesen",
   "Read WordPress OAuth2 Guide": "WordPress OAuth2-Anleitung lesen",
   "Read recommendations and opportunities": "Empfehlungen und Chancen lesen",
-  "Read-only access": "Nur-Lesezugriff",
+  "Read-only access": "Nur-Lese-Zugriff",
   "Real audit events from this workspace.": "Echte Audit-Ereignisse aus diesem Workspace.",
   "Refresh live data": "Live-Daten aktualisieren",
   "Register the callback URL shown above and wait for any LinkedIn approval.": "Registrieren Sie die oben angezeigte Callback-URL und warten Sie auf eine eventuelle LinkedIn-Freigabe.",
@@ -21030,5 +21030,11 @@
   "TEST_PASSWORD_INVALID": "Das Test-Passwort ist nicht korrekt.",
   "Website wird generiert": "Website wird generiert",
   "Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website.": "Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website.",
-  "Generierung fehlgeschlagen": "Generierung fehlgeschlagen"
+  "Generierung fehlgeschlagen": "Generierung fehlgeschlagen",
+  "Browse every available page, dashboard and report without changing data or running actions.": "Sie können alle verfügbaren Seiten, Dashboards und Berichte ansehen, ohne Daten oder Aktionen zu verändern.",
+  "View all available pages and dashboards": "Alle verfügbaren Seiten und Dashboards ansehen",
+  "View reports, statistics and connected data": "Berichte, Statistiken und verbundene Daten ansehen",
+  "No edits, integrations, generation or automation": "Keine Änderungen, Integrationen, Generierung oder Automatisierung",
+  "Read-only. No write actions are available.": "Nur Lesen. Es sind keine Schreibaktionen verfügbar.",
+  "Choose Viewer": "Viewer auswählen"
 }
