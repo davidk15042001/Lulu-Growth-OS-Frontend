@@ -21,4 +21,17 @@
     min-height: 0;
     overflow-y: auto;
   }
+
+  /* Fixed app-shell sidebars must not re-enter normal document flow. */
+  .page-frame aside[class*="fixed"] {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+  }
+
+  .page-frame aside[class*="sticky"] {
+    position: sticky !important;
+  }
 }
