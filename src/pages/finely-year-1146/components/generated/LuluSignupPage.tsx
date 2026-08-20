@@ -3,7 +3,7 @@ import { AlertCircle, Check, Eye, EyeOff, LoaderCircle, Sparkles } from 'lucide-
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { clearSelectedWorkspaceId } from '../../../../api/session';
-const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 8 characters', test: value => value.length >= 8 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
+const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 12 characters', test: value => value.length >= 12 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
 const socialButtonClass = 'flex h-11 w-full items-center justify-center gap-2.5 rounded-md border border-[var(--border)] bg-[var(--card)] text-sm font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2';
 export function LuluSignupPage() {
   const [firstName, setFirstName] = useState('');
@@ -21,6 +21,19 @@ export function LuluSignupPage() {
   const strengthSegments = password ? Math.max(1, Math.ceil((passedRules / passwordRules.length) * 4)) : 0;
   const strengthLabel = passedRules <= 1 ? 'Weak' : passedRules <= 3 ? 'Fair' : passedRules === 4 ? 'Good' : 'Strong';
   const passwordsMatch = Boolean(confirmPassword) && password === confirmPassword;
+  function validationErrorMessage(cause: ApiError) {
+    const details = Array.isArray(cause.details) ? cause.details : [];
+    const messages = details
+      .map((detail) => {
+        if (!detail || typeof detail !== 'object') return '';
+        const item = detail as { path?: unknown; message?: unknown };
+        const path = Array.isArray(item.path) ? item.path.join('.') : String(item.path ?? '');
+        const message = String(item.message ?? '').trim();
+        return path && message ? `${path}: ${message}` : message;
+      })
+      .filter(Boolean);
+    return messages.length ? `Please check: ${messages.join(' ')}` : cause.message;
+  }
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (status === 'loading') return;
@@ -57,6 +70,8 @@ export function LuluSignupPage() {
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'EMAIL_IN_USE') {
         setError('An account already exists for this email address. Sign in or use a different email address.');
+      } else if (cause instanceof ApiError && cause.code === 'VALIDATION_ERROR') {
+        setError(validationErrorMessage(cause));
       } else {
         setError(getFriendlyErrorMessage(cause, 'We could not create your account. Please try again.'));
       }
