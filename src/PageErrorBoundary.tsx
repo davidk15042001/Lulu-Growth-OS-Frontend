@@ -31,6 +31,18 @@ export class PageErrorBoundary extends Component<
   render() {
     if (!this.state.hasError) return this.props.children;
 
+    if (this.props.pageName === "proud-rain-4772") {
+      return (
+        <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-foreground" role="alert">
+          <div className="max-w-md rounded-xl border border-border bg-[var(--card)] p-6 text-center">
+            <h1 className="text-lg font-semibold">Activity Timeline</h1>
+            <p className="mt-2 text-sm text-muted-foreground">No activity records are available yet.</p>
+            <p className="mt-2 text-sm text-muted-foreground">Activity history may be incomplete because one or more data sources are unavailable.</p>
+          </div>
+        </main>
+      );
+    }
+
     const pageName = this.props.pageName ? ` ${this.props.pageName}` : "";
     return (
       <div style={{ maxWidth: 760, margin: "48px auto", padding: "0 20px" }}>
