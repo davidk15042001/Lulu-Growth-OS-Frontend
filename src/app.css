@@ -112,7 +112,7 @@ button, input { font: inherit; }
 .lulu-global-navigation__account-copy small{font-size:.68rem;color:var(--muted-foreground)}
 .lulu-global-content{min-width:0;min-height:calc(100vh - 66px);overflow:visible}
 .lulu-global-content .lulu-native-page>aside{display:none!important}
-.lulu-global-content .lulu-native-page>main{width:100%!important;min-width:0!important}
+.lulu-global-content .lulu-native-page>main{width:100%!important;min-width:0!important;margin-left:0!important}
 .lulu-global-content .lulu-native-page [class*="w-[246px]"],.lulu-global-content .lulu-native-page .sidebar{display:none!important}
 .lulu-global-content .lulu-native-page [class*="min-h-screen"]{min-height:calc(100vh - 66px)}
 .page-frame:has(.auth-shell) { height: auto !important; min-height: 100vh; overflow: visible !important; }
