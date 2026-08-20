@@ -150,7 +150,7 @@ export function LuluWelcomeScreen() {
         </nav>
       </header>
 
-      <main className="mx-auto flex w-full max-w-[1180px] flex-1 items-center px-5 py-4 sm:px-8 lg:px-10">
+      <main className={`mx-auto flex w-full max-w-[1180px] flex-1 items-center px-5 py-4 transition-[padding] duration-200 sm:px-8 lg:px-10 ${isAccountOpen ? 'pt-[220px] sm:pt-4' : ''}`}>
         <section aria-labelledby="welcome-title" className="grid w-full items-center gap-7 lg:grid-cols-[1.03fr_.97fr] lg:gap-10">
           <div className="text-center lg:text-left">
             <p className="welcome-enter welcome-delay-1 text-[13px] font-semibold tracking-[.08em] text-[var(--foreground)]">
