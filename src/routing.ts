@@ -59,10 +59,11 @@ export function pagePath(slug: string) {
 const WEBSITE_PAGE_SLUG = "lulu-website-portal-9012";
 const WEBSITE_PAGE_PREFIX = "website-";
 const SETTINGS_PAGE_SLUGS = new Set(["nicely-land-1864", "glad-coast-1428", "pure-minute-5446"]);
+const AUTH_PAGE_SLUGS = new Set(["brightly-door-5741", "finely-year-1146", "crisp-garden-7026", "crisp-week-7116", "eagerly-bay-9885", "deep-coast-9085", "kind-morning-4984", "mightily-minute-5145"]);
 
 export function pageLinkProps(slug: string) {
   const href = pagePath(slug);
-  const isAvailable = slug === WEBSITE_PAGE_SLUG || slug.startsWith(WEBSITE_PAGE_PREFIX) || SETTINGS_PAGE_SLUGS.has(slug);
+  const isAvailable = AUTH_PAGE_SLUGS.has(slug) || slug === WEBSITE_PAGE_SLUG || slug.startsWith(WEBSITE_PAGE_PREFIX) || SETTINGS_PAGE_SLUGS.has(slug);
   return {
     href: isAvailable ? href : undefined,
     target: "_top" as const,
