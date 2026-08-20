@@ -165,17 +165,16 @@ export function GlobalLanguageSwitcher() {
       window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
       document.cookie = `${LANGUAGE_STORAGE_KEY}=${encodeURIComponent(next)}; Max-Age=31536000; Path=/; SameSite=Lax`;
     } catch { /* no persistence available */ }
-    setLanguage(next);
-    window.dispatchEvent(new Event(LANGUAGE_EVENT));
     setOpen(false);
+    window.location.reload();
   };
 
   return createPortal(<><div className="lulu-language-shell" data-lulu-no-translate="true" translate="no">
     {open && <div className="lulu-language-menu" role="menu" aria-label="Select language"><div className="lulu-language-title">Language</div><div className="lulu-language-list">{languages.map((option) => {
       const available = isAvailableLanguageCode(option.code);
-      return <button className="lulu-language-option" type="button" role="menuitemradio" aria-checked={option.code === language} disabled={!available} key={option.code} onClick={() => available && selectLanguage(option.code)}><span lang={option.code} dir={option.direction}>{option.nativeName}{!available && " (soon)"}</span><small>{option.name}</small>{option.code === language && <Check aria-hidden="true" size={15} />}</button>;
+      return <button className="lulu-language-option" type="button" role="menuitemradio" aria-checked={option.code === language} disabled={!available} key={option.code} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (available) selectLanguage(option.code); }} onPointerDown={(event) => event.stopPropagation()}><span lang={option.code} dir={option.direction}>{option.nativeName}{!available && " (soon)"}</span><small>{option.name}</small>{option.code === language && <Check aria-hidden="true" size={15} />}</button>;
     })}</div></div>}
-    <button className="lulu-language-launch" type="button" aria-label={`Change language. Current language: ${current.name}`} aria-haspopup="menu" aria-expanded={open} title="Change language" onClick={() => setOpen((value) => !value)}><LanguagesIcon aria-hidden="true" size={16} /><span>{current.shortCode}</span></button>
+    <button className="lulu-language-launch" type="button" aria-label={`Change language. Current language: ${current.name}`} aria-haspopup="menu" aria-expanded={open} title="Change language" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setOpen((value) => !value); }} onPointerDown={(event) => event.stopPropagation()}><LanguagesIcon aria-hidden="true" size={16} /><span>{current.shortCode}</span></button>
   </div><style>{styles}</style></>, document.body);
 }
 
