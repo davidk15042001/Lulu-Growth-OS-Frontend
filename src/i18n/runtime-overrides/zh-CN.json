@@ -54,5 +54,17 @@
   "Existing Platforms": "现有平台",
   "Setting up…": "正在设置…",
   "Workspace account": "工作区账户",
-  "Workspace member": "工作区成员"
+  "Workspace member": "工作区成员",
+  "Full AI access for verification": "用于验证的完整 AI 权限",
+  "Run the complete AI package on a 1 RMB subscription for final end-to-end verification.": "使用 1 元人民币订阅运行完整 AI 套餐，以完成最终端到端验证。",
+  "Everything in AI": "包含 AI 套餐的全部功能",
+  "Full AI analysis, recommendations and actions": "完整的 AI 分析、建议和操作",
+  "Ideal for production checkout verification": "适合验证生产环境结账流程",
+  "This is a paid verification plan at 1 RMB per year": "这是每年 1 元人民币的付费验证套餐",
+  "RMB 1": "1 元人民币",
+  "Choose Test": "选择 Test",
+  "Test": "Test",
+  "per year": "每年",
+  "Choose the level of control that fits your business. Starter, AI and Test are billed annually in RMB.": "选择适合您企业的权限级别。Starter、AI 和 Test 均按年以人民币计费。",
+  "Select Explorer, Starter, AI or Test above. This step is required before entering your workspace.": "请在上方选择 Explorer、Starter、AI 或 Test。进入工作区前必须完成此步骤。"
 }
