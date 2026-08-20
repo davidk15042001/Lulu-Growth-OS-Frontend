@@ -2,6 +2,7 @@ import { StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
+import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
 
 type AppModule = { default: ComponentType };
@@ -126,10 +127,15 @@ export function NativePage({ slug }: { slug: string }) {
 
   return (
     <LuluRuntime slug={slug}>
-      <div className="lulu-native-page">
-        <PageErrorBoundary pageName={slug}>
-          <App />
-        </PageErrorBoundary>
+      <div className="lulu-global-shell">
+        <LuluGlobalNavigation activeSlug={slug} />
+        <div className="lulu-global-content">
+          <div className="lulu-native-page">
+            <PageErrorBoundary pageName={slug}>
+              <App />
+            </PageErrorBoundary>
+          </div>
+        </div>
       </div>
     </LuluRuntime>
   );
