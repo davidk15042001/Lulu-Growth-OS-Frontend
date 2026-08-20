@@ -143,3 +143,7 @@ a[data-lulu-soon="true"]::after,
 .lulu-auth-search-results span{font-size:.78rem;color:var(--muted-foreground)}
 .lulu-auth-search-results p{margin:0;padding:14px 16px;color:var(--muted-foreground);font-size:.875rem}
 @media(max-width:640px){.lulu-auth-search-wrap{padding:9px 12px}.lulu-auth-search{border-radius:13px}.lulu-auth-search-button{width:48px;flex-basis:48px}.lulu-auth-search-button img{width:34px}.lulu-auth-search-results{width:calc(100% - 24px)}}
+
+/* Compact navigation brand-to-section spacing */
+.page-frame aside > div.mb-9.flex.items-center.gap-3.px-2,
+.page-frame aside > div.mb-9.flex.items-center.gap-3.px-2.py-2 { margin-bottom: 1rem !important; }
