@@ -21019,5 +21019,13 @@
   "A new one-time access password was sent to your account email. Enter it here to activate the free Test plan.": "新的单次访问密码已发送到你的账户邮箱。请在此输入以激活免费测试套餐。",
   "Activate free Test plan": "激活免费测试套餐",
   "Sending access password…": "正在发送访问密码…",
-  "Continue with {{0}}": "继续使用 {{0}}"
+  "Continue with {{0}}": "继续使用 {{0}}",
+  "Use the complete AI package without payment. Enter the Test confirmation password to continue.": "无需付款即可使用完整 AI 套餐。输入 Test 确认密码以继续。",
+  "No payment is collected. A confirmation password is required.": "不会收取任何费用。需要输入确认密码。",
+  "confirmation password required": "需要确认密码",
+  "Test confirmation password": "Test 确认密码",
+  "Enter the Test password": "输入 Test 密码",
+  "Checking Test password…": "正在检查 Test 密码…",
+  "Confirm free Test plan": "确认免费 Test 套餐",
+  "TEST_PASSWORD_INVALID": "Test 密码不正确。"
 }

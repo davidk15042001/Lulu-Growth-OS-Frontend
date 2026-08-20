@@ -21019,5 +21019,13 @@
   "A new one-time access password was sent to your account email. Enter it here to activate the free Test plan.": "Ein neues einmaliges Zugangspasswort wurde an deine Account-E-Mail gesendet. Gib es hier ein, um das kostenlose Testpaket zu aktivieren.",
   "Activate free Test plan": "Kostenloses Testpaket aktivieren",
   "Sending access password…": "Zugangspasswort wird gesendet …",
-  "Continue with {{0}}": "Mit {{0}} fortfahren"
+  "Continue with {{0}}": "Mit {{0}} fortfahren",
+  "Use the complete AI package without payment. Enter the Test confirmation password to continue.": "Nutze das vollständige KI-Paket kostenlos. Gib das Test-Bestätigungspasswort ein, um fortzufahren.",
+  "No payment is collected. A confirmation password is required.": "Es wird keine Zahlung eingezogen. Ein Bestätigungspasswort ist erforderlich.",
+  "confirmation password required": "Bestätigungspasswort erforderlich",
+  "Test confirmation password": "Test-Bestätigungspasswort",
+  "Enter the Test password": "Test-Passwort eingeben",
+  "Checking Test password…": "Test-Passwort wird geprüft …",
+  "Confirm free Test plan": "Kostenloses Testpaket bestätigen",
+  "TEST_PASSWORD_INVALID": "Das Test-Passwort ist nicht korrekt."
 }

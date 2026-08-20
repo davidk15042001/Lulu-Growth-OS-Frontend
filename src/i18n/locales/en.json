@@ -290,5 +290,13 @@
   "A new one-time access password was sent to your account email. Enter it here to activate the free Test plan.": "A new one-time access password was sent to your account email. Enter it here to activate the free Test plan.",
   "Activate free Test plan": "Activate free Test plan",
   "Sending access password…": "Sending access password…",
-  "Continue with {{0}}": "Continue with {{0}}"
+  "Continue with {{0}}": "Continue with {{0}}",
+  "Use the complete AI package without payment. Enter the Test confirmation password to continue.": "Use the complete AI package without payment. Enter the Test confirmation password to continue.",
+  "No payment is collected. A confirmation password is required.": "No payment is collected. A confirmation password is required.",
+  "confirmation password required": "confirmation password required",
+  "Test confirmation password": "Test confirmation password",
+  "Enter the Test password": "Enter the Test password",
+  "Checking Test password…": "Checking Test password…",
+  "Confirm free Test plan": "Confirm free Test plan",
+  "TEST_PASSWORD_INVALID": "TEST_PASSWORD_INVALID"
 }
