@@ -3,6 +3,7 @@ import { navigateApp, routes } from "../routing";
 import { GlobalBranding } from "../branding/GlobalBranding";
 import { GlobalLanguageSwitcher } from "../i18n/GlobalLanguageSwitcher";
 import { GlobalUploadFeedback } from "../uploads/GlobalUploadFeedback";
+import { PostAnalysisCreationPrompt } from "../components/PostAnalysisCreationPrompt";
 import { ApiError } from "./client";
 import { LiveApiPanel } from "./LiveApiPanel";
 import { LiveResourceGate } from "./LiveResourceGate";
@@ -91,5 +92,6 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     <GlobalLanguageSwitcher />
     <GlobalUploadFeedback />
     {state === "ready" && workspaceId && slug !== "fancily-leaf-1766" && <LiveApiPanel workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} contract={contract} />}
+    {state === "ready" && workspaceId && contract.kind !== "public" && <PostAnalysisCreationPrompt workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} />}
   </>;
 }

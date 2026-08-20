@@ -19685,7 +19685,7 @@
     "Open the WordPress.com Developer Portal and create an OAuth application.": "Öffne das WordPress.com Developer Portal und erstelle eine OAuth-Anwendung.",
     "Open your HubSpot developer account and create a public app.": "Öffne dein HubSpot-Entwicklerkonto und erstelle eine Public App.",
     "Opening secure checkout…": "Sichere Kasse wird geöffnet…",
-    "Opening…": "Wird geöffnet…",
+    "Opening…": "Wird geöffnet …",
     "Ordne Bilder und Dateien deinen Website-Inhalten zu.": "Ordne Bilder und Dateien deinen Website-Inhalten zu.",
     "Ordne Webflow-Assets und bereite sie für Inhalte vor.": "Ordne Webflow-Assets zu und bereite sie für Inhalte vor.",
     "Payment received — confirming your subscription…": "Zahlung erhalten — bestätige dein Abonnement…",
@@ -20955,7 +20955,16 @@
     "activity-icon {{0}}": "Aktivitätssymbol {{0}}",
     "result {{0}}": "Ergebnis {{0}}",
     "timeline-dot {{0}}": "Zeitleistenpunkt {{0}}",
-    "lulu-upload-card {{0}}": "lulu-upload-karte {{0}}"
+    "lulu-upload-card {{0}}": "lulu-upload-karte {{0}}",
+    "Create your Shopify shop?": "Shopify-Shop erstellen?",
+    "Generate your website?": "Website generieren?",
+    "Your business analysis is ready. Lulu can use it to prepare a Shopify shop based on your business data and connected {{0}} account.": "Ihre Geschäftsanalyse ist bereit. Lulu kann daraus auf Basis Ihrer Geschäftsdaten und des verbundenen {{0}}-Kontos einen Shopify-Shop vorbereiten.",
+    "Your business analysis is ready. Lulu can use it to prepare a website based on your business data and connected {{0}} account.": "Ihre Geschäftsanalyse ist bereit. Lulu kann daraus auf Basis Ihrer Geschäftsdaten und des verbundenen {{0}}-Kontos eine Website vorbereiten.",
+    "Not now": "Jetzt nicht",
+    "Create shop": "Shop erstellen",
+    "Generate website": "Website generieren",
+    "The creation workspace could not be opened. Please try again.": "Der Erstellungsbereich konnte nicht geöffnet werden. Bitte versuchen Sie es erneut.",
+    "public": "öffentlich"
   },
   "fr": {
     "welcome": "BIENVENUE DE RETOUR",
@@ -102386,7 +102395,16 @@
     "activity-icon {{0}}": "活动图标 {{0}}",
     "result {{0}}": "结果 {{0}}",
     "timeline-dot {{0}}": "时间线点 {{0}}",
-    "lulu-upload-card {{0}}": "露露上传卡 {{0}}"
+    "lulu-upload-card {{0}}": "露露上传卡 {{0}}",
+    "Create your Shopify shop?": "创建您的 Shopify 商店？",
+    "Generate your website?": "生成您的网站？",
+    "Your business analysis is ready. Lulu can use it to prepare a Shopify shop based on your business data and connected {{0}} account.": "您的业务分析已准备就绪。Lulu 可以根据您的业务数据和已连接的 {{0}} 账户准备 Shopify 商店。",
+    "Your business analysis is ready. Lulu can use it to prepare a website based on your business data and connected {{0}} account.": "您的业务分析已准备就绪。Lulu 可以根据您的业务数据和已连接的 {{0}} 账户准备网站。",
+    "Not now": "暂时不要",
+    "Create shop": "创建商店",
+    "Generate website": "生成网站",
+    "The creation workspace could not be opened. Please try again.": "无法打开创建工作区。请重试。",
+    "public": "公开"
   },
   "nb": {
     "welcome": "VELKOMMEN TILBAKE",
