@@ -120,7 +120,7 @@ function AdminBillingRoute() {
   const { currentUser, loading } = useLuluApp();
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
   if (!currentUser) return <Navigate replace to={routes.auth.login} state={{ from: ADMIN_BILLING_PATH }} />;
-  if (currentUser.role !== "admin") return <Navigate replace to="/not-found" />;
+  if (currentUser.role !== "admin" || currentUser.email.trim().toLowerCase() !== "lulu.ai.cn@gmail.com") return <Navigate replace to="/not-found" />;
   return <AdminBillingPage />;
 }
 
@@ -192,6 +192,7 @@ export default function App() {
       <Route path="/pages" element={<Navigate replace to={routes.allPages} />} />
       <Route path="/pages/:slug" element={<LegacyPageRedirect />} />
       <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
+      <Route path="/auth/login" element={<Navigate replace to={routes.auth.login} />} />
       <Route path="/register" element={<Navigate replace to={routes.auth.signUp} />} />
       <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<Navigate replace to={routes.onboarding.billing} />} />
       <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
