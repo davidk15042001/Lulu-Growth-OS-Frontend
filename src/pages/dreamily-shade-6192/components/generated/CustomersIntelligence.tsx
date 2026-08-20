@@ -22,9 +22,9 @@ const months: Array<Record<string, any>> = [];
 const customers: Customer[] = [];
 const channels: any[][] = [];
 const segments: any[][] = [];
-const geo = [['United Kingdom', '374', '35%', '+12%', '€1.5M'], ['Germany', '214', '20%', '+19%', '€856k'], ['United States', '160', '15%', '+24%', '€642k'], ['France', '107', '10%', '+8%', '€428k'], ['Netherlands', '85', '8%', '+28%', '€342k'], ['Other', '128', '12%', '+14%', '€512k']];
+const geo = [['United Kingdom', '374', '—', '+12%', '—'], ['Germany', '214', '20%', '+19%', '—'], ['United States', '160', '15%', '+24%', '—'], ['France', '107', '10%', '+8%', '—'], ['Netherlands', '85', '8%', '+28%', '—'], ['Other', '128', '12%', '+14%', '—']];
 const sources: any[][] = [];
-const cohort = ['Jan 2024', 'Feb 2024', 'Mar 2024', 'Apr 2024', 'May 2024', 'Jun 2024', 'Jul 2024', 'Aug 2024', 'Sep 2024', 'Oct 2024', 'Nov 2024', 'Dec 2024'];
+const cohort: string[] = [];
 function Spark({
   color = 'var(--primary)'
 }: {

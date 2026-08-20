@@ -12,7 +12,7 @@ type KPI = {
 const kpis: KPI[] = [];
 const products: any[][] = [];
 const channels: any[][] = [];
-const categories = [['Audio & Headphones', '$886,600', '12,480', '10,920', '81.20', '8.6%', '54.2%'], ['Home Office', '$709,400', '7,840', '6,920', '102.50', '6.9%', '48.6%'], ['Smart Home', '$441,000', '2,940', '2,940', '150.00', '10.4%', '51.1%'], ['Accessories & Hubs', '$147,700', '6,420', '5,580', '26.47', '12.1%', '43.8%']];
+const categories = [['Audio & Headphones', '—', '12,480', '10,920', '81.20', '8.6%', '54.2%'], ['Home Office', '—', '7,840', '6,920', '102.50', '6.9%', '48.6%'], ['Smart Home', '—', '2,940', '2,940', '150.00', '10.4%', '51.1%'], ['Accessories & Hubs', '—', '6,420', '5,580', '26.47', '12.1%', '43.8%']];
 const sectionStyle = 'border-t border-[var(--border)] pt-9 mt-10';
 const toneClass = (tone: Tone) => tone === 'good' ? 'bg-[var(--secondary)] text-[var(--chart-4)]' : tone === 'bad' ? 'bg-[var(--secondary)] text-[var(--chart-5)]' : tone === 'warn' ? 'bg-[var(--secondary)] text-[var(--chart-1)]' : 'bg-[var(--secondary)] text-[var(--muted-foreground)]';
 function Spark({
