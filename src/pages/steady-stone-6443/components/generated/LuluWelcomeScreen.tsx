@@ -3,6 +3,7 @@ import { BarChart3, Check, ChevronDown, CircleHelp, Database, LockKeyhole, Netwo
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { authApi } from '../../../../api/auth';
+import { getFriendlyErrorMessage } from '../../../../api/client';
 type FeaturePill = {
   id: string;
   label: string;
@@ -85,7 +86,7 @@ export function LuluWelcomeScreen() {
       const result = await authApi.aiTokenTest();
       setTokenTest({ status: 'success', number: result.data.number, message: `Model: ${result.data.model}` });
     } catch (cause) {
-      setTokenTest({ status: 'error', number: null, message: cause instanceof Error ? cause.message : 'The ChatGPT token test failed.' });
+      setTokenTest({ status: 'error', number: null, message: getFriendlyErrorMessage(cause, 'The AI token test failed. Please try again.') });
     }
   }
   useEffect(() => {

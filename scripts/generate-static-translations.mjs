@@ -94,18 +94,18 @@ async function translate(language, batch) {
   let response;
   for (let attempt = 1; attempt <= 5; attempt += 1) {
     try {
-      const endpoint = `${(process.env.OPENAI_API_BASE ?? "https://api.openai.com/v1").replace(/\/$/, "")}/responses`;
+      const endpoint = `${(process.env.OPENAI_API_BASE ?? "https://api.openai.com/v1").replace(/\/$/, "")}/chat/completions`;
       response = await fetch(endpoint, {
     method: "POST",
     headers: { authorization: `Bearer ${apiKey}`, "content-type": "application/json" },
     body: JSON.stringify({
       model: process.env.OPENAI_MODEL ?? "gpt-5-mini",
-      store: false,
-      reasoning: { effort: "minimal" },
-      max_output_tokens: 12_000,
-      instructions: `You translate English UI text for Lulu Growth OS into ${languageMetadata[language]}. Preserve product names (Lulu AI, Lulu Intelligence), variables, URLs, emails, numbers, punctuation, shortcut keys, and markup-like tokens. Use concise, natural business-software terminology. Return one translation per input id and no commentary.`,
-      input: JSON.stringify(batch.map((text, id) => ({ id: String(id), text }))),
-      text: { format: { type: "json_schema", name: "ui_translations", strict: true, schema: { type: "object", properties: { translations: { type: "array", items: { type: "object", properties: { id: { type: "string" }, text: { type: "string" } }, required: ["id", "text"], additionalProperties: false } } }, required: ["translations"], additionalProperties: false } } },
+      messages: [
+        { role: "system", content: `You translate English UI text for Lulu Growth OS into ${languageMetadata[language]}. Preserve product names (Lulu AI, Lulu Intelligence), variables, URLs, emails, numbers, punctuation, shortcut keys, and markup-like tokens. Use concise, natural business-software terminology. Return one translation per input id and no commentary.` },
+        { role: "user", content: JSON.stringify(batch.map((text, id) => ({ id: String(id), text }))) },
+      ],
+      max_completion_tokens: 12_000,
+      response_format: { type: "json_schema", json_schema: { name: "ui_translations", strict: true, schema: { type: "object", properties: { translations: { type: "array", items: { type: "object", properties: { id: { type: "string" }, text: { type: "string" } }, required: ["id", "text"], additionalProperties: false } } }, required: ["translations"], additionalProperties: false } } },
     }),
       });
       if (response.ok || response.status < 500) break;
@@ -117,7 +117,7 @@ async function translate(language, batch) {
   if (!response) throw new Error("OpenAI request failed without a response.");
   if (!response.ok) throw new Error(`OpenAI request failed: ${response.status} ${await response.text()}`);
   const payload = await response.json();
-  const outputText = payload.output_text ?? payload.output?.flatMap((item) => item.content ?? []).find((item) => item.type === "output_text")?.text;
+  const outputText = payload.choices?.[0]?.message?.content ?? payload.output_text ?? payload.output?.flatMap((item) => item.content ?? []).find((item) => item.type === "output_text")?.text;
   if (typeof outputText !== "string" || !outputText.trim()) throw new Error("Translation response was empty.");
   const result = JSON.parse(outputText);
   if (!Array.isArray(result.translations) || result.translations.length !== batch.length) throw new Error(`Translation response did not match the input batch (${result.translations?.length ?? 0}/${batch.length}).`);
