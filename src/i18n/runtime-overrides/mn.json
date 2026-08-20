@@ -300,5 +300,9 @@
   "Sales (Soon)": "Борлуулалт (Тун удахгүй)",
   "Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.": "WordPress.com Google нэвтрэлтийг эхлүүлж чадахгүй бол WordPress имэйл, хэрэглэгчийн нэр болон нууц үгээрээ шууд нэвтэрнэ үү. Амжилттай нэвтэрсний дараа Lulu OAuth кодыг авна.",
   "WordPress-Verbindung neu starten": "WordPress холболтыг дахин эхлүүлэх",
-  "Der neue Start erzeugt einen frischen OAuth-State.": "Дахин эхлүүлэхэд шинэ OAuth төлөв үүснэ."
+  "Der neue Start erzeugt einen frischen OAuth-State.": "Дахин эхлүүлэхэд шинэ OAuth төлөв үүснэ.",
+  "Existing Platforms": "Одоо байгаа платформууд",
+  "Setting up…": "Тохируулж байна…",
+  "Workspace account": "Ажлын талбарын бүртгэл",
+  "Workspace member": "Ажлын талбарын гишүүн"
 }

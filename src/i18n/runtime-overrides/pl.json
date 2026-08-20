@@ -300,5 +300,9 @@
   "Sales (Soon)": "Sprzedaż (Wkrótce)",
   "Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.": "Jeśli WordPress.com nie może zainicjować logowania Google, zaloguj się bezpośrednio za pomocą adresu e-mail lub nazwy użytkownika WordPress oraz hasła. Lulu otrzyma kod OAuth po pomyślnym zalogowaniu.",
   "WordPress-Verbindung neu starten": "Uruchom ponownie połączenie WordPress",
-  "Der neue Start erzeugt einen frischen OAuth-State.": "Ponowne uruchomienie utworzy nowy stan OAuth."
+  "Der neue Start erzeugt einen frischen OAuth-State.": "Ponowne uruchomienie utworzy nowy stan OAuth.",
+  "Existing Platforms": "Istniejące platformy",
+  "Setting up…": "Konfigurowanie…",
+  "Workspace account": "Konto obszaru roboczego",
+  "Workspace member": "Członek obszaru roboczego"
 }
