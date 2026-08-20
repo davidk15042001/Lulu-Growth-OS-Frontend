@@ -124,21 +124,25 @@ export default function App() {
     const params = new URLSearchParams(window.location.search);
     const oauthError = params.get("oauthError");
     const oauthCode = params.get("oauthCode");
+    const connectedProvider = params.get("connected");
     const oauthRequestId = params.get("oauthRequestId");
-    if (!oauthError && !oauthCode) return;
+    if (!oauthError && !oauthCode && !connectedProvider) return;
     if (oauthError) {
       const providerLabel = provider === "wordpress" ? "WordPress.com" : "Webflow";
       setError(`${providerLabel}-Verbindung: ${oauthError}${oauthRequestId ? ` (Request-ID: ${oauthRequestId})` : ""}`);
       setOauthHelpVisible(provider === "wordpress");
       setGenerationStarting(null);
-    } else if (oauthCode) {
-      oauthReturnRef.current = provider;
+      setGenerationJob(null);
+      setGenerationFailure({ provider, message: `${provider === "wordpress" ? "WordPress.com" : "Webflow"}-Verbindung fehlgeschlagen: ${oauthError}` });
+    } else if (oauthCode || connectedProvider) {
+      const returnedProvider: Provider = connectedProvider === "webflow" || provider === "webflow" ? "webflow" : "wordpress";
+      oauthReturnRef.current = returnedProvider;
       autoStartedRef.current = "";
       setGenerationJob(null);
       setGenerationFailure(null);
-      setGenerationStarting(provider);
+      setGenerationStarting(returnedProvider);
     }
-    const cleanUrl = `${window.location.pathname}${window.location.search.replace(/([?&])(oauthCode|oauthError|oauthRequestId)=[^&]*/g, "").replace(/[?&]$/, "")}${window.location.hash}`;
+    const cleanUrl = `${window.location.pathname}${window.location.search.replace(/([?&])(oauthCode|oauthError|oauthRequestId|connected)=[^&]*/g, "").replace(/[?&]$/, "")}${window.location.hash}`;
     window.history.replaceState({}, "", cleanUrl);
   }, [provider]);
 
@@ -211,7 +215,12 @@ export default function App() {
         else if (response.data.status === "failed") { setError(response.data.errorMessage ?? "Die Website konnte nicht automatisch generiert werden."); void refresh(); }
         else if (response.data.status === "published") void refresh();
       } catch (requestError) {
-        if (!cancelled) { setError(getFriendlyErrorMessage(requestError, "Der Status der Website-Generierung konnte nicht geladen werden.")); window.setTimeout(poll, 4000); }
+        if (!cancelled) {
+          const message = getFriendlyErrorMessage(requestError, "Die Website-Generierung ist fehlgeschlagen. Die Verbindung wurde zurückgesetzt.");
+          setGenerationJob(null);
+          setGenerationFailure({ provider: generationJob.provider, message });
+          setError(message);
+        }
       }
     };
     void poll();
