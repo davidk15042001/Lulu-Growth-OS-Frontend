@@ -126,3 +126,20 @@ a[data-lulu-soon="true"]::after,
   color: var(--muted-foreground);
   opacity: .72;
 }
+
+/* Global authenticated search bar */
+.lulu-auth-search-wrap{position:sticky;top:0;z-index:80;width:100%;padding:12px clamp(16px,3vw,40px);background:color-mix(in srgb,var(--background) 94%,transparent);border-bottom:1px solid var(--border);backdrop-filter:blur(14px)}
+.lulu-auth-search{display:flex;align-items:center;gap:10px;width:min(860px,100%);margin:0 auto;padding:6px 8px 6px 14px;border:1px solid var(--border);border-radius:16px;background:var(--card);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.lulu-auth-search-icon{flex:0 0 auto;color:var(--muted-foreground)}
+.lulu-auth-search input{min-width:0;flex:1;height:40px;border:0;outline:0;background:transparent;color:var(--foreground);font:inherit}
+.lulu-auth-search input::placeholder{color:var(--muted-foreground)}
+.lulu-auth-search-button{display:grid;place-items:center;width:54px;height:40px;flex:0 0 54px;border:0;border-radius:11px;background:var(--primary);cursor:pointer;transition:transform .18s ease,opacity .18s ease}
+.lulu-auth-search-button:hover{transform:translateY(-1px);opacity:.9}
+.lulu-auth-search-button img{width:38px;height:28px;object-fit:contain;filter:brightness(0) invert(1)}
+.lulu-auth-search-results{position:absolute;left:50%;top:calc(100% - 4px);width:min(860px,calc(100% - 32px));transform:translateX(-50%);overflow:hidden;border:1px solid var(--border);border-radius:14px;background:var(--card);box-shadow:0 18px 50px rgba(0,0,0,.16)}
+.lulu-auth-search-results button{display:flex;width:100%;flex-direction:column;gap:3px;border:0;border-bottom:1px solid var(--border);padding:12px 16px;text-align:left;background:transparent;color:var(--foreground);cursor:pointer}
+.lulu-auth-search-results button:hover{background:var(--secondary)}
+.lulu-auth-search-results button:last-child{border-bottom:0}
+.lulu-auth-search-results span{font-size:.78rem;color:var(--muted-foreground)}
+.lulu-auth-search-results p{margin:0;padding:14px 16px;color:var(--muted-foreground);font-size:.875rem}
+@media(max-width:640px){.lulu-auth-search-wrap{padding:9px 12px}.lulu-auth-search{border-radius:13px}.lulu-auth-search-button{width:48px;flex-basis:48px}.lulu-auth-search-button img{width:34px}.lulu-auth-search-results{width:calc(100% - 24px)}}

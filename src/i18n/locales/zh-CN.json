@@ -21036,5 +21036,7 @@
   "View reports, statistics and connected data": "查看报告、统计数据和已连接的数据",
   "No edits, integrations, generation or automation": "不支持编辑、集成、生成或自动化",
   "Read-only. No write actions are available.": "只读模式，不提供写入操作。",
-  "Choose Viewer": "选择 Viewer"
+  "Choose Viewer": "选择 Viewer",
+  "Search Lulu AI": "搜索 Lulu AI",
+  "No matching page found.": "未找到匹配的页面。"
 }

@@ -100,18 +100,48 @@ function PageRoute({ page }: { page: PageDefinition }) {
   return <PageFrame page={page} />;
 }
 
+function AuthenticatedSearchBar() {
+  const navigate = useNavigate();
+  const { currentUser, selectedWorkspace } = useLuluApp();
+  const [query, setQuery] = useState("");
+  const [open, setOpen] = useState(false);
+  const matches = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return [];
+    return pages.filter((item) => `${item.name} ${item.generatedName}`.toLowerCase().includes(normalized)).slice(0, 6);
+  }, [query]);
+  if (!currentUser || !selectedWorkspace) return null;
+  const submit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const target = matches[0];
+    if (target) { navigate(pagePath(target.slug)); setQuery(""); setOpen(false); }
+  };
+  return <div className="lulu-auth-search-wrap" data-lulu-auth-search="true">
+    <form className="lulu-auth-search" role="search" onSubmit={submit}>
+      <label className="sr-only" htmlFor="lulu-global-search">Search Lulu AI</label>
+      <Search aria-hidden="true" size={18} className="lulu-auth-search-icon" />
+      <input id="lulu-global-search" value={query} onFocus={() => setOpen(true)} onChange={(event) => { setQuery(event.target.value); setOpen(true); }} placeholder="Search Lulu AI" autoComplete="off" />
+      <button type="submit" aria-label="Search" title="Search" className="lulu-auth-search-button"><img src="/branding/lulu-intelligence-logo.png" alt="Lulu AI" draggable={false} /></button>
+    </form>
+    {open && query.trim() && <div className="lulu-auth-search-results">{matches.length ? matches.map((item) => <button type="button" key={item.id} onClick={() => { navigate(pagePath(item.slug)); setQuery(""); setOpen(false); }}><strong>{item.name}</strong><span>{item.generatedName}</span></button>) : <p>No matching page found.</p>}</div>}
+  </div>;
+}
+
 function PageFrame({ page }: { page: PageDefinition }) {
   useEffect(() => {
     document.title = page.name;
   }, [page]);
   const isAuthPage = pagePath(page.slug).startsWith("/auth/");
   return (
-    <main
-      className={`page-frame${isAuthPage ? " page-frame--auth" : ""}`}
-      style={isAuthPage ? { height: "auto", minHeight: "100vh", overflow: "visible" } : undefined}
-    >
-      <NativePage slug={page.slug} />
-    </main>
+    <>
+      {!isAuthPage && <AuthenticatedSearchBar />}
+      <main
+        className={`page-frame${isAuthPage ? " page-frame--auth" : ""}`}
+        style={isAuthPage ? { height: "auto", minHeight: "100vh", overflow: "visible" } : undefined}
+      >
+        <NativePage slug={page.slug} />
+      </main>
+    </>
   );
 }
 const ADMIN_BILLING_PATH = "/app/admin-billing-overview-9901";
