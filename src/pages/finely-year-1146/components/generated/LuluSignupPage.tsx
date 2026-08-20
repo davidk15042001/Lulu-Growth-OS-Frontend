@@ -130,8 +130,7 @@ export function LuluSignupPage() {
             </div>
 
             <label className="mt-4 flex cursor-pointer items-start gap-2 text-[13px] leading-5">
-              <input id="signup-accept-terms" name="acceptTerms" type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} autoComplete="off" required className="peer sr-only" />
-              <span aria-hidden="true" className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-[4px] border-[1.5px] border-[var(--border)] text-transparent transition peer-checked:bg-[var(--primary)] peer-checked:text-[var(--primary-foreground)] peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--ring)]"><Check size={11} strokeWidth={3} /></span>
+              <input id="signup-accept-terms" name="acceptTerms" type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} autoComplete="off" required className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[var(--primary)]" />
               <span>I agree to the <a href="https://lulu.ai/terms" target="_blank" rel="noreferrer" className="underline">Terms of Service</a> and <a href="https://lulu.ai/privacy" target="_blank" rel="noreferrer" className="underline">Privacy Policy</a>.</span>
             </label>
 
