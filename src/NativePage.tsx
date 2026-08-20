@@ -35,11 +35,17 @@ export function NativePage({ slug }: { slug: string }) {
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname.startsWith("/auth/");
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-    document.querySelectorAll<HTMLElement>("main, [data-lulu-scroll-container]").forEach((element) => {
-      element.scrollTop = 0;
-      element.scrollLeft = 0;
-    });
+    const resetScrollPositions = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.querySelectorAll<HTMLElement>("main, [data-lulu-scroll-container], .lulu-native-page, .lulu-native-page *").forEach((element) => {
+        const style = getComputedStyle(element);
+        if (element.matches("main, [data-lulu-scroll-container], .lulu-native-page") || /(auto|scroll)/.test(style.overflowY)) {
+          element.scrollTop = 0;
+          element.scrollLeft = 0;
+        }
+      });
+    };
+    resetScrollPositions();
     let active = true;
     setApp(null);
     setError(null);
@@ -85,6 +91,7 @@ export function NativePage({ slug }: { slug: string }) {
         livePageFrame?.style.setProperty("overflow", "visible", "important");
       }
       setApp(() => module.default);
+      window.setTimeout(() => { if (active) resetScrollPositions(); }, 0);
     }).catch((loadError) => {
       if (active) setError(loadError);
     });
