@@ -212,14 +212,24 @@ export default function App() {
         if (cancelled) return;
         setGenerationJob((current) => current ? { ...current, job: response.data } : current);
         if (!["published", "failed", "cancelled"].includes(response.data.status)) window.setTimeout(poll, 2000);
-        else if (response.data.status === "failed") { setError(response.data.errorMessage ?? "Die Website konnte nicht automatisch generiert werden."); void refresh(); }
+        else if (response.data.status === "failed") {
+          const message = response.data.errorMessage ?? "Die Website konnte nicht automatisch generiert werden.";
+          const failedProvider = generationJob.provider;
+          setGenerationFailure({ provider: failedProvider, message });
+          setError(message);
+          setGenerationJob(null);
+          void websitesApi.cleanupProvider(workspaceId, failedProvider).catch(() => undefined);
+          void refresh();
+        }
         else if (response.data.status === "published") void refresh();
       } catch (requestError) {
         if (!cancelled) {
           const message = getFriendlyErrorMessage(requestError, "Die Website-Generierung ist fehlgeschlagen. Die Verbindung wurde zurückgesetzt.");
+          const failedProvider = generationJob.provider;
           setGenerationJob(null);
-          setGenerationFailure({ provider: generationJob.provider, message });
+          setGenerationFailure({ provider: failedProvider, message });
           setError(message);
+          void websitesApi.cleanupProvider(workspaceId, failedProvider).catch(() => undefined);
         }
       }
     };

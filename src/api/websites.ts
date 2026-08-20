@@ -46,4 +46,5 @@ export const websitesApi = {
   createGenerationJob: (workspaceId: string, siteId: string, prompt: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs`, method: 'POST', body: { prompt } }),
   getGenerationJob: (workspaceId: string, siteId: string, jobId: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/${jobId}` }),
   startAutomaticGeneration: (workspaceId: string, provider: 'wordpress' | 'webflow', language?: string) => requestApi<{ site: WebsiteSite; job: WebsiteGenerationJob; reused: boolean }>({ path: `/workspaces/${workspaceId}/websites/automatic-generation`, method: 'POST', body: { provider, ...(language ? { language } : {}) } }),
+  cleanupProvider: (workspaceId: string, provider: 'wordpress' | 'webflow') => requestApi<void>({ path: `/workspaces/${workspaceId}/websites/cleanup-provider`, method: 'POST', body: { provider } }),
 };
