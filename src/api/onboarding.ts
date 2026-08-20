@@ -73,8 +73,8 @@ export const onboardingApi = {
     path: workspaceApiPath(workspaceId, `/onboarding/platforms/${platformId}`), method: "DELETE",
   }),
   complete: (workspaceId: string) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/complete"), method: "POST", body: {} }),
-  createBillingCheckout: (workspaceId: string, input: { planKey: "explorer" | "starter" | "ai"; successUrl: string; backUrl: string }) => requestApi<{
-    planKey: "explorer" | "starter" | "ai";
+  createBillingCheckout: (workspaceId: string, input: { planKey: "explorer" | "starter" | "ai" | "test"; successUrl: string; backUrl: string }) => requestApi<{
+    planKey: "explorer" | "starter" | "ai" | "test";
     free: boolean;
     checkoutId?: string;
     checkoutUrl?: string;
