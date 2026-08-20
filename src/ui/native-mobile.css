@@ -1,4 +1,4 @@
-@media (max-width: 640px) {
+@media (max-width: 1023px) {
   .lulu-native-page {
     width: 100%;
     min-width: 0;
@@ -71,9 +71,35 @@
   .lulu-native-page a[role="button"] {
     min-height: 40px;
   }
+
+  .lulu-native-page [role="dialog"],
+  .lulu-native-page [aria-modal="true"] {
+    width: min(calc(100vw - 2rem), 42rem) !important;
+    max-width: calc(100vw - 2rem) !important;
+    max-height: calc(100dvh - 2rem) !important;
+    overflow: auto !important;
+    margin-inline: auto;
+  }
+
+  .lulu-native-page h1,
+  .lulu-native-page h2,
+  .lulu-native-page h3,
+  .lulu-native-page p,
+  .lulu-native-page label,
+  .lulu-native-page button,
+  .lulu-native-page a {
+    overflow-wrap: anywhere;
+  }
+
+  .lulu-native-page .grid,
+  .lulu-native-page .flex,
+  .lulu-native-page section,
+  .lulu-native-page article {
+    min-width: 0;
+  }
 }
 
-@media (min-width: 641px) and (max-width: 1024px) {
+@media (min-width: 1024px) {
   .lulu-native-page {
     max-width: 100vw;
     overflow-x: hidden;
