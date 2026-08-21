@@ -43,7 +43,6 @@ export type OnboardingSnapshot = {
 
 export const onboardingApi = {
   snapshot: (workspaceId: string) => requestApi<OnboardingSnapshot>({ path: workspaceApiPath(workspaceId, "/onboarding") }),
-  aiTokenTest: (workspaceId: string) => requestApi<{ number: number; model: string; responseId: string }>({ path: workspaceApiPath(workspaceId, "/onboarding/ai-token-test") }),
   saveCompanyInformation: (workspaceId: string, input: {
     companyName: string; industry: string | null; companySize: string | null; countryRegion: string | null;
   }) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/company-information"), method: "PATCH", body: input }),

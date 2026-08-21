@@ -27,7 +27,6 @@ export const authApi = {
     path: "/auth/reset-password", method: "POST", body: { email, code, password },
   }),
   me: () => requestApi<CurrentUser>({ path: "/auth/me" }),
-  aiTokenTest: () => requestApi<{ number: number; model: string; responseId: string }>({ path: "/auth/ai-token-test" }),
   updateMe: (input: { firstName?: string; lastName?: string }) => requestApi<CurrentUser>({
     path: "/auth/me", method: "PATCH", body: input,
   }),
