@@ -101,6 +101,9 @@ button, input { font: inherit; }
 .lulu-global-navigation__subitems a:hover{background:var(--secondary);color:var(--foreground)}
 .lulu-global-navigation__subitems a.is-active{background:var(--primary);color:var(--primary-foreground)}
 .lulu-global-navigation__subitems a[aria-disabled="true"]{cursor:not-allowed;opacity:.68;pointer-events:none}
+.lulu-global-navigation__subitems a.is-locked{background:color-mix(in srgb,var(--secondary) 72%,transparent);color:var(--muted-foreground)}
+.lulu-global-navigation__website-lock{display:flex;align-items:flex-start;gap:7px;margin:7px 2px 4px;border:1px solid color-mix(in srgb,var(--primary) 28%,var(--border));border-radius:9px;background:color-mix(in srgb,var(--primary) 8%,var(--card));padding:8px;color:var(--foreground);font-size:.7rem;line-height:1.35}
+.lulu-global-navigation__website-lock.is-failed,.lulu-global-navigation__website-lock.is-cancelled{border-color:color-mix(in srgb,var(--destructive) 35%,var(--border));background:color-mix(in srgb,var(--destructive) 8%,var(--card));color:var(--destructive)}
 .lulu-global-navigation__logout{display:flex;width:100%;align-items:center;gap:8px;border:0;border-radius:7px;padding:7px 9px;color:var(--muted-foreground);font-size:.78rem;text-align:left;background:transparent;cursor:pointer}
 .lulu-global-navigation__logout:hover{background:var(--secondary);color:var(--foreground)}
 .lulu-global-navigation__account{border-top:1px solid var(--border);padding-top:10px}
