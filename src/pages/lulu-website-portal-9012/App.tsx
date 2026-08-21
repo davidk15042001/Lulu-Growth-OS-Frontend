@@ -243,11 +243,30 @@ export default function App() {
     return () => { cancelled = true; };
   }, [workspaceId, generationJob?.siteId, generationJob?.job.id, generationJob?.job.status]);
 
-  const refresh = () => {
+  const refresh = async () => {
     setIsRefreshing(true);
     setError("");
-    if (workspaceId) Promise.all([websitesApi.list(workspaceId), onboardingApi.platforms(workspaceId)]).then(([websiteResponse, platformResponse]) => { setSites(websiteResponse.data.items); setPlatforms(platformResponse.data.items); }).catch((requestError) => setError(getFriendlyErrorMessage(requestError, "Die Websites und Verbindungen konnten nicht geladen werden."))).finally(() => setIsRefreshing(false));
-    else window.setTimeout(() => setIsRefreshing(false), 800);
+    if (!workspaceId) {
+      setIsRefreshing(false);
+      setError("Für diese Aktion ist kein Workspace ausgewählt.");
+      return;
+    }
+    try {
+      const [websiteResult, platformResult] = await Promise.allSettled([
+        websitesApi.list(workspaceId),
+        onboardingApi.platforms(workspaceId),
+      ]);
+      const errors: unknown[] = [];
+      if (websiteResult.status === "fulfilled") setSites(websiteResult.value.data.items);
+      else errors.push(websiteResult.reason);
+      if (platformResult.status === "fulfilled") setPlatforms(platformResult.value.data.items);
+      else errors.push(platformResult.reason);
+      if (errors.length > 0) {
+        setError(getFriendlyErrorMessage(errors[0], "Die Websites und Verbindungen konnten nicht geladen werden."));
+      }
+    } finally {
+      setIsRefreshing(false);
+    }
   };
 
   const connectProvider = async (nextProvider: Provider) => {
@@ -323,7 +342,7 @@ export default function App() {
         <div className="mx-auto max-w-[1400px] px-5 py-6 sm:px-8 sm:py-8">
           <header className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
             <div className="flex items-start gap-3"><button className="mt-1 rounded-lg p-2 text-muted-foreground hover:bg-secondary lg:hidden" aria-label="Navigation öffnen" onClick={() => setMobileNav(true)}><Menu size={20} /></button><div><p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Lulu AI / Website</p><h1 className="text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">Website</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[#4b5563]">{content.description}</p></div></div>
-            <div className="flex flex-wrap items-center gap-2"><button onClick={refresh} className="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-foreground transition hover:border-primary/40"><RefreshCw size={15} className={isRefreshing ? "animate-spin" : ""} /> Aktualisieren</button><button type="button" className="flex h-10 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-lg shadow-black/10"><Plus size={15} /> Neue Seite</button></div>
+            <div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => void refresh()} disabled={isRefreshing} aria-busy={isRefreshing} className="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-foreground transition hover:border-primary/40 disabled:cursor-wait disabled:opacity-60"><RefreshCw size={15} className={isRefreshing ? "animate-spin" : ""} /> {isRefreshing ? "Wird aktualisiert…" : "Aktualisieren"}</button><button type="button" className="flex h-10 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-lg shadow-black/10"><Plus size={15} /> Neue Seite</button></div>
           </header>
 
           <section className="mb-6 rounded-xl border border-border bg-card p-5 sm:p-6"><div className="flex flex-col gap-2"><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Integrationen</p><h2 className="text-lg font-semibold tracking-tight text-foreground">Plattformen später verbinden</h2><p className="max-w-2xl text-sm leading-6 text-[#4b5563]">WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.</p></div><div className="mt-5 grid gap-3 md:grid-cols-2">{providerOptions.map((option) => { const platform = platforms.find((item) => platformMatchesProvider(item, option.id)); const isConnected = Boolean(platform && platformIsConnected(platform)); const isBusy = connectionBusy === option.id; return <article key={option.id} className="flex min-w-0 flex-col justify-between gap-4 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center"><div className="flex min-w-0 items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-muted-foreground"><Globe2 size={18} /></span><div className="min-w-0"><h3 className="truncate text-sm font-semibold text-foreground">{option.label}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{isConnected ? `Verbunden${platform?.settings?.accountName ? ` · ${String(platform.settings.accountName)}` : ""}` : platform && ["pending", "error"].includes(platform.connectionStatus.toLowerCase()) ? "Setting up…" : "Noch nicht verbunden"}</p>{platform?.lastError && <p className="mt-1 break-words text-xs text-destructive">{platform.lastError}</p>}</div></div><div className="flex shrink-0 flex-wrap gap-2"><button type="button" disabled={isBusy} onClick={() => isConnected ? void disconnectProvider(option.id) : void connectProvider(option.id)} className={`inline-flex h-9 items-center justify-center rounded-lg px-3 text-xs font-medium transition disabled:cursor-wait disabled:opacity-60 ${isConnected ? "border border-border text-foreground hover:bg-secondary" : "bg-primary text-primary-foreground hover:opacity-90"}`}>{isBusy ? "Bitte warten…" : isConnected ? "Trennen" : "Verbinden"}</button></div>{option.id === "wordpress" && !isConnected && <div className="mt-3 rounded-lg border border-border bg-background/70 p-3 text-xs leading-5 text-muted-foreground"><p>Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.</p><div className="mt-2 flex flex-wrap gap-2"><button type="button" className="rounded-md border border-border px-2.5 py-1.5 font-medium text-[#111827] transition hover:bg-secondary" onClick={() => { setOauthHelpVisible(true); void connectProvider("wordpress"); }}>WordPress-Verbindung neu starten</button>{oauthHelpVisible && <span className="self-center">Der neue Start erzeugt einen frischen OAuth-State.</span>}</div></div>}</article>; })}</div>{error && <p role="alert" className="mt-4 break-words text-sm text-destructive">{error}</p>}</section>
