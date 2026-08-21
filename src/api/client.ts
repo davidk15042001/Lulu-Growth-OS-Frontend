@@ -117,6 +117,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   WEBSITE_GENERATION_FAILED: "The website could not be generated from this prompt.",
   WEBSITE_PUBLISH_FAILED: "The generated website could not be published.",
   WORDPRESS_PUBLISH_VERIFICATION_FAILED: "WordPress did not verify the page as publicly published. No success status was recorded.",
+  WORDPRESS_PLACEHOLDER_CONTENT_DETECTED: "WordPress still shows placeholder content. The generated customer content was not published.",
   WEBSITE_PROVIDER_RATE_LIMITED: "WordPress is temporarily limiting requests. Please wait a moment before starting the generation again.",
   WEBSITE_DOMAIN_VERIFICATION_FAILED: "The domain could not be verified. Please check the DNS record and try again.",
   WEBSITE_PROVIDER_REQUEST_FAILED: "The website provider rejected the request.",
