@@ -10,10 +10,6 @@ const navigationSections = luluDropdownNavigation as readonly NavigationSection[
 export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
   return (
     <aside className="lulu-global-navigation" data-lulu-global-navigation="true">
-      <div className="lulu-global-navigation__brand">
-        <img src="/branding/lulu-intelligence-logo.png" alt="Lulu AI" draggable={false} />
-        <span>Lulu AI</span>
-      </div>
       <div className="lulu-global-navigation__workspace-label">Workspace</div>
       <nav className="lulu-global-navigation__sections">
         {navigationSections.map((section) => {
