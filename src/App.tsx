@@ -100,7 +100,7 @@ function PageRoute({ page }: { page: PageDefinition }) {
   }
 
 
-  return <PageFrame page={page} isPublic={isPublic} />;
+  return <PageFrame page={page} isPublic={isPublic} isStandalone={isPublic || isOnboarding} />;
 }
 
 function AuthenticatedSearchBar() {
@@ -159,14 +159,14 @@ function AuthenticatedSearchBar() {
   </div>;
 }
 
-function PageFrame({ page, isPublic }: { page: PageDefinition; isPublic: boolean }) {
+function PageFrame({ page, isPublic, isStandalone }: { page: PageDefinition; isPublic: boolean; isStandalone: boolean }) {
   useEffect(() => {
     document.title = page.name;
   }, [page]);
-  const isAuthPage = isPublic;
+  const isAuthPage = isStandalone;
   return (
     <>
-      {!isAuthPage && <AuthenticatedSearchBar />}
+      {!isStandalone && <AuthenticatedSearchBar />}
       <main
         className={`page-frame${isAuthPage ? " page-frame--auth" : ""}`}
         style={isAuthPage ? { height: "auto", minHeight: "100vh", overflow: "visible" } : undefined}

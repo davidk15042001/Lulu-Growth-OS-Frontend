@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
+import { routes } from "./routing";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
 
 type AppModule = { default: ComponentType };
@@ -24,6 +25,20 @@ const authPageSlugs = new Set([
   "mightily-minute-5145",
 ]);
 
+// Public authentication and onboarding are standalone flows. They must not
+// inherit the authenticated workspace navigation, regardless of the page's
+// generated slug or how the user reached the route.
+const navigationFreePaths = new Set([
+  routes.onboarding.welcome,
+  routes.onboarding.companyInformation,
+  routes.onboarding.businessDescription,
+  routes.onboarding.productsServices,
+  routes.onboarding.existingPlatforms,
+  routes.onboarding.billing,
+  routes.onboarding.billings,
+  "/onboarding/setup-complete",
+]);
+
 function pageSlugFromPath(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
   if (segments[0] === "entries" && segments[1]) return segments[1];
@@ -34,6 +49,7 @@ export function NativePage({ slug }: { slug: string }) {
   const [App, setApp] = useState<ComponentType | null>(null);
   const [error, setError] = useState<unknown>(null);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
+  const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname);
 
   useEffect(() => {
     const resetScrollPositions = () => {
@@ -131,9 +147,9 @@ export function NativePage({ slug }: { slug: string }) {
 
   return (
     <LuluRuntime slug={slug}>
-      <div className="lulu-global-shell">
-        {!isAuthPage && <LuluGlobalNavigation activeSlug={slug} />}
-        <div className={isAuthPage ? "lulu-global-content lulu-global-content--auth" : "lulu-global-content"}>
+      <div className={`lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}`}>
+        {!isNavigationFree && <LuluGlobalNavigation activeSlug={slug} />}
+        <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
           <div className="lulu-native-page">
             <PageErrorBoundary pageName={slug}>
               <App />
