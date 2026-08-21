@@ -132,6 +132,7 @@ export function useTranslation() {
 
 export function GlobalLanguageSwitcher() {
   const [language, setLanguage] = useState<LanguageCode>(initialLanguage);
+  const t = useTranslation();
   const [open, setOpen] = useState(false);
   const timer = useRef<number | undefined>(undefined);
   const current = getLanguage(language);
@@ -170,11 +171,11 @@ export function GlobalLanguageSwitcher() {
   };
 
   return createPortal(<><div className="lulu-language-shell" data-lulu-no-translate="true" translate="no">
-    {open && <div className="lulu-language-menu" role="menu" aria-label="Select language"><div className="lulu-language-title">Language</div><div className="lulu-language-list">{languages.map((option) => {
+    {open && <div className="lulu-language-menu" role="menu" aria-label={t("Select language")}><div className="lulu-language-title">{t("Language")}</div><div className="lulu-language-list">{languages.map((option) => {
       const available = isAvailableLanguageCode(option.code);
-      return <button className="lulu-language-option" type="button" role="menuitemradio" aria-checked={option.code === language} disabled={!available} key={option.code} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (available) selectLanguage(option.code); }} onPointerDown={(event) => event.stopPropagation()}><span lang={option.code} dir={option.direction}>{option.nativeName}{!available && " (soon)"}</span><small>{option.name}</small>{option.code === language && <Check aria-hidden="true" size={15} />}</button>;
+      return <button className="lulu-language-option" type="button" role="menuitemradio" aria-checked={option.code === language} disabled={!available} key={option.code} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (available) selectLanguage(option.code); }} onPointerDown={(event) => event.stopPropagation()}><span lang={option.code} dir={option.direction}>{option.nativeName}{!available && ` (${t("soon")})`}</span><small>{t(option.name)}</small>{option.code === language && <Check aria-hidden="true" size={15} />}</button>;
     })}</div></div>}
-    <button className="lulu-language-launch" type="button" aria-label={`Change language. Current language: ${current.name}`} aria-haspopup="menu" aria-expanded={open} title="Change language" onClick={(event) => { event.preventDefault(); event.stopPropagation(); setOpen((value) => !value); }} onPointerDown={(event) => event.stopPropagation()}><LanguagesIcon aria-hidden="true" size={16} /><span>{current.shortCode}</span></button>
+    <button className="lulu-language-launch" type="button" aria-label={t("Change language. Current language: {{0}}").replace("{{0}}", t(current.name))} aria-haspopup="menu" aria-expanded={open} title={t("Change language")} onClick={(event) => { event.preventDefault(); event.stopPropagation(); setOpen((value) => !value); }} onPointerDown={(event) => event.stopPropagation()}><LanguagesIcon aria-hidden="true" size={16} /><span>{current.shortCode}</span></button>
   </div><style>{styles}</style></>, document.body);
 }
 
