@@ -263,7 +263,7 @@ export default function App() {
     setGenerationFailure(null);
     setGenerationStarting(nextProvider);
     try {
-      const response = await websitesApi.startAutomaticGeneration(workspaceId, nextProvider, document.documentElement.lang || undefined);
+      const response = await websitesApi.startAutomaticGeneration(workspaceId, nextProvider, document.documentElement.lang || undefined, selectedSiteId || undefined);
       setSites((current) => current.some((site) => site.id === response.data.site.id) ? current.map((site) => site.id === response.data.site.id ? response.data.site : site) : [response.data.site, ...current]);
       setSelectedSiteId(response.data.site.id);
       setGenerationStarting(null);
