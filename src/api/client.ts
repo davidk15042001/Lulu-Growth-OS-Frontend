@@ -116,6 +116,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   WEBSITE_PROVIDER_WRITE_SCOPE_MISSING: "The connected provider does not have permission to change this website.",
   WEBSITE_GENERATION_FAILED: "The website could not be generated from this prompt.",
   WEBSITE_PUBLISH_FAILED: "The generated website could not be published.",
+  WORDPRESS_PUBLISH_VERIFICATION_FAILED: "WordPress did not verify the page as publicly published. No success status was recorded.",
   WEBSITE_DOMAIN_VERIFICATION_FAILED: "The domain could not be verified. Please check the DNS record and try again.",
   WEBSITE_PROVIDER_REQUEST_FAILED: "The website provider rejected the request.",
   WEBSITE_PROVIDER_TOKEN_INVALID: "The saved website connection could not be opened securely.",
