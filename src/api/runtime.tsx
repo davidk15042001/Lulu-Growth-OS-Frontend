@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { navigateApp, routes } from "../routing";
 import { GlobalBranding } from "../branding/GlobalBranding";
+import { LegacyChromeCleanup } from "../branding/LegacyChromeCleanup";
 import { GlobalLanguageSwitcher } from "../i18n/GlobalLanguageSwitcher";
 import { GlobalUploadFeedback } from "../uploads/GlobalUploadFeedback";
 import { PostAnalysisCreationPrompt } from "../components/PostAnalysisCreationPrompt";
@@ -89,6 +90,7 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     {contract.kind === "resource" && <LiveResourceGate enabled={STATIC_RESOURCE_PAGE_SLUGS.has(slug)} resourceType={contract.resourceType}>{children}</LiveResourceGate>}
     {contract.kind !== "resource" && children}
     <GlobalBranding contractKind={contract.kind} />
+    <LegacyChromeCleanup />
     <GlobalLanguageSwitcher />
     <GlobalUploadFeedback />
     {state === "ready" && workspaceId && slug !== "fancily-leaf-1766" && <LiveApiPanel workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} contract={contract} />}
