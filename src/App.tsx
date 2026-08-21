@@ -153,7 +153,7 @@ function AuthenticatedSearchBar() {
       <span className="lulu-auth-credits-label">Credits</span>
       <strong>{credits.creditsUsed.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong>
     </div>}
-    {open && query.trim() && <div className="lulu-auth-search-results">{matches.length ? matches.map((item) => <button type="button" key={item.id} onClick={() => { navigate(pagePath(item.slug)); setQuery(""); setAnswer(null); setOpen(false); }}><strong>{item.name}</strong><span>{item.generatedName}</span></button>) : busy ? <p>Working on your Lulu AI request…</p> : answer ? <p className="lulu-auth-search-answer">{answer}</p> : <p>Ask Lulu AI about your workspace or type a page name.</p>}</div>}
+    {open && query.trim() && <div className="lulu-auth-search-results">{matches.length ? matches.map((item) => <button type="button" key={item.id} onClick={() => { navigate(pagePath(item.slug)); setQuery(""); setAnswer(null); setOpen(false); }}><strong>{item.name}</strong></button>) : busy ? <p>Working on your Lulu AI request…</p> : answer ? <p className="lulu-auth-search-answer">{answer}</p> : <p>Ask Lulu AI about your workspace or type a page name.</p>}</div>}
   </div>;
 }
 
