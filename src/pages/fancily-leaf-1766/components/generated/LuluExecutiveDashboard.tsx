@@ -601,7 +601,16 @@ export function LuluSectionNavigation({
           {section.pages.map(page => {
             const isActivePage = page.id === activeId;
             const linkProps = pageLinkProps(page.id);
-            return <a key={page.id} {...linkProps} aria-current={isActivePage ? 'page' : undefined} onClick={(event) => { if (linkProps.href) { event.preventDefault(); window.location.assign(linkProps.href); } }} className={`block min-w-0 break-words rounded-md px-3 py-2 text-xs leading-5 transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
+            return <a key={page.id} {...linkProps} aria-current={isActivePage ? 'page' : undefined} onClick={(event) => {
+              if (!linkProps.href) return;
+              event.preventDefault();
+              if (activeId === 'lulu-website-portal-9012' && linkProps.href.startsWith('/app/website?section=')) {
+                window.history.pushState({}, '', linkProps.href);
+                window.dispatchEvent(new Event('lulu:navigate'));
+              } else {
+                window.location.assign(linkProps.href);
+              }
+            }} className={`block min-w-0 break-words rounded-md px-3 py-2 text-xs leading-5 transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
               {t(page.label)}
             </a>;
           })}
