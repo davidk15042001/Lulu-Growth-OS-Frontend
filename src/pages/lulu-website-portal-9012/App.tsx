@@ -234,7 +234,7 @@ export default function App() {
     Promise.all([websitesApi.list(workspaceId), onboardingApi.platforms(workspaceId)]).then(([websiteResponse, platformResponse]) => {
       setSites(websiteResponse.data.items);
       setPlatforms(platformResponse.data.items);
-      setSelectedSiteId(websiteResponse.data.items.find((site) => site.provider === provider)?.id ?? websiteResponse.data.items[0]?.id ?? "");
+      setSelectedSiteId(websiteResponse.data.items.find((site) => site.provider === provider)?.id ?? "");
     }).catch((requestError) => setError(getFriendlyErrorMessage(requestError, "Die Websites und Verbindungen konnten nicht geladen werden.")));
   }, [workspaceId, provider]);
 
@@ -281,13 +281,15 @@ export default function App() {
 
   useEffect(() => {
     const oauthReturn = oauthReturnRef.current === provider;
-    if (!workspaceId || !providerAuthorized || !oauthReturn) return;
+    // Never start without a local site ID. Without it the backend must perform provider discovery
+    // synchronously, which can exceed the request broker timeout after an OAuth return.
+    if (!workspaceId || !providerAuthorized || !oauthReturn || !selectedSiteId) return;
     const key = `${workspaceId}:${provider}`;
     if (!oauthReturn && autoStartedRef.current === key) return;
     autoStartedRef.current = key;
     oauthReturnRef.current = null;
     void startAutomaticGeneration(provider);
-  }, [workspaceId, providerAuthorized, sites, provider]);
+  }, [workspaceId, providerAuthorized, sites, provider, selectedSiteId]);
 
   useEffect(() => {
     if (!workspaceId || !generationJob || ["published", "failed", "cancelled"].includes(generationJob.job.status)) return;
