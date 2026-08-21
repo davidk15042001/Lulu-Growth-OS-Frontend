@@ -49,7 +49,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
     } finally { setLoading(false); }
   }, [selectedId]);
   useEffect(() => {
-    const publicAuthPath = window.location.pathname.startsWith("/auth/");
+    const publicAuthPath = window.location.pathname === "/login" || window.location.pathname.startsWith("/auth/");
     if (publicAuthPath) {
       setLoading(false);
       setError(null);

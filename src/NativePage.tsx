@@ -132,8 +132,8 @@ export function NativePage({ slug }: { slug: string }) {
   return (
     <LuluRuntime slug={slug}>
       <div className="lulu-global-shell">
-        <LuluGlobalNavigation activeSlug={slug} />
-        <div className="lulu-global-content">
+        {!isAuthPage && <LuluGlobalNavigation activeSlug={slug} />}
+        <div className={isAuthPage ? "lulu-global-content lulu-global-content--auth" : "lulu-global-content"}>
           <div className="lulu-native-page">
             <PageErrorBoundary pageName={slug}>
               <App />
