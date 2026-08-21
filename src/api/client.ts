@@ -48,7 +48,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   VALIDATION_ERROR: "Please check your entries. Some information is missing or not valid.",
   BAD_REQUEST: "We could not complete this request. Please check your entries and try again.",
   REQUEST_ERROR: "We could not complete this request. Please check your entries and try again.",
-  TOO_MANY_REQUESTS: "There have been too many attempts. Please wait a moment and try again.",
+  TOO_MANY_REQUESTS: "Der Login ist vorübergehend pausiert. Bitte warten Sie kurz und versuchen Sie es erneut.",
   AI_NOT_CONFIGURED: "The AI assistant is temporarily unavailable. Please try again later.",
   AI_EMPTY_RESPONSE: "The AI assistant could not prepare an answer. Please try again.",
   TRANSLATION_INVALID_RESPONSE: "This language is temporarily unavailable. Please try again in a moment.",
