@@ -39,6 +39,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   INVALID_RESET_CODE: "This password reset code is not correct. Please check it and try again.",
   RESET_CODE_EXPIRED: "This password reset code has expired. Please request a new one.",
   MISSING_REFRESH_TOKEN: "Your session has ended. Please sign in again.",
+  SESSION_REFRESH_UNAVAILABLE: "Your session is still saved, but the connection could not be restored. Please try again.",
   INVALID_REFRESH_TOKEN: "Your session has ended. Please sign in again.",
   REFRESH_TOKEN_EXPIRED: "Your session has ended. Please sign in again.",
   UNAUTHORIZED: "Please sign in to continue.",
@@ -225,7 +226,8 @@ function storeAccessToken(token: string | null) {
 }
 
 let accessToken: string | null = readStoredAccessToken();
-let refreshPromise: Promise<boolean> | null = null;
+type RefreshOutcome = { ok: true } | { ok: false; terminal: boolean };
+let refreshPromise: Promise<RefreshOutcome> | null = null;
 
 function createMessageId() {
   const cryptoApi = globalThis.crypto;
@@ -248,8 +250,9 @@ function validatedPath(path: string) {
 }
 
 function captureSession(path: string, payload: unknown) {
-  if (path === "/auth/logout") {
+  if (path === "/auth/logout" || path === "/auth/logout-all") {
     storeAccessToken(null);
+    try { window.localStorage.removeItem("lulu.current-user"); } catch { /* storage is optional */ }
     return;
   }
   if (!payload || typeof payload !== "object") return;
@@ -283,7 +286,8 @@ async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Prom
   const payload = await response.json().catch(() => null) as ApiEnvelope<T> | ApiErrorEnvelope | null;
   if (response.status === 401 && allowRefresh && path !== "/auth/refresh") {
     const refreshed = await refreshSession();
-    if (refreshed) return executeRequest<T>(request, false);
+    if (refreshed.ok) return executeRequest<T>(request, false);
+    if (!refreshed.terminal) throw new ApiError(503, "SESSION_REFRESH_UNAVAILABLE", "The session could not be refreshed right now");
   }
   if (!response.ok || !payload || payload.success === false) {
     const error = payload && "error" in payload ? payload.error : undefined;
@@ -299,13 +303,14 @@ async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Prom
   return payload;
 }
 
-async function refreshSession() {
+async function refreshSession(): Promise<RefreshOutcome> {
   refreshPromise ??= executeRequest<{ token: string }>(
     { path: "/auth/refresh", method: "POST", body: {} },
     false,
-  ).then(() => true).catch(() => {
-    storeAccessToken(null);
-    return false;
+  ).then(() => ({ ok: true as const })).catch((error) => {
+    const terminal = error instanceof ApiError && error.status === 401;
+    if (terminal) storeAccessToken(null);
+    return { ok: false as const, terminal };
   }).finally(() => {
     refreshPromise = null;
   });
@@ -325,7 +330,8 @@ export async function requestApiBlob(path: string, signal?: AbortSignal, allowRe
   }
   if (response.status === 401 && allowRefresh && validated !== "/auth/refresh") {
     const refreshed = await refreshSession();
-    if (refreshed) return requestApiBlob(validated, signal, false);
+    if (refreshed.ok) return requestApiBlob(validated, signal, false);
+    if (!refreshed.terminal) throw new ApiError(503, "SESSION_REFRESH_UNAVAILABLE", "The session could not be refreshed right now");
   }
   if (!response.ok) {
     const payload = await response.json().catch(() => null) as ApiErrorEnvelope | null;

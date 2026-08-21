@@ -1,6 +1,24 @@
 const WORKSPACE_KEY = "lulu.workspace-id";
 const PENDING_EMAIL_KEY = "lulu.pending-email";
 const PENDING_INVITATION_KEY = "lulu.pending-invitation";
+const CURRENT_USER_KEY = "lulu.current-user";
+
+export function getStoredUser<T>() {
+  try {
+    const raw = window.localStorage.getItem(CURRENT_USER_KEY);
+    return raw ? JSON.parse(raw) as T : null;
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredUser<T>(user: T) {
+  try { window.localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user)); } catch { /* storage is optional */ }
+}
+
+export function clearStoredUser() {
+  try { window.localStorage.removeItem(CURRENT_USER_KEY); } catch { /* storage is optional */ }
+}
 
 export function getSelectedWorkspaceId() {
   return window.localStorage.getItem(WORKSPACE_KEY);
