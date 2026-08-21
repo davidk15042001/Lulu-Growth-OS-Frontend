@@ -304,5 +304,18 @@
   "Existing Platforms": "المنصات الحالية",
   "Setting up…": "جارٍ الإعداد…",
   "Workspace account": "حساب مساحة العمل",
-  "Workspace member": "عضو مساحة العمل"
+  "Workspace member": "عضو مساحة العمل",
+  "WordPress": "ووردبريس",
+  "Website generation": "إنشاء الموقع",
+  "Choose the connected website and domain, then generate or update the website.": "اختر الموقع والنطاق المتصلين، ثم أنشئ الموقع أو حدّثه.",
+  "Generating…": "جارٍ الإنشاء…",
+  "Generation in progress…": "الإنشاء قيد التنفيذ…",
+  "Generate website": "إنشاء الموقع",
+  "Website": "الموقع",
+  "Select website": "اختر الموقع",
+  "Domain": "النطاق",
+  "Select domain": "اختر النطاق",
+  "No domain available": "لا يوجد نطاق متاح",
+  "Verified": "تم التحقق",
+  "Pending verification": "التحقق قيد الانتظار"
 }

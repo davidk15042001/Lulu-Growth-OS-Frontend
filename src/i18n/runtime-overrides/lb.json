@@ -304,5 +304,18 @@
   "Existing Platforms": "Bestehend Plattformen",
   "Setting up…": "Gëtt ageriicht…",
   "Workspace account": "Aarbechtsberäichkonto",
-  "Workspace member": "Aarbechtsberäichmember"
+  "Workspace member": "Aarbechtsberäichmember",
+  "WordPress": "WordPress",
+  "Website generation": "Websäit generéieren",
+  "Choose the connected website and domain, then generate or update the website.": "Wielt déi verbonne Websäit an den Domaine a generéiert oder aktualiséiert d’Websäit.",
+  "Generating…": "Gëtt generéiert…",
+  "Generation in progress…": "Generéierung leeft…",
+  "Generate website": "Websäit generéieren",
+  "Website": "Websäit",
+  "Select website": "Websäit auswielen",
+  "Domain": "Domain",
+  "Select domain": "Domain auswielen",
+  "No domain available": "Keen Domaine verfügbar",
+  "Verified": "Verifizéiert",
+  "Pending verification": "Verifizéierung ofwaarden"
 }

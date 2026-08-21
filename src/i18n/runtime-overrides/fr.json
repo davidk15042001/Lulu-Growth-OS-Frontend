@@ -304,5 +304,18 @@
   "Existing Platforms": "Plateformes existantes",
   "Setting up…": "Configuration en cours…",
   "Workspace account": "Compte de l’espace de travail",
-  "Workspace member": "Membre de l’espace de travail"
+  "Workspace member": "Membre de l’espace de travail",
+  "WordPress": "WordPress",
+  "Website generation": "Génération du site web",
+  "Choose the connected website and domain, then generate or update the website.": "Choisissez le site et le domaine connectés, puis générez ou mettez à jour le site.",
+  "Generating…": "Génération…",
+  "Generation in progress…": "Génération en cours…",
+  "Generate website": "Générer le site web",
+  "Website": "Site web",
+  "Select website": "Sélectionner un site",
+  "Domain": "Domaine",
+  "Select domain": "Sélectionner un domaine",
+  "No domain available": "Aucun domaine disponible",
+  "Verified": "Vérifié",
+  "Pending verification": "Vérification en attente"
 }

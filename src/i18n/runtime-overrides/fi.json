@@ -304,5 +304,18 @@
   "Existing Platforms": "Nykyiset alustat",
   "Setting up…": "Määritetään…",
   "Workspace account": "Työtilin tili",
-  "Workspace member": "Työtilan jäsen"
+  "Workspace member": "Työtilan jäsen",
+  "WordPress": "WordPress",
+  "Website generation": "Verkkosivuston luonti",
+  "Choose the connected website and domain, then generate or update the website.": "Valitse yhdistetty verkkosivusto ja verkkotunnus ja luo tai päivitä verkkosivusto.",
+  "Generating…": "Luodaan…",
+  "Generation in progress…": "Luonti käynnissä…",
+  "Generate website": "Luo verkkosivusto",
+  "Website": "Verkkosivusto",
+  "Select website": "Valitse verkkosivusto",
+  "Domain": "Verkkotunnus",
+  "Select domain": "Valitse verkkotunnus",
+  "No domain available": "Verkkotunnusta ei ole saatavilla",
+  "Verified": "Vahvistettu",
+  "Pending verification": "Vahvistus odottaa"
 }

@@ -304,5 +304,18 @@
   "Existing Platforms": "Наявні платформи",
   "Setting up…": "Налаштування…",
   "Workspace account": "Обліковий запис робочого простору",
-  "Workspace member": "Учасник робочого простору"
+  "Workspace member": "Учасник робочого простору",
+  "WordPress": "WordPress",
+  "Website generation": "Генерація вебсайту",
+  "Choose the connected website and domain, then generate or update the website.": "Виберіть підключений вебсайт і домен, а потім створіть або оновіть вебсайт.",
+  "Generating…": "Генеруємо…",
+  "Generation in progress…": "Генерація триває…",
+  "Generate website": "Створити вебсайт",
+  "Website": "Вебсайт",
+  "Select website": "Виберіть вебсайт",
+  "Domain": "Домен",
+  "Select domain": "Виберіть домен",
+  "No domain available": "Домен недоступний",
+  "Verified": "Підтверджено",
+  "Pending verification": "Очікує підтвердження"
 }

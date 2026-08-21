@@ -304,5 +304,18 @@
   "Existing Platforms": "Bestaande platforms",
   "Setting up…": "Wordt ingesteld…",
   "Workspace account": "Werkruimteaccount",
-  "Workspace member": "Werkruimtelid"
+  "Workspace member": "Werkruimtelid",
+  "WordPress": "WordPress",
+  "Website generation": "Websitegeneratie",
+  "Choose the connected website and domain, then generate or update the website.": "Kies de verbonden website en het domein en genereer of werk de website bij.",
+  "Generating…": "Wordt gegenereerd…",
+  "Generation in progress…": "Generatie bezig…",
+  "Generate website": "Website genereren",
+  "Website": "Website",
+  "Select website": "Website selecteren",
+  "Domain": "Domein",
+  "Select domain": "Domein selecteren",
+  "No domain available": "Geen domein beschikbaar",
+  "Verified": "Geverifieerd",
+  "Pending verification": "Verificatie in behandeling"
 }

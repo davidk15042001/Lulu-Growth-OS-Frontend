@@ -304,5 +304,18 @@
   "Existing Platforms": "Одоо байгаа платформууд",
   "Setting up…": "Тохируулж байна…",
   "Workspace account": "Ажлын талбарын бүртгэл",
-  "Workspace member": "Ажлын талбарын гишүүн"
+  "Workspace member": "Ажлын талбарын гишүүн",
+  "WordPress": "WordPress",
+  "Website generation": "Вэбсайт үүсгэх",
+  "Choose the connected website and domain, then generate or update the website.": "Холбогдсон вэбсайт болон домэйныг сонгоод вэбсайтыг үүсгэх эсвэл шинэчилнэ үү.",
+  "Generating…": "Үүсгэж байна…",
+  "Generation in progress…": "Үүсгэлт явагдаж байна…",
+  "Generate website": "Вэбсайт үүсгэх",
+  "Website": "Вэбсайт",
+  "Select website": "Вэбсайт сонгох",
+  "Domain": "Домэйн",
+  "Select domain": "Домэйн сонгох",
+  "No domain available": "Домэйн байхгүй",
+  "Verified": "Баталгаажсан",
+  "Pending verification": "Баталгаажуулалт хүлээгдэж байна"
 }

@@ -304,5 +304,18 @@
   "Existing Platforms": "Eksisterende plattformer",
   "Setting up…": "Konfigurerer…",
   "Workspace account": "Arbeidsområdekonto",
-  "Workspace member": "Arbeidsområdemedlem"
+  "Workspace member": "Arbeidsområdemedlem",
+  "WordPress": "WordPress",
+  "Website generation": "Generering av nettsted",
+  "Choose the connected website and domain, then generate or update the website.": "Velg det tilkoblede nettstedet og domenet, og generer eller oppdater nettstedet.",
+  "Generating…": "Genererer…",
+  "Generation in progress…": "Generering pågår…",
+  "Generate website": "Generer nettsted",
+  "Website": "Nettsted",
+  "Select website": "Velg nettsted",
+  "Domain": "Domene",
+  "Select domain": "Velg domene",
+  "No domain available": "Ingen domene tilgjengelig",
+  "Verified": "Verifisert",
+  "Pending verification": "Venter på verifisering"
 }

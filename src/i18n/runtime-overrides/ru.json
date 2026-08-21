@@ -304,5 +304,18 @@
   "Existing Platforms": "Существующие платформы",
   "Setting up…": "Настройка…",
   "Workspace account": "Учетная запись рабочего пространства",
-  "Workspace member": "Участник рабочего пространства"
+  "Workspace member": "Участник рабочего пространства",
+  "WordPress": "WordPress",
+  "Website generation": "Создание сайта",
+  "Choose the connected website and domain, then generate or update the website.": "Выберите подключённый сайт и домен, затем создайте или обновите сайт.",
+  "Generating…": "Создание…",
+  "Generation in progress…": "Создание выполняется…",
+  "Generate website": "Создать сайт",
+  "Website": "Сайт",
+  "Select website": "Выберите сайт",
+  "Domain": "Домен",
+  "Select domain": "Выберите домен",
+  "No domain available": "Нет доступного домена",
+  "Verified": "Подтверждён",
+  "Pending verification": "Ожидает проверки"
 }

@@ -304,5 +304,18 @@
   "Existing Platforms": "Istniejące platformy",
   "Setting up…": "Konfigurowanie…",
   "Workspace account": "Konto obszaru roboczego",
-  "Workspace member": "Członek obszaru roboczego"
+  "Workspace member": "Członek obszaru roboczego",
+  "WordPress": "WordPress",
+  "Website generation": "Generowanie strony",
+  "Choose the connected website and domain, then generate or update the website.": "Wybierz połączoną stronę i domenę, a następnie wygeneruj lub zaktualizuj stronę.",
+  "Generating…": "Generowanie…",
+  "Generation in progress…": "Generowanie w toku…",
+  "Generate website": "Generuj stronę",
+  "Website": "Strona",
+  "Select website": "Wybierz stronę",
+  "Domain": "Domena",
+  "Select domain": "Wybierz domenę",
+  "No domain available": "Brak dostępnej domeny",
+  "Verified": "Zweryfikowana",
+  "Pending verification": "Weryfikacja oczekuje"
 }
