@@ -100,7 +100,7 @@ function PageRoute({ page }: { page: PageDefinition }) {
   }
 
 
-  return <PageFrame page={page} />;
+  return <PageFrame page={page} isPublic={isPublic} />;
 }
 
 function AuthenticatedSearchBar() {
@@ -176,11 +176,11 @@ function AuthenticatedSearchBar() {
   </div>;
 }
 
-function PageFrame({ page }: { page: PageDefinition }) {
+function PageFrame({ page, isPublic }: { page: PageDefinition; isPublic: boolean }) {
   useEffect(() => {
     document.title = page.name;
   }, [page]);
-  const isAuthPage = pagePath(page.slug).startsWith("/auth/");
+  const isAuthPage = isPublic;
   return (
     <>
       {!isAuthPage && <AuthenticatedSearchBar />}
