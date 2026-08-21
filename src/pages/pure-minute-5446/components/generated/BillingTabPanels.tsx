@@ -111,7 +111,7 @@ export function BillingTabPanels({
   const billingDataLoading = invoicesLoading || paymentsLoading;
   const billingDataError = invoicesError || paymentsError;
   const getBillingField = (record: typeof invoiceRecords[number], key: string) => String((record as unknown as Record<string, unknown>)[key] ?? '');
-  const billingStatusNotice = billingDataError ? 'Billing data could not be loaded. Check invoice and payment records and try again.' : !billingDataLoading && invoiceRecords.length === 0 && paymentRecords.length === 0 ? 'No invoice or payment records are available yet.' : '';
+  const billingStatusNotice = billingDataError ? 'Billing data could not be loaded. Check invoice and payment records and try again.' : !billingDataLoading && invoiceRecords.length === 0 && paymentRecords.length === 0 ? 'Live workspace' : '';
   let content: ReactNode = null;
   if (activeTab === 'plans') {
     content = <div className="space-y-5 px-5 py-6 sm:px-8 lg:px-10 lg:py-8">
