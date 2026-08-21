@@ -20,18 +20,6 @@ export const AVAILABLE_LANGUAGE_CODES = [
   "en",
   "de",
   "zh-CN",
-  "fr",
-  "nl",
-  "pl",
-  "nb",
-  "sv",
-  "fi",
-  "da",
-  "ar",
-  "lb",
-  "mn",
-  "uk",
-  "ru",
 ] as const;
 
 export type LanguageCode = (typeof languages)[number]["code"];

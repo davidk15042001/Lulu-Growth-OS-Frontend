@@ -7,8 +7,15 @@ import {
 } from "./languages";
 const LANGUAGE_EVENT = "lulu-language-changed";
 const LANGUAGE_LOADED_EVENT = "lulu-language-loaded";
-const localeLoaders = import.meta.glob<Record<string, string>>("./locales/*.json", { import: "default" });
-const runtimeOverrideLoaders = import.meta.glob<Record<string, string>>("./runtime-overrides/*.json", { import: "default" });
+const localeLoaders: Partial<Record<LanguageCode, () => Promise<Record<string, string>>>> = {
+  en: () => import("./locales/en.json").then((module) => module.default),
+  de: () => import("./locales/de.json").then((module) => module.default),
+  "zh-CN": () => import("./locales/zh-CN.json").then((module) => module.default),
+};
+const runtimeOverrideLoaders: Partial<Record<LanguageCode, () => Promise<Record<string, string>>>> = {
+  de: () => import("./runtime-overrides/de.json").then((module) => module.default),
+  "zh-CN": () => import("./runtime-overrides/zh-CN.json").then((module) => module.default),
+};
 const loadedTables: Record<string, Record<string, string>> = {};
 const originalText = new WeakMap<Text, string>();
 const appliedText = new WeakMap<Text, string>();
@@ -59,10 +66,10 @@ function lookup(dictionary: Record<string, string>, source: string) {
 
 async function loadDictionary(language: LanguageCode) {
   if (loadedTables[language]) return loadedTables[language];
-  const loader = localeLoaders[`./locales/${language}.json`];
+  const loader = localeLoaders[language];
   if (!loader) return loadedTables.en;
   const dictionary = await loader();
-  const overrideLoader = runtimeOverrideLoaders[`./runtime-overrides/${language}.json`];
+  const overrideLoader = runtimeOverrideLoaders[language];
   const overrides = overrideLoader ? await overrideLoader() : {};
   const merged = { ...dictionary, ...overrides };
   loadedTables[language] = merged;

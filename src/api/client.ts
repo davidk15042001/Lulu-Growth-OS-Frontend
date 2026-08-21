@@ -43,6 +43,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   SESSION_REFRESH_UNAVAILABLE: "Your session is still saved, but the connection could not be restored. Please try again.",
   INVALID_REFRESH_TOKEN: "Your session has ended. Please sign in again.",
   REFRESH_TOKEN_EXPIRED: "Your session has ended. Please sign in again.",
+  TOKEN_REVOKED: "Your account was signed in on another device, so this session was ended. Please sign in again here if this was you.",
   UNAUTHORIZED: "Please sign in to continue.",
   FORBIDDEN: "You do not have permission to do this. Ask a workspace administrator for help.",
   NOT_FOUND: "We could not find what you were looking for. It may have been removed.",
@@ -99,6 +100,8 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   OAUTH_STATE_EXPIRED: "The platform connection session expired. Please start again.",
   OAUTH_STATE_SIGNATURE_INVALID: "The platform connection session could not be verified.",
   OAUTH_TOKEN_EXCHANGE_FAILED: "The platform did not accept the authorization exchange.",
+  OAUTH_TOKEN_REFRESH_FAILED: "The saved platform connection could not be refreshed. Please reconnect it.",
+  OAUTH_REFRESH_TOKEN_MISSING: "This platform must be reconnected to stay authorized.",
   OAUTH_ACCESS_TOKEN_MISSING: "The platform did not return an access token.",
   OAUTH_ACCOUNT_LOOKUP_FAILED: "The connected platform account could not be loaded.",
   AIRWALLEX_WEBHOOK_SECRET_MISSING: "The Airwallex webhook is not configured on the server.",
@@ -117,6 +120,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   WEBSITE_PROVIDER_COLLECTION_REQUIRED: "The Webflow account is connected, but the selected site has no CMS collection for generated content.",
   WEBSITE_PROVIDER_WRITE_SCOPE_MISSING: "The connected provider does not have permission to change this website.",
   WEBSITE_GENERATION_FAILED: "The website could not be generated from this prompt.",
+  WEBSITE_GENERATION_TIMEOUT: "Website generation took too long and was stopped. Please try again.",
   WEBSITE_PUBLISH_FAILED: "The generated website could not be published.",
   WORDPRESS_PUBLISH_VERIFICATION_FAILED: "WordPress did not verify the page as publicly published. No success status was recorded.",
   WORDPRESS_PLACEHOLDER_CONTENT_DETECTED: "WordPress still shows placeholder content. The generated customer content was not published.",
@@ -124,6 +128,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   WEBSITE_DOMAIN_VERIFICATION_FAILED: "The domain could not be verified. Please check the DNS record and try again.",
   WEBSITE_PROVIDER_REQUEST_FAILED: "The website provider rejected the request.",
   WEBSITE_PROVIDER_TOKEN_INVALID: "The saved website connection could not be opened securely.",
+  WEBSITE_PROVIDER_REAUTH_REQUIRED: "The website provider connection has expired. Please reconnect it.",
   WEBSITE_PROVIDER_CONFIGURATION_MISSING: "The website provider configuration is incomplete.",
   WEBSITE_PROVIDER_SITE_ID_MISSING: "The connected website does not have a provider site ID.",
   WEBSITE_PUBLISH_STATE_INVALID: "Only a generated website preview can be published.",
@@ -226,6 +231,15 @@ function storeAccessToken(token: string | null) {
   }
 }
 
+function clearClientSession() {
+  storeAccessToken(null);
+  try {
+    window.localStorage.removeItem("lulu.current-user");
+  } catch {
+    // Private browsing/storage restrictions must not break authentication.
+  }
+}
+
 let accessToken: string | null = readStoredAccessToken();
 type RefreshOutcome = { ok: true } | { ok: false; terminal: boolean };
 let refreshPromise: Promise<RefreshOutcome> | null = null;
@@ -252,8 +266,7 @@ function validatedPath(path: string) {
 
 function captureSession(path: string, payload: unknown) {
   if (path === "/auth/logout" || path === "/auth/logout-all") {
-    storeAccessToken(null);
-    try { window.localStorage.removeItem("lulu.current-user"); } catch { /* storage is optional */ }
+    clearClientSession();
     return;
   }
   if (!payload || typeof payload !== "object") return;
@@ -292,6 +305,9 @@ async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Prom
   }
   if (!response.ok || !payload || payload.success === false) {
     const error = payload && "error" in payload ? payload.error : undefined;
+    if (response.status === 401 && (error?.code === "TOKEN_REVOKED" || error?.code === "INVALID_REFRESH_TOKEN" || error?.code === "REFRESH_TOKEN_EXPIRED" || error?.code === "MISSING_REFRESH_TOKEN")) {
+      clearClientSession();
+    }
     throw new ApiError(
       response.status,
       error?.code ?? "API_ERROR",
@@ -310,7 +326,7 @@ async function refreshSession(): Promise<RefreshOutcome> {
     false,
   ).then(() => ({ ok: true as const })).catch((error) => {
     const terminal = error instanceof ApiError && error.status === 401;
-    if (terminal) storeAccessToken(null);
+    if (terminal) clearClientSession();
     return { ok: false as const, terminal };
   }).finally(() => {
     refreshPromise = null;
@@ -368,7 +384,8 @@ function isBrokerRequest(value: unknown): value is BrokerRequest {
 export function installApiBroker() {
   const listener = async (event: MessageEvent<unknown>) => {
     if (event.origin !== window.location.origin || !isBrokerRequest(event.data)) return;
-    if (!(event.source instanceof Window)) return;
+    const source = event.source;
+    if (!source || typeof source.postMessage !== "function") return;
     const response: BrokerResponse = { type: API_RESPONSE_MESSAGE, id: event.data.id };
     try {
       response.result = await executeRequest(event.data.request);
@@ -384,7 +401,7 @@ export function installApiBroker() {
         ...(apiError.diagnostics === undefined ? {} : { diagnostics: apiError.diagnostics }),
       };
     }
-    event.source.postMessage(response, event.origin);
+    source.postMessage(response, { targetOrigin: event.origin });
   };
   window.addEventListener("message", listener);
   return () => window.removeEventListener("message", listener);

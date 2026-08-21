@@ -53,11 +53,11 @@ The shared Lulu Intelligence logo is stored at `public/branding/lulu-intelligenc
 - `entries/<generatedName>/index.html` — isolated build entry for that component
 - `src/pages-manifest.ts` — source metadata for all 141 pages
 - `src/routing.ts` — canonical route registry and embedded-page navigation bridge
-- `src/App.tsx` — application router, route directory and isolated page host
-- `src/api/client.ts` — shared authenticated API client and iframe token broker
+- `src/App.tsx` — application router, route directory and native page host
+- `src/api/client.ts` — shared authenticated API client and legacy embedded-page token broker
 - `src/api/page-contracts.ts` — API contract for every exported page
 - `src/api/runtime.tsx` — authentication, workspace and bootstrap guard for isolated pages
 
-Each design runs inside its own document so its original MagicPath theme and global CSS cannot leak into other pages. Route changes are forwarded to the top-level React router, so browser history, back/forward navigation and deep links continue to work.
+Each design is mounted through the native page host, which injects the page-specific CSS while keeping browser history, back/forward navigation and deep links stable. Legacy embedded entry support remains for older `/entries/*` links, but production navigation uses the native React shell.
 
 The typed API clients live in `src/api/`, while `src/api/LiveApiPanel.tsx` provides the contract-aware live backend controls for protected pages.

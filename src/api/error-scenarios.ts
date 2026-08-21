@@ -25,6 +25,8 @@ const exactScenarios: Record<string, ErrorScenario> = {
   MISSING_REFRESH_TOKEN: { category: "authentication", userAction: "sign-in", retryable: false },
   INVALID_REFRESH_TOKEN: { category: "authentication", userAction: "sign-in", retryable: false },
   REFRESH_TOKEN_EXPIRED: { category: "authentication", userAction: "sign-in", retryable: false },
+  TOKEN_REVOKED: { category: "authentication", userAction: "sign-in", retryable: false },
+  SESSION_REFRESH_UNAVAILABLE: { category: "network", userAction: "retry", retryable: true },
   FORBIDDEN: { category: "authorization", userAction: "contact-admin", retryable: false },
   VALIDATION_ERROR: { category: "validation", userAction: "check-input", retryable: false },
   BAD_REQUEST: { category: "request", userAction: "check-input", retryable: false },
@@ -56,9 +58,11 @@ const exactScenarios: Record<string, ErrorScenario> = {
   WEBSITE_PROVIDER_COLLECTION_REQUIRED: { category: "integration", userAction: "check-input", retryable: false },
   WEBSITE_PROVIDER_WRITE_SCOPE_MISSING: { category: "authorization", userAction: "connect-platform", retryable: false },
   WEBSITE_GENERATION_FAILED: { category: "ai", userAction: "retry", retryable: true },
+  WEBSITE_GENERATION_TIMEOUT: { category: "ai", userAction: "retry", retryable: true },
   WEBSITE_PUBLISH_FAILED: { category: "integration", userAction: "retry", retryable: true },
   WEBSITE_DOMAIN_VERIFICATION_FAILED: { category: "integration", userAction: "check-input", retryable: true },
   WEBSITE_PROVIDER_REQUEST_FAILED: { category: "integration", userAction: "retry", retryable: true },
+  WEBSITE_PROVIDER_RATE_LIMITED: { category: "integration", userAction: "wait", retryable: true },
   WEBSITE_PROVIDER_TOKEN_INVALID: { category: "integration", userAction: "connect-platform", retryable: false },
   WEBSITE_PROVIDER_CONFIGURATION_MISSING: { category: "integration", userAction: "contact-admin", retryable: false },
   WEBSITE_PROVIDER_SITE_ID_MISSING: { category: "integration", userAction: "connect-platform", retryable: false },
@@ -89,6 +93,11 @@ const exactScenarios: Record<string, ErrorScenario> = {
   OAUTH_STATE_EXPIRED: { category: "integration", userAction: "connect-platform", retryable: true },
   OAUTH_STATE_INVALID: { category: "integration", userAction: "connect-platform", retryable: true },
   OAUTH_TOKEN_EXCHANGE_FAILED: { category: "integration", userAction: "retry", retryable: true },
+  OAUTH_TOKEN_REFRESH_FAILED: { category: "integration", userAction: "connect-platform", retryable: false },
+  OAUTH_REFRESH_TOKEN_MISSING: { category: "integration", userAction: "connect-platform", retryable: false },
+  WORDPRESS_PUBLISH_VERIFICATION_FAILED: { category: "integration", userAction: "retry", retryable: true },
+  WORDPRESS_PLACEHOLDER_CONTENT_DETECTED: { category: "validation", userAction: "check-input", retryable: false },
+  WEBSITE_PROVIDER_REAUTH_REQUIRED: { category: "integration", userAction: "connect-platform", retryable: false },
 };
 
 export function getErrorScenario(code: string, status = 0): ErrorScenario {
