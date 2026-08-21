@@ -1,4 +1,4 @@
-import { ChevronDown, MoreHorizontal } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { pageLinkProps } from "../routing";
 import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 
@@ -48,13 +48,6 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
           );
         })}
       </nav>
-      <div className="lulu-global-navigation__account">
-        <button type="button">
-          <span className="lulu-global-navigation__avatar">L</span>
-          <span className="lulu-global-navigation__account-copy"><strong>Workspace account</strong><small>Workspace</small></span>
-          <MoreHorizontal aria-hidden="true" size={16} />
-        </button>
-      </div>
     </aside>
   );
 }
