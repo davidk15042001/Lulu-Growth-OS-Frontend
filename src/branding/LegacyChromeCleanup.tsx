@@ -12,6 +12,27 @@ function isLegacyAppTopbar(element: HTMLElement) {
   return looksLikeTopbar && hasLegacyBrand && hasAccountChrome;
 }
 
+function isLegacyAppSidebar(element: HTMLElement) {
+  if (element.closest(".lulu-global-navigation")) return false;
+
+  const className = String(element.className ?? "").toLowerCase();
+  const ariaLabel = (element.getAttribute("aria-label") ?? "").toLowerCase();
+  const text = compactText(element);
+  const hasNavigationSections =
+    text.includes("dashboard") &&
+    text.includes("agent") &&
+    text.includes("crm") &&
+    text.includes("marketing") &&
+    text.includes("website");
+  const looksLikeLegacySidebar =
+    element.matches("aside") ||
+    className.includes("left-nav") ||
+    className.includes("sidebar") ||
+    ariaLabel.includes("lulu ai-bereiche");
+
+  return looksLikeLegacySidebar && hasNavigationSections;
+}
+
 function sameElements(current: HTMLElement[], next: HTMLElement[]) {
   return current.length === next.length && current.every((element, index) => element === next[index]);
 }
@@ -19,7 +40,9 @@ function sameElements(current: HTMLElement[], next: HTMLElement[]) {
 function findLegacyChrome(root: ParentNode) {
   const pageRoot = root.querySelector(".lulu-native-page");
   if (!pageRoot) return [];
-  return [...pageRoot.querySelectorAll<HTMLElement>("header")].filter(isLegacyAppTopbar);
+  return [...pageRoot.querySelectorAll<HTMLElement>("header, aside, nav")].filter(
+    (element) => isLegacyAppTopbar(element) || isLegacyAppSidebar(element),
+  );
 }
 
 export function LegacyChromeCleanup() {
