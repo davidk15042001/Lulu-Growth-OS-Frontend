@@ -180,6 +180,13 @@ a[data-lulu-soon="true"]::after,
 @media(max-width:900px){.lulu-global-shell{display:block}.lulu-global-navigation{position:sticky;top:66px;height:auto;max-height:46vh;border-right:0;border-bottom:1px solid var(--border);padding:10px 12px}.lulu-global-navigation__brand{padding:2px 8px 9px}.lulu-global-navigation__workspace-label{display:none}.lulu-global-navigation__sections{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}.lulu-global-navigation__sections details{min-width:max-content}.lulu-global-navigation__sections summary{padding:8px 9px;font-size:.78rem}.lulu-global-navigation__subitems{position:absolute;z-index:60;min-width:190px;margin-top:2px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:5px;box-shadow:0 16px 40px rgba(0,0,0,.16)}.lulu-global-navigation__account{display:none}.lulu-global-content{min-height:auto}}
 @media(max-width:640px){.lulu-auth-search-wrap{gap:8px;padding:9px 12px}.lulu-auth-search{min-width:0;border-radius:13px}.lulu-auth-ai-number{gap:4px;padding:8px 9px;font-size:.7rem}.lulu-auth-ai-number strong{font-size:.85rem}.lulu-auth-credits{gap:4px;padding:8px 9px;font-size:.7rem}.lulu-auth-credits strong{font-size:.78rem}.lulu-auth-search-button{width:48px;flex-basis:48px}.lulu-auth-search-button img{width:34px}.lulu-auth-search-results{width:calc(100% - 24px)}.lulu-global-navigation{max-height:42vh}.lulu-global-navigation__brand span{font-size:.9rem}}
 
+/* Public auth layout: do not reserve the authenticated navigation grid column. */
+.lulu-global-shell:has(.lulu-global-content--auth){display:block;min-height:100vh}
+.lulu-global-content--auth,.lulu-global-content--auth .lulu-native-page{width:100%;min-width:0}
+.lulu-global-content--auth .auth-shell{display:grid!important;width:100%!important;min-width:0;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.lulu-global-content--auth .auth-shell>section,.lulu-global-content--auth .auth-shell>aside{min-width:0}
+@media(max-width:899px){.lulu-global-content--auth .auth-shell{grid-template-columns:1fr!important}.lulu-global-content--auth .auth-shell>aside{display:none!important}}
+
 /* Compact navigation brand-to-section spacing */
 .page-frame aside > div.mb-9.flex.items-center.gap-3.px-2,
 .page-frame aside > div.mb-9.flex.items-center.gap-3.px-2.py-2 { margin-bottom: 1rem !important; }
