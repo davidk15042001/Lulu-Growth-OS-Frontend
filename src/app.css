@@ -183,9 +183,10 @@ a[data-lulu-soon="true"]::after,
 /* Public auth layout: do not reserve the authenticated navigation grid column. */
 .lulu-global-shell:has(.lulu-global-content--auth){display:block;min-height:100vh}
 .lulu-global-content--auth,.lulu-global-content--auth .lulu-native-page{width:100%;min-width:0}
-.lulu-global-content--auth .auth-shell{display:grid!important;width:100%!important;min-width:0;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
-.lulu-global-content--auth .auth-shell>section,.lulu-global-content--auth .auth-shell>aside{min-width:0}
-@media(max-width:899px){.lulu-global-content--auth .auth-shell{grid-template-columns:1fr!important}.lulu-global-content--auth .auth-shell>aside{display:none!important}}
+.lulu-global-content--auth .auth-shell{display:block!important;width:100%!important;min-width:0}
+.lulu-global-content--auth .auth-shell>div:first-child{width:100%;min-width:0}
+.lulu-global-content--auth .auth-shell>div:first-child>section,.lulu-global-content--auth .auth-shell>div:first-child>aside{min-width:0}
+@media(max-width:899px){.lulu-global-content--auth .auth-shell>div:first-child{display:block}.lulu-global-content--auth .auth-shell>div:first-child>aside{display:none!important}}
 
 /* Compact navigation brand-to-section spacing */
 .page-frame aside > div.mb-9.flex.items-center.gap-3.px-2,
