@@ -28,7 +28,14 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
       setCurrentUser(user.data);
 
       try {
-        const result = await workspaceApi.list();
+        let result;
+        try {
+          result = await workspaceApi.list();
+        } catch (firstWorkspaceError) {
+          if (firstWorkspaceError instanceof ApiError && firstWorkspaceError.status === 401) throw firstWorkspaceError;
+          await new Promise((resolve) => window.setTimeout(resolve, 350));
+          result = await workspaceApi.list();
+        }
         setWorkspaces(result.data.items);
         const id = selectedId && result.data.items.some((item) => item.id === selectedId) ? selectedId : result.data.items[0]?.id ?? null;
         if (id && id !== selectedId) { setSelectedWorkspaceId(id); setSelectedId(id); }
