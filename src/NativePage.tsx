@@ -4,6 +4,7 @@ import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
 import { routes } from "./routing";
+import { getPageContract } from "./api/page-contracts";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
 
 type AppModule = { default: ComponentType };
@@ -49,7 +50,7 @@ export function NativePage({ slug }: { slug: string }) {
   const [App, setApp] = useState<ComponentType | null>(null);
   const [error, setError] = useState<unknown>(null);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
-  const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname);
+  const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname) || getPageContract(slug)?.kind === "billing";
 
   useEffect(() => {
     const resetScrollPositions = () => {
