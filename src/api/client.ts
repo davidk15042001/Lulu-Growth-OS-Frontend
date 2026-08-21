@@ -7,6 +7,7 @@ export type ApiRequest = {
   method?: ApiMethod;
   body?: unknown;
   signal?: AbortSignal;
+  timeoutMs?: number;
 };
 
 export type ApiEnvelope<T> = {
@@ -397,7 +398,7 @@ export function requestApi<T>(request: ApiRequest): Promise<ApiEnvelope<T>> {
     const timeout = window.setTimeout(() => {
       cleanup();
       reject(new ApiError(0, "API_TIMEOUT", "The Lulu API request timed out"));
-    }, 30_000);
+    }, request.timeoutMs ?? 30_000);
     const listener = (event: MessageEvent<unknown>) => {
       if (event.origin !== window.location.origin || event.source !== window.parent) return;
       const response = event.data as Partial<BrokerResponse> | null;
