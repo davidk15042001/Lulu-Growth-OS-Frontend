@@ -83,7 +83,6 @@ export function NativePage({ slug }: { slug: string }) {
 
     const appLoader = appModules[`./pages/${slug}/App.tsx`];
     const styleLoader = styleModules[`./pages/${slug}/index.css`];
-
     if (!appLoader) {
       setError(new Error(`Native page not found: ${slug}`));
       return () => {

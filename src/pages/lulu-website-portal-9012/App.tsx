@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { getSelectedWorkspaceId } from "../../api/session";
-import { websitesApi, type WebsiteGenerationJob, type WebsiteSite } from "../../api/websites";
+import { websitesApi, type WebsiteGenerationJob, type WebsiteSite, type WordPressContent, type WordPressContentItem } from "../../api/websites";
 import { onboardingApi, type Platform } from "../../api/onboarding";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../../api/client";
 import {
@@ -85,6 +85,31 @@ const providerContent: Record<Provider, {
   },
 };
 
+function wordpressItemTitle(item: WordPressContentItem) {
+  return typeof item.title === "string" ? item.title : item.title?.rendered ?? item.slug ?? "Unbenannter Inhalt";
+}
+
+function wordpressItemUrl(item: WordPressContentItem) {
+  return item.URL ?? item.url ?? item.link ?? "";
+}
+
+function wordpressDate(item: WordPressContentItem) {
+  const value = item.modified ?? item.date;
+  if (!value) return "—";
+  return new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(value));
+}
+
+function WordPressList({ title, items, loading }: { title: string; items: WordPressContentItem[]; loading: boolean }) {
+  return <section className="rounded-2xl border border-[#dcdcde] bg-white shadow-sm">
+    <div className="flex items-center justify-between border-b border-[#dcdcde] px-5 py-4"><div><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#646970]">WordPress</p><h2 className="mt-1 text-xl font-semibold text-[#1d2327]">{title}</h2></div><span className="rounded-full bg-[#f0f0f1] px-3 py-1 text-xs font-medium text-[#50575e]">{loading ? "Wird geladen…" : `${items.length} Einträge`}</span></div>
+    <div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead className="bg-[#f6f7f7] text-xs uppercase tracking-[0.1em] text-[#646970]"><tr><th className="px-5 py-3 font-semibold">Titel</th><th className="px-5 py-3 font-semibold">Slug</th><th className="px-5 py-3 font-semibold">Status</th><th className="px-5 py-3 font-semibold">Geändert</th><th className="px-5 py-3 font-semibold">Link</th></tr></thead><tbody className="divide-y divide-[#dcdcde]">{items.map((item, index) => { const url = wordpressItemUrl(item); return <tr key={String(item.ID ?? item.id ?? item.slug ?? index)} className="hover:bg-[#f6f7f7]"><td className="px-5 py-4"><div className="font-semibold text-[#2271b1]">{wordpressItemTitle(item)}</div><div className="mt-1 text-xs text-[#646970]">ID {String(item.ID ?? item.id ?? "—")}</div></td><td className="px-5 py-4 text-[#50575e]">/{item.slug ?? "—"}</td><td className="px-5 py-4"><span className="rounded-full bg-[#e7f7ed] px-2.5 py-1 text-xs font-medium text-[#176b37]">{item.status ?? "publish"}</span></td><td className="px-5 py-4 text-[#50575e]">{wordpressDate(item)}</td><td className="px-5 py-4">{url ? <a href={url} target="_blank" rel="noreferrer" className="font-medium text-[#2271b1] hover:underline">Ansehen</a> : <span className="text-[#646970]">—</span>}</td></tr>; })}</tbody></table>{!loading && items.length === 0 && <div className="px-5 py-10 text-center text-sm text-[#646970]">Noch keine WordPress-Inhalte gefunden.</div>}</div>
+  </section>;
+}
+
+function WordPressMediaGrid({ items, loading }: { items: WordPressContentItem[]; loading: boolean }) {
+  return <section className="rounded-2xl border border-[#dcdcde] bg-white p-5 shadow-sm"><div className="flex items-center justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#646970]">WordPress</p><h2 className="mt-1 text-xl font-semibold text-[#1d2327]">Medienbibliothek</h2></div><span className="rounded-full bg-[#f0f0f1] px-3 py-1 text-xs font-medium text-[#50575e]">{loading ? "Wird geladen…" : `${items.length} Medien`}</span></div><div className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{items.map((item, index) => { const image = item.thumbnail ?? item.featured_image ?? wordpressItemUrl(item); return <article key={String(item.ID ?? item.id ?? index)} className="overflow-hidden rounded-xl border border-[#dcdcde] bg-[#f6f7f7]">{image ? <img src={image} alt={wordpressItemTitle(item)} className="aspect-[4/3] w-full object-cover" /> : <div className="grid aspect-[4/3] place-items-center text-xs text-[#646970]">Keine Vorschau</div>}<div className="p-3"><h3 className="truncate text-sm font-semibold text-[#1d2327]">{wordpressItemTitle(item)}</h3><p className="mt-1 text-xs text-[#646970]">{item.mime_type ?? "Medienobjekt"}</p></div></article>; })}</div>{!loading && items.length === 0 && <div className="py-10 text-center text-sm text-[#646970]">Noch keine Medien vorhanden.</div>}</section>;
+}
+
 const sectionContent: Record<string, { eyebrow: string; title: string; description: string; cards: Array<{ title: string; text: string }> }> = {
   "wordpress-jetpack-9013": { eyebrow: "WordPress / Jetpack", title: "WordPress-Website verwalten", description: "Verwalte Verbindung, Seiten, Veröffentlichung und den Status deiner WordPress-Website.", cards: [{ title: "Verbindung", text: "Prüfe die verbundene WordPress-Website und starte einen kontrollierten Generierungs- oder Aktualisierungslauf." }, { title: "Website generieren", text: "Erstelle eine kundenabhängige Seitenstruktur und veröffentliche sie erst nach erfolgreicher Prüfung." }, { title: "Veröffentlichung", text: "Kontrolliere veröffentlichte Seiten, URLs und den bestätigten Status direkt über den Provider." }] },
   "webflow-9014": { eyebrow: "Webflow", title: "Webflow-Website verwalten", description: "Verwalte Seiten, CMS-Inhalte und kontrollierte Veröffentlichungen deiner Webflow-Website.", cards: [{ title: "Site-Verbindung", text: "Prüfe die verbundene Webflow-Site und ihre verfügbaren CMS-Collections." }, { title: "CMS-Inhalte", text: "Plane und aktualisiere strukturierte Inhalte für deine Webflow-Collection." }, { title: "Veröffentlichung", text: "Veröffentliche Änderungen erst nach einer bestätigten Provider-Antwort." }] },
@@ -117,6 +142,8 @@ export default function App() {
   const [generationJob, setGenerationJob] = useState<{ siteId: string; job: WebsiteGenerationJob; provider: Provider } | null>(null);
   const [generationStarting, setGenerationStarting] = useState<Provider | null>(null);
   const [generationFailure, setGenerationFailure] = useState<{ provider: Provider; message: string } | null>(null);
+  const [wordpressContent, setWordpressContent] = useState<WordPressContent | null>(null);
+  const [wordpressContentLoading, setWordpressContentLoading] = useState(false);
   const [error, setError] = useState("");
   const [oauthHelpVisible, setOauthHelpVisible] = useState(false);
   const autoStartedRef = useRef("");
@@ -183,6 +210,25 @@ export default function App() {
       setSelectedSiteId(websiteResponse.data.items.find((site) => site.provider === provider)?.id ?? websiteResponse.data.items[0]?.id ?? "");
     }).catch((requestError) => setError(getFriendlyErrorMessage(requestError, "Die Websites und Verbindungen konnten nicht geladen werden.")));
   }, [workspaceId, provider]);
+
+  useEffect(() => {
+    if (!workspaceId || provider !== "wordpress" || !selectedSiteId) {
+      setWordpressContent(null);
+      return;
+    }
+    const selected = sites.find((site) => site.id === selectedSiteId);
+    if (!selected?.externalSiteId) {
+      setWordpressContent(null);
+      return;
+    }
+    let cancelled = false;
+    setWordpressContentLoading(true);
+    websitesApi.wordpressContent(workspaceId, selected.id)
+      .then((response) => { if (!cancelled) setWordpressContent(response.data); })
+      .catch((requestError) => { if (!cancelled) setError(getFriendlyErrorMessage(requestError, "WordPress-Inhalte konnten nicht geladen werden.")); })
+      .finally(() => { if (!cancelled) setWordpressContentLoading(false); });
+    return () => { cancelled = true; };
+  }, [workspaceId, provider, selectedSiteId, sites]);
 
   const startAutomaticGeneration = async (nextProvider: Provider) => {
     if (!workspaceId) return;
@@ -336,7 +382,11 @@ export default function App() {
 
           {!sectionParam && <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{content.metrics.map((metric) => <article key={metric.label} className="rounded-xl border border-border bg-card p-4"><div className="mb-4 flex items-center justify-between"><span className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">{metric.label}</span><metric.icon size={16} className="text-muted-foreground" /></div><strong className="text-2xl font-semibold tracking-tight text-foreground">{metric.label === "Seiten" ? String(selectedSite ? 1 : 0) : metric.value}</strong><p className="mt-1 text-xs text-[#4b5563]">{metric.hint}</p></article>)}</div>}
 
-          {(() => { const section = sectionContent[sectionParam]; const cards = section?.cards ?? content.actions.map((action) => ({ title: action.title, text: action.description })); return <section className="rounded-2xl border border-border bg-card p-5 sm:p-6"><div className="mb-5 flex items-start justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">{section?.eyebrow ?? "Website"}</p><h2 className="mt-1 text-xl font-semibold tracking-tight text-foreground">{section?.title ?? `${activeSection} · ${content.shortLabel}`}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#4b5563]">{section?.description ?? "Wähle einen Website-Unterbereich aus der globalen Navigation."}</p></div><button type="button" className="rounded-lg p-2 text-muted-foreground hover:bg-secondary" aria-label="Website-Einstellungen"><Settings size={17} /></button></div><div className="mb-5 grid gap-3 sm:grid-cols-3"><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Bereich</p><p className="mt-2 text-sm font-semibold text-foreground">{section?.eyebrow ?? content.shortLabel}</p></div><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Status</p><p className="mt-2 text-sm font-semibold text-foreground">{selectedSite?.status === "published" ? "Veröffentlicht" : selectedSite ? "Verbunden" : "Nicht verbunden"}</p></div><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Nächster Schritt</p><p className="mt-2 text-sm font-semibold text-foreground">{sectionParam.startsWith("wordpress") || sectionParam.startsWith("webflow") ? "Verbindung prüfen" : "Bereich konfigurieren"}</p></div></div><div className="grid gap-3 md:grid-cols-3">{cards.map((card) => <article key={card.title} className="group rounded-xl border border-border bg-background p-4 text-left transition hover:-translate-y-px hover:border-primary/40"><div className="mb-5 flex items-center justify-between"><span className="grid h-9 w-9 place-items-center rounded-lg bg-secondary text-muted-foreground group-hover:text-foreground"><ArrowRight size={17} /></span><ArrowRight size={16} className="text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" /></div><h3 className="text-sm font-semibold text-foreground">{card.title}</h3><p className="mt-2 text-xs leading-5 text-muted-foreground">{card.text}</p></article>)}</div></section>; })()}
+          {provider === "wordpress" && sectionParam === "wordpress-jetpack-9013" && <div className="space-y-5"><WordPressList title="Seiten" items={wordpressContent?.pages ?? []} loading={wordpressContentLoading} /><WordPressList title="Beiträge" items={wordpressContent?.posts ?? []} loading={wordpressContentLoading} /></div>}
+          {provider === "wordpress" && sectionParam === "pages-cms-9015" && <WordPressList title="Seiten und CMS" items={wordpressContent?.pages ?? []} loading={wordpressContentLoading} />}
+          {provider === "wordpress" && sectionParam === "posts-9016" && <WordPressList title="Beiträge" items={wordpressContent?.posts ?? []} loading={wordpressContentLoading} />}
+          {provider === "wordpress" && sectionParam === "media-assets-9017" && <WordPressMediaGrid items={wordpressContent?.media ?? []} loading={wordpressContentLoading} />}
+          {!(provider === "wordpress" && ["wordpress-jetpack-9013", "pages-cms-9015", "posts-9016", "media-assets-9017"].includes(sectionParam)) && (() => { const section = sectionContent[sectionParam]; const cards = section?.cards ?? content.actions.map((action) => ({ title: action.title, text: action.description })); return <section className="rounded-2xl border border-border bg-card p-5 sm:p-6"><div className="mb-5 flex items-start justify-between gap-4"><div><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">{section?.eyebrow ?? "Website"}</p><h2 className="mt-1 text-xl font-semibold tracking-tight text-foreground">{section?.title ?? `${activeSection} · ${content.shortLabel}`}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#4b5563]">{section?.description ?? "Wähle einen Website-Unterbereich aus der globalen Navigation."}</p></div><button type="button" className="rounded-lg p-2 text-muted-foreground hover:bg-secondary" aria-label="Website-Einstellungen"><Settings size={17} /></button></div><div className="mb-5 grid gap-3 sm:grid-cols-3"><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Bereich</p><p className="mt-2 text-sm font-semibold text-foreground">{section?.eyebrow ?? content.shortLabel}</p></div><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Status</p><p className="mt-2 text-sm font-semibold text-foreground">{selectedSite?.status === "published" ? "Veröffentlicht" : selectedSite ? "Verbunden" : "Nicht verbunden"}</p></div><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Nächster Schritt</p><p className="mt-2 text-sm font-semibold text-foreground">{sectionParam.startsWith("wordpress") || sectionParam.startsWith("webflow") ? "Verbindung prüfen" : "Bereich konfigurieren"}</p></div></div><div className="grid gap-3 md:grid-cols-3">{cards.map((card) => <article key={card.title} className="group rounded-xl border border-border bg-background p-4 text-left transition hover:-translate-y-px hover:border-primary/40"><div className="mb-5 flex items-center justify-between"><span className="grid h-9 w-9 place-items-center rounded-lg bg-secondary text-muted-foreground group-hover:text-foreground"><ArrowRight size={17} /></span><ArrowRight size={16} className="text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" /></div><h3 className="text-sm font-semibold text-foreground">{card.title}</h3><p className="mt-2 text-xs leading-5 text-muted-foreground">{card.text}</p></article>)}</div></section>; })()}
         </div>
       </main>
     </div>

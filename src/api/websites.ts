@@ -26,6 +26,28 @@ export type WebsiteDomain = {
   verifiedAt: string | null;
   lastError: string | null;
 };
+export type WordPressContentItem = {
+  ID?: number | string;
+  id?: number | string;
+  title?: string | { rendered?: string };
+  slug?: string;
+  status?: string;
+  URL?: string;
+  url?: string;
+  link?: string;
+  date?: string;
+  modified?: string;
+  author?: { name?: string };
+  featured_image?: string;
+  thumbnail?: string;
+  mime_type?: string;
+};
+export type WordPressContent = {
+  site: { id: string; name: string; url: string | null; status: string };
+  pages: WordPressContentItem[];
+  posts: WordPressContentItem[];
+  media: WordPressContentItem[];
+};
 export type WebsiteGenerationJob = {
   id: string;
   siteId: string;
@@ -47,4 +69,5 @@ export const websitesApi = {
   getGenerationJob: (workspaceId: string, siteId: string, jobId: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/${jobId}` }),
   startAutomaticGeneration: (workspaceId: string, provider: 'wordpress' | 'webflow', language?: string) => requestApi<{ site: WebsiteSite; job: WebsiteGenerationJob; reused: boolean }>({ path: `/workspaces/${workspaceId}/websites/automatic-generation`, method: 'POST', body: { provider, ...(language ? { language } : {}) } }),
   cleanupProvider: (workspaceId: string, provider: 'wordpress' | 'webflow') => requestApi<void>({ path: `/workspaces/${workspaceId}/websites/cleanup-provider`, method: 'POST', body: { provider } }),
+  wordpressContent: (workspaceId: string, siteId: string) => requestApi<WordPressContent>({ path: `/workspaces/${workspaceId}/websites/${siteId}/wordpress-content` }),
 };
