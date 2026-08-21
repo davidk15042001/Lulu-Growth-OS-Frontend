@@ -16,17 +16,16 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
       <nav className="lulu-global-navigation__sections">
         {navigationSections.map((section) => {
           const isActiveSection = section.pages.some((page) => page.id === activeSlug);
-          const hasAvailablePage = section.pages.some((page) => Boolean(pageLinkProps(page.id).href));
           return (
             <details key={section.label} open={isActiveSection || section.label === "Website" || section.label === "Settings"}>
               <summary className={isActiveSection ? "is-active" : undefined}>
-                <span>{section.label}{hasAvailablePage ? "" : " (Soon)"}</span>
+                <span>{section.label}</span>
                 <ChevronDown aria-hidden="true" size={14} />
               </summary>
               <div className="lulu-global-navigation__subitems">
                 {section.pages.map((page) => {
                   const props = pageLinkProps(page.id);
-                  const available = !page.soon && Boolean(props.href);
+                  const available = Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
                   return (
                     <a
@@ -36,12 +35,10 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                       aria-current={isActivePage ? "page" : undefined}
                       aria-disabled={!available || undefined}
                       tabIndex={available ? undefined : -1}
-                      onClick={(event) => {
-                        if (!available) event.preventDefault();
-                      }}
-                      aria-label={available ? page.label : `${page.label} (Soon)`}
+                      onClick={undefined}
+                      aria-label={page.label}
                     >
-                      <span>{page.label}{available ? "" : " (Soon)"}</span>
+                      <span>{page.label}</span>
                     </a>
                   );
                 })}

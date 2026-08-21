@@ -63,12 +63,13 @@ const AUTH_PAGE_SLUGS = new Set(["brightly-door-5741", "finely-year-1146", "cris
 
 export function pageLinkProps(slug: string) {
   const href = pagePath(slug);
-  const isAvailable = AUTH_PAGE_SLUGS.has(slug) || slug === WEBSITE_PAGE_SLUG || slug.startsWith(WEBSITE_PAGE_PREFIX) || SETTINGS_PAGE_SLUGS.has(slug);
+  // All navigation entries are available; unknown app slugs use the stable /app/:slug route.
+  const isAvailable = Boolean(slug);
   return {
     href: isAvailable ? href : undefined,
     target: "_top" as const,
     "data-lulu-route": isAvailable ? href : undefined,
-    "data-lulu-soon": isAvailable ? undefined : "true",
+    "data-lulu-soon": undefined,
     "aria-disabled": isAvailable ? undefined : ("true" as const),
     tabIndex: isAvailable ? undefined : -1,
   };
