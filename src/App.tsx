@@ -143,9 +143,6 @@ function AuthenticatedSearchBar() {
     } finally { setBusy(false); }
   };
   return <div className="lulu-auth-search-wrap" data-lulu-auth-search="true">
-    <div className="lulu-auth-logo" data-lulu-no-translate="true" translate="no">
-      <img src="/branding/lulu-intelligence-logo.png" alt="Lulu AI" draggable={false} />
-    </div>
     <form className="lulu-auth-search" role="search" onSubmit={submit}>
       <label className="sr-only" htmlFor="lulu-global-search">Search Lulu AI</label>
       <Search aria-hidden="true" size={18} className="lulu-auth-search-icon" />
