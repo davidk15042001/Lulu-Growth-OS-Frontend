@@ -14,6 +14,7 @@ import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
 import { getPageContract } from "./api/page-contracts";
 import { useLuluApp } from "./api/LuluAppContext";
 import { conversationApi } from "./api/conversations";
+import { authApi } from "./api/auth";
 import { usageApi, type WorkspaceCredits } from "./api/usage";
 import { BillingOnboarding } from "./components/BillingOnboarding";
 import AdminBillingPage from "./pages/admin-billing-overview-9901/App";
@@ -110,6 +111,8 @@ function AuthenticatedSearchBar() {
   const [answer, setAnswer] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [credits, setCredits] = useState<WorkspaceCredits | null>(null);
+  const [aiTestNumber, setAiTestNumber] = useState<number | null>(null);
+  const [aiTestLoading, setAiTestLoading] = useState(false);
   const matches = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return [];
@@ -126,6 +129,18 @@ function AuthenticatedSearchBar() {
       .catch(() => { if (!cancelled) setCredits(null); });
     return () => { cancelled = true; };
   }, [selectedWorkspace]);
+  useEffect(() => {
+    let cancelled = false;
+    setAiTestLoading(true);
+    authApi.aiTokenTest()
+      .then((response) => {
+        const value = response.data.number;
+        if (!cancelled && Number.isInteger(value) && value >= 1 && value <= 10) setAiTestNumber(value);
+      })
+      .catch(() => { if (!cancelled) setAiTestNumber(null); })
+      .finally(() => { if (!cancelled) setAiTestLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
   if (!currentUser || !selectedWorkspace) return null;
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -143,6 +158,10 @@ function AuthenticatedSearchBar() {
     } finally { setBusy(false); }
   };
   return <div className="lulu-auth-search-wrap" data-lulu-auth-search="true">
+    <div className="lulu-auth-ai-number" role="status" aria-live="polite">
+      <span className="lulu-auth-ai-number-label">AI</span>
+      <strong>{aiTestLoading ? "…" : aiTestNumber ?? "—"}</strong>
+    </div>
     <form className="lulu-auth-search" role="search" onSubmit={submit}>
       <label className="sr-only" htmlFor="lulu-global-search">Search Lulu AI</label>
       <Search aria-hidden="true" size={18} className="lulu-auth-search-icon" />
