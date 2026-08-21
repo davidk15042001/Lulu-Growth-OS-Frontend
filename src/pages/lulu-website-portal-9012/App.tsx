@@ -308,13 +308,19 @@ export default function App() {
         }
         else if (response.data.status === "published") void refresh();
       } catch (requestError) {
-        if (!cancelled) {
-          const message = getFriendlyErrorMessage(requestError, "Die Website-Generierung ist fehlgeschlagen. Die Verbindung wurde zurückgesetzt.");
-          const failedProvider = generationJob.provider;
-          setGenerationJob(null);
-          setGenerationFailure({ provider: failedProvider, message });
-          setError(message);
+        if (cancelled) return;
+        const code = typeof requestError === "object" && requestError !== null && "code" in requestError
+          ? String((requestError as { code?: unknown }).code ?? "")
+          : "";
+        if (["API_TIMEOUT", "NETWORK_ERROR", "SESSION_REFRESH_UNAVAILABLE"].includes(code)) {
+          window.setTimeout(poll, 5000);
+          return;
         }
+        const message = getFriendlyErrorMessage(requestError, "Die Website-Generierung ist fehlgeschlagen. Die Verbindung wurde zurückgesetzt.");
+        const failedProvider = generationJob.provider;
+        setGenerationJob(null);
+        setGenerationFailure({ provider: failedProvider, message });
+        setError(message);
       }
     };
     void poll();
