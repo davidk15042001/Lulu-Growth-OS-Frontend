@@ -96,7 +96,7 @@ const sectionContent: Record<string, { eyebrow: string; title: string; descripti
 };
 
 export default function App() {
-  const sectionParam = new URLSearchParams(window.location.search).get("section") ?? "";
+  const [sectionParam, setSectionParam] = useState(() => new URLSearchParams(window.location.search).get("section") ?? "");
   const sectionLabels: Record<string, string> = {
     "wordpress-jetpack-9013": "WordPress / Jetpack",
     "webflow-9014": "Webflow",
@@ -159,6 +159,7 @@ export default function App() {
     const syncSectionFromUrl = () => {
       const nextSection = new URLSearchParams(window.location.search).get("section") ?? "";
       const nextProvider: Provider = nextSection.startsWith("webflow") ? "webflow" : "wordpress";
+      setSectionParam(nextSection);
       setActiveSection(sectionLabels[nextSection] ?? "Übersicht");
       if (nextSection.startsWith("webflow") || nextSection.startsWith("wordpress")) setProvider(nextProvider);
     };
