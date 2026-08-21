@@ -111,8 +111,12 @@ export function NativePage({ slug }: { slug: string }) {
 
   if (error) {
     return (
-      <main className="page-loading" role="alert">
-        Unable to load this page. Check the console for details.
+      <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-foreground" role="status">
+        <div className="max-w-md rounded-xl border border-border bg-[var(--card)] p-6 text-center">
+          <h1 className="text-lg font-semibold">Live workspace</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Live data is temporarily unavailable. Your layout remains accessible.</p>
+          <button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-foreground)]">Reload page</button>
+        </div>
       </main>
     );
   }
