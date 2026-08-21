@@ -196,7 +196,11 @@ const ACCESS_TOKEN_STORAGE_KEY = "lulu_access_token";
 
 function readStoredAccessToken() {
   try {
-    return window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+    const persistentToken = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+    if (persistentToken) return persistentToken;
+    const legacyToken = window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+    if (legacyToken) window.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, legacyToken);
+    return legacyToken;
   } catch {
     return null;
   }
@@ -205,8 +209,13 @@ function readStoredAccessToken() {
 function storeAccessToken(token: string | null) {
   accessToken = token;
   try {
-    if (token) window.sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
-    else window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    if (token) {
+      window.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
+      window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    } else {
+      window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+      window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    }
   } catch {
     // Private browsing/storage restrictions must not break authentication.
   }

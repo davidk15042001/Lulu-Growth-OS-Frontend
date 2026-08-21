@@ -101,6 +101,8 @@ button, input { font: inherit; }
 .lulu-global-navigation__subitems a:hover{background:var(--secondary);color:var(--foreground)}
 .lulu-global-navigation__subitems a.is-active{background:var(--primary);color:var(--primary-foreground)}
 .lulu-global-navigation__subitems a[aria-disabled="true"]{cursor:not-allowed;opacity:.68;pointer-events:none}
+.lulu-global-navigation__logout{display:flex;width:100%;align-items:center;gap:8px;border:0;border-radius:7px;padding:7px 9px;color:var(--muted-foreground);font-size:.78rem;text-align:left;background:transparent;cursor:pointer}
+.lulu-global-navigation__logout:hover{background:var(--secondary);color:var(--foreground)}
 .lulu-global-navigation__account{border-top:1px solid var(--border);padding-top:10px}
 .lulu-global-navigation__account button{display:flex;width:100%;align-items:center;gap:9px;border:0;border-radius:9px;background:transparent;padding:8px;color:var(--foreground);text-align:left}
 .lulu-global-navigation__account button:hover{background:var(--secondary)}

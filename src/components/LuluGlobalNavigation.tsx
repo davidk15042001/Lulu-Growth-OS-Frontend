@@ -1,5 +1,7 @@
-import { ChevronDown } from "lucide-react";
-import { pageLinkProps } from "../routing";
+import { ChevronDown, LogOut } from "lucide-react";
+import { pageLinkProps, navigateApp, routes } from "../routing";
+import { requestApi } from "../api/client";
+import { clearSelectedWorkspaceId } from "../api/session";
 import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 
 type NavigationPage = { id: string; label: string; soon?: boolean };
@@ -43,6 +45,23 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                     </a>
                   );
                 })}
+                {section.label === "Settings" && (
+                  <button
+                    type="button"
+                    className="lulu-global-navigation__logout"
+                    onClick={async () => {
+                      try {
+                        await requestApi({ path: "/auth/logout", method: "POST", body: {} });
+                      } finally {
+                        clearSelectedWorkspaceId();
+                        navigateApp(routes.auth.login);
+                      }
+                    }}
+                  >
+                    <LogOut aria-hidden="true" size={14} />
+                    <span>Sign out</span>
+                  </button>
+                )}
               </div>
             </details>
           );
