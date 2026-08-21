@@ -69,7 +69,8 @@ function PageRoute({ page }: { page: PageDefinition }) {
   const contract = getPageContract(page.slug);
   const location = useLocation();
   const { currentUser, selectedWorkspace, loading } = useLuluApp();
-  const isPublic = contract?.kind === "public";
+  const isAuthPath = location.pathname === routes.auth.login || location.pathname === routes.auth.signUp || location.pathname.startsWith("/auth/");
+  const isPublic = contract?.kind === "public" || isAuthPath;
   const isOnboarding = contract?.kind === "onboarding";
 
   if (location.pathname === routes.onboarding.productsServices || location.pathname === "/onboarding/ai-preferences") {
@@ -143,11 +144,12 @@ function AuthenticatedSearchBar() {
     } finally { setBusy(false); }
   };
   return <div className="lulu-auth-search-wrap" data-lulu-auth-search="true">
+    <div className="lulu-auth-logo" data-lulu-no-translate="true" translate="no"><img src="/branding/lulu-intelligence-logo.png" alt="Lulu AI" draggable={false} /></div>
     <form className="lulu-auth-search" role="search" onSubmit={submit}>
       <label className="sr-only" htmlFor="lulu-global-search">Search Lulu AI</label>
       <Search aria-hidden="true" size={18} className="lulu-auth-search-icon" />
       <input id="lulu-global-search" value={query} onFocus={() => setOpen(true)} onChange={(event) => { setQuery(event.target.value); setOpen(true); }} placeholder="Search Lulu AI" autoComplete="off" />
-      <button type="submit" aria-label="Search" title="Search" className="lulu-auth-search-button"><img src="/branding/lulu-intelligence-logo.png" alt="Lulu AI" draggable={false} /></button>
+      <button type="submit" aria-label="Search" title="Search" className="lulu-auth-search-button"><Search aria-hidden="true" size={17} /></button>
     </form>
     {credits && <div className="lulu-auth-credits" title="Credits" aria-label="Credits">
       <span className="lulu-auth-credits-label">Credits</span>

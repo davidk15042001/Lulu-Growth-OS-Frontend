@@ -33,7 +33,7 @@ function pageSlugFromPath(pathname: string) {
 export function NativePage({ slug }: { slug: string }) {
   const [App, setApp] = useState<ComponentType | null>(null);
   const [error, setError] = useState<unknown>(null);
-  const isAuthPage = authPageSlugs.has(slug) || window.location.pathname.startsWith("/auth/");
+  const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
 
   useEffect(() => {
     const resetScrollPositions = () => {
