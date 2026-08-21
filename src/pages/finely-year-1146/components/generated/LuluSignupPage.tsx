@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { AlertCircle, Check, Eye, EyeOff, LoaderCircle, Sparkles } from 'lucide-react';
+import { AlertCircle, Check, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { clearSelectedWorkspaceId } from '../../../../api/session';
@@ -78,7 +78,7 @@ export function LuluSignupPage() {
       setStatus('idle');
     }
   }
-  return <main className="auth-shell grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-2">
+  return <main className="auth-shell grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-1">
       <section className="flex items-start justify-center overflow-y-auto px-6 py-10">
         <div className="w-full max-w-md">
           <div className="lulu-global-brand-host flex items-center gap-2" data-lulu-no-translate="true" translate="no">
@@ -166,16 +166,5 @@ export function LuluSignupPage() {
         </div>
       </section>
 
-      <aside className="hidden border-l border-[var(--border)] bg-[var(--sidebar)] p-12 lg:sticky lg:top-0 lg:flex lg:h-screen lg:flex-col lg:justify-between">
-        <Sparkles size={42} />
-        <div>
-          <h2 className="max-w-xl text-5xl font-semibold leading-tight">Start building a smarter, more connected business with AI.</h2>
-        </div>
-        <nav aria-label="Legal links" className="flex gap-5 text-sm text-[var(--muted-foreground)]">
-          <a href="#privacy" className="transition hover:text-[var(--foreground)]">Privacy</a>
-          <a href="#terms" className="transition hover:text-[var(--foreground)]">Terms</a>
-          <a href="#security" className="transition hover:text-[var(--foreground)]">Security</a>
-        </nav>
-      </aside>
     </main>;
 }
