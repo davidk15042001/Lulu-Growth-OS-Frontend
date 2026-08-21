@@ -10,7 +10,7 @@ type NavigationSection = { label: string; pages: readonly NavigationPage[] };
 
 const navigationSections = luluDropdownNavigation as readonly NavigationSection[];
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
-const WEBSITE_JOB_BLOCKED_STATUSES = new Set(["queued", "planning", "generated", "preview", "publishing", "failed", "cancelled"]);
+const WEBSITE_JOB_BLOCKED_STATUSES = new Set(["queued", "planning", "publishing", "failed", "cancelled"]);
 
 function readWebsiteGenerationLock() {
   try {
