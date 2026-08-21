@@ -147,7 +147,7 @@ export const LuluExecutiveDashboard = () => {
 };
 
 /* Lulu dropdown navigation — intentionally isolated from page content. */
-const luluDropdownNavigation = [{
+export const luluDropdownNavigation = [{
   "label": "Dashboard",
   "pages": [{
     "id": "fancily-leaf-1766",

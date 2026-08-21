@@ -1,65 +1,11 @@
-import { ChevronDown, MoreHorizontal, Sparkles } from "lucide-react";
+import { ChevronDown, MoreHorizontal } from "lucide-react";
 import { pageLinkProps } from "../routing";
+import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 
 type NavigationPage = { id: string; label: string; soon?: boolean };
-type NavigationSection = { label: string; pages: NavigationPage[] };
+type NavigationSection = { label: string; pages: readonly NavigationPage[] };
 
-const navigationSections: NavigationSection[] = [
-  { label: "Dashboard", pages: [{ id: "fancily-leaf-1766", label: "Overview" }] },
-  {
-    label: "AI",
-    pages: [
-      { id: "fresh-moon-5374", label: "Assistant" },
-      { id: "radiant-dusk-9079", label: "Agents" },
-      { id: "calmly-park-3313", label: "Agent Marketplace" },
-      { id: "rich-field-1880", label: "Knowledge" },
-      { id: "wondrously-second-5656", label: "Actions" },
-      { id: "sunny-moon-6307", label: "Conversations" },
-      { id: "sparkling-cave-8456", label: "Activity" },
-    ],
-  },
-  {
-    label: "CRM",
-    pages: [
-      { id: "bright-meadow-7537", label: "Overview" },
-      { id: "sturdy-month-1562", label: "Contacts" },
-      { id: "kindly-pool-8785", label: "Companies" },
-      { id: "swift-hour-7844", label: "Leads" },
-      { id: "smartly-shade-4619", label: "Deals" },
-    ],
-  },
-  {
-    label: "Marketing",
-    pages: [
-      { id: "wondrous-cloud-1355", label: "Content" },
-      { id: "sparklingly-home-7386", label: "Strategy" },
-      { id: "gently-shade-2476", label: "Campaigns" },
-      { id: "sparklingly-moon-5114", label: "SEO" },
-      { id: "zealously-path-4224", label: "GEO" },
-      { id: "sunny-house-9595", label: "AEO" },
-    ],
-  },
-  {
-    label: "Website",
-    pages: [
-      { id: "lulu-website-portal-9012", label: "Overview" },
-      { id: "website-wordpress-jetpack-9013", label: "WordPress" },
-      { id: "website-webflow-9014", label: "Webflow" },
-      { id: "website-shopify-9015", label: "Shopify" },
-    ],
-  },
-  {
-    label: "Settings",
-    pages: [
-      { id: "glad-coast-1428", label: "Integrations" },
-      { id: "pure-minute-5446", label: "Billing" },
-    ],
-  },
-];
-
-function isAvailable(page: NavigationPage) {
-  return !page.soon && Boolean(pageLinkProps(page.id).href);
-}
+const navigationSections = luluDropdownNavigation as readonly NavigationSection[];
 
 export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
   return (
@@ -72,16 +18,17 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
       <nav className="lulu-global-navigation__sections">
         {navigationSections.map((section) => {
           const isActiveSection = section.pages.some((page) => page.id === activeSlug);
+          const hasAvailablePage = section.pages.some((page) => Boolean(pageLinkProps(page.id).href));
           return (
             <details key={section.label} open={isActiveSection || section.label === "Website" || section.label === "Settings"}>
               <summary className={isActiveSection ? "is-active" : undefined}>
-                <span>{section.label}{section.label !== "Website" && section.label !== "Settings" ? " (Soon)" : ""}</span>
+                <span>{section.label}{hasAvailablePage ? "" : " (Soon)"}</span>
                 <ChevronDown aria-hidden="true" size={14} />
               </summary>
               <div className="lulu-global-navigation__subitems">
                 {section.pages.map((page) => {
-                  const available = isAvailable(page);
                   const props = pageLinkProps(page.id);
+                  const available = !page.soon && Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
                   return (
                     <a
@@ -89,6 +36,11 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                       {...props}
                       className={isActivePage ? "is-active" : undefined}
                       aria-current={isActivePage ? "page" : undefined}
+                      aria-disabled={!available || undefined}
+                      tabIndex={available ? undefined : -1}
+                      onClick={(event) => {
+                        if (!available) event.preventDefault();
+                      }}
                       aria-label={available ? page.label : `${page.label} (Soon)`}
                     >
                       <span>{page.label}{available ? "" : " (Soon)"}</span>
@@ -110,3 +62,6 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
     </aside>
   );
 }
+
+export type { NavigationPage, NavigationSection };
+
