@@ -47,6 +47,10 @@ function pageSlugFromPath(pathname: string) {
 }
 
 export function NativePage({ slug }: { slug: string }) {
+  const effectiveSlug = slug === "lulu-website-portal-9012" ? (() => {
+    const section = new URLSearchParams(window.location.search).get("section");
+    return section ? `website-${section}` : slug;
+  })() : slug;
   const [App, setApp] = useState<ComponentType | null>(null);
   const [error, setError] = useState<unknown>(null);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
@@ -149,7 +153,7 @@ export function NativePage({ slug }: { slug: string }) {
   return (
     <LuluRuntime slug={slug}>
       <div className={`lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}`}>
-        {!isNavigationFree && <LuluGlobalNavigation activeSlug={slug} />}
+        {!isNavigationFree && <LuluGlobalNavigation activeSlug={effectiveSlug} />}
         <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
           <div className="lulu-native-page">
             <PageErrorBoundary pageName={slug}>

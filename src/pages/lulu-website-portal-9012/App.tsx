@@ -1,9 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../../api/session";
+import { getSelectedWorkspaceId } from "../../api/session";
 import { websitesApi, type WebsiteGenerationJob, type WebsiteSite } from "../../api/websites";
 import { onboardingApi, type Platform } from "../../api/onboarding";
-import { authApi } from "../../api/auth";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../../api/client";
 import {
   ArrowRight,
@@ -11,17 +10,13 @@ import {
   Globe2,
   Image,
   LayoutDashboard,
-  Menu,
-  MoreHorizontal,
   PenLine,
   Plus,
   RefreshCw,
   Search,
   Settings,
-  X,
 } from "lucide-react";
 import { pageLinkProps } from "../../routing";
-import { LuluSectionNavigation } from "../fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 
 type Provider = "wordpress" | "webflow";
 
@@ -102,8 +97,6 @@ export default function App() {
     "settings-9019": "Website Settings",
   };
   const initialProvider: Provider = sectionParam.startsWith("webflow") ? "webflow" : "wordpress";
-  const [mobileNav, setMobileNav] = useState(false);
-  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState(sectionLabels[sectionParam] ?? "Übersicht");
   const [provider, setProvider] = useState<Provider>(initialProvider);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -299,12 +292,6 @@ export default function App() {
     }
   };
 
-  const logout = async () => {
-    setAccountMenuOpen(false);
-    try { await authApi.logout(); } catch { /* The local session is cleared even if the server is unreachable. */ }
-    clearSelectedWorkspaceId();
-    window.location.assign("/auth/login");
-  };
 
   const changeProvider = (nextProvider: Provider) => {
     setProvider(nextProvider);
@@ -322,26 +309,10 @@ export default function App() {
       {generationStarting && !generationJob && <ViewportPortal><div className="fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/45 p-4 backdrop-blur-sm"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-start-title" style={{ color: "#111827" }} className="my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><div className="flex items-start gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><RefreshCw size={22} className="animate-spin" /></div><div><h2 id="website-generation-start-title" className="text-lg font-semibold text-[#111827]">Website wird generiert</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website.</p><p className="mt-3 text-xs text-[#4b5563]">{generationStarting === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/4 animate-pulse rounded-full bg-primary" /></div></div></div></ViewportPortal>}
       {generationFailure && !generationJob && !generationStarting && <ViewportPortal><div className="fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/45 p-4 backdrop-blur-sm"><div role="alertdialog" aria-modal="true" style={{ color: "#111827" }} className="my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-destructive/30 bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><h2 className="text-lg font-semibold text-destructive">Generierung fehlgeschlagen</h2><p className="mt-3 break-words text-sm leading-6 text-[#4b5563]">{generationFailure.message}</p><button type="button" onClick={() => setGenerationFailure(null)} className="mt-6 w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-secondary">Schließen</button></div></div></ViewportPortal>}
 
-      <aside className={`${mobileNav ? "flex" : "hidden"} fixed inset-y-0 left-0 z-30 flex h-dvh min-h-0 w-64 max-w-[calc(100vw-1rem)] flex-col overflow-hidden border-r border-border bg-[var(--sidebar)] p-4 lg:flex`}>
-        <div className="mb-8 flex items-center gap-3 px-2 py-2">
-          <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-lg font-bold text-primary-foreground shadow-lg shadow-black/20">L</div>
-          <div><strong className="text-base tracking-tight text-foreground">Lulu AI</strong><p className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Growth workspace</p></div>
-          <button className="ml-auto rounded-lg p-2 text-muted-foreground hover:bg-secondary lg:hidden" aria-label="Navigation schließen" onClick={() => setMobileNav(false)}><X size={17} /></button>
-        </div>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain pr-1">
-          <LuluSectionNavigation activeId="lulu-website-portal-9012" />
-        </div>
-        <div className="sticky bottom-0 z-10 relative mt-4 shrink-0 border-t border-border bg-[var(--sidebar)] pt-4">
-          <div className="flex items-center gap-3"><div className="grid h-8 w-8 place-items-center rounded-full bg-card text-xs font-semibold text-foreground">LU</div><div className="min-w-0"><p className="truncate text-sm font-medium text-foreground">Workspace account</p><p className="text-xs text-[#4b5563]">Workspace member</p></div><button type="button" className="ml-auto rounded-lg p-2 text-muted-foreground transition hover:bg-secondary hover:text-foreground" aria-label="Account-Menü öffnen" aria-expanded={accountMenuOpen} onClick={() => setAccountMenuOpen((open) => !open)}><MoreHorizontal size={16} /></button></div>
-          {accountMenuOpen && <div className="absolute bottom-12 right-0 z-40 w-44 rounded-lg border border-border bg-card p-1 shadow-xl"><button type="button" onClick={() => void logout()} className="w-full rounded-md px-3 py-2 text-left text-xs font-medium text-[#111827] transition hover:bg-secondary">Abmelden</button></div>}
-        </div>
-      </aside>
-      {mobileNav && <button aria-label="Navigation schließen" className="fixed inset-0 z-20 bg-black/40 lg:hidden" onClick={() => setMobileNav(false)} />}
-
-      <main data-lulu-scroll-container className="min-h-screen min-w-0 overflow-x-hidden lg:ml-64">
+      <main data-lulu-scroll-container className="min-h-screen min-w-0 overflow-x-hidden">
         <div className="mx-auto max-w-[1400px] px-5 py-6 sm:px-8 sm:py-8">
           <header className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
-            <div className="flex items-start gap-3"><button className="mt-1 rounded-lg p-2 text-muted-foreground hover:bg-secondary lg:hidden" aria-label="Navigation öffnen" onClick={() => setMobileNav(true)}><Menu size={20} /></button><div><p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Lulu AI / Website</p><h1 className="text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">Website</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[#4b5563]">{content.description}</p></div></div>
+            <div className="flex items-start gap-3"><div><p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Lulu AI / Website</p><h1 className="text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">Website</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[#4b5563]">{content.description}</p></div></div>
             <div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => void refresh()} disabled={isRefreshing} aria-busy={isRefreshing} className="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-foreground transition hover:border-primary/40 disabled:cursor-wait disabled:opacity-60"><RefreshCw size={15} className={isRefreshing ? "animate-spin" : ""} /> {isRefreshing ? "Wird aktualisiert…" : "Aktualisieren"}</button><button type="button" className="flex h-10 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-lg shadow-black/10"><Plus size={15} /> Neue Seite</button></div>
           </header>
 
