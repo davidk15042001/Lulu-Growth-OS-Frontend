@@ -21183,5 +21183,10 @@
   "Verified sales goals from the connected workspace. Progress is shown only when returned by the backend.": "来自已连接工作区的已验证销售目标。只有后端返回数据时才会显示进度。",
   "No verified sales goals yet": "暂时没有已验证的销售目标",
   "Create or import a sales goal through a connected CRM or the workspace API before reviewing target progress.": "查看目标进度前，请通过已连接的 CRM 或工作区 API 创建或导入销售目标。",
-  "Search live sales goals": "搜索实时销售目标"
+  "Search live sales goals": "搜索实时销售目标",
+  "Loading live sales opportunities…": "正在加载实时销售机会…",
+  "Verified sales opportunities from the connected workspace. Pipeline values and statuses are shown only from backend records.": "来自已连接工作区的已验证销售机会。管道价值和状态仅显示后端记录中的数据。",
+  "No verified sales opportunities yet": "暂时没有已验证的销售机会",
+  "Connect a verified CRM or add opportunity records through the workspace API before reviewing pipeline health.": "查看管道健康状况前，请连接已验证的 CRM 或通过工作区 API 添加销售机会记录。",
+  "Search live sales opportunities": "搜索实时销售机会"
 }

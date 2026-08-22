@@ -118,6 +118,20 @@ Object.assign(zh, {
   "Create or import a sales goal through a connected CRM or the workspace API before reviewing target progress.": "查看目标进度前，请通过已连接的 CRM 或工作区 API 创建或导入销售目标。",
   "Search live sales goals": "搜索实时销售目标"
 });
+Object.assign(de, {
+  "Loading live sales opportunities…": "Live-Verkaufschancen werden geladen…",
+  "Verified sales opportunities from the connected workspace. Pipeline values and statuses are shown only from backend records.": "Verifizierte Verkaufschancen aus dem verbundenen Workspace. Pipeline-Werte und Status werden nur aus Backend-Datensätzen angezeigt.",
+  "No verified sales opportunities yet": "Noch keine verifizierten Verkaufschancen",
+  "Connect a verified CRM or add opportunity records through the workspace API before reviewing pipeline health.": "Verbinden Sie ein verifiziertes CRM oder fügen Sie Verkaufschancen über die Workspace-API hinzu, bevor Sie die Pipeline prüfen.",
+  "Search live sales opportunities": "Live-Verkaufschancen durchsuchen"
+});
+Object.assign(zh, {
+  "Loading live sales opportunities…": "正在加载实时销售机会…",
+  "Verified sales opportunities from the connected workspace. Pipeline values and statuses are shown only from backend records.": "来自已连接工作区的已验证销售机会。管道价值和状态仅显示后端记录中的数据。",
+  "No verified sales opportunities yet": "暂时没有已验证的销售机会",
+  "Connect a verified CRM or add opportunity records through the workspace API before reviewing pipeline health.": "查看管道健康状况前，请连接已验证的 CRM 或通过工作区 API 添加销售机会记录。",
+  "Search live sales opportunities": "搜索实时销售机会"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

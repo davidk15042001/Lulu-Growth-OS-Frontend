@@ -21183,5 +21183,10 @@
   "Verified sales goals from the connected workspace. Progress is shown only when returned by the backend.": "Verifizierte Verkaufsziele aus dem verbundenen Workspace. Fortschritte werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified sales goals yet": "Noch keine verifizierten Verkaufsziele",
   "Create or import a sales goal through a connected CRM or the workspace API before reviewing target progress.": "Erstellen oder importieren Sie ein Verkaufsziel über ein verbundenes CRM oder die Workspace-API, bevor Sie den Zielfortschritt prüfen.",
-  "Search live sales goals": "Live-Verkaufsziele durchsuchen"
+  "Search live sales goals": "Live-Verkaufsziele durchsuchen",
+  "Loading live sales opportunities…": "Live-Verkaufschancen werden geladen…",
+  "Verified sales opportunities from the connected workspace. Pipeline values and statuses are shown only from backend records.": "Verifizierte Verkaufschancen aus dem verbundenen Workspace. Pipeline-Werte und Status werden nur aus Backend-Datensätzen angezeigt.",
+  "No verified sales opportunities yet": "Noch keine verifizierten Verkaufschancen",
+  "Connect a verified CRM or add opportunity records through the workspace API before reviewing pipeline health.": "Verbinden Sie ein verifiziertes CRM oder fügen Sie Verkaufschancen über die Workspace-API hinzu, bevor Sie die Pipeline prüfen.",
+  "Search live sales opportunities": "Live-Verkaufschancen durchsuchen"
 }
