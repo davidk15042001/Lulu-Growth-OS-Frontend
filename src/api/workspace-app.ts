@@ -29,6 +29,35 @@ export type AuditEntry = {
   createdAt: string;
 };
 
+export type ContentRefreshJob = {
+  id: string;
+  workspaceId: string;
+  status: 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
+  currentPhase: string;
+  progress: number;
+  modules: string[];
+  moduleStatus: Record<string, unknown>;
+  errorMessage: string | null;
+  createdAt: string;
+  updatedAt: string;
+  completedAt: string | null;
+};
+
+export type ContentAsset = {
+  id: string;
+  workspaceId: string;
+  snapshotId: string | null;
+  module: string;
+  assetType: string;
+  language: string;
+  title: string;
+  content: Record<string, unknown>;
+  status: string;
+  version: number;
+  generatedAt: string | null;
+  updatedAt: string;
+};
+
 export type BillingState = {
   subscription: null | {
     workspaceId: string;
@@ -94,6 +123,15 @@ export const workspaceAppApi = {
     path: workspaceApiPath(workspaceId, `/billing/checkouts/${encodeURIComponent(checkoutId)}/sync`),
     method: "POST",
     body: {},
+  }),
+  startContentRefresh: (workspaceId: string, modules?: string[]) => requestApi<{ job: ContentRefreshJob; reused: boolean }>({
+    path: workspaceApiPath(workspaceId, "/content-refresh"), method: "POST", body: { modules },
+  }),
+  contentRefreshStatus: (workspaceId: string, jobId: string) => requestApi<ContentRefreshJob>({
+    path: workspaceApiPath(workspaceId, `/content-refresh/${encodeURIComponent(jobId)}`),
+  }),
+  contentAssets: (workspaceId: string, module?: string) => requestApi<{ items: ContentAsset[] }>({
+    path: workspaceApiPath(workspaceId, `/content-assets${module ? `?module=${encodeURIComponent(module)}` : ""}`),
   }),
   syncIntegration: (workspaceId: string, platformId: string) => requestApi<{
     id: string; platformId: string; jobId: string; status: string; createdAt: string;
