@@ -78,6 +78,24 @@ const zh = {
   "Loading live budgets…": "正在加载实时预算…",
   "No live advertising budget data is available yet. Connect a verified platform before managing budgets.": "目前没有可用的实时广告预算数据。管理预算前，请先连接经过验证的平台。"
 };
+Object.assign(de, {
+  "Loading live SEO data…": "Live-SEO-Daten werden geladen…",
+  "Marketing / SEO": "Marketing / SEO",
+  "SEO Workspace": "SEO-Workspace",
+  "Verified SEO records from the connected workspace. Rankings, issues and recommendations appear only after the backend provides them.": "Verifizierte SEO-Datensätze aus dem verbundenen Workspace. Rankings, Probleme und Empfehlungen werden nur angezeigt, wenn das Backend sie bereitstellt.",
+  "No verified SEO data yet": "Noch keine verifizierten SEO-Daten",
+  "Connect a verified SEO or Search Console source, or add SEO records through the workspace API before reviewing keyword performance.": "Verbinden Sie eine verifizierte SEO- oder Search-Console-Quelle oder fügen Sie SEO-Datensätze über die Workspace-API hinzu, bevor Sie die Keyword-Leistung prüfen.",
+  "Search live SEO records": "Live-SEO-Datensätze durchsuchen"
+});
+Object.assign(zh, {
+  "Loading live SEO data…": "正在加载实时 SEO 数据…",
+  "Marketing / SEO": "营销 / SEO",
+  "SEO Workspace": "SEO 工作区",
+  "Verified SEO records from the connected workspace. Rankings, issues and recommendations appear only after the backend provides them.": "来自已连接工作区的已验证 SEO 记录。只有后端提供数据后，才会显示排名、问题和建议。",
+  "No verified SEO data yet": "暂时没有已验证的 SEO 数据",
+  "Connect a verified SEO or Search Console source, or add SEO records through the workspace API before reviewing keyword performance.": "查看关键词表现前，请连接已验证的 SEO 或 Search Console 来源，或通过工作区 API 添加 SEO 记录。",
+  "Search live SEO records": "搜索实时 SEO 记录"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

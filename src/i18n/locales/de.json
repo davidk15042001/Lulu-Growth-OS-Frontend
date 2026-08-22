@@ -21169,5 +21169,12 @@
   "Loading live publishing data…": "Live-Publishingdaten werden geladen…",
   "No live publishing operations are available yet. Connect and verify an advertising platform before reviewing or publishing campaigns.": "Es sind noch keine Live-Publishing-Vorgänge verfügbar. Verbinden und verifizieren Sie eine Werbeplattform, bevor Sie Kampagnen prüfen oder veröffentlichen.",
   "Loading live budgets…": "Live-Budgets werden geladen…",
-  "No live advertising budget data is available yet. Connect a verified platform before managing budgets.": "Es sind noch keine Live-Werbebudgetdaten verfügbar. Verbinden Sie eine verifizierte Plattform, bevor Sie Budgets verwalten."
+  "No live advertising budget data is available yet. Connect a verified platform before managing budgets.": "Es sind noch keine Live-Werbebudgetdaten verfügbar. Verbinden Sie eine verifizierte Plattform, bevor Sie Budgets verwalten.",
+  "Loading live SEO data…": "Live-SEO-Daten werden geladen…",
+  "Marketing / SEO": "Marketing / SEO",
+  "SEO Workspace": "SEO-Workspace",
+  "Verified SEO records from the connected workspace. Rankings, issues and recommendations appear only after the backend provides them.": "Verifizierte SEO-Datensätze aus dem verbundenen Workspace. Rankings, Probleme und Empfehlungen werden nur angezeigt, wenn das Backend sie bereitstellt.",
+  "No verified SEO data yet": "Noch keine verifizierten SEO-Daten",
+  "Connect a verified SEO or Search Console source, or add SEO records through the workspace API before reviewing keyword performance.": "Verbinden Sie eine verifizierte SEO- oder Search-Console-Quelle oder fügen Sie SEO-Datensätze über die Workspace-API hinzu, bevor Sie die Keyword-Leistung prüfen.",
+  "Search live SEO records": "Live-SEO-Datensätze durchsuchen"
 }
