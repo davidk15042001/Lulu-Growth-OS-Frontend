@@ -21191,5 +21191,8 @@
   "Search live sales opportunities": "Live-Verkaufschancen durchsuchen",
   "Advertising / Budgets": "Werbung / Budgets",
   "Verified budget records from the connected workspace. Spend, utilization and forecasts appear only when supported by backend data.": "Verifizierte Budgetdatensätze aus dem verbundenen Workspace. Ausgaben, Auslastung und Prognosen werden nur angezeigt, wenn sie durch Backend-Daten belegt sind.",
-  "Search live budget records": "Live-Budgetdatensätze durchsuchen"
+  "Search live budget records": "Live-Budgetdatensätze durchsuchen",
+  "Advertising / Audiences": "Werbung / Zielgruppen",
+  "Verified audience records from the connected workspace. Platform metrics appear only when returned by the backend.": "Verifizierte Zielgruppendatensätze aus dem verbundenen Workspace. Plattformmetriken werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "Search live audiences": "Live-Zielgruppen durchsuchen"
 }

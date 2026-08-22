@@ -142,6 +142,16 @@ Object.assign(zh, {
   "Verified budget records from the connected workspace. Spend, utilization and forecasts appear only when supported by backend data.": "来自已连接工作区的已验证预算记录。只有后端数据支持时才会显示支出、利用率和预测。",
   "Search live budget records": "搜索实时预算记录"
 });
+Object.assign(de, {
+  "Advertising / Audiences": "Werbung / Zielgruppen",
+  "Verified audience records from the connected workspace. Platform metrics appear only when returned by the backend.": "Verifizierte Zielgruppendatensätze aus dem verbundenen Workspace. Plattformmetriken werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "Search live audiences": "Live-Zielgruppen durchsuchen"
+});
+Object.assign(zh, {
+  "Advertising / Audiences": "广告 / 受众",
+  "Verified audience records from the connected workspace. Platform metrics appear only when returned by the backend.": "来自已连接工作区的已验证受众记录。只有后端返回数据时才会显示平台指标。",
+  "Search live audiences": "搜索实时受众"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));
