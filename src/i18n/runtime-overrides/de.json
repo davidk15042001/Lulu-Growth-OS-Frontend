@@ -429,5 +429,10 @@
   "AI / Activity": "AI / Aktivitäten",
   "Verified AI activity records from the selected workspace. No system events or AI conclusions are inferred without backend data.": "Verifizierte AI-Aktivitätsdatensätze aus dem ausgewählten Workspace. Ohne Backend-Daten werden keine Systemereignisse oder KI-Schlussfolgerungen angenommen.",
   "No verified AI activity yet": "Noch keine verifizierten AI-Aktivitäten",
-  "AI activity will appear after connected workspace actions are recorded by the backend. No example events are displayed.": "AI-Aktivitäten erscheinen, sobald verbundene Workspace-Aktionen vom Backend aufgezeichnet wurden. Es werden keine Beispielereignisse angezeigt."
+  "AI activity will appear after connected workspace actions are recorded by the backend. No example events are displayed.": "AI-Aktivitäten erscheinen, sobald verbundene Workspace-Aktionen vom Backend aufgezeichnet wurden. Es werden keine Beispielereignisse angezeigt.",
+  "AI / Marketplace": "AI / Marktplatz",
+  "AI Agent Marketplace": "AI-Agenten-Marktplatz",
+  "Verified AI agents configured for the selected workspace. Availability and capabilities appear only when returned by the backend.": "Verifizierte AI-Agenten des ausgewählten Workspace. Verfügbarkeit und Fähigkeiten werden nur angezeigt, wenn sie vom Backend geliefert werden.",
+  "No verified AI agents yet": "Noch keine verifizierten AI-Agenten",
+  "Configure or connect an AI agent before reviewing capabilities or installation status. No example agents are displayed.": "Konfigurieren oder verbinden Sie zuerst einen AI-Agenten, bevor Sie Fähigkeiten oder Installationsstatus prüfen. Es werden keine Beispielagenten angezeigt."
 }
