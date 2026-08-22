@@ -93,4 +93,4 @@ jobs:
             backend-source/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
           ssh "$DEPLOY_USER@$DEPLOY_HOST" \
-            'set -e; cd /var/www/lulu-growth-os/backend; npm ci --omit=dev --ignore-scripts; NODE_ENV=production node dist/database/run.js; if [ "$(id -u)" -eq 0 ]; then systemctl restart lulu-growth-backend; else sudo -n /usr/local/sbin/lulu-growth-backend-restart; fi; for attempt in $(seq 1 30); do if curl -fsS http://127.0.0.1:3000/api/v1/ready >/tmp/lulu-ready.json; then cat /tmp/lulu-ready.json; exit 0; fi; sleep 2; done; echo "Backend readiness check failed on port 3000" >&2; exit 1'
+            'set -e; cd /var/www/lulu-growth-os/backend; npm ci --omit=dev --ignore-scripts; node dist/database/run.js; if [ "$(id -u)" -eq 0 ]; then systemctl restart lulu-growth-backend; else sudo -n /usr/local/sbin/lulu-growth-backend-restart; fi; for attempt in $(seq 1 30); do if curl -fsS http://127.0.0.1:3000/api/v1/ready >/tmp/lulu-ready.json; then cat /tmp/lulu-ready.json; exit 0; fi; sleep 2; done; echo "Backend readiness check failed on port 3000" >&2; exit 1'

@@ -38,3 +38,6 @@ Push-Zeitstempel: 2026-08-22 06:26:00 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-22 06:33:30 Europe/Berlin
 Änderungen: Der Migrationsschritt läuft im expliziten Produktionsmodus ohne Entwicklungsabhängigkeiten.
+
+Push-Zeitstempel: 2026-08-22 06:37:41 Europe/Berlin
+Änderungen: Der Migrationslauf verwendet die Server-.env ohne unnötige Laufzeitvalidierung fremder systemd-Werte.
