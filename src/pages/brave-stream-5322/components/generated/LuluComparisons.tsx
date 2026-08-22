@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Activity, AlertTriangle, ArrowDown, ArrowRight, ArrowUp, ArrowUpDown, BarChart2, Bell, Brain, Check, ChevronDown, ChevronRight, Clock3, Download, GitCompare, Globe2, LayoutDashboard, Menu, MoreHorizontal, Plus, RefreshCw, Search, Settings, Share2, Sparkles, Target, Users, X, Zap } from 'lucide-react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 type PageState = 'loaded' | 'loading' | 'empty' | 'error' | 'restricted' | 'insufficient';
 const navGroups = [{
   title: 'Main',
@@ -32,10 +33,15 @@ export const LuluComparisons = () => {
   const [breakdown, setBreakdown] = useState('');
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const { items: kpiRecords, loading, error, refresh: refreshKpis } = useLiveRecords('kpis');
   const refresh = () => {
+    void refreshKpis();
     setRefreshing(true);
     window.setTimeout(() => setRefreshing(false), 700);
   };
+  if (loading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live comparisons…</main>;
+  if (error) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{error}</main>;
+  if (!loading && !error) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-6xl"><header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs uppercase tracking-[.18em] text-muted-foreground">Intelligence / Comparisons</p><h1 className="mt-2 text-3xl font-bold">Comparisons</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Verified KPI records available for comparison. Results appear only after the backend returns compatible comparison data.</p></div><button type="button" onClick={refresh} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-secondary"><RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} /> Refresh</button></header>{kpiRecords.length < 2 ? <section className="rounded-2xl border border-dashed border-border bg-card p-10 text-center"><GitCompare className="mx-auto mb-4 text-muted-foreground" size={30} /><h2 className="text-xl font-semibold">No compatible comparison data yet</h2><p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">At least two compatible verified KPI records are required. No differences, scores or trends are inferred without backend data.</p></section> : <section className="overflow-hidden rounded-2xl border border-border bg-card"><div className="border-b border-border p-4"><p className="text-sm text-muted-foreground">{kpiRecords.length} verified KPI records available for comparison.</p></div><div className="overflow-x-auto"><table className="w-full min-w-[720px] text-left text-sm"><thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="px-4 py-3">KPI</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Category</th><th className="px-4 py-3">Description</th><th className="px-4 py-3">Updated</th></tr></thead><tbody className="divide-y divide-border">{kpiRecords.map(record => <tr key={record.id}><td className="px-4 py-3 font-medium">{record.name}</td><td className="px-4 py-3">{record.status}</td><td className="px-4 py-3 text-muted-foreground">{record.stage ?? '—'}</td><td className="max-w-md px-4 py-3 text-muted-foreground">{record.description ?? '—'}</td><td className="px-4 py-3 text-muted-foreground">{new Date(record.updatedAt).toLocaleString()}</td></tr>)}</tbody></table></div></section>}</div></main>;
   const stateMessage = pageState === 'loading' ? 'Loading comparison intelligence…' : pageState === 'empty' ? 'No comparisons yet' : pageState === 'error' ? 'Comparison data could not be loaded' : pageState === 'restricted' ? 'You do not have access to comparison intelligence' : 'Not enough data to generate a comparison';
   return <div className="min-h-screen bg-[var(--background)] text-foreground" style={{
     fontFamily: 'Poppins'

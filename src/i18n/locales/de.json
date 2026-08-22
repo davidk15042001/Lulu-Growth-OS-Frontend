@@ -21230,5 +21230,12 @@
   "Intelligence / Forecasts": "Intelligence / Prognosen",
   "Verified forecast records from the connected workspace. Projections and confidence appear only when returned by the backend.": "Verifizierte Prognosedatensätze aus dem verbundenen Workspace. Projektionen und Konfidenz werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified forecasts yet": "Noch keine verifizierten Prognosen",
-  "Connect historical records and generate a forecast before reviewing projections, scenarios or confidence ranges.": "Verbinden Sie historische Datensätze und erstellen Sie eine Prognose, bevor Sie Projektionen, Szenarien oder Konfidenzbereiche prüfen."
+  "Connect historical records and generate a forecast before reviewing projections, scenarios or confidence ranges.": "Verbinden Sie historische Datensätze und erstellen Sie eine Prognose, bevor Sie Projektionen, Szenarien oder Konfidenzbereiche prüfen.",
+  "Loading live comparisons…": "Live-Vergleiche werden geladen…",
+  "Intelligence / Comparisons": "Intelligence / Vergleiche",
+  "Verified KPI records available for comparison. Results appear only after the backend returns compatible comparison data.": "Verifizierte KPI-Datensätze für den Vergleich verfügbar. Ergebnisse werden erst angezeigt, wenn das Backend kompatible Vergleichsdaten zurückgibt.",
+  "No compatible comparison data yet": "Noch keine kompatiblen Vergleichsdaten",
+  "At least two compatible verified KPI records are required. No differences, scores or trends are inferred without backend data.": "Mindestens zwei kompatible, verifizierte KPI-Datensätze sind erforderlich. Ohne Backend-Daten werden keine Unterschiede, Scores oder Trends abgeleitet.",
+  "2 verified KPI records available for comparison.": "2 verifizierte KPI-Datensätze für den Vergleich verfügbar.",
+  "verified KPI records available for comparison.": "verifizierte KPI-Datensätze für den Vergleich verfügbar."
 }

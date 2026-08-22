@@ -256,6 +256,28 @@ Object.assign(zh, {
   "No verified forecasts yet": "暂时没有已验证的预测",
   "Connect historical records and generate a forecast before reviewing projections, scenarios or confidence ranges.": "查看预测、情景或置信区间前，请连接历史记录并生成预测。"
 });
+Object.assign(de, {
+  "Loading live comparisons…": "Live-Vergleiche werden geladen…",
+  "Intelligence / Comparisons": "Intelligence / Vergleiche",
+  "Verified KPI records available for comparison. Results appear only after the backend returns compatible comparison data.": "Verifizierte KPI-Datensätze für den Vergleich verfügbar. Ergebnisse werden erst angezeigt, wenn das Backend kompatible Vergleichsdaten zurückgibt.",
+  "No compatible comparison data yet": "Noch keine kompatiblen Vergleichsdaten",
+  "At least two compatible verified KPI records are required. No differences, scores or trends are inferred without backend data.": "Mindestens zwei kompatible, verifizierte KPI-Datensätze sind erforderlich. Ohne Backend-Daten werden keine Unterschiede, Scores oder Trends abgeleitet.",
+  "2 verified KPI records available for comparison.": "2 verifizierte KPI-Datensätze für den Vergleich verfügbar."
+});
+Object.assign(zh, {
+  "Loading live comparisons…": "正在加载实时比较…",
+  "Intelligence / Comparisons": "智能 / 比较",
+  "Verified KPI records available for comparison. Results appear only after the backend returns compatible comparison data.": "已有可用于比较的已验证 KPI 记录。只有后端返回兼容的比较数据时才会显示结果。",
+  "No compatible comparison data yet": "暂时没有兼容的比较数据",
+  "At least two compatible verified KPI records are required. No differences, scores or trends are inferred without backend data.": "至少需要两条兼容的已验证 KPI 记录。没有后端数据时，不会推断差异、评分或趋势。",
+  "2 verified KPI records available for comparison.": "有 2 条已验证 KPI 记录可供比较。"
+});
+Object.assign(de, {
+  "verified KPI records available for comparison.": "verifizierte KPI-Datensätze für den Vergleich verfügbar."
+});
+Object.assign(zh, {
+  "verified KPI records available for comparison.": "条已验证 KPI 记录可供比较。"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

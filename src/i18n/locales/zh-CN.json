@@ -21230,5 +21230,12 @@
   "Intelligence / Forecasts": "智能 / 预测",
   "Verified forecast records from the connected workspace. Projections and confidence appear only when returned by the backend.": "来自已连接工作区的已验证预测记录。只有后端返回数据时才会显示预测和置信度。",
   "No verified forecasts yet": "暂时没有已验证的预测",
-  "Connect historical records and generate a forecast before reviewing projections, scenarios or confidence ranges.": "查看预测、情景或置信区间前，请连接历史记录并生成预测。"
+  "Connect historical records and generate a forecast before reviewing projections, scenarios or confidence ranges.": "查看预测、情景或置信区间前，请连接历史记录并生成预测。",
+  "Loading live comparisons…": "正在加载实时比较…",
+  "Intelligence / Comparisons": "智能 / 比较",
+  "Verified KPI records available for comparison. Results appear only after the backend returns compatible comparison data.": "已有可用于比较的已验证 KPI 记录。只有后端返回兼容的比较数据时才会显示结果。",
+  "No compatible comparison data yet": "暂时没有兼容的比较数据",
+  "At least two compatible verified KPI records are required. No differences, scores or trends are inferred without backend data.": "至少需要两条兼容的已验证 KPI 记录。没有后端数据时，不会推断差异、评分或趋势。",
+  "2 verified KPI records available for comparison.": "有 2 条已验证 KPI 记录可供比较。",
+  "verified KPI records available for comparison.": "条已验证 KPI 记录可供比较。"
 }
