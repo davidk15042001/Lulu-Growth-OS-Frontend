@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, AlertTriangle, ArrowRight, Bell, Bot, Check, ChevronDown, ChevronRight, Clock3, FileCheck2, Filter, HelpCircle, History, LayoutGrid, Link2, Megaphone, MoreHorizontal, Pause, Play, Plus, RefreshCw, Search, Send, Settings2, ShieldCheck, Sparkles, Tag, TrendingUp, Upload, Users, X, Zap } from 'lucide-react';
 type Risk = 'High' | 'Medium' | 'Low';
 type Platform = 'Google' | 'Meta' | 'LinkedIn' | 'TikTok';
@@ -67,13 +68,17 @@ function SectionTitle({
   return <div className="section-title"><h2>{title} {count && <span className="count">{count}</span>}</h2>{action && <button className="text-link">{action} <ArrowRight size={13} /></button>}</div>;
 }
 export function LuluPublishingCenter() {
-  const [expanded, setExpanded] = useState('lead-gen');
+  const { items: publishingRecords, loading: publishingLoading, error: publishingError } = useLiveRecords('publishing_operations');
+  const [expanded, setExpanded] = useState('');
   const [query, setQuery] = useState('');
   const [toast, setToast] = useState('');
   const notify = (message: string) => {
     setToast(message);
     window.setTimeout(() => setToast(''), 2600);
   };
+  if (publishingLoading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live publishing data…</main>;
+  if (publishingError) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{publishingError}</main>;
+  if (publishingRecords.length === 0) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-border bg-card p-8 text-center"><Upload className="mx-auto mb-4 text-muted-foreground" size={28} /><h1 className="text-2xl font-semibold">Publishing Center</h1><p className="mt-3 text-sm text-muted-foreground">No live publishing operations are available yet. Connect and verify an advertising platform before reviewing or publishing campaigns.</p></div></main>;
   return <div className="lulu-app">
     <style>{styles}</style>
     <aside className="rail"><div className="brand-mark">L</div><span className="brand-name">LULU <em>AI</em></span><LuluSectionNavigation activeId="sunnily-peak-7188" /><div className="rail-bottom"><button className="rail-btn"><Settings2 size={18} /><span>Settings</span></button><div className="avatar">SM</div></div></aside>
