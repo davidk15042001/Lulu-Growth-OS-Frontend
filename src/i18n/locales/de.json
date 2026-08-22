@@ -21178,5 +21178,10 @@
   "Connect a verified SEO or Search Console source, or add SEO records through the workspace API before reviewing keyword performance.": "Verbinden Sie eine verifizierte SEO- oder Search-Console-Quelle oder fügen Sie SEO-Datensätze über die Workspace-API hinzu, bevor Sie die Keyword-Leistung prüfen.",
   "Search live SEO records": "Live-SEO-Datensätze durchsuchen",
   "Verified financial records from the connected workspace. Totals are calculated only from records returned by the backend.": "Verifizierte Finanzdatensätze aus dem verbundenen Workspace. Summen werden ausschließlich aus den vom Backend zurückgegebenen Datensätzen berechnet.",
-  "Search live finance records": "Live-Finanzdatensätze durchsuchen"
+  "Search live finance records": "Live-Finanzdatensätze durchsuchen",
+  "Loading live sales goals…": "Live-Verkaufsziele werden geladen…",
+  "Verified sales goals from the connected workspace. Progress is shown only when returned by the backend.": "Verifizierte Verkaufsziele aus dem verbundenen Workspace. Fortschritte werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified sales goals yet": "Noch keine verifizierten Verkaufsziele",
+  "Create or import a sales goal through a connected CRM or the workspace API before reviewing target progress.": "Erstellen oder importieren Sie ein Verkaufsziel über ein verbundenes CRM oder die Workspace-API, bevor Sie den Zielfortschritt prüfen.",
+  "Search live sales goals": "Live-Verkaufsziele durchsuchen"
 }

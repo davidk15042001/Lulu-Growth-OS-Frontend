@@ -21178,5 +21178,10 @@
   "Connect a verified SEO or Search Console source, or add SEO records through the workspace API before reviewing keyword performance.": "查看关键词表现前，请连接已验证的 SEO 或 Search Console 来源，或通过工作区 API 添加 SEO 记录。",
   "Search live SEO records": "搜索实时 SEO 记录",
   "Verified financial records from the connected workspace. Totals are calculated only from records returned by the backend.": "来自已连接工作区的已验证财务记录。总额仅根据后端返回的记录计算。",
-  "Search live finance records": "搜索实时财务记录"
+  "Search live finance records": "搜索实时财务记录",
+  "Loading live sales goals…": "正在加载实时销售目标…",
+  "Verified sales goals from the connected workspace. Progress is shown only when returned by the backend.": "来自已连接工作区的已验证销售目标。只有后端返回数据时才会显示进度。",
+  "No verified sales goals yet": "暂时没有已验证的销售目标",
+  "Create or import a sales goal through a connected CRM or the workspace API before reviewing target progress.": "查看目标进度前，请通过已连接的 CRM 或工作区 API 创建或导入销售目标。",
+  "Search live sales goals": "搜索实时销售目标"
 }

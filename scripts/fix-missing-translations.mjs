@@ -104,6 +104,20 @@ Object.assign(zh, {
   "Verified financial records from the connected workspace. Totals are calculated only from records returned by the backend.": "来自已连接工作区的已验证财务记录。总额仅根据后端返回的记录计算。",
   "Search live finance records": "搜索实时财务记录"
 });
+Object.assign(de, {
+  "Loading live sales goals…": "Live-Verkaufsziele werden geladen…",
+  "Verified sales goals from the connected workspace. Progress is shown only when returned by the backend.": "Verifizierte Verkaufsziele aus dem verbundenen Workspace. Fortschritte werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified sales goals yet": "Noch keine verifizierten Verkaufsziele",
+  "Create or import a sales goal through a connected CRM or the workspace API before reviewing target progress.": "Erstellen oder importieren Sie ein Verkaufsziel über ein verbundenes CRM oder die Workspace-API, bevor Sie den Zielfortschritt prüfen.",
+  "Search live sales goals": "Live-Verkaufsziele durchsuchen"
+});
+Object.assign(zh, {
+  "Loading live sales goals…": "正在加载实时销售目标…",
+  "Verified sales goals from the connected workspace. Progress is shown only when returned by the backend.": "来自已连接工作区的已验证销售目标。只有后端返回数据时才会显示进度。",
+  "No verified sales goals yet": "暂时没有已验证的销售目标",
+  "Create or import a sales goal through a connected CRM or the workspace API before reviewing target progress.": "查看目标进度前，请通过已连接的 CRM 或工作区 API 创建或导入销售目标。",
+  "Search live sales goals": "搜索实时销售目标"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));
