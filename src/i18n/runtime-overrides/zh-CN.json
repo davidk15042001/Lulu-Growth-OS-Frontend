@@ -404,5 +404,12 @@
   "Unable to load offerings": "无法加载产品与服务",
   "Offering saved": "产品或服务已保存",
   "Product or service removed": "产品或服务已移除",
-  "Email connection could not be completed.": "无法完成电子邮件连接。"
+  "Email connection could not be completed.": "无法完成电子邮件连接。",
+  "Loading live discount records…": "正在加载实时折扣记录…",
+  "discounts": "折扣",
+  "No AI draft available": "暂无 AI 草稿",
+  "Live data only — not published": "仅显示实时数据 — 尚未发布",
+  "Connect an ecommerce platform to generate a draft from verified data.": "连接电商平台，以便根据已验证的数据生成草稿。",
+  "No synchronization records are available from connected ecommerce platforms yet.": "连接的电商平台暂时没有同步记录。",
+  "No discount activity is available yet. Activity will appear after a connected platform reports verified records.": "暂时没有折扣活动。连接的平台报告已验证记录后，活动会显示在这里。"
 }

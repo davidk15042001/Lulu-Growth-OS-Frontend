@@ -1,0 +1,6 @@
+import fs from 'node:fs';
+const path = '/home/ubuntu/lulu-growth-frontend/src/pages/sharply-sky-4161/components/generated/DiscountsPromotions.tsx';
+let source = fs.readFileSync(path, 'utf8');
+source = source.replace(/<div className="mt-3 space-y-2 text-xs">.*?<\/div><button className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-foreground">Open Integrations <ExternalLink size=\{13\} \/><\/button>/s, '<div className="mt-3 rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">No synchronization records are available from connected ecommerce platforms yet.</div><button className="mt-3 inline-flex items-center gap-1 text-sm text-foreground hover:text-foreground">Open Integrations <ExternalLink size={13} /></button>');
+source = source.replace(/<ol className="mt-4 space-y-3 text-sm">.*?<\/ol><button className="mt-3 text-sm text-foreground hover:text-foreground">View All Activity<\/button>/s, '<div className="mt-4 rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">No discount activity is available yet. Activity will appear after a connected platform reports verified records.</div>');
+fs.writeFileSync(path, source);
