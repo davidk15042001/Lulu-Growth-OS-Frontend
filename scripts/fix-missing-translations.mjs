@@ -382,6 +382,20 @@ Object.assign(zh, {
   "Connect a store and synchronize product inventory before reviewing stock levels or inventory warnings.": "请先连接商店并同步商品库存，再查看库存水平或库存警告。",
   "Item": "商品"
 });
+Object.assign(de, {
+  "Loading live payment records…": "Live-Zahlungsdaten werden geladen…",
+  "Ecommerce / Payments": "E-Commerce / Zahlungen",
+  "Verified payment records from connected stores. Status, provider and issue data appear only when returned by the backend.": "Verifizierte Zahlungsdatensätze verbundener Shops. Status, Anbieter und Problemdaten werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified payment records yet": "Noch keine verifizierten Zahlungsdaten",
+  "Connect a store and synchronize payment data before reviewing transactions, refunds or payment issues.": "Verbinden Sie einen Shop und synchronisieren Sie Zahlungsdaten, bevor Sie Transaktionen, Erstattungen oder Zahlungsprobleme prüfen."
+});
+Object.assign(zh, {
+  "Loading live payment records…": "正在加载实时支付记录…",
+  "Ecommerce / Payments": "电子商务 / 支付",
+  "Verified payment records from connected stores. Status, provider and issue data appear only when returned by the backend.": "来自已连接商店的已验证支付记录。只有后端返回数据时才会显示状态、提供商和问题数据。",
+  "No verified payment records yet": "暂时没有已验证的支付记录",
+  "Connect a store and synchronize payment data before reviewing transactions, refunds or payment issues.": "请先连接商店并同步支付数据，再查看交易、退款或支付问题。"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

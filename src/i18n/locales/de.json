@@ -21274,5 +21274,10 @@
   "Verified inventory records from connected stores. Stock levels and warnings appear only when returned by the backend.": "Verifizierte Bestandsdatensätze verbundener Shops. Lagerbestände und Warnungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified inventory records yet": "Noch keine verifizierten Bestandsdaten",
   "Connect a store and synchronize product inventory before reviewing stock levels or inventory warnings.": "Verbinden Sie einen Shop und synchronisieren Sie den Produktbestand, bevor Sie Lagerbestände oder Bestandswarnungen prüfen.",
-  "Item": "Artikel"
+  "Item": "Artikel",
+  "Loading live payment records…": "Live-Zahlungsdaten werden geladen…",
+  "Ecommerce / Payments": "E-Commerce / Zahlungen",
+  "Verified payment records from connected stores. Status, provider and issue data appear only when returned by the backend.": "Verifizierte Zahlungsdatensätze verbundener Shops. Status, Anbieter und Problemdaten werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified payment records yet": "Noch keine verifizierten Zahlungsdaten",
+  "Connect a store and synchronize payment data before reviewing transactions, refunds or payment issues.": "Verbinden Sie einen Shop und synchronisieren Sie Zahlungsdaten, bevor Sie Transaktionen, Erstattungen oder Zahlungsprobleme prüfen."
 }
