@@ -432,8 +432,16 @@ export default function App() {
     setError("");
     try {
       await onboardingApi.deletePlatform(workspaceId, platform.id);
+      // Archiving the integration and removing its local website records are
+      // separate backend operations. Run both so a provider-deleted site
+      // cannot remain visible in the workspace after disconnecting.
+      await websitesApi.cleanupProvider(workspaceId, nextProvider);
       setPlatforms((current) => current.filter((item) => item.id !== platform.id));
       setSites((current) => current.filter((site) => site.provider !== nextProvider));
+      setSelectedSiteId("");
+      setSelectedDomainId("");
+      setWordpressContent(null);
+      setProviderData(null);
     } catch (requestError) {
       setError(getFriendlyErrorMessage(requestError, `${nextProvider === "webflow" ? "Webflow" : "WordPress"} konnte nicht getrennt werden.`));
     } finally {
