@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import { Activity, ArrowDownRight, ArrowUpRight, BarChart3, Bell, ChevronDown, ChevronRight, CircleHelp, Download, FileText, LayoutDashboard, Menu, MoreHorizontal, Package, RefreshCw, Search, Settings, Sparkles, Target, Users, WalletCards, X } from 'lucide-react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Tone = 'up' | 'down' | 'neutral';
 const kpis: Array<Record<string, any>> = [];
 const trend: Array<Record<string, any>> = [];
@@ -44,12 +45,16 @@ function Tag({
   return <span className={`tag ${kind}`}>{children}</span>;
 }
 export const LuluGrowth = () => {
+  const { items: growthRecords, loading: growthLoading, error: growthError } = useLiveRecords('business_growth');
   const [mobileNav, setMobileNav] = useState(false);
   const [expanded, setExpanded] = useState<string[]>(['Revenue Growth', 'Customer Growth']);
   const [granularity, setGranularity] = useState('Daily');
   const [explain, setExplain] = useState(false);
   const [segment, setSegment] = useState('Channel');
   const toggle = (title: string) => setExpanded(prev => prev.includes(title) ? prev.filter(x => x !== title) : [...prev, title]);
+  if (growthLoading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live growth data…</main>;
+  if (growthError) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{growthError}</main>;
+  if (growthRecords.length === 0) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-border bg-card p-8 text-center"><TrendingUp className="mx-auto mb-4 text-muted-foreground" size={28} /><h1 className="text-2xl font-semibold">Growth</h1><p className="mt-3 text-sm text-muted-foreground">No live growth data is available yet. Connect verified CRM, commerce or marketing sources before reviewing growth metrics.</p></div></main>;
   return <main className="app-shell">
   <aside className={mobileNav ? 'sidebar mobile-open' : 'sidebar'}><div className="brand"><div className="brand-mark">✦</div><span>Lulu AI</span><strong>GROWTH</strong><button className="close-nav" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={18} /></button></div><p className="workspace">WORKSPACE</p><LuluSectionNavigation activeId="sharp-current-9677" /><div className="sidebar-bottom"><button className="nav-item"><Settings size={17} /><span>Settings</span></button><div className="profile"><div className="avatar">AR</div><div><strong>Alex Rivera</strong><small>Administrator</small></div><MoreHorizontal size={17} /></div></div></aside>
   <section className="main-content"><header className="topbar"><button className="mobile-menu" onClick={() => setMobileNav(true)} aria-label="Open navigation"><Menu size={20} /></button><div className="breadcrumbs"><span>Intelligence</span><ChevronRight size={14} /><span>Business Intelligence</span><ChevronRight size={14} /><strong>Growth</strong></div><div className="top-actions"><button className="icon-btn" aria-label="Search"><Search size={18} /></button><button className="icon-btn" aria-label="Notifications"><Bell size={18} /><i></i></button><div className="top-avatar">AR</div></div></header>
