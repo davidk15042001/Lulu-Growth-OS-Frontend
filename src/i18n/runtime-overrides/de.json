@@ -451,5 +451,10 @@
   "Ecommerce / Reviews": "E-Commerce / Bewertungen",
   "Verified customer review records from connected stores. Ratings, sentiment and response status appear only when returned by the backend.": "Verifizierte Kundenbewertungen aus verbundenen Shops. Bewertungen, Stimmung und Antwortstatus werden nur angezeigt, wenn sie vom Backend geliefert werden.",
   "No verified review records yet": "Noch keine verifizierten Bewertungen",
-  "Connect a store and synchronize review data before reviewing ratings, responses or sentiment. No example reviews are displayed.": "Verbinden Sie einen Shop und synchronisieren Sie Bewertungsdaten, bevor Sie Bewertungen, Antworten oder Stimmung prüfen. Es werden keine Beispielbewertungen angezeigt."
+  "Connect a store and synchronize review data before reviewing ratings, responses or sentiment. No example reviews are displayed.": "Verbinden Sie einen Shop und synchronisieren Sie Bewertungsdaten, bevor Sie Bewertungen, Antworten oder Stimmung prüfen. Es werden keine Beispielbewertungen angezeigt.",
+  "Loading live category records…": "Live-Kategoriedatensätze werden geladen …",
+  "Ecommerce / Categories": "E-Commerce / Kategorien",
+  "Verified product category records from connected stores. Hierarchy and product counts appear only when returned by the backend.": "Verifizierte Produktkategorien aus verbundenen Shops. Hierarchie und Produktzahlen werden nur angezeigt, wenn sie vom Backend geliefert werden.",
+  "No verified category records yet": "Noch keine verifizierten Kategoriedatensätze",
+  "Connect a store and synchronize product categories before reviewing hierarchy or product assignments. No example categories are displayed.": "Verbinden Sie einen Shop und synchronisieren Sie Produktkategorien, bevor Sie Hierarchie oder Produktzuweisungen prüfen. Es werden keine Beispielkategorien angezeigt."
 }

@@ -450,5 +450,10 @@
   "Ecommerce / Reviews": "电商 / 评价",
   "Verified customer review records from connected stores. Ratings, sentiment and response status appear only when returned by the backend.": "来自已连接商店的已验证客户评价记录。仅当后端返回时才显示评分、情绪和回复状态。",
   "No verified review records yet": "暂无已验证的评价记录",
-  "Connect a store and synchronize review data before reviewing ratings, responses or sentiment. No example reviews are displayed.": "请先连接商店并同步评价数据，再查看评分、回复或情绪。不会显示示例评价。"
+  "Connect a store and synchronize review data before reviewing ratings, responses or sentiment. No example reviews are displayed.": "请先连接商店并同步评价数据，再查看评分、回复或情绪。不会显示示例评价。",
+  "Loading live category records…": "正在加载实时分类记录…",
+  "Ecommerce / Categories": "电商 / 分类",
+  "Verified product category records from connected stores. Hierarchy and product counts appear only when returned by the backend.": "来自已连接商店的已验证产品分类记录。仅当后端返回时才显示层级和产品数量。",
+  "No verified category records yet": "暂无已验证的分类记录",
+  "Connect a store and synchronize product categories before reviewing hierarchy or product assignments. No example categories are displayed.": "请先连接商店并同步产品分类，再查看层级或产品分配。不会显示示例分类。"
 }
