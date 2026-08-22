@@ -602,5 +602,7 @@
   "Die Datei konnte nicht hochgeladen werden.": "The file could not be uploaded.",
   "Das Dokument konnte nicht gelöscht werden.": "The document could not be deleted.",
   "Die Firmenbeschreibung konnte nicht gespeichert werden. Bitte versuche es erneut.": "The company description could not be saved. Please try again.",
-  "{{0}}-Verbindung fehlgeschlagen: {{1}}": "{{0}} connection failed: {{1}}"
+  "{{0}}-Verbindung fehlgeschlagen: {{1}}": "{{0}} connection failed: {{1}}",
+  "Die WordPress-Websites konnten nicht synchronisiert werden.": "The WordPress websites could not be synchronized.",
+  "Der Generation-Job ist auf dem Server nicht mehr vorhanden. Die alte Planung wurde aus dieser Sitzung entfernt.": "The generation job is no longer available on the server. The previous plan was removed from this session."
 }

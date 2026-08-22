@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AreaChart, Area, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { Activity, ArrowDownRight, ArrowUpRight, BarChart3, Bell, ChevronDown, ChevronRight, CircleHelp, Download, FileText, LayoutDashboard, Menu, MoreHorizontal, Package, RefreshCw, Search, Settings, Sparkles, Target, Users, WalletCards, X } from 'lucide-react';
+import { Activity, ArrowDownRight, ArrowUpRight, BarChart3, Bell, ChevronDown, ChevronRight, CircleHelp, Download, FileText, LayoutDashboard, Menu, MoreHorizontal, Package, RefreshCw, Search, Settings, Sparkles, Target, TrendingUp, Users, WalletCards, X } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Tone = 'up' | 'down' | 'neutral';
 const kpis: Array<Record<string, any>> = [];
