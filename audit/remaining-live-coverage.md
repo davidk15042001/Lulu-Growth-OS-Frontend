@@ -1,10 +1,9 @@
 # Verbleibende Live-Coverage-Liste
 
-Nicht durch Hook/Spezialclient abgedeckte generierte Dateien: 24
+Nicht durch Hook/Spezialclient abgedeckte generierte Dateien: 23
 
 | Priorität | Datei | Begründung |
 |---:|---|---|
-| 37 | `src/pages/purely-dusk-2409/components/generated/ShippingFulfillment.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 36 | `src/pages/merry-castle-3260/components/generated/LuluPaymentsWorkspace.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 35 | `src/pages/dreamy-shade-5445/components/generated/ReturnsRefundsPage.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 35 | `src/pages/soft-hill-4757/components/generated/LuluTaxes.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
