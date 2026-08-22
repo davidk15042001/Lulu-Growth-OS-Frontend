@@ -222,7 +222,7 @@ export default function App() {
   const oauthReturnRef = useRef<Provider | null>(null);
   const workspaceId = getSelectedWorkspaceId();
   const content = useMemo(() => providerContent[provider], [provider]);
-  const selectedSite = sites.find((site) => site.id === selectedSiteId) ?? sites.find((site) => site.provider === provider);
+  const selectedSite = sites.find((site) => site.id === selectedSiteId) ?? null;
   const connectedPlatform = platforms.find((platform) => platformMatchesProvider(platform, provider));
   const providerConnected = Boolean(connectedPlatform && platformIsConnected(connectedPlatform));
   const providerAuthorized = Boolean(connectedPlatform && ["pending", "connected", "active", "enabled", "authorized", "connected_with_warning"].includes(connectedPlatform.connectionStatus.toLowerCase()));
@@ -282,11 +282,22 @@ export default function App() {
 
   useEffect(() => {
     if (!workspaceId) return;
-    Promise.all([websitesApi.list(workspaceId), onboardingApi.platforms(workspaceId)]).then(([websiteResponse, platformResponse]) => {
-      setSites(websiteResponse.data.items);
+    let cancelled = false;
+    Promise.all([websitesApi.list(workspaceId), onboardingApi.platforms(workspaceId)]).then(async ([websiteResponse, platformResponse]) => {
+      if (cancelled) return;
+      let websiteItems = websiteResponse.data.items;
+      const wordpressPlatform = platformResponse.data.items.find((item) => platformMatchesProvider(item, "wordpress"));
+      if (wordpressPlatform && platformIsConnected(wordpressPlatform)) {
+        try { websiteItems = (await websitesApi.syncProvider(workspaceId, "wordpress")).data.items; }
+        catch (requestError) { if (!cancelled) setError(getFriendlyErrorMessage(requestError, "Die WordPress-Websites konnten nicht synchronisiert werden.")); }
+      }
+      if (cancelled) return;
+      setSites(websiteItems);
       setPlatforms(platformResponse.data.items);
-      setSelectedSiteId(websiteResponse.data.items.find((site) => site.provider === provider)?.id ?? "");
-    }).catch((requestError) => setError(getFriendlyErrorMessage(requestError, "Die Websites und Verbindungen konnten nicht geladen werden.")));
+      const providerItems = websiteItems.filter((site) => site.provider === provider);
+      setSelectedSiteId((current) => providerItems.some((site) => site.id === current) ? current : providerItems.length === 1 ? providerItems[0].id : "");
+    }).catch((requestError) => { if (!cancelled) setError(getFriendlyErrorMessage(requestError, "Die Websites und Verbindungen konnten nicht geladen werden.")); });
+    return () => { cancelled = true; };
   }, [workspaceId, provider]);
 
   useEffect(() => {
