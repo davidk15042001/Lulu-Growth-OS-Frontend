@@ -21188,5 +21188,8 @@
   "Verified sales opportunities from the connected workspace. Pipeline values and statuses are shown only from backend records.": "Verifizierte Verkaufschancen aus dem verbundenen Workspace. Pipeline-Werte und Status werden nur aus Backend-Datensätzen angezeigt.",
   "No verified sales opportunities yet": "Noch keine verifizierten Verkaufschancen",
   "Connect a verified CRM or add opportunity records through the workspace API before reviewing pipeline health.": "Verbinden Sie ein verifiziertes CRM oder fügen Sie Verkaufschancen über die Workspace-API hinzu, bevor Sie die Pipeline prüfen.",
-  "Search live sales opportunities": "Live-Verkaufschancen durchsuchen"
+  "Search live sales opportunities": "Live-Verkaufschancen durchsuchen",
+  "Advertising / Budgets": "Werbung / Budgets",
+  "Verified budget records from the connected workspace. Spend, utilization and forecasts appear only when supported by backend data.": "Verifizierte Budgetdatensätze aus dem verbundenen Workspace. Ausgaben, Auslastung und Prognosen werden nur angezeigt, wenn sie durch Backend-Daten belegt sind.",
+  "Search live budget records": "Live-Budgetdatensätze durchsuchen"
 }

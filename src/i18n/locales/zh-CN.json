@@ -21188,5 +21188,8 @@
   "Verified sales opportunities from the connected workspace. Pipeline values and statuses are shown only from backend records.": "来自已连接工作区的已验证销售机会。管道价值和状态仅显示后端记录中的数据。",
   "No verified sales opportunities yet": "暂时没有已验证的销售机会",
   "Connect a verified CRM or add opportunity records through the workspace API before reviewing pipeline health.": "查看管道健康状况前，请连接已验证的 CRM 或通过工作区 API 添加销售机会记录。",
-  "Search live sales opportunities": "搜索实时销售机会"
+  "Search live sales opportunities": "搜索实时销售机会",
+  "Advertising / Budgets": "广告 / 预算",
+  "Verified budget records from the connected workspace. Spend, utilization and forecasts appear only when supported by backend data.": "来自已连接工作区的已验证预算记录。只有后端数据支持时才会显示支出、利用率和预测。",
+  "Search live budget records": "搜索实时预算记录"
 }

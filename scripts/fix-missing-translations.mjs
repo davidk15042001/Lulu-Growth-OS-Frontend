@@ -132,6 +132,16 @@ Object.assign(zh, {
   "Connect a verified CRM or add opportunity records through the workspace API before reviewing pipeline health.": "查看管道健康状况前，请连接已验证的 CRM 或通过工作区 API 添加销售机会记录。",
   "Search live sales opportunities": "搜索实时销售机会"
 });
+Object.assign(de, {
+  "Advertising / Budgets": "Werbung / Budgets",
+  "Verified budget records from the connected workspace. Spend, utilization and forecasts appear only when supported by backend data.": "Verifizierte Budgetdatensätze aus dem verbundenen Workspace. Ausgaben, Auslastung und Prognosen werden nur angezeigt, wenn sie durch Backend-Daten belegt sind.",
+  "Search live budget records": "Live-Budgetdatensätze durchsuchen"
+});
+Object.assign(zh, {
+  "Advertising / Budgets": "广告 / 预算",
+  "Verified budget records from the connected workspace. Spend, utilization and forecasts appear only when supported by backend data.": "来自已连接工作区的已验证预算记录。只有后端数据支持时才会显示支出、利用率和预测。",
+  "Search live budget records": "搜索实时预算记录"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));
