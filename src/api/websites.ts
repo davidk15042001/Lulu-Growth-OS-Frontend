@@ -68,6 +68,8 @@ export type WebsiteGenerationJob = {
   providerResult: Record<string, unknown>;
   errorCode: string | null;
   errorMessage: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export const websitesApi = {

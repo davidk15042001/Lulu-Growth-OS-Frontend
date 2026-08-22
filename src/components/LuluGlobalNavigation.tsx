@@ -10,7 +10,22 @@ type NavigationSection = { label: string; pages: readonly NavigationPage[] };
 
 const navigationSections = luluDropdownNavigation as readonly NavigationSection[];
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
-const WEBSITE_JOB_BLOCKED_STATUSES = new Set(["queued", "planning", "publishing", "failed", "cancelled"]);
+const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
+const WEBSITE_JOB_DISPLAY_STATUSES = new Set(["queued", "planning", "publishing", "failed", "cancelled"]);
+const WEBSITE_JOB_STALE_AFTER_MS = 12 * 60 * 1000;
+
+function jobTimestamp(value: { job?: { updatedAt?: string; createdAt?: string } }) {
+  const timestamp = value.job?.updatedAt ?? value.job?.createdAt;
+  const time = timestamp ? new Date(timestamp).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
+}
+
+function isStaleRunningWebsiteJob(value: { job?: { status?: string; updatedAt?: string; createdAt?: string } }) {
+  const status = String(value.job?.status ?? "");
+  if (!WEBSITE_JOB_RUNNING_STATUSES.has(status)) return false;
+  const time = jobTimestamp(value);
+  return !time || Date.now() - time > WEBSITE_JOB_STALE_AFTER_MS;
+}
 
 function readWebsiteGenerationLock() {
   try {
@@ -18,8 +33,17 @@ function readWebsiteGenerationLock() {
     if (!raw) return null;
     const value = JSON.parse(raw) as { provider?: string; job?: { status?: string; errorMessage?: string | null } };
     const status = String(value.job?.status ?? "");
-    if (!WEBSITE_JOB_BLOCKED_STATUSES.has(status)) return null;
-    return { provider: value.provider === "webflow" ? "Webflow" : "WordPress / Jetpack", status, errorMessage: value.job?.errorMessage ?? null };
+    if (!WEBSITE_JOB_DISPLAY_STATUSES.has(status)) return null;
+    if (isStaleRunningWebsiteJob(value)) {
+      window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY);
+      return null;
+    }
+    return {
+      provider: value.provider === "webflow" ? "Webflow" : "WordPress / Jetpack",
+      status,
+      blocking: WEBSITE_JOB_RUNNING_STATUSES.has(status),
+      errorMessage: value.job?.errorMessage ?? null,
+    };
   } catch {
     return null;
   }
@@ -66,7 +90,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                   const props = pageLinkProps(page.id);
                   const available = Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
-                  const isWebsiteLocked = Boolean(websiteLock && isWebsiteSection);
+                  const isWebsiteLocked = Boolean(websiteLock?.blocking && isWebsiteSection);
                   return (
                     <a
                       key={page.id}
@@ -85,7 +109,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                 })}
                 {websiteLock && isWebsiteSection && (
                   <div className={`lulu-global-navigation__website-lock is-${websiteLock.status}`} role="status" aria-live="polite">
-                    <RefreshCw aria-hidden="true" size={13} className={["queued", "planning", "generated", "preview", "publishing"].includes(websiteLock.status) ? "animate-spin" : undefined} />
+                    <RefreshCw aria-hidden="true" size={13} className={websiteLock.blocking ? "animate-spin" : undefined} />
                     <span>{websiteLockText}</span>
                   </div>
                 )}

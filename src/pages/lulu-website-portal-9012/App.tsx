@@ -25,6 +25,7 @@ type TrackedGenerationJob = { siteId: string; job: WebsiteGenerationJob; provide
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const RUNNING_GENERATION_STATUSES = ["queued", "planning", "publishing"] as const;
 const TERMINAL_GENERATION_STATUSES = ["generated", "preview", "published", "failed", "cancelled"] as const;
+const WEBSITE_JOB_STALE_AFTER_MS = 12 * 60 * 1000;
 
 function isRunningGenerationStatus(status: string) {
   return (RUNNING_GENERATION_STATUSES as readonly string[]).includes(status);
@@ -34,12 +35,28 @@ function isTerminalGenerationStatus(status: string) {
   return (TERMINAL_GENERATION_STATUSES as readonly string[]).includes(status);
 }
 
+function jobTimestamp(value: Partial<TrackedGenerationJob>) {
+  const timestamp = value.job?.updatedAt ?? value.job?.createdAt;
+  const time = timestamp ? new Date(timestamp).getTime() : 0;
+  return Number.isFinite(time) ? time : 0;
+}
+
+function isStaleRunningGenerationJob(value: Partial<TrackedGenerationJob>) {
+  if (!value.job?.status || !isRunningGenerationStatus(value.job.status)) return false;
+  const time = jobTimestamp(value);
+  return !time || Date.now() - time > WEBSITE_JOB_STALE_AFTER_MS;
+}
+
 function readStoredGenerationJob(): TrackedGenerationJob | null {
   try {
     const raw = window.localStorage.getItem(WEBSITE_GENERATION_STORAGE_KEY);
     if (!raw) return null;
     const value = JSON.parse(raw) as Partial<TrackedGenerationJob>;
     if (!value.siteId || !value.provider || !value.job?.id) return null;
+    if (isStaleRunningGenerationJob(value)) {
+      window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY);
+      return null;
+    }
     if (!isRunningGenerationStatus(value.job.status) && !["failed", "cancelled"].includes(value.job.status)) return null;
     return value as TrackedGenerationJob;
   } catch {
