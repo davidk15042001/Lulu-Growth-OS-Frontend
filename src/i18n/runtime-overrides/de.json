@@ -417,5 +417,12 @@
   "Ask Lulu about your workspace": "Fragen Sie Lulu zu Ihrem Workspace",
   "Answers are generated from your selected workspace and connected records. No example conversations or business metrics are displayed.": "Antworten werden aus Ihrem ausgewählten Workspace und verbundenen Datensätzen erzeugt. Es werden keine Beispielunterhaltungen oder Geschäftsmetriken angezeigt.",
   "Ask Lulu AI about your workspace…": "Lulu AI zu Ihrem Workspace fragen …",
-  "Working…": "Wird verarbeitet …"
+  "Working…": "Wird verarbeitet …",
+  "Loading live decisions…": "Live-Entscheidungen werden geladen …",
+  "Intelligence / Decisions": "Intelligence / Entscheidungen",
+  "Verified decision records from the selected workspace. Evidence and recommendations appear only when returned by the backend.": "Verifizierte Entscheidungsdatensätze aus dem ausgewählten Workspace. Belege und Empfehlungen werden nur angezeigt, wenn sie vom Backend geliefert werden.",
+  "No verified decisions yet": "Noch keine verifizierten Entscheidungen",
+  "Create or connect a real workspace decision before reviewing evidence, scenarios, risk or AI recommendations. No example decisions are displayed.": "Erstellen oder verbinden Sie zuerst eine echte Workspace-Entscheidung, bevor Sie Belege, Szenarien, Risiken oder KI-Empfehlungen prüfen. Es werden keine Beispielentscheidungen angezeigt.",
+  "decisions": "Entscheidungen",
+  "Decision": "Entscheidung"
 }

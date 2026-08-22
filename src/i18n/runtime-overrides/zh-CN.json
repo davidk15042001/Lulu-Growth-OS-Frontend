@@ -416,5 +416,12 @@
   "Ask Lulu about your workspace": "询问 Lulu 关于您的工作区",
   "Answers are generated from your selected workspace and connected records. No example conversations or business metrics are displayed.": "答案将根据您选择的工作区和已连接的记录生成。不会显示示例对话或业务指标。",
   "Ask Lulu AI about your workspace…": "询问 Lulu AI 关于您的工作区…",
-  "Working…": "处理中…"
+  "Working…": "处理中…",
+  "Loading live decisions…": "正在加载实时决策…",
+  "Intelligence / Decisions": "智能分析 / 决策",
+  "Verified decision records from the selected workspace. Evidence and recommendations appear only when returned by the backend.": "来自所选工作区的已验证决策记录。仅当后端返回时才显示证据和建议。",
+  "No verified decisions yet": "暂无已验证的决策",
+  "Create or connect a real workspace decision before reviewing evidence, scenarios, risk or AI recommendations. No example decisions are displayed.": "请先创建或连接真实的工作区决策，再查看证据、场景、风险或 AI 建议。不会显示示例决策。",
+  "decisions": "决策",
+  "Decision": "决策"
 }
