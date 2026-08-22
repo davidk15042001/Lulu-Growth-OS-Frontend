@@ -21208,5 +21208,10 @@
   "Search live ecommerce records": "Live-E-Commerce-Datensätze durchsuchen",
   "Loading live ecommerce data…": "Live-E-Commerce-Daten werden geladen…",
   "Intelligence / Ecommerce": "Intelligence / E-Commerce",
-  "Verified ecommerce product records from the connected workspace.": "Verifizierte E-Commerce-Produktdatensätze aus dem verbundenen Workspace."
+  "Verified ecommerce product records from the connected workspace.": "Verifizierte E-Commerce-Produktdatensätze aus dem verbundenen Workspace.",
+  "Intelligence / Overview": "Intelligence / Übersicht",
+  "Verified intelligence records from the connected workspace. Scores, changes and recommendations appear only when returned by the backend.": "Verifizierte Intelligence-Datensätze aus dem verbundenen Workspace. Scores, Änderungen und Empfehlungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified intelligence insights yet": "Noch keine verifizierten Intelligence-Erkenntnisse",
+  "Refresh after connected workspace data has been analyzed. No health score, trend or recommendation is inferred without a verified record.": "Aktualisieren Sie nach der Analyse der verbundenen Workspace-Daten. Ohne verifizierten Datensatz werden kein Health-Score, Trend oder Empfehlung abgeleitet.",
+  "Sources:": "Quellen:"
 }

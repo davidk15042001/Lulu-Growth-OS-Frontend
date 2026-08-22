@@ -1,0 +1,15 @@
+from pathlib import Path
+path = Path('/home/ubuntu/lulu-growth-frontend/src/pages/serene-cloud-7079/components/generated/LuluIntelligenceOverview.tsx')
+text = path.read_text()
+text = text.replace("const { items: insightRecords, loading: insightsLoading, error: insightsError } = useLiveRecords('ai_insights');", "const { items: insightRecords, loading: insightsLoading, error: insightsError, refresh: refreshInsights } = useLiveRecords('ai_insights');")
+text = text.replace("String((record as unknown as Record<string, unknown>)[key] ?? '')", "String((record as unknown as Record<string, unknown>)[key] ?? record.data?.[key] ?? '')", 1)
+anchor = "  return <div className=\"min-h-screen bg-[var(--background)] text-foreground\">"
+insert = '''  if (!insightsLoading && !insightsError) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-6xl"><header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs uppercase tracking-[.18em] text-muted-foreground">Intelligence / Overview</p><h1 className="mt-2 text-3xl font-bold">Intelligence Overview</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Verified intelligence records from the connected workspace. Scores, changes and recommendations appear only when returned by the backend.</p></div><button type="button" onClick={() => void refreshInsights()} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-secondary"><RefreshCw size={15} /> Refresh</button></header>{liveDetected.length === 0 ? <section className="rounded-2xl border border-dashed border-border bg-card p-10 text-center"><Brain className="mx-auto mb-4 text-muted-foreground" size={30} /><h2 className="text-xl font-semibold">No verified intelligence insights yet</h2><p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">Refresh after connected workspace data has been analyzed. No health score, trend or recommendation is inferred without a verified record.</p></section> : <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">{liveDetected.map(item => <article key={item.title} className="rounded-2xl border border-border bg-card p-5"><div className="flex items-start justify-between gap-3"><span className="rounded-full bg-secondary px-2 py-1 text-xs font-semibold">{item.impact}</span><span className="text-xs text-muted-foreground">{item.time}</span></div><h2 className="mt-4 text-lg font-semibold">{item.title}</h2><p className="mt-3 text-sm text-muted-foreground">Confidence: {item.confidence}%</p><p className="mt-2 text-xs text-muted-foreground">Sources: {item.sources.join(', ')}</p></article>)}</section>}</div></main>;
+'''
+if 'refreshInsights' not in text or 'No verified intelligence insights yet' in text:
+    raise SystemExit('Patch appears already applied or hook not found')
+if anchor not in text:
+    raise SystemExit('Render anchor not found')
+text = text.replace(anchor, insert + anchor, 1)
+path.write_text(text)
+print('patched intelligence live mode')

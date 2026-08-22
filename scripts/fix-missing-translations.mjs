@@ -196,6 +196,20 @@ Object.assign(zh, {
   "Intelligence / Ecommerce": "智能 / 电商",
   "Verified ecommerce product records from the connected workspace.": "来自已连接工作区的已验证电商产品记录。"
 });
+Object.assign(de, {
+  "Intelligence / Overview": "Intelligence / Übersicht",
+  "Verified intelligence records from the connected workspace. Scores, changes and recommendations appear only when returned by the backend.": "Verifizierte Intelligence-Datensätze aus dem verbundenen Workspace. Scores, Änderungen und Empfehlungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified intelligence insights yet": "Noch keine verifizierten Intelligence-Erkenntnisse",
+  "Refresh after connected workspace data has been analyzed. No health score, trend or recommendation is inferred without a verified record.": "Aktualisieren Sie nach der Analyse der verbundenen Workspace-Daten. Ohne verifizierten Datensatz werden kein Health-Score, Trend oder Empfehlung abgeleitet.",
+  "Sources:": "Quellen:"
+});
+Object.assign(zh, {
+  "Intelligence / Overview": "智能 / 概览",
+  "Verified intelligence records from the connected workspace. Scores, changes and recommendations appear only when returned by the backend.": "来自已连接工作区的已验证智能记录。只有后端返回数据时才会显示评分、变化和建议。",
+  "No verified intelligence insights yet": "暂时没有已验证的智能洞察",
+  "Refresh after connected workspace data has been analyzed. No health score, trend or recommendation is inferred without a verified record.": "连接的工作区数据分析完成后请刷新。没有经过验证的记录时，不会推断健康评分、趋势或建议。",
+  "Sources:": "来源："
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));
