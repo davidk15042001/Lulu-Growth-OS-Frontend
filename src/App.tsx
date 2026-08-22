@@ -15,6 +15,7 @@ import { getPageContract } from "./api/page-contracts";
 import { useLuluApp } from "./api/LuluAppContext";
 import { conversationApi } from "./api/conversations";
 import { usageApi, type WorkspaceCredits } from "./api/usage";
+import { LuluWorkspaceRefreshButton } from "./components/LuluWorkspaceTopBar";
 import { BillingOnboarding } from "./components/BillingOnboarding";
 import AdminBillingPage from "./pages/admin-billing-overview-9901/App";
 
@@ -151,6 +152,7 @@ function AuthenticatedSearchBar() {
       <Search aria-hidden="true" size={18} className="lulu-auth-search-icon" />
       <input id="lulu-global-search" value={query} onFocus={() => setOpen(true)} onChange={(event) => { setQuery(event.target.value); setOpen(true); }} placeholder="Search Lulu AI" autoComplete="off" />
       <button type="submit" aria-label="Search" title="Search" className="lulu-auth-search-button"><Search aria-hidden="true" size={17} /></button>
+      <LuluWorkspaceRefreshButton />
     </form>
     {credits && <div className="lulu-auth-credits" title="Credits" aria-label="Credits">
       <span className="lulu-auth-credits-label">Credits</span>

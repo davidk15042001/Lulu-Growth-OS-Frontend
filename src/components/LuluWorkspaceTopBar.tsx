@@ -1,4 +1,4 @@
-import { RefreshCw, Search } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { workspaceAppApi, type ContentRefreshJob } from '../api/workspace-app';
 import { ApiError } from '../api/client';
@@ -20,9 +20,8 @@ function isDone(job: ContentRefreshJob | null) {
   return !job || ['completed', 'failed', 'cancelled'].includes(job.status);
 }
 
-export function LuluWorkspaceTopBar() {
+export function LuluWorkspaceRefreshButton() {
   const t = useTranslation();
-  const [query, setQuery] = useState('');
   const [job, setJob] = useState<ContentRefreshJob | null>(() => readStoredJob());
   const [error, setError] = useState<string | null>(null);
   const workspaceId = getSelectedWorkspaceId();
@@ -63,19 +62,19 @@ export function LuluWorkspaceTopBar() {
     ? `${t('Updating workspace')} · ${job?.currentPhase ?? t('starting')} · ${job?.progress ?? 0}%`
     : job?.status === 'completed'
       ? t('Workspace updated')
-      : error ?? '';
+      : error ?? t('Update workspace');
 
   return (
-    <header className="lulu-workspace-topbar" data-lulu-workspace-topbar="true">
-      <div className="lulu-workspace-topbar__search">
-        <Search aria-hidden="true" size={16} />
-        <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('Search workspace')} aria-label={t('Search workspace')} />
-      </div>
-      <button type="button" className="lulu-workspace-topbar__refresh" onClick={() => void refreshWorkspace()} disabled={!workspaceId || running} aria-label={running ? t('Workspace update in progress') : t('Update workspace')} title={statusText || t('Update workspace')}>
-        <RefreshCw aria-hidden="true" size={16} className={running ? 'animate-spin' : undefined} />
-        <span>{running ? `${job?.progress ?? 0}%` : t('Update')}</span>
-      </button>
-      {statusText && <span className="lulu-workspace-topbar__status" role="status" aria-live="polite">{statusText}</span>}
-    </header>
+    <button
+      type="button"
+      className="lulu-auth-search-refresh"
+      onClick={() => void refreshWorkspace()}
+      disabled={!workspaceId || running}
+      aria-label={running ? t('Workspace update in progress') : t('Update workspace')}
+      title={statusText}
+    >
+      <RefreshCw aria-hidden="true" size={17} className={running ? 'animate-spin' : undefined} />
+      <span className="lulu-auth-search-refresh__label">{running ? `${job?.progress ?? 0}%` : t('Update')}</span>
+    </button>
   );
 }

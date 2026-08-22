@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import { LuluRuntime } from "./api/runtime";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
-import { LuluWorkspaceTopBar } from "./components/LuluWorkspaceTopBar";
 import { routes } from "./routing";
 import { getPageContract } from "./api/page-contracts";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
@@ -158,7 +157,6 @@ export function NativePage({ slug }: { slug: string }) {
       <div className={`lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}`}>
         {!isNavigationFree && <LuluGlobalNavigation activeSlug={effectiveSlug} />}
         <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
-          {!isNavigationFree && <LuluWorkspaceTopBar />}
           <div className="lulu-native-page">
             <PageErrorBoundary pageName={slug}>
               <App />
