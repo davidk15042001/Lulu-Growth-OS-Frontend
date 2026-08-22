@@ -32,3 +32,6 @@ Push-Zeitstempel: 2026-08-22 04:57:52 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-22 05:59:04 Europe/Berlin
 Änderungen: Echte Website-Jobstatusverfolgung, globaler Fortschritt, sichere Navigationssperre und übersetzte Produktionsfehler ergänzt.
+
+Push-Zeitstempel: 2026-08-22 06:26:00 Europe/Berlin
+Änderungen: Kombiniertes Deployment installiert Produktionsabhängigkeiten und führt Datenbankmigrationen vor dem Backend-Neustart aus.
