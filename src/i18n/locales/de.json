@@ -21286,5 +21286,10 @@
   "No verified return records yet": "Noch keine verifizierten Rückgabedaten",
   "Connect a store and synchronize returns before reviewing refunds, reasons or customer issues.": "Verbinden Sie einen Shop und synchronisieren Sie Rückgaben, bevor Sie Erstattungen, Gründe oder Kundenprobleme prüfen.",
   "Ecommerce / Returns &amp; Refunds": "E-Commerce / Rückgaben und Erstattungen",
-  "Returns &amp; Refunds": "Rückgaben und Erstattungen"
+  "Returns &amp; Refunds": "Rückgaben und Erstattungen",
+  "Ecommerce / Taxes": "E-Commerce / Steuern",
+  "Verified tax records from connected finance sources. Rates, jurisdictions and obligations appear only when returned by the backend.": "Verifizierte Steuerdatensätze verbundener Finanzquellen. Sätze, Rechtsgebiete und Verpflichtungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified tax records yet": "Noch keine verifizierten Steuerdaten",
+  "Connect a finance platform and synchronize tax data before reviewing rates, jurisdictions or obligations.": "Verbinden Sie eine Finanzplattform und synchronisieren Sie Steuerdaten, bevor Sie Sätze, Rechtsgebiete oder Verpflichtungen prüfen.",
+  "Tax record": "Steuerdatensatz"
 }

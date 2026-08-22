@@ -21286,5 +21286,10 @@
   "No verified return records yet": "暂时没有已验证的退货记录",
   "Connect a store and synchronize returns before reviewing refunds, reasons or customer issues.": "请先连接商店并同步退货数据，再查看退款、原因或客户问题。",
   "Ecommerce / Returns &amp; Refunds": "电子商务 / 退货与退款",
-  "Returns &amp; Refunds": "退货与退款"
+  "Returns &amp; Refunds": "退货与退款",
+  "Ecommerce / Taxes": "电子商务 / 税务",
+  "Verified tax records from connected finance sources. Rates, jurisdictions and obligations appear only when returned by the backend.": "来自已连接财务来源的已验证税务记录。只有后端返回数据时才会显示税率、管辖区和义务。",
+  "No verified tax records yet": "暂时没有已验证的税务记录",
+  "Connect a finance platform and synchronize tax data before reviewing rates, jurisdictions or obligations.": "请先连接财务平台并同步税务数据，再查看税率、管辖区或义务。",
+  "Tax record": "税务记录"
 }

@@ -414,6 +414,20 @@ Object.assign(zh, {
 });
 Object.assign(de, { "Ecommerce / Returns &amp; Refunds": "E-Commerce / Rückgaben und Erstattungen", "Returns &amp; Refunds": "Rückgaben und Erstattungen" });
 Object.assign(zh, { "Ecommerce / Returns &amp; Refunds": "电子商务 / 退货与退款", "Returns &amp; Refunds": "退货与退款" });
+Object.assign(de, {
+  "Ecommerce / Taxes": "E-Commerce / Steuern",
+  "Verified tax records from connected finance sources. Rates, jurisdictions and obligations appear only when returned by the backend.": "Verifizierte Steuerdatensätze verbundener Finanzquellen. Sätze, Rechtsgebiete und Verpflichtungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified tax records yet": "Noch keine verifizierten Steuerdaten",
+  "Connect a finance platform and synchronize tax data before reviewing rates, jurisdictions or obligations.": "Verbinden Sie eine Finanzplattform und synchronisieren Sie Steuerdaten, bevor Sie Sätze, Rechtsgebiete oder Verpflichtungen prüfen.",
+  "Tax record": "Steuerdatensatz"
+});
+Object.assign(zh, {
+  "Ecommerce / Taxes": "电子商务 / 税务",
+  "Verified tax records from connected finance sources. Rates, jurisdictions and obligations appear only when returned by the backend.": "来自已连接财务来源的已验证税务记录。只有后端返回数据时才会显示税率、管辖区和义务。",
+  "No verified tax records yet": "暂时没有已验证的税务记录",
+  "Connect a finance platform and synchronize tax data before reviewing rates, jurisdictions or obligations.": "请先连接财务平台并同步税务数据，再查看税率、管辖区或义务。",
+  "Tax record": "税务记录"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));
