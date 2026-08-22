@@ -21252,5 +21252,10 @@
   "Advertising / Campaigns": "Werbung / Kampagnen",
   "Verified advertising campaign records from connected providers. Performance metrics and publishing actions appear only when returned by the backend.": "Verifizierte Werbekampagnen-Datensätze verbundener Anbieter. Leistungskennzahlen und Veröffentlichungsaktionen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified campaigns yet": "Noch keine verifizierten Kampagnen",
-  "Connect an advertising provider and synchronize campaign records before reviewing spend, performance or publishing actions.": "Verbinden Sie einen Werbeanbieter und synchronisieren Sie Kampagnendaten, bevor Sie Ausgaben, Leistung oder Veröffentlichungsaktionen prüfen."
+  "Connect an advertising provider and synchronize campaign records before reviewing spend, performance or publishing actions.": "Verbinden Sie einen Werbeanbieter und synchronisieren Sie Kampagnendaten, bevor Sie Ausgaben, Leistung oder Veröffentlichungsaktionen prüfen.",
+  "Loading live opportunities…": "Live-Chancen werden geladen…",
+  "Intelligence / Opportunities": "Intelligence / Chancen",
+  "Verified growth opportunity records from connected workspace data. Potential, confidence and recommendations appear only when returned by the backend.": "Verifizierte Wachstumschancen aus verbundenen Workspace-Daten. Potenzial, Konfidenz und Empfehlungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified opportunities yet": "Noch keine verifizierten Chancen",
+  "Connect and analyze verified workspace data before reviewing opportunity potential or AI recommendations.": "Verbinden und analysieren Sie verifizierte Workspace-Daten, bevor Sie Chancenpotenzial oder AI-Empfehlungen prüfen."
 }

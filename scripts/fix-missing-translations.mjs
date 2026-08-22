@@ -320,6 +320,20 @@ Object.assign(zh, {
   "No verified campaigns yet": "暂时没有已验证的广告活动",
   "Connect an advertising provider and synchronize campaign records before reviewing spend, performance or publishing actions.": "请先连接广告提供商并同步活动记录，再查看支出、绩效或发布操作。"
 });
+Object.assign(de, {
+  "Loading live opportunities…": "Live-Chancen werden geladen…",
+  "Intelligence / Opportunities": "Intelligence / Chancen",
+  "Verified growth opportunity records from connected workspace data. Potential, confidence and recommendations appear only when returned by the backend.": "Verifizierte Wachstumschancen aus verbundenen Workspace-Daten. Potenzial, Konfidenz und Empfehlungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified opportunities yet": "Noch keine verifizierten Chancen",
+  "Connect and analyze verified workspace data before reviewing opportunity potential or AI recommendations.": "Verbinden und analysieren Sie verifizierte Workspace-Daten, bevor Sie Chancenpotenzial oder AI-Empfehlungen prüfen."
+});
+Object.assign(zh, {
+  "Loading live opportunities…": "正在加载实时机会…",
+  "Intelligence / Opportunities": "智能 / 机会",
+  "Verified growth opportunity records from connected workspace data. Potential, confidence and recommendations appear only when returned by the backend.": "来自已连接工作区数据的已验证增长机会记录。只有后端返回数据时才会显示潜力、置信度和建议。",
+  "No verified opportunities yet": "暂时没有已验证的机会",
+  "Connect and analyze verified workspace data before reviewing opportunity potential or AI recommendations.": "请先连接并分析已验证的工作区数据，再查看机会潜力或 AI 建议。"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

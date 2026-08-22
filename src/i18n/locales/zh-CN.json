@@ -21252,5 +21252,10 @@
   "Advertising / Campaigns": "广告 / 活动",
   "Verified advertising campaign records from connected providers. Performance metrics and publishing actions appear only when returned by the backend.": "来自已连接提供商的已验证广告活动记录。只有后端返回数据时才会显示绩效指标和发布操作。",
   "No verified campaigns yet": "暂时没有已验证的广告活动",
-  "Connect an advertising provider and synchronize campaign records before reviewing spend, performance or publishing actions.": "请先连接广告提供商并同步活动记录，再查看支出、绩效或发布操作。"
+  "Connect an advertising provider and synchronize campaign records before reviewing spend, performance or publishing actions.": "请先连接广告提供商并同步活动记录，再查看支出、绩效或发布操作。",
+  "Loading live opportunities…": "正在加载实时机会…",
+  "Intelligence / Opportunities": "智能 / 机会",
+  "Verified growth opportunity records from connected workspace data. Potential, confidence and recommendations appear only when returned by the backend.": "来自已连接工作区数据的已验证增长机会记录。只有后端返回数据时才会显示潜力、置信度和建议。",
+  "No verified opportunities yet": "暂时没有已验证的机会",
+  "Connect and analyze verified workspace data before reviewing opportunity potential or AI recommendations.": "请先连接并分析已验证的工作区数据，再查看机会潜力或 AI 建议。"
 }
