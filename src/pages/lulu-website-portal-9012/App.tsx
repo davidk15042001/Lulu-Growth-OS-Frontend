@@ -45,6 +45,8 @@ function readGenerationProgress(job: WebsiteGenerationJob | undefined) {
   return { completedPages, totalPages, currentPageTitle };
 }
 
+const GENERATION_UI_STALE_MS = 20 * 60 * 1000;
+
 function readStoredGenerationJob(): TrackedGenerationJob | null {
   try {
     const raw = window.localStorage.getItem(WEBSITE_GENERATION_STORAGE_KEY);
@@ -52,6 +54,8 @@ function readStoredGenerationJob(): TrackedGenerationJob | null {
     const value = JSON.parse(raw) as Partial<TrackedGenerationJob>;
     if (!value.workspaceId || value.workspaceId !== getSelectedWorkspaceId() || !value.siteId || !value.provider || !value.job?.id) return null;
     if (!isRunningGenerationJob(value.job as WebsiteGenerationJob) && !["failed", "cancelled"].includes(value.job.status)) return null;
+    const updatedAt = Date.parse(String(value.job.updatedAt ?? ""));
+    if (isRunningGenerationJob(value.job as WebsiteGenerationJob) && Number.isFinite(updatedAt) && Date.now() - updatedAt > GENERATION_UI_STALE_MS) return null;
     return value as TrackedGenerationJob;
   } catch {
     return null;
@@ -387,6 +391,13 @@ export default function App() {
         else if (response.data.status === "published") void refresh();
       } catch (requestError) {
         if (cancelled) return;
+        if (requestError instanceof Error && "status" in requestError && [401, 404].includes(Number(requestError.status))) {
+          writeStoredGenerationJob(null);
+          setGenerationJob(null);
+          setGenerationStarting(null);
+          setGenerationFailure({ provider: generationJob.provider, message: "Der Generation-Job ist auf dem Server nicht mehr vorhanden. Die alte Planung wurde aus dieser Sitzung entfernt." });
+          return;
+        }
         const message = getFriendlyErrorMessage(requestError, "The generation status could not be loaded right now. Lulu will retry automatically.");
         setError(message);
         window.setTimeout(poll, 5000);
