@@ -1,10 +1,9 @@
 # Verbleibende Live-Coverage-Liste
 
-Nicht durch Hook/Spezialclient abgedeckte generierte Dateien: 30
+Nicht durch Hook/Spezialclient abgedeckte generierte Dateien: 28
 
 | Priorität | Datei | Begründung |
 |---:|---|---|
-| 43 | `src/pages/quietly-moon-4186/components/generated/LuluShipping.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 40 | `src/pages/kindly-morning-7115/components/generated/LuluTerritories.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 38 | `src/pages/smart-village-1099/components/generated/LuluInventory.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 38 | `src/pages/wildly-time-4260/components/generated/LuluCartsPage.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
@@ -12,7 +11,6 @@ Nicht durch Hook/Spezialclient abgedeckte generierte Dateien: 30
 | 36 | `src/pages/merry-castle-3260/components/generated/LuluPaymentsWorkspace.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 35 | `src/pages/dreamy-shade-5445/components/generated/ReturnsRefundsPage.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 35 | `src/pages/soft-hill-4757/components/generated/LuluTaxes.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
-| 35 | `src/pages/sparkling-cave-8456/components/generated/LuluAIActivity.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 33 | `src/pages/calmly-park-3313/components/generated/LuluAgentMarketplace.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 32 | `src/pages/daring-brook-9034/components/generated/LuluReviewsPage.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 31 | `src/pages/richly-forest-5832/components/generated/LuluCategories.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
