@@ -271,6 +271,7 @@ export default function App() {
       <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
       <Route path={routes.onboarding.billings} element={<BillingOnboarding />} />
       <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
+      <Route path="/app/dashboard" element={<Navigate replace to={routes.app.dashboard} />} />
       <Route path={routes.app.email} element={<PageRoute page={EMAIL_PAGE} />} />
       {pages.map((page) => (
         <Route key={page.id} path={pagePath(page.slug)} element={<PageRoute page={page} />} />
