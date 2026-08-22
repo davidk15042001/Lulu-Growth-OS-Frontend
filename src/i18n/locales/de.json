@@ -21201,5 +21201,9 @@
   "Creative": "Creative",
   "Advertising / Tracking": "Werbung / Tracking",
   "Verified attribution records from the connected workspace. Conversion events and health signals appear only when returned by the backend.": "Verifizierte Attributionsdatensätze aus dem verbundenen Workspace. Conversion-Events und Gesundheitssignale werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
-  "Search live attribution records": "Live-Attributionsdatensätze durchsuchen"
+  "Search live attribution records": "Live-Attributionsdatensätze durchsuchen",
+  "No live ecommerce data is available yet. Connect a verified store before reviewing orders, customers or revenue.": "Noch keine Live-E-Commerce-Daten verfügbar. Verbinden Sie einen verifizierten Shop, bevor Sie Bestellungen, Kunden oder Umsatz prüfen.",
+  "Commerce / Overview": "Commerce / Übersicht",
+  "Verified ecommerce records from the connected workspace. Revenue, orders, customers and stores appear only when returned by the backend.": "Verifizierte E-Commerce-Datensätze aus dem verbundenen Workspace. Umsatz, Bestellungen, Kunden und Shops werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "Search live ecommerce records": "Live-E-Commerce-Datensätze durchsuchen"
 }

@@ -174,6 +174,18 @@ Object.assign(zh, {
   "Verified attribution records from the connected workspace. Conversion events and health signals appear only when returned by the backend.": "来自已连接工作区的已验证归因记录。只有后端返回数据时才会显示转化事件和健康信号。",
   "Search live attribution records": "搜索实时归因记录"
 });
+Object.assign(de, {
+  "No live ecommerce data is available yet. Connect a verified store before reviewing orders, customers or revenue.": "Noch keine Live-E-Commerce-Daten verfügbar. Verbinden Sie einen verifizierten Shop, bevor Sie Bestellungen, Kunden oder Umsatz prüfen.",
+  "Commerce / Overview": "Commerce / Übersicht",
+  "Verified ecommerce records from the connected workspace. Revenue, orders, customers and stores appear only when returned by the backend.": "Verifizierte E-Commerce-Datensätze aus dem verbundenen Workspace. Umsatz, Bestellungen, Kunden und Shops werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "Search live ecommerce records": "Live-E-Commerce-Datensätze durchsuchen"
+});
+Object.assign(zh, {
+  "No live ecommerce data is available yet. Connect a verified store before reviewing orders, customers or revenue.": "暂时没有实时电商数据。查看订单、客户或收入前，请连接已验证的商店。",
+  "Commerce / Overview": "商务 / 概览",
+  "Verified ecommerce records from the connected workspace. Revenue, orders, customers and stores appear only when returned by the backend.": "来自已连接工作区的已验证电商记录。只有后端返回数据时才会显示收入、订单、客户和商店。",
+  "Search live ecommerce records": "搜索实时电商记录"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));
