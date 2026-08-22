@@ -20,40 +20,29 @@ import { pageLinkProps } from "../../routing";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 
 type Provider = "wordpress" | "webflow";
-type TrackedGenerationJob = { siteId: string; job: WebsiteGenerationJob; provider: Provider };
+type TrackedGenerationJob = { workspaceId: string; siteId: string; job: WebsiteGenerationJob; provider: Provider };
 
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const RUNNING_GENERATION_STATUSES = ["queued", "planning", "publishing"] as const;
 const TERMINAL_GENERATION_STATUSES = ["generated", "preview", "published", "failed", "cancelled"] as const;
-const WEBSITE_JOB_STALE_AFTER_MS = 35 * 60 * 1000;
 
-function isRunningGenerationStatus(status: string) {
-  return (RUNNING_GENERATION_STATUSES as readonly string[]).includes(status);
+function isRunningGenerationJob(job: Pick<WebsiteGenerationJob, "status" | "autoPublish">) {
+  if ((RUNNING_GENERATION_STATUSES as readonly string[]).includes(job.status)) return true;
+  return job.autoPublish !== false && ["generated", "preview"].includes(job.status);
 }
 
-function isTerminalGenerationStatus(status: string) {
-  return (TERMINAL_GENERATION_STATUSES as readonly string[]).includes(status);
+function isTerminalGenerationJob(job: Pick<WebsiteGenerationJob, "status" | "autoPublish">) {
+  return !isRunningGenerationJob(job) && (TERMINAL_GENERATION_STATUSES as readonly string[]).includes(job.status);
 }
 
-function jobTimestamp(value: Partial<TrackedGenerationJob>) {
-  const timestamp = value.job?.updatedAt ?? value.job?.createdAt;
-  const time = timestamp ? new Date(timestamp).getTime() : 0;
-  return Number.isFinite(time) ? time : 0;
-}
-
-function isStaleRunningGenerationJob(value: Partial<TrackedGenerationJob>) {
-  if (!value.job?.status || !isRunningGenerationStatus(value.job.status)) return false;
-  const time = jobTimestamp(value);
-  return !time || Date.now() - time > WEBSITE_JOB_STALE_AFTER_MS;
-}
-
-function staleJobFailure(job: WebsiteGenerationJob): WebsiteGenerationJob {
-  return {
-    ...job,
-    status: "failed",
-    errorCode: "WEBSITE_GENERATION_TIMEOUT",
-    errorMessage: "Website generation did not finish in time. Please try again.",
-  };
+function readGenerationProgress(job: WebsiteGenerationJob | undefined) {
+  const value = job?.preview?.progress;
+  if (!value || typeof value !== "object") return null;
+  const progress = value as Record<string, unknown>;
+  const completedPages = typeof progress.completedPages === "number" ? Math.max(0, progress.completedPages) : 0;
+  const totalPages = typeof progress.totalPages === "number" ? Math.max(0, progress.totalPages) : 0;
+  const currentPageTitle = typeof progress.currentPageTitle === "string" ? progress.currentPageTitle : null;
+  return { completedPages, totalPages, currentPageTitle };
 }
 
 function readStoredGenerationJob(): TrackedGenerationJob | null {
@@ -61,12 +50,8 @@ function readStoredGenerationJob(): TrackedGenerationJob | null {
     const raw = window.localStorage.getItem(WEBSITE_GENERATION_STORAGE_KEY);
     if (!raw) return null;
     const value = JSON.parse(raw) as Partial<TrackedGenerationJob>;
-    if (!value.siteId || !value.provider || !value.job?.id) return null;
-    if (isStaleRunningGenerationJob(value)) {
-      window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY);
-      return null;
-    }
-    if (!isRunningGenerationStatus(value.job.status) && !["failed", "cancelled"].includes(value.job.status)) return null;
+    if (!value.workspaceId || value.workspaceId !== getSelectedWorkspaceId() || !value.siteId || !value.provider || !value.job?.id) return null;
+    if (!isRunningGenerationJob(value.job as WebsiteGenerationJob) && !["failed", "cancelled"].includes(value.job.status)) return null;
     return value as TrackedGenerationJob;
   } catch {
     return null;
@@ -75,7 +60,7 @@ function readStoredGenerationJob(): TrackedGenerationJob | null {
 
 function writeStoredGenerationJob(value: TrackedGenerationJob | null) {
   try {
-    if (value && (isRunningGenerationStatus(value.job.status) || ["failed", "cancelled"].includes(value.job.status))) window.localStorage.setItem(WEBSITE_GENERATION_STORAGE_KEY, JSON.stringify(value));
+    if (value && (isRunningGenerationJob(value.job) || ["failed", "cancelled"].includes(value.job.status))) window.localStorage.setItem(WEBSITE_GENERATION_STORAGE_KEY, JSON.stringify(value));
     else window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY);
     window.dispatchEvent(new CustomEvent("lulu:website-generation-status"));
   } catch {
@@ -309,14 +294,8 @@ export default function App() {
     let cancelled = false;
     websitesApi.getActiveGenerationJob(workspaceId, selectedSite.id)
       .then((response) => {
-        if (cancelled || !response.data || !isRunningGenerationStatus(response.data.status)) return;
-        const tracked = { siteId: selectedSite.id, job: response.data, provider: selectedSite.provider === "webflow" ? "webflow" as const : "wordpress" as const };
-        if (isStaleRunningGenerationJob(tracked)) {
-          writeStoredGenerationJob(null);
-          setGenerationStarting(null);
-          setGenerationJob(null);
-          return;
-        }
+        if (cancelled || !response.data || !isRunningGenerationJob(response.data)) return;
+        const tracked = { workspaceId, siteId: selectedSite.id, job: response.data, provider: selectedSite.provider === "webflow" ? "webflow" as const : "wordpress" as const };
         setGenerationFailure(null);
         setGenerationStarting(null);
         setGenerationJob(tracked);
@@ -354,7 +333,7 @@ export default function App() {
       setSites((current) => current.some((site) => site.id === response.data.site.id) ? current.map((site) => site.id === response.data.site.id ? response.data.site : site) : [response.data.site, ...current]);
       setSelectedSiteId(response.data.site.id);
       setGenerationStarting(null);
-      setGenerationJob({ siteId: response.data.site.id, job: response.data.job, provider: nextProvider });
+      setGenerationJob({ workspaceId, siteId: response.data.site.id, job: response.data.job, provider: nextProvider });
     } catch (requestError) {
       const friendly = getFriendlyErrorMessage(requestError, nextProvider === "wordpress" ? "WordPress ist verbunden, aber es wurde noch keine WordPress-Website gefunden." : "Webflow ist verbunden, aber es wurde noch keine CMS-Collection gefunden.");
       const details = requestError instanceof Error && "status" in requestError ? getTechnicalErrorDetails(requestError) : "";
@@ -379,24 +358,14 @@ export default function App() {
   }, [workspaceId, providerAuthorized, sites, provider, selectedSiteId]);
 
   useEffect(() => {
-    if (!workspaceId || !generationJob || isTerminalGenerationStatus(generationJob.job.status)) return;
+    if (!workspaceId || !generationJob || isTerminalGenerationJob(generationJob.job)) return;
     let cancelled = false;
     const poll = async () => {
       try {
         const response = await websitesApi.getGenerationJob(workspaceId, generationJob.siteId, generationJob.job.id);
         if (cancelled) return;
-        const nextTracked = { ...generationJob, job: response.data };
-        if (isStaleRunningGenerationJob(nextTracked)) {
-          const failed = staleJobFailure(response.data);
-          const message = failed.errorMessage ?? "Die Website-Generierung wurde gestoppt, weil sie zu lange gedauert hat.";
-          setGenerationFailure({ provider: generationJob.provider, message });
-          setGenerationJob((current) => current ? { ...current, job: failed } : current);
-          setError(message);
-          void refresh();
-          return;
-        }
         setGenerationJob((current) => current ? { ...current, job: response.data } : current);
-        if (!isTerminalGenerationStatus(response.data.status)) window.setTimeout(poll, 2000);
+        if (!isTerminalGenerationJob(response.data)) window.setTimeout(poll, 2000);
         else if (response.data.status === "failed") {
           const message = response.data.errorMessage ?? "Die Website konnte nicht automatisch generiert werden.";
           const failedProvider = generationJob.provider;
@@ -407,18 +376,9 @@ export default function App() {
         else if (response.data.status === "published") void refresh();
       } catch (requestError) {
         if (cancelled) return;
-        const code = typeof requestError === "object" && requestError !== null && "code" in requestError
-          ? String((requestError as { code?: unknown }).code ?? "")
-          : "";
-        if (["API_TIMEOUT", "NETWORK_ERROR", "SESSION_REFRESH_UNAVAILABLE"].includes(code)) {
-          window.setTimeout(poll, 5000);
-          return;
-        }
-        const message = getFriendlyErrorMessage(requestError, "Die Website-Generierung ist fehlgeschlagen. Die Verbindung wurde zurückgesetzt.");
-        const failedProvider = generationJob.provider;
-        setGenerationFailure({ provider: failedProvider, message });
-        setGenerationJob((current) => current ? { ...current, job: { ...current.job, status: "failed", errorMessage: message, errorCode: "WEBSITE_STATUS_POLL_FAILED" } } : current);
+        const message = getFriendlyErrorMessage(requestError, "The generation status could not be loaded right now. Lulu will retry automatically.");
         setError(message);
+        window.setTimeout(poll, 5000);
       }
     };
     void poll();
@@ -488,14 +448,29 @@ export default function App() {
   };
 
   const generationStatus = generationJob?.job.status;
-  const generationIsBlocking = Boolean(generationStatus && isRunningGenerationStatus(generationStatus));
+  const generationIsBlocking = Boolean(generationJob && isRunningGenerationJob(generationJob.job));
+  const generationProgress = readGenerationProgress(generationJob?.job);
+  const generationPercent = generationStatus === "failed" || generationStatus === "published"
+    ? 100
+    : generationStatus === "publishing" || generationStatus === "preview"
+      ? 85
+      : generationProgress?.totalPages
+        ? Math.round(15 + (generationProgress.completedPages / generationProgress.totalPages) * 60)
+        : generationStatus === "planning" ? 20 : 10;
   const generationLabel = generationStatus === "published" ? "Website veröffentlicht" : generationStatus === "failed" ? "Generierung fehlgeschlagen" : generationStatus === "publishing" ? "Website wird veröffentlicht" : generationStatus === "preview" ? "Website wird vorbereitet" : "Website wird erstellt";
-  const generationDetail = generationStatus === "planning" ? "Lulu analysiert die Unternehmensdaten und erstellt die Seitenstruktur." : generationStatus === "preview" ? "Die Inhalte, SEO-Metadaten und Seiten werden für den verbundenen Anbieter vorbereitet." : generationStatus === "publishing" ? "Die generierten Seiten werden jetzt im verbundenen CMS angelegt." : generationStatus === "published" ? "Die Website wurde erfolgreich im verbundenen CMS erstellt." : generationStatus === "failed" ? (generationJob?.job.errorMessage ?? "Bitte prüfe die Verbindung und versuche es erneut.") : "Lulu führt die automatische Website-Erstellung im Hintergrund aus.";
+  const generationDetail = generationStatus === "planning" && generationProgress?.totalPages
+    ? `${generationProgress.completedPages} von ${generationProgress.totalPages} Seiten erstellt${generationProgress.currentPageTitle ? ` · Aktuell: ${generationProgress.currentPageTitle}` : ""}.`
+    : generationStatus === "planning" ? "Lulu analysiert die Unternehmensdaten und erstellt die Seitenstruktur."
+      : generationStatus === "preview" ? "Alle Seiten sind erstellt. Die Veröffentlichung im verbundenen Anbieter wird vorbereitet."
+        : generationStatus === "publishing" ? "Die generierten Seiten werden jetzt im verbundenen CMS angelegt und geprüft."
+          : generationStatus === "published" ? "Die Website wurde erfolgreich im verbundenen CMS erstellt."
+            : generationStatus === "failed" ? (generationJob?.job.errorMessage ?? "Bitte prüfe die Verbindung und versuche es erneut.")
+              : "Lulu führt die automatische Website-Erstellung im Hintergrund aus.";
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-foreground">
       {(error || connectionBusy) && <div role={error ? "alert" : "status"} className="fixed left-1/2 top-4 z-[70] w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground shadow-2xl" aria-live="polite">{error || `${connectionBusy === "wordpress" ? "WordPress / Jetpack" : "Webflow"} wird verbunden…`}</div>}
-      {generationJob && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-title" style={{ color: "#111827" }} className="pointer-events-auto my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><div className="flex items-start gap-4"><div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${generationStatus === "failed" ? "bg-destructive/10 text-destructive" : generationStatus === "published" ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>{generationStatus === "failed" || generationStatus === "published" ? <Globe2 size={22} /> : <RefreshCw size={22} className="animate-spin" />}</div><div className="min-w-0"><h2 id="website-generation-title" className="text-lg font-semibold text-[#111827]">{generationLabel}</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">{generationDetail}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className={`h-full rounded-full transition-all duration-500 ${generationStatus === "failed" ? "w-full bg-destructive" : generationStatus === "published" ? "w-full bg-emerald-500" : generationStatus === "publishing" ? "w-4/5 bg-primary" : generationStatus === "preview" ? "w-3/5 bg-primary" : generationStatus === "planning" ? "w-2/5 bg-primary" : "w-1/5 bg-primary"}`} /></div><div className="mt-5 flex items-center justify-between gap-3 text-xs text-[#4b5563]"><span>{generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</span><span className="capitalize">{generationStatus}</span></div>{["published", "failed", "cancelled"].includes(generationStatus ?? "") && <button type="button" onClick={() => setGenerationJob(null)} className="mt-6 w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-secondary">Schließen</button>}</div></div></ViewportPortal>}
+      {generationJob && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-title" style={{ color: "#111827" }} className="pointer-events-auto my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><div className="flex items-start gap-4"><div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${generationStatus === "failed" ? "bg-destructive/10 text-destructive" : generationStatus === "published" ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>{generationStatus === "failed" || generationStatus === "published" ? <Globe2 size={22} /> : <RefreshCw size={22} className="animate-spin" />}</div><div className="min-w-0"><h2 id="website-generation-title" className="text-lg font-semibold text-[#111827]">{generationLabel}</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">{generationDetail}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div style={{ width: `${generationPercent}%` }} className={`h-full rounded-full transition-all duration-500 ${generationStatus === "failed" ? "bg-destructive" : generationStatus === "published" ? "bg-emerald-500" : "bg-primary"}`} /></div><div className="mt-5 flex items-center justify-between gap-3 text-xs text-[#4b5563]"><span>{generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</span><span>{generationStatus} · {generationPercent}%</span></div>{["published", "failed", "cancelled"].includes(generationStatus ?? "") && <button type="button" onClick={() => setGenerationJob(null)} className="mt-6 w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-secondary">Schließen</button>}</div></div></ViewportPortal>}
       {generationStarting && !generationJob && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-start-title" style={{ color: "#111827" }} className="pointer-events-auto my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><div className="flex items-start gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><RefreshCw size={22} className="animate-spin" /></div><div><h2 id="website-generation-start-title" className="text-lg font-semibold text-[#111827]">Website wird erstellt</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">Die Verbindung wurde bestätigt. Lulu analysiert jetzt deine Unternehmensdaten und erstellt die Website im Hintergrund.</p><p className="mt-3 text-xs text-[#4b5563]">{generationStarting === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/4 animate-pulse rounded-full bg-primary" /></div></div></div></ViewportPortal>}
       {generationFailure && !generationJob && !generationStarting && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="alertdialog" aria-modal="true" style={{ color: "#111827" }} className="pointer-events-auto my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-destructive/30 bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><h2 className="text-lg font-semibold text-destructive">Generierung fehlgeschlagen</h2><p className="mt-3 break-words text-sm leading-6 text-[#4b5563]">{generationFailure.message}</p><div className="mt-6 grid gap-2 sm:grid-cols-2"><button type="button" onClick={() => { const failedProvider = generationFailure.provider; setGenerationFailure(null); void startAutomaticGeneration(failedProvider); }} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium !text-primary-foreground transition hover:opacity-90">Erneut versuchen</button><button type="button" onClick={() => setGenerationFailure(null)} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-secondary">Schließen</button></div></div></div></ViewportPortal>}
 
