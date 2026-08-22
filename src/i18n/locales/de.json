@@ -21243,5 +21243,10 @@
   "Verified anomaly records from connected workspace data. Severity, deviation and evidence appear only when returned by the backend.": "Verifizierte Anomalie-Datensätze aus verbundenen Workspace-Daten. Schweregrad, Abweichung und Belege werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified anomalies yet": "Noch keine verifizierten Anomalien",
   "Connect and analyze a verified data source before reviewing anomaly charts, causes or recommended actions.": "Verbinden und analysieren Sie eine verifizierte Datenquelle, bevor Sie Anomalie-Charts, Ursachen oder empfohlene Maßnahmen prüfen.",
-  "Anomaly": "Anomalie"
+  "Anomaly": "Anomalie",
+  "Loading live advertising accounts…": "Live-Werbekonten werden geladen…",
+  "Advertising / Accounts": "Werbung / Konten",
+  "Verified advertising account records from connected providers. Permissions and publishing capabilities appear only when returned by the backend.": "Verifizierte Werbekonto-Datensätze verbundener Anbieter. Berechtigungen und Veröffentlichungsfunktionen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No advertising accounts connected": "Keine Werbekonten verbunden",
+  "Connect a supported advertising provider before reviewing account permissions, publishing capabilities or spend data.": "Verbinden Sie einen unterstützten Werbeanbieter, bevor Sie Kontoberechtigungen, Veröffentlichungsfunktionen oder Ausgabendaten prüfen."
 }

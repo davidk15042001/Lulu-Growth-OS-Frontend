@@ -294,6 +294,20 @@ Object.assign(zh, {
   "Connect and analyze a verified data source before reviewing anomaly charts, causes or recommended actions.": "查看异常图表、原因或建议操作前，请连接并分析已验证的数据源。",
   "Anomaly": "异常"
 });
+Object.assign(de, {
+  "Loading live advertising accounts…": "Live-Werbekonten werden geladen…",
+  "Advertising / Accounts": "Werbung / Konten",
+  "Verified advertising account records from connected providers. Permissions and publishing capabilities appear only when returned by the backend.": "Verifizierte Werbekonto-Datensätze verbundener Anbieter. Berechtigungen und Veröffentlichungsfunktionen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No advertising accounts connected": "Keine Werbekonten verbunden",
+  "Connect a supported advertising provider before reviewing account permissions, publishing capabilities or spend data.": "Verbinden Sie einen unterstützten Werbeanbieter, bevor Sie Kontoberechtigungen, Veröffentlichungsfunktionen oder Ausgabendaten prüfen."
+});
+Object.assign(zh, {
+  "Loading live advertising accounts…": "正在加载实时广告账户…",
+  "Advertising / Accounts": "广告 / 账户",
+  "Verified advertising account records from connected providers. Permissions and publishing capabilities appear only when returned by the backend.": "来自已连接提供商的已验证广告账户记录。只有后端返回数据时才会显示权限和发布功能。",
+  "No advertising accounts connected": "尚未连接广告账户",
+  "Connect a supported advertising provider before reviewing account permissions, publishing capabilities or spend data.": "请先连接受支持的广告提供商，再查看账户权限、发布功能或支出数据。"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));
