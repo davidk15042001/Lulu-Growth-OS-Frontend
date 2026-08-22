@@ -1,10 +1,9 @@
 # Verbleibende Live-Coverage-Liste
 
-Nicht durch Hook/Spezialclient abgedeckte generierte Dateien: 27
+Nicht durch Hook/Spezialclient abgedeckte generierte Dateien: 26
 
 | Priorität | Datei | Begründung |
 |---:|---|---|
-| 40 | `src/pages/kindly-morning-7115/components/generated/LuluTerritories.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 38 | `src/pages/smart-village-1099/components/generated/LuluInventory.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 38 | `src/pages/wildly-time-4260/components/generated/LuluCartsPage.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 37 | `src/pages/purely-dusk-2409/components/generated/ShippingFulfillment.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
