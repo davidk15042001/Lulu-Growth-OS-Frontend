@@ -152,6 +152,18 @@ Object.assign(zh, {
   "Verified audience records from the connected workspace. Platform metrics appear only when returned by the backend.": "来自已连接工作区的已验证受众记录。只有后端返回数据时才会显示平台指标。",
   "Search live audiences": "搜索实时受众"
 });
+Object.assign(de, {
+  "Advertising / Creatives": "Werbung / Creatives",
+  "Verified creative records from the connected workspace. Platform performance appears only when returned by the backend.": "Verifizierte Creative-Datensätze aus dem verbundenen Workspace. Plattformleistung wird nur angezeigt, wenn sie vom Backend zurückgegeben wird.",
+  "Search live creatives": "Live-Creatives durchsuchen",
+  "Creative": "Creative"
+});
+Object.assign(zh, {
+  "Advertising / Creatives": "广告 / 创意素材",
+  "Verified creative records from the connected workspace. Platform performance appears only when returned by the backend.": "来自已连接工作区的已验证创意记录。只有后端返回数据时才会显示平台表现。",
+  "Search live creatives": "搜索实时创意素材",
+  "Creative": "创意素材"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

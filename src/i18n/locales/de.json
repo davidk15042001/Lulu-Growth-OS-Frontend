@@ -21194,5 +21194,9 @@
   "Search live budget records": "Live-Budgetdatensätze durchsuchen",
   "Advertising / Audiences": "Werbung / Zielgruppen",
   "Verified audience records from the connected workspace. Platform metrics appear only when returned by the backend.": "Verifizierte Zielgruppendatensätze aus dem verbundenen Workspace. Plattformmetriken werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
-  "Search live audiences": "Live-Zielgruppen durchsuchen"
+  "Search live audiences": "Live-Zielgruppen durchsuchen",
+  "Advertising / Creatives": "Werbung / Creatives",
+  "Verified creative records from the connected workspace. Platform performance appears only when returned by the backend.": "Verifizierte Creative-Datensätze aus dem verbundenen Workspace. Plattformleistung wird nur angezeigt, wenn sie vom Backend zurückgegeben wird.",
+  "Search live creatives": "Live-Creatives durchsuchen",
+  "Creative": "Creative"
 }
