@@ -21237,5 +21237,11 @@
   "No compatible comparison data yet": "Noch keine kompatiblen Vergleichsdaten",
   "At least two compatible verified KPI records are required. No differences, scores or trends are inferred without backend data.": "Mindestens zwei kompatible, verifizierte KPI-Datensätze sind erforderlich. Ohne Backend-Daten werden keine Unterschiede, Scores oder Trends abgeleitet.",
   "2 verified KPI records available for comparison.": "2 verifizierte KPI-Datensätze für den Vergleich verfügbar.",
-  "verified KPI records available for comparison.": "verifizierte KPI-Datensätze für den Vergleich verfügbar."
+  "verified KPI records available for comparison.": "verifizierte KPI-Datensätze für den Vergleich verfügbar.",
+  "Loading live anomalies…": "Live-Anomalien werden geladen…",
+  "Intelligence / Anomalies": "Intelligence / Anomalien",
+  "Verified anomaly records from connected workspace data. Severity, deviation and evidence appear only when returned by the backend.": "Verifizierte Anomalie-Datensätze aus verbundenen Workspace-Daten. Schweregrad, Abweichung und Belege werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified anomalies yet": "Noch keine verifizierten Anomalien",
+  "Connect and analyze a verified data source before reviewing anomaly charts, causes or recommended actions.": "Verbinden und analysieren Sie eine verifizierte Datenquelle, bevor Sie Anomalie-Charts, Ursachen oder empfohlene Maßnahmen prüfen.",
+  "Anomaly": "Anomalie"
 }

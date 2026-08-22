@@ -278,6 +278,22 @@ Object.assign(de, {
 Object.assign(zh, {
   "verified KPI records available for comparison.": "条已验证 KPI 记录可供比较。"
 });
+Object.assign(de, {
+  "Loading live anomalies…": "Live-Anomalien werden geladen…",
+  "Intelligence / Anomalies": "Intelligence / Anomalien",
+  "Verified anomaly records from connected workspace data. Severity, deviation and evidence appear only when returned by the backend.": "Verifizierte Anomalie-Datensätze aus verbundenen Workspace-Daten. Schweregrad, Abweichung und Belege werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified anomalies yet": "Noch keine verifizierten Anomalien",
+  "Connect and analyze a verified data source before reviewing anomaly charts, causes or recommended actions.": "Verbinden und analysieren Sie eine verifizierte Datenquelle, bevor Sie Anomalie-Charts, Ursachen oder empfohlene Maßnahmen prüfen.",
+  "Anomaly": "Anomalie"
+});
+Object.assign(zh, {
+  "Loading live anomalies…": "正在加载实时异常…",
+  "Intelligence / Anomalies": "智能 / 异常",
+  "Verified anomaly records from connected workspace data. Severity, deviation and evidence appear only when returned by the backend.": "来自已连接工作区数据的已验证异常记录。只有后端返回数据时才会显示严重程度、偏差和证据。",
+  "No verified anomalies yet": "暂时没有已验证的异常",
+  "Connect and analyze a verified data source before reviewing anomaly charts, causes or recommended actions.": "查看异常图表、原因或建议操作前，请连接并分析已验证的数据源。",
+  "Anomaly": "异常"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

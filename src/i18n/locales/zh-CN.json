@@ -21237,5 +21237,11 @@
   "No compatible comparison data yet": "暂时没有兼容的比较数据",
   "At least two compatible verified KPI records are required. No differences, scores or trends are inferred without backend data.": "至少需要两条兼容的已验证 KPI 记录。没有后端数据时，不会推断差异、评分或趋势。",
   "2 verified KPI records available for comparison.": "有 2 条已验证 KPI 记录可供比较。",
-  "verified KPI records available for comparison.": "条已验证 KPI 记录可供比较。"
+  "verified KPI records available for comparison.": "条已验证 KPI 记录可供比较。",
+  "Loading live anomalies…": "正在加载实时异常…",
+  "Intelligence / Anomalies": "智能 / 异常",
+  "Verified anomaly records from connected workspace data. Severity, deviation and evidence appear only when returned by the backend.": "来自已连接工作区数据的已验证异常记录。只有后端返回数据时才会显示严重程度、偏差和证据。",
+  "No verified anomalies yet": "暂时没有已验证的异常",
+  "Connect and analyze a verified data source before reviewing anomaly charts, causes or recommended actions.": "查看异常图表、原因或建议操作前，请连接并分析已验证的数据源。",
+  "Anomaly": "异常"
 }

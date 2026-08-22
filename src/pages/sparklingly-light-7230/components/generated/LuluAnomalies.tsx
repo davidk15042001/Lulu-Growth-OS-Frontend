@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, AlertTriangle, Check, ChevronDown, CircleHelp, Clock3, Download, FileText, Globe2, Info, LayoutGrid, Menu, MoreHorizontal, RefreshCw, Search, Share2, SlidersHorizontal, Sparkles, Star, Target, Users } from 'lucide-react';
 type Tone = 'red' | 'orange' | 'amber' | 'blue' | 'violet' | 'green' | 'slate' | 'teal';
 type Row = {
@@ -103,10 +104,15 @@ export const LuluAnomalies = () => {
   const [methodOpen, setMethodOpen] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [status, setStatus] = useState('Action Required');
+  const { items: anomalyRecords, loading, error, refresh: refreshAnomalies } = useLiveRecords('anomalies');
   const refresh = () => {
+    void refreshAnomalies();
     setRefreshing(true);
     window.setTimeout(() => setRefreshing(false), 700);
   };
+  if (loading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live anomalies…</main>;
+  if (error) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{error}</main>;
+  if (!loading && !error) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-6xl"><header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs uppercase tracking-[.18em] text-muted-foreground">Intelligence / Anomalies</p><h1 className="mt-2 text-3xl font-bold">Anomalies</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Verified anomaly records from connected workspace data. Severity, deviation and evidence appear only when returned by the backend.</p></div><button type="button" onClick={refresh} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-secondary"><RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} /> Refresh</button></header>{anomalyRecords.length === 0 ? <section className="rounded-2xl border border-dashed border-border bg-card p-10 text-center"><AlertTriangle className="mx-auto mb-4 text-muted-foreground" size={30} /><h2 className="text-xl font-semibold">No verified anomalies yet</h2><p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">Connect and analyze a verified data source before reviewing anomaly charts, causes or recommended actions.</p></section> : <section className="overflow-hidden rounded-2xl border border-border bg-card"><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="px-4 py-3">Anomaly</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Stage</th><th className="px-4 py-3">Description</th><th className="px-4 py-3">Updated</th></tr></thead><tbody className="divide-y divide-border">{anomalyRecords.map(record => <tr key={record.id}><td className="px-4 py-3 font-medium">{record.name}</td><td className="px-4 py-3">{record.status}</td><td className="px-4 py-3 text-muted-foreground">{record.stage ?? '—'}</td><td className="max-w-md px-4 py-3 text-muted-foreground">{record.description ?? '—'}</td><td className="px-4 py-3 text-muted-foreground">{new Date(record.updatedAt).toLocaleString()}</td></tr>)}</tbody></table></div></section>}</div></main>;
   return <div className="min-h-screen bg-[var(--background)] font-sans text-foreground">
     <aside className={`${mobileNav ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-30 w-[68px] flex-col items-center border-r border-border bg-[var(--sidebar)] py-5 lg:flex`}><div className="mb-8 flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-lg font-bold text-primary-foreground">L</div><LuluSectionNavigation activeId="sparklingly-light-7230" /><button className="rounded-lg p-3 text-foreground" aria-label="Help"><CircleHelp size={19} /></button><div className="mt-4 flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-[10px] font-semibold text-foreground">AM</div></aside>
     <main className="lg:ml-[68px]"><div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-8 lg:px-10">
