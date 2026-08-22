@@ -18,6 +18,9 @@ function isLegacyAppSidebar(element: HTMLElement) {
   const className = String(element.className ?? "").toLowerCase();
   const ariaLabel = (element.getAttribute("aria-label") ?? "").toLowerCase();
   const text = compactText(element);
+  if (className.includes("left-nav")) return true;
+  if (ariaLabel.includes("lulu ai-bereiche")) return true;
+
   const hasLegacyBranding =
     /lulu(?:\.|)ai/.test(text) ||
     text.includes("luluai") ||
