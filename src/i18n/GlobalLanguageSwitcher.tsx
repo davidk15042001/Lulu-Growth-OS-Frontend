@@ -88,7 +88,7 @@ function applyStaticTranslations(root: HTMLElement, language: LanguageCode, dict
       const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
       originalText.set(text, original);
       const key = original.trim();
-      const translated = language === DEFAULT_LANGUAGE ? key : lookup(dictionary, key);
+      const translated = lookup(dictionary, key);
       const next = translated ? `${original.match(/^\s*/)?.[0] ?? ""}${translated}${original.match(/\s*$/)?.[0] ?? ""}` : original;
       text.data = next;
       appliedText.set(text, next);
@@ -108,7 +108,7 @@ function applyStaticTranslations(root: HTMLElement, language: LanguageCode, dict
       if (!originals) { originals = new Map(); originalAttributes.set(element, originals); }
       if (!applied) { applied = new Map(); appliedAttributes.set(element, applied); }
       originals.set(attribute, original);
-      const translated = language === DEFAULT_LANGUAGE ? original : lookup(dictionary, original.trim());
+      const translated = lookup(dictionary, original.trim());
       const next = translated ?? original;
       element.setAttribute(attribute, next);
       applied.set(attribute, next);
@@ -174,7 +174,8 @@ export function GlobalLanguageSwitcher() {
       document.cookie = `${LANGUAGE_STORAGE_KEY}=${encodeURIComponent(next)}; Max-Age=31536000; Path=/; SameSite=Lax`;
     } catch { /* no persistence available */ }
     setOpen(false);
-    window.location.reload();
+    setLanguage(next);
+    window.dispatchEvent(new CustomEvent(LANGUAGE_EVENT, { detail: { language: next } }));
   };
 
   return createPortal(<><div className="lulu-language-shell" data-lulu-no-translate="true" translate="no">

@@ -107,7 +107,7 @@ const luluDropdownNavigation = [{
     "label": "Agents"
   }, {
     "id": "calmly-park-3313",
-    "label": "Agent —ketplace"
+    "label": "Agent Marketplace"
   }, {
     "id": "rich-field-1880",
     "label": "Knowledge"

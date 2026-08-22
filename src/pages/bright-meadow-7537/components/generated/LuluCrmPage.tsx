@@ -162,7 +162,7 @@ const luluDropdownNavigation = [{
     "label": "Customer Intelligence"
   }]
 }, {
-  "label": "Workspace ownereting",
+  "label": "Marketing",
   "pages": [{
     "id": "dreamily-soil-9290",
     "label": "Campaigns"
@@ -261,7 +261,7 @@ const luluDropdownNavigation = [{
     "label": "Sales"
   }, {
     "id": "eagerly-winter-3152",
-    "label": "Workspace ownereting"
+    "label": "Marketing"
   }, {
     "id": "sharply-wood-4560",
     "label": "Advertising Intelligence"
