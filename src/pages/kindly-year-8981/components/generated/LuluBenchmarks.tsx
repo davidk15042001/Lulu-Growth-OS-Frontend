@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Activity, AlertTriangle, BarChart3, Bell, Check, ChevronDown, CircleHelp, Download, Gauge, GitCompare, Lock, Menu, MoreHorizontal, Plus, RefreshCw, Search, Settings, Share2, Sparkles, Target, TrendingDown, TrendingUp, Users, X } from 'lucide-react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Tone = 'above' | 'near' | 'below';
 type BenchmarkRow = {
   kpi: string;
@@ -28,6 +29,7 @@ const history: any[][] = [];
 const statusLabel = (tone: Tone) => tone === 'above' ? '▲ Above' : tone === 'below' ? '▼ Below' : '≈ Near';
 const statusClass = (tone: Tone) => tone === 'above' ? 'bg-secondary/10 text-foreground' : tone === 'below' ? 'bg-chart-5/10 text-chart-5' : 'bg-secondary/10 text-foreground';
 export const LuluBenchmarks = () => {
+  const { items: benchmarkRecords, loading: benchmarksLoading, error: benchmarksError } = useLiveRecords('benchmarks');
   const [mobileNav, setMobileNav] = useState(false);
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState('Industry');
@@ -41,6 +43,9 @@ export const LuluBenchmarks = () => {
     setRefreshing(true);
     window.setTimeout(() => setRefreshing(false), 900);
   };
+  if (benchmarksLoading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live benchmark data…</main>;
+  if (benchmarksError) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{benchmarksError}</main>;
+  if (benchmarkRecords.length === 0) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-border bg-card p-8 text-center"><Gauge className="mx-auto mb-4 text-muted-foreground" size={28} /><h1 className="text-2xl font-semibold">Benchmarks</h1><p className="mt-3 text-sm text-muted-foreground">No verified benchmark data is available yet. Connect a data source or add reference records before comparing performance.</p></div></main>;
   return <div className="min-h-screen bg-[var(--background)] text-foreground" style={{
     fontFamily: 'Poppins'
   }}>

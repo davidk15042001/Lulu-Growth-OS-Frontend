@@ -1,0 +1,55 @@
+# Remaining no-live-hook pages
+
+| Priority | Component | Buttons | Forms | Demo markers |
+|---|---|---:|---:|---:|
+| 1 | `src/pages/kindly-year-8981/components/generated/LuluBenchmarks.tsx` | 37 | 11 | 3 |
+| 1 | `src/pages/wise-brook-1762/components/generated/CampaignsWorkspace.tsx` | 28 | 3 | 2 |
+| 1 | `src/pages/gentle-cliff-7133/components/generated/SalesGoals.tsx` | 25 | 2 | 17 |
+| 1 | `src/pages/wildly-sun-6424/components/generated/SalesOpportunities.tsx` | 19 | 5 | 2 |
+| 1 | `src/pages/boldly-field-4971/components/generated/LuluFinanceSettings.tsx` | 10 | 2 | 1 |
+| 2 | `src/pages/keen-morning-6353/components/generated/LuluProductsServices.tsx` | 5 | 7 | 0 |
+| 2 | `src/pages/bold-ocean-5847/components/generated/LuluEcommerce.tsx` | 4 | 0 | 11 |
+| 3 | `src/pages/glad-coast-1428/components/generated/LuluIntegrations.tsx` | 40 | 3 | 1 |
+| 3 | `src/pages/eagerly-bay-9885/components/generated/LuluVerificationPage.tsx` | 2 | 2 | 0 |
+| 3 | `src/pages/crisp-week-7116/components/generated/LuluVerificationEmail.tsx` | 0 | 0 | 0 |
+| 4 | `src/pages/swift-pool-5077/components/generated/LuluKpiExplorer.tsx` | 52 | 7 | 8 |
+| 4 | `src/pages/sunny-moon-6307/components/generated/LuluAIConversations.tsx` | 49 | 8 | 1 |
+| 4 | `src/pages/serenely-creek-1765/components/generated/LuluTrends.tsx` | 43 | 9 | 18 |
+| 4 | `src/pages/wildly-time-4260/components/generated/LuluCartsPage.tsx` | 43 | 5 | 1 |
+| 4 | `src/pages/sparkling-time-5280/components/generated/LuluComparisons.tsx` | 41 | 11 | 15 |
+| 4 | `src/pages/dreamy-shade-5445/components/generated/ReturnsRefundsPage.tsx` | 40 | 4 | 8 |
+| 4 | `src/pages/richly-forest-5832/components/generated/LuluCategories.tsx` | 40 | 4 | 3 |
+| 4 | `src/pages/sparklingly-light-7230/components/generated/LuluAnomalies.tsx` | 40 | 8 | 11 |
+| 4 | `src/pages/sparklingly-moon-5114/components/generated/LuluSeoWorkspace.tsx` | 40 | 6 | 10 |
+| 4 | `src/pages/quietly-moon-4186/components/generated/LuluShipping.tsx` | 37 | 6 | 1 |
+| 4 | `src/pages/sharply-sky-4161/components/generated/DiscountsPromotions.tsx` | 36 | 6 | 1 |
+| 4 | `src/pages/smart-village-1099/components/generated/LuluInventory.tsx` | 36 | 11 | 4 |
+| 4 | `src/pages/sunny-summer-2293/components/generated/AdAccountsWorkspace.tsx` | 32 | 2 | 1 |
+| 4 | `src/pages/lulu-email-portal-9013/components/generated/LuluEmailPortal.tsx` | 29 | 22 | 0 |
+| 4 | `src/pages/wondrously-second-5656/components/generated/LuluAIActions.tsx` | 29 | 2 | 1 |
+| 4 | `src/pages/daring-brook-9034/components/generated/LuluReviewsPage.tsx` | 27 | 7 | 2 |
+| 4 | `src/pages/fresh-moon-5374/components/generated/LuluAIAssistant.tsx` | 27 | 2 | 3 |
+| 4 | `src/pages/happily-brook-7061/components/generated/LuluOpportunities.tsx` | 26 | 4 | 3 |
+| 4 | `src/pages/soft-hill-4757/components/generated/LuluTaxes.tsx` | 26 | 4 | 2 |
+| 4 | `src/pages/calmly-park-3313/components/generated/LuluAgentMarketplace.tsx` | 25 | 4 | 2 |
+| 4 | `src/pages/sparkling-cave-8456/components/generated/LuluAIActivity.tsx` | 25 | 11 | 2 |
+| 4 | `src/pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard.tsx` | 24 | 0 | 2 |
+| 4 | `src/pages/merry-castle-3260/components/generated/LuluPaymentsWorkspace.tsx` | 24 | 4 | 2 |
+| 4 | `src/pages/lucky-park-8649/components/generated/LuluPayouts.tsx` | 22 | 2 | 2 |
+| 4 | `src/pages/kindly-morning-7115/components/generated/LuluTerritories.tsx` | 20 | 3 | 2 |
+| 4 | `src/pages/mightily-shore-7108/components/generated/LuluOrders.tsx` | 20 | 4 | 1 |
+| 4 | `src/pages/radiant-cave-9340/components/generated/LuluDecisions.tsx` | 15 | 2 | 2 |
+| 4 | `src/pages/purely-dusk-2409/components/generated/ShippingFulfillment.tsx` | 14 | 3 | 2 |
+| 4 | `src/pages/wispy-current-7490/components/generated/LuluForecasts.tsx` | 14 | 9 | 3 |
+| 4 | `src/pages/brave-stream-5322/components/generated/LuluComparisons.tsx` | 13 | 5 | 2 |
+| 4 | `src/pages/steady-stone-6443/components/generated/LuluWelcomeScreen.tsx` | 8 | 0 | 0 |
+| 4 | `src/pages/kind-morning-4984/components/generated/LuluSessionAuth.tsx` | 7 | 3 | 0 |
+| 4 | `src/pages/deep-coast-9085/components/generated/LuluResetPassword.tsx` | 6 | 5 | 0 |
+| 4 | `src/pages/fresh-tide-9404/components/generated/LuluExistingPlatforms.tsx` | 6 | 2 | 0 |
+| 4 | `src/pages/quiet-garden-9477/components/generated/BusinessDescription.tsx` | 5 | 3 | 0 |
+| 4 | `src/pages/brightly-door-5741/components/generated/LuluLoginPage.tsx` | 4 | 3 | 0 |
+| 4 | `src/pages/crisp-garden-7026/components/generated/LuluPasswordReset.tsx` | 3 | 2 | 0 |
+| 4 | `src/pages/finely-year-1146/components/generated/LuluSignupPage.tsx` | 3 | 7 | 0 |
+| 4 | `src/pages/bravely-path-4713/components/generated/CompanyInformation.tsx` | 1 | 5 | 0 |
+| 4 | `src/pages/mightily-minute-5145/components/generated/LuluSignedOutPage.tsx` | 1 | 0 | 0 |
+| 4 | `src/pages/brightly-door-5741/components/generated/LoginFeaturesLanding.tsx` | 0 | 0 | 1 |
