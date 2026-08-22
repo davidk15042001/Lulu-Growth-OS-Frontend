@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Archive, ArrowDownUp, Bell, Brain, Check, ChevronDown, ChevronRight, CircleHelp, Columns3, Copy, Download, ExternalLink, Filter, Globe2, LayoutDashboard, ListFilter, MoreHorizontal, Plus, RefreshCw, Search, Settings2, SlidersHorizontal, Sparkles, Tags, Trash2, Upload, Users, X, Zap } from 'lucide-react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Platform = 'Google Ads' | 'Meta Ads' | 'Microsoft Advertising' | 'LinkedIn Ads' | 'TikTok Ads';
 type AudienceStatus = 'Active' | 'Processing' | 'Available' | 'Unavailable' | 'Error';
 type Audience = {
@@ -101,7 +102,8 @@ function ModalPanel({
   </section>;
 }
 export function AdvertisingAudiences() {
-  const [selectedId, setSelectedId] = useState(audiences[0].id);
+  const [selectedId, setSelectedId] = useState('');
+  const { items: audienceRecords, loading: audiencesLoading, error: audiencesError } = useLiveRecords('ad_audiences');
   const [platform, setPlatform] = useState<'All Platforms' | Platform>('All Platforms');
   const [query, setQuery] = useState('');
   const [modal, setModal] = useState<Modal>(null);
@@ -110,6 +112,9 @@ export function AdvertisingAudiences() {
   const selected = audiences.find(item => item.id === selectedId) ?? audiences[0];
   const visibleAudiences = useMemo(() => audiences.filter(item => (platform === 'All Platforms' || item.platform === platform) && `${item.name} ${item.id} ${item.platform} ${item.type}`.toLowerCase().includes(query.toLowerCase())), [platform, query]);
   const toggleRow = (id: string) => setSelectedRows(rows => rows.includes(id) ? rows.filter(row => row !== id) : [...rows, id]);
+  if (audiencesLoading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live audiences…</main>;
+  if (audiencesError) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{audiencesError}</main>;
+  if (audienceRecords.length === 0) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-border bg-card p-8 text-center"><Users className="mx-auto mb-4 text-muted-foreground" size={28} /><h1 className="text-2xl font-semibold">Audiences</h1><p className="mt-3 text-sm text-muted-foreground">No live advertising audiences are available yet. Connect a verified platform before creating audience records.</p></div></main>;
   return <div className="min-h-screen bg-[var(--background)] text-foreground">
     <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col bg-[var(--sidebar)] px-5 py-6 text-foreground lg:flex"><div className="mb-12 flex items-center gap-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary font-black text-primary-foreground">L</div><span className="text-lg font-semibold tracking-tight text-foreground">LULU AI</span></div><p className="mb-3 px-2 text-[10px] font-bold uppercase tracking-[.18em] text-muted-foreground">Business OS</p><LuluSectionNavigation activeId="softly-second-7684" /><div className="mt-auto rounded-xl border border-border bg-secondary p-4"><div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground"><Sparkles size={15} className="text-foreground" /> Ask Lulu</div><p className="text-xs leading-5 text-muted-foreground">Get a clear read on your advertising performance.</p><button className="mt-3 w-full rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground">Open assistant</button></div></aside>
     <main className="lg:pl-64"><header className="flex min-h-20 items-center justify-between border-b border-border bg-card px-5 py-4 sm:px-8"><div><p className="text-xs font-medium text-muted-foreground">Advertising <span className="mx-1">/</span> <span className="text-muted-foreground">Audiences</span></p><h1 className="mt-1 text-xl font-semibold tracking-tight">Audiences</h1></div><div className="flex items-center gap-2"><button onClick={() => setModal('export')} className="hidden rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground hover:bg-card sm:flex"><Download size={16} /></button><button aria-label="Notifications" className="rounded-lg border border-border p-2 text-foreground"><Bell size={17} /></button><button onClick={() => setModal('connect')} className="hidden rounded-lg border border-border px-3 py-2 text-sm font-medium text-foreground sm:flex">Connect Platform</button><button onClick={() => setModal('create')} className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary"><Plus size={16} /> <span className="hidden sm:inline">Create Audience</span></button></div></header>
