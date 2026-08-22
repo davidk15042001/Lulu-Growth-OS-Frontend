@@ -456,5 +456,12 @@
   "Ecommerce / Categories": "E-Commerce / Kategorien",
   "Verified product category records from connected stores. Hierarchy and product counts appear only when returned by the backend.": "Verifizierte Produktkategorien aus verbundenen Shops. Hierarchie und Produktzahlen werden nur angezeigt, wenn sie vom Backend geliefert werden.",
   "No verified category records yet": "Noch keine verifizierten Kategoriedatensätze",
-  "Connect a store and synchronize product categories before reviewing hierarchy or product assignments. No example categories are displayed.": "Verbinden Sie einen Shop und synchronisieren Sie Produktkategorien, bevor Sie Hierarchie oder Produktzuweisungen prüfen. Es werden keine Beispielkategorien angezeigt."
+  "Connect a store and synchronize product categories before reviewing hierarchy or product assignments. No example categories are displayed.": "Verbinden Sie einen Shop und synchronisieren Sie Produktkategorien, bevor Sie Hierarchie oder Produktzuweisungen prüfen. Es werden keine Beispielkategorien angezeigt.",
+  "Loading live finance settings…": "Live-Finanzeinstellungen werden geladen …",
+  "Finance / Settings": "Finanzen / Einstellungen",
+  "Verified finance configuration from the selected workspace. Preferences and warnings appear only when returned by the backend.": "Verifizierte Finanzkonfiguration des ausgewählten Workspace. Präferenzen und Warnungen werden nur angezeigt, wenn sie vom Backend geliefert werden.",
+  "No verified finance settings yet": "Noch keine verifizierten Finanzeinstellungen",
+  "Configure or connect a finance source before reviewing workspace preferences, workflows or warnings. No example settings are displayed.": "Konfigurieren oder verbinden Sie zuerst eine Finanzquelle, bevor Sie Workspace-Präferenzen, Workflows oder Warnungen prüfen. Es werden keine Beispieleinstellungen angezeigt.",
+  "finance_settings": "Finanzeinstellungen",
+  "Setting": "Einstellung"
 }

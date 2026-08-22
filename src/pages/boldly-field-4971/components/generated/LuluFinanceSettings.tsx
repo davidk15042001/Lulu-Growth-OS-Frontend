@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { AlertCircle, Check, ChevronDown, CircleHelp, Ellipsis, Info, LockKeyhole, RotateCcw, Save, Search, Sparkles, X } from 'lucide-react';
+import { AlertCircle, Check, ChevronDown, CircleHelp, Ellipsis, Info, LockKeyhole, RefreshCw, RotateCcw, Save, Search, Settings2, Sparkles, X } from 'lucide-react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 const navGroups = [{
   label: 'General',
   items: ['General', 'Currencies', 'Fiscal Year', 'Financial Periods']
@@ -46,6 +47,12 @@ export const LuluFinanceSettings = () => {
     setNotice(message);
     window.setTimeout(() => setNotice(''), 2600);
   };
+  const { items: financeRecords, loading, error, refresh: refreshFinance } = useLiveRecords('finance_settings');
+  const [refreshing, setRefreshing] = useState(false);
+  const refresh = () => { void refreshFinance(); setRefreshing(true); window.setTimeout(() => setRefreshing(false), 700); };
+  if (loading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live finance settings…</main>;
+  if (error) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{error}</main>;
+  return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground"><div className="mx-auto max-w-6xl"><header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs uppercase tracking-[.18em] text-muted-foreground">Finance / Settings</p><h1 className="mt-2 text-3xl font-bold">Finance Settings</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Verified finance configuration from the selected workspace. Preferences and warnings appear only when returned by the backend.</p></div><button type="button" onClick={refresh} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-secondary"><RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />Refresh</button></header>{financeRecords.length === 0 ? <section className="rounded-2xl border border-dashed border-border bg-card p-10 text-center"><Settings2 className="mx-auto text-muted-foreground" size={30} /><h2 className="mt-4 text-xl font-semibold">No verified finance settings yet</h2><p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">Configure or connect a finance source before reviewing workspace preferences, workflows or warnings. No example settings are displayed.</p></section> : <section className="overflow-hidden rounded-2xl border border-border bg-card"><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="px-4 py-3">Setting</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Stage</th><th className="px-4 py-3">Description</th><th className="px-4 py-3">Updated</th></tr></thead><tbody className="divide-y divide-border">{financeRecords.map(record => <tr key={record.id}><td className="px-4 py-3 font-medium">{record.name}</td><td className="px-4 py-3">{record.status}</td><td className="px-4 py-3 text-muted-foreground">{record.stage ?? '—'}</td><td className="max-w-md px-4 py-3 text-muted-foreground">{record.description ?? '—'}</td><td className="px-4 py-3 text-muted-foreground">{new Date(record.updatedAt).toLocaleString()}</td></tr>)}</tbody></table></div></section>}</div></main>;
   return <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)] font-sans">
       <div className="flex min-h-screen">
         <aside className="sticky top-0 hidden h-screen w-[240px] shrink-0 overflow-y-auto border-r border-[var(--border)] bg-card px-4 py-6 lg:block" aria-label="Finance settings navigation">

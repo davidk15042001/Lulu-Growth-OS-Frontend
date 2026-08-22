@@ -455,5 +455,12 @@
   "Ecommerce / Categories": "电商 / 分类",
   "Verified product category records from connected stores. Hierarchy and product counts appear only when returned by the backend.": "来自已连接商店的已验证产品分类记录。仅当后端返回时才显示层级和产品数量。",
   "No verified category records yet": "暂无已验证的分类记录",
-  "Connect a store and synchronize product categories before reviewing hierarchy or product assignments. No example categories are displayed.": "请先连接商店并同步产品分类，再查看层级或产品分配。不会显示示例分类。"
+  "Connect a store and synchronize product categories before reviewing hierarchy or product assignments. No example categories are displayed.": "请先连接商店并同步产品分类，再查看层级或产品分配。不会显示示例分类。",
+  "Loading live finance settings…": "正在加载实时财务设置…",
+  "Finance / Settings": "财务 / 设置",
+  "Verified finance configuration from the selected workspace. Preferences and warnings appear only when returned by the backend.": "来自所选工作区的已验证财务配置。仅当后端返回时才显示偏好设置和警告。",
+  "No verified finance settings yet": "暂无已验证的财务设置",
+  "Configure or connect a finance source before reviewing workspace preferences, workflows or warnings. No example settings are displayed.": "请先配置或连接财务来源，再查看工作区偏好设置、工作流或警告。不会显示示例设置。",
+  "finance_settings": "财务设置",
+  "Setting": "设置项"
 }
