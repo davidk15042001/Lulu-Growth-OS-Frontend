@@ -1,10 +1,9 @@
 # Verbleibende Live-Coverage-Liste
 
-Nicht durch Hook/Spezialclient abgedeckte generierte Dateien: 35
+Nicht durch Hook/Spezialclient abgedeckte generierte Dateien: 34
 
 | Priorität | Datei | Begründung |
 |---:|---|---|
-| 59 | `src/pages/happily-brook-7061/components/generated/LuluOpportunities.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 56 | `src/pages/fresh-moon-5374/components/generated/LuluAIAssistant.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 54 | `src/pages/sunny-moon-6307/components/generated/LuluAIConversations.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
 | 53 | `src/pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard.tsx` | Demo-/Kampagnenbegriffe, Kennzahlen/AI-Aussagen, Interaktionen |
