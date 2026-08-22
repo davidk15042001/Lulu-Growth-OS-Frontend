@@ -366,6 +366,22 @@ Object.assign(zh, {
 });
 Object.assign(de, { "Shipment": "Sendung" });
 Object.assign(zh, { "Shipment": "货件" });
+Object.assign(de, {
+  "Loading live inventory records…": "Live-Bestandsdaten werden geladen…",
+  "Ecommerce / Inventory": "E-Commerce / Bestand",
+  "Verified inventory records from connected stores. Stock levels and warnings appear only when returned by the backend.": "Verifizierte Bestandsdatensätze verbundener Shops. Lagerbestände und Warnungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified inventory records yet": "Noch keine verifizierten Bestandsdaten",
+  "Connect a store and synchronize product inventory before reviewing stock levels or inventory warnings.": "Verbinden Sie einen Shop und synchronisieren Sie den Produktbestand, bevor Sie Lagerbestände oder Bestandswarnungen prüfen.",
+  "Item": "Artikel"
+});
+Object.assign(zh, {
+  "Loading live inventory records…": "正在加载实时库存记录…",
+  "Ecommerce / Inventory": "电子商务 / 库存",
+  "Verified inventory records from connected stores. Stock levels and warnings appear only when returned by the backend.": "来自已连接商店的已验证库存记录。只有后端返回数据时才会显示库存水平和警告。",
+  "No verified inventory records yet": "暂时没有已验证的库存记录",
+  "Connect a store and synchronize product inventory before reviewing stock levels or inventory warnings.": "请先连接商店并同步商品库存，再查看库存水平或库存警告。",
+  "Item": "商品"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

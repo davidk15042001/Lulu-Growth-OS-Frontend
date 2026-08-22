@@ -21268,5 +21268,11 @@
   "Verified shipping and fulfillment records from connected stores. Delivery status and exceptions appear only when returned by the backend.": "Verifizierte Versand- und Fulfillment-Datensätze verbundener Shops. Lieferstatus und Ausnahmen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified shipping records yet": "Noch keine verifizierten Versanddaten",
   "Connect a store and synchronize fulfillment data before reviewing delivery performance or exceptions.": "Verbinden Sie einen Shop und synchronisieren Sie Fulfillment-Daten, bevor Sie Lieferleistung oder Ausnahmen prüfen.",
-  "Shipment": "Sendung"
+  "Shipment": "Sendung",
+  "Loading live inventory records…": "Live-Bestandsdaten werden geladen…",
+  "Ecommerce / Inventory": "E-Commerce / Bestand",
+  "Verified inventory records from connected stores. Stock levels and warnings appear only when returned by the backend.": "Verifizierte Bestandsdatensätze verbundener Shops. Lagerbestände und Warnungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified inventory records yet": "Noch keine verifizierten Bestandsdaten",
+  "Connect a store and synchronize product inventory before reviewing stock levels or inventory warnings.": "Verbinden Sie einen Shop und synchronisieren Sie den Produktbestand, bevor Sie Lagerbestände oder Bestandswarnungen prüfen.",
+  "Item": "Artikel"
 }

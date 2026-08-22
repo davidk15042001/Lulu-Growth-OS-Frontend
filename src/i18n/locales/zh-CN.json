@@ -21268,5 +21268,11 @@
   "Verified shipping and fulfillment records from connected stores. Delivery status and exceptions appear only when returned by the backend.": "来自已连接商店的已验证配送和履约记录。只有后端返回数据时才会显示配送状态和异常。",
   "No verified shipping records yet": "暂时没有已验证的配送记录",
   "Connect a store and synchronize fulfillment data before reviewing delivery performance or exceptions.": "请先连接商店并同步履约数据，再查看配送表现或异常。",
-  "Shipment": "货件"
+  "Shipment": "货件",
+  "Loading live inventory records…": "正在加载实时库存记录…",
+  "Ecommerce / Inventory": "电子商务 / 库存",
+  "Verified inventory records from connected stores. Stock levels and warnings appear only when returned by the backend.": "来自已连接商店的已验证库存记录。只有后端返回数据时才会显示库存水平和警告。",
+  "No verified inventory records yet": "暂时没有已验证的库存记录",
+  "Connect a store and synchronize product inventory before reviewing stock levels or inventory warnings.": "请先连接商店并同步商品库存，再查看库存水平或库存警告。",
+  "Item": "商品"
 }
