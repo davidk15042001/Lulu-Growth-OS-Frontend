@@ -427,16 +427,15 @@ export default function App() {
   const disconnectProvider = async (nextProvider: Provider) => {
     if (!workspaceId) return;
     const platform = platforms.find((item) => platformMatchesProvider(item, nextProvider));
-    if (!platform) return;
     setConnectionBusy(nextProvider);
     setError("");
     try {
-      await onboardingApi.deletePlatform(workspaceId, platform.id);
+      if (platform) await onboardingApi.deletePlatform(workspaceId, platform.id);
       // Archiving the integration and removing its local website records are
       // separate backend operations. Run both so a provider-deleted site
       // cannot remain visible in the workspace after disconnecting.
       await websitesApi.cleanupProvider(workspaceId, nextProvider);
-      setPlatforms((current) => current.filter((item) => item.id !== platform.id));
+      setPlatforms((current) => platform ? current.filter((item) => item.id !== platform.id) : current);
       setSites((current) => current.filter((site) => site.provider !== nextProvider));
       setSelectedSiteId("");
       setSelectedDomainId("");
