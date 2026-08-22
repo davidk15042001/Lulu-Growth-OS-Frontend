@@ -434,5 +434,12 @@
   "AI Agent Marketplace": "AI-Agenten-Marktplatz",
   "Verified AI agents configured for the selected workspace. Availability and capabilities appear only when returned by the backend.": "Verifizierte AI-Agenten des ausgewählten Workspace. Verfügbarkeit und Fähigkeiten werden nur angezeigt, wenn sie vom Backend geliefert werden.",
   "No verified AI agents yet": "Noch keine verifizierten AI-Agenten",
-  "Configure or connect an AI agent before reviewing capabilities or installation status. No example agents are displayed.": "Konfigurieren oder verbinden Sie zuerst einen AI-Agenten, bevor Sie Fähigkeiten oder Installationsstatus prüfen. Es werden keine Beispielagenten angezeigt."
+  "Configure or connect an AI agent before reviewing capabilities or installation status. No example agents are displayed.": "Konfigurieren oder verbinden Sie zuerst einen AI-Agenten, bevor Sie Fähigkeiten oder Installationsstatus prüfen. Es werden keine Beispielagenten angezeigt.",
+  "Loading live territories…": "Live-Gebiete werden geladen …",
+  "Sales / Territories": "Vertrieb / Gebiete",
+  "Verified territory definitions and assignments from connected workspace data.": "Verifizierte Gebietsdefinitionen und Zuweisungen aus verbundenen Workspace-Daten.",
+  "No verified territories yet": "Noch keine verifizierten Gebiete",
+  "Connect a CRM or create real territory definitions before reviewing ownership, coverage or conflicts. No example territories are displayed.": "Verbinden Sie ein CRM oder erstellen Sie echte Gebietsdefinitionen, bevor Sie Zuständigkeiten, Abdeckung oder Konflikte prüfen. Es werden keine Beispielgebiete angezeigt.",
+  "territories": "Gebiete",
+  "Territory": "Gebiet"
 }

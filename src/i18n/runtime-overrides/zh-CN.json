@@ -433,5 +433,12 @@
   "AI Agent Marketplace": "AI 智能体市场",
   "Verified AI agents configured for the selected workspace. Availability and capabilities appear only when returned by the backend.": "所选工作区中已配置的已验证 AI 智能体。仅当后端返回时才显示可用性和能力。",
   "No verified AI agents yet": "暂无已验证的 AI 智能体",
-  "Configure or connect an AI agent before reviewing capabilities or installation status. No example agents are displayed.": "请先配置或连接 AI 智能体，再查看能力或安装状态。不会显示示例智能体。"
+  "Configure or connect an AI agent before reviewing capabilities or installation status. No example agents are displayed.": "请先配置或连接 AI 智能体，再查看能力或安装状态。不会显示示例智能体。",
+  "Loading live territories…": "正在加载实时区域…",
+  "Sales / Territories": "销售 / 区域",
+  "Verified territory definitions and assignments from connected workspace data.": "来自已连接工作区数据的已验证区域定义和分配记录。",
+  "No verified territories yet": "暂无已验证的区域",
+  "Connect a CRM or create real territory definitions before reviewing ownership, coverage or conflicts. No example territories are displayed.": "请先连接 CRM 或创建真实的区域定义，再查看所有权、覆盖范围或冲突。不会显示示例区域。",
+  "territories": "区域",
+  "Territory": "区域"
 }
