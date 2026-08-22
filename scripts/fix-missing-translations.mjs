@@ -164,6 +164,16 @@ Object.assign(zh, {
   "Search live creatives": "搜索实时创意素材",
   "Creative": "创意素材"
 });
+Object.assign(de, {
+  "Advertising / Tracking": "Werbung / Tracking",
+  "Verified attribution records from the connected workspace. Conversion events and health signals appear only when returned by the backend.": "Verifizierte Attributionsdatensätze aus dem verbundenen Workspace. Conversion-Events und Gesundheitssignale werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "Search live attribution records": "Live-Attributionsdatensätze durchsuchen"
+});
+Object.assign(zh, {
+  "Advertising / Tracking": "广告 / 跟踪",
+  "Verified attribution records from the connected workspace. Conversion events and health signals appear only when returned by the backend.": "来自已连接工作区的已验证归因记录。只有后端返回数据时才会显示转化事件和健康信号。",
+  "Search live attribution records": "搜索实时归因记录"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

@@ -21198,5 +21198,8 @@
   "Advertising / Creatives": "Werbung / Creatives",
   "Verified creative records from the connected workspace. Platform performance appears only when returned by the backend.": "Verifizierte Creative-Datensätze aus dem verbundenen Workspace. Plattformleistung wird nur angezeigt, wenn sie vom Backend zurückgegeben wird.",
   "Search live creatives": "Live-Creatives durchsuchen",
-  "Creative": "Creative"
+  "Creative": "Creative",
+  "Advertising / Tracking": "Werbung / Tracking",
+  "Verified attribution records from the connected workspace. Conversion events and health signals appear only when returned by the backend.": "Verifizierte Attributionsdatensätze aus dem verbundenen Workspace. Conversion-Events und Gesundheitssignale werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "Search live attribution records": "Live-Attributionsdatensätze durchsuchen"
 }

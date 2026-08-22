@@ -21198,5 +21198,8 @@
   "Advertising / Creatives": "广告 / 创意素材",
   "Verified creative records from the connected workspace. Platform performance appears only when returned by the backend.": "来自已连接工作区的已验证创意记录。只有后端返回数据时才会显示平台表现。",
   "Search live creatives": "搜索实时创意素材",
-  "Creative": "创意素材"
+  "Creative": "创意素材",
+  "Advertising / Tracking": "广告 / 跟踪",
+  "Verified attribution records from the connected workspace. Conversion events and health signals appear only when returned by the backend.": "来自已连接工作区的已验证归因记录。只有后端返回数据时才会显示转化事件和健康信号。",
+  "Search live attribution records": "搜索实时归因记录"
 }
