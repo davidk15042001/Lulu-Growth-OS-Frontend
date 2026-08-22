@@ -348,6 +348,24 @@ Object.assign(zh, {
   "No conversations yet": "暂时没有对话",
   "Start a conversation after the workspace is connected. No example messages or AI conclusions are shown.": "连接工作区后即可开始对话。不会显示示例消息或 AI 结论。"
 });
+Object.assign(de, {
+  "Loading live shipping records…": "Live-Versanddaten werden geladen…",
+  "Ecommerce / Shipping": "E-Commerce / Versand",
+  "Verified shipping and fulfillment records from connected stores. Delivery status and exceptions appear only when returned by the backend.": "Verifizierte Versand- und Fulfillment-Datensätze verbundener Shops. Lieferstatus und Ausnahmen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified shipping records yet": "Noch keine verifizierten Versanddaten",
+  "Connect a store and synchronize fulfillment data before reviewing delivery performance or exceptions.": "Verbinden Sie einen Shop und synchronisieren Sie Fulfillment-Daten, bevor Sie Lieferleistung oder Ausnahmen prüfen.",
+  "Shipping": "Versand"
+});
+Object.assign(zh, {
+  "Loading live shipping records…": "正在加载实时配送记录…",
+  "Ecommerce / Shipping": "电子商务 / 配送",
+  "Verified shipping and fulfillment records from connected stores. Delivery status and exceptions appear only when returned by the backend.": "来自已连接商店的已验证配送和履约记录。只有后端返回数据时才会显示配送状态和异常。",
+  "No verified shipping records yet": "暂时没有已验证的配送记录",
+  "Connect a store and synchronize fulfillment data before reviewing delivery performance or exceptions.": "请先连接商店并同步履约数据，再查看配送表现或异常。",
+  "Shipping": "配送"
+});
+Object.assign(de, { "Shipment": "Sendung" });
+Object.assign(zh, { "Shipment": "货件" });
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

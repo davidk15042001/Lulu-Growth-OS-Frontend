@@ -21262,5 +21262,11 @@
   "AI / Conversations": "AI / Unterhaltungen",
   "Verified conversation records from this workspace. Messages and assistant output appear only when returned by the backend.": "Verifizierte Unterhaltungsdatensätze dieses Workspaces. Nachrichten und Assistant-Ausgaben werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No conversations yet": "Noch keine Unterhaltungen",
-  "Start a conversation after the workspace is connected. No example messages or AI conclusions are shown.": "Starten Sie eine Unterhaltung, nachdem der Workspace verbunden wurde. Es werden keine Beispielnachrichten oder AI-Schlussfolgerungen angezeigt."
+  "Start a conversation after the workspace is connected. No example messages or AI conclusions are shown.": "Starten Sie eine Unterhaltung, nachdem der Workspace verbunden wurde. Es werden keine Beispielnachrichten oder AI-Schlussfolgerungen angezeigt.",
+  "Loading live shipping records…": "Live-Versanddaten werden geladen…",
+  "Ecommerce / Shipping": "E-Commerce / Versand",
+  "Verified shipping and fulfillment records from connected stores. Delivery status and exceptions appear only when returned by the backend.": "Verifizierte Versand- und Fulfillment-Datensätze verbundener Shops. Lieferstatus und Ausnahmen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified shipping records yet": "Noch keine verifizierten Versanddaten",
+  "Connect a store and synchronize fulfillment data before reviewing delivery performance or exceptions.": "Verbinden Sie einen Shop und synchronisieren Sie Fulfillment-Daten, bevor Sie Lieferleistung oder Ausnahmen prüfen.",
+  "Shipment": "Sendung"
 }
