@@ -210,6 +210,22 @@ Object.assign(zh, {
   "Refresh after connected workspace data has been analyzed. No health score, trend or recommendation is inferred without a verified record.": "连接的工作区数据分析完成后请刷新。没有经过验证的记录时，不会推断健康评分、趋势或建议。",
   "Sources:": "来源："
 });
+Object.assign(de, {
+  "Loading live trends…": "Live-Trends werden geladen…",
+  "Intelligence / Trends": "Intelligence / Trends",
+  "Verified trend signals from the connected workspace. Direction, confidence and change are shown only when returned by the backend.": "Verifizierte Trendsignale aus dem verbundenen Workspace. Richtung, Konfidenz und Veränderung werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified trends yet": "Noch keine verifizierten Trends",
+  "Refresh after connected workspace data has been analyzed. No trend direction, percentage or chart is inferred without a verified insight.": "Aktualisieren Sie nach der Analyse der verbundenen Workspace-Daten. Ohne verifizierte Erkenntnis werden keine Trendrichtung, Prozentzahl oder Grafik abgeleitet.",
+  "Search live trends": "Live-Trends durchsuchen"
+});
+Object.assign(zh, {
+  "Loading live trends…": "正在加载实时趋势…",
+  "Intelligence / Trends": "智能 / 趋势",
+  "Verified trend signals from the connected workspace. Direction, confidence and change are shown only when returned by the backend.": "来自已连接工作区的已验证趋势信号。只有后端返回数据时才会显示方向、置信度和变化。",
+  "No verified trends yet": "暂时没有已验证的趋势",
+  "Refresh after connected workspace data has been analyzed. No trend direction, percentage or chart is inferred without a verified insight.": "连接的工作区数据分析完成后请刷新。没有经过验证的洞察时，不会推断趋势方向、百分比或图表。",
+  "Search live trends": "搜索实时趋势"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

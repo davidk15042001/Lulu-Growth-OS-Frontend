@@ -21213,5 +21213,11 @@
   "Verified intelligence records from the connected workspace. Scores, changes and recommendations appear only when returned by the backend.": "来自已连接工作区的已验证智能记录。只有后端返回数据时才会显示评分、变化和建议。",
   "No verified intelligence insights yet": "暂时没有已验证的智能洞察",
   "Refresh after connected workspace data has been analyzed. No health score, trend or recommendation is inferred without a verified record.": "连接的工作区数据分析完成后请刷新。没有经过验证的记录时，不会推断健康评分、趋势或建议。",
-  "Sources:": "来源："
+  "Sources:": "来源：",
+  "Loading live trends…": "正在加载实时趋势…",
+  "Intelligence / Trends": "智能 / 趋势",
+  "Verified trend signals from the connected workspace. Direction, confidence and change are shown only when returned by the backend.": "来自已连接工作区的已验证趋势信号。只有后端返回数据时才会显示方向、置信度和变化。",
+  "No verified trends yet": "暂时没有已验证的趋势",
+  "Refresh after connected workspace data has been analyzed. No trend direction, percentage or chart is inferred without a verified insight.": "连接的工作区数据分析完成后请刷新。没有经过验证的洞察时，不会推断趋势方向、百分比或图表。",
+  "Search live trends": "搜索实时趋势"
 }
