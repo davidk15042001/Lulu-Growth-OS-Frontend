@@ -396,6 +396,24 @@ Object.assign(zh, {
   "No verified payment records yet": "暂时没有已验证的支付记录",
   "Connect a store and synchronize payment data before reviewing transactions, refunds or payment issues.": "请先连接商店并同步支付数据，再查看交易、退款或支付问题。"
 });
+Object.assign(de, {
+  "Loading live return records…": "Live-Rückgabedaten werden geladen…",
+  "Ecommerce / Returns & Refunds": "E-Commerce / Rückgaben und Erstattungen",
+  "Returns & Refunds": "Rückgaben und Erstattungen",
+  "Verified return and refund records from connected stores. Customer, status and issue data appear only when returned by the backend.": "Verifizierte Rückgabe- und Erstattungsdatensätze verbundener Shops. Kunden-, Status- und Problemdaten werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified return records yet": "Noch keine verifizierten Rückgabedaten",
+  "Connect a store and synchronize returns before reviewing refunds, reasons or customer issues.": "Verbinden Sie einen Shop und synchronisieren Sie Rückgaben, bevor Sie Erstattungen, Gründe oder Kundenprobleme prüfen."
+});
+Object.assign(zh, {
+  "Loading live return records…": "正在加载实时退货记录…",
+  "Ecommerce / Returns & Refunds": "电子商务 / 退货与退款",
+  "Returns & Refunds": "退货与退款",
+  "Verified return and refund records from connected stores. Customer, status and issue data appear only when returned by the backend.": "来自已连接商店的已验证退货和退款记录。只有后端返回数据时才会显示客户、状态和问题数据。",
+  "No verified return records yet": "暂时没有已验证的退货记录",
+  "Connect a store and synchronize returns before reviewing refunds, reasons or customer issues.": "请先连接商店并同步退货数据，再查看退款、原因或客户问题。"
+});
+Object.assign(de, { "Ecommerce / Returns &amp; Refunds": "E-Commerce / Rückgaben und Erstattungen", "Returns &amp; Refunds": "Rückgaben und Erstattungen" });
+Object.assign(zh, { "Ecommerce / Returns &amp; Refunds": "电子商务 / 退货与退款", "Returns &amp; Refunds": "退货与退款" });
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

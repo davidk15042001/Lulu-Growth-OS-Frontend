@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Activity, AlertCircle, ArrowDown, ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, Clock3, Download, Ellipsis, Filter, MoreHorizontal, Package, Plus, RefreshCw, Search, Send, Settings2, ShoppingBag, SlidersHorizontal, Sparkles, Store, UserRound, X, Zap } from 'lucide-react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 type ReturnItem = {
   id: string;
   order: string;
@@ -87,6 +88,9 @@ export function ReturnsRefundsPage() {
   const [sortAsc, setSortAsc] = useState(false);
   const [aiText, setAiText] = useState('');
   const [aiAnswer, setAiAnswer] = useState('');
+  const { items: returnRecords, loading, error, refresh: refreshReturns } = useLiveRecords('ecommerce_returns');
+  const [refreshing, setRefreshing] = useState(false);
+  const refresh = () => { void refreshReturns(); setRefreshing(true); window.setTimeout(() => setRefreshing(false), 700); };
   const filteredReturns = useMemo(() => returns.filter(item => `${item.id} ${item.order} ${item.customer} ${item.store} ${item.reason}`.toLowerCase().includes(query.toLowerCase())), [query]);
   const showToast = (message: string) => {
     setToast(message);
@@ -98,6 +102,9 @@ export function ReturnsRefundsPage() {
     setAiAnswer(`Lulu AI found 8 records matching “${prompt}”. Three failed refunds and five long-pending returns should be reviewed first.`);
     setAiText('');
   };
+  if (loading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live return records…</main>;
+  if (error) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{error}</main>;
+  if (!loading && !error) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-6xl"><header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs uppercase tracking-[.18em] text-muted-foreground">Ecommerce / Returns &amp; Refunds</p><h1 className="mt-2 text-3xl font-bold">Returns &amp; Refunds</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Verified return and refund records from connected stores. Customer, status and issue data appear only when returned by the backend.</p></div><button type="button" onClick={refresh} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-secondary"><RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} /> Refresh</button></header>{returnRecords.length === 0 ? <section className="rounded-2xl border border-dashed border-border bg-card p-10 text-center"><Package className="mx-auto mb-4 text-muted-foreground" size={30} /><h2 className="text-xl font-semibold">No verified return records yet</h2><p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">Connect a store and synchronize returns before reviewing refunds, reasons or customer issues.</p></section> : <section className="overflow-hidden rounded-2xl border border-border bg-card"><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="px-4 py-3">Return</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Stage</th><th className="px-4 py-3">Description</th><th className="px-4 py-3">Updated</th></tr></thead><tbody className="divide-y divide-border">{returnRecords.map(record => <tr key={record.id}><td className="px-4 py-3 font-medium">{record.name}</td><td className="px-4 py-3">{record.status}</td><td className="px-4 py-3 text-muted-foreground">{record.stage ?? '—'}</td><td className="max-w-md px-4 py-3 text-muted-foreground">{record.description ?? '—'}</td><td className="px-4 py-3 text-muted-foreground">{new Date(record.updatedAt).toLocaleString()}</td></tr>)}</tbody></table></div></section>}</div></main>;
   return <main className="min-h-screen bg-[var(--background)] text-foreground selection:bg-[var(--primary)]/30">
     <aside className="fixed inset-y-0 left-0 z-20 hidden w-[236px] border-r border-[var(--muted-foreground)] bg-[var(--sidebar)] lg:flex lg:flex-col">
       <div className="flex h-20 items-center gap-3 border-b border-[var(--muted-foreground)] px-6"><div className="grid h-9 w-9 place-items-center rounded-xl bg-[var(--primary)] text-lg font-black text-primary-foreground shadow-[0_0_20px_rgba(0,0,0,0.45)]">L</div><div><p className="font-extrabold tracking-tight text-foreground">Lulu AI</p><p className="text-[10px] uppercase tracking-[0.2em] text-[var(--muted-foreground)]">Command center</p></div></div>

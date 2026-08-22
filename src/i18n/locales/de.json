@@ -12715,7 +12715,7 @@
   "Returning customers": "Wiederkehrende Kunden",
   "Returning you to where you left off": "Sie kehren dorthin zurück, wo Sie aufgehört haben",
   "Returning|7,842": "Wiederkehrend|7,842",
-  "Returns & Refunds": "Retouren & Rückerstattungen",
+  "Returns & Refunds": "Rückgaben und Erstattungen",
   "Returns & Refunds Synchronization": "Synchronisierung von Retouren & Rückerstattungen",
   "Returns Operations Health": "Zustand der Retourenprozesse",
   "Returns Requiring Attention": "Retouren, die Aufmerksamkeit erfordern",
@@ -21279,5 +21279,12 @@
   "Ecommerce / Payments": "E-Commerce / Zahlungen",
   "Verified payment records from connected stores. Status, provider and issue data appear only when returned by the backend.": "Verifizierte Zahlungsdatensätze verbundener Shops. Status, Anbieter und Problemdaten werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified payment records yet": "Noch keine verifizierten Zahlungsdaten",
-  "Connect a store and synchronize payment data before reviewing transactions, refunds or payment issues.": "Verbinden Sie einen Shop und synchronisieren Sie Zahlungsdaten, bevor Sie Transaktionen, Erstattungen oder Zahlungsprobleme prüfen."
+  "Connect a store and synchronize payment data before reviewing transactions, refunds or payment issues.": "Verbinden Sie einen Shop und synchronisieren Sie Zahlungsdaten, bevor Sie Transaktionen, Erstattungen oder Zahlungsprobleme prüfen.",
+  "Loading live return records…": "Live-Rückgabedaten werden geladen…",
+  "Ecommerce / Returns & Refunds": "E-Commerce / Rückgaben und Erstattungen",
+  "Verified return and refund records from connected stores. Customer, status and issue data appear only when returned by the backend.": "Verifizierte Rückgabe- und Erstattungsdatensätze verbundener Shops. Kunden-, Status- und Problemdaten werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified return records yet": "Noch keine verifizierten Rückgabedaten",
+  "Connect a store and synchronize returns before reviewing refunds, reasons or customer issues.": "Verbinden Sie einen Shop und synchronisieren Sie Rückgaben, bevor Sie Erstattungen, Gründe oder Kundenprobleme prüfen.",
+  "Ecommerce / Returns &amp; Refunds": "E-Commerce / Rückgaben und Erstattungen",
+  "Returns &amp; Refunds": "Rückgaben und Erstattungen"
 }
