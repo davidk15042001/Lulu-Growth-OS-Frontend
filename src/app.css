@@ -201,7 +201,19 @@ a[data-lulu-soon="true"]::after,
 @media(max-width:900px){.lulu-global-shell{display:block}.lulu-global-navigation{position:sticky;top:66px;height:auto;max-height:46vh;border-right:0;border-bottom:1px solid var(--border);padding:10px 12px}.lulu-global-navigation__workspace-label{display:none}.lulu-global-navigation__sections{display:flex;gap:6px;overflow-x:auto;overflow-y:hidden;padding-bottom:2px}.lulu-global-navigation__sections details{min-width:max-content}.lulu-global-navigation__sections summary{padding:8px 9px;font-size:.78rem}.lulu-global-navigation__subitems{position:absolute;z-index:60;min-width:190px;margin-top:2px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:5px;box-shadow:0 16px 40px rgba(0,0,0,.16)}.lulu-global-navigation__account{display:none}.lulu-global-content{min-height:auto}}
 @media(max-width:640px){.lulu-auth-search-wrap{gap:8px;padding:9px 12px}.lulu-auth-logo{width:120px;height:48px}.lulu-auth-search{min-width:0;border-radius:13px}.lulu-auth-credits{gap:4px;padding:8px 9px;font-size:.7rem}.lulu-auth-credits strong{font-size:.78rem}.lulu-auth-search-button{width:48px;flex-basis:48px}.lulu-auth-search-results{width:calc(100% - 24px)}.lulu-global-navigation{max-height:42vh}}
 
-/* Public auth layout: do not reserve the authenticated navigation grid column. */
+/* Global workspace update bar */
+.lulu-workspace-topbar{position:sticky;top:0;z-index:45;display:flex;align-items:center;gap:10px;min-height:66px;padding:12px 18px;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--background) 92%,transparent);backdrop-filter:blur(14px)}
+.lulu-workspace-topbar__search{display:flex;align-items:center;gap:9px;flex:1;min-width:0;max-width:720px;height:40px;padding:0 13px;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--muted-foreground);box-shadow:0 5px 18px rgba(0,0,0,.04)}
+.lulu-workspace-topbar__search input{width:100%;min-width:0;border:0;outline:0;background:transparent;color:var(--foreground);font-size:.86rem}
+.lulu-workspace-topbar__search input::placeholder{color:var(--muted-foreground)}
+.lulu-workspace-topbar__refresh{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;min-width:82px;padding:0 13px;border:1px solid color-mix(in srgb,var(--primary) 35%,var(--border));border-radius:12px;background:var(--primary);color:var(--primary-foreground);font-size:.78rem;font-weight:700;transition:transform .16s ease,opacity .16s ease,box-shadow .16s ease}
+.lulu-workspace-topbar__refresh:hover:not(:disabled){box-shadow:0 8px 20px color-mix(in srgb,var(--primary) 22%,transparent);transform:translateY(-1px)}
+.lulu-workspace-topbar__refresh:active:not(:disabled){transform:scale(.97)}
+.lulu-workspace-topbar__refresh:disabled{cursor:wait;opacity:.68}
+.lulu-workspace-topbar__status{max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted-foreground);font-size:.72rem}
+@media(max-width:720px){.lulu-workspace-topbar{padding:10px 12px}.lulu-workspace-topbar__status{display:none}.lulu-workspace-topbar__refresh{min-width:46px;width:46px;padding:0}.lulu-workspace-topbar__refresh span{display:none}}
+
+/* Public auth layout: do not reserve the authenticated workspace navigation grid column. */
 .lulu-global-shell:has(.lulu-global-content--auth){display:block;min-height:100vh}
 .lulu-global-content--auth,.lulu-global-content--auth .lulu-native-page{width:100%;min-width:0}
 .lulu-global-content--auth [data-lulu-global-navigation="true"],.lulu-global-content--auth .lulu-global-navigation,.page-frame--auth [data-lulu-global-navigation="true"]{display:none!important}
