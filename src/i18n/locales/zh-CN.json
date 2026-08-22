@@ -21248,5 +21248,9 @@
   "Advertising / Accounts": "广告 / 账户",
   "Verified advertising account records from connected providers. Permissions and publishing capabilities appear only when returned by the backend.": "来自已连接提供商的已验证广告账户记录。只有后端返回数据时才会显示权限和发布功能。",
   "No advertising accounts connected": "尚未连接广告账户",
-  "Connect a supported advertising provider before reviewing account permissions, publishing capabilities or spend data.": "请先连接受支持的广告提供商，再查看账户权限、发布功能或支出数据。"
+  "Connect a supported advertising provider before reviewing account permissions, publishing capabilities or spend data.": "请先连接受支持的广告提供商，再查看账户权限、发布功能或支出数据。",
+  "Advertising / Campaigns": "广告 / 活动",
+  "Verified advertising campaign records from connected providers. Performance metrics and publishing actions appear only when returned by the backend.": "来自已连接提供商的已验证广告活动记录。只有后端返回数据时才会显示绩效指标和发布操作。",
+  "No verified campaigns yet": "暂时没有已验证的广告活动",
+  "Connect an advertising provider and synchronize campaign records before reviewing spend, performance or publishing actions.": "请先连接广告提供商并同步活动记录，再查看支出、绩效或发布操作。"
 }

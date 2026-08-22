@@ -308,6 +308,18 @@ Object.assign(zh, {
   "No advertising accounts connected": "尚未连接广告账户",
   "Connect a supported advertising provider before reviewing account permissions, publishing capabilities or spend data.": "请先连接受支持的广告提供商，再查看账户权限、发布功能或支出数据。"
 });
+Object.assign(de, {
+  "Advertising / Campaigns": "Werbung / Kampagnen",
+  "Verified advertising campaign records from connected providers. Performance metrics and publishing actions appear only when returned by the backend.": "Verifizierte Werbekampagnen-Datensätze verbundener Anbieter. Leistungskennzahlen und Veröffentlichungsaktionen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified campaigns yet": "Noch keine verifizierten Kampagnen",
+  "Connect an advertising provider and synchronize campaign records before reviewing spend, performance or publishing actions.": "Verbinden Sie einen Werbeanbieter und synchronisieren Sie Kampagnendaten, bevor Sie Ausgaben, Leistung oder Veröffentlichungsaktionen prüfen."
+});
+Object.assign(zh, {
+  "Advertising / Campaigns": "广告 / 活动",
+  "Verified advertising campaign records from connected providers. Performance metrics and publishing actions appear only when returned by the backend.": "来自已连接提供商的已验证广告活动记录。只有后端返回数据时才会显示绩效指标和发布操作。",
+  "No verified campaigns yet": "暂时没有已验证的广告活动",
+  "Connect an advertising provider and synchronize campaign records before reviewing spend, performance or publishing actions.": "请先连接广告提供商并同步活动记录，再查看支出、绩效或发布操作。"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));
