@@ -47,6 +47,10 @@ function readGenerationProgress(job: WebsiteGenerationJob | undefined) {
 
 const GENERATION_UI_STALE_MS = 20 * 60 * 1000;
 
+function errorStatus(error: unknown) {
+  return error && typeof error === "object" && "status" in error ? Number((error as { status?: unknown }).status) : null;
+}
+
 function readStoredGenerationJob(): TrackedGenerationJob | null {
   try {
     const raw = window.localStorage.getItem(WEBSITE_GENERATION_STORAGE_KEY);
@@ -391,7 +395,7 @@ export default function App() {
         else if (response.data.status === "published") void refresh();
       } catch (requestError) {
         if (cancelled) return;
-        if (requestError instanceof Error && "status" in requestError && [401, 404].includes(Number(requestError.status))) {
+        if ([401, 404].includes(errorStatus(requestError) ?? -1)) {
           writeStoredGenerationJob(null);
           setGenerationJob(null);
           setGenerationStarting(null);
