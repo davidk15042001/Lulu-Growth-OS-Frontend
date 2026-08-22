@@ -445,5 +445,10 @@
   "Verified active and abandoned cart records from connected stores. Recovery opportunities appear only when returned by the backend.": "来自已连接商店的已验证活跃和放弃购物车记录。仅当后端返回时才显示挽回机会。",
   "No verified cart records yet": "暂无已验证的购物车记录",
   "Connect a store and synchronize cart data before reviewing abandonment or recovery performance. No example carts are displayed.": "请先连接商店并同步购物车数据，再查看放弃或挽回效果。不会显示示例购物车。",
-  "Connect a store and synchronize fulfillment data before reviewing delivery performance or exceptions. No example shipments are displayed.": "请先连接商店并同步履约数据，再查看配送效果或异常。不会显示示例发货记录。"
+  "Connect a store and synchronize fulfillment data before reviewing delivery performance or exceptions. No example shipments are displayed.": "请先连接商店并同步履约数据，再查看配送效果或异常。不会显示示例发货记录。",
+  "Loading live review records…": "正在加载实时评价记录…",
+  "Ecommerce / Reviews": "电商 / 评价",
+  "Verified customer review records from connected stores. Ratings, sentiment and response status appear only when returned by the backend.": "来自已连接商店的已验证客户评价记录。仅当后端返回时才显示评分、情绪和回复状态。",
+  "No verified review records yet": "暂无已验证的评价记录",
+  "Connect a store and synchronize review data before reviewing ratings, responses or sentiment. No example reviews are displayed.": "请先连接商店并同步评价数据，再查看评分、回复或情绪。不会显示示例评价。"
 }
