@@ -21,6 +21,7 @@ export const routes = {
   app: {
     dashboard: "/app/fancily-leaf-1766",
     website: "/app/website",
+    email: "/app/email",
   },
   allPages: "/all-pages",
 } as const;
@@ -40,6 +41,7 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "keen-morning-6353": routes.onboarding.productsServices,
   "fresh-tide-9404": routes.onboarding.existingPlatforms,
   "lulu-website-portal-9012": routes.app.website,
+  "lulu-email-portal-9013": routes.app.email,
 };
 
 export const LEGACY_SETUP_COMPLETE_PATH = "/onboarding/setup-complete";
@@ -53,6 +55,7 @@ export type LuluNavigationMessage = {
 
 export function pagePath(slug: string) {
   if (slug.startsWith("website-")) return `${routes.app.website}?section=${encodeURIComponent(slug.slice("website-".length))}`;
+  if (slug.startsWith("email-")) return `${routes.app.email}?section=${encodeURIComponent(slug.slice("email-".length))}`;
   return canonicalPathsBySlug[slug] ?? `/app/${slug}`;
 }
 

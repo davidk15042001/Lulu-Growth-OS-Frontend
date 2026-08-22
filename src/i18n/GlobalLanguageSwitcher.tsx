@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Languages as LanguagesIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import {
@@ -134,7 +134,7 @@ export function useTranslation() {
     window.addEventListener(LANGUAGE_LOADED_EVENT, sync);
     return () => window.removeEventListener(LANGUAGE_LOADED_EVENT, sync);
   }, []);
-  return (key: string) => loadedTables[language]?.[key] ?? loadedTables.en?.[key] ?? key;
+  return useCallback((key: string) => loadedTables[language]?.[key] ?? loadedTables.en?.[key] ?? key, [language]);
 }
 
 export function GlobalLanguageSwitcher() {

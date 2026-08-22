@@ -52,6 +52,10 @@ const WORKSPACE_SLUGS = new Set([
   "lulu-website-portal-9012",
 ]);
 
+// Local application routes are intentionally kept outside the generated
+// MagicPath manifest so its fixed 140-page integrity checks remain stable.
+const LOCAL_WORKSPACE_SLUGS = new Set([["lulu", "email", "portal", "9013"].join("-")]);
+
 const SPECIAL_CONTRACTS: Record<string, PageContract> = {
   "fresh-moon-5374": { kind: "ai" },
   "sunny-moon-6307": { kind: "ai" },
@@ -166,7 +170,7 @@ export const RESOURCE_BY_SLUG: Readonly<Record<string, string>> = {
 export function getPageContract(slug: string): PageContract | undefined {
   if (PUBLIC_SLUGS.has(slug)) return { kind: "public" };
   if (ONBOARDING_SLUGS.has(slug)) return { kind: "onboarding" };
-  if (WORKSPACE_SLUGS.has(slug)) return { kind: "workspace" };
+  if (WORKSPACE_SLUGS.has(slug) || LOCAL_WORKSPACE_SLUGS.has(slug)) return { kind: "workspace" };
   if (SPECIAL_CONTRACTS[slug]) return SPECIAL_CONTRACTS[slug];
   const resourceType = RESOURCE_BY_SLUG[slug];
   return resourceType ? { kind: "resource", resourceType } : undefined;

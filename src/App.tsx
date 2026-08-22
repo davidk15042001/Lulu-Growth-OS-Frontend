@@ -178,6 +178,14 @@ function PageFrame({ page, isPublic, isStandalone }: { page: PageDefinition; isP
   );
 }
 const ADMIN_BILLING_PATH = "/app/admin-billing-overview-9901";
+const EMAIL_PAGE: PageDefinition = {
+  id: "lulu-email-workspace",
+  name: "Lulu AI — Email",
+  slug: "lulu-email-portal-9013",
+  generatedName: "lulu-email-portal-9013",
+  selectedRevisionId: "local-email-workspace",
+  previewImageUrl: null,
+};
 
 function AdminBillingRoute() {
   const { currentUser, loading } = useLuluApp();
@@ -261,6 +269,7 @@ export default function App() {
       <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
       <Route path={routes.onboarding.billings} element={<BillingOnboarding />} />
       <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
+      <Route path={routes.app.email} element={<PageRoute page={EMAIL_PAGE} />} />
       {pages.map((page) => (
         <Route key={page.id} path={pagePath(page.slug)} element={<PageRoute page={page} />} />
       ))}

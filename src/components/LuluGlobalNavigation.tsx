@@ -80,7 +80,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
           const isActiveSection = section.pages.some((page) => page.id === activeSlug);
           const isWebsiteSection = section.label === "Website";
           return (
-            <details key={section.label} open={isActiveSection || section.label === "Website" || section.label === "Settings"}>
+            <details key={section.label} open={isActiveSection || section.label === "Website" || section.label === "Email" || section.label === "Settings"}>
               <summary className={isActiveSection ? "is-active" : undefined}>
                 <span>{section.label}</span>
                 <ChevronDown aria-hidden="true" size={14} />

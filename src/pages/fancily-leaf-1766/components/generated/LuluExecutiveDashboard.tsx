@@ -211,6 +211,27 @@ export const luluDropdownNavigation = [{
     "label": "Customer Intelligence"
   }]
 }, {
+  "label": "Email",
+  "pages": [{
+    "id": "email-inbox",
+    "label": "Inbox"
+  }, {
+    "id": "email-starred",
+    "label": "Starred"
+  }, {
+    "id": "email-sent",
+    "label": "Sent"
+  }, {
+    "id": "email-drafts",
+    "label": "Drafts"
+  }, {
+    "id": "email-automations",
+    "label": "Automations"
+  }, {
+    "id": "email-settings",
+    "label": "Email Settings"
+  }]
+}, {
   "label": "Marketing",
   "pages": [{
     "id": "dreamily-soil-9290",
