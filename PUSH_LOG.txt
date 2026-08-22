@@ -41,3 +41,6 @@ Push-Zeitstempel: 2026-08-22 06:33:30 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-22 06:37:41 Europe/Berlin
 Änderungen: Der Migrationslauf verwendet die Server-.env ohne unnötige Laufzeitvalidierung fremder systemd-Werte.
+
+Push-Zeitstempel: 2026-08-22 07:15:23 Europe/Berlin
+Änderungen: Synchronisations-Push für die Umstellung des produktiven Alibaba-Modells auf qwen3.7-plus.
