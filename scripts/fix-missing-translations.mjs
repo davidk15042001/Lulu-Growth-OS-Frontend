@@ -226,6 +226,22 @@ Object.assign(zh, {
   "Refresh after connected workspace data has been analyzed. No trend direction, percentage or chart is inferred without a verified insight.": "连接的工作区数据分析完成后请刷新。没有经过验证的洞察时，不会推断趋势方向、百分比或图表。",
   "Search live trends": "搜索实时趋势"
 });
+Object.assign(de, {
+  "Loading live KPIs…": "Live-KPIs werden geladen…",
+  "Intelligence / KPI Explorer": "Intelligence / KPI-Explorer",
+  "Verified KPI definitions from the connected workspace. Values, changes and status appear only when returned by the backend.": "Verifizierte KPI-Definitionen aus dem verbundenen Workspace. Werte, Änderungen und Status werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified KPIs yet": "Noch keine verifizierten KPIs",
+  "Connect and analyze a verified data source before reviewing KPI values, comparisons or forecasts.": "Verbinden und analysieren Sie eine verifizierte Datenquelle, bevor Sie KPI-Werte, Vergleiche oder Prognosen prüfen.",
+  "Search live KPIs": "Live-KPIs durchsuchen"
+});
+Object.assign(zh, {
+  "Loading live KPIs…": "正在加载实时 KPI…",
+  "Intelligence / KPI Explorer": "智能 / KPI 探索器",
+  "Verified KPI definitions from the connected workspace. Values, changes and status appear only when returned by the backend.": "来自已连接工作区的已验证 KPI 定义。只有后端返回数据时才会显示数值、变化和状态。",
+  "No verified KPIs yet": "暂时没有已验证的 KPI",
+  "Connect and analyze a verified data source before reviewing KPI values, comparisons or forecasts.": "查看 KPI 数值、比较或预测前，请连接并分析已验证的数据源。",
+  "Search live KPIs": "搜索实时 KPI"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

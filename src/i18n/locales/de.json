@@ -21219,5 +21219,11 @@
   "Verified trend signals from the connected workspace. Direction, confidence and change are shown only when returned by the backend.": "Verifizierte Trendsignale aus dem verbundenen Workspace. Richtung, Konfidenz und Veränderung werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified trends yet": "Noch keine verifizierten Trends",
   "Refresh after connected workspace data has been analyzed. No trend direction, percentage or chart is inferred without a verified insight.": "Aktualisieren Sie nach der Analyse der verbundenen Workspace-Daten. Ohne verifizierte Erkenntnis werden keine Trendrichtung, Prozentzahl oder Grafik abgeleitet.",
-  "Search live trends": "Live-Trends durchsuchen"
+  "Search live trends": "Live-Trends durchsuchen",
+  "Loading live KPIs…": "Live-KPIs werden geladen…",
+  "Intelligence / KPI Explorer": "Intelligence / KPI-Explorer",
+  "Verified KPI definitions from the connected workspace. Values, changes and status appear only when returned by the backend.": "Verifizierte KPI-Definitionen aus dem verbundenen Workspace. Werte, Änderungen und Status werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified KPIs yet": "Noch keine verifizierten KPIs",
+  "Connect and analyze a verified data source before reviewing KPI values, comparisons or forecasts.": "Verbinden und analysieren Sie eine verifizierte Datenquelle, bevor Sie KPI-Werte, Vergleiche oder Prognosen prüfen.",
+  "Search live KPIs": "Live-KPIs durchsuchen"
 }
