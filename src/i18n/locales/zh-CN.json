@@ -21176,5 +21176,7 @@
   "Verified SEO records from the connected workspace. Rankings, issues and recommendations appear only after the backend provides them.": "来自已连接工作区的已验证 SEO 记录。只有后端提供数据后，才会显示排名、问题和建议。",
   "No verified SEO data yet": "暂时没有已验证的 SEO 数据",
   "Connect a verified SEO or Search Console source, or add SEO records through the workspace API before reviewing keyword performance.": "查看关键词表现前，请连接已验证的 SEO 或 Search Console 来源，或通过工作区 API 添加 SEO 记录。",
-  "Search live SEO records": "搜索实时 SEO 记录"
+  "Search live SEO records": "搜索实时 SEO 记录",
+  "Verified financial records from the connected workspace. Totals are calculated only from records returned by the backend.": "来自已连接工作区的已验证财务记录。总额仅根据后端返回的记录计算。",
+  "Search live finance records": "搜索实时财务记录"
 }

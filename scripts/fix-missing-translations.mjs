@@ -96,6 +96,14 @@ Object.assign(zh, {
   "Connect a verified SEO or Search Console source, or add SEO records through the workspace API before reviewing keyword performance.": "查看关键词表现前，请连接已验证的 SEO 或 Search Console 来源，或通过工作区 API 添加 SEO 记录。",
   "Search live SEO records": "搜索实时 SEO 记录"
 });
+Object.assign(de, {
+  "Verified financial records from the connected workspace. Totals are calculated only from records returned by the backend.": "Verifizierte Finanzdatensätze aus dem verbundenen Workspace. Summen werden ausschließlich aus den vom Backend zurückgegebenen Datensätzen berechnet.",
+  "Search live finance records": "Live-Finanzdatensätze durchsuchen"
+});
+Object.assign(zh, {
+  "Verified financial records from the connected workspace. Totals are calculated only from records returned by the backend.": "来自已连接工作区的已验证财务记录。总额仅根据后端返回的记录计算。",
+  "Search live finance records": "搜索实时财务记录"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

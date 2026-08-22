@@ -21176,5 +21176,7 @@
   "Verified SEO records from the connected workspace. Rankings, issues and recommendations appear only after the backend provides them.": "Verifizierte SEO-Datensätze aus dem verbundenen Workspace. Rankings, Probleme und Empfehlungen werden nur angezeigt, wenn das Backend sie bereitstellt.",
   "No verified SEO data yet": "Noch keine verifizierten SEO-Daten",
   "Connect a verified SEO or Search Console source, or add SEO records through the workspace API before reviewing keyword performance.": "Verbinden Sie eine verifizierte SEO- oder Search-Console-Quelle oder fügen Sie SEO-Datensätze über die Workspace-API hinzu, bevor Sie die Keyword-Leistung prüfen.",
-  "Search live SEO records": "Live-SEO-Datensätze durchsuchen"
+  "Search live SEO records": "Live-SEO-Datensätze durchsuchen",
+  "Verified financial records from the connected workspace. Totals are calculated only from records returned by the backend.": "Verifizierte Finanzdatensätze aus dem verbundenen Workspace. Summen werden ausschließlich aus den vom Backend zurückgegebenen Datensätzen berechnet.",
+  "Search live finance records": "Live-Finanzdatensätze durchsuchen"
 }
