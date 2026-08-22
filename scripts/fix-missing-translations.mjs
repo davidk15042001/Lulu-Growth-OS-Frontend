@@ -242,6 +242,20 @@ Object.assign(zh, {
   "Connect and analyze a verified data source before reviewing KPI values, comparisons or forecasts.": "查看 KPI 数值、比较或预测前，请连接并分析已验证的数据源。",
   "Search live KPIs": "搜索实时 KPI"
 });
+Object.assign(de, {
+  "Loading live forecasts…": "Live-Prognosen werden geladen…",
+  "Intelligence / Forecasts": "Intelligence / Prognosen",
+  "Verified forecast records from the connected workspace. Projections and confidence appear only when returned by the backend.": "Verifizierte Prognosedatensätze aus dem verbundenen Workspace. Projektionen und Konfidenz werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified forecasts yet": "Noch keine verifizierten Prognosen",
+  "Connect historical records and generate a forecast before reviewing projections, scenarios or confidence ranges.": "Verbinden Sie historische Datensätze und erstellen Sie eine Prognose, bevor Sie Projektionen, Szenarien oder Konfidenzbereiche prüfen."
+});
+Object.assign(zh, {
+  "Loading live forecasts…": "正在加载实时预测…",
+  "Intelligence / Forecasts": "智能 / 预测",
+  "Verified forecast records from the connected workspace. Projections and confidence appear only when returned by the backend.": "来自已连接工作区的已验证预测记录。只有后端返回数据时才会显示预测和置信度。",
+  "No verified forecasts yet": "暂时没有已验证的预测",
+  "Connect historical records and generate a forecast before reviewing projections, scenarios or confidence ranges.": "查看预测、情景或置信区间前，请连接历史记录并生成预测。"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

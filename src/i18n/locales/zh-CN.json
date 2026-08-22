@@ -21225,5 +21225,10 @@
   "Verified KPI definitions from the connected workspace. Values, changes and status appear only when returned by the backend.": "来自已连接工作区的已验证 KPI 定义。只有后端返回数据时才会显示数值、变化和状态。",
   "No verified KPIs yet": "暂时没有已验证的 KPI",
   "Connect and analyze a verified data source before reviewing KPI values, comparisons or forecasts.": "查看 KPI 数值、比较或预测前，请连接并分析已验证的数据源。",
-  "Search live KPIs": "搜索实时 KPI"
+  "Search live KPIs": "搜索实时 KPI",
+  "Loading live forecasts…": "正在加载实时预测…",
+  "Intelligence / Forecasts": "智能 / 预测",
+  "Verified forecast records from the connected workspace. Projections and confidence appear only when returned by the backend.": "来自已连接工作区的已验证预测记录。只有后端返回数据时才会显示预测和置信度。",
+  "No verified forecasts yet": "暂时没有已验证的预测",
+  "Connect historical records and generate a forecast before reviewing projections, scenarios or confidence ranges.": "查看预测、情景或置信区间前，请连接历史记录并生成预测。"
 }

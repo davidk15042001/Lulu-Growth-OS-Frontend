@@ -21225,5 +21225,10 @@
   "Verified KPI definitions from the connected workspace. Values, changes and status appear only when returned by the backend.": "Verifizierte KPI-Definitionen aus dem verbundenen Workspace. Werte, Änderungen und Status werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified KPIs yet": "Noch keine verifizierten KPIs",
   "Connect and analyze a verified data source before reviewing KPI values, comparisons or forecasts.": "Verbinden und analysieren Sie eine verifizierte Datenquelle, bevor Sie KPI-Werte, Vergleiche oder Prognosen prüfen.",
-  "Search live KPIs": "Live-KPIs durchsuchen"
+  "Search live KPIs": "Live-KPIs durchsuchen",
+  "Loading live forecasts…": "Live-Prognosen werden geladen…",
+  "Intelligence / Forecasts": "Intelligence / Prognosen",
+  "Verified forecast records from the connected workspace. Projections and confidence appear only when returned by the backend.": "Verifizierte Prognosedatensätze aus dem verbundenen Workspace. Projektionen und Konfidenz werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No verified forecasts yet": "Noch keine verifizierten Prognosen",
+  "Connect historical records and generate a forecast before reviewing projections, scenarios or confidence ranges.": "Verbinden Sie historische Datensätze und erstellen Sie eine Prognose, bevor Sie Projektionen, Szenarien oder Konfidenzbereiche prüfen."
 }
