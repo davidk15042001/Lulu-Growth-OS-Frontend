@@ -12,7 +12,7 @@ const navigationSections = luluDropdownNavigation as readonly NavigationSection[
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
 const WEBSITE_JOB_DISPLAY_STATUSES = new Set(["queued", "planning", "publishing", "failed", "cancelled"]);
-const WEBSITE_JOB_STALE_AFTER_MS = 12 * 60 * 1000;
+const WEBSITE_JOB_STALE_AFTER_MS = 35 * 60 * 1000;
 
 function jobTimestamp(value: { job?: { updatedAt?: string; createdAt?: string } }) {
   const timestamp = value.job?.updatedAt ?? value.job?.createdAt;

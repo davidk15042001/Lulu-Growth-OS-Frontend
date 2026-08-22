@@ -25,7 +25,7 @@ type TrackedGenerationJob = { siteId: string; job: WebsiteGenerationJob; provide
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const RUNNING_GENERATION_STATUSES = ["queued", "planning", "publishing"] as const;
 const TERMINAL_GENERATION_STATUSES = ["generated", "preview", "published", "failed", "cancelled"] as const;
-const WEBSITE_JOB_STALE_AFTER_MS = 12 * 60 * 1000;
+const WEBSITE_JOB_STALE_AFTER_MS = 35 * 60 * 1000;
 
 function isRunningGenerationStatus(status: string) {
   return (RUNNING_GENERATION_STATUSES as readonly string[]).includes(status);
