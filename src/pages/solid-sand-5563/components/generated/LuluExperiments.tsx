@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Activity, AlertTriangle, ArrowRight, Beaker, Brain, Check, ChevronDown, CircleHelp, Clock3, Download, Eye, FlaskConical, Gauge, Info, LayoutDashboard, Lightbulb, Menu, Pause, Play, Plus, RefreshCw, Send, Settings2, ShieldCheck, Sparkles, Target, Trash2, TrendingUp, Users, X, Zap } from 'lucide-react';
+import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Platform = 'Google' | 'Meta' | 'LinkedIn' | 'TikTok';
 type Opportunity = {
   id: string;
@@ -70,10 +71,14 @@ function StatusChip({
   return <span className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] font-medium ${tones[tone]}`}>{icon ?? <span className="h-1.5 w-1.5 rounded-full bg-current" />}<span>{children}</span></span>;
 }
 export function LuluExperiments() {
+  const { items: experimentRecords, loading: experimentsLoading, error: experimentsError } = useLiveRecords('ad_experiments');
   const [showApply, setShowApply] = useState(true);
   const [prompt, setPrompt] = useState('');
   const [sent, setSent] = useState(false);
   const stats: any[][] = [];
+  if (experimentsLoading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live experiments…</main>;
+  if (experimentsError) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{experimentsError}</main>;
+  if (experimentRecords.length === 0) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-border bg-card p-8 text-center"><Beaker className="mx-auto mb-4 text-muted-foreground" size={28} /><h1 className="text-2xl font-semibold">AI Experiments</h1><p className="mt-3 text-sm text-muted-foreground">No live experiments are available yet. Connect verified advertising data before creating or evaluating experiments.</p></div></main>;
   return <main className="min-h-screen bg-[var(--background)] text-[var(--primary-foreground)] selection:bg-secondary/30">
   <aside className="fixed inset-y-0 left-0 z-20 hidden w-16 flex-col items-center border-r border-border bg-[var(--sidebar)] py-4 md:flex"><div className="mb-8 flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary text-lg font-black text-primary-foreground">L</div><LuluSectionNavigation activeId="solid-sand-5563" /><button className="text-foreground" aria-label="Settings"><Settings2 size={19} /></button></aside>
   <div className="md:pl-16"><header className="flex flex-wrap items-center justify-between gap-4 border-b border-border px-5 py-4 lg:px-8"><div><div className="mb-2 flex items-center gap-2 text-[11px] text-muted-foreground"><span>Advertising</span><span>/</span><span className="text-foreground">Experiments</span></div><div className="flex items-center gap-3"><Beaker className="text-foreground" size={23} /><h1 className="text-[22px] font-semibold tracking-tight">AI Experiments</h1></div><p className="mt-1 max-w-2xl text-[13px] text-muted-foreground">Design controlled advertising experiments, measure what works and turn campaign data into better decisions.</p></div><div className="flex flex-wrap items-center gap-2"><button className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary"><Plus size={15} />Create Experiment</button><button className="inline-flex items-center gap-2 rounded-lg border border-border/50 px-3 py-2 text-xs font-semibold text-foreground hover:bg-secondary/10"><Sparkles size={14} />Ask Lulu AI</button><button className="rounded-lg border border-border p-2 text-foreground hover:bg-secondary" aria-label="Refresh"><RefreshCw size={15} /></button><button className="rounded-lg border border-border p-2 text-foreground hover:bg-secondary" aria-label="Export"><Download size={15} /></button></div></header>
