@@ -186,6 +186,16 @@ Object.assign(zh, {
   "Verified ecommerce records from the connected workspace. Revenue, orders, customers and stores appear only when returned by the backend.": "来自已连接工作区的已验证电商记录。只有后端返回数据时才会显示收入、订单、客户和商店。",
   "Search live ecommerce records": "搜索实时电商记录"
 });
+Object.assign(de, {
+  "Loading live ecommerce data…": "Live-E-Commerce-Daten werden geladen…",
+  "Intelligence / Ecommerce": "Intelligence / E-Commerce",
+  "Verified ecommerce product records from the connected workspace.": "Verifizierte E-Commerce-Produktdatensätze aus dem verbundenen Workspace."
+});
+Object.assign(zh, {
+  "Loading live ecommerce data…": "正在加载实时电商数据…",
+  "Intelligence / Ecommerce": "智能 / 电商",
+  "Verified ecommerce product records from the connected workspace.": "来自已连接工作区的已验证电商产品记录。"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

@@ -21205,5 +21205,8 @@
   "No live ecommerce data is available yet. Connect a verified store before reviewing orders, customers or revenue.": "Noch keine Live-E-Commerce-Daten verfügbar. Verbinden Sie einen verifizierten Shop, bevor Sie Bestellungen, Kunden oder Umsatz prüfen.",
   "Commerce / Overview": "Commerce / Übersicht",
   "Verified ecommerce records from the connected workspace. Revenue, orders, customers and stores appear only when returned by the backend.": "Verifizierte E-Commerce-Datensätze aus dem verbundenen Workspace. Umsatz, Bestellungen, Kunden und Shops werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
-  "Search live ecommerce records": "Live-E-Commerce-Datensätze durchsuchen"
+  "Search live ecommerce records": "Live-E-Commerce-Datensätze durchsuchen",
+  "Loading live ecommerce data…": "Live-E-Commerce-Daten werden geladen…",
+  "Intelligence / Ecommerce": "Intelligence / E-Commerce",
+  "Verified ecommerce product records from the connected workspace.": "Verifizierte E-Commerce-Produktdatensätze aus dem verbundenen Workspace."
 }

@@ -21205,5 +21205,8 @@
   "No live ecommerce data is available yet. Connect a verified store before reviewing orders, customers or revenue.": "暂时没有实时电商数据。查看订单、客户或收入前，请连接已验证的商店。",
   "Commerce / Overview": "商务 / 概览",
   "Verified ecommerce records from the connected workspace. Revenue, orders, customers and stores appear only when returned by the backend.": "来自已连接工作区的已验证电商记录。只有后端返回数据时才会显示收入、订单、客户和商店。",
-  "Search live ecommerce records": "搜索实时电商记录"
+  "Search live ecommerce records": "搜索实时电商记录",
+  "Loading live ecommerce data…": "正在加载实时电商数据…",
+  "Intelligence / Ecommerce": "智能 / 电商",
+  "Verified ecommerce product records from the connected workspace.": "来自已连接工作区的已验证电商产品记录。"
 }
