@@ -47,6 +47,15 @@ function isStaleRunningGenerationJob(value: Partial<TrackedGenerationJob>) {
   return !time || Date.now() - time > WEBSITE_JOB_STALE_AFTER_MS;
 }
 
+function staleJobFailure(job: WebsiteGenerationJob): WebsiteGenerationJob {
+  return {
+    ...job,
+    status: "failed",
+    errorCode: "WEBSITE_GENERATION_TIMEOUT",
+    errorMessage: "Website generation did not finish in time. Please try again.",
+  };
+}
+
 function readStoredGenerationJob(): TrackedGenerationJob | null {
   try {
     const raw = window.localStorage.getItem(WEBSITE_GENERATION_STORAGE_KEY);
@@ -301,9 +310,16 @@ export default function App() {
     websitesApi.getActiveGenerationJob(workspaceId, selectedSite.id)
       .then((response) => {
         if (cancelled || !response.data || !isRunningGenerationStatus(response.data.status)) return;
+        const tracked = { siteId: selectedSite.id, job: response.data, provider: selectedSite.provider === "webflow" ? "webflow" as const : "wordpress" as const };
+        if (isStaleRunningGenerationJob(tracked)) {
+          writeStoredGenerationJob(null);
+          setGenerationStarting(null);
+          setGenerationJob(null);
+          return;
+        }
         setGenerationFailure(null);
         setGenerationStarting(null);
-        setGenerationJob({ siteId: selectedSite.id, job: response.data, provider: selectedSite.provider === "webflow" ? "webflow" : "wordpress" });
+        setGenerationJob(tracked);
       })
       .catch(() => undefined);
     return () => { cancelled = true; };
@@ -369,6 +385,16 @@ export default function App() {
       try {
         const response = await websitesApi.getGenerationJob(workspaceId, generationJob.siteId, generationJob.job.id);
         if (cancelled) return;
+        const nextTracked = { ...generationJob, job: response.data };
+        if (isStaleRunningGenerationJob(nextTracked)) {
+          const failed = staleJobFailure(response.data);
+          const message = failed.errorMessage ?? "Die Website-Generierung wurde gestoppt, weil sie zu lange gedauert hat.";
+          setGenerationFailure({ provider: generationJob.provider, message });
+          setGenerationJob((current) => current ? { ...current, job: failed } : current);
+          setError(message);
+          void refresh();
+          return;
+        }
         setGenerationJob((current) => current ? { ...current, job: response.data } : current);
         if (!isTerminalGenerationStatus(response.data.status)) window.setTimeout(poll, 2000);
         else if (response.data.status === "failed") {
