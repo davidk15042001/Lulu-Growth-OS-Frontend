@@ -1,6 +1,11 @@
 import fs from 'node:fs';
 const entries = {
   de: {
+    'Lulu AI Assistant': 'Lulu AI-Assistent',
+    'Ask Lulu about your workspace': 'Fragen Sie Lulu zu Ihrem Workspace',
+    'Answers are generated from your selected workspace and connected records. No example conversations or business metrics are displayed.': 'Antworten werden aus Ihrem ausgewählten Workspace und verbundenen Datensätzen erzeugt. Es werden keine Beispielunterhaltungen oder Geschäftsmetriken angezeigt.',
+    'Ask Lulu AI about your workspace…': 'Lulu AI zu Ihrem Workspace fragen …',
+    'Working…': 'Wird verarbeitet …',
     'Loading live discount records…': 'Live-Rabattdatensätze werden geladen …',
     discounts: 'Rabatte',
     'No AI draft available': 'Kein KI-Entwurf verfügbar',
@@ -10,6 +15,11 @@ const entries = {
     'No discount activity is available yet. Activity will appear after a connected platform reports verified records.': 'Noch keine Rabattaktivitäten verfügbar. Aktivitäten erscheinen, sobald eine verbundene Plattform verifizierte Datensätze meldet.'
   },
   'zh-CN': {
+    'Lulu AI Assistant': 'Lulu AI 助手',
+    'Ask Lulu about your workspace': '询问 Lulu 关于您的工作区',
+    'Answers are generated from your selected workspace and connected records. No example conversations or business metrics are displayed.': '答案将根据您选择的工作区和已连接的记录生成。不会显示示例对话或业务指标。',
+    'Ask Lulu AI about your workspace…': '询问 Lulu AI 关于您的工作区…',
+    'Working…': '处理中…',
     'Loading live discount records…': '正在加载实时折扣记录…',
     discounts: '折扣',
     'No AI draft available': '暂无 AI 草稿',

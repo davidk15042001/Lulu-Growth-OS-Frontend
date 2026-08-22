@@ -412,5 +412,10 @@
   "Live data only — not published": "Nur Live-Daten — nicht veröffentlicht",
   "Connect an ecommerce platform to generate a draft from verified data.": "Verbinden Sie eine E-Commerce-Plattform, um aus verifizierten Daten einen Entwurf zu erstellen.",
   "No synchronization records are available from connected ecommerce platforms yet.": "Von verbundenen E-Commerce-Plattformen sind noch keine Synchronisationsdaten verfügbar.",
-  "No discount activity is available yet. Activity will appear after a connected platform reports verified records.": "Noch keine Rabattaktivitäten verfügbar. Aktivitäten erscheinen, sobald eine verbundene Plattform verifizierte Datensätze meldet."
+  "No discount activity is available yet. Activity will appear after a connected platform reports verified records.": "Noch keine Rabattaktivitäten verfügbar. Aktivitäten erscheinen, sobald eine verbundene Plattform verifizierte Datensätze meldet.",
+  "Lulu AI Assistant": "Lulu AI-Assistent",
+  "Ask Lulu about your workspace": "Fragen Sie Lulu zu Ihrem Workspace",
+  "Answers are generated from your selected workspace and connected records. No example conversations or business metrics are displayed.": "Antworten werden aus Ihrem ausgewählten Workspace und verbundenen Datensätzen erzeugt. Es werden keine Beispielunterhaltungen oder Geschäftsmetriken angezeigt.",
+  "Ask Lulu AI about your workspace…": "Lulu AI zu Ihrem Workspace fragen …",
+  "Working…": "Wird verarbeitet …"
 }

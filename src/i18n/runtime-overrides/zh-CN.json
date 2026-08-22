@@ -411,5 +411,10 @@
   "Live data only — not published": "仅显示实时数据 — 尚未发布",
   "Connect an ecommerce platform to generate a draft from verified data.": "连接电商平台，以便根据已验证的数据生成草稿。",
   "No synchronization records are available from connected ecommerce platforms yet.": "连接的电商平台暂时没有同步记录。",
-  "No discount activity is available yet. Activity will appear after a connected platform reports verified records.": "暂时没有折扣活动。连接的平台报告已验证记录后，活动会显示在这里。"
+  "No discount activity is available yet. Activity will appear after a connected platform reports verified records.": "暂时没有折扣活动。连接的平台报告已验证记录后，活动会显示在这里。",
+  "Lulu AI Assistant": "Lulu AI 助手",
+  "Ask Lulu about your workspace": "询问 Lulu 关于您的工作区",
+  "Answers are generated from your selected workspace and connected records. No example conversations or business metrics are displayed.": "答案将根据您选择的工作区和已连接的记录生成。不会显示示例对话或业务指标。",
+  "Ask Lulu AI about your workspace…": "询问 Lulu AI 关于您的工作区…",
+  "Working…": "处理中…"
 }
