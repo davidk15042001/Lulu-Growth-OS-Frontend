@@ -21257,5 +21257,10 @@
   "Intelligence / Opportunities": "智能 / 机会",
   "Verified growth opportunity records from connected workspace data. Potential, confidence and recommendations appear only when returned by the backend.": "来自已连接工作区数据的已验证增长机会记录。只有后端返回数据时才会显示潜力、置信度和建议。",
   "No verified opportunities yet": "暂时没有已验证的机会",
-  "Connect and analyze verified workspace data before reviewing opportunity potential or AI recommendations.": "请先连接并分析已验证的工作区数据，再查看机会潜力或 AI 建议。"
+  "Connect and analyze verified workspace data before reviewing opportunity potential or AI recommendations.": "请先连接并分析已验证的工作区数据，再查看机会潜力或 AI 建议。",
+  "Loading live conversations…": "正在加载实时对话…",
+  "AI / Conversations": "AI / 对话",
+  "Verified conversation records from this workspace. Messages and assistant output appear only when returned by the backend.": "此工作区的已验证对话记录。只有后端返回数据时才会显示消息和助手输出。",
+  "No conversations yet": "暂时没有对话",
+  "Start a conversation after the workspace is connected. No example messages or AI conclusions are shown.": "连接工作区后即可开始对话。不会显示示例消息或 AI 结论。"
 }

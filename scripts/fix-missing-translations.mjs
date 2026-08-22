@@ -334,6 +334,20 @@ Object.assign(zh, {
   "No verified opportunities yet": "暂时没有已验证的机会",
   "Connect and analyze verified workspace data before reviewing opportunity potential or AI recommendations.": "请先连接并分析已验证的工作区数据，再查看机会潜力或 AI 建议。"
 });
+Object.assign(de, {
+  "Loading live conversations…": "Live-Unterhaltungen werden geladen…",
+  "AI / Conversations": "AI / Unterhaltungen",
+  "Verified conversation records from this workspace. Messages and assistant output appear only when returned by the backend.": "Verifizierte Unterhaltungsdatensätze dieses Workspaces. Nachrichten und Assistant-Ausgaben werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No conversations yet": "Noch keine Unterhaltungen",
+  "Start a conversation after the workspace is connected. No example messages or AI conclusions are shown.": "Starten Sie eine Unterhaltung, nachdem der Workspace verbunden wurde. Es werden keine Beispielnachrichten oder AI-Schlussfolgerungen angezeigt."
+});
+Object.assign(zh, {
+  "Loading live conversations…": "正在加载实时对话…",
+  "AI / Conversations": "AI / 对话",
+  "Verified conversation records from this workspace. Messages and assistant output appear only when returned by the backend.": "此工作区的已验证对话记录。只有后端返回数据时才会显示消息和助手输出。",
+  "No conversations yet": "暂时没有对话",
+  "Start a conversation after the workspace is connected. No example messages or AI conclusions are shown.": "连接工作区后即可开始对话。不会显示示例消息或 AI 结论。"
+});
 const update = (code, values) => {
   const path = join(root, "src", "i18n", "locales", `${code}.json`);
   const current = JSON.parse(readFileSync(path, "utf8"));

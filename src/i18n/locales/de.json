@@ -21257,5 +21257,10 @@
   "Intelligence / Opportunities": "Intelligence / Chancen",
   "Verified growth opportunity records from connected workspace data. Potential, confidence and recommendations appear only when returned by the backend.": "Verifizierte Wachstumschancen aus verbundenen Workspace-Daten. Potenzial, Konfidenz und Empfehlungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified opportunities yet": "Noch keine verifizierten Chancen",
-  "Connect and analyze verified workspace data before reviewing opportunity potential or AI recommendations.": "Verbinden und analysieren Sie verifizierte Workspace-Daten, bevor Sie Chancenpotenzial oder AI-Empfehlungen prüfen."
+  "Connect and analyze verified workspace data before reviewing opportunity potential or AI recommendations.": "Verbinden und analysieren Sie verifizierte Workspace-Daten, bevor Sie Chancenpotenzial oder AI-Empfehlungen prüfen.",
+  "Loading live conversations…": "Live-Unterhaltungen werden geladen…",
+  "AI / Conversations": "AI / Unterhaltungen",
+  "Verified conversation records from this workspace. Messages and assistant output appear only when returned by the backend.": "Verifizierte Unterhaltungsdatensätze dieses Workspaces. Nachrichten und Assistant-Ausgaben werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
+  "No conversations yet": "Noch keine Unterhaltungen",
+  "Start a conversation after the workspace is connected. No example messages or AI conclusions are shown.": "Starten Sie eine Unterhaltung, nachdem der Workspace verbunden wurde. Es werden keine Beispielnachrichten oder AI-Schlussfolgerungen angezeigt."
 }
