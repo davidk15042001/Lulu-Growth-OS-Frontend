@@ -445,5 +445,6 @@
   "Ecommerce / Carts": "E-Commerce / Warenkörbe",
   "Verified active and abandoned cart records from connected stores. Recovery opportunities appear only when returned by the backend.": "Verifizierte aktive und abgebrochene Warenkörbe aus verbundenen Shops. Rückgewinnungschancen werden nur angezeigt, wenn sie vom Backend geliefert werden.",
   "No verified cart records yet": "Noch keine verifizierten Warenkörbe",
-  "Connect a store and synchronize cart data before reviewing abandonment or recovery performance. No example carts are displayed.": "Verbinden Sie einen Shop und synchronisieren Sie die Warenkorbdaten, bevor Sie Abbrüche oder Rückgewinnungsleistung prüfen. Es werden keine Beispielwarenkörbe angezeigt."
+  "Connect a store and synchronize cart data before reviewing abandonment or recovery performance. No example carts are displayed.": "Verbinden Sie einen Shop und synchronisieren Sie die Warenkorbdaten, bevor Sie Abbrüche oder Rückgewinnungsleistung prüfen. Es werden keine Beispielwarenkörbe angezeigt.",
+  "Connect a store and synchronize fulfillment data before reviewing delivery performance or exceptions. No example shipments are displayed.": "Verbinden Sie einen Shop und synchronisieren Sie Fulfillment-Daten, bevor Sie Lieferleistung oder Ausnahmen prüfen. Es werden keine Beispielsendungen angezeigt."
 }
