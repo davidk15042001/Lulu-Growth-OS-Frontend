@@ -423,5 +423,10 @@
   "No verified decisions yet": "暂无已验证的决策",
   "Create or connect a real workspace decision before reviewing evidence, scenarios, risk or AI recommendations. No example decisions are displayed.": "请先创建或连接真实的工作区决策，再查看证据、场景、风险或 AI 建议。不会显示示例决策。",
   "decisions": "决策",
-  "Decision": "决策"
+  "Decision": "决策",
+  "Loading live AI activity…": "正在加载实时 AI 活动…",
+  "AI / Activity": "AI / 活动",
+  "Verified AI activity records from the selected workspace. No system events or AI conclusions are inferred without backend data.": "来自所选工作区的已验证 AI 活动记录。没有后端数据时，不会推断系统事件或 AI 结论。",
+  "No verified AI activity yet": "暂无已验证的 AI 活动",
+  "AI activity will appear after connected workspace actions are recorded by the backend. No example events are displayed.": "连接的工作区操作由后端记录后，AI 活动将显示在此处。不会显示示例事件。"
 }

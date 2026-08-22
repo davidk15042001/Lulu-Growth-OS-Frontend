@@ -424,5 +424,10 @@
   "No verified decisions yet": "Noch keine verifizierten Entscheidungen",
   "Create or connect a real workspace decision before reviewing evidence, scenarios, risk or AI recommendations. No example decisions are displayed.": "Erstellen oder verbinden Sie zuerst eine echte Workspace-Entscheidung, bevor Sie Belege, Szenarien, Risiken oder KI-Empfehlungen prüfen. Es werden keine Beispielentscheidungen angezeigt.",
   "decisions": "Entscheidungen",
-  "Decision": "Entscheidung"
+  "Decision": "Entscheidung",
+  "Loading live AI activity…": "Live-AI-Aktivitäten werden geladen …",
+  "AI / Activity": "AI / Aktivitäten",
+  "Verified AI activity records from the selected workspace. No system events or AI conclusions are inferred without backend data.": "Verifizierte AI-Aktivitätsdatensätze aus dem ausgewählten Workspace. Ohne Backend-Daten werden keine Systemereignisse oder KI-Schlussfolgerungen angenommen.",
+  "No verified AI activity yet": "Noch keine verifizierten AI-Aktivitäten",
+  "AI activity will appear after connected workspace actions are recorded by the backend. No example events are displayed.": "AI-Aktivitäten erscheinen, sobald verbundene Workspace-Aktionen vom Backend aufgezeichnet wurden. Es werden keine Beispielereignisse angezeigt."
 }
