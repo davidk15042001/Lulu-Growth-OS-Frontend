@@ -86,3 +86,6 @@ Push-Zeitstempel: 2026-08-23 18:51:37 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 19:18:37 Europe/Berlin
 Änderungen: Synchronisations-Push zum Backend-Fix für zuverlässig typisierte Website-Generierungsstatus, dauerhafte Fehlerzustände und vollständige Worker-Diagnosen; der Frontend-Gesamtcheck wurde für diesen gemeinsamen Release erneut erfolgreich ausgeführt.
+
+Push-Zeitstempel: 2026-08-23 19:24:50 Europe/Berlin
+Änderungen: Das separate kleine Fehler-Popup mit „Erneut versuchen“ und „Schließen“ wurde entfernt; fehlgeschlagene Server-Jobs öffnen jetzt ausschließlich das große Website-Generierungsfenster mit Fortschritt, Vorschau und Activity Log, während echte Startfehler ohne Job als normale Seitenmeldung erhalten bleiben.
