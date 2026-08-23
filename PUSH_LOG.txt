@@ -83,3 +83,6 @@ Push-Zeitstempel: 2026-08-23 18:42:38 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 18:51:37 Europe/Berlin
 Änderungen: Die ausgewählte Website-Zieloption und der Bestätigungsbutton verwenden im Portal jetzt explizites WordPress-Blau mit weißem Icon beziehungsweise weißer Schrift, sodass kein Schwarz-auf-Schwarz-Kontrast mehr entsteht.
+
+Push-Zeitstempel: 2026-08-23 19:18:37 Europe/Berlin
+Änderungen: Synchronisations-Push zum Backend-Fix für zuverlässig typisierte Website-Generierungsstatus, dauerhafte Fehlerzustände und vollständige Worker-Diagnosen; der Frontend-Gesamtcheck wurde für diesen gemeinsamen Release erneut erfolgreich ausgeführt.
