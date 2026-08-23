@@ -77,3 +77,6 @@ Push-Zeitstempel: 2026-08-23 17:53:33 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 18:24:02 Europe/Berlin
 Änderungen: Fehlgeschlagene Website-Generierungen zeigen keinen Lade-Spinner mehr, behalten den letzten Fortschrittswert statt von 18 auf 8 Prozent zurückzufallen und füllen auch bei älteren leeren Jobs das übersetzte Activity Log mit der tatsächlichen Abbruchursache.
+
+Push-Zeitstempel: 2026-08-23 18:42:38 Europe/Berlin
+Änderungen: Die allgemeine Website-Übersicht wurde aus Navigation und Suche entfernt; /app/website leitet direkt zu WordPress weiter, während WordPress und Webflow ihre jeweilige OAuth-Verbindung jetzt unmittelbar auf der Provider-Seite anbieten und Webflow nur nach bestätigter Verbindung Verwaltungsdaten zeigt.

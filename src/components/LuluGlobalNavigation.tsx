@@ -13,7 +13,7 @@ type NavigationSection = { label: string; pages: readonly NavigationPage[] };
 const navigationSections: readonly NavigationSection[] = (luluDropdownNavigation as readonly NavigationSection[])
   .map((section) => ({
     ...section,
-    pages: section.pages.filter((page) => isPageAvailable(page.id)),
+    pages: section.pages.filter((page) => isPageAvailable(page.id) && page.id !== "lulu-website-portal-9012"),
   }))
   .filter((section) => section.pages.length > 0);
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";

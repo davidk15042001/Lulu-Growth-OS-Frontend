@@ -19,7 +19,9 @@ import { LuluWorkspaceRefreshButton } from "./components/LuluWorkspaceTopBar";
 import { BillingOnboarding } from "./components/BillingOnboarding";
 import AdminBillingPage from "./pages/admin-billing-overview-9901/App";
 
-const availablePages = pages.filter((page) => isPageAvailable(page.slug));
+const WEBSITE_PORTAL_SLUG = "lulu-website-portal-9012";
+const DEFAULT_WEBSITE_SECTION = "wordpress-jetpack-9013";
+const availablePages = pages.filter((page) => isPageAvailable(page.slug) && page.slug !== WEBSITE_PORTAL_SLUG);
 
 function Directory() {
   const [query, setQuery] = useState("");
@@ -75,6 +77,12 @@ function PageRoute({ page }: { page: PageDefinition }) {
   const isAuthPath = location.pathname === routes.auth.login || location.pathname === routes.auth.signUp || location.pathname.startsWith("/auth/");
   const isPublic = contract?.kind === "public" || isAuthPath;
   const isOnboarding = contract?.kind === "onboarding";
+
+  if (page.slug === WEBSITE_PORTAL_SLUG && !new URLSearchParams(location.search).get("section")) {
+    const params = new URLSearchParams(location.search);
+    params.set("section", DEFAULT_WEBSITE_SECTION);
+    return <Navigate replace to={{ pathname: routes.app.website, search: `?${params.toString()}` }} />;
+  }
 
   if (location.pathname === routes.onboarding.productsServices || location.pathname === "/onboarding/ai-preferences") {
     return <Navigate replace to={routes.onboarding.existingPlatforms} state={{ from: location.pathname }} />;
