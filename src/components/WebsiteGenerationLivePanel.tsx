@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Bell, CheckCircle2, Circle, CircleStop, ExternalLink, FileText, Play, RefreshCw, X } from "lucide-react";
+import { AlertCircle, Bell, CheckCircle2, Circle, CircleStop, Download, ExternalLink, FileText, Play, RefreshCw, X } from "lucide-react";
 import type { WebsiteGenerationJob } from "../api/websites";
 
 type Translate = (key: string) => string;
@@ -66,7 +66,11 @@ export function generationActivityMessage(event: WebsiteGenerationActivity, t: T
     page_already_published: 'Page "{{page}}" was already published and was safely skipped.',
     page_published: 'Page "{{page}}" was published successfully.',
     homepage_configuring: "The WordPress homepage is being configured.",
+    homepage_action_required: 'All pages are published. Select "{{page}}" as the static homepage in WordPress.',
+    theme_action_required: 'Install and activate the "{{theme}}" theme to apply the complete generated design.',
     website_published: "The website was published successfully.",
+    website_published_setup_required: "All pages were published. Complete the remaining WordPress setup steps.",
+    published_job_reconciled: "The published WordPress pages were verified and the interrupted job was restored safely.",
     website_published_with_warning: "The website was published, but WordPress reported: {{warning}}",
     job_cancelled: "Generation was paused. All completed checkpoints remain saved.",
     generation_retry_exhausted: "Website generation stopped after {{attempts}} interrupted worker attempts. No background work is still running.",
@@ -199,6 +203,15 @@ export function WebsiteGenerationLivePanel({
   const completedSectionCount = Number.isFinite(reportedCompletedSections) ? Math.max(0, reportedCompletedSections) : inferredCompletedSections;
   const totalSectionCount = Number.isFinite(reportedTotalSections) ? Math.max(0, reportedTotalSections) : inferredTotalSections;
   const currentSectionTitle = String(rawProgress.currentSectionTitle ?? "");
+  const providerResult = objectValue(job.providerResult);
+  const homepageSetup = objectValue(providerResult.homepageSetup);
+  const themeSetup = objectValue(providerResult.themeSetup);
+  const homepageActionRequired = homepageSetup.status === "action_required";
+  const themeActionRequired = themeSetup.status === "action_required";
+  const setupActionRequired = homepageActionRequired || themeActionRequired;
+  const homepageAdminUrl = String(homepageSetup.adminUrl ?? "");
+  const themeAdminUrl = String(themeSetup.adminUrl ?? "");
+  const themeDownloadPath = String(themeSetup.downloadPath ?? "/downloads/lulu-base.zip");
 
   return <div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/35 p-3 backdrop-blur-[2px] sm:p-6">
     <section role="dialog" aria-modal="true" aria-labelledby="website-generation-title" className="pointer-events-auto my-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[#dcdcde] bg-white text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)]">
@@ -273,6 +286,16 @@ export function WebsiteGenerationLivePanel({
             </div>)}</div>
           </div> : null}
 
+          {job.status === "published" && setupActionRequired && <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-3 text-[#1d2327]">
+            <p className="text-xs font-semibold text-amber-900">{t("WordPress setup required")}</p>
+            <p className="mt-1 text-[11px] leading-4 text-amber-900">{t("All generated pages are published. Complete the remaining WordPress setup steps below.")}</p>
+            <div className="mt-3 grid gap-2">
+              {homepageActionRequired && homepageAdminUrl && <a href={homepageAdminUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-400 bg-white px-3 py-2 text-xs font-semibold text-amber-950 transition hover:bg-amber-100"><ExternalLink aria-hidden="true" size={14} />{t("Set Home as the static homepage")}</a>}
+              {themeActionRequired && <a href={themeDownloadPath} download="lulu-base.zip" className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#2271b1] bg-white px-3 py-2 text-xs font-semibold text-[#135e96] transition hover:bg-[#f0f6fc]"><Download aria-hidden="true" size={14} />{t("Download Lulu Base theme")}</a>}
+              {themeActionRequired && themeAdminUrl && <a href={themeAdminUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#135e96]"><ExternalLink aria-hidden="true" size={14} />{t("Open WordPress theme installation")}</a>}
+            </div>
+          </div>}
+
           <div className="mt-5 rounded-xl border border-[#dcdcde] bg-white p-3">
             <div className="flex items-center gap-2"><Bell aria-hidden="true" size={14} className="text-[#2271b1]" /><p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#646970]">{t("Activity log")}</p></div>
             <p className="mt-1 text-[11px] leading-4 text-[#646970]">{t("Clear live updates about completed work. Internal AI reasoning is never shown.")}</p>
@@ -286,7 +309,7 @@ export function WebsiteGenerationLivePanel({
 
           <div className="mt-5 border-t border-[#dcdcde] pt-4">
             {running ? <button type="button" disabled={cancelling} onClick={onCancel} className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"><CircleStop aria-hidden="true" size={16} />{cancelling ? t("Cancelling…") : t("Cancel generation")}</button> : job.status === "cancelled" ? <div className="grid gap-2"><button type="button" disabled={resuming} onClick={onResume} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-wait disabled:opacity-60">{resuming ? <RefreshCw aria-hidden="true" size={16} className="animate-spin" /> : <Play aria-hidden="true" size={16} />}{resuming ? t("Resuming…") : t("Continue generation")}</button><button type="button" onClick={onClose} className="w-full rounded-lg border border-[#dcdcde] px-4 py-2.5 text-sm font-semibold text-[#1d2327] transition hover:bg-[#f6f7f7]">{t("Close")}</button></div> : <button type="button" onClick={onClose} className="w-full rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96]">{t("Close")}</button>}
-            <p className="mt-2 text-center text-[11px] leading-4 text-[#646970]">{running ? t("You can close this window. Generation continues in the background.") : job.status === "failed" ? t("Generation has stopped. No background work is still running.") : job.status === "cancelled" ? t("Completed sections and published pages are saved. Continuing starts at the next missing section.") : t("Published intermediate results remain saved in WordPress.")}</p>
+            <p className="mt-2 text-center text-[11px] leading-4 text-[#646970]">{running ? t("You can close this window. Generation continues in the background.") : job.status === "failed" ? t("Generation has stopped. No background work is still running.") : job.status === "cancelled" ? t("Completed sections and published pages are saved. Continuing starts at the next missing section.") : setupActionRequired ? t("The pages are published. Complete the highlighted WordPress setup steps.") : t("Published intermediate results remain saved in WordPress.")}</p>
           </div>
         </aside>
       </div>

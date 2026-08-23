@@ -91,5 +91,6 @@ export const websitesApi = {
   syncProvider: (workspaceId: string, provider: 'wordpress') => requestApi<{ items: WebsiteSite[] }>({ path: `/workspaces/${workspaceId}/websites/sync-provider`, method: 'POST', body: { provider }, timeoutMs: 60_000 }),
   cleanupProvider: (workspaceId: string, provider: 'wordpress' | 'webflow') => requestApi<void>({ path: `/workspaces/${workspaceId}/websites/cleanup-provider`, method: 'POST', body: { provider } }),
   wordpressContent: (workspaceId: string, siteId: string) => requestApi<WordPressContent>({ path: `/workspaces/${workspaceId}/websites/${siteId}/wordpress-content` }),
+  verifyWordpressSetup: (workspaceId: string, siteId: string) => requestApi<{ site: WebsiteSite; setup: { homepage: Record<string, unknown>; theme: Record<string, unknown> }; job: WebsiteGenerationJob | null }>({ path: `/workspaces/${workspaceId}/websites/${siteId}/wordpress-setup/verify`, method: 'POST', body: {}, timeoutMs: 30_000 }),
   providerContent: (workspaceId: string, siteId: string) => requestApi<WebsiteProviderContent>({ path: `/workspaces/${workspaceId}/websites/${siteId}/provider-content` }),
 };

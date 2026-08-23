@@ -5,7 +5,11 @@ import { websitesApi, type WebsiteGenerationJob, type WebsiteGenerationTargetMod
 import { onboardingApi, type Platform } from "../../api/onboarding";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../../api/client";
 import {
+  AlertTriangle,
   ArrowRight,
+  CheckCircle2,
+  Download,
+  ExternalLink,
   FileEdit,
   Globe2,
   Image,
@@ -196,6 +200,42 @@ function ProviderConnectionPanel({ provider, platform, connected, busy, oauthHel
   return <section className="mb-6 rounded-2xl border border-[#dcdcde] bg-white p-5 shadow-sm"><div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between"><div className="flex min-w-0 items-start gap-3"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#eaf3f8] text-[#2271b1]"><Globe2 size={19} /></span><div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#646970]">{t("Connection")}</p><h2 className="mt-1 text-xl font-semibold text-[#1d2327]">{providerLabel}</h2><p className="mt-2 text-sm leading-6 text-[#50575e]">{connected ? `${t("Connected")}${accountName ? ` · ${accountName}` : ""}` : pending ? t("Setting up…") : t("Not connected")}</p>{platform?.lastError && <p className="mt-2 break-words text-xs text-red-700">{platform.lastError}</p>}</div></div><div className="flex shrink-0 flex-wrap gap-2">{connected && <button type="button" disabled={busy} onClick={onConnect} className="inline-flex h-10 items-center justify-center rounded-lg border border-[#2271b1] px-4 text-sm font-semibold text-[#2271b1] transition hover:bg-[#eaf3f8] disabled:cursor-wait disabled:opacity-50">{busy ? t("Connecting…") : t("Reconnect")}</button>}<button type="button" disabled={busy} onClick={connected ? onDisconnect : onConnect} className={`inline-flex h-10 items-center justify-center rounded-lg px-4 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-50 ${connected ? "border border-[#dcdcde] text-[#1d2327] hover:bg-[#f6f7f7]" : "bg-[#2271b1] text-white hover:bg-[#135e96]"}`}>{busy ? t("Connecting…") : connected ? t("Disconnect") : t("Connect")}</button></div></div>{provider === "wordpress" && !connected && <div className="mt-4 rounded-xl border border-[#dcdcde] bg-[#f6f7f7] p-4 text-xs leading-5 text-[#50575e]"><p>{t("Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.")}</p><div className="mt-3 flex flex-wrap items-center gap-2"><button type="button" disabled={busy} onClick={onRestartWordPress} className="rounded-lg border border-[#dcdcde] bg-white px-3 py-2 font-semibold text-[#1d2327] transition hover:border-[#2271b1] disabled:cursor-wait disabled:opacity-50">{t("WordPress-Verbindung neu starten")}</button>{oauthHelpVisible && <span>{t("Der neue Start erzeugt einen frischen OAuth-State.")}</span>}</div></div>}</section>;
 }
 
+function recordValue(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+}
+
+function WordPressSetupCard({ site, job, busy, onVerify, t }: { site: WebsiteSite; job: WebsiteGenerationJob | null; busy: boolean; onVerify: () => void; t: (value: string) => string }) {
+  const storedSetup = recordValue(site.settings.wordpressSetup);
+  const providerResult = recordValue(job?.providerResult);
+  const homepage = Object.keys(recordValue(providerResult.homepageSetup)).length ? recordValue(providerResult.homepageSetup) : recordValue(storedSetup.homepage);
+  const theme = Object.keys(recordValue(providerResult.themeSetup)).length ? recordValue(providerResult.themeSetup) : recordValue(storedSetup.theme);
+  const homepageStatus = String(homepage.status ?? "pending");
+  const themeStatus = String(theme.status ?? "pending");
+  const homepageAdminUrl = String(homepage.adminUrl ?? "");
+  const themeAdminUrl = String(theme.adminUrl ?? "");
+  const themeDownloadPath = String(theme.downloadPath ?? "/downloads/lulu-base.zip");
+  const homepageReady = homepageStatus === "confirmed";
+  const themeReady = themeStatus === "active";
+
+  return <section className="mb-6 rounded-2xl border border-[#dcdcde] bg-white p-5 shadow-sm">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#646970]">{t("WordPress launch setup")}</p><h2 className="mt-1 text-xl font-semibold text-[#1d2327]">{t("Lulu Base theme and homepage")}</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-[#50575e]">{t("Generated pages remain portable. Lulu checks the homepage and the Lulu Base theme separately so a WordPress limitation can never turn published pages into a failed generation.")}</p></div>
+      <div className="flex flex-wrap items-center gap-2"><span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${homepageReady && themeReady ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"}`}>{homepageReady && themeReady ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}{homepageReady && themeReady ? t("Ready") : t("Setup check")}</span><button type="button" disabled={busy} onClick={onVerify} className="inline-flex items-center gap-2 rounded-lg border border-[#dcdcde] bg-white px-3 py-2 text-xs font-semibold text-[#1d2327] transition hover:border-[#2271b1] disabled:cursor-wait disabled:opacity-60"><RefreshCw size={14} className={busy ? "animate-spin" : ""} />{busy ? t("Checking…") : t("Verify WordPress setup")}</button></div>
+    </div>
+    <div className="mt-5 grid gap-4 lg:grid-cols-2">
+      <article className={`rounded-xl border p-4 ${homepageReady ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
+        <div className="flex items-start gap-3"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${homepageReady ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}>{homepageReady ? <CheckCircle2 size={16} /> : <span className="text-xs font-bold">1</span>}</span><div><h3 className="text-sm font-semibold text-[#1d2327]">{t("Static homepage")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{homepageReady ? t("WordPress confirmed the generated Home page as the static homepage.") : homepageStatus === "action_required" ? t("All pages are published, but WordPress requires Home to be selected in Reading settings.") : t("Lulu verifies the generated Home page after publishing.")}</p></div></div>
+        {!homepageReady && homepageStatus === "action_required" && homepageAdminUrl && <a href={homepageAdminUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-400 bg-white px-3 py-2 text-xs font-semibold text-amber-950 transition hover:bg-amber-100"><ExternalLink size={14} />{t("Open Reading settings")}</a>}
+      </article>
+      <article className={`rounded-xl border p-4 ${themeReady ? "border-emerald-200 bg-emerald-50" : "border-blue-200 bg-blue-50"}`}>
+        <div className="flex items-start gap-3"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${themeReady ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-[#2271b1]"}`}>{themeReady ? <CheckCircle2 size={16} /> : <span className="text-xs font-bold">2</span>}</span><div><h3 className="text-sm font-semibold text-[#1d2327]">{t("Lulu Base WordPress theme")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{themeReady ? t("WordPress confirmed Lulu Base as the active theme.") : t("Download Lulu Base, upload it under Appearance → Themes, and activate it. The generated text, colors and images remain unchanged.")}</p></div></div>
+        {!themeReady && <div className="mt-3 flex flex-wrap gap-2"><a href={themeDownloadPath} download="lulu-base.zip" className="inline-flex items-center gap-2 rounded-lg border border-[#2271b1] bg-white px-3 py-2 text-xs font-semibold text-[#135e96] transition hover:bg-[#f0f6fc]"><Download size={14} />{t("Download Lulu Base")}</a>{themeAdminUrl && <a href={themeAdminUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-[#2271b1] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#135e96]"><ExternalLink size={14} />{t("Install in WordPress")}</a>}</div>}
+        {!themeReady && <p className="mt-3 text-[11px] leading-4 text-[#50575e]">{t("Custom theme uploads require an eligible WordPress.com plan or a self-hosted WordPress site with theme installation access.")}</p>}
+      </article>
+    </div>
+  </section>;
+}
+
 function WebflowDashboard({ content, loading }: { content: WebsiteProviderContent | null; loading: boolean }) {
   const sites = providerArray(content?.sites, "sites");
   const collections = providerArray(content?.collections, "collections");
@@ -254,6 +294,7 @@ export default function App() {
   const [wordpressContent, setWordpressContent] = useState<WordPressContent | null>(null);
   const [providerData, setProviderData] = useState<WebsiteProviderContent | null>(null);
   const [wordpressContentLoading, setWordpressContentLoading] = useState(false);
+  const [wordpressSetupVerifying, setWordpressSetupVerifying] = useState(false);
   const [error, setError] = useState("");
   const [oauthHelpVisible, setOauthHelpVisible] = useState(false);
   const lastNotifiedActivityRef = useRef("");
@@ -515,6 +556,23 @@ export default function App() {
     }
   };
 
+  const verifySelectedWordpressSetup = async () => {
+    if (!workspaceId || !selectedSite || selectedSite.provider !== "wordpress" || wordpressSetupVerifying) return;
+    setWordpressSetupVerifying(true);
+    setError("");
+    try {
+      const response = await websitesApi.verifyWordpressSetup(workspaceId, selectedSite.id);
+      setSites((current) => current.map((site) => site.id === response.data.site.id ? response.data.site : site));
+      if (response.data.job && generationJob?.siteId === selectedSite.id) {
+        setGenerationJob((current) => current ? { ...current, job: response.data.job! } : current);
+      }
+    } catch (requestError) {
+      setError(getFriendlyErrorMessage(requestError, t("WordPress setup could not be verified. Please check the connection and try again.")));
+    } finally {
+      setWordpressSetupVerifying(false);
+    }
+  };
+
   const connectProvider = async (nextProvider: Provider) => {
     if (!workspaceId) { setError("Für diese Aktion ist kein Workspace ausgewählt."); return; }
     setConnectionBusy(nextProvider);
@@ -562,6 +620,10 @@ export default function App() {
   const generationIsBlocking = Boolean(generationJob && isRunningGenerationJob(generationJob.job));
   const generationProgress = readGenerationProgress(generationJob?.job);
   const generationPhase = generationProgress?.phase;
+  const generationProviderResult = recordValue(generationJob?.job.providerResult);
+  const generationHomepageSetup = recordValue(generationProviderResult.homepageSetup);
+  const generationThemeSetup = recordValue(generationProviderResult.themeSetup);
+  const generationSetupActionRequired = generationHomepageSetup.status === "action_required" || generationThemeSetup.status === "action_required";
   const pageRatio = generationProgress?.totalPages ? generationProgress.completedPages / generationProgress.totalPages : 0;
   const sectionRatio = generationProgress?.totalSections ? generationProgress.completedSections / generationProgress.totalSections : pageRatio;
   const generationPercent = generationProgress?.percent ?? (generationStatus === "published"
@@ -574,7 +636,7 @@ export default function App() {
             : generationPhase === "publishing_pages" ? Math.round(76 + pageRatio * 18)
               : generationPhase === "configuring_homepage" ? 97
                 : generationStatus === "publishing" ? 78 : generationStatus === "planning" ? 18 : 8);
-  const generationLabel = generationStatus === "published" ? "Website veröffentlicht"
+  const generationLabel = generationStatus === "published" ? (generationSetupActionRequired ? t("Website published – finish setup") : "Website veröffentlicht")
     : generationStatus === "failed" ? "Generierung fehlgeschlagen"
       : generationStatus === "cancelled" ? "Generierung abgebrochen"
         : generationPhase === "resuming" ? "Generierung wird fortgesetzt"
@@ -587,7 +649,7 @@ export default function App() {
   const generationDetail = generationStatus === "failed" ? (generationJob?.job.errorCode === "WEBSITE_GENERATION_RETRY_EXHAUSTED"
     ? t("Website generation stopped after {{attempts}} interrupted worker attempts. No background work is still running.").replace("{{attempts}}", String(generationJob.job.attemptCount ?? 0))
     : generationJob?.job.errorMessage ?? "Bitte prüfe die Verbindung und versuche es erneut.")
-    : generationStatus === "published" ? "Die Standard-Website wurde erfolgreich im verbundenen CMS erstellt und geprüft."
+    : generationStatus === "published" ? (generationSetupActionRequired ? t("All generated pages are published. WordPress still requires the homepage or theme steps shown below.") : "Die Standard-Website wurde erfolgreich im verbundenen CMS erstellt und geprüft.")
       : generationStatus === "cancelled" ? "Die Website-Erstellung wurde angehalten. Fertige Sections und bereits veröffentlichte Seiten bleiben gespeichert und können ab dem nächsten fehlenden Schritt fortgesetzt werden."
         : generationPhase === "resuming" ? "Der gespeicherte Checkpoint wird geladen. Fertige Sections und WordPress-Seiten werden übersprungen."
         : generationPhase === "analyzing_company" ? "Lulu liest die bestätigten Firmeninformationen, Angebote und vorhandenen Website-Bilder ein."
@@ -623,6 +685,7 @@ export default function App() {
 
           {!sectionParam && <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{content.metrics.map((metric) => <article key={metric.label} className="rounded-xl border border-border bg-card p-4"><div className="mb-4 flex items-center justify-between"><span className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">{metric.label}</span><metric.icon size={16} className="text-muted-foreground" /></div><strong className="text-2xl font-semibold tracking-tight text-foreground">{metric.label === "Seiten" ? String(selectedSite ? 1 : 0) : metric.value}</strong><p className="mt-1 text-xs text-[#4b5563]">{metric.hint}</p></article>)}</div>}
 
+          {provider === "wordpress" && sectionParam === "wordpress-jetpack-9013" && selectedSite && <WordPressSetupCard site={selectedSite} job={generationJob?.siteId === selectedSite.id ? generationJob.job : null} busy={wordpressSetupVerifying} onVerify={() => void verifySelectedWordpressSetup()} t={t} />}
           {provider === "wordpress" && sectionParam === "wordpress-jetpack-9013" && <div className="space-y-5"><WordPressList title="Seiten" items={wordpressContent?.pages ?? []} loading={wordpressContentLoading} /><WordPressList title="Beiträge" items={wordpressContent?.posts ?? []} loading={wordpressContentLoading} /></div>}
           {provider === "wordpress" && sectionParam === "pages-cms-9015" && <WordPressList title="Seiten und CMS" items={wordpressContent?.pages ?? []} loading={wordpressContentLoading} />}
           {provider === "wordpress" && sectionParam === "posts-9016" && <WordPressList title="Beiträge" items={wordpressContent?.posts ?? []} loading={wordpressContentLoading} />}
