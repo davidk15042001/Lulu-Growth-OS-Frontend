@@ -23,13 +23,26 @@ export type WebsiteGenerationActivity = {
 };
 
 export function generationActivities(job: WebsiteGenerationJob | null | undefined): WebsiteGenerationActivity[] {
-  return pageValues(objectValue(job?.preview).activity).map((value) => ({
+  const stored = pageValues(objectValue(job?.preview).activity).map((value) => ({
     id: String(value.id ?? ""),
     code: String(value.code ?? ""),
     tone: ["success", "warning", "error"].includes(String(value.tone)) ? String(value.tone) as WebsiteGenerationActivity["tone"] : "info",
     params: Object.fromEntries(Object.entries(objectValue(value.params)).filter(([, item]) => typeof item === "string" || typeof item === "number")) as Record<string, string | number>,
     createdAt: String(value.createdAt ?? ""),
   })).filter((event) => event.id && event.code);
+  if (stored.length || !job) return stored;
+  if (job.status === "failed") {
+    return [{
+      id: `fallback-failed:${job.id}`,
+      code: job.errorCode === "WEBSITE_GENERATION_RETRY_EXHAUSTED" ? "generation_retry_exhausted" : "generation_failed",
+      tone: "error",
+      params: job.errorCode === "WEBSITE_GENERATION_RETRY_EXHAUSTED" ? { attempts: job.attemptCount ?? 0 } : { message: job.errorMessage ?? "Unknown error" },
+      createdAt: job.updatedAt,
+    }];
+  }
+  if (job.status === "cancelled") return [{ id: `fallback-cancelled:${job.id}`, code: "job_cancelled", tone: "warning", params: {}, createdAt: job.updatedAt }];
+  if (job.status === "published") return [{ id: `fallback-published:${job.id}`, code: "website_published", tone: "success", params: {}, createdAt: job.updatedAt }];
+  return [{ id: `fallback-started:${job.id}`, code: "job_started", tone: "info", params: {}, createdAt: job.createdAt }];
 }
 
 function replaceActivityParams(template: string, params: Record<string, string | number>) {
@@ -56,6 +69,7 @@ export function generationActivityMessage(event: WebsiteGenerationActivity, t: T
     website_published: "The website was published successfully.",
     website_published_with_warning: "The website was published, but WordPress reported: {{warning}}",
     job_cancelled: "Generation was paused. All completed checkpoints remain saved.",
+    generation_retry_exhausted: "Website generation stopped after {{attempts}} interrupted worker attempts. No background work is still running.",
     generation_failed: "Generation failed: {{message}}",
     publishing_failed: "Publishing failed: {{message}}",
   };
@@ -173,6 +187,7 @@ export function WebsiteGenerationLivePanel({
   const previewVersion = selectedPage?.publishedAt || job.updatedAt;
   const src = showPublished && selectedPage?.url ? liveUrl(selectedPage.url, previewVersion) : undefined;
   const srcDoc = !showPublished && selectedPage?.content ? previewDocument(selectedPage.content) : undefined;
+  const stoppedWithoutPreview = !src && !srcDoc && !running && ["failed", "cancelled"].includes(job.status);
   const progress = Math.min(100, Math.max(0, Math.round(percent)));
   const reportedTotalPages = Number(objectValue(objectValue(job.preview).progress).totalPages ?? 0);
   const totalPages = Math.max(pages.length, Number.isFinite(reportedTotalPages) ? reportedTotalPages : 0);
@@ -190,7 +205,7 @@ export function WebsiteGenerationLivePanel({
       <header className="flex items-start justify-between gap-4 border-b border-[#dcdcde] px-4 py-4 sm:px-6">
         <div className="flex min-w-0 items-start gap-3">
           <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${job.status === "failed" || job.status === "cancelled" ? "bg-red-50 text-red-700" : job.status === "published" ? "bg-emerald-50 text-emerald-700" : "bg-blue-50 text-[#2271b1]"}`}>
-            {running ? <RefreshCw aria-hidden="true" size={20} className="animate-spin" /> : <CheckCircle2 aria-hidden="true" size={20} />}
+            {running ? <RefreshCw aria-hidden="true" size={20} className="animate-spin" /> : job.status === "failed" ? <AlertCircle aria-hidden="true" size={20} /> : job.status === "cancelled" ? <CircleStop aria-hidden="true" size={20} /> : <CheckCircle2 aria-hidden="true" size={20} />}
           </span>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#646970]">{providerLabel}</p>
@@ -207,8 +222,8 @@ export function WebsiteGenerationLivePanel({
         <div className="flex min-h-[360px] min-w-0 flex-col bg-[#f0f0f1] p-3 sm:p-4">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
             <div className="flex min-w-0 items-center gap-2">
-              <span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />
-              <span className="truncate text-xs font-semibold text-[#1d2327]">{selectedPage?.title ?? t("Live website preview")}</span>
+              <span className={`h-2.5 w-2.5 rounded-full ${job.status === "failed" ? "bg-red-600" : job.status === "cancelled" ? "bg-amber-500" : "bg-emerald-500"}`} />
+              <span className="truncate text-xs font-semibold text-[#1d2327]">{selectedPage?.title ?? (stoppedWithoutPreview ? t("Website preview unavailable") : t("Live website preview"))}</span>
             </div>
             <div className="flex items-center gap-2">
               {selectedPage?.content && <button type="button" onClick={() => setPreviewMode("generated")} aria-pressed={!showPublished} className={`rounded-md px-2.5 py-1.5 text-xs font-medium ${!showPublished ? "bg-[#2271b1] text-white" : "bg-white text-[#50575e]"}`}>{t("Generated preview")}</button>}
@@ -225,7 +240,7 @@ export function WebsiteGenerationLivePanel({
               sandbox={showPublished ? "allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-scripts" : "allow-popups allow-popups-to-escape-sandbox"}
               referrerPolicy="strict-origin-when-cross-origin"
               className="h-full min-h-[420px] w-full bg-white"
-            /> : <div className="grid h-full min-h-[420px] place-items-center px-8 text-center"><div><RefreshCw aria-hidden="true" size={28} className="mx-auto animate-spin text-[#2271b1]" /><p className="mt-4 text-sm font-semibold text-[#1d2327]">{t("The first page preview is being prepared")}</p><p className="mt-2 text-xs leading-5 text-[#646970]">{t("As soon as a page is generated, it appears here automatically.")}</p></div></div>}
+            /> : stoppedWithoutPreview ? <div className="grid h-full min-h-[420px] place-items-center px-8 text-center"><div><AlertCircle aria-hidden="true" size={30} className="mx-auto text-red-700" /><p className="mt-4 text-sm font-semibold text-[#1d2327]">{t("No preview was created before generation stopped.")}</p><p className="mt-2 text-xs leading-5 text-[#646970]">{t("Generation has stopped. No background work is still running.")}</p></div></div> : <div className="grid h-full min-h-[420px] place-items-center px-8 text-center"><div><RefreshCw aria-hidden="true" size={28} className="mx-auto animate-spin text-[#2271b1]" /><p className="mt-4 text-sm font-semibold text-[#1d2327]">{t("The first page preview is being prepared")}</p><p className="mt-2 text-xs leading-5 text-[#646970]">{t("As soon as a page is generated, it appears here automatically.")}</p></div></div>}
           </div>
           {showPublished && <p className="mt-2 text-[11px] text-[#646970]">{t("If WordPress blocks embedding, open the published page in a new tab.")}</p>}
         </div>
@@ -247,7 +262,7 @@ export function WebsiteGenerationLivePanel({
                 <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-lg ${page.published ? "bg-emerald-50 text-emerald-700" : page.content ? "bg-blue-50 text-[#2271b1]" : "bg-[#f0f0f1] text-[#646970]"}`}>{page.published ? <CheckCircle2 aria-hidden="true" size={16} /> : <FileText aria-hidden="true" size={15} />}</span>
                 <span className="min-w-0 flex-1"><span className="block truncate text-sm font-semibold text-[#1d2327]">{index + 1}. {page.title}</span><span className="mt-0.5 block text-xs text-[#646970]">{state}</span></span>
               </button>;
-            }) : <div className="rounded-xl border border-dashed border-[#c3c4c7] p-4 text-xs leading-5 text-[#646970]">{t("Page structure is being created…")}</div>}
+            }) : <div className={`rounded-xl border border-dashed p-4 text-xs leading-5 ${stoppedWithoutPreview ? "border-red-200 bg-red-50 text-red-800" : "border-[#c3c4c7] text-[#646970]"}`}>{stoppedWithoutPreview ? t("No page structure was created before generation stopped.") : t("Page structure is being created…")}</div>}
           </div>
 
           {selectedPage?.sections.length ? <div className="mt-5 rounded-xl border border-[#dcdcde] bg-[#f6f7f7] p-3">
@@ -271,7 +286,7 @@ export function WebsiteGenerationLivePanel({
 
           <div className="mt-5 border-t border-[#dcdcde] pt-4">
             {running ? <button type="button" disabled={cancelling} onClick={onCancel} className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"><CircleStop aria-hidden="true" size={16} />{cancelling ? t("Cancelling…") : t("Cancel generation")}</button> : job.status === "cancelled" ? <div className="grid gap-2"><button type="button" disabled={resuming} onClick={onResume} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-wait disabled:opacity-60">{resuming ? <RefreshCw aria-hidden="true" size={16} className="animate-spin" /> : <Play aria-hidden="true" size={16} />}{resuming ? t("Resuming…") : t("Continue generation")}</button><button type="button" onClick={onClose} className="w-full rounded-lg border border-[#dcdcde] px-4 py-2.5 text-sm font-semibold text-[#1d2327] transition hover:bg-[#f6f7f7]">{t("Close")}</button></div> : <button type="button" onClick={onClose} className="w-full rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96]">{t("Close")}</button>}
-            <p className="mt-2 text-center text-[11px] leading-4 text-[#646970]">{running ? t("You can close this window. Generation continues in the background.") : job.status === "cancelled" ? t("Completed sections and published pages are saved. Continuing starts at the next missing section.") : t("Published intermediate results remain saved in WordPress.")}</p>
+            <p className="mt-2 text-center text-[11px] leading-4 text-[#646970]">{running ? t("You can close this window. Generation continues in the background.") : job.status === "failed" ? t("Generation has stopped. No background work is still running.") : job.status === "cancelled" ? t("Completed sections and published pages are saved. Continuing starts at the next missing section.") : t("Published intermediate results remain saved in WordPress.")}</p>
           </div>
         </aside>
       </div>

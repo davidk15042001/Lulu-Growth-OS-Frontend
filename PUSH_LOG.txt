@@ -74,3 +74,6 @@ Push-Zeitstempel: 2026-08-23 17:18:25 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 17:53:33 Europe/Berlin
 Änderungen: Nach einer WordPress-/Webflow-Verbindung und vor jedem Generierungsstart erscheint jetzt eine barrierearme, dreisprachige Zielauswahl für „Bestehende Website verwenden“ oder „Neue Website generieren“, inklusive Website-Auswahl, klaren Auswirkungen und verbindlicher Bestätigung.
+
+Push-Zeitstempel: 2026-08-23 18:24:02 Europe/Berlin
+Änderungen: Fehlgeschlagene Website-Generierungen zeigen keinen Lade-Spinner mehr, behalten den letzten Fortschrittswert statt von 18 auf 8 Prozent zurückzufallen und füllen auch bei älteren leeren Jobs das übersetzte Activity Log mit der tatsächlichen Abbruchursache.
