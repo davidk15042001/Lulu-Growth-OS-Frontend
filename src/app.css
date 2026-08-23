@@ -159,8 +159,7 @@ a[data-lulu-soon="true"] {
   text-decoration: none;
 }
 
-a[data-lulu-soon="true"]::after,
-[data-lulu-section-soon="true"]::after {
+a[data-lulu-soon="true"]::after {
   content: " (Soon)";
   color: var(--muted-foreground);
   font-size: .9em;
@@ -169,8 +168,17 @@ a[data-lulu-soon="true"]::after,
 }
 
 [data-lulu-section-soon="true"] {
+  cursor: not-allowed;
   color: var(--muted-foreground);
-  opacity: .72;
+  opacity: .52;
+}
+
+.lulu-global-navigation__section-label{display:flex;min-width:0;align-items:center;gap:4px}
+.lulu-global-navigation__soon{font-size:.72rem;font-weight:500}
+
+.lulu-global-navigation__sections summary[data-lulu-section-soon="true"]:hover {
+  background: transparent;
+  color: var(--muted-foreground);
 }
 
 /* Portal dialogs must keep readable contrast outside the app root. */

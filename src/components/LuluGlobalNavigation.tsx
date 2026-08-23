@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
+import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
 import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 
@@ -54,7 +55,17 @@ function websiteLockLabel(status: string) {
 }
 
 export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
+  const t = useTranslation();
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
+  const signOut = async () => {
+    try {
+      await requestApi({ path: "/auth/logout", method: "POST", body: {} });
+    } finally {
+      window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY);
+      clearSelectedWorkspaceId();
+      navigateApp(routes.auth.login);
+    }
+  };
   useEffect(() => {
     const update = () => setWebsiteLock(readWebsiteGenerationLock());
     let requestRunning = false;
@@ -102,26 +113,39 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
           const isActiveSection = section.pages.some((page) => page.id === activeSlug);
           const isWebsiteSection = section.label === "Website";
           return (
-            <details key={section.label} open={isActiveSection}>
-              <summary className={isActiveSection ? "is-active" : undefined}>
-                <span>{section.label}</span>
+            <details key={section.label} open={isWebsiteSection && isActiveSection}>
+              <summary
+                className={isWebsiteSection && isActiveSection ? "is-active" : undefined}
+                aria-disabled={!isWebsiteSection || undefined}
+                data-lulu-section-soon={!isWebsiteSection ? "true" : undefined}
+                tabIndex={isWebsiteSection ? undefined : -1}
+                onClick={!isWebsiteSection ? (event) => event.preventDefault() : undefined}
+                onKeyDown={!isWebsiteSection ? (event) => {
+                  if (event.key === "Enter" || event.key === " ") event.preventDefault();
+                } : undefined}
+              >
+                <span className="lulu-global-navigation__section-label">
+                  <span>{section.label}</span>
+                  {!isWebsiteSection && <span className="lulu-global-navigation__soon">({t("Soon")})</span>}
+                </span>
                 <ChevronDown aria-hidden="true" size={14} />
               </summary>
               <div className="lulu-global-navigation__subitems">
                 {section.pages.map((page) => {
                   const props = pageLinkProps(page.id);
-                  const available = Boolean(props.href);
+                  const available = isWebsiteSection && Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
                   const isWebsiteLocked = Boolean(websiteLock?.blocking && isWebsiteSection);
                   return (
                     <a
                       key={page.id}
-                      {...props}
+                      {...(isWebsiteSection ? props : {})}
                       className={`${isActivePage ? "is-active" : ""}${isWebsiteLocked ? " is-locked" : ""}`.trim() || undefined}
                       aria-current={isActivePage ? "page" : undefined}
                       aria-disabled={!available || isWebsiteLocked || undefined}
+                      data-lulu-soon={!isWebsiteSection ? "true" : undefined}
                       tabIndex={available && !isWebsiteLocked ? undefined : -1}
-                      onClick={isWebsiteLocked ? (event) => event.preventDefault() : undefined}
+                      onClick={!available || isWebsiteLocked ? (event) => event.preventDefault() : undefined}
                       aria-label={isWebsiteLocked ? `${page.label} gesperrt: ${websiteLockText}` : page.label}
                       title={isWebsiteLocked ? websiteLockText : undefined}
                     >
@@ -135,29 +159,17 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                     <span>{websiteLockText}</span>
                   </div>
                 )}
-                {section.label === "Settings" && (
-                  <button
-                    type="button"
-                    className="lulu-global-navigation__logout"
-                    onClick={async () => {
-                      try {
-                        await requestApi({ path: "/auth/logout", method: "POST", body: {} });
-                      } finally {
-                        window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY);
-                        clearSelectedWorkspaceId();
-                        navigateApp(routes.auth.login);
-                      }
-                    }}
-                  >
-                    <LogOut aria-hidden="true" size={14} />
-                    <span>Sign out</span>
-                  </button>
-                )}
               </div>
             </details>
           );
         })}
       </nav>
+      <div className="lulu-global-navigation__account">
+        <button type="button" className="lulu-global-navigation__logout" onClick={() => void signOut()}>
+          <LogOut aria-hidden="true" size={14} />
+          <span>Sign out</span>
+        </button>
+      </div>
     </aside>
   );
 }
