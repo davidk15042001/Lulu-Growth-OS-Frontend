@@ -50,3 +50,6 @@ Push-Zeitstempel: 2026-08-23 03:04:28 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 03:12:56 Europe/Berlin
 Änderungen: Seiten mit noch leeren Live-Datensätzen zeigen wieder ihre vollständige zugehörige Oberfläche statt der blockierenden Hinweisansicht.
+
+Push-Zeitstempel: 2026-08-23 03:19:44 Europe/Berlin
+Änderungen: Die authentifizierte Billing-Seite verwendet wieder den vollständigen App-Rahmen mit globaler Navigation und Suchleiste.

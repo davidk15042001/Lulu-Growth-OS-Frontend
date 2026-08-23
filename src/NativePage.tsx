@@ -59,7 +59,7 @@ export function NativePage({ slug }: { slug: string }) {
   const [error, setError] = useState<unknown>(null);
   const contract = getPageContract(slug);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
-  const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname) || contract?.kind === "billing";
+  const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname);
 
   useEffect(() => {
     const resetScrollPositions = () => {

@@ -104,7 +104,7 @@ function PageRoute({ page }: { page: PageDefinition }) {
   }
 
 
-  return <PageFrame page={page} isPublic={isPublic} isStandalone={isPublic || isOnboarding || contract?.kind === "billing"} />;
+  return <PageFrame page={page} isPublic={isPublic} isStandalone={isPublic || isOnboarding} />;
 }
 
 function AuthenticatedSearchBar() {
