@@ -1,6 +1,6 @@
 import { ChevronDown, LogOut, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { pageLinkProps, navigateApp, routes } from "../routing";
+import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
 import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
@@ -9,7 +9,12 @@ import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/ge
 type NavigationPage = { id: string; label: string; soon?: boolean };
 type NavigationSection = { label: string; pages: readonly NavigationPage[] };
 
-const navigationSections = luluDropdownNavigation as readonly NavigationSection[];
+const navigationSections: readonly NavigationSection[] = (luluDropdownNavigation as readonly NavigationSection[])
+  .map((section) => ({
+    ...section,
+    pages: section.pages.filter((page) => isPageAvailable(page.id)),
+  }))
+  .filter((section) => section.pages.length > 0);
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
 const WEBSITE_JOB_DISPLAY_STATUSES = new Set(["queued", "planning", "generated", "preview", "publishing", "failed", "cancelled"]);

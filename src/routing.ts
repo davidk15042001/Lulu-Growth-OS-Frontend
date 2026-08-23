@@ -64,10 +64,18 @@ const WEBSITE_PAGE_PREFIX = "website-";
 const SETTINGS_PAGE_SLUGS = new Set(["nicely-land-1864", "glad-coast-1428", "pure-minute-5446"]);
 const AUTH_PAGE_SLUGS = new Set(["brightly-door-5741", "finely-year-1146", "crisp-garden-7026", "crisp-week-7116", "eagerly-bay-9885", "deep-coast-9085", "kind-morning-4984", "mightily-minute-5145"]);
 
+const REMOVED_PAGE_SLUGS = new Set([
+  "glad-coast-1428",
+  "nicely-land-1864",
+]);
+
+export function isPageAvailable(slug: string) {
+  return Boolean(slug) && !REMOVED_PAGE_SLUGS.has(slug);
+}
+
 export function pageLinkProps(slug: string) {
   const href = pagePath(slug);
-  // All navigation entries are available; unknown app slugs use the stable /app/:slug route.
-  const isAvailable = Boolean(slug);
+  const isAvailable = isPageAvailable(slug);
   return {
     href: isAvailable ? href : undefined,
     target: "_top" as const,

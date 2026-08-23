@@ -44,3 +44,6 @@ Push-Zeitstempel: 2026-08-22 06:37:41 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-22 07:15:23 Europe/Berlin
 Änderungen: Synchronisations-Push für die Umstellung des produktiven Alibaba-Modells auf qwen3.7-plus.
+
+Push-Zeitstempel: 2026-08-23 03:04:28 Europe/Berlin
+Änderungen: Leere Live-Daten-Seiten behalten die globale Navigation; zwei obsolete Seiten wurden aus Navigation, Suche und Routing entfernt und der Suchbutton zeigt das weiße Suchsymbol korrekt an.

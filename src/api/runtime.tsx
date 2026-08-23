@@ -7,7 +7,6 @@ import { GlobalUploadFeedback } from "../uploads/GlobalUploadFeedback";
 import { PostAnalysisCreationPrompt } from "../components/PostAnalysisCreationPrompt";
 import { ApiError } from "./client";
 import { LiveApiPanel } from "./LiveApiPanel";
-import { LiveResourceGate } from "./LiveResourceGate";
 import { getPageContract } from "./page-contracts";
 import {
   clearSelectedWorkspaceId,
@@ -28,6 +27,10 @@ const STATIC_RESOURCE_PAGE_SLUGS = new Set([
   "sunnily-peak-7188", "sunny-moon-6307", "sunny-summer-2293", "swift-pool-5077", "wildly-sun-6424",
   "wildly-time-4260", "wise-brook-1762", "wispy-current-7490", "wondrously-second-5656",
 ]);
+
+export function usesStaticResourceGate(slug: string) {
+  return STATIC_RESOURCE_PAGE_SLUGS.has(slug);
+}
 
 export function LuluRuntime({ slug, children }: { slug: string; children: ReactNode }) {
   const appContext = useLuluApp();
@@ -87,8 +90,7 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
   return <>
     {state === "checking" && <div role="status" style={{ position: "fixed", inset: 0, zIndex: 9999, display: "grid", placeItems: "center", background: "#f7f7f5", color: "#686864" }}>Loading workspace…</div>}
     {state === "offline" && <div role="alert" style={{ position: "fixed", zIndex: 9999, left: "50%", top: 12, transform: "translateX(-50%)", maxWidth: "calc(100% - 24px)", border: "1px solid #d5d5d0", borderRadius: 8, background: "#fff", color: "#171717", padding: "10px 14px", boxShadow: "0 10px 30px rgba(0,0,0,.12)" }}>Live data is temporarily unavailable. Your layout remains accessible.</div>}
-    {contract.kind === "resource" && <LiveResourceGate enabled={STATIC_RESOURCE_PAGE_SLUGS.has(slug)} resourceType={contract.resourceType}>{children}</LiveResourceGate>}
-    {contract.kind !== "resource" && children}
+    {children}
     <GlobalBranding contractKind={contract.kind} />
     <LegacyChromeCleanup />
     <GlobalLanguageSwitcher />

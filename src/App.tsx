@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { pages, type PageDefinition } from "./pages-manifest";
-import { LEGACY_SETUP_COMPLETE_PATH, pagePath, routes } from "./routing";
+import { isPageAvailable, LEGACY_SETUP_COMPLETE_PATH, pagePath, routes } from "./routing";
 import { NativePage } from "./NativePage";
 import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from "./api/client";
 import {
@@ -19,12 +19,14 @@ import { LuluWorkspaceRefreshButton } from "./components/LuluWorkspaceTopBar";
 import { BillingOnboarding } from "./components/BillingOnboarding";
 import AdminBillingPage from "./pages/admin-billing-overview-9901/App";
 
+const availablePages = pages.filter((page) => isPageAvailable(page.slug));
+
 function Directory() {
   const [query, setQuery] = useState("");
   const visiblePages = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return pages;
-    return pages.filter((page) => `${page.name} ${page.generatedName}`.toLowerCase().includes(normalized));
+    if (!normalized) return availablePages;
+    return availablePages.filter((page) => `${page.name} ${page.generatedName}`.toLowerCase().includes(normalized));
   }, [query]);
 
   return (
@@ -34,7 +36,7 @@ function Directory() {
           <div>
             <p className="eyebrow">Lulu AI application routes</p>
             <h1>Lulu AI</h1>
-            <p>All {pages.length} pages are connected to the application router.</p>
+            <p>All {availablePages.length} pages are connected to the application router.</p>
           </div>
           <label className="search">
             <Search aria-hidden="true" size={17} />
@@ -116,7 +118,7 @@ function AuthenticatedSearchBar() {
   const matches = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return [];
-    return pages.filter((item) => `${item.name} ${item.generatedName}`.toLowerCase().includes(normalized)).slice(0, 6);
+    return availablePages.filter((item) => `${item.name} ${item.generatedName}`.toLowerCase().includes(normalized)).slice(0, 6);
   }, [query]);
   useEffect(() => {
     let cancelled = false;
@@ -149,7 +151,6 @@ function AuthenticatedSearchBar() {
     <div className="lulu-auth-logo" data-lulu-no-translate="true" translate="no"><img src="/branding/lulu-intelligence-logo.png" alt="Lulu AI" draggable={false} /></div>
     <form className="lulu-auth-search" role="search" onSubmit={submit}>
       <label className="sr-only" htmlFor="lulu-global-search">Search Lulu AI</label>
-      <Search aria-hidden="true" size={18} className="lulu-auth-search-icon" />
       <input id="lulu-global-search" value={query} onFocus={() => setOpen(true)} onChange={(event) => { setQuery(event.target.value); setOpen(true); }} placeholder="Search Lulu AI" autoComplete="off" />
       <button type="submit" aria-label="Search" title="Search" className="lulu-auth-search-button"><Search aria-hidden="true" size={17} /></button>
       <LuluWorkspaceRefreshButton />
@@ -199,7 +200,7 @@ function AdminBillingRoute() {
 
 function LegacyPageRedirect() {
   const { slug } = useParams();
-  const page = pages.find((item) => item.slug === slug);
+  const page = availablePages.find((item) => item.slug === slug);
   return page ? <Navigate replace to={pagePath(page.slug)} /> : <Navigate replace to="/not-found" />;
 }function NotFound() {
   return (
@@ -274,7 +275,7 @@ export default function App() {
       <Route path="/app/dashboard" element={<Navigate replace to={routes.app.dashboard} />} />
       <Route path={routes.app.email} element={<PageRoute page={EMAIL_PAGE} />} />
       {pages.map((page) => (
-        <Route key={page.id} path={pagePath(page.slug)} element={<PageRoute page={page} />} />
+        isPageAvailable(page.slug) ? <Route key={page.id} path={pagePath(page.slug)} element={<PageRoute page={page} />} /> : null
       ))}
       <Route path="/not-found" element={<NotFound />} />
       <Route path="*" element={<NotFound />} />

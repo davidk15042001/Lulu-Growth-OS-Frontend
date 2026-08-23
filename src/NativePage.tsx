@@ -1,6 +1,7 @@
 import { StrictMode, useEffect, useState, type ComponentType } from "react";
 import { createRoot } from "react-dom/client";
-import { LuluRuntime } from "./api/runtime";
+import { LuluRuntime, usesStaticResourceGate } from "./api/runtime";
+import { LiveResourceGate } from "./api/LiveResourceGate";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
 import { routes } from "./routing";
@@ -56,8 +57,9 @@ export function NativePage({ slug }: { slug: string }) {
   })() : slug;
   const [App, setApp] = useState<ComponentType | null>(null);
   const [error, setError] = useState<unknown>(null);
+  const contract = getPageContract(slug);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
-  const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname) || getPageContract(slug)?.kind === "billing";
+  const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname) || contract?.kind === "billing";
 
   useEffect(() => {
     const resetScrollPositions = () => {
@@ -159,7 +161,12 @@ export function NativePage({ slug }: { slug: string }) {
         <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
           <div className="lulu-native-page">
             <PageErrorBoundary pageName={slug}>
-              <App />
+              <LiveResourceGate
+                enabled={contract?.kind === "resource" && usesStaticResourceGate(slug)}
+                resourceType={contract?.kind === "resource" ? contract.resourceType : null}
+              >
+                <App />
+              </LiveResourceGate>
             </PageErrorBoundary>
           </div>
         </div>
