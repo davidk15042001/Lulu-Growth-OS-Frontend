@@ -52,7 +52,7 @@ function replaceActivityParams(template: string, params: Record<string, string |
 export function generationActivityMessage(event: WebsiteGenerationActivity, t: Translate) {
   const templates: Record<string, string> = {
     target_existing_selected: 'The existing website "{{site}}" was selected as the update destination.',
-    target_new_selected: 'A fresh website will be generated on "{{site}}" without reusing matching pages.',
+    target_new_selected: 'A fresh website will be generated on "{{site}}" and canonical pages will be replaced safely.',
     job_started: "Website generation started.",
     job_resumed: "The saved checkpoint was loaded. Generation is continuing.",
     company_context_loaded: "Verified company data and connected sources were loaded.",
@@ -66,7 +66,13 @@ export function generationActivityMessage(event: WebsiteGenerationActivity, t: T
     page_already_published: 'Page "{{page}}" was already published and was safely skipped.',
     page_published: 'Page "{{page}}" was published successfully.',
     homepage_configuring: "The WordPress homepage is being configured.",
+    site_customization_started: "Company identity, navigation, header, footer and cleanup are being configured.",
     gutenberg_layout_published: "{{pages}} pages were published as theme-independent Gutenberg content.",
+    site_identity_configured: 'The WordPress website name was changed to "{{title}}".',
+    global_chrome_configured: "The global WordPress header, navigation and footer were configured.",
+    contact_form_embedded: "The contact form was embedded and connected to WordPress responses.",
+    duplicate_pages_archived: "{{pages}} older Lulu page duplicates were safely archived as drafts.",
+    site_customization_partial: "WordPress restricted part of the global website customization. All confirmed changes remain saved.",
     homepage_action_required: 'All pages are published. Select "{{page}}" as the static homepage in WordPress.',
     theme_action_required: 'Install and activate the "{{theme}}" theme to apply the complete generated design.',
     website_published: "The website was published successfully.",
@@ -206,8 +212,10 @@ export function WebsiteGenerationLivePanel({
   const currentSectionTitle = String(rawProgress.currentSectionTitle ?? "");
   const providerResult = objectValue(job.providerResult);
   const homepageSetup = objectValue(providerResult.homepageSetup);
+  const siteCustomization = objectValue(providerResult.siteCustomization);
   const homepageActionRequired = homepageSetup.status === "action_required";
-  const setupActionRequired = homepageActionRequired;
+  const customizationActionRequired = siteCustomization.status === "partial";
+  const setupActionRequired = homepageActionRequired || customizationActionRequired;
   const homepageAdminUrl = String(homepageSetup.adminUrl ?? "");
 
   return <div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/35 p-3 backdrop-blur-[2px] sm:p-6">
@@ -285,7 +293,7 @@ export function WebsiteGenerationLivePanel({
 
           {job.status === "published" && setupActionRequired && <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-3 text-[#1d2327]">
             <p className="text-xs font-semibold text-amber-900">{t("WordPress setup required")}</p>
-            <p className="mt-1 text-[11px] leading-4 text-amber-900">{t("All generated pages are published. Complete the remaining WordPress setup steps below.")}</p>
+            <p className="mt-1 text-[11px] leading-4 text-amber-900">{customizationActionRequired ? t("All pages are published, but WordPress restricted part of the automatic global customization. Confirmed changes remain saved.") : t("All generated pages are published. Complete the remaining WordPress setup steps below.")}</p>
             <div className="mt-3 grid gap-2">
               {homepageActionRequired && homepageAdminUrl && <a href={homepageAdminUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-400 bg-white px-3 py-2 text-xs font-semibold text-amber-950 transition hover:bg-amber-100"><ExternalLink aria-hidden="true" size={14} />{t("Set Home as the static homepage")}</a>}
             </div>

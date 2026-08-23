@@ -54,7 +54,7 @@ export function WebsiteGenerationTargetDialog({ provider, sites, selectedSiteId,
               <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${mode === "new" ? "bg-[#2271b1] text-white" : "bg-secondary text-[#4b5563]"}`}><LayoutTemplate size={18} /></span>
               <div>
                 <span className="block text-sm font-semibold text-[#111827]">{t("Generate a new website")}</span>
-                <span className="mt-1 block text-xs leading-5 text-[#4b5563]">{t("Fresh pages are added from the standard template without reusing matching existing pages.")}</span>
+                <span className="mt-1 block text-xs leading-5 text-[#4b5563]">{t("The canonical website pages are safely replaced and older Lulu duplicates are archived as drafts.")}</span>
               </div>
             </div>
           </button>
@@ -69,7 +69,7 @@ export function WebsiteGenerationTargetDialog({ provider, sites, selectedSiteId,
         </label>
 
         {mode === "existing" && <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs leading-5 text-amber-900">{t("Existing mode can update pages with matching titles or URLs. Review the selected destination carefully.")}</p>}
-        {mode === "new" && <p className="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs leading-5 text-blue-900">{t("New mode preserves existing pages, adds the generated pages, and activates the generated homepage after publishing.")}</p>}
+        {mode === "new" && <p className="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs leading-5 text-blue-900">{t("New mode replaces Home, About, Services and Contact, archives older Lulu duplicates, and preserves unrelated customer-owned content.")}</p>}
         {providerSites.length === 0 && <p role="status" className="mt-3 text-xs leading-5 text-[#4b5563]">{t("Connect or create a website at the provider first, then refresh this list.")}</p>}
 
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">

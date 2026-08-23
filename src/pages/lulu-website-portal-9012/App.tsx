@@ -5,6 +5,7 @@ import { websitesApi, type WebsiteGenerationJob, type WebsiteGenerationTargetMod
 import { onboardingApi, type Platform } from "../../api/onboarding";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../../api/client";
 import {
+  AlertTriangle,
   ArrowRight,
   CheckCircle2,
   ExternalLink,
@@ -211,19 +212,29 @@ function WordPressSetupCard({ site, job, busy, onVerify, t }: { site: WebsiteSit
   const homepageReady = homepageStatus === "confirmed";
   const deliveryMode = String(providerResult.deliveryMode ?? recordValue(storedSetup.theme).deliveryMode ?? "gutenberg");
   const gutenbergReady = deliveryMode === "gutenberg";
+  const siteCustomization = Object.keys(recordValue(providerResult.siteCustomization)).length ? recordValue(providerResult.siteCustomization) : recordValue(storedSetup.siteCustomization);
+  const customizationStatus = String(siteCustomization.status ?? "pending");
+  const customizationMode = String(siteCustomization.mode ?? "full_site");
+  const customizationReady = customizationStatus === "confirmed";
+  const customizationPartial = customizationStatus === "partial";
+  const archivedPages = Array.isArray(recordValue(siteCustomization.duplicatePages).archived) ? recordValue(siteCustomization.duplicatePages).archived as unknown[] : [];
+  const allReady = homepageReady && customizationReady;
 
   return <section className="mb-6 rounded-2xl border border-[#dcdcde] bg-white p-5 shadow-sm">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
       <div><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#646970]">{t("WordPress launch setup")}</p><h2 className="mt-1 text-xl font-semibold text-[#1d2327]">{t("Automatic WordPress setup")}</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-[#50575e]">{t("Lulu publishes the generated design as portable Gutenberg content and configures every permitted WordPress setting through the CRM.")}</p></div>
-      <div className="flex flex-wrap items-center gap-2"><span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${homepageReady ? "bg-emerald-50 text-emerald-700" : "bg-blue-50 text-[#2271b1]"}`}><CheckCircle2 size={14} />{homepageReady ? t("Ready") : t("Automatic setup")}</span><button type="button" disabled={busy} onClick={onVerify} className="inline-flex items-center gap-2 rounded-lg border border-[#dcdcde] bg-white px-3 py-2 text-xs font-semibold text-[#1d2327] transition hover:border-[#2271b1] disabled:cursor-wait disabled:opacity-60"><RefreshCw size={14} className={busy ? "animate-spin" : ""} />{busy ? t("Checking…") : t("Verify WordPress setup")}</button></div>
+      <div className="flex flex-wrap items-center gap-2"><span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${allReady ? "bg-emerald-50 text-emerald-700" : customizationPartial ? "bg-amber-50 text-amber-800" : "bg-blue-50 text-[#2271b1]"}`}>{customizationPartial ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}{allReady ? t("Ready") : customizationPartial ? t("Partially configured") : t("Automatic setup")}</span><button type="button" disabled={busy} onClick={onVerify} className="inline-flex items-center gap-2 rounded-lg border border-[#dcdcde] bg-white px-3 py-2 text-xs font-semibold text-[#1d2327] transition hover:border-[#2271b1] disabled:cursor-wait disabled:opacity-60"><RefreshCw size={14} className={busy ? "animate-spin" : ""} />{busy ? t("Checking…") : t("Verify WordPress setup")}</button></div>
     </div>
-    <div className="mt-5 grid gap-4 lg:grid-cols-2">
+    <div className="mt-5 grid gap-4 lg:grid-cols-3">
       <article className={`rounded-xl border p-4 ${homepageReady ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
         <div className="flex items-start gap-3"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${homepageReady ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}>{homepageReady ? <CheckCircle2 size={16} /> : <span className="text-xs font-bold">1</span>}</span><div><h3 className="text-sm font-semibold text-[#1d2327]">{t("Static homepage")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{homepageReady ? t("WordPress confirmed the generated Home page as the static homepage.") : homepageStatus === "action_required" ? t("All pages are published, but WordPress requires Home to be selected in Reading settings.") : t("Lulu verifies the generated Home page after publishing.")}</p></div></div>
         {!homepageReady && homepageStatus === "action_required" && homepageAdminUrl && <a href={homepageAdminUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-400 bg-white px-3 py-2 text-xs font-semibold text-amber-950 transition hover:bg-amber-100"><ExternalLink size={14} />{t("Open Reading settings")}</a>}
       </article>
       <article className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
         <div className="flex items-start gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700"><CheckCircle2 size={16} /></span><div><h3 className="text-sm font-semibold text-[#1d2327]">{t("Theme-independent Gutenberg design")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{gutenbergReady ? t("The generated sections are stored directly in WordPress as Gutenberg content. No theme download, upload or activation is required.") : t("Lulu uses the safest content mode supported by this WordPress website.")}</p></div></div>
+      </article>
+      <article className={`rounded-xl border p-4 ${customizationReady ? "border-emerald-200 bg-emerald-50" : customizationPartial ? "border-amber-200 bg-amber-50" : "border-blue-200 bg-blue-50"}`}>
+        <div className="flex items-start gap-3"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${customizationReady ? "bg-emerald-100 text-emerald-700" : customizationPartial ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-[#2271b1]"}`}>{customizationPartial ? <AlertTriangle size={16} /> : customizationReady ? <CheckCircle2 size={16} /> : <span className="text-xs font-bold">3</span>}</span><div><h3 className="text-sm font-semibold text-[#1d2327]">{t("Complete WordPress website")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{customizationReady ? customizationMode === "content_only" ? t("Existing mode updated the selected pages and contact form while preserving the customer-owned site identity, header, footer and navigation.") : t("Company name, SEO identity, navigation, header, footer, contact form and duplicate cleanup were configured automatically.") : customizationPartial ? t("The pages are live, but WordPress restricted at least one global customization. Confirmed changes remain saved.") : t("Lulu configures the global website after all pages are published.")}</p>{archivedPages.length > 0 && <p className="mt-2 text-[11px] font-medium text-[#50575e]">{t("{{pages}} older duplicate pages archived").replace("{{pages}}", String(archivedPages.length))}</p>}</div></div>
       </article>
     </div>
   </section>;
@@ -615,7 +626,8 @@ export default function App() {
   const generationPhase = generationProgress?.phase;
   const generationProviderResult = recordValue(generationJob?.job.providerResult);
   const generationHomepageSetup = recordValue(generationProviderResult.homepageSetup);
-  const generationSetupActionRequired = generationHomepageSetup.status === "action_required";
+  const generationSiteCustomization = recordValue(generationProviderResult.siteCustomization);
+  const generationSetupActionRequired = generationHomepageSetup.status === "action_required" || generationSiteCustomization.status === "partial";
   const pageRatio = generationProgress?.totalPages ? generationProgress.completedPages / generationProgress.totalPages : 0;
   const sectionRatio = generationProgress?.totalSections ? generationProgress.completedSections / generationProgress.totalSections : pageRatio;
   const generationPercent = generationProgress?.percent ?? (generationStatus === "published"
@@ -627,12 +639,14 @@ export default function App() {
           : generationPhase === "template_ready" || generationPhase === "publishing" || generationStatus === "preview" ? 74
             : generationPhase === "publishing_pages" ? Math.round(76 + pageRatio * 18)
               : generationPhase === "configuring_homepage" ? 97
+                : generationPhase === "customizing_site" ? 99
                 : generationStatus === "publishing" ? 78 : generationStatus === "planning" ? 18 : 8);
   const generationLabel = generationStatus === "published" ? (generationSetupActionRequired ? t("Website published – finish setup") : "Website veröffentlicht")
     : generationStatus === "failed" ? "Generierung fehlgeschlagen"
       : generationStatus === "cancelled" ? "Generierung abgebrochen"
         : generationPhase === "resuming" ? "Generierung wird fortgesetzt"
         : generationPhase === "configuring_homepage" ? "Startseite wird eingerichtet"
+        : generationPhase === "customizing_site" ? "WordPress-Website wird finalisiert"
         : generationPhase === "publishing_pages" || generationStatus === "publishing" ? "WordPress-Seiten werden veröffentlicht"
           : generationPhase === "applying_template" ? "Standard-Template wird befüllt"
             : generationPhase === "generating_content" ? "Website-Texte werden erstellt"
@@ -641,7 +655,7 @@ export default function App() {
   const generationDetail = generationStatus === "failed" ? (generationJob?.job.errorCode === "WEBSITE_GENERATION_RETRY_EXHAUSTED"
     ? t("Website generation stopped after {{attempts}} interrupted worker attempts. No background work is still running.").replace("{{attempts}}", String(generationJob.job.attemptCount ?? 0))
     : generationJob?.job.errorMessage ?? "Bitte prüfe die Verbindung und versuche es erneut.")
-    : generationStatus === "published" ? (generationSetupActionRequired ? t("All generated pages are published. WordPress still requires the homepage step shown below.") : "Die Standard-Website wurde erfolgreich im verbundenen CMS erstellt und geprüft.")
+    : generationStatus === "published" ? (generationSetupActionRequired ? t("All generated pages are published. WordPress restricted at least one automatic setup step shown below.") : "Die vollständige WordPress-Website wurde automatisch erstellt, bereinigt und geprüft.")
       : generationStatus === "cancelled" ? "Die Website-Erstellung wurde angehalten. Fertige Sections und bereits veröffentlichte Seiten bleiben gespeichert und können ab dem nächsten fehlenden Schritt fortgesetzt werden."
         : generationPhase === "resuming" ? "Der gespeicherte Checkpoint wird geladen. Fertige Sections und WordPress-Seiten werden übersprungen."
         : generationPhase === "analyzing_company" ? "Lulu liest die bestätigten Firmeninformationen, Angebote und vorhandenen Website-Bilder ein."
@@ -650,6 +664,7 @@ export default function App() {
             : generationPhase === "template_ready" || generationPhase === "publishing" ? "Texte, Farben, SEO und vorhandene Bilder sind eingesetzt. Die Veröffentlichung wird vorbereitet."
               : generationPhase === "publishing_pages" ? `${generationProgress?.completedPages ?? 0} von ${generationProgress?.totalPages ?? 4} Seiten wurden in WordPress veröffentlicht${generationProgress?.currentPageTitle ? ` · Aktuell: ${generationProgress.currentPageTitle}` : ""}.`
                 : generationPhase === "configuring_homepage" ? "Alle Seiten sind veröffentlicht. WordPress richtet jetzt die neue Startseite ein und bestätigt die Einstellung."
+                  : generationPhase === "customizing_site" ? "Lulu konfiguriert Firmenname, SEO-Identität, Navigation, Header, Footer, Kontaktformular und bereinigt ältere Lulu-Duplikate."
                   : "Lulu führt die automatische Website-Erstellung im Hintergrund aus.";
 
   return (

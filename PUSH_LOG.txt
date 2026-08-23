@@ -95,3 +95,6 @@ Push-Zeitstempel: 2026-08-23 20:03:30 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 20:29:31 Europe/Berlin
 Änderungen: Der fehlerhafte WordPress-Theme-Installationspfad und sämtliche Theme-Download-, Upload- und Aktivierungsschritte wurden aus dem Kundenfluss entfernt; Lulu zeigt jetzt den automatischen, theme-unabhängigen Gutenberg-Modus und verlangt nur dann eine manuelle Startseitenaktion, wenn WordPress beide automatischen API-Wege verweigert.
+
+Push-Zeitstempel: 2026-08-23 21:05:17 Europe/Berlin
+Änderungen: Die WordPress-Oberfläche zeigt jetzt die vollständige globale Nachbearbeitung mit Firmenidentität, Navigation, Header, Footer, Kontaktformular und sicherer Duplikatbereinigung; die Zielauswahl erklärt den Unterschied zwischen vollständiger neuer Website und inhaltsschonendem Existing-Modus, inklusive präziser Fortschritts-, Aktivitäts- und Warnmeldungen auf Deutsch und Chinesisch.
