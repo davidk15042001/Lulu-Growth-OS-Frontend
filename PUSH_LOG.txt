@@ -53,3 +53,6 @@ Push-Zeitstempel: 2026-08-23 03:12:56 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 03:19:44 Europe/Berlin
 Änderungen: Die authentifizierte Billing-Seite verwendet wieder den vollständigen App-Rahmen mit globaler Navigation und Suchleiste.
+
+Push-Zeitstempel: 2026-08-23 13:24:29 Europe/Berlin
+Änderungen: Die Billing-Pakete wurden mit dem Onboarding vereinheitlicht: Starter, AI und Test zeigen identische RMB-Preise, Leistungen und tatsächliche Funktionsfreigaben; deutsche und chinesische Übersetzungen wurden ergänzt.

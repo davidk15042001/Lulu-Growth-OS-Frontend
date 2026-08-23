@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import { Activity, AlertTriangle, ArrowDown, ArrowRight, ArrowUp, Bell, Bot, Check, CircleDollarSign, CreditCard, Download, HardDrive, LockKeyhole, Mail, Minus, Package, Phone, Plus, Search, ShieldCheck, UserPlus, WalletCards, Webhook, X, Zap } from 'lucide-react';
+import { Activity, AlertTriangle, ArrowDown, ArrowRight, ArrowUp, Bell, Bot, Check, CircleDollarSign, CreditCard, Download, HardDrive, LockKeyhole, Mail, Minus, Package, Phone, Plus, Search, ShieldCheck, UserPlus, WalletCards, WandSparkles, Webhook, X, Zap } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
+import { billingCapabilities, billingPlans, type BillingPlanId } from '../../../../billing/planCatalog';
 type BillingTabPanelsProps = {
   activeTab: string;
   onTabChange: (tab: string) => void;
@@ -54,6 +55,11 @@ const subscriptionHistory: Array<Record<string, any>> = [];
 const notificationSettings: Array<Record<string, any>> = [];
 const permissionRows: Array<Record<string, any>> = [];
 const auditRows: Array<Record<string, any>> = [];
+const billingPlanIcons: Record<BillingPlanId, typeof Zap> = {
+  starter: Zap,
+  ai: WandSparkles,
+  test: ShieldCheck,
+};
 function getProgressColor(percent: number) {
   if (percent > 90) {
     return 'bg-destructive';
@@ -115,9 +121,46 @@ export function BillingTabPanels({
   let content: ReactNode = null;
   if (activeTab === 'plans') {
     content = <div className="space-y-5 px-5 py-6 sm:px-8 lg:px-10 lg:py-8">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[30px]">Plans</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Compare plans and find the right fit for your organization.</p></div><div className="flex flex-col gap-2 sm:flex-row"><button type="button" className="rounded-lg border border-[var(--muted-foreground)] px-4 py-2.5 text-sm font-medium text-foreground transition hover:border-border/60 hover:text-foreground">Contact Sales</button><button type="button" onClick={() => onTabChange('current-plan')} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary">View Current Plan</button></div></div>
-      <article className="overflow-hidden rounded-2xl border border-[var(--muted-foreground)] bg-[var(--card)] shadow-[0_24px_80px_rgba(0,0,0,0.22)]"><div className="overflow-x-auto"><table className="w-full min-w-[980px] text-left text-xs"><thead><tr className="border-b border-[var(--muted-foreground)]"><th className="w-[240px] px-5 py-5 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Feature</th><th className="px-4 py-5 text-center"><span className="block text-sm font-semibold text-foreground">Starter</span><span className="mt-1 block text-muted-foreground">—/mo</span></th><th className="bg-secondary/[0.08] px-4 py-5 text-center"><span className="inline-flex items-center gap-1.5 rounded-full bg-primary px-2 py-1 text-[9px] font-bold tracking-wider text-primary-foreground"><Check size={11} /><span>CURRENT</span></span><span className="mt-2 block text-sm font-semibold text-foreground">Business</span><span className="mt-1 block text-foreground">—/mo</span></th><th className="px-4 py-5 text-center"><span className="block text-sm font-semibold text-foreground">Professional</span><span className="mt-1 block text-muted-foreground">—/mo</span></th><th className="px-4 py-5 text-center"><span className="block text-sm font-semibold text-foreground">Enterprise</span><span className="mt-1 block text-muted-foreground">Custom</span></th></tr></thead><tbody className="divide-y divide-[var(--foreground)]"><tr><td className="px-5 py-3 font-medium text-muted-foreground">Monthly price</td><td className="px-4 py-3 text-center text-foreground">—/mo</td><td className="bg-secondary/[0.08] px-4 py-3 text-center font-medium text-foreground">—/mo</td><td className="px-4 py-3 text-center text-foreground">—/mo</td><td className="px-4 py-3 text-center text-foreground">Custom</td></tr><tr><td className="px-5 py-3 font-medium text-muted-foreground">Annual price</td><td className="px-4 py-3 text-center text-foreground">—/mo</td><td className="bg-secondary/[0.08] px-4 py-3 text-center font-medium text-foreground">—/mo</td><td className="px-4 py-3 text-center text-foreground">—/mo</td><td className="px-4 py-3 text-center text-foreground">Custom</td></tr></tbody>{comparisonGroups.map(group => <tbody key={group.id} className="divide-y divide-[var(--foreground)]"><tr><td colSpan={5} className="bg-[var(--background)] px-5 py-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">{group.label}</td></tr>{group.rows.map(row => <tr key={row.id} className="hover:bg-secondary"><td className="px-5 py-3 font-medium text-foreground">{row.label}</td><td className="px-4 py-3 text-center text-muted-foreground">{renderValue(row.starter)}</td><td className="bg-secondary/[0.08] px-4 py-3 text-center font-medium text-foreground">{renderValue(row.business)}</td><td className="px-4 py-3 text-center text-muted-foreground">{renderValue(row.professional)}</td><td className="px-4 py-3 text-center text-muted-foreground">{renderValue(row.enterprise)}</td></tr>)}</tbody>)}<tfoot><tr className="border-t border-[var(--muted-foreground)]"><td className="px-5 py-5 text-muted-foreground">Choose a path</td><td className="px-4 py-5"><button type="button" className="w-full rounded-md border border-[var(--muted-foreground)] px-3 py-2 text-xs text-foreground hover:text-foreground">Downgrade</button></td><td className="bg-secondary/[0.08] px-4 py-5"><button type="button" className="w-full rounded-md bg-secondary/20 px-3 py-2 text-xs font-medium text-foreground"><span>Current Plan</span></button></td><td className="px-4 py-5"><button type="button" className="w-full rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary">Upgrade</button></td><td className="px-4 py-5"><button type="button" className="w-full rounded-md border border-[var(--muted-foreground)] px-3 py-2 text-xs text-foreground hover:text-foreground">Contact Sales</button></td></tr></tfoot></table></div></article>
-      <p className="text-xs leading-5 text-muted-foreground">All plans billed in EUR. Annual billing saves up to —. Taxes applied at checkout based on billing country.</p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h2 className="text-2xl font-semibold tracking-tight text-foreground sm:text-[30px]">Plans</h2>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">The same packages and access levels shown during onboarding.</p>
+        </div>
+        <button type="button" onClick={() => onTabChange('current-plan')} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:opacity-90">View Current Plan</button>
+      </div>
+
+      <section aria-label="Available billing plans" className="grid gap-5 lg:grid-cols-3">
+        {billingPlans.map((plan) => {
+          const Icon = billingPlanIcons[plan.id];
+          return <article key={plan.id} className={`relative flex flex-col rounded-2xl border bg-[var(--card)] p-6 ${plan.id === 'ai' ? 'border-primary shadow-[0_20px_60px_rgba(0,0,0,0.10)]' : 'border-[var(--muted-foreground)]'}`}>
+            {plan.id === 'ai' && <span className="absolute right-5 top-5 rounded-full bg-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-primary-foreground">Recommended</span>}
+            <div className={`grid h-10 w-10 place-items-center rounded-xl ${plan.id === 'starter' ? 'bg-primary text-primary-foreground' : 'border border-border bg-secondary text-foreground'}`}><Icon size={19} aria-hidden="true" /></div>
+            <p className="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">{plan.eyebrow}</p>
+            <h3 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">{plan.name}</h3>
+            <div className="mt-4 flex flex-wrap items-baseline gap-2"><span className="text-2xl font-semibold tracking-tight text-foreground">{plan.price}</span><span className="text-xs text-muted-foreground">{plan.pricePeriod}</span></div>
+            <p className="mt-3 min-h-20 text-sm leading-6 text-muted-foreground">{plan.description}</p>
+            <div className="my-6 h-px bg-border" />
+            <ul className="space-y-3 text-sm leading-6 text-foreground">
+              {plan.features.map((feature) => <li key={feature} className="flex items-start gap-2.5"><Check size={16} className="mt-1 shrink-0" aria-hidden="true" /><span>{feature}</span></li>)}
+            </ul>
+            <p className="mt-6 flex items-start gap-2 text-xs leading-5 text-muted-foreground"><LockKeyhole size={14} className="mt-0.5 shrink-0" aria-hidden="true" /><span>{plan.limitations}</span></p>
+          </article>;
+        })}
+      </section>
+
+      <article className="overflow-hidden rounded-2xl border border-[var(--muted-foreground)] bg-[var(--card)]">
+        <div className="border-b border-[var(--muted-foreground)] px-5 py-5 sm:px-7">
+          <h3 className="text-lg font-semibold text-foreground">Compare access levels</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Every package includes the same connected business context. The difference is which AI actions Lulu may perform.</p>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[720px] text-left text-sm">
+            <thead><tr className="border-b border-[var(--muted-foreground)] text-xs uppercase tracking-[0.12em] text-muted-foreground"><th className="px-5 py-4 font-semibold sm:px-7">Capability</th>{billingPlans.map((plan) => <th key={plan.id} className="px-4 py-4 text-center font-semibold">{plan.name}</th>)}</tr></thead>
+            <tbody>{billingCapabilities.map((capability) => <tr key={capability.id} className="border-b border-[var(--muted-foreground)] last:border-0"><th className="px-5 py-4 font-medium text-foreground sm:px-7">{capability.label}</th>{billingPlans.map((plan) => <td key={`${capability.id}-${plan.id}`} className="px-4 py-4 text-center">{capability.availability[plan.id] ? <Check className="mx-auto text-foreground" size={17} aria-label="Included" /> : <X className="mx-auto text-muted-foreground" size={17} aria-label="Not included" />}</td>)}</tr>)}</tbody>
+          </table>
+        </div>
+      </article>
+      <p className="text-xs leading-5 text-muted-foreground">Starter and AI are billed annually in RMB. The Test package is free and requires the confirmation password. Taxes are applied at checkout where required.</p>
     </div>;
   }
   if (activeTab === 'usage') {

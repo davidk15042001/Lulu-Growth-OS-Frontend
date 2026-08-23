@@ -21291,5 +21291,11 @@
   "Verified tax records from connected finance sources. Rates, jurisdictions and obligations appear only when returned by the backend.": "Verifizierte Steuerdatensätze verbundener Finanzquellen. Sätze, Rechtsgebiete und Verpflichtungen werden nur angezeigt, wenn sie vom Backend zurückgegeben werden.",
   "No verified tax records yet": "Noch keine verifizierten Steuerdaten",
   "Connect a finance platform and synchronize tax data before reviewing rates, jurisdictions or obligations.": "Verbinden Sie eine Finanzplattform und synchronisieren Sie Steuerdaten, bevor Sie Sätze, Rechtsgebiete oder Verpflichtungen prüfen.",
-  "Tax record": "Steuerdatensatz"
+  "Tax record": "Steuerdatensatz",
+  "SEO, GEO, AEO and Website recommendations and automation": "SEO-, GEO-, AEO- und Website-Empfehlungen und -Automatisierung",
+  "General AI insights and recommendations": "Allgemeine KI-Einblicke und -Empfehlungen",
+  "The same packages and access levels shown during onboarding.": "Dieselben Pakete und Zugriffsrechte wie beim Onboarding.",
+  "Available billing plans": "Verfügbare Tarifpakete",
+  "Every package includes the same connected business context. The difference is which AI actions Lulu may perform.": "Jedes Paket beinhaltet denselben verknüpften Geschäftskontext. Der Unterschied liegt darin, welche KI-Aktionen Lulu ausführen darf.",
+  "Starter and AI are billed annually in RMB. The Test package is free and requires the confirmation password. Taxes are applied at checkout where required.": "Starter und AI werden jährlich in RMB abgerechnet. Das Test-Paket ist kostenlos und erfordert das Bestätigungspasswort. Sofern erforderlich, werden beim Bezahlvorgang Steuern berechnet."
 }

@@ -5,83 +5,24 @@ import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../api/client
 import { useLuluApp } from "../api/LuluAppContext";
 import { onboardingApi } from "../api/onboarding";
 import { workspaceAppApi } from "../api/workspace-app";
+import { billingCapabilities, billingPlans, type BillingPlanId } from "../billing/planCatalog";
 import { OnboardingHeader } from "./OnboardingHeader";
 
-type PlanId = "starter" | "ai" | "test";
-
-type Plan = {
-  id: PlanId;
-  name: string;
-  eyebrow: string;
-  description: string;
-  icon: typeof Zap;
-  accent: string;
-  features: string[];
-  limitations: string;
-  price: string;
-  pricePeriod: string;
-  cta: string;
+const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string }> = {
+  starter: { icon: Zap, accent: "bg-[var(--primary)] text-[var(--primary-foreground)]" },
+  ai: { icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20" },
+  test: { icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-dashed border-[var(--primary)]/40" },
 };
-
-const plans: Plan[] = [
-  {
-    id: "starter",
-    name: "Starter",
-    eyebrow: "Take action yourself",
-    description: "Automatically analyze all workspace statistics with AI. General recommendations and actions stay off; SEO, GEO, AEO and Website are automated exceptions.",
-    icon: Zap,
-    accent: "bg-[var(--primary)] text-[var(--primary-foreground)]",
-    features: ["Automatic AI analysis and statistics across the workspace", "All workspace and platform data stays available", "Automatic SEO, GEO, AEO and Website recommendations and actions", "General recommendations and actions remain disabled"],
-    limitations: "No general recommendations or actions outside SEO, GEO, AEO and Website",
-    price: "RMB 4,200",
-    pricePeriod: "per year",
-    cta: "Choose Starter",
-  },
-  {
-    id: "ai",
-    name: "AI",
-    eyebrow: "Let Lulu run growth",
-    description: "Give Lulu the authority to recommend, execute and automate the work across your workspace.",
-    icon: WandSparkles,
-    accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20",
-    features: ["Everything in Starter", "AI insights and recommendations", "AI-assisted content and decisions", "Full automation of supported workflows"],
-    limitations: "You stay in control with configurable approvals and safeguards",
-    price: "RMB 30,000",
-    pricePeriod: "per year",
-    cta: "Choose AI",
-  },
-  {
-    id: "test",
-    name: "Test",
-    eyebrow: "Full AI access for verification",
-    description: "Use the complete AI package without payment. Enter the Test confirmation password to continue.",
-    icon: WandSparkles,
-    accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-dashed border-[var(--primary)]/40",
-    features: ["Everything in AI", "Full AI analysis, recommendations and actions", "Full automation of supported workflows", "Ideal for production checkout verification"],
-    limitations: "No payment is collected. A confirmation password is required.",
-    price: "Free",
-    pricePeriod: "confirmation password required",
-    cta: "Choose Test",
-  },
-];
-
-const capabilityRows = [
-  ["View dashboards, reports and connected data", true, true, true],
-  ["Manage workspace content and settings", true, true, true],
-  ["Manage connected websites and platforms", true, true, true],
-  ["Automatic AI analysis and statistics", true, true, true],
-  ["SEO, GEO, AEO and Website automation", true, true, true],
-];
 
 export function BillingOnboarding() {
   const { currentUser, selectedWorkspace, loading, refresh } = useLuluApp();
-  const [selectedPlan, setSelectedPlan] = useState<PlanId | null>(null);
+  const [selectedPlan, setSelectedPlan] = useState<BillingPlanId | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [technicalError, setTechnicalError] = useState<string | null>(null);
   const [testPassword, setTestPassword] = useState("");
   const [testPasswordRequired, setTestPasswordRequired] = useState(false);
-  const selected = selectedPlan ? plans.find((plan) => plan.id === selectedPlan) : undefined;
+  const selected = selectedPlan ? billingPlans.find((plan) => plan.id === selectedPlan) : undefined;
   const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
 
@@ -196,14 +137,14 @@ export function BillingOnboarding() {
           <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Choose the level of control that fits your business. Starter, AI and Test are billed annually in RMB.</p>
         </section>
 
-        <section aria-label="Available plans" className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-          {plans.map((plan) => {
-            const Icon = plan.icon;
+        <section aria-label="Available plans" className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          {billingPlans.map((plan) => {
+            const { icon: Icon, accent } = planPresentation[plan.id];
             const isSelected = selectedPlan === plan.id;
             return (
               <article key={plan.id} className={`relative flex flex-col rounded-2xl border p-6 transition sm:p-7 ${isSelected ? "border-[var(--foreground)] shadow-[0_20px_60px_rgba(0,0,0,0.10)]" : "border-[var(--border)] bg-[var(--card)]"}`}>
                 {plan.id === "ai" && <span className="absolute right-5 top-5 rounded-full bg-[var(--foreground)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[var(--background)]">Recommended</span>}
-                <div className={`grid h-10 w-10 place-items-center rounded-xl ${plan.accent}`}><Icon size={19} aria-hidden="true" /></div>
+                <div className={`grid h-10 w-10 place-items-center rounded-xl ${accent}`}><Icon size={19} aria-hidden="true" /></div>
                 <p className="mt-6 text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">{plan.eyebrow}</p>
                 <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{plan.name}</h2>
                 <div className="mt-4 flex items-baseline gap-2"><span className="text-2xl font-semibold tracking-[-0.04em]">{plan.price}</span><span className="text-xs text-[var(--muted-foreground)]">{plan.pricePeriod}</span></div>
@@ -228,8 +169,8 @@ export function BillingOnboarding() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[680px] text-left text-sm">
-              <thead><tr className="border-b border-[var(--border)] text-xs uppercase tracking-[.12em] text-[var(--muted-foreground)]"><th className="px-5 py-4 font-semibold sm:px-7">Capability</th>{plans.map((plan) => <th key={plan.id} className="px-4 py-4 text-center font-semibold">{plan.name}</th>)}</tr></thead>
-              <tbody>{capabilityRows.map(([label, starter, ai, test]) => <tr key={String(label)} className="border-b border-[var(--border)] last:border-0"><th className="px-5 py-4 font-medium sm:px-7">{label}</th>{[starter, ai, test].map((enabled, index) => <td key={`${label}-${index}`} className="px-4 py-4 text-center">{enabled ? <Check className="mx-auto" size={17} aria-label="Included" /> : <span className="text-[var(--muted-foreground)]" aria-label="Not included">—</span>}</td>)}</tr>)}</tbody>
+              <thead><tr className="border-b border-[var(--border)] text-xs uppercase tracking-[.12em] text-[var(--muted-foreground)]"><th className="px-5 py-4 font-semibold sm:px-7">Capability</th>{billingPlans.map((plan) => <th key={plan.id} className="px-4 py-4 text-center font-semibold">{plan.name}</th>)}</tr></thead>
+              <tbody>{billingCapabilities.map((capability) => <tr key={capability.id} className="border-b border-[var(--border)] last:border-0"><th className="px-5 py-4 font-medium sm:px-7">{capability.label}</th>{billingPlans.map((plan) => <td key={`${capability.id}-${plan.id}`} className="px-4 py-4 text-center">{capability.availability[plan.id] ? <Check className="mx-auto" size={17} aria-label="Included" /> : <span className="text-[var(--muted-foreground)]" aria-label="Not included">—</span>}</td>)}</tr>)}</tbody>
             </table>
           </div>
         </section>
