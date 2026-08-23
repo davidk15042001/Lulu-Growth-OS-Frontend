@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { pageLinkProps } from "../../routing";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
-import { WebsiteGenerationLivePanel, WebsiteGenerationProcessButton } from "../../components/WebsiteGenerationLivePanel";
+import { generationActivities, WebsiteGenerationActivityToast, WebsiteGenerationLivePanel, WebsiteGenerationProcessButton, type WebsiteGenerationActivity } from "../../components/WebsiteGenerationLivePanel";
 
 type Provider = "wordpress" | "webflow";
 type TrackedGenerationJob = { workspaceId: string; siteId: string; job: WebsiteGenerationJob; provider: Provider };
@@ -229,6 +229,7 @@ export default function App() {
   const [generationPanelOpen, setGenerationPanelOpen] = useState(true);
   const [generationCancelling, setGenerationCancelling] = useState(false);
   const [generationResuming, setGenerationResuming] = useState(false);
+  const [generationNotification, setGenerationNotification] = useState<WebsiteGenerationActivity | null>(null);
   const [generationFailure, setGenerationFailure] = useState<{ provider: Provider; message: string } | null>(null);
   const [wordpressContent, setWordpressContent] = useState<WordPressContent | null>(null);
   const [providerData, setProviderData] = useState<WebsiteProviderContent | null>(null);
@@ -237,6 +238,9 @@ export default function App() {
   const [oauthHelpVisible, setOauthHelpVisible] = useState(false);
   const autoStartedRef = useRef("");
   const oauthReturnRef = useRef<Provider | null>(null);
+  const lastNotifiedActivityRef = useRef("");
+  const lastNotifiedJobRef = useRef("");
+  const generationNotificationTimerRef = useRef<number | undefined>(undefined);
   const workspaceId = getSelectedWorkspaceId();
   const content = useMemo(() => providerContent[provider], [provider]);
   const selectedSite = sites.find((site) => site.id === selectedSiteId) ?? null;
@@ -250,6 +254,23 @@ export default function App() {
   useEffect(() => {
     writeStoredGenerationJob(generationJob);
   }, [generationJob]);
+
+  useEffect(() => () => window.clearTimeout(generationNotificationTimerRef.current), []);
+
+  useEffect(() => {
+    const job = generationJob?.job;
+    if (!job) return;
+    if (lastNotifiedJobRef.current !== job.id) {
+      lastNotifiedJobRef.current = job.id;
+      lastNotifiedActivityRef.current = "";
+    }
+    const latest = generationActivities(job).at(-1);
+    if (!latest || latest.id === lastNotifiedActivityRef.current) return;
+    lastNotifiedActivityRef.current = latest.id;
+    setGenerationNotification(latest);
+    window.clearTimeout(generationNotificationTimerRef.current);
+    generationNotificationTimerRef.current = window.setTimeout(() => setGenerationNotification(null), 4_500);
+  }, [generationJob?.job.id, generationJob?.job.updatedAt]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -564,6 +585,7 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-foreground">
+      {generationNotification && !generationPanelOpen && <WebsiteGenerationActivityToast activity={generationNotification} onClick={() => { setGenerationPanelOpen(true); setGenerationNotification(null); }} t={t} />}
       {(error || connectionBusy) && <div role={error ? "alert" : "status"} className="fixed left-1/2 top-4 z-[70] w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground shadow-2xl" aria-live="polite">{error || `${connectionBusy === "wordpress" ? "WordPress / Jetpack" : "Webflow"} wird verbunden…`}</div>}
       {generationJob && generationPanelOpen && <ViewportPortal><WebsiteGenerationLivePanel job={generationJob.job} providerLabel={generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"} percent={generationPercent} label={generationLabel} detail={generationDetail} running={generationIsBlocking} cancelling={generationCancelling} resuming={generationResuming} onCancel={() => void cancelAutomaticGeneration()} onResume={() => void resumeAutomaticGeneration()} onClose={() => { setGenerationPanelOpen(false); if (isTerminalGenerationJob(generationJob.job)) setGenerationJob(null); }} t={t} /></ViewportPortal>}
       {generationStarting && !generationJob && generationPanelOpen && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-start-title" style={{ color: "#111827" }} className="pointer-events-auto relative my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><button type="button" onClick={() => setGenerationPanelOpen(false)} aria-label={t("Close generation window")} className="absolute right-4 top-4 rounded-lg border border-border p-2 text-[#4b5563] hover:bg-secondary">×</button><div className="flex items-start gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><RefreshCw size={22} className="animate-spin" /></div><div><h2 id="website-generation-start-title" className="pr-8 text-lg font-semibold text-[#111827]">{t("Website is being created")}</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">{t("The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.")}</p><p className="mt-3 text-xs text-[#4b5563]">{generationStarting === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/4 animate-pulse rounded-full bg-primary" /></div></div></div></ViewportPortal>}

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, Circle, CircleStop, ExternalLink, FileText, Play, RefreshCw, X } from "lucide-react";
+import { AlertCircle, Bell, CheckCircle2, Circle, CircleStop, ExternalLink, FileText, Play, RefreshCw, X } from "lucide-react";
 import type { WebsiteGenerationJob } from "../api/websites";
 
 type Translate = (key: string) => string;
@@ -12,6 +12,57 @@ function objectValue(value: unknown): Record<string, unknown> {
 
 function pageValues(value: unknown) {
   return Array.isArray(value) ? value.map(objectValue) : [];
+}
+
+export type WebsiteGenerationActivity = {
+  id: string;
+  code: string;
+  tone: "info" | "success" | "warning" | "error";
+  params: Record<string, string | number>;
+  createdAt: string;
+};
+
+export function generationActivities(job: WebsiteGenerationJob | null | undefined): WebsiteGenerationActivity[] {
+  return pageValues(objectValue(job?.preview).activity).map((value) => ({
+    id: String(value.id ?? ""),
+    code: String(value.code ?? ""),
+    tone: ["success", "warning", "error"].includes(String(value.tone)) ? String(value.tone) as WebsiteGenerationActivity["tone"] : "info",
+    params: Object.fromEntries(Object.entries(objectValue(value.params)).filter(([, item]) => typeof item === "string" || typeof item === "number")) as Record<string, string | number>,
+    createdAt: String(value.createdAt ?? ""),
+  })).filter((event) => event.id && event.code);
+}
+
+function replaceActivityParams(template: string, params: Record<string, string | number>) {
+  return Object.entries(params).reduce((message, [key, value]) => message.replaceAll(`{{${key}}}`, String(value)), template);
+}
+
+export function generationActivityMessage(event: WebsiteGenerationActivity, t: Translate) {
+  const templates: Record<string, string> = {
+    job_started: "Website generation started.",
+    job_resumed: "The saved checkpoint was loaded. Generation is continuing.",
+    company_context_loaded: "Verified company data and connected sources were loaded.",
+    content_profile_started: "Website copy and SEO data are being prepared.",
+    content_profile_ready: "Website copy and SEO data were completed and saved.",
+    section_saved: 'Section "{{section}}" on "{{page}}" was completed and saved.',
+    template_ready: "The template is ready with {{sections}} sections across {{pages}} pages.",
+    preview_ready: "The website preview is complete and ready for publishing.",
+    publishing_started: "Publishing to {{provider}} started.",
+    page_publishing: 'Page "{{page}}" is being published.',
+    page_already_published: 'Page "{{page}}" was already published and was safely skipped.',
+    page_published: 'Page "{{page}}" was published successfully.',
+    homepage_configuring: "The WordPress homepage is being configured.",
+    website_published: "The website was published successfully.",
+    website_published_with_warning: "The website was published, but WordPress reported: {{warning}}",
+    job_cancelled: "Generation was paused. All completed checkpoints remain saved.",
+    generation_failed: "Generation failed: {{message}}",
+    publishing_failed: "Publishing failed: {{message}}",
+  };
+  return replaceActivityParams(t(templates[event.code] ?? event.code), event.params);
+}
+
+function activityTime(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(date);
 }
 
 function liveUrl(value: string, updatedAt: string) {
@@ -96,6 +147,7 @@ export function WebsiteGenerationLivePanel({
   t: Translate;
 }) {
   const pages = useMemo(() => generationPages(job), [job]);
+  const activities = useMemo(() => generationActivities(job), [job]);
   const publishedCount = pages.filter((page) => page.published).length;
   const [selectedSlug, setSelectedSlug] = useState("");
   const [previewMode, setPreviewMode] = useState<"generated" | "published">("generated");
@@ -204,6 +256,17 @@ export function WebsiteGenerationLivePanel({
             </div>)}</div>
           </div> : null}
 
+          <div className="mt-5 rounded-xl border border-[#dcdcde] bg-white p-3">
+            <div className="flex items-center gap-2"><Bell aria-hidden="true" size={14} className="text-[#2271b1]" /><p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[#646970]">{t("Activity log")}</p></div>
+            <p className="mt-1 text-[11px] leading-4 text-[#646970]">{t("Clear live updates about completed work. Internal AI reasoning is never shown.")}</p>
+            <div className="mt-3 max-h-52 space-y-3 overflow-y-auto pr-1" aria-live="polite">
+              {activities.length ? [...activities].reverse().slice(0, 12).map((event) => <div key={event.id} className="flex items-start gap-2.5">
+                <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full ${event.tone === "error" ? "bg-red-50 text-red-700" : event.tone === "warning" ? "bg-amber-50 text-amber-700" : event.tone === "success" ? "bg-emerald-50 text-emerald-700" : "bg-blue-50 text-[#2271b1]"}`}>{event.tone === "error" ? <AlertCircle aria-hidden="true" size={12} /> : event.tone === "success" ? <CheckCircle2 aria-hidden="true" size={12} /> : <Circle aria-hidden="true" size={10} />}</span>
+                <span className="min-w-0 flex-1"><span className="block text-xs leading-4 text-[#1d2327]">{generationActivityMessage(event, t)}</span>{activityTime(event.createdAt) && <time dateTime={event.createdAt} className="mt-0.5 block text-[10px] text-[#8c8f94]">{activityTime(event.createdAt)}</time>}</span>
+              </div>) : <p className="text-xs text-[#646970]">{t("No activity updates yet.")}</p>}
+            </div>
+          </div>
+
           <div className="mt-5 border-t border-[#dcdcde] pt-4">
             {running ? <button type="button" disabled={cancelling} onClick={onCancel} className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"><CircleStop aria-hidden="true" size={16} />{cancelling ? t("Cancelling…") : t("Cancel generation")}</button> : job.status === "cancelled" ? <div className="grid gap-2"><button type="button" disabled={resuming} onClick={onResume} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-wait disabled:opacity-60">{resuming ? <RefreshCw aria-hidden="true" size={16} className="animate-spin" /> : <Play aria-hidden="true" size={16} />}{resuming ? t("Resuming…") : t("Continue generation")}</button><button type="button" onClick={onClose} className="w-full rounded-lg border border-[#dcdcde] px-4 py-2.5 text-sm font-semibold text-[#1d2327] transition hover:bg-[#f6f7f7]">{t("Close")}</button></div> : <button type="button" onClick={onClose} className="w-full rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96]">{t("Close")}</button>}
             <p className="mt-2 text-center text-[11px] leading-4 text-[#646970]">{running ? t("You can close this window. Generation continues in the background.") : job.status === "cancelled" ? t("Completed sections and published pages are saved. Continuing starts at the next missing section.") : t("Published intermediate results remain saved in WordPress.")}</p>
@@ -211,6 +274,15 @@ export function WebsiteGenerationLivePanel({
         </aside>
       </div>
     </section>
+  </div>;
+}
+
+export function WebsiteGenerationActivityToast({ activity, onClick, t }: { activity: WebsiteGenerationActivity; onClick: () => void; t: Translate }) {
+  return <div role="status" aria-live="polite" className="fixed right-4 top-4 z-[1100] w-[min(390px,calc(100vw-2rem))] overflow-hidden rounded-xl border border-[#b8d7ee] bg-white text-[#1d2327] shadow-2xl">
+    <button type="button" onClick={onClick} className="flex w-full items-start gap-3 p-4 text-left transition hover:bg-[#f0f6fc]">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-blue-50 text-[#2271b1]"><Bell aria-hidden="true" size={17} /></span>
+      <span className="min-w-0"><span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-[#646970]">{t("Website update")}</span><span className="mt-1 block text-sm leading-5 text-[#1d2327]">{generationActivityMessage(activity, t)}</span></span>
+    </button>
   </div>;
 }
 

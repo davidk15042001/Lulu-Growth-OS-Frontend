@@ -68,3 +68,6 @@ Push-Zeitstempel: 2026-08-23 16:04:22 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 16:34:06 Europe/Berlin
 Änderungen: Die Live-Vorschau zeigt nun den Fortschritt jeder einzelnen Website-Section mit Checkliste und Teilvorschau; nach einem Abbruch kann derselbe Job per Fortsetzen-Button ab dem nächsten fehlenden Checkpoint weiterlaufen, vollständig übersetzt auf Deutsch, Englisch und Chinesisch.
+
+Push-Zeitstempel: 2026-08-23 17:18:25 Europe/Berlin
+Änderungen: Das Website-Fortschrittsfenster zeigt jetzt ein übersetztes Aktivitätsprotokoll mit Zeitstempeln und Statusfarben; bei geschlossenem Fenster informieren klickbare Zwischenbenachrichtigungen in Echtzeit über neue gespeicherte oder veröffentlichte Schritte.
