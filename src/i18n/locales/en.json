@@ -628,5 +628,12 @@
   "Open website generation progress": "Open website generation progress",
   "Website generation could not be cancelled.": "Website generation could not be cancelled.",
   "Website is being created": "Website is being created",
-  "The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.": "The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template."
+  "The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.": "The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.",
+  "{{0}} of {{1}} sections completed": "{{0}} of {{1}} sections completed",
+  "{{0}} of {{1}} sections": "{{0}} of {{1}} sections",
+  "Sections": "Sections",
+  "Resuming…": "Resuming…",
+  "Continue generation": "Continue generation",
+  "Completed sections and published pages are saved. Continuing starts at the next missing section.": "Completed sections and published pages are saved. Continuing starts at the next missing section.",
+  "Website generation could not be resumed.": "Website generation could not be resumed."
 }

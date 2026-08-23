@@ -21321,5 +21321,12 @@
   "Open website generation progress": "打开网站生成进度",
   "Website generation could not be cancelled.": "无法取消网站生成任务。",
   "Website is being created": "正在创建网站",
-  "The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.": "连接已确认。Lulu 会根据您的企业数据创建结构化文案与 SEO 配置，然后将其应用到标准模板中。"
+  "The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.": "连接已确认。Lulu 会根据您的企业数据创建结构化文案与 SEO 配置，然后将其应用到标准模板中。",
+  "{{0}} of {{1}} sections completed": "已完成 {{0}} / {{1}} 个区块",
+  "{{0}} of {{1}} sections": "{{0}} / {{1}} 个区块",
+  "Sections": "页面区块",
+  "Resuming…": "正在继续…",
+  "Continue generation": "继续生成",
+  "Completed sections and published pages are saved. Continuing starts at the next missing section.": "已完成的区块和已发布的页面均已保存。继续后将从下一个缺失区块开始。",
+  "Website generation could not be resumed.": "无法继续网站生成任务。"
 }

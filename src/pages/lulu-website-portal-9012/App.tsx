@@ -43,9 +43,12 @@ function readGenerationProgress(job: WebsiteGenerationJob | undefined) {
   const completedPages = typeof progress.completedPages === "number" ? Math.max(0, progress.completedPages) : 0;
   const totalPages = typeof progress.totalPages === "number" ? Math.max(0, progress.totalPages) : 0;
   const currentPageTitle = typeof progress.currentPageTitle === "string" ? progress.currentPageTitle : null;
+  const completedSections = typeof progress.completedSections === "number" ? Math.max(0, progress.completedSections) : 0;
+  const totalSections = typeof progress.totalSections === "number" ? Math.max(0, progress.totalSections) : 0;
+  const currentSectionTitle = typeof progress.currentSectionTitle === "string" ? progress.currentSectionTitle : null;
   const phase = typeof progress.phase === "string" ? progress.phase : null;
   const percent = typeof progress.percent === "number" ? Math.min(100, Math.max(0, progress.percent)) : null;
-  return { phase, percent, completedPages, totalPages, currentPageTitle };
+  return { phase, percent, completedPages, totalPages, currentPageTitle, completedSections, totalSections, currentSectionTitle };
 }
 
 const GENERATION_UI_STALE_MS = 20 * 60 * 1000;
@@ -225,6 +228,7 @@ export default function App() {
   const [generationStarting, setGenerationStarting] = useState<Provider | null>(null);
   const [generationPanelOpen, setGenerationPanelOpen] = useState(true);
   const [generationCancelling, setGenerationCancelling] = useState(false);
+  const [generationResuming, setGenerationResuming] = useState(false);
   const [generationFailure, setGenerationFailure] = useState<{ provider: Provider; message: string } | null>(null);
   const [wordpressContent, setWordpressContent] = useState<WordPressContent | null>(null);
   const [providerData, setProviderData] = useState<WebsiteProviderContent | null>(null);
@@ -389,6 +393,22 @@ export default function App() {
     }
   };
 
+  const resumeAutomaticGeneration = async () => {
+    if (!workspaceId || !generationJob || generationJob.job.status !== "cancelled" || generationResuming) return;
+    setGenerationResuming(true);
+    setError("");
+    try {
+      const response = await websitesApi.resumeGenerationJob(workspaceId, generationJob.siteId, generationJob.job.id);
+      setGenerationJob((current) => current ? { ...current, job: response.data } : current);
+      setGenerationFailure(null);
+      setGenerationPanelOpen(true);
+    } catch (requestError) {
+      setError(getFriendlyErrorMessage(requestError, t("Website generation could not be resumed.")));
+    } finally {
+      setGenerationResuming(false);
+    }
+  };
+
   useEffect(() => {
     const oauthReturn = oauthReturnRef.current === provider;
     // Never start without a local site ID. Without it the backend must perform provider discovery
@@ -510,11 +530,12 @@ export default function App() {
   const generationProgress = readGenerationProgress(generationJob?.job);
   const generationPhase = generationProgress?.phase;
   const pageRatio = generationProgress?.totalPages ? generationProgress.completedPages / generationProgress.totalPages : 0;
+  const sectionRatio = generationProgress?.totalSections ? generationProgress.completedSections / generationProgress.totalSections : pageRatio;
   const generationPercent = generationProgress?.percent ?? (generationStatus === "published"
     ? 100
     : generationPhase === "analyzing_company" ? 10
       : generationPhase === "generating_content" ? 28
-        : generationPhase === "applying_template" ? Math.round(40 + pageRatio * 30)
+        : generationPhase === "applying_template" ? Math.round(20 + sectionRatio * 32)
           : generationPhase === "template_ready" || generationPhase === "publishing" || generationStatus === "preview" ? 74
             : generationPhase === "publishing_pages" ? Math.round(76 + pageRatio * 18)
               : generationPhase === "configuring_homepage" ? 97
@@ -522,6 +543,7 @@ export default function App() {
   const generationLabel = generationStatus === "published" ? "Website veröffentlicht"
     : generationStatus === "failed" ? "Generierung fehlgeschlagen"
       : generationStatus === "cancelled" ? "Generierung abgebrochen"
+        : generationPhase === "resuming" ? "Generierung wird fortgesetzt"
         : generationPhase === "configuring_homepage" ? "Startseite wird eingerichtet"
         : generationPhase === "publishing_pages" || generationStatus === "publishing" ? "WordPress-Seiten werden veröffentlicht"
           : generationPhase === "applying_template" ? "Standard-Template wird befüllt"
@@ -530,10 +552,11 @@ export default function App() {
                 : "Website wird erstellt";
   const generationDetail = generationStatus === "failed" ? (generationJob?.job.errorMessage ?? "Bitte prüfe die Verbindung und versuche es erneut.")
     : generationStatus === "published" ? "Die Standard-Website wurde erfolgreich im verbundenen CMS erstellt und geprüft."
-      : generationStatus === "cancelled" ? "Die Website-Erstellung wurde abgebrochen. Es werden keine weiteren Seiten veröffentlicht."
+      : generationStatus === "cancelled" ? "Die Website-Erstellung wurde angehalten. Fertige Sections und bereits veröffentlichte Seiten bleiben gespeichert und können ab dem nächsten fehlenden Schritt fortgesetzt werden."
+        : generationPhase === "resuming" ? "Der gespeicherte Checkpoint wird geladen. Fertige Sections und WordPress-Seiten werden übersprungen."
         : generationPhase === "analyzing_company" ? "Lulu liest die bestätigten Firmeninformationen, Angebote und vorhandenen Website-Bilder ein."
         : generationPhase === "generating_content" ? "Lulu erzeugt einmalig die Texte, Handlungsaufforderungen und SEO-Angaben als strukturiertes Datenprofil."
-          : generationPhase === "applying_template" ? `${generationProgress?.completedPages ?? 0} von ${generationProgress?.totalPages ?? 4} Seiten wurden mit dem Standard-Template aufgebaut${generationProgress?.currentPageTitle ? ` · Aktuell: ${generationProgress.currentPageTitle}` : ""}.`
+          : generationPhase === "applying_template" ? `${generationProgress?.completedSections ?? 0} von ${generationProgress?.totalSections ?? 0} Sections wurden aufgebaut${generationProgress?.currentPageTitle ? ` · Seite: ${generationProgress.currentPageTitle}` : ""}${generationProgress?.currentSectionTitle ? ` · Aktuell: ${generationProgress.currentSectionTitle}` : ""}.`
             : generationPhase === "template_ready" || generationPhase === "publishing" ? "Texte, Farben, SEO und vorhandene Bilder sind eingesetzt. Die Veröffentlichung wird vorbereitet."
               : generationPhase === "publishing_pages" ? `${generationProgress?.completedPages ?? 0} von ${generationProgress?.totalPages ?? 4} Seiten wurden in WordPress veröffentlicht${generationProgress?.currentPageTitle ? ` · Aktuell: ${generationProgress.currentPageTitle}` : ""}.`
                 : generationPhase === "configuring_homepage" ? "Alle Seiten sind veröffentlicht. WordPress richtet jetzt die neue Startseite ein und bestätigt die Einstellung."
@@ -542,7 +565,7 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[var(--background)] text-foreground">
       {(error || connectionBusy) && <div role={error ? "alert" : "status"} className="fixed left-1/2 top-4 z-[70] w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground shadow-2xl" aria-live="polite">{error || `${connectionBusy === "wordpress" ? "WordPress / Jetpack" : "Webflow"} wird verbunden…`}</div>}
-      {generationJob && generationPanelOpen && <ViewportPortal><WebsiteGenerationLivePanel job={generationJob.job} providerLabel={generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"} percent={generationPercent} label={generationLabel} detail={generationDetail} running={generationIsBlocking} cancelling={generationCancelling} onCancel={() => void cancelAutomaticGeneration()} onClose={() => { setGenerationPanelOpen(false); if (isTerminalGenerationJob(generationJob.job)) setGenerationJob(null); }} t={t} /></ViewportPortal>}
+      {generationJob && generationPanelOpen && <ViewportPortal><WebsiteGenerationLivePanel job={generationJob.job} providerLabel={generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"} percent={generationPercent} label={generationLabel} detail={generationDetail} running={generationIsBlocking} cancelling={generationCancelling} resuming={generationResuming} onCancel={() => void cancelAutomaticGeneration()} onResume={() => void resumeAutomaticGeneration()} onClose={() => { setGenerationPanelOpen(false); if (isTerminalGenerationJob(generationJob.job)) setGenerationJob(null); }} t={t} /></ViewportPortal>}
       {generationStarting && !generationJob && generationPanelOpen && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-start-title" style={{ color: "#111827" }} className="pointer-events-auto relative my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><button type="button" onClick={() => setGenerationPanelOpen(false)} aria-label={t("Close generation window")} className="absolute right-4 top-4 rounded-lg border border-border p-2 text-[#4b5563] hover:bg-secondary">×</button><div className="flex items-start gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><RefreshCw size={22} className="animate-spin" /></div><div><h2 id="website-generation-start-title" className="pr-8 text-lg font-semibold text-[#111827]">{t("Website is being created")}</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">{t("The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.")}</p><p className="mt-3 text-xs text-[#4b5563]">{generationStarting === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/4 animate-pulse rounded-full bg-primary" /></div></div></div></ViewportPortal>}
       {!generationPanelOpen && (generationJob || generationStarting) && <WebsiteGenerationProcessButton percent={generationJob ? generationPercent : 3} label={generationJob ? generationLabel : t("Website is being created")} onClick={() => setGenerationPanelOpen(true)} t={t} />}
       {generationFailure && !generationJob && !generationStarting && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="alertdialog" aria-modal="true" style={{ color: "#111827" }} className="pointer-events-auto my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-destructive/30 bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><h2 className="text-lg font-semibold text-destructive">Generierung fehlgeschlagen</h2><p className="mt-3 break-words text-sm leading-6 text-[#4b5563]">{generationFailure.message}</p><div className="mt-6 grid gap-2 sm:grid-cols-2"><button type="button" onClick={() => { const failedProvider = generationFailure.provider; setGenerationFailure(null); void startAutomaticGeneration(failedProvider); }} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium !text-primary-foreground transition hover:opacity-90">Erneut versuchen</button><button type="button" onClick={() => setGenerationFailure(null)} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-secondary">Schließen</button></div></div></div></ViewportPortal>}

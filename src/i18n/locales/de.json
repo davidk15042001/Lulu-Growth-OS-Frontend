@@ -21321,5 +21321,12 @@
   "Open website generation progress": "Fortschritt der Website-Generierung öffnen",
   "Website generation could not be cancelled.": "Die Website-Generierung konnte nicht abgebrochen werden.",
   "Website is being created": "Website wird erstellt",
-  "The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.": "Die Verbindung wurde bestätigt. Lulu erstellt aus deinen Unternehmensdaten ein strukturiertes Text- und SEO-Profil und setzt es anschließend in das Standard-Template ein."
+  "The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.": "Die Verbindung wurde bestätigt. Lulu erstellt aus deinen Unternehmensdaten ein strukturiertes Text- und SEO-Profil und setzt es anschließend in das Standard-Template ein.",
+  "{{0}} of {{1}} sections completed": "{{0}} von {{1}} Sections fertiggestellt",
+  "{{0}} of {{1}} sections": "{{0}} von {{1}} Sections",
+  "Sections": "Sections",
+  "Resuming…": "Wird fortgesetzt…",
+  "Continue generation": "Generierung fortsetzen",
+  "Completed sections and published pages are saved. Continuing starts at the next missing section.": "Fertige Sections und veröffentlichte Seiten sind gespeichert. Beim Fortsetzen geht es mit der nächsten fehlenden Section weiter.",
+  "Website generation could not be resumed.": "Die Website-Generierung konnte nicht fortgesetzt werden."
 }

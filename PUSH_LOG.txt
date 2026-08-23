@@ -65,3 +65,6 @@ Push-Zeitstempel: 2026-08-23 15:23:14 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 16:04:22 Europe/Berlin
 Änderungen: Die Website-Generierung besitzt jetzt eine progressive Live-Vorschau mit generierten und bereits veröffentlichten WordPress-Seiten, exaktem Prozent- und Seitenfortschritt, minimierbarem Prozessfenster sowie sicherem Abbrechen; alle neuen Texte sind auf Deutsch, Englisch und Chinesisch verfügbar.
+
+Push-Zeitstempel: 2026-08-23 16:34:06 Europe/Berlin
+Änderungen: Die Live-Vorschau zeigt nun den Fortschritt jeder einzelnen Website-Section mit Checkliste und Teilvorschau; nach einem Abbruch kann derselbe Job per Fortsetzen-Button ab dem nächsten fehlenden Checkpoint weiterlaufen, vollständig übersetzt auf Deutsch, Englisch und Chinesisch.
