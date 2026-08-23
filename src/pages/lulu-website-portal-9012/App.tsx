@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { pageLinkProps } from "../../routing";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { WebsiteGenerationLivePanel, WebsiteGenerationProcessButton } from "../../components/WebsiteGenerationLivePanel";
 
 type Provider = "wordpress" | "webflow";
 type TrackedGenerationJob = { workspaceId: string; siteId: string; job: WebsiteGenerationJob; provider: Provider };
@@ -43,7 +44,8 @@ function readGenerationProgress(job: WebsiteGenerationJob | undefined) {
   const totalPages = typeof progress.totalPages === "number" ? Math.max(0, progress.totalPages) : 0;
   const currentPageTitle = typeof progress.currentPageTitle === "string" ? progress.currentPageTitle : null;
   const phase = typeof progress.phase === "string" ? progress.phase : null;
-  return { phase, completedPages, totalPages, currentPageTitle };
+  const percent = typeof progress.percent === "number" ? Math.min(100, Math.max(0, progress.percent)) : null;
+  return { phase, percent, completedPages, totalPages, currentPageTitle };
 }
 
 const GENERATION_UI_STALE_MS = 20 * 60 * 1000;
@@ -221,6 +223,8 @@ export default function App() {
   const [connectionBusy, setConnectionBusy] = useState<Provider | null>(null);
   const [generationJob, setGenerationJob] = useState<TrackedGenerationJob | null>(() => readStoredGenerationJob());
   const [generationStarting, setGenerationStarting] = useState<Provider | null>(null);
+  const [generationPanelOpen, setGenerationPanelOpen] = useState(true);
+  const [generationCancelling, setGenerationCancelling] = useState(false);
   const [generationFailure, setGenerationFailure] = useState<{ provider: Provider; message: string } | null>(null);
   const [wordpressContent, setWordpressContent] = useState<WordPressContent | null>(null);
   const [providerData, setProviderData] = useState<WebsiteProviderContent | null>(null);
@@ -256,6 +260,7 @@ export default function App() {
       setOauthHelpVisible(provider === "wordpress");
       setGenerationStarting(null);
       setGenerationJob(null);
+      setGenerationPanelOpen(true);
       setGenerationFailure({ provider, message: `${provider === "wordpress" ? "WordPress.com" : "Webflow"}-Verbindung fehlgeschlagen: ${oauthError}` });
     } else if (oauthCode || connectedProvider) {
       const returnedProvider: Provider = connectedProvider === "webflow" || provider === "webflow" ? "webflow" : "wordpress";
@@ -264,6 +269,7 @@ export default function App() {
       setGenerationJob(null);
       setGenerationFailure(null);
       setGenerationStarting(returnedProvider);
+      setGenerationPanelOpen(true);
     }
     const cleanUrl = `${window.location.pathname}${window.location.search.replace(/([?&])(oauthCode|oauthError|oauthRequestId|connected)=[^&]*/g, "").replace(/[?&]$/, "")}${window.location.hash}`;
     window.history.replaceState({}, "", cleanUrl);
@@ -319,6 +325,7 @@ export default function App() {
         setGenerationFailure(null);
         setGenerationStarting(null);
         setGenerationJob(tracked);
+        setGenerationPanelOpen(true);
       })
       .catch(() => undefined);
     return () => { cancelled = true; };
@@ -348,6 +355,7 @@ export default function App() {
     setError("");
     setGenerationFailure(null);
     setGenerationStarting(nextProvider);
+    setGenerationPanelOpen(true);
     try {
       const response = await websitesApi.startAutomaticGeneration(workspaceId, nextProvider, document.documentElement.lang || undefined, selectedSiteId || undefined);
       setSites((current) => current.some((site) => site.id === response.data.site.id) ? current.map((site) => site.id === response.data.site.id ? response.data.site : site) : [response.data.site, ...current]);
@@ -362,6 +370,22 @@ export default function App() {
       setGenerationFailure({ provider: nextProvider, message });
       setError(message);
       void refresh();
+    }
+  };
+
+  const cancelAutomaticGeneration = async () => {
+    if (!workspaceId || !generationJob || !isRunningGenerationJob(generationJob.job) || generationCancelling) return;
+    setGenerationCancelling(true);
+    setError("");
+    try {
+      const response = await websitesApi.cancelGenerationJob(workspaceId, generationJob.siteId, generationJob.job.id);
+      setGenerationJob((current) => current ? { ...current, job: response.data } : current);
+      setGenerationPanelOpen(true);
+      void refresh();
+    } catch (requestError) {
+      setError(getFriendlyErrorMessage(requestError, t("Website generation could not be cancelled.")));
+    } finally {
+      setGenerationCancelling(false);
     }
   };
 
@@ -486,7 +510,7 @@ export default function App() {
   const generationProgress = readGenerationProgress(generationJob?.job);
   const generationPhase = generationProgress?.phase;
   const pageRatio = generationProgress?.totalPages ? generationProgress.completedPages / generationProgress.totalPages : 0;
-  const generationPercent = generationStatus === "failed" || generationStatus === "published" || generationStatus === "cancelled"
+  const generationPercent = generationProgress?.percent ?? (generationStatus === "published"
     ? 100
     : generationPhase === "analyzing_company" ? 10
       : generationPhase === "generating_content" ? 28
@@ -494,7 +518,7 @@ export default function App() {
           : generationPhase === "template_ready" || generationPhase === "publishing" || generationStatus === "preview" ? 74
             : generationPhase === "publishing_pages" ? Math.round(76 + pageRatio * 18)
               : generationPhase === "configuring_homepage" ? 97
-                : generationStatus === "publishing" ? 78 : generationStatus === "planning" ? 18 : 8;
+                : generationStatus === "publishing" ? 78 : generationStatus === "planning" ? 18 : 8);
   const generationLabel = generationStatus === "published" ? "Website veröffentlicht"
     : generationStatus === "failed" ? "Generierung fehlgeschlagen"
       : generationStatus === "cancelled" ? "Generierung abgebrochen"
@@ -518,8 +542,9 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[var(--background)] text-foreground">
       {(error || connectionBusy) && <div role={error ? "alert" : "status"} className="fixed left-1/2 top-4 z-[70] w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground shadow-2xl" aria-live="polite">{error || `${connectionBusy === "wordpress" ? "WordPress / Jetpack" : "Webflow"} wird verbunden…`}</div>}
-      {generationJob && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-title" style={{ color: "#111827" }} className="pointer-events-auto my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><div className="flex items-start gap-4"><div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${generationStatus === "failed" || generationStatus === "cancelled" ? "bg-destructive/10 text-destructive" : generationStatus === "published" ? "bg-emerald-500/10 text-emerald-600" : "bg-primary/10 text-primary"}`}>{generationStatus === "failed" || generationStatus === "published" || generationStatus === "cancelled" ? <Globe2 size={22} /> : <RefreshCw size={22} className="animate-spin" />}</div><div className="min-w-0"><h2 id="website-generation-title" className="text-lg font-semibold text-[#111827]">{generationLabel}</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">{generationDetail}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div style={{ width: `${generationPercent}%` }} className={`h-full rounded-full transition-all duration-500 ${generationStatus === "failed" || generationStatus === "cancelled" ? "bg-destructive" : generationStatus === "published" ? "bg-emerald-500" : "bg-primary"}`} /></div><div className="mt-5 flex items-center justify-between gap-3 text-xs text-[#4b5563]"><span>{generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</span><span>{generationStatus} · {generationPercent}%</span></div>{["published", "failed", "cancelled"].includes(generationStatus ?? "") && <button type="button" onClick={() => setGenerationJob(null)} className="mt-6 w-full rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-secondary">Schließen</button>}</div></div></ViewportPortal>}
-      {generationStarting && !generationJob && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-start-title" style={{ color: "#111827" }} className="pointer-events-auto my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><div className="flex items-start gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><RefreshCw size={22} className="animate-spin" /></div><div><h2 id="website-generation-start-title" className="text-lg font-semibold text-[#111827]">Website wird erstellt</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">Die Verbindung wurde bestätigt. Lulu erstellt aus deinen Unternehmensdaten ein strukturiertes Text- und SEO-Profil und setzt es anschließend in das Standard-Template ein.</p><p className="mt-3 text-xs text-[#4b5563]">{generationStarting === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/4 animate-pulse rounded-full bg-primary" /></div></div></div></ViewportPortal>}
+      {generationJob && generationPanelOpen && <ViewportPortal><WebsiteGenerationLivePanel job={generationJob.job} providerLabel={generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"} percent={generationPercent} label={generationLabel} detail={generationDetail} running={generationIsBlocking} cancelling={generationCancelling} onCancel={() => void cancelAutomaticGeneration()} onClose={() => { setGenerationPanelOpen(false); if (isTerminalGenerationJob(generationJob.job)) setGenerationJob(null); }} t={t} /></ViewportPortal>}
+      {generationStarting && !generationJob && generationPanelOpen && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-start-title" style={{ color: "#111827" }} className="pointer-events-auto relative my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><button type="button" onClick={() => setGenerationPanelOpen(false)} aria-label={t("Close generation window")} className="absolute right-4 top-4 rounded-lg border border-border p-2 text-[#4b5563] hover:bg-secondary">×</button><div className="flex items-start gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><RefreshCw size={22} className="animate-spin" /></div><div><h2 id="website-generation-start-title" className="pr-8 text-lg font-semibold text-[#111827]">{t("Website is being created")}</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">{t("The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.")}</p><p className="mt-3 text-xs text-[#4b5563]">{generationStarting === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/4 animate-pulse rounded-full bg-primary" /></div></div></div></ViewportPortal>}
+      {!generationPanelOpen && (generationJob || generationStarting) && <WebsiteGenerationProcessButton percent={generationJob ? generationPercent : 3} label={generationJob ? generationLabel : t("Website is being created")} onClick={() => setGenerationPanelOpen(true)} t={t} />}
       {generationFailure && !generationJob && !generationStarting && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="alertdialog" aria-modal="true" style={{ color: "#111827" }} className="pointer-events-auto my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-destructive/30 bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><h2 className="text-lg font-semibold text-destructive">Generierung fehlgeschlagen</h2><p className="mt-3 break-words text-sm leading-6 text-[#4b5563]">{generationFailure.message}</p><div className="mt-6 grid gap-2 sm:grid-cols-2"><button type="button" onClick={() => { const failedProvider = generationFailure.provider; setGenerationFailure(null); void startAutomaticGeneration(failedProvider); }} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium !text-primary-foreground transition hover:opacity-90">Erneut versuchen</button><button type="button" onClick={() => setGenerationFailure(null)} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-secondary">Schließen</button></div></div></div></ViewportPortal>}
 
       <main data-lulu-scroll-container className="min-h-screen min-w-0 overflow-x-hidden">
