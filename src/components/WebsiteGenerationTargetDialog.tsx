@@ -41,7 +41,7 @@ export function WebsiteGenerationTargetDialog({ provider, sites, selectedSiteId,
         <div role="radiogroup" aria-label={t("Website type")} className="mt-6 grid gap-3 sm:grid-cols-2">
           <button type="button" role="radio" aria-checked={mode === "existing"} onClick={() => onSelectMode("existing")} className={`rounded-xl border p-4 text-left transition ${mode === "existing" ? "border-primary bg-primary/5 ring-2 ring-primary/15" : "border-border bg-background hover:border-primary/40"}`}>
             <div className="flex items-start gap-3">
-              <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${mode === "existing" ? "bg-primary text-primary-foreground" : "bg-secondary text-[#4b5563]"}`}><PencilLine size={18} /></span>
+              <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${mode === "existing" ? "bg-[#2271b1] text-white" : "bg-secondary text-[#4b5563]"}`}><PencilLine size={18} /></span>
               <div>
                 <span className="block text-sm font-semibold text-[#111827]">{t("Use an existing website")}</span>
                 <span className="mt-1 block text-xs leading-5 text-[#4b5563]">{t("Matching pages are updated on the selected connected website. Other content remains in place.")}</span>
@@ -51,7 +51,7 @@ export function WebsiteGenerationTargetDialog({ provider, sites, selectedSiteId,
 
           <button type="button" role="radio" aria-checked={mode === "new"} onClick={() => onSelectMode("new")} className={`rounded-xl border p-4 text-left transition ${mode === "new" ? "border-primary bg-primary/5 ring-2 ring-primary/15" : "border-border bg-background hover:border-primary/40"}`}>
             <div className="flex items-start gap-3">
-              <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${mode === "new" ? "bg-primary text-primary-foreground" : "bg-secondary text-[#4b5563]"}`}><LayoutTemplate size={18} /></span>
+              <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${mode === "new" ? "bg-[#2271b1] text-white" : "bg-secondary text-[#4b5563]"}`}><LayoutTemplate size={18} /></span>
               <div>
                 <span className="block text-sm font-semibold text-[#111827]">{t("Generate a new website")}</span>
                 <span className="mt-1 block text-xs leading-5 text-[#4b5563]">{t("Fresh pages are added from the standard template without reusing matching existing pages.")}</span>
@@ -74,7 +74,7 @@ export function WebsiteGenerationTargetDialog({ provider, sites, selectedSiteId,
 
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <button type="button" onClick={onCancel} className="h-10 rounded-lg border border-border px-4 text-sm font-medium text-[#111827] transition hover:bg-secondary">{t("Cancel")}</button>
-          <button type="button" disabled={!canContinue} onClick={onContinue} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-45">
+          <button type="button" disabled={!canContinue} onClick={onContinue} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-not-allowed disabled:opacity-45">
             {busy ? t("Starting…") : t("Confirm and continue")}<ArrowRight size={15} />
           </button>
         </div>

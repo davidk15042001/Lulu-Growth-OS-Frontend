@@ -80,3 +80,6 @@ Push-Zeitstempel: 2026-08-23 18:24:02 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 18:42:38 Europe/Berlin
 Änderungen: Die allgemeine Website-Übersicht wurde aus Navigation und Suche entfernt; /app/website leitet direkt zu WordPress weiter, während WordPress und Webflow ihre jeweilige OAuth-Verbindung jetzt unmittelbar auf der Provider-Seite anbieten und Webflow nur nach bestätigter Verbindung Verwaltungsdaten zeigt.
+
+Push-Zeitstempel: 2026-08-23 18:51:37 Europe/Berlin
+Änderungen: Die ausgewählte Website-Zieloption und der Bestätigungsbutton verwenden im Portal jetzt explizites WordPress-Blau mit weißem Icon beziehungsweise weißer Schrift, sodass kein Schwarz-auf-Schwarz-Kontrast mehr entsteht.
