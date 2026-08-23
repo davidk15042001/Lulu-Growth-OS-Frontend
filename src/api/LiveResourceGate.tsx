@@ -13,9 +13,6 @@ export function LiveResourceGate({ enabled, resourceType, children }: { enabled:
   if (live.error) {
     return <>{style}<section className="lulu-live-gate lulu-live-gate--error" role="alert"><strong>{t("Live data could not be loaded")}</strong><span>{live.error}</span><button type="button" onClick={() => void live.refresh()}>{t("Try again")}</button></section></>;
   }
-  if (!live.items.length) {
-    return <>{style}<section className="lulu-live-gate" role="status"><strong>{t("No live data available yet")}</strong><span>{t("Connect a data source or complete an action to populate this page. No example metrics are displayed.")}</span></section></>;
-  }
   return <>{children}</>;
 }
 

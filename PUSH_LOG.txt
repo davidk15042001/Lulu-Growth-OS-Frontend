@@ -47,3 +47,6 @@ Push-Zeitstempel: 2026-08-22 07:15:23 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 03:04:28 Europe/Berlin
 Änderungen: Leere Live-Daten-Seiten behalten die globale Navigation; zwei obsolete Seiten wurden aus Navigation, Suche und Routing entfernt und der Suchbutton zeigt das weiße Suchsymbol korrekt an.
+
+Push-Zeitstempel: 2026-08-23 03:12:56 Europe/Berlin
+Änderungen: Seiten mit noch leeren Live-Datensätzen zeigen wieder ihre vollständige zugehörige Oberfläche statt der blockierenden Hinweisansicht.
