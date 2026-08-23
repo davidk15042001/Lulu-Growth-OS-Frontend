@@ -2,6 +2,7 @@ import { requestApi } from './client';
 
 export type WebsiteProvider = 'wordpress' | 'webflow' | 'managed';
 export type WebsiteOwnershipMode = 'connected' | 'managed';
+export type WebsiteGenerationTargetMode = 'existing' | 'new';
 export type WebsiteSite = {
   id: string;
   workspaceId: string;
@@ -86,7 +87,7 @@ export const websitesApi = {
   getGenerationJob: (workspaceId: string, siteId: string, jobId: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/${jobId}` }),
   cancelGenerationJob: (workspaceId: string, siteId: string, jobId: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/${jobId}/cancel`, method: 'POST', body: {} }),
   resumeGenerationJob: (workspaceId: string, siteId: string, jobId: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/${jobId}/resume`, method: 'POST', body: {} }),
-  startAutomaticGeneration: (workspaceId: string, provider: 'wordpress' | 'webflow', language?: string, siteId?: string) => requestApi<{ site: WebsiteSite; job: WebsiteGenerationJob; reused: boolean }>({ path: `/workspaces/${workspaceId}/websites/automatic-generation`, method: 'POST', body: { provider, ...(siteId ? { siteId } : {}), ...(language ? { language } : {}) }, timeoutMs: 120_000 }),
+  startAutomaticGeneration: (workspaceId: string, provider: 'wordpress' | 'webflow', targetMode: WebsiteGenerationTargetMode, language?: string, siteId?: string) => requestApi<{ site: WebsiteSite; job: WebsiteGenerationJob; reused: boolean }>({ path: `/workspaces/${workspaceId}/websites/automatic-generation`, method: 'POST', body: { provider, targetMode, ...(siteId ? { siteId } : {}), ...(language ? { language } : {}) }, timeoutMs: 120_000 }),
   syncProvider: (workspaceId: string, provider: 'wordpress') => requestApi<{ items: WebsiteSite[] }>({ path: `/workspaces/${workspaceId}/websites/sync-provider`, method: 'POST', body: { provider }, timeoutMs: 60_000 }),
   cleanupProvider: (workspaceId: string, provider: 'wordpress' | 'webflow') => requestApi<void>({ path: `/workspaces/${workspaceId}/websites/cleanup-provider`, method: 'POST', body: { provider } }),
   wordpressContent: (workspaceId: string, siteId: string) => requestApi<WordPressContent>({ path: `/workspaces/${workspaceId}/websites/${siteId}/wordpress-content` }),

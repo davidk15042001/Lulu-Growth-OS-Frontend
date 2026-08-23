@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { getSelectedWorkspaceId } from "../../api/session";
-import { websitesApi, type WebsiteGenerationJob, type WebsiteSite, type WebsiteProviderContent, type WordPressContent, type WordPressContentItem } from "../../api/websites";
+import { websitesApi, type WebsiteGenerationJob, type WebsiteGenerationTargetMode, type WebsiteSite, type WebsiteProviderContent, type WordPressContent, type WordPressContentItem } from "../../api/websites";
 import { onboardingApi, type Platform } from "../../api/onboarding";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../../api/client";
 import {
@@ -19,6 +19,7 @@ import {
 import { pageLinkProps } from "../../routing";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { generationActivities, WebsiteGenerationActivityToast, WebsiteGenerationLivePanel, WebsiteGenerationProcessButton, type WebsiteGenerationActivity } from "../../components/WebsiteGenerationLivePanel";
+import { WebsiteGenerationTargetDialog } from "../../components/WebsiteGenerationTargetDialog";
 
 type Provider = "wordpress" | "webflow";
 type TrackedGenerationJob = { workspaceId: string; siteId: string; job: WebsiteGenerationJob; provider: Provider };
@@ -229,6 +230,9 @@ export default function App() {
   const [generationPanelOpen, setGenerationPanelOpen] = useState(true);
   const [generationCancelling, setGenerationCancelling] = useState(false);
   const [generationResuming, setGenerationResuming] = useState(false);
+  const [generationTargetDialogOpen, setGenerationTargetDialogOpen] = useState(false);
+  const [generationTargetProvider, setGenerationTargetProvider] = useState<Provider>(initialProvider);
+  const [generationTargetMode, setGenerationTargetMode] = useState<WebsiteGenerationTargetMode | null>(null);
   const [generationNotification, setGenerationNotification] = useState<WebsiteGenerationActivity | null>(null);
   const [generationFailure, setGenerationFailure] = useState<{ provider: Provider; message: string } | null>(null);
   const [wordpressContent, setWordpressContent] = useState<WordPressContent | null>(null);
@@ -236,8 +240,6 @@ export default function App() {
   const [wordpressContentLoading, setWordpressContentLoading] = useState(false);
   const [error, setError] = useState("");
   const [oauthHelpVisible, setOauthHelpVisible] = useState(false);
-  const autoStartedRef = useRef("");
-  const oauthReturnRef = useRef<Provider | null>(null);
   const lastNotifiedActivityRef = useRef("");
   const lastNotifiedJobRef = useRef("");
   const generationNotificationTimerRef = useRef<number | undefined>(undefined);
@@ -289,12 +291,13 @@ export default function App() {
       setGenerationFailure({ provider, message: `${provider === "wordpress" ? "WordPress.com" : "Webflow"}-Verbindung fehlgeschlagen: ${oauthError}` });
     } else if (oauthCode || connectedProvider) {
       const returnedProvider: Provider = connectedProvider === "webflow" || provider === "webflow" ? "webflow" : "wordpress";
-      oauthReturnRef.current = returnedProvider;
-      autoStartedRef.current = "";
+      setProvider(returnedProvider);
       setGenerationJob(null);
       setGenerationFailure(null);
-      setGenerationStarting(returnedProvider);
-      setGenerationPanelOpen(true);
+      setGenerationStarting(null);
+      setGenerationTargetProvider(returnedProvider);
+      setGenerationTargetMode(null);
+      setGenerationTargetDialogOpen(true);
     }
     const cleanUrl = `${window.location.pathname}${window.location.search.replace(/([?&])(oauthCode|oauthError|oauthRequestId|connected)=[^&]*/g, "").replace(/[?&]$/, "")}${window.location.hash}`;
     window.history.replaceState({}, "", cleanUrl);
@@ -375,14 +378,28 @@ export default function App() {
     return () => { cancelled = true; };
   }, [workspaceId, provider, selectedSiteId, sites]);
 
-  const startAutomaticGeneration = async (nextProvider: Provider) => {
+  const openGenerationTargetDialog = (nextProvider: Provider) => {
+    const providerSites = sites.filter((site) => site.provider === nextProvider);
+    setGenerationTargetProvider(nextProvider);
+    setGenerationTargetMode(null);
+    setSelectedSiteId((current) => providerSites.some((site) => site.id === current) ? current : providerSites.length === 1 ? providerSites[0].id : "");
+    setGenerationFailure(null);
+    setGenerationTargetDialogOpen(true);
+  };
+
+  const startAutomaticGeneration = async (nextProvider: Provider, targetMode: WebsiteGenerationTargetMode) => {
     if (!workspaceId) return;
+    if (nextProvider === "wordpress" && !selectedSiteId) {
+      setError(t("Select the WordPress website that should receive the generated content."));
+      return;
+    }
     setError("");
     setGenerationFailure(null);
+    setGenerationTargetDialogOpen(false);
     setGenerationStarting(nextProvider);
     setGenerationPanelOpen(true);
     try {
-      const response = await websitesApi.startAutomaticGeneration(workspaceId, nextProvider, document.documentElement.lang || undefined, selectedSiteId || undefined);
+      const response = await websitesApi.startAutomaticGeneration(workspaceId, nextProvider, targetMode, document.documentElement.lang || undefined, selectedSiteId || undefined);
       setSites((current) => current.some((site) => site.id === response.data.site.id) ? current.map((site) => site.id === response.data.site.id ? response.data.site : site) : [response.data.site, ...current]);
       setSelectedSiteId(response.data.site.id);
       setGenerationStarting(null);
@@ -429,18 +446,6 @@ export default function App() {
       setGenerationResuming(false);
     }
   };
-
-  useEffect(() => {
-    const oauthReturn = oauthReturnRef.current === provider;
-    // Never start without a local site ID. Without it the backend must perform provider discovery
-    // synchronously, which can exceed the request broker timeout after an OAuth return.
-    if (!workspaceId || !providerAuthorized || !oauthReturn || !selectedSiteId) return;
-    const key = `${workspaceId}:${provider}`;
-    if (!oauthReturn && autoStartedRef.current === key) return;
-    autoStartedRef.current = key;
-    oauthReturnRef.current = null;
-    void startAutomaticGeneration(provider);
-  }, [workspaceId, providerAuthorized, sites, provider, selectedSiteId]);
 
   useEffect(() => {
     if (!workspaceId || !generationJob || isTerminalGenerationJob(generationJob.job)) return;
@@ -585,12 +590,13 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[var(--background)] text-foreground">
+      {generationTargetDialogOpen && !generationIsBlocking && <ViewportPortal><WebsiteGenerationTargetDialog provider={generationTargetProvider} sites={sites} selectedSiteId={selectedSiteId} mode={generationTargetMode} busy={generationStarting === generationTargetProvider} onSelectSite={(siteId) => { setSelectedSiteId(siteId); setSelectedDomainId(""); }} onSelectMode={setGenerationTargetMode} onCancel={() => setGenerationTargetDialogOpen(false)} onContinue={() => { if (generationTargetMode) void startAutomaticGeneration(generationTargetProvider, generationTargetMode); }} t={t} /></ViewportPortal>}
       {generationNotification && !generationPanelOpen && <WebsiteGenerationActivityToast activity={generationNotification} onClick={() => { setGenerationPanelOpen(true); setGenerationNotification(null); }} t={t} />}
       {(error || connectionBusy) && <div role={error ? "alert" : "status"} className="fixed left-1/2 top-4 z-[70] w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground shadow-2xl" aria-live="polite">{error || `${connectionBusy === "wordpress" ? "WordPress / Jetpack" : "Webflow"} wird verbunden…`}</div>}
       {generationJob && generationPanelOpen && <ViewportPortal><WebsiteGenerationLivePanel job={generationJob.job} providerLabel={generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"} percent={generationPercent} label={generationLabel} detail={generationDetail} running={generationIsBlocking} cancelling={generationCancelling} resuming={generationResuming} onCancel={() => void cancelAutomaticGeneration()} onResume={() => void resumeAutomaticGeneration()} onClose={() => { setGenerationPanelOpen(false); if (isTerminalGenerationJob(generationJob.job)) setGenerationJob(null); }} t={t} /></ViewportPortal>}
       {generationStarting && !generationJob && generationPanelOpen && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-start-title" style={{ color: "#111827" }} className="pointer-events-auto relative my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><button type="button" onClick={() => setGenerationPanelOpen(false)} aria-label={t("Close generation window")} className="absolute right-4 top-4 rounded-lg border border-border p-2 text-[#4b5563] hover:bg-secondary">×</button><div className="flex items-start gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><RefreshCw size={22} className="animate-spin" /></div><div><h2 id="website-generation-start-title" className="pr-8 text-lg font-semibold text-[#111827]">{t("Website is being created")}</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">{t("The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.")}</p><p className="mt-3 text-xs text-[#4b5563]">{generationStarting === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/4 animate-pulse rounded-full bg-primary" /></div></div></div></ViewportPortal>}
       {!generationPanelOpen && (generationJob || generationStarting) && <WebsiteGenerationProcessButton percent={generationJob ? generationPercent : 3} label={generationJob ? generationLabel : t("Website is being created")} onClick={() => setGenerationPanelOpen(true)} t={t} />}
-      {generationFailure && !generationJob && !generationStarting && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="alertdialog" aria-modal="true" style={{ color: "#111827" }} className="pointer-events-auto my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-destructive/30 bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><h2 className="text-lg font-semibold text-destructive">Generierung fehlgeschlagen</h2><p className="mt-3 break-words text-sm leading-6 text-[#4b5563]">{generationFailure.message}</p><div className="mt-6 grid gap-2 sm:grid-cols-2"><button type="button" onClick={() => { const failedProvider = generationFailure.provider; setGenerationFailure(null); void startAutomaticGeneration(failedProvider); }} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium !text-primary-foreground transition hover:opacity-90">Erneut versuchen</button><button type="button" onClick={() => setGenerationFailure(null)} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-secondary">Schließen</button></div></div></div></ViewportPortal>}
+      {generationFailure && !generationJob && !generationStarting && !generationTargetDialogOpen && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="alertdialog" aria-modal="true" style={{ color: "#111827" }} className="pointer-events-auto my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-destructive/30 bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><h2 className="text-lg font-semibold text-destructive">Generierung fehlgeschlagen</h2><p className="mt-3 break-words text-sm leading-6 text-[#4b5563]">{generationFailure.message}</p><div className="mt-6 grid gap-2 sm:grid-cols-2"><button type="button" onClick={() => openGenerationTargetDialog(generationFailure.provider)} className="rounded-lg bg-primary px-4 py-2.5 text-sm font-medium !text-primary-foreground transition hover:opacity-90">Erneut versuchen</button><button type="button" onClick={() => setGenerationFailure(null)} className="rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-[#111827] transition hover:bg-secondary">Schließen</button></div></div></div></ViewportPortal>}
 
       <main data-lulu-scroll-container className="min-h-screen min-w-0 overflow-x-hidden">
         <div className="mx-auto max-w-[1400px] px-5 py-6 sm:px-8 sm:py-8">
@@ -599,7 +605,7 @@ export default function App() {
             <div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => void refresh()} disabled={isRefreshing} aria-busy={isRefreshing} className="flex h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-foreground transition hover:border-primary/40 disabled:cursor-wait disabled:opacity-60"><RefreshCw size={15} className={isRefreshing ? "animate-spin" : ""} /> {isRefreshing ? "Wird aktualisiert…" : "Aktualisieren"}</button><button type="button" className="flex h-10 items-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground shadow-lg shadow-black/10"><Plus size={15} /> Neue Seite</button></div>
           </header>
 
-          {provider === "wordpress" && sectionParam === "wordpress-jetpack-9013" && <section className="mb-6 rounded-2xl border border-[#dcdcde] bg-white p-5 shadow-sm"><div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#646970]">{t("WordPress")}</p><h2 className="mt-1 text-xl font-semibold text-[#1d2327]">{t("Website generation")}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#50575e]">{t("Choose the connected website and domain, then generate or update the website.")}</p></div><div className="flex flex-wrap gap-2">{!providerAuthorized && <button type="button" disabled={connectionBusy === "wordpress"} onClick={() => void connectProvider("wordpress")} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-[#2271b1] px-4 text-sm font-semibold text-[#2271b1] transition hover:bg-[#eaf3f8] disabled:cursor-wait disabled:opacity-50"><Globe2 size={15} />{connectionBusy === "wordpress" ? t("Connecting…") : t("Connect")}</button>}<button type="button" disabled={!selectedSite || !providerAuthorized || generationStarting === "wordpress" || generationIsBlocking} onClick={() => void startAutomaticGeneration("wordpress")} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-not-allowed disabled:opacity-50"><RefreshCw size={15} className={generationStarting === "wordpress" || generationIsBlocking ? "animate-spin" : ""} />{generationStarting === "wordpress" ? t("Generating…") : generationIsBlocking ? t("Generation in progress…") : t("Generate website")}</button></div></div><div className="mt-5 grid gap-3 md:grid-cols-2"><label className="flex flex-col gap-1.5 text-xs font-semibold text-[#50575e]"><span>{t("Website")}</span><select value={selectedSiteId} onChange={(event) => { setSelectedSiteId(event.target.value); setSelectedDomainId(""); }} className="h-10 rounded-lg border border-[#dcdcde] bg-white px-3 text-sm font-normal text-[#1d2327] outline-none focus:border-[#2271b1]"><option value="">{t("Select website")}</option>{sites.filter((site) => site.provider === "wordpress").map((site) => <option key={site.id} value={site.id}>{site.name}{site.externalSiteUrl ? ` — ${site.externalSiteUrl}` : ""}</option>)}</select></label><label className="flex flex-col gap-1.5 text-xs font-semibold text-[#50575e]"><span>{t("Domain")}</span><select value={selectedDomain?.id ?? ""} onChange={(event) => setSelectedDomainId(event.target.value)} disabled={!selectedSite || selectedSite.domains.length === 0} className="h-10 rounded-lg border border-[#dcdcde] bg-white px-3 text-sm font-normal text-[#1d2327] outline-none focus:border-[#2271b1] disabled:cursor-not-allowed disabled:bg-[#f6f7f7]"><option value="">{selectedSite?.domains.length ? t("Select domain") : t("No domain available")}</option>{(selectedSite?.domains ?? []).map((domain) => <option key={domain.id} value={domain.id}>{domain.hostname} — {domain.status === "verified" ? t("Verified") : t("Pending verification")}</option>)}</select></label></div>{error && <p role="alert" className="mt-4 break-words text-sm text-red-700">{error}</p>}</section>}
+          {provider === "wordpress" && sectionParam === "wordpress-jetpack-9013" && <section className="mb-6 rounded-2xl border border-[#dcdcde] bg-white p-5 shadow-sm"><div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#646970]">{t("WordPress")}</p><h2 className="mt-1 text-xl font-semibold text-[#1d2327]">{t("Website generation")}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-[#50575e]">{t("Choose the connected website and domain, then generate or update the website.")}</p></div><div className="flex flex-wrap gap-2">{!providerAuthorized && <button type="button" disabled={connectionBusy === "wordpress"} onClick={() => void connectProvider("wordpress")} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-[#2271b1] px-4 text-sm font-semibold text-[#2271b1] transition hover:bg-[#eaf3f8] disabled:cursor-wait disabled:opacity-50"><Globe2 size={15} />{connectionBusy === "wordpress" ? t("Connecting…") : t("Connect")}</button>}<button type="button" disabled={!providerAuthorized || generationStarting === "wordpress" || generationIsBlocking} onClick={() => openGenerationTargetDialog("wordpress")} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-not-allowed disabled:opacity-50"><RefreshCw size={15} className={generationStarting === "wordpress" || generationIsBlocking ? "animate-spin" : ""} />{generationStarting === "wordpress" ? t("Generating…") : generationIsBlocking ? t("Generation in progress…") : t("Generate website")}</button></div></div><div className="mt-5 grid gap-3 md:grid-cols-2"><label className="flex flex-col gap-1.5 text-xs font-semibold text-[#50575e]"><span>{t("Website")}</span><select value={selectedSiteId} onChange={(event) => { setSelectedSiteId(event.target.value); setSelectedDomainId(""); }} className="h-10 rounded-lg border border-[#dcdcde] bg-white px-3 text-sm font-normal text-[#1d2327] outline-none focus:border-[#2271b1]"><option value="">{t("Select website")}</option>{sites.filter((site) => site.provider === "wordpress").map((site) => <option key={site.id} value={site.id}>{site.name}{site.externalSiteUrl ? ` — ${site.externalSiteUrl}` : ""}</option>)}</select></label><label className="flex flex-col gap-1.5 text-xs font-semibold text-[#50575e]"><span>{t("Domain")}</span><select value={selectedDomain?.id ?? ""} onChange={(event) => setSelectedDomainId(event.target.value)} disabled={!selectedSite || selectedSite.domains.length === 0} className="h-10 rounded-lg border border-[#dcdcde] bg-white px-3 text-sm font-normal text-[#1d2327] outline-none focus:border-[#2271b1] disabled:cursor-not-allowed disabled:bg-[#f6f7f7]"><option value="">{selectedSite?.domains.length ? t("Select domain") : t("No domain available")}</option>{(selectedSite?.domains ?? []).map((domain) => <option key={domain.id} value={domain.id}>{domain.hostname} — {domain.status === "verified" ? t("Verified") : t("Pending verification")}</option>)}</select></label></div>{error && <p role="alert" className="mt-4 break-words text-sm text-red-700">{error}</p>}</section>}
 
           {!sectionParam && <section className="mb-6 rounded-xl border border-border bg-card p-5 sm:p-6"><div className="flex flex-col gap-2"><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Integrationen</p><h2 className="text-lg font-semibold tracking-tight text-foreground">Plattformen später verbinden</h2><p className="max-w-2xl text-sm leading-6 text-[#4b5563]">WordPress/Jetpack und Webflow können jederzeit nach dem Onboarding hinzugefügt, erneut verbunden oder getrennt werden.</p></div><div className="mt-5 grid gap-3 md:grid-cols-2">{providerOptions.map((option) => { const platform = platforms.find((item) => platformMatchesProvider(item, option.id)); const publishedSite = sites.find((site) => site.provider === option.id && site.status === "published"); const isConnected = Boolean(platform && platformIsConnected(platform) && publishedSite); const isBusy = connectionBusy === option.id; return <article key={option.id} className="flex min-w-0 flex-col justify-between gap-4 rounded-xl border border-border bg-background p-4 sm:flex-row sm:items-center"><div className="flex min-w-0 items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-secondary text-muted-foreground"><Globe2 size={18} /></span><div className="min-w-0"><h3 className="truncate text-sm font-semibold text-foreground">{option.label}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{isConnected ? `Verbunden${platform?.settings?.accountName ? ` · ${String(platform.settings.accountName)}` : ""}` : platform && ["pending", "error"].includes(platform.connectionStatus.toLowerCase()) ? "Setting up…" : "Noch nicht verbunden"}</p>{platform?.lastError && <p className="mt-1 break-words text-xs text-destructive">{platform.lastError}</p>}</div></div><div className="flex shrink-0 flex-wrap gap-2"><button type="button" disabled={isBusy} onClick={() => isConnected ? void disconnectProvider(option.id) : void connectProvider(option.id)} className={`inline-flex h-9 items-center justify-center rounded-lg px-3 text-xs font-medium transition disabled:cursor-wait disabled:opacity-60 ${isConnected ? "border border-border text-foreground hover:bg-secondary" : "bg-primary text-primary-foreground hover:opacity-90"}`}>{isBusy ? "Bitte warten…" : isConnected ? "Trennen" : "Verbinden"}</button></div>{option.id === "wordpress" && !isConnected && <div className="mt-3 rounded-lg border border-border bg-background/70 p-3 text-xs leading-5 text-muted-foreground"><p>Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.</p><div className="mt-2 flex flex-wrap gap-2"><button type="button" className="rounded-md border border-border px-2.5 py-1.5 font-medium text-[#111827] transition hover:bg-secondary" onClick={() => { setOauthHelpVisible(true); void connectProvider("wordpress"); }}>WordPress-Verbindung neu starten</button>{oauthHelpVisible && <span className="self-center">Der neue Start erzeugt einen frischen OAuth-State.</span>}</div></div>}</article>; })}</div>{error && <p role="alert" className="mt-4 break-words text-sm text-destructive">{error}</p>}</section>}
 

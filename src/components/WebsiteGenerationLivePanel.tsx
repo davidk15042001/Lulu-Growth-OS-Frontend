@@ -38,6 +38,8 @@ function replaceActivityParams(template: string, params: Record<string, string |
 
 export function generationActivityMessage(event: WebsiteGenerationActivity, t: Translate) {
   const templates: Record<string, string> = {
+    target_existing_selected: 'The existing website "{{site}}" was selected as the update destination.',
+    target_new_selected: 'A fresh website will be generated on "{{site}}" without reusing matching pages.',
     job_started: "Website generation started.",
     job_resumed: "The saved checkpoint was loaded. Generation is continuing.",
     company_context_loaded: "Verified company data and connected sources were loaded.",
