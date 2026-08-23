@@ -59,7 +59,7 @@ export function generationActivityMessage(event: WebsiteGenerationActivity, t: T
     content_profile_started: "Website copy and SEO data are being prepared.",
     content_profile_ready: "Website copy and SEO data were completed and saved.",
     section_saved: 'Section "{{section}}" on "{{page}}" was completed and saved.',
-    template_ready: "The template is ready with {{sections}} sections across {{pages}} pages.",
+    template_ready: "The fixed Custom Bolt Forge template is ready with {{sections}} sections across {{pages}} pages.",
     preview_ready: "The website preview is complete and ready for publishing.",
     publishing_started: "Publishing to {{provider}} started.",
     page_publishing: 'Page "{{page}}" is being published.',
@@ -211,6 +211,7 @@ export function WebsiteGenerationLivePanel({
   const totalSectionCount = Number.isFinite(reportedTotalSections) ? Math.max(0, reportedTotalSections) : inferredTotalSections;
   const currentSectionTitle = String(rawProgress.currentSectionTitle ?? "");
   const providerResult = objectValue(job.providerResult);
+  const fixedReferenceTemplate = String(providerResult.designSource ?? objectValue(job.plan).designSource ?? "") === "custom-bolt-forge";
   const homepageSetup = objectValue(providerResult.homepageSetup);
   const siteCustomization = objectValue(providerResult.siteCustomization);
   const homepageActionRequired = homepageSetup.status === "action_required";
@@ -300,8 +301,8 @@ export function WebsiteGenerationLivePanel({
           </div>}
 
           {job.status === "published" && providerResult.deliveryMode === "gutenberg" && <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[#1d2327]">
-            <p className="flex items-center gap-2 text-xs font-semibold text-emerald-800"><CheckCircle2 aria-hidden="true" size={14} />{t("Theme-independent WordPress design")}</p>
-            <p className="mt-1 text-[11px] leading-4 text-emerald-800">{t("Lulu published the generated design directly as Gutenberg content. No theme download or installation is required.")}</p>
+            <p className="flex items-center gap-2 text-xs font-semibold text-emerald-800"><CheckCircle2 aria-hidden="true" size={14} />{fixedReferenceTemplate ? t("Fixed Custom Bolt Forge template") : t("Theme-independent WordPress design")}</p>
+            <p className="mt-1 text-[11px] leading-4 text-emerald-800">{fixedReferenceTemplate ? t("The layout follows the reference template. AI only supplies verified copy, colors, SEO and available imagery.") : t("Lulu published the generated design directly as Gutenberg content. No theme download or installation is required.")}</p>
           </div>}
 
           <div className="mt-5 rounded-xl border border-[#dcdcde] bg-white p-3">

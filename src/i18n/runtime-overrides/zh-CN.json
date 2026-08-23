@@ -522,6 +522,13 @@
   "The canonical website pages are safely replaced and older Lulu duplicates are archived as drafts.": "规范网站页面将被安全替换，较旧的 Lulu 重复页面将归档为草稿。",
   "New mode replaces Home, About, Services and Contact, archives older Lulu duplicates, and preserves unrelated customer-owned content.": "新模式会替换首页、关于、服务和联系页面，归档较旧的 Lulu 重复页面，并保留无关的客户自有内容。",
   "Existing mode updated the selected pages and contact form while preserving the customer-owned site identity, header, footer and navigation.": "现有模式已更新所选页面和联系表单，同时保留客户自有的网站标识、页眉、页脚和导航。",
+  "The fixed Custom Bolt Forge template is ready with {{sections}} sections across {{pages}} pages.": "固定的 Custom Bolt Forge 模板已完成，共 {{pages}} 个页面、{{sections}} 个区块。",
+  "Fixed Custom Bolt Forge template": "固定的 Custom Bolt Forge 模板",
+  "The layout follows the reference template. AI only supplies verified copy, colors, SEO and available imagery.": "布局严格遵循参考模板。AI 仅填充经过验证的文案、颜色、SEO 和可用图片。",
+  "New mode applies the fixed Custom Bolt Forge reference layout, replaces Home, About, Services and Contact, archives older Lulu duplicates, and preserves unrelated customer-owned content.": "新模式会应用固定的 Custom Bolt Forge 参考布局，替换首页、关于、服务和联系页面，归档较旧的 Lulu 重复页面，并保留无关的客户自有内容。",
+  "The exact reference structure is published as portable Gutenberg content. AI cannot change the layout and only fills verified content and branding.": "精确的参考结构会作为可迁移的 Gutenberg 内容发布。AI 无法更改布局，只会填充经过验证的内容和品牌信息。",
+  "The reference template is being reproduced exactly": "正在精确构建参考模板",
+  "The fixed reference layout is complete. Copy, colors, SEO and available imagery are in place; publishing is being prepared.": "固定参考布局已完成，文案、颜色、SEO 和可用图片均已就位，正在准备发布。",
   "content_only": "仅内容",
   "gutenberg": "Gutenberg"
 }

@@ -523,6 +523,13 @@
   "The canonical website pages are safely replaced and older Lulu duplicates are archived as drafts.": "Die kanonischen Website-Seiten werden sicher ersetzt und ältere Lulu-Duplikate als Entwürfe archiviert.",
   "New mode replaces Home, About, Services and Contact, archives older Lulu duplicates, and preserves unrelated customer-owned content.": "Der neue Modus ersetzt Home, Über uns, Leistungen und Kontakt, archiviert ältere Lulu-Duplikate und bewahrt unabhängige kundeneigene Inhalte.",
   "Existing mode updated the selected pages and contact form while preserving the customer-owned site identity, header, footer and navigation.": "Der bestehende Modus hat die ausgewählten Seiten und das Kontaktformular aktualisiert und dabei kundeneigene Website-Identität, Header, Footer und Navigation bewahrt.",
+  "The fixed Custom Bolt Forge template is ready with {{sections}} sections across {{pages}} pages.": "Das feste Custom-Bolt-Forge-Template ist mit {{sections}} Sections auf {{pages}} Seiten fertiggestellt.",
+  "Fixed Custom Bolt Forge template": "Festes Custom-Bolt-Forge-Template",
+  "The layout follows the reference template. AI only supplies verified copy, colors, SEO and available imagery.": "Das Layout folgt dem Referenz-Template. Die KI liefert ausschließlich geprüfte Texte, Farben, SEO und verfügbare Bilder.",
+  "New mode applies the fixed Custom Bolt Forge reference layout, replaces Home, About, Services and Contact, archives older Lulu duplicates, and preserves unrelated customer-owned content.": "Der neue Modus wendet das feste Custom-Bolt-Forge-Referenzlayout an, ersetzt Startseite, Über uns, Leistungen und Kontakt, archiviert ältere Lulu-Duplikate und bewahrt unabhängige kundeneigene Inhalte.",
+  "The exact reference structure is published as portable Gutenberg content. AI cannot change the layout and only fills verified content and branding.": "Die exakte Referenzstruktur wird als übertragbarer Gutenberg-Inhalt veröffentlicht. Die KI kann das Layout nicht verändern und befüllt nur geprüfte Inhalte und das Branding.",
+  "The reference template is being reproduced exactly": "Das Referenz-Template wird exakt aufgebaut",
+  "The fixed reference layout is complete. Copy, colors, SEO and available imagery are in place; publishing is being prepared.": "Das feste Referenzlayout ist vollständig. Texte, Farben, SEO und verfügbare Bilder sind eingesetzt; die Veröffentlichung wird vorbereitet.",
   "content_only": "Nur Inhalte",
   "gutenberg": "Gutenberg"
 }

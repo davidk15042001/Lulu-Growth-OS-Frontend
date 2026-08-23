@@ -98,3 +98,6 @@ Push-Zeitstempel: 2026-08-23 20:29:31 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 21:05:17 Europe/Berlin
 Änderungen: Die WordPress-Oberfläche zeigt jetzt die vollständige globale Nachbearbeitung mit Firmenidentität, Navigation, Header, Footer, Kontaktformular und sicherer Duplikatbereinigung; die Zielauswahl erklärt den Unterschied zwischen vollständiger neuer Website und inhaltsschonendem Existing-Modus, inklusive präziser Fortschritts-, Aktivitäts- und Warnmeldungen auf Deutsch und Chinesisch.
+
+Push-Zeitstempel: 2026-08-23 21:47:30 Europe/Berlin
+Änderungen: Der Website-Flow kennzeichnet und erklärt jetzt das feste Custom-Bolt-Forge-Referenzlayout, unterscheidet alte Gutenberg-Jobs sicher und zeigt während Generierung sowie WordPress-Einrichtung eindeutig, dass die KI nur Inhalte und Branding befüllt; Deutsch und Chinesisch sind vollständig ergänzt.

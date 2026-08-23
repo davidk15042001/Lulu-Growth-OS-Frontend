@@ -212,6 +212,7 @@ function WordPressSetupCard({ site, job, busy, onVerify, t }: { site: WebsiteSit
   const homepageReady = homepageStatus === "confirmed";
   const deliveryMode = String(providerResult.deliveryMode ?? recordValue(storedSetup.theme).deliveryMode ?? "gutenberg");
   const gutenbergReady = deliveryMode === "gutenberg";
+  const fixedReferenceTemplate = String(providerResult.designSource ?? job?.plan?.designSource ?? "") === "custom-bolt-forge";
   const siteCustomization = Object.keys(recordValue(providerResult.siteCustomization)).length ? recordValue(providerResult.siteCustomization) : recordValue(storedSetup.siteCustomization);
   const customizationStatus = String(siteCustomization.status ?? "pending");
   const customizationMode = String(siteCustomization.mode ?? "full_site");
@@ -231,7 +232,7 @@ function WordPressSetupCard({ site, job, busy, onVerify, t }: { site: WebsiteSit
         {!homepageReady && homepageStatus === "action_required" && homepageAdminUrl && <a href={homepageAdminUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-400 bg-white px-3 py-2 text-xs font-semibold text-amber-950 transition hover:bg-amber-100"><ExternalLink size={14} />{t("Open Reading settings")}</a>}
       </article>
       <article className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-        <div className="flex items-start gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700"><CheckCircle2 size={16} /></span><div><h3 className="text-sm font-semibold text-[#1d2327]">{t("Theme-independent Gutenberg design")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{gutenbergReady ? t("The generated sections are stored directly in WordPress as Gutenberg content. No theme download, upload or activation is required.") : t("Lulu uses the safest content mode supported by this WordPress website.")}</p></div></div>
+        <div className="flex items-start gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700"><CheckCircle2 size={16} /></span><div><h3 className="text-sm font-semibold text-[#1d2327]">{fixedReferenceTemplate ? t("Fixed Custom Bolt Forge template") : t("Theme-independent Gutenberg design")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{fixedReferenceTemplate ? t("The exact reference structure is published as portable Gutenberg content. AI cannot change the layout and only fills verified content and branding.") : gutenbergReady ? t("The generated sections are stored directly in WordPress as Gutenberg content. No theme download, upload or activation is required.") : t("Lulu uses the safest content mode supported by this WordPress website.")}</p></div></div>
       </article>
       <article className={`rounded-xl border p-4 ${customizationReady ? "border-emerald-200 bg-emerald-50" : customizationPartial ? "border-amber-200 bg-amber-50" : "border-blue-200 bg-blue-50"}`}>
         <div className="flex items-start gap-3"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${customizationReady ? "bg-emerald-100 text-emerald-700" : customizationPartial ? "bg-amber-100 text-amber-800" : "bg-blue-100 text-[#2271b1]"}`}>{customizationPartial ? <AlertTriangle size={16} /> : customizationReady ? <CheckCircle2 size={16} /> : <span className="text-xs font-bold">3</span>}</span><div><h3 className="text-sm font-semibold text-[#1d2327]">{t("Complete WordPress website")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{customizationReady ? customizationMode === "content_only" ? t("Existing mode updated the selected pages and contact form while preserving the customer-owned site identity, header, footer and navigation.") : t("Company name, SEO identity, navigation, header, footer, contact form and duplicate cleanup were configured automatically.") : customizationPartial ? t("The pages are live, but WordPress restricted at least one global customization. Confirmed changes remain saved.") : t("Lulu configures the global website after all pages are published.")}</p>{archivedPages.length > 0 && <p className="mt-2 text-[11px] font-medium text-[#50575e]">{t("{{pages}} older duplicate pages archived").replace("{{pages}}", String(archivedPages.length))}</p>}</div></div>
@@ -648,7 +649,7 @@ export default function App() {
         : generationPhase === "configuring_homepage" ? "Startseite wird eingerichtet"
         : generationPhase === "customizing_site" ? "WordPress-Website wird finalisiert"
         : generationPhase === "publishing_pages" || generationStatus === "publishing" ? "WordPress-Seiten werden veröffentlicht"
-          : generationPhase === "applying_template" ? "Standard-Template wird befüllt"
+          : generationPhase === "applying_template" ? t("The reference template is being reproduced exactly")
             : generationPhase === "generating_content" ? "Website-Texte werden erstellt"
               : generationPhase === "analyzing_company" ? "Unternehmensdaten werden analysiert"
                 : "Website wird erstellt";
@@ -661,7 +662,7 @@ export default function App() {
         : generationPhase === "analyzing_company" ? "Lulu liest die bestätigten Firmeninformationen, Angebote und vorhandenen Website-Bilder ein."
         : generationPhase === "generating_content" ? "Lulu erzeugt einmalig die Texte, Handlungsaufforderungen und SEO-Angaben als strukturiertes Datenprofil."
           : generationPhase === "applying_template" ? `${generationProgress?.completedSections ?? 0} von ${generationProgress?.totalSections ?? 0} Sections wurden aufgebaut${generationProgress?.currentPageTitle ? ` · Seite: ${generationProgress.currentPageTitle}` : ""}${generationProgress?.currentSectionTitle ? ` · Aktuell: ${generationProgress.currentSectionTitle}` : ""}.`
-            : generationPhase === "template_ready" || generationPhase === "publishing" ? "Texte, Farben, SEO und vorhandene Bilder sind eingesetzt. Die Veröffentlichung wird vorbereitet."
+            : generationPhase === "template_ready" || generationPhase === "publishing" ? t("The fixed reference layout is complete. Copy, colors, SEO and available imagery are in place; publishing is being prepared.")
               : generationPhase === "publishing_pages" ? `${generationProgress?.completedPages ?? 0} von ${generationProgress?.totalPages ?? 4} Seiten wurden in WordPress veröffentlicht${generationProgress?.currentPageTitle ? ` · Aktuell: ${generationProgress.currentPageTitle}` : ""}.`
                 : generationPhase === "configuring_homepage" ? "Alle Seiten sind veröffentlicht. WordPress richtet jetzt die neue Startseite ein und bestätigt die Einstellung."
                   : generationPhase === "customizing_site" ? "Lulu konfiguriert Firmenname, SEO-Identität, Navigation, Header, Footer, Kontaktformular und bereinigt ältere Lulu-Duplikate."
