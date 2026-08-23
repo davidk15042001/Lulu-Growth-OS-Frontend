@@ -56,3 +56,6 @@ Push-Zeitstempel: 2026-08-23 03:19:44 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 13:24:29 Europe/Berlin
 Änderungen: Die Billing-Pakete wurden mit dem Onboarding vereinheitlicht: Starter, AI und Test zeigen identische RMB-Preise, Leistungen und tatsächliche Funktionsfreigaben; deutsche und chinesische Übersetzungen wurden ergänzt.
+
+Push-Zeitstempel: 2026-08-23 14:47:29 Europe/Berlin
+Änderungen: Die Website-Generierung zeigt die exakten Phasen der neuen Standard-Template-Pipeline; Fortschritts- und Erklärungstexte sind vollständig auf Deutsch, Englisch und Chinesisch übersetzt.
