@@ -494,5 +494,16 @@
   "The published WordPress pages were verified and the interrupted job was restored safely.": "Die veröffentlichten WordPress-Seiten wurden geprüft und der unterbrochene Auftrag sicher wiederhergestellt.",
   "action_required": "Aktion erforderlich",
   "Verify WordPress setup": "WordPress-Einrichtung prüfen",
-  "WordPress setup could not be verified. Please check the connection and try again.": "Die WordPress-Einrichtung konnte nicht geprüft werden. Bitte prüfen Sie die Verbindung und versuchen Sie es erneut."
+  "WordPress setup could not be verified. Please check the connection and try again.": "Die WordPress-Einrichtung konnte nicht geprüft werden. Bitte prüfen Sie die Verbindung und versuchen Sie es erneut.",
+  "{{pages}} pages were published as theme-independent Gutenberg content.": "{{pages}} Seiten wurden als theme-unabhängige Gutenberg-Inhalte veröffentlicht.",
+  "Theme-independent WordPress design": "Theme-unabhängiges WordPress-Design",
+  "Lulu published the generated design directly as Gutenberg content. No theme download or installation is required.": "Lulu hat das generierte Design direkt als Gutenberg-Inhalt veröffentlicht. Es ist kein Theme-Download und keine Installation erforderlich.",
+  "Automatic WordPress setup": "Automatische WordPress-Einrichtung",
+  "Lulu publishes the generated design as portable Gutenberg content and configures every permitted WordPress setting through the CRM.": "Lulu veröffentlicht das generierte Design als übertragbare Gutenberg-Inhalte und konfiguriert jede erlaubte WordPress-Einstellung über das CRM.",
+  "Automatic setup": "Automatische Einrichtung",
+  "Theme-independent Gutenberg design": "Theme-unabhängiges Gutenberg-Design",
+  "The generated sections are stored directly in WordPress as Gutenberg content. No theme download, upload or activation is required.": "Die generierten Sections werden direkt als Gutenberg-Inhalte in WordPress gespeichert. Download, Upload oder Aktivierung eines Themes sind nicht erforderlich.",
+  "Lulu uses the safest content mode supported by this WordPress website.": "Lulu verwendet den sichersten Inhaltsmodus, den diese WordPress-Website unterstützt.",
+  "All generated pages are published. WordPress still requires the homepage step shown below.": "Alle generierten Seiten sind veröffentlicht. WordPress benötigt nur noch den unten angezeigten Startseitenschritt.",
+  "gutenberg": "Gutenberg"
 }

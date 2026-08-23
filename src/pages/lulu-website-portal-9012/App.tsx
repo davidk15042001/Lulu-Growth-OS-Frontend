@@ -5,10 +5,8 @@ import { websitesApi, type WebsiteGenerationJob, type WebsiteGenerationTargetMod
 import { onboardingApi, type Platform } from "../../api/onboarding";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../../api/client";
 import {
-  AlertTriangle,
   ArrowRight,
   CheckCircle2,
-  Download,
   ExternalLink,
   FileEdit,
   Globe2,
@@ -208,29 +206,24 @@ function WordPressSetupCard({ site, job, busy, onVerify, t }: { site: WebsiteSit
   const storedSetup = recordValue(site.settings.wordpressSetup);
   const providerResult = recordValue(job?.providerResult);
   const homepage = Object.keys(recordValue(providerResult.homepageSetup)).length ? recordValue(providerResult.homepageSetup) : recordValue(storedSetup.homepage);
-  const theme = Object.keys(recordValue(providerResult.themeSetup)).length ? recordValue(providerResult.themeSetup) : recordValue(storedSetup.theme);
   const homepageStatus = String(homepage.status ?? "pending");
-  const themeStatus = String(theme.status ?? "pending");
   const homepageAdminUrl = String(homepage.adminUrl ?? "");
-  const themeAdminUrl = String(theme.adminUrl ?? "");
-  const themeDownloadPath = String(theme.downloadPath ?? "/downloads/lulu-base.zip");
   const homepageReady = homepageStatus === "confirmed";
-  const themeReady = themeStatus === "active";
+  const deliveryMode = String(providerResult.deliveryMode ?? recordValue(storedSetup.theme).deliveryMode ?? "gutenberg");
+  const gutenbergReady = deliveryMode === "gutenberg";
 
   return <section className="mb-6 rounded-2xl border border-[#dcdcde] bg-white p-5 shadow-sm">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-      <div><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#646970]">{t("WordPress launch setup")}</p><h2 className="mt-1 text-xl font-semibold text-[#1d2327]">{t("Lulu Base theme and homepage")}</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-[#50575e]">{t("Generated pages remain portable. Lulu checks the homepage and the Lulu Base theme separately so a WordPress limitation can never turn published pages into a failed generation.")}</p></div>
-      <div className="flex flex-wrap items-center gap-2"><span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${homepageReady && themeReady ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800"}`}>{homepageReady && themeReady ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}{homepageReady && themeReady ? t("Ready") : t("Setup check")}</span><button type="button" disabled={busy} onClick={onVerify} className="inline-flex items-center gap-2 rounded-lg border border-[#dcdcde] bg-white px-3 py-2 text-xs font-semibold text-[#1d2327] transition hover:border-[#2271b1] disabled:cursor-wait disabled:opacity-60"><RefreshCw size={14} className={busy ? "animate-spin" : ""} />{busy ? t("Checking…") : t("Verify WordPress setup")}</button></div>
+      <div><p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#646970]">{t("WordPress launch setup")}</p><h2 className="mt-1 text-xl font-semibold text-[#1d2327]">{t("Automatic WordPress setup")}</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-[#50575e]">{t("Lulu publishes the generated design as portable Gutenberg content and configures every permitted WordPress setting through the CRM.")}</p></div>
+      <div className="flex flex-wrap items-center gap-2"><span className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${homepageReady ? "bg-emerald-50 text-emerald-700" : "bg-blue-50 text-[#2271b1]"}`}><CheckCircle2 size={14} />{homepageReady ? t("Ready") : t("Automatic setup")}</span><button type="button" disabled={busy} onClick={onVerify} className="inline-flex items-center gap-2 rounded-lg border border-[#dcdcde] bg-white px-3 py-2 text-xs font-semibold text-[#1d2327] transition hover:border-[#2271b1] disabled:cursor-wait disabled:opacity-60"><RefreshCw size={14} className={busy ? "animate-spin" : ""} />{busy ? t("Checking…") : t("Verify WordPress setup")}</button></div>
     </div>
     <div className="mt-5 grid gap-4 lg:grid-cols-2">
       <article className={`rounded-xl border p-4 ${homepageReady ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
         <div className="flex items-start gap-3"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${homepageReady ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-800"}`}>{homepageReady ? <CheckCircle2 size={16} /> : <span className="text-xs font-bold">1</span>}</span><div><h3 className="text-sm font-semibold text-[#1d2327]">{t("Static homepage")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{homepageReady ? t("WordPress confirmed the generated Home page as the static homepage.") : homepageStatus === "action_required" ? t("All pages are published, but WordPress requires Home to be selected in Reading settings.") : t("Lulu verifies the generated Home page after publishing.")}</p></div></div>
         {!homepageReady && homepageStatus === "action_required" && homepageAdminUrl && <a href={homepageAdminUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-lg border border-amber-400 bg-white px-3 py-2 text-xs font-semibold text-amber-950 transition hover:bg-amber-100"><ExternalLink size={14} />{t("Open Reading settings")}</a>}
       </article>
-      <article className={`rounded-xl border p-4 ${themeReady ? "border-emerald-200 bg-emerald-50" : "border-blue-200 bg-blue-50"}`}>
-        <div className="flex items-start gap-3"><span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${themeReady ? "bg-emerald-100 text-emerald-700" : "bg-blue-100 text-[#2271b1]"}`}>{themeReady ? <CheckCircle2 size={16} /> : <span className="text-xs font-bold">2</span>}</span><div><h3 className="text-sm font-semibold text-[#1d2327]">{t("Lulu Base WordPress theme")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{themeReady ? t("WordPress confirmed Lulu Base as the active theme.") : t("Download Lulu Base, upload it under Appearance → Themes, and activate it. The generated text, colors and images remain unchanged.")}</p></div></div>
-        {!themeReady && <div className="mt-3 flex flex-wrap gap-2"><a href={themeDownloadPath} download="lulu-base.zip" className="inline-flex items-center gap-2 rounded-lg border border-[#2271b1] bg-white px-3 py-2 text-xs font-semibold text-[#135e96] transition hover:bg-[#f0f6fc]"><Download size={14} />{t("Download Lulu Base")}</a>{themeAdminUrl && <a href={themeAdminUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg bg-[#2271b1] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#135e96]"><ExternalLink size={14} />{t("Install in WordPress")}</a>}</div>}
-        {!themeReady && <p className="mt-3 text-[11px] leading-4 text-[#50575e]">{t("Custom theme uploads require an eligible WordPress.com plan or a self-hosted WordPress site with theme installation access.")}</p>}
+      <article className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+        <div className="flex items-start gap-3"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-emerald-100 text-emerald-700"><CheckCircle2 size={16} /></span><div><h3 className="text-sm font-semibold text-[#1d2327]">{t("Theme-independent Gutenberg design")}</h3><p className="mt-1 text-xs leading-5 text-[#50575e]">{gutenbergReady ? t("The generated sections are stored directly in WordPress as Gutenberg content. No theme download, upload or activation is required.") : t("Lulu uses the safest content mode supported by this WordPress website.")}</p></div></div>
       </article>
     </div>
   </section>;
@@ -622,8 +615,7 @@ export default function App() {
   const generationPhase = generationProgress?.phase;
   const generationProviderResult = recordValue(generationJob?.job.providerResult);
   const generationHomepageSetup = recordValue(generationProviderResult.homepageSetup);
-  const generationThemeSetup = recordValue(generationProviderResult.themeSetup);
-  const generationSetupActionRequired = generationHomepageSetup.status === "action_required" || generationThemeSetup.status === "action_required";
+  const generationSetupActionRequired = generationHomepageSetup.status === "action_required";
   const pageRatio = generationProgress?.totalPages ? generationProgress.completedPages / generationProgress.totalPages : 0;
   const sectionRatio = generationProgress?.totalSections ? generationProgress.completedSections / generationProgress.totalSections : pageRatio;
   const generationPercent = generationProgress?.percent ?? (generationStatus === "published"
@@ -649,7 +641,7 @@ export default function App() {
   const generationDetail = generationStatus === "failed" ? (generationJob?.job.errorCode === "WEBSITE_GENERATION_RETRY_EXHAUSTED"
     ? t("Website generation stopped after {{attempts}} interrupted worker attempts. No background work is still running.").replace("{{attempts}}", String(generationJob.job.attemptCount ?? 0))
     : generationJob?.job.errorMessage ?? "Bitte prüfe die Verbindung und versuche es erneut.")
-    : generationStatus === "published" ? (generationSetupActionRequired ? t("All generated pages are published. WordPress still requires the homepage or theme steps shown below.") : "Die Standard-Website wurde erfolgreich im verbundenen CMS erstellt und geprüft.")
+    : generationStatus === "published" ? (generationSetupActionRequired ? t("All generated pages are published. WordPress still requires the homepage step shown below.") : "Die Standard-Website wurde erfolgreich im verbundenen CMS erstellt und geprüft.")
       : generationStatus === "cancelled" ? "Die Website-Erstellung wurde angehalten. Fertige Sections und bereits veröffentlichte Seiten bleiben gespeichert und können ab dem nächsten fehlenden Schritt fortgesetzt werden."
         : generationPhase === "resuming" ? "Der gespeicherte Checkpoint wird geladen. Fertige Sections und WordPress-Seiten werden übersprungen."
         : generationPhase === "analyzing_company" ? "Lulu liest die bestätigten Firmeninformationen, Angebote und vorhandenen Website-Bilder ein."

@@ -92,3 +92,6 @@ Push-Zeitstempel: 2026-08-23 19:24:50 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 20:03:30 Europe/Berlin
 Änderungen: WordPress zeigt jetzt eine dauerhafte Startseiten- und Theme-Einrichtung mit Live-Verifikation, direkten Dashboard-Links und dem echten Lulu-Base-Theme als Download; veröffentlichte Seiten gelten trotz manueller WordPress-Nacharbeit als erfolgreich, und vollständig bestätigte Alt-Jobs können ohne erneute Generierung sicher wiederhergestellt werden.
+
+Push-Zeitstempel: 2026-08-23 20:29:31 Europe/Berlin
+Änderungen: Der fehlerhafte WordPress-Theme-Installationspfad und sämtliche Theme-Download-, Upload- und Aktivierungsschritte wurden aus dem Kundenfluss entfernt; Lulu zeigt jetzt den automatischen, theme-unabhängigen Gutenberg-Modus und verlangt nur dann eine manuelle Startseitenaktion, wenn WordPress beide automatischen API-Wege verweigert.

@@ -493,5 +493,16 @@
   "The published WordPress pages were verified and the interrupted job was restored safely.": "已验证发布的 WordPress 页面，并安全恢复了中断的任务。",
   "action_required": "需要操作",
   "Verify WordPress setup": "验证 WordPress 设置",
-  "WordPress setup could not be verified. Please check the connection and try again.": "无法验证 WordPress 设置。请检查连接后重试。"
+  "WordPress setup could not be verified. Please check the connection and try again.": "无法验证 WordPress 设置。请检查连接后重试。",
+  "{{pages}} pages were published as theme-independent Gutenberg content.": "已将 {{pages}} 个页面发布为不依赖主题的 Gutenberg 内容。",
+  "Theme-independent WordPress design": "不依赖主题的 WordPress 设计",
+  "Lulu published the generated design directly as Gutenberg content. No theme download or installation is required.": "Lulu 已将生成的设计直接发布为 Gutenberg 内容，无需下载或安装主题。",
+  "Automatic WordPress setup": "自动 WordPress 设置",
+  "Lulu publishes the generated design as portable Gutenberg content and configures every permitted WordPress setting through the CRM.": "Lulu 将生成的设计发布为可迁移的 Gutenberg 内容，并通过 CRM 配置 WordPress 允许的所有设置。",
+  "Automatic setup": "自动设置",
+  "Theme-independent Gutenberg design": "不依赖主题的 Gutenberg 设计",
+  "The generated sections are stored directly in WordPress as Gutenberg content. No theme download, upload or activation is required.": "生成的区块会直接作为 Gutenberg 内容存储在 WordPress 中，无需下载、上传或启用主题。",
+  "Lulu uses the safest content mode supported by this WordPress website.": "Lulu 会使用此 WordPress 网站支持的最安全内容模式。",
+  "All generated pages are published. WordPress still requires the homepage step shown below.": "所有生成页面均已发布。WordPress 仅需完成下方显示的首页设置步骤。",
+  "gutenberg": "Gutenberg"
 }

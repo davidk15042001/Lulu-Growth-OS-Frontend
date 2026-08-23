@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Bell, CheckCircle2, Circle, CircleStop, Download, ExternalLink, FileText, Play, RefreshCw, X } from "lucide-react";
+import { AlertCircle, Bell, CheckCircle2, Circle, CircleStop, ExternalLink, FileText, Play, RefreshCw, X } from "lucide-react";
 import type { WebsiteGenerationJob } from "../api/websites";
 
 type Translate = (key: string) => string;
@@ -66,6 +66,7 @@ export function generationActivityMessage(event: WebsiteGenerationActivity, t: T
     page_already_published: 'Page "{{page}}" was already published and was safely skipped.',
     page_published: 'Page "{{page}}" was published successfully.',
     homepage_configuring: "The WordPress homepage is being configured.",
+    gutenberg_layout_published: "{{pages}} pages were published as theme-independent Gutenberg content.",
     homepage_action_required: 'All pages are published. Select "{{page}}" as the static homepage in WordPress.',
     theme_action_required: 'Install and activate the "{{theme}}" theme to apply the complete generated design.',
     website_published: "The website was published successfully.",
@@ -205,13 +206,9 @@ export function WebsiteGenerationLivePanel({
   const currentSectionTitle = String(rawProgress.currentSectionTitle ?? "");
   const providerResult = objectValue(job.providerResult);
   const homepageSetup = objectValue(providerResult.homepageSetup);
-  const themeSetup = objectValue(providerResult.themeSetup);
   const homepageActionRequired = homepageSetup.status === "action_required";
-  const themeActionRequired = themeSetup.status === "action_required";
-  const setupActionRequired = homepageActionRequired || themeActionRequired;
+  const setupActionRequired = homepageActionRequired;
   const homepageAdminUrl = String(homepageSetup.adminUrl ?? "");
-  const themeAdminUrl = String(themeSetup.adminUrl ?? "");
-  const themeDownloadPath = String(themeSetup.downloadPath ?? "/downloads/lulu-base.zip");
 
   return <div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/35 p-3 backdrop-blur-[2px] sm:p-6">
     <section role="dialog" aria-modal="true" aria-labelledby="website-generation-title" className="pointer-events-auto my-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[#dcdcde] bg-white text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)]">
@@ -291,9 +288,12 @@ export function WebsiteGenerationLivePanel({
             <p className="mt-1 text-[11px] leading-4 text-amber-900">{t("All generated pages are published. Complete the remaining WordPress setup steps below.")}</p>
             <div className="mt-3 grid gap-2">
               {homepageActionRequired && homepageAdminUrl && <a href={homepageAdminUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-400 bg-white px-3 py-2 text-xs font-semibold text-amber-950 transition hover:bg-amber-100"><ExternalLink aria-hidden="true" size={14} />{t("Set Home as the static homepage")}</a>}
-              {themeActionRequired && <a href={themeDownloadPath} download="lulu-base.zip" className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#2271b1] bg-white px-3 py-2 text-xs font-semibold text-[#135e96] transition hover:bg-[#f0f6fc]"><Download aria-hidden="true" size={14} />{t("Download Lulu Base theme")}</a>}
-              {themeActionRequired && themeAdminUrl && <a href={themeAdminUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#135e96]"><ExternalLink aria-hidden="true" size={14} />{t("Open WordPress theme installation")}</a>}
             </div>
+          </div>}
+
+          {job.status === "published" && providerResult.deliveryMode === "gutenberg" && <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[#1d2327]">
+            <p className="flex items-center gap-2 text-xs font-semibold text-emerald-800"><CheckCircle2 aria-hidden="true" size={14} />{t("Theme-independent WordPress design")}</p>
+            <p className="mt-1 text-[11px] leading-4 text-emerald-800">{t("Lulu published the generated design directly as Gutenberg content. No theme download or installation is required.")}</p>
           </div>}
 
           <div className="mt-5 rounded-xl border border-[#dcdcde] bg-white p-3">
