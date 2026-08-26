@@ -107,3 +107,6 @@ Push-Zeitstempel: 2026-08-23 22:25:11 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-26 05:08:57 Europe/Berlin
 Änderungen: Die Welcome-Seite wurde aus dem erreichbaren Onboarding entfernt und ihre alte URL leitet zur Firmeninformation weiter. „Sync All“ wurde durch einen persistierten Schritt zur Zahlung ersetzt. Nach der automatischen Fünf-Tage-Bereinigung werden unbezahlte Benutzer zwingend zum Datei-Upload zurückgeführt; vorhandener Beschreibungstext kann die erneute Datei-Pflicht nicht umgehen. Alle neuen Hinweise sind auf Englisch, Deutsch und Chinesisch verfügbar.
+
+Push-Zeitstempel: 2026-08-26 05:35:08 Europe/Berlin
+Änderungen: Die Paketauswahl im Billing-Onboarding startet Starter- und AI-Checkouts jetzt unmittelbar beim Klick, ohne zusätzlichen Continue-Button oder Scrollen. Das kostenlose Test-Paket verwendet einen direkt geöffneten Passwortdialog. Lade-, Fehler- und Zahlungsbestätigungszustände erscheinen oberhalb der Pakete, und der Schriftzug „Lulu AI“ ist ausschließlich in der Billing-Navigation ausgeblendet. Englisch, Deutsch und Chinesisch wurden vollständig ergänzt.

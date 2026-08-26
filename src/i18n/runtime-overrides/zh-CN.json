@@ -536,5 +536,12 @@
   "Onboarding files expired": "引导文件已过期",
   "Your previous onboarding files were deleted after five days without completed payment. Upload at least one file again before continuing.": "由于五天内未完成付款，您之前上传的引导文件已被删除。请重新上传至少一个文件后再继续。",
   "At least one file is required": "至少需要上传一个文件",
-  "· At least one file is required": "· 至少需要上传一个文件"
+  "· At least one file is required": "· 至少需要上传一个文件",
+  "Select a package to open the secure payment process immediately.": "选择套餐后将立即打开安全付款流程。",
+  "idle": "空闲",
+  "Payment confirmation is taking longer than expected.": "付款确认所需时间比预期更长。",
+  "Please wait a moment and refresh this page.": "请稍候并刷新此页面。",
+  "Select the package again to retry.": "请重新选择该套餐以重试。",
+  "Test plan": "测试套餐",
+  "This free verification package requires its confirmation password. No payment is collected.": "此免费验证套餐需要输入确认密码，不会收取任何费用。"
 }

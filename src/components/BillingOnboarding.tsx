@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
+import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, WandSparkles, X, Zap } from "lucide-react";
 import { navigateApp, routes } from "../routing";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
@@ -22,7 +22,6 @@ export function BillingOnboarding() {
   const [technicalError, setTechnicalError] = useState<string | null>(null);
   const [testPassword, setTestPassword] = useState("");
   const [testPasswordRequired, setTestPasswordRequired] = useState(false);
-  const selected = selectedPlan ? billingPlans.find((plan) => plan.id === selectedPlan) : undefined;
   const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
 
@@ -99,20 +98,22 @@ export function BillingOnboarding() {
     return null;
   }
 
-  const continueToWorkspace = async () => {
-    if (!selectedPlan || !selectedWorkspace || submitting) return;
+  const startPlanCheckout = async (planId: BillingPlanId, password?: string) => {
+    if (!selectedWorkspace || submitting || paymentStatus === "waiting") return;
+    setSelectedPlan(planId);
     setSubmitting(true);
+    setPaymentStatus("idle");
     setError(null);
     setTechnicalError(null);
     try {
       const billingResponse = await onboardingApi.createBillingCheckout(selectedWorkspace.id, {
-        planKey: selectedPlan,
+        planKey: planId,
         successUrl: `${window.location.origin}${routes.onboarding.billing}?payment=success`,
         backUrl: `${window.location.origin}${routes.onboarding.billing}?payment=cancelled`,
-        ...(selectedPlan === "test" && testPassword ? { password: testPassword } : {}),
+        ...(planId === "test" && password ? { password } : {}),
       });
       const billingResult = billingResponse.data;
-      window.localStorage.setItem(`lulu:selected-plan:${selectedWorkspace.id}`, selectedPlan);
+      window.localStorage.setItem(`lulu:selected-plan:${selectedWorkspace.id}`, planId);
       if (billingResult.free) {
         await refresh();
         navigateApp(routes.app.dashboard, { replace: true });
@@ -128,10 +129,25 @@ export function BillingOnboarding() {
     }
   };
 
+  const selectPlan = (planId: BillingPlanId) => {
+    if (submitting || paymentStatus === "waiting") return;
+    if (planId === "test") {
+      setSelectedPlan(planId);
+      setTestPassword("");
+      setTestPasswordRequired(true);
+      setError(null);
+      setTechnicalError(null);
+      return;
+    }
+    setTestPasswordRequired(false);
+    setTestPassword("");
+    void startPlanCheckout(planId);
+  };
+
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
-        <OnboardingHeader step={4} />
+        <OnboardingHeader step={4} showBrandName={false} />
 
         <section className="mx-auto max-w-3xl py-14 text-center sm:py-16">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--card)]">
@@ -140,7 +156,12 @@ export function BillingOnboarding() {
           <p className="mt-6 text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Choose your workspace access</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Select the way you want Lulu to work.</h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Choose the level of control that fits your business. Starter, AI and Test are billed annually in RMB.</p>
+          <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-[var(--foreground)]">Select a package to open the secure payment process immediately.</p>
         </section>
+
+        {(submitting || paymentStatus !== "idle" || error) && <section className={`mb-6 rounded-2xl border px-5 py-4 text-sm ${error || paymentStatus === "error" ? "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)]" : "border-[var(--border)] bg-[var(--secondary)] text-[var(--foreground)]"}`} role={error || paymentStatus === "error" ? "alert" : "status"}>
+          <div className="flex items-start gap-3"><ShieldCheck size={18} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="font-semibold">{paymentStatus === "waiting" ? "Payment received — confirming your subscription…" : submitting ? (selectedPlan === "test" ? "Checking Test password…" : "Opening secure checkout…") : paymentStatus === "error" ? "Payment confirmation is taking longer than expected." : error}</p>{paymentStatus === "waiting" && <p className="mt-1 text-[var(--muted-foreground)]">We are waiting for Airwallex to confirm the payment. This page will continue automatically.</p>}{paymentStatus === "error" && <p className="mt-1">Please wait a moment and refresh this page.</p>}{error && paymentStatus !== "error" && <p className="mt-1">Select the package again to retry.</p>}{technicalError && <details className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 text-left"><summary className="cursor-pointer text-xs font-semibold">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--muted-foreground)]">{technicalError}</p></details>}</div></div>
+        </section>}
 
         <section aria-label="Available plans" className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {billingPlans.map((plan) => {
@@ -159,8 +180,8 @@ export function BillingOnboarding() {
                   {plan.features.map((feature) => <li key={feature} className="flex items-start gap-2.5"><Check size={16} className="mt-1 shrink-0" aria-hidden="true" /><span>{feature}</span></li>)}
                 </ul>
                 <p className="mt-6 flex items-start gap-2 text-xs leading-5 text-[var(--muted-foreground)]"><Lock size={14} className="mt-0.5 shrink-0" aria-hidden="true" /><span>{plan.limitations}</span></p>
-                <button type="button" onClick={() => { setSelectedPlan(plan.id); setTestPasswordRequired(plan.id === "test"); if (plan.id !== "test") setTestPassword(""); }} aria-pressed={isSelected} className={`mt-7 inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition ${isSelected ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "border border-[var(--border)] bg-[var(--card)] hover:border-[var(--foreground)]"}`}>
-                  {isSelected ? <Check size={16} aria-hidden="true" /> : null}{isSelected ? "Selected" : plan.cta}
+                <button type="button" onClick={() => selectPlan(plan.id)} disabled={submitting || paymentStatus === "waiting"} aria-pressed={isSelected} className={`mt-7 inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-55 ${isSelected ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "border border-[var(--border)] bg-[var(--card)] hover:border-[var(--foreground)]"}`}>
+                  {isSelected && submitting ? (plan.id === "test" ? "Checking Test password…" : "Opening secure checkout…") : plan.cta}<ArrowRight size={16} aria-hidden="true" />
                 </button>
               </article>
             );
@@ -180,14 +201,9 @@ export function BillingOnboarding() {
           </div>
         </section>
 
-        <footer className="mt-8 flex flex-col gap-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)] p-5 sm:flex-row sm:items-center sm:justify-between sm:px-7">
-          <div className="flex items-start gap-3"><ShieldCheck size={19} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="text-sm font-semibold">{paymentStatus === "waiting" ? "Payment received — confirming your subscription…" : selected ? `Selected plan: ${selected.name}` : "Choose a plan to continue"}</p><p className="mt-1 text-sm text-[var(--muted-foreground)]">{paymentStatus === "waiting" ? "We are waiting for Airwallex to confirm the payment. This page will continue automatically." : selected ? selected.description : "Choose a plan to continue"}</p>{paymentStatus === "error" && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">Payment was returned, but the subscription confirmation has not arrived yet. Please wait a moment and refresh this page.</p>}{error && <p className="mt-2 text-sm text-[var(--destructive)]" role="alert">{error}</p>}{technicalError && <details className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 text-left"><summary className="cursor-pointer text-xs font-semibold">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--muted-foreground)]">{technicalError}</p></details>}</div></div>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:min-w-[280px]">
-            {testPasswordRequired && selectedPlan === "test" && <label className="text-xs font-semibold text-[var(--foreground)]">Test confirmation password<input value={testPassword} onChange={(event) => setTestPassword(event.target.value)} autoComplete="off" type="password" placeholder="Enter the Test password" className="mt-1 h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 text-sm outline-none focus:border-[var(--primary)]" /></label>}
-            <button type="button" onClick={() => void continueToWorkspace()} disabled={!selectedPlan || submitting || paymentStatus === "waiting" || (testPasswordRequired && selectedPlan === "test" && testPassword.length === 0)} className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{paymentStatus === "waiting" ? "Confirming payment…" : submitting ? (selected?.id === "test" ? "Checking Test password…" : "Opening secure checkout…") : testPasswordRequired ? "Confirm free Test plan" : selected ? `Continue with ${selected.name}` : "Select a plan first"}<ArrowRight size={16} /></button>
-          </div>
-        </footer>
       </div>
+
+      {testPasswordRequired && selectedPlan === "test" && <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-labelledby="test-plan-title" onMouseDown={(event) => { if (event.target === event.currentTarget && !submitting) { setTestPasswordRequired(false); setSelectedPlan(null); } }}><form className="relative w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl" onSubmit={(event) => { event.preventDefault(); if (testPassword) void startPlanCheckout("test", testPassword); }}><button type="button" disabled={submitting} onClick={() => { setTestPasswordRequired(false); setSelectedPlan(null); }} className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--secondary)] disabled:opacity-50" aria-label="Close"><X size={18} /></button><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Test plan</p><h2 id="test-plan-title" className="mt-2 text-2xl font-semibold">Test confirmation password</h2><p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">This free verification package requires its confirmation password. No payment is collected.</p><label className="mt-5 block text-xs font-semibold text-[var(--foreground)]">Test confirmation password<input autoFocus value={testPassword} onChange={(event) => setTestPassword(event.target.value)} autoComplete="off" type="password" placeholder="Enter the Test password" className="mt-2 h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 text-sm outline-none focus:border-[var(--primary)]" /></label>{error && <p className="mt-3 text-sm text-[var(--destructive)]" role="alert">{error}</p>}<button type="submit" disabled={submitting || testPassword.length === 0} className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{submitting ? "Checking Test password…" : "Confirm free Test plan"}<ArrowRight size={16} /></button></form></div>}
     </main>
   );
 }

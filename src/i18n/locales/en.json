@@ -686,5 +686,12 @@
   "Onboarding files expired": "Onboarding files expired",
   "Your previous onboarding files were deleted after five days without completed payment. Upload at least one file again before continuing.": "Your previous onboarding files were deleted after five days without completed payment. Upload at least one file again before continuing.",
   "At least one file is required": "At least one file is required",
-  "· At least one file is required": "· At least one file is required"
+  "· At least one file is required": "· At least one file is required",
+  "Select a package to open the secure payment process immediately.": "Select a package to open the secure payment process immediately.",
+  "idle": "idle",
+  "Payment confirmation is taking longer than expected.": "Payment confirmation is taking longer than expected.",
+  "Please wait a moment and refresh this page.": "Please wait a moment and refresh this page.",
+  "Select the package again to retry.": "Select the package again to retry.",
+  "Test plan": "Test plan",
+  "This free verification package requires its confirmation password. No payment is collected.": "This free verification package requires its confirmation password. No payment is collected."
 }

@@ -537,5 +537,12 @@
   "Onboarding files expired": "Onboarding-Dateien abgelaufen",
   "Your previous onboarding files were deleted after five days without completed payment. Upload at least one file again before continuing.": "Ihre bisherigen Onboarding-Dateien wurden nach fünf Tagen ohne abgeschlossene Zahlung gelöscht. Laden Sie mindestens eine Datei erneut hoch, bevor Sie fortfahren.",
   "At least one file is required": "Mindestens eine Datei ist erforderlich",
-  "· At least one file is required": "· Mindestens eine Datei ist erforderlich"
+  "· At least one file is required": "· Mindestens eine Datei ist erforderlich",
+  "Select a package to open the secure payment process immediately.": "Wählen Sie ein Paket aus, um sofort den sicheren Zahlungsvorgang zu öffnen.",
+  "idle": "inaktiv",
+  "Payment confirmation is taking longer than expected.": "Die Zahlungsbestätigung dauert länger als erwartet.",
+  "Please wait a moment and refresh this page.": "Bitte warten Sie einen Moment und aktualisieren Sie diese Seite.",
+  "Select the package again to retry.": "Wählen Sie das Paket erneut aus, um es noch einmal zu versuchen.",
+  "Test plan": "Test-Paket",
+  "This free verification package requires its confirmation password. No payment is collected.": "Dieses kostenlose Verifizierungspaket benötigt sein Bestätigungspasswort. Es wird keine Zahlung eingezogen."
 }

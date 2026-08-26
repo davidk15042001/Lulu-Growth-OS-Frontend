@@ -1,17 +1,18 @@
 type OnboardingHeaderProps = {
   step: number;
   totalSteps?: number;
+  showBrandName?: boolean;
 };
 
 const steps = ["Company Information", "Business Description", "Existing Platforms", "Billing"];
 
-export function OnboardingHeader({ step, totalSteps = steps.length }: OnboardingHeaderProps) {
+export function OnboardingHeader({ step, totalSteps = steps.length, showBrandName = true }: OnboardingHeaderProps) {
   return (
     <header className="mx-auto w-full max-w-5xl px-5 pt-8 sm:px-8 lg:px-12 lg:pt-10">
       <div className="flex items-center justify-between gap-4">
         <a href="/" className="flex items-center gap-3" aria-label="Lulu Intelligence home">
           <img src="/branding/lulu-intelligence-logo.png" alt="Lulu Intelligence" className="h-9 w-auto object-contain" />
-          <span className="text-xl font-semibold tracking-[-0.03em] text-[var(--foreground)]">Lulu AI</span>
+          {showBrandName && <span className="text-xl font-semibold tracking-[-0.03em] text-[var(--foreground)]">Lulu AI</span>}
         </a>
         <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)]">
           Company setup · {step === totalSteps ? "Complete" : "In progress"}
