@@ -239,10 +239,16 @@ const ACCESS_TOKEN_STORAGE_KEY = "lulu_access_token";
 
 function readStoredAccessToken() {
   try {
-    const persistentToken = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-    if (persistentToken) return persistentToken;
-    const legacyToken = window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-    if (legacyToken) window.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, legacyToken);
+    const sessionToken = window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+    if (sessionToken) return sessionToken;
+
+    const legacyToken = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+    if (!legacyToken) return null;
+
+    // Migrate older persistent tokens into the current session and clear them
+    // from long-lived browser storage.
+    window.sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, legacyToken);
+    window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
     return legacyToken;
   } catch {
     return null;
@@ -253,11 +259,11 @@ function storeAccessToken(token: string | null) {
   accessToken = token;
   try {
     if (token) {
-      window.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
-      window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-    } else {
+      window.sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
       window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    } else {
       window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+      window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
     }
   } catch {
     // Private browsing/storage restrictions must not break authentication.
@@ -267,6 +273,7 @@ function storeAccessToken(token: string | null) {
 function clearClientSession() {
   storeAccessToken(null);
   try {
+    window.sessionStorage.removeItem("lulu.current-user");
     window.localStorage.removeItem("lulu.current-user");
   } catch {
     // Private browsing/storage restrictions must not break authentication.

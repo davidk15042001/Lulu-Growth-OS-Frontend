@@ -5,19 +5,36 @@ const CURRENT_USER_KEY = "lulu.current-user";
 
 export function getStoredUser<T>() {
   try {
-    const raw = window.localStorage.getItem(CURRENT_USER_KEY);
-    return raw ? JSON.parse(raw) as T : null;
+    const sessionValue = window.sessionStorage.getItem(CURRENT_USER_KEY);
+    if (sessionValue) return JSON.parse(sessionValue) as T;
+
+    const legacyValue = window.localStorage.getItem(CURRENT_USER_KEY);
+    if (!legacyValue) return null;
+
+    window.sessionStorage.setItem(CURRENT_USER_KEY, legacyValue);
+    window.localStorage.removeItem(CURRENT_USER_KEY);
+    return JSON.parse(legacyValue) as T;
   } catch {
     return null;
   }
 }
 
 export function setStoredUser<T>(user: T) {
-  try { window.localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user)); } catch { /* storage is optional */ }
+  try {
+    window.sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+    window.localStorage.removeItem(CURRENT_USER_KEY);
+  } catch {
+    /* storage is optional */
+  }
 }
 
 export function clearStoredUser() {
-  try { window.localStorage.removeItem(CURRENT_USER_KEY); } catch { /* storage is optional */ }
+  try {
+    window.sessionStorage.removeItem(CURRENT_USER_KEY);
+    window.localStorage.removeItem(CURRENT_USER_KEY);
+  } catch {
+    /* storage is optional */
+  }
 }
 
 export function getSelectedWorkspaceId() {
