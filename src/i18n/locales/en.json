@@ -680,5 +680,11 @@
   "Publishing failed: {{message}}": "Publishing failed: {{message}}",
   "The website was published, but WordPress reported: {{warning}}": "The website was published, but WordPress reported: {{warning}}",
   "Verified company data and connected sources were loaded.": "Verified company data and connected sources were loaded.",
-  "Website copy and SEO data were completed and saved.": "Website copy and SEO data were completed and saved."
+  "Website copy and SEO data were completed and saved.": "Website copy and SEO data were completed and saved.",
+  "Continue to billing": "Continue to billing",
+  "We could not save this onboarding step. Please try again.": "We could not save this onboarding step. Please try again.",
+  "Onboarding files expired": "Onboarding files expired",
+  "Your previous onboarding files were deleted after five days without completed payment. Upload at least one file again before continuing.": "Your previous onboarding files were deleted after five days without completed payment. Upload at least one file again before continuing.",
+  "At least one file is required": "At least one file is required",
+  "· At least one file is required": "· At least one file is required"
 }

@@ -47,6 +47,7 @@ export const BusinessDescription = () => {
   const [error, setError] = useState("");
   const [fileError, setFileError] = useState("");
   const [technicalError, setTechnicalError] = useState("");
+  const [reuploadRequired, setReuploadRequired] = useState(false);
   const uploadsRef = useRef<UploadItem[]>([]);
 
   useEffect(() => {
@@ -62,10 +63,11 @@ export const BusinessDescription = () => {
     const load = async () => {
       try {
         const [workspaceResponse, documentsResponse] = await Promise.all([
-          requestApi<{ workspace: { businessDescription: string | null } }>({ path: `/workspaces/${workspaceId}/onboarding` }),
+          requestApi<{ workspace: { businessDescription: string | null; onboardingFileReuploadRequired: boolean } }>({ path: `/workspaces/${workspaceId}/onboarding` }),
           requestApi<{ items: DocumentRecord[] }>({ path: `/workspaces/${workspaceId}/onboarding/documents` }),
         ]);
         setBusinessDescription(workspaceResponse.data.workspace.businessDescription ?? "");
+        setReuploadRequired(workspaceResponse.data.workspace.onboardingFileReuploadRequired);
         const loaded = await Promise.all(documentsResponse.data.items.map(async (document) => {
           try {
             const blob = await requestApiBlob(`/workspaces/${workspaceId}/onboarding/documents/${document.id}/content`);
@@ -138,7 +140,10 @@ export const BusinessDescription = () => {
   async function saveAndContinue(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const workspaceId = getSelectedWorkspaceId();
-    if (!workspaceId || (!businessDescription.trim() && uploads.length === 0) || loading || loadingDocuments) return;
+    const hasRequiredInput = reuploadRequired
+      ? uploads.length > 0
+      : Boolean(businessDescription.trim()) || uploads.length > 0;
+    if (!workspaceId || !hasRequiredInput || loading || loadingDocuments) return;
     setLoading(true);
     setError("");
     setTechnicalError("");
@@ -154,7 +159,9 @@ export const BusinessDescription = () => {
     }
   }
 
-  const canContinue = Boolean(businessDescription.trim()) || uploads.length > 0;
+  const canContinue = reuploadRequired
+    ? uploads.length > 0
+    : Boolean(businessDescription.trim()) || uploads.length > 0;
 
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -164,9 +171,10 @@ export const BusinessDescription = () => {
         <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-[-0.03em] text-[var(--foreground)] sm:text-4xl">Tell Lulu what makes your business matter.</h1>
         <p className="mt-3 max-w-lg text-sm leading-6 text-[var(--muted-foreground)]">Beschreibe dein Unternehmen in deinen eigenen Worten. Diese Informationen helfen Lulu, dein Unternehmen besser zu verstehen.</p>
         <form className="mt-8 space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)]" onSubmit={saveAndContinue}>
+          {reuploadRequired && <div className="rounded-lg border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm leading-6 text-[var(--destructive)]" role="alert"><strong className="block">Onboarding files expired</strong><span>Your previous onboarding files were deleted after five days without completed payment. Upload at least one file again before continuing.</span></div>}
           <label className="block text-sm font-medium text-[var(--muted-foreground)]" htmlFor="business-description"><span className="text-[var(--foreground)]">Über dein Unternehmen</span><textarea id="business-description" value={businessDescription} onChange={(event) => { setBusinessDescription(event.target.value); setSaved(false); }} maxLength={2000} placeholder="Was macht dein Unternehmen, für wen ist es da und welches Problem löst ihr?" className="mt-2 min-h-48 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /><span className="mt-2 block text-right text-xs text-[var(--muted-foreground)]">{businessDescription.length}/2000</span></label>
           <section className="space-y-3" aria-labelledby="business-files-title"><div className="flex items-end justify-between gap-3"><div><h2 id="business-files-title" className="text-sm font-semibold text-[var(--foreground)]">Bilder und Dokumente</h2><p className="mt-1 text-xs leading-5 text-[var(--muted-foreground)]">Lade Unterlagen hoch, die Lulu über dein Unternehmen informieren sollen.</p></div><span className="shrink-0 text-xs text-[var(--muted-foreground)]">Max. 5.000 KB</span></div>
-            <label htmlFor="business-file-upload" className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--secondary)] px-5 py-8 text-center transition hover:border-[var(--ring)] hover:bg-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--ring)]/20"><UploadCloud size={24} className="text-[var(--accent-foreground)]" aria-hidden="true" /><span className="mt-3 text-sm font-semibold text-[var(--foreground)]">{uploading ? "Wird hochgeladen…" : "Dateien auswählen"}</span><span className="mt-1 text-xs text-[var(--muted-foreground)]">Bilder, PDF-, Word-, Excel-, PowerPoint-, TXT- oder CSV-Dateien</span><input id="business-file-upload" type="file" multiple accept={ACCEPTED_FILES} className="sr-only" disabled={uploading} onChange={(event) => { void addFiles(event.target.files); event.currentTarget.value = ""; }} /></label>
+            <label htmlFor="business-file-upload" className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--secondary)] px-5 py-8 text-center transition hover:border-[var(--ring)] hover:bg-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--ring)]/20"><UploadCloud size={24} className="text-[var(--accent-foreground)]" aria-hidden="true" /><span className="mt-3 text-sm font-semibold text-[var(--foreground)]">{uploading ? "Wird hochgeladen…" : "Dateien auswählen"}</span><span className="mt-1 text-xs text-[var(--muted-foreground)]">Bilder, PDF-, Word-, Excel-, PowerPoint-, TXT- oder CSV-Dateien{reuploadRequired ? " · At least one file is required" : ""}</span><input id="business-file-upload" type="file" multiple accept={ACCEPTED_FILES} className="sr-only" disabled={uploading} onChange={(event) => { void addFiles(event.target.files); event.currentTarget.value = ""; }} /></label>
             {fileError && <p className="text-xs text-[var(--destructive)]" role="alert">{fileError}</p>}
             {loadingDocuments && <p className="text-xs text-[var(--muted-foreground)]">Gespeicherte Dokumente werden geladen…</p>}
             {uploads.length > 0 && <ul className="grid gap-2 sm:grid-cols-2" aria-label="Hochgeladene Dateien">{uploads.map((item) => <li key={item.id} className="group flex min-w-0 items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] p-3"><button type="button" className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-md border border-[var(--border)] bg-[var(--secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" onClick={() => item.contentAvailable && setActiveUpload(item)} aria-label={`${item.fileName} öffnen${item.contentAvailable ? "" : " (Vorschau nicht verfügbar)"}`} disabled={!item.contentAvailable}>{item.kind === "image" ? <img src={item.url} alt="" className="h-full w-full object-cover" /> : <FileText size={20} className="text-[var(--accent-foreground)]" />}</button><button type="button" className="min-w-0 flex-1 text-left focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" onClick={() => item.contentAvailable && setActiveUpload(item)}><span className="block truncate text-sm font-medium text-[var(--foreground)]">{item.fileName}</span><span className="mt-1 block text-xs text-[var(--muted-foreground)]">{getFileExtension(item.fileName)} · {formatFileSize(item.sizeBytes)}{!item.contentAvailable ? " · Vorschau nicht verfügbar" : ""}</span></button><button type="button" onClick={() => void removeUpload(item)} className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--destructive)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" aria-label={`${item.fileName} löschen`}><Trash2 size={16} /></button></li>)}</ul>}

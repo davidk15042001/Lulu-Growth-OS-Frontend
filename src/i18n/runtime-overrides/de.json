@@ -531,5 +531,11 @@
   "The reference template is being reproduced exactly": "Das Referenz-Template wird exakt aufgebaut",
   "The fixed reference layout is complete. Copy, colors, SEO and available imagery are in place; publishing is being prepared.": "Das feste Referenzlayout ist vollständig. Texte, Farben, SEO und verfügbare Bilder sind eingesetzt; die Veröffentlichung wird vorbereitet.",
   "content_only": "Nur Inhalte",
-  "gutenberg": "Gutenberg"
+  "gutenberg": "Gutenberg",
+  "Continue to billing": "Weiter zur Zahlung",
+  "We could not save this onboarding step. Please try again.": "Dieser Onboarding-Schritt konnte nicht gespeichert werden. Bitte versuchen Sie es erneut.",
+  "Onboarding files expired": "Onboarding-Dateien abgelaufen",
+  "Your previous onboarding files were deleted after five days without completed payment. Upload at least one file again before continuing.": "Ihre bisherigen Onboarding-Dateien wurden nach fünf Tagen ohne abgeschlossene Zahlung gelöscht. Laden Sie mindestens eine Datei erneut hoch, bevor Sie fortfahren.",
+  "At least one file is required": "Mindestens eine Datei ist erforderlich",
+  "· At least one file is required": "· Mindestens eine Datei ist erforderlich"
 }

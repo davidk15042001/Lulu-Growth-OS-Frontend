@@ -90,7 +90,12 @@ export function BillingOnboarding() {
   }
 
   if (!selectedWorkspace) {
-    navigateApp(routes.onboarding.welcome, { replace: true });
+    navigateApp(routes.onboarding.companyInformation, { replace: true });
+    return null;
+  }
+
+  if (selectedWorkspace.onboardingFileReuploadRequired) {
+    navigateApp(routes.onboarding.businessDescription, { replace: true });
     return null;
   }
 

@@ -35,7 +35,6 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "deep-coast-9085": routes.auth.resetPassword,
   "kind-morning-4984": routes.auth.sessionExpired,
   "mightily-minute-5145": routes.auth.signedOut,
-  "steady-stone-6443": routes.onboarding.welcome,
   "bravely-path-4713": routes.onboarding.companyInformation,
   "quiet-garden-9477": routes.onboarding.businessDescription,
   "keen-morning-6353": routes.onboarding.productsServices,
@@ -67,6 +66,7 @@ const AUTH_PAGE_SLUGS = new Set(["brightly-door-5741", "finely-year-1146", "cris
 const REMOVED_PAGE_SLUGS = new Set([
   "glad-coast-1428",
   "nicely-land-1864",
+  "steady-stone-6443",
 ]);
 
 export function isPageAvailable(slug: string) {

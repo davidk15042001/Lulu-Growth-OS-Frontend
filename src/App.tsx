@@ -98,13 +98,21 @@ function PageRoute({ page }: { page: PageDefinition }) {
 
   if (!isPublic && !isOnboarding && currentUser && !selectedWorkspace) {
     if (workspaceError) return <main role="alert" className="page-frame grid min-h-screen place-items-center p-6"><div className="max-w-md rounded-2xl border border-border bg-card p-6 text-center"><h1 className="text-lg font-semibold">Workspace konnte nicht geladen werden</h1><p className="mt-2 text-sm text-muted-foreground">Deine Anmeldung ist noch vorhanden. Die Workspace-Daten konnten gerade nicht geladen werden.</p><button type="button" onClick={() => void refresh()} className="mt-5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">Erneut versuchen</button></div></main>;
-    return <Navigate replace to={routes.onboarding.welcome} state={{ from: location.pathname }} />;
+    return <Navigate replace to={routes.onboarding.companyInformation} state={{ from: location.pathname }} />;
   }
 
   const oauthReturn = (() => {
     const params = new URLSearchParams(location.search);
     return params.has("connected") || params.has("oauthCode") || params.has("oauthError");
   })();
+
+  if (
+    isOnboarding
+    && selectedWorkspace?.onboardingFileReuploadRequired
+    && location.pathname !== routes.onboarding.businessDescription
+  ) {
+    return <Navigate replace to={routes.onboarding.businessDescription} state={{ from: location.pathname }} />;
+  }
 
   if (!isPublic && !isOnboarding && !oauthReturn && currentUser && selectedWorkspace && !selectedWorkspace.onboardingCompletedAt) {
     const target = onboardingPathByStep[selectedWorkspace.onboardingStep] ?? routes.onboarding.companyInformation;
@@ -276,6 +284,7 @@ export default function App() {
       <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
       <Route path="/auth/login" element={<Navigate replace to={routes.auth.login} />} />
       <Route path="/register" element={<Navigate replace to={routes.auth.signUp} />} />
+      <Route path={routes.onboarding.welcome} element={<Navigate replace to={routes.onboarding.companyInformation} />} />
       <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<Navigate replace to={routes.onboarding.billing} />} />
       <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
       <Route path={routes.onboarding.billings} element={<BillingOnboarding />} />

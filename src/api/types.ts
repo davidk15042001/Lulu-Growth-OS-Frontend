@@ -21,6 +21,8 @@ export type Workspace = {
   positioningTags: string[];
   onboardingStep: string;
   onboardingCompletedAt: string | null;
+  onboardingFileReuploadRequired: boolean;
+  onboardingFilesPurgedAt: string | null;
   createdAt: string;
   updatedAt: string;
   role: WorkspaceRole;

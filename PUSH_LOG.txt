@@ -104,3 +104,6 @@ Push-Zeitstempel: 2026-08-23 21:47:30 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-23 22:25:11 Europe/Berlin
 Änderungen: Synchronisations-Push zum production-sicheren WordPress-Template-Release; der bestehende Website-Flow verwendet nach der Server-Aktualisierung und einer neuen Generierung den streng validierten vollständigen Referenzvertrag ohne sichtbare CSS-Fragmente oder unvollständige Kartenraster.
+
+Push-Zeitstempel: 2026-08-26 05:08:57 Europe/Berlin
+Änderungen: Die Welcome-Seite wurde aus dem erreichbaren Onboarding entfernt und ihre alte URL leitet zur Firmeninformation weiter. „Sync All“ wurde durch einen persistierten Schritt zur Zahlung ersetzt. Nach der automatischen Fünf-Tage-Bereinigung werden unbezahlte Benutzer zwingend zum Datei-Upload zurückgeführt; vorhandener Beschreibungstext kann die erneute Datei-Pflicht nicht umgehen. Alle neuen Hinweise sind auf Englisch, Deutsch und Chinesisch verfügbar.

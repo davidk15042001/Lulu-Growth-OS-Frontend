@@ -31,7 +31,6 @@ const authPageSlugs = new Set([
 // inherit the authenticated workspace navigation, regardless of the page's
 // generated slug or how the user reached the route.
 const navigationFreePaths = new Set([
-  routes.onboarding.welcome,
   routes.onboarding.companyInformation,
   routes.onboarding.businessDescription,
   routes.onboarding.productsServices,

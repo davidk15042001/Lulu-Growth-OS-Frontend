@@ -32,7 +32,7 @@ export function LuluSessionAuth() {
       if (workspace) setSelectedWorkspaceId(workspace.id);
       setStatus('idle');
       setScreen('success');
-      window.setTimeout(() => navigateApp(workspace ? routes.app.dashboard : routes.onboarding.welcome), 700);
+      window.setTimeout(() => navigateApp(workspace ? routes.app.dashboard : routes.onboarding.companyInformation), 700);
     } catch (cause) {
       setStatus('idle');
       setError(getFriendlyErrorMessage(cause, 'We could not verify your sign-in. Please try again.'));

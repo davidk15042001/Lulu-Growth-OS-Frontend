@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowRight, BarChart3, Check, CircleCheck, Globe, Search, Store, Trash2, UsersRound, X } from "lucide-react";
+import { ArrowRight, BarChart3, CircleCheck, Globe, Search, Store, Trash2, UsersRound, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
@@ -46,7 +46,6 @@ const platformGroups: PlatformGroup[] = [
 export const LuluExistingPlatforms = () => {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [query, setQuery] = useState("");
-  const [synced, setSynced] = useState(false);
   const [error, setError] = useState('');
   const [technicalDetails, setTechnicalDetails] = useState('');
   const [guidePlatform, setGuidePlatform] = useState<string | null>(null);
@@ -118,13 +117,19 @@ export const LuluExistingPlatforms = () => {
       setConnectingPlatform(null);
     }
   };
-  const submit = (event: FormEvent<HTMLFormElement>) => {
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (synced) {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    setError('');
+    setTechnicalDetails('');
+    try {
+      await requestApi({ path: `/workspaces/${workspaceId}/onboarding/existing-platforms/continue`, method: 'POST', body: {} });
       navigateApp(routes.onboarding.billing);
-      return;
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, 'We could not save this onboarding step. Please try again.'));
+      setTechnicalDetails(getTechnicalErrorDetails(cause));
     }
-    setSynced(true);
   };
   const removePlatform = async (id: string) => {
     const workspaceId = getSelectedWorkspaceId();
@@ -194,21 +199,9 @@ export const LuluExistingPlatforms = () => {
             </div>
             <button type="submit" className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)]">
               
-              {synced ? "Save and continue" : "Sync all"}
+              Continue to billing
               <ArrowRight size={16} />
             </button>
-            {synced && <p className="flex items-start gap-2 text-sm leading-6 text-[var(--foreground)]">
-                <Check size={15} className="mt-1 shrink-0" />
-                <span>
-                  <strong>Keep your context fresh.</strong>
-                  <br />
-                  <span className="text-[var(--muted-foreground)]">
-                    Lulu checks connected sources every hour. You control what
-                    is shared.
-                  </span>
-                </span>
-              </p>}
-
           </form>
         </div>
       </section>

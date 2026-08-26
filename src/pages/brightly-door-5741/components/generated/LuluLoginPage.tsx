@@ -65,7 +65,7 @@ export const LuluLoginPage = () => {
         setSelectedWorkspaceId(workspace.id);
         navigateApp(routes.app.dashboard);
       } else {
-        navigateApp(routes.onboarding.welcome);
+        navigateApp(routes.onboarding.companyInformation);
       }
     } catch (cause) {
       setStatusMessage('');

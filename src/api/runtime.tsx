@@ -23,7 +23,7 @@ const STATIC_RESOURCE_PAGE_SLUGS = new Set([
   "merry-castle-3260", "mightily-shore-7108", "nice-moon-2056", "purely-dusk-2409", "quietly-moon-4186",
   "radiant-cave-9340", "richly-forest-5832", "serenely-creek-1765", "sharp-current-9677", "sharply-sky-4161",
   "sharply-wood-4560", "smart-village-1099", "soft-hill-4757", "softly-second-7684", "solid-sand-5563",
-  "sparkling-cave-8456", "sparkling-time-5280", "sparklingly-light-7230", "sparklingly-moon-5114", "steady-stone-6443",
+  "sparkling-cave-8456", "sparkling-time-5280", "sparklingly-light-7230", "sparklingly-moon-5114",
   "sunnily-peak-7188", "sunny-moon-6307", "sunny-summer-2293", "swift-pool-5077", "wildly-sun-6424",
   "wildly-time-4260", "wise-brook-1762", "wispy-current-7490", "wondrously-second-5656",
 ]);
@@ -52,18 +52,26 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
         if (!workspace) {
           clearSelectedWorkspaceId();
           if (contract?.kind === "onboarding") {
-            if (!["steady-stone-6443", "bravely-path-4713"].includes(slug)) {
+            if (slug !== "bravely-path-4713") {
               navigateApp(routes.onboarding.companyInformation, { replace: true });
               return;
             }
             setState("ready");
             return;
           }
-          navigateApp(routes.onboarding.welcome, { replace: true });
+          navigateApp(routes.onboarding.companyInformation, { replace: true });
           return;
         }
         setSelectedWorkspaceId(workspace.id);
         setWorkspaceId(workspace.id);
+        if (
+          workspace.onboardingFileReuploadRequired
+          && contract?.kind === "onboarding"
+          && slug !== "quiet-garden-9477"
+        ) {
+          navigateApp(routes.onboarding.businessDescription, { replace: true });
+          return;
+        }
         if (contract?.kind !== "onboarding") {
           await workspaceApi.bootstrap(workspace.id, controller.signal);
         }

@@ -530,5 +530,11 @@
   "The reference template is being reproduced exactly": "正在精确构建参考模板",
   "The fixed reference layout is complete. Copy, colors, SEO and available imagery are in place; publishing is being prepared.": "固定参考布局已完成，文案、颜色、SEO 和可用图片均已就位，正在准备发布。",
   "content_only": "仅内容",
-  "gutenberg": "Gutenberg"
+  "gutenberg": "Gutenberg",
+  "Continue to billing": "继续付款",
+  "We could not save this onboarding step. Please try again.": "无法保存此引导步骤，请重试。",
+  "Onboarding files expired": "引导文件已过期",
+  "Your previous onboarding files were deleted after five days without completed payment. Upload at least one file again before continuing.": "由于五天内未完成付款，您之前上传的引导文件已被删除。请重新上传至少一个文件后再继续。",
+  "At least one file is required": "至少需要上传一个文件",
+  "· At least one file is required": "· 至少需要上传一个文件"
 }
