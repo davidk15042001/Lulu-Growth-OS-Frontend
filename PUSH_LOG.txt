@@ -110,3 +110,6 @@ Push-Zeitstempel: 2026-08-26 05:08:57 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-26 05:35:08 Europe/Berlin
 Änderungen: Die Paketauswahl im Billing-Onboarding startet Starter- und AI-Checkouts jetzt unmittelbar beim Klick, ohne zusätzlichen Continue-Button oder Scrollen. Das kostenlose Test-Paket verwendet einen direkt geöffneten Passwortdialog. Lade-, Fehler- und Zahlungsbestätigungszustände erscheinen oberhalb der Pakete, und der Schriftzug „Lulu AI“ ist ausschließlich in der Billing-Navigation ausgeblendet. Englisch, Deutsch und Chinesisch wurden vollständig ergänzt.
+
+Push-Zeitstempel: 2026-08-26 09:42:57 Europe/Berlin
+Änderungen: Die Billing-Seite trennt den jährlichen Plattformzugang jetzt klar von nutzungsabhängigen API- und Serverkosten. Für bezahlte Pakete zeigt sie den laufenden 14-Tage-Abrechnungszeitraum, API-Aufrufe, Tokens, Servertage, Einzelkosten, die geschätzte Rechnung, Zahlungsart und vergangene Rechnungen mit sicheren Zahlungs- und PDF-Links. Onboarding, Pakettexte sowie Englisch, Deutsch und Chinesisch erklären das Pay-as-you-go-Modell konsistent; kostenlose Test- und Viewer-Zugänge tragen keine Nutzungsgebühren.

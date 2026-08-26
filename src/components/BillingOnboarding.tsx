@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, WandSparkles, X, Zap } from "lucide-react";
+import { ArrowRight, Check, Cpu, Lock, Server, ShieldCheck, Sparkles, WandSparkles, X, Zap } from "lucide-react";
 import { navigateApp, routes } from "../routing";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
@@ -155,8 +155,16 @@ export function BillingOnboarding() {
           </div>
           <p className="mt-6 text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Choose your workspace access</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Select the way you want Lulu to work.</h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Choose the level of control that fits your business. Starter, AI and Test are billed annually in RMB.</p>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Choose the level of control that fits your business. Starter and AI access are billed annually in RMB; API and server usage is billed separately by actual consumption.</p>
           <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-[var(--foreground)]">Select a package to open the secure payment process immediately.</p>
+        </section>
+
+        <section className="mb-8 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]" aria-labelledby="payg-title">
+          <div className="border-b border-[var(--border)] px-5 py-5 sm:px-7"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Transparent usage billing</p><h2 id="payg-title" className="mt-2 text-xl font-semibold">API and server costs are pay as you go.</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-foreground)]">Only recorded consumption is charged. Usage periods close every 14 days, and API and server costs appear as separate line items on the Airwallex invoice.</p></div>
+          <div className="grid gap-px bg-[var(--border)] sm:grid-cols-2">
+            <div className="flex gap-3 bg-[var(--card)] p-5 sm:p-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)]"><Cpu size={18} /></span><div><h3 className="text-sm font-semibold">API usage</h3><p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">Calculated from the tokens and provider requests actually recorded for your workspace.</p></div></div>
+            <div className="flex gap-3 bg-[var(--card)] p-5 sm:p-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)]"><Server size={18} /></span><div><h3 className="text-sm font-semibold">Server usage</h3><p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">Allocated daily and billed only for active paid workspaces. The free Test plan is not charged.</p></div></div>
+          </div>
         </section>
 
         {(submitting || paymentStatus !== "idle" || error) && <section className={`mb-6 rounded-2xl border px-5 py-4 text-sm ${error || paymentStatus === "error" ? "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)]" : "border-[var(--border)] bg-[var(--secondary)] text-[var(--foreground)]"}`} role={error || paymentStatus === "error" ? "alert" : "status"}>

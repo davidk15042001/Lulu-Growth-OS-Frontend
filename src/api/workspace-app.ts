@@ -79,6 +79,36 @@ export type BillingState = {
     metadata: Record<string, unknown>;
     updatedAt: string;
   }>;
+  payg: null | {
+    enabled: boolean;
+    currency: "USD";
+    intervalDays: 14;
+    periodStart: string;
+    periodEnd: string;
+    nextInvoiceAt: string;
+    collectionMethod: "AUTO_CHARGE" | "CHARGE_ON_CHECKOUT";
+    apiCost: number;
+    serverCost: number;
+    estimatedTotal: number;
+    inputTokens: number;
+    outputTokens: number;
+    apiEvents: number;
+    serverDays: number;
+    invoices: Array<{
+      id: string;
+      periodStart: string;
+      periodEnd: string;
+      status: "processing" | "payment_due" | "paid" | "skipped" | "failed" | "voided";
+      currency: "USD";
+      apiCost: number;
+      serverCost: number;
+      totalCost: number;
+      hostedInvoiceUrl: string | null;
+      invoicePdfUrl: string | null;
+      finalizedAt: string | null;
+      paidAt: string | null;
+    }>;
+  };
 };
 
 export const workspaceAppApi = {
