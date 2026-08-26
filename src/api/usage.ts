@@ -10,9 +10,13 @@ export type WorkspaceCredits = {
   providerCostUsd: number;
   customerCostUsd: number;
   tokensPerCredit: number;
-  customerMarkupMultiplier: number;
+  customerMarkupMultiplier: number | null;
   model: string;
   pricing: {
+    inputPerMillionUsd: number;
+    outputPerMillionUsd: number;
+  };
+  providerPricing?: {
     inputPerMillionUsd: number;
     outputPerMillionUsd: number;
   };

@@ -113,3 +113,6 @@ Push-Zeitstempel: 2026-08-26 05:35:08 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-26 09:42:57 Europe/Berlin
 Änderungen: Die Billing-Seite trennt den jährlichen Plattformzugang jetzt klar von nutzungsabhängigen API- und Serverkosten. Für bezahlte Pakete zeigt sie den laufenden 14-Tage-Abrechnungszeitraum, API-Aufrufe, Tokens, Servertage, Einzelkosten, die geschätzte Rechnung, Zahlungsart und vergangene Rechnungen mit sicheren Zahlungs- und PDF-Links. Onboarding, Pakettexte sowie Englisch, Deutsch und Chinesisch erklären das Pay-as-you-go-Modell konsistent; kostenlose Test- und Viewer-Zugänge tragen keine Nutzungsgebühren.
+
+Push-Zeitstempel: 2026-08-26 15:54:15 Europe/Berlin
+Änderungen: Der Testplan wird wieder ohne Zugangsgebühr angeboten, führt aber erst nach korrektem Testpasswort und sicherer Airwallex-Kartenhinterlegung ins Dashboard. Billing und Onboarding zeigen die automatische Montagsabbuchung, die festen API-Preise von 5 USD je Million Input- und 10 USD je Million Output-Tokens sowie AWS zum doppelten Providerpreis. Fehlende oder fehlgeschlagene Zahlungen werden mit klarer KI-Sperre und Zahlungslink dargestellt; bestehende Testnutzer können ihre Karte nachträglich verbinden. Englisch, Deutsch und Chinesisch wurden konsistent aktualisiert.

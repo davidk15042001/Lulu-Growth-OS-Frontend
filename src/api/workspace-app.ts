@@ -82,11 +82,15 @@ export type BillingState = {
   payg: null | {
     enabled: boolean;
     currency: "USD";
-    intervalDays: 14;
+    intervalDays: 7;
     periodStart: string;
     periodEnd: string;
     nextInvoiceAt: string;
     collectionMethod: "AUTO_CHARGE" | "CHARGE_ON_CHECKOUT";
+    aiAccessBlocked: boolean;
+    blockedAt: string | null;
+    blockReason: "PAYMENT_SOURCE_SETUP_REQUIRED" | "PAYMENT_SOURCE_REQUIRED" | "AUTOMATIC_PAYMENT_FAILED" | string | null;
+    paymentLink: string | null;
     apiCost: number;
     serverCost: number;
     estimatedTotal: number;
@@ -98,7 +102,7 @@ export type BillingState = {
       id: string;
       periodStart: string;
       periodEnd: string;
-      status: "processing" | "payment_due" | "paid" | "skipped" | "failed" | "voided";
+      status: "processing" | "payment_due" | "payment_failed" | "paid" | "skipped" | "failed" | "voided";
       currency: "USD";
       apiCost: number;
       serverCost: number;
