@@ -116,3 +116,6 @@ Push-Zeitstempel: 2026-08-26 09:42:57 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-26 15:54:15 Europe/Berlin
 Änderungen: Der Testplan wird wieder ohne Zugangsgebühr angeboten, führt aber erst nach korrektem Testpasswort und sicherer Airwallex-Kartenhinterlegung ins Dashboard. Billing und Onboarding zeigen die automatische Montagsabbuchung, die festen API-Preise von 5 USD je Million Input- und 10 USD je Million Output-Tokens sowie AWS zum doppelten Providerpreis. Fehlende oder fehlgeschlagene Zahlungen werden mit klarer KI-Sperre und Zahlungslink dargestellt; bestehende Testnutzer können ihre Karte nachträglich verbinden. Englisch, Deutsch und Chinesisch wurden konsistent aktualisiert.
+
+Push-Zeitstempel: 2026-08-27 20:11:25 Europe/Berlin
+Änderungen: SEO-, GEO- und AEO-Seiten wurden aus dem Marketing-Dropdown in das Website-Dropdown der globalen Navigation verschoben. Die luluDropdownNavigation wurde in 126 Workspace-Komponenten konsistent umgestellt: SEO (sparklingly-moon-5114), GEO (zealously-path-4224) und AEO (sunny-house-9595) erscheinen jetzt im Website-Bereich zwischen Domains und Website-Einstellungen. Die Breadcrumb-Navigation in den drei zugehörigen Seiten wurde von Marketing auf Website korrigiert.
