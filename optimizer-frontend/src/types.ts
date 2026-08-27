@@ -158,6 +158,19 @@ export interface SiteConnection {
   lastRunId?: string;
 }
 
+export interface CreateSiteInput {
+  name: string;
+  websiteUrl: string;
+  provider: Provider;
+  targetKeywords: string[];
+  companyGoals: string;
+  automationEnabled: boolean;
+  automationHourUtc: number;
+  targetCountries: CountryCode[];
+  marketTargets: MarketTarget[];
+  mode?: ExecutionMode;
+}
+
 export interface SiteListItem extends SiteConnection {
   lastRun: SiteRun | null;
 }

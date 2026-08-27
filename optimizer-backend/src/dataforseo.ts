@@ -17,6 +17,8 @@ function authHeader() {
 }
 
 async function postDataForSeo<T>(path: string, payload: object): Promise<T[]> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), config.DATAFORSEO_TIMEOUT_MS);
   const response = await fetch(`${config.DATAFORSEO_BASE_URL}${path}`, {
     method: 'POST',
     headers: {
@@ -24,7 +26,8 @@ async function postDataForSeo<T>(path: string, payload: object): Promise<T[]> {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify([payload]),
-  });
+    signal: controller.signal,
+  }).finally(() => clearTimeout(timeout));
 
   if (!response.ok) {
     throw new Error(`DataForSEO request failed: ${response.status}`);
@@ -234,7 +237,8 @@ export async function collectExternalIntelligence(site: SiteConnection): Promise
       aiInsights,
       source: 'dataforseo',
     };
-  } catch {
+  } catch (error) {
+    console.warn('DataForSEO live request failed, falling back to mock intelligence.', error);
     const keywordInsights = fallbackKeywords(site);
     const aiInsights = fallbackAi(site);
     return {

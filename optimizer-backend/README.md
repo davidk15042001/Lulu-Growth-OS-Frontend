@@ -25,6 +25,9 @@ The API runs on `http://localhost:4100`.
 - `DATAFORSEO_MOCK_MODE=true`: test the full product without live API credentials
 - `DATAFORSEO_MOCK_MODE=false`: activate live DataForSEO requests
 - `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD`: required for live mode
+- `API_AUTH_TOKEN`: shared API token required for all site and scheduler endpoints
+- `API_RATE_LIMIT_WINDOW_MS` and `API_RATE_LIMIT_MAX_REQUESTS`: baseline in-memory API protection
+- `DATAFORSEO_TIMEOUT_MS`: request timeout for external intelligence calls
 - `DATAFORSEO_PRIMARY_LANGUAGE` and `DATAFORSEO_PRIMARY_LOCATION`: legacy fallback values only; active runs now use per-market country/language pairs
 
 ## Main API routes

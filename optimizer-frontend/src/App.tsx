@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from './api';
 import './App.css';
 import type {
@@ -77,9 +77,12 @@ function App() {
   const [statusMessage, setStatusMessage] = useState('Loading optimizer workspace...');
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const loadSequence = useRef(0);
 
   async function refreshSites(nextSiteId?: string) {
+    const requestId = ++loadSequence.current;
     const [siteList, liveOptions] = await Promise.all([api.listSites(), api.getOptions()]);
+    if (requestId !== loadSequence.current) return;
     setSites(siteList);
     setOptions(liveOptions);
     setForm((current) =>
@@ -91,6 +94,7 @@ function App() {
     if (targetSiteId) {
       setSelectedSiteId(targetSiteId);
       const detail = await api.getSite(targetSiteId);
+      if (requestId !== loadSequence.current) return;
       setSiteDetail(detail);
     } else {
       setSiteDetail(null);
@@ -118,10 +122,12 @@ function App() {
   );
 
   async function selectSite(siteId: string) {
+    const requestId = ++loadSequence.current;
     setSelectedSiteId(siteId);
     setBusyAction('load-site');
     try {
       const detail = await api.getSite(siteId);
+      if (requestId !== loadSequence.current) return;
       setSiteDetail(detail);
       setStatusMessage(`Loaded ${detail.site.name}.`);
     } finally {
@@ -190,7 +196,9 @@ function App() {
       } else {
         await api.runFullCycle(selectedSite.id);
       }
+      const requestId = ++loadSequence.current;
       const detail = await api.getSite(selectedSite.id);
+      if (requestId !== loadSequence.current) return;
       setSiteDetail(detail);
       setStatusMessage(`Completed ${action.replace('_', ' ')} for ${detail.site.name}.`);
     } catch (error) {
@@ -226,7 +234,7 @@ function App() {
           </div>
           <div className="hero-stat">
             <span className="hero-stat__label">Status</span>
-            <strong>{statusMessage}</strong>
+            <strong aria-live="polite">{statusMessage}</strong>
           </div>
         </div>
       </header>
@@ -305,6 +313,7 @@ function App() {
                       key={country.code}
                       type="button"
                       className={`country-chip${active ? ' is-active' : ''}`}
+                      aria-pressed={active}
                       onClick={() => toggleCountry(country.code)}
                     >
                       <strong>{country.name}</strong>
