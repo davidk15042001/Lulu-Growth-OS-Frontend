@@ -125,3 +125,6 @@ Push-Zeitstempel: 2026-08-27 20:24:10 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-27 20:38:50 Europe/Berlin
 Änderungen: CI/CD-Frontend-Deploy-Pfad von "/var/www/lulu-ai.cn/html/" auf "/var/www/lulu-growth-os/frontend/" umgestellt, damit das Frontend-Gebäude an die korrekte Zielposition auf dem Produktionsserver verteilt wird. Alle bisherigen Änderungen (Navigation, Breadcrumbs und Typecheck-Fixes) werden nun an diesen neuen Pfad deployed.
+
+Push-Zeitstempel: 2026-08-27 21:36:00 Europe/Berlin
+Änderungen: Backend Commit 93b89f3 (Access Token TTL 24h auf 7 Tage verlängert) + Frontend Commit 0956546 (Access-Token + Current-User nun in localStorage speichern statt sessionStorage => Stay-signed-in until explizitem Logout, Migration von alten sessionStorage Sessions automatisch). Beide live deployed per SSH, Backend danach neu gebaut + Service neugestartet, Frontend neu gebaut auf Server.
