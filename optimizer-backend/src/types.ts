@@ -212,6 +212,8 @@ export interface UserAccount {
   email: string;
   name: string;
   createdAt: string;
+  passwordHash?: string;
+  passwordUpdatedAt?: string;
 }
 
 export interface WorkspaceMembership {
@@ -225,6 +227,8 @@ export interface RequestContext {
   workspaceId: string;
   userId: string;
   role: UserRole;
+  email: string;
+  name: string;
 }
 
 export interface CreateSiteInput {

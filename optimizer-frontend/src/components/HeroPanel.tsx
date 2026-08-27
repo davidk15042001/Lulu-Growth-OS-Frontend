@@ -5,9 +5,10 @@ type HeroPanelProps = {
   sites: SiteListItem[];
   statusMessage: string;
   session: SessionContext | null;
+  onLogout?: () => void;
 };
 
-export function HeroPanel({ options, sites, statusMessage, session }: HeroPanelProps) {
+export function HeroPanel({ options, sites, statusMessage, session, onLogout }: HeroPanelProps) {
   return (
     <header className="hero-panel">
       <div>
@@ -17,6 +18,14 @@ export function HeroPanel({ options, sites, statusMessage, session }: HeroPanelP
           Multi-country market packs with local-language-plus-English coverage, provider-aware
           optimization, and DataForSEO-driven market intelligence.
         </p>
+        {session ? (
+          <div className="hero-actions">
+            <span className="badge">{session.name}</span>
+            <button type="button" className="ghost-button" onClick={onLogout}>
+              Sign out
+            </button>
+          </div>
+        ) : null}
       </div>
       <div className="hero-status">
         <div className="hero-stat">
@@ -33,7 +42,7 @@ export function HeroPanel({ options, sites, statusMessage, session }: HeroPanelP
         </div>
         <div className="hero-stat">
           <span className="hero-stat__label">Workspace context</span>
-          <strong>{session ? `${session.workspaceId} | ${session.role}` : 'Loading context'}</strong>
+          <strong>{session ? `${session.workspaceId} | ${session.role}` : 'Sign in required'}</strong>
         </div>
         <div className="hero-stat">
           <span className="hero-stat__label">Status</span>

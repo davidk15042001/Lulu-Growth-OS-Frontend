@@ -197,4 +197,18 @@ export interface SessionContext {
   workspaceId: string;
   userId: string;
   role: UserRole;
+  email: string;
+  name: string;
+}
+
+export interface LoginInput {
+  workspaceId: string;
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  expiresAt: string;
+  session: SessionContext;
 }

@@ -33,6 +33,12 @@ type MembershipRow = {
   created_at: string;
 };
 
+type UserRow = {
+  id: string;
+  email: string | null;
+  data: string;
+};
+
 let databasePromise: Promise<DatabaseSync> | null = null;
 
 async function ensureStorePath() {
@@ -46,6 +52,13 @@ function normalizeSite(site: SiteConnection): SiteConnection {
     ...site,
     workspaceId: site.workspaceId ?? DEFAULT_WORKSPACE_ID,
     ownerUserId: site.ownerUserId ?? DEFAULT_USER_ID,
+  };
+}
+
+function normalizeUser(user: UserAccount): UserAccount {
+  return {
+    ...user,
+    email: user.email.trim().toLowerCase(),
   };
 }
 
@@ -107,6 +120,7 @@ function createSchema(database: DatabaseSync) {
 
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
+      email TEXT,
       data TEXT NOT NULL,
       created_at TEXT NOT NULL
     );
@@ -126,6 +140,35 @@ function createSchema(database: DatabaseSync) {
 
     CREATE INDEX IF NOT EXISTS idx_workspace_memberships_workspace
       ON workspace_memberships (workspace_id, role);
+  `);
+
+  const userColumns = database.prepare('PRAGMA table_info(users)').all() as Array<{ name: string }>;
+  if (!userColumns.some((column) => column.name === 'email')) {
+    database.exec('ALTER TABLE users ADD COLUMN email TEXT');
+  }
+
+  const existingUsers = database
+    .prepare('SELECT id, email, data FROM users WHERE email IS NULL OR email = ?')
+    .all('') as UserRow[];
+
+  if (existingUsers.length > 0) {
+    const updateEmail = database.prepare(`
+      UPDATE users
+      SET email = ?
+      WHERE id = ?
+    `);
+
+    runTransaction(database, () => {
+      for (const row of existingUsers) {
+        const user = normalizeUser(JSON.parse(row.data) as UserAccount);
+        updateEmail.run(user.email, user.id);
+      }
+    });
+  }
+
+  database.exec(`
+    CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email
+      ON users (email);
   `);
 }
 
@@ -216,15 +259,46 @@ export async function listWorkspaces() {
 
 export async function saveUser(user: UserAccount) {
   const database = await getDatabase();
+  const normalized = normalizeUser(user);
   database
     .prepare(`
-      INSERT INTO users (id, data, created_at)
-      VALUES (?, ?, ?)
+      INSERT INTO users (id, email, data, created_at)
+      VALUES (?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
+        email = excluded.email,
         data = excluded.data
     `)
-    .run(user.id, JSON.stringify(user), user.createdAt);
-  return user;
+    .run(normalized.id, normalized.email, JSON.stringify(normalized), normalized.createdAt);
+  return normalized;
+}
+
+export async function getUser(userId: string) {
+  const database = await getDatabase();
+  const row = database
+    .prepare(`
+      SELECT id, email, data
+      FROM users
+      WHERE id = ?
+      LIMIT 1
+    `)
+    .get(userId) as UserRow | undefined;
+  const user = parseRow<UserAccount>(row);
+  return user ? normalizeUser(user) : null;
+}
+
+export async function getUserByEmail(email: string) {
+  const database = await getDatabase();
+  const normalizedEmail = email.trim().toLowerCase();
+  const row = database
+    .prepare(`
+      SELECT id, email, data
+      FROM users
+      WHERE email = ?
+      LIMIT 1
+    `)
+    .get(normalizedEmail) as UserRow | undefined;
+  const user = parseRow<UserAccount>(row);
+  return user ? normalizeUser(user) : null;
 }
 
 export async function saveMembership(membership: WorkspaceMembership) {
@@ -390,7 +464,7 @@ export async function seedAccessControlIfEmpty(input: {
       INSERT INTO workspaces (id, data, created_at) VALUES (?, ?, ?)
     `);
     const insertUser = database.prepare(`
-      INSERT INTO users (id, data, created_at) VALUES (?, ?, ?)
+      INSERT INTO users (id, email, data, created_at) VALUES (?, ?, ?, ?)
     `);
     const insertMembership = database.prepare(`
       INSERT INTO workspace_memberships (workspace_id, user_id, role, created_at)
@@ -401,7 +475,13 @@ export async function seedAccessControlIfEmpty(input: {
       insertWorkspace.run(workspace.id, JSON.stringify(workspace), workspace.createdAt);
     }
     for (const user of input.users) {
-      insertUser.run(user.id, JSON.stringify(user), user.createdAt);
+      const normalizedUser = normalizeUser(user);
+      insertUser.run(
+        normalizedUser.id,
+        normalizedUser.email,
+        JSON.stringify(normalizedUser),
+        normalizedUser.createdAt,
+      );
     }
     for (const membership of input.memberships) {
       insertMembership.run(
@@ -415,12 +495,14 @@ export async function seedAccessControlIfEmpty(input: {
 }
 
 export async function buildRequestContext(workspaceId: string, userId: string): Promise<RequestContext | null> {
-  const membership = await getMembership(workspaceId, userId);
-  if (!membership) return null;
+  const [membership, user] = await Promise.all([getMembership(workspaceId, userId), getUser(userId)]);
+  if (!membership || !user) return null;
   return {
     workspaceId: membership.workspaceId,
     userId: membership.userId,
     role: membership.role,
+    email: user.email,
+    name: user.name,
   };
 }
 

@@ -3,11 +3,14 @@ import cors from 'cors';
 import cron from 'node-cron';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
+import { createAuthToken, hashPassword, verifyAuthToken, verifyPassword } from './auth.js';
 import { config, isLiveDataForSeoEnabled } from './config.js';
 import { buildDefaultMarketTargets, DEFAULT_COUNTRY_CODES, listCountryPresets } from './markets.js';
 import {
   buildRequestContext,
+  getUserByEmail,
   listWorkspaces,
+  saveUser,
   seedAccessControlIfEmpty,
   seedDemoDataIfEmpty,
 } from './store.js';
@@ -85,13 +88,16 @@ function rateLimit(req: express.Request, res: express.Response, next: express.Ne
   next();
 }
 
-function requireApiAuth(req: express.Request, _res: express.Response, next: express.NextFunction) {
-  const token = req.header('x-api-token')?.trim();
-  if (token !== config.API_AUTH_TOKEN) {
-    next(new AppError(401, 'UNAUTHORIZED', 'A valid API token is required.'));
-    return;
+function readBearerToken(req: express.Request) {
+  const authorization = req.header('authorization')?.trim();
+  if (!authorization) {
+    return null;
   }
-  next();
+  const [scheme, token] = authorization.split(/\s+/, 2);
+  if (scheme?.toLowerCase() !== 'bearer' || !token) {
+    return null;
+  }
+  return token;
 }
 
 const roleRank: Record<UserRole, number> = {
@@ -100,27 +106,46 @@ const roleRank: Record<UserRole, number> = {
   admin: 3,
 };
 
-function requireTenantAccess(minRole: UserRole) {
+async function requireAuthenticatedSession(
+  req: express.Request,
+  res: express.Response<any, AppLocals>,
+  next: express.NextFunction,
+) {
+  const token = readBearerToken(req);
+  if (!token) {
+    next(new AppError(401, 'AUTH_REQUIRED', 'A valid login session is required.'));
+    return;
+  }
+
+  try {
+    const payload = verifyAuthToken(token);
+    const context = await buildRequestContext(payload.workspaceId, payload.sub);
+    if (!context) {
+      next(new AppError(403, 'SESSION_REVOKED', 'This session is no longer valid.'));
+      return;
+    }
+    res.locals.context = context;
+    next();
+  } catch (error) {
+    next(
+      new AppError(
+        401,
+        'INVALID_AUTH_TOKEN',
+        error instanceof Error ? error.message : 'The provided token is invalid.',
+      ),
+    );
+  }
+}
+
+function requireRole(minRole: UserRole) {
   return async (
-    req: express.Request,
+    _req: express.Request,
     res: express.Response<any, AppLocals>,
     next: express.NextFunction,
   ) => {
-    const workspaceId = req.header('x-workspace-id')?.trim();
-    const userId = req.header('x-user-id')?.trim();
-    if (!workspaceId || !userId) {
-      next(
-        new AppError(
-          401,
-          'CONTEXT_REQUIRED',
-          'A workspace and user context is required for this operation.',
-        ),
-      );
-      return;
-    }
-    const context = await buildRequestContext(workspaceId, userId);
+    const context = res.locals.context;
     if (!context) {
-      next(new AppError(403, 'MEMBERSHIP_REQUIRED', 'You are not a member of this workspace.'));
+      next(new AppError(500, 'REQUEST_CONTEXT_MISSING', 'Authenticated context was not attached.'));
       return;
     }
     if (roleRank[context.role] < roleRank[minRole]) {
@@ -205,6 +230,12 @@ const siteSchema = z.object({
 
 const siteUpdateSchema = siteSchema.partial();
 
+const loginSchema = z.object({
+  workspaceId: z.string().trim().min(2).max(120),
+  email: z.string().trim().email().max(320).transform((value) => value.toLowerCase()),
+  password: z.string().min(8).max(128),
+});
+
 function sanitizeCreateSiteInput(input: CreateSiteInput): CreateSiteInput {
   const targetKeywords = trimUnique(input.targetKeywords);
   const targetCountries = Array.from(new Set(input.targetCountries));
@@ -242,17 +273,52 @@ function sanitizeUpdateSiteInput(input: UpdateSiteInput): UpdateSiteInput {
 
 export async function bootstrapDemoData() {
   const timestamp = new Date().toISOString();
+  const demoPasswords = {
+    admin: hashPassword('DemoAdmin!2026'),
+    editor: hashPassword('DemoEditor!2026'),
+    viewer: hashPassword('DemoViewer!2026'),
+    secondAdmin: hashPassword('SecondAdmin!2026'),
+  };
+  const demoUsers = [
+    {
+      id: 'demo-admin',
+      email: 'admin@demo.example',
+      name: 'Demo Admin',
+      createdAt: timestamp,
+      passwordHash: demoPasswords.admin,
+      passwordUpdatedAt: timestamp,
+    },
+    {
+      id: 'demo-editor',
+      email: 'editor@demo.example',
+      name: 'Demo Editor',
+      createdAt: timestamp,
+      passwordHash: demoPasswords.editor,
+      passwordUpdatedAt: timestamp,
+    },
+    {
+      id: 'demo-viewer',
+      email: 'viewer@demo.example',
+      name: 'Demo Viewer',
+      createdAt: timestamp,
+      passwordHash: demoPasswords.viewer,
+      passwordUpdatedAt: timestamp,
+    },
+    {
+      id: 'second-admin',
+      email: 'owner@second.example',
+      name: 'Second Admin',
+      createdAt: timestamp,
+      passwordHash: demoPasswords.secondAdmin,
+      passwordUpdatedAt: timestamp,
+    },
+  ];
   await seedAccessControlIfEmpty({
     workspaces: [
       { id: 'demo-workspace', name: 'Demo Workspace', createdAt: timestamp },
       { id: 'second-workspace', name: 'Second Workspace', createdAt: timestamp },
     ],
-    users: [
-      { id: 'demo-admin', email: 'admin@demo.example', name: 'Demo Admin', createdAt: timestamp },
-      { id: 'demo-editor', email: 'editor@demo.example', name: 'Demo Editor', createdAt: timestamp },
-      { id: 'demo-viewer', email: 'viewer@demo.example', name: 'Demo Viewer', createdAt: timestamp },
-      { id: 'second-admin', email: 'owner@second.example', name: 'Second Admin', createdAt: timestamp },
-    ],
+    users: demoUsers,
     memberships: [
       { workspaceId: 'demo-workspace', userId: 'demo-admin', role: 'admin', createdAt: timestamp },
       { workspaceId: 'demo-workspace', userId: 'demo-editor', role: 'editor', createdAt: timestamp },
@@ -260,6 +326,7 @@ export async function bootstrapDemoData() {
       { workspaceId: 'second-workspace', userId: 'second-admin', role: 'admin', createdAt: timestamp },
     ],
   });
+  await Promise.all(demoUsers.map((user) => saveUser(user)));
 
   const demoCountries: CountryCode[] = ['US', 'DE', 'CN', 'GB', 'IN'];
   await seedDemoDataIfEmpty([
@@ -295,7 +362,7 @@ export function createApp() {
     cors({
       origin: config.FRONTEND_ORIGIN,
       methods: ['GET', 'POST', 'PATCH'],
-      allowedHeaders: ['Content-Type', 'X-API-Token', 'X-Workspace-Id', 'X-User-Id'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
     }),
   );
   app.use(rateLimit);
@@ -334,15 +401,53 @@ export function createApp() {
     });
   });
 
-  app.get('/api/session', requireApiAuth, requireTenantAccess('viewer'), (_req, res) => {
+  app.post('/api/auth/login', async (req, res, next) => {
+    try {
+      const parsed = loginSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ success: false, error: parsed.error.flatten() });
+        return;
+      }
+
+      const user = await getUserByEmail(parsed.data.email);
+      if (!user?.passwordHash || !verifyPassword(parsed.data.password, user.passwordHash)) {
+        next(new AppError(401, 'INVALID_CREDENTIALS', 'Invalid login credentials.'));
+        return;
+      }
+
+      const context = await buildRequestContext(parsed.data.workspaceId, user.id);
+      if (!context) {
+        next(new AppError(401, 'INVALID_CREDENTIALS', 'Invalid login credentials.'));
+        return;
+      }
+
+      const authToken = createAuthToken({
+        userId: user.id,
+        workspaceId: parsed.data.workspaceId,
+      });
+
+      res.json({
+        success: true,
+        data: {
+          token: authToken.token,
+          expiresAt: authToken.expiresAt,
+          session: context,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/session', requireAuthenticatedSession, (_req, res) => {
     res.json({
       success: true,
       data: requestContext(res),
     });
   });
 
-  app.use('/api/sites', requireApiAuth, requireTenantAccess('viewer'));
-  app.use('/api/scheduler', requireApiAuth, requireTenantAccess('admin'));
+  app.use('/api/sites', requireAuthenticatedSession);
+  app.use('/api/scheduler', requireAuthenticatedSession, requireRole('admin'));
 
   app.get('/api/sites', async (_req, res: express.Response<any, AppLocals>, next) => {
     try {
@@ -353,7 +458,7 @@ export function createApp() {
     }
   });
 
-  app.post('/api/sites', requireTenantAccess('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/sites', requireRole('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const parsed = siteSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -385,7 +490,7 @@ export function createApp() {
     }
   });
 
-  app.patch('/api/sites/:siteId', requireTenantAccess('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
+  app.patch('/api/sites/:siteId', requireRole('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const parsed = siteUpdateSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -407,7 +512,7 @@ export function createApp() {
     }
   });
 
-  app.post('/api/sites/:siteId/analyze', requireTenantAccess('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/sites/:siteId/analyze', requireRole('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const result = await executeRun(requestContext(res).workspaceId, readSiteId(req), 'analysis');
       if (!result) {
@@ -420,7 +525,7 @@ export function createApp() {
     }
   });
 
-  app.post('/api/sites/:siteId/optimize', requireTenantAccess('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/sites/:siteId/optimize', requireRole('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const result = await executeRun(
         requestContext(res).workspaceId,
@@ -437,7 +542,7 @@ export function createApp() {
     }
   });
 
-  app.post('/api/sites/:siteId/full-cycle', requireTenantAccess('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/sites/:siteId/full-cycle', requireRole('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const result = await executeRun(
         requestContext(res).workspaceId,

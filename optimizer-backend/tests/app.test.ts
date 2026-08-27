@@ -2,16 +2,25 @@ import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 import request from 'supertest';
 import { bootstrapDemoData, createApp } from '../src/app.js';
-import { config } from '../src/config.js';
 import { resetStateForTests } from '../src/store.js';
 
 const api = request(createApp());
 
-function authContext(workspaceId = 'demo-workspace', userId = 'demo-admin') {
+const demoCredentials = {
+  'demo-admin': { workspaceId: 'demo-workspace', email: 'admin@demo.example', password: 'DemoAdmin!2026' },
+  'demo-editor': { workspaceId: 'demo-workspace', email: 'editor@demo.example', password: 'DemoEditor!2026' },
+  'demo-viewer': { workspaceId: 'demo-workspace', email: 'viewer@demo.example', password: 'DemoViewer!2026' },
+  'second-admin': {
+    workspaceId: 'second-workspace',
+    email: 'owner@second.example',
+    password: 'SecondAdmin!2026',
+  },
+} as const;
+
+async function authContext(userId: keyof typeof demoCredentials = 'demo-admin') {
+  const response = await api.post('/api/auth/login').send(demoCredentials[userId]).expect(200);
   return {
-    'x-api-token': config.API_AUTH_TOKEN,
-    'x-workspace-id': workspaceId,
-    'x-user-id': userId,
+    Authorization: `Bearer ${response.body.data.token}`,
   };
 }
 
@@ -27,21 +36,42 @@ describe('optimizer backend api', () => {
     assert.equal(response.body.data.status, 'ok');
   });
 
-  it('blocks protected site endpoints without api token', async () => {
-    const response = await api.get('/api/sites').expect(401);
-    assert.equal(response.body.error.code, 'UNAUTHORIZED');
-  });
-
-  it('requires workspace and user context for protected routes', async () => {
+  it('rejects invalid login credentials', async () => {
     const response = await api
-      .get('/api/sites')
-      .set({ 'x-api-token': config.API_AUTH_TOKEN })
+      .post('/api/auth/login')
+      .send({
+        workspaceId: 'demo-workspace',
+        email: 'admin@demo.example',
+        password: 'wrong-password',
+      })
       .expect(401);
-    assert.equal(response.body.error.code, 'CONTEXT_REQUIRED');
+    assert.equal(response.body.error.code, 'INVALID_CREDENTIALS');
   });
 
-  it('lists demo sites with a valid api token', async () => {
-    const response = await api.get('/api/sites').set(authContext()).expect(200);
+  it('creates a bearer token through login', async () => {
+    const response = await api.post('/api/auth/login').send(demoCredentials['demo-admin']).expect(200);
+    assert.equal(typeof response.body.data.token, 'string');
+    assert.equal(response.body.data.session.workspaceId, 'demo-workspace');
+    assert.equal(response.body.data.session.userId, 'demo-admin');
+    assert.equal(response.body.data.session.role, 'admin');
+    assert.equal(response.body.data.session.email, 'admin@demo.example');
+  });
+
+  it('blocks protected site endpoints without a bearer token', async () => {
+    const response = await api.get('/api/sites').expect(401);
+    assert.equal(response.body.error.code, 'AUTH_REQUIRED');
+  });
+
+  it('returns the authenticated session context', async () => {
+    const response = await api.get('/api/session').set(await authContext()).expect(200);
+    assert.equal(response.body.data.workspaceId, 'demo-workspace');
+    assert.equal(response.body.data.userId, 'demo-admin');
+    assert.equal(response.body.data.role, 'admin');
+    assert.equal(response.body.data.name, 'Demo Admin');
+  });
+
+  it('lists demo sites with a valid session', async () => {
+    const response = await api.get('/api/sites').set(await authContext()).expect(200);
     assert.equal(response.body.success, true);
     assert.equal(Array.isArray(response.body.data), true);
     assert.equal(response.body.data.length, 1);
@@ -61,7 +91,7 @@ describe('optimizer backend api', () => {
       mode: 'mock',
     };
 
-    const response = await api.post('/api/sites').set(authContext()).send(payload).expect(201);
+    const response = await api.post('/api/sites').set(await authContext()).send(payload).expect(201);
     assert.equal(response.body.data.targetCountries.length, 2);
     assert.deepEqual(response.body.data.targetCountries, ['DE', 'US']);
     assert.deepEqual(response.body.data.targetKeywords, ['seo automation', 'geo']);
@@ -85,7 +115,7 @@ describe('optimizer backend api', () => {
 
     const response = await api
       .post('/api/sites')
-      .set(authContext('demo-workspace', 'demo-viewer'))
+      .set(await authContext('demo-viewer'))
       .send(payload)
       .expect(403);
     assert.equal(response.body.error.code, 'INSUFFICIENT_ROLE');
@@ -94,7 +124,7 @@ describe('optimizer backend api', () => {
   it('isolates workspaces from each other', async () => {
     const response = await api
       .get('/api/sites/demo-wordpress-site')
-      .set(authContext('second-workspace', 'second-admin'))
+      .set(await authContext('second-admin'))
       .expect(404);
     assert.equal(response.body.success, false);
   });
@@ -102,13 +132,13 @@ describe('optimizer backend api', () => {
   it('requires admin role for scheduler trigger', async () => {
     const editorDenied = await api
       .post('/api/scheduler/run-due')
-      .set(authContext('demo-workspace', 'demo-editor'))
+      .set(await authContext('demo-editor'))
       .expect(403);
     assert.equal(editorDenied.body.error.code, 'INSUFFICIENT_ROLE');
 
     const adminAllowed = await api
       .post('/api/scheduler/run-due')
-      .set(authContext())
+      .set(await authContext())
       .expect(200);
     assert.equal(adminAllowed.body.success, true);
   });

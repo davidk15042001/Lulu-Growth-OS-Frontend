@@ -37,6 +37,14 @@
   color: var(--text);
 }
 
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 18px;
+}
+
 .hero-status {
   display: grid;
   gap: 12px;
@@ -63,6 +71,10 @@
   grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
   gap: 24px;
   align-items: start;
+}
+
+.layout--auth {
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
 }
 
 .sidebar,

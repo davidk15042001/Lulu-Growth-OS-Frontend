@@ -1,5 +1,7 @@
 import type {
   CreateSiteInput,
+  LoginInput,
+  LoginResponse,
   OptionsResponse,
   SessionContext,
   SiteConnection,
@@ -9,9 +11,7 @@ import type {
 } from './types';
 
 const API_BASE = (import.meta.env.VITE_API_URL?.trim() || 'http://localhost:4100/api').replace(/\/$/, '');
-const API_TOKEN = import.meta.env.VITE_API_TOKEN?.trim() || 'local-dev-token-change-me';
-const API_WORKSPACE_ID = import.meta.env.VITE_WORKSPACE_ID?.trim() || 'demo-workspace';
-const API_USER_ID = import.meta.env.VITE_USER_ID?.trim() || 'demo-admin';
+const AUTH_STORAGE_KEY = 'optimizer.auth.token';
 const REQUEST_TIMEOUT_MS = 15_000;
 
 type Envelope<T> = {
@@ -46,12 +46,11 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestOptions) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), init?.timeoutMs ?? REQUEST_TIMEOUT_MS);
+  const authToken = localStorage.getItem(AUTH_STORAGE_KEY);
   const response = await fetch(`${API_BASE}${path}`, {
     headers: {
       'Content-Type': 'application/json',
-      'X-API-Token': API_TOKEN,
-      'X-Workspace-Id': API_WORKSPACE_ID,
-      'X-User-Id': API_USER_ID,
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...(init?.headers ?? {}),
     },
     ...init,
@@ -75,8 +74,28 @@ async function request<T>(path: string, init?: RequestOptions) {
   return (await response.json()) as Envelope<T>;
 }
 
+function storeAuthToken(token: string) {
+  localStorage.setItem(AUTH_STORAGE_KEY, token);
+}
+
+function clearStoredAuthToken() {
+  localStorage.removeItem(AUTH_STORAGE_KEY);
+}
+
 export const api = {
   getOptions: async () => (await request<OptionsResponse>('/options')).data,
+  login: async (payload: LoginInput) => {
+    const response = await request<LoginResponse>('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    storeAuthToken(response.data.token);
+    return response.data;
+  },
+  logout: () => {
+    clearStoredAuthToken();
+  },
+  hasStoredSession: () => Boolean(localStorage.getItem(AUTH_STORAGE_KEY)),
   getSession: async () => (await request<SessionContext>('/session')).data,
   listSites: async () => (await request<SiteListItem[]>('/sites')).data,
   getSite: async (siteId: string) => (await request<SiteDetailResponse>(`/sites/${siteId}`)).data,
