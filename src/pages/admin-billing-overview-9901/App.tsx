@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { getFriendlyErrorMessage, requestApi } from "../../api/client";
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 type NavSection = { label: string; items: NavItem[] };
-type NavItem = { key: PageKey; label: string; icon: JSX.Element; badge?: string };
+type NavItem = { key: PageKey; label: string; icon: React.ReactElement; badge?: string };
 type PageKey =
   | "dashboard" | "users" | "workspaces" | "crm" | "billing" | "websites"
   | "agents" | "integrations" | "approvals" | "conversations" | "files"
@@ -655,7 +655,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
                   {detail.sessions.map((s) => (
                     <li key={s.id} className="flex items-start justify-between gap-3 px-3 py-2 text-xs">
                       <div className="min-w-0 flex-1">
-                        <div className="truncate font-mono text-[11px] text-slate-500">{s.selector}</div>
+                        <div className="truncate font-mono text-[11px] text-slate-500">{s.id.slice(0, 12)}...</div>
                         <div className="mt-0.5 truncate text-slate-600">{s.userAgent || "Unknown device"}</div>
                       </div>
                       <div className="text-right">

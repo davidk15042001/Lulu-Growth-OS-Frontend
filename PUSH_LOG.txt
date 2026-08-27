@@ -119,3 +119,6 @@ Push-Zeitstempel: 2026-08-26 15:54:15 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-27 20:11:25 Europe/Berlin
 Änderungen: SEO-, GEO- und AEO-Seiten wurden aus dem Marketing-Dropdown in das Website-Dropdown der globalen Navigation verschoben. Die luluDropdownNavigation wurde in 126 Workspace-Komponenten konsistent umgestellt: SEO (sparklingly-moon-5114), GEO (zealously-path-4224) und AEO (sunny-house-9595) erscheinen jetzt im Website-Bereich zwischen Domains und Website-Einstellungen. Die Breadcrumb-Navigation in den drei zugehörigen Seiten wurde von Marketing auf Website korrigiert.
+
+Push-Zeitstempel: 2026-08-27 20:24:10 Europe/Berlin
+Änderungen: Typecheck-Fehler im Admin-Billing-Overview behoben, damit die CI/CD-Deploy-Pipeline erfolgreich durchläuft. React-Namespace importiert, JSX.Element auf React.ReactElement umgestellt, fehlendes 'selector'-Feld durch abgeschnittene Session-ID ersetzt. PUSH_LOG um die beiden heutigen Navigationseinträge ergänzt.
