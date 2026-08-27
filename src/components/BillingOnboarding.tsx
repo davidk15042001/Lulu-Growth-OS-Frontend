@@ -7,6 +7,7 @@ import { onboardingApi } from "../api/onboarding";
 import { workspaceAppApi } from "../api/workspace-app";
 import { billingCapabilities, billingPlans, type BillingPlanId } from "../billing/planCatalog";
 import { OnboardingHeader } from "./OnboardingHeader";
+import { isAdminUser, ADMIN_PANEL_PATH } from "../api/session";
 
 const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string }> = {
   starter: { icon: Zap, accent: "bg-[var(--primary)] text-[var(--primary-foreground)]" },
@@ -16,6 +17,7 @@ const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string
 
 export function BillingOnboarding() {
   const { currentUser, selectedWorkspace, loading, refresh } = useLuluApp();
+  const admin = isAdminUser(currentUser);
   const [selectedPlan, setSelectedPlan] = useState<BillingPlanId | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +26,7 @@ export function BillingOnboarding() {
   const [testPasswordRequired, setTestPasswordRequired] = useState(false);
   const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
+  const postActionTarget = admin ? ADMIN_PANEL_PATH : routes.app.dashboard;
 
   useEffect(() => {
     if (!paymentSucceeded || !selectedWorkspace) return;
@@ -39,7 +42,7 @@ export function BillingOnboarding() {
           if (syncResponse.data.status === "active") {
             window.localStorage.removeItem(`lulu:checkout-id:${selectedWorkspace.id}`);
             await refresh();
-            if (active) navigateApp(routes.app.dashboard, { replace: true });
+            if (active) navigateApp(postActionTarget, { replace: true });
             return;
           }
         }
@@ -47,7 +50,7 @@ export function BillingOnboarding() {
         const subscription = response.data.subscription;
         if (subscription?.status === "active" && subscription.provider === "airwallex") {
           await refresh();
-          if (active) navigateApp(routes.app.dashboard, { replace: true });
+          if (active) navigateApp(postActionTarget, { replace: true });
           return;
         }
         attempts += 1;
@@ -76,8 +79,8 @@ export function BillingOnboarding() {
 
   useEffect(() => {
     if (loading || !selectedWorkspace?.onboardingCompletedAt || paymentSucceeded) return;
-    navigateApp(routes.app.dashboard, { replace: true });
-  }, [loading, paymentSucceeded, selectedWorkspace]);
+    navigateApp(postActionTarget, { replace: true });
+  }, [loading, paymentSucceeded, postActionTarget, selectedWorkspace]);
 
   if (loading) {
     return <main className="grid min-h-screen place-items-center bg-[var(--background)] text-sm text-[var(--muted-foreground)]">Loading your workspace…</main>;
@@ -116,7 +119,7 @@ export function BillingOnboarding() {
       window.localStorage.setItem(`lulu:selected-plan:${selectedWorkspace.id}`, planId);
       if (billingResult.free) {
         await refresh();
-        navigateApp(routes.app.dashboard, { replace: true });
+        navigateApp(postActionTarget, { replace: true });
         return;
       }
       if (!billingResult.checkoutUrl) throw new Error("Airwallex did not return a checkout URL.");

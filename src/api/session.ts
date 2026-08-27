@@ -3,6 +3,17 @@ const PENDING_EMAIL_KEY = "lulu.pending-email";
 const PENDING_INVITATION_KEY = "lulu.pending-invitation";
 const CURRENT_USER_KEY = "lulu.current-user";
 
+export const ADMIN_PANEL_PATH = "/app/admin-billing-overview-9901";
+export const ADMIN_REQUIRED_EMAIL = "lulu.ai.cn@gmail.com";
+export const ADMIN_REQUIRED_ROLE = "admin";
+
+export function isAdminUser(user: { email?: string | null; role?: string | null } | null | undefined) {
+  if (!user) return false;
+  const email = typeof user.email === "string" ? user.email.trim().toLowerCase() : "";
+  const role = typeof user.role === "string" ? user.role : "";
+  return role === ADMIN_REQUIRED_ROLE && email === ADMIN_REQUIRED_EMAIL;
+}
+
 export function getStoredUser<T>() {
   try {
     const persistentValue = window.localStorage.getItem(CURRENT_USER_KEY);

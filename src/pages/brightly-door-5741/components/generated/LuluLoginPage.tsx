@@ -7,8 +7,10 @@ import { LoginFeaturesLanding } from './LoginFeaturesLanding';
 import {
   clearPendingInvitation,
   getPendingInvitation,
+  isAdminUser,
   setPendingEmail,
   setSelectedWorkspaceId,
+  ADMIN_PANEL_PATH,
 } from '../../../../api/session';
 
 async function requestWithTimeout<T>(request: ApiRequest, timeoutMs = 15000) {
@@ -45,6 +47,15 @@ export const LuluLoginPage = () => {
     setS(false);
     try {
       await requestWithTimeout({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
+      setStatusMessage('Loading your profile…');
+      const meResp = await requestWithTimeout<{ id: string; email: string; firstName: string | null; lastName: string | null; role: string }>({ path: '/auth/me' });
+      const currentUser = meResp.data;
+      if (isAdminUser(currentUser)) {
+        setS(true);
+        setStatusMessage('Signed in as admin.');
+        navigateApp(ADMIN_PANEL_PATH, { replace: true });
+        return;
+      }
       const pendingInvitation = getPendingInvitation();
       let invitedWorkspaceId: string | null = null;
       if (pendingInvitation) {

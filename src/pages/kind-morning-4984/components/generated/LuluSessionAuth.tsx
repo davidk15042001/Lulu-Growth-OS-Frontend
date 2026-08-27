@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, Eye, EyeOff, LockKeyhole, LoaderCircle, ShieldCheck } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
-import { setSelectedWorkspaceId } from '../../../../api/session';
+import { setSelectedWorkspaceId, isAdminUser, ADMIN_PANEL_PATH } from '../../../../api/session';
 type Screen = 'expired' | 'reauth' | 'password' | 'success' | 'failure' | 'invalidated';
 type Status = 'idle' | 'loading';
 const footerLinks: Array<Record<string, any>> = [];
@@ -27,6 +27,13 @@ export function LuluSessionAuth() {
     setStatus('loading');
     try {
       await requestApi({ path: '/auth/login', method: 'POST', body: { email, password } });
+      const meResp = await requestApi<{ id: string; email: string; role: string }>({ path: '/auth/me' });
+      if (isAdminUser(meResp.data)) {
+        setStatus('idle');
+        setScreen('success');
+        window.setTimeout(() => navigateApp(ADMIN_PANEL_PATH, { replace: true }), 700);
+        return;
+      }
       const workspaces = await requestApi<{ items: Array<{ id: string }> }>({ path: '/workspaces' });
       const workspace = workspaces.data.items[0];
       if (workspace) setSelectedWorkspaceId(workspace.id);
@@ -47,10 +54,21 @@ export function LuluSessionAuth() {
     }
     setError('');
     setStatus('loading');
-    window.setTimeout(() => {
-      setStatus('idle');
-      setScreen('success');
-      window.setTimeout(() => navigateApp(routes.app.dashboard), 700);
+    window.setTimeout(async () => {
+      try {
+        const meResp = await requestApi<{ id: string; email: string; role: string }>({ path: '/auth/me' });
+        setStatus('idle');
+        setScreen('success');
+        if (isAdminUser(meResp.data)) {
+          window.setTimeout(() => navigateApp(ADMIN_PANEL_PATH, { replace: true }), 700);
+        } else {
+          window.setTimeout(() => navigateApp(routes.app.dashboard), 700);
+        }
+      } catch {
+        setStatus('idle');
+        setScreen('success');
+        window.setTimeout(() => navigateApp(routes.app.dashboard), 700);
+      }
     }, 900);
   }
   const isForm = screen === 'reauth' || screen === 'password';

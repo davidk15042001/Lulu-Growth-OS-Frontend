@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BarChart3, Check, ChevronDown, CircleHelp, Database, LockKeyhole, Network, X } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { useLuluApp } from '../../../../api/LuluAppContext';
+import { isAdminUser, ADMIN_PANEL_PATH } from '../../../../api/session';
 type FeaturePill = {
   id: string;
   label: string;
@@ -65,7 +66,8 @@ const progressSteps: ProgressStep[] = [{
   current: false
 }];
 export function LuluWelcomeScreen() {
-  const { currentUser } = useLuluApp();
+  const { currentUser, loading } = useLuluApp();
+  const admin = isAdminUser(currentUser);
   const [isSkipOpen, setIsSkipOpen] = useState(false);
   const displayName = [currentUser?.firstName, currentUser?.lastName].filter(Boolean).join(' ').trim();
   // Do not expose a stale or unverified profile name in onboarding. The authenticated
@@ -84,9 +86,14 @@ export function LuluWelcomeScreen() {
       document.body.style.overflow = '';
     };
   }, []);
+  useEffect(() => {
+    if (loading || !admin) return;
+    navigateApp(ADMIN_PANEL_PATH, { replace: true });
+  }, [loading, admin]);
   function handleGetStarted() {
     setStarted(true);
-    window.setTimeout(() => navigateApp(routes.onboarding.companyInformation), 220);
+    const target = admin ? ADMIN_PANEL_PATH : routes.onboarding.companyInformation;
+    window.setTimeout(() => navigateApp(target, { replace: true }), 220);
   }
   return <div className="lulu-welcome relative flex h-screen max-h-[1024px] min-h-screen w-full flex-col overflow-hidden bg-[var(--background)] font-sans text-[var(--foreground)]">
       <style>{`
@@ -226,7 +233,7 @@ export function LuluWelcomeScreen() {
               </button>
               <button type="button" onClick={() => {
             setIsSkipOpen(false);
-            navigateApp(routes.app.dashboard);
+            navigateApp(admin ? ADMIN_PANEL_PATH : routes.app.dashboard, { replace: true });
           }} className="h-11 rounded-lg bg-[var(--primary)] px-4 text-sm font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">
                 <span>Skip Setup</span>
               </button>
