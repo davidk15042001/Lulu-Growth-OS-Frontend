@@ -252,6 +252,17 @@ export interface AuditLogEntry {
   details?: Record<string, unknown>;
 }
 
+export interface PasswordResetToken {
+  id: string;
+  userId: string;
+  tokenHash: string;
+  createdAt: string;
+  expiresAt: string;
+  usedAt?: string;
+  revokedAt?: string;
+  createdByUserId?: string;
+}
+
 export interface WorkspaceMembership {
   workspaceId: string;
   userId: string;

@@ -1,13 +1,20 @@
 import type {
+  AuthSessionRecord,
+  ChangePasswordInput,
+  ConfirmPasswordResetInput,
+  CreateWorkspaceUserInput,
   CreateSiteInput,
   LoginInput,
   LoginResponse,
   OptionsResponse,
+  PasswordResetTokenResponse,
   SessionContext,
   SiteConnection,
   SiteDetailResponse,
   SiteListItem,
   SiteRun,
+  UpdateWorkspaceUserInput,
+  WorkspaceUser,
 } from './types';
 
 const API_BASE = (import.meta.env.VITE_API_URL?.trim() || 'http://localhost:4100/api').replace(/\/$/, '');
@@ -151,12 +158,43 @@ export const api = {
   clearSession: () => {
     clearStoredAuthTokens();
   },
+  confirmPasswordReset: async (payload: ConfirmPasswordResetInput) =>
+    (await request<{ reset: true }>('/auth/password-reset/confirm', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      skipAuthRefresh: true,
+    })).data,
   hasStoredSession: () => Boolean(getStoredAccessToken() || getStoredRefreshToken()),
   getSession: async () => (await request<SessionContext>('/session')).data,
+  getMySessions: async () => (await request<AuthSessionRecord[]>('/account/sessions')).data,
+  revokeMySession: async (sessionId: string) =>
+    (await request<{ revoked: true }>(`/account/sessions/${sessionId}/revoke`, { method: 'POST' })).data,
+  changePassword: async (payload: ChangePasswordInput) =>
+    (await request<{ changed: true }>('/account/password', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })).data,
   listSites: async () => (await request<SiteListItem[]>('/sites')).data,
   getSite: async (siteId: string) => (await request<SiteDetailResponse>(`/sites/${siteId}`)).data,
   createSite: async (payload: CreateSiteInput) =>
     (await request<SiteConnection>('/sites', { method: 'POST', body: JSON.stringify(payload) })).data,
+  listWorkspaceUsers: async () => (await request<WorkspaceUser[]>('/admin/users')).data,
+  createWorkspaceUser: async (payload: CreateWorkspaceUserInput) =>
+    (await request<WorkspaceUser>('/admin/users', { method: 'POST', body: JSON.stringify(payload) })).data,
+  updateWorkspaceUser: async (userId: string, payload: UpdateWorkspaceUserInput) =>
+    (await request<WorkspaceUser>(`/admin/users/${userId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    })).data,
+  deleteWorkspaceMembership: async (userId: string) =>
+    (await request<{ removed: true }>(`/admin/users/${userId}/membership`, { method: 'DELETE' })).data,
+  createPasswordResetToken: async (userId: string) =>
+    (await request<PasswordResetTokenResponse>(`/admin/users/${userId}/password-reset`, {
+      method: 'POST',
+    })).data,
+  listWorkspaceSessions: async () => (await request<AuthSessionRecord[]>('/admin/sessions')).data,
+  revokeWorkspaceSession: async (sessionId: string) =>
+    (await request<{ revoked: true }>(`/admin/sessions/${sessionId}/revoke`, { method: 'POST' })).data,
   runAnalysis: async (siteId: string) =>
     (await request<SiteRun>(`/sites/${siteId}/analyze`, { method: 'POST' })).data,
   runOptimization: async (siteId: string) =>

@@ -1,14 +1,19 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ApiError, api } from './api';
 import './App.css';
+import { AccountSecurityCard } from './components/AccountSecurityCard';
+import { AdminConsoleCard } from './components/AdminConsoleCard';
 import { HeroPanel } from './components/HeroPanel';
 import { LoginCard } from './components/LoginCard';
+import { PasswordResetCard } from './components/PasswordResetCard';
 import { SiteFormCard, type SiteFormState } from './components/SiteFormCard';
 import { SiteResultsPanel } from './components/SiteResultsPanel';
 import { SitesListCard } from './components/SitesListCard';
 import { buildMarketTargets } from './utils/markets';
 import type {
+  AuthSessionRecord,
   CountryCode,
+  CreateWorkspaceUserInput,
   ExecutionMode,
   LoginInput,
   OptionsResponse,
@@ -17,6 +22,7 @@ import type {
   SiteConnection,
   SiteDetailResponse,
   SiteListItem,
+  WorkspaceUser,
 } from './types';
 
 const initialForm: SiteFormState = {
@@ -38,11 +44,29 @@ const initialLoginForm: LoginInput = {
   password: '',
 };
 
+const initialCreateUserForm: CreateWorkspaceUserInput = {
+  email: '',
+  name: '',
+  role: 'viewer',
+  password: '',
+};
+
 function App() {
   const [options, setOptions] = useState<OptionsResponse | null>(null);
   const [session, setSession] = useState<SessionContext | null>(null);
   const [loginForm, setLoginForm] = useState(initialLoginForm);
+  const [resetPasswordForm, setResetPasswordForm] = useState({ token: '', newPassword: '' });
+  const [createUserForm, setCreateUserForm] = useState(initialCreateUserForm);
+  const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '' });
   const [sites, setSites] = useState<SiteListItem[]>([]);
+  const [workspaceUsers, setWorkspaceUsers] = useState<WorkspaceUser[]>([]);
+  const [workspaceSessions, setWorkspaceSessions] = useState<AuthSessionRecord[]>([]);
+  const [mySessions, setMySessions] = useState<AuthSessionRecord[]>([]);
+  const [resetTokenInfo, setResetTokenInfo] = useState<{
+    token: string;
+    email: string;
+    expiresAt: string;
+  } | null>(null);
   const [selectedSiteId, setSelectedSiteId] = useState<string>('');
   const [siteDetail, setSiteDetail] = useState<SiteDetailResponse | null>(null);
   const [form, setForm] = useState(initialForm);
@@ -65,6 +89,10 @@ function App() {
     api.clearSession();
     setSession(null);
     setSites([]);
+    setWorkspaceUsers([]);
+    setWorkspaceSessions([]);
+    setMySessions([]);
+    setResetTokenInfo(null);
     setSelectedSiteId('');
     setSiteDetail(null);
     setBusyAction(null);
@@ -79,6 +107,17 @@ function App() {
     return error instanceof Error ? error.message : fallbackMessage;
   }
 
+  async function refreshSecurityData(liveSession: SessionContext) {
+    const [ownSessions, users, sessions] = await Promise.all([
+      api.getMySessions(),
+      liveSession.role === 'admin' ? api.listWorkspaceUsers() : Promise.resolve([]),
+      liveSession.role === 'admin' ? api.listWorkspaceSessions() : Promise.resolve([]),
+    ]);
+    setMySessions(ownSessions);
+    setWorkspaceUsers(users);
+    setWorkspaceSessions(sessions);
+  }
+
   async function refreshSites(nextSiteId?: string, providedOptions?: OptionsResponse | null) {
     const requestId = ++loadSequence.current;
     const liveOptions = providedOptions ?? options ?? (await api.getOptions());
@@ -87,6 +126,7 @@ function App() {
     applyOptions(liveOptions);
     setSites(siteList);
     setSession(liveSession);
+    await refreshSecurityData(liveSession);
     const targetSiteId = nextSiteId ?? (selectedSiteId || siteList[0]?.id);
     if (targetSiteId) {
       setSelectedSiteId(targetSiteId);
@@ -109,6 +149,7 @@ function App() {
           if (requestId !== loadSequence.current) return;
           setSites(siteList);
           setSession(liveSession);
+          await refreshSecurityData(liveSession);
           const nextSelectedSiteId = siteList[0]?.id ?? '';
           setSelectedSiteId(nextSelectedSiteId);
           if (nextSelectedSiteId) {
@@ -161,6 +202,20 @@ function App() {
     } finally {
       setAuthBusy(false);
       resetAuthenticatedState('Signed out. Sign in to continue.');
+    }
+  }
+
+  async function handleResetPassword(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setAuthBusy(true);
+    try {
+      await api.confirmPasswordReset(resetPasswordForm);
+      setResetPasswordForm({ token: '', newPassword: '' });
+      setStatusMessage('Password reset completed. Sign in with the new password.');
+    } catch (error) {
+      setStatusMessage(error instanceof Error ? error.message : 'Failed to reset password.');
+    } finally {
+      setAuthBusy(false);
     }
   }
 
@@ -253,6 +308,114 @@ function App() {
     }
   }
 
+  async function handleChangePassword(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusyAction('change-password');
+    try {
+      await api.changePassword(passwordForm);
+      setPasswordForm({ currentPassword: '', newPassword: '' });
+      resetAuthenticatedState('Password changed. Sign in again with the new password.');
+    } catch (error) {
+      setStatusMessage(resolveApiError(error, 'Failed to change password.'));
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleRevokeOwnSession(sessionId: string) {
+    setBusyAction(`revoke-own-${sessionId}`);
+    try {
+      await api.revokeMySession(sessionId);
+      if (session) {
+        await refreshSecurityData(session);
+      }
+      setStatusMessage('Session revoked.');
+    } catch (error) {
+      setStatusMessage(resolveApiError(error, 'Failed to revoke session.'));
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleCreateUser(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusyAction('create-user');
+    try {
+      await api.createWorkspaceUser(createUserForm);
+      if (session) {
+        await refreshSecurityData(session);
+      }
+      setCreateUserForm(initialCreateUserForm);
+      setStatusMessage('Workspace user created.');
+    } catch (error) {
+      setStatusMessage(resolveApiError(error, 'Failed to create user.'));
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleUpdateUser(userId: string, payload: { role?: WorkspaceUser['role'] }) {
+    setBusyAction(`update-user-${userId}`);
+    try {
+      await api.updateWorkspaceUser(userId, payload);
+      if (session) {
+        await refreshSecurityData(session);
+      }
+      setStatusMessage('Workspace user updated.');
+    } catch (error) {
+      setStatusMessage(resolveApiError(error, 'Failed to update user.'));
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleRemoveMembership(userId: string) {
+    setBusyAction(`remove-member-${userId}`);
+    try {
+      await api.deleteWorkspaceMembership(userId);
+      if (session) {
+        await refreshSecurityData(session);
+      }
+      setStatusMessage('Workspace member removed.');
+    } catch (error) {
+      setStatusMessage(resolveApiError(error, 'Failed to remove member.'));
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleCreateResetToken(userId: string) {
+    setBusyAction(`reset-token-${userId}`);
+    try {
+      const result = await api.createPasswordResetToken(userId);
+      setResetTokenInfo({
+        token: result.token,
+        email: result.email,
+        expiresAt: result.expiresAt,
+      });
+      setStatusMessage(`Password reset token created for ${result.email}.`);
+    } catch (error) {
+      setStatusMessage(resolveApiError(error, 'Failed to create password reset token.'));
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleRevokeWorkspaceSession(sessionId: string) {
+    setBusyAction(`revoke-session-${sessionId}`);
+    try {
+      await api.revokeWorkspaceSession(sessionId);
+      if (session) {
+        await refreshSecurityData(session);
+      }
+      setStatusMessage('Workspace session revoked.');
+    } catch (error) {
+      setStatusMessage(resolveApiError(error, 'Failed to revoke workspace session.'));
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
   return (
     <div className="app-shell">
       <HeroPanel
@@ -284,15 +447,39 @@ function App() {
               selectedSiteId={selectedSiteId}
               onSelectSite={(siteId) => void selectSite(siteId)}
             />
+            <AccountSecurityCard
+              sessions={mySessions}
+              busy={busyAction}
+              passwordForm={passwordForm}
+              onPasswordFormChange={setPasswordForm}
+              onChangePassword={handleChangePassword}
+              onRevokeSession={(sessionId) => void handleRevokeOwnSession(sessionId)}
+            />
           </div>
-
-          <SiteResultsPanel
-            loading={loading}
-            selectedSite={selectedSite}
-            siteDetail={siteDetail}
-            busyAction={busyAction}
-            onRunAction={(action) => void runAction(action)}
-          />
+          <div className="main-panel">
+            {session.role === 'admin' ? (
+              <AdminConsoleCard
+                users={workspaceUsers}
+                sessions={workspaceSessions}
+                createForm={createUserForm}
+                busy={busyAction}
+                resetTokenInfo={resetTokenInfo}
+                onCreateFormChange={setCreateUserForm}
+                onCreateUser={handleCreateUser}
+                onUpdateUser={(userId, payload) => void handleUpdateUser(userId, payload)}
+                onRemoveMembership={(userId) => void handleRemoveMembership(userId)}
+                onCreateResetToken={(userId) => void handleCreateResetToken(userId)}
+                onRevokeSession={(sessionId) => void handleRevokeWorkspaceSession(sessionId)}
+              />
+            ) : null}
+            <SiteResultsPanel
+              loading={loading}
+              selectedSite={selectedSite}
+              siteDetail={siteDetail}
+              busyAction={busyAction}
+              onRunAction={(action) => void runAction(action)}
+            />
+          </div>
         </main>
       ) : (
         <main className="layout layout--auth">
@@ -302,6 +489,12 @@ function App() {
               busy={authBusy}
               onSubmit={handleLogin}
               onFormChange={setLoginForm}
+            />
+            <PasswordResetCard
+              form={resetPasswordForm}
+              busy={authBusy}
+              onSubmit={handleResetPassword}
+              onFormChange={setResetPasswordForm}
             />
           </div>
 

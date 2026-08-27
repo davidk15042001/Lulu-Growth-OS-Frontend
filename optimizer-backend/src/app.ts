@@ -6,7 +6,9 @@ import { z } from 'zod';
 import {
   createAuthToken,
   createRefreshToken,
+  createOneTimeToken,
   hashPassword,
+  hashOneTimeToken,
   hashRefreshToken,
   verifyAuthToken,
   verifyPassword,
@@ -23,14 +25,24 @@ import {
 import {
   buildRequestContext,
   countActiveAuthSessions,
+  deleteMembership,
   getAuthSession,
   getAuthSessionByRefreshTokenHash,
+  getMembership,
+  getPasswordResetTokenByHash,
+  getUser,
   getUserByEmail,
+  listAuthSessions,
+  listMemberships,
   listWorkspaces,
   listAuditLogs,
+  listUsers,
   revokeAuthSession,
+  revokeOutstandingPasswordResetTokens,
   revokeUserWorkspaceSessions,
   saveAuthSession,
+  saveMembership,
+  savePasswordResetToken,
   saveUser,
   seedAccessControlIfEmpty,
   seedDemoDataIfEmpty,
@@ -47,9 +59,11 @@ import type {
   AuthSession,
   CountryCode,
   CreateSiteInput,
+  PasswordResetToken,
   Provider,
   RequestContext,
   UpdateSiteInput,
+  UserAccount,
   UserRole,
 } from './types.js';
 
@@ -271,6 +285,68 @@ function readSiteId(req: express.Request) {
   return siteId;
 }
 
+function readUserId(req: express.Request) {
+  const userId = req.params.userId;
+  if (typeof userId !== 'string' || userId.length === 0) {
+    throw new AppError(400, 'USER_ID_REQUIRED', 'A valid user id is required.');
+  }
+  return userId;
+}
+
+function readSessionId(req: express.Request) {
+  const sessionId = req.params.sessionId;
+  if (typeof sessionId !== 'string' || sessionId.length === 0) {
+    throw new AppError(400, 'SESSION_ID_REQUIRED', 'A valid session id is required.');
+  }
+  return sessionId;
+}
+
+async function buildWorkspaceUserDirectory(workspaceId: string) {
+  const [memberships, users, sessions] = await Promise.all([
+    listMemberships(workspaceId),
+    listUsers(),
+    listAuthSessions(workspaceId),
+  ]);
+  const userMap = new Map(users.map((user) => [user.id, user]));
+  const activeSessionCounts = new Map<string, number>();
+
+  for (const session of sessions) {
+    if (!session.revokedAt && new Date(session.expiresAt).getTime() > Date.now()) {
+      activeSessionCounts.set(session.userId, (activeSessionCounts.get(session.userId) ?? 0) + 1);
+    }
+  }
+
+  return memberships
+    .map((membership) => {
+      const user = userMap.get(membership.userId);
+      if (!user) return null;
+      return {
+        ...user,
+        role: membership.role,
+        membershipCreatedAt: membership.createdAt,
+        activeSessionCount: activeSessionCounts.get(user.id) ?? 0,
+      };
+    })
+    .filter(
+      (
+        entry,
+      ): entry is UserAccount & {
+        role: UserRole;
+        membershipCreatedAt: string;
+        activeSessionCount: number;
+      } => Boolean(entry),
+    );
+}
+
+function passwordResetExpiryIso() {
+  return new Date(Date.now() + 60 * 60 * 1000).toISOString();
+}
+
+function serializeSession(session: AuthSession) {
+  const { refreshTokenHash: _refreshTokenHash, ...safeSession } = session;
+  return safeSession;
+}
+
 const providerSchema = z.enum(['wordpress', 'webflow', 'shopify']);
 const countrySchema = z.enum([
   'US',
@@ -334,6 +410,29 @@ const refreshSchema = z.object({
 
 const auditQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
+const createUserSchema = z.object({
+  email: z.string().trim().email().max(320).transform((value) => value.toLowerCase()),
+  name: z.string().trim().min(2).max(120),
+  role: z.enum(['viewer', 'editor', 'admin']),
+  password: z.string().min(8).max(128),
+});
+
+const updateUserSchema = z.object({
+  email: z.string().trim().email().max(320).transform((value) => value.toLowerCase()).optional(),
+  name: z.string().trim().min(2).max(120).optional(),
+  role: z.enum(['viewer', 'editor', 'admin']).optional(),
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(8).max(128),
+  newPassword: z.string().min(8).max(128),
+});
+
+const confirmPasswordResetSchema = z.object({
+  token: z.string().min(32).max(512),
+  newPassword: z.string().min(8).max(128),
 });
 
 function sanitizeCreateSiteInput(input: CreateSiteInput): CreateSiteInput {
@@ -461,7 +560,7 @@ export function createApp() {
   app.use(
     cors({
       origin: config.FRONTEND_ORIGIN,
-      methods: ['GET', 'POST', 'PATCH'],
+      methods: ['GET', 'POST', 'PATCH', 'DELETE'],
       allowedHeaders: ['Content-Type', 'Authorization'],
     }),
   );
@@ -729,6 +828,70 @@ export function createApp() {
       next(error);
     }
   });
+
+  app.post('/api/auth/password-reset/confirm', async (req, res, next) => {
+    try {
+      const parsed = confirmPasswordResetSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ success: false, error: parsed.error.flatten() });
+        return;
+      }
+
+      const resetToken = await getPasswordResetTokenByHash(hashOneTimeToken(parsed.data.token));
+      if (
+        !resetToken ||
+        resetToken.revokedAt ||
+        resetToken.usedAt ||
+        new Date(resetToken.expiresAt).getTime() <= Date.now()
+      ) {
+        next(new AppError(401, 'INVALID_RESET_TOKEN', 'The password reset token is invalid or expired.'));
+        return;
+      }
+
+      const user = await getUser(resetToken.userId);
+      if (!user) {
+        next(new AppError(404, 'USER_NOT_FOUND', 'The selected user could not be found.'));
+        return;
+      }
+
+      const timestamp = nowIso();
+      await saveUser({
+        ...user,
+        passwordHash: hashPassword(parsed.data.newPassword),
+        passwordUpdatedAt: timestamp,
+      });
+      await savePasswordResetToken({
+        ...resetToken,
+        usedAt: timestamp,
+      });
+      const activeSessions = await listAuthSessions(undefined, user.id);
+      await Promise.all(
+        activeSessions.map((session) =>
+          revokeAuthSession(session.id, {
+            revokedAt: timestamp,
+            reason: 'Password reset completed.',
+          }),
+        ),
+      );
+      await revokeOutstandingPasswordResetTokens(user.id, timestamp);
+      await writeAuditLog({
+        actorType: 'anonymous',
+        actorUserId: user.id,
+        actorEmail: user.email,
+        action: 'auth.password_reset.confirm',
+        targetType: 'user',
+        targetId: user.id,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+      });
+      res.json({ success: true, data: { reset: true } });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.get('/api/session', requireAuthenticatedSession, (_req, res) => {
     res.json({
       success: true,
@@ -736,9 +899,98 @@ export function createApp() {
     });
   });
 
+  app.use('/api/account', requireAuthenticatedSession);
   app.use('/api/sites', requireAuthenticatedSession);
   app.use('/api/scheduler', requireAuthenticatedSession, requireRole('admin'));
   app.use('/api/admin', requireAuthenticatedSession, requireRole('admin'));
+
+  app.get('/api/account/sessions', async (_req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const sessions = await listAuthSessions(context.workspaceId, context.userId);
+      res.json({ success: true, data: sessions.map(serializeSession) });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/account/sessions/:sessionId/revoke', async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const session = await getAuthSession(readSessionId(req));
+      if (!session || session.workspaceId !== context.workspaceId || session.userId !== context.userId) {
+        res.status(404).json({ success: false, error: { message: 'Session not found' } });
+        return;
+      }
+      await revokeAuthSession(session.id, {
+        revokedAt: nowIso(),
+        reason: 'User revoked own session.',
+      });
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'account.session.revoke',
+        targetType: 'session',
+        targetId: session.id,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+      });
+      res.json({ success: true, data: { revoked: true } });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/account/password', async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const parsed = changePasswordSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ success: false, error: parsed.error.flatten() });
+        return;
+      }
+      const context = requestContext(res);
+      const user = await getUser(context.userId);
+      if (!user?.passwordHash || !verifyPassword(parsed.data.currentPassword, user.passwordHash)) {
+        next(new AppError(401, 'INVALID_CREDENTIALS', 'The current password is incorrect.'));
+        return;
+      }
+      const timestamp = nowIso();
+      await saveUser({
+        ...user,
+        passwordHash: hashPassword(parsed.data.newPassword),
+        passwordUpdatedAt: timestamp,
+      });
+      const activeSessions = await listAuthSessions(undefined, context.userId);
+      await Promise.all(
+        activeSessions.map((session) =>
+          revokeAuthSession(session.id, {
+            revokedAt: timestamp,
+            reason: 'Password changed by user.',
+          }),
+        ),
+      );
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'account.password.change',
+        targetType: 'user',
+        targetId: context.userId,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+      });
+      res.json({ success: true, data: { changed: true } });
+    } catch (error) {
+      next(error);
+    }
+  });
 
   app.get('/api/sites', async (_req, res: express.Response<any, AppLocals>, next) => {
     try {
@@ -944,6 +1196,255 @@ export function createApp() {
     }
   });
 
+  app.get('/api/admin/users', async (_req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const users = await buildWorkspaceUserDirectory(context.workspaceId);
+      res.json({ success: true, data: users });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/admin/users', async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const parsed = createUserSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ success: false, error: parsed.error.flatten() });
+        return;
+      }
+
+      const existingUser = await getUserByEmail(parsed.data.email);
+      if (existingUser) {
+        next(new AppError(409, 'EMAIL_ALREADY_EXISTS', 'A user with this email already exists.'));
+        return;
+      }
+
+      const context = requestContext(res);
+      const timestamp = nowIso();
+      const user: UserAccount = {
+        id: randomUUID(),
+        email: parsed.data.email,
+        name: parsed.data.name,
+        createdAt: timestamp,
+        passwordHash: hashPassword(parsed.data.password),
+        passwordUpdatedAt: timestamp,
+      };
+      await saveUser(user);
+      await saveMembership({
+        workspaceId: context.workspaceId,
+        userId: user.id,
+        role: parsed.data.role,
+        createdAt: timestamp,
+      });
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'admin.user.create',
+        targetType: 'user',
+        targetId: user.id,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+        details: {
+          assignedRole: parsed.data.role,
+        },
+      });
+      const users = await buildWorkspaceUserDirectory(context.workspaceId);
+      const createdUser = users.find((entry) => entry.id === user.id);
+      res.status(201).json({ success: true, data: createdUser });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.patch('/api/admin/users/:userId', async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const parsed = updateUserSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ success: false, error: parsed.error.flatten() });
+        return;
+      }
+      const context = requestContext(res);
+      const userId = readUserId(req);
+      const membership = await getMembership(context.workspaceId, userId);
+      const user = await getUser(userId);
+      if (!membership || !user) {
+        res.status(404).json({ success: false, error: { message: 'User not found' } });
+        return;
+      }
+      const updatedUser = await saveUser({
+        ...user,
+        email: parsed.data.email ?? user.email,
+        name: parsed.data.name ?? user.name,
+      });
+      if (parsed.data.role) {
+        await saveMembership({
+          workspaceId: context.workspaceId,
+          userId,
+          role: parsed.data.role,
+          createdAt: membership.createdAt,
+        });
+      }
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'admin.user.update',
+        targetType: 'user',
+        targetId: userId,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+      });
+      const users = await buildWorkspaceUserDirectory(context.workspaceId);
+      const entry = users.find((candidate) => candidate.id === updatedUser.id);
+      res.json({ success: true, data: entry });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.delete('/api/admin/users/:userId/membership', async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const userId = readUserId(req);
+      const removed = await deleteMembership(context.workspaceId, userId);
+      if (!removed) {
+        res.status(404).json({ success: false, error: { message: 'Membership not found' } });
+        return;
+      }
+      await revokeUserWorkspaceSessions(context.workspaceId, userId, {
+        revokedAt: nowIso(),
+        reason: 'Workspace membership removed.',
+      });
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'admin.membership.delete',
+        targetType: 'user',
+        targetId: userId,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+      });
+      res.json({ success: true, data: { removed: true } });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/sessions', async (_req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const [sessions, users] = await Promise.all([
+        listAuthSessions(context.workspaceId),
+        buildWorkspaceUserDirectory(context.workspaceId),
+      ]);
+      const userMap = new Map(users.map((user) => [user.id, user]));
+      res.json({
+        success: true,
+        data: sessions.map((session) => ({
+          ...serializeSession(session),
+          user: userMap.get(session.userId) ?? null,
+        })),
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/admin/sessions/:sessionId/revoke', async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const session = await getAuthSession(readSessionId(req));
+      if (!session || session.workspaceId !== context.workspaceId) {
+        res.status(404).json({ success: false, error: { message: 'Session not found' } });
+        return;
+      }
+      await revokeAuthSession(session.id, {
+        revokedAt: nowIso(),
+        reason: 'Admin revoked session.',
+      });
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'admin.session.revoke',
+        targetType: 'session',
+        targetId: session.id,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+        details: {
+          revokedUserId: session.userId,
+        },
+      });
+      res.json({ success: true, data: { revoked: true } });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/admin/users/:userId/password-reset', async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const userId = readUserId(req);
+      const membership = await getMembership(context.workspaceId, userId);
+      const user = await getUser(userId);
+      if (!membership || !user) {
+        res.status(404).json({ success: false, error: { message: 'User not found' } });
+        return;
+      }
+      const timestamp = nowIso();
+      const resetTokenValue = createOneTimeToken();
+      const resetToken: PasswordResetToken = {
+        id: randomUUID(),
+        userId,
+        tokenHash: hashOneTimeToken(resetTokenValue),
+        createdAt: timestamp,
+        expiresAt: passwordResetExpiryIso(),
+        createdByUserId: context.userId,
+      };
+      await revokeOutstandingPasswordResetTokens(userId, timestamp);
+      await savePasswordResetToken(resetToken);
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'admin.user.password_reset.request',
+        targetType: 'user',
+        targetId: userId,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+      });
+      res.json({
+        success: true,
+        data: {
+          token: resetTokenValue,
+          expiresAt: resetToken.expiresAt,
+          userId,
+          email: user.email,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
   app.get('/api/admin/audit-logs', async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const parsed = auditQuerySchema.safeParse(req.query);
@@ -982,16 +1483,29 @@ export function createApp() {
       _next: express.NextFunction,
     ) => {
       const appError = error instanceof AppError ? error : null;
-      const statusCode = appError?.statusCode ?? 500;
-      const code = appError?.code ?? 'INTERNAL_SERVER_ERROR';
-      if (!appError) {
-        console.error('Unhandled API error', error);
+      const sqliteConflict =
+        !appError &&
+        error instanceof Error &&
+        /SQLITE_CONSTRAINT|UNIQUE constraint failed/i.test(error.message)
+          ? new AppError(409, 'RESOURCE_CONFLICT', 'The requested resource already exists.')
+          : null;
+      const resolvedError = appError ?? sqliteConflict;
+      const statusCode = resolvedError?.statusCode ?? 500;
+      const code = resolvedError?.code ?? 'INTERNAL_SERVER_ERROR';
+      if (!resolvedError) {
+        writeStructuredLog({
+          level: 'error',
+          message: 'Unhandled API error',
+          details: {
+            error: error instanceof Error ? error.message : String(error),
+          },
+        });
       }
       res.status(statusCode).json({
         success: false,
         error: {
           code,
-          message: appError?.message ?? 'The server could not complete the request.',
+          message: resolvedError?.message ?? 'The server could not complete the request.',
         },
       });
     },

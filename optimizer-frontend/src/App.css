@@ -285,6 +285,48 @@
   gap: 10px;
 }
 
+.stack-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.stack-card {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--panel-muted);
+}
+
+.stack-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+}
+
+.callout {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  padding: 14px 16px;
+  border: 1px solid rgba(124, 58, 237, 0.28);
+  border-radius: 16px;
+  background: rgba(124, 58, 237, 0.08);
+}
+
+.callout code {
+  display: block;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--panel);
+  color: var(--text-heading);
+}
+
 .badge,
 .keyword-chip,
 .pill,

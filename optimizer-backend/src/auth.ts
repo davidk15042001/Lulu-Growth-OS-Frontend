@@ -89,6 +89,14 @@ export function hashRefreshToken(refreshToken: string) {
   return createHmac('sha256', config.AUTH_JWT_SECRET).update(refreshToken).digest('base64url');
 }
 
+export function createOneTimeToken() {
+  return randomBytes(32).toString('base64url');
+}
+
+export function hashOneTimeToken(token: string) {
+  return createHmac('sha256', config.AUTH_JWT_SECRET).update(token).digest('base64url');
+}
+
 export function verifyAuthToken(token: string): AuthTokenPayload {
   const [encodedHeader, encodedPayload, encodedSignature] = token.split('.');
   if (!encodedHeader || !encodedPayload || !encodedSignature) {

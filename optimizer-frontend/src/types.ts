@@ -201,6 +201,62 @@ export interface SessionContext {
   name: string;
 }
 
+export interface WorkspaceUser {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: string;
+  role: UserRole;
+  membershipCreatedAt: string;
+  activeSessionCount: number;
+}
+
+export interface AuthSessionRecord {
+  id: string;
+  userId: string;
+  workspaceId: string;
+  createdAt: string;
+  expiresAt: string;
+  lastUsedAt: string;
+  createdByIp?: string;
+  lastSeenIp?: string;
+  userAgent?: string;
+  revokedAt?: string;
+  revokedReason?: string;
+  replacedBySessionId?: string;
+  user?: WorkspaceUser | null;
+}
+
+export interface CreateWorkspaceUserInput {
+  email: string;
+  name: string;
+  role: UserRole;
+  password: string;
+}
+
+export interface UpdateWorkspaceUserInput {
+  email?: string;
+  name?: string;
+  role?: UserRole;
+}
+
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface PasswordResetTokenResponse {
+  token: string;
+  expiresAt: string;
+  userId: string;
+  email: string;
+}
+
+export interface ConfirmPasswordResetInput {
+  token: string;
+  newPassword: string;
+}
+
 export interface LoginInput {
   workspaceId: string;
   email: string;

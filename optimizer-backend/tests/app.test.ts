@@ -86,6 +86,87 @@ describe('optimizer backend api', () => {
     await api.post('/api/auth/refresh').send({ refreshToken: login.refreshToken }).expect(401);
   });
 
+  it('allows admins to create, update and remove workspace users', async () => {
+    const created = await api
+      .post('/api/admin/users')
+      .set(await authContext())
+      .send({
+        email: 'new.user@example.com',
+        name: 'New User',
+        role: 'viewer',
+        password: 'StrongPass!2026',
+      })
+      .expect(201);
+
+    assert.equal(created.body.data.email, 'new.user@example.com');
+    assert.equal(created.body.data.role, 'viewer');
+
+    const updated = await api
+      .patch(`/api/admin/users/${created.body.data.id}`)
+      .set(await authContext())
+      .send({ role: 'editor', name: 'Updated User' })
+      .expect(200);
+
+    assert.equal(updated.body.data.role, 'editor');
+    assert.equal(updated.body.data.name, 'Updated User');
+
+    const usersBeforeDelete = await api.get('/api/admin/users').set(await authContext()).expect(200);
+    assert.equal(
+      usersBeforeDelete.body.data.some((entry: { email: string }) => entry.email === 'new.user@example.com'),
+      true,
+    );
+
+    await api
+      .delete(`/api/admin/users/${created.body.data.id}/membership`)
+      .set(await authContext())
+      .expect(200);
+
+    const usersAfterDelete = await api.get('/api/admin/users').set(await authContext()).expect(200);
+    assert.equal(
+      usersAfterDelete.body.data.some((entry: { email: string }) => entry.email === 'new.user@example.com'),
+      false,
+    );
+  });
+
+  it('creates a password reset token and accepts the reset confirmation', async () => {
+    const createUser = await api
+      .post('/api/admin/users')
+      .set(await authContext())
+      .send({
+        email: 'reset.user@example.com',
+        name: 'Reset User',
+        role: 'viewer',
+        password: 'OriginalPass!2026',
+      })
+      .expect(201);
+
+    const resetToken = await api
+      .post(`/api/admin/users/${createUser.body.data.id}/password-reset`)
+      .set(await authContext())
+      .expect(200);
+
+    assert.equal(typeof resetToken.body.data.token, 'string');
+
+    await api
+      .post('/api/auth/password-reset/confirm')
+      .send({
+        token: resetToken.body.data.token,
+        newPassword: 'ChangedPass!2026',
+      })
+      .expect(200);
+
+    const login = await api
+      .post('/api/auth/login')
+      .send({
+        workspaceId: 'demo-workspace',
+        email: 'reset.user@example.com',
+        password: 'ChangedPass!2026',
+      })
+      .expect(200);
+
+    assert.equal(login.body.data.session.email, 'reset.user@example.com');
+  });
+
   it('blocks protected site endpoints without a bearer token', async () => {
     const response = await api.get('/api/sites').expect(401);
     assert.equal(response.body.error.code, 'AUTH_REQUIRED');
@@ -97,6 +178,46 @@ describe('optimizer backend api', () => {
     assert.equal(response.body.data.userId, 'demo-admin');
     assert.equal(response.body.data.role, 'admin');
     assert.equal(response.body.data.name, 'Demo Admin');
+  });
+
+  it('lets users change their password and invalidates the old one', async () => {
+    const login = await loginAs('demo-admin');
+
+    await api
+      .post('/api/account/password')
+      .set({ Authorization: `Bearer ${login.token}` })
+      .send({
+        currentPassword: 'DemoAdmin!2026',
+        newPassword: 'DemoAdmin!2027',
+      })
+      .expect(200);
+
+    await api.get('/api/session').set({ Authorization: `Bearer ${login.token}` }).expect(401);
+
+    await api
+      .post('/api/auth/login')
+      .send({
+        workspaceId: 'demo-workspace',
+        email: 'admin@demo.example',
+        password: 'DemoAdmin!2027',
+      })
+      .expect(200);
+  });
+
+  it('lists and revokes own sessions', async () => {
+    const login = await loginAs('demo-admin');
+    const sessions = await api
+      .get('/api/account/sessions')
+      .set({ Authorization: `Bearer ${login.token}` })
+      .expect(200);
+
+    assert.equal(Array.isArray(sessions.body.data), true);
+    assert.equal(sessions.body.data.length > 0, true);
+
+    await api
+      .post(`/api/account/sessions/${sessions.body.data[0].id}/revoke`)
+      .set({ Authorization: `Bearer ${login.token}` })
+      .expect(200);
   });
 
   it('revokes the session on logout', async () => {
@@ -190,6 +311,22 @@ describe('optimizer backend api', () => {
     const metricsResponse = await api.get('/api/admin/metrics').set(await authContext()).expect(200);
     assert.equal(typeof metricsResponse.body.data.totalRequests, 'number');
     assert.equal(typeof metricsResponse.body.data.activeWorkspaceSessions, 'number');
+  });
+
+  it('lists and revokes workspace sessions for admins', async () => {
+    const login = await loginAs('demo-admin');
+    const sessions = await api
+      .get('/api/admin/sessions')
+      .set({ Authorization: `Bearer ${login.token}` })
+      .expect(200);
+
+    assert.equal(Array.isArray(sessions.body.data), true);
+    assert.equal(sessions.body.data.length > 0, true);
+
+    await api
+      .post(`/api/admin/sessions/${sessions.body.data[0].id}/revoke`)
+      .set({ Authorization: `Bearer ${login.token}` })
+      .expect(200);
   });
 
   it('blocks viewer access to admin observability endpoints', async () => {

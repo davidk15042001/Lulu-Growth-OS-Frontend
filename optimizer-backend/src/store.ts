@@ -6,6 +6,7 @@ import type {
   AppState,
   AuditLogEntry,
   AuthSession,
+  PasswordResetToken,
   RequestContext,
   SiteConnection,
   SiteRun,
@@ -47,6 +48,16 @@ type SessionRow = {
   workspace_id: string;
   refresh_token_hash: string;
   expires_at: string;
+  revoked_at: string | null;
+  data: string;
+};
+
+type PasswordResetTokenRow = {
+  id: string;
+  user_id: string;
+  token_hash: string;
+  expires_at: string;
+  used_at: string | null;
   revoked_at: string | null;
   data: string;
 };
@@ -173,6 +184,17 @@ function createSchema(database: DatabaseSync) {
       FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE SET NULL
     );
 
+    CREATE TABLE IF NOT EXISTS password_reset_tokens (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      token_hash TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      used_at TEXT,
+      revoked_at TEXT,
+      data TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_runs_site_created_at
       ON runs (site_id, created_at DESC);
 
@@ -187,6 +209,12 @@ function createSchema(database: DatabaseSync) {
 
     CREATE INDEX IF NOT EXISTS idx_audit_logs_workspace_created_at
       ON audit_logs (workspace_id, created_at DESC);
+
+    CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_user
+      ON password_reset_tokens (user_id, expires_at DESC);
+
+    CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_hash
+      ON password_reset_tokens (token_hash);
   `);
 
   const userColumns = database.prepare('PRAGMA table_info(users)').all() as Array<{ name: string }>;
@@ -199,6 +227,13 @@ function createSchema(database: DatabaseSync) {
     .all() as Array<{ name: string }>;
   if (!authSessionColumns.some((column) => column.name === 'refresh_token_hash')) {
     database.exec('ALTER TABLE auth_sessions ADD COLUMN refresh_token_hash TEXT');
+  }
+
+  const passwordResetColumns = database
+    .prepare('PRAGMA table_info(password_reset_tokens)')
+    .all() as Array<{ name: string }>;
+  if (passwordResetColumns.length > 0 && !passwordResetColumns.some((column) => column.name === 'token_hash')) {
+    database.exec('ALTER TABLE password_reset_tokens ADD COLUMN token_hash TEXT');
   }
 
   const existingUsers = database
@@ -355,6 +390,15 @@ export async function getUserByEmail(email: string) {
   return user ? normalizeUser(user) : null;
 }
 
+export async function listUsers() {
+  const database = await getDatabase();
+  const rows = database.prepare('SELECT id, email, data FROM users ORDER BY created_at ASC').all() as UserRow[];
+  return rows
+    .map((row) => parseRow<UserAccount>(row))
+    .filter((user): user is UserAccount => Boolean(user))
+    .map(normalizeUser);
+}
+
 export async function saveAuthSession(session: AuthSession) {
   const database = await getDatabase();
   database
@@ -458,6 +502,120 @@ export async function revokeUserWorkspaceSessions(
   );
 
   return sessions.length;
+}
+
+export async function listAuthSessions(workspaceId?: string, userId?: string) {
+  const database = await getDatabase();
+  let rows: SessionRow[];
+  if (workspaceId && userId) {
+    rows = database
+      .prepare(`
+        SELECT id, user_id, workspace_id, refresh_token_hash, expires_at, revoked_at, data
+        FROM auth_sessions
+        WHERE workspace_id = ? AND user_id = ?
+        ORDER BY expires_at DESC
+      `)
+      .all(workspaceId, userId) as SessionRow[];
+  } else if (workspaceId) {
+    rows = database
+      .prepare(`
+        SELECT id, user_id, workspace_id, refresh_token_hash, expires_at, revoked_at, data
+        FROM auth_sessions
+        WHERE workspace_id = ?
+        ORDER BY expires_at DESC
+      `)
+      .all(workspaceId) as SessionRow[];
+  } else if (userId) {
+    rows = database
+      .prepare(`
+        SELECT id, user_id, workspace_id, refresh_token_hash, expires_at, revoked_at, data
+        FROM auth_sessions
+        WHERE user_id = ?
+        ORDER BY expires_at DESC
+      `)
+      .all(userId) as SessionRow[];
+  } else {
+    rows = database
+      .prepare(`
+        SELECT id, user_id, workspace_id, refresh_token_hash, expires_at, revoked_at, data
+        FROM auth_sessions
+        ORDER BY expires_at DESC
+      `)
+      .all() as SessionRow[];
+  }
+
+  return rows
+    .map((row) => parseRow<AuthSession>(row))
+    .filter((session): session is AuthSession => Boolean(session));
+}
+
+export async function savePasswordResetToken(token: PasswordResetToken) {
+  const database = await getDatabase();
+  database
+    .prepare(`
+      INSERT INTO password_reset_tokens (
+        id,
+        user_id,
+        token_hash,
+        expires_at,
+        used_at,
+        revoked_at,
+        data
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        token_hash = excluded.token_hash,
+        expires_at = excluded.expires_at,
+        used_at = excluded.used_at,
+        revoked_at = excluded.revoked_at,
+        data = excluded.data
+    `)
+    .run(
+      token.id,
+      token.userId,
+      token.tokenHash,
+      token.expiresAt,
+      token.usedAt ?? null,
+      token.revokedAt ?? null,
+      JSON.stringify(token),
+    );
+  return token;
+}
+
+export async function getPasswordResetTokenByHash(tokenHash: string) {
+  const database = await getDatabase();
+  const row = database
+    .prepare(`
+      SELECT id, user_id, token_hash, expires_at, used_at, revoked_at, data
+      FROM password_reset_tokens
+      WHERE token_hash = ?
+      LIMIT 1
+    `)
+    .get(tokenHash) as PasswordResetTokenRow | undefined;
+  return parseRow<PasswordResetToken>(row);
+}
+
+export async function revokeOutstandingPasswordResetTokens(userId: string, revokedAt: string) {
+  const database = await getDatabase();
+  const rows = database
+    .prepare(`
+      SELECT id, user_id, token_hash, expires_at, used_at, revoked_at, data
+      FROM password_reset_tokens
+      WHERE user_id = ? AND used_at IS NULL AND revoked_at IS NULL
+    `)
+    .all(userId) as PasswordResetTokenRow[];
+
+  await Promise.all(
+    rows
+      .map((row) => parseRow<PasswordResetToken>(row))
+      .filter((token): token is PasswordResetToken => Boolean(token))
+      .map((token) =>
+        savePasswordResetToken({
+          ...token,
+          revokedAt,
+        }),
+      ),
+  );
 }
 
 export async function saveAuditLog(entry: AuditLogEntry) {
@@ -574,6 +732,17 @@ export async function listMemberships(workspaceId: string) {
     role: row.role,
     createdAt: row.created_at,
   })) satisfies WorkspaceMembership[];
+}
+
+export async function deleteMembership(workspaceId: string, userId: string) {
+  const database = await getDatabase();
+  const result = database
+    .prepare(`
+      DELETE FROM workspace_memberships
+      WHERE workspace_id = ? AND user_id = ?
+    `)
+    .run(workspaceId, userId);
+  return result.changes > 0;
 }
 
 export async function listSites(workspaceId?: string) {
@@ -737,6 +906,7 @@ export async function resetStateForTests() {
     database.exec(`
       DELETE FROM audit_logs;
       DELETE FROM auth_sessions;
+      DELETE FROM password_reset_tokens;
       DELETE FROM runs;
       DELETE FROM sites;
       DELETE FROM workspace_memberships;
