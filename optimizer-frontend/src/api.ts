@@ -1,4 +1,4 @@
-import type { OptionsResponse, SiteDetailResponse, SiteListItem, SiteRun } from './types';
+import type { OptionsResponse, SiteConnection, SiteDetailResponse, SiteListItem, SiteRun } from './types';
 
 const API_BASE = (import.meta.env.VITE_API_URL?.trim() || 'http://localhost:4100/api').replace(/\/$/, '');
 
@@ -29,7 +29,7 @@ export const api = {
   listSites: async () => (await request<SiteListItem[]>('/sites')).data,
   getSite: async (siteId: string) => (await request<SiteDetailResponse>(`/sites/${siteId}`)).data,
   createSite: async (payload: object) =>
-    (await request('/sites', { method: 'POST', body: JSON.stringify(payload) })).data,
+    (await request<SiteConnection>('/sites', { method: 'POST', body: JSON.stringify(payload) })).data,
   runAnalysis: async (siteId: string) =>
     (await request<SiteRun>(`/sites/${siteId}/analyze`, { method: 'POST' })).data,
   runOptimization: async (siteId: string) =>

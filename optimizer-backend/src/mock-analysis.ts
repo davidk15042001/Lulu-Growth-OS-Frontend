@@ -1,6 +1,7 @@
 import type {
   AiSearchInsight,
   KeywordInsight,
+  MarketInsight,
   OptimizationAction,
   Provider,
   ScoreCard,
@@ -9,6 +10,7 @@ import type {
   SiteConnection,
   Issue,
 } from './types.js';
+import { flattenMarketTargets } from './markets.js';
 
 function baseScores(provider: Provider): ScoreCard {
   if (provider === 'shopify') {
@@ -134,55 +136,99 @@ function buildOptimizations(site: SiteConnection): OptimizationAction[] {
 
 function buildKeywordInsights(site: SiteConnection): KeywordInsight[] {
   const seeds = site.targetKeywords.length > 0 ? site.targetKeywords : ['seo automation', 'ai optimization'];
-  return seeds.slice(0, 5).map((keyword, index) => ({
-    keyword,
-    intent: index % 2 === 0 ? 'commercial' : 'informational',
-    opportunity: Math.max(58, 91 - index * 6),
-    searchVolume: 1800 - index * 240,
-    score: 88 - index * 5,
-  }));
+  return flattenMarketTargets(site).flatMap((market, marketIndex) =>
+    seeds.slice(0, 2).map((keyword, index) => ({
+      keyword,
+      intent: index % 2 === 0 ? 'commercial' : 'informational',
+      opportunity: Math.max(58, 91 - marketIndex * 2 - index * 4),
+      searchVolume: Math.max(240, 1800 - marketIndex * 90 - index * 160),
+      score: Math.max(52, 88 - marketIndex * 2 - index * 3),
+      marketKey: market.marketKey,
+      marketLabel: market.marketLabel,
+      countryCode: market.countryCode,
+      countryName: market.countryName,
+      languageCode: market.languageCode,
+      languageLabel: market.languageLabel,
+    })),
+  );
 }
 
 function buildSerpInsights(site: SiteConnection): SerpInsight[] {
-  const seeds = site.targetKeywords.length > 0 ? site.targetKeywords : ['ai seo platform', 'answer engine optimization'];
-  return seeds.slice(0, 3).map((keyword) => ({
+  const keyword = site.targetKeywords[0] ?? 'ai seo platform';
+  return flattenMarketTargets(site).map((market) => ({
     keyword,
     topFeatures: ['featured_snippet', 'people_also_ask', 'ai_overview'],
     competitorDomains: ['competitor-one.com', 'competitor-two.com', new URL(site.websiteUrl).hostname],
     snapshotSource: 'mock',
+    marketKey: market.marketKey,
+    marketLabel: market.marketLabel,
+    countryCode: market.countryCode,
+    countryName: market.countryName,
+    languageCode: market.languageCode,
+    languageLabel: market.languageLabel,
   }));
 }
 
 function buildAiInsights(site: SiteConnection): AiSearchInsight[] {
-  return [
-    {
-      prompt: `${site.name} best solution`,
-      answerVisibility: 63,
-      citationRate: 48,
-      recommendation: 'Improve direct entity-summary blocks and citeable proof points on commercial pages.',
+  return flattenMarketTargets(site).map((market, index) => ({
+    prompt: `${site.name} ${market.countryName} ${market.languageLabel} visibility`,
+    answerVisibility: Math.max(44, 63 - index),
+    citationRate: Math.max(36, 48 - index),
+    recommendation: 'Improve direct entity-summary blocks, local proof points, and citeable answer passages.',
+    source: 'mock',
+    marketKey: market.marketKey,
+    marketLabel: market.marketLabel,
+    countryCode: market.countryCode,
+    countryName: market.countryName,
+    languageCode: market.languageCode,
+    languageLabel: market.languageLabel,
+  }));
+}
+
+function buildMarketInsights(
+  site: SiteConnection,
+  keywordInsights: KeywordInsight[],
+  aiInsights: AiSearchInsight[],
+): MarketInsight[] {
+  return flattenMarketTargets(site).map((market, index) => {
+    const keyword = keywordInsights.find((entry) => entry.marketKey === market.marketKey);
+    const ai = aiInsights.find((entry) => entry.marketKey === market.marketKey);
+    const opportunity = keyword?.opportunity ?? Math.max(55, 80 - index);
+    const answerVisibility = ai?.answerVisibility ?? Math.max(42, 60 - index);
+    const citationRate = ai?.citationRate ?? Math.max(34, 46 - index);
+    return {
+      marketKey: market.marketKey,
+      marketLabel: market.marketLabel,
+      countryCode: market.countryCode,
+      countryName: market.countryName,
+      languageCode: market.languageCode,
+      languageLabel: market.languageLabel,
+      seo: Math.max(50, Math.min(96, 62 + Math.round(opportunity * 0.24))),
+      geo: Math.max(46, Math.min(95, 48 + Math.round(answerVisibility * 0.38))),
+      aeo: Math.max(44, Math.min(95, 50 + Math.round(citationRate * 0.42))),
+      opportunity,
+      answerVisibility,
+      citationRate,
       source: 'mock',
-    },
-    {
-      prompt: `${site.name} pricing and results`,
-      answerVisibility: 58,
-      citationRate: 43,
-      recommendation: 'Add concise pricing explainer, FAQ answers, and metrics-driven benefit copy.',
-      source: 'mock',
-    },
-  ];
+    };
+  });
 }
 
 export function createMockAnalysis(site: SiteConnection): SiteAnalysis {
   const scores = baseScores(site.provider);
   const issues = buildIssues(site);
   const optimizations = buildOptimizations(site);
+  const keywordInsights = buildKeywordInsights(site);
+  const serpInsights = buildSerpInsights(site);
+  const aiInsights = buildAiInsights(site);
   return {
     scores,
     issues,
     optimizations,
-    keywordInsights: buildKeywordInsights(site),
-    serpInsights: buildSerpInsights(site),
-    aiInsights: buildAiInsights(site),
-    summary: `${site.name} has strong technical foundations but is under-optimized for AI-search visibility, answer extraction, and authority signaling. The fastest gains come from schema deployment, answer-first content blocks, and deeper internal linking around revenue pages.`,
+    marketInsights: buildMarketInsights(site, keywordInsights, aiInsights),
+    keywordInsights,
+    serpInsights,
+    aiInsights,
+    summary: `${site.name} has strong technical foundations but is under-optimized across its selected countries and languages for AI-search visibility, answer extraction, and authority signaling. The fastest gains come from schema deployment, answer-first content blocks, deeper internal linking, and localized market coverage.`,
   };
 }

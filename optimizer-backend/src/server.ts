@@ -3,9 +3,10 @@ import cors from 'cors';
 import cron from 'node-cron';
 import { z } from 'zod';
 import { config, isLiveDataForSeoEnabled } from './config.js';
+import { buildDefaultMarketTargets, DEFAULT_COUNTRY_CODES, listCountryPresets } from './markets.js';
 import { seedDemoDataIfEmpty } from './store.js';
 import { createSite, executeRun, getSiteWithRuns, listSitesWithRuns, runDueAutomations, updateSite } from './service.js';
-import type { CreateSiteInput, Provider, UpdateSiteInput } from './types.js';
+import type { CountryCode, CreateSiteInput, Provider, UpdateSiteInput } from './types.js';
 
 const app = express();
 
@@ -17,6 +18,22 @@ app.use(
 app.use(express.json());
 
 const providerSchema = z.enum(['wordpress', 'webflow', 'shopify']);
+const countrySchema = z.enum(['US', 'DE', 'CN', 'GB', 'NL', 'SE', 'DK', 'NO', 'CH', 'CA', 'AU', 'AE', 'IN', 'PK', 'BD']);
+const languageSchema = z.enum(['en', 'de', 'zh-CN', 'nl', 'sv', 'da', 'no', 'ar', 'hi', 'ur', 'bn']);
+
+const marketLanguageSchema = z.object({
+  code: languageSchema,
+  label: z.string().min(2),
+  dataForSeoName: z.string().min(2),
+});
+
+const marketTargetSchema = z.object({
+  countryCode: countrySchema,
+  countryName: z.string().min(2),
+  locationName: z.string().min(2),
+  primaryLanguageCode: languageSchema,
+  languages: z.array(marketLanguageSchema).min(1),
+});
 
 const siteSchema = z.object({
   name: z.string().min(2),
@@ -26,12 +43,15 @@ const siteSchema = z.object({
   companyGoals: z.string().min(10),
   automationEnabled: z.boolean(),
   automationHourUtc: z.number().int().min(0).max(23),
+  targetCountries: z.array(countrySchema).min(1),
+  marketTargets: z.array(marketTargetSchema).min(1).optional(),
   mode: z.enum(['mock', 'live']).optional(),
 });
 
 const siteUpdateSchema = siteSchema.partial();
 
 async function bootstrap() {
+  const demoCountries: CountryCode[] = ['US', 'DE', 'CN', 'GB', 'IN'];
   await seedDemoDataIfEmpty([
     {
       id: 'demo-wordpress-site',
@@ -42,6 +62,8 @@ async function bootstrap() {
       companyGoals: 'Increase qualified traffic, improve AI visibility, and automate safe site optimization every day.',
       automationEnabled: true,
       automationHourUtc: 4,
+      targetCountries: demoCountries,
+      marketTargets: buildDefaultMarketTargets(demoCountries),
       mode: isLiveDataForSeoEnabled ? 'live' : 'mock',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -67,6 +89,9 @@ app.get('/api/options', (_req, res) => {
       providers: ['wordpress', 'webflow', 'shopify'] satisfies Provider[],
       modes: ['mock', 'live'],
       liveDataForSeo: isLiveDataForSeoEnabled,
+      countries: listCountryPresets(),
+      defaultCountryCodes: DEFAULT_COUNTRY_CODES,
+      languageStrategy: 'local_and_english',
     },
   });
 });

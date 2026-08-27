@@ -2,8 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { api } from './api';
 import './App.css';
 import type {
+  CountryCode,
+  CountryOption,
   ExecutionMode,
   Issue,
+  MarketTarget,
   OptimizationAction,
   OptionsResponse,
   Provider,
@@ -21,6 +24,7 @@ const initialForm = {
     'Grow qualified traffic, improve AI visibility, and automate safe optimization every day.',
   automationEnabled: true,
   automationHourUtc: 4,
+  targetCountries: [] as CountryCode[],
   mode: 'mock' as ExecutionMode,
 };
 
@@ -42,6 +46,28 @@ function scoreTone(value: number) {
   return 'score-card score-card--warn';
 }
 
+function buildMarketTargets(targetCountries: CountryCode[], countries: CountryOption[]): MarketTarget[] {
+  return targetCountries.flatMap((countryCode) => {
+    const country = countries.find((entry) => entry.code === countryCode);
+    if (!country) return [];
+    const languages = [country.primaryLanguage];
+    if (country.englishSupported && country.primaryLanguage.code !== 'en') {
+      languages.push({
+        code: 'en',
+        label: 'English',
+        dataForSeoName: 'English',
+      });
+    }
+    return [{
+      countryCode: country.code,
+      countryName: country.name,
+      locationName: country.locationName,
+      primaryLanguageCode: country.primaryLanguage.code,
+      languages,
+    }];
+  });
+}
+
 function App() {
   const [options, setOptions] = useState<OptionsResponse | null>(null);
   const [sites, setSites] = useState<SiteListItem[]>([]);
@@ -56,6 +82,11 @@ function App() {
     const [siteList, liveOptions] = await Promise.all([api.listSites(), api.getOptions()]);
     setSites(siteList);
     setOptions(liveOptions);
+    setForm((current) =>
+      current.targetCountries.length > 0
+        ? current
+        : { ...current, targetCountries: liveOptions.defaultCountryCodes },
+    );
     const targetSiteId = nextSiteId ?? (selectedSiteId || siteList[0]?.id);
     if (targetSiteId) {
       setSelectedSiteId(targetSiteId);
@@ -81,6 +112,10 @@ function App() {
 
   const selectedSite = useMemo<SiteConnection | null>(() => siteDetail?.site ?? null, [siteDetail]);
   const analysis = siteDetail?.lastRun?.analysis ?? null;
+  const marketTargetsPreview = useMemo(
+    () => buildMarketTargets(form.targetCountries, options?.countries ?? []),
+    [form.targetCountries, options?.countries],
+  );
 
   async function selectSite(siteId: string) {
     setSelectedSiteId(siteId);
@@ -94,21 +129,41 @@ function App() {
     }
   }
 
+  function toggleCountry(countryCode: CountryCode) {
+    setForm((current) => {
+      const exists = current.targetCountries.includes(countryCode);
+      return {
+        ...current,
+        targetCountries: exists
+          ? current.targetCountries.filter((entry) => entry !== countryCode)
+          : [...current.targetCountries, countryCode],
+      };
+    });
+  }
+
   async function handleCreateSite(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (marketTargetsPreview.length === 0) {
+      setStatusMessage('Select at least one target country before creating the site.');
+      return;
+    }
     setBusyAction('create-site');
-    setStatusMessage('Connecting site and provisioning optimization workspace...');
+    setStatusMessage('Connecting site and provisioning multi-country optimization workspace...');
     try {
       const payload = {
         ...form,
+        marketTargets: marketTargetsPreview,
         targetKeywords: form.targetKeywords
           .split(',')
           .map((entry) => entry.trim())
           .filter(Boolean),
       };
-      const created = (await api.createSite(payload)) as SiteConnection;
+      const created = await api.createSite(payload);
       await refreshSites(created.id);
-      setForm(initialForm);
+      setForm({
+        ...initialForm,
+        targetCountries: options?.defaultCountryCodes ?? [],
+      });
       setStatusMessage(`Connected ${created.name}.`);
     } catch (error) {
       setStatusMessage(error instanceof Error ? error.message : 'Failed to create site.');
@@ -152,8 +207,8 @@ function App() {
           <p className="eyebrow">AI Website Growth OS</p>
           <h1>Autonomous SEO, GEO, and AEO control center</h1>
           <p className="hero-copy">
-            New frontend plus new backend for aggressive daily analysis, provider-aware optimization,
-            and DataForSEO-driven market intelligence.
+            Multi-country market packs with local-language-plus-English coverage, provider-aware
+            optimization, and DataForSEO-driven market intelligence.
           </p>
         </div>
         <div className="hero-status">
@@ -164,6 +219,10 @@ function App() {
           <div className="hero-stat">
             <span className="hero-stat__label">Connected sites</span>
             <strong>{sites.length}</strong>
+          </div>
+          <div className="hero-stat">
+            <span className="hero-stat__label">Default market model</span>
+            <strong>Local language + English</strong>
           </div>
           <div className="hero-stat">
             <span className="hero-stat__label">Status</span>
@@ -232,6 +291,46 @@ function App() {
                 ))}
               </select>
             </label>
+
+            <div className="multi-field">
+              <div className="multi-field__header">
+                <span>Target countries</span>
+                <small>{marketTargetsPreview.length} country packs selected</small>
+              </div>
+              <div className="country-grid">
+                {(options?.countries ?? []).map((country) => {
+                  const active = form.targetCountries.includes(country.code);
+                  return (
+                    <button
+                      key={country.code}
+                      type="button"
+                      className={`country-chip${active ? ' is-active' : ''}`}
+                      onClick={() => toggleCountry(country.code)}
+                    >
+                      <strong>{country.name}</strong>
+                      <small>
+                        {country.primaryLanguage.label}
+                        {country.primaryLanguage.code !== 'en' ? ' + English' : ''}
+                      </small>
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="helper-copy">
+                Language strategy is fixed to local market language plus English for every selected
+                country.
+              </p>
+            </div>
+
+            <div className="market-pack-preview">
+              {marketTargetsPreview.map((market) => (
+                <div key={market.countryCode} className="market-pack-card">
+                  <strong>{market.countryName}</strong>
+                  <small>{market.languages.map((entry) => entry.label).join(', ')}</small>
+                </div>
+              ))}
+            </div>
+
             <label>
               Target keywords
               <textarea
@@ -301,7 +400,9 @@ function App() {
               >
                 <span>
                   <strong>{site.name}</strong>
-                  <small>{site.provider}</small>
+                  <small>
+                    {site.provider} | {site.targetCountries.length} countries
+                  </small>
                 </span>
                 <span className="site-list__meta">
                   {site.lastRun?.analysis?.scores.overall ?? '--'}
@@ -354,11 +455,21 @@ function App() {
                 <div className="site-badges">
                   <span className="badge">{selectedSite.provider}</span>
                   <span className="badge">{selectedSite.mode}</span>
+                  <span className="badge">{selectedSite.targetCountries.length} countries</span>
+                  <span className="badge">{selectedSite.marketTargets.length} market packs</span>
                   <span className="badge">
                     {selectedSite.automationEnabled
                       ? `Daily at ${selectedSite.automationHourUtc}:00 UTC`
                       : 'Automation disabled'}
                   </span>
+                </div>
+                <div className="market-pack-preview market-pack-preview--compact">
+                  {selectedSite.marketTargets.map((market) => (
+                    <div key={market.countryCode} className="market-pack-card">
+                      <strong>{market.countryName}</strong>
+                      <small>{market.languages.map((entry) => entry.label).join(', ')}</small>
+                    </div>
+                  ))}
                 </div>
                 <div className="keyword-strip">
                   {selectedSite.targetKeywords.map((keyword) => (
@@ -391,6 +502,31 @@ function App() {
                     <p className="summary-text">{analysis.summary}</p>
                   </section>
 
+                  <section className="card">
+                    <div className="section-heading">
+                      <div>
+                        <p className="eyebrow">Market coverage</p>
+                        <h2>Country and language performance</h2>
+                      </div>
+                    </div>
+                    <div className="table-list">
+                      {analysis.marketInsights.map((market) => (
+                        <div key={market.marketKey} className="table-row">
+                          <div>
+                            <strong>{market.marketLabel}</strong>
+                            <small>{market.source}</small>
+                          </div>
+                          <div className="table-row__metrics">
+                            <span>SEO {market.seo}</span>
+                            <span>GEO {market.geo}</span>
+                            <span>AEO {market.aeo}</span>
+                            <span>Opp. {market.opportunity}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
                   <section className="insight-grid">
                     <article className="card">
                       <div className="section-heading">
@@ -401,10 +537,12 @@ function App() {
                       </div>
                       <div className="table-list">
                         {analysis.keywordInsights.map((item) => (
-                          <div key={item.keyword} className="table-row">
+                          <div key={`${item.marketKey}:${item.keyword}`} className="table-row">
                             <div>
                               <strong>{item.keyword}</strong>
-                              <small>{item.intent}</small>
+                              <small>
+                                {item.marketLabel} | {item.intent}
+                              </small>
                             </div>
                             <div className="table-row__metrics">
                               <span>Opp. {item.opportunity}</span>
@@ -424,10 +562,12 @@ function App() {
                       </div>
                       <div className="table-list">
                         {analysis.serpInsights.map((item) => (
-                          <div key={item.keyword} className="table-row table-row--stack">
+                          <div key={`${item.marketKey}:${item.keyword}`} className="table-row table-row--stack">
                             <div>
                               <strong>{item.keyword}</strong>
-                              <small>{item.snapshotSource}</small>
+                              <small>
+                                {item.marketLabel} | {item.snapshotSource}
+                              </small>
                             </div>
                             <p>Features: {item.topFeatures.join(', ')}</p>
                             <p>Competitors: {item.competitorDomains.join(', ')}</p>
@@ -445,10 +585,12 @@ function App() {
                       </div>
                       <div className="table-list">
                         {analysis.aiInsights.map((item) => (
-                          <div key={item.prompt} className="table-row table-row--stack">
+                          <div key={item.marketKey} className="table-row table-row--stack">
                             <div>
                               <strong>{item.prompt}</strong>
-                              <small>{item.source}</small>
+                              <small>
+                                {item.marketLabel} | {item.source}
+                              </small>
                             </div>
                             <p>
                               Visibility {item.answerVisibility} | Citation {item.citationRate}
@@ -518,7 +660,7 @@ function App() {
                 </>
               ) : (
                 <section className="card empty-state">
-                  This site is connected. Run the first full cycle to generate scores, issues, SERP
+                  This site is connected. Run the first full cycle to generate scores, issues, market
                   insights, and automated optimization actions.
                 </section>
               )}

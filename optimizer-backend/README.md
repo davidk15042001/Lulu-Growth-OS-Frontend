@@ -10,6 +10,7 @@ AI website optimization backend for SEO, GEO, and AEO analysis with a daily auto
 - Use DataForSEO as the primary external intelligence source when credentials are configured
 - Fall back to deterministic mock intelligence when live credentials are missing
 - Trigger daily automation by hour in UTC
+- Expand one site into multiple country/language market packs with local language plus English
 
 ## Run locally
 
@@ -24,6 +25,7 @@ The API runs on `http://localhost:4100`.
 - `DATAFORSEO_MOCK_MODE=true`: test the full product without live API credentials
 - `DATAFORSEO_MOCK_MODE=false`: activate live DataForSEO requests
 - `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD`: required for live mode
+- `DATAFORSEO_PRIMARY_LANGUAGE` and `DATAFORSEO_PRIMARY_LOCATION`: legacy fallback values only; active runs now use per-market country/language pairs
 
 ## Main API routes
 
@@ -37,3 +39,8 @@ The API runs on `http://localhost:4100`.
 - `POST /api/sites/:siteId/optimize`
 - `POST /api/sites/:siteId/full-cycle`
 - `POST /api/scheduler/run-due`
+
+## Default market scope
+
+- Countries: USA, Germany, China, United Kingdom, Netherlands, Sweden, Denmark, Norway, Switzerland, Canada, Australia, United Arab Emirates, India, Pakistan, Bangladesh
+- Language model: local market language plus English

@@ -1,5 +1,6 @@
 import { createMockAnalysis } from './mock-analysis.js';
 import { collectExternalIntelligence } from './dataforseo.js';
+import { flattenMarketTargets } from './markets.js';
 import { buildProviderOptimizations } from './providers.js';
 import type { ScoreCard, SiteAnalysis, SiteConnection } from './types.js';
 
@@ -56,14 +57,20 @@ export async function analyzeSite(site: SiteConnection): Promise<SiteAnalysis> {
     external.source === 'dataforseo'
       ? 'DataForSEO live intelligence is active.'
       : 'Running in mock intelligence mode because live DataForSEO credentials are missing or unavailable.';
+  const markets = flattenMarketTargets(site);
+  const marketSummary =
+    markets.length > 0
+      ? ` Monitoring ${markets.length} active market packs across ${site.targetCountries.length} countries.`
+      : '';
 
   return {
     ...base,
     scores,
+    marketInsights: external.marketInsights,
     keywordInsights: external.keywordInsights,
     serpInsights: external.serpInsights,
     aiInsights: external.aiInsights,
     optimizations,
-    summary: `${liveSummaryPrefix} ${base.summary}`,
+    summary: `${liveSummaryPrefix} ${base.summary}${marketSummary}`,
   };
 }

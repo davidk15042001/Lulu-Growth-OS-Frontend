@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { analyzeSite } from './analysis.js';
+import { buildDefaultMarketTargets } from './markets.js';
 import { getRun, getSite, listRuns, listSites, saveRun, saveSite } from './store.js';
 import type { CreateSiteInput, SiteConnection, SiteRun, UpdateSiteInput } from './types.js';
 
@@ -18,6 +19,8 @@ export async function createSite(input: CreateSiteInput) {
     companyGoals: input.companyGoals,
     automationEnabled: input.automationEnabled,
     automationHourUtc: input.automationHourUtc,
+    targetCountries: input.targetCountries,
+    marketTargets: input.marketTargets ?? buildDefaultMarketTargets(input.targetCountries),
     mode: input.mode ?? 'mock',
     createdAt: timestamp,
     updatedAt: timestamp,
@@ -32,6 +35,9 @@ export async function updateSite(siteId: string, input: UpdateSiteInput) {
   const updated: SiteConnection = {
     ...existing,
     ...input,
+    marketTargets:
+      input.marketTargets
+      ?? (input.targetCountries ? buildDefaultMarketTargets(input.targetCountries) : existing.marketTargets),
     updatedAt: nowIso(),
   };
   await saveSite(updated);

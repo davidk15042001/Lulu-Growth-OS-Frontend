@@ -1,5 +1,7 @@
 export type Provider = 'wordpress' | 'webflow' | 'shopify';
 export type ExecutionMode = 'mock' | 'live';
+export type CountryCode = 'US' | 'DE' | 'CN' | 'GB' | 'NL' | 'SE' | 'DK' | 'NO' | 'CH' | 'CA' | 'AU' | 'AE' | 'IN' | 'PK' | 'BD';
+export type LanguageCode = 'en' | 'de' | 'zh-CN' | 'nl' | 'sv' | 'da' | 'no' | 'ar' | 'hi' | 'ur' | 'bn';
 
 export interface ScoreCard {
   overall: number;
@@ -41,6 +43,12 @@ export interface KeywordInsight {
   opportunity: number;
   searchVolume: number;
   score: number;
+  marketKey: string;
+  marketLabel: string;
+  countryCode: CountryCode;
+  countryName: string;
+  languageCode: LanguageCode;
+  languageLabel: string;
 }
 
 export interface SerpInsight {
@@ -48,6 +56,12 @@ export interface SerpInsight {
   topFeatures: string[];
   competitorDomains: string[];
   snapshotSource: 'dataforseo' | 'mock';
+  marketKey: string;
+  marketLabel: string;
+  countryCode: CountryCode;
+  countryName: string;
+  languageCode: LanguageCode;
+  languageLabel: string;
 }
 
 export interface AiSearchInsight {
@@ -56,12 +70,57 @@ export interface AiSearchInsight {
   citationRate: number;
   recommendation: string;
   source: 'dataforseo' | 'mock';
+  marketKey: string;
+  marketLabel: string;
+  countryCode: CountryCode;
+  countryName: string;
+  languageCode: LanguageCode;
+  languageLabel: string;
+}
+
+export interface MarketLanguage {
+  code: LanguageCode;
+  label: string;
+  dataForSeoName: string;
+}
+
+export interface MarketTarget {
+  countryCode: CountryCode;
+  countryName: string;
+  locationName: string;
+  primaryLanguageCode: LanguageCode;
+  languages: MarketLanguage[];
+}
+
+export interface MarketInsight {
+  marketKey: string;
+  marketLabel: string;
+  countryCode: CountryCode;
+  countryName: string;
+  languageCode: LanguageCode;
+  languageLabel: string;
+  seo: number;
+  geo: number;
+  aeo: number;
+  opportunity: number;
+  answerVisibility: number;
+  citationRate: number;
+  source: 'dataforseo' | 'mock';
+}
+
+export interface CountryOption {
+  code: CountryCode;
+  name: string;
+  locationName: string;
+  primaryLanguage: MarketLanguage;
+  englishSupported: boolean;
 }
 
 export interface SiteAnalysis {
   scores: ScoreCard;
   issues: Issue[];
   optimizations: OptimizationAction[];
+  marketInsights: MarketInsight[];
   keywordInsights: KeywordInsight[];
   serpInsights: SerpInsight[];
   aiInsights: AiSearchInsight[];
@@ -91,6 +150,8 @@ export interface SiteConnection {
   companyGoals: string;
   automationEnabled: boolean;
   automationHourUtc: number;
+  targetCountries: CountryCode[];
+  marketTargets: MarketTarget[];
   mode: ExecutionMode;
   createdAt: string;
   updatedAt: string;
@@ -111,4 +172,7 @@ export interface OptionsResponse {
   providers: Provider[];
   modes: ExecutionMode[];
   liveDataForSeo: boolean;
+  countries: CountryOption[];
+  defaultCountryCodes: CountryCode[];
+  languageStrategy: 'local_and_english';
 }

@@ -88,6 +88,80 @@
   gap: 14px;
 }
 
+.multi-field {
+  display: grid;
+  gap: 12px;
+}
+
+.multi-field__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: baseline;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.multi-field__header small,
+.helper-copy {
+  color: var(--text-soft);
+  font-size: 12px;
+}
+
+.country-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.country-chip {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border);
+  background: var(--panel-muted);
+  color: var(--text-heading);
+  border-radius: 14px;
+  padding: 12px 14px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.country-chip small {
+  color: var(--text-soft);
+}
+
+.country-chip.is-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.15);
+  background: rgba(124, 58, 237, 0.08);
+}
+
+.market-pack-preview {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.market-pack-preview--compact {
+  margin-top: 12px;
+}
+
+.market-pack-card {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--border);
+  background: var(--panel-muted);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.market-pack-card small {
+  color: var(--text-soft);
+}
+
 .site-form label,
 .checkbox {
   display: grid;
@@ -376,6 +450,11 @@
 
   .score-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .country-grid,
+  .market-pack-preview {
+    grid-template-columns: 1fr;
   }
 }
 
