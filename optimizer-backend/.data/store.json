@@ -13,216 +13,99 @@
       "companyGoals": "Increase qualified traffic, improve AI visibility, and automate safe site optimization every day.",
       "automationEnabled": true,
       "automationHourUtc": 4,
+      "targetCountries": [
+        "US",
+        "DE",
+        "CN",
+        "GB",
+        "IN"
+      ],
+      "marketTargets": [
+        {
+          "countryCode": "US",
+          "countryName": "United States",
+          "locationName": "United States",
+          "primaryLanguageCode": "en",
+          "languages": [
+            {
+              "code": "en",
+              "label": "English",
+              "dataForSeoName": "English"
+            }
+          ]
+        },
+        {
+          "countryCode": "DE",
+          "countryName": "Germany",
+          "locationName": "Germany",
+          "primaryLanguageCode": "de",
+          "languages": [
+            {
+              "code": "de",
+              "label": "German",
+              "dataForSeoName": "German"
+            },
+            {
+              "code": "en",
+              "label": "English",
+              "dataForSeoName": "English"
+            }
+          ]
+        },
+        {
+          "countryCode": "CN",
+          "countryName": "China",
+          "locationName": "China",
+          "primaryLanguageCode": "zh-CN",
+          "languages": [
+            {
+              "code": "zh-CN",
+              "label": "Chinese",
+              "dataForSeoName": "Chinese"
+            },
+            {
+              "code": "en",
+              "label": "English",
+              "dataForSeoName": "English"
+            }
+          ]
+        },
+        {
+          "countryCode": "GB",
+          "countryName": "United Kingdom",
+          "locationName": "United Kingdom",
+          "primaryLanguageCode": "en",
+          "languages": [
+            {
+              "code": "en",
+              "label": "English",
+              "dataForSeoName": "English"
+            }
+          ]
+        },
+        {
+          "countryCode": "IN",
+          "countryName": "India",
+          "locationName": "India",
+          "primaryLanguageCode": "hi",
+          "languages": [
+            {
+              "code": "hi",
+              "label": "Hindi",
+              "dataForSeoName": "Hindi"
+            },
+            {
+              "code": "en",
+              "label": "English",
+              "dataForSeoName": "English"
+            }
+          ]
+        }
+      ],
       "mode": "mock",
-      "createdAt": "2026-08-26T20:48:40.167Z",
-      "updatedAt": "2026-08-26T20:48:56.340Z",
-      "lastRunId": "00e81a39-53df-4798-af33-b3eb92218648"
+      "createdAt": "2026-08-27T07:22:30.112Z",
+      "updatedAt": "2026-08-27T07:22:30.112Z"
     }
   ],
-  "runs": [
-    {
-      "id": "00e81a39-53df-4798-af33-b3eb92218648",
-      "siteId": "demo-wordpress-site",
-      "type": "full_cycle",
-      "status": "completed",
-      "mode": "mock",
-      "createdAt": "2026-08-26T20:48:56.337Z",
-      "startedAt": "2026-08-26T20:48:56.337Z",
-      "finishedAt": "2026-08-26T20:48:56.339Z",
-      "summary": "Running in mock intelligence mode because live DataForSEO credentials are missing or unavailable. Demo Growth Company has strong technical foundations but is under-optimized for AI-search visibility, answer extraction, and authority signaling. The fastest gains come from schema deployment, answer-first content blocks, and deeper internal linking around revenue pages.",
-      "analysis": {
-        "scores": {
-          "overall": 72,
-          "seo": 79,
-          "geo": 71,
-          "aeo": 69,
-          "technical": 79,
-          "content": 72,
-          "authority": 62,
-          "performance": 75
-        },
-        "issues": [
-          {
-            "id": "demo-wordpress-site-schema-faq",
-            "title": "Missing FAQ structured data on revenue pages",
-            "summary": "High-intent pages are not exposing answer-ready schema blocks for AI and snippet extraction.",
-            "severity": "high",
-            "category": "schema",
-            "impact": 86,
-            "confidence": 89,
-            "autoFixable": true,
-            "evidence": [
-              "FAQ schema absent on top landing pages",
-              "No question-answer blocks in crawl summary"
-            ],
-            "recommendation": "Inject FAQ schema plus compact answer blocks tied to target queries."
-          },
-          {
-            "id": "demo-wordpress-site-geo-citations",
-            "title": "Brand entities are weak in AI-search summaries",
-            "summary": "The brand is not consistently represented with citation-friendly summaries, proof points, and direct claims.",
-            "severity": "high",
-            "category": "geo",
-            "impact": 82,
-            "confidence": 78,
-            "autoFixable": false,
-            "evidence": [
-              "Low mention clarity in mock AI visibility benchmark",
-              "No structured proof-point section detected"
-            ],
-            "recommendation": "Add entity summary sections, trust proof, and brand-specific answer passages."
-          },
-          {
-            "id": "demo-wordpress-site-internal-links",
-            "title": "Internal linking depth is too shallow for priority commercial pages",
-            "summary": "Priority pages do not receive enough contextual internal links from supporting pages.",
-            "severity": "medium",
-            "category": "internal_linking",
-            "impact": 73,
-            "confidence": 84,
-            "autoFixable": true,
-            "evidence": [
-              "Only 2 supporting links into core page cluster",
-              "Anchor diversity is narrow"
-            ],
-            "recommendation": "Create contextual internal links from supporting content to core pages with commercial intent anchors."
-          },
-          {
-            "id": "demo-wordpress-site-aeo-snippets",
-            "title": "Answer-engine passages are too long and not extractable",
-            "summary": "Pages have long blocks of content without concise answer-first formatting.",
-            "severity": "medium",
-            "category": "aeo",
-            "impact": 70,
-            "confidence": 81,
-            "autoFixable": true,
-            "evidence": [
-              "Definitions exceed snippet-friendly length",
-              "No direct-answer sections near H2 blocks"
-            ],
-            "recommendation": "Rewrite primary answer passages into short answer-first blocks under matching headings."
-          }
-        ],
-        "optimizations": [
-          {
-            "id": "demo-wordpress-site-demo-wordpress-site-schema-faq-action",
-            "title": "Optimize missing faq structured data on revenue pages",
-            "description": "Inject FAQ schema plus compact answer blocks tied to target queries.",
-            "status": "applied",
-            "autoApplied": true,
-            "providerAction": "WordPress content and metadata API workflow: inject organization, FAQ, and page schema",
-            "expectedImpact": 19
-          },
-          {
-            "id": "demo-wordpress-site-demo-wordpress-site-geo-citations-action",
-            "title": "Optimize brand entities are weak in ai-search summaries",
-            "description": "Add entity summary sections, trust proof, and brand-specific answer passages.",
-            "status": "simulated",
-            "autoApplied": false,
-            "providerAction": "WordPress content and metadata API workflow: generate updated answer blocks and content patches",
-            "expectedImpact": 18
-          },
-          {
-            "id": "demo-wordpress-site-demo-wordpress-site-internal-links-action",
-            "title": "Optimize internal linking depth is too shallow for priority commercial pages",
-            "description": "Create contextual internal links from supporting content to core pages with commercial intent anchors.",
-            "status": "applied",
-            "autoApplied": true,
-            "providerAction": "WordPress content and metadata API workflow: add contextual internal links on mapped pages",
-            "expectedImpact": 16
-          },
-          {
-            "id": "demo-wordpress-site-demo-wordpress-site-aeo-snippets-action",
-            "title": "Optimize answer-engine passages are too long and not extractable",
-            "description": "Rewrite primary answer passages into short answer-first blocks under matching headings.",
-            "status": "applied",
-            "autoApplied": true,
-            "providerAction": "WordPress content and metadata API workflow: generate updated answer blocks and content patches",
-            "expectedImpact": 15
-          }
-        ],
-        "keywordInsights": [
-          {
-            "keyword": "ai seo automation",
-            "intent": "commercial",
-            "opportunity": 84,
-            "searchVolume": 2200,
-            "score": 86
-          },
-          {
-            "keyword": "answer engine optimization",
-            "intent": "informational",
-            "opportunity": 79,
-            "searchVolume": 1920,
-            "score": 82
-          },
-          {
-            "keyword": "website intelligence",
-            "intent": "commercial",
-            "opportunity": 74,
-            "searchVolume": 1640,
-            "score": 78
-          }
-        ],
-        "serpInsights": [
-          {
-            "keyword": "ai seo automation",
-            "topFeatures": [
-              "featured_snippet",
-              "people_also_ask",
-              "ai_overview"
-            ],
-            "competitorDomains": [
-              "competitor-one.com",
-              "competitor-two.com"
-            ],
-            "snapshotSource": "mock"
-          },
-          {
-            "keyword": "answer engine optimization",
-            "topFeatures": [
-              "featured_snippet",
-              "people_also_ask",
-              "ai_overview"
-            ],
-            "competitorDomains": [
-              "competitor-one.com",
-              "competitor-two.com"
-            ],
-            "snapshotSource": "mock"
-          },
-          {
-            "keyword": "website intelligence",
-            "topFeatures": [
-              "featured_snippet",
-              "people_also_ask",
-              "ai_overview"
-            ],
-            "competitorDomains": [
-              "competitor-one.com",
-              "competitor-two.com"
-            ],
-            "snapshotSource": "mock"
-          }
-        ],
-        "aiInsights": [
-          {
-            "prompt": "Demo Growth Company best provider",
-            "answerVisibility": 61,
-            "citationRate": 46,
-            "recommendation": "Increase entity clarity, direct proof points, and answer-first passages.",
-            "source": "mock"
-          },
-          {
-            "prompt": "Demo Growth Company results and pricing",
-            "answerVisibility": 57,
-            "citationRate": 42,
-            "recommendation": "Add quote-ready pricing answers and stronger evidence blocks.",
-            "source": "mock"
-          }
-        ],
-        "summary": "Running in mock intelligence mode because live DataForSEO credentials are missing or unavailable. Demo Growth Company has strong technical foundations but is under-optimized for AI-search visibility, answer extraction, and authority signaling. The fastest gains come from schema deployment, answer-first content blocks, and deeper internal linking around revenue pages."
-      }
-    }
-  ]
+  "runs": []
 }
