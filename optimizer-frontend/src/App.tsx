@@ -11,6 +11,7 @@ import type {
   ExecutionMode,
   OptionsResponse,
   Provider,
+  SessionContext,
   SiteConnection,
   SiteDetailResponse,
   SiteListItem,
@@ -31,6 +32,7 @@ const initialForm: SiteFormState = {
 
 function App() {
   const [options, setOptions] = useState<OptionsResponse | null>(null);
+  const [session, setSession] = useState<SessionContext | null>(null);
   const [sites, setSites] = useState<SiteListItem[]>([]);
   const [selectedSiteId, setSelectedSiteId] = useState<string>('');
   const [siteDetail, setSiteDetail] = useState<SiteDetailResponse | null>(null);
@@ -42,10 +44,15 @@ function App() {
 
   async function refreshSites(nextSiteId?: string) {
     const requestId = ++loadSequence.current;
-    const [siteList, liveOptions] = await Promise.all([api.listSites(), api.getOptions()]);
+      const [siteList, liveOptions, liveSession] = await Promise.all([
+        api.listSites(),
+        api.getOptions(),
+        api.getSession(),
+      ]);
     if (requestId !== loadSequence.current) return;
     setSites(siteList);
     setOptions(liveOptions);
+      setSession(liveSession);
     setForm((current) =>
       current.targetCountries.length > 0
         ? current
@@ -170,7 +177,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <HeroPanel options={options} sites={sites} statusMessage={statusMessage} />
+      <HeroPanel options={options} sites={sites} statusMessage={statusMessage} session={session} />
 
       <main className="layout">
         <div className="sidebar">

@@ -1,5 +1,6 @@
 export type Provider = 'wordpress' | 'webflow' | 'shopify';
 export type ExecutionMode = 'mock' | 'live';
+export type UserRole = 'viewer' | 'editor' | 'admin';
 export type CountryCode = 'US' | 'DE' | 'CN' | 'GB' | 'NL' | 'SE' | 'DK' | 'NO' | 'CH' | 'CA' | 'AU' | 'AE' | 'IN' | 'PK' | 'BD';
 export type LanguageCode = 'en' | 'de' | 'zh-CN' | 'nl' | 'sv' | 'da' | 'no' | 'ar' | 'hi' | 'ur' | 'bn';
 
@@ -143,6 +144,8 @@ export interface SiteRun {
 
 export interface SiteConnection {
   id: string;
+  workspaceId: string;
+  ownerUserId: string;
   name: string;
   websiteUrl: string;
   provider: Provider;
@@ -188,4 +191,10 @@ export interface OptionsResponse {
   countries: CountryOption[];
   defaultCountryCodes: CountryCode[];
   languageStrategy: 'local_and_english';
+}
+
+export interface SessionContext {
+  workspaceId: string;
+  userId: string;
+  role: UserRole;
 }

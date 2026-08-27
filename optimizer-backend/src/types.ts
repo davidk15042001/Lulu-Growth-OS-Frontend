@@ -1,6 +1,7 @@
 export type Provider = 'wordpress' | 'webflow' | 'shopify';
 
 export type ExecutionMode = 'mock' | 'live';
+export type UserRole = 'viewer' | 'editor' | 'admin';
 
 export type CountryCode =
   | 'US'
@@ -164,6 +165,8 @@ export interface SiteAnalysis {
 
 export interface SiteConnection {
   id: string;
+  workspaceId: string;
+  ownerUserId: string;
   name: string;
   websiteUrl: string;
   provider: Provider;
@@ -196,6 +199,32 @@ export interface SiteRun {
 export interface AppState {
   sites: SiteConnection[];
   runs: SiteRun[];
+}
+
+export interface Workspace {
+  id: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface UserAccount {
+  id: string;
+  email: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface WorkspaceMembership {
+  workspaceId: string;
+  userId: string;
+  role: UserRole;
+  createdAt: string;
+}
+
+export interface RequestContext {
+  workspaceId: string;
+  userId: string;
+  role: UserRole;
 }
 
 export interface CreateSiteInput {

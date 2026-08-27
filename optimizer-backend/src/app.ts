@@ -5,7 +5,12 @@ import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { config, isLiveDataForSeoEnabled } from './config.js';
 import { buildDefaultMarketTargets, DEFAULT_COUNTRY_CODES, listCountryPresets } from './markets.js';
-import { seedDemoDataIfEmpty } from './store.js';
+import {
+  buildRequestContext,
+  listWorkspaces,
+  seedAccessControlIfEmpty,
+  seedDemoDataIfEmpty,
+} from './store.js';
 import {
   createSite,
   executeRun,
@@ -14,7 +19,14 @@ import {
   runDueAutomations,
   updateSite,
 } from './service.js';
-import type { CountryCode, CreateSiteInput, Provider, UpdateSiteInput } from './types.js';
+import type {
+  CountryCode,
+  CreateSiteInput,
+  Provider,
+  RequestContext,
+  UpdateSiteInput,
+  UserRole,
+} from './types.js';
 
 const apiLimiter = new Map<string, { count: number; resetAt: number }>();
 
@@ -28,6 +40,11 @@ export class AppError extends Error {
     this.code = code;
   }
 }
+
+type AppLocals = {
+  requestId: string;
+  context?: RequestContext;
+};
 
 function requestIp(req: express.Request) {
   const forwarded = req.headers['x-forwarded-for'];
@@ -75,6 +92,66 @@ function requireApiAuth(req: express.Request, _res: express.Response, next: expr
     return;
   }
   next();
+}
+
+const roleRank: Record<UserRole, number> = {
+  viewer: 1,
+  editor: 2,
+  admin: 3,
+};
+
+function requireTenantAccess(minRole: UserRole) {
+  return async (
+    req: express.Request,
+    res: express.Response<any, AppLocals>,
+    next: express.NextFunction,
+  ) => {
+    const workspaceId = req.header('x-workspace-id')?.trim();
+    const userId = req.header('x-user-id')?.trim();
+    if (!workspaceId || !userId) {
+      next(
+        new AppError(
+          401,
+          'CONTEXT_REQUIRED',
+          'A workspace and user context is required for this operation.',
+        ),
+      );
+      return;
+    }
+    const context = await buildRequestContext(workspaceId, userId);
+    if (!context) {
+      next(new AppError(403, 'MEMBERSHIP_REQUIRED', 'You are not a member of this workspace.'));
+      return;
+    }
+    if (roleRank[context.role] < roleRank[minRole]) {
+      next(
+        new AppError(
+          403,
+          'INSUFFICIENT_ROLE',
+          `This operation requires ${minRole} privileges in the selected workspace.`,
+        ),
+      );
+      return;
+    }
+    res.locals.context = context;
+    next();
+  };
+}
+
+function requestContext(res: express.Response<any, AppLocals>) {
+  const context = res.locals.context;
+  if (!context) {
+    throw new AppError(500, 'REQUEST_CONTEXT_MISSING', 'Workspace context was not attached.');
+  }
+  return context;
+}
+
+function readSiteId(req: express.Request) {
+  const siteId = req.params.siteId;
+  if (typeof siteId !== 'string' || siteId.length === 0) {
+    throw new AppError(400, 'SITE_ID_REQUIRED', 'A valid site id is required.');
+  }
+  return siteId;
 }
 
 const providerSchema = z.enum(['wordpress', 'webflow', 'shopify']);
@@ -164,10 +241,32 @@ function sanitizeUpdateSiteInput(input: UpdateSiteInput): UpdateSiteInput {
 }
 
 export async function bootstrapDemoData() {
+  const timestamp = new Date().toISOString();
+  await seedAccessControlIfEmpty({
+    workspaces: [
+      { id: 'demo-workspace', name: 'Demo Workspace', createdAt: timestamp },
+      { id: 'second-workspace', name: 'Second Workspace', createdAt: timestamp },
+    ],
+    users: [
+      { id: 'demo-admin', email: 'admin@demo.example', name: 'Demo Admin', createdAt: timestamp },
+      { id: 'demo-editor', email: 'editor@demo.example', name: 'Demo Editor', createdAt: timestamp },
+      { id: 'demo-viewer', email: 'viewer@demo.example', name: 'Demo Viewer', createdAt: timestamp },
+      { id: 'second-admin', email: 'owner@second.example', name: 'Second Admin', createdAt: timestamp },
+    ],
+    memberships: [
+      { workspaceId: 'demo-workspace', userId: 'demo-admin', role: 'admin', createdAt: timestamp },
+      { workspaceId: 'demo-workspace', userId: 'demo-editor', role: 'editor', createdAt: timestamp },
+      { workspaceId: 'demo-workspace', userId: 'demo-viewer', role: 'viewer', createdAt: timestamp },
+      { workspaceId: 'second-workspace', userId: 'second-admin', role: 'admin', createdAt: timestamp },
+    ],
+  });
+
   const demoCountries: CountryCode[] = ['US', 'DE', 'CN', 'GB', 'IN'];
   await seedDemoDataIfEmpty([
     {
       id: 'demo-wordpress-site',
+      workspaceId: 'demo-workspace',
+      ownerUserId: 'demo-admin',
       name: 'Demo Growth Company',
       websiteUrl: 'https://demo-growth.example.com',
       provider: 'wordpress',
@@ -183,8 +282,8 @@ export async function bootstrapDemoData() {
       targetCountries: demoCountries,
       marketTargets: buildDefaultMarketTargets(demoCountries),
       mode: isLiveDataForSeoEnabled ? 'live' : 'mock',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      createdAt: timestamp,
+      updatedAt: timestamp,
     },
   ]);
 }
@@ -196,12 +295,12 @@ export function createApp() {
     cors({
       origin: config.FRONTEND_ORIGIN,
       methods: ['GET', 'POST', 'PATCH'],
-      allowedHeaders: ['Content-Type', 'X-API-Token'],
+      allowedHeaders: ['Content-Type', 'X-API-Token', 'X-Workspace-Id', 'X-User-Id'],
     }),
   );
   app.use(rateLimit);
   app.use(express.json({ limit: '256kb' }));
-  app.use((_req, res, next) => {
+  app.use((_req, res: express.Response<any, AppLocals>, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'no-referrer');
@@ -235,35 +334,47 @@ export function createApp() {
     });
   });
 
-  app.use('/api/sites', requireApiAuth);
-  app.use('/api/scheduler', requireApiAuth);
+  app.get('/api/session', requireApiAuth, requireTenantAccess('viewer'), (_req, res) => {
+    res.json({
+      success: true,
+      data: requestContext(res),
+    });
+  });
 
-  app.get('/api/sites', async (_req, res, next) => {
+  app.use('/api/sites', requireApiAuth, requireTenantAccess('viewer'));
+  app.use('/api/scheduler', requireApiAuth, requireTenantAccess('admin'));
+
+  app.get('/api/sites', async (_req, res: express.Response<any, AppLocals>, next) => {
     try {
-      const sites = await listSitesWithRuns();
+      const sites = await listSitesWithRuns(requestContext(res).workspaceId);
       res.json({ success: true, data: sites });
     } catch (error) {
       next(error);
     }
   });
 
-  app.post('/api/sites', async (req, res, next) => {
+  app.post('/api/sites', requireTenantAccess('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const parsed = siteSchema.safeParse(req.body);
       if (!parsed.success) {
         res.status(422).json({ success: false, error: parsed.error.flatten() });
         return;
       }
-      const site = await createSite(sanitizeCreateSiteInput(parsed.data as CreateSiteInput));
+      const context = requestContext(res);
+      const site = await createSite(
+        context.workspaceId,
+        context.userId,
+        sanitizeCreateSiteInput(parsed.data as CreateSiteInput),
+      );
       res.status(201).json({ success: true, data: site });
     } catch (error) {
       next(error);
     }
   });
 
-  app.get('/api/sites/:siteId', async (req, res, next) => {
+  app.get('/api/sites/:siteId', async (req, res: express.Response<any, AppLocals>, next) => {
     try {
-      const data = await getSiteWithRuns(req.params.siteId);
+      const data = await getSiteWithRuns(requestContext(res).workspaceId, readSiteId(req));
       if (!data) {
         res.status(404).json({ success: false, error: { message: 'Site not found' } });
         return;
@@ -274,7 +385,7 @@ export function createApp() {
     }
   });
 
-  app.patch('/api/sites/:siteId', async (req, res, next) => {
+  app.patch('/api/sites/:siteId', requireTenantAccess('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const parsed = siteUpdateSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -282,7 +393,8 @@ export function createApp() {
         return;
       }
       const site = await updateSite(
-        req.params.siteId,
+        requestContext(res).workspaceId,
+        readSiteId(req),
         sanitizeUpdateSiteInput(parsed.data as UpdateSiteInput),
       );
       if (!site) {
@@ -295,9 +407,9 @@ export function createApp() {
     }
   });
 
-  app.post('/api/sites/:siteId/analyze', async (req, res, next) => {
+  app.post('/api/sites/:siteId/analyze', requireTenantAccess('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
-      const result = await executeRun(req.params.siteId, 'analysis');
+      const result = await executeRun(requestContext(res).workspaceId, readSiteId(req), 'analysis');
       if (!result) {
         res.status(404).json({ success: false, error: { message: 'Site not found' } });
         return;
@@ -308,9 +420,13 @@ export function createApp() {
     }
   });
 
-  app.post('/api/sites/:siteId/optimize', async (req, res, next) => {
+  app.post('/api/sites/:siteId/optimize', requireTenantAccess('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
-      const result = await executeRun(req.params.siteId, 'optimization');
+      const result = await executeRun(
+        requestContext(res).workspaceId,
+        readSiteId(req),
+        'optimization',
+      );
       if (!result) {
         res.status(404).json({ success: false, error: { message: 'Site not found' } });
         return;
@@ -321,9 +437,13 @@ export function createApp() {
     }
   });
 
-  app.post('/api/sites/:siteId/full-cycle', async (req, res, next) => {
+  app.post('/api/sites/:siteId/full-cycle', requireTenantAccess('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
-      const result = await executeRun(req.params.siteId, 'full_cycle');
+      const result = await executeRun(
+        requestContext(res).workspaceId,
+        readSiteId(req),
+        'full_cycle',
+      );
       if (!result) {
         res.status(404).json({ success: false, error: { message: 'Site not found' } });
         return;
@@ -334,9 +454,9 @@ export function createApp() {
     }
   });
 
-  app.post('/api/scheduler/run-due', async (_req, res, next) => {
+  app.post('/api/scheduler/run-due', async (_req, res: express.Response<any, AppLocals>, next) => {
     try {
-      await runDueAutomations();
+      await runDueAutomations(requestContext(res).workspaceId);
       res.json({ success: true, data: { triggered: true } });
     } catch (error) {
       next(error);
@@ -371,6 +491,9 @@ export function createApp() {
 
 export function startScheduler() {
   return cron.schedule('0 * * * *', async () => {
-    await runDueAutomations();
+    const workspaces = await listWorkspaces();
+    for (const workspace of workspaces) {
+      await runDueAutomations(workspace.id);
+    }
   });
 }

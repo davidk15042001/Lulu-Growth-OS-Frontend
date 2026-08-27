@@ -1,12 +1,13 @@
-import type { OptionsResponse, SiteListItem } from '../types';
+import type { OptionsResponse, SessionContext, SiteListItem } from '../types';
 
 type HeroPanelProps = {
   options: OptionsResponse | null;
   sites: SiteListItem[];
   statusMessage: string;
+  session: SessionContext | null;
 };
 
-export function HeroPanel({ options, sites, statusMessage }: HeroPanelProps) {
+export function HeroPanel({ options, sites, statusMessage, session }: HeroPanelProps) {
   return (
     <header className="hero-panel">
       <div>
@@ -29,6 +30,10 @@ export function HeroPanel({ options, sites, statusMessage }: HeroPanelProps) {
         <div className="hero-stat">
           <span className="hero-stat__label">Default market model</span>
           <strong>Local language + English</strong>
+        </div>
+        <div className="hero-stat">
+          <span className="hero-stat__label">Workspace context</span>
+          <strong>{session ? `${session.workspaceId} | ${session.role}` : 'Loading context'}</strong>
         </div>
         <div className="hero-stat">
           <span className="hero-stat__label">Status</span>

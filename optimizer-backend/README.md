@@ -30,6 +30,17 @@ The API runs on `http://localhost:4100`.
 - `DATAFORSEO_TIMEOUT_MS`: request timeout for external intelligence calls
 - `DATAFORSEO_PRIMARY_LANGUAGE` and `DATAFORSEO_PRIMARY_LOCATION`: legacy fallback values only; active runs now use per-market country/language pairs
 
+## Access model
+
+- All protected routes require `X-API-Token`
+- Tenant scope is selected with `X-Workspace-Id`
+- User identity is selected with `X-User-Id`
+- Demo roles after bootstrap:
+  - `demo-admin`: full access in `demo-workspace`
+  - `demo-editor`: read/write access in `demo-workspace`
+  - `demo-viewer`: read-only access in `demo-workspace`
+  - `second-admin`: isolated admin access in `second-workspace`
+
 ## Main API routes
 
 - `GET /api/health`

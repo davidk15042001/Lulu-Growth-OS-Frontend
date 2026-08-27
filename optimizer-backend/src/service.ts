@@ -8,10 +8,12 @@ function nowIso() {
   return new Date().toISOString();
 }
 
-export async function createSite(input: CreateSiteInput) {
+export async function createSite(workspaceId: string, userId: string, input: CreateSiteInput) {
   const timestamp = nowIso();
   const site: SiteConnection = {
     id: randomUUID(),
+    workspaceId,
+    ownerUserId: userId,
     name: input.name,
     websiteUrl: input.websiteUrl,
     provider: input.provider,
@@ -29,8 +31,8 @@ export async function createSite(input: CreateSiteInput) {
   return site;
 }
 
-export async function updateSite(siteId: string, input: UpdateSiteInput) {
-  const existing = await getSite(siteId);
+export async function updateSite(workspaceId: string, siteId: string, input: UpdateSiteInput) {
+  const existing = await getSite(workspaceId, siteId);
   if (!existing) return null;
   const updated: SiteConnection = {
     ...existing,
@@ -44,16 +46,16 @@ export async function updateSite(siteId: string, input: UpdateSiteInput) {
   return updated;
 }
 
-export async function listSitesWithRuns() {
-  const [sites, runs] = await Promise.all([listSites(), listRuns()]);
+export async function listSitesWithRuns(workspaceId: string) {
+  const [sites, runs] = await Promise.all([listSites(workspaceId), listRuns(workspaceId)]);
   return sites.map((site) => ({
     ...site,
     lastRun: runs.find((run) => run.siteId === site.id) ?? null,
   }));
 }
 
-export async function executeRun(siteId: string, type: SiteRun['type']) {
-  const site = await getSite(siteId);
+export async function executeRun(workspaceId: string, siteId: string, type: SiteRun['type']) {
+  const site = await getSite(workspaceId, siteId);
   if (!site) return null;
 
   const run: SiteRun = {
@@ -95,27 +97,27 @@ export async function executeRun(siteId: string, type: SiteRun['type']) {
   }
 }
 
-export async function getSiteWithRuns(siteId: string) {
-  const site = await getSite(siteId);
+export async function getSiteWithRuns(workspaceId: string, siteId: string) {
+  const site = await getSite(workspaceId, siteId);
   if (!site) return null;
-  const runs = await listRuns(siteId);
+  const runs = await listRuns(workspaceId, siteId);
   const lastRun = site.lastRunId ? await getRun(site.lastRunId) : runs[0] ?? null;
   return { site, lastRun, runs };
 }
 
-export async function runDueAutomations(currentDate = new Date()) {
-  const sites = await listSites();
+export async function runDueAutomations(workspaceId: string, currentDate = new Date()) {
+  const sites = await listSites(workspaceId);
   const currentHour = currentDate.getUTCHours();
   const todayKey = currentDate.toISOString().slice(0, 10);
 
   for (const site of sites) {
     if (!site.automationEnabled || site.automationHourUtc !== currentHour) continue;
-    const runs = await listRuns(site.id);
+    const runs = await listRuns(workspaceId, site.id);
     const alreadyRanToday = runs.some(
       (run) => run.type === 'full_cycle' && run.createdAt.slice(0, 10) === todayKey,
     );
     if (!alreadyRanToday) {
-      await executeRun(site.id, 'full_cycle');
+      await executeRun(workspaceId, site.id, 'full_cycle');
     }
   }
 }

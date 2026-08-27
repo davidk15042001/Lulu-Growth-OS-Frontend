@@ -1,7 +1,17 @@
-import type { CreateSiteInput, OptionsResponse, SiteConnection, SiteDetailResponse, SiteListItem, SiteRun } from './types';
+import type {
+  CreateSiteInput,
+  OptionsResponse,
+  SessionContext,
+  SiteConnection,
+  SiteDetailResponse,
+  SiteListItem,
+  SiteRun,
+} from './types';
 
 const API_BASE = (import.meta.env.VITE_API_URL?.trim() || 'http://localhost:4100/api').replace(/\/$/, '');
 const API_TOKEN = import.meta.env.VITE_API_TOKEN?.trim() || 'local-dev-token-change-me';
+const API_WORKSPACE_ID = import.meta.env.VITE_WORKSPACE_ID?.trim() || 'demo-workspace';
+const API_USER_ID = import.meta.env.VITE_USER_ID?.trim() || 'demo-admin';
 const REQUEST_TIMEOUT_MS = 15_000;
 
 type Envelope<T> = {
@@ -40,6 +50,8 @@ async function request<T>(path: string, init?: RequestOptions) {
     headers: {
       'Content-Type': 'application/json',
       'X-API-Token': API_TOKEN,
+      'X-Workspace-Id': API_WORKSPACE_ID,
+      'X-User-Id': API_USER_ID,
       ...(init?.headers ?? {}),
     },
     ...init,
@@ -65,6 +77,7 @@ async function request<T>(path: string, init?: RequestOptions) {
 
 export const api = {
   getOptions: async () => (await request<OptionsResponse>('/options')).data,
+  getSession: async () => (await request<SessionContext>('/session')).data,
   listSites: async () => (await request<SiteListItem[]>('/sites')).data,
   getSite: async (siteId: string) => (await request<SiteDetailResponse>(`/sites/${siteId}`)).data,
   createSite: async (payload: CreateSiteInput) =>
