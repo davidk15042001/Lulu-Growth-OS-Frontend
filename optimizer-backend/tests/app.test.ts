@@ -507,4 +507,12 @@ describe('optimizer backend api', () => {
     const denied = await api.get('/api/admin/backups').set(await authContext('demo-editor')).expect(403);
     assert.equal(denied.body.error.code, 'INSUFFICIENT_PERMISSION');
   });
+
+  it('returns not found for unknown backup restore requests', async () => {
+    const denied = await api
+      .post('/api/admin/backups/backup-does-not-exist/restore')
+      .set(await authContext())
+      .expect(404);
+    assert.equal(denied.body.error.message, 'Backup not found');
+  });
 });

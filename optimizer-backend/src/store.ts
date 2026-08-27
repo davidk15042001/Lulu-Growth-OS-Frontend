@@ -450,6 +450,18 @@ async function readBackupMetadata(filePath: string) {
   return JSON.parse(raw) as StoreBackup;
 }
 
+export async function getStoreBackup(backupId: string) {
+  const backupDirectory = await ensureBackupDirectory();
+  try {
+    return await readBackupMetadata(backupMetadataPath(backupDirectory, backupId));
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return null;
+    }
+    throw error;
+  }
+}
+
 async function cleanupOldBackups(backups: StoreBackup[], backupDirectory: string) {
   const staleBackups = backups.slice(config.BACKUP_RETENTION_COUNT);
   await Promise.all(
@@ -502,7 +514,10 @@ export async function createStoreBackup(reason?: string) {
 
 export async function restoreStoreBackup(backupId: string) {
   const backupDirectory = await ensureBackupDirectory();
-  const metadata = await readBackupMetadata(backupMetadataPath(backupDirectory, backupId));
+  const metadata = await getStoreBackup(backupId);
+  if (!metadata) {
+    return null;
+  }
   const sourcePath = path.join(backupDirectory, metadata.fileName);
   const storePath = await ensureStorePath();
 

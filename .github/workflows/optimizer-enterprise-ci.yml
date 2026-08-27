@@ -1,0 +1,80 @@
+name: Optimizer Enterprise CI
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/optimizer-enterprise-ci.yml'
+      - 'optimizer-backend/**'
+      - 'optimizer-frontend/**'
+      - 'docs/optimizer-operations-runbook.md'
+  pull_request:
+    paths:
+      - '.github/workflows/optimizer-enterprise-ci.yml'
+      - 'optimizer-backend/**'
+      - 'optimizer-frontend/**'
+      - 'docs/optimizer-operations-runbook.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: optimizer-enterprise-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: optimizer-backend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: optimizer-backend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run check
+
+      - name: Test
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+  frontend:
+    name: Frontend checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: optimizer-frontend
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: optimizer-frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build

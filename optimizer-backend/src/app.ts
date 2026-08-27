@@ -33,6 +33,7 @@ import {
   getAuthSessionByRefreshTokenHash,
   getMembership,
   getPasswordResetTokenByHash,
+  getStoreBackup,
   getUser,
   getUserByEmail,
   getStoreStatus,
@@ -1810,7 +1811,17 @@ export function createApp() {
   app.post('/api/admin/backups/:backupId/restore', requirePermissions('admin:backups:write'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const context = requestContext(res);
-      const backup = await restoreStoreBackup(readBackupId(req));
+      const backupId = readBackupId(req);
+      const existingBackup = await getStoreBackup(backupId);
+      if (!existingBackup) {
+        res.status(404).json({ success: false, error: { message: 'Backup not found' } });
+        return;
+      }
+      const backup = await restoreStoreBackup(backupId);
+      if (!backup) {
+        res.status(404).json({ success: false, error: { message: 'Backup not found' } });
+        return;
+      }
       await writeAuditLog({
         workspaceId: context.workspaceId,
         actorType: 'user',
