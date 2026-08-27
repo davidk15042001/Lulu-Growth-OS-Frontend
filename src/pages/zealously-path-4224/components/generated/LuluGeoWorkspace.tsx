@@ -75,7 +75,7 @@ export function LuluGeoWorkspace() {
   const displayPrompts = geoLoading ? [] : livePrompts;
   const [activeState] = useState('loaded');
   const open = (m: ModalName) => setModal(m);
-  return <div className="app-shell"><style>{styles}</style><Sidebar collapsed={collapsed} setCollapsed={setCollapsed} /><main className="main"><header className="topbar"><button className="mobile-menu" aria-label="Open navigation" onClick={() => setCollapsed(!collapsed)}><Menu size={18} /></button><div className="crumb"><span>Marketing</span><ChevronDown size={13} /><strong>GEO</strong></div><div className="top-actions"><button aria-label="Notifications" className="icon-btn"><Bell size={17} /><i /></button><span className="avatar">WS</span></div></header><div className="page"><div className="page-head"><div><p className="eyebrow">MARKETING / GEO</p><h1>GEO</h1><p className="subtitle">Understand and improve how your business appears across AI-powered search and generative answer systems.</p></div><div className="controls"><select value={dateRange} onChange={e => setDateRange(e.target.value)} aria-label="Date range"><option>Today</option><option>Yesterday</option><option>Last 7 Days</option><option>Last 30 Days</option><option>Last 90 Days</option><option>Last 6 Months</option><option>Year to Date</option></select><button className="ghost"><Filter size={14} /> Filter</button><button className="ghost" onClick={() => open('export')}><Download size={14} /> Export</button><button className="ghost" onClick={() => open('refresh')}><RefreshCw size={14} /></button><button className="primary" onClick={() => open('analysis')}><Zap size={14} /> Run GEO Analysis</button><button className="ask" onClick={() => open('answer')}><Sparkles size={14} /> Ask Lulu AI</button></div></div>{geoError && <div role="alert" className="live-status error">GEO data could not be loaded. Check marketing GEO records and try again.</div>}{!geoLoading && !geoError && geoRecords.length === 0 && <></>}<section className="kpi-grid">{([] as string[][]).map(k => <article className="kpi" key={k[1]}><span className={`dot ${k[3]}`} /><p>{k[1]}</p><strong>{k[0]}</strong><small>{k[2]}</small></article>)}</section><div className="search-wrap"><Search size={17} /><input aria-label="Search GEO data" placeholder="Search prompts, topics, sources..." /> <kbd>⌘ K</kbd></div><div className="chips">{['High-Intent Prompts', 'Missing Brand Mentions', 'Competitor Dominated', 'Citation Opportunities', 'Entity Issues', 'High-Impact Opportunities', 'Critical Risks', 'My GEO Tasks'].map(x => <button key={x}>{x}</button>)}</div>{activeState === 'loaded' && <div className={detailType ? 'content-layout has-detail' : 'content-layout'}><div className="sections"><section className="card performance"><div className="section-head"><div><p className="eyebrow">SIGNAL OVER TIME</p><h2>AI Visibility Performance</h2></div><select value={activeMetric} onChange={e => setActiveMetric(e.target.value)} aria-label="Metric"><option>GEO Visibility</option><option>Prompt Coverage</option><option>AI Mentions</option><option>Citation Coverage</option><option>Competitor Visibility</option></select></div><div className="chart"><ResponsiveContainer width="100%" height={220}><AreaChart data={chartData}><defs><linearGradient id="geoFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--primary)" stopOpacity={0.26} /><stop offset="100%" stopColor="var(--primary)" stopOpacity={0.02} /></linearGradient></defs><XAxis dataKey="week" tick={{
+  return <div className="app-shell"><style>{styles}</style><Sidebar collapsed={collapsed} setCollapsed={setCollapsed} /><main className="main"><header className="topbar"><button className="mobile-menu" aria-label="Open navigation" onClick={() => setCollapsed(!collapsed)}><Menu size={18} /></button><div className="crumb"><span>Website</span><ChevronDown size={13} /><strong>GEO</strong></div><div className="top-actions"><button aria-label="Notifications" className="icon-btn"><Bell size={17} /><i /></button><span className="avatar">WS</span></div></header><div className="page"><div className="page-head"><div><p className="eyebrow">WEBSITE / GEO</p><h1>GEO</h1><p className="subtitle">Understand and improve how your business appears across AI-powered search and generative answer systems.</p></div><div className="controls"><select value={dateRange} onChange={e => setDateRange(e.target.value)} aria-label="Date range"><option>Today</option><option>Yesterday</option><option>Last 7 Days</option><option>Last 30 Days</option><option>Last 90 Days</option><option>Last 6 Months</option><option>Year to Date</option></select><button className="ghost"><Filter size={14} /> Filter</button><button className="ghost" onClick={() => open('export')}><Download size={14} /> Export</button><button className="ghost" onClick={() => open('refresh')}><RefreshCw size={14} /></button><button className="primary" onClick={() => open('analysis')}><Zap size={14} /> Run GEO Analysis</button><button className="ask" onClick={() => open('answer')}><Sparkles size={14} /> Ask Lulu AI</button></div></div>{geoError && <div role="alert" className="live-status error">GEO data could not be loaded. Check marketing GEO records and try again.</div>}{!geoLoading && !geoError && geoRecords.length === 0 && <></>}<section className="kpi-grid">{([] as string[][]).map(k => <article className="kpi" key={k[1]}><span className={`dot ${k[3]}`} /><p>{k[1]}</p><strong>{k[0]}</strong><small>{k[2]}</small></article>)}</section><div className="search-wrap"><Search size={17} /><input aria-label="Search GEO data" placeholder="Search prompts, topics, sources..." /> <kbd>⌘ K</kbd></div><div className="chips">{['High-Intent Prompts', 'Missing Brand Mentions', 'Competitor Dominated', 'Citation Opportunities', 'Entity Issues', 'High-Impact Opportunities', 'Critical Risks', 'My GEO Tasks'].map(x => <button key={x}>{x}</button>)}</div>{activeState === 'loaded' && <div className={detailType ? 'content-layout has-detail' : 'content-layout'}><div className="sections"><section className="card performance"><div className="section-head"><div><p className="eyebrow">SIGNAL OVER TIME</p><h2>AI Visibility Performance</h2></div><select value={activeMetric} onChange={e => setActiveMetric(e.target.value)} aria-label="Metric"><option>GEO Visibility</option><option>Prompt Coverage</option><option>AI Mentions</option><option>Citation Coverage</option><option>Competitor Visibility</option></select></div><div className="chart"><ResponsiveContainer width="100%" height={220}><AreaChart data={chartData}><defs><linearGradient id="geoFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor="var(--primary)" stopOpacity={0.26} /><stop offset="100%" stopColor="var(--primary)" stopOpacity={0.02} /></linearGradient></defs><XAxis dataKey="week" tick={{
                       fontSize: 10
                     }} axisLine={false} tickLine={false} /><YAxis domain={[0, 100]} tick={{
                       fontSize: 10
@@ -170,15 +170,6 @@ const luluDropdownNavigation = [{
   }, {
     "id": "gently-shade-2476",
     "label": "Campaigns"
-  }, {
-    "id": "sparklingly-moon-5114",
-    "label": "SEO"
-  }, {
-    "id": "zealously-path-4224",
-    "label": "GEO"
-  }, {
-    "id": "sunny-house-9595",
-    "label": "AEO"
   }, {
     "id": "kind-time-4492",
     "label": "Keywords"
@@ -512,6 +503,15 @@ const luluDropdownNavigation = [{
   }, {
     "id": "website-domains-9018",
     "label": "Domains"
+  }, {
+    "id": "sparklingly-moon-5114",
+    "label": "SEO"
+  }, {
+    "id": "zealously-path-4224",
+    "label": "GEO"
+  }, {
+    "id": "sunny-house-9595",
+    "label": "AEO"
   }, {
     "id": "website-settings-9019",
     "label": "Website Settings"

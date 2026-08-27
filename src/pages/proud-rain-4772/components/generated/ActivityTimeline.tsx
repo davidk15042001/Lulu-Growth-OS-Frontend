@@ -238,15 +238,6 @@ const luluDropdownNavigation = [{
     "id": "gently-shade-2476",
     "label": "Campaigns"
   }, {
-    "id": "sparklingly-moon-5114",
-    "label": "SEO"
-  }, {
-    "id": "zealously-path-4224",
-    "label": "GEO"
-  }, {
-    "id": "sunny-house-9595",
-    "label": "AEO"
-  }, {
     "id": "kind-time-4492",
     "label": "Keywords"
   }, {
@@ -579,6 +570,15 @@ const luluDropdownNavigation = [{
   }, {
     "id": "website-domains-9018",
     "label": "Domains"
+  }, {
+    "id": "sparklingly-moon-5114",
+    "label": "SEO"
+  }, {
+    "id": "zealously-path-4224",
+    "label": "GEO"
+  }, {
+    "id": "sunny-house-9595",
+    "label": "AEO"
   }, {
     "id": "website-settings-9019",
     "label": "Website Settings"
