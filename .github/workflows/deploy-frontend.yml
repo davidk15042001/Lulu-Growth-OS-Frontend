@@ -78,7 +78,7 @@ jobs:
           set -euo pipefail
           test -n "$DEPLOY_USER" || { echo 'DEPLOY_USER is missing'; exit 1; }
           rsync -az --delete dist/ \
-            "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-ai.cn/html/"
+            "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/frontend/"
 
       - name: Backend hochladen, migrieren und starten
         env:
