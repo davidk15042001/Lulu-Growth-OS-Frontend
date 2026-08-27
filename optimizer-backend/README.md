@@ -6,7 +6,7 @@ AI website optimization backend for SEO, GEO, and AEO analysis with a daily auto
 
 - Connect WordPress, Webflow, or Shopify sites into a managed optimization workspace
 - Run analysis, optimization, or full-cycle execution per site
-- Persist site state and run history in a local JSON store for fast testing
+- Persist site state and run history in a local SQLite store with legacy JSON migration
 - Use DataForSEO as the primary external intelligence source when credentials are configured
 - Fall back to deterministic mock intelligence when live credentials are missing
 - Trigger daily automation by hour in UTC

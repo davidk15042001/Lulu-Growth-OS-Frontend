@@ -4,7 +4,7 @@ import { z } from 'zod';
 const ConfigSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4100),
   FRONTEND_ORIGIN: z.string().default('http://localhost:5173'),
-  STORE_PATH: z.string().default('.data/store.json'),
+  STORE_PATH: z.string().default('.data/store.sqlite'),
   API_AUTH_TOKEN: z.string().min(16).default('local-dev-token-change-me'),
   API_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   API_RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(120),
