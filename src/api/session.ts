@@ -5,15 +5,15 @@ const CURRENT_USER_KEY = "lulu.current-user";
 
 export function getStoredUser<T>() {
   try {
-    const sessionValue = window.sessionStorage.getItem(CURRENT_USER_KEY);
-    if (sessionValue) return JSON.parse(sessionValue) as T;
+    const persistentValue = window.localStorage.getItem(CURRENT_USER_KEY);
+    if (persistentValue) return JSON.parse(persistentValue) as T;
 
-    const legacyValue = window.localStorage.getItem(CURRENT_USER_KEY);
-    if (!legacyValue) return null;
+    const legacySessionValue = window.sessionStorage.getItem(CURRENT_USER_KEY);
+    if (!legacySessionValue) return null;
 
-    window.sessionStorage.setItem(CURRENT_USER_KEY, legacyValue);
-    window.localStorage.removeItem(CURRENT_USER_KEY);
-    return JSON.parse(legacyValue) as T;
+    window.localStorage.setItem(CURRENT_USER_KEY, legacySessionValue);
+    window.sessionStorage.removeItem(CURRENT_USER_KEY);
+    return JSON.parse(legacySessionValue) as T;
   } catch {
     return null;
   }
@@ -21,8 +21,8 @@ export function getStoredUser<T>() {
 
 export function setStoredUser<T>(user: T) {
   try {
-    window.sessionStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
-    window.localStorage.removeItem(CURRENT_USER_KEY);
+    window.localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(user));
+    window.sessionStorage.removeItem(CURRENT_USER_KEY);
   } catch {
     /* storage is optional */
   }
