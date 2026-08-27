@@ -35,22 +35,26 @@ import {
   getPasswordResetTokenByHash,
   getUser,
   getUserByEmail,
+  getStoreStatus,
   listAppliedMigrations,
   listAuthSessions,
   listMemberships,
   listRunQueueJobs,
+  listStoreBackups,
   listWorkspaces,
   listAuditLogs,
   listUsers,
   revokeAuthSession,
   revokeOutstandingPasswordResetTokens,
   revokeUserWorkspaceSessions,
+  restoreStoreBackup,
   saveAuthSession,
   saveMembership,
   savePasswordResetToken,
   saveUser,
   seedAccessControlIfEmpty,
   seedDemoDataIfEmpty,
+  createStoreBackup,
 } from './store.js';
 import {
   createSite,
@@ -305,6 +309,14 @@ function readSessionId(req: express.Request) {
   return sessionId;
 }
 
+function readBackupId(req: express.Request) {
+  const backupId = req.params.backupId;
+  if (typeof backupId !== 'string' || backupId.length === 0) {
+    throw new AppError(400, 'BACKUP_ID_REQUIRED', 'A valid backup id is required.');
+  }
+  return backupId;
+}
+
 async function buildWorkspaceUserDirectory(workspaceId: string) {
   type WorkspaceDirectoryUser = {
     id: string;
@@ -422,6 +434,10 @@ const refreshSchema = z.object({
 
 const auditQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(200).default(50),
+});
+
+const createBackupSchema = z.object({
+  reason: z.string().trim().min(2).max(80).optional(),
 });
 
 const createUserSchema = z.object({
@@ -624,10 +640,36 @@ export function createApp() {
       success: true,
       data: {
         status: 'ok',
+        uptimeSeconds: Math.floor(process.uptime()),
         liveDataForSeo: isLiveDataForSeoEnabled,
         mockMode: config.DATAFORSEO_MOCK_MODE,
       },
     });
+  });
+
+  app.get('/api/ready', async (_req, res, next) => {
+    try {
+      const [storeStatus, queuedJobs] = await Promise.all([
+        getStoreStatus(),
+        listRunQueueJobs(undefined, ['queued', 'processing']),
+      ]);
+      const ready = storeStatus.exists;
+      res.status(ready ? 200 : 503).json({
+        success: ready,
+        data: {
+          status: ready ? 'ready' : 'degraded',
+          store: storeStatus,
+          queue: {
+            backlog: queuedJobs.length,
+            processing: queuedJobs.filter((job) => job.status === 'processing').length,
+            queued: queuedJobs.filter((job) => job.status === 'queued').length,
+          },
+          uptimeSeconds: Math.floor(process.uptime()),
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
   });
 
   app.get('/api/options', (_req, res) => {
@@ -1681,11 +1723,23 @@ export function createApp() {
   app.get('/api/admin/metrics', requirePermissions('admin:metrics:read'), async (_req, res: express.Response<any, AppLocals>, next) => {
     try {
       const context = requestContext(res);
+      const [activeWorkspaceSessions, queueJobs, storeStatus] = await Promise.all([
+        countActiveAuthSessions(context.workspaceId),
+        listRunQueueJobs(context.workspaceId, ['queued', 'processing']),
+        getStoreStatus(),
+      ]);
       res.json({
         success: true,
         data: {
           ...getMetricsSnapshot(),
-          activeWorkspaceSessions: await countActiveAuthSessions(context.workspaceId),
+          activeWorkspaceSessions,
+          queue: {
+            backlog: queueJobs.length,
+            processing: queueJobs.filter((job) => job.status === 'processing').length,
+            queued: queueJobs.filter((job) => job.status === 'queued').length,
+          },
+          uptimeSeconds: Math.floor(process.uptime()),
+          store: storeStatus,
         },
       });
     } catch (error) {
@@ -1707,6 +1761,73 @@ export function createApp() {
     try {
       const migrations = await listAppliedMigrations();
       res.json({ success: true, data: migrations });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/backups', requirePermissions('admin:backups:read'), async (_req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const backups = await listStoreBackups();
+      res.json({ success: true, data: backups });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/admin/backups', requirePermissions('admin:backups:write'), async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const parsed = createBackupSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ success: false, error: parsed.error.flatten() });
+        return;
+      }
+      const context = requestContext(res);
+      const backup = await createStoreBackup(parsed.data.reason);
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'admin.backup.create',
+        targetType: 'backup',
+        targetId: backup.id,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+        details: {
+          reason: backup.reason,
+          sizeBytes: backup.sizeBytes,
+        },
+      });
+      res.status(201).json({ success: true, data: backup });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/admin/backups/:backupId/restore', requirePermissions('admin:backups:write'), async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const backup = await restoreStoreBackup(readBackupId(req));
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'admin.backup.restore',
+        targetType: 'backup',
+        targetId: backup.id,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+        details: {
+          restoredFrom: backup.fileName,
+        },
+      });
+      res.json({ success: true, data: { restored: true, backup } });
     } catch (error) {
       next(error);
     }

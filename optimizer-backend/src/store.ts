@@ -1,4 +1,4 @@
-import { mkdir, readFile, rename } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { DatabaseSync } from 'node:sqlite';
 import { config } from './config.js';
@@ -12,6 +12,7 @@ import type {
   RunQueueJob,
   SiteConnection,
   SiteRun,
+  StoreBackup,
   UserAccount,
   UserRole,
   Workspace,
@@ -75,11 +76,28 @@ type QueueJobRow = {
 };
 
 let databasePromise: Promise<DatabaseSync> | null = null;
+let databaseInstance: DatabaseSync | null = null;
 
 async function ensureStorePath() {
   const absolutePath = path.resolve(process.cwd(), config.STORE_PATH);
   await mkdir(path.dirname(absolutePath), { recursive: true });
   return absolutePath;
+}
+
+async function ensureBackupDirectory() {
+  const absolutePath = path.resolve(process.cwd(), config.BACKUP_DIR);
+  await mkdir(absolutePath, { recursive: true });
+  return absolutePath;
+}
+
+function backupMetadataPath(directoryPath: string, backupId: string) {
+  return path.join(directoryPath, `${backupId}.json`);
+}
+
+function sanitizeBackupReason(reason?: string) {
+  if (!reason) return undefined;
+  const normalized = reason.trim().slice(0, 80);
+  return normalized.length > 0 ? normalized : undefined;
 }
 
 function normalizeSite(site: SiteConnection): SiteConnection {
@@ -368,6 +386,7 @@ async function openDatabase() {
 
   const database = new DatabaseSync(absolutePath);
   createSchema(database);
+  databaseInstance = database;
 
   if (legacyState) {
     importLegacyState(database, legacyState);
@@ -383,6 +402,15 @@ async function getDatabase() {
   return databasePromise;
 }
 
+export async function closeDatabaseConnection() {
+  const database = databasePromise ? await databasePromise : databaseInstance;
+  databasePromise = null;
+  if (database) {
+    database.close();
+  }
+  databaseInstance = null;
+}
+
 export async function listAppliedMigrations() {
   const database = await getDatabase();
   return database
@@ -392,6 +420,100 @@ export async function listAppliedMigrations() {
       ORDER BY version ASC
     `)
     .all() as Array<{ version: number; name: string; applied_at: string }>;
+}
+
+export async function getStoreStatus() {
+  const storePath = await ensureStorePath();
+  try {
+    const fileStat = await stat(storePath);
+    return {
+      path: storePath,
+      exists: true,
+      sizeBytes: fileStat.size,
+      updatedAt: fileStat.mtime.toISOString(),
+    };
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      return {
+        path: storePath,
+        exists: false,
+        sizeBytes: 0,
+        updatedAt: null,
+      };
+    }
+    throw error;
+  }
+}
+
+async function readBackupMetadata(filePath: string) {
+  const raw = await readFile(filePath, 'utf8');
+  return JSON.parse(raw) as StoreBackup;
+}
+
+async function cleanupOldBackups(backups: StoreBackup[], backupDirectory: string) {
+  const staleBackups = backups.slice(config.BACKUP_RETENTION_COUNT);
+  await Promise.all(
+    staleBackups.flatMap((backup) => [
+      rm(path.join(backupDirectory, backup.fileName), { force: true }),
+      rm(backupMetadataPath(backupDirectory, backup.id), { force: true }),
+    ]),
+  );
+}
+
+export async function listStoreBackups() {
+  const backupDirectory = await ensureBackupDirectory();
+  const entries = await readdir(backupDirectory);
+  const metadataFiles = entries.filter((entry) => entry.endsWith('.json'));
+  const backups = await Promise.all(
+    metadataFiles.map(async (entry) => readBackupMetadata(path.join(backupDirectory, entry))),
+  );
+  return backups.sort((left, right) => right.createdAt.localeCompare(left.createdAt));
+}
+
+export async function createStoreBackup(reason?: string) {
+  const database = await getDatabase();
+  const backupDirectory = await ensureBackupDirectory();
+  const backupId = `backup-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+  const fileName = `${backupId}.sqlite`;
+  const destinationPath = path.join(backupDirectory, fileName);
+  const normalizedReason = sanitizeBackupReason(reason);
+
+  database.exec('PRAGMA wal_checkpoint(FULL);');
+  database.exec(`VACUUM INTO '${destinationPath.replace(/'/g, "''")}'`);
+
+  const fileStat = await stat(destinationPath);
+  const backup: StoreBackup = {
+    id: backupId,
+    fileName,
+    createdAt: new Date().toISOString(),
+    sizeBytes: fileStat.size,
+    reason: normalizedReason,
+    sourcePath: path.resolve(process.cwd(), config.STORE_PATH),
+  };
+
+  await writeFile(
+    backupMetadataPath(backupDirectory, backup.id),
+    JSON.stringify(backup, null, 2),
+    'utf8',
+  );
+  await cleanupOldBackups(await listStoreBackups(), backupDirectory);
+  return backup;
+}
+
+export async function restoreStoreBackup(backupId: string) {
+  const backupDirectory = await ensureBackupDirectory();
+  const metadata = await readBackupMetadata(backupMetadataPath(backupDirectory, backupId));
+  const sourcePath = path.join(backupDirectory, metadata.fileName);
+  const storePath = await ensureStorePath();
+
+  await closeDatabaseConnection();
+  await rm(storePath, { force: true });
+  await rm(`${storePath}-wal`, { force: true });
+  await rm(`${storePath}-shm`, { force: true });
+  await copyFile(sourcePath, storePath);
+  await getDatabase();
+
+  return metadata;
 }
 
 export function permissionsForRole(role: UserRole): Permission[] {
@@ -411,6 +533,8 @@ export function permissionsForRole(role: UserRole): Permission[] {
       'admin:metrics:read',
       'admin:queue:read',
       'admin:migrations:read',
+      'admin:backups:read',
+      'admin:backups:write',
     ],
   };
   return permissionsByRole[role];

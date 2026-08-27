@@ -5,6 +5,8 @@ const ConfigSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4100),
   FRONTEND_ORIGIN: z.string().default('http://localhost:5173'),
   STORE_PATH: z.string().default('.data/store.sqlite'),
+  BACKUP_DIR: z.string().default('.data/backups'),
+  BACKUP_RETENTION_COUNT: z.coerce.number().int().positive().default(10),
   API_RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
   API_RATE_LIMIT_MAX_REQUESTS: z.coerce.number().int().positive().default(120),
   AUTH_JWT_SECRET: z.string().min(32).default('local-dev-auth-secret-change-me-32'),

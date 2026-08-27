@@ -14,7 +14,9 @@ export type Permission =
   | 'admin:audit:read'
   | 'admin:metrics:read'
   | 'admin:queue:read'
-  | 'admin:migrations:read';
+  | 'admin:migrations:read'
+  | 'admin:backups:read'
+  | 'admin:backups:write';
 
 export type CountryCode =
   | 'US'
@@ -221,6 +223,15 @@ export interface RunQueueJob {
   finishedAt?: string;
   attempts: number;
   error?: string;
+}
+
+export interface StoreBackup {
+  id: string;
+  fileName: string;
+  createdAt: string;
+  sizeBytes: number;
+  reason?: string;
+  sourcePath: string;
 }
 
 export interface AppState {

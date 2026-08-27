@@ -65,6 +65,14 @@ describe('optimizer backend api', () => {
     const response = await api.get('/api/health').expect(200);
     assert.equal(response.body.success, true);
     assert.equal(response.body.data.status, 'ok');
+    assert.equal(typeof response.body.data.uptimeSeconds, 'number');
+  });
+
+  it('reports readiness with store and queue details', async () => {
+    const response = await api.get('/api/ready').expect(200);
+    assert.equal(response.body.data.status, 'ready');
+    assert.equal(response.body.data.store.exists, true);
+    assert.equal(typeof response.body.data.queue.backlog, 'number');
   });
 
   it('rejects invalid login credentials', async () => {
@@ -390,6 +398,70 @@ describe('optimizer backend api', () => {
     assert.equal(migrationResponse.body.data.some((entry: { version: number }) => entry.version === 3), true);
   });
 
+  it('creates, lists and restores store backups for admins', async () => {
+    const baselineSite = await api
+      .post('/api/sites')
+      .set(await authContext())
+      .send({
+        name: 'Baseline Site',
+        websiteUrl: 'https://baseline.example.com',
+        provider: 'wordpress',
+        targetKeywords: ['baseline seo'],
+        companyGoals: 'Preserve baseline state before additional changes.',
+        automationEnabled: false,
+        automationHourUtc: 3,
+        targetCountries: ['DE'],
+        mode: 'mock',
+      })
+      .expect(201);
+
+    const backupResponse = await api
+      .post('/api/admin/backups')
+      .set(await authContext())
+      .send({ reason: 'pre-restore-check' })
+      .expect(201);
+
+    assert.equal(typeof backupResponse.body.data.id, 'string');
+    assert.equal(backupResponse.body.data.reason, 'pre-restore-check');
+
+    const backupList = await api.get('/api/admin/backups').set(await authContext()).expect(200);
+    assert.equal(
+      backupList.body.data.some((entry: { id: string }) => entry.id === backupResponse.body.data.id),
+      true,
+    );
+
+    await api
+      .post('/api/sites')
+      .set(await authContext())
+      .send({
+        name: 'Transient Site',
+        websiteUrl: 'https://transient.example.com',
+        provider: 'wordpress',
+        targetKeywords: ['transient seo'],
+        companyGoals: 'This site should disappear after restore.',
+        automationEnabled: false,
+        automationHourUtc: 5,
+        targetCountries: ['US'],
+        mode: 'mock',
+      })
+      .expect(201);
+
+    await api
+      .post(`/api/admin/backups/${backupResponse.body.data.id}/restore`)
+      .set(await authContext())
+      .expect(200);
+
+    const sitesAfterRestore = await api.get('/api/sites').set(await authContext()).expect(200);
+    assert.equal(
+      sitesAfterRestore.body.data.some((entry: { name: string }) => entry.name === 'Transient Site'),
+      false,
+    );
+    assert.equal(
+      sitesAfterRestore.body.data.some((entry: { id: string }) => entry.id === baselineSite.body.data.id),
+      true,
+    );
+  });
+
   it('queues runs and completes them through the worker flow', async () => {
     const runResponse = await api
       .post('/api/sites/demo-wordpress-site/analyze')
@@ -429,5 +501,10 @@ describe('optimizer backend api', () => {
       .set(await authContext('demo-viewer'))
       .expect(403);
     assert.equal(auditDenied.body.error.code, 'INSUFFICIENT_PERMISSION');
+  });
+
+  it('blocks editor access to backup administration endpoints', async () => {
+    const denied = await api.get('/api/admin/backups').set(await authContext('demo-editor')).expect(403);
+    assert.equal(denied.body.error.code, 'INSUFFICIENT_PERMISSION');
   });
 });
