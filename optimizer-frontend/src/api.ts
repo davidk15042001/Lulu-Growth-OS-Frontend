@@ -12,6 +12,7 @@ import type {
 
 const API_BASE = (import.meta.env.VITE_API_URL?.trim() || 'http://localhost:4100/api').replace(/\/$/, '');
 const AUTH_STORAGE_KEY = 'optimizer.auth.token';
+const REFRESH_STORAGE_KEY = 'optimizer.auth.refresh-token';
 const REQUEST_TIMEOUT_MS = 15_000;
 
 type Envelope<T> = {
@@ -29,6 +30,7 @@ type ApiErrorEnvelope = {
 
 type RequestOptions = RequestInit & {
   timeoutMs?: number;
+  skipAuthRefresh?: boolean;
 };
 
 export class ApiError extends Error {
@@ -46,7 +48,7 @@ export class ApiError extends Error {
 async function request<T>(path: string, init?: RequestOptions) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), init?.timeoutMs ?? REQUEST_TIMEOUT_MS);
-  const authToken = localStorage.getItem(AUTH_STORAGE_KEY);
+  const authToken = getStoredAccessToken();
   const response = await fetch(`${API_BASE}${path}`, {
     headers: {
       'Content-Type': 'application/json',
@@ -58,6 +60,12 @@ async function request<T>(path: string, init?: RequestOptions) {
   }).finally(() => clearTimeout(timeout));
 
   if (!response.ok) {
+    if (response.status === 401 && !init?.skipAuthRefresh && getStoredRefreshToken()) {
+      const refreshed = await refreshSession();
+      if (refreshed) {
+        return request<T>(path, { ...init, skipAuthRefresh: true });
+      }
+    }
     let parsedError: ApiErrorEnvelope | null = null;
     try {
       parsedError = (await response.json()) as ApiErrorEnvelope;
@@ -74,12 +82,45 @@ async function request<T>(path: string, init?: RequestOptions) {
   return (await response.json()) as Envelope<T>;
 }
 
-function storeAuthToken(token: string) {
-  localStorage.setItem(AUTH_STORAGE_KEY, token);
+function getStoredAccessToken() {
+  return localStorage.getItem(AUTH_STORAGE_KEY);
 }
 
-function clearStoredAuthToken() {
+function getStoredRefreshToken() {
+  return localStorage.getItem(REFRESH_STORAGE_KEY);
+}
+
+function storeSessionTokens(input: { accessToken: string; refreshToken: string }) {
+  localStorage.setItem(AUTH_STORAGE_KEY, input.accessToken);
+  localStorage.setItem(REFRESH_STORAGE_KEY, input.refreshToken);
+}
+
+function clearStoredAuthTokens() {
   localStorage.removeItem(AUTH_STORAGE_KEY);
+  localStorage.removeItem(REFRESH_STORAGE_KEY);
+}
+
+async function refreshSession() {
+  const refreshToken = getStoredRefreshToken();
+  if (!refreshToken) {
+    return false;
+  }
+
+  try {
+    const response = await request<LoginResponse>('/auth/refresh', {
+      method: 'POST',
+      body: JSON.stringify({ refreshToken }),
+      skipAuthRefresh: true,
+    });
+    storeSessionTokens({
+      accessToken: response.data.token,
+      refreshToken: response.data.refreshToken,
+    });
+    return true;
+  } catch {
+    clearStoredAuthTokens();
+    return false;
+  }
 }
 
 export const api = {
@@ -89,13 +130,28 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(payload),
     });
-    storeAuthToken(response.data.token);
+    storeSessionTokens({
+      accessToken: response.data.token,
+      refreshToken: response.data.refreshToken,
+    });
     return response.data;
   },
-  logout: () => {
-    clearStoredAuthToken();
+  logout: async () => {
+    try {
+      if (getStoredAccessToken()) {
+        await request<{ loggedOut: true }>('/auth/logout', {
+          method: 'POST',
+          skipAuthRefresh: true,
+        });
+      }
+    } finally {
+      clearStoredAuthTokens();
+    }
   },
-  hasStoredSession: () => Boolean(localStorage.getItem(AUTH_STORAGE_KEY)),
+  clearSession: () => {
+    clearStoredAuthTokens();
+  },
+  hasStoredSession: () => Boolean(getStoredAccessToken() || getStoredRefreshToken()),
   getSession: async () => (await request<SessionContext>('/session')).data,
   listSites: async () => (await request<SiteListItem[]>('/sites')).data,
   getSite: async (siteId: string) => (await request<SiteDetailResponse>(`/sites/${siteId}`)).data,

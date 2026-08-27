@@ -4,6 +4,8 @@ import { DatabaseSync } from 'node:sqlite';
 import { config } from './config.js';
 import type {
   AppState,
+  AuditLogEntry,
+  AuthSession,
   RequestContext,
   SiteConnection,
   SiteRun,
@@ -36,6 +38,16 @@ type MembershipRow = {
 type UserRow = {
   id: string;
   email: string | null;
+  data: string;
+};
+
+type SessionRow = {
+  id: string;
+  user_id: string;
+  workspace_id: string;
+  refresh_token_hash: string;
+  expires_at: string;
+  revoked_at: string | null;
   data: string;
 };
 
@@ -135,16 +147,58 @@ function createSchema(database: DatabaseSync) {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS auth_sessions (
+      id TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      workspace_id TEXT NOT NULL,
+      refresh_token_hash TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      revoked_at TEXT,
+      data TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+      FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE
+    );
+
+    CREATE TABLE IF NOT EXISTS audit_logs (
+      id TEXT PRIMARY KEY,
+      workspace_id TEXT,
+      actor_user_id TEXT,
+      action TEXT NOT NULL,
+      target_type TEXT NOT NULL,
+      target_id TEXT,
+      outcome TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      data TEXT NOT NULL,
+      FOREIGN KEY (actor_user_id) REFERENCES users(id) ON DELETE SET NULL,
+      FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE SET NULL
+    );
+
     CREATE INDEX IF NOT EXISTS idx_runs_site_created_at
       ON runs (site_id, created_at DESC);
 
     CREATE INDEX IF NOT EXISTS idx_workspace_memberships_workspace
       ON workspace_memberships (workspace_id, role);
+
+    CREATE INDEX IF NOT EXISTS idx_auth_sessions_user_workspace
+      ON auth_sessions (user_id, workspace_id, expires_at DESC);
+
+    CREATE INDEX IF NOT EXISTS idx_auth_sessions_refresh_token_hash
+      ON auth_sessions (refresh_token_hash);
+
+    CREATE INDEX IF NOT EXISTS idx_audit_logs_workspace_created_at
+      ON audit_logs (workspace_id, created_at DESC);
   `);
 
   const userColumns = database.prepare('PRAGMA table_info(users)').all() as Array<{ name: string }>;
   if (!userColumns.some((column) => column.name === 'email')) {
     database.exec('ALTER TABLE users ADD COLUMN email TEXT');
+  }
+
+  const authSessionColumns = database
+    .prepare('PRAGMA table_info(auth_sessions)')
+    .all() as Array<{ name: string }>;
+  if (!authSessionColumns.some((column) => column.name === 'refresh_token_hash')) {
+    database.exec('ALTER TABLE auth_sessions ADD COLUMN refresh_token_hash TEXT');
   }
 
   const existingUsers = database
@@ -299,6 +353,177 @@ export async function getUserByEmail(email: string) {
     .get(normalizedEmail) as UserRow | undefined;
   const user = parseRow<UserAccount>(row);
   return user ? normalizeUser(user) : null;
+}
+
+export async function saveAuthSession(session: AuthSession) {
+  const database = await getDatabase();
+  database
+    .prepare(`
+      INSERT INTO auth_sessions (
+        id,
+        user_id,
+        workspace_id,
+        refresh_token_hash,
+        expires_at,
+        revoked_at,
+        data
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        refresh_token_hash = excluded.refresh_token_hash,
+        expires_at = excluded.expires_at,
+        revoked_at = excluded.revoked_at,
+        data = excluded.data
+    `)
+    .run(
+      session.id,
+      session.userId,
+      session.workspaceId,
+      session.refreshTokenHash,
+      session.expiresAt,
+      session.revokedAt ?? null,
+      JSON.stringify(session),
+    );
+  return session;
+}
+
+export async function getAuthSession(sessionId: string) {
+  const database = await getDatabase();
+  const row = database
+    .prepare(`
+      SELECT id, user_id, workspace_id, refresh_token_hash, expires_at, revoked_at, data
+      FROM auth_sessions
+      WHERE id = ?
+      LIMIT 1
+    `)
+    .get(sessionId) as SessionRow | undefined;
+  return parseRow<AuthSession>(row);
+}
+
+export async function getAuthSessionByRefreshTokenHash(refreshTokenHash: string) {
+  const database = await getDatabase();
+  const row = database
+    .prepare(`
+      SELECT id, user_id, workspace_id, refresh_token_hash, expires_at, revoked_at, data
+      FROM auth_sessions
+      WHERE refresh_token_hash = ? AND revoked_at IS NULL
+      LIMIT 1
+    `)
+    .get(refreshTokenHash) as SessionRow | undefined;
+  return parseRow<AuthSession>(row);
+}
+
+export async function revokeAuthSession(
+  sessionId: string,
+  input: { revokedAt: string; reason: string; replacedBySessionId?: string },
+) {
+  const session = await getAuthSession(sessionId);
+  if (!session) return null;
+  const revokedSession: AuthSession = {
+    ...session,
+    revokedAt: input.revokedAt,
+    revokedReason: input.reason,
+    replacedBySessionId: input.replacedBySessionId,
+  };
+  await saveAuthSession(revokedSession);
+  return revokedSession;
+}
+
+export async function revokeUserWorkspaceSessions(
+  workspaceId: string,
+  userId: string,
+  input: { revokedAt: string; reason: string; exceptSessionId?: string },
+) {
+  const database = await getDatabase();
+  const rows = database
+    .prepare(`
+      SELECT id, user_id, workspace_id, refresh_token_hash, expires_at, revoked_at, data
+      FROM auth_sessions
+      WHERE user_id = ? AND workspace_id = ? AND revoked_at IS NULL
+    `)
+    .all(userId, workspaceId) as SessionRow[];
+
+  const sessions = rows
+    .map((row) => parseRow<AuthSession>(row))
+    .filter((session): session is AuthSession => Boolean(session))
+    .filter((session) => session.id !== input.exceptSessionId);
+
+  await Promise.all(
+    sessions.map((session) =>
+      revokeAuthSession(session.id, {
+        revokedAt: input.revokedAt,
+        reason: input.reason,
+      }),
+    ),
+  );
+
+  return sessions.length;
+}
+
+export async function saveAuditLog(entry: AuditLogEntry) {
+  const database = await getDatabase();
+  database
+    .prepare(`
+      INSERT INTO audit_logs (
+        id,
+        workspace_id,
+        actor_user_id,
+        action,
+        target_type,
+        target_id,
+        outcome,
+        created_at,
+        data
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `)
+    .run(
+      entry.id,
+      entry.workspaceId ?? null,
+      entry.actorUserId ?? null,
+      entry.action,
+      entry.targetType,
+      entry.targetId ?? null,
+      entry.outcome,
+      entry.createdAt,
+      JSON.stringify(entry),
+    );
+  return entry;
+}
+
+export async function listAuditLogs(workspaceId: string, limit = 100) {
+  const database = await getDatabase();
+  const rows = database
+    .prepare(`
+      SELECT id, data
+      FROM audit_logs
+      WHERE workspace_id = ? OR workspace_id IS NULL
+      ORDER BY created_at DESC
+      LIMIT ?
+    `)
+    .all(workspaceId, limit) as PersistedRow[];
+  return parseRows<AuditLogEntry>(rows);
+}
+
+export async function countActiveAuthSessions(workspaceId?: string) {
+  const database = await getDatabase();
+  const now = new Date().toISOString();
+  const row = workspaceId
+    ? (database
+        .prepare(`
+          SELECT COUNT(*) as count
+          FROM auth_sessions
+          WHERE workspace_id = ? AND revoked_at IS NULL AND expires_at > ?
+        `)
+        .get(workspaceId, now) as { count: number })
+    : (database
+        .prepare(`
+          SELECT COUNT(*) as count
+          FROM auth_sessions
+          WHERE revoked_at IS NULL AND expires_at > ?
+        `)
+        .get(now) as { count: number });
+  return row.count;
 }
 
 export async function saveMembership(membership: WorkspaceMembership) {
@@ -510,6 +735,8 @@ export async function resetStateForTests() {
   const database = await getDatabase();
   runTransaction(database, () => {
     database.exec(`
+      DELETE FROM audit_logs;
+      DELETE FROM auth_sessions;
       DELETE FROM runs;
       DELETE FROM sites;
       DELETE FROM workspace_memberships;

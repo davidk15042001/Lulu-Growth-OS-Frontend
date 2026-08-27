@@ -62,7 +62,7 @@ function App() {
   }
 
   function resetAuthenticatedState(message: string) {
-    api.logout();
+    api.clearSession();
     setSession(null);
     setSites([]);
     setSelectedSiteId('');
@@ -147,15 +147,21 @@ function App() {
       setLoginForm((current) => ({ ...current, password: '' }));
       setStatusMessage(`Signed in as ${result.session.name}.`);
     } catch (error) {
-      api.logout();
+      api.clearSession();
       setStatusMessage(error instanceof Error ? error.message : 'Failed to sign in.');
     } finally {
       setAuthBusy(false);
     }
   }
 
-  function handleLogout() {
-    resetAuthenticatedState('Signed out. Sign in to continue.');
+  async function handleLogout() {
+    setAuthBusy(true);
+    try {
+      await api.logout();
+    } finally {
+      setAuthBusy(false);
+      resetAuthenticatedState('Signed out. Sign in to continue.');
+    }
   }
 
   async function selectSite(siteId: string) {

@@ -216,6 +216,42 @@ export interface UserAccount {
   passwordUpdatedAt?: string;
 }
 
+export interface AuthSession {
+  id: string;
+  userId: string;
+  workspaceId: string;
+  refreshTokenHash: string;
+  createdAt: string;
+  expiresAt: string;
+  lastUsedAt: string;
+  createdByIp?: string;
+  lastSeenIp?: string;
+  userAgent?: string;
+  revokedAt?: string;
+  revokedReason?: string;
+  replacedBySessionId?: string;
+}
+
+export type AuditActorType = 'user' | 'system' | 'anonymous';
+export type AuditOutcome = 'success' | 'failure';
+
+export interface AuditLogEntry {
+  id: string;
+  workspaceId?: string;
+  actorType: AuditActorType;
+  actorUserId?: string;
+  actorEmail?: string;
+  action: string;
+  targetType: string;
+  targetId?: string;
+  outcome: AuditOutcome;
+  ipAddress?: string;
+  userAgent?: string;
+  requestId?: string;
+  createdAt: string;
+  details?: Record<string, unknown>;
+}
+
 export interface WorkspaceMembership {
   workspaceId: string;
   userId: string;

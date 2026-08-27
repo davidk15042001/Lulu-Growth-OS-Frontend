@@ -210,5 +210,8 @@ export interface LoginInput {
 export interface LoginResponse {
   token: string;
   expiresAt: string;
+  refreshToken: string;
+  refreshTokenExpiresAt: string;
+  sessionId: string;
   session: SessionContext;
 }

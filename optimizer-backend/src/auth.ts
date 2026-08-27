@@ -9,6 +9,7 @@ type TokenHeader = {
 export type AuthTokenPayload = {
   sub: string;
   workspaceId: string;
+  sid: string;
   iat: number;
   exp: number;
 };
@@ -56,7 +57,7 @@ export function verifyPassword(password: string, storedHash: string) {
   return timingSafeEqual(expectedBuffer, actualBuffer);
 }
 
-export function createAuthToken(input: { userId: string; workspaceId: string }) {
+export function createAuthToken(input: { userId: string; workspaceId: string; sessionId: string }) {
   const issuedAtSeconds = Math.floor(Date.now() / 1000);
   const expiresAtSeconds = issuedAtSeconds + config.AUTH_TOKEN_TTL_MINUTES * 60;
   const header: TokenHeader = {
@@ -66,6 +67,7 @@ export function createAuthToken(input: { userId: string; workspaceId: string }) 
   const payload: AuthTokenPayload = {
     sub: input.userId,
     workspaceId: input.workspaceId,
+    sid: input.sessionId,
     iat: issuedAtSeconds,
     exp: expiresAtSeconds,
   };
@@ -77,6 +79,14 @@ export function createAuthToken(input: { userId: string; workspaceId: string }) 
     token: `${unsignedToken}.${signature}`,
     expiresAt: new Date(expiresAtSeconds * 1000).toISOString(),
   };
+}
+
+export function createRefreshToken() {
+  return randomBytes(48).toString('base64url');
+}
+
+export function hashRefreshToken(refreshToken: string) {
+  return createHmac('sha256', config.AUTH_JWT_SECRET).update(refreshToken).digest('base64url');
 }
 
 export function verifyAuthToken(token: string): AuthTokenPayload {
@@ -105,6 +115,7 @@ export function verifyAuthToken(token: string): AuthTokenPayload {
   if (
     typeof payload.sub !== 'string' ||
     typeof payload.workspaceId !== 'string' ||
+    typeof payload.sid !== 'string' ||
     typeof payload.iat !== 'number' ||
     typeof payload.exp !== 'number'
   ) {

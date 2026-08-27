@@ -17,10 +17,25 @@ const demoCredentials = {
   },
 } as const;
 
-async function authContext(userId: keyof typeof demoCredentials = 'demo-admin') {
+async function loginAs(userId: keyof typeof demoCredentials = 'demo-admin') {
   const response = await api.post('/api/auth/login').send(demoCredentials[userId]).expect(200);
+  return response.body.data as {
+    token: string;
+    refreshToken: string;
+    session: {
+      workspaceId: string;
+      userId: string;
+      role: string;
+      email: string;
+      name: string;
+    };
+  };
+}
+
+async function authContext(userId: keyof typeof demoCredentials = 'demo-admin') {
+  const response = await loginAs(userId);
   return {
-    Authorization: `Bearer ${response.body.data.token}`,
+    Authorization: `Bearer ${response.token}`,
   };
 }
 
@@ -49,12 +64,26 @@ describe('optimizer backend api', () => {
   });
 
   it('creates a bearer token through login', async () => {
-    const response = await api.post('/api/auth/login').send(demoCredentials['demo-admin']).expect(200);
-    assert.equal(typeof response.body.data.token, 'string');
-    assert.equal(response.body.data.session.workspaceId, 'demo-workspace');
-    assert.equal(response.body.data.session.userId, 'demo-admin');
-    assert.equal(response.body.data.session.role, 'admin');
-    assert.equal(response.body.data.session.email, 'admin@demo.example');
+    const response = await loginAs('demo-admin');
+    assert.equal(typeof response.token, 'string');
+    assert.equal(typeof response.refreshToken, 'string');
+    assert.equal(response.session.workspaceId, 'demo-workspace');
+    assert.equal(response.session.userId, 'demo-admin');
+    assert.equal(response.session.role, 'admin');
+    assert.equal(response.session.email, 'admin@demo.example');
+  });
+
+  it('refreshes the session and rotates the refresh token', async () => {
+    const login = await loginAs('demo-admin');
+    const refreshed = await api
+      .post('/api/auth/refresh')
+      .send({ refreshToken: login.refreshToken })
+      .expect(200);
+
+    assert.notEqual(refreshed.body.data.token, login.token);
+    assert.notEqual(refreshed.body.data.refreshToken, login.refreshToken);
+
+    await api.post('/api/auth/refresh').send({ refreshToken: login.refreshToken }).expect(401);
   });
 
   it('blocks protected site endpoints without a bearer token', async () => {
@@ -68,6 +97,14 @@ describe('optimizer backend api', () => {
     assert.equal(response.body.data.userId, 'demo-admin');
     assert.equal(response.body.data.role, 'admin');
     assert.equal(response.body.data.name, 'Demo Admin');
+  });
+
+  it('revokes the session on logout', async () => {
+    const login = await loginAs('demo-admin');
+    await api.post('/api/auth/logout').set({ Authorization: `Bearer ${login.token}` }).expect(200);
+
+    const denied = await api.get('/api/session').set({ Authorization: `Bearer ${login.token}` }).expect(401);
+    assert.equal(denied.body.error.code, 'SESSION_REVOKED');
   });
 
   it('lists demo sites with a valid session', async () => {
@@ -141,5 +178,25 @@ describe('optimizer backend api', () => {
       .set(await authContext())
       .expect(200);
     assert.equal(adminAllowed.body.success, true);
+  });
+
+  it('exposes admin audit logs and metrics for admin users', async () => {
+    await api.get('/api/sites').set(await authContext()).expect(200);
+
+    const auditResponse = await api.get('/api/admin/audit-logs').set(await authContext()).expect(200);
+    assert.equal(Array.isArray(auditResponse.body.data), true);
+    assert.equal(auditResponse.body.data.some((entry: { action: string }) => entry.action === 'auth.login'), true);
+
+    const metricsResponse = await api.get('/api/admin/metrics').set(await authContext()).expect(200);
+    assert.equal(typeof metricsResponse.body.data.totalRequests, 'number');
+    assert.equal(typeof metricsResponse.body.data.activeWorkspaceSessions, 'number');
+  });
+
+  it('blocks viewer access to admin observability endpoints', async () => {
+    const auditDenied = await api
+      .get('/api/admin/audit-logs')
+      .set(await authContext('demo-viewer'))
+      .expect(403);
+    assert.equal(auditDenied.body.error.code, 'INSUFFICIENT_ROLE');
   });
 });
