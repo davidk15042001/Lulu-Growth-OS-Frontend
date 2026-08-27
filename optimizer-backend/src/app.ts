@@ -20,6 +20,7 @@ import { config, isLiveDataForSeoEnabled } from './config.js';
 import { buildDefaultMarketTargets, DEFAULT_COUNTRY_CODES, listCountryPresets } from './markets.js';
 import {
   beginObservedRequest,
+  formatPrometheusMetrics,
   getMetricsSnapshot,
   recordRefreshResult,
   writeAuditLog,
@@ -1726,9 +1727,12 @@ export function createApp() {
       const context = requestContext(res);
       const [activeWorkspaceSessions, queueJobs, storeStatus] = await Promise.all([
         countActiveAuthSessions(context.workspaceId),
-        listRunQueueJobs(context.workspaceId, ['queued', 'processing']),
+        listRunQueueJobs(context.workspaceId, ['queued', 'processing', 'dead_letter']),
         getStoreStatus(),
       ]);
+      const processingJobs = queueJobs.filter((job) => job.status === 'processing');
+      const queuedJobs = queueJobs.filter((job) => job.status === 'queued');
+      const deadLetterJobs = queueJobs.filter((job) => job.status === 'dead_letter');
       res.json({
         success: true,
         data: {
@@ -1736,8 +1740,10 @@ export function createApp() {
           activeWorkspaceSessions,
           queue: {
             backlog: queueJobs.length,
-            processing: queueJobs.filter((job) => job.status === 'processing').length,
-            queued: queueJobs.filter((job) => job.status === 'queued').length,
+            processing: processingJobs.length,
+            queued: queuedJobs.length,
+            deadLetter: deadLetterJobs.length,
+            retryScheduled: queuedJobs.filter((job) => Boolean(job.nextAttemptAt)).length,
           },
           uptimeSeconds: Math.floor(process.uptime()),
           store: storeStatus,
@@ -1753,6 +1759,27 @@ export function createApp() {
       const context = requestContext(res);
       const jobs = await listRunQueueJobs(context.workspaceId);
       res.json({ success: true, data: jobs });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/metrics/prometheus', requirePermissions('admin:metrics:read'), async (_req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const [activeWorkspaceSessions, queueJobs] = await Promise.all([
+        countActiveAuthSessions(context.workspaceId),
+        listRunQueueJobs(context.workspaceId, ['queued', 'processing', 'dead_letter']),
+      ]);
+      res.type('text/plain').send(
+        formatPrometheusMetrics({
+          activeWorkspaceSessions,
+          queueBacklog: queueJobs.length,
+          queueQueued: queueJobs.filter((job) => job.status === 'queued').length,
+          queueProcessing: queueJobs.filter((job) => job.status === 'processing').length,
+          queueDeadLetter: queueJobs.filter((job) => job.status === 'dead_letter').length,
+        }),
+      );
     } catch (error) {
       next(error);
     }

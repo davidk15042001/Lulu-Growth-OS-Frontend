@@ -28,6 +28,9 @@ The API listens on `http://localhost:4100`.
 - `STORE_PATH`: SQLite database location, default `.data/store.sqlite`
 - `BACKUP_DIR`: backup directory, default `.data/backups`
 - `BACKUP_RETENTION_COUNT`: number of retained backups, default `10`
+- `QUEUE_MAX_ATTEMPTS`: maximum queue attempts before dead-lettering, default `3`
+- `QUEUE_RETRY_BACKOFF_MS`: base retry delay in milliseconds, default `2000`
+- `QUEUE_LEASE_MS`: worker lease window for a claimed job, default `30000`
 - `AUTH_JWT_SECRET`: JWT signing secret for access tokens
 - `AUTH_TOKEN_TTL_MINUTES`: access-token TTL in minutes
 - `AUTH_REFRESH_TOKEN_TTL_DAYS`: refresh-token TTL in days
@@ -52,6 +55,7 @@ The API listens on `http://localhost:4100`.
 - `GET /api/health`
 - `GET /api/ready`
 - `GET /api/admin/metrics`
+- `GET /api/admin/metrics/prometheus`
 - `GET /api/admin/run-queue`
 - `GET /api/admin/migrations`
 - `GET /api/admin/backups`

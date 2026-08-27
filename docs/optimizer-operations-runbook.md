@@ -28,6 +28,7 @@ The repository CI workflow is stored in `.github/workflows/optimizer-enterprise-
 - `GET /api/health`: process health and mode visibility
 - `GET /api/ready`: readiness with store and queue state
 - `GET /api/admin/metrics`: operational counters, latency, queue backlog and store status
+- `GET /api/admin/metrics/prometheus`: Prometheus-style text exposition for monitoring collectors
 
 ## Backup operations
 
@@ -69,6 +70,8 @@ Backups are stored in `optimizer-backend/.data/backups/`. Retention is controlle
 
 - Manual runs are accepted as queued work and processed by the worker loop
 - Queue status is available through `GET /api/admin/run-queue`
+- Failed jobs can be dead-lettered after `QUEUE_MAX_ATTEMPTS`
+- Retry delay scales from `QUEUE_RETRY_BACKOFF_MS` with exponential backoff
 - Scheduler-triggered work is available through `POST /api/scheduler/run-due`
 
 ## Shutdown behavior

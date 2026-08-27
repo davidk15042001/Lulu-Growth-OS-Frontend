@@ -75,6 +75,71 @@ export function getMetricsSnapshot() {
   };
 }
 
+export function formatPrometheusMetrics(input?: {
+  activeWorkspaceSessions?: number;
+  queueBacklog?: number;
+  queueQueued?: number;
+  queueProcessing?: number;
+  queueDeadLetter?: number;
+}) {
+  const snapshot = getMetricsSnapshot();
+  const lines = [
+    '# HELP optimizer_requests_total Total observed HTTP requests',
+    '# TYPE optimizer_requests_total counter',
+    `optimizer_requests_total ${snapshot.totalRequests}`,
+    '# HELP optimizer_errors_total Total observed HTTP errors',
+    '# TYPE optimizer_errors_total counter',
+    `optimizer_errors_total ${snapshot.totalErrors}`,
+    '# HELP optimizer_requests_active Active HTTP requests',
+    '# TYPE optimizer_requests_active gauge',
+    `optimizer_requests_active ${snapshot.activeRequests}`,
+    '# HELP optimizer_auth_refresh_successes_total Successful refresh token rotations',
+    '# TYPE optimizer_auth_refresh_successes_total counter',
+    `optimizer_auth_refresh_successes_total ${snapshot.authRefreshSuccesses}`,
+    '# HELP optimizer_auth_refresh_failures_total Failed refresh token rotations',
+    '# TYPE optimizer_auth_refresh_failures_total counter',
+    `optimizer_auth_refresh_failures_total ${snapshot.authRefreshFailures}`,
+    '# HELP optimizer_request_latency_p50_ms P50 observed request latency in milliseconds',
+    '# TYPE optimizer_request_latency_p50_ms gauge',
+    `optimizer_request_latency_p50_ms ${snapshot.latencyMs.p50}`,
+    '# HELP optimizer_request_latency_p95_ms P95 observed request latency in milliseconds',
+    '# TYPE optimizer_request_latency_p95_ms gauge',
+    `optimizer_request_latency_p95_ms ${snapshot.latencyMs.p95}`,
+  ];
+
+  if (typeof input?.activeWorkspaceSessions === 'number') {
+    lines.push('# HELP optimizer_workspace_sessions_active Active authenticated sessions for the workspace');
+    lines.push('# TYPE optimizer_workspace_sessions_active gauge');
+    lines.push(`optimizer_workspace_sessions_active ${input.activeWorkspaceSessions}`);
+  }
+
+  if (typeof input?.queueBacklog === 'number') {
+    lines.push('# HELP optimizer_queue_backlog Total non-completed jobs visible for the workspace');
+    lines.push('# TYPE optimizer_queue_backlog gauge');
+    lines.push(`optimizer_queue_backlog ${input.queueBacklog}`);
+  }
+
+  if (typeof input?.queueQueued === 'number') {
+    lines.push('# HELP optimizer_queue_queued Queued jobs waiting for processing');
+    lines.push('# TYPE optimizer_queue_queued gauge');
+    lines.push(`optimizer_queue_queued ${input.queueQueued}`);
+  }
+
+  if (typeof input?.queueProcessing === 'number') {
+    lines.push('# HELP optimizer_queue_processing Jobs currently being processed');
+    lines.push('# TYPE optimizer_queue_processing gauge');
+    lines.push(`optimizer_queue_processing ${input.queueProcessing}`);
+  }
+
+  if (typeof input?.queueDeadLetter === 'number') {
+    lines.push('# HELP optimizer_queue_dead_letter Dead-lettered jobs for the workspace');
+    lines.push('# TYPE optimizer_queue_dead_letter gauge');
+    lines.push(`optimizer_queue_dead_letter ${input.queueDeadLetter}`);
+  }
+
+  return `${lines.join('\n')}\n`;
+}
+
 export async function writeAuditLog(input: {
   workspaceId?: string;
   actorType: AuditLogEntry['actorType'];

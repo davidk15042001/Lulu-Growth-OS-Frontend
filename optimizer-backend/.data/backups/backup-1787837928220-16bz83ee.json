@@ -1,0 +1,8 @@
+{
+  "id": "backup-1787837928220-16bz83ee",
+  "fileName": "backup-1787837928220-16bz83ee.sqlite",
+  "createdAt": "2026-08-27T13:38:48.236Z",
+  "sizeBytes": 126976,
+  "reason": "pre-restore-check",
+  "sourcePath": "/workspace/optimizer-backend/.data/store.sqlite"
+}

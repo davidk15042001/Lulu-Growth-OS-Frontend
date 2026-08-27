@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { analyzeSite } from './analysis.js';
+import { config } from './config.js';
 import { buildDefaultMarketTargets } from './markets.js';
 import {
   getRun,
@@ -16,6 +17,64 @@ import type { CreateSiteInput, RunQueueJob, SiteConnection, SiteRun, UpdateSiteI
 
 function nowIso() {
   return new Date().toISOString();
+}
+
+function isReadyToRun(job: RunQueueJob, now = Date.now()) {
+  if (job.status !== 'queued') return false;
+  if (job.nextAttemptAt && new Date(job.nextAttemptAt).getTime() > now) {
+    return false;
+  }
+  return true;
+}
+
+function queueRetryTime(attempts: number) {
+  const multiplier = Math.max(1, 2 ** Math.max(0, attempts - 1));
+  return new Date(Date.now() + config.QUEUE_RETRY_BACKOFF_MS * multiplier).toISOString();
+}
+
+function shouldDeadLetter(job: RunQueueJob, attempts: number) {
+  return attempts >= (job.maxAttempts ?? config.QUEUE_MAX_ATTEMPTS);
+}
+
+async function failQueuedRun(
+  job: RunQueueJob,
+  input: {
+    error: string;
+    attempts: number;
+    deadLetter: boolean;
+  },
+) {
+  const finishedAt = nowIso();
+  const nextAttemptAt = input.deadLetter ? undefined : queueRetryTime(input.attempts);
+  const nextStatus: RunQueueJob['status'] = input.deadLetter ? 'dead_letter' : 'queued';
+  await saveRunQueueJob({
+    ...job,
+    status: nextStatus,
+    attempts: input.attempts,
+    error: input.error,
+    finishedAt: input.deadLetter ? finishedAt : undefined,
+    nextAttemptAt,
+    leaseExpiresAt: undefined,
+    deadLetteredAt: input.deadLetter ? finishedAt : undefined,
+  });
+
+  const run = await getRun(job.runId);
+  if (!run) return null;
+
+  const nextRun: SiteRun = input.deadLetter
+    ? {
+        ...run,
+        status: 'failed',
+        finishedAt,
+        error: input.error,
+      }
+    : {
+        ...run,
+        status: 'queued',
+        error: input.error,
+      };
+  await saveRun(nextRun);
+  return nextRun;
 }
 
 export async function createSite(workspaceId: string, userId: string, input: CreateSiteInput) {
@@ -86,6 +145,8 @@ export async function enqueueRun(workspaceId: string, siteId: string, type: Site
     status: 'queued',
     createdAt: nowIso(),
     attempts: 0,
+    maxAttempts: config.QUEUE_MAX_ATTEMPTS,
+    nextAttemptAt: nowIso(),
   };
   await saveRunQueueJob(job);
   return { run, job };
@@ -94,29 +155,19 @@ export async function enqueueRun(workspaceId: string, siteId: string, type: Site
 export async function executeRunJob(jobId: string) {
   const job = await getRunQueueJob(jobId);
   if (!job) return null;
-  if (job.status === 'completed') {
+  if (job.status === 'completed' || job.status === 'dead_letter') {
+    return await getRun(job.runId);
+  }
+  if (!isReadyToRun(job)) {
     return await getRun(job.runId);
   }
   const site = await getSite(job.workspaceId, job.siteId);
   if (!site) {
-    const failedJob: RunQueueJob = {
-      ...job,
-      status: 'failed',
-      attempts: job.attempts + 1,
-      finishedAt: nowIso(),
+    return await failQueuedRun(job, {
       error: 'Site not found for queued job.',
-    };
-    await saveRunQueueJob(failedJob);
-    const failedRun = await getRun(job.runId);
-    if (failedRun) {
-      await saveRun({
-        ...failedRun,
-        status: 'failed',
-        finishedAt: nowIso(),
-        error: 'Site not found for queued job.',
-      });
-    }
-    return failedRun;
+      attempts: job.attempts + 1,
+      deadLetter: true,
+    });
   }
 
   const processingJob: RunQueueJob = {
@@ -124,6 +175,8 @@ export async function executeRunJob(jobId: string) {
     status: 'processing',
     attempts: job.attempts + 1,
     startedAt: nowIso(),
+    nextAttemptAt: undefined,
+    leaseExpiresAt: new Date(Date.now() + config.QUEUE_LEASE_MS).toISOString(),
   };
   await saveRunQueueJob(processingJob);
   const activeRun = await getRun(job.runId);
@@ -149,6 +202,8 @@ export async function executeRunJob(jobId: string) {
       ...processingJob,
       status: 'completed',
       finishedAt: nowIso(),
+      leaseExpiresAt: undefined,
+      nextAttemptAt: undefined,
     });
     await saveSite({
       ...site,
@@ -157,26 +212,17 @@ export async function executeRunJob(jobId: string) {
     });
     return completed;
   } catch (error) {
-    const failed: SiteRun = {
-      ...(await getRun(job.runId))!,
-      status: 'failed',
-      finishedAt: nowIso(),
+    return await failQueuedRun(processingJob, {
       error: error instanceof Error ? error.message : 'Unknown execution error',
-    };
-    await saveRun(failed);
-    await saveRunQueueJob({
-      ...processingJob,
-      status: 'failed',
-      finishedAt: nowIso(),
-      error: failed.error,
+      attempts: processingJob.attempts,
+      deadLetter: shouldDeadLetter(processingJob, processingJob.attempts),
     });
-    return failed;
   }
 }
 
 export async function processRunQueue(workspaceId?: string, limit = 5) {
   const queuedJobs = await listRunQueueJobs(workspaceId, ['queued']);
-  const jobsToProcess = queuedJobs.slice(0, limit);
+  const jobsToProcess = queuedJobs.filter((job) => isReadyToRun(job)).slice(0, limit);
   const processedRuns = await Promise.all(jobsToProcess.map((job) => executeRunJob(job.id)));
   return processedRuns.filter((run): run is SiteRun => Boolean(run));
 }

@@ -217,11 +217,15 @@ export interface RunQueueJob {
   siteId: string;
   runId: string;
   type: SiteRun['type'];
-  status: 'queued' | 'processing' | 'completed' | 'failed';
+  status: 'queued' | 'processing' | 'completed' | 'failed' | 'dead_letter';
   createdAt: string;
   startedAt?: string;
   finishedAt?: string;
   attempts: number;
+  maxAttempts?: number;
+  nextAttemptAt?: string;
+  leaseExpiresAt?: string;
+  deadLetteredAt?: string;
   error?: string;
 }
 

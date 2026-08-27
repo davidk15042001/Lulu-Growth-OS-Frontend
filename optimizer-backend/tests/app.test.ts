@@ -379,6 +379,18 @@ describe('optimizer backend api', () => {
     const metricsResponse = await api.get('/api/admin/metrics').set(await authContext()).expect(200);
     assert.equal(typeof metricsResponse.body.data.totalRequests, 'number');
     assert.equal(typeof metricsResponse.body.data.activeWorkspaceSessions, 'number');
+    assert.equal(typeof metricsResponse.body.data.queue.deadLetter, 'number');
+  });
+
+  it('exposes prometheus-formatted admin metrics for admin users', async () => {
+    const metricsResponse = await api
+      .get('/api/admin/metrics/prometheus')
+      .set(await authContext())
+      .expect(200);
+
+    assert.equal(typeof metricsResponse.text, 'string');
+    assert.equal(metricsResponse.text.includes('optimizer_requests_total'), true);
+    assert.equal(metricsResponse.text.includes('optimizer_queue_backlog'), true);
   });
 
   it('exposes schema migrations and run queue for admins', async () => {
