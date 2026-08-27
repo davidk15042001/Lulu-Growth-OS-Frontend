@@ -6,6 +6,8 @@ import type {
   CreateSiteInput,
   LoginInput,
   LoginResponse,
+  MfaSetupResponse,
+  MfaState,
   OptionsResponse,
   PasswordResetTokenResponse,
   SessionContext,
@@ -166,6 +168,18 @@ export const api = {
     })).data,
   hasStoredSession: () => Boolean(getStoredAccessToken() || getStoredRefreshToken()),
   getSession: async () => (await request<SessionContext>('/session')).data,
+  getMfaState: async () => (await request<MfaState>('/account/mfa')).data,
+  startMfaSetup: async () => (await request<MfaSetupResponse>('/account/mfa/setup', { method: 'POST' })).data,
+  enableMfa: async (code: string) =>
+    (await request<MfaState>('/account/mfa/enable', {
+      method: 'POST',
+      body: JSON.stringify({ code }),
+    })).data,
+  disableMfa: async (payload: { password: string; code: string }) =>
+    (await request<MfaState>('/account/mfa/disable', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    })).data,
   getMySessions: async () => (await request<AuthSessionRecord[]>('/account/sessions')).data,
   revokeMySession: async (sessionId: string) =>
     (await request<{ revoked: true }>(`/account/sessions/${sessionId}/revoke`, { method: 'POST' })).data,

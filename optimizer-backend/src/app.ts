@@ -7,9 +7,12 @@ import {
   createAuthToken,
   createRefreshToken,
   createOneTimeToken,
+  createTotpOtpAuthUrl,
+  createTotpSecret,
   hashPassword,
   hashOneTimeToken,
   hashRefreshToken,
+  verifyTotpCode,
   verifyAuthToken,
   verifyPassword,
 } from './auth.js';
@@ -302,6 +305,17 @@ function readSessionId(req: express.Request) {
 }
 
 async function buildWorkspaceUserDirectory(workspaceId: string) {
+  type WorkspaceDirectoryUser = {
+    id: string;
+    email: string;
+    name: string;
+    createdAt: string;
+    role: UserRole;
+    membershipCreatedAt: string;
+    activeSessionCount: number;
+    mfaEnabled: boolean;
+  };
+
   const [memberships, users, sessions] = await Promise.all([
     listMemberships(workspaceId),
     listUsers(),
@@ -321,21 +335,17 @@ async function buildWorkspaceUserDirectory(workspaceId: string) {
       const user = userMap.get(membership.userId);
       if (!user) return null;
       return {
-        ...user,
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        createdAt: user.createdAt,
         role: membership.role,
         membershipCreatedAt: membership.createdAt,
         activeSessionCount: activeSessionCounts.get(user.id) ?? 0,
-      };
+        mfaEnabled: Boolean(user.mfaEnabled),
+      } satisfies WorkspaceDirectoryUser;
     })
-    .filter(
-      (
-        entry,
-      ): entry is UserAccount & {
-        role: UserRole;
-        membershipCreatedAt: string;
-        activeSessionCount: number;
-      } => Boolean(entry),
-    );
+    .filter((entry): entry is WorkspaceDirectoryUser => Boolean(entry));
 }
 
 function passwordResetExpiryIso() {
@@ -402,6 +412,7 @@ const loginSchema = z.object({
   workspaceId: z.string().trim().min(2).max(120),
   email: z.string().trim().email().max(320).transform((value) => value.toLowerCase()),
   password: z.string().min(8).max(128),
+  mfaCode: z.string().trim().regex(/^\d{6}$/).optional(),
 });
 
 const refreshSchema = z.object({
@@ -434,6 +445,22 @@ const confirmPasswordResetSchema = z.object({
   token: z.string().min(32).max(512),
   newPassword: z.string().min(8).max(128),
 });
+
+const verifyMfaSchema = z.object({
+  code: z.string().trim().regex(/^\d{6}$/),
+});
+
+const disableMfaSchema = z.object({
+  password: z.string().min(8).max(128),
+  code: z.string().trim().regex(/^\d{6}$/),
+});
+
+function buildMfaState(user: UserAccount) {
+  return {
+    enabled: Boolean(user.mfaEnabled && user.totpSecret),
+    pending: Boolean(user.pendingTotpSecret),
+  };
+}
 
 function sanitizeCreateSiteInput(input: CreateSiteInput): CreateSiteInput {
   const targetKeywords = trimUnique(input.targetKeywords);
@@ -665,6 +692,28 @@ export function createApp() {
         return;
       }
 
+      if (user.mfaEnabled && user.totpSecret) {
+        if (!parsed.data.mfaCode || !verifyTotpCode({ secret: user.totpSecret, code: parsed.data.mfaCode })) {
+          await writeAuditLog({
+            workspaceId: context.workspaceId,
+            actorType: 'user',
+            actorUserId: context.userId,
+            actorEmail: context.email,
+            action: 'auth.login.mfa',
+            targetType: 'session',
+            outcome: 'failure',
+            ipAddress: requestIp(req),
+            userAgent: userAgent(req),
+            requestId: res.locals.requestId,
+            details: {
+              reason: parsed.data.mfaCode ? 'invalid_mfa_code' : 'mfa_code_missing',
+            },
+          });
+          next(new AppError(401, 'MFA_REQUIRED', 'A valid multi-factor authentication code is required.'));
+          return;
+        }
+      }
+
       const tokens = await issueSessionTokens({
         userId: user.id,
         workspaceId: parsed.data.workspaceId,
@@ -694,6 +743,7 @@ export function createApp() {
           refreshTokenExpiresAt: tokens.session.expiresAt,
           sessionId: tokens.session.id,
           session: context,
+          mfaRequired: false,
         },
       });
     } catch (error) {
@@ -893,9 +943,10 @@ export function createApp() {
   });
 
   app.get('/api/session', requireAuthenticatedSession, (_req, res) => {
+    const context = requestContext(res);
     res.json({
       success: true,
-      data: requestContext(res),
+      data: context,
     });
   });
 
@@ -909,6 +960,166 @@ export function createApp() {
       const context = requestContext(res);
       const sessions = await listAuthSessions(context.workspaceId, context.userId);
       res.json({ success: true, data: sessions.map(serializeSession) });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/account/mfa', async (_req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const user = await getUser(context.userId);
+      if (!user) {
+        res.status(404).json({ success: false, error: { message: 'User not found' } });
+        return;
+      }
+      res.json({
+        success: true,
+        data: buildMfaState(user),
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/account/mfa/setup', async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const user = await getUser(context.userId);
+      if (!user) {
+        res.status(404).json({ success: false, error: { message: 'User not found' } });
+        return;
+      }
+      const pendingSecret = createTotpSecret();
+      await saveUser({
+        ...user,
+        pendingTotpSecret: pendingSecret,
+      });
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'account.mfa.setup',
+        targetType: 'user',
+        targetId: context.userId,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+      });
+      res.json({
+        success: true,
+        data: {
+          ...buildMfaState({ ...user, pendingTotpSecret: pendingSecret }),
+          secret: pendingSecret,
+          otpAuthUrl: createTotpOtpAuthUrl({
+            secret: pendingSecret,
+            email: user.email,
+            workspaceId: context.workspaceId,
+          }),
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/account/mfa/enable', async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const parsed = verifyMfaSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ success: false, error: parsed.error.flatten() });
+        return;
+      }
+      const context = requestContext(res);
+      const user = await getUser(context.userId);
+      if (!user?.pendingTotpSecret) {
+        next(new AppError(400, 'MFA_SETUP_REQUIRED', 'Start MFA setup before verifying a code.'));
+        return;
+      }
+      if (!verifyTotpCode({ secret: user.pendingTotpSecret, code: parsed.data.code })) {
+        next(new AppError(401, 'INVALID_MFA_CODE', 'The provided MFA code is invalid.'));
+        return;
+      }
+      await saveUser({
+        ...user,
+        mfaEnabled: true,
+        totpSecret: user.pendingTotpSecret,
+        pendingTotpSecret: undefined,
+      });
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'account.mfa.enable',
+        targetType: 'user',
+        targetId: context.userId,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+      });
+      res.json({
+        success: true,
+        data: {
+          enabled: true,
+          pending: false,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.post('/api/account/mfa/disable', async (req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const parsed = disableMfaSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(422).json({ success: false, error: parsed.error.flatten() });
+        return;
+      }
+      const context = requestContext(res);
+      const user = await getUser(context.userId);
+      if (!user?.passwordHash || !verifyPassword(parsed.data.password, user.passwordHash)) {
+        next(new AppError(401, 'INVALID_CREDENTIALS', 'The current password is incorrect.'));
+        return;
+      }
+      if (!user.totpSecret || !user.mfaEnabled) {
+        next(new AppError(400, 'MFA_NOT_ENABLED', 'Multi-factor authentication is not enabled.'));
+        return;
+      }
+      if (!verifyTotpCode({ secret: user.totpSecret, code: parsed.data.code })) {
+        next(new AppError(401, 'INVALID_MFA_CODE', 'The provided MFA code is invalid.'));
+        return;
+      }
+      await saveUser({
+        ...user,
+        mfaEnabled: false,
+        totpSecret: undefined,
+        pendingTotpSecret: undefined,
+      });
+      await writeAuditLog({
+        workspaceId: context.workspaceId,
+        actorType: 'user',
+        actorUserId: context.userId,
+        actorEmail: context.email,
+        action: 'account.mfa.disable',
+        targetType: 'user',
+        targetId: context.userId,
+        outcome: 'success',
+        ipAddress: requestIp(req),
+        userAgent: userAgent(req),
+        requestId: res.locals.requestId,
+      });
+      res.json({
+        success: true,
+        data: {
+          enabled: false,
+          pending: false,
+        },
+      });
     } catch (error) {
       next(error);
     }
@@ -1255,6 +1466,10 @@ export function createApp() {
       });
       const users = await buildWorkspaceUserDirectory(context.workspaceId);
       const createdUser = users.find((entry) => entry.id === user.id);
+      if (!createdUser) {
+        next(new AppError(500, 'USER_DIRECTORY_SYNC_FAILED', 'The created user could not be loaded.'));
+        return;
+      }
       res.status(201).json({ success: true, data: createdUser });
     } catch (error) {
       next(error);
@@ -1304,6 +1519,10 @@ export function createApp() {
       });
       const users = await buildWorkspaceUserDirectory(context.workspaceId);
       const entry = users.find((candidate) => candidate.id === updatedUser.id);
+      if (!entry) {
+        next(new AppError(500, 'USER_DIRECTORY_SYNC_FAILED', 'The updated user could not be loaded.'));
+        return;
+      }
       res.json({ success: true, data: entry });
     } catch (error) {
       next(error);
@@ -1349,7 +1568,7 @@ export function createApp() {
         listAuthSessions(context.workspaceId),
         buildWorkspaceUserDirectory(context.workspaceId),
       ]);
-      const userMap = new Map(users.map((user) => [user.id, user]));
+      const userMap = new Map(users.map((user) => [user.id, user] as const));
       res.json({
         success: true,
         data: sessions.map((session) => ({

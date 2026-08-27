@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { beforeEach, describe, it } from 'node:test';
 import request from 'supertest';
+import { generateTotpCode } from '../src/auth.js';
 import { bootstrapDemoData, createApp } from '../src/app.js';
 import { resetStateForTests } from '../src/store.js';
 
@@ -71,6 +72,49 @@ describe('optimizer backend api', () => {
     assert.equal(response.session.userId, 'demo-admin');
     assert.equal(response.session.role, 'admin');
     assert.equal(response.session.email, 'admin@demo.example');
+  });
+
+  it('requires MFA once enabled and accepts valid TOTP codes', async () => {
+    const auth = await authContext('demo-admin');
+    const setup = await api.post('/api/account/mfa/setup').set(auth).expect(200);
+    const code = generateTotpCode(setup.body.data.secret);
+
+    await api.post('/api/account/mfa/enable').set(auth).send({ code }).expect(200);
+
+    const denied = await api.post('/api/auth/login').send(demoCredentials['demo-admin']).expect(401);
+    assert.equal(denied.body.error.code, 'MFA_REQUIRED');
+
+    const allowed = await api
+      .post('/api/auth/login')
+      .send({
+        ...demoCredentials['demo-admin'],
+        mfaCode: generateTotpCode(setup.body.data.secret),
+      })
+      .expect(200);
+
+    assert.equal(allowed.body.data.session.email, 'admin@demo.example');
+  });
+
+  it('disables MFA with password and valid TOTP code', async () => {
+    const auth = await authContext('demo-admin');
+    const setup = await api.post('/api/account/mfa/setup').set(auth).expect(200);
+    await api
+      .post('/api/account/mfa/enable')
+      .set(auth)
+      .send({ code: generateTotpCode(setup.body.data.secret) })
+      .expect(200);
+
+    await api
+      .post('/api/account/mfa/disable')
+      .set(auth)
+      .send({
+        password: 'DemoAdmin!2026',
+        code: generateTotpCode(setup.body.data.secret),
+      })
+      .expect(200);
+
+    const login = await api.post('/api/auth/login').send(demoCredentials['demo-admin']).expect(200);
+    assert.equal(login.body.data.session.email, 'admin@demo.example');
   });
 
   it('refreshes the session and rotates the refresh token', async () => {

@@ -214,6 +214,9 @@ export interface UserAccount {
   createdAt: string;
   passwordHash?: string;
   passwordUpdatedAt?: string;
+  mfaEnabled?: boolean;
+  totpSecret?: string;
+  pendingTotpSecret?: string;
 }
 
 export interface AuthSession {

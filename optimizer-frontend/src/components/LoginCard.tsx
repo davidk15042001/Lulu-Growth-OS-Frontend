@@ -54,6 +54,18 @@ export function LoginCard({ form, busy, onFormChange, onSubmit }: LoginCardProps
             required
           />
         </label>
+        <label>
+          MFA code
+          <input
+            value={form.mfaCode ?? ''}
+            onChange={(event) =>
+              onFormChange((current) => ({ ...current, mfaCode: event.target.value.replace(/\D+/g, '').slice(0, 6) }))
+            }
+            placeholder="123456"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+          />
+        </label>
 
         <div className="helper-copy">
           Demo users: `admin@demo.example`, `editor@demo.example`, `viewer@demo.example`,

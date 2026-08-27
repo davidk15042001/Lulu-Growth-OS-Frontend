@@ -209,6 +209,7 @@ export interface WorkspaceUser {
   role: UserRole;
   membershipCreatedAt: string;
   activeSessionCount: number;
+  mfaEnabled?: boolean;
 }
 
 export interface AuthSessionRecord {
@@ -261,6 +262,7 @@ export interface LoginInput {
   workspaceId: string;
   email: string;
   password: string;
+  mfaCode?: string;
 }
 
 export interface LoginResponse {
@@ -270,4 +272,15 @@ export interface LoginResponse {
   refreshTokenExpiresAt: string;
   sessionId: string;
   session: SessionContext;
+  mfaRequired?: boolean;
+}
+
+export interface MfaState {
+  enabled: boolean;
+  pending: boolean;
+}
+
+export interface MfaSetupResponse extends MfaState {
+  secret: string;
+  otpAuthUrl: string;
 }

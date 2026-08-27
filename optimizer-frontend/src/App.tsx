@@ -16,6 +16,8 @@ import type {
   CreateWorkspaceUserInput,
   ExecutionMode,
   LoginInput,
+  MfaSetupResponse,
+  MfaState,
   OptionsResponse,
   Provider,
   SessionContext,
@@ -42,6 +44,7 @@ const initialLoginForm: LoginInput = {
   workspaceId: 'demo-workspace',
   email: 'admin@demo.example',
   password: '',
+  mfaCode: '',
 };
 
 const initialCreateUserForm: CreateWorkspaceUserInput = {
@@ -58,6 +61,9 @@ function App() {
   const [resetPasswordForm, setResetPasswordForm] = useState({ token: '', newPassword: '' });
   const [createUserForm, setCreateUserForm] = useState(initialCreateUserForm);
   const [passwordForm, setPasswordForm] = useState({ currentPassword: '', newPassword: '' });
+  const [mfaState, setMfaState] = useState<MfaState | null>(null);
+  const [mfaSetup, setMfaSetup] = useState<Pick<MfaSetupResponse, 'secret' | 'otpAuthUrl'> | null>(null);
+  const [mfaForm, setMfaForm] = useState({ verifyCode: '', disableCode: '', disablePassword: '' });
   const [sites, setSites] = useState<SiteListItem[]>([]);
   const [workspaceUsers, setWorkspaceUsers] = useState<WorkspaceUser[]>([]);
   const [workspaceSessions, setWorkspaceSessions] = useState<AuthSessionRecord[]>([]);
@@ -92,6 +98,8 @@ function App() {
     setWorkspaceUsers([]);
     setWorkspaceSessions([]);
     setMySessions([]);
+    setMfaState(null);
+    setMfaSetup(null);
     setResetTokenInfo(null);
     setSelectedSiteId('');
     setSiteDetail(null);
@@ -108,14 +116,19 @@ function App() {
   }
 
   async function refreshSecurityData(liveSession: SessionContext) {
-    const [ownSessions, users, sessions] = await Promise.all([
+    const [ownSessions, users, sessions, nextMfaState] = await Promise.all([
       api.getMySessions(),
       liveSession.role === 'admin' ? api.listWorkspaceUsers() : Promise.resolve([]),
       liveSession.role === 'admin' ? api.listWorkspaceSessions() : Promise.resolve([]),
+      api.getMfaState(),
     ]);
     setMySessions(ownSessions);
     setWorkspaceUsers(users);
     setWorkspaceSessions(sessions);
+    setMfaState(nextMfaState);
+    if (!nextMfaState.pending) {
+      setMfaSetup(null);
+    }
   }
 
   async function refreshSites(nextSiteId?: string, providedOptions?: OptionsResponse | null) {
@@ -185,11 +198,17 @@ function App() {
       const result = await api.login(loginForm);
       setSession(result.session);
       await refreshSites(undefined, options);
-      setLoginForm((current) => ({ ...current, password: '' }));
+      setLoginForm((current) => ({ ...current, password: '', mfaCode: '' }));
       setStatusMessage(`Signed in as ${result.session.name}.`);
     } catch (error) {
       api.clearSession();
-      setStatusMessage(error instanceof Error ? error.message : 'Failed to sign in.');
+      setStatusMessage(
+        error instanceof ApiError && error.code === 'MFA_REQUIRED'
+          ? 'MFA code required. Enter the 6-digit authenticator code and sign in again.'
+          : error instanceof Error
+            ? error.message
+            : 'Failed to sign in.',
+      );
     } finally {
       setAuthBusy(false);
     }
@@ -322,6 +341,61 @@ function App() {
     }
   }
 
+  async function handleStartMfaSetup() {
+    setBusyAction('mfa-setup');
+    try {
+      const result = await api.startMfaSetup();
+      setMfaState({ enabled: result.enabled, pending: result.pending });
+      setMfaSetup({ secret: result.secret, otpAuthUrl: result.otpAuthUrl });
+      setStatusMessage('MFA secret generated. Add it to your authenticator app and verify the code.');
+    } catch (error) {
+      setStatusMessage(resolveApiError(error, 'Failed to start MFA setup.'));
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleEnableMfa(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusyAction('mfa-enable');
+    try {
+      const result = await api.enableMfa(mfaForm.verifyCode);
+      setMfaState(result);
+      setMfaSetup(null);
+      setMfaForm({ verifyCode: '', disableCode: '', disablePassword: '' });
+      setStatusMessage('MFA enabled successfully.');
+      if (session) {
+        await refreshSecurityData(session);
+      }
+    } catch (error) {
+      setStatusMessage(resolveApiError(error, 'Failed to enable MFA.'));
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
+  async function handleDisableMfa(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setBusyAction('mfa-disable');
+    try {
+      const result = await api.disableMfa({
+        password: mfaForm.disablePassword,
+        code: mfaForm.disableCode,
+      });
+      setMfaState(result);
+      setMfaSetup(null);
+      setMfaForm({ verifyCode: '', disableCode: '', disablePassword: '' });
+      setStatusMessage('MFA disabled.');
+      if (session) {
+        await refreshSecurityData(session);
+      }
+    } catch (error) {
+      setStatusMessage(resolveApiError(error, 'Failed to disable MFA.'));
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
   async function handleRevokeOwnSession(sessionId: string) {
     setBusyAction(`revoke-own-${sessionId}`);
     try {
@@ -449,10 +523,17 @@ function App() {
             />
             <AccountSecurityCard
               sessions={mySessions}
+              mfaState={mfaState}
+              mfaSetup={mfaSetup}
+              mfaForm={mfaForm}
               busy={busyAction}
               passwordForm={passwordForm}
               onPasswordFormChange={setPasswordForm}
+              onMfaFormChange={setMfaForm}
               onChangePassword={handleChangePassword}
+              onStartMfaSetup={() => void handleStartMfaSetup()}
+              onEnableMfa={handleEnableMfa}
+              onDisableMfa={handleDisableMfa}
               onRevokeSession={(sessionId) => void handleRevokeOwnSession(sessionId)}
             />
           </div>
