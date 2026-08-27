@@ -35,8 +35,10 @@ import {
   getPasswordResetTokenByHash,
   getUser,
   getUserByEmail,
+  listAppliedMigrations,
   listAuthSessions,
   listMemberships,
+  listRunQueueJobs,
   listWorkspaces,
   listAuditLogs,
   listUsers,
@@ -52,9 +54,10 @@ import {
 } from './store.js';
 import {
   createSite,
-  executeRun,
+  enqueueRun,
   getSiteWithRuns,
   listSitesWithRuns,
+  processRunQueue,
   runDueAutomations,
   updateSite,
 } from './service.js';
@@ -63,6 +66,7 @@ import type {
   CountryCode,
   CreateSiteInput,
   PasswordResetToken,
+  Permission,
   Provider,
   RequestContext,
   UpdateSiteInput,
@@ -194,12 +198,6 @@ function readBearerToken(req: express.Request) {
   return token;
 }
 
-const roleRank: Record<UserRole, number> = {
-  viewer: 1,
-  editor: 2,
-  admin: 3,
-};
-
 async function requireAuthenticatedSession(
   req: express.Request,
   res: express.Response<any, AppLocals>,
@@ -246,7 +244,7 @@ async function requireAuthenticatedSession(
   }
 }
 
-function requireRole(minRole: UserRole) {
+function requirePermissions(...requiredPermissions: Permission[]) {
   return async (
     _req: express.Request,
     res: express.Response<any, AppLocals>,
@@ -257,12 +255,15 @@ function requireRole(minRole: UserRole) {
       next(new AppError(500, 'REQUEST_CONTEXT_MISSING', 'Authenticated context was not attached.'));
       return;
     }
-    if (roleRank[context.role] < roleRank[minRole]) {
+    const missingPermission = requiredPermissions.find(
+      (permission) => !context.permissions.includes(permission),
+    );
+    if (missingPermission) {
       next(
         new AppError(
           403,
-          'INSUFFICIENT_ROLE',
-          `This operation requires ${minRole} privileges in the selected workspace.`,
+          'INSUFFICIENT_PERMISSION',
+          `This operation requires the ${missingPermission} permission in the selected workspace.`,
         ),
       );
       return;
@@ -952,8 +953,8 @@ export function createApp() {
 
   app.use('/api/account', requireAuthenticatedSession);
   app.use('/api/sites', requireAuthenticatedSession);
-  app.use('/api/scheduler', requireAuthenticatedSession, requireRole('admin'));
-  app.use('/api/admin', requireAuthenticatedSession, requireRole('admin'));
+  app.use('/api/scheduler', requireAuthenticatedSession);
+  app.use('/api/admin', requireAuthenticatedSession);
 
   app.get('/api/account/sessions', async (_req, res: express.Response<any, AppLocals>, next) => {
     try {
@@ -1212,7 +1213,7 @@ export function createApp() {
     }
   });
 
-  app.post('/api/sites', requireRole('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/sites', requirePermissions('sites:write'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const parsed = siteSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -1261,7 +1262,7 @@ export function createApp() {
     }
   });
 
-  app.patch('/api/sites/:siteId', requireRole('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
+  app.patch('/api/sites/:siteId', requirePermissions('sites:write'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const parsed = siteUpdateSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -1297,14 +1298,15 @@ export function createApp() {
     }
   });
 
-  app.post('/api/sites/:siteId/analyze', requireRole('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/sites/:siteId/analyze', requirePermissions('runs:execute'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
-      const result = await executeRun(requestContext(res).workspaceId, readSiteId(req), 'analysis');
+      const context = requestContext(res);
+      const result = await enqueueRun(context.workspaceId, readSiteId(req), 'analysis');
       if (!result) {
         res.status(404).json({ success: false, error: { message: 'Site not found' } });
         return;
       }
-      const context = requestContext(res);
+      void processRunQueue(context.workspaceId, 1);
       await writeAuditLog({
         workspaceId: context.workspaceId,
         actorType: 'user',
@@ -1312,34 +1314,32 @@ export function createApp() {
         actorEmail: context.email,
         action: 'site.analysis.run',
         targetType: 'run',
-        targetId: result.id,
-        outcome: result.status === 'completed' ? 'success' : 'failure',
+        targetId: result.run.id,
+        outcome: 'success',
         ipAddress: requestIp(req),
         userAgent: userAgent(req),
         requestId: res.locals.requestId,
         details: {
-          siteId: result.siteId,
-          runType: result.type,
+          siteId: result.run.siteId,
+          runType: result.run.type,
+          queueJobId: result.job.id,
         },
       });
-      res.json({ success: true, data: result });
+      res.status(202).json({ success: true, data: result.run });
     } catch (error) {
       next(error);
     }
   });
 
-  app.post('/api/sites/:siteId/optimize', requireRole('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/sites/:siteId/optimize', requirePermissions('runs:execute'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
-      const result = await executeRun(
-        requestContext(res).workspaceId,
-        readSiteId(req),
-        'optimization',
-      );
+      const context = requestContext(res);
+      const result = await enqueueRun(context.workspaceId, readSiteId(req), 'optimization');
       if (!result) {
         res.status(404).json({ success: false, error: { message: 'Site not found' } });
         return;
       }
-      const context = requestContext(res);
+      void processRunQueue(context.workspaceId, 1);
       await writeAuditLog({
         workspaceId: context.workspaceId,
         actorType: 'user',
@@ -1347,34 +1347,32 @@ export function createApp() {
         actorEmail: context.email,
         action: 'site.optimization.run',
         targetType: 'run',
-        targetId: result.id,
-        outcome: result.status === 'completed' ? 'success' : 'failure',
+        targetId: result.run.id,
+        outcome: 'success',
         ipAddress: requestIp(req),
         userAgent: userAgent(req),
         requestId: res.locals.requestId,
         details: {
-          siteId: result.siteId,
-          runType: result.type,
+          siteId: result.run.siteId,
+          runType: result.run.type,
+          queueJobId: result.job.id,
         },
       });
-      res.json({ success: true, data: result });
+      res.status(202).json({ success: true, data: result.run });
     } catch (error) {
       next(error);
     }
   });
 
-  app.post('/api/sites/:siteId/full-cycle', requireRole('editor'), async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/sites/:siteId/full-cycle', requirePermissions('runs:execute'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
-      const result = await executeRun(
-        requestContext(res).workspaceId,
-        readSiteId(req),
-        'full_cycle',
-      );
+      const context = requestContext(res);
+      const result = await enqueueRun(context.workspaceId, readSiteId(req), 'full_cycle');
       if (!result) {
         res.status(404).json({ success: false, error: { message: 'Site not found' } });
         return;
       }
-      const context = requestContext(res);
+      void processRunQueue(context.workspaceId, 1);
       await writeAuditLog({
         workspaceId: context.workspaceId,
         actorType: 'user',
@@ -1382,23 +1380,24 @@ export function createApp() {
         actorEmail: context.email,
         action: 'site.full_cycle.run',
         targetType: 'run',
-        targetId: result.id,
-        outcome: result.status === 'completed' ? 'success' : 'failure',
+        targetId: result.run.id,
+        outcome: 'success',
         ipAddress: requestIp(req),
         userAgent: userAgent(req),
         requestId: res.locals.requestId,
         details: {
-          siteId: result.siteId,
-          runType: result.type,
+          siteId: result.run.siteId,
+          runType: result.run.type,
+          queueJobId: result.job.id,
         },
       });
-      res.json({ success: true, data: result });
+      res.status(202).json({ success: true, data: result.run });
     } catch (error) {
       next(error);
     }
   });
 
-  app.post('/api/scheduler/run-due', async (_req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/scheduler/run-due', requirePermissions('scheduler:run'), async (_req, res: express.Response<any, AppLocals>, next) => {
     try {
       await runDueAutomations(requestContext(res).workspaceId);
       res.json({ success: true, data: { triggered: true } });
@@ -1407,7 +1406,7 @@ export function createApp() {
     }
   });
 
-  app.get('/api/admin/users', async (_req, res: express.Response<any, AppLocals>, next) => {
+  app.get('/api/admin/users', requirePermissions('admin:users:read'), async (_req, res: express.Response<any, AppLocals>, next) => {
     try {
       const context = requestContext(res);
       const users = await buildWorkspaceUserDirectory(context.workspaceId);
@@ -1417,7 +1416,7 @@ export function createApp() {
     }
   });
 
-  app.post('/api/admin/users', async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/admin/users', requirePermissions('admin:users:write'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const parsed = createUserSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -1476,7 +1475,7 @@ export function createApp() {
     }
   });
 
-  app.patch('/api/admin/users/:userId', async (req, res: express.Response<any, AppLocals>, next) => {
+  app.patch('/api/admin/users/:userId', requirePermissions('admin:users:write'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const parsed = updateUserSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -1529,7 +1528,7 @@ export function createApp() {
     }
   });
 
-  app.delete('/api/admin/users/:userId/membership', async (req, res: express.Response<any, AppLocals>, next) => {
+  app.delete('/api/admin/users/:userId/membership', requirePermissions('admin:users:write'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const context = requestContext(res);
       const userId = readUserId(req);
@@ -1561,7 +1560,7 @@ export function createApp() {
     }
   });
 
-  app.get('/api/admin/sessions', async (_req, res: express.Response<any, AppLocals>, next) => {
+  app.get('/api/admin/sessions', requirePermissions('admin:sessions:read'), async (_req, res: express.Response<any, AppLocals>, next) => {
     try {
       const context = requestContext(res);
       const [sessions, users] = await Promise.all([
@@ -1581,7 +1580,7 @@ export function createApp() {
     }
   });
 
-  app.post('/api/admin/sessions/:sessionId/revoke', async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/admin/sessions/:sessionId/revoke', requirePermissions('admin:sessions:revoke'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const context = requestContext(res);
       const session = await getAuthSession(readSessionId(req));
@@ -1615,7 +1614,7 @@ export function createApp() {
     }
   });
 
-  app.post('/api/admin/users/:userId/password-reset', async (req, res: express.Response<any, AppLocals>, next) => {
+  app.post('/api/admin/users/:userId/password-reset', requirePermissions('admin:users:write'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const context = requestContext(res);
       const userId = readUserId(req);
@@ -1664,7 +1663,7 @@ export function createApp() {
     }
   });
 
-  app.get('/api/admin/audit-logs', async (req, res: express.Response<any, AppLocals>, next) => {
+  app.get('/api/admin/audit-logs', requirePermissions('admin:audit:read'), async (req, res: express.Response<any, AppLocals>, next) => {
     try {
       const parsed = auditQuerySchema.safeParse(req.query);
       if (!parsed.success) {
@@ -1679,7 +1678,7 @@ export function createApp() {
     }
   });
 
-  app.get('/api/admin/metrics', async (_req, res: express.Response<any, AppLocals>, next) => {
+  app.get('/api/admin/metrics', requirePermissions('admin:metrics:read'), async (_req, res: express.Response<any, AppLocals>, next) => {
     try {
       const context = requestContext(res);
       res.json({
@@ -1689,6 +1688,25 @@ export function createApp() {
           activeWorkspaceSessions: await countActiveAuthSessions(context.workspaceId),
         },
       });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/run-queue', requirePermissions('admin:queue:read'), async (_req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const context = requestContext(res);
+      const jobs = await listRunQueueJobs(context.workspaceId);
+      res.json({ success: true, data: jobs });
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get('/api/admin/migrations', requirePermissions('admin:migrations:read'), async (_req, res: express.Response<any, AppLocals>, next) => {
+    try {
+      const migrations = await listAppliedMigrations();
+      res.json({ success: true, data: migrations });
     } catch (error) {
       next(error);
     }

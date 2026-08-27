@@ -1,8 +1,18 @@
 import { randomUUID } from 'node:crypto';
 import { analyzeSite } from './analysis.js';
 import { buildDefaultMarketTargets } from './markets.js';
-import { getRun, getSite, listRuns, listSites, saveRun, saveSite } from './store.js';
-import type { CreateSiteInput, SiteConnection, SiteRun, UpdateSiteInput } from './types.js';
+import {
+  getRun,
+  getSite,
+  getRunQueueJob,
+  listRunQueueJobs,
+  listRuns,
+  listSites,
+  saveRun,
+  saveRunQueueJob,
+  saveSite,
+} from './store.js';
+import type { CreateSiteInput, RunQueueJob, SiteConnection, SiteRun, UpdateSiteInput } from './types.js';
 
 function nowIso() {
   return new Date().toISOString();
@@ -54,7 +64,7 @@ export async function listSitesWithRuns(workspaceId: string) {
   }));
 }
 
-export async function executeRun(workspaceId: string, siteId: string, type: SiteRun['type']) {
+export async function enqueueRun(workspaceId: string, siteId: string, type: SiteRun['type']) {
   const site = await getSite(workspaceId, siteId);
   if (!site) return null;
 
@@ -62,23 +72,84 @@ export async function executeRun(workspaceId: string, siteId: string, type: Site
     id: randomUUID(),
     siteId: site.id,
     type,
-    status: 'running',
+    status: 'queued',
     mode: site.mode,
     createdAt: nowIso(),
-    startedAt: nowIso(),
   };
   await saveRun(run);
+  const job: RunQueueJob = {
+    id: randomUUID(),
+    workspaceId,
+    siteId: site.id,
+    runId: run.id,
+    type,
+    status: 'queued',
+    createdAt: nowIso(),
+    attempts: 0,
+  };
+  await saveRunQueueJob(job);
+  return { run, job };
+}
+
+export async function executeRunJob(jobId: string) {
+  const job = await getRunQueueJob(jobId);
+  if (!job) return null;
+  if (job.status === 'completed') {
+    return await getRun(job.runId);
+  }
+  const site = await getSite(job.workspaceId, job.siteId);
+  if (!site) {
+    const failedJob: RunQueueJob = {
+      ...job,
+      status: 'failed',
+      attempts: job.attempts + 1,
+      finishedAt: nowIso(),
+      error: 'Site not found for queued job.',
+    };
+    await saveRunQueueJob(failedJob);
+    const failedRun = await getRun(job.runId);
+    if (failedRun) {
+      await saveRun({
+        ...failedRun,
+        status: 'failed',
+        finishedAt: nowIso(),
+        error: 'Site not found for queued job.',
+      });
+    }
+    return failedRun;
+  }
+
+  const processingJob: RunQueueJob = {
+    ...job,
+    status: 'processing',
+    attempts: job.attempts + 1,
+    startedAt: nowIso(),
+  };
+  await saveRunQueueJob(processingJob);
+  const activeRun = await getRun(job.runId);
+  if (activeRun) {
+    await saveRun({
+      ...activeRun,
+      status: 'running',
+      startedAt: activeRun.startedAt ?? processingJob.startedAt,
+    });
+  }
 
   try {
     const analysis = await analyzeSite(site);
     const completed: SiteRun = {
-      ...run,
+      ...(await getRun(job.runId))!,
       status: 'completed',
       finishedAt: nowIso(),
       summary: analysis.summary,
       analysis,
     };
     await saveRun(completed);
+    await saveRunQueueJob({
+      ...processingJob,
+      status: 'completed',
+      finishedAt: nowIso(),
+    });
     await saveSite({
       ...site,
       lastRunId: completed.id,
@@ -87,14 +158,27 @@ export async function executeRun(workspaceId: string, siteId: string, type: Site
     return completed;
   } catch (error) {
     const failed: SiteRun = {
-      ...run,
+      ...(await getRun(job.runId))!,
       status: 'failed',
       finishedAt: nowIso(),
       error: error instanceof Error ? error.message : 'Unknown execution error',
     };
     await saveRun(failed);
+    await saveRunQueueJob({
+      ...processingJob,
+      status: 'failed',
+      finishedAt: nowIso(),
+      error: failed.error,
+    });
     return failed;
   }
+}
+
+export async function processRunQueue(workspaceId?: string, limit = 5) {
+  const queuedJobs = await listRunQueueJobs(workspaceId, ['queued']);
+  const jobsToProcess = queuedJobs.slice(0, limit);
+  const processedRuns = await Promise.all(jobsToProcess.map((job) => executeRunJob(job.id)));
+  return processedRuns.filter((run): run is SiteRun => Boolean(run));
 }
 
 export async function getSiteWithRuns(workspaceId: string, siteId: string) {
@@ -117,7 +201,7 @@ export async function runDueAutomations(workspaceId: string, currentDate = new D
       (run) => run.type === 'full_cycle' && run.createdAt.slice(0, 10) === todayKey,
     );
     if (!alreadyRanToday) {
-      await executeRun(workspaceId, site.id, 'full_cycle');
+      await enqueueRun(workspaceId, site.id, 'full_cycle');
     }
   }
 }

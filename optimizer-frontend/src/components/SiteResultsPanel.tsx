@@ -23,6 +23,7 @@ type SiteResultsPanelProps = {
   selectedSite: SiteConnection | null;
   siteDetail: SiteDetailResponse | null;
   busyAction: string | null;
+  canExecuteRuns: boolean;
   onRunAction: (action: 'analysis' | 'optimization' | 'full_cycle') => void;
 };
 
@@ -31,6 +32,7 @@ export function SiteResultsPanel({
   selectedSite,
   siteDetail,
   busyAction,
+  canExecuteRuns,
   onRunAction,
 }: SiteResultsPanelProps) {
   const analysis = siteDetail?.lastRun?.analysis ?? null;
@@ -66,26 +68,32 @@ export function SiteResultsPanel({
             <button
               className="ghost-button"
               onClick={() => onRunAction('analysis')}
-              disabled={busyAction !== null}
+              disabled={busyAction !== null || !canExecuteRuns}
             >
               Analyze
             </button>
             <button
               className="ghost-button"
               onClick={() => onRunAction('optimization')}
-              disabled={busyAction !== null}
+              disabled={busyAction !== null || !canExecuteRuns}
             >
               Optimize
             </button>
             <button
               className="primary-button"
               onClick={() => onRunAction('full_cycle')}
-              disabled={busyAction !== null}
+              disabled={busyAction !== null || !canExecuteRuns}
             >
               Full cycle
             </button>
           </div>
         </div>
+        {!canExecuteRuns ? (
+          <p className="section-subcopy">
+            Your current workspace permissions allow read access only. An editor or admin can start
+            new runs.
+          </p>
+        ) : null}
         <div className="site-badges">
           <span className="badge">{selectedSite.provider}</span>
           <span className="badge">{selectedSite.mode}</span>

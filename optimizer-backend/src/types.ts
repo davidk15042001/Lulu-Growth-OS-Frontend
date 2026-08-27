@@ -2,6 +2,19 @@ export type Provider = 'wordpress' | 'webflow' | 'shopify';
 
 export type ExecutionMode = 'mock' | 'live';
 export type UserRole = 'viewer' | 'editor' | 'admin';
+export type Permission =
+  | 'sites:read'
+  | 'sites:write'
+  | 'runs:execute'
+  | 'scheduler:run'
+  | 'admin:users:read'
+  | 'admin:users:write'
+  | 'admin:sessions:read'
+  | 'admin:sessions:revoke'
+  | 'admin:audit:read'
+  | 'admin:metrics:read'
+  | 'admin:queue:read'
+  | 'admin:migrations:read';
 
 export type CountryCode =
   | 'US'
@@ -196,6 +209,20 @@ export interface SiteRun {
   error?: string;
 }
 
+export interface RunQueueJob {
+  id: string;
+  workspaceId: string;
+  siteId: string;
+  runId: string;
+  type: SiteRun['type'];
+  status: 'queued' | 'processing' | 'completed' | 'failed';
+  createdAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+  attempts: number;
+  error?: string;
+}
+
 export interface AppState {
   sites: SiteConnection[];
   runs: SiteRun[];
@@ -277,6 +304,7 @@ export interface RequestContext {
   workspaceId: string;
   userId: string;
   role: UserRole;
+  permissions: Permission[];
   email: string;
   name: string;
 }

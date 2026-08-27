@@ -1,4 +1,5 @@
 import type {
+  AppliedMigration,
   AuthSessionRecord,
   ChangePasswordInput,
   ConfirmPasswordResetInput,
@@ -15,6 +16,7 @@ import type {
   SiteDetailResponse,
   SiteListItem,
   SiteRun,
+  RunQueueJob,
   UpdateWorkspaceUserInput,
   WorkspaceUser,
 } from './types';
@@ -209,6 +211,8 @@ export const api = {
   listWorkspaceSessions: async () => (await request<AuthSessionRecord[]>('/admin/sessions')).data,
   revokeWorkspaceSession: async (sessionId: string) =>
     (await request<{ revoked: true }>(`/admin/sessions/${sessionId}/revoke`, { method: 'POST' })).data,
+  listRunQueueJobs: async () => (await request<RunQueueJob[]>('/admin/run-queue')).data,
+  listAppliedMigrations: async () => (await request<AppliedMigration[]>('/admin/migrations')).data,
   runAnalysis: async (siteId: string) =>
     (await request<SiteRun>(`/sites/${siteId}/analyze`, { method: 'POST' })).data,
   runOptimization: async (siteId: string) =>

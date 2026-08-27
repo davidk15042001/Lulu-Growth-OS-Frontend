@@ -11,6 +11,7 @@ import { SiteResultsPanel } from './components/SiteResultsPanel';
 import { SitesListCard } from './components/SitesListCard';
 import { buildMarketTargets } from './utils/markets';
 import type {
+  AppliedMigration,
   AuthSessionRecord,
   CountryCode,
   CreateWorkspaceUserInput,
@@ -19,7 +20,9 @@ import type {
   MfaSetupResponse,
   MfaState,
   OptionsResponse,
+  Permission,
   Provider,
+  RunQueueJob,
   SessionContext,
   SiteConnection,
   SiteDetailResponse,
@@ -54,6 +57,10 @@ const initialCreateUserForm: CreateWorkspaceUserInput = {
   password: '',
 };
 
+function hasPermission(session: SessionContext | null, permission: Permission) {
+  return Boolean(session?.permissions.includes(permission));
+}
+
 function App() {
   const [options, setOptions] = useState<OptionsResponse | null>(null);
   const [session, setSession] = useState<SessionContext | null>(null);
@@ -67,6 +74,8 @@ function App() {
   const [sites, setSites] = useState<SiteListItem[]>([]);
   const [workspaceUsers, setWorkspaceUsers] = useState<WorkspaceUser[]>([]);
   const [workspaceSessions, setWorkspaceSessions] = useState<AuthSessionRecord[]>([]);
+  const [queueJobs, setQueueJobs] = useState<RunQueueJob[]>([]);
+  const [appliedMigrations, setAppliedMigrations] = useState<AppliedMigration[]>([]);
   const [mySessions, setMySessions] = useState<AuthSessionRecord[]>([]);
   const [resetTokenInfo, setResetTokenInfo] = useState<{
     token: string;
@@ -97,6 +106,8 @@ function App() {
     setSites([]);
     setWorkspaceUsers([]);
     setWorkspaceSessions([]);
+    setQueueJobs([]);
+    setAppliedMigrations([]);
     setMySessions([]);
     setMfaState(null);
     setMfaSetup(null);
@@ -116,15 +127,23 @@ function App() {
   }
 
   async function refreshSecurityData(liveSession: SessionContext) {
-    const [ownSessions, users, sessions, nextMfaState] = await Promise.all([
+    const canReadUsers = hasPermission(liveSession, 'admin:users:read');
+    const canReadSessions = hasPermission(liveSession, 'admin:sessions:read');
+    const canReadQueue = hasPermission(liveSession, 'admin:queue:read');
+    const canReadMigrations = hasPermission(liveSession, 'admin:migrations:read');
+    const [ownSessions, users, sessions, nextMfaState, nextQueueJobs, nextAppliedMigrations] = await Promise.all([
       api.getMySessions(),
-      liveSession.role === 'admin' ? api.listWorkspaceUsers() : Promise.resolve([]),
-      liveSession.role === 'admin' ? api.listWorkspaceSessions() : Promise.resolve([]),
+      canReadUsers ? api.listWorkspaceUsers() : Promise.resolve([]),
+      canReadSessions ? api.listWorkspaceSessions() : Promise.resolve([]),
       api.getMfaState(),
+      canReadQueue ? api.listRunQueueJobs() : Promise.resolve([]),
+      canReadMigrations ? api.listAppliedMigrations() : Promise.resolve([]),
     ]);
     setMySessions(ownSessions);
     setWorkspaceUsers(users);
     setWorkspaceSessions(sessions);
+    setQueueJobs(nextQueueJobs);
+    setAppliedMigrations(nextAppliedMigrations);
     setMfaState(nextMfaState);
     if (!nextMfaState.pending) {
       setMfaSetup(null);
@@ -185,10 +204,35 @@ function App() {
   }, []);
 
   const selectedSite = useMemo<SiteConnection | null>(() => siteDetail?.site ?? null, [siteDetail]);
+  const canWriteSites = useMemo(() => hasPermission(session, 'sites:write'), [session]);
+  const canExecuteRuns = useMemo(() => hasPermission(session, 'runs:execute'), [session]);
+  const canSeeAdminConsole = useMemo(
+    () =>
+      hasPermission(session, 'admin:users:read') ||
+      hasPermission(session, 'admin:sessions:read') ||
+      hasPermission(session, 'admin:queue:read') ||
+      hasPermission(session, 'admin:migrations:read'),
+    [session],
+  );
   const marketTargetsPreview = useMemo(
     () => buildMarketTargets(form.targetCountries, options?.countries ?? []),
     [form.targetCountries, options?.countries],
   );
+
+  async function waitForRunCompletion(siteId: string, runId: string) {
+    let latestDetail = await api.getSite(siteId);
+    for (let attempt = 0; attempt < 12; attempt += 1) {
+      const trackedRun =
+        latestDetail.runs.find((candidate) => candidate.id === runId) ??
+        (latestDetail.lastRun?.id === runId ? latestDetail.lastRun : null);
+      if (!trackedRun || trackedRun.status === 'completed' || trackedRun.status === 'failed') {
+        return latestDetail;
+      }
+      await new Promise((resolve) => window.setTimeout(resolve, 750));
+      latestDetail = await api.getSite(siteId);
+    }
+    return latestDetail;
+  }
 
   async function handleLogin(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -298,7 +342,7 @@ function App() {
   }
 
   async function runAction(action: 'analysis' | 'optimization' | 'full_cycle') {
-    if (!selectedSite) return;
+    if (!selectedSite || !canExecuteRuns) return;
     setBusyAction(action);
     const label =
       action === 'analysis'
@@ -308,18 +352,31 @@ function App() {
           : 'Running full analyze-and-optimize cycle...';
     setStatusMessage(label);
     try {
+      let submittedRun;
       if (action === 'analysis') {
-        await api.runAnalysis(selectedSite.id);
+        submittedRun = await api.runAnalysis(selectedSite.id);
       } else if (action === 'optimization') {
-        await api.runOptimization(selectedSite.id);
+        submittedRun = await api.runOptimization(selectedSite.id);
       } else {
-        await api.runFullCycle(selectedSite.id);
+        submittedRun = await api.runFullCycle(selectedSite.id);
       }
       const requestId = ++loadSequence.current;
-      const detail = await api.getSite(selectedSite.id);
+      const detail = await waitForRunCompletion(selectedSite.id, submittedRun.id);
       if (requestId !== loadSequence.current) return;
       setSiteDetail(detail);
-      setStatusMessage(`Completed ${action.replace('_', ' ')} for ${detail.site.name}.`);
+      const latestRun =
+        detail.runs.find((run) => run.id === submittedRun.id) ??
+        (detail.lastRun?.id === submittedRun.id ? detail.lastRun : null);
+      if (session) {
+        await refreshSecurityData(session);
+      }
+      if (latestRun?.status === 'completed') {
+        setStatusMessage(`Completed ${action.replace('_', ' ')} for ${detail.site.name}.`);
+      } else if (latestRun?.status === 'failed') {
+        setStatusMessage(latestRun.error || `Execution failed for ${detail.site.name}.`);
+      } else {
+        setStatusMessage(`Queued ${action.replace('_', ' ')} for ${detail.site.name}.`);
+      }
     } catch (error) {
       setStatusMessage(resolveApiError(error, 'Execution failed.'));
     } finally {
@@ -503,19 +560,21 @@ function App() {
       {session ? (
         <main className="layout">
           <div className="sidebar">
-            <SiteFormCard
-              form={form}
-              options={{
-                providers: options?.providers ?? ['wordpress', 'webflow', 'shopify'],
-                modes: options?.modes ?? ['mock', 'live'],
-                countries: options?.countries ?? [],
-              }}
-              marketTargetsPreview={marketTargetsPreview}
-              busy={busyAction === 'create-site'}
-              onSubmit={handleCreateSite}
-              onFormChange={setForm}
-              onToggleCountry={toggleCountry}
-            />
+            {canWriteSites ? (
+              <SiteFormCard
+                form={form}
+                options={{
+                  providers: options?.providers ?? ['wordpress', 'webflow', 'shopify'],
+                  modes: options?.modes ?? ['mock', 'live'],
+                  countries: options?.countries ?? [],
+                }}
+                marketTargetsPreview={marketTargetsPreview}
+                busy={busyAction === 'create-site'}
+                onSubmit={handleCreateSite}
+                onFormChange={setForm}
+                onToggleCountry={toggleCountry}
+              />
+            ) : null}
             <SitesListCard
               sites={sites}
               selectedSiteId={selectedSiteId}
@@ -538,10 +597,13 @@ function App() {
             />
           </div>
           <div className="main-panel">
-            {session.role === 'admin' ? (
+            {canSeeAdminConsole ? (
               <AdminConsoleCard
                 users={workspaceUsers}
                 sessions={workspaceSessions}
+                queueJobs={queueJobs}
+                appliedMigrations={appliedMigrations}
+                permissions={session.permissions}
                 createForm={createUserForm}
                 busy={busyAction}
                 resetTokenInfo={resetTokenInfo}
@@ -558,6 +620,7 @@ function App() {
               selectedSite={selectedSite}
               siteDetail={siteDetail}
               busyAction={busyAction}
+              canExecuteRuns={canExecuteRuns}
               onRunAction={(action) => void runAction(action)}
             />
           </div>
@@ -583,7 +646,7 @@ function App() {
             <div>
               <h2>Enterprise workspace access</h2>
               <p>
-                Sign in to load workspace-scoped sites, protected automations, and role-based
+                Sign in to load workspace-scoped sites, protected automations, and permission-based
                 enterprise controls.
               </p>
             </div>

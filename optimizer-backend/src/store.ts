@@ -7,7 +7,9 @@ import type {
   AuditLogEntry,
   AuthSession,
   PasswordResetToken,
+  Permission,
   RequestContext,
+  RunQueueJob,
   SiteConnection,
   SiteRun,
   UserAccount,
@@ -59,6 +61,16 @@ type PasswordResetTokenRow = {
   expires_at: string;
   used_at: string | null;
   revoked_at: string | null;
+  data: string;
+};
+
+type QueueJobRow = {
+  id: string;
+  workspace_id: string;
+  site_id: string;
+  run_id: string;
+  status: RunQueueJob['status'];
+  created_at: string;
   data: string;
 };
 
@@ -195,6 +207,24 @@ function createSchema(database: DatabaseSync) {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS schema_migrations (
+      version INTEGER PRIMARY KEY,
+      name TEXT NOT NULL,
+      applied_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS run_queue_jobs (
+      id TEXT PRIMARY KEY,
+      workspace_id TEXT NOT NULL,
+      site_id TEXT NOT NULL,
+      run_id TEXT NOT NULL,
+      status TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      data TEXT NOT NULL,
+      FOREIGN KEY (site_id) REFERENCES sites(id) ON DELETE CASCADE,
+      FOREIGN KEY (workspace_id) REFERENCES workspaces(id) ON DELETE CASCADE
+    );
+
     CREATE INDEX IF NOT EXISTS idx_runs_site_created_at
       ON runs (site_id, created_at DESC);
 
@@ -215,6 +245,9 @@ function createSchema(database: DatabaseSync) {
 
     CREATE INDEX IF NOT EXISTS idx_password_reset_tokens_hash
       ON password_reset_tokens (token_hash);
+
+    CREATE INDEX IF NOT EXISTS idx_run_queue_jobs_workspace_status
+      ON run_queue_jobs (workspace_id, status, created_at ASC);
   `);
 
   const userColumns = database.prepare('PRAGMA table_info(users)').all() as Array<{ name: string }>;
@@ -259,6 +292,31 @@ function createSchema(database: DatabaseSync) {
     CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email
       ON users (email);
   `);
+
+  const existingMigrations = database
+    .prepare('SELECT COUNT(*) as count FROM schema_migrations')
+    .get() as { count: number };
+  if (existingMigrations.count === 0) {
+    const appliedAt = new Date().toISOString();
+    database
+      .prepare(`
+        INSERT OR IGNORE INTO schema_migrations (version, name, applied_at)
+        VALUES (?, ?, ?)
+      `)
+      .run(1, 'baseline_schema', appliedAt);
+    database
+      .prepare(`
+        INSERT OR IGNORE INTO schema_migrations (version, name, applied_at)
+        VALUES (?, ?, ?)
+      `)
+      .run(2, 'auth_email_indexes', appliedAt);
+    database
+      .prepare(`
+        INSERT OR IGNORE INTO schema_migrations (version, name, applied_at)
+        VALUES (?, ?, ?)
+      `)
+      .run(3, 'run_queue_jobs', appliedAt);
+  }
 }
 
 function runTransaction<T>(database: DatabaseSync, operation: () => T): T {
@@ -323,6 +381,39 @@ async function getDatabase() {
     databasePromise = openDatabase();
   }
   return databasePromise;
+}
+
+export async function listAppliedMigrations() {
+  const database = await getDatabase();
+  return database
+    .prepare(`
+      SELECT version, name, applied_at
+      FROM schema_migrations
+      ORDER BY version ASC
+    `)
+    .all() as Array<{ version: number; name: string; applied_at: string }>;
+}
+
+export function permissionsForRole(role: UserRole): Permission[] {
+  const permissionsByRole: Record<UserRole, Permission[]> = {
+    viewer: ['sites:read'],
+    editor: ['sites:read', 'sites:write', 'runs:execute'],
+    admin: [
+      'sites:read',
+      'sites:write',
+      'runs:execute',
+      'scheduler:run',
+      'admin:users:read',
+      'admin:users:write',
+      'admin:sessions:read',
+      'admin:sessions:revoke',
+      'admin:audit:read',
+      'admin:metrics:read',
+      'admin:queue:read',
+      'admin:migrations:read',
+    ],
+  };
+  return permissionsByRole[role];
 }
 
 export async function saveWorkspace(workspace: Workspace) {
@@ -663,6 +754,53 @@ export async function listAuditLogs(workspaceId: string, limit = 100) {
   return parseRows<AuditLogEntry>(rows);
 }
 
+export async function saveRunQueueJob(job: RunQueueJob) {
+  const database = await getDatabase();
+  database
+    .prepare(`
+      INSERT INTO run_queue_jobs (id, workspace_id, site_id, run_id, status, created_at, data)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        workspace_id = excluded.workspace_id,
+        site_id = excluded.site_id,
+        run_id = excluded.run_id,
+        status = excluded.status,
+        created_at = excluded.created_at,
+        data = excluded.data
+    `)
+    .run(job.id, job.workspaceId, job.siteId, job.runId, job.status, job.createdAt, JSON.stringify(job));
+  return job;
+}
+
+export async function getRunQueueJob(jobId: string) {
+  const database = await getDatabase();
+  const row = database
+    .prepare(`
+      SELECT id, workspace_id, site_id, run_id, status, created_at, data
+      FROM run_queue_jobs
+      WHERE id = ?
+      LIMIT 1
+    `)
+    .get(jobId) as QueueJobRow | undefined;
+  return parseRow<RunQueueJob>(row);
+}
+
+export async function listRunQueueJobs(workspaceId?: string, statuses?: RunQueueJob['status'][]) {
+  const database = await getDatabase();
+  const rows = database
+    .prepare(`
+      SELECT id, workspace_id, site_id, run_id, status, created_at, data
+      FROM run_queue_jobs
+      ORDER BY created_at ASC
+    `)
+    .all() as QueueJobRow[];
+  return rows
+    .map((row) => parseRow<RunQueueJob>(row))
+    .filter((job): job is RunQueueJob => Boolean(job))
+    .filter((job) => (workspaceId ? job.workspaceId === workspaceId : true))
+    .filter((job) => (statuses && statuses.length > 0 ? statuses.includes(job.status) : true));
+}
+
 export async function countActiveAuthSessions(workspaceId?: string) {
   const database = await getDatabase();
   const now = new Date().toISOString();
@@ -895,6 +1033,7 @@ export async function buildRequestContext(workspaceId: string, userId: string): 
     workspaceId: membership.workspaceId,
     userId: membership.userId,
     role: membership.role,
+    permissions: permissionsForRole(membership.role),
     email: user.email,
     name: user.name,
   };
@@ -907,6 +1046,7 @@ export async function resetStateForTests() {
       DELETE FROM audit_logs;
       DELETE FROM auth_sessions;
       DELETE FROM password_reset_tokens;
+      DELETE FROM run_queue_jobs;
       DELETE FROM runs;
       DELETE FROM sites;
       DELETE FROM workspace_memberships;

@@ -27,6 +27,7 @@ async function loginAs(userId: keyof typeof demoCredentials = 'demo-admin') {
       workspaceId: string;
       userId: string;
       role: string;
+      permissions: string[];
       email: string;
       name: string;
     };
@@ -38,6 +39,20 @@ async function authContext(userId: keyof typeof demoCredentials = 'demo-admin') 
   return {
     Authorization: `Bearer ${response.token}`,
   };
+}
+
+async function waitForRun(siteId: string, runId: string) {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const detail = await api.get(`/api/sites/${siteId}`).set(await authContext()).expect(200);
+    const run =
+      detail.body.data.runs.find((entry: { id: string }) => entry.id === runId) ??
+      (detail.body.data.lastRun?.id === runId ? detail.body.data.lastRun : null);
+    if (!run || run.status === 'completed' || run.status === 'failed') {
+      return detail.body.data;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  return (await api.get(`/api/sites/${siteId}`).set(await authContext()).expect(200)).body.data;
 }
 
 beforeEach(async () => {
@@ -71,6 +86,7 @@ describe('optimizer backend api', () => {
     assert.equal(response.session.workspaceId, 'demo-workspace');
     assert.equal(response.session.userId, 'demo-admin');
     assert.equal(response.session.role, 'admin');
+    assert.equal(response.session.permissions.includes('admin:users:read'), true);
     assert.equal(response.session.email, 'admin@demo.example');
   });
 
@@ -320,7 +336,7 @@ describe('optimizer backend api', () => {
       .set(await authContext('demo-viewer'))
       .send(payload)
       .expect(403);
-    assert.equal(response.body.error.code, 'INSUFFICIENT_ROLE');
+    assert.equal(response.body.error.code, 'INSUFFICIENT_PERMISSION');
   });
 
   it('isolates workspaces from each other', async () => {
@@ -336,7 +352,7 @@ describe('optimizer backend api', () => {
       .post('/api/scheduler/run-due')
       .set(await authContext('demo-editor'))
       .expect(403);
-    assert.equal(editorDenied.body.error.code, 'INSUFFICIENT_ROLE');
+    assert.equal(editorDenied.body.error.code, 'INSUFFICIENT_PERMISSION');
 
     const adminAllowed = await api
       .post('/api/scheduler/run-due')
@@ -355,6 +371,40 @@ describe('optimizer backend api', () => {
     const metricsResponse = await api.get('/api/admin/metrics').set(await authContext()).expect(200);
     assert.equal(typeof metricsResponse.body.data.totalRequests, 'number');
     assert.equal(typeof metricsResponse.body.data.activeWorkspaceSessions, 'number');
+  });
+
+  it('exposes schema migrations and run queue for admins', async () => {
+    const runResponse = await api
+      .post('/api/sites/demo-wordpress-site/full-cycle')
+      .set(await authContext())
+      .expect(202);
+
+    const queueResponse = await api.get('/api/admin/run-queue').set(await authContext()).expect(200);
+    assert.equal(
+      queueResponse.body.data.some((job: { runId: string }) => job.runId === runResponse.body.data.id),
+      true,
+    );
+
+    const migrationResponse = await api.get('/api/admin/migrations').set(await authContext()).expect(200);
+    assert.equal(Array.isArray(migrationResponse.body.data), true);
+    assert.equal(migrationResponse.body.data.some((entry: { version: number }) => entry.version === 3), true);
+  });
+
+  it('queues runs and completes them through the worker flow', async () => {
+    const runResponse = await api
+      .post('/api/sites/demo-wordpress-site/analyze')
+      .set(await authContext('demo-editor'))
+      .expect(202);
+
+    assert.equal(runResponse.body.data.status, 'queued');
+
+    const detail = await waitForRun('demo-wordpress-site', runResponse.body.data.id);
+    const completedRun =
+      detail.runs.find((entry: { id: string }) => entry.id === runResponse.body.data.id) ??
+      detail.lastRun;
+
+    assert.equal(completedRun.status, 'completed');
+    assert.equal(typeof completedRun.analysis.summary, 'string');
   });
 
   it('lists and revokes workspace sessions for admins', async () => {
@@ -378,6 +428,6 @@ describe('optimizer backend api', () => {
       .get('/api/admin/audit-logs')
       .set(await authContext('demo-viewer'))
       .expect(403);
-    assert.equal(auditDenied.body.error.code, 'INSUFFICIENT_ROLE');
+    assert.equal(auditDenied.body.error.code, 'INSUFFICIENT_PERMISSION');
   });
 });

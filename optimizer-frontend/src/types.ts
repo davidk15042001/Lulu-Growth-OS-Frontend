@@ -1,6 +1,19 @@
 export type Provider = 'wordpress' | 'webflow' | 'shopify';
 export type ExecutionMode = 'mock' | 'live';
 export type UserRole = 'viewer' | 'editor' | 'admin';
+export type Permission =
+  | 'sites:read'
+  | 'sites:write'
+  | 'runs:execute'
+  | 'scheduler:run'
+  | 'admin:users:read'
+  | 'admin:users:write'
+  | 'admin:sessions:read'
+  | 'admin:sessions:revoke'
+  | 'admin:audit:read'
+  | 'admin:metrics:read'
+  | 'admin:queue:read'
+  | 'admin:migrations:read';
 export type CountryCode = 'US' | 'DE' | 'CN' | 'GB' | 'NL' | 'SE' | 'DK' | 'NO' | 'CH' | 'CA' | 'AU' | 'AE' | 'IN' | 'PK' | 'BD';
 export type LanguageCode = 'en' | 'de' | 'zh-CN' | 'nl' | 'sv' | 'da' | 'no' | 'ar' | 'hi' | 'ur' | 'bn';
 
@@ -197,8 +210,29 @@ export interface SessionContext {
   workspaceId: string;
   userId: string;
   role: UserRole;
+  permissions: Permission[];
   email: string;
   name: string;
+}
+
+export interface RunQueueJob {
+  id: string;
+  workspaceId: string;
+  siteId: string;
+  runId: string;
+  type: SiteRun['type'];
+  status: 'queued' | 'processing' | 'completed' | 'failed';
+  createdAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+  attempts: number;
+  error?: string;
+}
+
+export interface AppliedMigration {
+  version: number;
+  name: string;
+  applied_at: string;
 }
 
 export interface WorkspaceUser {
