@@ -128,3 +128,6 @@ Push-Zeitstempel: 2026-08-27 20:38:50 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-27 21:36:00 Europe/Berlin
 Änderungen: Backend Commit 93b89f3 (Access Token TTL 24h auf 7 Tage verlängert) + Frontend Commit 0956546 (Access-Token + Current-User nun in localStorage speichern statt sessionStorage => Stay-signed-in until explizitem Logout, Migration von alten sessionStorage Sessions automatisch). Beide live deployed per SSH, Backend danach neu gebaut + Service neugestartet, Frontend neu gebaut auf Server.
+
+Push-Zeitstempel: 2026-08-27 22:12:00 Europe/Berlin
+Änderungen: Frontend Commit fdb9e4e (Admin-only UI mode). Ab sofort werden Admins (lulu.ai.cn@gmail.com + Rolle admin) NACH LOGIN DIREKT auf /app/admin-billing-overview-9901 weitergeleitet (kein normales Dashboard/Onboarding/Welcome mehr). Alle regulären /app/* User-Routen sind für Admins gesperrt und leiten automatisch auf das Admin-Panel um. Helper isAdminUser() in session.ts + ADMIN_PANEL_PATH Konstante zentralisiert. SessionStorage => localStorage (Stay signed in) aus Commit 0956546 bleibt aktiv.
