@@ -2,7 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import type { PageDefinition } from "../pages-manifest";
 import { getPageContract } from "../api/page-contracts";
 import { useLuluApp } from "../api/LuluAppContext";
-import { routes } from "../routing";
+import { SUBPAGE_NAVIGATION_LOCKED, isPageNavigable, routes } from "../routing";
 import { PageFrame } from "./PageShell";
 import { DEFAULT_WEBSITE_SECTION, WEBSITE_PORTAL_SLUG } from "./page-registry";
 
@@ -18,6 +18,8 @@ const onboardingPathByStep: Record<string, string> = {
 export function PageRoute({ page }: { page: PageDefinition }) {
   const contract = getPageContract(page.slug);
   const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const section = searchParams.get("section");
   const { currentUser, selectedWorkspace, loading, error: workspaceError, refresh } = useLuluApp();
   const isAuthPath = location.pathname === routes.auth.login
     || location.pathname === routes.auth.signUp
@@ -25,7 +27,13 @@ export function PageRoute({ page }: { page: PageDefinition }) {
   const isPublic = contract?.kind === "public" || isAuthPath;
   const isOnboarding = contract?.kind === "onboarding";
 
-  if (page.slug === WEBSITE_PORTAL_SLUG && !new URLSearchParams(location.search).get("section")) {
+  if (SUBPAGE_NAVIGATION_LOCKED && (page.slug === WEBSITE_PORTAL_SLUG || page.slug === "lulu-email-portal-9013" || page.slug === "lulu-calendar-portal-9014") && section) {
+    searchParams.delete("section");
+    const nextSearch = searchParams.toString();
+    return <Navigate replace to={{ pathname: location.pathname, search: nextSearch ? `?${nextSearch}` : "" }} />;
+  }
+
+  if (page.slug === WEBSITE_PORTAL_SLUG && !section && !SUBPAGE_NAVIGATION_LOCKED) {
     const params = new URLSearchParams(location.search);
     params.set("section", DEFAULT_WEBSITE_SECTION);
     return <Navigate replace to={{ pathname: routes.app.website, search: `?${params.toString()}` }} />;
@@ -41,6 +49,10 @@ export function PageRoute({ page }: { page: PageDefinition }) {
 
   if (!isPublic && !loading && !currentUser) {
     return <Navigate replace to={routes.auth.login} state={{ from: location.pathname }} />;
+  }
+
+  if (!isPublic && !isOnboarding && page.slug !== routes.app.dashboard.slice("/app/".length) && !isPageNavigable(page.slug)) {
+    return <Navigate replace to={routes.app.dashboard} state={{ from: location.pathname }} />;
   }
 
   if (!isPublic && !isOnboarding && currentUser && !selectedWorkspace) {

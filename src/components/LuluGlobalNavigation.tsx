@@ -1,6 +1,6 @@
 import { ChevronDown, LogOut, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
+import { SUBPAGE_NAVIGATION_LOCKED, isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
@@ -13,7 +13,7 @@ type NavigationSection = { label: string; pages: readonly NavigationPage[] };
 const navigationSections: readonly NavigationSection[] = (luluDropdownNavigation as readonly NavigationSection[])
   .map((section) => ({
     ...section,
-    pages: section.pages.filter((page) => isPageAvailable(page.id) && page.id !== "lulu-website-portal-9012"),
+    pages: section.pages.filter((page) => isPageAvailable(page.id)),
   }))
   .filter((section) => section.pages.length > 0);
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
@@ -111,49 +111,43 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
       <nav className="lulu-global-navigation__sections">
         {navigationSections.map((section) => {
           const isActiveSection = section.pages.some((page) => page.id === activeSlug);
-          const isWebsiteSection = section.label === "Website";
           return (
-            <details key={section.label} open={isWebsiteSection && isActiveSection}>
+            <details key={section.label} open={isActiveSection}>
               <summary
-                className={isWebsiteSection && isActiveSection ? "is-active" : undefined}
-                aria-disabled={!isWebsiteSection || undefined}
-                data-lulu-section-soon={!isWebsiteSection ? "true" : undefined}
-                tabIndex={isWebsiteSection ? undefined : -1}
-                onClick={!isWebsiteSection ? (event) => event.preventDefault() : undefined}
-                onKeyDown={!isWebsiteSection ? (event) => {
-                  if (event.key === "Enter" || event.key === " ") event.preventDefault();
-                } : undefined}
+                className={isActiveSection ? "is-active" : undefined}
               >
                 <span className="lulu-global-navigation__section-label">
                   <span>{section.label}</span>
-                  {!isWebsiteSection && <span className="lulu-global-navigation__soon">({t("Soon")})</span>}
                 </span>
                 <ChevronDown aria-hidden="true" size={14} />
               </summary>
               <div className="lulu-global-navigation__subitems">
                 {section.pages.map((page) => {
                   const props = pageLinkProps(page.id);
-                  const available = isWebsiteSection && Boolean(props.href);
+                  const available = Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
-                  const isWebsiteLocked = Boolean(websiteLock?.blocking && isWebsiteSection);
+                  const isWebsiteLocked = Boolean(websiteLock?.blocking && section.label === "Website");
+                  const isDropdownLinkLocked = SUBPAGE_NAVIGATION_LOCKED || isWebsiteLocked || !available;
+                  const lockedLabel = isWebsiteLocked ? websiteLockText : "Navigation-Link gesperrt";
                   return (
                     <a
                       key={page.id}
-                      {...(isWebsiteSection ? props : {})}
-                      className={`${isActivePage ? "is-active" : ""}${isWebsiteLocked ? " is-locked" : ""}`.trim() || undefined}
+                      {...props}
+                      href={isDropdownLinkLocked ? undefined : props.href}
+                      data-lulu-route={isDropdownLinkLocked ? undefined : props["data-lulu-route"]}
+                      className={`${isActivePage ? "is-active" : ""}${isDropdownLinkLocked ? " is-locked" : ""}`.trim() || undefined}
                       aria-current={isActivePage ? "page" : undefined}
-                      aria-disabled={!available || isWebsiteLocked || undefined}
-                      data-lulu-soon={!isWebsiteSection ? "true" : undefined}
-                      tabIndex={available && !isWebsiteLocked ? undefined : -1}
-                      onClick={!available || isWebsiteLocked ? (event) => event.preventDefault() : undefined}
-                      aria-label={isWebsiteLocked ? `${page.label} gesperrt: ${websiteLockText}` : page.label}
-                      title={isWebsiteLocked ? websiteLockText : undefined}
+                      aria-disabled={isDropdownLinkLocked || undefined}
+                      tabIndex={isDropdownLinkLocked ? -1 : undefined}
+                      onClick={isDropdownLinkLocked ? (event) => event.preventDefault() : undefined}
+                      aria-label={isDropdownLinkLocked ? `${page.label} gesperrt: ${lockedLabel}` : page.label}
+                      title={isDropdownLinkLocked ? lockedLabel : undefined}
                     >
                       <span>{page.label}</span>
                     </a>
                   );
                 })}
-                {websiteLock && isWebsiteSection && (
+                {websiteLock && section.label === "Website" && (
                   <div className={`lulu-global-navigation__website-lock is-${websiteLock.status}`} role="status" aria-live="polite">
                     <RefreshCw aria-hidden="true" size={13} className={websiteLock.blocking ? "animate-spin" : undefined} />
                     <span>{websiteLockText}</span>

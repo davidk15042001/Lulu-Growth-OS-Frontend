@@ -22,6 +22,7 @@ export const routes = {
     dashboard: "/app/fancily-leaf-1766",
     website: "/app/website",
     email: "/app/email",
+    calendar: "/app/calendar",
   },
   allPages: "/all-pages",
 } as const;
@@ -41,10 +42,12 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "fresh-tide-9404": routes.onboarding.existingPlatforms,
   "lulu-website-portal-9012": routes.app.website,
   "lulu-email-portal-9013": routes.app.email,
+  "lulu-calendar-portal-9014": routes.app.calendar,
 };
 
 export const LEGACY_SETUP_COMPLETE_PATH = "/onboarding/setup-complete";
 export const LULU_NAVIGATION_MESSAGE = "lulu:navigate";
+export const SUBPAGE_NAVIGATION_LOCKED = true;
 
 export type LuluNavigationMessage = {
   type: typeof LULU_NAVIGATION_MESSAGE;
@@ -55,34 +58,53 @@ export type LuluNavigationMessage = {
 export function pagePath(slug: string) {
   if (slug.startsWith("website-")) return `${routes.app.website}?section=${encodeURIComponent(slug.slice("website-".length))}`;
   if (slug.startsWith("email-")) return `${routes.app.email}?section=${encodeURIComponent(slug.slice("email-".length))}`;
+  if (slug.startsWith("calendar-")) return `${routes.app.calendar}?section=${encodeURIComponent(slug.slice("calendar-".length))}`;
   return canonicalPathsBySlug[slug] ?? `/app/${slug}`;
 }
 
-const WEBSITE_PAGE_SLUG = "lulu-website-portal-9012";
-const WEBSITE_PAGE_PREFIX = "website-";
-const SETTINGS_PAGE_SLUGS = new Set(["nicely-land-1864", "glad-coast-1428", "pure-minute-5446"]);
-const AUTH_PAGE_SLUGS = new Set(["brightly-door-5741", "finely-year-1146", "crisp-garden-7026", "crisp-week-7116", "eagerly-bay-9885", "deep-coast-9085", "kind-morning-4984", "mightily-minute-5145"]);
-
 const REMOVED_PAGE_SLUGS = new Set([
-  "glad-coast-1428",
-  "nicely-land-1864",
-  "steady-stone-6443",
+  "brave-stream-5322",
+]);
+
+const TOP_LEVEL_PAGE_SLUGS = new Set([
+  "fancily-leaf-1766",
+  "lulu-website-portal-9012",
+  "lulu-email-portal-9013",
+  "lulu-calendar-portal-9014",
 ]);
 
 export function isPageAvailable(slug: string) {
   return Boolean(slug) && !REMOVED_PAGE_SLUGS.has(slug);
 }
 
+export function isPortalSectionSlug(slug: string) {
+  return slug.startsWith("website-") || slug.startsWith("email-") || slug.startsWith("calendar-");
+}
+
+export function isSubpageLocked(slug: string) {
+  if (!SUBPAGE_NAVIGATION_LOCKED) return false;
+  if (!isPageAvailable(slug)) return true;
+  if (isPortalSectionSlug(slug)) return true;
+  if (canonicalPathsBySlug[slug]) return false;
+  return !TOP_LEVEL_PAGE_SLUGS.has(slug);
+}
+
+export function isPageNavigable(slug: string) {
+  return isPageAvailable(slug) && !isSubpageLocked(slug);
+}
+
 export function pageLinkProps(slug: string) {
   const href = pagePath(slug);
   const isAvailable = isPageAvailable(slug);
+  const isNavigable = isPageNavigable(slug);
   return {
-    href: isAvailable ? href : undefined,
+    href: isNavigable ? href : undefined,
     target: "_top" as const,
-    "data-lulu-route": isAvailable ? href : undefined,
+    "data-lulu-route": isNavigable ? href : undefined,
     "data-lulu-soon": undefined,
-    "aria-disabled": isAvailable ? undefined : ("true" as const),
-    tabIndex: isAvailable ? undefined : -1,
+    "aria-disabled": isNavigable ? undefined : ("true" as const),
+    hidden: isAvailable ? undefined : true,
+    tabIndex: isNavigable ? undefined : -1,
   };
 }
 
