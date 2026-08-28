@@ -4,6 +4,7 @@ import { navigateApp, routes } from "../../../../routing";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, requestApiBlob } from "../../../../api/client";
 import { getSelectedWorkspaceId } from "../../../../api/session";
 import { OnboardingHeader } from "../../../../components/OnboardingHeader";
+import type { Workspace } from "../../../../api/types";
 
 type DocumentRecord = {
   id: string;
@@ -36,8 +37,62 @@ function getFileExtension(name: string) {
   return name.split(".").pop()?.toUpperCase() || "FILE";
 }
 
+function splitList(value: string) {
+  return value.split(",").map((item) => item.trim()).filter(Boolean);
+}
+
+function joinList(values: string[] | null | undefined) {
+  return (values ?? []).join(", ");
+}
+
+type BusinessProfileForm = {
+  businessDescription: string;
+  valueProposition: string;
+  targetMarket: string;
+  shortBrandDescription: string;
+  positioningTags: string;
+  legalForm: string;
+  foundingYear: string;
+  employeeCount: string;
+  annualRevenueRange: string;
+  businessModelType: string;
+  companyStage: string;
+  salesModel: string;
+  salesCycleDays: string;
+  primaryIcp: string;
+  usp: string;
+  mission: string;
+  vision: string;
+  primaryChallenges: string;
+  languages: string;
+  regulatedIndustries: string;
+};
+
+const emptyProfile: BusinessProfileForm = {
+  businessDescription: "",
+  valueProposition: "",
+  targetMarket: "",
+  shortBrandDescription: "",
+  positioningTags: "",
+  legalForm: "",
+  foundingYear: "",
+  employeeCount: "",
+  annualRevenueRange: "",
+  businessModelType: "",
+  companyStage: "",
+  salesModel: "",
+  salesCycleDays: "",
+  primaryIcp: "",
+  usp: "",
+  mission: "",
+  vision: "",
+  primaryChallenges: "",
+  languages: "",
+  regulatedIndustries: "",
+};
+
 export const BusinessDescription = () => {
-  const [businessDescription, setBusinessDescription] = useState("");
+  const [profile, setProfile] = useState<BusinessProfileForm>(emptyProfile);
   const [uploads, setUploads] = useState<UploadItem[]>([]);
   const [activeUpload, setActiveUpload] = useState<UploadItem | null>(null);
   const [saved, setSaved] = useState(false);
@@ -63,11 +118,33 @@ export const BusinessDescription = () => {
     const load = async () => {
       try {
         const [workspaceResponse, documentsResponse] = await Promise.all([
-          requestApi<{ workspace: { businessDescription: string | null; onboardingFileReuploadRequired: boolean } }>({ path: `/workspaces/${workspaceId}/onboarding` }),
+          requestApi<{ workspace: Workspace }>({ path: `/workspaces/${workspaceId}/onboarding` }),
           requestApi<{ items: DocumentRecord[] }>({ path: `/workspaces/${workspaceId}/onboarding/documents` }),
         ]);
-        setBusinessDescription(workspaceResponse.data.workspace.businessDescription ?? "");
-        setReuploadRequired(workspaceResponse.data.workspace.onboardingFileReuploadRequired);
+        const workspace = workspaceResponse.data.workspace;
+        setProfile({
+          businessDescription: workspace.businessDescription ?? "",
+          valueProposition: workspace.valueProposition ?? "",
+          targetMarket: workspace.targetMarket ?? "",
+          shortBrandDescription: workspace.shortBrandDescription ?? "",
+          positioningTags: joinList(workspace.positioningTags),
+          legalForm: workspace.legalForm ?? "",
+          foundingYear: workspace.foundingYear ? String(workspace.foundingYear) : "",
+          employeeCount: workspace.employeeCount ? String(workspace.employeeCount) : "",
+          annualRevenueRange: workspace.annualRevenueRange ?? "",
+          businessModelType: workspace.businessModelType ?? "",
+          companyStage: workspace.companyStage ?? "",
+          salesModel: workspace.salesModel ?? "",
+          salesCycleDays: workspace.salesCycleDays ? String(workspace.salesCycleDays) : "",
+          primaryIcp: workspace.primaryIcp ?? "",
+          usp: workspace.usp ?? "",
+          mission: workspace.mission ?? "",
+          vision: workspace.vision ?? "",
+          primaryChallenges: joinList(workspace.primaryChallenges),
+          languages: joinList(workspace.languages),
+          regulatedIndustries: joinList(workspace.regulatedIndustries),
+        });
+        setReuploadRequired(workspace.onboardingFileReuploadRequired);
         const loaded = await Promise.all(documentsResponse.data.items.map(async (document) => {
           try {
             const blob = await requestApiBlob(`/workspaces/${workspaceId}/onboarding/documents/${document.id}/content`);
@@ -142,13 +219,38 @@ export const BusinessDescription = () => {
     const workspaceId = getSelectedWorkspaceId();
     const hasRequiredInput = reuploadRequired
       ? uploads.length > 0
-      : Boolean(businessDescription.trim()) || uploads.length > 0;
+      : Boolean(profile.businessDescription.trim()) || uploads.length > 0;
     if (!workspaceId || !hasRequiredInput || loading || loadingDocuments) return;
     setLoading(true);
     setError("");
     setTechnicalError("");
     try {
-      await requestApi({ path: `/workspaces/${workspaceId}/onboarding/business-description`, method: "PATCH", body: { businessDescription: businessDescription.trim(), valueProposition: null, targetMarket: null, shortBrandDescription: null, positioningTags: [] } });
+      await requestApi({
+        path: `/workspaces/${workspaceId}/onboarding/business-description`,
+        method: "PATCH",
+        body: {
+          businessDescription: profile.businessDescription.trim() || null,
+          valueProposition: profile.valueProposition.trim() || null,
+          targetMarket: profile.targetMarket.trim() || null,
+          shortBrandDescription: profile.shortBrandDescription.trim() || null,
+          positioningTags: splitList(profile.positioningTags),
+          legalForm: profile.legalForm.trim() || null,
+          foundingYear: profile.foundingYear.trim() ? Number(profile.foundingYear) : null,
+          employeeCount: profile.employeeCount.trim() ? Number(profile.employeeCount) : null,
+          annualRevenueRange: profile.annualRevenueRange.trim() || null,
+          businessModelType: profile.businessModelType.trim() || null,
+          companyStage: profile.companyStage.trim() || null,
+          salesModel: profile.salesModel.trim() || null,
+          salesCycleDays: profile.salesCycleDays.trim() ? Number(profile.salesCycleDays) : null,
+          primaryIcp: profile.primaryIcp.trim() || null,
+          usp: profile.usp.trim() || null,
+          mission: profile.mission.trim() || null,
+          vision: profile.vision.trim() || null,
+          primaryChallenges: splitList(profile.primaryChallenges),
+          languages: splitList(profile.languages),
+          regulatedIndustries: splitList(profile.regulatedIndustries),
+        },
+      });
       setSaved(true);
       navigateApp(routes.onboarding.existingPlatforms);
     } catch (cause) {
@@ -161,7 +263,7 @@ export const BusinessDescription = () => {
 
   const canContinue = reuploadRequired
     ? uploads.length > 0
-    : Boolean(businessDescription.trim()) || uploads.length > 0;
+    : Boolean(profile.businessDescription.trim()) || uploads.length > 0;
 
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
@@ -172,7 +274,30 @@ export const BusinessDescription = () => {
         <p className="mt-3 max-w-lg text-sm leading-6 text-[var(--muted-foreground)]">Beschreibe dein Unternehmen in deinen eigenen Worten. Diese Informationen helfen Lulu, dein Unternehmen besser zu verstehen.</p>
         <form className="mt-8 space-y-5 rounded-xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(0,0,0,0.08)]" onSubmit={saveAndContinue}>
           {reuploadRequired && <div className="rounded-lg border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm leading-6 text-[var(--destructive)]" role="alert"><strong className="block">Onboarding files expired</strong><span>Your previous onboarding files were deleted after five days without completed payment. Upload at least one file again before continuing.</span></div>}
-          <label className="block text-sm font-medium text-[var(--muted-foreground)]" htmlFor="business-description"><span className="text-[var(--foreground)]">Über dein Unternehmen</span><textarea id="business-description" value={businessDescription} onChange={(event) => { setBusinessDescription(event.target.value); setSaved(false); }} maxLength={2000} placeholder="Was macht dein Unternehmen, für wen ist es da und welches Problem löst ihr?" className="mt-2 min-h-48 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /><span className="mt-2 block text-right text-xs text-[var(--muted-foreground)]">{businessDescription.length}/2000</span></label>
+          <label className="block text-sm font-medium text-[var(--muted-foreground)]" htmlFor="business-description"><span className="text-[var(--foreground)]">Über dein Unternehmen</span><textarea id="business-description" value={profile.businessDescription} onChange={(event) => { setProfile((current) => ({ ...current, businessDescription: event.target.value })); setSaved(false); }} maxLength={2000} placeholder="Was macht dein Unternehmen, für wen ist es da und welches Problem löst ihr?" className="mt-2 min-h-48 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /><span className="mt-2 block text-right text-xs text-[var(--muted-foreground)]">{profile.businessDescription.length}/2000</span></label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Value Proposition</span><textarea value={profile.valueProposition} onChange={(event) => { setProfile((current) => ({ ...current, valueProposition: event.target.value })); setSaved(false); }} maxLength={2500} placeholder="Warum ist euer Angebot wertvoll?" className="mt-2 min-h-28 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Zielmarkt</span><textarea value={profile.targetMarket} onChange={(event) => { setProfile((current) => ({ ...current, targetMarket: event.target.value })); setSaved(false); }} maxLength={2000} placeholder="Welche Märkte, Regionen oder Kundentypen adressiert ihr?" className="mt-2 min-h-28 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Kurzbeschreibung Marke</span><input value={profile.shortBrandDescription} onChange={(event) => { setProfile((current) => ({ ...current, shortBrandDescription: event.target.value })); setSaved(false); }} maxLength={500} placeholder="1 Satz, der eure Marke beschreibt" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Positioning Tags</span><input value={profile.positioningTags} onChange={(event) => { setProfile((current) => ({ ...current, positioningTags: event.target.value })); setSaved(false); }} placeholder="z. B. AI, B2B SaaS, DACH, Premium" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Rechtsform</span><input value={profile.legalForm} onChange={(event) => { setProfile((current) => ({ ...current, legalForm: event.target.value })); setSaved(false); }} placeholder="z. B. GmbH" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Gründungsjahr</span><input type="number" value={profile.foundingYear} onChange={(event) => { setProfile((current) => ({ ...current, foundingYear: event.target.value })); setSaved(false); }} placeholder="2020" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Mitarbeiteranzahl</span><input type="number" value={profile.employeeCount} onChange={(event) => { setProfile((current) => ({ ...current, employeeCount: event.target.value })); setSaved(false); }} placeholder="25" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Umsatzspanne</span><input value={profile.annualRevenueRange} onChange={(event) => { setProfile((current) => ({ ...current, annualRevenueRange: event.target.value })); setSaved(false); }} placeholder="z. B. 1-5 Mio. EUR" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Geschäftsmodell</span><input value={profile.businessModelType} onChange={(event) => { setProfile((current) => ({ ...current, businessModelType: event.target.value })); setSaved(false); }} placeholder="z. B. SaaS, Agentur, E-Commerce" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Unternehmensphase</span><input value={profile.companyStage} onChange={(event) => { setProfile((current) => ({ ...current, companyStage: event.target.value })); setSaved(false); }} placeholder="z. B. Early, Growth, Scale" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Sales Model</span><input value={profile.salesModel} onChange={(event) => { setProfile((current) => ({ ...current, salesModel: event.target.value })); setSaved(false); }} placeholder="z. B. inbound, outbound, partner-led" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Sales Cycle in Tagen</span><input type="number" value={profile.salesCycleDays} onChange={(event) => { setProfile((current) => ({ ...current, salesCycleDays: event.target.value })); setSaved(false); }} placeholder="30" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+          </div>
+          <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Primary ICP</span><textarea value={profile.primaryIcp} onChange={(event) => { setProfile((current) => ({ ...current, primaryIcp: event.target.value })); setSaved(false); }} maxLength={2000} placeholder="Beschreibe euer ideales Kundenprofil." className="mt-2 min-h-28 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">USP / Differenzierung</span><textarea value={profile.usp} onChange={(event) => { setProfile((current) => ({ ...current, usp: event.target.value })); setSaved(false); }} maxLength={2000} placeholder="Was unterscheidet euch?" className="mt-2 min-h-28 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Primäre Herausforderungen</span><textarea value={profile.primaryChallenges} onChange={(event) => { setProfile((current) => ({ ...current, primaryChallenges: event.target.value })); setSaved(false); }} maxLength={2000} placeholder="Kommagetrennt, z. B. Leadqualität, Conversion, Retention" className="mt-2 min-h-28 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Mission</span><textarea value={profile.mission} onChange={(event) => { setProfile((current) => ({ ...current, mission: event.target.value })); setSaved(false); }} maxLength={2000} placeholder="Wofür existiert euer Unternehmen?" className="mt-2 min-h-28 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Vision</span><textarea value={profile.vision} onChange={(event) => { setProfile((current) => ({ ...current, vision: event.target.value })); setSaved(false); }} maxLength={2000} placeholder="Welchen Zielzustand wollt ihr schaffen?" className="mt-2 min-h-28 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Sprachen</span><input value={profile.languages} onChange={(event) => { setProfile((current) => ({ ...current, languages: event.target.value })); setSaved(false); }} placeholder="Kommagetrennt, z. B. de, en" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]"><span className="text-[var(--foreground)]">Regulierte Bereiche</span><input value={profile.regulatedIndustries} onChange={(event) => { setProfile((current) => ({ ...current, regulatedIndustries: event.target.value })); setSaved(false); }} placeholder="Kommagetrennt, z. B. Fintech, Healthcare" className="mt-2 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none placeholder:text-[var(--muted-foreground)] focus:border-[var(--ring)] focus:ring-2 focus:ring-[var(--ring)]/20" /></label>
+          </div>
           <section className="space-y-3" aria-labelledby="business-files-title"><div className="flex items-end justify-between gap-3"><div><h2 id="business-files-title" className="text-sm font-semibold text-[var(--foreground)]">Bilder und Dokumente</h2><p className="mt-1 text-xs leading-5 text-[var(--muted-foreground)]">Lade Unterlagen hoch, die Lulu über dein Unternehmen informieren sollen.</p></div><span className="shrink-0 text-xs text-[var(--muted-foreground)]">Max. 5.000 KB</span></div>
             <label htmlFor="business-file-upload" className="flex cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed border-[var(--border)] bg-[var(--secondary)] px-5 py-8 text-center transition hover:border-[var(--ring)] hover:bg-[var(--accent)] focus-within:ring-2 focus-within:ring-[var(--ring)]/20"><UploadCloud size={24} className="text-[var(--accent-foreground)]" aria-hidden="true" /><span className="mt-3 text-sm font-semibold text-[var(--foreground)]">{uploading ? "Wird hochgeladen…" : "Dateien auswählen"}</span><span className="mt-1 text-xs text-[var(--muted-foreground)]">Bilder, PDF-, Word-, Excel-, PowerPoint-, TXT- oder CSV-Dateien{reuploadRequired ? " · At least one file is required" : ""}</span><input id="business-file-upload" type="file" multiple accept={ACCEPTED_FILES} className="sr-only" disabled={uploading} onChange={(event) => { void addFiles(event.target.files); event.currentTarget.value = ""; }} /></label>
             {fileError && <p className="text-xs text-[var(--destructive)]" role="alert">{fileError}</p>}

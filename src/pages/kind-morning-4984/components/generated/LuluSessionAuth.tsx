@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { ArrowLeft, Check, Eye, EyeOff, LockKeyhole, LoaderCircle, ShieldCheck } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
-import { setSelectedWorkspaceId, isAdminUser, ADMIN_PANEL_PATH } from '../../../../api/session';
+import { getAdminLandingPath, setSelectedWorkspaceId, isAdminUser, setStoredUser } from '../../../../api/session';
 type Screen = 'expired' | 'reauth' | 'password' | 'success' | 'failure' | 'invalidated';
 type Status = 'idle' | 'loading';
 const footerLinks: Array<Record<string, any>> = [];
@@ -28,10 +28,11 @@ export function LuluSessionAuth() {
     try {
       await requestApi({ path: '/auth/login', method: 'POST', body: { email, password } });
       const meResp = await requestApi<{ id: string; email: string; role: string }>({ path: '/auth/me' });
+      setStoredUser(meResp.data);
       if (isAdminUser(meResp.data)) {
         setStatus('idle');
         setScreen('success');
-        window.setTimeout(() => navigateApp(ADMIN_PANEL_PATH, { replace: true }), 700);
+        window.setTimeout(() => navigateApp(getAdminLandingPath(routes.app.dashboard), { replace: true }), 700);
         return;
       }
       const workspaces = await requestApi<{ items: Array<{ id: string }> }>({ path: '/workspaces' });
@@ -57,10 +58,11 @@ export function LuluSessionAuth() {
     window.setTimeout(async () => {
       try {
         const meResp = await requestApi<{ id: string; email: string; role: string }>({ path: '/auth/me' });
+        setStoredUser(meResp.data);
         setStatus('idle');
         setScreen('success');
         if (isAdminUser(meResp.data)) {
-          window.setTimeout(() => navigateApp(ADMIN_PANEL_PATH, { replace: true }), 700);
+          window.setTimeout(() => navigateApp(getAdminLandingPath(routes.app.dashboard), { replace: true }), 700);
         } else {
           window.setTimeout(() => navigateApp(routes.app.dashboard), 700);
         }

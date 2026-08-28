@@ -19,6 +19,63 @@ export type Offering = {
   url: string | null;
   imageUrl: string | null;
   sortOrder: number;
+  sku: string | null;
+  portfolioGroup: string | null;
+  lifecycleStage: string | null;
+  launchDate: string | null;
+  deliveryModel: string | null;
+  serviceScope: string | null;
+  setupFee: string | null;
+  recurringFee: string | null;
+  usageFee: string | null;
+  billingInterval: string | null;
+  minimumContractMonths: number | null;
+  cancellationPeriodDays: number | null;
+  onboardingEffort: string | null;
+  fulfilmentEffort: string | null;
+  differentiators: string[];
+  proofPoints: string[];
+  useCases: string[];
+  objections: string[];
+  addOns: string[];
+};
+
+export type CustomerSegment = {
+  id: string;
+  name: string;
+  industry: string | null;
+  companySize: string | null;
+  region: string | null;
+  maturityLevel: string | null;
+  painPoints: string[];
+  jobsToBeDone: string[];
+  decisionCriteria: string[];
+  useCases: string[];
+  buyingRoles: string[];
+  priceSensitivity: string | null;
+  primarySegment: boolean;
+  sortOrder: number;
+  notes: string | null;
+};
+
+export type Competitor = {
+  id: string;
+  name: string;
+  websiteUrl: string | null;
+  competitorType: "direct" | "indirect" | "substitute" | "emerging";
+  market: string | null;
+  positioning: string | null;
+  pricingSummary: string | null;
+  strengths: string[];
+  weaknesses: string[];
+  differentiators: string[];
+  featureOverlap: string[];
+  threatLevel: string | null;
+  strategicPriority: string | null;
+  sourceQuality: string | null;
+  monitoringFrequency: string | null;
+  notes: string | null;
+  lastReviewedAt: string | null;
 };
 
 export type Platform = {
@@ -37,6 +94,8 @@ export type Platform = {
 export type OnboardingSnapshot = {
   workspace: Workspace;
   offerings: Offering[];
+  customerSegments: CustomerSegment[];
+  competitors: Competitor[];
   platforms: Platform[];
   completion: Record<string, unknown>;
 };
@@ -48,6 +107,10 @@ export const onboardingApi = {
   }) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/company-information"), method: "PATCH", body: input }),
   saveBusinessDescription: (workspaceId: string, input: {
     businessDescription: string | null; valueProposition: string | null; targetMarket: string | null; shortBrandDescription: string | null; positioningTags: string[];
+    legalForm: string | null; foundingYear: number | null; employeeCount: number | null; annualRevenueRange: string | null;
+    businessModelType: string | null; companyStage: string | null; salesModel: string | null; salesCycleDays: number | null;
+    primaryIcp: string | null; usp: string | null; mission: string | null; vision: string | null;
+    primaryChallenges: string[]; languages: string[]; regulatedIndustries: string[];
   }) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/business-description"), method: "PATCH", body: input }),
   offerings: (workspaceId: string) => requestApi<{ items: Offering[] }>({ path: workspaceApiPath(workspaceId, "/onboarding/offerings") }),
   createOffering: (workspaceId: string, input: Record<string, unknown>) => requestApi<Offering>({
@@ -58,6 +121,16 @@ export const onboardingApi = {
   }),
   deleteOffering: (workspaceId: string, offeringId: string) => requestApi<null>({
     path: workspaceApiPath(workspaceId, `/onboarding/offerings/${offeringId}`), method: "DELETE",
+  }),
+  customerSegments: (workspaceId: string) => requestApi<{ items: CustomerSegment[] }>({ path: workspaceApiPath(workspaceId, "/onboarding/customer-segments") }),
+  createCustomerSegment: (workspaceId: string, input: Record<string, unknown>) => requestApi<CustomerSegment>({
+    path: workspaceApiPath(workspaceId, "/onboarding/customer-segments"), method: "POST", body: input,
+  }),
+  updateCustomerSegment: (workspaceId: string, customerSegmentId: string, input: Record<string, unknown>) => requestApi<CustomerSegment>({
+    path: workspaceApiPath(workspaceId, `/onboarding/customer-segments/${customerSegmentId}`), method: "PATCH", body: input,
+  }),
+  deleteCustomerSegment: (workspaceId: string, customerSegmentId: string) => requestApi<null>({
+    path: workspaceApiPath(workspaceId, `/onboarding/customer-segments/${customerSegmentId}`), method: "DELETE",
   }),
   platforms: (workspaceId: string) => requestApi<{ items: Platform[] }>({ path: workspaceApiPath(workspaceId, "/onboarding/platforms") }),
   startOAuth: (workspaceId: string, provider: string, shop?: string, returnTo?: string) => requestApi<{ provider: string; authorizationUrl: string }>({
@@ -71,6 +144,16 @@ export const onboardingApi = {
   }),
   deletePlatform: (workspaceId: string, platformId: string) => requestApi<null>({
     path: workspaceApiPath(workspaceId, `/onboarding/platforms/${platformId}`), method: "DELETE",
+  }),
+  competitors: (workspaceId: string) => requestApi<{ items: Competitor[] }>({ path: workspaceApiPath(workspaceId, "/onboarding/competitors") }),
+  createCompetitor: (workspaceId: string, input: Record<string, unknown>) => requestApi<Competitor>({
+    path: workspaceApiPath(workspaceId, "/onboarding/competitors"), method: "POST", body: input,
+  }),
+  updateCompetitor: (workspaceId: string, competitorId: string, input: Record<string, unknown>) => requestApi<Competitor>({
+    path: workspaceApiPath(workspaceId, `/onboarding/competitors/${competitorId}`), method: "PATCH", body: input,
+  }),
+  deleteCompetitor: (workspaceId: string, competitorId: string) => requestApi<null>({
+    path: workspaceApiPath(workspaceId, `/onboarding/competitors/${competitorId}`), method: "DELETE",
   }),
   complete: (workspaceId: string) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/complete"), method: "POST", body: {} }),
   createBillingCheckout: (workspaceId: string, input: { planKey: "viewer" | "starter" | "ai" | "test"; successUrl: string; backUrl: string; password?: string }) => requestApi<{

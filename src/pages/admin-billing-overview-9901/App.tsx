@@ -83,6 +83,10 @@ type WorkspaceRow = {
 type WorkspaceDetail = WorkspaceRow & {
   businessDescription: string | null; valueProposition: string | null; targetMarket: string | null;
   shortBrandDescription: string | null; positioningTags: string[] | null;
+  legalForm: string | null; foundingYear: number | null; employeeCount: number | null; annualRevenueRange: string | null;
+  businessModelType: string | null; companyStage: string | null; salesModel: string | null; salesCycleDays: number | null;
+  primaryIcp: string | null; usp: string | null; mission: string | null; vision: string | null;
+  primaryChallenges: string[] | null; languages: string[] | null; regulatedIndustries: string[] | null;
   fileReuploadRequired: boolean; trialEndsAt: string | null; periodStartsAt: string | null; periodEndsAt: string | null; seats: number | null;
   members: Array<{ id: string; email: string; firstName: string | null; lastName: string | null; role: string; joinedAt: string | null }>;
   crmByType: Array<{ resourceType: string; count: number }>;
@@ -797,14 +801,44 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                 <div className="flex justify-between"><dt className="text-slate-500">Seats</dt><dd>{detail.seats ?? "—"}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Onboarding</dt><dd>{detail.onboardingStep}{detail.onboardingCompletedAt ? " (Done)" : ""}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Files purged</dt><dd>{dateOnly(detail.filesPurgedAt)}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Legal form</dt><dd>{detail.legalForm ?? "—"}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Founded</dt><dd>{detail.foundingYear ?? "—"}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Employees</dt><dd>{detail.employeeCount ?? detail.companySize ?? "—"}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Revenue range</dt><dd>{detail.annualRevenueRange ?? "—"}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Model</dt><dd>{detail.businessModelType ?? "—"}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Stage</dt><dd>{detail.companyStage ?? "—"}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Sales model</dt><dd>{detail.salesModel ?? "—"}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Sales cycle</dt><dd>{detail.salesCycleDays ? `${detail.salesCycleDays} days` : "—"}</dd></div>
               </dl>
               <div className="mt-3">
                 <div className="text-slate-500 text-xs mb-1">Business Description</div>
                 <div className="text-sm text-slate-700 whitespace-pre-wrap break-words">{detail.businessDescription || "—"}</div>
               </div>
+              <div className="mt-3 space-y-2">
+                <div><div className="text-slate-500 text-xs mb-1">Value Proposition</div><div className="text-sm text-slate-700 whitespace-pre-wrap break-words">{detail.valueProposition || "—"}</div></div>
+                <div><div className="text-slate-500 text-xs mb-1">Primary ICP</div><div className="text-sm text-slate-700 whitespace-pre-wrap break-words">{detail.primaryIcp || "—"}</div></div>
+                <div><div className="text-slate-500 text-xs mb-1">USP</div><div className="text-sm text-slate-700 whitespace-pre-wrap break-words">{detail.usp || "—"}</div></div>
+                <div><div className="text-slate-500 text-xs mb-1">Mission</div><div className="text-sm text-slate-700 whitespace-pre-wrap break-words">{detail.mission || "—"}</div></div>
+                <div><div className="text-slate-500 text-xs mb-1">Vision</div><div className="text-sm text-slate-700 whitespace-pre-wrap break-words">{detail.vision || "—"}</div></div>
+              </div>
               {detail.positioningTags?.length ? (
                 <div className="mt-3 flex flex-wrap gap-1">
                   {detail.positioningTags.map((t) => <Pill key={t} tone="sky">{t}</Pill>)}
+                </div>
+              ) : null}
+              {detail.primaryChallenges?.length ? (
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {detail.primaryChallenges.map((item) => <Pill key={item} tone="amber">{item}</Pill>)}
+                </div>
+              ) : null}
+              {detail.languages?.length ? (
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {detail.languages.map((item) => <Pill key={item} tone="violet">{item}</Pill>)}
+                </div>
+              ) : null}
+              {detail.regulatedIndustries?.length ? (
+                <div className="mt-3 flex flex-wrap gap-1">
+                  {detail.regulatedIndustries.map((item) => <Pill key={item} tone="rose">{item}</Pill>)}
                 </div>
               ) : null}
             </div>

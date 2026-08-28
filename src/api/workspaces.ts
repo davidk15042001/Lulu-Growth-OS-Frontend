@@ -16,6 +16,21 @@ export type UpdateWorkspaceInput = Partial<CreateWorkspaceInput> & {
   targetMarket?: string | null;
   shortBrandDescription?: string | null;
   positioningTags?: string[];
+  legalForm?: string | null;
+  foundingYear?: number | null;
+  employeeCount?: number | null;
+  annualRevenueRange?: string | null;
+  businessModelType?: string | null;
+  companyStage?: string | null;
+  salesModel?: string | null;
+  salesCycleDays?: number | null;
+  primaryIcp?: string | null;
+  usp?: string | null;
+  mission?: string | null;
+  vision?: string | null;
+  primaryChallenges?: string[];
+  languages?: string[];
+  regulatedIndustries?: string[];
 };
 
 export const workspaceApi = {

@@ -7,7 +7,7 @@ import { onboardingApi } from "../api/onboarding";
 import { workspaceAppApi } from "../api/workspace-app";
 import { billingCapabilities, billingPlans, type BillingPlanId } from "../billing/planCatalog";
 import { OnboardingHeader } from "./OnboardingHeader";
-import { isAdminUser, ADMIN_PANEL_PATH } from "../api/session";
+import { getAdminLandingPath, isAdminUser } from "../api/session";
 
 const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string }> = {
   starter: { icon: Zap, accent: "bg-[var(--primary)] text-[var(--primary-foreground)]" },
@@ -26,7 +26,7 @@ export function BillingOnboarding() {
   const [testPasswordRequired, setTestPasswordRequired] = useState(false);
   const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
-  const postActionTarget = admin ? ADMIN_PANEL_PATH : routes.app.dashboard;
+  const postActionTarget = admin ? getAdminLandingPath(routes.app.dashboard) : routes.app.dashboard;
 
   useEffect(() => {
     if (!paymentSucceeded || !selectedWorkspace) return;

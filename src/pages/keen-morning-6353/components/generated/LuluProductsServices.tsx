@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight, Check, CircleHelp, DollarSign, PackageOpen, Sparkles, Star, Tags, Trash2, Upload, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, CircleHelp, Sparkles, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
@@ -19,7 +19,28 @@ type Offering = {
   status: OfferingStatus;
   primary: boolean;
   url: string;
+  imageUrl: string;
+  sku: string;
+  portfolioGroup: string;
+  lifecycleStage: string;
+  launchDate: string;
+  deliveryModel: string;
+  serviceScope: string;
+  priceAmount: string;
+  priceCurrency: string;
+  setupFee: string;
+  recurringFee: string;
+  usageFee: string;
+  billingInterval: string;
+  minimumContractMonths: string;
+  cancellationPeriodDays: string;
+  onboardingEffort: string;
+  fulfilmentEffort: string;
   tags: string[];
+  proofPoints: string[];
+  useCases: string[];
+  objections: string[];
+  addOns: string[];
 };
 type FieldProps = {
   label: string;
@@ -38,6 +59,8 @@ const statusOptions: {
   id: OfferingStatus;
   label: OfferingStatus;
 }[] = [];
+const listValue = (items: string[]) => items.join(", ");
+const toList = (value: string) => value.split(",").map((item) => item.trim()).filter(Boolean);
 const emptyOffering = (): Offering => ({
   id: "",
   name: "",
@@ -52,7 +75,28 @@ const emptyOffering = (): Offering => ({
   status: "Active",
   primary: false,
   url: "",
-  tags: []
+  imageUrl: "",
+  sku: "",
+  portfolioGroup: "",
+  lifecycleStage: "",
+  launchDate: "",
+  deliveryModel: "",
+  serviceScope: "",
+  priceAmount: "",
+  priceCurrency: "EUR",
+  setupFee: "",
+  recurringFee: "",
+  usageFee: "",
+  billingInterval: "",
+  minimumContractMonths: "",
+  cancellationPeriodDays: "",
+  onboardingEffort: "",
+  fulfilmentEffort: "",
+  tags: [],
+  proofPoints: [],
+  useCases: [],
+  objections: [],
+  addOns: []
 });
 const inputClass = "mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--border)]";
 const textareaClass = "mt-1 min-h-24 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--border)]";
@@ -131,9 +175,32 @@ export function LuluProductsServices() {
       customerProblem: string | null;
       valueProposition: string | null;
       pricingModel: string | null;
+      priceAmount: string | null;
+      priceCurrency: string | null;
       priceLabel: string | null;
       status: 'draft' | 'active' | 'inactive' | 'archived';
       url: string | null;
+      imageUrl: string | null;
+      sortOrder: number;
+      sku: string | null;
+      portfolioGroup: string | null;
+      lifecycleStage: string | null;
+      launchDate: string | null;
+      deliveryModel: string | null;
+      serviceScope: string | null;
+      setupFee: string | null;
+      recurringFee: string | null;
+      usageFee: string | null;
+      billingInterval: string | null;
+      minimumContractMonths: number | null;
+      cancellationPeriodDays: number | null;
+      onboardingEffort: string | null;
+      fulfilmentEffort: string | null;
+      differentiators: string[];
+      proofPoints: string[];
+      useCases: string[];
+      objections: string[];
+      addOns: string[];
     }> }>({ path: `/workspaces/${workspaceId}/onboarding` }).then(response => {
       const loaded = response.data.offerings.map(item => ({
         id: item.id,
@@ -147,9 +214,30 @@ export function LuluProductsServices() {
         pricing: item.pricingModel ?? 'Subscription',
         price: item.priceLabel ?? '',
         status: item.status === 'active' ? 'Active' as const : item.status === 'draft' ? 'Planned' as const : 'Discontinued' as const,
-        primary: false,
+        primary: item.sortOrder === 0,
         url: item.url ?? '',
-        tags: [],
+        imageUrl: item.imageUrl ?? '',
+        sku: item.sku ?? '',
+        portfolioGroup: item.portfolioGroup ?? '',
+        lifecycleStage: item.lifecycleStage ?? '',
+        launchDate: item.launchDate ? item.launchDate.slice(0, 10) : '',
+        deliveryModel: item.deliveryModel ?? '',
+        serviceScope: item.serviceScope ?? '',
+        priceAmount: item.priceAmount ?? '',
+        priceCurrency: item.priceCurrency ?? 'EUR',
+        setupFee: item.setupFee ?? '',
+        recurringFee: item.recurringFee ?? '',
+        usageFee: item.usageFee ?? '',
+        billingInterval: item.billingInterval ?? '',
+        minimumContractMonths: item.minimumContractMonths !== null ? String(item.minimumContractMonths) : '',
+        cancellationPeriodDays: item.cancellationPeriodDays !== null ? String(item.cancellationPeriodDays) : '',
+        onboardingEffort: item.onboardingEffort ?? '',
+        fulfilmentEffort: item.fulfilmentEffort ?? '',
+        tags: item.differentiators ?? [],
+        proofPoints: item.proofPoints ?? [],
+        useCases: item.useCases ?? [],
+        objections: item.objections ?? [],
+        addOns: item.addOns ?? [],
       }));
       setOfferings(loaded);
       setSelectedId(loaded[0]?.id ?? '');
@@ -192,9 +280,32 @@ export function LuluProductsServices() {
       customerProblem: editing.problem || null,
       valueProposition: editing.value || null,
       pricingModel: editing.pricing || null,
+      priceAmount: editing.priceAmount.trim() ? Number(editing.priceAmount) : null,
+      priceCurrency: editing.priceCurrency || null,
       priceLabel: editing.price || null,
       status: editing.status === 'Active' ? 'active' : editing.status === 'Discontinued' ? 'inactive' : 'draft',
       url: editing.url || null,
+      imageUrl: editing.imageUrl || null,
+      sortOrder: editing.primary ? 0 : offerings.length + 1,
+      sku: editing.sku || null,
+      portfolioGroup: editing.portfolioGroup || null,
+      lifecycleStage: editing.lifecycleStage || null,
+      launchDate: editing.launchDate || null,
+      deliveryModel: editing.deliveryModel || null,
+      serviceScope: editing.serviceScope || null,
+      setupFee: editing.setupFee.trim() ? Number(editing.setupFee) : null,
+      recurringFee: editing.recurringFee.trim() ? Number(editing.recurringFee) : null,
+      usageFee: editing.usageFee.trim() ? Number(editing.usageFee) : null,
+      billingInterval: editing.billingInterval || null,
+      minimumContractMonths: editing.minimumContractMonths.trim() ? Number(editing.minimumContractMonths) : null,
+      cancellationPeriodDays: editing.cancellationPeriodDays.trim() ? Number(editing.cancellationPeriodDays) : null,
+      onboardingEffort: editing.onboardingEffort || null,
+      fulfilmentEffort: editing.fulfilmentEffort || null,
+      differentiators: editing.tags,
+      proofPoints: editing.proofPoints,
+      useCases: editing.useCases,
+      objections: editing.objections,
+      addOns: editing.addOns,
     };
     try {
       const response = await requestApi<{ id: string }>({
@@ -348,12 +459,168 @@ export function LuluProductsServices() {
                 </Field>
               </div>
 
+              <Field label="SKU / ID">
+                <input value={editing.sku} onChange={event => setEditing({
+                ...editing,
+                sku: event.target.value
+              })} placeholder="e.g. PROD-001" className={inputClass} />
+              </Field>
+
+              <Field label="Portfolio Group">
+                <input value={editing.portfolioGroup} onChange={event => setEditing({
+                ...editing,
+                portfolioGroup: event.target.value
+              })} placeholder="e.g. Core Platform" className={inputClass} />
+              </Field>
+
               <Field label="Product / Service URL">
                 <input type="url" value={editing.url} onChange={event => setEditing({
                 ...editing,
                 url: event.target.value
               })} placeholder="https://your-domain.example/product" className={inputClass} />
                 
+              </Field>
+
+              <Field label="Image URL">
+                <input type="url" value={editing.imageUrl} onChange={event => setEditing({
+                ...editing,
+                imageUrl: event.target.value
+              })} placeholder="https://your-domain.example/image.png" className={inputClass} />
+              </Field>
+
+              <Field label="Target Customer">
+                <input value={editing.customer} onChange={event => setEditing({
+                ...editing,
+                customer: event.target.value
+              })} placeholder="Who is this for?" className={inputClass} />
+              </Field>
+
+              <Field label="Customer Problem">
+                <input value={editing.problem} onChange={event => setEditing({
+                ...editing,
+                problem: event.target.value
+              })} placeholder="Which pain point does it solve?" className={inputClass} />
+              </Field>
+
+              <div className="sm:col-span-2">
+                <Field label="Value Proposition">
+                  <textarea value={editing.value} onChange={event => setEditing({
+                  ...editing,
+                  value: event.target.value
+                })} placeholder="What makes this offer compelling?" className={textareaClass} />
+                </Field>
+              </div>
+
+              <Field label="Pricing Model">
+                <input value={editing.pricing} onChange={event => setEditing({
+                ...editing,
+                pricing: event.target.value
+              })} placeholder="Subscription, project, usage-based..." className={inputClass} />
+              </Field>
+
+              <Field label="Pricing Label">
+                <input value={editing.price} onChange={event => setEditing({
+                ...editing,
+                price: event.target.value
+              })} placeholder="e.g. From 299 EUR / month" className={inputClass} />
+              </Field>
+
+              <Field label="Base Price">
+                <input type="number" step="0.01" value={editing.priceAmount} onChange={event => setEditing({
+                ...editing,
+                priceAmount: event.target.value
+              })} placeholder="299" className={inputClass} />
+              </Field>
+
+              <Field label="Currency">
+                <input value={editing.priceCurrency} onChange={event => setEditing({
+                ...editing,
+                priceCurrency: event.target.value.toUpperCase()
+              })} placeholder="EUR" className={inputClass} maxLength={3} />
+              </Field>
+
+              <Field label="Setup Fee">
+                <input type="number" step="0.01" value={editing.setupFee} onChange={event => setEditing({
+                ...editing,
+                setupFee: event.target.value
+              })} placeholder="0" className={inputClass} />
+              </Field>
+
+              <Field label="Recurring Fee">
+                <input type="number" step="0.01" value={editing.recurringFee} onChange={event => setEditing({
+                ...editing,
+                recurringFee: event.target.value
+              })} placeholder="0" className={inputClass} />
+              </Field>
+
+              <Field label="Usage Fee">
+                <input type="number" step="0.01" value={editing.usageFee} onChange={event => setEditing({
+                ...editing,
+                usageFee: event.target.value
+              })} placeholder="0" className={inputClass} />
+              </Field>
+
+              <Field label="Billing Interval">
+                <input value={editing.billingInterval} onChange={event => setEditing({
+                ...editing,
+                billingInterval: event.target.value
+              })} placeholder="monthly, yearly..." className={inputClass} />
+              </Field>
+
+              <Field label="Lifecycle Stage">
+                <input value={editing.lifecycleStage} onChange={event => setEditing({
+                ...editing,
+                lifecycleStage: event.target.value
+              })} placeholder="launch, growth, mature..." className={inputClass} />
+              </Field>
+
+              <Field label="Launch Date">
+                <input type="date" value={editing.launchDate} onChange={event => setEditing({
+                ...editing,
+                launchDate: event.target.value
+              })} className={inputClass} />
+              </Field>
+
+              <Field label="Delivery Model">
+                <input value={editing.deliveryModel} onChange={event => setEditing({
+                ...editing,
+                deliveryModel: event.target.value
+              })} placeholder="digital, onsite, hybrid..." className={inputClass} />
+              </Field>
+
+              <Field label="Service Scope">
+                <input value={editing.serviceScope} onChange={event => setEditing({
+                ...editing,
+                serviceScope: event.target.value
+              })} placeholder="What is included?" className={inputClass} />
+              </Field>
+
+              <Field label="Min Contract Months">
+                <input type="number" value={editing.minimumContractMonths} onChange={event => setEditing({
+                ...editing,
+                minimumContractMonths: event.target.value
+              })} placeholder="12" className={inputClass} />
+              </Field>
+
+              <Field label="Cancellation Period Days">
+                <input type="number" value={editing.cancellationPeriodDays} onChange={event => setEditing({
+                ...editing,
+                cancellationPeriodDays: event.target.value
+              })} placeholder="30" className={inputClass} />
+              </Field>
+
+              <Field label="Onboarding Effort">
+                <input value={editing.onboardingEffort} onChange={event => setEditing({
+                ...editing,
+                onboardingEffort: event.target.value
+              })} placeholder="low, medium, high..." className={inputClass} />
+              </Field>
+
+              <Field label="Fulfilment Effort">
+                <input value={editing.fulfilmentEffort} onChange={event => setEditing({
+                ...editing,
+                fulfilmentEffort: event.target.value
+              })} placeholder="low, medium, high..." className={inputClass} />
               </Field>
 
               <label className="flex h-11 items-center gap-3 self-end rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--muted-foreground)]">
@@ -370,19 +637,48 @@ export function LuluProductsServices() {
               </label>
 
               <div className="sm:col-span-2">
-                <label className="flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-[var(--border)] bg-[var(--secondary)] p-4 text-sm text-[var(--muted-foreground)] hover:border-[var(--border)]">
-                  <Upload size={17} aria-hidden="true" />
-                  <span>
-                    <span className="block font-medium text-[var(--foreground)]">
-                      Upload product image
-                    </span>
-                    <small className="block text-xs text-[var(--muted-foreground)]">
-                      PNG, JPG or SVG · optional
-                    </small>
-                  </span>
-                  <input type="file" accept="image/png,image/jpeg,image/svg+xml" className="sr-only" />
-                  
-                </label>
+                <Field label="Differentiators" hint="Comma-separated">
+                  <textarea value={listValue(editing.tags)} onChange={event => setEditing({
+                  ...editing,
+                  tags: toList(event.target.value)
+                })} placeholder="AI-native, faster setup, enterprise-grade..." className={textareaClass} />
+                </Field>
+              </div>
+
+              <div className="sm:col-span-2">
+                <Field label="Use Cases" hint="Comma-separated">
+                  <textarea value={listValue(editing.useCases)} onChange={event => setEditing({
+                  ...editing,
+                  useCases: toList(event.target.value)
+                })} placeholder="Lead generation, reporting automation..." className={textareaClass} />
+                </Field>
+              </div>
+
+              <div className="sm:col-span-2">
+                <Field label="Proof Points" hint="Comma-separated">
+                  <textarea value={listValue(editing.proofPoints)} onChange={event => setEditing({
+                  ...editing,
+                  proofPoints: toList(event.target.value)
+                })} placeholder="Case studies, certifications, testimonials..." className={textareaClass} />
+                </Field>
+              </div>
+
+              <div className="sm:col-span-2">
+                <Field label="Objections" hint="Comma-separated">
+                  <textarea value={listValue(editing.objections)} onChange={event => setEditing({
+                  ...editing,
+                  objections: toList(event.target.value)
+                })} placeholder="Too expensive, integration effort..." className={textareaClass} />
+                </Field>
+              </div>
+
+              <div className="sm:col-span-2">
+                <Field label="Add-ons / Bundles" hint="Comma-separated">
+                  <textarea value={listValue(editing.addOns)} onChange={event => setEditing({
+                  ...editing,
+                  addOns: toList(event.target.value)
+                })} placeholder="Support package, onboarding sprint..." className={textareaClass} />
+                </Field>
               </div>
             </div>
 

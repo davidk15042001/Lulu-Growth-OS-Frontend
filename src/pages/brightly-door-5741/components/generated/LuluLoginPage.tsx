@@ -6,11 +6,12 @@ import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import { LoginFeaturesLanding } from './LoginFeaturesLanding';
 import {
   clearPendingInvitation,
+  getAdminLandingPath,
   getPendingInvitation,
   isAdminUser,
   setPendingEmail,
+  setStoredUser,
   setSelectedWorkspaceId,
-  ADMIN_PANEL_PATH,
 } from '../../../../api/session';
 
 async function requestWithTimeout<T>(request: ApiRequest, timeoutMs = 15000) {
@@ -50,10 +51,11 @@ export const LuluLoginPage = () => {
       setStatusMessage('Loading your profile…');
       const meResp = await requestWithTimeout<{ id: string; email: string; firstName: string | null; lastName: string | null; role: string }>({ path: '/auth/me' });
       const currentUser = meResp.data;
+      setStoredUser(currentUser);
       if (isAdminUser(currentUser)) {
         setS(true);
         setStatusMessage('Signed in as admin.');
-        navigateApp(ADMIN_PANEL_PATH, { replace: true });
+        navigateApp(getAdminLandingPath(routes.app.dashboard), { replace: true });
         return;
       }
       const pendingInvitation = getPendingInvitation();
@@ -94,7 +96,7 @@ export const LuluLoginPage = () => {
       setLoading(false);
     }
   };
-  return <main className="auth-shell min-h-screen bg-[var(--background)] text-[var(--foreground)]"><div className="grid min-h-screen lg:grid-cols-2">
+  return <main data-deploy-rev="2026-08-27-login-refresh-1" className="auth-shell min-h-screen bg-[var(--background)] text-[var(--foreground)]"><div className="grid min-h-screen lg:grid-cols-2">
       <section className="flex items-center justify-center p-6">
         <div className="w-full max-w-md">
           <div className="lulu-global-brand-host flex items-center gap-2" data-lulu-no-translate="true" translate="no">

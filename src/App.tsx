@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link, Navigate, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import { ArrowLeftRight } from "lucide-react";
+import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { pages, type PageDefinition } from "./pages-manifest";
 import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
 import { LEGACY_SETUP_COMPLETE_PATH, isPageAvailable, pagePath, routes } from "./routing";
@@ -7,8 +8,12 @@ import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from 
 import {
   ADMIN_PANEL_PATH,
   clearPendingInvitation,
+  getAdminLandingPath,
+  getAdminSurface,
   isAdminUser,
+  prefersWorkspaceSurface,
   setPendingInvitation,
+  setAdminSurface,
   setSelectedWorkspaceId,
 } from "./api/session";
 import { useLuluApp } from "./api/LuluAppContext";
@@ -17,6 +22,7 @@ import AdminBillingPage from "./pages/admin-billing-overview-9901/App";
 import { Directory } from "./app/Directory";
 import { PageRoute } from "./app/PageRoute";
 import { availablePages } from "./app/page-registry";
+import { PageErrorBoundary } from "./PageErrorBoundary";
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
 const EMAIL_PAGE: PageDefinition = {
   id: "lulu-email-workspace",
@@ -32,22 +38,60 @@ function AdminBillingRoute() {
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
   if (!currentUser) return <Navigate replace to={routes.auth.login} state={{ from: ADMIN_BILLING_PATH }} />;
   if (currentUser.role !== "admin" || currentUser.email.trim().toLowerCase() !== "lulu.ai.cn@gmail.com") return <Navigate replace to="/not-found" />;
-  return <AdminBillingPage />;
+  return (
+    <PageErrorBoundary pageName="admin-billing-overview-9901">
+      <AdminBillingPage />
+    </PageErrorBoundary>
+  );
 }
 
 function AdminOnlyAppRoute({ children }: { children: React.ReactNode }) {
   const { currentUser, loading } = useLuluApp();
+  const location = useLocation();
+  const isPublicAuthPath = location.pathname === routes.auth.login || location.pathname.startsWith("/auth/");
+  if (isPublicAuthPath) return <>{children}</>;
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
   if (!currentUser) return <Navigate replace to={routes.auth.login} />;
-  if (isAdminUser(currentUser)) return <Navigate replace to={ADMIN_PANEL_PATH} />;
+  if (isAdminUser(currentUser) && !prefersWorkspaceSurface(currentUser)) return <Navigate replace to={ADMIN_PANEL_PATH} />;
   return <>{children}</>;
 }
 
 function HomeOrAdminRoute() {
   const { currentUser, loading } = useLuluApp();
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
-  if (currentUser && isAdminUser(currentUser)) return <Navigate replace to={ADMIN_PANEL_PATH} />;
+  if (currentUser && isAdminUser(currentUser)) return <Navigate replace to={getAdminLandingPath(routes.app.dashboard)} />;
   return <Navigate replace to={routes.auth.login} />;
+}
+
+function AdminSurfaceSwitcher() {
+  const { currentUser, loading } = useLuluApp();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  if (loading || !isAdminUser(currentUser)) return null;
+  if (location.pathname === routes.auth.login || location.pathname.startsWith("/auth/") || location.pathname === "/not-found") return null;
+
+  const onAdminPanel = location.pathname === ADMIN_PANEL_PATH;
+  const nextSurface = onAdminPanel ? "workspace" : "admin";
+  const nextPath = onAdminPanel ? routes.app.dashboard : ADMIN_PANEL_PATH;
+  const label = onAdminPanel ? "Zur Benutzerplattform" : "Zum Admin-Panel";
+  const helper = onAdminPanel ? "Workspace-Modus" : "Admin-Modus";
+
+  return (
+    <button
+      type="button"
+      onClick={() => {
+        setAdminSurface(nextSurface);
+        navigate(nextPath);
+      }}
+      className="fixed right-4 top-4 z-[80] inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-medium text-[var(--foreground)] shadow-[0_10px_30px_rgba(0,0,0,0.12)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+      aria-label={label}
+      title={`${label} (${helper})`}
+    >
+      <ArrowLeftRight size={16} />
+      <span>{label}</span>
+    </button>
+  );
 }
 
 function LegacyPageRedirect() {
@@ -114,26 +158,29 @@ export default function App() {
   useEffect(() => installApiBroker(), []);
 
   return (
-    <Routes>
-      <Route path="/" element={<HomeOrAdminRoute />} />
-      <Route path={routes.allPages} element={<AdminOnlyAppRoute><Directory /></AdminOnlyAppRoute>} />
-      <Route path="/pages" element={<Navigate replace to={routes.allPages} />} />
-      <Route path="/pages/:slug" element={<LegacyPageRedirect />} />
-      <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
-      <Route path="/auth/login" element={<Navigate replace to={routes.auth.login} />} />
-      <Route path="/register" element={<Navigate replace to={routes.auth.signUp} />} />
-      <Route path={routes.onboarding.welcome} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.companyInformation} /></AdminOnlyAppRoute>} />
-      <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.billing} /></AdminOnlyAppRoute>} />
-      <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
-      <Route path={routes.onboarding.billings} element={<BillingOnboarding />} />
-      <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
-      <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
-      <Route path={routes.app.email} element={<AdminOnlyAppRoute><PageRoute page={EMAIL_PAGE} /></AdminOnlyAppRoute>} />
-      {pages.map((page) => (
-        isPageAvailable(page.slug) ? <Route key={page.id} path={pagePath(page.slug)} element={<AdminOnlyAppRoute><PageRoute page={page} /></AdminOnlyAppRoute>} /> : null
-      ))}
-      <Route path="/not-found" element={<NotFound />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+    <>
+      <AdminSurfaceSwitcher />
+      <Routes>
+        <Route path="/" element={<HomeOrAdminRoute />} />
+        <Route path={routes.allPages} element={<AdminOnlyAppRoute><Directory /></AdminOnlyAppRoute>} />
+        <Route path="/pages" element={<Navigate replace to={routes.allPages} />} />
+        <Route path="/pages/:slug" element={<LegacyPageRedirect />} />
+        <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
+        <Route path="/auth/login" element={<Navigate replace to={routes.auth.login} />} />
+        <Route path="/register" element={<Navigate replace to={routes.auth.signUp} />} />
+        <Route path={routes.onboarding.welcome} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.companyInformation} /></AdminOnlyAppRoute>} />
+        <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.billing} /></AdminOnlyAppRoute>} />
+        <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
+        <Route path={routes.onboarding.billings} element={<BillingOnboarding />} />
+        <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
+        <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.email} element={<AdminOnlyAppRoute><PageRoute page={EMAIL_PAGE} /></AdminOnlyAppRoute>} />
+        {pages.map((page) => (
+          isPageAvailable(page.slug) ? <Route key={page.id} path={pagePath(page.slug)} element={<AdminOnlyAppRoute><PageRoute page={page} /></AdminOnlyAppRoute>} /> : null
+        ))}
+        <Route path="/not-found" element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
   );
 }
