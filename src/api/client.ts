@@ -184,6 +184,19 @@ function friendlyApiMessage(status: number, code: string) {
   return "Something went wrong. Please try again.";
 }
 
+function isMeaningfulServerErrorMessage(message: string, code: string) {
+  const normalized = message.trim();
+  if (!normalized) return false;
+  if (/^API request failed/i.test(normalized)) return false;
+  if ((code === "API_ERROR" || code === "INTERNAL_ERROR") && (
+    normalized === FRIENDLY_API_MESSAGES.API_ERROR
+    || normalized === FRIENDLY_API_MESSAGES.INTERNAL_ERROR
+  )) {
+    return false;
+  }
+  return true;
+}
+
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
@@ -192,7 +205,12 @@ export class ApiError extends Error {
   readonly scenario: ErrorScenario;
 
   constructor(status: number, code: string, message: string, details?: unknown, diagnostics?: ApiDiagnostics) {
-    super(FRIENDLY_API_MESSAGES[code] ?? (message && !/^API request failed/.test(message) ? message : friendlyApiMessage(status, code)));
+    const friendlyMessage = FRIENDLY_API_MESSAGES[code];
+    const shouldPreferServerMessage = (code === "API_ERROR" || code === "INTERNAL_ERROR") && isMeaningfulServerErrorMessage(message, code);
+    const resolvedMessage = shouldPreferServerMessage
+      ? message
+      : friendlyMessage ?? (isMeaningfulServerErrorMessage(message, code) ? message : friendlyApiMessage(status, ""));
+    super(resolvedMessage);
     this.name = "ApiError";
     this.status = status;
     this.code = code;

@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Activity, AlertTriangle, BarChart3, Bell, Check, ChevronDown, Globe2, LayoutDashboard, Menu, MoreHorizontal, RefreshCw, Search, Settings, Shield, Sparkles, Target, TrendingUp, Users, Zap } from 'lucide-react';
+import { Activity, AlertTriangle, BarChart3, Check, ChevronDown, Globe2, LayoutDashboard, Menu, MoreHorizontal, RefreshCw, Search, Settings, Shield, Sparkles, Target, TrendingUp, Users, Zap } from 'lucide-react';
 import { ApiError, getFriendlyErrorMessage } from '../../../../api/client';
 import { onboardingApi } from '../../../../api/onboarding';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
+import { websitesApi } from '../../../../api/websites';
 import { pageLinkProps } from '../../../../routing';
 
 type CompetitorRow = {
@@ -156,11 +157,13 @@ const MetricBar = ({
   label,
   yourScore,
   competitorScore,
+  yourLabel,
   source
 }: {
   label: string;
-  yourScore: number;
+  yourScore: number | null;
   competitorScore: number;
+  yourLabel: string;
   source: string;
 }) => <div className="mt-4">
     <div className="flex items-center justify-between gap-3 text-xs">
@@ -168,10 +171,10 @@ const MetricBar = ({
       <Pill tone={source === 'AI Inferred' ? 'purple' : 'green'}>{source}</Pill>
     </div>
     <div className="mt-2 grid grid-cols-[90px_1fr_90px] items-center gap-3">
-      <span className="text-[11px] text-muted-foreground">You {yourScore}/10</span>
+      <span className="text-[11px] text-muted-foreground">{yourScore == null ? yourLabel : `You ${yourScore}/10`}</span>
       <div className="flex h-2 gap-1 rounded-full bg-secondary/50 p-[2px]">
-        <span className="rounded-full bg-[var(--primary)]" style={{
-        width: `${yourScore * 10}%`
+        <span className={`rounded-full ${yourScore == null ? 'bg-border/80' : 'bg-[var(--primary)]'}`} style={{
+        width: yourScore == null ? '0%' : `${yourScore * 10}%`
       }} />
         <span className="rounded-full bg-destructive/80" style={{
         width: `${competitorScore * 10}%`
@@ -198,6 +201,7 @@ export const LuluCompetitors = () => {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [autoTriggered, setAutoTriggered] = useState(false);
+  const [hasLiveWebsite, setHasLiveWebsite] = useState(false);
   const workspaceId = getSelectedWorkspaceId();
   const { items: competitorRecords, loading: competitorsLoading, error: competitorsError, refresh } = useLiveRecords('marketing_competitors');
   const landscapeMetricOptions = [{
@@ -323,6 +327,27 @@ export const LuluCompetitors = () => {
     if (matched.length >= 2) return matched.slice(0, 3);
     return [selectedCompetitor, ...compareCandidates.slice(0, 2)].filter((competitor): competitor is CompetitorRow => Boolean(competitor)).slice(0, 3);
   }, [compareCandidates, compareSelection, selectedCompetitor, topTenCompetitors]);
+  useEffect(() => {
+    if (!workspaceId) {
+      setHasLiveWebsite(false);
+      return;
+    }
+    let active = true;
+    void websitesApi.list(workspaceId).then(result => {
+      if (!active) return;
+      const live = result.data.items.some(site => {
+        const siteStatus = site.status.trim().toLowerCase();
+        if (siteStatus === 'published' || siteStatus === 'live') return true;
+        return site.domains.some(domain => domain.status.trim().toLowerCase() === 'verified' || Boolean(domain.verifiedAt));
+      });
+      setHasLiveWebsite(live);
+    }).catch(() => {
+      if (active) setHasLiveWebsite(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [workspaceId]);
   const strongestCompetitor = useMemo(() => [...topTenCompetitors].sort((left, right) => getPriorityScore(right.pri) - getPriorityScore(left.pri))[0] ?? selectedCompetitor, [selectedCompetitor, topTenCompetitors]);
   const fastestMover = useMemo(() => [...topTenCompetitors].sort((left, right) => parseGrowthValue(right.growth) - parseGrowthValue(left.growth))[0] ?? selectedCompetitor, [selectedCompetitor, topTenCompetitors]);
   const weakestGapTarget = useMemo(() => [...topTenCompetitors].sort((left, right) => getPositionScore(left.pos) - getPositionScore(right.pos))[0] ?? selectedCompetitor, [selectedCompetitor, topTenCompetitors]);
@@ -348,34 +373,36 @@ export const LuluCompetitors = () => {
       };
     });
   }, [selectedCompetitor, topTenCompetitors]);
+  const ownBusinessComparisonReady = false;
+  const ownBusinessLabel = hasLiveWebsite ? 'No live benchmark yet' : 'Not live yet';
   const comparisonMetrics = [{
     label: 'Market Presence',
-    your: 7,
+    your: ownBusinessComparisonReady ? 7 : null,
     competitor: competitorMarketPresenceScore || 5,
     source: 'Observed'
   }, {
     label: 'Search Visibility',
-    your: 8,
+    your: ownBusinessComparisonReady ? 8 : null,
     competitor: competitorVisibilityScore || 5,
     source: 'Observed'
   }, {
     label: 'Content Presence',
-    your: 7,
+    your: ownBusinessComparisonReady ? 7 : null,
     competitor: Math.max(5, competitorVisibilityScore - 1 || 5),
     source: 'Observed'
   }, {
     label: 'AI Visibility',
-    your: 8,
+    your: ownBusinessComparisonReady ? 8 : null,
     competitor: Math.max(4, competitorIntelligenceScore + 3 || 4),
     source: 'AI Inferred'
   }, {
     label: 'Marketing Activity',
-    your: 7,
+    your: ownBusinessComparisonReady ? 7 : null,
     competitor: Math.max(5, competitorPriorityScore || 5),
     source: 'Observed'
   }, {
     label: 'Audience Reach',
-    your: 7,
+    your: ownBusinessComparisonReady ? 7 : null,
     competitor: Math.max(5, competitorMarketPresenceScore - 1 || 5),
     source: 'Observed'
   }];
@@ -493,19 +520,6 @@ export const LuluCompetitors = () => {
     when: 'laufend',
     impact: 'Medium',
     detail: `Alerts fuer ${selectedCompetitorLabel} sollten auf Visibility, Content und Messaging aktiviert bleiben.`
-  }] : [];
-  const alertRules = selectedCompetitor ? [{
-    label: 'Messaging Changes',
-    description: `Benachrichtige mich, wenn ${selectedCompetitorLabel} sein Kern-Narrativ oder CTA-Pattern aendert.`
-  }, {
-    label: 'Visibility Jumps',
-    description: `Melde, wenn ${selectedCompetitorLabel} sichtbar in ${selectedChannelLabel} gewinnt.`
-  }, {
-    label: 'New Pages or Campaigns',
-    description: `Tracke neue Landing Pages, Ads oder Comparison-Seiten von ${selectedCompetitorLabel}.`
-  }, {
-    label: 'Priority Escalation',
-    description: `Benachrichtige, wenn ${selectedCompetitorLabel} von ${selectedCompetitorPriority} auf kritischer wird.`
   }] : [];
   const workflowActions = selectedCompetitor ? [{
     label: 'SEO Optimization Loop',
@@ -1002,10 +1016,10 @@ export const LuluCompetitors = () => {
                     <tbody>
                       {comparisonMetrics.map(metric => <tr key={metric.label} className="border-t border-border">
                           <td className="px-3 py-3 font-medium">{metric.label}</td>
-                          <td className="px-3 py-3">{metric.your}/10</td>
+                          <td className="px-3 py-3">{metric.your == null ? ownBusinessLabel : `${metric.your}/10`}</td>
                           {compareRows.map(row => {
                         const metricValue = metric.label === 'Market Presence' ? row.metrics.marketScore : metric.label === 'Search Visibility' ? row.metrics.visibilityScore : metric.label === 'AI Visibility' ? Math.max(4, row.metrics.intelligenceScore + 3) : metric.label === 'Marketing Activity' ? row.metrics.priorityScore : metric.label === 'Audience Reach' ? Math.max(4, row.metrics.marketScore - 1) : Math.max(4, row.metrics.visibilityScore - 1);
-                        return <td key={`${row.competitor.n}-${metric.label}`} className="px-3 py-3">{metricValue}/10 <span className={`ml-2 text-[11px] ${metric.your >= metricValue ? 'text-chart-4' : 'text-chart-5'}`}>{metric.your - metricValue > 0 ? `+${metric.your - metricValue}` : metric.your - metricValue}</span></td>;
+                        return <td key={`${row.competitor.n}-${metric.label}`} className="px-3 py-3">{metricValue}/10 {metric.your == null ? null : <span className={`ml-2 text-[11px] ${metric.your >= metricValue ? 'text-chart-4' : 'text-chart-5'}`}>{metric.your - metricValue > 0 ? `+${metric.your - metricValue}` : metric.your - metricValue}</span>}</td>;
                       })}
                         </tr>)}
                     </tbody>
@@ -1015,9 +1029,9 @@ export const LuluCompetitors = () => {
 
               <article className="rounded-xl border bg-card p-5">
                 <h2 className="font-bold">Your Business vs {selectedCompetitorLabel}</h2>
-                {comparisonMetrics.map(metric => <MetricBar key={metric.label} label={metric.label} yourScore={metric.your} competitorScore={metric.competitor} source={metric.source} />)}
+                {comparisonMetrics.map(metric => <MetricBar key={metric.label} label={metric.label} yourScore={metric.your} competitorScore={metric.competitor} yourLabel={ownBusinessLabel} source={metric.source} />)}
                 <div className="mt-5 rounded-xl bg-secondary p-4 text-sm text-foreground">
-                  Why it matters: {selectedCompetitorLabel} ist aktuell der Fokus fuer {selectedChannelLabel}. Diese Matrix zeigt sofort, in welchen Bereichen du mit Content, Positionierung oder Monitoring nachlegen solltest.
+                  {hasLiveWebsite ? 'Warum du hier noch keine Eigenwerte siehst: Es gibt zwar bereits ein Live-Website-Signal, aber Lulu hat noch keine belastbaren eigenen Search- und Market-Benchmarks fuer dein Unternehmen aufgebaut.' : 'Warum du hier noch keine Eigenwerte siehst: Deine Firma ist noch nicht live, deshalb zeigt Lulu bewusst keine erfundenen Werte fuer Search Visibility, Market Presence oder Audience Reach an.'} {selectedCompetitorLabel} bleibt als Referenz sichtbar, damit du schon jetzt die Marktstaerke des Wettbewerbers einordnen kannst.
                 </div>
               </article>
             </section>
@@ -1065,7 +1079,7 @@ export const LuluCompetitors = () => {
               </article>
             </section>
 
-            <section className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_360px]">
+            <section className="mt-6">
               <article className="rounded-xl border bg-card p-5">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex gap-3">
@@ -1100,31 +1114,6 @@ export const LuluCompetitors = () => {
                       <p>Mit Confidence {currentConfidence}% ist die Richtung klar genug, um operative Tasks direkt aus der Seite anzustossen.</p>
                     </div>
                   </div>
-                </div>
-              </article>
-
-              <article className="rounded-xl border bg-card p-5">
-                <div className="flex items-center justify-between gap-3">
-                  <h2 className="font-bold">Alerts & Monitoring</h2>
-                  <Bell size={16} className="text-muted-foreground" />
-                </div>
-                <div className="mt-4 space-y-3">
-                  {alertRules.map(rule => {
-                  const enabled = alertNames.includes(selectedCompetitorLabel);
-                  return <div key={rule.label} className="rounded-lg border border-[var(--border)] p-4">
-                        <div className="flex items-start justify-between gap-3">
-                          <div>
-                            <h3 className="font-semibold">{rule.label}</h3>
-                            <p className="mt-1 text-[11px] text-muted-foreground">{rule.description}</p>
-                          </div>
-                          <Pill tone={enabled ? 'amber' : 'gray'}>{enabled ? 'Enabled' : 'Off'}</Pill>
-                        </div>
-                      </div>;
-                })}
-                </div>
-                <div className="mt-5 grid gap-2">
-                  <button onClick={() => toggleWatchlist(selectedCompetitorLabel)} className="rounded-lg border px-3 py-2 text-xs">{watchlistNames.includes(selectedCompetitorLabel) ? 'Aus Watchlist entfernen' : 'Zur Watchlist hinzufuegen'}</button>
-                  <button onClick={() => toggleAlerts(selectedCompetitorLabel)} className="rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-primary-foreground">{alertNames.includes(selectedCompetitorLabel) ? 'Alerts deaktivieren' : 'Alerts aktivieren'}</button>
                 </div>
               </article>
             </section>
