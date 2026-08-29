@@ -152,6 +152,93 @@ export const luluDropdownNavigation = [{
   "pages": [{
     "id": "fancily-leaf-1766",
     "label": "Executive Dashboard"
+  }, {
+    "id": "serene-cloud-7079",
+    "label": "Intelligence Overview"
+  }, {
+    "id": "tender-water-4095",
+    "label": "Executive Overview"
+  }, {
+    "id": "swiftly-cliff-4166",
+    "label": "Business Health"
+  }, {
+    "id": "sharp-current-9677",
+    "label": "Growth"
+  }, {
+    "id": "proudly-river-8017",
+    "label": "Revenue"
+  }, {
+    "id": "dreamily-shade-6192",
+    "label": "Customers"
+  }, {
+    "id": "nicely-hour-4035",
+    "label": "Sales"
+  }, {
+    "id": "eagerly-winter-3152",
+    "label": "Marketing"
+  }, {
+    "id": "sharply-wood-4560",
+    "label": "Advertising Intelligence"
+  }, {
+    "id": "bold-ocean-5847",
+    "label": "Ecommerce Intelligence"
+  }, {
+    "id": "cozily-path-5612",
+    "label": "Finance Intelligence"
+  }, {
+    "id": "gently-light-6089",
+    "label": "Operations Intelligence"
+  }, {
+    "id": "cool-town-1727",
+    "label": "Products Intelligence"
+  }, {
+    "id": "swift-pool-5077",
+    "label": "KPI Explorer"
+  }, {
+    "id": "friendly-ground-4157",
+    "label": "Reports"
+  }, {
+    "id": "brave-stream-5322",
+    "label": "Comparisons"
+  }, {
+    "id": "sparkling-time-5280",
+    "label": "Comparisons"
+  }, {
+    "id": "wispy-current-7490",
+    "label": "Forecasts"
+  }, {
+    "id": "kindly-year-8981",
+    "label": "Benchmarks"
+  }, {
+    "id": "serenely-creek-1765",
+    "label": "Trends"
+  }, {
+    "id": "sparklingly-light-7230",
+    "label": "Anomalies"
+  }, {
+    "id": "clever-soil-5964",
+    "label": "Attribution"
+  }, {
+    "id": "serenely-week-1771",
+    "label": "AI Insights"
+  }, {
+    "id": "daring-home-4179",
+    "label": "AI Recommendations"
+  }, {
+    "id": "wispy-leaf-3778",
+    "label": "AI Tasks"
+  }, {
+    "id": "happily-brook-7061",
+    "label": "Opportunities"
+  }, {
+    "id": "radiant-cave-9340",
+    "label": "Decisions"
+  }, {
+    "id": "boldly-time-5189",
+    "label": "Risk Center"
+  }, {
+    "id": "proud-rain-4772",
+    "label": "Activity Timeline"
   }]
 }, {
   "label": "AI",
@@ -293,96 +380,6 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "sunny-summer-2293",
     "label": "Ad Accounts & Platform Management"
-  }]
-}, {
-  "label": "Intelligence",
-  "pages": [{
-    "id": "serene-cloud-7079",
-    "label": "Intelligence Overview"
-  }, {
-    "id": "tender-water-4095",
-    "label": "Executive Overview"
-  }, {
-    "id": "swiftly-cliff-4166",
-    "label": "Business Health"
-  }, {
-    "id": "sharp-current-9677",
-    "label": "Growth"
-  }, {
-    "id": "proudly-river-8017",
-    "label": "Revenue"
-  }, {
-    "id": "dreamily-shade-6192",
-    "label": "Customers"
-  }, {
-    "id": "nicely-hour-4035",
-    "label": "Sales"
-  }, {
-    "id": "eagerly-winter-3152",
-    "label": "Marketing"
-  }, {
-    "id": "sharply-wood-4560",
-    "label": "Advertising Intelligence"
-  }, {
-    "id": "bold-ocean-5847",
-    "label": "Ecommerce Intelligence"
-  }, {
-    "id": "cozily-path-5612",
-    "label": "Finance Intelligence"
-  }, {
-    "id": "gently-light-6089",
-    "label": "Operations Intelligence"
-  }, {
-    "id": "cool-town-1727",
-    "label": "Products Intelligence"
-  }, {
-    "id": "swift-pool-5077",
-    "label": "KPI Explorer"
-  }, {
-    "id": "friendly-ground-4157",
-    "label": "Reports"
-  }, {
-    "id": "brave-stream-5322",
-    "label": "Comparisons"
-  }, {
-    "id": "sparkling-time-5280",
-    "label": "Comparisons"
-  }, {
-    "id": "wispy-current-7490",
-    "label": "Forecasts"
-  }, {
-    "id": "kindly-year-8981",
-    "label": "Benchmarks"
-  }, {
-    "id": "serenely-creek-1765",
-    "label": "Trends"
-  }, {
-    "id": "sparklingly-light-7230",
-    "label": "Anomalies"
-  }, {
-    "id": "clever-soil-5964",
-    "label": "Attribution"
-  }, {
-    "id": "serenely-week-1771",
-    "label": "AI Insights"
-  }, {
-    "id": "daring-home-4179",
-    "label": "AI Recommendations"
-  }, {
-    "id": "wispy-leaf-3778",
-    "label": "AI Tasks"
-  }, {
-    "id": "happily-brook-7061",
-    "label": "Opportunities"
-  }, {
-    "id": "radiant-cave-9340",
-    "label": "Decisions"
-  }, {
-    "id": "boldly-time-5189",
-    "label": "Risk Center"
-  }, {
-    "id": "proud-rain-4772",
-    "label": "Activity Timeline"
   }]
 }, {
   "label": "Ecommerce",
