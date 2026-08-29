@@ -49,6 +49,14 @@ export const LEGACY_SETUP_COMPLETE_PATH = "/onboarding/setup-complete";
 export const LULU_NAVIGATION_MESSAGE = "lulu:navigate";
 export const SUBPAGE_NAVIGATION_LOCKED = true;
 
+const WEBSITE_NAVIGATION_SLUGS = new Set([
+  "lulu-website-portal-9012",
+  "sparklingly-moon-5114",
+  "zealously-path-4224",
+  "sunny-house-9595",
+  "website-settings-9019",
+]);
+
 export type LuluNavigationMessage = {
   type: typeof LULU_NAVIGATION_MESSAGE;
   to: string;
@@ -81,9 +89,14 @@ export function isPortalSectionSlug(slug: string) {
   return slug.startsWith("website-") || slug.startsWith("email-") || slug.startsWith("calendar-");
 }
 
+export function isWebsiteNavigationSlug(slug: string) {
+  return slug.startsWith("website-") || WEBSITE_NAVIGATION_SLUGS.has(slug);
+}
+
 export function isSubpageLocked(slug: string) {
   if (!SUBPAGE_NAVIGATION_LOCKED) return false;
   if (!isPageAvailable(slug)) return true;
+  if (isWebsiteNavigationSlug(slug)) return false;
   if (isPortalSectionSlug(slug)) return true;
   if (canonicalPathsBySlug[slug]) return false;
   return !TOP_LEVEL_PAGE_SLUGS.has(slug);

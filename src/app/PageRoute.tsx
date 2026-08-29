@@ -27,7 +27,7 @@ export function PageRoute({ page }: { page: PageDefinition }) {
   const isPublic = contract?.kind === "public" || isAuthPath;
   const isOnboarding = contract?.kind === "onboarding";
 
-  if (SUBPAGE_NAVIGATION_LOCKED && (page.slug === WEBSITE_PORTAL_SLUG || page.slug === "lulu-email-portal-9013" || page.slug === "lulu-calendar-portal-9014") && section) {
+  if (SUBPAGE_NAVIGATION_LOCKED && (page.slug === "lulu-email-portal-9013" || page.slug === "lulu-calendar-portal-9014") && section) {
     searchParams.delete("section");
     const nextSearch = searchParams.toString();
     return <Navigate replace to={{ pathname: location.pathname, search: nextSearch ? `?${nextSearch}` : "" }} />;
