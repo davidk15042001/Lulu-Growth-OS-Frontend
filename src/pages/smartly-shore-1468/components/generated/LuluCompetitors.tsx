@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Activity, AlertTriangle, BarChart3, Bell, Check, ChevronDown, Download, Globe2, LayoutDashboard, Menu, MoreHorizontal, RefreshCw, Search, Settings, Shield, Sparkles, Target, TrendingUp, Users, Zap } from 'lucide-react';
+import { Activity, AlertTriangle, BarChart3, Bell, Check, ChevronDown, Globe2, LayoutDashboard, Menu, MoreHorizontal, RefreshCw, Search, Settings, Shield, Sparkles, Target, TrendingUp, Users, Zap } from 'lucide-react';
 import { ApiError, getFriendlyErrorMessage } from '../../../../api/client';
 import { onboardingApi } from '../../../../api/onboarding';
 import { getSelectedWorkspaceId } from '../../../../api/session';
@@ -484,14 +484,6 @@ export const LuluCompetitors = () => {
     };
   });
 
-  const handleExport = useCallback(() => {
-    if (!selectedCompetitor) {
-      setActionMessage('Waehle zuerst einen Wettbewerber aus der Top-10-Liste aus.');
-      return;
-    }
-    setActionMessage(`Export fuer ${selectedCompetitor.n} wurde vorbereitet: Executive Summary, Compare Matrix, Evidence und automatische Execution Loops.`);
-  }, [selectedCompetitor]);
-
   const toggleCompare = useCallback((name: string) => {
     setCompareSelection(current => current.includes(name) ? current.filter(entry => entry !== name) : [...current, name].slice(-2));
   }, []);
@@ -605,10 +597,6 @@ export const LuluCompetitors = () => {
           <button onClick={() => void refresh()} className="hidden text-xs text-foreground sm:block">
             <RefreshCw size={14} className="mr-1 inline" />
             Refresh
-          </button>
-          <button onClick={handleExport} className="hidden text-xs text-foreground md:block">
-            <Download size={14} className="mr-1 inline" />
-            Export
           </button>
           <button onClick={() => void discoverCompetitors()} disabled={actionBusy || autoDiscoveryBusy} className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] disabled:opacity-60">
             <Sparkles size={13} className="mr-1 inline" />
