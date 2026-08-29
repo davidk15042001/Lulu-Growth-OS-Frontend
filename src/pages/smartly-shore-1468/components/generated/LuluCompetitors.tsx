@@ -26,6 +26,19 @@ const kpis: any[][] = [];
 const movements: string[] = [];
 const insights = ['HubSpot gaining visibility in DACH enterprise segment — your core strategic market.', 'Salesforce AI product messaging overlaps your primary positioning.', 'Your strongest differentiation is a unified AI operating system; competitors focus on point solutions.', 'AI business intelligence has limited competitor content coverage — a content acquisition opportunity.'];
 const actions = ['Strengthen enterprise positioning to create distance from HubSpot SMB focus.', 'Develop content for the AI business intelligence topic cluster.', 'Review growing Salesforce AI feature overlap and assess strategic response.', 'Increase GEO and AEO coverage for queries where competitors are more visible.'];
+type CompetitorRow = {
+  n: string;
+  l: string;
+  c: string;
+  type: string;
+  market: string;
+  pos: string;
+  growth: string;
+  vis: string;
+  pri: string;
+  intel: string;
+  when: string;
+};
 const Pill = ({
   children,
   tone = 'gray'
@@ -56,9 +69,53 @@ export const LuluCompetitors = () => {
   }];
   const selectedLandscapeMetric = landscapeMetricOptions.find(option => option.value === landscapeMetric)?.label ?? 'Market Position';
   const getCompetitorField = (record: typeof competitorRecords[number], key: string) => String((record as unknown as Record<string, unknown>)[key] ?? '');
-  const liveCompetitors = competitorRecords.map(record => ({ n: getCompetitorField(record, 'name') || 'Competitor', l: (getCompetitorField(record, 'name') || 'C').slice(0, 1).toUpperCase(), c: 'var(--foreground)', type: getCompetitorField(record, 'type') || 'Unknown', market: getCompetitorField(record, 'market') || '—', pos: getCompetitorField(record, 'position') || 'Unknown', growth: getCompetitorField(record, 'growth') || '—', vis: getCompetitorField(record, 'visibility') || '—', pri: getCompetitorField(record, 'priority') || '—', intel: getCompetitorField(record, 'intelligence') || '—', when: getCompetitorField(record, 'updated') || record.updatedAt || '—' }));
+  const metricColumnLabel = landscapeMetric === 'market-position' ? 'Competitive Position' : landscapeMetric === 'search-visibility' ? 'Visibility' : 'Priority';
+  const normalizeRank = (value: string, weights: Record<string, number>) => weights[value.trim().toLowerCase()] ?? 0;
+  const sortCompetitorsByLandscapeMetric = (left: CompetitorRow, right: CompetitorRow) => {
+    if (landscapeMetric === 'search-visibility') {
+      return normalizeRank(right.vis, {
+        dominant: 5,
+        very_high: 4,
+        high: 3,
+        medium: 2,
+        low: 1
+      }) - normalizeRank(left.vis, {
+        dominant: 5,
+        very_high: 4,
+        high: 3,
+        medium: 2,
+        low: 1
+      }) || left.n.localeCompare(right.n);
+    }
+    if (landscapeMetric === 'strategic-strength') {
+      return normalizeRank(right.pri, {
+        critical: 4,
+        high: 3,
+        medium: 2,
+        low: 1
+      }) - normalizeRank(left.pri, {
+        critical: 4,
+        high: 3,
+        medium: 2,
+        low: 1
+      }) || left.n.localeCompare(right.n);
+    }
+    return normalizeRank(right.pos, {
+      stronger: 3,
+      parity: 2,
+      equal: 2,
+      weaker: 1
+    }) - normalizeRank(left.pos, {
+      stronger: 3,
+      parity: 2,
+      equal: 2,
+      weaker: 1
+    }) || left.n.localeCompare(right.n);
+  };
+  const liveCompetitors: CompetitorRow[] = competitorRecords.map(record => ({ n: getCompetitorField(record, 'name') || 'Competitor', l: (getCompetitorField(record, 'name') || 'C').slice(0, 1).toUpperCase(), c: 'var(--foreground)', type: getCompetitorField(record, 'type') || 'Unknown', market: getCompetitorField(record, 'market') || '—', pos: getCompetitorField(record, 'position') || 'Unknown', growth: getCompetitorField(record, 'growth') || '—', vis: getCompetitorField(record, 'visibility') || '—', pri: getCompetitorField(record, 'priority') || '—', intel: getCompetitorField(record, 'intelligence') || '—', when: getCompetitorField(record, 'updated') || record.updatedAt || '—' }));
   const visibleCompetitors = competitorsLoading ? [] : liveCompetitors;
   const filtered = visibleCompetitors.filter(x => x.n.toLowerCase().includes(query.toLowerCase()));
+  const metricSortedCompetitors = [...filtered].sort(sortCompetitorsByLandscapeMetric);
   const discoverCompetitors = useCallback(async (automatic = false) => {
     if (!workspaceId) {
       setActionError('Es ist aktuell kein Workspace ausgewählt.');
@@ -91,9 +148,9 @@ export const LuluCompetitors = () => {
 <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">{kpis.map(([title, value, sub, icon]) => <article key={title} className="rounded-xl border border-[var(--border)] bg-card p-4"><div className="flex justify-between text-xs text-muted-foreground"><span>{title}</span><span className="text-[var(--foreground)]">{icon === 'TrendingUp' ? <TrendingUp size={15} /> : icon === 'AlertTriangle' ? <AlertTriangle size={15} /> : icon === 'Sparkles' ? <Sparkles size={15} /> : icon === 'RefreshCw' ? <RefreshCw size={15} /> : icon === 'Target' ? <Target size={15} /> : <Users size={15} />}</span></div><strong className="mt-2 block text-2xl">{value}</strong><p className="mt-1 text-[11px] text-muted-foreground">{sub}</p></article>)}</section>
 <div className="mt-6 flex flex-wrap gap-2 rounded-xl border border-[var(--border)] bg-card p-3"><div className="flex min-w-[240px] flex-1 items-center gap-2 rounded-lg border border-[var(--border)] px-3"><Search size={15} className="text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search competitors, markets, industries" className="w-full py-2 text-xs outline-none" /></div>{['Competitor Type', 'Market', 'Status', 'Competitive Position', 'Growth', 'Intelligence Availability', 'Strategic Priority'].map(x => <button key={x} className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs">{x}<ChevronDown size={12} className="ml-2 inline" /></button>)}<button className="px-2 text-xs text-[var(--foreground)]">Clear Filters</button></div>
 <section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-bold">Competitive Landscape</h2><p className="mt-1 text-xs text-muted-foreground">Market visibility and strategic strength</p></div><label className="relative inline-flex items-center"><select value={landscapeMetric} onChange={e => setLandscapeMetric(e.target.value)} aria-label="Competitive landscape metric" className="appearance-none rounded-lg border border-[var(--border)] bg-card px-3 py-2 pr-8 text-xs text-foreground">{landscapeMetricOptions.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}</select><ChevronDown size={12} className="pointer-events-none absolute right-3 text-muted-foreground" /></label></div><svg viewBox="0 0 900 380" className="mt-4 h-[380px] w-full" role="img" aria-label={`Competitive landscape bubble chart for ${selectedLandscapeMetric}`}><path d="M75 20V330H850" fill="none" stroke="var(--border)" /><path d="M75 95H850M75 170H850M75 245H850" stroke="var(--border)" strokeDasharray="5 5" /><text x="410" y="365" fill="var(--muted-foreground)" fontSize="12">Market Visibility · Low → High</text><text transform="rotate(-90 18 190)" x="18" y="190" fill="var(--muted-foreground)" fontSize="12">Strategic Strength · Weak → Strong</text><circle cx="650" cy="190" r="48" fill="var(--chart-1)" fillOpacity=".85" stroke="var(--chart-1)" strokeWidth="8" strokeOpacity=".18" /><circle cx="735" cy="70" r="42" fill="var(--chart-5)" /><circle cx="800" cy="95" r="36" fill="var(--chart-5)" /><circle cx="700" cy="145" r="28" fill="var(--chart-1)" /><circle cx="560" cy="165" r="25" fill="var(--chart-3)" /><circle cx="220" cy="145" r="18" fill="var(--border)" /><circle cx="460" cy="265" r="21" fill="var(--border)" /><circle cx="300" cy="275" r="24" fill="var(--chart-2)" /><g textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--muted-foreground)"><text x="650" y="195">Lulu AI</text><text x="735" y="75">HubSpot</text><text x="800" y="100">Salesforce</text><text x="700" y="150">Pipedrive</text><text x="560" y="170">Monday</text><text x="220" y="150">Zoho</text><text x="460" y="270">Freshworks</text><text x="300" y="280">Notion</text></g></svg><div className="flex flex-wrap gap-5 border-t pt-3 text-xs"><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--primary)] text-primary-foreground" />Your Business</span><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-destructive" />Direct</span><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-primary text-primary-foreground" />Indirect</span><span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-primary text-primary-foreground" />Emerging</span><span className="text-muted-foreground">{selectedLandscapeMetric} is AI Inferred · updated 1 hour ago <Pill tone="purple">AI Inferred</Pill></span></div></section>
-<section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-5"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-lg font-bold">Top 10 Competitors <Pill>{visibleCompetitors.length}</Pill></h2><div className="flex gap-1">{['List', 'Grid', 'Comparison', 'Intelligence'].map(x => <button key={x} onClick={() => setView(x)} className={`border-b-2 px-3 py-2 text-xs ${view === x ? 'border-[var(--border)] font-semibold' : 'border-transparent text-foreground'}`}>{x}</button>)}</div></div>{view === 'List' ? <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[980px] text-left text-xs"><thead className="bg-[var(--card)] text-[10px] uppercase text-muted-foreground"><tr>{['Competitor', 'Type', 'Market', 'Competitive Position', 'Growth', 'Visibility', 'Priority', 'Intelligence', 'Updated', 'Actions'].map(h => <th key={h} className="px-3 py-3">{h}</th>)}</tr></thead><tbody>{filtered.map(x => <tr key={x.n} className="border-t border-border"><td className="px-3 py-3"><span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-foreground" style={{
+<section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-5"><div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-lg font-bold">Top 10 Competitors <Pill>{visibleCompetitors.length}</Pill></h2><p className="mt-1 text-xs text-muted-foreground">Sorted by {selectedLandscapeMetric} and highlighted in the table.</p></div><div className="flex gap-1">{['List', 'Grid', 'Comparison', 'Intelligence'].map(x => <button key={x} onClick={() => setView(x)} className={`border-b-2 px-3 py-2 text-xs ${view === x ? 'border-[var(--border)] font-semibold' : 'border-transparent text-foreground'}`}>{x}</button>)}</div></div>{view === 'List' ? <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[980px] text-left text-xs"><thead className="bg-[var(--card)] text-[10px] uppercase text-muted-foreground"><tr>{['Competitor', 'Type', 'Market', 'Competitive Position', 'Growth', 'Visibility', 'Priority', 'Intelligence', 'Updated', 'Actions'].map(h => <th key={h} className={`px-3 py-3 ${h === metricColumnLabel ? 'text-foreground' : ''}`}>{h}</th>)}</tr></thead><tbody>{metricSortedCompetitors.map(x => <tr key={x.n} className="border-t border-border"><td className="px-3 py-3"><span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-foreground" style={{
                       background: x.c
-                    }}>{x.l}</span><b>{x.n}</b></td><td><Pill tone={x.type === 'Direct' ? 'red' : 'gray'}>{x.type}</Pill></td><td>{x.market}</td><td><Pill tone={x.pos === 'Stronger' ? 'red' : x.pos === 'Weaker' ? 'green' : 'amber'}>{x.pos}</Pill></td><td className={x.growth.startsWith('-') ? 'text-chart-5' : 'text-chart-4'}>{x.growth}</td><td>{x.vis}</td><td><Pill tone={x.pri === 'Critical' ? 'red' : 'amber'}>{x.pri}</Pill></td><td><Pill tone={x.intel === 'Full' ? 'green' : x.intel === 'Partial' ? 'amber' : 'gray'}>{x.intel}</Pill></td><td>{x.when}</td><td className="whitespace-nowrap text-[var(--foreground)]">Open · Compare</td></tr>)}</tbody></table></div> : <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{filtered.slice(0, 4).map(x => <article key={x.n} className="rounded-xl border p-4"><span className="inline-flex h-9 w-9 items-center justify-center rounded-full font-bold text-foreground" style={{
+                    }}>{x.l}</span><b>{x.n}</b></td><td><Pill tone={x.type === 'Direct' ? 'red' : 'gray'}>{x.type}</Pill></td><td>{x.market}</td><td className={landscapeMetric === 'market-position' ? 'bg-secondary/40' : undefined}><Pill tone={x.pos === 'Stronger' ? 'red' : x.pos === 'Weaker' ? 'green' : 'amber'}>{x.pos}</Pill></td><td className={x.growth.startsWith('-') ? 'text-chart-5' : 'text-chart-4'}>{x.growth}</td><td className={landscapeMetric === 'search-visibility' ? 'bg-secondary/40 font-semibold' : undefined}>{x.vis}</td><td className={landscapeMetric === 'strategic-strength' ? 'bg-secondary/40' : undefined}><Pill tone={x.pri === 'Critical' ? 'red' : 'amber'}>{x.pri}</Pill></td><td><Pill tone={x.intel === 'Full' ? 'green' : x.intel === 'Partial' ? 'amber' : 'gray'}>{x.intel}</Pill></td><td>{x.when}</td><td className="whitespace-nowrap text-[var(--foreground)]">Open · Compare</td></tr>)}</tbody></table></div> : <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">{metricSortedCompetitors.slice(0, 4).map(x => <article key={x.n} className="rounded-xl border p-4"><span className="inline-flex h-9 w-9 items-center justify-center rounded-full font-bold text-foreground" style={{
                 background: x.c
               }}>{x.l}</span><Pill tone="red">{x.type}</Pill><h3 className="mt-3 font-bold">{x.n}</h3><p className="text-xs text-muted-foreground">{x.n.toLowerCase()}.com · {x.market}</p><div className="mt-4 flex flex-wrap gap-1"><Pill tone="amber">{x.pos}</Pill><Pill tone="green">{x.growth}</Pill><Pill>{x.intel} Intelligence</Pill></div><div className="mt-5 border-t pt-3 text-xs text-[var(--foreground)]">Open · Compare</div></article>)}</div>}</section>
 <article className="mt-6 rounded-xl bg-[var(--card)] p-6 text-foreground"><div className="flex flex-wrap items-start justify-between gap-3"><div className="flex gap-3"><span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--primary)] text-xl font-bold text-primary-foreground">H</span><div><h2 className="text-xl font-bold">HubSpot</h2><p className="text-xs text-muted-foreground">hubspot.com · CRM and inbound marketing</p></div></div><div className="flex flex-wrap gap-2"><Pill tone="green">Active</Pill><Pill tone="red">Critical Priority</Pill><Pill tone="green">Full Intelligence</Pill><button className="rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-primary-foreground">Ask Lulu AI</button></div></div><div className="mt-5 flex flex-wrap gap-4 border-b border-border pb-3 text-xs text-muted-foreground">{['Overview', 'Position', 'Marketing', 'Content', 'SEO', 'GEO', 'AEO', 'Advertising', 'Audiences', 'Movements'].map((x, i) => <button key={x} className={i === 0 ? 'border-b-2 border-[var(--border)] pb-3 text-[var(--foreground)]' : ''}>{x}</button>)}</div><div className="mt-5 grid gap-4 xl:grid-cols-2"><div className="rounded-xl bg-card p-5 text-[var(--foreground)]"><h3 className="font-bold">Company overview</h3><p className="mt-3 text-sm leading-6 text-muted-foreground">HubSpot is a leading CRM and inbound marketing platform serving SMB to mid-market teams.</p><p className="mt-4 text-xs font-semibold">Products</p><div className="mt-2 flex flex-wrap gap-2">{['CRM', 'Marketing Hub', 'Sales Hub', 'Service Hub'].map(x => <Pill key={x}>{x}</Pill>)}</div><p className="mt-4 text-xs text-muted-foreground">Company information <Pill tone="green">Observed</Pill> · updated Today</p></div><div className="rounded-xl bg-[var(--secondary)] p-5"><h3 className="font-bold"><Sparkles className="mr-2 inline text-[var(--foreground)]" size={16} />AI Competitive Insights <Pill tone="amber">AI-generated</Pill></h3>{insights.slice(0, 3).map((x, i) => <p key={x} className={`mt-4 border-l-2 ${i === 2 ? 'border-border' : 'border-chart-5'} pl-3 text-sm text-foreground`}>{x}</p>)}</div></div></article>
