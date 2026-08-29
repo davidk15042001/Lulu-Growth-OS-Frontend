@@ -162,6 +162,7 @@ export const LuluCompetitors = () => {
   const [engine, setEngine] = useState<CompetitorIntelligenceResponse | null>(null);
   const [engineLoading, setEngineLoading] = useState(false);
   const [engineError, setEngineError] = useState<string | null>(null);
+  const [engineLoaded, setEngineLoaded] = useState(false);
   const workspaceId = getSelectedWorkspaceId();
   const landscapeMetricOptions = [{
     value: 'market-position',
@@ -180,6 +181,7 @@ export const LuluCompetitors = () => {
       setEngine(null);
       setEngineError(null);
       setEngineLoading(false);
+      setEngineLoaded(false);
       return;
     }
     setEngineLoading(true);
@@ -192,6 +194,7 @@ export const LuluCompetitors = () => {
       setEngineError(getFriendlyErrorMessage(cause, 'Die zentrale Wettbewerbsanalyse konnte nicht geladen werden.'));
     } finally {
       setEngineLoading(false);
+      setEngineLoaded(true);
     }
   }, [workspaceId]);
   useEffect(() => {
@@ -395,9 +398,10 @@ export const LuluCompetitors = () => {
   }, [refresh, workspaceId]);
   useEffect(() => {
     if (!workspaceId || engineLoading || engineError || visibleCompetitors.length > 0 || autoTriggered) return;
+    if (!engineLoaded) return;
     setAutoTriggered(true);
     void discoverCompetitors(true);
-  }, [autoTriggered, discoverCompetitors, engineError, engineLoading, visibleCompetitors.length, workspaceId]);
+  }, [autoTriggered, discoverCompetitors, engineError, engineLoaded, engineLoading, visibleCompetitors.length, workspaceId]);
   useEffect(() => {
     if (!autoDiscoveryBusy || hasCompetitors || engineError) return;
     const pollTimer = window.setInterval(() => {

@@ -197,6 +197,12 @@ function isMeaningfulServerErrorMessage(message: string, code: string) {
   return true;
 }
 
+function isGenericServerErrorMessage(error: ApiError) {
+  return error.code === "API_ERROR"
+    || error.code === "INTERNAL_ERROR"
+    || error.message === friendlyApiMessage(error.status, error.code);
+}
+
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string;
@@ -224,7 +230,9 @@ export function getFriendlyErrorMessage(
   error: unknown,
   fallback = "Something went wrong. Please try again.",
 ) {
-  return error instanceof ApiError ? error.message : fallback;
+  if (!(error instanceof ApiError)) return fallback;
+  if (fallback && isGenericServerErrorMessage(error)) return fallback;
+  return error.message;
 }
 
 function safeTechnicalDetails(details: unknown) {
