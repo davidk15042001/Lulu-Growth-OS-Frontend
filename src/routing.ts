@@ -54,7 +54,6 @@ const WEBSITE_NAVIGATION_SLUGS = new Set([
   "sparklingly-moon-5114",
   "zealously-path-4224",
   "sunny-house-9595",
-  "website-settings-9019",
 ]);
 
 export type LuluNavigationMessage = {
@@ -72,6 +71,7 @@ export function pagePath(slug: string) {
 
 const REMOVED_PAGE_SLUGS = new Set([
   "brave-stream-5322",
+  "website-settings-9019",
 ]);
 
 const TOP_LEVEL_PAGE_SLUGS = new Set([

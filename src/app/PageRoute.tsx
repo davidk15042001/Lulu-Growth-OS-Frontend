@@ -27,6 +27,12 @@ export function PageRoute({ page }: { page: PageDefinition }) {
   const isPublic = contract?.kind === "public" || isAuthPath;
   const isOnboarding = contract?.kind === "onboarding";
 
+  if (page.slug === WEBSITE_PORTAL_SLUG && section === "settings-9019") {
+    const params = new URLSearchParams(location.search);
+    params.set("section", DEFAULT_WEBSITE_SECTION);
+    return <Navigate replace to={{ pathname: routes.app.website, search: `?${params.toString()}` }} />;
+  }
+
   if (SUBPAGE_NAVIGATION_LOCKED && (page.slug === "lulu-email-portal-9013" || page.slug === "lulu-calendar-portal-9014") && section) {
     searchParams.delete("section");
     const nextSearch = searchParams.toString();
