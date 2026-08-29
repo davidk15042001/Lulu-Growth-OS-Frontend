@@ -51,6 +51,11 @@ export const SUBPAGE_NAVIGATION_LOCKED = true;
 export const PRIMARY_AUDIENCES_SLUG = "breezily-wood-5980";
 export const LEGACY_ADVERTISING_AUDIENCES_SLUG = "softly-second-7684";
 
+const EXPLICITLY_UNLOCKED_SUBPAGE_SLUGS = new Set([
+  "smartly-shore-1468",
+  PRIMARY_AUDIENCES_SLUG,
+]);
+
 const WEBSITE_NAVIGATION_SLUGS = new Set([
   "lulu-website-portal-9012",
   "sparklingly-moon-5114",
@@ -101,6 +106,7 @@ export function isSubpageLocked(slug: string) {
   if (!SUBPAGE_NAVIGATION_LOCKED) return false;
   if (!isPageAvailable(slug)) return true;
   if (isWebsiteNavigationSlug(slug)) return false;
+  if (EXPLICITLY_UNLOCKED_SUBPAGE_SLUGS.has(slug)) return false;
   if (isPortalSectionSlug(slug)) return true;
   if (canonicalPathsBySlug[slug]) return false;
   return !TOP_LEVEL_PAGE_SLUGS.has(slug);

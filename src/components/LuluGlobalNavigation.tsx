@@ -1,6 +1,6 @@
 import { ChevronDown, LogOut, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { SUBPAGE_NAVIGATION_LOCKED, isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
+import { PRIMARY_AUDIENCES_SLUG, SUBPAGE_NAVIGATION_LOCKED, isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
@@ -127,7 +127,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                   const available = Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
                   const isWebsiteLocked = Boolean(websiteLock?.blocking && section.label === "Website");
-                  const isDropdownLinkLocked = (SUBPAGE_NAVIGATION_LOCKED && section.label !== "Website" && page.id !== "smartly-shore-1468") || isWebsiteLocked || !available;
+                  const isDropdownLinkLocked = (SUBPAGE_NAVIGATION_LOCKED && section.label !== "Website" && page.id !== "smartly-shore-1468" && page.id !== PRIMARY_AUDIENCES_SLUG) || isWebsiteLocked || !available;
                   const lockedLabel = isWebsiteLocked ? websiteLockText : "Navigation-Link gesperrt";
                   return (
                     <a
