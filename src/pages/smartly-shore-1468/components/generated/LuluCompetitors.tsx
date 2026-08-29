@@ -281,8 +281,8 @@ export const LuluCompetitors = () => {
     };
   });
   const visibleCompetitors = competitorsLoading ? [] : liveCompetitors;
-  const marketOptions = useMemo(() => ['All markets', ...Array.from(new Set(visibleCompetitors.map(competitor => competitor.market).filter(Boolean)))], [visibleCompetitors]);
-  const typeOptions = useMemo(() => ['All types', ...Array.from(new Set(visibleCompetitors.map(competitor => competitor.type).filter(Boolean)))], [visibleCompetitors]);
+  const marketOptions = useMemo(() => ['All markets', ...Array.from(new Set(visibleCompetitors.map(competitor => competitor.market).filter(option => option && option !== '—')))], [visibleCompetitors]);
+  const typeOptions = useMemo(() => ['All types', ...Array.from(new Set(visibleCompetitors.map(competitor => competitor.type).filter(option => option && option !== 'Unknown')))], [visibleCompetitors]);
   const filtered = visibleCompetitors.filter(competitor => {
     if (query && !`${competitor.n} ${competitor.market} ${competitor.type}`.toLowerCase().includes(query.toLowerCase())) {
       return false;
@@ -631,18 +631,17 @@ export const LuluCompetitors = () => {
       setSelectedCompetitorName(topTenCompetitors[0]!.n);
     }
   }, [selectedCompetitorName, topTenCompetitors]);
-  useEffect(() => {
-    if (!selectedCompetitor?.n) return;
-    setWatchlistNames(current => current.includes(selectedCompetitor.n) ? current : [...current, selectedCompetitor.n]);
-    setAlertNames(current => current.includes(selectedCompetitor.n) ? current : [...current, selectedCompetitor.n]);
-  }, [selectedCompetitor?.n]);
   return <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]" style={{
     fontFamily: 'Poppins'
   }}>
+    {mobile && <button className="fixed inset-0 z-20 bg-black/30 lg:hidden" aria-label="Close navigation" onClick={() => setMobile(false)} />}
     <aside className={`${mobile ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-30 w-[220px] flex-col bg-[var(--sidebar)] px-3 py-5 lg:flex`}>
       <div className="mb-7 flex items-center gap-2 px-2">
         <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--primary)] font-bold text-primary-foreground">L</span>
         <strong className="text-foreground">Lulu AI</strong>
+        <button className="ml-auto rounded-md p-1 text-foreground lg:hidden" onClick={() => setMobile(false)} aria-label="Close navigation">
+          <ChevronDown size={18} />
+        </button>
       </div>
       <LuluSectionNavigation activeId="smartly-shore-1468" />
       <div className="flex items-center gap-2 border-t border-[var(--muted-foreground)] pt-4">
@@ -841,7 +840,7 @@ export const LuluCompetitors = () => {
               </svg>
 
               <div className="mt-3 flex flex-wrap gap-5 border-t pt-3 text-xs">
-                <span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--primary)]" />Your Business</span>
+                <span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-[var(--primary)]" />Focus Competitor</span>
                 <span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-destructive" />Direct</span>
                 <span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-primary" />Indirect</span>
                 <span><i className="mr-2 inline-block h-2 w-2 rounded-full bg-chart-2" />Emerging</span>
@@ -871,7 +870,7 @@ export const LuluCompetitors = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {metricSortedCompetitors.map(competitor => <tr key={competitor.n} onClick={() => setSelectedCompetitorName(competitor.n)} className={`cursor-pointer border-t border-border ${competitor.n === selectedCompetitor?.n ? 'bg-secondary/25' : ''}`}>
+                      {topTenCompetitors.map(competitor => <tr key={competitor.n} onClick={() => setSelectedCompetitorName(competitor.n)} className={`cursor-pointer border-t border-border ${competitor.n === selectedCompetitor?.n ? 'bg-secondary/25' : ''}`}>
                           <td className="px-3 py-3">
                             <span className="mr-2 inline-flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-xs font-bold text-foreground">{competitor.l}</span>
                             <b>{competitor.n}</b>
