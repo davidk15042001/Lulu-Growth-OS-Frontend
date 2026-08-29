@@ -433,7 +433,7 @@ export const luluDropdownNavigation = [{
     "label": "Strategy"
   }, {
     "id": "gently-shade-2476",
-    "label": "Campaigns"
+    "label": "Campaign Tracker"
   }, {
     "id": "kind-time-4492",
     "label": "Keywords"

@@ -11,6 +11,7 @@ type CompetitorRow = {
   n: string;
   l: string;
   c: string;
+  rank: number;
   type: string;
   market: string;
   pos: string;
@@ -19,6 +20,13 @@ type CompetitorRow = {
   pri: string;
   intel: string;
   when: string;
+  websiteUrl: string;
+  positioning: string;
+  strengths: string[];
+  weaknesses: string[];
+  differentiators: string[];
+  featureOverlap: string[];
+  sourceQuality: string;
 };
 
 const AUTO_DISCOVERY_TIMEOUT_MS = 15000;
@@ -54,6 +62,95 @@ const scoreFromValue = (value: string, weights: Record<string, number>, max: num
   const rank = normalizeRank(value, weights);
   return rank > 0 ? Math.round(4 + rank / max * 6) : 0;
 };
+const readTextValue = (value: unknown) => {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number') return String(value);
+  return '';
+};
+const readListValue = (value: unknown) => Array.isArray(value) ? value.map(entry => readTextValue(entry)).filter(Boolean) : [];
+const getRecordData = (record: {
+  data?: Record<string, unknown> | null;
+}) => record.data && typeof record.data === 'object' ? record.data : {};
+const inferTypeFromTags = (tags: string[]) => {
+  if (tags.includes('direct')) return 'Direct';
+  if (tags.includes('indirect')) return 'Indirect';
+  if (tags.includes('substitute')) return 'Substitute';
+  if (tags.includes('emerging')) return 'Emerging';
+  return 'Unknown';
+};
+const normalizeWebsiteUrl = (value: string, competitorName: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return `https://${slugify(competitorName)}.com`;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
+const getWebsiteLabel = (url: string) => {
+  try {
+    return new URL(url).hostname.replace(/^www\./i, '');
+  } catch {
+    return url.replace(/^https?:\/\//i, '');
+  }
+};
+const formatUpdatedLabel = (value: string) => {
+  if (!value || value === '—') return '—';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(parsed);
+};
+const getPositionScore = (value: string) => scoreFromValue(value, {
+  stronger: 4,
+  parity: 3,
+  equal: 3,
+  weaker: 2,
+  peer: 2,
+  unknown: 1
+}, 4);
+const getVisibilityScore = (value: string) => scoreFromValue(value, {
+  dominant: 5,
+  very_high: 4,
+  high: 3,
+  medium: 2,
+  low: 1
+}, 5);
+const getPriorityScore = (value: string) => scoreFromValue(value, {
+  critical: 4,
+  high: 3,
+  medium: 2,
+  low: 1
+}, 4);
+const getIntelligenceScore = (value: string) => scoreFromValue(value, {
+  full: 3,
+  partial: 2,
+  limited: 1
+}, 3);
+const getConfidenceScore = (sourceQuality: string, intelligence: string) => {
+  const qualityBoost = normalizeRank(sourceQuality, {
+    high: 3,
+    medium: 2,
+    low: 1
+  });
+  const intelligenceBoost = normalizeRank(intelligence, {
+    full: 3,
+    partial: 2,
+    limited: 1
+  });
+  return 55 + qualityBoost * 8 + intelligenceBoost * 7;
+};
+const getLandscapeBubbleFill = (competitor: CompetitorRow, isSelected: boolean) => {
+  if (isSelected) return 'var(--primary)';
+  const normalized = competitor.type.trim().toLowerCase();
+  if (normalized === 'direct') return 'var(--chart-5)';
+  if (normalized === 'indirect') return 'var(--chart-3)';
+  if (normalized === 'emerging') return 'var(--chart-2)';
+  return 'var(--border)';
+};
+const shortenCompetitorLabel = (value: string) => value.length > 18 ? `${value.slice(0, 16)}…` : value;
 
 const MetricBar = ({
   label,
@@ -114,7 +211,6 @@ export const LuluCompetitors = () => {
     label: 'Strategic Strength'
   }];
   const selectedLandscapeMetric = landscapeMetricOptions.find(option => option.value === landscapeMetric)?.label ?? 'Market Position';
-  const getCompetitorField = (record: typeof competitorRecords[number], key: string) => String((record as unknown as Record<string, unknown>)[key] ?? '');
   const metricColumnLabel = landscapeMetric === 'market-position' ? 'Competitive Position' : landscapeMetric === 'search-visibility' ? 'Visibility' : 'Priority';
   const sortCompetitorsByLandscapeMetric = (left: CompetitorRow, right: CompetitorRow) => {
     if (landscapeMetric === 'search-visibility') {
@@ -157,19 +253,33 @@ export const LuluCompetitors = () => {
       weaker: 1
     }) || left.n.localeCompare(right.n);
   };
-  const liveCompetitors: CompetitorRow[] = competitorRecords.map(record => ({
-    n: getCompetitorField(record, 'name') || 'Competitor',
-    l: (getCompetitorField(record, 'name') || 'C').slice(0, 1).toUpperCase(),
-    c: 'var(--foreground)',
-    type: getCompetitorField(record, 'type') || 'Unknown',
-    market: getCompetitorField(record, 'market') || '—',
-    pos: getCompetitorField(record, 'position') || 'Unknown',
-    growth: getCompetitorField(record, 'growth') || '—',
-    vis: getCompetitorField(record, 'visibility') || '—',
-    pri: getCompetitorField(record, 'priority') || '—',
-    intel: getCompetitorField(record, 'intelligence') || '—',
-    when: getCompetitorField(record, 'updated') || record.updatedAt || '—'
-  }));
+  const liveCompetitors: CompetitorRow[] = competitorRecords.map(record => {
+    const data = getRecordData(record);
+    const competitorName = readTextValue(data.name) || record.name || 'Competitor';
+    const competitorType = readTextValue(data.type) || inferTypeFromTags(record.tags);
+    const websiteUrl = normalizeWebsiteUrl(readTextValue(data.websiteUrl), competitorName);
+    return {
+      n: competitorName,
+      l: competitorName.slice(0, 1).toUpperCase(),
+      c: 'var(--foreground)',
+      rank: Number(data.rank ?? 999),
+      type: competitorType,
+      market: readTextValue(data.market) || '—',
+      pos: readTextValue(data.position) || 'Peer',
+      growth: readTextValue(data.growth) || 'Stable',
+      vis: readTextValue(data.visibility) || 'Medium',
+      pri: readTextValue(data.priority) || 'High',
+      intel: readTextValue(data.intelligence) || 'Partial',
+      when: formatUpdatedLabel(readTextValue(data.updated) || record.updatedAt || '—'),
+      websiteUrl,
+      positioning: readTextValue(data.positioning) || record.description || '',
+      strengths: readListValue(data.strengths),
+      weaknesses: readListValue(data.weaknesses),
+      differentiators: readListValue(data.differentiators),
+      featureOverlap: readListValue(data.featureOverlap),
+      sourceQuality: readTextValue(data.sourceQuality) || 'Medium'
+    };
+  });
   const visibleCompetitors = competitorsLoading ? [] : liveCompetitors;
   const marketOptions = useMemo(() => ['All markets', ...Array.from(new Set(visibleCompetitors.map(competitor => competitor.market).filter(Boolean)))], [visibleCompetitors]);
   const typeOptions = useMemo(() => ['All types', ...Array.from(new Set(visibleCompetitors.map(competitor => competitor.type).filter(Boolean)))], [visibleCompetitors]);
@@ -185,7 +295,7 @@ export const LuluCompetitors = () => {
     }
     return true;
   });
-  const metricSortedCompetitors = [...filtered].sort(sortCompetitorsByLandscapeMetric);
+  const metricSortedCompetitors = [...filtered].sort((left, right) => sortCompetitorsByLandscapeMetric(left, right) || left.rank - right.rank);
   const topTenCompetitors = metricSortedCompetitors.slice(0, 10);
   const hasCompetitors = topTenCompetitors.length > 0;
   const selectedCompetitor = topTenCompetitors.find(x => x.n === selectedCompetitorName) ?? topTenCompetitors[0] ?? null;
@@ -198,34 +308,14 @@ export const LuluCompetitors = () => {
   const selectedCompetitorPriority = selectedCompetitor?.pri ?? '—';
   const selectedCompetitorIntelligence = selectedCompetitor?.intel ?? '—';
   const selectedCompetitorUpdatedAt = selectedCompetitor?.when ?? '—';
-  const selectedCompetitorDomain = selectedCompetitor ? `${slugify(selectedCompetitor.n)}.com` : '—';
-  const selectedCompetitorProducts = selectedCompetitorType === 'Direct' ? ['CRM', 'Marketing Automation', 'Sales Enablement', 'Analytics'] : selectedCompetitorType === 'Indirect' ? ['Workflow Automation', 'Analytics', 'Integrations', 'Collaboration'] : ['AI Automation', 'Business Intelligence', 'Growth Platform', 'Operations'];
-  const selectedCompetitorOverview = selectedCompetitor ? `${selectedCompetitorLabel} ist aktuell als ${selectedCompetitorType === 'Unknown' ? 'relevanter Marktteilnehmer' : `${selectedCompetitorType.toLowerCase()}er Wettbewerber`} im Markt ${selectedCompetitorMarket} eingeordnet. Die Live-Daten zeigen ${selectedCompetitorVisibility.toLowerCase()} Sichtbarkeit, ${selectedCompetitorGrowth} Wachstumssignal und ${selectedCompetitorIntelligence.toLowerCase()} Intelligence-Abdeckung.` : 'Wähle einen Wettbewerber aus den Top 10 aus, um die Detailanalyse darunter zu sehen.';
-  const competitorMarketPresenceScore = scoreFromValue(selectedCompetitorPosition, {
-    stronger: 4,
-    parity: 3,
-    equal: 3,
-    weaker: 2,
-    unknown: 1
-  }, 4);
-  const competitorVisibilityScore = scoreFromValue(selectedCompetitorVisibility, {
-    dominant: 5,
-    very_high: 4,
-    high: 3,
-    medium: 2,
-    low: 1
-  }, 5);
-  const competitorPriorityScore = scoreFromValue(selectedCompetitorPriority, {
-    critical: 4,
-    high: 3,
-    medium: 2,
-    low: 1
-  }, 4);
-  const competitorIntelligenceScore = scoreFromValue(selectedCompetitorIntelligence, {
-    full: 3,
-    partial: 2,
-    limited: 1
-  }, 3);
+  const selectedCompetitorWebsiteUrl = selectedCompetitor?.websiteUrl ?? '—';
+  const selectedCompetitorDomain = selectedCompetitor ? getWebsiteLabel(selectedCompetitorWebsiteUrl) : '—';
+  const selectedCompetitorProducts = selectedCompetitor?.featureOverlap.length ? selectedCompetitor.featureOverlap.slice(0, 4) : selectedCompetitor?.differentiators.length ? selectedCompetitor.differentiators.slice(0, 4) : selectedCompetitorType === 'Direct' ? ['CRM', 'Marketing Automation', 'Sales Enablement', 'Analytics'] : selectedCompetitorType === 'Indirect' ? ['Workflow Automation', 'Analytics', 'Integrations', 'Collaboration'] : ['AI Automation', 'Business Intelligence', 'Growth Platform', 'Operations'];
+  const selectedCompetitorOverview = selectedCompetitor ? `${selectedCompetitorLabel} ist aktuell als ${selectedCompetitorType === 'Unknown' ? 'relevanter Marktteilnehmer' : `${selectedCompetitorType.toLowerCase()}er Wettbewerber`} im Markt ${selectedCompetitorMarket} eingeordnet. ${selectedCompetitor.positioning ? `Positionierung: ${selectedCompetitor.positioning}. ` : ''}Die Live-Daten zeigen ${selectedCompetitorVisibility.toLowerCase()} Sichtbarkeit, ${selectedCompetitorGrowth} Wachstumssignal und ${selectedCompetitorIntelligence.toLowerCase()} Intelligence-Abdeckung.` : 'Wähle einen Wettbewerber aus den Top 10 aus, um die Detailanalyse darunter zu sehen.';
+  const competitorMarketPresenceScore = getPositionScore(selectedCompetitorPosition);
+  const competitorVisibilityScore = getVisibilityScore(selectedCompetitorVisibility);
+  const competitorPriorityScore = getPriorityScore(selectedCompetitorPriority);
+  const competitorIntelligenceScore = getIntelligenceScore(selectedCompetitorIntelligence);
   const compareCandidates = topTenCompetitors.filter(competitor => competitor.n !== selectedCompetitor?.n).slice(0, 6);
   const compareCompetitors = useMemo(() => {
     const selectedNames = [selectedCompetitor?.n, ...compareSelection].filter((value): value is string => Boolean(value));
@@ -233,30 +323,31 @@ export const LuluCompetitors = () => {
     if (matched.length >= 2) return matched.slice(0, 3);
     return [selectedCompetitor, ...compareCandidates.slice(0, 2)].filter((competitor): competitor is CompetitorRow => Boolean(competitor)).slice(0, 3);
   }, [compareCandidates, compareSelection, selectedCompetitor, topTenCompetitors]);
-  const strongestCompetitor = useMemo(() => [...topTenCompetitors].sort((left, right) => normalizeRank(right.pri, {
-    critical: 4,
-    high: 3,
-    medium: 2,
-    low: 1
-  }) - normalizeRank(left.pri, {
-    critical: 4,
-    high: 3,
-    medium: 2,
-    low: 1
-  }))[0] ?? selectedCompetitor, [selectedCompetitor, topTenCompetitors]);
+  const strongestCompetitor = useMemo(() => [...topTenCompetitors].sort((left, right) => getPriorityScore(right.pri) - getPriorityScore(left.pri))[0] ?? selectedCompetitor, [selectedCompetitor, topTenCompetitors]);
   const fastestMover = useMemo(() => [...topTenCompetitors].sort((left, right) => parseGrowthValue(right.growth) - parseGrowthValue(left.growth))[0] ?? selectedCompetitor, [selectedCompetitor, topTenCompetitors]);
-  const weakestGapTarget = useMemo(() => [...topTenCompetitors].sort((left, right) => normalizeRank(left.pos, {
-    weaker: 1,
-    parity: 2,
-    equal: 2,
-    stronger: 3
-  }) - normalizeRank(right.pos, {
-    weaker: 1,
-    parity: 2,
-    equal: 2,
-    stronger: 3
-  }))[0] ?? selectedCompetitor, [selectedCompetitor, topTenCompetitors]);
-  const currentConfidence = selectedCompetitorIntelligence === 'Full' ? 92 : selectedCompetitorIntelligence === 'Partial' ? 78 : 61;
+  const weakestGapTarget = useMemo(() => [...topTenCompetitors].sort((left, right) => getPositionScore(left.pos) - getPositionScore(right.pos))[0] ?? selectedCompetitor, [selectedCompetitor, topTenCompetitors]);
+  const currentConfidence = getConfidenceScore(selectedCompetitor?.sourceQuality ?? 'Medium', selectedCompetitorIntelligence);
+  const landscapeChartCompetitors = useMemo(() => {
+    const items = selectedCompetitor ? [selectedCompetitor, ...topTenCompetitors.filter(competitor => competitor.n !== selectedCompetitor.n)] : topTenCompetitors;
+    return items.slice(0, 7).map((competitor, index) => {
+      const marketScore = getPositionScore(competitor.pos) || 5;
+      const visibilityScore = getVisibilityScore(competitor.vis) || 5;
+      const priorityScore = getPriorityScore(competitor.pri) || 5;
+      const intelligenceScore = getIntelligenceScore(competitor.intel) || 4;
+      const growthScore = Math.max(2, Math.min(10, 5 + Math.round(parseGrowthValue(competitor.growth) / 5)));
+      const strengthScore = Math.round((marketScore + priorityScore + intelligenceScore) / 3);
+      const x = 145 + visibilityScore / 10 * 660;
+      const y = 305 - strengthScore / 10 * 235;
+      const radius = 18 + Math.round((priorityScore + growthScore) / 2);
+      return {
+        competitor,
+        x,
+        y,
+        radius: Math.min(radius, 52),
+        fill: getLandscapeBubbleFill(competitor, index === 0 && competitor.n === selectedCompetitor?.n)
+      };
+    });
+  }, [selectedCompetitor, topTenCompetitors]);
   const comparisonMetrics = [{
     label: 'Market Presence',
     your: 7,
@@ -310,7 +401,7 @@ export const LuluCompetitors = () => {
   }, {
     label: 'Confidence',
     value: `${currentConfidence}%`,
-    detail: `${selectedCompetitorIntelligence} intelligence depth für ${selectedCompetitorLabel}.`,
+    detail: `${selectedCompetitorIntelligence} intelligence depth mit ${selectedCompetitor?.sourceQuality ?? 'Medium'} source quality fuer ${selectedCompetitorLabel}.`,
     tone: 'purple',
     action: 'Weitere Evidenzquellen sammeln'
   }];
@@ -351,36 +442,36 @@ export const LuluCompetitors = () => {
     category: 'Observed',
     confidence: 'High',
     updated: selectedCompetitorUpdatedAt,
-    detail: `${selectedCompetitorLabel} kommuniziert ${selectedCompetitorPosition.toLowerCase()} im Markt ${selectedCompetitorMarket}.`,
+    detail: selectedCompetitor.positioning || `${selectedCompetitorLabel} kommuniziert ${selectedCompetitorPosition.toLowerCase()} im Markt ${selectedCompetitorMarket}.`,
     why: 'Hilft dir, Gegennarrative und Comparison Pages direkt auf die sichtbare Positionierung auszurichten.',
-    link: `https://${selectedCompetitorDomain}`
+    link: selectedCompetitorWebsiteUrl
   }, {
     title: `${selectedChannelLabel} Footprint`,
     source: channelFilter === 'Advertising' ? 'Ad Surface Signals' : 'Search Surface Signals',
     category: channelFilter === 'Advertising' ? 'Observed' : 'AI Inferred',
-    confidence: selectedCompetitorIntelligence === 'Full' ? 'High' : 'Medium',
+    confidence: currentConfidence >= 85 ? 'High' : currentConfidence >= 70 ? 'Medium' : 'Low',
     updated: selectedCompetitorUpdatedAt,
     detail: `${selectedCompetitorLabel} zeigt ${selectedCompetitorVisibility.toLowerCase()} Sichtbarkeit im Fokuskanal ${selectedChannelLabel}.`,
     why: 'Zeigt, wo du kurzfristig Sichtbarkeit oder Share of Voice gewinnen kannst.',
-    link: `https://${selectedCompetitorDomain}`
+    link: selectedCompetitorWebsiteUrl
   }, {
     title: 'Content and Messaging',
     source: 'Category Messaging Review',
     category: 'AI Inferred',
     confidence: 'Medium',
     updated: selectedCompetitorUpdatedAt,
-    detail: `${selectedCompetitorLabel} priorisiert aktuell Messaging rund um ${selectedLandscapeMetric.toLowerCase()} und ${selectedCompetitorType.toLowerCase()}e Differenzierung.`,
+    detail: selectedCompetitor.differentiators[0] ? `${selectedCompetitorLabel} differenziert sich aktuell ueber ${selectedCompetitor.differentiators[0].toLowerCase()} und fokussiert ${selectedLandscapeMetric.toLowerCase()}.` : `${selectedCompetitorLabel} priorisiert aktuell Messaging rund um ${selectedLandscapeMetric.toLowerCase()} und ${selectedCompetitorType.toLowerCase()}e Differenzierung.`,
     why: 'Perfekt für Gegenpositionierung, Landing Pages und GEO/AEO-Briefs.',
-    link: `https://${selectedCompetitorDomain}`
+    link: selectedCompetitorWebsiteUrl
   }, {
     title: 'Priority and Timing',
     source: 'Workspace Intelligence',
     category: 'Observed',
     confidence: 'High',
     updated: selectedCompetitorUpdatedAt,
-    detail: `${selectedCompetitorLabel} ist mit Priorität ${selectedCompetitorPriority} und Wachstum ${selectedCompetitorGrowth} markiert.`,
+    detail: `${selectedCompetitorLabel} ist mit Prioritaet ${selectedCompetitorPriority}, Wachstum ${selectedCompetitorGrowth} und Source Quality ${selectedCompetitor.sourceQuality} markiert.`,
     why: 'Hilft bei der Reihenfolge für Monitoring, Content-Produktion und Sales Enablement.',
-    link: `https://${selectedCompetitorDomain}`
+    link: selectedCompetitorWebsiteUrl
   }] : [];
   const changeTrackingItems = selectedCompetitor ? [{
     title: `${selectedCompetitorLabel} gewinnt Momentum`,
@@ -448,31 +539,10 @@ export const LuluCompetitors = () => {
     output: `Alerts, movement detection und re-optimization triggers`
   }] : [];
   const compareRows = compareCompetitors.map(competitor => {
-    const marketScore = scoreFromValue(competitor.pos, {
-      stronger: 4,
-      parity: 3,
-      equal: 3,
-      weaker: 2,
-      unknown: 1
-    }, 4) || 5;
-    const visibilityScore = scoreFromValue(competitor.vis, {
-      dominant: 5,
-      very_high: 4,
-      high: 3,
-      medium: 2,
-      low: 1
-    }, 5) || 5;
-    const priorityScore = scoreFromValue(competitor.pri, {
-      critical: 4,
-      high: 3,
-      medium: 2,
-      low: 1
-    }, 4) || 5;
-    const intelligenceScore = scoreFromValue(competitor.intel, {
-      full: 3,
-      partial: 2,
-      limited: 1
-    }, 3) || 4;
+    const marketScore = getPositionScore(competitor.pos) || 5;
+    const visibilityScore = getVisibilityScore(competitor.vis) || 5;
+    const priorityScore = getPriorityScore(competitor.pri) || 5;
+    const intelligenceScore = getIntelligenceScore(competitor.intel) || 4;
     return {
       competitor,
       metrics: {
@@ -565,7 +635,6 @@ export const LuluCompetitors = () => {
     if (!selectedCompetitor?.n) return;
     setWatchlistNames(current => current.includes(selectedCompetitor.n) ? current : [...current, selectedCompetitor.n]);
     setAlertNames(current => current.includes(selectedCompetitor.n) ? current : [...current, selectedCompetitor.n]);
-    setActionMessage(`Lulu AI laeuft fuer ${selectedCompetitor.n} im Autopilot-Modus: analysieren, optimieren, ausfuehren und erneut wiederholen ohne manuellen Prepare-Schritt.`);
   }, [selectedCompetitor?.n]);
   return <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]" style={{
     fontFamily: 'Poppins'
@@ -765,24 +834,10 @@ export const LuluCompetitors = () => {
                 <path d="M75 95H850M75 170H850M75 245H850" stroke="var(--border)" strokeDasharray="5 5" />
                 <text x="410" y="365" fill="var(--muted-foreground)" fontSize="12">Market Visibility · Low to High</text>
                 <text transform="rotate(-90 18 190)" x="18" y="190" fill="var(--muted-foreground)" fontSize="12">Strategic Strength · Weak to Strong</text>
-                <circle cx="650" cy="190" r="48" fill="var(--chart-1)" fillOpacity=".85" stroke="var(--chart-1)" strokeWidth="8" strokeOpacity=".18" />
-                <circle cx="735" cy="70" r="42" fill="var(--chart-5)" />
-                <circle cx="800" cy="95" r="36" fill="var(--chart-5)" />
-                <circle cx="700" cy="145" r="28" fill="var(--chart-1)" />
-                <circle cx="560" cy="165" r="25" fill="var(--chart-3)" />
-                <circle cx="220" cy="145" r="18" fill="var(--border)" />
-                <circle cx="460" cy="265" r="21" fill="var(--border)" />
-                <circle cx="300" cy="275" r="24" fill="var(--chart-2)" />
-                <g textAnchor="middle" fontSize="12" fontWeight="600" fill="var(--muted-foreground)">
-                  <text x="650" y="195">Lulu AI</text>
-                  <text x="735" y="75">{selectedCompetitorLabel}</text>
-                  <text x="800" y="100">Salesforce</text>
-                  <text x="700" y="150">Pipedrive</text>
-                  <text x="560" y="170">Monday</text>
-                  <text x="220" y="150">Zoho</text>
-                  <text x="460" y="270">Freshworks</text>
-                  <text x="300" y="280">Notion</text>
-                </g>
+                {landscapeChartCompetitors.map((item, index) => <g key={item.competitor.n}>
+                    <circle cx={item.x} cy={item.y} r={item.radius} fill={item.fill} fillOpacity={index === 0 ? '.9' : '.8'} stroke={item.fill} strokeWidth={index === 0 ? 8 : 4} strokeOpacity={index === 0 ? '.18' : '.1'} />
+                    <text x={item.x} y={item.y + 4} textAnchor="middle" fontSize="12" fontWeight="600" fill={index === 0 ? 'var(--primary-foreground)' : 'var(--foreground)'}>{shortenCompetitorLabel(item.competitor.n)}</text>
+                  </g>)}
               </svg>
 
               <div className="mt-3 flex flex-wrap gap-5 border-t pt-3 text-xs">
@@ -864,7 +919,7 @@ export const LuluCompetitors = () => {
                         </div>
                       </div>
                       <h3 className="mt-3 font-bold">{competitor.n}</h3>
-                      <p className="text-xs text-muted-foreground">{slugify(competitor.n)}.com · {competitor.market}</p>
+                      <p className="text-xs text-muted-foreground">{getWebsiteLabel(competitor.websiteUrl)} · {competitor.market}</p>
                       <div className="mt-4 flex flex-wrap gap-1">
                         <Pill tone={toneForType(competitor.type)}>{competitor.type}</Pill>
                         <Pill tone={toneForPriority(competitor.pri)}>{competitor.pri}</Pill>
@@ -987,7 +1042,7 @@ export const LuluCompetitors = () => {
                       <p className="mt-3 text-[11px] text-foreground">Why it matters: {item.why}</p>
                       <div className="mt-4 flex items-center justify-between text-[11px] text-muted-foreground">
                         <span>{item.updated}</span>
-                        <a href={item.link} target="_blank" rel="noreferrer" className="underline">Open source</a>
+                        <a href={item.link} target="_blank" rel="noreferrer" className="underline">Website oeffnen</a>
                       </div>
                     </article>)}
                 </div>
