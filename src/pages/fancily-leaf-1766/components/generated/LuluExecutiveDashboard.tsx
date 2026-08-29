@@ -239,6 +239,105 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "proud-rain-4772",
     "label": "Activity Timeline"
+  }, {
+    "id": "quietly-stone-4158",
+    "label": "Finance Overview"
+  }, {
+    "id": "breezy-soil-2475",
+    "label": "Finance Invoices"
+  }, {
+    "id": "tender-creek-3139",
+    "label": "Finance Offers & Quotes"
+  }, {
+    "id": "cool-rain-6499",
+    "label": "Finance Income"
+  }, {
+    "id": "richly-land-8084",
+    "label": "Finance Transactions"
+  }, {
+    "id": "calm-tide-3752",
+    "label": "Finance Payments"
+  }, {
+    "id": "zesty-earth-3938",
+    "label": "Finance Expenses"
+  }, {
+    "id": "bravely-bay-4544",
+    "label": "Finance Customers"
+  }, {
+    "id": "eager-minute-1586",
+    "label": "Finance Vendors"
+  }, {
+    "id": "fair-bridge-8618",
+    "label": "Finance Accounts"
+  }, {
+    "id": "soft-town-3284",
+    "label": "Finance Cash Flow"
+  }, {
+    "id": "wisely-gate-3183",
+    "label": "Finance Budgets"
+  }, {
+    "id": "sharp-morning-7310",
+    "label": "Finance Financial Planning"
+  }, {
+    "id": "sparklingly-city-3338",
+    "label": "Finance Reconciliation"
+  }, {
+    "id": "radiant-hour-5376",
+    "label": "Finance Recurring Revenue"
+  }, {
+    "id": "lucky-park-8649",
+    "label": "Finance Payouts"
+  }, {
+    "id": "vibrantly-second-9428",
+    "label": "Finance Financial Automation"
+  }, {
+    "id": "sturdy-week-3372",
+    "label": "Finance Taxes"
+  }, {
+    "id": "boldly-field-4971",
+    "label": "Finance Settings"
+  }, {
+    "id": "fine-park-8079",
+    "label": "Sales Overview"
+  }, {
+    "id": "softly-autumn-9038",
+    "label": "Sales Leads"
+  }, {
+    "id": "wildly-sun-6424",
+    "label": "Sales Opportunities"
+  }, {
+    "id": "deeply-month-1392",
+    "label": "Sales Deals"
+  }, {
+    "id": "sweet-evening-7753",
+    "label": "Sales Pipeline"
+  }, {
+    "id": "warmly-road-3804",
+    "label": "Sales Activities"
+  }, {
+    "id": "wondrously-gate-2200",
+    "label": "Sales Tasks"
+  }, {
+    "id": "sharp-cliff-6925",
+    "label": "Sales Customer Segments"
+  }, {
+    "id": "lovingly-shore-4782",
+    "label": "Sales Forecast"
+  }, {
+    "id": "rich-moon-9195",
+    "label": "Sales Reports"
+  }, {
+    "id": "lively-house-6788",
+    "label": "Sales Commissions"
+  }, {
+    "id": "gentle-cliff-7133",
+    "label": "Sales Goals"
+  }, {
+    "id": "kindly-morning-7115",
+    "label": "Sales Territories"
+  }, {
+    "id": "friendly-tower-1528",
+    "label": "Sales Lead Assignment"
   }]
 }, {
   "label": "AI",
@@ -443,111 +542,6 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "merry-land-6169",
     "label": "Store Performance"
-  }]
-}, {
-  "label": "Finance",
-  "pages": [{
-    "id": "quietly-stone-4158",
-    "label": "Overview"
-  }, {
-    "id": "breezy-soil-2475",
-    "label": "Invoices"
-  }, {
-    "id": "tender-creek-3139",
-    "label": "Offers & Quotes"
-  }, {
-    "id": "cool-rain-6499",
-    "label": "Income"
-  }, {
-    "id": "richly-land-8084",
-    "label": "Transactions"
-  }, {
-    "id": "calm-tide-3752",
-    "label": "Payments"
-  }, {
-    "id": "zesty-earth-3938",
-    "label": "Expenses"
-  }, {
-    "id": "bravely-bay-4544",
-    "label": "Customers"
-  }, {
-    "id": "eager-minute-1586",
-    "label": "Vendors"
-  }, {
-    "id": "fair-bridge-8618",
-    "label": "Accounts"
-  }, {
-    "id": "soft-town-3284",
-    "label": "Cash Flow"
-  }, {
-    "id": "wisely-gate-3183",
-    "label": "Budgets"
-  }, {
-    "id": "sharp-morning-7310",
-    "label": "Financial Planning"
-  }, {
-    "id": "sparklingly-city-3338",
-    "label": "Reconciliation"
-  }, {
-    "id": "radiant-hour-5376",
-    "label": "Recurring Revenue"
-  }, {
-    "id": "lucky-park-8649",
-    "label": "Payouts"
-  }, {
-    "id": "vibrantly-second-9428",
-    "label": "Financial Automation"
-  }, {
-    "id": "sturdy-week-3372",
-    "label": "Taxes"
-  }, {
-    "id": "boldly-field-4971",
-    "label": "Finance Settings"
-  }]
-}, {
-  "label": "Sales",
-  "pages": [{
-    "id": "fine-park-8079",
-    "label": "Overview"
-  }, {
-    "id": "softly-autumn-9038",
-    "label": "Leads"
-  }, {
-    "id": "wildly-sun-6424",
-    "label": "Opportunities"
-  }, {
-    "id": "deeply-month-1392",
-    "label": "Deals"
-  }, {
-    "id": "sweet-evening-7753",
-    "label": "Pipeline"
-  }, {
-    "id": "warmly-road-3804",
-    "label": "Activities"
-  }, {
-    "id": "wondrously-gate-2200",
-    "label": "Tasks"
-  }, {
-    "id": "sharp-cliff-6925",
-    "label": "Customer Segments"
-  }, {
-    "id": "lovingly-shore-4782",
-    "label": "Forecast"
-  }, {
-    "id": "rich-moon-9195",
-    "label": "Reports"
-  }, {
-    "id": "lively-house-6788",
-    "label": "Commissions"
-  }, {
-    "id": "gentle-cliff-7133",
-    "label": "Goals"
-  }, {
-    "id": "kindly-morning-7115",
-    "label": "Territories"
-  }, {
-    "id": "friendly-tower-1528",
-    "label": "Lead Assignment"
   }]
 }, {
   "label": "Website",
