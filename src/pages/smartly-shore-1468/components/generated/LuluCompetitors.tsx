@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Activity, AlertTriangle, BarChart3, Bell, Bot, Check, ChevronDown, Download, Globe2, LayoutDashboard, Menu, MoreHorizontal, RefreshCw, Search, Settings, Shield, Sparkles, Target, TrendingUp, Users, Zap } from 'lucide-react';
+import { Activity, AlertTriangle, BarChart3, Bell, Check, ChevronDown, Download, Globe2, LayoutDashboard, Menu, MoreHorizontal, RefreshCw, Search, Settings, Shield, Sparkles, Target, TrendingUp, Users, Zap } from 'lucide-react';
 import { ApiError, getFriendlyErrorMessage } from '../../../../api/client';
 import { onboardingApi } from '../../../../api/onboarding';
 import { getSelectedWorkspaceId } from '../../../../api/session';
@@ -417,23 +417,35 @@ export const LuluCompetitors = () => {
     description: `Benachrichtige, wenn ${selectedCompetitorLabel} von ${selectedCompetitorPriority} auf kritischer wird.`
   }] : [];
   const workflowActions = selectedCompetitor ? [{
-    label: 'Create SEO Page',
-    detail: `Vergleichsseite gegen ${selectedCompetitorLabel} erstellen`
+    label: 'SEO Optimization Loop',
+    detail: `Lulu erstellt und aktualisiert fortlaufend Vergleichsseiten, SEO-Strukturen und Ranking-Gaps gegen ${selectedCompetitorLabel}.`,
+    cadence: 'Continuous',
+    output: `Comparison Pages, Refreshes und Internal Linking fuer ${selectedCompetitorLabel}`
   }, {
-    label: 'Create GEO Brief',
-    detail: `Antwort- und Entity-Brief fuer ${selectedCompetitorLabel} generieren`
+    label: 'GEO Execution Loop',
+    detail: `Lulu verbessert kontinuierlich Entity-Signale, Antwortabdeckung und Retrieval-Relevanz gegen ${selectedCompetitorLabel}.`,
+    cadence: 'Continuous',
+    output: `GEO Entities, Source Hints und Answer Surfaces fuer ${selectedCompetitorLabel}`
   }, {
-    label: 'Create AEO Brief',
-    detail: `Antwortformate gegen ${selectedCompetitorLabel} priorisieren`
+    label: 'AEO Execution Loop',
+    detail: `Lulu optimiert laufend Answer Engine Responses, FAQs und strukturierte Antwortformate fuer ${selectedCompetitorLabel}.`,
+    cadence: 'Continuous',
+    output: `FAQ Blocks, Answer Summaries und Prompt-fit Content`
   }, {
-    label: 'Create Comparison Page',
-    detail: `${selectedCompetitorLabel} direkt auf einer Vergleichsseite challengen`
+    label: 'Comparison Page Loop',
+    detail: `Lulu baut und verfeinert automatisch Vergleichs- und Counter-Messaging-Seiten gegen ${selectedCompetitorLabel}.`,
+    cadence: 'Every cycle',
+    output: `${selectedCompetitorLabel} comparison messaging und conversion updates`
   }, {
-    label: 'Create Sales Battlecard',
-    detail: `Sales-Team mit Einwaenden und Stärken gegen ${selectedCompetitorLabel} ausruesten`
+    label: 'Sales Battlecard Loop',
+    detail: `Lulu aktualisiert Verkaufsargumente, Einwandbehandlung und Differenzierung gegen ${selectedCompetitorLabel} automatisch.`,
+    cadence: 'Daily refresh',
+    output: `Battlecards, objection handling und win-the-deal angles`
   }, {
-    label: 'Open Monitoring',
-    detail: `Beobachtung fuer ${selectedCompetitorLabel} im Workspace dauerhaft aktiv halten`
+    label: 'Monitoring Loop',
+    detail: `Lulu beobachtet ${selectedCompetitorLabel} dauerhaft und startet bei neuen Signals automatisch neue Optimierungen.`,
+    cadence: 'Always on',
+    output: `Alerts, movement detection und re-optimization triggers`
   }] : [];
   const compareRows = compareCompetitors.map(competitor => {
     const marketScore = scoreFromValue(competitor.pos, {
@@ -472,12 +484,12 @@ export const LuluCompetitors = () => {
     };
   });
 
-  const handleAction = useCallback((label: string, detail?: string) => {
+  const handleExport = useCallback(() => {
     if (!selectedCompetitor) {
       setActionMessage('Waehle zuerst einen Wettbewerber aus der Top-10-Liste aus.');
       return;
     }
-    setActionMessage(`${label} fuer ${selectedCompetitor.n}${detail ? `: ${detail}` : ''} wurde vorbereitet.`);
+    setActionMessage(`Export fuer ${selectedCompetitor.n} wurde vorbereitet: Executive Summary, Compare Matrix, Evidence und automatische Execution Loops.`);
   }, [selectedCompetitor]);
 
   const toggleCompare = useCallback((name: string) => {
@@ -557,6 +569,12 @@ export const LuluCompetitors = () => {
       setSelectedCompetitorName(topTenCompetitors[0]!.n);
     }
   }, [selectedCompetitorName, topTenCompetitors]);
+  useEffect(() => {
+    if (!selectedCompetitor?.n) return;
+    setWatchlistNames(current => current.includes(selectedCompetitor.n) ? current : [...current, selectedCompetitor.n]);
+    setAlertNames(current => current.includes(selectedCompetitor.n) ? current : [...current, selectedCompetitor.n]);
+    setActionMessage(`Lulu AI laeuft fuer ${selectedCompetitor.n} im Autopilot-Modus: analysieren, optimieren, ausfuehren und erneut wiederholen ohne manuellen Prepare-Schritt.`);
+  }, [selectedCompetitor?.n]);
   return <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]" style={{
     fontFamily: 'Poppins'
   }}>
@@ -588,7 +606,7 @@ export const LuluCompetitors = () => {
             <RefreshCw size={14} className="mr-1 inline" />
             Refresh
           </button>
-          <button onClick={() => handleAction('Export briefing', 'Executive summary, compare matrix und evidence cards')} className="hidden text-xs text-foreground md:block">
+          <button onClick={handleExport} className="hidden text-xs text-foreground md:block">
             <Download size={14} className="mr-1 inline" />
             Export
           </button>
@@ -1072,21 +1090,28 @@ export const LuluCompetitors = () => {
             <section className="mt-6 rounded-xl border bg-card p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="font-bold">Recommended Actions</h2>
-                  <p className="mt-1 text-xs text-muted-foreground">Direkte operative Schritte fuer SEO, GEO, AEO, Sales und Monitoring.</p>
+                  <h2 className="font-bold">Autonomous Execution</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">Keine manuellen Prepare-Schritte. Lulu analysiert, optimiert und fuehrt diese Workflows fortlaufend selbst aus.</p>
                 </div>
-                <button onClick={() => handleAction('Ask Lulu AI', 'Battlecard, comparison angles und evidence summary generieren')} className="rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-primary-foreground">
-                  <Bot size={14} className="mr-1 inline" />
-                  Ask Lulu AI
-                </button>
+                <Pill tone="green">Autopilot Active</Pill>
               </div>
 
               <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
                 {workflowActions.map(action => <article key={action.label} className="rounded-xl border border-[var(--border)] p-4">
                     <h3 className="font-semibold">{action.label}</h3>
                     <p className="mt-2 text-sm text-muted-foreground">{action.detail}</p>
-                    <button onClick={() => handleAction(action.label, action.detail)} className="mt-4 rounded border px-3 py-2 text-xs">Prepare</button>
+                    <div className="mt-4 flex flex-wrap gap-2 text-[11px]">
+                      <Pill tone="green">Running</Pill>
+                      <Pill tone="purple">{action.cadence}</Pill>
+                    </div>
+                    <div className="mt-4 rounded-lg bg-secondary p-3 text-xs text-foreground">
+                      Latest output: {action.output}
+                    </div>
+                    <p className="mt-3 text-[11px] text-muted-foreground">Lulu re-checks evidence, updates priorities and executes the next optimization cycle automatically.</p>
                   </article>)}
+              </div>
+              <div className="mt-5 rounded-xl bg-secondary p-4 text-sm text-foreground">
+                Human approval is not required here. Once a competitor is selected, Lulu keeps the execution loops active and repeats them continuously.
               </div>
             </section>
           </>}
