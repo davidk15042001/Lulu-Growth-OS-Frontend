@@ -54,6 +54,7 @@ const WEBSITE_NAVIGATION_SLUGS = new Set([
   "sparklingly-moon-5114",
   "zealously-path-4224",
   "sunny-house-9595",
+  "smartly-shore-1468",
 ]);
 
 export type LuluNavigationMessage = {

@@ -127,7 +127,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                   const available = Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
                   const isWebsiteLocked = Boolean(websiteLock?.blocking && section.label === "Website");
-                  const isDropdownLinkLocked = (SUBPAGE_NAVIGATION_LOCKED && section.label !== "Website") || isWebsiteLocked || !available;
+                  const isDropdownLinkLocked = (SUBPAGE_NAVIGATION_LOCKED && section.label !== "Website" && page.id !== "smartly-shore-1468") || isWebsiteLocked || !available;
                   const lockedLabel = isWebsiteLocked ? websiteLockText : "Navigation-Link gesperrt";
                   return (
                     <a
