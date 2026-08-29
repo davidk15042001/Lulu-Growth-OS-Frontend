@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import { Activity, AlertTriangle, BarChart3, Check, ChevronDown, Globe2, LayoutDashboard, Menu, MoreHorizontal, RefreshCw, Search, Settings, Shield, Sparkles, Target, TrendingUp, Users, Zap } from 'lucide-react';
 import { ApiError, getFriendlyErrorMessage } from '../../../../api/client';
 import { onboardingApi } from '../../../../api/onboarding';
+import type { OnboardingSnapshot } from '../../../../api/onboarding';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { websitesApi } from '../../../../api/websites';
@@ -28,6 +29,30 @@ type CompetitorRow = {
   differentiators: string[];
   featureOverlap: string[];
   sourceQuality: string;
+};
+
+type BaselineCategory = {
+  key: string;
+  label: string;
+  yourScore: number;
+  competitorScore: number;
+  source: string;
+  yourEvidence: string;
+  competitorEvidence: string;
+  why: string;
+  nextMove: string;
+  gap: number;
+  priority: 'High' | 'Medium' | 'Low';
+  fastestWin: boolean;
+};
+
+type BattleAction = {
+  title: string;
+  detail: string;
+  impact: 'High' | 'Medium' | 'Low';
+  speed: 'Fast' | 'Medium' | 'Strategic';
+  category: string;
+  outcome: string;
 };
 
 const AUTO_DISCOVERY_TIMEOUT_MS = 15000;
@@ -152,6 +177,12 @@ const getLandscapeBubbleFill = (competitor: CompetitorRow, isSelected: boolean) 
   return 'var(--border)';
 };
 const shortenCompetitorLabel = (value: string) => value.length > 18 ? `${value.slice(0, 16)}…` : value;
+const clampScore = (value: number) => Math.max(0, Math.min(10, Math.round(value)));
+const averageScore = (values: number[]) => values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
+const countNonEmpty = (values: Array<string | null | undefined>) => values.filter(value => Boolean(value?.trim())).length;
+const sumListLengths = (values: string[][]) => values.reduce((sum, value) => sum + value.length, 0);
+const toneForGap = (gap: number) => gap >= 3 ? 'red' : gap > 0 ? 'amber' : 'green';
+const textForGap = (gap: number) => gap >= 3 ? 'Gap High' : gap > 0 ? 'Gap Open' : gap === 0 ? 'Parity' : 'Ahead';
 
 const MetricBar = ({
   label,
@@ -201,7 +232,15 @@ export const LuluCompetitors = () => {
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [autoTriggered, setAutoTriggered] = useState(false);
+  const [snapshot, setSnapshot] = useState<OnboardingSnapshot | null>(null);
+  const [snapshotLoading, setSnapshotLoading] = useState(false);
+  const [snapshotError, setSnapshotError] = useState<string | null>(null);
   const [hasLiveWebsite, setHasLiveWebsite] = useState(false);
+  const [websiteStats, setWebsiteStats] = useState({
+    totalSites: 0,
+    publishedSites: 0,
+    verifiedDomains: 0
+  });
   const workspaceId = getSelectedWorkspaceId();
   const { items: competitorRecords, loading: competitorsLoading, error: competitorsError, refresh } = useLiveRecords('marketing_competitors');
   const landscapeMetricOptions = [{
@@ -329,20 +368,51 @@ export const LuluCompetitors = () => {
   }, [compareCandidates, compareSelection, selectedCompetitor, topTenCompetitors]);
   useEffect(() => {
     if (!workspaceId) {
+      setSnapshot(null);
+      setSnapshotError(null);
+      setSnapshotLoading(false);
       setHasLiveWebsite(false);
+      setWebsiteStats({
+        totalSites: 0,
+        publishedSites: 0,
+        verifiedDomains: 0
+      });
       return;
     }
     let active = true;
-    void websitesApi.list(workspaceId).then(result => {
+    setSnapshotLoading(true);
+    setSnapshotError(null);
+    void Promise.allSettled([onboardingApi.snapshot(workspaceId), websitesApi.list(workspaceId)]).then(([snapshotResult, websitesResult]) => {
       if (!active) return;
-      const live = result.data.items.some(site => {
-        const siteStatus = site.status.trim().toLowerCase();
-        if (siteStatus === 'published' || siteStatus === 'live') return true;
-        return site.domains.some(domain => domain.status.trim().toLowerCase() === 'verified' || Boolean(domain.verifiedAt));
-      });
-      setHasLiveWebsite(live);
-    }).catch(() => {
-      if (active) setHasLiveWebsite(false);
+      if (snapshotResult.status === 'fulfilled') {
+        setSnapshot(snapshotResult.value.data);
+      } else {
+        setSnapshot(null);
+        setSnapshotError(getFriendlyErrorMessage(snapshotResult.reason, 'Die Unternehmensanalyse konnte nicht geladen werden.'));
+      }
+      if (websitesResult.status === 'fulfilled') {
+        const totalSites = websitesResult.value.data.items.length;
+        const publishedSites = websitesResult.value.data.items.filter(site => {
+          const status = site.status.trim().toLowerCase();
+          return status === 'published' || status === 'live';
+        }).length;
+        const verifiedDomains = websitesResult.value.data.items.reduce((sum, site) => sum + site.domains.filter(domain => domain.status.trim().toLowerCase() === 'verified' || Boolean(domain.verifiedAt)).length, 0);
+        setWebsiteStats({
+          totalSites,
+          publishedSites,
+          verifiedDomains
+        });
+        setHasLiveWebsite(publishedSites > 0 || verifiedDomains > 0);
+      } else {
+        setWebsiteStats({
+          totalSites: 0,
+          publishedSites: 0,
+          verifiedDomains: 0
+        });
+        setHasLiveWebsite(false);
+      }
+    }).finally(() => {
+      if (active) setSnapshotLoading(false);
     });
     return () => {
       active = false;
@@ -373,96 +443,237 @@ export const LuluCompetitors = () => {
       };
     });
   }, [selectedCompetitor, topTenCompetitors]);
-  const ownBusinessComparisonReady = false;
-  const ownBusinessLabel = hasLiveWebsite ? 'No live benchmark yet' : 'Not live yet';
-  const comparisonMetrics = [{
-    label: 'Market Presence',
-    your: ownBusinessComparisonReady ? 7 : null,
-    competitor: competitorMarketPresenceScore || 5,
-    source: 'Observed'
-  }, {
-    label: 'Search Visibility',
-    your: ownBusinessComparisonReady ? 8 : null,
-    competitor: competitorVisibilityScore || 5,
-    source: 'Observed'
-  }, {
-    label: 'Content Presence',
-    your: ownBusinessComparisonReady ? 7 : null,
-    competitor: Math.max(5, competitorVisibilityScore - 1 || 5),
-    source: 'Observed'
-  }, {
-    label: 'AI Visibility',
-    your: ownBusinessComparisonReady ? 8 : null,
-    competitor: Math.max(4, competitorIntelligenceScore + 3 || 4),
-    source: 'AI Inferred'
-  }, {
-    label: 'Marketing Activity',
-    your: ownBusinessComparisonReady ? 7 : null,
-    competitor: Math.max(5, competitorPriorityScore || 5),
-    source: 'Observed'
-  }, {
-    label: 'Audience Reach',
-    your: ownBusinessComparisonReady ? 7 : null,
-    competitor: Math.max(5, competitorMarketPresenceScore - 1 || 5),
-    source: 'Observed'
-  }];
   const selectedChannelLabel = channelFilter === 'All Channels' ? 'SEO, GEO, AEO, Content und Advertising' : channelFilter;
+  const workspace = snapshot?.workspace ?? null;
+  const offerings = snapshot?.offerings ?? [];
+  const customerSegments = snapshot?.customerSegments ?? [];
+  const platforms = snapshot?.platforms ?? [];
+  const connectedPlatformsCount = platforms.filter(platform => ['connected', 'active', 'synced', 'authorized'].includes(platform.connectionStatus.trim().toLowerCase())).length;
+  const totalDifferentiators = sumListLengths(offerings.map(offering => offering.differentiators));
+  const totalProofPoints = sumListLengths(offerings.map(offering => offering.proofPoints));
+  const totalUseCases = sumListLengths(offerings.map(offering => offering.useCases));
+  const totalPainPoints = sumListLengths(customerSegments.map(segment => segment.painPoints));
+  const totalDecisionCriteria = sumListLengths(customerSegments.map(segment => segment.decisionCriteria));
+  const offeringsWithUrls = offerings.filter(offering => Boolean(offering.url?.trim())).length;
+  const ownCompanyName = workspace?.companyName?.trim() || 'Your Business';
+  const ownBusinessLabel = snapshotLoading ? 'Analysiere...' : snapshot ? 'Baseline vorhanden' : 'Onboarding fehlt';
+  const ownCompanyOverview = workspace ? `${ownCompanyName} ist in ${workspace.industry || 'einem noch offenen Markt'} aktiv und adressiert ${workspace.targetMarket || 'noch keinen klaren Zielmarkt'}. ${workspace.valueProposition ? `Value Proposition: ${workspace.valueProposition}. ` : ''}${workspace.usp ? `USP: ${workspace.usp}. ` : ''}${customerSegments.length ? `${customerSegments.length} Kundensegmente und ${offerings.length} Angebote liefern bereits verwertbare Signale.` : 'Es fehlen noch mehr strukturierte Kunden- und Angebotsdaten, um die Analyse voll auszureizen.'}` : 'Sobald Onboarding-Daten vorliegen, kann Lulu dein Unternehmen gegen Wettbewerber deutlich belastbarer bewerten.';
+  const baselineCategories: BaselineCategory[] = selectedCompetitor ? [{
+    key: 'positioning',
+    label: 'Positioning Clarity',
+    yourScore: clampScore(1 + (workspace?.valueProposition ? 2 : 0) + (workspace?.usp ? 2 : 0) + (workspace?.shortBrandDescription ? 1 : 0) + Math.min(2, Math.ceil((workspace?.positioningTags.length ?? 0) / 2)) + (countNonEmpty([workspace?.mission, workspace?.vision]) ? 1 : 0)),
+    competitorScore: clampScore(2 + (selectedCompetitor.positioning ? 2 : 0) + Math.min(2, Math.ceil(selectedCompetitor.differentiators.length / 2)) + (selectedCompetitorType === 'Direct' ? 2 : 1) + (selectedCompetitorPosition.toLowerCase() === 'stronger' ? 2 : selectedCompetitorPosition.toLowerCase() === 'parity' || selectedCompetitorPosition.toLowerCase() === 'equal' ? 1 : 0)),
+    source: 'Onboarding + observed messaging',
+    yourEvidence: workspace?.valueProposition || workspace?.usp || 'Noch keine starke UVP/USP im Workspace hinterlegt.',
+    competitorEvidence: selectedCompetitor.positioning || `${selectedCompetitorLabel} kommuniziert bereits sichtbar im Markt ${selectedCompetitorMarket}.`,
+    why: 'Wer die Kategorie sprachlich und strategisch klarer besetzt, gewinnt Vertrauen und Conversion schneller.',
+    nextMove: 'UVP, USP und Gegenpositionierung scharfziehen und sofort auf Comparison- und Landing-Pages ausrollen.',
+    gap: 0,
+    priority: 'Medium',
+    fastestWin: true
+  }, {
+    key: 'offer',
+    label: 'Offer Strength',
+    yourScore: clampScore(1 + Math.min(3, offerings.length) + Math.min(2, Math.ceil(totalDifferentiators / 3)) + Math.min(2, Math.ceil(totalProofPoints / 3)) + Math.min(1, Math.ceil(totalUseCases / 4)) + (offeringsWithUrls > 0 ? 1 : 0)),
+    competitorScore: clampScore(2 + Math.min(3, Math.max(selectedCompetitor.featureOverlap.length, selectedCompetitor.differentiators.length)) + Math.min(2, Math.ceil(selectedCompetitor.strengths.length / 2)) + (selectedCompetitorPriority === 'Critical' ? 2 : selectedCompetitorPriority === 'High' ? 1 : 0)),
+    source: 'Offer catalog + competitor strengths',
+    yourEvidence: offerings.length ? `${offerings.length} Angebote, ${totalDifferentiators} Differenzierungs-Signale und ${totalProofPoints} Proof Points erkannt.` : 'Noch keine belastbare Angebotsstruktur im Workspace.',
+    competitorEvidence: selectedCompetitor.strengths[0] || selectedCompetitor.differentiators[0] || `${selectedCompetitorLabel} zeigt bereits ein klareres Marktangebot.`,
+    why: 'Ein besser belegtes Angebot erhöht Closing-Rate, Conversion und Vergleichsgewinn.',
+    nextMove: 'Angebote mit Proof Points, Use Cases und klaren URLs aufstocken und Battlecards daraus ableiten.',
+    gap: 0,
+    priority: 'High',
+    fastestWin: false
+  }, {
+    key: 'audience',
+    label: 'ICP Coverage',
+    yourScore: clampScore(1 + (workspace?.primaryIcp ? 2 : 0) + (workspace?.targetMarket ? 1 : 0) + Math.min(3, customerSegments.length) + Math.min(2, Math.ceil(totalPainPoints / 4)) + Math.min(1, Math.ceil(totalDecisionCriteria / 4))),
+    competitorScore: clampScore(2 + (selectedCompetitorMarket !== '—' ? 2 : 0) + (selectedCompetitorPosition.toLowerCase() === 'stronger' ? 2 : 1) + Math.min(2, Math.ceil(selectedCompetitor.featureOverlap.length / 2)) + (selectedCompetitorType === 'Direct' ? 2 : 1)),
+    source: 'ICP + market segmentation',
+    yourEvidence: workspace?.primaryIcp || `${customerSegments.length} Segmente mit ${totalPainPoints} Pain Points hinterlegt.`,
+    competitorEvidence: `${selectedCompetitorLabel} ist im Markt ${selectedCompetitorMarket} als ${selectedCompetitorType.toLowerCase()}er Wettbewerber verortet.`,
+    why: 'Besseres ICP-Mapping entscheidet darüber, welche Botschaften, Seiten und Kampagnen wirklich ziehen.',
+    nextMove: 'Primären ICP, Buying Roles und Pain Points verdichten und in GEO-, SEO- und Sales-Artefakte übersetzen.',
+    gap: 0,
+    priority: 'High',
+    fastestWin: true
+  }, {
+    key: 'trust',
+    label: 'Trust & Proof',
+    yourScore: clampScore(1 + (hasLiveWebsite ? 2 : 0) + Math.min(2, websiteStats.verifiedDomains) + Math.min(2, Math.ceil(totalProofPoints / 4)) + (workspace?.foundingYear ? 1 : 0) + (connectedPlatformsCount > 0 ? 1 : 0) + (workspace?.annualRevenueRange ? 1 : 0)),
+    competitorScore: clampScore(2 + (selectedCompetitor.sourceQuality === 'High' ? 3 : selectedCompetitor.sourceQuality === 'Medium' ? 2 : 1) + Math.min(2, Math.ceil(selectedCompetitor.strengths.length / 2)) + (selectedCompetitorWebsiteUrl !== '—' ? 1 : 0) + (selectedCompetitorIntelligence === 'Full' ? 2 : selectedCompetitorIntelligence === 'Partial' ? 1 : 0)),
+    source: 'Website + proof signals',
+    yourEvidence: hasLiveWebsite ? `${websiteStats.publishedSites} Live-Site(s), ${websiteStats.verifiedDomains} verifizierte Domain(s) und ${totalProofPoints} Proof Points erkannt.` : 'Noch kein belastbares Live- oder Proof-Signal vorhanden.',
+    competitorEvidence: `${selectedCompetitorLabel} hat ${selectedCompetitor.sourceQuality} Source Quality und ${selectedCompetitor.strengths.length} sichtbare Staerken.`,
+    why: 'Trust-Signale sind oft der schnellste Hebel, um gegen etablierte Wettbewerber zu kontern.',
+    nextMove: 'Live-Präsenz, Proof Points, Referenzen und Trust-Elemente systematisch ausbauen.',
+    gap: 0,
+    priority: 'High',
+    fastestWin: true
+  }, {
+    key: 'distribution',
+    label: 'Distribution Readiness',
+    yourScore: clampScore(1 + (hasLiveWebsite ? 3 : 0) + Math.min(2, connectedPlatformsCount) + Math.min(2, offeringsWithUrls) + Math.min(1, websiteStats.publishedSites) + Math.min(1, Math.ceil((workspace?.languages.length ?? 0) / 2))),
+    competitorScore: clampScore(2 + competitorVisibilityScore + (parseGrowthValue(selectedCompetitorGrowth) > 0 ? 1 : 0)),
+    source: 'Website + platform connections',
+    yourEvidence: `${websiteStats.totalSites} Website(s), ${connectedPlatformsCount} verbundene Plattformen und ${offeringsWithUrls} verlinkte Angebote.`,
+    competitorEvidence: `${selectedCompetitorLabel} zeigt ${selectedCompetitorVisibility.toLowerCase()} Visibility und ${selectedCompetitorGrowth} Wachstum.`,
+    why: 'Ohne Distribution gewinnt selbst das beste Produkt nicht schnell genug Marktanteil.',
+    nextMove: 'Core Pages live bringen, Such- und Answer-Flächen besetzen und Distributionskanäle hart automatisieren.',
+    gap: 0,
+    priority: 'High',
+    fastestWin: hasLiveWebsite
+  }, {
+    key: 'execution',
+    label: 'Execution Velocity',
+    yourScore: clampScore(1 + (workspace?.onboardingCompletedAt ? 1 : 0) + Math.min(2, connectedPlatformsCount) + Math.min(2, offerings.length) + Math.min(2, customerSegments.length) + Math.min(1, websiteStats.totalSites) + (workspace?.planKey === 'ai' || workspace?.planKey === 'test' ? 2 : 1)),
+    competitorScore: clampScore(2 + competitorPriorityScore + Math.min(2, Math.ceil(Math.max(parseGrowthValue(selectedCompetitorGrowth), 0) / 10)) + (selectedCompetitorIntelligence === 'Full' ? 2 : selectedCompetitorIntelligence === 'Partial' ? 1 : 0)),
+    source: 'Operational readiness',
+    yourEvidence: `${offerings.length} Angebote, ${customerSegments.length} Segmente, ${connectedPlatformsCount} Integrationen und Plan ${workspace?.planKey ?? 'unbekannt'}.`,
+    competitorEvidence: `${selectedCompetitorLabel} ist ${selectedCompetitorPriority} priorisiert, waechst mit ${selectedCompetitorGrowth} und hat ${selectedCompetitorIntelligence} Intelligence.`,
+    why: 'Geschwindigkeit entscheidet, ob du Lücken vor dem Markt schließen kannst oder nur reagierst.',
+    nextMove: 'Mehr Inputs automatisiert verbinden und daraus wiederkehrende Execution-Loops ohne Handarbeit starten.',
+    gap: 0,
+    priority: 'Medium',
+    fastestWin: false
+  }].map(category => {
+    const gap = category.competitorScore - category.yourScore;
+    return {
+      ...category,
+      gap,
+      priority: gap >= 3 ? 'High' : gap > 0 ? 'Medium' : 'Low'
+    };
+  }) : [];
+  const ownBaselineScore = averageScore(baselineCategories.map(category => category.yourScore));
+  const competitorBaselineScore = averageScore(baselineCategories.map(category => category.competitorScore));
+  const battleReadinessScore = clampScore(10 - Math.max(0, ...baselineCategories.map(category => category.gap), 0));
+  const biggestGapCategory = [...baselineCategories].sort((left, right) => right.gap - left.gap)[0] ?? null;
+  const fastestWinCategory = [...baselineCategories].filter(category => category.gap > 0).sort((left, right) => Number(right.fastestWin) - Number(left.fastestWin) || right.gap - left.gap)[0] ?? null;
+  const dataGaps = [{
+    title: 'Live Website',
+    detail: hasLiveWebsite ? 'Live- oder verifizierte Website vorhanden.' : 'Noch keine live verifizierte Website. Dadurch fehlen harte Search- und Trust-Signale.',
+    resolved: hasLiveWebsite
+  }, {
+    title: 'Positioning',
+    detail: workspace?.valueProposition && workspace?.usp ? 'Value Proposition und USP sind hinterlegt.' : 'Value Proposition oder USP fehlen noch als saubere Grundlage für Messaging und Vergleichsseiten.',
+    resolved: Boolean(workspace?.valueProposition && workspace?.usp)
+  }, {
+    title: 'Offers',
+    detail: offerings.length >= 2 && totalProofPoints > 0 ? 'Angebote und Proof Points sind ausreichend dokumentiert.' : 'Mehr Angebotsdetails, Proof Points und URLs würden die Analyse deutlich verbessern.',
+    resolved: offerings.length >= 2 && totalProofPoints > 0
+  }, {
+    title: 'ICP',
+    detail: workspace?.primaryIcp && customerSegments.length > 0 ? 'ICP und Kundensegmente sind vorhanden.' : 'Primärer ICP oder Kundensegmente sind noch zu dünn, um die Go-to-Market-Analyse voll auszureizen.',
+    resolved: Boolean(workspace?.primaryIcp) && customerSegments.length > 0
+  }, {
+    title: 'Integrations',
+    detail: connectedPlatformsCount > 0 ? `${connectedPlatformsCount} Plattformen sind verbunden.` : 'Ohne verbundene Plattformen fehlt Ausführungs- und Performance-Kontext.',
+    resolved: connectedPlatformsCount > 0
+  }];
+  const comparisonMetrics = baselineCategories.map(category => ({
+    label: category.label,
+    your: category.yourScore,
+    competitor: category.competitorScore,
+    source: category.source
+  }));
   const executiveSummary = [{
-    label: 'Groesster Gegner',
-    value: strongestCompetitor?.n ?? selectedCompetitorLabel,
-    detail: `${strongestCompetitor?.pri ?? 'High'} priority mit ${strongestCompetitor?.vis ?? 'sichtbarer'} Marktpräsenz.`,
+    label: 'Own Baseline',
+    value: `${ownBaselineScore}/10`,
+    detail: `${ownCompanyName} hat aktuell eine belastbare Ausgangsbasis aus ${offerings.length} Angeboten, ${customerSegments.length} Segmenten und ${connectedPlatformsCount} Plattformen.`,
+    tone: ownBaselineScore >= competitorBaselineScore ? 'green' : 'amber',
+    action: ownBaselineScore >= competitorBaselineScore ? 'Momentum ausbauen und schneller ausrollen' : 'Fundament verdichten und kritische Luecken schliessen'
+  }, {
+    label: 'Competitor Pressure',
+    value: `${competitorBaselineScore}/10`,
+    detail: `${selectedCompetitorLabel} setzt aktuell den Druck ueber ${selectedCompetitorPriority.toLowerCase()}e Prioritaet und ${selectedCompetitorVisibility.toLowerCase()}e Sichtbarkeit.`,
     tone: 'red',
-    action: 'Vergleichsseite und Counter-Messaging aufbauen'
+    action: 'Gegenpositionierung, Proof und Distribution priorisieren'
   }, {
-    label: 'Schnellster Mover',
-    value: fastestMover?.n ?? selectedCompetitorLabel,
-    detail: `${fastestMover?.growth ?? '0%'} Wachstumssignal in den letzten Beobachtungen.`,
-    tone: 'amber',
-    action: 'Wöchentliche Bewegungen monitoren'
+    label: 'Biggest Gap',
+    value: biggestGapCategory?.label ?? '—',
+    detail: biggestGapCategory ? `${biggestGapCategory.competitorScore}/10 vs ${biggestGapCategory.yourScore}/10. ${biggestGapCategory.why}` : 'Noch kein Gap berechnet.',
+    tone: biggestGapCategory?.gap && biggestGapCategory.gap > 0 ? 'red' : 'green',
+    action: biggestGapCategory?.nextMove ?? 'Weitere Daten sammeln'
   }, {
-    label: 'Einfachster Win',
-    value: weakestGapTarget?.n ?? selectedCompetitorLabel,
-    detail: `${weakestGapTarget?.pos ?? 'Unknown'} Position mit angreifbarer Lücke im Markt.`,
-    tone: 'green',
-    action: 'SEO-, GEO- und AEO-Content priorisieren'
-  }, {
-    label: 'Confidence',
-    value: `${currentConfidence}%`,
-    detail: `${selectedCompetitorIntelligence} intelligence depth mit ${selectedCompetitor?.sourceQuality ?? 'Medium'} source quality fuer ${selectedCompetitorLabel}.`,
-    tone: 'purple',
-    action: 'Weitere Evidenzquellen sammeln'
+    label: 'Fastest Win',
+    value: fastestWinCategory?.label ?? '—',
+    detail: fastestWinCategory ? `Schnellster Hebel mit ${fastestWinCategory.priority} Prioritaet gegen ${selectedCompetitorLabel}.` : 'Zurzeit kein klarer Schnellgewinn offen.',
+    tone: fastestWinCategory ? 'green' : 'purple',
+    action: fastestWinCategory?.nextMove ?? 'Fundament weiter ausbauen'
   }];
   const kpis = [{
-    title: 'Top 10 in Scope',
-    value: `${topTenCompetitors.length}`,
-    sub: 'Nach Filtern und Priorisierung',
-    icon: 'Users'
-  }, {
-    title: 'High Risk',
-    value: `${topTenCompetitors.filter(competitor => competitor.pri === 'Critical' || competitor.pri === 'High').length}`,
-    sub: 'Wettbewerber mit hoher Verdrängungsgefahr',
-    icon: 'AlertTriangle'
-  }, {
-    title: 'Watchlist',
-    value: `${watchlistNames.length}`,
-    sub: 'Aktiv beobachtete Wettbewerber',
+    title: 'Own Score',
+    value: `${ownBaselineScore}/10`,
+    sub: 'Aktuelle Unternehmens-Baseline',
     icon: 'Sparkles'
   }, {
-    title: 'Alerts',
-    value: `${alertNames.length}`,
-    sub: 'Aktive Monitoring-Regeln',
+    title: 'Competitor Score',
+    value: `${competitorBaselineScore}/10`,
+    sub: 'Druck durch Fokus-Wettbewerber',
+    icon: 'AlertTriangle'
+  }, {
+    title: 'Gap Categories',
+    value: `${baselineCategories.filter(category => category.gap > 0).length}`,
+    sub: 'Bereiche mit offenem Rueckstand',
     icon: 'Activity'
   }, {
-    title: 'Focus Channel',
-    value: channelFilter === 'All Channels' ? 'All' : channelFilter,
-    sub: 'Aktuelle Analyseperspektive',
+    title: 'Data Gaps',
+    value: `${dataGaps.filter(item => !item.resolved).length}`,
+    sub: 'Blocker fuer noch bessere Analyse',
     icon: 'Target'
   }, {
-    title: 'Selected Competitor',
-    value: hasCompetitors ? selectedCompetitorLabel : '—',
-    sub: 'Steuert alle Detailbereiche',
+    title: 'Web Presence',
+    value: hasLiveWebsite ? `${websiteStats.publishedSites || websiteStats.verifiedDomains}` : '0',
+    sub: hasLiveWebsite ? 'Live-/verifizierte Website-Signale' : 'Noch nicht live verifiziert',
+    icon: 'Users'
+  }, {
+    title: 'Battle Readiness',
+    value: `${battleReadinessScore}/10`,
+    sub: 'Wie schnell Lulu zur Offensive gehen kann',
     icon: 'TrendingUp'
   }];
+  const companySnapshotCards = [{
+    title: 'Positioning Core',
+    detail: workspace?.valueProposition || workspace?.shortBrandDescription || 'Noch keine klare Positionierung im Workspace.',
+    footnote: workspace?.usp ? `USP: ${workspace.usp}` : 'USP fehlt noch'
+  }, {
+    title: 'Audience Map',
+    detail: workspace?.primaryIcp || workspace?.targetMarket || 'Noch kein primärer ICP hinterlegt.',
+    footnote: `${customerSegments.length} Segmente · ${totalPainPoints} Pain Points · ${totalDecisionCriteria} Decision Criteria`
+  }, {
+    title: 'Offer System',
+    detail: offerings.length ? `${offerings.length} Angebote mit ${totalDifferentiators} Differenzierungs-Signalen und ${totalProofPoints} Proof Points.` : 'Noch keine belastbare Angebotsbasis vorhanden.',
+    footnote: `${totalUseCases} Use Cases · ${offeringsWithUrls} verlinkte Angebotsseiten`
+  }, {
+    title: 'Digital Footprint',
+    detail: hasLiveWebsite ? `${websiteStats.publishedSites} Live-Sites und ${websiteStats.verifiedDomains} verifizierte Domains vorhanden.` : 'Noch keine harte Live-Praesenz vorhanden.',
+    footnote: `${connectedPlatformsCount} verbundene Plattformen · ${workspace?.languages.length ?? 0} Sprachen`
+  }];
+  const competitorSnapshotCards = [{
+    title: 'Market Pressure',
+    detail: `${selectedCompetitorLabel} ist als ${selectedCompetitorType.toLowerCase()}er Wettbewerber in ${selectedCompetitorMarket} eingeordnet.`,
+    footnote: `${selectedCompetitorPriority} Priority · ${selectedCompetitorGrowth} Growth`
+  }, {
+    title: 'Visibility Signals',
+    detail: `${selectedCompetitorVisibility} Visibility mit ${selectedCompetitorIntelligence} Intelligence-Tiefe.`,
+    footnote: `${selectedCompetitorUpdatedAt} zuletzt aktualisiert`
+  }, {
+    title: 'Messaging',
+    detail: selectedCompetitor.positioning || 'Noch kein klares Positioning-Signal im Datensatz.',
+    footnote: selectedCompetitor.differentiators[0] || 'Differenzierungs-Signale fehlen'
+  }, {
+    title: 'Offer Pressure',
+    detail: selectedCompetitor.strengths[0] || selectedCompetitor.featureOverlap[0] || 'Noch keine klaren Angebotsstaerken im Datensatz.',
+    footnote: `${selectedCompetitor.strengths.length} Staerken · ${selectedCompetitor.weaknesses.length} Schwaechen`
+  }];
+  const battlePlanActions: BattleAction[] = baselineCategories.filter(category => category.gap > 0).sort((left, right) => Number(right.fastestWin) - Number(left.fastestWin) || right.gap - left.gap).map(category => ({
+    title: `${category.label} offensiv schliessen`,
+    detail: category.nextMove,
+    impact: category.gap >= 3 ? 'High' : category.gap > 1 ? 'Medium' : 'Low',
+    speed: category.fastestWin ? 'Fast' : category.key === 'offer' || category.key === 'execution' ? 'Strategic' : 'Medium',
+    category: category.label,
+    outcome: category.key === 'positioning' ? `Klare Gegenpositionierung gegen ${selectedCompetitorLabel}` : category.key === 'offer' ? 'Mehr Conversion und bessere Sales-Battlecards' : category.key === 'audience' ? 'Schaerferes ICP-Mapping fuer SEO, GEO und Sales' : category.key === 'trust' ? 'Mehr Vertrauenssignale und weniger Reibung im Funnel' : category.key === 'distribution' ? 'Schnellerer Sichtbarkeitsaufbau ueber alle Kanaele' : 'Hoehere operative Schlagzahl ohne Handarbeit'
+  }));
   const evidenceItems = selectedCompetitor ? [{
     title: 'Website Positioning',
     source: 'Competitor Website',
@@ -506,64 +717,78 @@ export const LuluCompetitors = () => {
     impact: 'High',
     detail: `${selectedCompetitorGrowth} Wachstumssignal und steigende Sichtbarkeit im Markt ${selectedCompetitorMarket}.`
   }, {
+    title: 'Groesste offene Luecke',
+    when: 'jetzt',
+    impact: biggestGapCategory?.gap && biggestGapCategory.gap > 0 ? 'High' : 'Medium',
+    detail: biggestGapCategory ? `${biggestGapCategory.label}: ${biggestGapCategory.competitorScore}/10 vs ${biggestGapCategory.yourScore}/10.` : 'Noch kein priorisierter Gap berechnet.'
+  }, {
     title: 'Messaging-Signal geaendert',
     when: 'vor 5 Tagen',
     impact: 'Medium',
     detail: `${selectedCompetitorLabel} schiebt ${selectedLandscapeMetric.toLowerCase()} staerker in den Vordergrund.`
   }, {
-    title: 'Neue Kategorie-Chance',
+    title: 'Schnellster Win offen',
     when: 'vor 7 Tagen',
     impact: 'High',
-    detail: `${selectedCompetitorLabel} laesst in ${selectedChannelLabel} noch genuegend Luecken fuer Comparison- und GEO-Content.`
+    detail: fastestWinCategory ? `${fastestWinCategory.label} laesst sich gegen ${selectedCompetitorLabel} am schnellsten drehen.` : `${selectedCompetitorLabel} laesst in ${selectedChannelLabel} noch genuegend Luecken fuer Comparison- und GEO-Content.`
   }, {
-    title: 'Monitoring offen',
+    title: 'Data quality',
     when: 'laufend',
     impact: 'Medium',
-    detail: `Alerts fuer ${selectedCompetitorLabel} sollten auf Visibility, Content und Messaging aktiviert bleiben.`
+    detail: `${dataGaps.filter(item => !item.resolved).length} Analyse-Blocker verhindern noch eine vollstaendige 360-Grad-Bewertung von ${ownCompanyName}.`
   }] : [];
   const workflowActions = selectedCompetitor ? [{
-    label: 'SEO Optimization Loop',
-    detail: `Lulu erstellt und aktualisiert fortlaufend Vergleichsseiten, SEO-Strukturen und Ranking-Gaps gegen ${selectedCompetitorLabel}.`,
-    cadence: 'Continuous',
-    output: `Comparison Pages, Refreshes und Internal Linking fuer ${selectedCompetitorLabel}`
-  }, {
-    label: 'GEO Execution Loop',
-    detail: `Lulu verbessert kontinuierlich Entity-Signale, Antwortabdeckung und Retrieval-Relevanz gegen ${selectedCompetitorLabel}.`,
-    cadence: 'Continuous',
-    output: `GEO Entities, Source Hints und Answer Surfaces fuer ${selectedCompetitorLabel}`
-  }, {
-    label: 'AEO Execution Loop',
-    detail: `Lulu optimiert laufend Answer Engine Responses, FAQs und strukturierte Antwortformate fuer ${selectedCompetitorLabel}.`,
-    cadence: 'Continuous',
-    output: `FAQ Blocks, Answer Summaries und Prompt-fit Content`
-  }, {
-    label: 'Comparison Page Loop',
-    detail: `Lulu baut und verfeinert automatisch Vergleichs- und Counter-Messaging-Seiten gegen ${selectedCompetitorLabel}.`,
+    label: 'Self Intelligence Loop',
+    detail: `${ownCompanyName} wird kontinuierlich auf Positionierung, Angebote, ICP, Proof und Distribution abgeglichen.`,
     cadence: 'Every cycle',
-    output: `${selectedCompetitorLabel} comparison messaging und conversion updates`
+    output: `Aktualisierte Own-Baseline und Data-Gap-Liste fuer ${ownCompanyName}`
+  }, {
+    label: 'Competitor Intelligence Loop',
+    detail: `Lulu sammelt fortlaufend neue Signale zu ${selectedCompetitorLabel}, priorisiert Bewegungen und aktualisiert die Gap-Analyse.`,
+    cadence: 'Continuous',
+    output: `Frische Wettbewerbs-Signale, Bewegungen und neue Angriffsflaechen`
+  }, {
+    label: 'Gap Closure Loop',
+    detail: `Die groessten Rueckstaende werden direkt in SEO-, GEO-, AEO-, Website- und Sales-Artefakte uebersetzt.`,
+    cadence: 'Continuous',
+    output: biggestGapCategory ? `${biggestGapCategory.label} wird mit priorisierten Execution-Tasks angegriffen` : 'Keine offene Hauptluecke'
+  }, {
+    label: 'Comparison Content Loop',
+    detail: `Lulu baut und verbessert automatisch Comparison Pages, Gegenargumente und Trust-Signale gegen ${selectedCompetitorLabel}.`,
+    cadence: 'Always on',
+    output: `${selectedCompetitorLabel} comparison messaging, pages und counter-proof`
   }, {
     label: 'Sales Battlecard Loop',
-    detail: `Lulu aktualisiert Verkaufsargumente, Einwandbehandlung und Differenzierung gegen ${selectedCompetitorLabel} automatisch.`,
+    detail: `Sales bekommt laufend aktualisierte Argumente, Einwandbehandlung und Win-Strategien gegen ${selectedCompetitorLabel}.`,
     cadence: 'Daily refresh',
-    output: `Battlecards, objection handling und win-the-deal angles`
+    output: 'Battlecards, objection handling und win-the-deal angles'
   }, {
-    label: 'Monitoring Loop',
-    detail: `Lulu beobachtet ${selectedCompetitorLabel} dauerhaft und startet bei neuen Signals automatisch neue Optimierungen.`,
-    cadence: 'Always on',
-    output: `Alerts, movement detection und re-optimization triggers`
+    label: 'Re-measurement Loop',
+    detail: `Nach jeder Optimierung misst Lulu neu, ob ${ownCompanyName} naeher an Platz 1 kommt oder wo noch neue Luecken entstehen.`,
+    cadence: 'Continuous',
+    output: `Neue Baselines, Prioritaeten und naechste Angriffswellen`
   }] : [];
   const compareRows = compareCompetitors.map(competitor => {
     const marketScore = getPositionScore(competitor.pos) || 5;
     const visibilityScore = getVisibilityScore(competitor.vis) || 5;
     const priorityScore = getPriorityScore(competitor.pri) || 5;
     const intelligenceScore = getIntelligenceScore(competitor.intel) || 4;
+    const baselineScores = {
+      'Positioning Clarity': clampScore(2 + (competitor.positioning ? 2 : 0) + Math.min(2, Math.ceil(competitor.differentiators.length / 2)) + (competitor.type === 'Direct' ? 2 : 1) + (competitor.pos.toLowerCase() === 'stronger' ? 2 : competitor.pos.toLowerCase() === 'parity' || competitor.pos.toLowerCase() === 'equal' ? 1 : 0)),
+      'Offer Strength': clampScore(2 + Math.min(3, Math.max(competitor.featureOverlap.length, competitor.differentiators.length)) + Math.min(2, Math.ceil(competitor.strengths.length / 2)) + (competitor.pri === 'Critical' ? 2 : competitor.pri === 'High' ? 1 : 0)),
+      'ICP Coverage': clampScore(2 + (competitor.market !== '—' ? 2 : 0) + (competitor.pos.toLowerCase() === 'stronger' ? 2 : 1) + Math.min(2, Math.ceil(competitor.featureOverlap.length / 2)) + (competitor.type === 'Direct' ? 2 : 1)),
+      'Trust & Proof': clampScore(2 + (competitor.sourceQuality === 'High' ? 3 : competitor.sourceQuality === 'Medium' ? 2 : 1) + Math.min(2, Math.ceil(competitor.strengths.length / 2)) + (competitor.websiteUrl !== '—' ? 1 : 0) + (competitor.intel === 'Full' ? 2 : competitor.intel === 'Partial' ? 1 : 0)),
+      'Distribution Readiness': clampScore(2 + visibilityScore + (parseGrowthValue(competitor.growth) > 0 ? 1 : 0)),
+      'Execution Velocity': clampScore(2 + priorityScore + Math.min(2, Math.ceil(Math.max(parseGrowthValue(competitor.growth), 0) / 10)) + (competitor.intel === 'Full' ? 2 : competitor.intel === 'Partial' ? 1 : 0))
+    };
     return {
       competitor,
       metrics: {
         marketScore,
         visibilityScore,
         priorityScore,
-        intelligenceScore
+        intelligenceScore,
+        baselineScores
       }
     };
   });
@@ -689,6 +914,7 @@ export const LuluCompetitors = () => {
 
       <div className="px-4 py-6 sm:px-8">
         {competitorsError && <div role="alert" className="mb-5 rounded-lg border border-chart-5/30 bg-chart-5/10 px-4 py-3 text-sm text-chart-5">Competitor data could not be loaded. Check marketing competitor records and try again.</div>}
+        {snapshotError && <div role="alert" className="mb-5 rounded-lg border border-chart-1/30 bg-chart-1/10 px-4 py-3 text-sm text-[var(--chart-1)]">{snapshotError}</div>}
         {actionError && <div role="alert" className="mb-5 rounded-lg border border-chart-5/30 bg-chart-5/10 px-4 py-3 text-sm text-chart-5">{actionError}</div>}
         {actionMessage && <div className="mb-5 rounded-lg border border-chart-4/30 bg-chart-4/10 px-4 py-3 text-sm text-chart-4">{actionMessage}</div>}
 
@@ -696,7 +922,7 @@ export const LuluCompetitors = () => {
           <div>
             <Pill tone="green">Active</Pill>
             <h1 className="mt-2 text-3xl font-bold tracking-tight">Competitors</h1>
-            <p className="mt-1 max-w-3xl text-sm text-[var(--muted-foreground)]">Die Seite kombiniert jetzt Executive Summary, echte Compare-Ansicht, Evidence, Change Tracking, Watchlist, Alerts und direkte Actions fuer SEO, GEO, AEO und Sales.</p>
+            <p className="mt-1 max-w-3xl text-sm text-[var(--muted-foreground)]">All-in-One Analyse fuer dein Unternehmen und deine Wettbewerber: Baseline, Gap Engine, Battle Plan, Evidence und autonome Execution-Loops mit dem klaren Ziel, schneller besser als der Markt zu werden.</p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
@@ -772,7 +998,7 @@ export const LuluCompetitors = () => {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-bold">Competitive Intelligence wird vorbereitet</h2>
-                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{autoDiscoveryBusy ? 'Lulu AI analysiert gerade deinen Markt und baut daraus die Top-10-Wettbewerberliste auf. Executive Summary, Compare Matrix, Evidence und Alerts werden automatisch freigeschaltet, sobald die ersten Datensaetze vorliegen.' : 'Es sind noch keine Wettbewerberdaten verfuegbar. Starte die automatische Ermittlung erneut, sobald genug Markt-Kontext im Workspace vorhanden ist.'}</p>
+                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{autoDiscoveryBusy ? 'Lulu AI analysiert gerade deinen Markt und baut daraus die Top-10-Wettbewerberliste auf. Danach werden automatisch Unternehmens-Baseline, Gap Engine, Battle Plan und Compare Matrix freigeschaltet.' : 'Es sind noch keine Wettbewerberdaten verfuegbar. Starte die automatische Ermittlung erneut, sobald genug Markt-Kontext im Workspace vorhanden ist.'}</p>
                 </div>
                 <Pill tone={autoDiscoveryBusy ? 'amber' : 'gray'}>{autoDiscoveryBusy ? 'Analysiere Markt...' : 'Wartet auf Daten'}</Pill>
               </div>
@@ -797,14 +1023,14 @@ export const LuluCompetitors = () => {
                   <strong>Was danach automatisch sichtbar wird</strong>
                   <Pill tone="purple">ETA 1-2 Minuten</Pill>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">Executive Summary, Side-by-Side-Compare, Evidence & Sources, Change Tracking, Watchlist/Alerts und direkte Actions fuer SEO, GEO, AEO und Sales.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Own Company Baseline, Competitor Baseline, Gap Engine, Battle Plan, Evidence & Sources, Change Tracking und direkte Actions fuer SEO, GEO, AEO, Website und Sales.</p>
               </div>
             </article>
 
             <article className="rounded-xl border border-[var(--border)] bg-card p-5">
               <h2 className="font-bold">Naechste automatische Outputs</h2>
               <div className="mt-4 space-y-3">
-                {['Top-10 Wettbewerberliste', 'Compare Matrix', 'Evidence Cards', 'Change Tracking', 'Alerts und Watchlist'].map(label => <div key={label} className="rounded-lg border border-[var(--border)] p-3 text-sm">
+                {['Top-10 Wettbewerberliste', 'Own Company Baseline', 'Gap Engine', 'Battle Plan', 'Evidence Cards'].map(label => <div key={label} className="rounded-lg border border-[var(--border)] p-3 text-sm">
                     <p>{label}</p>
                     <p className="mt-1 text-[11px] text-muted-foreground">Wird nach erfolgreicher Discovery automatisch aktiviert.</p>
                   </div>)}
@@ -826,6 +1052,136 @@ export const LuluCompetitors = () => {
                   <p className="mt-3 text-sm text-muted-foreground">{item.detail}</p>
                   <div className="mt-4 rounded-lg bg-secondary p-3 text-[11px] text-foreground">Next best move: {item.action}</div>
                 </article>)}
+            </section>
+
+            <section className="mt-6 grid gap-4 xl:grid-cols-2">
+              <article className="rounded-xl border border-[var(--border)] bg-card p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-bold">{ownCompanyName} Intelligence</h2>
+                    <p className="mt-1 text-xs text-muted-foreground">Deine Unternehmens-Baseline aus Onboarding, Angeboten, Segmenten, Website-Signalen und verbundenen Plattformen.</p>
+                  </div>
+                  <Pill tone={snapshot ? 'green' : 'amber'}>{ownBusinessLabel}</Pill>
+                </div>
+                <p className="mt-4 text-sm leading-6 text-muted-foreground">{ownCompanyOverview}</p>
+                <div className="mt-5 grid gap-3 md:grid-cols-2">
+                  {companySnapshotCards.map(card => <article key={card.title} className="rounded-lg border border-[var(--border)] p-4">
+                      <h3 className="font-semibold">{card.title}</h3>
+                      <p className="mt-2 text-sm text-muted-foreground">{card.detail}</p>
+                      <p className="mt-3 text-[11px] text-foreground">{card.footnote}</p>
+                    </article>)}
+                </div>
+              </article>
+
+              <article className="rounded-xl border border-[var(--border)] bg-card p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-bold">{selectedCompetitorLabel} Intelligence</h2>
+                    <p className="mt-1 text-xs text-muted-foreground">Wettbewerbs-Baseline aus Markt-, Messaging-, Visibility- und Prioritätssignalen.</p>
+                  </div>
+                  <Pill tone={toneForPriority(selectedCompetitorPriority)}>{selectedCompetitorPriority}</Pill>
+                </div>
+                <p className="mt-4 text-sm leading-6 text-muted-foreground">{selectedCompetitorOverview}</p>
+                <div className="mt-5 grid gap-3 md:grid-cols-2">
+                  {competitorSnapshotCards.map(card => <article key={card.title} className="rounded-lg border border-[var(--border)] p-4">
+                      <h3 className="font-semibold">{card.title}</h3>
+                      <p className="mt-2 text-sm text-muted-foreground">{card.detail}</p>
+                      <p className="mt-3 text-[11px] text-foreground">{card.footnote}</p>
+                    </article>)}
+                </div>
+              </article>
+            </section>
+
+            <section className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
+              <article className="rounded-xl border border-[var(--border)] bg-card p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-bold">Gap Engine</h2>
+                    <p className="mt-1 text-xs text-muted-foreground">Kategorie fuer Kategorie: wo du schon mithalten kannst, wo du hinten bist und wo Lulu sofort angreifen sollte.</p>
+                  </div>
+                  <Pill tone="purple">Company vs {selectedCompetitorLabel}</Pill>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {baselineCategories.map(category => <article key={category.key} className="rounded-lg border border-[var(--border)] p-4">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-semibold">{category.label}</h3>
+                          <p className="mt-1 text-[11px] text-muted-foreground">{category.source}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Pill tone={toneForGap(category.gap)}>{textForGap(category.gap)}</Pill>
+                          <Pill tone={category.priority === 'High' ? 'red' : category.priority === 'Medium' ? 'amber' : 'green'}>{category.priority}</Pill>
+                        </div>
+                      </div>
+                      <div className="mt-3 grid gap-3 md:grid-cols-[minmax(0,1fr)_120px_120px]">
+                        <div className="text-sm text-muted-foreground">
+                          <p><span className="font-medium text-foreground">{ownCompanyName}:</span> {category.yourEvidence}</p>
+                          <p className="mt-2"><span className="font-medium text-foreground">{selectedCompetitorLabel}:</span> {category.competitorEvidence}</p>
+                        </div>
+                        <div className="rounded-lg bg-secondary/50 px-3 py-3 text-center text-sm">
+                          <div className="text-[11px] text-muted-foreground">You</div>
+                          <strong className="mt-1 block text-xl">{category.yourScore}/10</strong>
+                        </div>
+                        <div className="rounded-lg bg-secondary px-3 py-3 text-center text-sm">
+                          <div className="text-[11px] text-muted-foreground">{selectedCompetitorLabel}</div>
+                          <strong className="mt-1 block text-xl">{category.competitorScore}/10</strong>
+                        </div>
+                      </div>
+                      <div className="mt-3 rounded-lg bg-secondary p-3 text-[11px] text-foreground">
+                        Warum wichtig: {category.why} Nächster Zug: {category.nextMove}
+                      </div>
+                    </article>)}
+                </div>
+              </article>
+
+              <article className="rounded-xl border border-[var(--border)] bg-card p-5">
+                <div className="flex items-center justify-between gap-3">
+                  <h2 className="text-lg font-bold">Data Gaps</h2>
+                  <Pill tone={dataGaps.some(item => !item.resolved) ? 'amber' : 'green'}>{dataGaps.filter(item => !item.resolved).length} offen</Pill>
+                </div>
+                <div className="mt-4 space-y-3">
+                  {dataGaps.map(item => <div key={item.title} className={`rounded-lg border p-4 ${item.resolved ? 'border-chart-4/30 bg-chart-4/10' : 'border-chart-1/30 bg-chart-1/10'}`}>
+                      <div className="flex items-center justify-between gap-3">
+                        <strong>{item.title}</strong>
+                        <Pill tone={item.resolved ? 'green' : 'amber'}>{item.resolved ? 'Ready' : 'Missing'}</Pill>
+                      </div>
+                      <p className="mt-2 text-sm text-muted-foreground">{item.detail}</p>
+                    </div>)}
+                </div>
+              </article>
+            </section>
+
+            <section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold">Fastest Path To #1</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">Priorisierte Battle-Plan-Aktionen, damit {ownCompanyName} schneller als {selectedCompetitorLabel} aufholen und überholen kann.</p>
+                </div>
+                <Pill tone="green">{battlePlanActions.length} offene Angriffswellen</Pill>
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {(battlePlanActions.length ? battlePlanActions : [{
+                  title: 'Momentum halten',
+                  detail: `${ownCompanyName} liegt aktuell nicht mehr hinter ${selectedCompetitorLabel}. Jetzt geht es darum, den Vorsprung mit mehr Distribution und Proof zu stabilisieren.`,
+                  impact: 'Medium' as const,
+                  speed: 'Fast' as const,
+                  category: 'Momentum',
+                  outcome: 'Vorsprung halten und schneller skalieren'
+                }]).map(action => <article key={action.title} className="rounded-xl border border-[var(--border)] p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="font-semibold">{action.title}</h3>
+                      <div className="flex gap-1">
+                        <Pill tone={action.impact === 'High' ? 'red' : action.impact === 'Medium' ? 'amber' : 'green'}>{action.impact}</Pill>
+                        <Pill tone="purple">{action.speed}</Pill>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-sm text-muted-foreground">{action.detail}</p>
+                    <div className="mt-4 rounded-lg bg-secondary p-3 text-[11px] text-foreground">
+                      Zielbild: {action.outcome}
+                    </div>
+                    <p className="mt-3 text-[11px] text-muted-foreground">Kategorie: {action.category}</p>
+                  </article>)}
+              </div>
             </section>
 
             <section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-5">
@@ -965,10 +1321,10 @@ export const LuluCompetitors = () => {
                         <Pill tone={toneForPriority(row.competitor.pri)}>{row.competitor.pri}</Pill>
                       </div>
                       <div className="mt-4 space-y-2 text-xs">
-                        <div className="flex justify-between"><span>Market Presence</span><b>{row.metrics.marketScore}/10</b></div>
-                        <div className="flex justify-between"><span>Search Visibility</span><b>{row.metrics.visibilityScore}/10</b></div>
-                        <div className="flex justify-between"><span>Strategic Priority</span><b>{row.metrics.priorityScore}/10</b></div>
-                        <div className="flex justify-between"><span>Intelligence Depth</span><b>{row.metrics.intelligenceScore}/10</b></div>
+                        <div className="flex justify-between"><span>Positioning Clarity</span><b>{row.metrics.baselineScores['Positioning Clarity']}/10</b></div>
+                        <div className="flex justify-between"><span>Trust & Proof</span><b>{row.metrics.baselineScores['Trust & Proof']}/10</b></div>
+                        <div className="flex justify-between"><span>Distribution Readiness</span><b>{row.metrics.baselineScores['Distribution Readiness']}/10</b></div>
+                        <div className="flex justify-between"><span>Execution Velocity</span><b>{row.metrics.baselineScores['Execution Velocity']}/10</b></div>
                       </div>
                     </article>)}
                 </div>}
@@ -1018,7 +1374,7 @@ export const LuluCompetitors = () => {
                           <td className="px-3 py-3 font-medium">{metric.label}</td>
                           <td className="px-3 py-3">{metric.your == null ? ownBusinessLabel : `${metric.your}/10`}</td>
                           {compareRows.map(row => {
-                        const metricValue = metric.label === 'Market Presence' ? row.metrics.marketScore : metric.label === 'Search Visibility' ? row.metrics.visibilityScore : metric.label === 'AI Visibility' ? Math.max(4, row.metrics.intelligenceScore + 3) : metric.label === 'Marketing Activity' ? row.metrics.priorityScore : metric.label === 'Audience Reach' ? Math.max(4, row.metrics.marketScore - 1) : Math.max(4, row.metrics.visibilityScore - 1);
+                        const metricValue = row.metrics.baselineScores[metric.label as keyof typeof row.metrics.baselineScores] ?? row.metrics.visibilityScore;
                         return <td key={`${row.competitor.n}-${metric.label}`} className="px-3 py-3">{metricValue}/10 {metric.your == null ? null : <span className={`ml-2 text-[11px] ${metric.your >= metricValue ? 'text-chart-4' : 'text-chart-5'}`}>{metric.your - metricValue > 0 ? `+${metric.your - metricValue}` : metric.your - metricValue}</span>}</td>;
                       })}
                         </tr>)}
@@ -1031,7 +1387,7 @@ export const LuluCompetitors = () => {
                 <h2 className="font-bold">Your Business vs {selectedCompetitorLabel}</h2>
                 {comparisonMetrics.map(metric => <MetricBar key={metric.label} label={metric.label} yourScore={metric.your} competitorScore={metric.competitor} yourLabel={ownBusinessLabel} source={metric.source} />)}
                 <div className="mt-5 rounded-xl bg-secondary p-4 text-sm text-foreground">
-                  {hasLiveWebsite ? 'Warum du hier noch keine Eigenwerte siehst: Es gibt zwar bereits ein Live-Website-Signal, aber Lulu hat noch keine belastbaren eigenen Search- und Market-Benchmarks fuer dein Unternehmen aufgebaut.' : 'Warum du hier noch keine Eigenwerte siehst: Deine Firma ist noch nicht live, deshalb zeigt Lulu bewusst keine erfundenen Werte fuer Search Visibility, Market Presence oder Audience Reach an.'} {selectedCompetitorLabel} bleibt als Referenz sichtbar, damit du schon jetzt die Marktstaerke des Wettbewerbers einordnen kannst.
+                  Diese Gegenüberstellung nutzt keine erfundenen Market-Claims, sondern deine reale Unternehmens-Baseline aus Workspace-, Offer-, ICP-, Website- und Plattform-Signalen. {selectedCompetitorLabel} bleibt die Referenz dafür, wo du funktional, strategisch und in der Marktausführung schneller besser werden musst.
                 </div>
               </article>
             </section>
