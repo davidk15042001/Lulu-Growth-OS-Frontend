@@ -257,21 +257,18 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "breezy-shore-6734",
     "label": "Analytics"
-  }]
-}, {
-  "label": "Advertising",
-  "pages": [{
+  }, {
     "id": "finely-garden-9221",
     "label": "Overview"
   }, {
     "id": "friendly-path-8200",
-    "label": "Analytics"
+    "label": "Advertising Analytics"
   }, {
     "id": "wise-brook-1762",
-    "label": "Campaigns"
+    "label": "Advertising Campaigns"
   }, {
     "id": "softly-second-7684",
-    "label": "Audiences"
+    "label": "Advertising Audiences"
   }, {
     "id": "happily-storm-2690",
     "label": "Creatives"
