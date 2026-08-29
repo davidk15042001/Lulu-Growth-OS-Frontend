@@ -239,7 +239,10 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "proud-rain-4772",
     "label": "Activity Timeline"
-  }, {
+  }]
+}, {
+  "label": "Finance",
+  "pages": [{
     "id": "quietly-stone-4158",
     "label": "Finance Overview"
   }, {
