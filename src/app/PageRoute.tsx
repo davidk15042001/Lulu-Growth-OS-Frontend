@@ -2,7 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import type { PageDefinition } from "../pages-manifest";
 import { getPageContract } from "../api/page-contracts";
 import { useLuluApp } from "../api/LuluAppContext";
-import { SUBPAGE_NAVIGATION_LOCKED, isPageNavigable, routes } from "../routing";
+import { LEGACY_ADVERTISING_AUDIENCES_SLUG, PRIMARY_AUDIENCES_SLUG, SUBPAGE_NAVIGATION_LOCKED, isPageNavigable, pagePath, routes } from "../routing";
 import { PageFrame } from "./PageShell";
 import { DEFAULT_WEBSITE_SECTION, WEBSITE_PORTAL_SLUG } from "./page-registry";
 
@@ -26,6 +26,10 @@ export function PageRoute({ page }: { page: PageDefinition }) {
     || location.pathname.startsWith("/auth/");
   const isPublic = contract?.kind === "public" || isAuthPath;
   const isOnboarding = contract?.kind === "onboarding";
+
+  if (page.slug === LEGACY_ADVERTISING_AUDIENCES_SLUG) {
+    return <Navigate replace to={pagePath(PRIMARY_AUDIENCES_SLUG)} state={{ from: location.pathname }} />;
+  }
 
   if (page.slug === WEBSITE_PORTAL_SLUG && section === "settings-9019") {
     const params = new URLSearchParams(location.search);

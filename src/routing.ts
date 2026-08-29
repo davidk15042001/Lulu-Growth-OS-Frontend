@@ -48,6 +48,8 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
 export const LEGACY_SETUP_COMPLETE_PATH = "/onboarding/setup-complete";
 export const LULU_NAVIGATION_MESSAGE = "lulu:navigate";
 export const SUBPAGE_NAVIGATION_LOCKED = true;
+export const PRIMARY_AUDIENCES_SLUG = "breezily-wood-5980";
+export const LEGACY_ADVERTISING_AUDIENCES_SLUG = "softly-second-7684";
 
 const WEBSITE_NAVIGATION_SLUGS = new Set([
   "lulu-website-portal-9012",
@@ -73,6 +75,7 @@ export function pagePath(slug: string) {
 const REMOVED_PAGE_SLUGS = new Set([
   "brave-stream-5322",
   "website-settings-9019",
+  LEGACY_ADVERTISING_AUDIENCES_SLUG,
 ]);
 
 const TOP_LEVEL_PAGE_SLUGS = new Set([
