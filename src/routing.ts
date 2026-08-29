@@ -47,7 +47,7 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
 
 export const LEGACY_SETUP_COMPLETE_PATH = "/onboarding/setup-complete";
 export const LULU_NAVIGATION_MESSAGE = "lulu:navigate";
-export const SUBPAGE_NAVIGATION_LOCKED = false;
+export const SUBPAGE_NAVIGATION_LOCKED = true;
 
 export type LuluNavigationMessage = {
   type: typeof LULU_NAVIGATION_MESSAGE;
