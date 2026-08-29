@@ -59,12 +59,6 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
     } finally { setLoading(false); }
   }, []);
   useEffect(() => {
-    const publicAuthPath = window.location.pathname === "/login" || window.location.pathname.startsWith("/auth/");
-    if (publicAuthPath) {
-      setLoading(false);
-      setError(null);
-      return;
-    }
     void refresh();
   }, [refresh]);
   const selectedWorkspace = useMemo(() => workspaces.find((item) => item.id === selectedId) ?? null, [selectedId, workspaces]);

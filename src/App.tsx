@@ -56,6 +56,13 @@ function AdminOnlyAppRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function PublicAuthRoute({ children }: { children: React.ReactNode }) {
+  const { currentUser, loading } = useLuluApp();
+  if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
+  if (!currentUser) return <>{children}</>;
+  return <Navigate replace to={isAdminUser(currentUser) ? getAdminLandingPath(routes.app.dashboard) : routes.app.dashboard} />;
+}
+
 function HomeOrAdminRoute() {
   const { currentUser, loading } = useLuluApp();
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
@@ -175,9 +182,23 @@ export default function App() {
         <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.email} element={<AdminOnlyAppRoute><PageRoute page={EMAIL_PAGE} /></AdminOnlyAppRoute>} />
-        {pages.map((page) => (
-          isPageAvailable(page.slug) ? <Route key={page.id} path={pagePath(page.slug)} element={<AdminOnlyAppRoute><PageRoute page={page} /></AdminOnlyAppRoute>} /> : null
-        ))}
+        {pages.map((page) => {
+          if (!isPageAvailable(page.slug)) return null;
+          const resolvedPath = pagePath(page.slug);
+          const isAuthPage = resolvedPath === routes.auth.login
+            || resolvedPath === routes.auth.signUp
+            || resolvedPath === routes.auth.forgotPassword
+            || resolvedPath === routes.auth.verificationEmail
+            || resolvedPath === routes.auth.verifyEmail
+            || resolvedPath === routes.auth.resetPassword
+            || resolvedPath === routes.auth.sessionExpired
+            || resolvedPath === routes.auth.signedOut;
+          return <Route
+            key={page.id}
+            path={resolvedPath}
+            element={isAuthPage ? <PublicAuthRoute><PageRoute page={page} /></PublicAuthRoute> : <AdminOnlyAppRoute><PageRoute page={page} /></AdminOnlyAppRoute>}
+          />;
+        })}
         <Route path="/not-found" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
