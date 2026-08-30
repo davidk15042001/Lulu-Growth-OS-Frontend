@@ -103,6 +103,11 @@ type AudienceDossier = {
   actionPlan: AudienceDossierAction[];
 };
 
+type ParsedAudienceDossierResult = {
+  dossier: AudienceDossier | null;
+  source: "json" | "narrative" | "fallback";
+};
+
 type AudienceSegmentOrigin = "existing" | "generated";
 
 type AudienceSegmentInsight = {
@@ -256,6 +261,133 @@ function extractJsonObject(content: string): string | null {
   const lastBrace = trimmed.lastIndexOf("}");
   if (firstBrace >= 0 && lastBrace > firstBrace) return trimmed.slice(firstBrace, lastBrace + 1);
   return null;
+}
+
+function extractBulletLines(block: string): string[] {
+  return block
+    .split(/\r?\n/)
+    .map((line) => line.replace(/^[-*•]\s*/, "").trim())
+    .filter(Boolean);
+}
+
+function buildNarrativeAudienceDossier(content: string): AudienceDossier | null {
+  const trimmed = content.trim();
+  if (!trimmed) return null;
+
+  const rawSections = trimmed
+    .split(/\n(?=#{1,6}\s+)/)
+    .map((section) => section.trim())
+    .filter(Boolean);
+
+  const sections = rawSections
+    .map((section) => {
+      const [headingLine, ...bodyLines] = section.split(/\r?\n/);
+      const title = headingLine.replace(/^#{1,6}\s*/, "").trim();
+      if (!title || title.toLowerCase() === "json") return null;
+
+      const body = bodyLines.join("\n").trim();
+      const summary = bodyLines.find((line) => {
+        const trimmedLine = line.trim();
+        return trimmedLine && !trimmedLine.startsWith("-") && !trimmedLine.startsWith("*") && !trimmedLine.startsWith("•");
+      })?.trim() ?? "";
+
+      const items = extractBulletLines(body)
+        .slice(0, 6)
+        .map((bullet, index) => {
+          const [label, ...rest] = bullet.split(":");
+          const lowerTitle = title.toLowerCase();
+          return {
+            label: rest.length ? label.trim() : `${title} ${index + 1}`,
+            value: rest.length ? rest.join(":").trim() : bullet,
+            status: lowerTitle.includes("gap")
+              ? "gap"
+              : lowerTitle.includes("assumption") || lowerTitle.includes("inferred")
+                ? "inferred"
+                : "verified",
+          } satisfies AudienceDossierItem;
+        });
+
+      if (!summary && !items.length) return null;
+      return {
+        title,
+        summary,
+        items,
+      } satisfies AudienceDossierSection;
+    })
+    .filter(Boolean) as AudienceDossierSection[];
+
+  if (!sections.length) {
+    return {
+      executiveSummary: trimmed.replace(/\s+/g, " ").slice(0, 600),
+      verifiedFacts: [],
+      inferredAssumptions: [],
+      dataGaps: [],
+      sections: [{
+        title: "Audience analysis",
+        summary: trimmed.replace(/\s+/g, " ").slice(0, 600),
+        items: [],
+      }],
+      messagingAngles: [],
+      channelPriorities: [],
+      objections: [],
+      actionPlan: [],
+    };
+  }
+
+  return {
+    executiveSummary: sections[0]?.summary || trimmed.replace(/\s+/g, " ").slice(0, 600),
+    verifiedFacts: sections
+      .find((section) => section.title.toLowerCase().includes("verified"))
+      ?.items.map((item) => `${item.label}: ${item.value}`) ?? [],
+    inferredAssumptions: sections
+      .find((section) => section.title.toLowerCase().includes("assumption") || section.title.toLowerCase().includes("inferred"))
+      ?.items.map((item) => `${item.label}: ${item.value}`) ?? [],
+    dataGaps: sections
+      .find((section) => section.title.toLowerCase().includes("gap"))
+      ?.items.map((item) => `${item.label}: ${item.value}`) ?? [],
+    sections: sections.slice(0, 8),
+    messagingAngles: sections
+      .find((section) => section.title.toLowerCase().includes("messaging"))
+      ?.items.map((item) => item.value)
+      .slice(0, 8) ?? [],
+    channelPriorities: sections
+      .find((section) => section.title.toLowerCase().includes("channel"))
+      ?.items.map((item) => item.value)
+      .slice(0, 8) ?? [],
+    objections: sections
+      .find((section) => section.title.toLowerCase().includes("objection"))
+      ?.items.map((item) => item.value)
+      .slice(0, 8) ?? [],
+    actionPlan: sections
+      .find((section) => section.title.toLowerCase().includes("action"))
+      ?.items.map((item) => ({
+        title: item.label,
+        detail: item.value,
+        priority: "Medium" as const,
+      }))
+      .slice(0, 6) ?? [],
+  };
+}
+
+function parseAudienceDossierContent(content: string): ParsedAudienceDossierResult {
+  const parsed = extractJsonObject(content);
+  if (parsed) {
+    try {
+      const normalized = normalizeAudienceDossier(JSON.parse(parsed));
+      if (normalized) {
+        return { dossier: normalized, source: "json" };
+      }
+    } catch {
+      // Fall through to narrative parsing.
+    }
+  }
+
+  const narrative = buildNarrativeAudienceDossier(content);
+  if (narrative) {
+    return { dossier: narrative, source: "narrative" };
+  }
+
+  return { dossier: null, source: "fallback" };
 }
 
 function normalizeAudienceDossier(input: unknown): AudienceDossier | null {
@@ -1221,7 +1353,7 @@ export const LuluAudiencesWorkspace = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [dossiersBySegment, setDossiersBySegment] = useState<Record<string, AudienceDossier>>({});
   const [dossierLoadingId, setDossierLoadingId] = useState<string | null>(null);
-  const [dossierError, setDossierError] = useState<string | null>(null);
+  const [dossierStatusMessage, setDossierStatusMessage] = useState<string | null>(null);
   const {
     items: audienceRecords,
     total: audienceRecordTotal,
@@ -1283,7 +1415,7 @@ export const LuluAudiencesWorkspace = () => {
   const refreshAll = useCallback(async () => {
     setRefreshing(true);
     setDossiersBySegment({});
-    setDossierError(null);
+    setDossierStatusMessage(null);
     try {
       await Promise.all([loadAudienceIntelligence(), refreshAudienceRecords()]);
     } finally {
@@ -1379,7 +1511,7 @@ export const LuluAudiencesWorkspace = () => {
     if (!force && dossiersBySegment[insight.segment.id]) return;
 
     setDossierLoadingId(insight.segment.id);
-    setDossierError(null);
+    setDossierStatusMessage(null);
 
     try {
       const conversations = (await aiApi.conversations(workspaceId)).data.items;
@@ -1400,10 +1532,13 @@ export const LuluAudiencesWorkspace = () => {
         const existingMessages = (await aiApi.messages(workspaceId, conversation.id)).data.items;
         const latestAssistant = [...existingMessages].reverse().find((item) => item.role === "assistant");
         if (latestAssistant) {
-          const parsed = extractJsonObject(latestAssistant.content);
-          const normalized = parsed ? normalizeAudienceDossier(JSON.parse(parsed)) : null;
-          if (normalized) {
-            setDossiersBySegment((current) => ({ ...current, [insight.segment.id]: normalized }));
+          const parsedResult = parseAudienceDossierContent(latestAssistant.content);
+          const dossier = parsedResult.dossier;
+          if (dossier) {
+            setDossiersBySegment((current) => ({ ...current, [insight.segment.id]: dossier }));
+            if (parsedResult.source === "narrative") {
+              setDossierStatusMessage("The AI returned narrative analysis instead of strict JSON, so Lulu normalized it automatically.");
+            }
             setDossierLoadingId((current) => (current === insight.segment.id ? null : current));
             return;
           }
@@ -1421,17 +1556,21 @@ export const LuluAudiencesWorkspace = () => {
         },
       );
 
-      const parsed = extractJsonObject(response.data.assistantMessage.content);
-      const normalized = parsed ? normalizeAudienceDossier(JSON.parse(parsed)) : null;
-
-      if (!normalized) {
-        throw new Error("AI dossier response could not be parsed.");
+      const parsedResult = parseAudienceDossierContent(response.data.assistantMessage.content);
+      if (!parsedResult.dossier) {
+        setDossiersBySegment((current) => ({ ...current, [insight.segment.id]: buildFallbackAudienceDossier(insight) }));
+        setDossierStatusMessage("Lulu is showing a structured fallback analysis because the AI response format was incomplete.");
+        return;
       }
 
-      setDossiersBySegment((current) => ({ ...current, [insight.segment.id]: normalized }));
+      const dossier = parsedResult.dossier;
+      setDossiersBySegment((current) => ({ ...current, [insight.segment.id]: dossier }));
+      if (parsedResult.source === "narrative") {
+        setDossierStatusMessage("The AI returned narrative analysis instead of strict JSON, so Lulu normalized it automatically.");
+      }
     } catch (error) {
       setDossiersBySegment((current) => ({ ...current, [insight.segment.id]: buildFallbackAudienceDossier(insight) }));
-      setDossierError(getFriendlyErrorMessage(error, "The AI dossier could not be generated cleanly, so Lulu is showing a structured fallback analysis from the available workspace signals."));
+      setDossierStatusMessage(getFriendlyErrorMessage(error, "Lulu is showing a structured fallback analysis from the available workspace signals while the AI dossier endpoint is unavailable."));
     } finally {
       setDossierLoadingId((current) => (current === insight.segment.id ? null : current));
     }
@@ -1508,12 +1647,6 @@ export const LuluAudiencesWorkspace = () => {
             {audienceRecordsError}
           </div>
         )}
-        {dossierError && (
-          <div role="alert" className="mb-4 rounded-xl border border-chart-1/30 bg-chart-1/10 px-4 py-3 text-sm text-[var(--chart-1)]">
-            {dossierError}
-          </div>
-        )}
-
         {pageLoading ? (
           <div className="rounded-2xl border border-border bg-card p-10 text-center">
             <RefreshCw className="mx-auto animate-spin text-muted-foreground" size={28} />
@@ -1869,9 +2002,16 @@ export const LuluAudiencesWorkspace = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <Pill tone="purple">AI-generated</Pill>
+                      {dossierStatusMessage && <Pill tone="amber">Fallback aware</Pill>}
                       {dossierLoadingId === selectedInsight.segment.id && <Pill tone="amber">Generating</Pill>}
                     </div>
                   </div>
+
+                  {dossierStatusMessage && (
+                    <div className="mt-4 rounded-xl border border-border bg-[var(--secondary)] p-4 text-sm text-muted-foreground">
+                      {dossierStatusMessage}
+                    </div>
+                  )}
 
                   {dossierLoadingId === selectedInsight.segment.id && !selectedDossier ? (
                     <div className="mt-4 rounded-xl border border-border bg-[var(--secondary)] p-4 text-sm text-muted-foreground">
