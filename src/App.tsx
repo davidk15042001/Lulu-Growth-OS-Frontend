@@ -79,10 +79,14 @@ function AdminSurfaceSwitcher() {
   if (location.pathname === routes.auth.login || location.pathname.startsWith("/auth/") || location.pathname === "/not-found") return null;
 
   const onAdminPanel = location.pathname === ADMIN_PANEL_PATH;
+  const onWorkspaceApp = location.pathname.startsWith("/app/");
   const nextSurface = onAdminPanel ? "workspace" : "admin";
   const nextPath = onAdminPanel ? routes.app.dashboard : ADMIN_PANEL_PATH;
   const label = onAdminPanel ? "Zur Benutzerplattform" : "Zum Admin-Panel";
   const helper = onAdminPanel ? "Workspace-Modus" : "Admin-Modus";
+  const className = onWorkspaceApp
+    ? "fixed right-4 top-[78px] z-[70] inline-flex max-w-[calc(100vw-1.5rem)] items-center gap-2 rounded-full border border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_94%,transparent)] px-3 py-2 text-xs font-medium text-[var(--foreground)] shadow-[0_10px_26px_rgba(0,0,0,0.12)] backdrop-blur-sm transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:right-5 sm:top-[84px]"
+    : "fixed right-4 top-4 z-[80] inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-medium text-[var(--foreground)] shadow-[0_10px_30px_rgba(0,0,0,0.12)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
 
   return (
     <button
@@ -91,7 +95,7 @@ function AdminSurfaceSwitcher() {
         setAdminSurface(nextSurface);
         navigate(nextPath);
       }}
-      className="fixed right-4 top-4 z-[80] inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-medium text-[var(--foreground)] shadow-[0_10px_30px_rgba(0,0,0,0.12)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+      className={className}
       aria-label={label}
       title={`${label} (${helper})`}
     >
