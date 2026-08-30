@@ -20,6 +20,14 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
+            if (
+              id.includes('/react/')
+              || id.includes('\\react\\')
+              || id.includes('react-dom')
+              || id.includes('scheduler')
+            ) {
+              return 'react-core'
+            }
             if (id.includes('react-router')) return 'router'
             if (id.includes('framer-motion')) return 'motion'
             if (id.includes('lucide-react')) return 'icons'
