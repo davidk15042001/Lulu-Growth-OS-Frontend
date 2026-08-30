@@ -197,6 +197,45 @@ export type GoogleReviewsManagerState = {
   reviews: GoogleReviewsManagerReview[];
 };
 
+export type GoogleBusinessAccount = {
+  id: string;
+  name: string;
+  type: string | null;
+  locationCount: number;
+};
+
+export type GoogleBusinessLocation = {
+  accountId: string;
+  id: string;
+  title: string;
+  address: string;
+  storeCode: string | null;
+  websiteUrl: string | null;
+};
+
+export type GoogleBusinessState = {
+  provider: string;
+  connected: boolean;
+  platformId: string | null;
+  connectionStatus: string;
+  platformName: string;
+  category: string;
+  externalAccountId: string | null;
+  grantedScopes: string[];
+  lastSyncedAt: string | null;
+  lastError: string | null;
+  generatedAt: string;
+  apiReachable: boolean;
+  reauthRequired: boolean;
+  accounts: GoogleBusinessAccount[];
+  locations: GoogleBusinessLocation[];
+  summary: {
+    accountCount: number;
+    locationCount: number;
+  };
+  nextSteps: string[];
+};
+
 export const workspaceAppApi = {
   members: (workspaceId: string) => requestApi<{ members: WorkspaceMember[]; invitations: WorkspaceInvitation[] }>({
     path: workspaceApiPath(workspaceId, "/members"),
@@ -236,6 +275,37 @@ export const workspaceAppApi = {
       path: workspaceApiPath(workspaceId, `/google-reviews${query.size ? `?${query.toString()}` : ""}`),
     });
   },
+  googleBusiness: (workspaceId: string) => requestApi<GoogleBusinessState>({
+    path: workspaceApiPath(workspaceId, "/google-business"),
+  }),
+  connectGoogleBusiness: (workspaceId: string, input?: { returnTo?: string }) => requestApi<{
+    provider: string;
+    authorizationUrl: string;
+  }>({
+    path: workspaceApiPath(workspaceId, "/google-business/connect"),
+    method: "POST",
+    body: input ?? {},
+  }),
+  disconnectGoogleBusiness: (workspaceId: string) => requestApi<{
+    provider: string;
+    platformId: string | null;
+    connected: boolean;
+    status: string;
+  }>({
+    path: workspaceApiPath(workspaceId, "/google-business/connection"),
+    method: "DELETE",
+  }),
+  syncGoogleBusiness: (workspaceId: string) => requestApi<{
+    id: string;
+    platformId: string;
+    jobId: string;
+    status: string;
+    createdAt: string;
+  }>({
+    path: workspaceApiPath(workspaceId, "/google-business/sync"),
+    method: "POST",
+    body: {},
+  }),
   updateGoogleReviewReply: (workspaceId: string, reviewId: string, input: {
     accountId: string;
     locationId: string;

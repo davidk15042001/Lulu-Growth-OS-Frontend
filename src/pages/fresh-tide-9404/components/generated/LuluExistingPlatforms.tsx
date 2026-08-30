@@ -4,6 +4,7 @@ import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 import { onboardingApi } from '../../../../api/onboarding';
+import { GoogleBusinessConnectionSetup } from '../../../../components/google-business/GoogleBusinessConnectionSetup';
 import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 interface Platform {
   id: string;
@@ -141,6 +142,8 @@ export const LuluExistingPlatforms = () => {
       setError(getFriendlyErrorMessage(cause, 'We could not remove this platform. Please try again.'));
     }
   };
+  const activeWorkspaceId = getSelectedWorkspaceId();
+  if (activeWorkspaceId) return <GoogleBusinessConnectionSetup workspaceId={activeWorkspaceId} />;
   return <main className="min-h-screen bg-[var(--background)] font-['Poppins',sans-serif] text-[var(--foreground)]">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
         <div className="w-full max-w-3xl">

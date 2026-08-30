@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { IntegrationsPanel } from '../../../../api/panels/IntegrationsPanel';
+import { GoogleBusinessIntegrationsPanel } from '../../../../api/panels/GoogleBusinessIntegrationsPanel';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 import { Activity, AlertCircle, AlertTriangle, ArrowDownUp, BarChart3, Bot, Check, CheckCircle2, ChevronDown, CircleDot, Clock3, Database, ExternalLink, Eye, FileWarning, Gauge, History, KeyRound, LayoutDashboard, Link2, LockKeyhole, MoreHorizontal, PlugZap, RefreshCw, Search, ServerCog, Settings, ShieldCheck, Sparkles, Table2, Webhook, X, Zap } from 'lucide-react';
 type StatusKind = 'healthy' | 'warning' | 'error' | 'auth' | 'syncing' | 'limited' | 'completed' | 'active' | 'resolved';
@@ -273,7 +273,7 @@ export function LuluIntegrations() {
     if (healthFilter === 'warning') return integrations.filter(item => item.status === 'warning' || item.status === 'limited');
     return integrations.filter(item => item.status === healthFilter);
   }, [healthFilter]);
-  if (workspaceId) return <IntegrationsPanel workspaceId={workspaceId} onClose={() => undefined} />;
+  if (workspaceId) return <GoogleBusinessIntegrationsPanel workspaceId={workspaceId} onClose={() => undefined} />;
   const showAuthenticationRequired = healthFilter === 'auth';
   if (loading) {
     return <main className="min-h-screen bg-sidebar text-foreground"><div className="flex min-h-screen"><aside className="hidden w-72 shrink-0 border-r border-border bg-[var(--sidebar)] p-5 lg:block"><div className="h-10 w-32 animate-pulse rounded-xl bg-secondary" /><div className="mt-10 space-y-3">{navGroups[0].items.map(item => <div key={item.id} className="h-8 animate-pulse rounded-lg bg-secondary" />)}</div></aside><section className="flex-1 bg-sidebar p-5 md:p-8"><div className="animate-pulse"><div className="h-10 w-56 rounded-xl bg-sidebar" /><div className="mt-4 h-5 w-96 max-w-full rounded bg-sidebar" /><div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{kpiCards.map(card => <div key={card.id} className="h-36 rounded-2xl bg-card shadow-sm" />)}</div><div className="mt-6 grid gap-6 xl:grid-cols-[1.05fr_0.95fr]"><div className="h-96 rounded-3xl bg-card" /><div className="h-96 rounded-3xl bg-card" /></div><div className="mt-6 h-96 rounded-3xl bg-card" /></div></section></div></main>;
