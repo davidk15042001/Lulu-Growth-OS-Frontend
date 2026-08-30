@@ -12,7 +12,6 @@ import {
   Eye,
   Layers,
   RefreshCw,
-  Search,
   Sparkles,
   Target,
   TrendingUp,
@@ -1342,7 +1341,6 @@ function AudienceScoreBar({ label, score, detail }: { label: string; score: numb
 
 export const LuluAudiencesWorkspace = () => {
   const workspaceId = getSelectedWorkspaceId();
-  const [query, setQuery] = useState("");
   const [selectedSegmentId, setSelectedSegmentId] = useState<string>("");
   const [snapshot, setSnapshot] = useState<OnboardingSnapshot | null>(null);
   const [snapshotLoading, setSnapshotLoading] = useState(false);
@@ -1450,27 +1448,7 @@ export const LuluAudiencesWorkspace = () => {
     [rankedAudienceInsights],
   );
 
-  const visibleInsights = useMemo(() => {
-    const baseInsights = query.trim() ? rankedAudienceInsights : audienceInsights;
-    if (!query.trim()) return baseInsights;
-    const term = query.trim().toLowerCase();
-    return baseInsights.filter((insight) => {
-      const blob = [
-        insight.segment.name,
-        insight.segment.industry,
-        insight.segment.companySize,
-        insight.segment.region,
-        insight.segment.maturityLevel,
-        ...insight.segment.painPoints,
-        ...insight.segment.jobsToBeDone,
-        ...insight.segment.buyingRoles,
-        ...insight.segment.useCases,
-      ]
-        .join(" ")
-        .toLowerCase();
-      return blob.includes(term);
-    }).slice(0, 10);
-  }, [audienceInsights, query, rankedAudienceInsights]);
+  const visibleInsights = audienceInsights;
 
   useEffect(() => {
     if (!visibleInsights.length) {
@@ -1609,16 +1587,6 @@ export const LuluAudiencesWorkspace = () => {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <div className="relative min-w-[240px] flex-1 sm:flex-none">
-              <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={15} />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search segments, pain points, roles"
-                className="w-full rounded-xl border border-border bg-card py-2 pl-9 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground"
-                aria-label="Search audiences"
-              />
-            </div>
             <button
               type="button"
               onClick={() => void refreshAll()}
