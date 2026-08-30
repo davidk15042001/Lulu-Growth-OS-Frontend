@@ -107,6 +107,22 @@ type ParsedAudienceDossierResult = {
   source: "json" | "narrative" | "fallback";
 };
 
+type AudienceSegmentEnrichment = {
+  segmentId: string;
+  summary: string;
+  painPoints: string[];
+  jobsToBeDone: string[];
+  decisionCriteria: string[];
+  useCases: string[];
+  buyingRoles: string[];
+  industry: string | null;
+  companySize: string | null;
+  region: string | null;
+  maturityLevel: string | null;
+  priceSensitivity: string | null;
+  optimizationLoop: string[];
+};
+
 type AudienceSegmentOrigin = "existing" | "generated";
 
 type AudienceSegmentInsight = {
@@ -454,6 +470,49 @@ function normalizeAudienceDossier(input: unknown): AudienceDossier | null {
 
   if (!dossier.executiveSummary && !dossier.sections.length) return null;
   return dossier;
+}
+
+function normalizeAudienceSegmentEnrichments(input: unknown): AudienceSegmentEnrichment[] {
+  const rawSegments: unknown[] = Array.isArray(input)
+    ? input
+    : input && typeof input === "object" && Array.isArray((input as Record<string, unknown>).segments)
+      ? ((input as Record<string, unknown>).segments as unknown[])
+      : [];
+
+  return rawSegments
+    .map((entry: unknown) => {
+      if (!entry || typeof entry !== "object") return null;
+      const object = entry as Record<string, unknown>;
+      const segmentId = textValue(object.segmentId || object.id);
+      if (!segmentId) return null;
+      return {
+        segmentId,
+        summary: textValue(object.summary),
+        painPoints: normalizeStringList(object.painPoints, 5),
+        jobsToBeDone: normalizeStringList(object.jobsToBeDone, 5),
+        decisionCriteria: normalizeStringList(object.decisionCriteria, 5),
+        useCases: normalizeStringList(object.useCases, 5),
+        buyingRoles: normalizeStringList(object.buyingRoles, 4),
+        industry: textValue(object.industry) || null,
+        companySize: textValue(object.companySize) || null,
+        region: textValue(object.region) || null,
+        maturityLevel: textValue(object.maturityLevel) || null,
+        priceSensitivity: textValue(object.priceSensitivity) || null,
+        optimizationLoop: normalizeStringList(object.optimizationLoop, 4),
+      } satisfies AudienceSegmentEnrichment;
+    })
+    .filter(Boolean) as AudienceSegmentEnrichment[];
+}
+
+function parseAudienceSegmentEnrichmentContent(content: string): AudienceSegmentEnrichment[] {
+  const parsed = extractJsonObject(content);
+  if (!parsed) return [];
+
+  try {
+    return normalizeAudienceSegmentEnrichments(JSON.parse(parsed));
+  } catch {
+    return [];
+  }
 }
 
 function numberValue(value: unknown) {
@@ -832,6 +891,7 @@ function buildAudienceAnalysisPrompt(snapshot: OnboardingSnapshot, insight: Audi
     "Create a detailed target-audience intelligence dossier for this workspace.",
     "The user should not need to do manual analysis.",
     "Use the provided context only.",
+    "Remember that Lulu exists to analyze the business end to end, identify what should improve, optimize execution, and then repeat that cycle continuously.",
     "You must strictly separate verified facts, inferred assumptions and data gaps.",
     "Never present inferred age, gender or persona traits as verified facts.",
     "Return JSON only with this exact structure:",
@@ -853,6 +913,146 @@ function buildAudienceAnalysisPrompt(snapshot: OnboardingSnapshot, insight: Audi
       actionPlan: [{ title: "string", detail: "string", priority: "High|Medium|Low" }],
     }, null, 2),
     "The sections must cover at least: Demographics, Firmographics, Geography, Psychographics, Buying Committee, Jobs To Be Done, Messaging, Channels.",
+    "Context:",
+    JSON.stringify(context, null, 2),
+  ].join("\n");
+}
+
+function shouldAiEnrichSegment(segment: CustomerSegment): boolean {
+  return (
+    segmentOrigin(segment) === "generated"
+    || segment.painPoints.length < 3
+    || segment.buyingRoles.length < 2
+    || segment.jobsToBeDone.length < 3
+    || segment.decisionCriteria.length < 3
+    || segment.useCases.length < 3
+    || !segment.industry
+    || !segment.companySize
+    || !segment.region
+  );
+}
+
+function mergeSegmentWithEnrichment(segment: CustomerSegment, enrichment: AudienceSegmentEnrichment | null | undefined): CustomerSegment {
+  if (!enrichment) return segment;
+
+  const optimizationNote = enrichment.optimizationLoop.length
+    ? `Optimization loop: ${enrichment.optimizationLoop.join(" -> ")}.`
+    : null;
+
+  return {
+    ...segment,
+    industry: segment.industry || enrichment.industry,
+    companySize: segment.companySize || enrichment.companySize,
+    region: segment.region || enrichment.region,
+    maturityLevel: segment.maturityLevel || enrichment.maturityLevel,
+    priceSensitivity: segment.priceSensitivity || enrichment.priceSensitivity,
+    painPoints: uniqueStrings([...segment.painPoints, ...enrichment.painPoints], 5),
+    jobsToBeDone: uniqueStrings([...segment.jobsToBeDone, ...enrichment.jobsToBeDone], 5),
+    decisionCriteria: uniqueStrings([...segment.decisionCriteria, ...enrichment.decisionCriteria], 5),
+    useCases: uniqueStrings([...segment.useCases, ...enrichment.useCases], 5),
+    buyingRoles: uniqueStrings([...segment.buyingRoles, ...enrichment.buyingRoles], 4),
+    notes: uniqueStrings([segment.notes, enrichment.summary, optimizationNote], 3).join(" ") || segment.notes,
+  };
+}
+
+function buildAudienceSegmentEnrichmentPrompt(
+  snapshot: OnboardingSnapshot,
+  segments: CustomerSegment[],
+  liveRecords: WorkspaceRecord[],
+  summaries: SearchSummaryMap,
+): string {
+  const workspace = snapshot.workspace;
+  const context = {
+    workspace: {
+      companyName: workspace.companyName,
+      industry: workspace.industry,
+      companySize: workspace.companySize,
+      countryRegion: workspace.countryRegion,
+      targetMarket: workspace.targetMarket,
+      valueProposition: workspace.valueProposition,
+      primaryIcp: workspace.primaryIcp,
+      usp: workspace.usp,
+      primaryChallenges: workspace.primaryChallenges,
+      mission: workspace.mission,
+      vision: workspace.vision,
+      languages: workspace.languages,
+      businessDescription: workspace.businessDescription,
+    },
+    offerings: snapshot.offerings.slice(0, 10).map((offering) => ({
+      name: offering.name,
+      type: offering.offeringType,
+      targetCustomer: offering.targetCustomer,
+      customerProblem: offering.customerProblem,
+      valueProposition: offering.valueProposition,
+      differentiators: offering.differentiators,
+      useCases: offering.useCases,
+      objections: offering.objections,
+      proofPoints: offering.proofPoints,
+    })),
+    liveAudienceSignals: liveRecords.slice(0, 10).map((record) => ({
+      id: record.id,
+      name: record.name,
+      description: record.description,
+      data: record.data,
+    })),
+    searchSignals: CHANNELS.map((channel) => ({
+      channel,
+      records: summaries[channel]?.metrics.records ?? 0,
+      opportunities: summaries[channel]?.metrics.opportunities ?? 0,
+      connectedTargets: summaries[channel]?.connectedTargets.length ?? 0,
+      topItems: (summaries[channel]?.items ?? []).slice(0, 5).map((item) => ({
+        name: item.name,
+        description: item.description,
+        status: item.status,
+        stage: item.stage,
+      })),
+    })),
+    segments: segments.map((segment) => ({
+      segmentId: segment.id,
+      name: segment.name,
+      industry: segment.industry,
+      companySize: segment.companySize,
+      region: segment.region,
+      maturityLevel: segment.maturityLevel,
+      priceSensitivity: segment.priceSensitivity,
+      painPoints: segment.painPoints,
+      jobsToBeDone: segment.jobsToBeDone,
+      decisionCriteria: segment.decisionCriteria,
+      useCases: segment.useCases,
+      buyingRoles: segment.buyingRoles,
+      notes: segment.notes,
+      source: segmentOrigin(segment),
+    })),
+  };
+
+  return [
+    "Enrich the target-audience definitions for Lulu Audience Intelligence.",
+    "The product mission is: analyze the business, identify what to improve, optimize execution, and repeat continuously.",
+    "Use only the provided context. Do not invent external facts.",
+    "For each audience segment, fill in missing or weak target-audience fields with concrete, business-specific hypotheses grounded in the workspace, offer, live-record and search-signal context.",
+    "Do not leave painPoints, jobsToBeDone, decisionCriteria, useCases or buyingRoles empty.",
+    "Avoid generic filler like 'increase efficiency' unless the provided context clearly supports it.",
+    "Return JSON only with this exact structure:",
+    JSON.stringify({
+      segments: [
+        {
+          segmentId: "string",
+          summary: "string",
+          industry: "string|null",
+          companySize: "string|null",
+          region: "string|null",
+          maturityLevel: "string|null",
+          priceSensitivity: "string|null",
+          painPoints: ["string"],
+          jobsToBeDone: ["string"],
+          decisionCriteria: ["string"],
+          useCases: ["string"],
+          buyingRoles: ["string"],
+          optimizationLoop: ["Analyze", "Improve", "Optimize", "Repeat"],
+        },
+      ],
+    }, null, 2),
+    "Each segment should have 3-5 pain points, 3-5 jobs to be done, 3-5 decision criteria, 3-5 use cases, and 2-4 buying roles.",
     "Context:",
     JSON.stringify(context, null, 2),
   ].join("\n");
@@ -1352,6 +1552,8 @@ export const LuluAudiencesWorkspace = () => {
   const [dossiersBySegment, setDossiersBySegment] = useState<Record<string, AudienceDossier>>({});
   const [dossierLoadingId, setDossierLoadingId] = useState<string | null>(null);
   const [dossierStatusMessage, setDossierStatusMessage] = useState<string | null>(null);
+  const [enrichedSegmentsById, setEnrichedSegmentsById] = useState<Record<string, AudienceSegmentEnrichment>>({});
+  const [segmentEnrichmentLoading, setSegmentEnrichmentLoading] = useState(false);
   const {
     items: audienceRecords,
     total: audienceRecordTotal,
@@ -1414,6 +1616,7 @@ export const LuluAudiencesWorkspace = () => {
     setRefreshing(true);
     setDossiersBySegment({});
     setDossierStatusMessage(null);
+    setEnrichedSegmentsById({});
     try {
       await Promise.all([loadAudienceIntelligence(), refreshAudienceRecords()]);
     } finally {
@@ -1431,9 +1634,19 @@ export const LuluAudiencesWorkspace = () => {
     [audienceRecords, snapshot, summaries],
   );
 
-  const segmentPool = useMemo(
+  const baseSegmentPool = useMemo(
     () => dedupeSegments([...customerSegments, ...generatedSegments]),
     [customerSegments, generatedSegments],
+  );
+
+  const segmentsNeedingEnrichment = useMemo(
+    () => baseSegmentPool.filter((segment) => shouldAiEnrichSegment(segment)).slice(0, 10),
+    [baseSegmentPool],
+  );
+
+  const segmentPool = useMemo(
+    () => dedupeSegments(baseSegmentPool.map((segment) => mergeSegmentWithEnrichment(segment, enrichedSegmentsById[segment.id]))),
+    [baseSegmentPool, enrichedSegmentsById],
   );
 
   const rankedAudienceInsights = useMemo(() => {
@@ -1476,9 +1689,9 @@ export const LuluAudiencesWorkspace = () => {
     !summaries.seo && !summaries.geo && !summaries.aeo ? "No search-intelligence signals are available yet." : null,
   ].filter(Boolean) as string[];
 
-  const totalPainPoints = customerSegments.reduce((sum, segment) => sum + segment.painPoints.length, 0);
-  const totalBuyingRoles = customerSegments.reduce((sum, segment) => sum + segment.buyingRoles.length, 0);
-  const totalUseCases = customerSegments.reduce((sum, segment) => sum + segment.useCases.length, 0);
+  const totalPainPoints = segmentPool.reduce((sum, segment) => sum + segment.painPoints.length, 0);
+  const totalBuyingRoles = segmentPool.reduce((sum, segment) => sum + segment.buyingRoles.length, 0);
+  const totalUseCases = segmentPool.reduce((sum, segment) => sum + segment.useCases.length, 0);
   const connectedPlatforms = platforms.filter((platform) => ["connected", "active", "synced", "authorized"].includes(platform.connectionStatus.trim().toLowerCase())).length;
   const searchSignalTotals = CHANNELS.reduce((sum, channel) => sum + (summaries[channel]?.metrics.records ?? 0), 0);
   const searchOpportunityTotals = CHANNELS.reduce((sum, channel) => sum + (summaries[channel]?.metrics.opportunities ?? 0), 0);
@@ -1554,10 +1767,65 @@ export const LuluAudiencesWorkspace = () => {
     }
   }, [dossiersBySegment, snapshot, summaries, workspaceId]);
 
+  const loadSegmentEnrichment = useCallback(async (force = false) => {
+    if (!workspaceId || !snapshot || segmentEnrichmentLoading) return;
+
+    const targetSegments = force
+      ? segmentsNeedingEnrichment
+      : segmentsNeedingEnrichment.filter((segment) => !enrichedSegmentsById[segment.id]);
+
+    if (!targetSegments.length) return;
+
+    setSegmentEnrichmentLoading(true);
+
+    try {
+      const conversations = (await aiApi.conversations(workspaceId)).data.items;
+      let conversation = conversations.find((item) => item.metadata?.source === "audience-segment-enrichment") ?? null;
+
+      if (!conversation) {
+        conversation = (await aiApi.createConversation(workspaceId, {
+          title: "Audience segment enrichment",
+          metadata: {
+            source: "audience-segment-enrichment",
+            page: "audiences",
+          },
+        })).data;
+      }
+
+      const response = await aiApi.respond(
+        workspaceId,
+        conversation.id,
+        buildAudienceSegmentEnrichmentPrompt(snapshot, targetSegments, audienceRecords, summaries),
+        {
+          source: "audience-segment-enrichment",
+          page: "audiences",
+          segmentIds: targetSegments.map((segment) => segment.id),
+        },
+      );
+
+      const enrichments = parseAudienceSegmentEnrichmentContent(response.data.assistantMessage.content);
+      if (!enrichments.length) return;
+
+      setEnrichedSegmentsById((current) => ({
+        ...current,
+        ...Object.fromEntries(enrichments.map((enrichment) => [enrichment.segmentId, enrichment])),
+      }));
+    } catch {
+      // The audience view already has heuristic generation and dossier fallbacks.
+    } finally {
+      setSegmentEnrichmentLoading(false);
+    }
+  }, [audienceRecords, enrichedSegmentsById, segmentEnrichmentLoading, segmentsNeedingEnrichment, snapshot, summaries, workspaceId]);
+
   useEffect(() => {
     if (!selectedInsight) return;
     void loadAudienceDossier(selectedInsight);
   }, [loadAudienceDossier, selectedInsight]);
+
+  useEffect(() => {
+    if (!segmentsNeedingEnrichment.length) return;
+    void loadSegmentEnrichment();
+  }, [loadSegmentEnrichment, segmentsNeedingEnrichment.length]);
 
   if (!workspaceId) {
     return (
@@ -1583,7 +1851,7 @@ export const LuluAudiencesWorkspace = () => {
             </div>
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">Audience Intelligence</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Lulu now analyzes your target audience from onboarding, live audience records and discovery signals so we can prioritize the best segment, expose gaps and drive execution without manual prep work.
+              Lulu analyzes the business, identifies where audience execution should improve, optimizes the next moves and keeps repeating that loop from onboarding, live audience records and discovery signals without manual prep work.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1595,6 +1863,7 @@ export const LuluAudiencesWorkspace = () => {
               <RefreshCw size={15} className={refreshing ? "animate-spin" : undefined} />
               Refresh
             </button>
+            {segmentEnrichmentLoading && <Pill tone="purple">AI segment enrichment</Pill>}
           </div>
         </div>
       </header>
