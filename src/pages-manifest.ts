@@ -554,7 +554,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461893066824",
-    "name": "Lulu AI — Existing Platforms",
+    "name": "Lulu AI — Google Business Connection Setup",
     "slug": "fresh-tide-9404",
     "generatedName": "fresh-tide-9404",
     "selectedRevisionId": "438651618435698688",
@@ -746,7 +746,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461901455389",
-    "name": "Lulu AI — Integrations",
+    "name": "Lulu AI — Google Business Integrations",
     "slug": "glad-coast-1428",
     "generatedName": "glad-coast-1428",
     "selectedRevisionId": "438651856030408704",
