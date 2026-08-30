@@ -47,23 +47,26 @@ const MINIMAL_AGENT_PAGE_EXCEPTIONS = new Set([
   "fancily-leaf-1766",
   "bright-meadow-7537",
   "finely-garden-9221",
-  "quietly-stone-4158",
   "fresh-moon-5374",
-  "sunny-moon-6307",
   "breezily-wood-5980",
   "daring-brook-9034",
   "fresh-tide-9404",
   "glad-coast-1428",
   "pure-minute-5446",
-  "lulu-website-portal-9012",
-  "lulu-email-portal-9013",
-  "lulu-calendar-portal-9014",
 ]);
 
-function shouldUseMinimalAgentPage(slug: string, contract: ReturnType<typeof getPageContract>, hasAgentContract: boolean) {
+function shouldUseMinimalAgentPage(
+  slug: string,
+  effectiveSlug: string,
+  contract: ReturnType<typeof getPageContract>,
+  hasAgentContract: boolean,
+) {
   if (!hasAgentContract) return false;
   if (MINIMAL_AGENT_PAGE_EXCEPTIONS.has(slug)) return false;
-  return contract?.kind === "workspace" || contract?.kind === "resource" || contract?.kind === "metrics";
+  if (slug === "lulu-website-portal-9012" || slug === "lulu-email-portal-9013" || slug === "lulu-calendar-portal-9014") {
+    return effectiveSlug === slug;
+  }
+  return contract?.kind === "workspace" || contract?.kind === "resource" || contract?.kind === "metrics" || contract?.kind === "ai";
 }
 
 function pageSlugFromPath(pathname: string) {
@@ -89,7 +92,7 @@ export function NativePage({ slug }: { slug: string }) {
   const agentContract = getLuluAgentContract(effectiveSlug);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
   const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname);
-  const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(slug, contract, Boolean(agentContract));
+  const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(slug, effectiveSlug, contract, Boolean(agentContract));
 
   useEffect(() => {
     if (useMinimalAgentPage) {
