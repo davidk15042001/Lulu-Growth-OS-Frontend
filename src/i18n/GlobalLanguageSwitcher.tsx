@@ -25,6 +25,16 @@ const originalAttributes = new WeakMap<Element, Map<string, string>>();
 const appliedAttributes = new WeakMap<Element, Map<string, string>>();
 const dynamicPatterns = new WeakMap<Record<string, string>, Array<{ regex: RegExp; translation: string }>>();
 const translatableAttributes = ["aria-label", "placeholder", "title"] as const;
+let translationWriteDepth = 0;
+
+function withTranslationWrite<T>(callback: () => T): T {
+  translationWriteDepth += 1;
+  try {
+    return callback();
+  } finally {
+    translationWriteDepth = Math.max(0, translationWriteDepth - 1);
+  }
+}
 
 function applyTranslationsToSubtree(root: Node, dictionary: Record<string, string>) {
   const translateElementAttributes = (element: Element) => {
@@ -42,7 +52,11 @@ function applyTranslationsToSubtree(root: Node, dictionary: Record<string, strin
       originals.set(attribute, original);
       const translated = lookup(dictionary, original.trim());
       const next = translated ?? original;
-      element.setAttribute(attribute, next);
+      if (next === current) {
+        applied.set(attribute, next);
+        continue;
+      }
+      withTranslationWrite(() => element.setAttribute(attribute, next));
       applied.set(attribute, next);
     }
   };
@@ -58,7 +72,11 @@ function applyTranslationsToSubtree(root: Node, dictionary: Record<string, strin
       const key = original.trim();
       const translated = lookup(dictionary, key);
       const next = translated ? `${original.match(/^\s*/)?.[0] ?? ""}${translated}${original.match(/\s*$/)?.[0] ?? ""}` : original;
-      text.data = next;
+      if (next === current) {
+        appliedText.set(text, next);
+        return;
+      }
+      withTranslationWrite(() => { text.data = next; });
       appliedText.set(text, next);
     }
     return;
@@ -82,7 +100,12 @@ function applyTranslationsToSubtree(root: Node, dictionary: Record<string, strin
         const key = original.trim();
         const translated = lookup(dictionary, key);
         const next = translated ? `${original.match(/^\s*/)?.[0] ?? ""}${translated}${original.match(/\s*$/)?.[0] ?? ""}` : original;
-        text.data = next;
+        if (next === current) {
+          appliedText.set(text, next);
+          node = walker.nextNode();
+          continue;
+        }
+        withTranslationWrite(() => { text.data = next; });
         appliedText.set(text, next);
       }
     } else if (node.nodeType === Node.ELEMENT_NODE && node !== element) {
@@ -195,8 +218,10 @@ export function GlobalLanguageSwitcher() {
       window.dispatchEvent(new Event(LANGUAGE_LOADED_EVENT));
     });
     const observer = new MutationObserver((mutations) => {
+      if (translationWriteDepth > 0) return;
       window.clearTimeout(timer.current);
       timer.current = window.setTimeout(() => {
+        if (translationWriteDepth > 0) return;
         const dictionary = loadedTables[language] ?? {};
         const seen = new Set<Node>();
         for (const mutation of mutations) {
