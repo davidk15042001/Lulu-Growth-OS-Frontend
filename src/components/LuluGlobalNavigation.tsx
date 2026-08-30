@@ -10,12 +10,38 @@ import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/ge
 type NavigationPage = { id: string; label: string; soon?: boolean };
 type NavigationSection = { label: string; pages: readonly NavigationPage[] };
 
-const navigationSections: readonly NavigationSection[] = (luluDropdownNavigation as readonly NavigationSection[])
-  .map((section) => ({
-    ...section,
-    pages: section.pages.filter((page) => isPageAvailable(page.id)),
-  }))
-  .filter((section) => section.pages.length > 0);
+const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
+const FINANCE_LABEL = "Finance";
+const SETTINGS_LABEL = "Settings";
+
+function dedupePages(pages: readonly NavigationPage[]) {
+  const seen = new Set<string>();
+  return pages.filter((page) => {
+    if (seen.has(page.id)) return false;
+    seen.add(page.id);
+    return true;
+  });
+}
+
+const navigationSections: readonly NavigationSection[] = (() => {
+  const availableSections = (luluDropdownNavigation as readonly NavigationSection[])
+    .map((section) => ({
+      ...section,
+      pages: section.pages.filter((page) => isPageAvailable(page.id)),
+    }))
+    .filter((section) => section.pages.length > 0);
+  const financeSection = availableSections.find((section) => section.label === FINANCE_LABEL);
+
+  return availableSections
+    .filter((section) => section.label !== FINANCE_LABEL)
+    .map((section) => {
+      if (section.label !== WEBSITE_AND_COMMERCE_LABEL || !financeSection) return section;
+      return {
+        ...section,
+        pages: dedupePages([...section.pages, ...financeSection.pages]),
+      };
+    });
+})();
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
 const WEBSITE_JOB_DISPLAY_STATUSES = new Set(["queued", "planning", "generated", "preview", "publishing", "failed", "cancelled"]);
@@ -142,7 +168,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                   const available = Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
                   const isWebsiteLocked = Boolean(websiteLock?.blocking && isWebsiteNavigationSlug(page.id));
-                  const supportsUnlockedSubpages = section.label === "Website & Commerce" || section.label === "Calendar";
+                  const supportsUnlockedSubpages = section.label === WEBSITE_AND_COMMERCE_LABEL || section.label === "Calendar";
                   const isDropdownLinkLocked = (SUBPAGE_NAVIGATION_LOCKED
                     && !supportsUnlockedSubpages
                     && page.id !== "smartly-shore-1468"
@@ -167,7 +193,17 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                     </a>
                   );
                 })}
-                {websiteLock && section.label === "Website & Commerce" && (
+                {section.label === SETTINGS_LABEL && (
+                  <button
+                    type="button"
+                    className="lulu-global-navigation__subitem-action"
+                    onClick={() => void signOut()}
+                  >
+                    <LogOut aria-hidden="true" size={14} />
+                    <span>{t("Sign out")}</span>
+                  </button>
+                )}
+                {websiteLock && section.label === WEBSITE_AND_COMMERCE_LABEL && (
                   <div className={`lulu-global-navigation__website-lock is-${websiteLock.status}`} role="status" aria-live="polite">
                     <RefreshCw aria-hidden="true" size={13} className={websiteLock.blocking ? "animate-spin" : undefined} />
                     <span>{websiteLockText}</span>
@@ -178,12 +214,6 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
           );
         })}
       </nav>
-      <div className="lulu-global-navigation__account">
-        <button type="button" className="lulu-global-navigation__logout" onClick={() => void signOut()}>
-          <LogOut aria-hidden="true" size={14} />
-          <span>Sign out</span>
-        </button>
-      </div>
     </aside>
   );
 }
