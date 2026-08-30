@@ -776,6 +776,7 @@ export function useLuluAgentRuntime(
   t: (key: string) => string,
 ): AgentRuntimeState {
   const language = useLanguage();
+  const [ensureError, setEnsureError] = useState("");
   const [snapshot, setSnapshot] = useState<AgentRuntimeSnapshot>({
     bootstrap: null,
     platforms: [],
@@ -787,6 +788,7 @@ export function useLuluAgentRuntime(
 
   useEffect(() => {
     if (!workspaceId) {
+      setEnsureError("");
       setSnapshot({
         bootstrap: null,
         platforms: [],
@@ -846,6 +848,7 @@ export function useLuluAgentRuntime(
           return Number.isFinite(updatedAt) && Date.now() - updatedAt < PAGE_AGENT_ENSURE_TTL_MS;
         });
         if (freshRun) {
+          setEnsureError("");
           pageAgentEnsureTimestamps.set(ensureKey, Date.now());
           return;
         }
@@ -856,10 +859,12 @@ export function useLuluAgentRuntime(
           dedupeMinutes: 45,
         });
         if (!active) return;
+        setEnsureError("");
         pageAgentEnsureTimestamps.set(ensureKey, Date.now());
         runtimeCache.delete(getRuntimeCacheKey(workspaceId, contract.pageId, language));
-      } catch {
-        // Keep page runtime resilient when a background page-agent run cannot be started.
+      } catch (error) {
+        if (!active) return;
+        setEnsureError(getFriendlyErrorMessage(error, t("This page agent could not start its background run. Please refresh and try again.")));
       }
     };
 
@@ -871,11 +876,12 @@ export function useLuluAgentRuntime(
 
   return useMemo(() => {
     const generic = createGenericCards(t, snapshot.bootstrap, snapshot.platforms);
+    const combinedLiveError = ensureError || snapshot.liveError;
     const latestActivityAt = snapshot.specializedLiveData?.latestActivityAt ?? generic.latestActivityAt;
     const activeJobCount = Math.max(snapshot.specializedLiveData?.activeJobCount ?? 0, generic.activeJobCount);
     const pendingApprovalCount = Math.max(snapshot.specializedLiveData?.pendingApprovalCount ?? 0, generic.pendingApprovalCount);
     const runtimeStatus = resolveRuntimeStatus(contract, {
-      liveError: snapshot.liveError,
+      liveError: combinedLiveError,
       hasConnectionIssues: generic.hasConnectionIssues,
       connectedPlatformCount: generic.connectedPlatforms.length,
       activeJobCount,
@@ -898,7 +904,7 @@ export function useLuluAgentRuntime(
 
     return {
       liveLoading,
-      liveError: snapshot.liveError,
+      liveError: combinedLiveError,
       visibleLiveCards: snapshot.specializedLiveData?.cards ?? generic.cards,
       runtimeStatus,
       latestActivityAt,
@@ -906,5 +912,5 @@ export function useLuluAgentRuntime(
       connectedSystemsDetail,
       impactDetail,
     };
-  }, [contract.integrations.length, contract.jobs.length, liveLoading, snapshot, t]);
+  }, [contract.integrations.length, contract.jobs.length, ensureError, liveLoading, snapshot, t]);
 }
