@@ -421,6 +421,15 @@ export const luluDropdownNavigation = [{
     "label": "Email Settings"
   }]
 }, {
+  "label": "Calendar",
+  "pages": [{
+    "id": "calendar-overview",
+    "label": "Overview"
+  }, {
+    "id": "calendar-settings",
+    "label": "Calendar Settings"
+  }]
+}, {
   "label": "Marketing",
   "pages": [{
     "id": "dreamily-soil-9290",

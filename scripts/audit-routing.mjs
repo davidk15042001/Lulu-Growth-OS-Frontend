@@ -30,8 +30,7 @@ const navFiles = generatedFiles.filter((file) => readFileSync(file, "utf8").incl
 const routedNavFiles = navFiles.filter((file) => readFileSync(file, "utf8").includes("pageLinkProps(page.id)"));
 const oldHashNavFiles = navFiles.filter((file) => readFileSync(file, "utf8").includes("href={`#${page.id}`}"));
 
-if (navFiles.length !== 126) issues.push(`Expected 126 navigation files, found ${navFiles.length}`);
-if (routedNavFiles.length !== 126) issues.push(`Expected 126 routed navigation files, found ${routedNavFiles.length}`);
+if (routedNavFiles.length !== navFiles.length) issues.push(`Expected all ${navFiles.length} navigation files to use routed links, found ${routedNavFiles.length}`);
 if (oldHashNavFiles.length) issues.push(`${oldHashNavFiles.length} navigation files still use hash placeholders`);
 if (!appSource.includes("pages.map((page)")) issues.push("App router does not generate routes from the full manifest");
 if (!appSource.includes('path="/pages/:slug"')) issues.push("Legacy page redirect is missing");

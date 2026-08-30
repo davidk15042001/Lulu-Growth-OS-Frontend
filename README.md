@@ -18,7 +18,7 @@ Open the URL printed by Vite. The application starts at `/auth/login` and uses t
 
 Legacy `/pages/<generatedName>` URLs redirect to their canonical routes.
 
-Set `VITE_API_URL` to the public backend base URL ending in `/api/v1`. When frontend and backend share a domain through a reverse proxy, the default `/api/v1` works without additional configuration.
+The frontend reads its environment from the sibling backend file `../Lulu-Growth-OS-Backend/.env`, so `VITE_API_URL` now lives in that single shared file. When frontend and backend share a domain through a reverse proxy, the default `/api/v1` works without additional configuration.
 
 ## Live backend integration
 

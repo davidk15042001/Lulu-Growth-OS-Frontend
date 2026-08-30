@@ -32,6 +32,14 @@ const EMAIL_PAGE: PageDefinition = {
   selectedRevisionId: "local-email-workspace",
   previewImageUrl: null,
 };
+const CALENDAR_PAGE: PageDefinition = {
+  id: "lulu-calendar-workspace",
+  name: "Lulu AI — Calendar",
+  slug: "lulu-calendar-portal-9014",
+  generatedName: "lulu-calendar-portal-9014",
+  selectedRevisionId: "local-calendar-workspace",
+  previewImageUrl: null,
+};
 
 function AdminBillingRoute() {
   const { currentUser, loading } = useLuluApp();
@@ -186,6 +194,7 @@ export default function App() {
         <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.email} element={<AdminOnlyAppRoute><PageRoute page={EMAIL_PAGE} /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><PageRoute page={CALENDAR_PAGE} /></AdminOnlyAppRoute>} />
         {pages.map((page) => {
           if (!isPageAvailable(page.slug)) return null;
           const resolvedPath = pagePath(page.slug);

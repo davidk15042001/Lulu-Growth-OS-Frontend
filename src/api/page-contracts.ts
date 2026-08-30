@@ -54,7 +54,10 @@ const WORKSPACE_SLUGS = new Set([
 
 // Local application routes are intentionally kept outside the generated
 // MagicPath manifest so its fixed 140-page integrity checks remain stable.
-const LOCAL_WORKSPACE_SLUGS = new Set([["lulu", "email", "portal", "9013"].join("-")]);
+const LOCAL_WORKSPACE_SLUGS = new Set([
+  ["lulu", "email", "portal", "9013"].join("-"),
+  ["lulu", "calendar", "portal", "9014"].join("-"),
+]);
 
 const SPECIAL_CONTRACTS: Record<string, PageContract> = {
   "fresh-moon-5374": { kind: "ai" },

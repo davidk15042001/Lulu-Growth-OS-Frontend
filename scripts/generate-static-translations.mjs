@@ -4,11 +4,14 @@ import { execFileSync } from "node:child_process";
 import ts from "typescript";
 
 const root = process.cwd();
-const backendEnv = process.env.LULU_BACKEND_ENV ?? join(root, "..", "Lulu-Growth-OS-Backend", ".env");
+const sharedEnvPath =
+  process.env.LULU_SHARED_ENV_PATH
+  ?? process.env.LULU_BACKEND_ENV
+  ?? join(root, "..", "Lulu-Growth-OS-Backend", ".env");
 const catalogPath = join(root, "src", "i18n", "translations.json");
-const envText = existsSync(backendEnv) ? readFileSync(backendEnv, "utf8") : "";
+const envText = existsSync(sharedEnvPath) ? readFileSync(sharedEnvPath, "utf8") : "";
 const apiKey = process.env.OPENAI_API_KEY ?? envText.match(/^\s*OPENAI_API_KEY\s*=\s*(.+)\s*$/m)?.[1]?.trim();
-if (!apiKey) throw new Error("OPENAI_API_KEY is missing from the environment or backend .env file.");
+if (!apiKey) throw new Error("OPENAI_API_KEY is missing from the environment or the shared backend .env file.");
 
 const languageMetadata = {
   en: "English",

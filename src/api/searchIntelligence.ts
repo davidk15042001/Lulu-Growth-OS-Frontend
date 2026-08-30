@@ -44,6 +44,16 @@ export type AppliedSearchTarget = {
   status: "applied" | "drafted";
 };
 
+export type FailedSearchTarget = {
+  provider: "wordpress" | "webflow" | "shopify";
+  targetId: string;
+  label: string;
+  url: string | null;
+  status: "failed";
+  code: string;
+  message: string;
+};
+
 export type AnalyzeSearchInput = {
   locationCode?: number;
   languageCode?: string;
@@ -62,6 +72,7 @@ export type AnalyzeSearchResult = SearchChannelSummary & {
   analyzedKeywords: string[];
   autoApply: boolean;
   appliedTargets?: AppliedSearchTarget[];
+  failedTargets?: FailedSearchTarget[];
   generatedPage?: {
     title: string;
     slug: string;
@@ -74,6 +85,7 @@ export type AnalyzeSearchResult = SearchChannelSummary & {
 export type ApplySearchResult = {
   channel: SearchChannel;
   appliedTargets: AppliedSearchTarget[];
+  failedTargets?: FailedSearchTarget[];
   publish: boolean;
   page: {
     title: string;

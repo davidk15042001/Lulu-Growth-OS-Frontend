@@ -86,6 +86,30 @@ function formatDate(value: string | null) {
   }).format(date);
 }
 
+function buildApplyActivityMessage(
+  prefix: string,
+  successVerb: string,
+  appliedCount: number,
+  failedTargets: Array<{ label: string }> = [],
+) {
+  const failedCount = failedTargets.length;
+  if (failedCount === 0) {
+    return appliedCount > 0
+      ? `${prefix} ${appliedCount} Ziel${appliedCount === 1 ? "" : "e"} wurden ${successVerb}.`
+      : prefix;
+  }
+  const labels = failedTargets
+    .map((target) => target.label.trim())
+    .filter(Boolean)
+    .slice(0, 2)
+    .join(", ");
+  const suffix = labels ? ` Betroffen: ${labels}.` : "";
+  if (appliedCount > 0) {
+    return `${prefix} ${appliedCount} Ziel${appliedCount === 1 ? "" : "e"} wurden ${successVerb}, ${failedCount} Ziel${failedCount === 1 ? "" : "e"} konnten nicht veroeffentlicht werden.${suffix}`;
+  }
+  return `${prefix} Die Datensaetze wurden gespeichert, aber Auto-Apply konnte fuer ${failedCount} Ziel${failedCount === 1 ? "" : "e"} nicht abgeschlossen werden.${suffix}`;
+}
+
 function statusTone(value: string) {
   const normalized = value.toLowerCase();
   if (normalized.includes("answer") || normalized.includes("mention") || normalized.includes("rank")) {
@@ -202,11 +226,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
       const response = await analyzeSearchChannel(channel, form);
       setSummary(response.data);
       const appliedCount = response.data.appliedTargets?.length ?? 0;
-      setActivity(
-        appliedCount > 0
-          ? `Analyse abgeschlossen. ${appliedCount} Ziel${appliedCount === 1 ? "" : "e"} wurden automatisch aktualisiert.`
-          : "Analyse abgeschlossen.",
-      );
+      setActivity(buildApplyActivityMessage("Analyse abgeschlossen.", "automatisch aktualisiert", appliedCount, response.data.failedTargets ?? []));
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "Die Analyse konnte nicht gestartet werden."));
     } finally {
@@ -228,7 +248,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
         publish: true,
       });
       const appliedCount = response.data.appliedTargets.length;
-      setActivity(`Auto-Apply abgeschlossen. ${appliedCount} Ziel${appliedCount === 1 ? "" : "e"} wurden veroeffentlicht.`);
+      setActivity(buildApplyActivityMessage("Auto-Apply abgeschlossen.", "veroeffentlicht", appliedCount, response.data.failedTargets ?? []));
       await loadSummary();
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "Das Auto-Apply konnte nicht ausgefuehrt werden."));

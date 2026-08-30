@@ -107,6 +107,7 @@ export function isSubpageLocked(slug: string) {
   if (!isPageAvailable(slug)) return true;
   if (isWebsiteNavigationSlug(slug)) return false;
   if (EXPLICITLY_UNLOCKED_SUBPAGE_SLUGS.has(slug)) return false;
+  if (slug.startsWith("calendar-")) return false;
   if (isPortalSectionSlug(slug)) return true;
   if (canonicalPathsBySlug[slug]) return false;
   return !TOP_LEVEL_PAGE_SLUGS.has(slug);

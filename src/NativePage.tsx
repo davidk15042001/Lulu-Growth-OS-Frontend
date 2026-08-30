@@ -53,6 +53,9 @@ export function NativePage({ slug }: { slug: string }) {
   })() : slug === "lulu-email-portal-9013" ? (() => {
     const section = new URLSearchParams(window.location.search).get("section");
     return `email-${section || "inbox"}`;
+  })() : slug === "lulu-calendar-portal-9014" ? (() => {
+    const section = new URLSearchParams(window.location.search).get("section");
+    return `calendar-${section || "overview"}`;
   })() : slug;
   const [App, setApp] = useState<ComponentType | null>(null);
   const [error, setError] = useState<unknown>(null);

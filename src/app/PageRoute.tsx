@@ -37,7 +37,7 @@ export function PageRoute({ page }: { page: PageDefinition }) {
     return <Navigate replace to={{ pathname: routes.app.website, search: `?${params.toString()}` }} />;
   }
 
-  if (SUBPAGE_NAVIGATION_LOCKED && (page.slug === "lulu-email-portal-9013" || page.slug === "lulu-calendar-portal-9014") && section) {
+  if (SUBPAGE_NAVIGATION_LOCKED && page.slug === "lulu-email-portal-9013" && section) {
     searchParams.delete("section");
     const nextSearch = searchParams.toString();
     return <Navigate replace to={{ pathname: location.pathname, search: nextSearch ? `?${nextSearch}` : "" }} />;
