@@ -49,6 +49,7 @@ export const LULU_NAVIGATION_MESSAGE = "lulu:navigate";
 export const SUBPAGE_NAVIGATION_LOCKED = true;
 export const PRIMARY_AUDIENCES_SLUG = "breezily-wood-5980";
 export const PRIMARY_REVIEWS_SLUG = "daring-brook-9034";
+export const AI_KNOWLEDGE_SLUG = "rich-field-1880";
 export const LEGACY_ADVERTISING_AUDIENCES_SLUG = "softly-second-7684";
 export const GOOGLE_BUSINESS_NAVIGATION_SLUGS = new Set([
   PRIMARY_REVIEWS_SLUG,
@@ -59,7 +60,7 @@ export const GOOGLE_BUSINESS_NAVIGATION_SLUGS = new Set([
 const EXPLICITLY_UNLOCKED_SUBPAGE_SLUGS = new Set([
   "smartly-shore-1468",
   PRIMARY_AUDIENCES_SLUG,
-  "rich-field-1880",
+  AI_KNOWLEDGE_SLUG,
   PRIMARY_REVIEWS_SLUG,
 ]);
 

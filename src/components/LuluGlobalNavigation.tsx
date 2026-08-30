@@ -1,6 +1,6 @@
 import { CalendarDays, ChevronDown, LogOut, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { PRIMARY_AUDIENCES_SLUG, PRIMARY_REVIEWS_SLUG, SUBPAGE_NAVIGATION_LOCKED, isPageAvailable, isWebsiteNavigationSlug, pageLinkProps, navigateApp, routes } from "../routing";
+import { AI_KNOWLEDGE_SLUG, PRIMARY_AUDIENCES_SLUG, PRIMARY_REVIEWS_SLUG, SUBPAGE_NAVIGATION_LOCKED, isPageAvailable, isWebsiteNavigationSlug, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
@@ -194,6 +194,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                     && !supportsUnlockedSubpages
                     && page.id !== "smartly-shore-1468"
                     && page.id !== PRIMARY_AUDIENCES_SLUG
+                    && page.id !== AI_KNOWLEDGE_SLUG
                     && page.id !== PRIMARY_REVIEWS_SLUG) || isWebsiteLocked || !available;
                   const lockedLabel = isWebsiteLocked ? websiteLockText : "Navigation-Link gesperrt";
                   return (
