@@ -42,14 +42,16 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
 
   useEffect(() => {
     if (!contract || contract.kind === "public") return;
-    const controller = new AbortController();
+    let disposed = false;
 
     async function load() {
       try {
-        const response = await workspaceApi.list(controller.signal);
+        const response = await workspaceApi.list();
+        if (disposed) return;
         const workspaces = response.data.items;
         let workspace = workspaces.find((item) => item.id === getSelectedWorkspaceId()) ?? workspaces[0];
         if (!workspace) {
+          if (disposed) return;
           clearSelectedWorkspaceId();
           if (contract?.kind === "onboarding") {
             if (slug !== "bravely-path-4713") {
@@ -73,11 +75,12 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
           return;
         }
         if (contract?.kind !== "onboarding") {
-          await workspaceApi.bootstrap(workspace.id, controller.signal);
+          await workspaceApi.bootstrap(workspace.id);
+          if (disposed) return;
         }
         setState("ready");
       } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") return;
+        if (disposed) return;
         if (error instanceof ApiError && error.status === 401) {
           clearSelectedWorkspaceId();
           navigateApp(routes.auth.login, { replace: true });
@@ -88,7 +91,7 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     }
 
     void load();
-    return () => controller.abort();
+    return () => { disposed = true; };
   }, [contract, slug]);
 
   if (!contract) {
