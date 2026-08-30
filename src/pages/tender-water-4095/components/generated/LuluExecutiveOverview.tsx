@@ -331,69 +331,6 @@ const luluDropdownNavigation = [{
     "label": "Activity Timeline"
   }]
 }, {
-  "label": "Ecommerce",
-  "pages": [{
-    "id": "smart-ocean-3898",
-    "label": "Overview"
-  }, {
-    "id": "nice-year-6253",
-    "label": "Stores"
-  }, {
-    "id": "nicely-ocean-1051",
-    "label": "Products"
-  }, {
-    "id": "richly-forest-5832",
-    "label": "Categories"
-  }, {
-    "id": "mightily-shore-7108",
-    "label": "Orders"
-  }, {
-    "id": "fancy-ground-8040",
-    "label": "Customers"
-  }, {
-    "id": "serenely-sand-9226",
-    "label": "Carts"
-  }, {
-    "id": "smart-village-1099",
-    "label": "Inventory"
-  }, {
-    "id": "dreamy-shade-5445",
-    "label": "Returns & Refunds"
-  }, {
-    "id": "daring-brook-9034",
-    "label": "Reviews"
-  }, {
-    "id": "sharply-sky-4161",
-    "label": "Discounts & Promotions"
-  }, {
-    "id": "wildly-time-4260",
-    "label": "Carts & Abandoned Carts"
-  }, {
-    "id": "quietly-moon-4186",
-    "label": "Shipping"
-  }, {
-    "id": "merry-castle-3260",
-    "label": "Payments"
-  }, {
-    "id": "merry-cliff-8846",
-    "label": "Coupons"
-  }, {
-    "id": "safely-dawn-7731",
-    "label": "Subscriptions"
-  }, {
-    "id": "purely-dusk-2409",
-    "label": "Shipping & Fulfillment"
-  }, {
-    "id": "soft-hill-4757",
-    "label": "Taxes"
-  }, {
-    "id": "safely-air-9334",
-    "label": "Collections"
-  }, {
-    "id": "merry-land-6169",
-    "label": "Store Performance"
-  }]
-}, {
   "label": "Finance",
   "pages": [{
     "id": "quietly-stone-4158",
@@ -499,7 +436,7 @@ const luluDropdownNavigation = [{
     "label": "Lead Assignment"
   }]
 }, {
-  "label": "Website",
+  "label": "Website & Commerce",
   "pages": [{
     "id": "lulu-website-portal-9012",
     "label": "Website"
@@ -531,8 +468,65 @@ const luluDropdownNavigation = [{
     "id": "sunny-house-9595",
     "label": "AEO"
   }, {
-    "id": "website-settings-9019",
-    "label": "Website Settings"
+    "id": "daring-brook-9034",
+    "label": "Reviews"
+  }, {
+    "id": "smart-ocean-3898",
+    "label": "Overview"
+  }, {
+    "id": "nice-year-6253",
+    "label": "Stores"
+  }, {
+    "id": "nicely-ocean-1051",
+    "label": "Products"
+  }, {
+    "id": "richly-forest-5832",
+    "label": "Categories"
+  }, {
+    "id": "mightily-shore-7108",
+    "label": "Orders"
+  }, {
+    "id": "fancy-ground-8040",
+    "label": "Customers"
+  }, {
+    "id": "serenely-sand-9226",
+    "label": "Carts"
+  }, {
+    "id": "smart-village-1099",
+    "label": "Inventory"
+  }, {
+    "id": "dreamy-shade-5445",
+    "label": "Returns & Refunds"
+  }, {
+    "id": "sharply-sky-4161",
+    "label": "Discounts & Promotions"
+  }, {
+    "id": "wildly-time-4260",
+    "label": "Carts & Abandoned Carts"
+  }, {
+    "id": "quietly-moon-4186",
+    "label": "Shipping"
+  }, {
+    "id": "merry-castle-3260",
+    "label": "Payments"
+  }, {
+    "id": "merry-cliff-8846",
+    "label": "Coupons"
+  }, {
+    "id": "safely-dawn-7731",
+    "label": "Subscriptions"
+  }, {
+    "id": "purely-dusk-2409",
+    "label": "Shipping & Fulfillment"
+  }, {
+    "id": "soft-hill-4757",
+    "label": "Taxes"
+  }, {
+    "id": "safely-air-9334",
+    "label": "Collections"
+  }, {
+    "id": "merry-land-6169",
+    "label": "Store Performance"
   }]
 }, {
   "label": "Settings",
@@ -557,7 +551,7 @@ function LuluSectionNavigation({
       const isActiveSection = section.pages.some(page => page.id === activeId);
       return <details key={section.label} open={isActiveSection} className="group rounded-lg">
         <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
-          <span data-lulu-section-soon={section.label !== "Website" && section.label !== "Settings" ? "true" : undefined}>{section.label}</span>
+          <span data-lulu-section-soon={section.label !== "Website & Commerce" && section.label !== "Settings" ? "true" : undefined}>{section.label}</span>
           <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
         </summary>
         <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">

@@ -66,6 +66,30 @@ const WEBSITE_NAVIGATION_SLUGS = new Set([
   "smartly-shore-1468",
 ]);
 
+const WEB_PRESENCE_NAVIGATION_SLUGS = new Set([
+  ...WEBSITE_NAVIGATION_SLUGS,
+  "smart-ocean-3898",
+  "nice-year-6253",
+  "nicely-ocean-1051",
+  "richly-forest-5832",
+  "mightily-shore-7108",
+  "fancy-ground-8040",
+  "serenely-sand-9226",
+  "smart-village-1099",
+  "dreamy-shade-5445",
+  PRIMARY_REVIEWS_SLUG,
+  "sharply-sky-4161",
+  "wildly-time-4260",
+  "quietly-moon-4186",
+  "merry-castle-3260",
+  "merry-cliff-8846",
+  "safely-dawn-7731",
+  "purely-dusk-2409",
+  "soft-hill-4757",
+  "safely-air-9334",
+  "merry-land-6169",
+]);
+
 export type LuluNavigationMessage = {
   type: typeof LULU_NAVIGATION_MESSAGE;
   to: string;
@@ -104,10 +128,14 @@ export function isWebsiteNavigationSlug(slug: string) {
   return slug.startsWith("website-") || WEBSITE_NAVIGATION_SLUGS.has(slug);
 }
 
+export function isWebPresenceNavigationSlug(slug: string) {
+  return slug.startsWith("website-") || WEB_PRESENCE_NAVIGATION_SLUGS.has(slug);
+}
+
 export function isSubpageLocked(slug: string) {
   if (!SUBPAGE_NAVIGATION_LOCKED) return false;
   if (!isPageAvailable(slug)) return true;
-  if (isWebsiteNavigationSlug(slug)) return false;
+  if (isWebPresenceNavigationSlug(slug)) return false;
   if (EXPLICITLY_UNLOCKED_SUBPAGE_SLUGS.has(slug)) return false;
   if (slug.startsWith("calendar-")) return false;
   if (isPortalSectionSlug(slug)) return true;

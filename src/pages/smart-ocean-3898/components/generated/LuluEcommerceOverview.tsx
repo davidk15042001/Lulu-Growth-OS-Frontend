@@ -131,15 +131,15 @@ export function LuluEcommerceOverview() {
   const liveSnapshot: Array<[string, string, string, Tone]> = [];
   const visibleOrders: Order[] = useMemo(() => (ecommerceLoading ? [] : liveOrders).filter(order => order.customer.toLowerCase().includes(query.toLowerCase()) || order.id.includes(query)), [ecommerceLoading, liveOrders, query]);
   const refreshEcommerce = () => void Promise.all([refreshOrders(), refreshCustomers(), refreshStores()]);
-  if (!ecommerceLoading && !ecommerceError && orderRecords.length === 0 && customerRecords.length === 0 && storeRecords.length === 0) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-border bg-card p-8 text-center"><ShoppingBag className="mx-auto mb-4 text-muted-foreground" size={28} /><h1 className="text-2xl font-semibold">Ecommerce Overview</h1><p className="mt-3 text-sm text-muted-foreground">No live ecommerce data is available yet. Connect a verified store before reviewing orders, customers or revenue.</p><button type="button" onClick={refreshEcommerce} className="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-secondary"><RefreshCw size={15} /> Refresh</button></div></main>;
-  if (!ecommerceLoading && !ecommerceError) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-6xl"><header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs uppercase tracking-[.18em] text-muted-foreground">Commerce / Overview</p><h1 className="mt-2 text-3xl font-bold">Ecommerce Overview</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Verified ecommerce records from the connected workspace. Revenue, orders, customers and stores appear only when returned by the backend.</p></div><button type="button" onClick={refreshEcommerce} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-secondary"><RefreshCw size={15} /> Refresh</button></header><div className="mb-6 grid gap-3 sm:grid-cols-3"><div className="rounded-xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Orders</p><p className="mt-2 text-2xl font-semibold">{orderRecords.length}</p></div><div className="rounded-xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Customers</p><p className="mt-2 text-2xl font-semibold">{customerRecords.length}</p></div><div className="rounded-xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Stores</p><p className="mt-2 text-2xl font-semibold">{storeRecords.length}</p></div></div><section className="overflow-hidden rounded-2xl border border-border bg-card"><div className="border-b border-border p-4"><label className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2"><Search size={15} className="text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search live ecommerce records" className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" /></label></div><div className="overflow-x-auto"><table className="w-full min-w-[820px] text-left text-sm"><thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="px-4 py-3">Order</th><th className="px-4 py-3">Customer</th><th className="px-4 py-3">Store</th><th className="px-4 py-3">Payment</th><th className="px-4 py-3">Fulfillment</th><th className="px-4 py-3">Updated</th></tr></thead><tbody className="divide-y divide-border">{visibleOrders.map(order => <tr key={order.id}><td className="px-4 py-3 font-medium">{order.id}</td><td className="px-4 py-3">{order.customer}</td><td className="px-4 py-3 text-muted-foreground">{order.store}</td><td className="px-4 py-3 text-muted-foreground">{order.payment}</td><td className="px-4 py-3 text-muted-foreground">{order.fulfillment}</td><td className="px-4 py-3 text-muted-foreground">{new Date(order.date).toLocaleString()}</td></tr>)}</tbody></table></div></section></div></main>;
+  if (!ecommerceLoading && !ecommerceError && orderRecords.length === 0 && customerRecords.length === 0 && storeRecords.length === 0) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-border bg-card p-8 text-center"><ShoppingBag className="mx-auto mb-4 text-muted-foreground" size={28} /><h1 className="text-2xl font-semibold">Commerce Overview</h1><p className="mt-3 text-sm text-muted-foreground">No live commerce data is available yet. Connect a verified store before reviewing orders, customers or revenue.</p><button type="button" onClick={refreshEcommerce} className="mt-5 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-secondary"><RefreshCw size={15} /> Refresh</button></div></main>;
+  if (!ecommerceLoading && !ecommerceError) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-6xl"><header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs uppercase tracking-[.18em] text-muted-foreground">Website &amp; Commerce / Overview</p><h1 className="mt-2 text-3xl font-bold">Commerce Overview</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Verified commerce records from the connected workspace. Revenue, orders, customers and stores appear only when returned by the backend.</p></div><button type="button" onClick={refreshEcommerce} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-secondary"><RefreshCw size={15} /> Refresh</button></header><div className="mb-6 grid gap-3 sm:grid-cols-3"><div className="rounded-xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Orders</p><p className="mt-2 text-2xl font-semibold">{orderRecords.length}</p></div><div className="rounded-xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Customers</p><p className="mt-2 text-2xl font-semibold">{customerRecords.length}</p></div><div className="rounded-xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Stores</p><p className="mt-2 text-2xl font-semibold">{storeRecords.length}</p></div></div><section className="overflow-hidden rounded-2xl border border-border bg-card"><div className="border-b border-border p-4"><label className="flex items-center gap-2 rounded-lg border border-border bg-secondary px-3 py-2"><Search size={15} className="text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search live commerce records" className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" /></label></div><div className="overflow-x-auto"><table className="w-full min-w-[820px] text-left text-sm"><thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="px-4 py-3">Order</th><th className="px-4 py-3">Customer</th><th className="px-4 py-3">Store</th><th className="px-4 py-3">Payment</th><th className="px-4 py-3">Fulfillment</th><th className="px-4 py-3">Updated</th></tr></thead><tbody className="divide-y divide-border">{visibleOrders.map(order => <tr key={order.id}><td className="px-4 py-3 font-medium">{order.id}</td><td className="px-4 py-3">{order.customer}</td><td className="px-4 py-3 text-muted-foreground">{order.store}</td><td className="px-4 py-3 text-muted-foreground">{order.payment}</td><td className="px-4 py-3 text-muted-foreground">{order.fulfillment}</td><td className="px-4 py-3 text-muted-foreground">{new Date(order.date).toLocaleString()}</td></tr>)}</tbody></table></div></section></div></main>;
   return <div className="min-h-screen bg-[var(--background)] font-sans text-foreground">
     <aside className={`fixed inset-y-0 left-0 z-30 w-[246px] bg-[var(--sidebar)] text-foreground transition-transform lg:translate-x-0 ${mobileNav ? 'translate-x-0' : '-translate-x-full'}`}><div className="flex h-full flex-col"><div className="flex h-[72px] items-center gap-3 border-b border-border px-6"><div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-sm font-black text-primary-foreground">L</div><span className="text-lg font-bold tracking-tight text-foreground">LULU <span className="font-normal text-muted-foreground">AI</span></span><button className="ml-auto text-foreground lg:hidden" onClick={() => setMobileNav(false)} aria-label="Close navigation"><X size={18} /></button></div><LuluSectionNavigation activeId="smart-ocean-3898" /><div className="border-t border-border p-4"><div className="flex items-center gap-3 rounded-md bg-secondary p-3"><div className="grid h-8 w-8 place-items-center rounded-full bg-secondary text-xs font-bold text-foreground">JD</div><div><p className="text-xs font-semibold text-foreground">Workspace owner</p><p className="text-[11px] text-muted-foreground">Administrator</p></div><MoreHorizontal size={16} className="ml-auto text-muted-foreground" /></div></div></div></aside>
-    <div className="lg:pl-[246px]"><header className="sticky top-0 z-20 flex h-[72px] items-center justify-between border-b border-border bg-secondary px-5 backdrop-blur lg:px-8"><div className="flex items-center gap-3"><button className="rounded-md p-2 hover:bg-sidebar lg:hidden" onClick={() => setMobileNav(true)} aria-label="Open navigation"><Menu size={20} /></button><div><p className="text-xs font-medium text-muted-foreground">Ecommerce <span className="px-1">/</span> <span className="text-foreground">Overview</span></p><h1 className="mt-1 text-xl font-bold tracking-tight text-foreground">Ecommerce Overview</h1></div></div><div className="flex items-center gap-2"><button className="hidden items-center gap-2 rounded-md border border-border bg-secondary px-3 py-2 text-xs font-bold text-foreground sm:flex"><Sparkles size={14} /> Ask Lulu AI</button><button className="rounded-md border border-border p-2 text-foreground hover:bg-card" aria-label="Refresh"><RefreshCw size={16} /></button><button className="hidden rounded-md bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary sm:block">Create Report</button><button className="rounded-md border border-border p-2 text-foreground" aria-label="More actions"><MoreHorizontal size={17} /></button></div></header>
+    <div className="lg:pl-[246px]"><header className="sticky top-0 z-20 flex h-[72px] items-center justify-between border-b border-border bg-secondary px-5 backdrop-blur lg:px-8"><div className="flex items-center gap-3"><button className="rounded-md p-2 hover:bg-sidebar lg:hidden" onClick={() => setMobileNav(true)} aria-label="Open navigation"><Menu size={20} /></button><div><p className="text-xs font-medium text-muted-foreground">Website &amp; Commerce <span className="px-1">/</span> <span className="text-foreground">Overview</span></p><h1 className="mt-1 text-xl font-bold tracking-tight text-foreground">Commerce Overview</h1></div></div><div className="flex items-center gap-2"><button className="hidden items-center gap-2 rounded-md border border-border bg-secondary px-3 py-2 text-xs font-bold text-foreground sm:flex"><Sparkles size={14} /> Ask Lulu AI</button><button className="rounded-md border border-border p-2 text-foreground hover:bg-card" aria-label="Refresh"><RefreshCw size={16} /></button><button className="hidden rounded-md bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary sm:block">Create Report</button><button className="rounded-md border border-border p-2 text-foreground" aria-label="More actions"><MoreHorizontal size={17} /></button></div></header>
     <main className="mx-auto max-w-[1480px] space-y-7 p-5 lg:p-8">{ecommerceError && <div role="alert" className="rounded-lg border border-chart-5/30 bg-chart-5/10 px-4 py-3 text-sm text-chart-5">Ecommerce overview data could not be loaded. Check connected stores, orders and customers, then try again.</div>}{!ecommerceLoading && !ecommerceError && orderRecords.length === 0 && customerRecords.length === 0 && storeRecords.length === 0 && <></>}<p className="-mt-3 max-w-2xl text-sm text-muted-foreground">Monitor your ecommerce business, stores, orders, customers, products and operations from one place.</p>
       <div className="flex flex-col gap-3 rounded-lg border border-border bg-secondary/70 px-4 py-3 text-xs text-foreground sm:flex-row sm:items-center"><span className="font-semibold">● All ecommerce systems operational</span><span className="text-foreground/80">Last sync: 2 minutes ago · 2 stores connected</span><button className="font-bold underline sm:ml-auto">View Integrations</button></div>
       <div className="flex flex-col justify-between gap-3 rounded-lg border border-border bg-card p-3 shadow-sm sm:flex-row"><label className="flex min-w-[220px] items-center gap-2 rounded-md border border-border px-3 py-2 text-sm font-semibold text-foreground"> <Store size={16} className="text-foreground" /><select value={store} onChange={e => setStore(e.target.value)} className="w-full bg-transparent outline-none"><option>All Stores · No live data</option><option>Connected store · Shopify ● Connected</option><option>Brand Store · WooCommerce ● Connected</option></select><ChevronDown size={15} /></label><label className="flex items-center gap-2 rounded-md border border-border px-3 py-2 text-sm text-foreground"><Clock3 size={15} className="text-muted-foreground" /><select value={range} onChange={e => setRange(e.target.value)} className="bg-transparent font-semibold outline-none"><option>Last 30 Days</option><option>Last 7 Days</option><option>Today</option></select><ChevronDown size={15} /></label></div>
-      <div><SectionTitle title="Ecommerce Snapshot" /><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">{(ecommerceLoading ? [] : liveSnapshot).map(([label, value, detail, tone]) => <Card key={label} className="p-4"><div className="flex items-start justify-between"><p className="text-xs font-semibold text-muted-foreground">{label}</p><span className="rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">All stores</span></div><p className="mt-3 text-2xl font-bold tracking-tight text-foreground">{value}</p><div className="mt-2 flex items-center justify-between"><p className={`text-[11px] font-semibold ${toneClass[tone as Tone].split(' ')[0]}`}>{detail}</p>{label !== 'Customers' && label !== 'Pending Orders' && label !== 'Unfulfilled Orders' && <Sparkline color={tone === 'amber' ? 'var(--chart-1)' : 'var(--chart-2)'} />}</div>{label === 'Customers' && <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-secondary"><span className="w-[76%] bg-primary text-primary-foreground" /><span className="w-[24%] bg-primary text-primary-foreground" /></div>}</Card>)}</div></div>
+      <div><SectionTitle title="Commerce Snapshot" /><div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">{(ecommerceLoading ? [] : liveSnapshot).map(([label, value, detail, tone]) => <Card key={label} className="p-4"><div className="flex items-start justify-between"><p className="text-xs font-semibold text-muted-foreground">{label}</p><span className="rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">All stores</span></div><p className="mt-3 text-2xl font-bold tracking-tight text-foreground">{value}</p><div className="mt-2 flex items-center justify-between"><p className={`text-[11px] font-semibold ${toneClass[tone as Tone].split(' ')[0]}`}>{detail}</p>{label !== 'Customers' && label !== 'Pending Orders' && label !== 'Unfulfilled Orders' && <Sparkline color={tone === 'amber' ? 'var(--chart-1)' : 'var(--chart-2)'} />}</div>{label === 'Customers' && <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-secondary"><span className="w-[76%] bg-primary text-primary-foreground" /><span className="w-[24%] bg-primary text-primary-foreground" /></div>}</Card>)}</div></div>
       <div className="grid gap-5 xl:grid-cols-[1.5fr_1fr]"><Card className="p-5"><SectionTitle title="Revenue Activity" /><div className="mb-4 flex gap-1 rounded-md bg-secondary p-1 text-xs font-semibold w-fit">{['Today', '7 Days', '30 Days'].map(item => <button key={item} onClick={() => setChartRange(item)} className={`rounded px-3 py-1.5 ${chartRange === item ? 'bg-card text-foreground shadow-sm' : 'text-foreground'}`}>{item}</button>)}</div><div className="relative h-48 border-b border-l border-border bg-[linear-gradient(to_bottom,transparent_24%,var(--secondary)_25%,transparent_26%,transparent_49%,var(--secondary)_50%,transparent_51%,transparent_74%,var(--background)_75%,transparent_76%)]"><svg viewBox="0 0 700 190" preserveAspectRatio="none" className="h-full w-full"><path d="M0 145 C80 128 90 140 150 112 S240 130 290 80 S380 120 430 70 S530 100 590 45 S650 75 700 22 L700 190 L0 190Z" fill="var(--chart-2)" fillOpacity=".13" /><path d="M0 145 C80 128 90 140 150 112 S240 130 290 80 S380 120 430 70 S530 100 590 45 S650 75 700 22" fill="none" stroke="var(--chart-2)" strokeWidth="3" /><path d="M0 158 C100 150 120 162 200 143 S310 150 380 123 S470 140 540 109 S630 116 700 92" fill="none" stroke="var(--foreground)" strokeWidth="2.5" /></svg></div><div className="mt-5 grid grid-cols-3 gap-3"><div><p className="text-[11px] text-muted-foreground">Total Revenue</p><p className="font-bold text-foreground">—</p></div><div><p className="text-[11px] text-muted-foreground">Total Orders</p><p className="font-bold text-foreground">1,842</p></div><div><p className="text-[11px] text-muted-foreground">Peak Hour</p><p className="font-bold text-foreground">12–1 PM</p></div></div><button className="mt-5 text-xs font-bold text-foreground">→ View Revenue Intelligence</button></Card><Card className="p-5"><SectionTitle title="Order Activity" /><div className="space-y-3">{[...stages, {
                 name: 'Cancelled',
                 count: 8,
@@ -388,69 +388,6 @@ const luluDropdownNavigation = [{
     "label": "Activity Timeline"
   }]
 }, {
-  "label": "Ecommerce",
-  "pages": [{
-    "id": "smart-ocean-3898",
-    "label": "Overview"
-  }, {
-    "id": "nice-year-6253",
-    "label": "Stores"
-  }, {
-    "id": "nicely-ocean-1051",
-    "label": "Products"
-  }, {
-    "id": "richly-forest-5832",
-    "label": "Categories"
-  }, {
-    "id": "mightily-shore-7108",
-    "label": "Orders"
-  }, {
-    "id": "fancy-ground-8040",
-    "label": "Customers"
-  }, {
-    "id": "serenely-sand-9226",
-    "label": "Carts"
-  }, {
-    "id": "smart-village-1099",
-    "label": "Inventory"
-  }, {
-    "id": "dreamy-shade-5445",
-    "label": "Returns & Refunds"
-  }, {
-    "id": "daring-brook-9034",
-    "label": "Reviews"
-  }, {
-    "id": "sharply-sky-4161",
-    "label": "Discounts & Promotions"
-  }, {
-    "id": "wildly-time-4260",
-    "label": "Carts & Abandoned Carts"
-  }, {
-    "id": "quietly-moon-4186",
-    "label": "Shipping"
-  }, {
-    "id": "merry-castle-3260",
-    "label": "Payments"
-  }, {
-    "id": "merry-cliff-8846",
-    "label": "Coupons"
-  }, {
-    "id": "safely-dawn-7731",
-    "label": "Subscriptions"
-  }, {
-    "id": "purely-dusk-2409",
-    "label": "Shipping & Fulfillment"
-  }, {
-    "id": "soft-hill-4757",
-    "label": "Taxes"
-  }, {
-    "id": "safely-air-9334",
-    "label": "Collections"
-  }, {
-    "id": "merry-land-6169",
-    "label": "Store Performance"
-  }]
-}, {
   "label": "Finance",
   "pages": [{
     "id": "quietly-stone-4158",
@@ -556,7 +493,7 @@ const luluDropdownNavigation = [{
     "label": "Lead Assignment"
   }]
 }, {
-  "label": "Website",
+  "label": "Website & Commerce",
   "pages": [{
     "id": "lulu-website-portal-9012",
     "label": "Website"
@@ -588,8 +525,65 @@ const luluDropdownNavigation = [{
     "id": "sunny-house-9595",
     "label": "AEO"
   }, {
-    "id": "website-settings-9019",
-    "label": "Website Settings"
+    "id": "daring-brook-9034",
+    "label": "Reviews"
+  }, {
+    "id": "smart-ocean-3898",
+    "label": "Overview"
+  }, {
+    "id": "nice-year-6253",
+    "label": "Stores"
+  }, {
+    "id": "nicely-ocean-1051",
+    "label": "Products"
+  }, {
+    "id": "richly-forest-5832",
+    "label": "Categories"
+  }, {
+    "id": "mightily-shore-7108",
+    "label": "Orders"
+  }, {
+    "id": "fancy-ground-8040",
+    "label": "Customers"
+  }, {
+    "id": "serenely-sand-9226",
+    "label": "Carts"
+  }, {
+    "id": "smart-village-1099",
+    "label": "Inventory"
+  }, {
+    "id": "dreamy-shade-5445",
+    "label": "Returns & Refunds"
+  }, {
+    "id": "sharply-sky-4161",
+    "label": "Discounts & Promotions"
+  }, {
+    "id": "wildly-time-4260",
+    "label": "Carts & Abandoned Carts"
+  }, {
+    "id": "quietly-moon-4186",
+    "label": "Shipping"
+  }, {
+    "id": "merry-castle-3260",
+    "label": "Payments"
+  }, {
+    "id": "merry-cliff-8846",
+    "label": "Coupons"
+  }, {
+    "id": "safely-dawn-7731",
+    "label": "Subscriptions"
+  }, {
+    "id": "purely-dusk-2409",
+    "label": "Shipping & Fulfillment"
+  }, {
+    "id": "soft-hill-4757",
+    "label": "Taxes"
+  }, {
+    "id": "safely-air-9334",
+    "label": "Collections"
+  }, {
+    "id": "merry-land-6169",
+    "label": "Store Performance"
   }]
 }, {
   "label": "Settings",
@@ -614,7 +608,7 @@ function LuluSectionNavigation({
       const isActiveSection = section.pages.some(page => page.id === activeId);
       return <details key={section.label} open={isActiveSection} className="group rounded-lg">
         <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
-          <span data-lulu-section-soon={section.label !== "Website" && section.label !== "Settings" ? "true" : undefined}>{section.label}</span>
+          <span data-lulu-section-soon={section.label !== "Website & Commerce" && section.label !== "Settings" ? "true" : undefined}>{section.label}</span>
           <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
         </summary>
         <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
