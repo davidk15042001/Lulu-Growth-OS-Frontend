@@ -14,15 +14,6 @@ const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
 
-function dedupePages(pages: readonly NavigationPage[]) {
-  const seen = new Set<string>();
-  return pages.filter((page) => {
-    if (seen.has(page.id)) return false;
-    seen.add(page.id);
-    return true;
-  });
-}
-
 const navigationSections: readonly NavigationSection[] = (() => {
   const availableSections = (luluDropdownNavigation as readonly NavigationSection[])
     .map((section) => ({
@@ -30,17 +21,21 @@ const navigationSections: readonly NavigationSection[] = (() => {
       pages: section.pages.filter((page) => isPageAvailable(page.id)),
     }))
     .filter((section) => section.pages.length > 0);
-  const financeSection = availableSections.find((section) => section.label === FINANCE_LABEL);
 
-  return availableSections
-    .filter((section) => section.label !== FINANCE_LABEL)
-    .map((section) => {
-      if (section.label !== WEBSITE_AND_COMMERCE_LABEL || !financeSection) return section;
-      return {
-        ...section,
-        pages: dedupePages([...section.pages, ...financeSection.pages]),
-      };
-    });
+  const financeIndex = availableSections.findIndex((section) => section.label === FINANCE_LABEL);
+  const webPresenceIndex = availableSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
+  const settingsIndex = availableSections.findIndex((section) => section.label === SETTINGS_LABEL);
+
+  if (financeIndex === -1 || webPresenceIndex === -1 || settingsIndex === -1) {
+    return availableSections;
+  }
+
+  const reorderedSections = [...availableSections];
+  const [financeSection] = reorderedSections.splice(financeIndex, 1);
+  const adjustedSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
+  reorderedSections.splice(adjustedSettingsIndex, 0, financeSection);
+
+  return reorderedSections;
 })();
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
