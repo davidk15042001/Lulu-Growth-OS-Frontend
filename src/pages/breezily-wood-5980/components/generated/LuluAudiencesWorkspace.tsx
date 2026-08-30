@@ -19,6 +19,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { aiApi } from "../../../../api/ai";
 import { getFriendlyErrorMessage } from "../../../../api/client";
 import { onboardingApi, type CustomerSegment, type Offering, type OnboardingSnapshot, type Platform } from "../../../../api/onboarding";
 import { type WorkspaceRecord } from "../../../../api/records";
@@ -65,6 +66,43 @@ type AudienceEvidence = {
   tone: "green" | "amber" | "red" | "purple";
 };
 
+type AudienceProfileAttribute = {
+  label: string;
+  value: string;
+  source: string;
+  inferred: boolean;
+};
+
+type AudienceDossierItem = {
+  label: string;
+  value: string;
+  status: "verified" | "inferred" | "gap";
+};
+
+type AudienceDossierSection = {
+  title: string;
+  summary: string;
+  items: AudienceDossierItem[];
+};
+
+type AudienceDossierAction = {
+  title: string;
+  detail: string;
+  priority: "High" | "Medium" | "Low";
+};
+
+type AudienceDossier = {
+  executiveSummary: string;
+  verifiedFacts: string[];
+  inferredAssumptions: string[];
+  dataGaps: string[];
+  sections: AudienceDossierSection[];
+  messagingAngles: string[];
+  channelPriorities: string[];
+  objections: string[];
+  actionPlan: AudienceDossierAction[];
+};
+
 type AudienceSegmentOrigin = "existing" | "generated";
 
 type AudienceSegmentInsight = {
@@ -83,6 +121,7 @@ type AudienceSegmentInsight = {
   opportunitySummary: string;
   bestFitReason: string;
   whyNow: string;
+  profileAttributes: AudienceProfileAttribute[];
   risks: string[];
   actions: AudienceAction[];
   evidence: AudienceEvidence[];
@@ -179,6 +218,113 @@ function limitWords(value: string, limit = 8): string {
   return words.slice(0, limit).join(" ");
 }
 
+function titleCase(value: string): string {
+  return value
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+    .join(" ");
+}
+
+function normalizePriority(value: unknown): "High" | "Medium" | "Low" {
+  const text = textValue(value).toLowerCase();
+  if (text === "high") return "High";
+  if (text === "low") return "Low";
+  return "Medium";
+}
+
+function normalizeDossierStatus(value: unknown): "verified" | "inferred" | "gap" {
+  const text = textValue(value).toLowerCase();
+  if (text === "verified") return "verified";
+  if (text === "gap") return "gap";
+  return "inferred";
+}
+
+function normalizeStringList(value: unknown, limit = 12): string[] {
+  return uniqueStrings(Array.isArray(value) ? value : [value], limit);
+}
+
+function extractJsonObject(content: string): string | null {
+  const trimmed = content.trim();
+  if (!trimmed) return null;
+  if ((trimmed.startsWith("{") && trimmed.endsWith("}")) || (trimmed.startsWith("[") && trimmed.endsWith("]"))) return trimmed;
+
+  const fenced = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/i)?.[1]?.trim();
+  if (fenced && ((fenced.startsWith("{") && fenced.endsWith("}")) || (fenced.startsWith("[") && fenced.endsWith("]")))) return fenced;
+
+  const firstBrace = trimmed.indexOf("{");
+  const lastBrace = trimmed.lastIndexOf("}");
+  if (firstBrace >= 0 && lastBrace > firstBrace) return trimmed.slice(firstBrace, lastBrace + 1);
+  return null;
+}
+
+function normalizeAudienceDossier(input: unknown): AudienceDossier | null {
+  if (!input || typeof input !== "object") return null;
+  const object = input as Record<string, unknown>;
+  const sections = Array.isArray(object.sections)
+    ? object.sections
+        .map((section) => {
+          if (!section || typeof section !== "object") return null;
+          const sectionObject = section as Record<string, unknown>;
+          const items = Array.isArray(sectionObject.items)
+            ? sectionObject.items
+                .map((item) => {
+                  if (!item || typeof item !== "object") return null;
+                  const itemObject = item as Record<string, unknown>;
+                  const label = textValue(itemObject.label);
+                  const value = textValue(itemObject.value);
+                  if (!label || !value) return null;
+                  return {
+                    label,
+                    value,
+                    status: normalizeDossierStatus(itemObject.status),
+                  } satisfies AudienceDossierItem;
+                })
+                .filter(Boolean) as AudienceDossierItem[]
+            : [];
+          const title = textValue(sectionObject.title);
+          if (!title) return null;
+          return {
+            title,
+            summary: textValue(sectionObject.summary),
+            items: items.slice(0, 8),
+          } satisfies AudienceDossierSection;
+        })
+        .filter(Boolean) as AudienceDossierSection[]
+    : [];
+
+  const dossier: AudienceDossier = {
+    executiveSummary: textValue(object.executiveSummary),
+    verifiedFacts: normalizeStringList(object.verifiedFacts, 8),
+    inferredAssumptions: normalizeStringList(object.inferredAssumptions, 8),
+    dataGaps: normalizeStringList(object.dataGaps, 8),
+    sections: sections.slice(0, 8),
+    messagingAngles: normalizeStringList(object.messagingAngles, 8),
+    channelPriorities: normalizeStringList(object.channelPriorities, 8),
+    objections: normalizeStringList(object.objections, 8),
+    actionPlan: Array.isArray(object.actionPlan)
+      ? object.actionPlan
+          .map((item) => {
+            if (!item || typeof item !== "object") return null;
+            const actionObject = item as Record<string, unknown>;
+            const title = textValue(actionObject.title);
+            const detail = textValue(actionObject.detail);
+            if (!title || !detail) return null;
+            return {
+              title,
+              detail,
+              priority: normalizePriority(actionObject.priority),
+            } satisfies AudienceDossierAction;
+          })
+          .filter(Boolean)
+          .slice(0, 6) as AudienceDossierAction[]
+      : [],
+  };
+
+  if (!dossier.executiveSummary && !dossier.sections.length) return null;
+  return dossier;
+}
+
 function numberValue(value: unknown) {
   if (typeof value === "number") return value;
   if (typeof value === "string") {
@@ -272,6 +418,313 @@ function dedupeSegments(segments: CustomerSegment[]): CustomerSegment[] {
   }
 
   return deduped;
+}
+
+function deriveCountryTargets(snapshot: OnboardingSnapshot, segment: CustomerSegment, liveRecord: WorkspaceRecord | null): string[] {
+  const workspace = snapshot.workspace;
+  const recordValues = liveRecord ? Object.values(liveRecord.data ?? {}) : [];
+  return uniqueStrings([
+    segment.region,
+    workspace.countryRegion,
+    workspace.targetMarket,
+    ...workspace.languages.map((language) => `${language.toUpperCase()} markets`),
+    ...recordValues.flatMap((value) => listValue(value)),
+  ], 4);
+}
+
+function deriveAgeRange(segment: CustomerSegment): string {
+  const blob = [
+    segment.name,
+    segment.notes,
+    ...segment.buyingRoles,
+    ...segment.useCases,
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  if (blob.includes("student") || blob.includes("creator") || blob.includes("social")) return "22-34";
+  if (blob.includes("founder") || blob.includes("manager") || blob.includes("lead") || blob.includes("head")) return "28-45";
+  if (blob.includes("director") || blob.includes("vp") || blob.includes("chief") || blob.includes("executive")) return "35-54";
+  return "28-45";
+}
+
+function deriveGenderMix(segment: CustomerSegment): string {
+  const blob = [segment.name, segment.notes, ...segment.buyingRoles].join(" ").toLowerCase();
+  if (blob.includes("women") || blob.includes("female")) return "Primarily female";
+  if (blob.includes("men") || blob.includes("male")) return "Primarily male";
+  return "Mixed / not gender-specific";
+}
+
+function deriveBusinessType(snapshot: OnboardingSnapshot, segment: CustomerSegment): string {
+  const workspace = snapshot.workspace;
+  const offeringTypes = uniqueStrings(snapshot.offerings.map((offering) => offering.offeringType), 2).join(" + ");
+  const parts = [
+    workspace.businessModelType,
+    segment.industry,
+    segment.companySize,
+    offeringTypes ? `${offeringTypes} business` : null,
+  ].filter(Boolean);
+  return parts.length ? parts.join(" · ") : "B2B growth-focused business";
+}
+
+function derivePersonaProfile(
+  snapshot: OnboardingSnapshot,
+  segment: CustomerSegment,
+  liveRecord: WorkspaceRecord | null,
+): AudienceProfileAttribute[] {
+  const workspace = snapshot.workspace;
+  const countries = deriveCountryTargets(snapshot, segment, liveRecord);
+  const ageRange = deriveAgeRange(segment);
+  const genderMix = deriveGenderMix(segment);
+  const businessType = deriveBusinessType(snapshot, segment);
+  const buyerRole = uniqueStrings(segment.buyingRoles, 3).join(", ") || "Founder / Marketing / Growth";
+  const maturity = [segment.maturityLevel, workspace.companyStage].filter(Boolean).join(" · ") || "Growing to scaling";
+  const languages = uniqueStrings(workspace.languages.map((language) => titleCase(language)), 3).join(", ") || "Language mix not documented";
+
+  return [
+    {
+      label: "Age range",
+      value: ageRange,
+      source: "Derived from buying roles and audience context",
+      inferred: true,
+    },
+    {
+      label: "Gender mix",
+      value: genderMix,
+      source: "Derived from audience wording",
+      inferred: true,
+    },
+    {
+      label: "Business",
+      value: businessType,
+      source: "Workspace + offerings + segment",
+      inferred: false,
+    },
+    {
+      label: "Countries / markets",
+      value: countries.join(", ") || "Global / not clearly defined",
+      source: "Workspace region + target market + languages",
+      inferred: countries.length === 0,
+    },
+    {
+      label: "Buyer roles",
+      value: buyerRole,
+      source: "Customer segment",
+      inferred: segment.buyingRoles.length === 0,
+    },
+    {
+      label: "Company stage",
+      value: maturity,
+      source: "Segment + workspace stage",
+      inferred: !segment.maturityLevel,
+    },
+    {
+      label: "Languages",
+      value: languages,
+      source: "Workspace languages",
+      inferred: workspace.languages.length === 0,
+    },
+  ];
+}
+
+function buildFallbackAudienceDossier(insight: AudienceSegmentInsight): AudienceDossier {
+  const sections: AudienceDossierSection[] = [
+    {
+      title: "Demographics",
+      summary: "Personal-profile assumptions inferred from the current audience definition.",
+      items: insight.profileAttributes
+        .filter((item) => ["Age range", "Gender mix", "Languages"].includes(item.label))
+        .map((item): AudienceDossierItem => ({ label: item.label, value: item.value, status: item.inferred ? "inferred" : "verified" })),
+    },
+    {
+      title: "Firmographics",
+      summary: "Business shape and company context that define the audience commercially.",
+      items: insight.profileAttributes
+        .filter((item) => ["Business", "Company stage"].includes(item.label))
+        .concat([
+          { label: "Industry", value: insight.segment.industry || "Not fully documented", source: "Customer segment", inferred: !insight.segment.industry },
+          { label: "Company size", value: insight.segment.companySize || "Not fully documented", source: "Customer segment", inferred: !insight.segment.companySize },
+        ])
+        .map((item): AudienceDossierItem => ({ label: item.label, value: item.value, status: item.inferred ? "inferred" : "verified" })),
+    },
+    {
+      title: "Geography",
+      summary: "Where the audience appears to be concentrated right now.",
+      items: insight.profileAttributes
+        .filter((item) => item.label === "Countries / markets")
+        .map((item): AudienceDossierItem => ({ label: item.label, value: item.value, status: item.inferred ? "inferred" : "verified" })),
+    },
+    {
+      title: "Buying Committee",
+      summary: "Who evaluates and signs off on the offer.",
+      items: [
+        {
+          label: "Buyer roles",
+          value: insight.segment.buyingRoles.join(", ") || "No roles documented yet",
+          status: insight.segment.buyingRoles.length ? "verified" : "gap",
+        },
+        {
+          label: "Decision criteria",
+          value: insight.segment.decisionCriteria.join(", ") || "No decision criteria documented yet",
+          status: insight.segment.decisionCriteria.length ? "verified" : "gap",
+        },
+      ] satisfies AudienceDossierItem[],
+    },
+    {
+      title: "Demand & Messaging",
+      summary: "What they want, why they move and how Lulu should frame the offer.",
+      items: [
+        {
+          label: "Pain points",
+          value: insight.segment.painPoints.join(", ") || "No pain points documented yet",
+          status: insight.segment.painPoints.length ? "verified" : "gap",
+        },
+        {
+          label: "Jobs to be done",
+          value: insight.segment.jobsToBeDone.join(", ") || "No jobs documented yet",
+          status: insight.segment.jobsToBeDone.length ? "verified" : "gap",
+        },
+        {
+          label: "Messaging angle",
+          value: insight.bestFitReason,
+          status: "inferred",
+        },
+      ] satisfies AudienceDossierItem[],
+    },
+  ];
+
+  return {
+    executiveSummary: `${insight.segment.name} is currently the strongest audience based on fit, buying readiness, discovery signal and execution potential. This fallback dossier is structured from live workspace signals while the AI narrative layer is unavailable.`,
+    verifiedFacts: [
+      `${insight.segment.name} scores ${insight.totalScore}/10 on current audience fit.`,
+      insight.fitSummary,
+      insight.buyingSummary,
+      insight.opportunitySummary,
+    ],
+    inferredAssumptions: insight.profileAttributes.filter((item) => item.inferred).map((item) => `${item.label}: ${item.value}`),
+    dataGaps: insight.dataGaps.filter((item) => !item.resolved).map((item) => item.detail),
+    sections: sections.filter((section) => section.items.length > 0),
+    messagingAngles: [
+      insight.bestFitReason,
+      insight.fitSummary,
+      insight.opportunitySummary,
+    ],
+    channelPriorities: insight.relevantHits.length
+      ? uniqueStrings(insight.relevantHits.map((item) => item.channel.toUpperCase()), 3)
+      : ["SEO", "GEO", "AEO"],
+    objections: [
+      insight.risks[0] || "No major objection pattern documented yet.",
+      "Proof and offer clarity still need to be tightened for this audience.",
+    ],
+    actionPlan: insight.actions.map((action) => ({
+      title: action.title,
+      detail: action.detail,
+      priority: action.impact,
+    })),
+  };
+}
+
+function buildAudienceAnalysisPrompt(snapshot: OnboardingSnapshot, insight: AudienceSegmentInsight, summaries: SearchSummaryMap): string {
+  const context = {
+    workspace: {
+      companyName: snapshot.workspace.companyName,
+      industry: snapshot.workspace.industry,
+      companySize: snapshot.workspace.companySize,
+      countryRegion: snapshot.workspace.countryRegion,
+      targetMarket: snapshot.workspace.targetMarket,
+      businessModelType: snapshot.workspace.businessModelType,
+      companyStage: snapshot.workspace.companyStage,
+      primaryIcp: snapshot.workspace.primaryIcp,
+      valueProposition: snapshot.workspace.valueProposition,
+      usp: snapshot.workspace.usp,
+      languages: snapshot.workspace.languages,
+      primaryChallenges: snapshot.workspace.primaryChallenges,
+    },
+    audience: {
+      name: insight.segment.name,
+      industry: insight.segment.industry,
+      companySize: insight.segment.companySize,
+      region: insight.segment.region,
+      maturityLevel: insight.segment.maturityLevel,
+      priceSensitivity: insight.segment.priceSensitivity,
+      buyingRoles: insight.segment.buyingRoles,
+      decisionCriteria: insight.segment.decisionCriteria,
+      painPoints: insight.segment.painPoints,
+      jobsToBeDone: insight.segment.jobsToBeDone,
+      useCases: insight.segment.useCases,
+      notes: insight.segment.notes,
+      profileAttributes: insight.profileAttributes,
+      currentScores: insight.scores.map((score) => ({ label: score.label, score: score.score, evidence: score.evidence })),
+      fitSummary: insight.fitSummary,
+      buyingSummary: insight.buyingSummary,
+      opportunitySummary: insight.opportunitySummary,
+      bestFitReason: insight.bestFitReason,
+      whyNow: insight.whyNow,
+      risks: insight.risks,
+      dataGaps: insight.dataGaps,
+    },
+    offerings: snapshot.offerings.slice(0, 8).map((offering) => ({
+      name: offering.name,
+      type: offering.offeringType,
+      targetCustomer: offering.targetCustomer,
+      customerProblem: offering.customerProblem,
+      valueProposition: offering.valueProposition,
+      useCases: offering.useCases,
+      differentiators: offering.differentiators,
+      objections: offering.objections,
+    })),
+    liveAudienceRecord: insight.liveRecord
+      ? {
+          name: insight.liveRecord.name,
+          description: insight.liveRecord.description,
+          data: insight.liveRecord.data,
+        }
+      : null,
+    searchSignals: {
+      relevantHits: insight.relevantHits.slice(0, 8).map(({ channel, item }) => ({
+        channel,
+        name: item.name,
+        description: item.description,
+        status: item.status,
+        stage: item.stage,
+      })),
+      summary: CHANNELS.map((channel) => ({
+        channel,
+        records: summaries[channel]?.metrics.records ?? 0,
+        opportunities: summaries[channel]?.metrics.opportunities ?? 0,
+        connectedTargets: summaries[channel]?.connectedTargets.length ?? 0,
+      })),
+    },
+  };
+
+  return [
+    "Create a detailed target-audience intelligence dossier for this workspace.",
+    "The user should not need to do manual analysis.",
+    "Use the provided context only.",
+    "You must strictly separate verified facts, inferred assumptions and data gaps.",
+    "Never present inferred age, gender or persona traits as verified facts.",
+    "Return JSON only with this exact structure:",
+    JSON.stringify({
+      executiveSummary: "string",
+      verifiedFacts: ["string"],
+      inferredAssumptions: ["string"],
+      dataGaps: ["string"],
+      sections: [
+        {
+          title: "Demographics",
+          summary: "string",
+          items: [{ label: "Age range", value: "string", status: "verified|inferred|gap" }],
+        },
+      ],
+      messagingAngles: ["string"],
+      channelPriorities: ["string"],
+      objections: ["string"],
+      actionPlan: [{ title: "string", detail: "string", priority: "High|Medium|Low" }],
+    }, null, 2),
+    "The sections must cover at least: Demographics, Firmographics, Geography, Psychographics, Buying Committee, Jobs To Be Done, Messaging, Channels.",
+    "Context:",
+    JSON.stringify(context, null, 2),
+  ].join("\n");
 }
 
 function deriveRoleSeeds(snapshot: OnboardingSnapshot): string[] {
@@ -619,6 +1072,7 @@ function buildAudienceInsight(
       : matchingOfferings.length > 0
         ? "This audience is actionable now because the offer system already fits it well."
         : "This audience is promising, but it still needs stronger proof and validation.";
+  const profileAttributes = derivePersonaProfile(snapshot, segment, liveRecord);
   const risks = [
     !segment.industry || !segment.companySize || !segment.region ? "Audience definition is still incomplete." : null,
     buyingRoleCount === 0 ? "No buying roles mapped yet." : null,
@@ -724,6 +1178,7 @@ function buildAudienceInsight(
     opportunitySummary,
     bestFitReason,
     whyNow,
+    profileAttributes,
     risks,
     actions,
     evidence,
@@ -764,6 +1219,9 @@ export const LuluAudiencesWorkspace = () => {
   const [signalsLoading, setSignalsLoading] = useState(false);
   const [signalsError, setSignalsError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [dossiersBySegment, setDossiersBySegment] = useState<Record<string, AudienceDossier>>({});
+  const [dossierLoadingId, setDossierLoadingId] = useState<string | null>(null);
+  const [dossierError, setDossierError] = useState<string | null>(null);
   const {
     items: audienceRecords,
     total: audienceRecordTotal,
@@ -824,6 +1282,8 @@ export const LuluAudiencesWorkspace = () => {
 
   const refreshAll = useCallback(async () => {
     setRefreshing(true);
+    setDossiersBySegment({});
+    setDossierError(null);
     try {
       await Promise.all([loadAudienceIntelligence(), refreshAudienceRecords()]);
     } finally {
@@ -893,6 +1353,7 @@ export const LuluAudiencesWorkspace = () => {
 
   const selectedInsight = visibleInsights.find((insight) => insight.segment.id === selectedSegmentId) ?? null;
   const topInsight = audienceInsights[0] ?? null;
+  const selectedDossier = selectedInsight ? dossiersBySegment[selectedInsight.segment.id] ?? null : null;
   const primaryInsight = audienceInsights.find((insight) => insight.segment.primarySegment) ?? topInsight;
   const generatedCandidateCount = segmentPool.filter((segment) => segmentOrigin(segment) === "generated").length;
   const manualCandidateCount = segmentPool.length - generatedCandidateCount;
@@ -912,6 +1373,74 @@ export const LuluAudiencesWorkspace = () => {
   const searchSignalTotals = CHANNELS.reduce((sum, channel) => sum + (summaries[channel]?.metrics.records ?? 0), 0);
   const searchOpportunityTotals = CHANNELS.reduce((sum, channel) => sum + (summaries[channel]?.metrics.opportunities ?? 0), 0);
   const pageLoading = snapshotLoading || (audienceRecordsLoading && !rankedAudienceInsights.length);
+
+  const loadAudienceDossier = useCallback(async (insight: AudienceSegmentInsight, force = false) => {
+    if (!workspaceId || !snapshot) return;
+    if (!force && dossiersBySegment[insight.segment.id]) return;
+
+    setDossierLoadingId(insight.segment.id);
+    setDossierError(null);
+
+    try {
+      const conversations = (await aiApi.conversations(workspaceId)).data.items;
+      let conversation = conversations.find((item) => item.metadata?.source === "audience-intelligence" && item.metadata?.segmentId === insight.segment.id) ?? null;
+
+      if (!conversation) {
+        conversation = (await aiApi.createConversation(workspaceId, {
+          title: `Audience dossier: ${insight.segment.name}`,
+          metadata: {
+            source: "audience-intelligence",
+            page: "audiences",
+            segmentId: insight.segment.id,
+          },
+        })).data;
+      }
+
+      if (!force) {
+        const existingMessages = (await aiApi.messages(workspaceId, conversation.id)).data.items;
+        const latestAssistant = [...existingMessages].reverse().find((item) => item.role === "assistant");
+        if (latestAssistant) {
+          const parsed = extractJsonObject(latestAssistant.content);
+          const normalized = parsed ? normalizeAudienceDossier(JSON.parse(parsed)) : null;
+          if (normalized) {
+            setDossiersBySegment((current) => ({ ...current, [insight.segment.id]: normalized }));
+            setDossierLoadingId((current) => (current === insight.segment.id ? null : current));
+            return;
+          }
+        }
+      }
+
+      const response = await aiApi.respond(
+        workspaceId,
+        conversation.id,
+        buildAudienceAnalysisPrompt(snapshot, insight, summaries),
+        {
+          source: "audience-intelligence",
+          page: "audiences",
+          segmentId: insight.segment.id,
+        },
+      );
+
+      const parsed = extractJsonObject(response.data.assistantMessage.content);
+      const normalized = parsed ? normalizeAudienceDossier(JSON.parse(parsed)) : null;
+
+      if (!normalized) {
+        throw new Error("AI dossier response could not be parsed.");
+      }
+
+      setDossiersBySegment((current) => ({ ...current, [insight.segment.id]: normalized }));
+    } catch (error) {
+      setDossiersBySegment((current) => ({ ...current, [insight.segment.id]: buildFallbackAudienceDossier(insight) }));
+      setDossierError(getFriendlyErrorMessage(error, "The AI dossier could not be generated cleanly, so Lulu is showing a structured fallback analysis from the available workspace signals."));
+    } finally {
+      setDossierLoadingId((current) => (current === insight.segment.id ? null : current));
+    }
+  }, [dossiersBySegment, snapshot, summaries, workspaceId]);
+
+  useEffect(() => {
+    if (!selectedInsight) return;
+    void loadAudienceDossier(selectedInsight);
+  }, [loadAudienceDossier, selectedInsight]);
 
   if (!workspaceId) {
     return (
@@ -977,6 +1506,11 @@ export const LuluAudiencesWorkspace = () => {
         {audienceRecordsError && (
           <div role="alert" className="mb-4 rounded-xl border border-chart-1/30 bg-chart-1/10 px-4 py-3 text-sm text-[var(--chart-1)]">
             {audienceRecordsError}
+          </div>
+        )}
+        {dossierError && (
+          <div role="alert" className="mb-4 rounded-xl border border-chart-1/30 bg-chart-1/10 px-4 py-3 text-sm text-[var(--chart-1)]">
+            {dossierError}
           </div>
         )}
 
@@ -1146,6 +1680,17 @@ export const LuluAudiencesWorkspace = () => {
                     <AudienceScoreBar label="Confidence" score={topInsight.confidenceScore} detail="How reliable the current recommendation is" />
                     <AudienceScoreBar label="Source coverage" score={topInsight.sourceCoverage} detail="How much real business and signal data supports it" />
                   </div>
+                  <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+                    {topInsight.profileAttributes.slice(0, 4).map((attribute) => (
+                      <div key={attribute.label} className="rounded-xl border border-border bg-[var(--secondary)] p-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm font-medium text-foreground">{attribute.label}</p>
+                          <Pill tone={attribute.inferred ? "amber" : "green"}>{attribute.inferred ? "Inferred" : "Data"}</Pill>
+                        </div>
+                        <p className="mt-2 text-sm text-muted-foreground">{attribute.value}</p>
+                      </div>
+                    ))}
+                  </div>
                 </article>
 
                 <article className="rounded-2xl border border-border bg-card p-5">
@@ -1237,6 +1782,16 @@ export const LuluAudiencesWorkspace = () => {
                       {selectedInsight.segment.notes || `${selectedInsight.segment.name} is currently the best audience to attack next based on the available business, offer and discovery signals.`}
                     </p>
                     <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                      {selectedInsight.profileAttributes.map((attribute) => (
+                        <div key={attribute.label} className="rounded-xl border border-border bg-[var(--secondary)] p-4">
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-sm font-medium text-foreground">{attribute.label}</p>
+                            <Pill tone={attribute.inferred ? "amber" : "green"}>{attribute.inferred ? "Inferred" : "Data"}</Pill>
+                          </div>
+                          <p className="mt-2 text-sm text-muted-foreground">{attribute.value}</p>
+                          <p className="mt-3 text-xs text-muted-foreground">{attribute.source}</p>
+                        </div>
+                      ))}
                       <div className="rounded-xl border border-border bg-[var(--secondary)] p-4">
                         <p className="text-sm font-medium text-foreground">Why this is the fit</p>
                         <p className="mt-2 text-sm text-muted-foreground">{selectedInsight.bestFitReason}</p>
@@ -1304,6 +1859,108 @@ export const LuluAudiencesWorkspace = () => {
                       ))}
                     </div>
                   </article>
+                </section>
+
+                <section className="mt-6 rounded-2xl border border-border bg-card p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">AI dossier</p>
+                      <h2 className="mt-2 text-lg font-semibold">Autonomous audience analysis</h2>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Pill tone="purple">AI-generated</Pill>
+                      {dossierLoadingId === selectedInsight.segment.id && <Pill tone="amber">Generating</Pill>}
+                    </div>
+                  </div>
+
+                  {dossierLoadingId === selectedInsight.segment.id && !selectedDossier ? (
+                    <div className="mt-4 rounded-xl border border-border bg-[var(--secondary)] p-4 text-sm text-muted-foreground">
+                      Lulu is generating a full audience dossier automatically from workspace, offering, live-record and search-intelligence context.
+                    </div>
+                  ) : selectedDossier ? (
+                    <>
+                      <p className="mt-4 text-sm text-muted-foreground">{selectedDossier.executiveSummary}</p>
+
+                      <div className="mt-5 grid gap-4 xl:grid-cols-3">
+                        <div className="rounded-xl border border-border bg-[var(--secondary)] p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-medium text-foreground">Verified facts</p>
+                            <Pill tone="green">{selectedDossier.verifiedFacts.length}</Pill>
+                          </div>
+                          <div className="mt-3 space-y-2">
+                            {selectedDossier.verifiedFacts.slice(0, 4).map((item) => (
+                              <p key={item} className="text-sm text-muted-foreground">{item}</p>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="rounded-xl border border-border bg-[var(--secondary)] p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-medium text-foreground">Inferred assumptions</p>
+                            <Pill tone="amber">{selectedDossier.inferredAssumptions.length}</Pill>
+                          </div>
+                          <div className="mt-3 space-y-2">
+                            {selectedDossier.inferredAssumptions.slice(0, 4).map((item) => (
+                              <p key={item} className="text-sm text-muted-foreground">{item}</p>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="rounded-xl border border-border bg-[var(--secondary)] p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <p className="text-sm font-medium text-foreground">Data gaps</p>
+                            <Pill tone="red">{selectedDossier.dataGaps.length}</Pill>
+                          </div>
+                          <div className="mt-3 space-y-2">
+                            {selectedDossier.dataGaps.slice(0, 4).map((item) => (
+                              <p key={item} className="text-sm text-muted-foreground">{item}</p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="mt-5 grid gap-4 xl:grid-cols-2">
+                        {selectedDossier.sections.map((section) => (
+                          <article key={section.title} className="rounded-xl border border-border bg-[var(--secondary)] p-4">
+                            <p className="text-sm font-medium text-foreground">{section.title}</p>
+                            <p className="mt-2 text-sm text-muted-foreground">{section.summary}</p>
+                            <div className="mt-4 space-y-3">
+                              {section.items.map((item) => (
+                                <div key={`${section.title}-${item.label}`} className="rounded-lg border border-border bg-card p-3">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <p className="text-sm font-medium text-foreground">{item.label}</p>
+                                    <Pill tone={item.status === "verified" ? "green" : item.status === "gap" ? "red" : "amber"}>
+                                      {item.status === "verified" ? "Verified" : item.status === "gap" ? "Gap" : "Inferred"}
+                                    </Pill>
+                                  </div>
+                                  <p className="mt-2 text-sm text-muted-foreground">{item.value}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+
+                      <div className="mt-5 grid gap-4 xl:grid-cols-4">
+                        {[
+                          { title: "Messaging angles", items: selectedDossier.messagingAngles, tone: "purple" as const },
+                          { title: "Channel priorities", items: selectedDossier.channelPriorities, tone: "green" as const },
+                          { title: "Likely objections", items: selectedDossier.objections, tone: "amber" as const },
+                          { title: "Action plan", items: selectedDossier.actionPlan.map((item) => `${item.priority}: ${item.title} - ${item.detail}`), tone: "red" as const },
+                        ].map((section) => (
+                          <article key={section.title} className="rounded-xl border border-border bg-[var(--secondary)] p-4">
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="text-sm font-medium text-foreground">{section.title}</p>
+                              <Pill tone={section.tone}>{section.items.length}</Pill>
+                            </div>
+                            <div className="mt-3 space-y-2">
+                              {section.items.slice(0, 5).map((item) => (
+                                <p key={item} className="text-sm text-muted-foreground">{item}</p>
+                              ))}
+                            </div>
+                          </article>
+                        ))}
+                      </div>
+                    </>
+                  ) : null}
                 </section>
 
                 <section className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.25fr)_minmax(0,0.75fr)]">
