@@ -1,6 +1,6 @@
 import { CalendarDays, ChevronDown, LogOut, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { AI_KNOWLEDGE_SLUG, PRIMARY_AUDIENCES_SLUG, PRIMARY_REVIEWS_SLUG, SUBPAGE_NAVIGATION_LOCKED, isPageAvailable, isWebsiteNavigationSlug, pageLinkProps, navigateApp, routes } from "../routing";
+import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
@@ -188,15 +188,8 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                   const props = pageLinkProps(page.id);
                   const available = Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
-                  const isWebsiteLocked = Boolean(websiteLock?.blocking && isWebsiteNavigationSlug(page.id));
-                  const supportsUnlockedSubpages = section.label === WEBSITE_AND_COMMERCE_LABEL || section.label === GOOGLE_BUSINESS_LABEL || section.label === "Calendar";
-                  const isDropdownLinkLocked = (SUBPAGE_NAVIGATION_LOCKED
-                    && !supportsUnlockedSubpages
-                    && page.id !== "smartly-shore-1468"
-                    && page.id !== PRIMARY_AUDIENCES_SLUG
-                    && page.id !== AI_KNOWLEDGE_SLUG
-                    && page.id !== PRIMARY_REVIEWS_SLUG) || isWebsiteLocked || !available;
-                  const lockedLabel = isWebsiteLocked ? websiteLockText : "Navigation-Link gesperrt";
+                  const isDropdownLinkLocked = !available;
+                  const lockedLabel = "Navigation-Link gesperrt";
                   return (
                     <a
                       key={page.id}
