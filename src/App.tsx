@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import { ArrowLeftRight } from "lucide-react";
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { pages, type PageDefinition } from "./pages-manifest";
@@ -20,11 +20,12 @@ import {
 } from "./api/session";
 import { useLuluApp } from "./api/LuluAppContext";
 import { BillingOnboarding } from "./components/BillingOnboarding";
-import AdminBillingPage from "./pages/admin-billing-overview-9901/App";
 import { Directory } from "./app/Directory";
 import { PageRoute } from "./app/PageRoute";
 import { availablePages } from "./app/page-registry";
 import { PageErrorBoundary } from "./PageErrorBoundary";
+
+const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
 const EMAIL_PAGE: PageDefinition = {
   id: "lulu-email-workspace",
@@ -50,7 +51,9 @@ function AdminBillingRoute() {
   if (currentUser.role !== "admin" || currentUser.email.trim().toLowerCase() !== "lulu.ai.cn@gmail.com") return <Navigate replace to="/not-found" />;
   return (
     <PageErrorBoundary pageName="admin-billing-overview-9901">
-      <AdminBillingPage />
+      <Suspense fallback={<main role="status" className="page-frame grid min-h-screen place-items-center">Loading admin panel…</main>}>
+        <AdminBillingPage />
+      </Suspense>
     </PageErrorBoundary>
   );
 }

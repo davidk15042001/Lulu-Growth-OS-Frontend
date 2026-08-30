@@ -26,6 +26,72 @@ const appliedAttributes = new WeakMap<Element, Map<string, string>>();
 const dynamicPatterns = new WeakMap<Record<string, string>, Array<{ regex: RegExp; translation: string }>>();
 const translatableAttributes = ["aria-label", "placeholder", "title"] as const;
 
+function applyTranslationsToSubtree(root: Node, dictionary: Record<string, string>) {
+  const translateElementAttributes = (element: Element) => {
+    if (excluded(element)) return;
+    for (const attribute of translatableAttributes) {
+      const current = element.getAttribute(attribute);
+      if (!current) continue;
+      let originals = originalAttributes.get(element);
+      let applied = appliedAttributes.get(element);
+      const previousOriginal = originals?.get(attribute);
+      const previousApplied = applied?.get(attribute);
+      const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
+      if (!originals) { originals = new Map(); originalAttributes.set(element, originals); }
+      if (!applied) { applied = new Map(); appliedAttributes.set(element, applied); }
+      originals.set(attribute, original);
+      const translated = lookup(dictionary, original.trim());
+      const next = translated ?? original;
+      element.setAttribute(attribute, next);
+      applied.set(attribute, next);
+    }
+  };
+
+  if (root.nodeType === Node.TEXT_NODE) {
+    const text = root as Text;
+    if (!excluded(text.parentElement)) {
+      const current = text.data;
+      const previousOriginal = originalText.get(text);
+      const previousApplied = appliedText.get(text);
+      const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
+      originalText.set(text, original);
+      const key = original.trim();
+      const translated = lookup(dictionary, key);
+      const next = translated ? `${original.match(/^\s*/)?.[0] ?? ""}${translated}${original.match(/\s*$/)?.[0] ?? ""}` : original;
+      text.data = next;
+      appliedText.set(text, next);
+    }
+    return;
+  }
+
+  if (root.nodeType !== Node.ELEMENT_NODE) return;
+
+  const element = root as Element;
+  translateElementAttributes(element);
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+  let node: Node | null = walker.currentNode;
+  while (node) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node as Text;
+      if (!excluded(text.parentElement)) {
+        const current = text.data;
+        const previousOriginal = originalText.get(text);
+        const previousApplied = appliedText.get(text);
+        const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
+        originalText.set(text, original);
+        const key = original.trim();
+        const translated = lookup(dictionary, key);
+        const next = translated ? `${original.match(/^\s*/)?.[0] ?? ""}${translated}${original.match(/\s*$/)?.[0] ?? ""}` : original;
+        text.data = next;
+        appliedText.set(text, next);
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE && node !== element) {
+      translateElementAttributes(node as Element);
+    }
+    node = walker.nextNode();
+  }
+}
+
 function initialLanguage(): LanguageCode {
   try {
     const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
@@ -79,43 +145,7 @@ async function loadDictionary(language: LanguageCode) {
 }
 
 function applyStaticTranslations(root: HTMLElement, language: LanguageCode, dictionary = loadedTables[language] ?? {}) {
-  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-  let node = walker.nextNode();
-  while (node) {
-    const text = node as Text;
-    if (!excluded(text.parentElement)) {
-      const current = text.data;
-      const previousOriginal = originalText.get(text);
-      const previousApplied = appliedText.get(text);
-      const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
-      originalText.set(text, original);
-      const key = original.trim();
-      const translated = lookup(dictionary, key);
-      const next = translated ? `${original.match(/^\s*/)?.[0] ?? ""}${translated}${original.match(/\s*$/)?.[0] ?? ""}` : original;
-      text.data = next;
-      appliedText.set(text, next);
-    }
-    node = walker.nextNode();
-  }
-  root.querySelectorAll("*").forEach((element) => {
-    if (excluded(element)) return;
-    for (const attribute of translatableAttributes) {
-      const current = element.getAttribute(attribute);
-      if (!current) continue;
-      let originals = originalAttributes.get(element);
-      let applied = appliedAttributes.get(element);
-      const previousOriginal = originals?.get(attribute);
-      const previousApplied = applied?.get(attribute);
-      const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
-      if (!originals) { originals = new Map(); originalAttributes.set(element, originals); }
-      if (!applied) { applied = new Map(); appliedAttributes.set(element, applied); }
-      originals.set(attribute, original);
-      const translated = lookup(dictionary, original.trim());
-      const next = translated ?? original;
-      element.setAttribute(attribute, next);
-      applied.set(attribute, next);
-    }
-  });
+  applyTranslationsToSubtree(root, dictionary);
 }
 
 export function useLanguage() {
@@ -164,9 +194,26 @@ export function GlobalLanguageSwitcher() {
       translate();
       window.dispatchEvent(new Event(LANGUAGE_LOADED_EVENT));
     });
-    const observer = new MutationObserver(() => {
+    const observer = new MutationObserver((mutations) => {
       window.clearTimeout(timer.current);
-      timer.current = window.setTimeout(translate, 50);
+      timer.current = window.setTimeout(() => {
+        const dictionary = loadedTables[language] ?? {};
+        const seen = new Set<Node>();
+        for (const mutation of mutations) {
+          if (mutation.type === "characterData" && mutation.target) {
+            applyTranslationsToSubtree(mutation.target, dictionary);
+            continue;
+          }
+          if (mutation.type === "attributes" && mutation.target instanceof Element) {
+            applyTranslationsToSubtree(mutation.target, dictionary);
+          }
+          mutation.addedNodes.forEach((node) => {
+            if (seen.has(node)) return;
+            seen.add(node);
+            applyTranslationsToSubtree(node, dictionary);
+          });
+        }
+      }, 50);
     });
     observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...translatableAttributes] });
     return () => { active = false; observer.disconnect(); window.clearTimeout(timer.current); };

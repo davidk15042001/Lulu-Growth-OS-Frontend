@@ -17,6 +17,14 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: 'index.html',
+      output: {
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined
+          if (id.includes('lucide-react')) return 'icons'
+          if (id.includes('recharts') || id.includes('victory') || id.includes('d3-')) return 'charts'
+          return 'vendor'
+        },
+      },
     },
   },
 })
