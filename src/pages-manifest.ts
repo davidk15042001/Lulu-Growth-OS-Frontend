@@ -370,7 +370,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261066",
-    "name": "Lulu AI — Ecommerce — Carts",
+    "name": "Lulu AI — Website & Commerce — Carts",
     "slug": "serenely-sand-9226",
     "generatedName": "serenely-sand-9226",
     "selectedRevisionId": "438651361618456576",
@@ -378,7 +378,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261141",
-    "name": "Lulu AI — Ecommerce — Carts & Abandoned Carts",
+    "name": "Lulu AI — Website & Commerce — Carts & Abandoned Carts",
     "slug": "wildly-time-4260",
     "generatedName": "wildly-time-4260",
     "selectedRevisionId": "438651363061305344",
@@ -386,7 +386,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261106",
-    "name": "Lulu AI — Ecommerce — Categories",
+    "name": "Lulu AI — Website & Commerce — Categories",
     "slug": "richly-forest-5832",
     "generatedName": "richly-forest-5832",
     "selectedRevisionId": "438651380069187584",
@@ -394,7 +394,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261122",
-    "name": "Lulu AI — Ecommerce — Customers",
+    "name": "Lulu AI — Website & Commerce — Customers",
     "slug": "fancy-ground-8040",
     "generatedName": "fancy-ground-8040",
     "selectedRevisionId": "438651417998299136",
@@ -402,7 +402,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261063",
-    "name": "Lulu AI — Ecommerce — Discounts & Promotions",
+    "name": "Lulu AI — Website & Commerce — Discounts & Promotions",
     "slug": "sharply-sky-4161",
     "generatedName": "sharply-sky-4161",
     "selectedRevisionId": "438651415301361664",
@@ -410,7 +410,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261127",
-    "name": "Lulu AI — Ecommerce — Inventory",
+    "name": "Lulu AI — Website & Commerce — Inventory",
     "slug": "smart-village-1099",
     "generatedName": "smart-village-1099",
     "selectedRevisionId": "438651442086178816",
@@ -418,7 +418,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461901455381",
-    "name": "Lulu AI — Ecommerce — Orders",
+    "name": "Lulu AI — Website & Commerce — Orders",
     "slug": "mightily-shore-7108",
     "generatedName": "mightily-shore-7108",
     "selectedRevisionId": "438651469487575040",
@@ -426,7 +426,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461901455365",
-    "name": "Lulu AI — Ecommerce — Payments",
+    "name": "Lulu AI — Website & Commerce — Payments",
     "slug": "merry-castle-3260",
     "generatedName": "merry-castle-3260",
     "selectedRevisionId": "438651484993888256",
@@ -434,7 +434,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261076",
-    "name": "Lulu AI — Ecommerce — Returns & Refunds",
+    "name": "Lulu AI — Website & Commerce — Returns & Refunds",
     "slug": "dreamy-shade-5445",
     "generatedName": "dreamy-shade-5445",
     "selectedRevisionId": "438651498545713152",
@@ -442,7 +442,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461893066817",
-    "name": "Lulu AI — Ecommerce — Reviews",
+    "name": "Lulu AI — Website & Commerce — Reviews",
     "slug": "daring-brook-9034",
     "generatedName": "daring-brook-9034",
     "selectedRevisionId": "438651520486113280",
@@ -450,7 +450,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261139",
-    "name": "Lulu AI — Ecommerce — Shipping",
+    "name": "Lulu AI — Website & Commerce — Shipping",
     "slug": "quietly-moon-4186",
     "generatedName": "quietly-moon-4186",
     "selectedRevisionId": "438651520561590272",
@@ -458,7 +458,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461901455385",
-    "name": "Lulu AI — Ecommerce Collections",
+    "name": "Lulu AI — Website & Commerce — Collections",
     "slug": "safely-air-9334",
     "generatedName": "safely-air-9334",
     "selectedRevisionId": "438651383332347904",
@@ -466,7 +466,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261068",
-    "name": "Lulu AI — Ecommerce Coupons",
+    "name": "Lulu AI — Website & Commerce — Coupons",
     "slug": "merry-cliff-8846",
     "generatedName": "merry-cliff-8846",
     "selectedRevisionId": "438651419332067328",
@@ -474,7 +474,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261143",
-    "name": "Lulu AI — Ecommerce Intelligence",
+    "name": "Lulu AI — Website & Commerce — Intelligence",
     "slug": "bold-ocean-5847",
     "generatedName": "bold-ocean-5847",
     "selectedRevisionId": "438651434439966720",
@@ -482,7 +482,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461901455390",
-    "name": "Lulu AI — Ecommerce Overview",
+    "name": "Lulu AI — Website & Commerce — Overview",
     "slug": "smart-ocean-3898",
     "generatedName": "smart-ocean-3898",
     "selectedRevisionId": "438651468598353920",
@@ -490,7 +490,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261058",
-    "name": "Lulu AI — Ecommerce Products",
+    "name": "Lulu AI — Website & Commerce — Products",
     "slug": "nicely-ocean-1051",
     "generatedName": "nicely-ocean-1051",
     "selectedRevisionId": "438651490035453952",
@@ -498,7 +498,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261056",
-    "name": "Lulu AI — Ecommerce Shipping & Fulfillment",
+    "name": "Lulu AI — Website & Commerce — Shipping & Fulfillment",
     "slug": "purely-dusk-2409",
     "generatedName": "purely-dusk-2409",
     "selectedRevisionId": "438651536604815360",
@@ -506,7 +506,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461901455382",
-    "name": "Lulu AI — Ecommerce Store Performance",
+    "name": "Lulu AI — Website & Commerce — Store Performance",
     "slug": "merry-land-6169",
     "generatedName": "merry-land-6169",
     "selectedRevisionId": "438651541264695296",
@@ -514,7 +514,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461893066816",
-    "name": "Lulu AI — Ecommerce Stores",
+    "name": "Lulu AI — Website & Commerce — Stores",
     "slug": "nice-year-6253",
     "generatedName": "nice-year-6253",
     "selectedRevisionId": "438651549158354944",
@@ -522,7 +522,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261078",
-    "name": "Lulu AI — Ecommerce Subscriptions",
+    "name": "Lulu AI — Website & Commerce — Subscriptions",
     "slug": "safely-dawn-7731",
     "generatedName": "safely-dawn-7731",
     "selectedRevisionId": "438651569706246144",
@@ -530,7 +530,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261061",
-    "name": "Lulu AI — Ecommerce Taxes",
+    "name": "Lulu AI — Website & Commerce — Taxes",
     "slug": "soft-hill-4757",
     "generatedName": "soft-hill-4757",
     "selectedRevisionId": "438651569886605312",
