@@ -45,8 +45,6 @@ const navigationFreePaths = new Set([
 
 const MINIMAL_AGENT_PAGE_EXCEPTIONS = new Set([
   "fancily-leaf-1766",
-  "bright-meadow-7537",
-  "finely-garden-9221",
   "fresh-moon-5374",
   "fresh-tide-9404",
 ]);

@@ -59,7 +59,7 @@ export function MinimalAgentWorkspacePage({
   );
 
   const sectionLinks = useMemo(
-    () => (section?.pages ?? []).filter((page) => page.pageId !== agentContract.pageId).slice(0, 8),
+    () => (section?.pages ?? []).filter((page) => page.pageId !== agentContract.pageId).slice(0, 6),
     [agentContract.pageId, section],
   );
 
@@ -68,7 +68,7 @@ export function MinimalAgentWorkspacePage({
       records.items
         .slice()
         .sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt))
-        .slice(0, 10),
+        .slice(0, 6),
     [records.items],
   );
 
@@ -185,32 +185,29 @@ export function MinimalAgentWorkspacePage({
               ) : recentRecords.length === 0 ? (
                 <p className="mt-4 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">{t("No live records are available for this page yet.")}</p>
               ) : (
-                <div className="mt-4 overflow-x-auto">
-                  <table className="w-full min-w-[680px] text-left text-sm">
-                    <thead className="border-b border-border text-xs uppercase tracking-[0.12em] text-muted-foreground">
-                      <tr>
-                        <th className="pb-3 font-medium">{t("Record")}</th>
-                        <th className="pb-3 font-medium">{t("Status")}</th>
-                        <th className="pb-3 font-medium">{t("Stage")}</th>
-                        <th className="pb-3 font-medium">{t("Value")}</th>
-                        <th className="pb-3 font-medium">{t("Updated")}</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {recentRecords.map((record) => (
-                        <tr key={record.id}>
-                          <td className="py-3">
-                            <div className="font-medium text-foreground">{record.name}</div>
-                            <div className="text-xs text-muted-foreground">{record.description ?? t("No additional detail")}</div>
-                          </td>
-                          <td className="py-3 text-foreground">{record.status || "—"}</td>
-                          <td className="py-3 text-muted-foreground">{record.stage ?? "—"}</td>
-                          <td className="py-3 text-foreground">{record.valueAmount ?? "—"} {record.currency ?? ""}</td>
-                          <td className="py-3 text-muted-foreground">{formatDate(record.updatedAt)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="mt-4 grid gap-3">
+                  {recentRecords.map((record) => (
+                    <article key={record.id} className="rounded-lg border border-border bg-background/50 px-4 py-3">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium text-foreground">{record.name}</div>
+                          <div className="mt-1 text-sm text-muted-foreground">{record.description ?? t("No additional detail")}</div>
+                        </div>
+                        <div className="text-right text-xs text-muted-foreground">
+                          <div>{record.status || "—"}</div>
+                          <div className="mt-1">{record.stage ?? "—"}</div>
+                        </div>
+                      </div>
+                      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                        <span>
+                          {t("Value")}: {record.valueAmount ?? "—"} {record.currency ?? ""}
+                        </span>
+                        <span>
+                          {t("Updated")}: {formatDate(record.updatedAt)}
+                        </span>
+                      </div>
+                    </article>
+                  ))}
                 </div>
               )
             ) : (
