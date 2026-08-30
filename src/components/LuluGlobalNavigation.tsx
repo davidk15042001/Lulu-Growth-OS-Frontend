@@ -1,4 +1,4 @@
-import { ChevronDown, LogOut, RefreshCw } from "lucide-react";
+import { CalendarDays, ChevronDown, LogOut, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { PRIMARY_AUDIENCES_SLUG, SUBPAGE_NAVIGATION_LOCKED, isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
@@ -111,6 +111,21 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
       <nav className="lulu-global-navigation__sections">
         {navigationSections.map((section) => {
           const isActiveSection = section.pages.some((page) => page.id === activeSlug);
+          if (section.label === "Calendar") {
+            const calendarProps = pageLinkProps("lulu-calendar-portal-9014");
+            const isCalendarActive = activeSlug === "lulu-calendar-portal-9014" || activeSlug.startsWith("calendar-");
+            return (
+              <a
+                key={section.label}
+                {...calendarProps}
+                className={`lulu-global-navigation__primary-link${isCalendarActive ? " is-active" : ""}`}
+                aria-current={isCalendarActive ? "page" : undefined}
+              >
+                <CalendarDays aria-hidden="true" size={16} />
+                <span>{t("Calendar")}</span>
+              </a>
+            );
+          }
           return (
             <details key={section.label} open={isActiveSection}>
               <summary
