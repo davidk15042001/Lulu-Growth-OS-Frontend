@@ -16,6 +16,7 @@ const OVERVIEW_RESOURCE_BY_PAGE_ID: Readonly<Record<string, string>> = {
   "fine-park-8079": "sales_deals",
   "eagerly-winter-3152": "marketing_campaigns",
   "smart-ocean-3898": "ecommerce_orders",
+  "pure-minute-5446": "finance_invoices",
 };
 
 function formatDate(value: string | null | undefined) {
@@ -27,6 +28,7 @@ function formatDate(value: string | null | undefined) {
 
 function resolveResourceType(slug: string, contract: PageContract | undefined) {
   if (contract?.kind === "resource") return contract.resourceType;
+  if (contract?.kind === "billing") return "finance_invoices";
   return OVERVIEW_RESOURCE_BY_PAGE_ID[slug] ?? RESOURCE_BY_SLUG[slug] ?? null;
 }
 

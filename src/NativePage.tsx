@@ -51,8 +51,6 @@ const MINIMAL_AGENT_PAGE_EXCEPTIONS = new Set([
   "breezily-wood-5980",
   "daring-brook-9034",
   "fresh-tide-9404",
-  "glad-coast-1428",
-  "pure-minute-5446",
 ]);
 
 function shouldUseMinimalAgentPage(
@@ -66,7 +64,14 @@ function shouldUseMinimalAgentPage(
   if (slug === "lulu-website-portal-9012" || slug === "lulu-email-portal-9013" || slug === "lulu-calendar-portal-9014") {
     return effectiveSlug === slug;
   }
-  return contract?.kind === "workspace" || contract?.kind === "resource" || contract?.kind === "metrics" || contract?.kind === "ai";
+  return (
+    contract?.kind === "workspace" ||
+    contract?.kind === "resource" ||
+    contract?.kind === "metrics" ||
+    contract?.kind === "ai" ||
+    contract?.kind === "billing" ||
+    contract?.kind === "integrations"
+  );
 }
 
 function pageSlugFromPath(pathname: string) {
