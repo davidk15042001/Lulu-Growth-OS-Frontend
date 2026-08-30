@@ -493,69 +493,6 @@ export const luluDropdownNavigation = [{
     "label": "Ad Accounts & Platform Management"
   }]
 }, {
-  "label": "Ecommerce",
-  "pages": [{
-    "id": "smart-ocean-3898",
-    "label": "Overview"
-  }, {
-    "id": "nice-year-6253",
-    "label": "Stores"
-  }, {
-    "id": "nicely-ocean-1051",
-    "label": "Products"
-  }, {
-    "id": "richly-forest-5832",
-    "label": "Categories"
-  }, {
-    "id": "mightily-shore-7108",
-    "label": "Orders"
-  }, {
-    "id": "fancy-ground-8040",
-    "label": "Customers"
-  }, {
-    "id": "serenely-sand-9226",
-    "label": "Carts"
-  }, {
-    "id": "smart-village-1099",
-    "label": "Inventory"
-  }, {
-    "id": "dreamy-shade-5445",
-    "label": "Returns & Refunds"
-  }, {
-    "id": "daring-brook-9034",
-    "label": "Reviews"
-  }, {
-    "id": "sharply-sky-4161",
-    "label": "Discounts & Promotions"
-  }, {
-    "id": "wildly-time-4260",
-    "label": "Carts & Abandoned Carts"
-  }, {
-    "id": "quietly-moon-4186",
-    "label": "Shipping"
-  }, {
-    "id": "merry-castle-3260",
-    "label": "Payments"
-  }, {
-    "id": "merry-cliff-8846",
-    "label": "Coupons"
-  }, {
-    "id": "safely-dawn-7731",
-    "label": "Subscriptions"
-  }, {
-    "id": "purely-dusk-2409",
-    "label": "Shipping & Fulfillment"
-  }, {
-    "id": "soft-hill-4757",
-    "label": "Taxes"
-  }, {
-    "id": "safely-air-9334",
-    "label": "Collections"
-  }, {
-    "id": "merry-land-6169",
-    "label": "Store Performance"
-  }]
-}, {
   "label": "Website & Commerce",
   "pages": [{
     "id": "lulu-website-portal-9012",
