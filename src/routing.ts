@@ -59,6 +59,7 @@ export const GOOGLE_BUSINESS_NAVIGATION_SLUGS = new Set([
 const EXPLICITLY_UNLOCKED_SUBPAGE_SLUGS = new Set([
   "smartly-shore-1468",
   PRIMARY_AUDIENCES_SLUG,
+  "rich-field-1880",
   PRIMARY_REVIEWS_SLUG,
 ]);
 
