@@ -50,6 +50,16 @@ function dayKey(value: string) {
   return Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : value;
 }
 
+function eventSources(event: CalendarEvent): NonNullable<CalendarEvent['sources']> {
+  return event.sources?.length ? event.sources : [{
+    accountId: event.accountId,
+    provider: event.provider,
+    sourceName: event.sourceName,
+    accountEmail: event.accountEmail,
+    accountDisplayName: event.accountDisplayName,
+  }];
+}
+
 export default function CalendarPortal() {
   const { selectedWorkspace, permissions, loading: appLoading } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? null;
@@ -59,7 +69,6 @@ export default function CalendarPortal() {
   const [accounts, setAccounts] = useState<CalendarAccount[]>([]);
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [summary, setSummary] = useState<{ connectedAccounts: number; syncedAccounts: number; upcomingEvents: number; providers: CalendarProvider[] } | null>(null);
-  const [accountId, setAccountId] = useState('');
   const [query, setQuery] = useState('');
   const [busy, setBusy] = useState(true);
   const [actionBusy, setActionBusy] = useState(false);
@@ -71,15 +80,13 @@ export default function CalendarPortal() {
   const loadOverview = useCallback(async () => {
     if (!workspaceId) return;
     const result = await calendarApi.overview(workspaceId, {
-      ...(accountId ? { accountId } : {}),
       ...(query.trim() ? { q: query.trim() } : {}),
       limit: 300,
     });
     setAccounts(result.data.accounts);
     setEvents(result.data.events);
     setSummary(result.data.summary);
-    setAccountId((current) => result.data.accounts.some((account) => account.id === current) ? current : '');
-  }, [workspaceId, accountId, query]);
+  }, [workspaceId, query]);
 
   useEffect(() => {
     if (!workspaceId) { if (!appLoading) setBusy(false); return; }
@@ -135,6 +142,19 @@ export default function CalendarPortal() {
     }
   }
 
+  async function syncAllAccounts() {
+    if (!workspaceId) return;
+    const syncableAccounts = accounts.filter((account) => account.status !== 'reauth_required');
+    if (!syncableAccounts.length) return;
+    setError(null);
+    const results = await Promise.allSettled(syncableAccounts.map((account) => calendarApi.startSync(workspaceId, account.id)));
+    const queuedJobs = results.flatMap((result) => result.status === 'fulfilled' ? [result.value.data] : []);
+    setSyncJobs((value) => ({ ...value, ...Object.fromEntries(queuedJobs.map((job) => [job.accountId, job])) }));
+    if (queuedJobs.length) setNotice(`${queuedJobs.length} calendar ${queuedJobs.length === 1 ? 'source' : 'sources'} queued for synchronization.`);
+    const failed = results.find((result) => result.status === 'rejected');
+    if (failed?.status === 'rejected') setError(getFriendlyErrorMessage(failed.reason, 'Some calendar sources could not be synchronized.'));
+  }
+
   async function connectOAuth(provider: 'google' | 'microsoft') {
     if (!workspaceId) return;
     setActionBusy(true);
@@ -157,8 +177,8 @@ export default function CalendarPortal() {
     return Array.from(buckets.entries()).map(([key, items]) => ({ key, label: dayLabel(items[0]?.startAt ?? key, language), items }));
   }, [events, language]);
 
-  const selectedAccount = accounts.find((account) => account.id === accountId) ?? null;
-  const syncing = selectedAccount ? ['queued', 'running'].includes(syncJobs[selectedAccount.id]?.status ?? '') : false;
+  const syncableAccounts = accounts.filter((account) => account.status !== 'reauth_required');
+  const synchronizing = syncableAccounts.some((account) => ['queued', 'running'].includes(syncJobs[account.id]?.status ?? ''));
 
   if (appLoading || busy && !summary) return <main className="calendar-page calendar-page--center" role="status"><LoaderCircle className="spin" /><p>{t('Loading calendar workspace…')}</p></main>;
   if (!workspaceId) return <main className="calendar-page calendar-page--center"><CircleAlert /><h1>{t('No workspace selected')}</h1><p>{t('Select a workspace before opening the calendar.')}</p></main>;
@@ -175,8 +195,7 @@ export default function CalendarPortal() {
           <a href="/app/calendar" className={section === 'overview' ? 'is-active' : undefined}>Overview</a>
           <a href="/app/calendar?section=settings" className={section === 'settings' ? 'is-active' : undefined}>Settings</a>
         </nav>
-        {!!accounts.length && <select value={accountId} onChange={(event) => setAccountId(event.target.value)} aria-label="Calendar account"><option value="">All accounts</option>{accounts.map((account) => <option key={account.id} value={account.id}>{account.displayName || account.emailAddress || providerLabel(account.provider)}</option>)}</select>}
-        <button type="button" className="calendar-button calendar-button--secondary" disabled={syncing || !selectedAccount} onClick={() => selectedAccount && void syncAccount(selectedAccount.id)}><RefreshCw size={16} className={syncing ? 'spin' : ''} />{syncing ? 'Synchronizing…' : 'Sync now'}</button>
+        <button type="button" className="calendar-button calendar-button--secondary" disabled={!permissions.canEdit || synchronizing || !syncableAccounts.length} onClick={() => void syncAllAccounts()}><RefreshCw size={16} className={synchronizing ? 'spin' : ''} />{synchronizing ? 'Synchronizing calendars…' : 'Sync all calendars'}</button>
         {permissions.canEdit && <a className="calendar-button" href="/app/calendar?section=settings"><Link2 size={16} />Connections</a>}
       </div>
     </header>
@@ -186,7 +205,7 @@ export default function CalendarPortal() {
 
     {!accounts.length ? <EmptyState canEdit={permissions.canEdit} busy={actionBusy} onGoogle={() => void connectOAuth('google')} onMicrosoft={() => void connectOAuth('microsoft')} onCalendly={() => setTokenModal({ provider: 'calendly' })} onCalcom={() => setTokenModal({ provider: 'calcom' })} /> : section === 'settings'
       ? <SettingsView accounts={accounts} jobs={syncJobs} canEdit={permissions.canEdit} onGoogle={() => void connectOAuth('google')} onMicrosoft={() => void connectOAuth('microsoft')} onCalendly={() => setTokenModal({ provider: 'calendly' })} onCalcom={() => setTokenModal({ provider: 'calcom' })} onSync={(id) => void syncAccount(id)} onDisconnect={async (id) => { if (!workspaceId || !window.confirm('Disconnect this calendar account?')) return; await calendarApi.disconnect(workspaceId, id); await loadOverview(); }} language={language} />
-      : <OverviewView accounts={accounts} events={events} groupedEvents={groupedEvents} summary={summary} selectedAccountId={accountId} onAccount={setAccountId} query={query} onQuery={setQuery} language={language} />}
+      : <OverviewView accounts={accounts} events={events} groupedEvents={groupedEvents} summary={summary} query={query} onQuery={setQuery} language={language} />}
 
     {tokenModal && <TokenModal workspaceId={workspaceId} provider={tokenModal.provider} busy={actionBusy} setBusy={setActionBusy} onClose={() => setTokenModal(null)} onConnected={async () => { setTokenModal(null); await loadOverview(); setNotice(`${providerLabel(tokenModal.provider)} connected.`); }} onError={setError} />}
   </main>;
@@ -196,8 +215,12 @@ function EmptyState({ canEdit, busy, onGoogle, onMicrosoft, onCalendly, onCalcom
   return <section className="calendar-empty"><div className="calendar-empty__icon"><CalendarDays size={30} /></div><h2>Connect your first calendar</h2><p>Pull availability, meetings and bookings into a single workspace view.</p><div className="calendar-provider-grid"><button disabled={!canEdit || busy} onClick={onGoogle}><strong>Google Calendar</strong><span>OAuth connection</span></button><button disabled={!canEdit || busy} onClick={onMicrosoft}><strong>Microsoft 365</strong><span>OAuth connection</span></button><button disabled={!canEdit || busy} onClick={onCalendly}><strong>Calendly</strong><span>API token connection</span></button><button disabled={!canEdit || busy} onClick={onCalcom}><strong>Cal.com</strong><span>API key connection</span></button></div>{!canEdit && <small>A workspace editor must connect calendar providers.</small>}</section>;
 }
 
-function OverviewView({ accounts, events, groupedEvents, summary, selectedAccountId, onAccount, query, onQuery, language }: { accounts: CalendarAccount[]; events: CalendarEvent[]; groupedEvents: Array<{ key: string; label: string; items: CalendarEvent[] }>; summary: { connectedAccounts: number; syncedAccounts: number; upcomingEvents: number; providers: CalendarProvider[] } | null; selectedAccountId: string; onAccount: (value: string) => void; query: string; onQuery: (value: string) => void; language: string }) {
+function OverviewView({ accounts, events, groupedEvents, summary, query, onQuery, language }: { accounts: CalendarAccount[]; events: CalendarEvent[]; groupedEvents: Array<{ key: string; label: string; items: CalendarEvent[] }>; summary: { connectedAccounts: number; syncedAccounts: number; upcomingEvents: number; providers: CalendarProvider[] } | null; query: string; onQuery: (value: string) => void; language: string }) {
   return <>
+    <section className="calendar-unified-banner">
+      <div><CalendarDays size={22} /><div><strong>Lulu calendar</strong><span>All connected calendars are combined automatically in this timeline.</span></div></div>
+      <div className="calendar-source-list">{accounts.map((account) => <span key={account.id}>{providerLabel(account.provider)} · {account.displayName || account.emailAddress || 'Calendar'}</span>)}</div>
+    </section>
     <section className="calendar-kpis">
       <article><span>Connected accounts</span><strong>{summary?.connectedAccounts ?? accounts.length}</strong></article>
       <article><span>Synced accounts</span><strong>{summary?.syncedAccounts ?? 0}</strong></article>
@@ -206,11 +229,10 @@ function OverviewView({ accounts, events, groupedEvents, summary, selectedAccoun
     </section>
     <section className="calendar-toolbar">
       <label className="calendar-search"><Search size={16} /><input value={query} onChange={(event) => onQuery(event.target.value)} placeholder="Search meetings, event types or descriptions" /></label>
-      <select value={selectedAccountId} onChange={(event) => onAccount(event.target.value)} aria-label="Filter by account"><option value="">All accounts</option>{accounts.map((account) => <option key={account.id} value={account.id}>{account.displayName || account.emailAddress || providerLabel(account.provider)}</option>)}</select>
     </section>
     <section className="calendar-timeline">
       {!events.length && <div className="calendar-empty-state"><CalendarDays size={28} /><h2>No synced calendar items yet</h2><p>Connect an account and run a sync to populate your timeline.</p></div>}
-      {groupedEvents.map((group) => <article key={group.key} className="calendar-day"><header><h2>{group.label}</h2><span>{group.items.length} events</span></header><div className="calendar-event-list">{group.items.map((event) => <div key={event.id} className="calendar-event"><div className="calendar-event__time"><strong>{dateLabel(event.startAt, language)}</strong><span>{providerLabel(event.provider)}</span></div><div className="calendar-event__content"><div><h3>{event.title}</h3><p>{event.sourceName || event.accountDisplayName || event.accountEmail || providerLabel(event.provider)}</p></div><div className="calendar-event__meta"><span>{event.location || event.timezone || 'No location'}</span><span>{event.attendeeCount ? `${event.attendeeCount} attendees` : 'No attendees synced'}</span><span>{event.status}</span></div>{event.description && <small>{event.description}</small>}{event.meetingUrl && <a href={event.meetingUrl} target="_blank" rel="noreferrer"><ExternalLink size={14} />Open meeting link</a>}</div></div>)}</div></article>)}
+      {groupedEvents.map((group) => <article key={group.key} className="calendar-day"><header><h2>{group.label}</h2><span>{group.items.length} events</span></header><div className="calendar-event-list">{group.items.map((event) => { const sources = eventSources(event); return <div key={event.id} className="calendar-event"><div className="calendar-event__time"><strong>{dateLabel(event.startAt, language)}</strong><div className="calendar-event__sources">{sources.map((source) => <span key={source.accountId}>{providerLabel(source.provider)}</span>)}</div></div><div className="calendar-event__content"><div><h3>{event.title}</h3><p>{sources.map((source) => source.sourceName || source.accountDisplayName || source.accountEmail || providerLabel(source.provider)).join(' · ')}</p></div><div className="calendar-event__meta"><span>{event.location || event.timezone || 'No location'}</span><span>{event.attendeeCount ? `${event.attendeeCount} attendees` : 'No attendees synced'}</span><span>{event.status}</span>{sources.length > 1 && <span>Combined from {sources.length} calendars</span>}</div>{event.description && <small>{event.description}</small>}{event.meetingUrl && <a href={event.meetingUrl} target="_blank" rel="noreferrer"><ExternalLink size={14} />Open meeting link</a>}</div></div>; })}</div></article>)}
     </section>
   </>;
 }

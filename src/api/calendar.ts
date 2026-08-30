@@ -43,6 +43,13 @@ export type CalendarEvent = {
   updatedAt: string;
   accountEmail: string | null;
   accountDisplayName: string | null;
+  sources?: Array<{
+    accountId: string;
+    provider: CalendarProvider;
+    sourceName: string | null;
+    accountEmail: string | null;
+    accountDisplayName: string | null;
+  }>;
 };
 export type CalendarSyncJob = {
   id: string;
