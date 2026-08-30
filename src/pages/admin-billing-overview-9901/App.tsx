@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getFriendlyErrorMessage, requestApi } from "../../api/client";
+import { DEFAULT_LANGUAGE, isAvailableLanguageCode, LANGUAGE_STORAGE_KEY } from "../../i18n/languages";
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
   Plug, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
@@ -175,10 +176,35 @@ type DashboardStats = {
 };
 
 const money = (minor: string | number | null) => `${(Number(minor || 0) / 100).toFixed(2)} CNY`;
+const DATE_LOCALE_BY_LANGUAGE = {
+  en: "en-US",
+  de: "de-DE",
+  "zh-CN": "zh-CN",
+} as const;
+
+function mapDateLocale(language: string | null) {
+  if (language === "de") return DATE_LOCALE_BY_LANGUAGE.de;
+  if (language === "zh-CN") return DATE_LOCALE_BY_LANGUAGE["zh-CN"];
+  return DATE_LOCALE_BY_LANGUAGE.en;
+}
+
+function currentDateLocale() {
+  if (typeof window === "undefined") return mapDateLocale(DEFAULT_LANGUAGE);
+  try {
+    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
+    if (isAvailableLanguageCode(stored)) return mapDateLocale(stored);
+    const documentLanguage = document.documentElement.lang || null;
+    if (isAvailableLanguageCode(documentLanguage)) return mapDateLocale(documentLanguage);
+  } catch {
+    /* Browser storage may be unavailable. */
+  }
+  return mapDateLocale(DEFAULT_LANGUAGE);
+}
+
 const date = (value: string | null | undefined) =>
-  value ? new Intl.DateTimeFormat("de-DE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : "—";
+  value ? new Intl.DateTimeFormat(currentDateLocale(), { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : "—";
 const dateOnly = (value: string | null | undefined) =>
-  value ? new Intl.DateTimeFormat("de-DE", { dateStyle: "medium" }).format(new Date(value)) : "—";
+  value ? new Intl.DateTimeFormat(currentDateLocale(), { dateStyle: "medium" }).format(new Date(value)) : "—";
 const monthNow = () => new Date().toISOString().slice(0, 7);
 const sizeMB = (bytes: string | number | null) => `${(Number(bytes || 0) / 1024 / 1024).toFixed(2)} MB`;
 const nameOf = (first: string | null, last: string | null, fallback = "") => {

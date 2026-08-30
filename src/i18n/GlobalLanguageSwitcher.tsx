@@ -14,6 +14,7 @@ const localeLoaders: Partial<Record<LanguageCode, () => Promise<Record<string, s
   "zh-CN": () => import("./locales/zh-CN.json").then((module) => module.default),
 };
 const runtimeOverrideLoaders: Partial<Record<LanguageCode, () => Promise<Record<string, string>>>> = {
+  en: () => import("./runtime-overrides/en.json").then((module) => module.default),
   de: () => import("./runtime-overrides/de.json").then((module) => module.default),
   "zh-CN": () => import("./runtime-overrides/zh-CN.json").then((module) => module.default),
 };

@@ -182,14 +182,15 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                   const props = pageLinkProps(page.id);
                   const available = Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
+                  const isEcommerceLocked = section.label === "Ecommerce" || (section.label === WEBSITE_AND_COMMERCE_LABEL && !isWebsiteNavigationSlug(page.id) && !GOOGLE_BUSINESS_PAGE_IDS.has(page.id));
                   const isWebsiteLocked = Boolean(websiteLock?.blocking && isWebsiteNavigationSlug(page.id));
                   const supportsUnlockedSubpages = section.label === WEBSITE_AND_COMMERCE_LABEL || section.label === GOOGLE_BUSINESS_LABEL || section.label === "Calendar";
-                  const isDropdownLinkLocked = (SUBPAGE_NAVIGATION_LOCKED
+                  const isDropdownLinkLocked = isEcommerceLocked || (SUBPAGE_NAVIGATION_LOCKED
                     && !supportsUnlockedSubpages
                     && page.id !== "smartly-shore-1468"
                     && page.id !== PRIMARY_AUDIENCES_SLUG
                     && page.id !== PRIMARY_REVIEWS_SLUG) || isWebsiteLocked || !available;
-                  const lockedLabel = isWebsiteLocked ? websiteLockText : "Navigation-Link gesperrt";
+                  const lockedLabel = isEcommerceLocked ? "E-Commerce aktuell gesperrt" : isWebsiteLocked ? websiteLockText : "Navigation-Link gesperrt";
                   return (
                     <a
                       key={page.id}
