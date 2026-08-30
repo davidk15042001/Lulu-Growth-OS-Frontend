@@ -48,8 +48,6 @@ const MINIMAL_AGENT_PAGE_EXCEPTIONS = new Set([
   "bright-meadow-7537",
   "finely-garden-9221",
   "fresh-moon-5374",
-  "breezily-wood-5980",
-  "daring-brook-9034",
   "fresh-tide-9404",
 ]);
 
