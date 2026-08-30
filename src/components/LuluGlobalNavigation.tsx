@@ -2,7 +2,6 @@ import { CalendarDays, ChevronDown, LogOut, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { PRIMARY_AUDIENCES_SLUG, PRIMARY_REVIEWS_SLUG, SUBPAGE_NAVIGATION_LOCKED, isPageAvailable, isWebsiteNavigationSlug, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
-import { onboardingApi } from "../api/onboarding";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
@@ -16,18 +15,6 @@ const GOOGLE_BUSINESS_LABEL = "Google Business";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
 const GOOGLE_BUSINESS_PAGE_IDS = new Set(["daring-brook-9034", "fresh-tide-9404", "glad-coast-1428"]);
-const CONNECTED_PLATFORM_STATUSES = new Set(["connected", "syncing"]);
-const WEBSITE_PROVIDER_KEYS = new Set(["wordpress", "webflow"]);
-const ECOMMERCE_PROVIDER_KEYS = new Set(["shopify", "woocommerce"]);
-const ALWAYS_VISIBLE_WEBSITE_PAGE_IDS = new Set([
-  "lulu-website-portal-9012",
-  "website-wordpress-jetpack-9013",
-  "website-webflow-9014",
-]);
-const ALWAYS_VISIBLE_ECOMMERCE_PAGE_IDS = new Set([
-  "smart-ocean-3898",
-  "nice-year-6253",
-]);
 const GOOGLE_BUSINESS_SECTION: NavigationSection = {
   label: GOOGLE_BUSINESS_LABEL,
   pages: [
@@ -74,33 +61,9 @@ const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
 const WEBSITE_JOB_DISPLAY_STATUSES = new Set(["queued", "planning", "generated", "preview", "publishing", "failed", "cancelled"]);
 type StoredWebsiteGeneration = { workspaceId: string; siteId: string; provider: "wordpress" | "webflow"; job: WebsiteGenerationJob };
-type ConnectedNavigationState = {
-  loaded: boolean;
-  websiteConnected: boolean;
-  ecommerceConnected: boolean;
-};
 
 function isBlockingWebsiteJob(job: Pick<WebsiteGenerationJob, "status" | "autoPublish">) {
   return WEBSITE_JOB_RUNNING_STATUSES.has(job.status) || (job.autoPublish !== false && ["generated", "preview"].includes(job.status));
-}
-
-function hasConnectedPlatform(platforms: Array<{ integrationKey: string | null; connectionStatus: string }>, integrationKeys: ReadonlySet<string>) {
-  return platforms.some((platform) => Boolean(platform.integrationKey) && integrationKeys.has(String(platform.integrationKey)) && CONNECTED_PLATFORM_STATUSES.has(platform.connectionStatus));
-}
-
-function shouldShowNavigationPage(
-  sectionLabel: string,
-  pageId: string,
-  activeSlug: string,
-  connectedState: ConnectedNavigationState,
-) {
-  if (pageId === activeSlug) return true;
-  if (sectionLabel !== WEBSITE_AND_COMMERCE_LABEL) return true;
-  if (ALWAYS_VISIBLE_WEBSITE_PAGE_IDS.has(pageId)) return true;
-  if (ALWAYS_VISIBLE_ECOMMERCE_PAGE_IDS.has(pageId)) return true;
-  if (!connectedState.loaded) return false;
-  if (isWebsiteNavigationSlug(pageId)) return connectedState.websiteConnected;
-  return connectedState.ecommerceConnected;
 }
 
 function readWebsiteGenerationLock() {
@@ -134,13 +97,7 @@ function websiteLockLabel(status: string) {
 
 export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
   const t = useTranslation();
-  const workspaceId = getSelectedWorkspaceId();
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
-  const [connectedState, setConnectedState] = useState<ConnectedNavigationState>(() => ({
-    loaded: !workspaceId,
-    websiteConnected: false,
-    ecommerceConnected: false,
-  }));
   const signOut = async () => {
     try {
       await requestApi({ path: "/auth/logout", method: "POST", body: {} });
@@ -150,39 +107,6 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
       navigateApp(routes.auth.login);
     }
   };
-  useEffect(() => {
-    let cancelled = false;
-    if (!workspaceId) {
-      setConnectedState({ loaded: true, websiteConnected: false, ecommerceConnected: false });
-      return;
-    }
-    const loadConnectedState = async () => {
-      try {
-        const response = await onboardingApi.platforms(workspaceId);
-        if (cancelled) return;
-        setConnectedState({
-          loaded: true,
-          websiteConnected: hasConnectedPlatform(response.data.items, WEBSITE_PROVIDER_KEYS),
-          ecommerceConnected: hasConnectedPlatform(response.data.items, ECOMMERCE_PROVIDER_KEYS),
-        });
-      } catch {
-        if (!cancelled) {
-          setConnectedState({ loaded: true, websiteConnected: false, ecommerceConnected: false });
-        }
-      }
-    };
-    const refreshConnectedState = () => {
-      void loadConnectedState();
-    };
-    void loadConnectedState();
-    window.addEventListener("focus", refreshConnectedState);
-    window.addEventListener("storage", refreshConnectedState);
-    return () => {
-      cancelled = true;
-      window.removeEventListener("focus", refreshConnectedState);
-      window.removeEventListener("storage", refreshConnectedState);
-    };
-  }, [workspaceId]);
   useEffect(() => {
     const update = () => setWebsiteLock(readWebsiteGenerationLock());
     let requestRunning = false;
@@ -225,9 +149,9 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
   const navigationSections = useMemo(() => baseNavigationSections
     .map((section) => ({
       ...section,
-      pages: section.pages.filter((page) => shouldShowNavigationPage(section.label, page.id, activeSlug, connectedState)),
+      pages: section.pages.filter((page) => page.id === activeSlug || isPageAvailable(page.id)),
     }))
-    .filter((section) => section.pages.length > 0), [activeSlug, connectedState]);
+    .filter((section) => section.pages.length > 0), [activeSlug]);
   return (
     <aside className="lulu-global-navigation" data-lulu-global-navigation="true">
       <div className="lulu-global-navigation__workspace-label">Workspace</div>
