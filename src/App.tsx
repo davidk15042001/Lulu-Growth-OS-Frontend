@@ -5,6 +5,7 @@ import { pages, type PageDefinition } from "./pages-manifest";
 import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
 import { LEGACY_SETUP_COMPLETE_PATH, isPageAvailable, pagePath, routes } from "./routing";
 import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from "./api/client";
+import { authApi } from "./api/auth";
 import {
   ADMIN_PANEL_PATH,
   clearPendingInvitation,
@@ -15,6 +16,7 @@ import {
   setPendingInvitation,
   setAdminSurface,
   setSelectedWorkspaceId,
+  setStoredUser,
 } from "./api/session";
 import { useLuluApp } from "./api/LuluAppContext";
 import { BillingOnboarding } from "./components/BillingOnboarding";
@@ -174,10 +176,49 @@ function InvitationAccept() {
 }
 
 export default function App() {
+  const { currentUser } = useLuluApp();
+  const [restoringAdmin, setRestoringAdmin] = useState(false);
+  const [impersonationError, setImpersonationError] = useState("");
+
   useEffect(() => installApiBroker(), []);
+
+  const stopImpersonation = async () => {
+    if (!currentUser?.impersonation?.active || restoringAdmin) return;
+    setRestoringAdmin(true);
+    setImpersonationError("");
+    try {
+      const response = await authApi.stopImpersonation();
+      setStoredUser(response.data.user);
+      setAdminSurface("admin");
+      window.location.replace(ADMIN_PANEL_PATH);
+    } catch (error) {
+      setImpersonationError(getFriendlyErrorMessage(error, "Der Rückwechsel ins Adminpanel hat nicht funktioniert."));
+    } finally {
+      setRestoringAdmin(false);
+    }
+  };
 
   return (
     <>
+      {currentUser?.impersonation?.active ? (
+        <div className="fixed left-1/2 top-4 z-[95] flex w-[min(92vw,720px)] -translate-x-1/2 items-center justify-between gap-3 rounded-2xl border border-violet-200 bg-violet-50/95 px-4 py-3 text-sm text-violet-950 shadow-[0_12px_30px_rgba(76,29,149,0.15)] backdrop-blur">
+          <div className="min-w-0">
+            <div className="font-semibold">Admin-Ansicht im User-Account aktiv</div>
+            <div className="truncate text-xs text-violet-800">
+              Du schaust gerade als User in den Workspace. Admin: {currentUser.impersonation.adminEmail ?? "unbekannt"}
+            </div>
+            {impersonationError ? <div className="mt-1 text-xs text-rose-700">{impersonationError}</div> : null}
+          </div>
+          <button
+            type="button"
+            onClick={() => void stopImpersonation()}
+            disabled={restoringAdmin}
+            className="shrink-0 rounded-full border border-violet-300 bg-white px-3 py-2 text-xs font-medium text-violet-900 transition hover:bg-violet-100 disabled:opacity-60"
+          >
+            {restoringAdmin ? "Wechsle zurück…" : "Zurück zum Adminpanel"}
+          </button>
+        </div>
+      ) : null}
       <AdminSurfaceSwitcher />
       <Routes>
         <Route path="/" element={<HomeOrAdminRoute />} />

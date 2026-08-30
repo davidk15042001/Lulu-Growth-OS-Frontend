@@ -6,6 +6,10 @@ export type CurrentUser = {
   firstName: string | null;
   lastName: string | null;
   role: "user" | "admin";
+  impersonation?: {
+    active: boolean;
+    adminEmail: string | null;
+  };
 };
 
 export const authApi = {
@@ -29,5 +33,8 @@ export const authApi = {
   me: () => requestApi<CurrentUser>({ path: "/auth/me" }),
   updateMe: (input: { firstName?: string; lastName?: string }) => requestApi<CurrentUser>({
     path: "/auth/me", method: "PATCH", body: input,
+  }),
+  stopImpersonation: () => requestApi<{ token: string; user: CurrentUser }>({
+    path: "/auth/impersonation/stop", method: "POST", body: {},
   }),
 };

@@ -1,12 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getFriendlyErrorMessage, requestApi } from "../../api/client";
+import { setAdminSurface, setStoredUser } from "../../api/session";
 import { DEFAULT_LANGUAGE, isAvailableLanguageCode, LANGUAGE_STORAGE_KEY } from "../../i18n/languages";
+import { routes } from "../../routing";
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
   Plug, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
   Settings as SettingsIcon, Search, RefreshCw, ShieldCheck, ChevronRight,
   Lock, Unlock, UserCheck, RotateCcw, Ban, PlayCircle, Save, Filter,
-  LayoutGrid, MessageSquare, Menu, X
+  LayoutGrid, MessageSquare, Menu, X, LogIn
 } from "lucide-react";
 
 type NavSection = { label: string; items: NavItem[] };
@@ -73,6 +75,14 @@ type UserDetail = UserRow & {
   workspaces: Array<{ id: string; companyName: string; role: string; onboardingStep: string; onboardingCompletedAt: string | null; joinedAt: string }>;
   sessions: Array<{ id: string; userAgent: string | null; ipAddress: string | null; createdAt: string; lastUsedAt: string | null; expiresAt: string; revoked: boolean }>;
   usage: Array<{ metricKey: string; total: string; periodStart: string | null; periodEnd: string | null }>;
+};
+type SessionUser = {
+  id: string;
+  email: string;
+  firstName: string | null;
+  lastName: string | null;
+  role: "user" | "admin";
+  impersonation?: { active: boolean; adminEmail: string | null };
 };
 
 type WorkspaceRow = {
@@ -576,6 +586,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
   const [detailLoading, setDetailLoading] = useState(false);
   const [saving, setSaving] = useState("");
   const [workspaceSavingId, setWorkspaceSavingId] = useState("");
+  const [impersonating, setImpersonating] = useState(false);
 
   const load = async (q?: string) => {
     setLoading(true); onError("");
@@ -617,6 +628,21 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
       await load(search);
     } catch (e) { onError(getFriendlyErrorMessage(e, "Onboarding konnte nicht übersprungen werden.")); }
     finally { setWorkspaceSavingId(""); }
+  };
+
+  const impersonateUser = async () => {
+    if (!detail) return;
+    setImpersonating(true); onError("");
+    try {
+      const res = await requestApi<{ token: string; user: SessionUser }>({ path: `/admin/users/${detail.id}/impersonate`, method: "POST", body: {} });
+      setStoredUser(res.data.user);
+      setAdminSurface("workspace");
+      window.location.replace(routes.app.dashboard);
+    } catch (e) {
+      onError(getFriendlyErrorMessage(e, "Der Account konnte nicht zur Ansicht übernommen werden."));
+    } finally {
+      setImpersonating(false);
+    }
   };
 
   const debouncedSearch = (() => {
@@ -663,6 +689,13 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
               <div className="text-sm text-slate-500">{nameOf(detail.firstName, detail.lastName)} · User ID {detail.id}</div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <button
+                disabled={!!saving || impersonating}
+                onClick={() => void impersonateUser()}
+                className="inline-flex items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-800 hover:bg-violet-100 disabled:opacity-50"
+              >
+                <LogIn size={14} /> {impersonating ? "Öffne Account…" : "Zum Account wechseln"}
+              </button>
               <button disabled={!!saving} onClick={() => runAction("verify")} className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-100 disabled:opacity-50"><UserCheck size={14} /> Verify</button>
               <button disabled={!!saving} onClick={() => runAction("reset-sessions")} className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"><RotateCcw size={14} /> Reset Sessions</button>
               <button disabled={!!saving} onClick={() => runAction("unlock")} className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-800 hover:bg-sky-100 disabled:opacity-50"><Unlock size={14} /> Unlock</button>

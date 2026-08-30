@@ -44,6 +44,8 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   INVALID_REFRESH_TOKEN: "Your session has ended. Please sign in again.",
   REFRESH_TOKEN_EXPIRED: "Your session has ended. Please sign in again.",
   TOKEN_REVOKED: "Your account was signed in on another device, so this session was ended. Please sign in again here if this was you.",
+  IMPERSONATION_INVALID_TARGET: "This account cannot be opened in admin view.",
+  IMPERSONATION_NOT_ACTIVE: "There is no active admin session to return to.",
   UNAUTHORIZED: "Please sign in to continue.",
   FORBIDDEN: "You do not have permission to do this. Ask a workspace administrator for help.",
   NOT_FOUND: "We could not find what you were looking for. It may have been removed.",
