@@ -6,7 +6,6 @@ import { GlobalLanguageSwitcher } from "../i18n/GlobalLanguageSwitcher";
 import { GlobalUploadFeedback } from "../uploads/GlobalUploadFeedback";
 import { PostAnalysisCreationPrompt } from "../components/PostAnalysisCreationPrompt";
 import { ApiError } from "./client";
-import { LiveApiPanel } from "./LiveApiPanel";
 import { getPageContract } from "./page-contracts";
 import {
   clearSelectedWorkspaceId,
@@ -106,7 +105,6 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     <LegacyChromeCleanup />
     <GlobalLanguageSwitcher />
     <GlobalUploadFeedback />
-    {state === "ready" && workspaceId && slug !== "fancily-leaf-1766" && <LiveApiPanel workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} contract={contract} />}
     {state === "ready" && workspaceId && contract.kind !== "public" && slug === "fancily-leaf-1766" && <PostAnalysisCreationPrompt workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} />}
   </>;
 }

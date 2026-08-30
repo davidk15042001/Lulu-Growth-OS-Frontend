@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { NativePage } from "../NativePage";
 import type { PageDefinition } from "../pages-manifest";
 import { pagePath } from "../routing";
-import { conversationApi } from "../api/conversations";
-import { usageApi, type WorkspaceCredits } from "../api/usage";
 import { useLuluApp } from "../api/LuluAppContext";
 import { LuluWorkspaceRefreshButton } from "../components/LuluWorkspaceTopBar";
 import { availablePages } from "./page-registry";
@@ -15,9 +13,6 @@ function AuthenticatedSearchBar() {
   const { currentUser, selectedWorkspace } = useLuluApp();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
-  const [answer, setAnswer] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [credits, setCredits] = useState<WorkspaceCredits | null>(null);
 
   const matches = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -27,52 +22,17 @@ function AuthenticatedSearchBar() {
       .slice(0, 6);
   }, [query]);
 
-  useEffect(() => {
-    let cancelled = false;
-    if (!selectedWorkspace) {
-      setCredits(null);
-      return () => {
-        cancelled = true;
-      };
-    }
-    usageApi.credits(selectedWorkspace.id)
-      .then((response) => {
-        if (!cancelled) setCredits(response.data);
-      })
-      .catch(() => {
-        if (!cancelled) setCredits(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedWorkspace]);
-
   if (!currentUser || !selectedWorkspace) return null;
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const text = query.trim();
-    if (!text || busy) return;
+    if (!text) return;
     const target = matches[0];
-    if (target) {
-      navigate(pagePath(target.slug));
-      setQuery("");
-      setAnswer(null);
-      setOpen(false);
-      return;
-    }
-    setBusy(true);
-    setOpen(true);
-    setAnswer(null);
-    try {
-      const conversation = await conversationApi.create(selectedWorkspace.id, text.slice(0, 120));
-      const response = await conversationApi.respond(selectedWorkspace.id, conversation.data.id, text);
-      setAnswer(response.data.assistantMessage.content);
-    } catch {
-      setAnswer("Die Anfrage konnte nicht verarbeitet werden. Bitte versuchen Sie es erneut.");
-    } finally {
-      setBusy(false);
-    }
+    if (!target) return;
+    navigate(pagePath(target.slug));
+    setQuery("");
+    setOpen(false);
   };
 
   return (
@@ -98,36 +58,21 @@ function AuthenticatedSearchBar() {
         </button>
         <LuluWorkspaceRefreshButton />
       </form>
-      {credits && (
-        <div className="lulu-auth-credits" title="Credits" aria-label="Credits">
-          <span className="lulu-auth-credits-label">Credits</span>
-          <strong>{credits.creditsUsed.toLocaleString(undefined, { maximumFractionDigits: 2 })}</strong>
-        </div>
-      )}
-      {open && query.trim() && (
+      {open && matches.length > 0 && query.trim() && (
         <div className="lulu-auth-search-results">
-          {matches.length ? (
-            matches.map((item) => (
-              <button
-                type="button"
-                key={item.id}
-                onClick={() => {
-                  navigate(pagePath(item.slug));
-                  setQuery("");
-                  setAnswer(null);
-                  setOpen(false);
-                }}
-              >
-                <strong>{item.name}</strong>
-              </button>
-            ))
-          ) : busy ? (
-            <p>Working on your Lulu AI request…</p>
-          ) : answer ? (
-            <p className="lulu-auth-search-answer">{answer}</p>
-          ) : (
-            <p>Ask Lulu AI about your workspace or type a page name.</p>
-          )}
+          {matches.map((item) => (
+            <button
+              type="button"
+              key={item.id}
+              onClick={() => {
+                navigate(pagePath(item.slug));
+                setQuery("");
+                setOpen(false);
+              }}
+            >
+              <strong>{item.name}</strong>
+            </button>
+          ))}
         </div>
       )}
     </div>
