@@ -49,11 +49,13 @@ export const LEGACY_SETUP_COMPLETE_PATH = "/onboarding/setup-complete";
 export const LULU_NAVIGATION_MESSAGE = "lulu:navigate";
 export const SUBPAGE_NAVIGATION_LOCKED = true;
 export const PRIMARY_AUDIENCES_SLUG = "breezily-wood-5980";
+export const PRIMARY_REVIEWS_SLUG = "daring-brook-9034";
 export const LEGACY_ADVERTISING_AUDIENCES_SLUG = "softly-second-7684";
 
 const EXPLICITLY_UNLOCKED_SUBPAGE_SLUGS = new Set([
   "smartly-shore-1468",
   PRIMARY_AUDIENCES_SLUG,
+  PRIMARY_REVIEWS_SLUG,
 ]);
 
 const WEBSITE_NAVIGATION_SLUGS = new Set([

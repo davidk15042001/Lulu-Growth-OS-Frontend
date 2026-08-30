@@ -115,6 +115,88 @@ export type BillingState = {
   };
 };
 
+export type GoogleReviewsAccount = {
+  id: string;
+  name: string;
+  type: string | null;
+};
+
+export type GoogleReviewsTopicCount = {
+  topic: string;
+  count: number;
+};
+
+export type GoogleReviewsLocation = {
+  accountId: string;
+  id: string;
+  title: string;
+  address: string;
+  storeCode: string | null;
+  websiteUrl: string | null;
+  totalReviewCount: number;
+  averageRating: number | null;
+  unansweredCount: number;
+  negativeCount: number;
+};
+
+export type GoogleReviewReply = {
+  comment: string;
+  updateTime: string | null;
+};
+
+export type GoogleReviewsManagerReview = {
+  id: string;
+  name: string;
+  accountId: string;
+  locationId: string;
+  locationTitle: string;
+  locationAddress: string;
+  starRating: number;
+  comment: string;
+  reviewerDisplayName: string;
+  reviewerIsAnonymous: boolean;
+  createTime: string | null;
+  updateTime: string | null;
+  sentiment: "positive" | "mixed" | "negative";
+  urgency: "critical" | "high" | "medium" | "low";
+  topics: string[];
+  verifiedFacts: string[];
+  inferredIssues: string[];
+  recommendedActions: string[];
+  summary: string;
+  suggestedReply: string;
+  requiresHuman: boolean;
+  reviewReply: GoogleReviewReply | null;
+};
+
+export type GoogleReviewsManagerState = {
+  connected: boolean;
+  platformId: string | null;
+  aiAvailable: boolean;
+  generatedAt: string;
+  accounts: GoogleReviewsAccount[];
+  locations: GoogleReviewsLocation[];
+  summary: {
+    totalReviews: number;
+    averageRating: number | null;
+    replyRate: number;
+    unansweredCount: number;
+    negativeCount: number;
+    mixedCount: number;
+    positiveCount: number;
+    priorityReviewCount: number;
+  };
+  insights: {
+    headline: string;
+    topTopics: GoogleReviewsTopicCount[];
+    strengths: string[];
+    risks: string[];
+    recommendedActions: string[];
+    dataGaps: string[];
+  };
+  reviews: GoogleReviewsManagerReview[];
+};
+
 export const workspaceAppApi = {
   members: (workspaceId: string) => requestApi<{ members: WorkspaceMember[]; invitations: WorkspaceInvitation[] }>({
     path: workspaceApiPath(workspaceId, "/members"),
@@ -145,6 +227,27 @@ export const workspaceAppApi = {
   }),
   billing: (workspaceId: string, query = "") => requestApi<BillingState>({
     path: workspaceApiPath(workspaceId, `/billing${query ? `?${query}` : ""}`),
+  }),
+  googleReviews: (workspaceId: string, filters?: { locationId?: string; limit?: number }) => {
+    const query = new URLSearchParams();
+    if (filters?.locationId) query.set("locationId", filters.locationId);
+    if (filters?.limit) query.set("limit", String(filters.limit));
+    return requestApi<GoogleReviewsManagerState>({
+      path: workspaceApiPath(workspaceId, `/google-reviews${query.size ? `?${query.toString()}` : ""}`),
+    });
+  },
+  updateGoogleReviewReply: (workspaceId: string, reviewId: string, input: {
+    accountId: string;
+    locationId: string;
+    comment: string;
+  }) => requestApi<{
+    reviewId: string;
+    name: string;
+    reviewReply: GoogleReviewReply;
+  }>({
+    path: workspaceApiPath(workspaceId, `/google-reviews/${encodeURIComponent(reviewId)}/reply`),
+    method: "PUT",
+    body: input,
   }),
   syncBillingCheckout: (workspaceId: string, checkoutId: string) => requestApi<{
     checkoutId: string;

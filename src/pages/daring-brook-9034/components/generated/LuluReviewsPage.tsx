@@ -1,81 +1,542 @@
-import { useMemo, useState } from 'react';
-import { BarChart3, Bell, Bot, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Download, ExternalLink, Filter, Grid2X2, Inbox, LayoutDashboard, List, MessageSquare, MoreHorizontal, PanelLeft, RefreshCw, Search, Send, Settings, ShoppingBag, Sparkles, X, Zap } from 'lucide-react';
-import { useLiveRecords } from '../../../../api/useLiveRecords';
-interface Review {
-  id: string;
-  title: string;
-  text: string;
-  rating: number;
-  product: string;
-  customer: string;
-  store: string;
-  date: string;
-  response: string;
-  classification: string;
-  tone: 'positive' | 'negative' | 'mixed';
-  rowTone?: 'red' | 'amber';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import { AlertTriangle, Bot, Building2, CheckCheck, ChevronDown, Globe2, Loader2, Menu, MessageSquareReply, RefreshCw, Search, ShieldAlert, Sparkles, Star, Store, Unplug } from 'lucide-react';
+import { ApiError, getFriendlyErrorMessage } from '../../../../api/client';
+import { onboardingApi } from '../../../../api/onboarding';
+import { getSelectedWorkspaceId } from '../../../../api/session';
+import { workspaceAppApi, type GoogleReviewsLocation, type GoogleReviewsManagerReview, type GoogleReviewsManagerState } from '../../../../api/workspace-app';
+
+type ConnectionMode = 'connected' | 'disconnected' | 'reauth';
+type SentimentFilter = 'all' | 'positive' | 'mixed' | 'negative';
+type ReviewScope = 'all' | 'unanswered' | 'priority';
+
+const urgencyRank: Record<GoogleReviewsManagerReview['urgency'], number> = {
+  critical: 4,
+  high: 3,
+  medium: 2,
+  low: 1
+};
+
+const ratingCopy = (value: number | null) => value == null ? '—' : `${value.toFixed(1)} / 5`;
+const compactNumber = (value: number) => new Intl.NumberFormat('en-US').format(value);
+
+function formatDate(value: string | null) {
+  if (!value) return '—';
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat('de-DE', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  }).format(parsed);
 }
-const navItems = [{
-  label: 'Overview',
-  icon: LayoutDashboard
-}, {
-  label: 'Ecommerce',
-  icon: ShoppingBag,
-  active: true
-}, {
-  label: 'Campaigns',
-  icon: BarChart3
-}, {
-  label: 'Inbox',
-  icon: Inbox
-}, {
-  label: 'Automations',
-  icon: Zap
-}];
-const reviews: Review[] = [];
-const prompts = ['Which reviews need attention', 'Show unanswered reviews', 'Draft today responses', 'Find shipping complaints', 'Find product issues', 'Summarize feedback'];
-const attentionRows: Array<{ title: string; rating: number; product: string; store: string; issue: string; severity: string; status: string; actions: string[] }> = [];
+
+function locationLabel(location: GoogleReviewsLocation) {
+  return location.address ? `${location.title} · ${location.address}` : location.title;
+}
+
+function Pill({
+  children,
+  tone = 'gray',
+  icon
+}: {
+  children: ReactNode;
+  tone?: 'gray' | 'green' | 'amber' | 'red' | 'purple' | 'blue';
+  icon?: ReactNode;
+}) {
+  const tones: Record<string, string> = {
+    gray: 'bg-secondary text-muted-foreground',
+    green: 'bg-chart-4/10 text-chart-4',
+    amber: 'bg-chart-1/10 text-[var(--chart-1)]',
+    red: 'bg-chart-5/10 text-chart-5',
+    purple: 'bg-primary/10 text-primary',
+    blue: 'bg-secondary/70 text-foreground'
+  };
+  return <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-medium ${tones[tone]}`}>{icon}{children}</span>;
+}
+
 function Stars({
   rating
 }: {
   rating: number;
 }) {
-  return <span className="flex items-center gap-0.5" aria-label={`${rating} out of 5 stars`}>{[1, 2, 3, 4, 5].map(star => <span key={star} className={star <= rating ? 'text-foreground' : 'text-foreground'} aria-hidden="true">★</span>)}</span>;
+  return <span className="flex items-center gap-1" aria-label={`${rating} out of 5 stars`}>
+    {[1, 2, 3, 4, 5].map(star => <Star key={star} size={14} className={star <= rating ? 'fill-current text-[var(--chart-1)]' : 'text-muted-foreground/40'} />)}
+  </span>;
 }
-function Badge({
-  children,
-  tone = 'gray',
-  ai = false
+
+function SummaryCard({
+  label,
+  value,
+  detail
 }: {
-  children: string;
-  tone?: string;
-  ai?: boolean;
+  label: string;
+  value: string;
+  detail: string;
 }) {
-  const tones: Record<string, string> = {
-    green: 'bg-secondary text-foreground',
-    amber: 'bg-secondary text-foreground',
-    violet: 'bg-secondary text-foreground',
-    blue: 'bg-secondary text-foreground',
-    red: 'bg-chart-5/10 text-chart-5',
-    orange: 'bg-secondary text-foreground',
-    emerald: 'bg-secondary text-foreground',
-    gray: 'bg-secondary text-muted-foreground'
-  };
-  return <span className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-[11px] font-semibold ${tones[tone] ?? tones.gray}`}>{ai && <span className="rounded bg-secondary px-1 text-[9px] font-bold tracking-wide">AI</span>}{children}</span>;
+  return <article className="rounded-xl border border-[var(--border)] bg-card p-4">
+    <p className="text-[11px] uppercase tracking-wide text-muted-foreground">{label}</p>
+    <strong className="mt-2 block text-2xl">{value}</strong>
+    <p className="mt-2 text-xs text-muted-foreground">{detail}</p>
+  </article>;
 }
+
+function ListBlock({
+  title,
+  items,
+  empty
+}: {
+  title: string;
+  items: string[];
+  empty: string;
+}) {
+  return <div className="rounded-xl border border-[var(--border)] bg-card/60 p-4">
+    <h3 className="text-sm font-semibold">{title}</h3>
+    <div className="mt-3 space-y-2 text-xs text-muted-foreground">
+      {items.length === 0 ? <p>{empty}</p> : items.map(item => <p key={item}>• {item}</p>)}
+    </div>
+  </div>;
+}
+
 export function LuluReviewsPage() {
-  const [attentionOpen, setAttentionOpen] = useState(true);
-  const [view, setView] = useState<'table' | 'grid'>('table');
+  const [mobile, setMobile] = useState(false);
+  const [manager, setManager] = useState<GoogleReviewsManagerState | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [connectionMode, setConnectionMode] = useState<ConnectionMode>('connected');
+  const [selectedLocationId, setSelectedLocationId] = useState('');
   const [query, setQuery] = useState('');
-  const [chips, setChips] = useState(['Rating: 4-5 Stars', 'Status: Unanswered']);
-  const [prompt, setPrompt] = useState('');
-  const visibleReviews = useMemo(() => reviews.filter(review => `${review.title} ${review.product} ${review.customer}`.toLowerCase().includes(query.toLowerCase())), [query]);
-  const { items: reviewRecords, loading, error, refresh: refreshReviews } = useLiveRecords('ecommerce_reviews');
-  const [refreshing, setRefreshing] = useState(false);
-  const refresh = () => { void refreshReviews(); setRefreshing(true); window.setTimeout(() => setRefreshing(false), 700); };
-  if (loading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live review records…</main>;
-  if (error) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{error}</main>;
-  return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground"><div className="mx-auto max-w-6xl"><header className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="text-xs uppercase tracking-[.18em] text-muted-foreground">Ecommerce / Reviews</p><h1 className="mt-2 text-3xl font-bold">Reviews</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Verified customer review records from connected stores. Ratings, sentiment and response status appear only when returned by the backend.</p></div><button type="button" onClick={refresh} className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-secondary"><RefreshCw size={15} className={refreshing ? 'animate-spin' : ''} />Refresh</button></header>{reviewRecords.length === 0 ? <section className="rounded-2xl border border-dashed border-border bg-card p-10 text-center"><MessageSquare className="mx-auto text-muted-foreground" size={30} /><h2 className="mt-4 text-xl font-semibold">No verified review records yet</h2><p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">Connect a store and synchronize review data before reviewing ratings, responses or sentiment. No example reviews are displayed.</p></section> : <section className="overflow-hidden rounded-2xl border border-border bg-card"><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="px-4 py-3">Review</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Stage</th><th className="px-4 py-3">Description</th><th className="px-4 py-3">Updated</th></tr></thead><tbody className="divide-y divide-border">{reviewRecords.map(record => <tr key={record.id}><td className="px-4 py-3 font-medium">{record.name}</td><td className="px-4 py-3">{record.status}</td><td className="px-4 py-3 text-muted-foreground">{record.stage ?? '—'}</td><td className="max-w-md px-4 py-3 text-muted-foreground">{record.description ?? '—'}</td><td className="px-4 py-3 text-muted-foreground">{new Date(record.updatedAt).toLocaleString()}</td></tr>)}</tbody></table></div></section>}</div></main>;
+  const [sentimentFilter, setSentimentFilter] = useState<SentimentFilter>('all');
+  const [reviewScope, setReviewScope] = useState<ReviewScope>('all');
+  const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
+  const [busyConnect, setBusyConnect] = useState(false);
+  const [savingReviewId, setSavingReviewId] = useState<string | null>(null);
+  const workspaceId = getSelectedWorkspaceId();
+
+  const refresh = useCallback(async () => {
+    if (!workspaceId) {
+      setManager(null);
+      setLoading(false);
+      setError('Es ist aktuell kein Workspace ausgewählt.');
+      setConnectionMode('disconnected');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await workspaceAppApi.googleReviews(workspaceId, {
+        ...(selectedLocationId ? { locationId: selectedLocationId } : {}),
+        limit: 120
+      });
+      setManager(response.data);
+      setConnectionMode(response.data.connected ? 'connected' : 'disconnected');
+    } catch (cause) {
+      setManager(null);
+      if (cause instanceof ApiError && cause.code === 'GOOGLE_BUSINESS_REAUTH_REQUIRED') {
+        setConnectionMode('reauth');
+        setError(null);
+      } else if (cause instanceof ApiError && cause.code === 'GOOGLE_BUSINESS_NOT_CONNECTED') {
+        setConnectionMode('disconnected');
+        setError(null);
+      } else {
+        setConnectionMode('connected');
+        setError(getFriendlyErrorMessage(cause, 'Die Google-Reviews-Analyse konnte nicht geladen werden.'));
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedLocationId, workspaceId]);
+
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    setReplyDrafts(current => {
+      const next = { ...current };
+      for (const review of manager?.reviews ?? []) {
+        if (!(review.id in next)) {
+          next[review.id] = review.reviewReply?.comment ?? review.suggestedReply;
+        }
+      }
+      return next;
+    });
+  }, [manager?.reviews]);
+
+  const visibleReviews = useMemo(() => {
+    return [...(manager?.reviews ?? [])]
+      .filter(review => {
+        if (query) {
+          const haystack = `${review.reviewerDisplayName} ${review.comment} ${review.summary} ${review.locationTitle} ${review.topics.join(' ')}`.toLowerCase();
+          if (!haystack.includes(query.toLowerCase())) return false;
+        }
+        if (sentimentFilter !== 'all' && review.sentiment !== sentimentFilter) return false;
+        if (reviewScope === 'unanswered' && review.reviewReply) return false;
+        if (reviewScope === 'priority' && !['critical', 'high'].includes(review.urgency)) return false;
+        return true;
+      })
+      .sort((left, right) => {
+        const urgencyDelta = urgencyRank[right.urgency] - urgencyRank[left.urgency];
+        if (urgencyDelta) return urgencyDelta;
+        return Date.parse(right.updateTime ?? right.createTime ?? '') - Date.parse(left.updateTime ?? left.createTime ?? '');
+      });
+  }, [manager?.reviews, query, reviewScope, sentimentFilter]);
+
+  const activeLocation = useMemo(() => manager?.locations.find(location => location.id === selectedLocationId) ?? null, [manager?.locations, selectedLocationId]);
+  const topLocations = (manager?.locations ?? []).slice(0, 6);
+
+  const connectGoogleBusiness = useCallback(async () => {
+    if (!workspaceId) {
+      setError('Es ist aktuell kein Workspace ausgewählt.');
+      return;
+    }
+    setBusyConnect(true);
+    setError(null);
+    try {
+      const response = await onboardingApi.startOAuth(workspaceId, 'google-business', undefined, '/app/daring-brook-9034');
+      window.location.assign(response.data.authorizationUrl);
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, 'Die Google-Business-Verbindung konnte nicht gestartet werden.'));
+      setBusyConnect(false);
+    }
+  }, [workspaceId]);
+
+  const saveReply = useCallback(async (review: GoogleReviewsManagerReview) => {
+    if (!workspaceId) {
+      setError('Es ist aktuell kein Workspace ausgewählt.');
+      return;
+    }
+    const comment = (replyDrafts[review.id] ?? '').trim();
+    if (comment.length < 3) {
+      setError('Die Antwort muss mindestens 3 Zeichen lang sein.');
+      return;
+    }
+
+    setSavingReviewId(review.id);
+    setError(null);
+    setMessage(null);
+    try {
+      await workspaceAppApi.updateGoogleReviewReply(workspaceId, review.id, {
+        accountId: review.accountId,
+        locationId: review.locationId,
+        comment
+      });
+      setMessage(`Antwort für ${review.reviewerDisplayName} wurde gespeichert.`);
+      await refresh();
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, 'Die Google-Antwort konnte nicht gespeichert werden.'));
+    } finally {
+      setSavingReviewId(null);
+    }
+  }, [refresh, replyDrafts, workspaceId]);
+
+  return <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]" style={{
+    fontFamily: 'Poppins'
+  }}>
+    {mobile && <button className="fixed inset-0 z-20 bg-black/30 lg:hidden" aria-label="Close navigation" onClick={() => setMobile(false)} />}
+    <aside className={`${mobile ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-30 w-[220px] flex-col bg-[var(--sidebar)] px-3 py-5 lg:flex`}>
+      <div className="mb-7 flex items-center gap-2 px-2">
+        <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--primary)] font-bold text-primary-foreground">L</span>
+        <strong className="text-foreground">Lulu AI</strong>
+        <button className="ml-auto rounded-md p-1 text-foreground lg:hidden" onClick={() => setMobile(false)} aria-label="Close navigation">
+          <ChevronDown size={18} />
+        </button>
+      </div>
+      <LuluSectionNavigation activeId="daring-brook-9034" />
+      <div className="flex items-center gap-2 border-t border-[var(--muted-foreground)] pt-4">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--muted)] text-xs text-foreground">DM</span>
+        <span className="text-xs text-foreground">Workspace owner</span>
+      </div>
+    </aside>
+
+    <main className="lg:ml-[220px]">
+      <header className="flex h-14 items-center justify-between bg-[var(--sidebar)] px-4 text-foreground sm:px-7">
+        <div className="flex items-center gap-3">
+          <button className="lg:hidden" onClick={() => setMobile(true)} aria-label="Open navigation">
+            <Menu size={19} />
+          </button>
+          <span className="text-xs text-muted-foreground">Ecommerce</span>
+          <span className="text-muted-foreground">/</span>
+          <span className="text-xs">Reviews</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={() => void refresh()} className="hidden text-xs text-foreground sm:block">
+            <RefreshCw size={14} className="mr-1 inline" />
+            Refresh
+          </button>
+          <button onClick={() => void connectGoogleBusiness()} disabled={busyConnect} className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] disabled:opacity-60">
+            {busyConnect ? <Loader2 size={13} className="mr-1 inline animate-spin" /> : <Globe2 size={13} className="mr-1 inline" />}
+            {connectionMode === 'connected' ? 'Reconnect Google' : connectionMode === 'reauth' ? 'Reconnect Google' : 'Connect Google'}
+          </button>
+        </div>
+      </header>
+
+      <div className="px-4 py-6 sm:px-8">
+        {error && <div role="alert" className="mb-5 rounded-lg border border-chart-5/30 bg-chart-5/10 px-4 py-3 text-sm text-chart-5">{error}</div>}
+        {message && <div className="mb-5 rounded-lg border border-chart-4/30 bg-chart-4/10 px-4 py-3 text-sm text-chart-4">{message}</div>}
+
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <Pill tone="purple" icon={<Sparkles size={12} />}>Reputation Intelligence</Pill>
+            <h1 className="mt-2 text-3xl font-bold tracking-tight">Google Reviews Manager</h1>
+            <p className="mt-1 max-w-3xl text-sm text-[var(--muted-foreground)]">Google Business Profile wird jetzt zentral im Backend analysiert: Standorte, Review-Risiken, Antwortabdeckung, Priorisierung und Owner Replies laufen direkt aus einer strukturierten Workspace-Engine.</p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Pill tone={connectionMode === 'connected' ? 'green' : connectionMode === 'reauth' ? 'amber' : 'gray'} icon={connectionMode === 'connected' ? <CheckCheck size={12} /> : connectionMode === 'reauth' ? <ShieldAlert size={12} /> : <Unplug size={12} />}>
+              {connectionMode === 'connected' ? 'Google verbunden' : connectionMode === 'reauth' ? 'Reauth nötig' : 'Nicht verbunden'}
+            </Pill>
+            {manager?.aiAvailable && <Pill tone="blue" icon={<Bot size={12} />}>AI Reply Drafts aktiv</Pill>}
+          </div>
+        </div>
+
+        {!workspaceId ? <section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-6">
+            <h2 className="text-lg font-bold">Kein Workspace ausgewählt</h2>
+            <p className="mt-2 text-sm text-muted-foreground">Sobald ein Workspace aktiv ist, lädt Lulu automatisch die verbundene Google-Business-Struktur, priorisiert Reviews und stellt Reply-Workflows bereit.</p>
+          </section> : loading ? <section className="mt-6 grid min-h-[260px] place-items-center rounded-xl border border-[var(--border)] bg-card p-6 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <Loader2 size={18} className="animate-spin" />
+              Google Reviews Manager wird geladen…
+            </div>
+          </section> : connectionMode !== 'connected' || !manager?.connected ? <section className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px]">
+            <article className="rounded-xl border border-[var(--border)] bg-card p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-bold">{connectionMode === 'reauth' ? 'Google Business Verbindung abgelaufen' : 'Google Business noch nicht verbunden'}</h2>
+                  <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Damit Lulu Reviews, Standorte, Prioritäten und Owner Replies automatisch verwalten kann, braucht dieser Workspace eine gültige Google-Business-Profile-Verbindung mit dem Scope `business.manage`.</p>
+                </div>
+                <Pill tone={connectionMode === 'reauth' ? 'amber' : 'gray'}>{connectionMode === 'reauth' ? 'Reconnect required' : 'Connect required'}</Pill>
+              </div>
+
+              <div className="mt-6 grid gap-3 md:grid-cols-3">
+                <SummaryCard label="Was danach erscheint" value="Standorte" detail="Alle verfügbaren Google-Business-Locations mit Review-Volumen und Negativquote." />
+                <SummaryCard label="Was danach erscheint" value="Prioritäten" detail="Offene kritische Reviews, Reply-Abdeckung und konkrete Service-Recovery-Aktionen." />
+                <SummaryCard label="Was danach erscheint" value="Replies" detail="Vorgeschlagene Antworttexte, direkt speicherbar als Owner Reply." />
+              </div>
+            </article>
+
+            <article className="rounded-xl border border-[var(--border)] bg-card p-5">
+              <h2 className="font-bold">Nächste Schritte</h2>
+              <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+                <p>1. Google-Business-Konto verbinden</p>
+                <p>2. Richtige Business-Profile-Locations freigeben</p>
+                <p>3. Lulu lädt Reviews und priorisiert offene Fälle automatisch</p>
+              </div>
+              <button onClick={() => void connectGoogleBusiness()} disabled={busyConnect} className="mt-5 w-full rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-60">
+                {busyConnect ? 'Verbinde...' : connectionMode === 'reauth' ? 'Google erneut verbinden' : 'Google jetzt verbinden'}
+              </button>
+            </article>
+          </section> : <>
+            <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <SummaryCard label="Total Reviews" value={compactNumber(manager.summary.totalReviews)} detail="Alle aktuell geladenen Google Reviews im Workspace-Scope." />
+              <SummaryCard label="Average Rating" value={ratingCopy(manager.summary.averageRating)} detail="Gewichteter Durchschnitt über die geladenen Reviews." />
+              <SummaryCard label="Reply Rate" value={`${manager.summary.replyRate}%`} detail={`${compactNumber(manager.summary.unansweredCount)} Reviews sind noch unbeantwortet.`} />
+              <SummaryCard label="Priority Queue" value={compactNumber(manager.summary.priorityReviewCount)} detail={`${compactNumber(manager.summary.negativeCount)} negative und ${compactNumber(manager.summary.mixedCount)} gemischte Reviews brauchen Aufmerksamkeit.`} />
+            </section>
+
+            <section className="mt-6 grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+              <article className="rounded-xl border border-[var(--border)] bg-card p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-bold">Executive Reputation Summary</h2>
+                    <p className="mt-1 text-xs text-muted-foreground">Autonom priorisierte Review-Lage aus Google Business Profile.</p>
+                  </div>
+                  <Pill tone="purple">{formatDate(manager.generatedAt)}</Pill>
+                </div>
+                <p className="mt-4 text-sm leading-6 text-muted-foreground">{manager.insights.headline}</p>
+
+                <div className="mt-5 grid gap-3 md:grid-cols-2">
+                  <ListBlock title="Strengths" items={manager.insights.strengths} empty="Noch keine klaren Stärken erkennbar." />
+                  <ListBlock title="Risks" items={manager.insights.risks} empty="Aktuell keine akuten Reputationsrisiken erkannt." />
+                  <ListBlock title="Recommended Actions" items={manager.insights.recommendedActions} empty="Noch keine konkreten Maßnahmen nötig." />
+                  <ListBlock title="Data Gaps" items={manager.insights.dataGaps} empty="Keine offensichtlichen Datenlücken erkannt." />
+                </div>
+              </article>
+
+              <article className="rounded-xl border border-[var(--border)] bg-card p-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <h2 className="text-lg font-bold">Filters & Topics</h2>
+                    <p className="mt-1 text-xs text-muted-foreground">Standort, Sentiment und Priorität direkt auf die echte Review-Lage anwenden.</p>
+                  </div>
+                  <Pill tone="green" icon={<Building2 size={12} />}>{manager.locations.length} locations</Pill>
+                </div>
+
+                <div className="mt-4 grid gap-3">
+                  <label className="relative flex items-center">
+                    <select value={selectedLocationId} onChange={event => setSelectedLocationId(event.target.value)} className="w-full appearance-none rounded-lg border border-[var(--border)] bg-card px-3 py-2 pr-8 text-xs text-foreground">
+                      <option value="">All locations</option>
+                      {manager.locations.map(location => <option key={location.id} value={location.id}>{location.title}</option>)}
+                    </select>
+                    <ChevronDown size={12} className="pointer-events-none absolute right-3 text-muted-foreground" />
+                  </label>
+
+                  <label className="relative flex items-center rounded-lg border border-[var(--border)] px-3">
+                    <Search size={15} className="text-muted-foreground" />
+                    <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search reviewer, topic, summary" className="w-full py-2 text-xs outline-none" />
+                  </label>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="relative flex items-center">
+                      <select value={sentimentFilter} onChange={event => setSentimentFilter(event.target.value as SentimentFilter)} className="w-full appearance-none rounded-lg border border-[var(--border)] bg-card px-3 py-2 pr-8 text-xs text-foreground">
+                        <option value="all">All sentiment</option>
+                        <option value="positive">Positive</option>
+                        <option value="mixed">Mixed</option>
+                        <option value="negative">Negative</option>
+                      </select>
+                      <ChevronDown size={12} className="pointer-events-none absolute right-3 text-muted-foreground" />
+                    </label>
+
+                    <label className="relative flex items-center">
+                      <select value={reviewScope} onChange={event => setReviewScope(event.target.value as ReviewScope)} className="w-full appearance-none rounded-lg border border-[var(--border)] bg-card px-3 py-2 pr-8 text-xs text-foreground">
+                        <option value="all">All reviews</option>
+                        <option value="unanswered">Unanswered only</option>
+                        <option value="priority">Priority only</option>
+                      </select>
+                      <ChevronDown size={12} className="pointer-events-none absolute right-3 text-muted-foreground" />
+                    </label>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    {manager.insights.topTopics.map(topic => <Pill key={topic.topic} tone="blue">{topic.topic} · {topic.count}</Pill>)}
+                    {!manager.insights.topTopics.length && <Pill>No recurring topics yet</Pill>}
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold">Managed Locations</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">Standortweite Review-Abdeckung und Negativquote aus Google Business Profile.</p>
+                </div>
+                {activeLocation && <Pill tone="purple">{activeLocation.title}</Pill>}
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+                {topLocations.map(location => <button key={location.id} type="button" onClick={() => setSelectedLocationId(current => current === location.id ? '' : location.id)} className={`rounded-xl border p-4 text-left ${selectedLocationId === location.id ? 'border-[var(--primary)] bg-secondary/15' : 'border-[var(--border)] bg-card'}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="font-semibold">{location.title}</h3>
+                        <p className="mt-1 text-xs text-muted-foreground">{location.address || 'Address unavailable'}</p>
+                      </div>
+                      <Store size={16} className="text-muted-foreground" />
+                    </div>
+                    <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
+                      <div>
+                        <p className="text-muted-foreground">Reviews</p>
+                        <strong>{compactNumber(location.totalReviewCount)}</strong>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Rating</p>
+                        <strong>{ratingCopy(location.averageRating)}</strong>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Open</p>
+                        <strong>{compactNumber(location.unansweredCount)}</strong>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-[11px] text-muted-foreground">{location.negativeCount} negative reviews currently mapped to this location.</p>
+                  </button>)}
+              </div>
+            </section>
+
+            <section className="mt-6 rounded-xl border border-[var(--border)] bg-card p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-lg font-bold">Review Queue</h2>
+                  <p className="mt-1 text-xs text-muted-foreground">Priorisierte Reviews mit Fakten, abgeleiteten Risiken und direkt speicherbaren Owner Replies.</p>
+                </div>
+                <Pill tone="green">{visibleReviews.length} visible reviews</Pill>
+              </div>
+
+              {!visibleReviews.length ? <div className="mt-5 rounded-xl border border-dashed border-[var(--border)] bg-background p-8 text-center">
+                  <AlertTriangle className="mx-auto text-muted-foreground" size={24} />
+                  <h3 className="mt-3 font-semibold">Keine Reviews im aktuellen Filter</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">Passe Standort, Suche oder Scope an, damit Lulu wieder Reviews für die Bearbeitung anzeigen kann.</p>
+                </div> : <div className="mt-5 space-y-4">
+                  {visibleReviews.map(review => <article key={review.id} className="rounded-xl border border-[var(--border)] bg-background p-5">
+                      <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-lg font-semibold">{review.reviewerDisplayName}</h3>
+                            <Pill tone={review.sentiment === 'positive' ? 'green' : review.sentiment === 'mixed' ? 'amber' : 'red'}>{review.sentiment}</Pill>
+                            <Pill tone={review.urgency === 'critical' ? 'red' : review.urgency === 'high' ? 'amber' : review.urgency === 'medium' ? 'blue' : 'gray'}>{review.urgency}</Pill>
+                            {review.requiresHuman && <Pill tone="amber" icon={<ShieldAlert size={12} />}>Human review</Pill>}
+                            {!review.reviewReply && <Pill tone="purple">Unanswered</Pill>}
+                          </div>
+                          <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                            <Stars rating={review.starRating} />
+                            <span>{review.locationTitle}</span>
+                            <span>{formatDate(review.updateTime ?? review.createTime)}</span>
+                          </div>
+                        </div>
+
+                        <div className="max-w-xl text-sm text-muted-foreground">
+                          <p>{review.summary}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+                        <div>
+                          <div className="rounded-xl border border-[var(--border)] bg-card p-4">
+                            <p className="text-sm leading-6 text-muted-foreground">{review.comment || 'No public review comment was returned by Google for this entry.'}</p>
+                            <div className="mt-4 flex flex-wrap gap-2">
+                              {review.topics.map(topic => <Pill key={topic} tone="blue">{topic}</Pill>)}
+                            </div>
+                          </div>
+
+                          <div className="mt-4 grid gap-3 md:grid-cols-3">
+                            <ListBlock title="Verified facts" items={review.verifiedFacts} empty="No verified facts." />
+                            <ListBlock title="Inferred issues" items={review.inferredIssues} empty="No inferred issues." />
+                            <ListBlock title="Recommended actions" items={review.recommendedActions} empty="No recommended actions." />
+                          </div>
+                        </div>
+
+                        <div className="rounded-xl border border-[var(--border)] bg-card p-4">
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <h4 className="font-semibold">Owner Reply</h4>
+                              <p className="mt-1 text-xs text-muted-foreground">Lulu schlägt die Antwort vor, du kannst sie direkt an Google senden.</p>
+                            </div>
+                            <Pill tone="purple" icon={<MessageSquareReply size={12} />}>AI draft</Pill>
+                          </div>
+
+                          {review.reviewReply && <div className="mt-4 rounded-lg border border-chart-4/30 bg-chart-4/10 p-3 text-xs text-chart-4">
+                              Bereits live beantwortet am {formatDate(review.reviewReply.updateTime)}.
+                            </div>}
+
+                          <textarea value={replyDrafts[review.id] ?? ''} onChange={event => setReplyDrafts(current => ({
+                        ...current,
+                        [review.id]: event.target.value
+                      }))} rows={7} className="mt-4 w-full rounded-xl border border-[var(--border)] bg-background px-3 py-3 text-sm outline-none" />
+
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            <button type="button" onClick={() => setReplyDrafts(current => ({
+                          ...current,
+                          [review.id]: review.suggestedReply
+                        }))} className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-medium">
+                              AI suggestion reset
+                            </button>
+                            <button type="button" onClick={() => void saveReply(review)} disabled={savingReviewId === review.id} className="rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-60">
+                              {savingReviewId === review.id ? 'Saving...' : 'Save owner reply'}
+                            </button>
+                          </div>
+
+                          <p className="mt-4 text-[11px] text-muted-foreground">Account: {review.accountId} · Location: {review.locationId} · Public address: {review.locationAddress || 'n/a'}</p>
+                        </div>
+                      </div>
+                    </article>)}
+                </div>}
+            </section>
+          </>}
+      </div>
+    </main>
+  </div>;
 }
 /* Lulu dropdown navigation — intentionally isolated from page content. */
 const luluDropdownNavigation = [{
