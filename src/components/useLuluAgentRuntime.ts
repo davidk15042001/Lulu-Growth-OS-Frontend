@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { agentApi, type AgentRun, type IntelligenceBundle } from "../api/agents";
+import {
+  agentApi,
+  agentModuleForContract,
+  agentPageContextFromContract,
+  autoAgentGoalForContract,
+  type AgentRun,
+  type IntelligenceBundle,
+} from "../api/agents";
 import { aiApi, type Conversation } from "../api/ai";
 import { calendarApi, type CalendarAccount, type CalendarEvent } from "../api/calendar";
 import { getFriendlyErrorMessage } from "../api/client";
@@ -64,9 +71,11 @@ const DASHBOARD_SECTION_LABEL = "Dashboard";
 const AI_SECTION_LABEL = "AI";
 const MARKETING_SECTION_LABEL = "Marketing";
 const CACHE_TTL_MS = 30_000;
+const PAGE_AGENT_ENSURE_TTL_MS = 30 * 60 * 1000;
 
 const runtimeCache = new Map<string, AgentRuntimeSnapshot>();
 const inflightRuntimeLoads = new Map<string, Promise<AgentRuntimeSnapshot>>();
+const pageAgentEnsureTimestamps = new Map<string, number>();
 
 function interpolate(template: string, values: Array<string | number>) {
   return values.reduce<string>((message, value, index) => message.replace(`{{${index}}}`, String(value)), template);
@@ -685,8 +694,8 @@ async function loadSpecializedLiveData(
   if (isDashboardAgent(contract)) {
     const [metricsResponse, agentRunsResponse, knowledgeResponse] = await Promise.all([
       metricApi.list(workspaceId),
-      agentApi.list(workspaceId),
-      agentApi.knowledge(workspaceId),
+      agentApi.list(workspaceId, { pageId: contract.pageId }),
+      agentApi.knowledge(workspaceId, { pageId: contract.pageId }),
     ]);
     return buildDashboardLiveData(t, contract.integrations.length, metricsResponse.data.items, agentRunsResponse.data.items, knowledgeResponse.data);
   }
@@ -694,8 +703,8 @@ async function loadSpecializedLiveData(
   if (isAiAgent(contract)) {
     const [conversationResponse, agentRunsResponse, knowledgeResponse] = await Promise.all([
       aiApi.conversations(workspaceId, "limit=25&archived=false"),
-      agentApi.list(workspaceId),
-      agentApi.knowledge(workspaceId),
+      agentApi.list(workspaceId, { pageId: contract.pageId }),
+      agentApi.knowledge(workspaceId, { pageId: contract.pageId }),
     ]);
     return buildAiLiveData(t, contract.integrations.length, conversationResponse.data.items, agentRunsResponse.data.items, knowledgeResponse.data);
   }
@@ -818,6 +827,47 @@ export function useLuluAgentRuntime(
       window.clearInterval(timer);
     };
   }, [contract, language, t, workspaceId]);
+
+  useEffect(() => {
+    if (!workspaceId) return;
+    const ensureKey = `${workspaceId}:${contract.pageId}`;
+    const lastEnsuredAt = pageAgentEnsureTimestamps.get(ensureKey) ?? 0;
+    if (Date.now() - lastEnsuredAt < PAGE_AGENT_ENSURE_TTL_MS) return;
+
+    let active = true;
+
+    const ensurePageRun = async () => {
+      try {
+        const response = await agentApi.list(workspaceId, { pageId: contract.pageId });
+        if (!active) return;
+        const freshRun = response.data.items.find((run) => {
+          if (["queued", "planning", "running", "waiting_approval"].includes(run.status)) return true;
+          const updatedAt = Date.parse(run.updatedAt);
+          return Number.isFinite(updatedAt) && Date.now() - updatedAt < PAGE_AGENT_ENSURE_TTL_MS;
+        });
+        if (freshRun) {
+          pageAgentEnsureTimestamps.set(ensureKey, Date.now());
+          return;
+        }
+
+        await agentApi.create(workspaceId, autoAgentGoalForContract(contract), {
+          module: agentModuleForContract(contract),
+          page: agentPageContextFromContract(contract),
+          dedupeMinutes: 45,
+        });
+        if (!active) return;
+        pageAgentEnsureTimestamps.set(ensureKey, Date.now());
+        runtimeCache.delete(getRuntimeCacheKey(workspaceId, contract.pageId, language));
+      } catch {
+        // Keep page runtime resilient when a background page-agent run cannot be started.
+      }
+    };
+
+    void ensurePageRun();
+    return () => {
+      active = false;
+    };
+  }, [contract, language, workspaceId]);
 
   return useMemo(() => {
     const generic = createGenericCards(t, snapshot.bootstrap, snapshot.platforms);
