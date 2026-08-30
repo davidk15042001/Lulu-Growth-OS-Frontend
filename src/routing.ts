@@ -39,7 +39,6 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "bravely-path-4713": routes.onboarding.companyInformation,
   "quiet-garden-9477": routes.onboarding.businessDescription,
   "keen-morning-6353": routes.onboarding.productsServices,
-  "fresh-tide-9404": routes.onboarding.existingPlatforms,
   "lulu-website-portal-9012": routes.app.website,
   "lulu-email-portal-9013": routes.app.email,
   "lulu-calendar-portal-9014": routes.app.calendar,

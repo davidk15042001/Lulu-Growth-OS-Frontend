@@ -24,7 +24,6 @@ const ONBOARDING_SLUGS = new Set([
   "bravely-path-4713",
   "quiet-garden-9477",
   "keen-morning-6353",
-  "fresh-tide-9404",
 ]);
 
 const WORKSPACE_SLUGS = new Set([
@@ -63,6 +62,7 @@ const SPECIAL_CONTRACTS: Record<string, PageContract> = {
   "fresh-moon-5374": { kind: "ai" },
   "sunny-moon-6307": { kind: "ai" },
   "pure-minute-5446": { kind: "billing" },
+  "fresh-tide-9404": { kind: "integrations" },
   "glad-coast-1428": { kind: "integrations" },
   "swift-pool-5077": { kind: "metrics" },
 };

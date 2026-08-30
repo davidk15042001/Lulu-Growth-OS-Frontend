@@ -3,7 +3,7 @@ import type { PageContract } from "./page-contracts";
 import { livePanelStyles } from "./live-panel-ui";
 import { AiPanel } from "./panels/AiPanel";
 import { BillingPanel } from "./panels/BillingPanel";
-import { IntegrationsPanel } from "./panels/IntegrationsPanel";
+import { GoogleBusinessIntegrationsPanel } from "./panels/GoogleBusinessIntegrationsPanel";
 import { MetricsPanel } from "./panels/MetricsPanel";
 import { ResourcePanel } from "./panels/ResourcePanel";
 import { WorkspacePanel } from "./panels/WorkspacePanel";
@@ -17,6 +17,6 @@ export function LiveApiPanel({ workspaceId, contract }: { workspaceId: string; c
   if (contract.kind === "metrics") return <MetricsPanel workspaceId={workspaceId} onClose={close} />;
   if (contract.kind === "ai") return <AiPanel workspaceId={workspaceId} onClose={close} />;
   if (contract.kind === "billing") return <BillingPanel workspaceId={workspaceId} onClose={close} />;
-  if (contract.kind === "integrations") return <IntegrationsPanel workspaceId={workspaceId} onClose={close} />;
+  if (contract.kind === "integrations") return <GoogleBusinessIntegrationsPanel workspaceId={workspaceId} onClose={close} />;
   return <WorkspacePanel workspaceId={workspaceId} onClose={close} />;
 }
