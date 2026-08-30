@@ -1,12 +1,11 @@
-import { ArrowRight, RefreshCw } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { useMemo } from "react";
 import { useLuluApp } from "../api/LuluAppContext";
 import { getPageContract, RESOURCE_BY_SLUG, type PageContract } from "../api/page-contracts";
 import type { WorkspaceRecord } from "../api/records";
 import { useLiveRecords } from "../api/useLiveRecords";
-import { type LuluAgentContract, luluVisibleNavigationAgentSections } from "../config/lulu-agent-registry";
+import { type LuluAgentContract } from "../config/lulu-agent-registry";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
-import { pageLinkProps } from "../routing";
 import { WorkspaceIntelligencePanel } from "./WorkspaceIntelligencePanel";
 
 const OVERVIEW_RESOURCE_BY_PAGE_ID: Readonly<Record<string, string>> = {
@@ -52,16 +51,6 @@ export function MinimalAgentWorkspacePage({
   const workspaceId = selectedWorkspace?.id ?? null;
   const resourceType = resolveResourceType(slug, contract);
   const records = useLiveRecords(resourceType, "limit=25");
-
-  const section = useMemo(
-    () => luluVisibleNavigationAgentSections.find((entry) => entry.label === agentContract.sectionLabel) ?? null,
-    [agentContract.sectionLabel],
-  );
-
-  const sectionLinks = useMemo(
-    () => (section?.pages ?? []).filter((page) => page.pageId !== agentContract.pageId).slice(0, 6),
-    [agentContract.pageId, section],
-  );
 
   const recentRecords = useMemo(
     () =>
@@ -233,26 +222,6 @@ export function MinimalAgentWorkspacePage({
           </section>
 
           <div className="grid gap-6">
-            <section className="rounded-xl border border-border bg-card p-5">
-              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("Next best places")}</p>
-              <h2 className="mt-1 text-lg font-semibold text-foreground">{t("Open another agent in this section")}</h2>
-              <div className="mt-4 grid gap-3">
-                {sectionLinks.map((page) => (
-                  <a
-                    key={page.pageId}
-                    {...pageLinkProps(page.pageId)}
-                    className="rounded-lg border border-border bg-background/50 px-4 py-3 transition hover:border-border hover:bg-background"
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <strong className="text-sm text-foreground">{page.pageLabel}</strong>
-                      <ArrowRight size={15} className="text-muted-foreground" />
-                    </div>
-                    <p className="mt-1 text-xs text-muted-foreground">{page.objective}</p>
-                  </a>
-                ))}
-              </div>
-            </section>
-
             <section className="rounded-xl border border-border bg-card p-5">
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
                 {resourceType ? t("Needs attention") : t("Approval boundary")}
