@@ -549,6 +549,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
   const [detail, setDetail] = useState<UserDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [saving, setSaving] = useState("");
+  const [workspaceSavingId, setWorkspaceSavingId] = useState("");
 
   const load = async (q?: string) => {
     setLoading(true); onError("");
@@ -578,6 +579,18 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
       await load(search);
     } catch (e) { onError(getFriendlyErrorMessage(e, "Aktion fehlgeschlagen.")); }
     finally { setSaving(""); }
+  };
+
+  const skipWorkspaceOnboarding = async (workspaceId: string) => {
+    if (!detail) return;
+    setWorkspaceSavingId(workspaceId); onError("");
+    try {
+      await requestApi<WorkspaceDetail>({ path: `/admin/workspaces/${workspaceId}`, method: "PATCH", body: { action: "skip-onboarding" } });
+      const res = await requestApi<UserDetail>({ path: `/admin/users/${detail.id}` });
+      setDetail(res.data);
+      await load(search);
+    } catch (e) { onError(getFriendlyErrorMessage(e, "Onboarding konnte nicht übersprungen werden.")); }
+    finally { setWorkspaceSavingId(""); }
   };
 
   const debouncedSearch = (() => {
@@ -643,6 +656,18 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
                         <div className="text-xs text-slate-500">Onboarding: {w.onboardingStep}</div>
                       </div>
                       <div className="flex items-center gap-2">
+                        {!w.onboardingCompletedAt ? (
+                          <button
+                            disabled={workspaceSavingId === w.id}
+                            onClick={() => void skipWorkspaceOnboarding(w.id)}
+                            className="inline-flex items-center gap-1 rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-800 hover:bg-emerald-100 disabled:opacity-50"
+                          >
+                            <PlayCircle size={12} />
+                            {workspaceSavingId === w.id ? "Speichere…" : "Onboarding überspringen"}
+                          </button>
+                        ) : (
+                          <Pill tone="emerald">Done</Pill>
+                        )}
                         <Pill tone={w.role === "owner" ? "violet" : "slate"}>{w.role}</Pill>
                         <span className="text-xs text-slate-500">{dateOnly(w.joinedAt)}</span>
                       </div>
@@ -721,7 +746,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
     finally { setDetailLoading(false); }
   };
 
-  const runAction = async (action: "lock" | "unlock" | "reset-onboarding" | "set-plan", planKey?: Plan) => {
+  const runAction = async (action: "lock" | "unlock" | "reset-onboarding" | "skip-onboarding" | "set-plan", planKey?: Plan) => {
     if (!detail) return;
     setSaving(action); onError("");
     try {
@@ -784,6 +809,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                 <option value="ai">AI</option>
                 <option value="test">Test</option>
               </select>
+              <button disabled={!!saving} onClick={() => runAction("skip-onboarding")} className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-100 disabled:opacity-50"><PlayCircle size={14} /> Skip Onboarding</button>
               <button disabled={!!saving} onClick={() => runAction("reset-onboarding")} className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"><RotateCcw size={14} /> Reset Onboarding</button>
               <button disabled={!!saving} onClick={() => runAction("unlock")} className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-800 hover:bg-sky-100 disabled:opacity-50"><Unlock size={14} /> Unlock</button>
               <button disabled={!!saving} onClick={() => runAction("lock")} className="inline-flex items-center gap-1.5 rounded-md border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-800 hover:bg-rose-100 disabled:opacity-50"><Ban size={14} /> Lock</button>
@@ -799,7 +825,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                 <div className="flex justify-between"><dt className="text-slate-500">Trial ends</dt><dd>{dateOnly(detail.trialEndsAt)}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Period</dt><dd>{dateOnly(detail.periodStartsAt)} – {dateOnly(detail.periodEndsAt)}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Seats</dt><dd>{detail.seats ?? "—"}</dd></div>
-                <div className="flex justify-between"><dt className="text-slate-500">Onboarding</dt><dd>{detail.onboardingStep}{detail.onboardingCompletedAt ? " (Done)" : ""}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Onboarding</dt><dd>{detail.onboardingStep}{detail.onboardingCompletedAt ? " (Done / skipped possible)" : ""}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Files purged</dt><dd>{dateOnly(detail.filesPurgedAt)}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Legal form</dt><dd>{detail.legalForm ?? "—"}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Founded</dt><dd>{detail.foundingYear ?? "—"}</dd></div>
