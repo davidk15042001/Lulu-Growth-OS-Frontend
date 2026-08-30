@@ -65,8 +65,11 @@ type AudienceEvidence = {
   tone: "green" | "amber" | "red" | "purple";
 };
 
+type AudienceSegmentOrigin = "existing" | "generated";
+
 type AudienceSegmentInsight = {
   segment: CustomerSegment;
+  origin: AudienceSegmentOrigin;
   liveRecord: WorkspaceRecord | null;
   relevantHits: AudienceSearchHit[];
   scores: AudienceScoreCategory[];
@@ -83,6 +86,7 @@ type AudienceSegmentInsight = {
 };
 
 const CHANNELS: SearchChannel[] = ["seo", "geo", "aeo"];
+const GENERATED_SEGMENT_PREFIX = "generated-audience-";
 
 const Pill = ({
   children,
@@ -131,6 +135,10 @@ function average(values: number[]): number {
   return values.length ? Math.round(values.reduce((sum, value) => sum + value, 0) / values.length) : 0;
 }
 
+function normalizeKey(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+}
+
 function textValue(value: unknown): string {
   if (value === null || value === undefined) return "";
   if (typeof value === "string") return value.trim();
@@ -143,6 +151,28 @@ function textValue(value: unknown): string {
 function listValue(value: unknown): string[] {
   if (!Array.isArray(value)) return [];
   return value.map((entry) => textValue(entry)).filter(Boolean);
+}
+
+function uniqueStrings(values: unknown[], limit = Number.POSITIVE_INFINITY): string[] {
+  const seen = new Set<string>();
+  const result: string[] = [];
+
+  for (const value of values) {
+    const text = textValue(value).replace(/\s+/g, " ").trim();
+    if (!text) continue;
+    const key = normalizeKey(text);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    result.push(text);
+    if (result.length >= limit) break;
+  }
+
+  return result;
+}
+
+function limitWords(value: string, limit = 8): string {
+  const words = value.trim().split(/\s+/).filter(Boolean);
+  return words.slice(0, limit).join(" ");
 }
 
 function numberValue(value: unknown) {
@@ -220,6 +250,206 @@ function signalMetricsSummary(summary: SearchChannelSummary | undefined) {
   if (!summary) return "No connected search signal yet.";
   const metrics = summary.metrics;
   return `${metrics.records} records, ${metrics.opportunities} opportunities and ${summary.connectedTargets.length} connected target${summary.connectedTargets.length === 1 ? "" : "s"}.`;
+}
+
+function segmentOrigin(segment: CustomerSegment): AudienceSegmentOrigin {
+  return segment.id.startsWith(GENERATED_SEGMENT_PREFIX) ? "generated" : "existing";
+}
+
+function dedupeSegments(segments: CustomerSegment[]): CustomerSegment[] {
+  const seen = new Set<string>();
+  const deduped: CustomerSegment[] = [];
+
+  for (const segment of segments) {
+    const key = normalizeKey(segment.name) || segment.id;
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    deduped.push(segment);
+  }
+
+  return deduped;
+}
+
+function deriveRoleSeeds(snapshot: OnboardingSnapshot): string[] {
+  const platformBlob = snapshot.platforms
+    .map((platform) => [platform.name, platform.category, platform.integrationKey].filter(Boolean).join(" ").toLowerCase())
+    .join(" ");
+
+  return uniqueStrings([
+    ...snapshot.customerSegments.flatMap((segment) => segment.buyingRoles),
+    platformBlob.includes("crm") || platformBlob.includes("sales") ? "Revenue Lead" : null,
+    platformBlob.includes("crm") || platformBlob.includes("sales") ? "Sales Lead" : null,
+    platformBlob.includes("meta") || platformBlob.includes("linkedin") || platformBlob.includes("google") || platformBlob.includes("ads") ? "Demand Gen Lead" : null,
+    platformBlob.includes("shopify") || platformBlob.includes("commerce") || platformBlob.includes("store") ? "Ecommerce Manager" : null,
+    platformBlob.includes("wordpress") || platformBlob.includes("webflow") || platformBlob.includes("content") || platformBlob.includes("seo") ? "Content Lead" : null,
+    "Founder",
+    "Marketing Lead",
+    "Growth Lead",
+    "Operations Lead",
+    snapshot.offerings.some((offering) => offering.offeringType === "service") ? "Managing Director" : null,
+  ], 8);
+}
+
+function buildGeneratedAudienceCandidates(
+  snapshot: OnboardingSnapshot,
+  liveRecords: WorkspaceRecord[],
+  summaries: SearchSummaryMap,
+): CustomerSegment[] {
+  const workspace = snapshot.workspace;
+  const industries = uniqueStrings([
+    workspace.industry,
+    ...snapshot.customerSegments.map((segment) => segment.industry),
+    ...workspace.regulatedIndustries,
+  ], 4);
+  const companySizes = uniqueStrings([
+    workspace.companySize,
+    ...snapshot.customerSegments.map((segment) => segment.companySize),
+    "SMB",
+    "Mid-market",
+    "Enterprise",
+  ], 4);
+  const regions = uniqueStrings([
+    workspace.countryRegion,
+    workspace.targetMarket,
+    ...snapshot.customerSegments.map((segment) => segment.region),
+    ...workspace.languages.map((language) => `${language}-speaking markets`),
+  ], 4);
+  const maturities = uniqueStrings([
+    workspace.companyStage,
+    ...snapshot.customerSegments.map((segment) => segment.maturityLevel),
+    "Growing",
+    "Scaling",
+    "Established",
+  ], 3);
+  const roleSeeds = deriveRoleSeeds(snapshot);
+  const painSeeds = uniqueStrings([
+    ...workspace.primaryChallenges,
+    workspace.primaryIcp,
+    workspace.valueProposition,
+    ...snapshot.customerSegments.flatMap((segment) => [...segment.painPoints, ...segment.jobsToBeDone, ...segment.useCases, segment.notes]),
+    ...snapshot.offerings.flatMap((offering) => [
+      offering.customerProblem,
+      offering.targetCustomer,
+      offering.valueProposition,
+      ...offering.useCases,
+      ...offering.differentiators,
+    ]),
+    ...liveRecords.flatMap((record) => [
+      record.name,
+      record.description,
+      ...Object.values(record.data ?? {}).map((entry) => textValue(entry)),
+    ]),
+    ...CHANNELS.flatMap((channel) => (summaries[channel]?.items ?? []).flatMap((item) => [item.name, item.description])),
+  ], 16).map((value) => limitWords(value, 7));
+  const useCaseSeeds = uniqueStrings([
+    ...snapshot.offerings.flatMap((offering) => offering.useCases),
+    ...snapshot.customerSegments.flatMap((segment) => [...segment.useCases, ...segment.jobsToBeDone]),
+    workspace.primaryIcp,
+    workspace.valueProposition,
+    workspace.targetMarket,
+  ], 14).map((value) => limitWords(value, 7));
+  const decisionSeeds = uniqueStrings([
+    ...snapshot.customerSegments.flatMap((segment) => segment.decisionCriteria),
+    ...snapshot.offerings.flatMap((offering) => [...offering.differentiators, ...offering.proofPoints, ...offering.objections]),
+    workspace.usp,
+    workspace.valueProposition,
+  ], 10).map((value) => limitWords(value, 7));
+
+  const liveCandidates = liveRecords.slice(0, 4).map((record, index) => {
+    const role = roleSeeds[index % Math.max(roleSeeds.length, 1)] ?? "Growth Lead";
+    const industry = industries[index % Math.max(industries.length, 1)] ?? workspace.industry ?? "Digital";
+    const companySize = companySizes[index % Math.max(companySizes.length, 1)] ?? workspace.companySize ?? "Growth-stage";
+    const region = regions[index % Math.max(regions.length, 1)] ?? workspace.countryRegion ?? "Global";
+    const maturityLevel = maturities[index % Math.max(maturities.length, 1)] ?? workspace.companyStage ?? "Scaling";
+
+    return {
+      id: `${GENERATED_SEGMENT_PREFIX}record-${record.id}`,
+      name: record.name || `${role} in ${industry}`,
+      industry,
+      companySize,
+      region,
+      maturityLevel,
+      painPoints: uniqueStrings([
+        record.description,
+        ...listValue(record.data?.painPoints),
+        ...listValue(record.data?.challenges),
+        painSeeds[index],
+        workspace.primaryChallenges[index % Math.max(workspace.primaryChallenges.length, 1)],
+      ], 3),
+      jobsToBeDone: uniqueStrings([
+        ...listValue(record.data?.jobsToBeDone),
+        ...listValue(record.data?.jobs),
+        useCaseSeeds[index],
+        snapshot.offerings[index % Math.max(snapshot.offerings.length, 1)]?.useCases[0],
+      ], 3),
+      decisionCriteria: uniqueStrings([
+        ...listValue(record.data?.decisionCriteria),
+        decisionSeeds[index],
+        decisionSeeds[(index + 1) % Math.max(decisionSeeds.length, 1)],
+      ], 3),
+      useCases: uniqueStrings([
+        ...listValue(record.data?.useCases),
+        useCaseSeeds[index],
+        useCaseSeeds[(index + 1) % Math.max(useCaseSeeds.length, 1)],
+      ], 3),
+      buyingRoles: uniqueStrings([
+        textValue(record.data?.role),
+        textValue(record.data?.buyer),
+        textValue(record.data?.owner),
+        role,
+      ], 2),
+      priceSensitivity: textValue(record.data?.priceSensitivity) || snapshot.customerSegments[0]?.priceSensitivity || null,
+      primarySegment: index === 0 && snapshot.customerSegments.length === 0,
+      sortOrder: index,
+      notes: "Generated by Lulu from a live audience record plus workspace and search context.",
+    } satisfies CustomerSegment;
+  });
+
+  const syntheticCandidates: CustomerSegment[] = [];
+  const defaultIndustry = industries[0] ?? workspace.industry ?? "Digital";
+  const defaultSize = companySizes[0] ?? workspace.companySize ?? "Growth-stage";
+  const defaultRegion = regions[0] ?? workspace.countryRegion ?? "Global";
+  const defaultMaturity = maturities[0] ?? workspace.companyStage ?? "Scaling";
+
+  for (let index = 0; index < 12; index += 1) {
+    const role = roleSeeds[index % Math.max(roleSeeds.length, 1)] ?? "Growth Lead";
+    const industry = industries[index % Math.max(industries.length, 1)] ?? defaultIndustry;
+    const companySize = companySizes[index % Math.max(companySizes.length, 1)] ?? defaultSize;
+    const region = regions[index % Math.max(regions.length, 1)] ?? defaultRegion;
+    const maturityLevel = maturities[index % Math.max(maturities.length, 1)] ?? defaultMaturity;
+    const primaryTheme = painSeeds[index % Math.max(painSeeds.length, 1)] ?? workspace.primaryIcp ?? workspace.valueProposition ?? "growth execution";
+    const secondaryTheme = useCaseSeeds[index % Math.max(useCaseSeeds.length, 1)] ?? primaryTheme;
+    const tertiaryTheme = painSeeds[(index + 1) % Math.max(painSeeds.length, 1)] ?? workspace.targetMarket ?? secondaryTheme;
+    const name = `${role} at ${companySize} ${industry} companies`;
+
+    syntheticCandidates.push({
+      id: `${GENERATED_SEGMENT_PREFIX}${normalizeKey(name).replace(/\s+/g, "-") || index}`,
+      name,
+      industry,
+      companySize,
+      region,
+      maturityLevel,
+      painPoints: uniqueStrings([primaryTheme, tertiaryTheme, workspace.primaryChallenges[index % Math.max(workspace.primaryChallenges.length, 1)]], 3),
+      jobsToBeDone: uniqueStrings([secondaryTheme, primaryTheme, snapshot.offerings[index % Math.max(snapshot.offerings.length, 1)]?.useCases[0]], 3),
+      decisionCriteria: uniqueStrings([
+        decisionSeeds[index % Math.max(decisionSeeds.length, 1)],
+        decisionSeeds[(index + 1) % Math.max(decisionSeeds.length, 1)],
+        workspace.usp,
+      ], 3),
+      useCases: uniqueStrings([
+        secondaryTheme,
+        snapshot.offerings[index % Math.max(snapshot.offerings.length, 1)]?.useCases[0],
+        snapshot.offerings[index % Math.max(snapshot.offerings.length, 1)]?.valueProposition,
+      ], 3),
+      buyingRoles: uniqueStrings([role, roleSeeds[(index + 1) % Math.max(roleSeeds.length, 1)]], 2),
+      priceSensitivity: snapshot.customerSegments[index % Math.max(snapshot.customerSegments.length, 1)]?.priceSensitivity ?? null,
+      primarySegment: index === 0 && snapshot.customerSegments.length === 0,
+      sortOrder: index + liveCandidates.length,
+      notes: `Generated by Lulu from the company profile, offer catalog, live audience signals and search demand. Focus: ${secondaryTheme}.`,
+    });
+  }
+
+  return dedupeSegments([...liveCandidates, ...syntheticCandidates]).slice(0, 10);
 }
 
 function buildAudienceInsight(
@@ -450,6 +680,7 @@ function buildAudienceInsight(
 
   return {
     segment,
+    origin: segmentOrigin(segment),
     liveRecord,
     relevantHits,
     scores,
@@ -571,15 +802,33 @@ export const LuluAudiencesWorkspace = () => {
   const customerSegments = snapshot?.customerSegments ?? [];
   const platforms = snapshot?.platforms ?? [];
 
+  const generatedSegments = useMemo(
+    () => (snapshot ? buildGeneratedAudienceCandidates(snapshot, audienceRecords, summaries) : []),
+    [audienceRecords, snapshot, summaries],
+  );
+
+  const segmentPool = useMemo(
+    () => dedupeSegments([...customerSegments, ...generatedSegments]),
+    [customerSegments, generatedSegments],
+  );
+
+  const rankedAudienceInsights = useMemo(() => {
+    if (!snapshot) return [];
+    return segmentPool
+      .map((segment) => buildAudienceInsight(segment, snapshot, audienceRecords, summaries))
+      .sort((left, right) => right.totalScore - left.totalScore || Number(right.segment.primarySegment) - Number(left.segment.primarySegment));
+  }, [audienceRecords, segmentPool, snapshot, summaries]);
+
   const audienceInsights = useMemo(
-    () => customerSegments.map((segment) => buildAudienceInsight(segment, snapshot!, audienceRecords, summaries)),
-    [audienceRecords, customerSegments, snapshot, summaries],
+    () => rankedAudienceInsights.slice(0, 10),
+    [rankedAudienceInsights],
   );
 
   const visibleInsights = useMemo(() => {
-    if (!query.trim()) return audienceInsights;
+    const baseInsights = query.trim() ? rankedAudienceInsights : audienceInsights;
+    if (!query.trim()) return baseInsights;
     const term = query.trim().toLowerCase();
-    return audienceInsights.filter((insight) => {
+    return baseInsights.filter((insight) => {
       const blob = [
         insight.segment.name,
         insight.segment.industry,
@@ -594,8 +843,8 @@ export const LuluAudiencesWorkspace = () => {
         .join(" ")
         .toLowerCase();
       return blob.includes(term);
-    });
-  }, [audienceInsights, query]);
+    }).slice(0, 10);
+  }, [audienceInsights, query, rankedAudienceInsights]);
 
   useEffect(() => {
     if (!visibleInsights.length) {
@@ -609,14 +858,15 @@ export const LuluAudiencesWorkspace = () => {
   }, [selectedSegmentId, visibleInsights]);
 
   const selectedInsight = visibleInsights.find((insight) => insight.segment.id === selectedSegmentId) ?? null;
-  const topInsight = audienceInsights[0]
-    ? [...audienceInsights].sort((left, right) => right.totalScore - left.totalScore || Number(right.segment.primarySegment) - Number(left.segment.primarySegment))[0]
-    : null;
+  const topInsight = audienceInsights[0] ?? null;
   const primaryInsight = audienceInsights.find((insight) => insight.segment.primarySegment) ?? topInsight;
+  const generatedCandidateCount = segmentPool.filter((segment) => segmentOrigin(segment) === "generated").length;
+  const manualCandidateCount = segmentPool.length - generatedCandidateCount;
   const unresolvedDataGaps = [
     !workspace?.primaryIcp ? "Primary ICP is not documented yet." : null,
     !workspace?.valueProposition ? "Value proposition is missing." : null,
-    customerSegments.length === 0 ? "No customer segments have been defined yet." : null,
+    customerSegments.length === 0 && generatedSegments.length > 0 ? "No manual customer segments exist yet. The ranking is currently based on Lulu-generated audiences." : null,
+    customerSegments.length === 0 && generatedSegments.length === 0 ? "Lulu could not generate audience candidates from the available business data yet." : null,
     !audienceRecordTotal ? "No live audience records exist yet." : null,
     !summaries.seo && !summaries.geo && !summaries.aeo ? "No search-intelligence signals are available yet." : null,
   ].filter(Boolean) as string[];
@@ -627,7 +877,7 @@ export const LuluAudiencesWorkspace = () => {
   const connectedPlatforms = platforms.filter((platform) => ["connected", "active", "synced", "authorized"].includes(platform.connectionStatus.trim().toLowerCase())).length;
   const searchSignalTotals = CHANNELS.reduce((sum, channel) => sum + (summaries[channel]?.metrics.records ?? 0), 0);
   const searchOpportunityTotals = CHANNELS.reduce((sum, channel) => sum + (summaries[channel]?.metrics.opportunities ?? 0), 0);
-  const pageLoading = snapshotLoading || (audienceRecordsLoading && !audienceInsights.length);
+  const pageLoading = snapshotLoading || (audienceRecordsLoading && !rankedAudienceInsights.length);
 
   if (!workspaceId) {
     return (
@@ -701,12 +951,12 @@ export const LuluAudiencesWorkspace = () => {
             <RefreshCw className="mx-auto animate-spin text-muted-foreground" size={28} />
             <p className="mt-4 text-sm text-muted-foreground">Loading audience intelligence…</p>
           </div>
-        ) : !snapshot || customerSegments.length === 0 ? (
+        ) : !snapshot || !rankedAudienceInsights.length ? (
           <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
             <Users className="mx-auto text-muted-foreground" size={34} />
-            <h2 className="mt-4 text-xl font-semibold">No target audience model yet</h2>
+            <h2 className="mt-4 text-xl font-semibold">No audience engine yet</h2>
             <p className="mx-auto mt-2 max-w-2xl text-sm text-muted-foreground">
-              Lulu needs customer segments from onboarding before it can build a full audience intelligence system. Once segments exist, this page will score them, surface the best one to attack first and generate the fastest path to win that audience.
+              Lulu needs at least some company, offer or search context before it can generate and rank the 10 best audiences automatically.
             </p>
           </div>
         ) : (
@@ -714,9 +964,9 @@ export const LuluAudiencesWorkspace = () => {
             <section className="grid gap-4 xl:grid-cols-6">
               {[
                 {
-                  label: "Segments",
-                  value: `${customerSegments.length}`,
-                  detail: `${customerSegments.filter((segment) => segment.primarySegment).length} primary`,
+                  label: "Top Audiences",
+                  value: `${audienceInsights.length}`,
+                  detail: `${generatedCandidateCount} generated · ${manualCandidateCount} manual`,
                   icon: Users,
                 },
                 {
@@ -744,7 +994,7 @@ export const LuluAudiencesWorkspace = () => {
                   icon: Eye,
                 },
                 {
-                  label: "Best Segment",
+                  label: "Best Audience",
                   value: topInsight?.segment.name || "None",
                   detail: topInsight ? `${topInsight.totalScore}/10 overall fit` : "No segment ranked yet",
                   icon: TrendingUp,
@@ -772,7 +1022,7 @@ export const LuluAudiencesWorkspace = () => {
                     <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Audience thesis</p>
                     <h2 className="mt-2 text-lg font-semibold">Target audience operating system</h2>
                   </div>
-                  <Pill tone="purple">Analyze - Prioritize - Execute</Pill>
+                  <Pill tone="purple">Generate - Rank - Execute</Pill>
                 </div>
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   <div className="rounded-xl border border-border bg-[var(--secondary)] p-4">
@@ -842,9 +1092,9 @@ export const LuluAudiencesWorkspace = () => {
               <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                   <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Priority matrix</p>
-                  <h2 className="mt-2 text-lg font-semibold">Which audience should we win first?</h2>
+                    <h2 className="mt-2 text-lg font-semibold">Which 10 audiences should we attack first?</h2>
                 </div>
-                <p className="text-sm text-muted-foreground">Lulu ranks each segment by ICP clarity, urgency, buying readiness, offer fit, discoverability and conversion readiness.</p>
+                <p className="text-sm text-muted-foreground">Lulu generates its own audience candidates and ranks the best 10 by ICP clarity, urgency, buying readiness, offer fit, discoverability and conversion readiness.</p>
               </div>
               <div className="mt-5 grid gap-4 xl:grid-cols-3">
                 {visibleInsights.map((insight) => (
@@ -863,6 +1113,9 @@ export const LuluAudiencesWorkspace = () => {
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-lg font-semibold text-foreground">{insight.segment.name}</h3>
                           {insight.segment.primarySegment && <Pill tone="green">Primary</Pill>}
+                          <Pill tone={insight.origin === "generated" ? "purple" : "gray"}>
+                            {insight.origin === "generated" ? "Generated by Lulu" : "Manual"}
+                          </Pill>
                         </div>
                         <p className="mt-2 text-sm text-muted-foreground">
                           {[insight.segment.industry, insight.segment.companySize, insight.segment.region].filter(Boolean).join(" · ") || "Audience profile still incomplete"}
@@ -887,10 +1140,15 @@ export const LuluAudiencesWorkspace = () => {
                   <article className="rounded-2xl border border-border bg-card p-5">
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Selected segment</p>
+                        <p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Selected audience</p>
                         <h2 className="mt-2 text-lg font-semibold">{selectedInsight.segment.name}</h2>
                       </div>
-                      <Pill tone={scoreTone(selectedInsight.totalScore)}>{selectedInsight.totalScore}/10 fit</Pill>
+                      <div className="flex items-center gap-2">
+                        <Pill tone={selectedInsight.origin === "generated" ? "purple" : "gray"}>
+                          {selectedInsight.origin === "generated" ? "Generated by Lulu" : "Manual"}
+                        </Pill>
+                        <Pill tone={scoreTone(selectedInsight.totalScore)}>{selectedInsight.totalScore}/10 fit</Pill>
+                      </div>
                     </div>
                     <p className="mt-4 text-sm text-muted-foreground">
                       {selectedInsight.segment.notes || `${selectedInsight.segment.name} is currently the best audience to attack next based on the available business, offer and discovery signals.`}
