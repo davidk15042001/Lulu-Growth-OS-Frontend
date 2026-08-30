@@ -5,6 +5,7 @@ import { LiveResourceGate } from "./api/LiveResourceGate";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
 import { LuluAgentWorkspaceHeader } from "./components/LuluAgentWorkspaceHeader";
+import { MinimalAgentWorkspacePage } from "./components/MinimalAgentWorkspacePage";
 import { routes } from "./routing";
 import { getPageContract } from "./api/page-contracts";
 import { getLuluAgentContract } from "./config/lulu-agent-registry";
@@ -42,6 +43,29 @@ const navigationFreePaths = new Set([
   "/onboarding/setup-complete",
 ]);
 
+const MINIMAL_AGENT_PAGE_EXCEPTIONS = new Set([
+  "fancily-leaf-1766",
+  "bright-meadow-7537",
+  "finely-garden-9221",
+  "quietly-stone-4158",
+  "fresh-moon-5374",
+  "sunny-moon-6307",
+  "breezily-wood-5980",
+  "daring-brook-9034",
+  "fresh-tide-9404",
+  "glad-coast-1428",
+  "pure-minute-5446",
+  "lulu-website-portal-9012",
+  "lulu-email-portal-9013",
+  "lulu-calendar-portal-9014",
+]);
+
+function shouldUseMinimalAgentPage(slug: string, contract: ReturnType<typeof getPageContract>, hasAgentContract: boolean) {
+  if (!hasAgentContract) return false;
+  if (MINIMAL_AGENT_PAGE_EXCEPTIONS.has(slug)) return false;
+  return contract?.kind === "workspace" || contract?.kind === "resource" || contract?.kind === "metrics";
+}
+
 function pageSlugFromPath(pathname: string) {
   const segments = pathname.split("/").filter(Boolean);
   if (segments[0] === "entries" && segments[1]) return segments[1];
@@ -65,8 +89,14 @@ export function NativePage({ slug }: { slug: string }) {
   const agentContract = getLuluAgentContract(effectiveSlug);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
   const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname);
+  const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(slug, contract, Boolean(agentContract));
 
   useEffect(() => {
+    if (useMinimalAgentPage) {
+      setApp(null);
+      setError(null);
+      return;
+    }
     const resetScrollPositions = () => {
       window.scrollTo({ top: 0, left: 0, behavior: "auto" });
       document.querySelectorAll<HTMLElement>("main, [data-lulu-scroll-container], .lulu-native-page, .lulu-native-page *").forEach((element) => {
@@ -137,7 +167,7 @@ export function NativePage({ slug }: { slug: string }) {
         pageFrame.classList.remove("page-frame--auth");
       }
     };
-  }, [slug]);
+  }, [slug, useMinimalAgentPage, isAuthPage]);
 
   if (error) {
     return (
@@ -152,6 +182,23 @@ export function NativePage({ slug }: { slug: string }) {
   }
 
   if (!App) {
+    if (useMinimalAgentPage && agentContract) {
+      return (
+        <LuluRuntime slug={slug}>
+          <div className="lulu-global-shell">
+            <LuluGlobalNavigation activeSlug={effectiveSlug} />
+            <div className="lulu-global-content">
+              <LuluAgentWorkspaceHeader contract={agentContract} />
+              <div className="lulu-native-page">
+                <PageErrorBoundary pageName={slug}>
+                  <MinimalAgentWorkspacePage slug={slug} contract={contract} agentContract={agentContract} />
+                </PageErrorBoundary>
+              </div>
+            </div>
+          </div>
+        </LuluRuntime>
+      );
+    }
     return (
       <main className="page-loading" role="status">
         Loading page…
