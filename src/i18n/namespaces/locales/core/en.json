@@ -1,0 +1,22 @@
+{
+  "welcome": "WELCOME BACK",
+  "headline": "Your business context is waiting.",
+  "email": "Work email",
+  "password": "Password",
+  "signIn": "Sign in",
+  "signingIn": "Signing in…",
+  "forgotPassword": "Forgot password?",
+  "createAccount": "Create account",
+  "missingCredentials": "Please enter your email and password.",
+  "accountNotFound": "We could not find an account with this email.",
+  "invalidCredentials": "The email or password is not correct. Please check both and try again.",
+  "timeout": "The server is not responding. Please try again shortly.",
+  "Lulu AI platform": "Lulu AI platform",
+  "Turn business signals into confident action.": "Turn business signals into confident action.",
+  "AI-first workspace": "AI-first workspace",
+  "Server-side by design": "Server-side by design",
+  "Connect your business context.": "Connect your business context.",
+  "Let AI structure and analyze it.": "Let AI structure and analyze it.",
+  "Lulu Intelligence / Overview": "Lulu Intelligence / Overview",
+  "Built to connect the systems behind your business": "Built to connect the systems behind your business"
+}

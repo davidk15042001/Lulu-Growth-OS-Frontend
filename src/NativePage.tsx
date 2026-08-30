@@ -4,8 +4,10 @@ import { LuluRuntime, usesStaticResourceGate } from "./api/runtime";
 import { LiveResourceGate } from "./api/LiveResourceGate";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
+import { LuluAgentWorkspaceHeader } from "./components/LuluAgentWorkspaceHeader";
 import { routes } from "./routing";
 import { getPageContract } from "./api/page-contracts";
+import { getLuluAgentContract } from "./config/lulu-agent-registry";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
 
 type AppModule = { default: ComponentType };
@@ -60,6 +62,7 @@ export function NativePage({ slug }: { slug: string }) {
   const [App, setApp] = useState<ComponentType | null>(null);
   const [error, setError] = useState<unknown>(null);
   const contract = getPageContract(slug);
+  const agentContract = getLuluAgentContract(effectiveSlug);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
   const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname);
 
@@ -161,6 +164,7 @@ export function NativePage({ slug }: { slug: string }) {
       <div className={`lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}`}>
         {!isNavigationFree && <LuluGlobalNavigation activeSlug={effectiveSlug} />}
         <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
+          {!isNavigationFree && agentContract ? <LuluAgentWorkspaceHeader contract={agentContract} /> : null}
           <div className="lulu-native-page">
             <PageErrorBoundary pageName={slug}>
               <LiveResourceGate

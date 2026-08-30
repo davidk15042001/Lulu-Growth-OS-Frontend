@@ -1,0 +1,17 @@
+{
+  "Disconnect": "Disconnect",
+  "Website": "Website",
+  "Setting up…": "Setting up…",
+  "Website generation": "Website generation",
+  "Wenn WordPress.com die Google-Anmeldung nicht initialisieren kann, melde dich dort direkt mit deiner WordPress-E-Mail oder deinem Benutzernamen und Passwort an. Lulu erhält den OAuth-Code erst nach erfolgreicher Anmeldung.": "If WordPress.com cannot initialize Google sign-in, sign in there directly with your WordPress email address or username and password. Lulu receives the OAuth code only after you sign in successfully.",
+  "WordPress-Verbindung neu starten": "Restart WordPress connection",
+  "Der neue Start erzeugt einen frischen OAuth-State.": "Restarting creates a fresh OAuth state.",
+  "Close generation window": "Close generation window",
+  "Website generation could not be cancelled.": "Website generation could not be cancelled.",
+  "Website is being created": "Website is being created",
+  "The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.": "The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.",
+  "Website generation could not be resumed.": "Website generation could not be resumed.",
+  "Select website": "Select website",
+  "Select the WordPress website that should receive the generated content.": "Select the WordPress website that should receive the generated content.",
+  "Website generation stopped after {{attempts}} interrupted worker attempts. No background work is still running.": "Website generation stopped after {{attempts}} interrupted worker attempts. No background work is still running."
+}

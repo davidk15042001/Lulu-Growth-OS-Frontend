@@ -1,24 +1,51 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, Languages as LanguagesIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
+import deCoreLocaleUrl from "./namespaces/locales/core/de.json?url";
+import enCoreLocaleUrl from "./namespaces/locales/core/en.json?url";
+import zhCnCoreLocaleUrl from "./namespaces/locales/core/zh-CN.json?url";
+import deWorkspaceShellLocaleUrl from "./namespaces/locales/workspace-shell/de.json?url";
+import enWorkspaceShellLocaleUrl from "./namespaces/locales/workspace-shell/en.json?url";
+import zhCnWorkspaceShellLocaleUrl from "./namespaces/locales/workspace-shell/zh-CN.json?url";
+import deCoreRuntimeOverrideUrl from "./namespaces/runtime-overrides/core/de.json?url";
+import enCoreRuntimeOverrideUrl from "./namespaces/runtime-overrides/core/en.json?url";
+import zhCnCoreRuntimeOverrideUrl from "./namespaces/runtime-overrides/core/zh-CN.json?url";
+import deWorkspaceShellRuntimeOverrideUrl from "./namespaces/runtime-overrides/workspace-shell/de.json?url";
+import enWorkspaceShellRuntimeOverrideUrl from "./namespaces/runtime-overrides/workspace-shell/en.json?url";
+import zhCnWorkspaceShellRuntimeOverrideUrl from "./namespaces/runtime-overrides/workspace-shell/zh-CN.json?url";
 import {
   DEFAULT_LANGUAGE, getLanguage, isAvailableLanguageCode, isLanguageCode, LANGUAGE_STORAGE_KEY, languages,
   type LanguageCode,
 } from "./languages";
+import { routes } from "../routing";
 const LANGUAGE_EVENT = "lulu-language-changed";
 const LANGUAGE_LOADED_EVENT = "lulu-language-loaded";
-const localeLoaders: Partial<Record<LanguageCode, () => Promise<Record<string, string>>>> = {
-  en: () => import("./locales/en.json").then((module) => module.default),
-  de: () => import("./locales/de.json").then((module) => module.default),
-  "zh-CN": () => import("./locales/zh-CN.json").then((module) => module.default),
+type TranslationNamespace = string;
+
+const localeStaticNamespaceAssetUrls: Partial<Record<LanguageCode, Record<string, string>>> = {
+  en: { core: enCoreLocaleUrl, "workspace-shell": enWorkspaceShellLocaleUrl },
+  de: { core: deCoreLocaleUrl, "workspace-shell": deWorkspaceShellLocaleUrl },
+  "zh-CN": { core: zhCnCoreLocaleUrl, "workspace-shell": zhCnWorkspaceShellLocaleUrl },
 };
-const runtimeOverrideLoaders: Partial<Record<LanguageCode, () => Promise<Record<string, string>>>> = {
-  en: () => import("./runtime-overrides/en.json").then((module) => module.default),
-  de: () => import("./runtime-overrides/de.json").then((module) => module.default),
-  "zh-CN": () => import("./runtime-overrides/zh-CN.json").then((module) => module.default),
+const runtimeOverrideStaticNamespaceAssetUrls: Partial<Record<LanguageCode, Record<string, string>>> = {
+  en: { core: enCoreRuntimeOverrideUrl, "workspace-shell": enWorkspaceShellRuntimeOverrideUrl },
+  de: { core: deCoreRuntimeOverrideUrl, "workspace-shell": deWorkspaceShellRuntimeOverrideUrl },
+  "zh-CN": { core: zhCnCoreRuntimeOverrideUrl, "workspace-shell": zhCnWorkspaceShellRuntimeOverrideUrl },
 };
 const loadedTables: Record<string, Record<string, string>> = {};
+const loadedNamespaceTables: Partial<Record<LanguageCode, Record<string, Record<string, string>>>> = {};
+const loadingNamespaceTables = new Map<string, Promise<Record<string, string>>>();
+const pageLocaleAssetUrls = import.meta.glob("./namespaces/locales/pages/*/*.json", {
+  eager: true,
+  query: "?url",
+  import: "default",
+}) as Record<string, string>;
+const pageRuntimeOverrideAssetUrls = import.meta.glob("./namespaces/runtime-overrides/pages/*/*.json", {
+  eager: true,
+  query: "?url",
+  import: "default",
+}) as Record<string, string>;
 const originalText = new WeakMap<Text, string>();
 const appliedText = new WeakMap<Text, string>();
 const originalAttributes = new WeakMap<Element, Map<string, string>>();
@@ -155,16 +182,116 @@ function lookup(dictionary: Record<string, string>, source: string) {
   }
 }
 
-async function loadDictionary(language: LanguageCode) {
-  if (loadedTables[language]) return loadedTables[language];
-  const loader = localeLoaders[language];
-  if (!loader) return loadedTables.en;
-  const dictionary = await loader();
-  const overrideLoader = runtimeOverrideLoaders[language];
-  const overrides = overrideLoader ? await overrideLoader() : {};
-  const merged = { ...dictionary, ...overrides };
+async function loadJsonTable(url: string) {
+  const response = await fetch(url, { credentials: "same-origin" });
+  if (!response.ok) throw new Error(`Could not load translation table: ${response.status}`);
+  return response.json() as Promise<Record<string, string>>;
+}
+
+function pageSlugForPath(pathname: string) {
+  const pageSlugsByPath: Record<string, string> = {
+    [routes.auth.login]: "brightly-door-5741",
+    [routes.auth.signUp]: "finely-year-1146",
+    [routes.auth.forgotPassword]: "crisp-garden-7026",
+    [routes.auth.verificationEmail]: "crisp-week-7116",
+    [routes.auth.verifyEmail]: "eagerly-bay-9885",
+    [routes.auth.resetPassword]: "deep-coast-9085",
+    [routes.auth.sessionExpired]: "kind-morning-4984",
+    [routes.auth.signedOut]: "mightily-minute-5145",
+    [routes.onboarding.companyInformation]: "bravely-path-4713",
+    [routes.onboarding.businessDescription]: "quiet-garden-9477",
+    [routes.onboarding.productsServices]: "keen-morning-6353",
+    [routes.onboarding.existingPlatforms]: "fresh-tide-9404",
+    [routes.app.website]: "lulu-website-portal-9012",
+    [routes.app.email]: "lulu-email-portal-9013",
+    [routes.app.calendar]: "lulu-calendar-portal-9014",
+  };
+  if (pageSlugsByPath[pathname]) return pageSlugsByPath[pathname];
+  if (!pathname.startsWith("/app/")) return null;
+  const slug = pathname.slice("/app/".length).split("/")[0];
+  return slug || null;
+}
+
+function pageNamespacesForPortalSection(pathname: string, search: string) {
+  const section = new URLSearchParams(search).get("section") ?? "";
+  if (!section) return [] as string[];
+  if (pathname === routes.app.website) return [section, `website-${section}`];
+  if (pathname === routes.app.email) return [`email-${section || "inbox"}`];
+  if (pathname === routes.app.calendar) return [`calendar-${section || "overview"}`];
+  return [] as string[];
+}
+
+function requiredNamespaces(pathname: string, search: string): TranslationNamespace[] {
+  const namespaces = new Set<TranslationNamespace>(["core"]);
+  const slug = pageSlugForPath(pathname);
+  const usesWorkspaceShell = pathname.startsWith("/app/") || pathname === routes.onboarding.billing || pathname === routes.onboarding.billings;
+  if (usesWorkspaceShell) namespaces.add("workspace-shell");
+  if (slug) namespaces.add(`page:${slug}`);
+  for (const pageSlug of pageNamespacesForPortalSection(pathname, search)) {
+    namespaces.add(`page:${pageSlug}`);
+  }
+  return [...namespaces];
+}
+
+function namespaceAssetUrl(
+  assetUrls: Partial<Record<LanguageCode, Record<string, string>>>,
+  pageAssetUrls: Record<string, string>,
+  language: LanguageCode,
+  namespace: TranslationNamespace,
+) {
+  if (namespace.startsWith("page:")) {
+    const slug = namespace.slice("page:".length);
+    const assetPrefix = assetUrls === localeStaticNamespaceAssetUrls ? "locales" : "runtime-overrides";
+    return pageAssetUrls[`./namespaces/${assetPrefix}/pages/${slug}/${language}.json`] ?? null;
+  }
+  return assetUrls[language]?.[namespace] ?? null;
+}
+
+function mergeLoadedNamespaces(language: LanguageCode) {
+  const namespaceTables = loadedNamespaceTables[language];
+  if (!namespaceTables) return loadedTables[language] ?? {};
+  const merged = Object.values(namespaceTables).reduce<Record<string, string>>(
+    (accumulator, table) => ({ ...accumulator, ...table }),
+    {},
+  );
   loadedTables[language] = merged;
   return merged;
+}
+
+async function loadNamespace(language: LanguageCode, namespace: TranslationNamespace) {
+  const cached = loadedNamespaceTables[language]?.[namespace];
+  if (cached) return cached;
+  const localeUrl = namespaceAssetUrl(localeStaticNamespaceAssetUrls, pageLocaleAssetUrls, language, namespace);
+  if (!localeUrl) return {};
+  const cacheKey = `${language}:${namespace}`;
+  const existingLoad = loadingNamespaceTables.get(cacheKey);
+  if (existingLoad) return existingLoad;
+  const runtimeOverrideUrl = namespaceAssetUrl(runtimeOverrideStaticNamespaceAssetUrls, pageRuntimeOverrideAssetUrls, language, namespace);
+  const loadPromise = Promise.all([
+    loadJsonTable(localeUrl),
+    runtimeOverrideUrl
+      ? loadJsonTable(runtimeOverrideUrl)
+      : Promise.resolve({}),
+  ]).then(([dictionary, overrides]) => {
+    const merged = { ...dictionary, ...overrides };
+    loadedNamespaceTables[language] = {
+      ...(loadedNamespaceTables[language] ?? {}),
+      [namespace]: merged,
+    };
+    mergeLoadedNamespaces(language);
+    loadingNamespaceTables.delete(cacheKey);
+    return merged;
+  }).catch((error) => {
+    loadingNamespaceTables.delete(cacheKey);
+    throw error;
+  });
+  loadingNamespaceTables.set(cacheKey, loadPromise);
+  return loadPromise;
+}
+
+async function ensureNamespaces(language: LanguageCode, namespaces: TranslationNamespace[]) {
+  await Promise.all(namespaces.map((namespace) => loadNamespace(language, namespace)));
+  return mergeLoadedNamespaces(language);
 }
 
 function applyStaticTranslations(root: HTMLElement, language: LanguageCode, dictionary = loadedTables[language] ?? {}) {
@@ -200,6 +327,7 @@ export function GlobalLanguageSwitcher() {
   const timer = useRef<number | undefined>(undefined);
   const current = getLanguage(language);
   const isWorkspaceApp = location.pathname.startsWith("/app/");
+  const namespaces = useMemo(() => requiredNamespaces(location.pathname, location.search), [location.pathname, location.search]);
 
   useEffect(() => {
     let active = true;
@@ -212,7 +340,7 @@ export function GlobalLanguageSwitcher() {
     const root = document.getElementById("root");
     if (!root) return;
     const translate = () => applyStaticTranslations(root, language);
-    void loadDictionary(language).then(() => {
+    void ensureNamespaces(language, namespaces).then(() => {
       if (!active) return;
       translate();
       window.dispatchEvent(new Event(LANGUAGE_LOADED_EVENT));
@@ -242,7 +370,7 @@ export function GlobalLanguageSwitcher() {
     });
     observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...translatableAttributes] });
     return () => { active = false; observer.disconnect(); window.clearTimeout(timer.current); };
-  }, [language]);
+  }, [language, namespaces]);
 
   const selectLanguage = (next: LanguageCode) => {
     try {

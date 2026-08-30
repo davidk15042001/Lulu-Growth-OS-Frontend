@@ -19,10 +19,25 @@ export default defineConfig({
       input: 'index.html',
       output: {
         manualChunks(id) {
-          if (!id.includes('node_modules')) return undefined
-          if (id.includes('lucide-react')) return 'icons'
-          if (id.includes('recharts') || id.includes('victory') || id.includes('d3-')) return 'charts'
-          return 'vendor'
+          if (id.includes('node_modules')) {
+            if (id.includes('react-router')) return 'router'
+            if (id.includes('framer-motion')) return 'motion'
+            if (id.includes('lucide-react')) return 'icons'
+            if (id.includes('recharts') || id.includes('victory') || id.includes('d3-')) return 'charts'
+            return 'vendor'
+          }
+
+          if (id.includes('/src/i18n/')) return 'i18n-runtime'
+          if (id.includes('/src/api/')) return 'workspace-api'
+          if (
+            id.includes('/src/components/LuluAgentWorkspaceHeader.tsx')
+            || id.includes('/src/components/useLuluAgentRuntime.ts')
+            || id.includes('/src/config/lulu-agent-registry.ts')
+          ) {
+            return 'agent-runtime'
+          }
+
+          return undefined
         },
       },
     },
