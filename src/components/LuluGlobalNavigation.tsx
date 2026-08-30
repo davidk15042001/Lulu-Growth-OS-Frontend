@@ -11,29 +11,49 @@ type NavigationPage = { id: string; label: string; soon?: boolean };
 type NavigationSection = { label: string; pages: readonly NavigationPage[] };
 
 const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
+const GOOGLE_BUSINESS_LABEL = "Google Business";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
+const GOOGLE_BUSINESS_PAGE_IDS = new Set(["daring-brook-9034", "fresh-tide-9404", "glad-coast-1428"]);
+const GOOGLE_BUSINESS_SECTION: NavigationSection = {
+  label: GOOGLE_BUSINESS_LABEL,
+  pages: [
+    { id: "daring-brook-9034", label: "Reviews" },
+    { id: "fresh-tide-9404", label: "Connection Setup" },
+    { id: "glad-coast-1428", label: "Integrations" },
+  ],
+};
 
 const navigationSections: readonly NavigationSection[] = (() => {
   const availableSections = (luluDropdownNavigation as readonly NavigationSection[])
     .map((section) => ({
       ...section,
-      pages: section.pages.filter((page) => isPageAvailable(page.id)),
+      pages: section.pages.filter((page) => isPageAvailable(page.id) && !GOOGLE_BUSINESS_PAGE_IDS.has(page.id)),
     }))
     .filter((section) => section.pages.length > 0);
+  const googleBusinessSection = {
+    ...GOOGLE_BUSINESS_SECTION,
+    pages: GOOGLE_BUSINESS_SECTION.pages.filter((page) => isPageAvailable(page.id)),
+  };
 
   const financeIndex = availableSections.findIndex((section) => section.label === FINANCE_LABEL);
   const webPresenceIndex = availableSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
   const settingsIndex = availableSections.findIndex((section) => section.label === SETTINGS_LABEL);
 
-  if (financeIndex === -1 || webPresenceIndex === -1 || settingsIndex === -1) {
-    return availableSections;
+  const reorderedSections = [...availableSections];
+
+  if (webPresenceIndex !== -1 && googleBusinessSection.pages.length > 0) {
+    reorderedSections.splice(webPresenceIndex + 1, 0, googleBusinessSection);
+  } else if (googleBusinessSection.pages.length > 0) {
+    reorderedSections.push(googleBusinessSection);
   }
 
-  const reorderedSections = [...availableSections];
-  const [financeSection] = reorderedSections.splice(financeIndex, 1);
-  const adjustedSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
-  reorderedSections.splice(adjustedSettingsIndex, 0, financeSection);
+  if (financeIndex !== -1 && settingsIndex !== -1) {
+    const currentFinanceIndex = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
+    const [financeSection] = reorderedSections.splice(currentFinanceIndex, 1);
+    const currentSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
+    reorderedSections.splice(currentSettingsIndex, 0, financeSection);
+  }
 
   return reorderedSections;
 })();
@@ -163,7 +183,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                   const available = Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
                   const isWebsiteLocked = Boolean(websiteLock?.blocking && isWebsiteNavigationSlug(page.id));
-                  const supportsUnlockedSubpages = section.label === WEBSITE_AND_COMMERCE_LABEL || section.label === "Calendar";
+                  const supportsUnlockedSubpages = section.label === WEBSITE_AND_COMMERCE_LABEL || section.label === GOOGLE_BUSINESS_LABEL || section.label === "Calendar";
                   const isDropdownLinkLocked = (SUBPAGE_NAVIGATION_LOCKED
                     && !supportsUnlockedSubpages
                     && page.id !== "smartly-shore-1468"

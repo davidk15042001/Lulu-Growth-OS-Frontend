@@ -51,6 +51,11 @@ export const SUBPAGE_NAVIGATION_LOCKED = true;
 export const PRIMARY_AUDIENCES_SLUG = "breezily-wood-5980";
 export const PRIMARY_REVIEWS_SLUG = "daring-brook-9034";
 export const LEGACY_ADVERTISING_AUDIENCES_SLUG = "softly-second-7684";
+export const GOOGLE_BUSINESS_NAVIGATION_SLUGS = new Set([
+  PRIMARY_REVIEWS_SLUG,
+  "fresh-tide-9404",
+  "glad-coast-1428",
+]);
 
 const EXPLICITLY_UNLOCKED_SUBPAGE_SLUGS = new Set([
   "smartly-shore-1468",
@@ -132,10 +137,15 @@ export function isWebPresenceNavigationSlug(slug: string) {
   return slug.startsWith("website-") || WEB_PRESENCE_NAVIGATION_SLUGS.has(slug);
 }
 
+export function isGoogleBusinessNavigationSlug(slug: string) {
+  return GOOGLE_BUSINESS_NAVIGATION_SLUGS.has(slug);
+}
+
 export function isSubpageLocked(slug: string) {
   if (!SUBPAGE_NAVIGATION_LOCKED) return false;
   if (!isPageAvailable(slug)) return true;
   if (isWebPresenceNavigationSlug(slug)) return false;
+  if (isGoogleBusinessNavigationSlug(slug)) return false;
   if (EXPLICITLY_UNLOCKED_SUBPAGE_SLUGS.has(slug)) return false;
   if (slug.startsWith("calendar-")) return false;
   if (isPortalSectionSlug(slug)) return true;
