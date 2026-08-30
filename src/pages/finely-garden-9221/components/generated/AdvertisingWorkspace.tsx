@@ -1,670 +1,222 @@
 import { useMemo, useState } from 'react';
-import { Activity, AlertTriangle, ArrowDownRight, ArrowUpRight, BarChart3, Bell, CalendarDays, Check, ChevronDown, ChevronRight, CircleHelp, Clock3, Download, ExternalLink, Filter, Flame, Layers3, LineChart, Menu, MoreHorizontal, PanelRight, Pause, Play, Plus, RefreshCw, Search, Settings2, ShieldAlert, SlidersHorizontal, Sparkles, Target, TrendingUp, UserRound, WalletCards, X, Zap } from 'lucide-react';
+import { ArrowRight, RefreshCw, Search, Target } from 'lucide-react';
+import { useLuluApp } from '../../../../api/LuluAppContext';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
-type CampaignStatus = 'Active' | 'Paused' | 'Draft' | 'Completed' | 'Scheduled' | 'Error';
-type Campaign = {
-  name: string;
-  platform: string;
-  status: CampaignStatus;
-  objective: string;
-  spend: string;
-  impressions: string;
-  clicks: string;
-  ctr: string;
-  cpc: string;
-  conversions: string;
-  cpa: string;
-  revenue: string;
-  roas: string;
-  budget: string;
-  trend: string;
-  updated: string;
-};
-type Tone = 'green' | 'yellow' | 'red' | 'purple' | 'blue' | 'gray';
-const campaigns: Campaign[] = [];
-const platforms: Array<{ name: string; initials: string; tone: string; spend: string; revenue: string; roas: string; conversions: string; cpa: string; status: string }> = [];
-const navItems = [{
-  label: 'Overview',
-  icon: BarChart3
-}, {
-  label: 'Advertising',
-  icon: Target,
-  active: true
-}, {
-  label: 'Audiences',
-  icon: UserRound
-}, {
-  label: 'Creatives',
-  icon: Layers3
-}, {
-  label: 'Attribution',
-  icon: Activity
-}];
-const chartValues: number[] = [];
-const statusStyles: Record<CampaignStatus, string> = {
-  Active: 'bg-chart-4/10 text-chart-4 border-chart-4/30',
-  Paused: 'bg-secondary text-foreground border-border',
-  Draft: 'bg-secondary text-muted-foreground border-border',
-  Completed: 'bg-secondary text-foreground border-border',
-  Scheduled: 'bg-secondary text-foreground border-border',
-  Error: 'bg-chart-5/10 text-chart-5 border-chart-5/30'
-};
-const toneDot: Record<Tone, string> = {
-  green: 'bg-chart-4',
-  yellow: 'bg-primary',
-  red: 'bg-destructive',
-  purple: 'bg-primary',
-  blue: 'bg-primary',
-  gray: 'bg-muted'
-};
-function StatusPill({
-  status
-}: {
-  status: CampaignStatus;
-}) {
-  return <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${statusStyles[status]}`}><span className={`h-1.5 w-1.5 rounded-full ${status === 'Active' ? 'bg-chart-4' : status === 'Paused' ? 'bg-primary' : status === 'Error' ? 'bg-destructive' : 'bg-current'}`} />{status}</span>;
-}
-function SectionHeading({
-  eyebrow,
-  title,
-  action
-}: {
-  eyebrow?: string;
-  title: string;
-  action?: string;
-}) {
-  return <div className="mb-5 flex items-end justify-between gap-3"><div>{eyebrow && <p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-foreground">{eyebrow}</p>}<h2 className="text-lg font-bold tracking-tight text-foreground">{title}</h2></div>{action && <button className="text-sm font-semibold text-foreground hover:text-foreground">{action}<ChevronRight className="ml-1 inline h-4 w-4" /></button>}</div>;
-}
-function MetricCard({
-  label,
-  value,
-  change,
-  icon,
-  tone = 'purple',
-  note = 'Observed'
-}: {
-  label: string;
-  value: string;
-  change: string;
-  icon: React.ReactNode;
-  tone?: Tone;
-  note?: string;
-}) {
-  const positive = change.startsWith('+');
-  return <article className="rounded-2xl border border-border bg-card p-4 shadow-[0_4px_18px_rgba(0,0,0,0.04)]"><div className="flex items-start justify-between"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-foreground">{icon}</div><span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{note}</span></div><p className="mt-4 text-xs font-medium text-muted-foreground">{label}</p><strong className="mt-1 block text-[25px] font-bold tracking-tight text-foreground">{value}</strong><div className="mt-2 flex items-center gap-1 text-xs font-semibold"><span className={positive ? 'text-chart-4' : 'text-chart-5'}>{positive ? <ArrowUpRight className="inline h-3.5 w-3.5" /> : <ArrowDownRight className="inline h-3.5 w-3.5" />}{change}</span><span className="text-muted-foreground">vs previous period</span></div></article>;
-}
-export function AdvertisingWorkspace() {
-  const [range, setRange] = useState('Last 30 Days');
-  const [platform, setPlatform] = useState('All Platforms');
-  const [metric, setMetric] = useState('Spend');
-  const [compare, setCompare] = useState('Previous Period');
-  const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<Campaign | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
-  const [showConnect, setShowConnect] = useState(false);
-  const [aiOpen, setAiOpen] = useState(true);
-  const [mobileNav, setMobileNav] = useState(false);
-  const { items: liveAdvertisingRecords, loading: advertisingLoading, error: advertisingError } = useLiveRecords('advertising_campaigns');
-  const filteredCampaigns = useMemo(() => campaigns.filter(campaign => (platform === 'All Platforms' || campaign.platform === platform) && campaign.name.toLowerCase().includes(query.toLowerCase())), [platform, query]);
-  if (advertisingLoading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live advertising data…</main>;
-  if (advertisingError) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{advertisingError}</main>;
-  if (liveAdvertisingRecords.length === 0) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-border bg-card p-8 text-center"><Target className="mx-auto mb-4 text-muted-foreground" size={28} /><h1 className="text-2xl font-semibold">Advertising</h1><p className="mt-3 text-sm text-muted-foreground">No live advertising data is available yet. Connect an advertising platform or add a verified advertising record to begin.</p></div></main>;
-  return <div className="min-h-screen bg-[var(--background)] text-foreground">
-    <aside className={`fixed inset-y-0 left-0 z-30 flex w-[232px] flex-col bg-[var(--sidebar)] px-4 py-5 text-foreground transition-transform lg:translate-x-0 ${mobileNav ? 'translate-x-0' : '-translate-x-full'}`}><div className="mb-10 flex items-center gap-2 px-2 text-foreground"><div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary font-bold text-primary-foreground">L</div><span className="text-lg font-bold tracking-tight">LULU <em className="font-normal not-italic text-foreground">AI</em></span></div><p className="px-3 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Workspace</p><LuluSectionNavigation activeId="finely-garden-9221" /><div className="mt-auto rounded-2xl border border-border bg-secondary p-3"><div className="flex items-center gap-2"><div className="h-2 w-2 rounded-full bg-chart-4" /><span className="text-xs font-semibold text-foreground">3 platforms connected</span></div><p className="mt-2 text-xs leading-5 text-muted-foreground">Data last synced 12 minutes ago.</p><button onClick={() => setShowConnect(true)} className="mt-3 text-xs font-semibold text-foreground">Manage connections <ChevronRight className="inline h-3 w-3" /></button></div><div className="mt-4 flex items-center gap-3 border-t border-border pt-4"><div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-bold text-foreground">AM</div><div className="min-w-0"><p className="truncate text-xs font-semibold text-foreground">Ava Morgan</p><p className="text-[11px] text-muted-foreground">Admin workspace</p></div><Settings2 className="ml-auto h-4 w-4 text-muted-foreground" /></div></aside>
-    <main className="min-h-screen lg:ml-[232px]"><header className="sticky top-0 z-20 border-b border-border bg-[var(--secondary)]/95 px-5 py-4 backdrop-blur-md sm:px-8"><div className="mx-auto flex max-w-[1550px] items-center justify-between gap-4"><div className="flex items-center gap-3"><button aria-label="Open navigation" onClick={() => setMobileNav(true)} className="rounded-lg p-2 hover:bg-card lg:hidden"><Menu className="h-5 w-5" /></button><div className="hidden items-center gap-2 text-xs text-muted-foreground sm:flex"><span>Marketing</span><ChevronRight className="h-3.5 w-3.5" /><strong className="text-foreground">Advertising</strong></div></div><div className="flex items-center gap-2"><button onClick={() => setShowCreate(true)} className="hidden items-center gap-2 rounded-xl bg-primary px-3.5 py-2.5 text-sm font-bold text-primary-foreground shadow-sm hover:bg-primary sm:flex"><Plus className="h-4 w-4" />Create Campaign</button><button onClick={() => setShowConnect(true)} className="hidden rounded-xl border border-border bg-card px-3.5 py-2.5 text-sm font-semibold text-foreground hover:border-border sm:block">Connect Platform</button><button aria-label="Export" className="rounded-xl border border-border bg-card p-2.5 text-foreground hover:text-foreground"><Download className="h-4 w-4" /></button><button aria-label="Refresh data" className="rounded-xl border border-border bg-card p-2.5 text-foreground hover:text-foreground"><RefreshCw className="h-4 w-4" /></button><button onClick={() => setAiOpen(!aiOpen)} className="hidden items-center gap-2 rounded-xl border border-border bg-secondary px-3.5 py-2.5 text-sm font-bold text-foreground hover:bg-secondary md:flex"><Sparkles className="h-4 w-4" />Ask Lulu AI</button><Bell className="ml-2 hidden h-5 w-5 text-muted-foreground sm:block" /></div></div></header>
-      <div className="mx-auto max-w-[1550px] px-5 py-7 sm:px-8"><div className="mb-7 flex flex-col justify-between gap-5 xl:flex-row xl:items-end"><div><p className="mb-2 text-sm font-semibold text-foreground">Marketing / Advertising</p><h1 className="text-3xl font-bold tracking-[-0.04em] text-foreground sm:text-4xl">Advertising</h1><p className="mt-2 max-w-xl text-sm text-muted-foreground">Manage, monitor and optimize your paid advertising performance across connected platforms.</p></div><div className="flex flex-wrap items-center gap-2"><label className="sr-only" htmlFor="date-range">Date range</label><div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2.5"><CalendarDays className="h-4 w-4 text-muted-foreground" /><select id="date-range" value={range} onChange={e => setRange(e.target.value)} className="bg-transparent text-sm font-semibold text-foreground outline-none"><option>Today</option><option>Yesterday</option><option>Last 7 Days</option><option>Last 30 Days</option><option>Last 90 Days</option><option>Year to Date</option><option>Previous Year</option><option>Custom Range</option></select><span className="hidden border-l border-border pl-2 text-xs text-muted-foreground sm:inline">vs Previous Period</span></div><label className="sr-only" htmlFor="platform-filter">Platform filter</label><select id="platform-filter" value={platform} onChange={e => setPlatform(e.target.value)} className="rounded-xl border border-border bg-card px-3 py-2.5 text-sm font-semibold text-foreground outline-none"><option>All Platforms</option><option>Google Ads</option><option>Meta Ads</option><option>Microsoft Advertising</option><option>LinkedIn Ads</option></select></div></div>
-        <section aria-labelledby="kpi-title"><div className="mb-3 flex items-center justify-between"><h2 id="kpi-title" className="text-sm font-bold uppercase tracking-[0.14em] text-muted-foreground">Executive performance · {range}</h2><span className="text-xs text-muted-foreground">Updated 12 minutes ago</span></div><div className="grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8"><MetricCard label="Advertising Spend" value="—" change="+14.8%" icon={<WalletCards className="h-4 w-4" />} /><MetricCard label="Advertising Revenue" value="—" change="+22.4%" icon={<TrendingUp className="h-4 w-4" />} /><MetricCard label="ROAS" value="3.37x" change="+6.6%" icon={<Zap className="h-4 w-4" />} /><MetricCard label="Conversions" value="2,786" change="+11.2%" icon={<Target className="h-4 w-4" />} /><MetricCard label="CPA / CAC" value="—" change="-3.2%" icon={<CircleHelp className="h-4 w-4" />} /><MetricCard label="CTR" value="4.84%" change="+0.8%" icon={<Activity className="h-4 w-4" />} /><MetricCard label="CPC" value="—" change="-5.1%" icon={<LineChart className="h-4 w-4" />} /><MetricCard label="Conversion Rate" value="8.01%" change="+1.4%" icon={<Sparkles className="h-4 w-4" />} /></div></section>
-        <div className="mt-8 grid gap-6 2xl:grid-cols-[minmax(0,1fr)_350px]"><div className="min-w-0 space-y-8"><section className="rounded-2xl border border-border bg-card p-5 shadow-[0_4px_18px_rgba(0,0,0,0.04)] sm:p-6"><SectionHeading eyebrow="Observed performance" title="Advertising performance overview" action="View report" /><div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div className="flex flex-wrap gap-1 rounded-xl bg-secondary p-1">{['Spend', 'Revenue', 'ROAS', 'Conversions', 'CPA', 'CTR', 'CPC'].map(item => <button key={item} onClick={() => setMetric(item)} className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${metric === item ? 'bg-card text-foreground shadow-sm' : 'text-foreground hover:text-foreground'}`}>{item}</button>)}</div><div className="flex items-center gap-1 text-xs"><span className="text-muted-foreground">Compare</span>{['Previous Period', 'Previous Year'].map(item => <button key={item} onClick={() => setCompare(item)} className={`rounded-lg px-2.5 py-1.5 font-semibold ${compare === item ? 'bg-secondary text-foreground' : 'text-foreground'}`}>{item.replace('Previous ', 'Prev. ')}</button>)}</div></div><div className="flex h-[240px] items-end gap-1 border-b border-l border-border bg-[linear-gradient(to_bottom,transparent_24%,var(--secondary)_25%,transparent_26%,transparent_49%,var(--secondary)_50%,transparent_51%,transparent_74%,var(--background)_75%,transparent_76%)] px-2 pb-0 sm:gap-2">{chartValues.map((height, i) => <div key={`${height}-${i}`} title={`${metric} on ${i + 1} Jun: $${height * 100}`} className="group flex h-full flex-1 items-end"><div style={{
-                    height: `${height / 1.5}%`
-                  }} className="w-full rounded-t-[3px] bg-secondary/75 transition-all group-hover:bg-primary" /></div>)}</div><div className="mt-3 flex justify-between text-[11px] text-muted-foreground"><span>01 Jun</span><span>08 Jun</span><span>15 Jun</span><span>22 Jun</span><span>30 Jun</span></div><p className="mt-4 text-xs text-muted-foreground"><span className="mr-2 inline-block h-2 w-2 rounded-full bg-primary text-primary-foreground" />{metric} · {compare} · Tooltip values are observed from connected platforms.</p></section>
-          <section><SectionHeading eyebrow="Connected platforms" title="Platform performance" action="View all platforms" /><div className="grid gap-3 lg:grid-cols-3">{platforms.map(item => <article key={item.name} className="rounded-2xl border border-border bg-card p-4"><div className="flex items-center gap-3"><div className={`flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold ${item.tone}`}>{item.initials}</div><div><h3 className="text-sm font-bold text-foreground">{item.name}</h3><p className="text-xs text-foreground"><span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-primary text-primary-foreground" />{item.status}</p></div><button className="ml-auto text-foreground"><MoreHorizontal className="h-4 w-4" /></button></div><div className="mt-5 grid grid-cols-2 gap-y-4"><div><p className="text-[11px] text-muted-foreground">Spend</p><strong className="text-sm">{item.spend}</strong></div><div><p className="text-[11px] text-muted-foreground">Revenue</p><strong className="text-sm">{item.revenue}</strong></div><div><p className="text-[11px] text-muted-foreground">ROAS</p><strong className="text-sm text-foreground">{item.roas}</strong></div><div><p className="text-[11px] text-muted-foreground">Conversions</p><strong className="text-sm">{item.conversions}</strong></div></div><div className="mt-5 flex gap-2 border-t border-border pt-3"><button className="flex-1 rounded-lg border border-border py-2 text-xs font-semibold">View Platform</button><button className="flex-1 rounded-lg bg-primary py-2 text-xs font-semibold text-primary-foreground">Campaigns</button></div></article>)}</div></section>
-          <section className="rounded-2xl border border-border bg-card shadow-[0_4px_18px_rgba(0,0,0,0.04)]"><div className="p-5 pb-3 sm:p-6 sm:pb-3"><SectionHeading eyebrow="Enterprise view" title="Campaign performance" /><div className="flex flex-col gap-3 lg:flex-row"><div className="relative flex-1"><Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search campaigns" className="w-full rounded-xl border border-border py-2.5 pl-9 pr-3 text-sm outline-none ring-ring focus:ring-2" /></div><button className="flex items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold text-foreground"><Filter className="h-4 w-4" />Filters</button><button className="flex items-center justify-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold text-foreground"><SlidersHorizontal className="h-4 w-4" />Columns</button></div></div><div className="hidden overflow-x-auto md:block"><table className="w-full min-w-[1120px] text-left text-xs"><thead className="border-y border-border bg-card text-[10px] uppercase tracking-wider text-muted-foreground"><tr>{['Campaign', 'Platform', 'Status', 'Objective', 'Spend', 'CTR', 'Conversions', 'CPA', 'Revenue', 'ROAS', 'Budget', 'Trend', 'Updated', ''].map(head => <th key={head} className="whitespace-nowrap px-4 py-3 font-bold">{head}</th>)}</tr></thead><tbody>{filteredCampaigns.map(campaign => <tr key={campaign.name} className="border-b border-border last:border-0 hover:bg-secondary/30"><td className="px-4 py-4"><button onClick={() => setSelected(campaign)} className="text-left font-bold text-foreground hover:text-foreground">{campaign.name}<span className="mt-1 block text-[10px] font-normal text-muted-foreground">{campaign.objective} campaign</span></button></td><td className="whitespace-nowrap px-4 py-4 text-muted-foreground">{campaign.platform}</td><td className="px-4 py-4"><StatusPill status={campaign.status} /></td><td className="px-4 py-4 text-muted-foreground">{campaign.objective}</td><td className="px-4 py-4 font-semibold">{campaign.spend}</td><td className="px-4 py-4">{campaign.ctr}</td><td className="px-4 py-4">{campaign.conversions}</td><td className="px-4 py-4">{campaign.cpa}</td><td className="px-4 py-4">{campaign.revenue}</td><td className="px-4 py-4 font-bold text-foreground">{campaign.roas}</td><td className="px-4 py-4">{campaign.budget}</td><td className={`px-4 py-4 font-semibold ${campaign.trend.startsWith('+') ? 'text-chart-4' : 'text-chart-5'}`}>{campaign.trend}</td><td className="whitespace-nowrap px-4 py-4 text-muted-foreground">{campaign.updated}</td><td className="px-4 py-4"><button onClick={() => setSelected(campaign)} aria-label={`Open ${campaign.name}`} className="rounded-lg p-1.5 hover:bg-secondary"><ChevronRight className="h-4 w-4" /></button></td></tr>)}</tbody></table></div><div className="space-y-3 p-4 md:hidden">{filteredCampaigns.map(campaign => <button key={campaign.name} onClick={() => setSelected(campaign)} className="w-full rounded-xl border border-border p-4 text-left"><div className="flex items-start justify-between gap-3"><div><h3 className="text-sm font-bold">{campaign.name}</h3><p className="mt-1 text-xs text-muted-foreground">{campaign.platform} · {campaign.objective}</p></div><StatusPill status={campaign.status} /></div><div className="mt-4 grid grid-cols-3 gap-3"><div><p className="text-[10px] text-muted-foreground">Spend</p><strong className="text-sm">{campaign.spend}</strong></div><div><p className="text-[10px] text-muted-foreground">ROAS</p><strong className="text-sm text-foreground">{campaign.roas}</strong></div><div><p className="text-[10px] text-muted-foreground">CPA</p><strong className="text-sm">{campaign.cpa}</strong></div></div></button>)}</div></section>
-          <section className="grid gap-6 lg:grid-cols-2"><div className="rounded-2xl border border-border bg-card p-5"><SectionHeading eyebrow="Conversion path" title="Advertising funnel" /><div className="space-y-3">{[{
-                    label: 'Impressions',
-                    value: '2.31M',
-                    rate: 'Observed'
-                  }, {
-                    label: 'Clicks',
-                    value: '72,171',
-                    rate: '3.12% of impressions'
-                  }, {
-                    label: 'Landing page visits',
-                    value: '61,480',
-                    rate: '85.2% of clicks'
-                  }, {
-                    label: 'Conversions',
-                    value: '2,786',
-                    rate: '4.53% of visits'
-                  }, {
-                    label: 'Revenue',
-                    value: '—',
-                    rate: 'Observed attribution'
-                  }].map((item, i) => <div key={item.label} className="flex items-center gap-3"><div className="h-9 rounded-lg bg-secondary" style={{
-                      width: `${100 - i * 13}%`
-                    }} /><div className="flex min-w-[145px] items-center justify-between gap-3"><span className="text-xs font-semibold text-foreground">{item.label}</span><strong className="text-xs">{item.value}</strong></div><span className="hidden text-[10px] text-muted-foreground sm:block">{item.rate}</span></div>)}</div></div><div className="rounded-2xl border border-border bg-card p-5"><SectionHeading eyebrow="Attribution" title="Advertising attribution" /><div className="rounded-xl bg-card p-4"><p className="text-xs text-muted-foreground">Attribution model</p><div className="mt-2 flex flex-wrap gap-2">{['Platform attribution', 'Last Click', 'First Click', 'Data-driven'].map((item, i) => <button key={item} className={`rounded-lg border px-2.5 py-1.5 text-xs font-semibold ${i === 0 ? 'border-border bg-secondary text-foreground' : 'border-border bg-card text-foreground'}`}>{item}</button>)}</div></div><div className="mt-5 grid grid-cols-2 gap-4"><div><p className="text-xs text-muted-foreground">Conversion source</p><strong className="text-sm">Connected platforms</strong></div><div><p className="text-xs text-muted-foreground">Attributed revenue</p><strong className="text-sm">—</strong></div></div><p className="mt-5 text-xs leading-5 text-muted-foreground">Platform attribution may differ from your analytics or finance systems. Compare models before making decisions.</p></div></section>
-          <section className="grid gap-6 lg:grid-cols-2"><div className="rounded-2xl border border-border bg-card p-5"><SectionHeading eyebrow="AI Opportunity" title="Advertising opportunities" action="View all" />{[{
-                  title: 'Scale Q4 Enterprise Expansion',
-                  evidence: '3.38x ROAS · 18.4% weekly lift',
-                  platform: 'Google Ads',
-                  tone: 'green' as Tone
-                }, {
-                  title: 'High-converting audience has limited budget',
-                  evidence: 'CPA 24% below account average',
-                  platform: 'Meta Ads',
-                  tone: 'purple' as Tone
-                }].map(item => <div key={item.title} className="mb-3 rounded-xl border border-border p-3.5 last:mb-0"><div className="flex gap-3"><div className={`mt-1 h-2 w-2 shrink-0 rounded-full ${toneDot[item.tone]}`} /><div className="min-w-0"><p className="text-sm font-bold">{item.title}</p><p className="mt-1 text-xs text-muted-foreground">{item.evidence}</p><p className="mt-2 text-[10px] font-semibold uppercase tracking-wider text-foreground">{item.platform} · AI Inferred</p></div><button className="ml-auto self-start text-xs font-bold text-foreground">Review</button></div></div>)}</div><div className="rounded-2xl border border-chart-5/30 bg-chart-5/40 p-5"><SectionHeading eyebrow="AI Risk" title="Advertising risks" action="View all" />{[{
-                  title: 'Spend increased while conversions declined',
-                  evidence: '+22% spend · -8% conversions',
-                  tone: 'red' as Tone
-                }, {
-                  title: 'Budget limit approaching',
-                  evidence: 'Product-Led Retargeting at 81% utilization',
-                  tone: 'yellow' as Tone
-                }].map(item => <div key={item.title} className="mb-3 rounded-xl border border-chart-5/30 bg-secondary p-3.5 last:mb-0"><div className="flex gap-3"><AlertTriangle className={`mt-0.5 h-4 w-4 shrink-0 ${item.tone === 'red' ? 'text-chart-5' : 'text-foreground'}`} /><div><p className="text-sm font-bold">{item.title}</p><p className="mt-1 text-xs text-muted-foreground">{item.evidence}</p><p className="mt-2 text-[10px] font-bold uppercase tracking-wider text-chart-5">AI Detected · Review required</p></div><button className="ml-auto self-start text-xs font-bold text-foreground">Review</button></div></div>)}</div></section>
-          <section className="rounded-2xl border border-border bg-[var(--card)] p-5 sm:p-6"><div className="flex items-start justify-between gap-4"><div><p className="mb-1 text-[11px] font-bold uppercase tracking-[0.16em] text-foreground">AI-generated · Advertising insights</p><h2 className="text-lg font-bold text-foreground">Lulu AI Recommendations</h2><p className="mt-1 text-sm text-muted-foreground">Decision support grounded in your connected advertising data.</p></div><Sparkles className="h-6 w-6 text-foreground" /></div><div className="mt-5 grid gap-3 md:grid-cols-3">{['Review budget allocation for underperforming campaigns.', 'Consider increasing exposure for high-performing campaigns.', 'Test new creative variations against campaign average.'].map(item => <article key={item} className="rounded-xl border border-border bg-card p-4"><p className="text-sm font-semibold leading-5">{item}</p><p className="mt-2 text-[11px] text-muted-foreground">Observed data · Confidence — · 12 min ago</p><button className="mt-4 text-xs font-bold text-foreground">Review recommendation <ChevronRight className="inline h-3 w-3" /></button></article>)}</div><p className="mt-4 text-[11px] text-foreground">Lulu AI never modifies budgets or campaigns without your explicit authorization.</p></section>
-        </div>
-        <aside className={`${aiOpen ? 'block' : 'hidden'} rounded-2xl border border-border bg-card p-5 shadow-[0_4px_18px_rgba(0,0,0,0.04)] 2xl:block`}><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground"><Sparkles className="h-5 w-5" /></div><div><h2 className="font-bold">Ask Lulu AI</h2><p className="text-xs text-muted-foreground">Advertising intelligence</p></div><button onClick={() => setAiOpen(false)} className="ml-auto rounded-lg p-1 text-foreground hover:bg-secondary 2xl:hidden"><X className="h-4 w-4" /></button></div><div className="mt-6 rounded-2xl bg-[var(--secondary)] p-4 text-foreground"><p className="text-sm font-semibold leading-6">Get a clear read on your advertising performance.</p><p className="mt-2 text-xs leading-5 text-foreground">I can analyze campaigns, budget efficiency, attribution, and creative performance.</p></div><p className="mt-6 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Suggested prompts</p><div className="mt-3 space-y-2">{['Which campaigns should I optimize first?', 'Where are we wasting budget?', 'Which campaign has best scaling potential?', 'Why did ROAS decline?', 'Which creatives should we replace?', 'How should I allocate the advertising budget?'].map(prompt => <button key={prompt} className="flex w-full items-center justify-between rounded-xl border border-border p-3 text-left text-xs font-semibold text-foreground hover:border-border hover:bg-secondary">{prompt}<ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" /></button>)}</div><div className="mt-6 flex items-center gap-2 rounded-xl border border-border px-3 py-2"><input aria-label="Ask Lulu AI a question" placeholder="Ask about your ads..." className="min-w-0 flex-1 text-xs outline-none" /><button aria-label="Send question" className="rounded-lg bg-primary p-2 text-primary-foreground"><Zap className="h-3.5 w-3.5" /></button></div><p className="mt-3 text-center text-[10px] text-muted-foreground">AI-generated responses · Always review before acting</p></aside></div>
-      </div></main>
-      {selected && <div className="fixed inset-0 z-40 flex justify-end bg-sidebar/30" role="dialog" aria-modal="true" aria-labelledby="detail-title"><aside className="h-full w-full max-w-[640px] overflow-y-auto bg-card p-5 shadow-2xl sm:p-7"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-foreground">Campaign detail</p><h2 id="detail-title" className="mt-1 text-2xl font-bold tracking-tight">{selected.name}</h2><p className="mt-1 text-sm text-muted-foreground">{selected.platform} · {selected.objective}</p></div><button onClick={() => setSelected(null)} aria-label="Close campaign detail" className="rounded-xl border border-border p-2"><X className="h-5 w-5" /></button></div><div className="mt-5 flex flex-wrap gap-2"><StatusPill status={selected.status} /><button className="rounded-full border border-border px-3 py-1 text-xs font-semibold">Edit Campaign</button><button className="rounded-full border border-border px-3 py-1 text-xs font-semibold">{selected.status === 'Paused' ? 'Resume' : 'Pause'}</button><button className="rounded-full border border-border px-3 py-1 text-xs font-semibold">Duplicate</button></div><div className="mt-7 grid grid-cols-2 gap-3 sm:grid-cols-4">{[{
-            l: 'Spend',
-            v: selected.spend
-          }, {
-            l: 'Revenue',
-            v: selected.revenue
-          }, {
-            l: 'ROAS',
-            v: selected.roas
-          }, {
-            l: 'Conversions',
-            v: selected.conversions
-          }, {
-            l: 'Impressions',
-            v: selected.impressions
-          }, {
-            l: 'Reach',
-            v: 'No Data'
-          }, {
-            l: 'CTR',
-            v: selected.ctr
-          }, {
-            l: 'CPA',
-            v: selected.cpa
-          }].map(item => <div key={item.l} className="rounded-xl bg-card p-3"><p className="text-[11px] text-muted-foreground">{item.l}</p><strong className="mt-1 block text-sm">{item.v}</strong></div>)}</div><div className="mt-7"><SectionHeading title="Budget performance" /><div className="mb-3 flex justify-between text-xs"><span className="text-muted-foreground">{selected.spend} spent of {selected.budget}</span><strong className="text-chart-4">On track</strong></div><div className="h-2 rounded-full bg-secondary"><div className="h-2 w-[78%] rounded-full bg-primary text-primary-foreground" /></div><div className="mt-4 grid grid-cols-3 gap-3 text-xs"><div><p className="text-muted-foreground">Remaining</p><strong>—</strong></div><div><p className="text-muted-foreground">Daily budget</p><strong>—</strong></div><div><p className="text-muted-foreground">Projected spend</p><strong>—</strong></div></div></div><div className="mt-7"><SectionHeading title="Ad set / ad group performance" /><div className="overflow-x-auto"><table className="w-full min-w-[430px] text-left text-xs"><thead className="border-b border-border text-[10px] uppercase text-muted-foreground"><tr><th className="py-2">Name</th><th>Audience</th><th>Spend</th><th>CPA</th><th>ROAS</th></tr></thead><tbody>{['Enterprise decision makers', 'High-intent visitors', 'Lookalike · 1%'].map((name, i) => <tr key={name} className="border-b border-border"><td className="py-3 font-semibold">{name}</td><td className="text-muted-foreground">B2B core</td><td>${[42210, 25140, 16890][i].toLocaleString()}</td><td>$ {[91, 108, 112][i]}</td><td className="font-bold text-foreground">{[3.8, 3.1, 2.9][i]}x</td></tr>)}</tbody></table></div></div><div className="mt-7 rounded-xl border border-border bg-secondary p-4"><p className="text-xs font-bold text-foreground">AI Advertising Insight · AI Inferred</p><p className="mt-1 text-sm font-semibold">This campaign has room to scale while remaining within its target CPA.</p><p className="mt-2 text-xs text-foreground">Data source: connected platform · Confidence — · 12 min ago</p><button onClick={() => setAiOpen(true)} className="mt-3 text-xs font-bold text-foreground">Ask Lulu AI about this campaign <ChevronRight className="inline h-3 w-3" /></button></div></aside></div>}
-      {showCreate && <div className="fixed inset-0 z-50 flex items-center justify-center bg-sidebar/40 p-4" role="dialog" aria-modal="true" aria-labelledby="create-title"><div className="w-full max-w-lg rounded-2xl bg-card p-6 shadow-2xl"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-foreground">Step 1 of 6</p><h2 id="create-title" className="mt-1 text-xl font-bold">Create campaign</h2></div><button onClick={() => setShowCreate(false)} aria-label="Close create campaign dialog"><X className="h-5 w-5 text-muted-foreground" /></button></div><div className="mt-6 flex gap-1">{['Platform', 'Objective', 'Details', 'Audience', 'Creative', 'Review'].map((item, i) => <div key={item} className={`h-1.5 flex-1 rounded-full ${i === 0 ? 'bg-primary' : 'bg-secondary'}`} title={item} />)}</div><label className="mt-7 block text-sm font-semibold">Select connected platform<select className="mt-2 w-full rounded-xl border border-border p-3 text-sm outline-none"><option>Google Ads</option><option>Meta Ads</option><option>LinkedIn Ads</option></select></label><p className="mt-4 text-xs text-muted-foreground">Your campaign will be created as a draft for review before publishing.</p><div className="mt-7 flex justify-end gap-2"><button onClick={() => setShowCreate(false)} className="rounded-xl px-4 py-2.5 text-sm font-semibold text-muted-foreground">Cancel</button><button className="rounded-xl bg-primary px-5 py-2.5 text-sm font-bold text-primary-foreground">Continue <ChevronRight className="inline h-4 w-4" /></button></div></div></div>}
-      {showConnect && <div className="fixed inset-0 z-50 flex items-center justify-center bg-primary/40 p-4" role="dialog" aria-modal="true" aria-labelledby="connect-title"><div className="w-full max-w-2xl rounded-2xl bg-card p-6 shadow-2xl"><div className="flex items-start justify-between"><div><p className="text-xs font-bold uppercase tracking-wider text-foreground">Connections</p><h2 id="connect-title" className="mt-1 text-xl font-bold">Connect advertising platform</h2><p className="mt-1 text-sm text-muted-foreground">Bring campaign performance into one trusted workspace.</p></div><button onClick={() => setShowConnect(false)} aria-label="Close connections dialog"><X className="h-5 w-5 text-muted-foreground" /></button></div><div className="mt-6 grid gap-3 sm:grid-cols-2">{[{
-            n: 'Google Ads',
-            d: 'Search, Shopping and Display performance'
-          }, {
-            n: 'Meta Ads',
-            d: 'Facebook and Instagram campaigns'
-          }, {
-            n: 'Microsoft Advertising',
-            d: 'Search network performance'
-          }, {
-            n: 'LinkedIn Ads',
-            d: 'B2B audience and lead campaigns'
-          }, {
-            n: 'TikTok Ads',
-            d: 'Short-form video campaigns'
-          }].map(item => <div key={item.n} className="flex items-center gap-3 rounded-xl border border-border p-3"><div className="flex h-9 w-9 items-center justify-center rounded-xl bg-secondary text-sm font-bold text-foreground">{item.n[0]}</div><div className="min-w-0 flex-1"><p className="text-sm font-bold">{item.n}</p><p className="truncate text-xs text-muted-foreground">{item.d}</p></div><button className="rounded-lg border border-border px-3 py-1.5 text-xs font-bold">Connect</button></div>)}</div></div></div>}
-    </div>;
+import { WorkspaceIntelligencePanel } from '../../../../components/WorkspaceIntelligencePanel';
+import { pageLinkProps } from '../../../../routing';
+
+const advertisingQuickLinks = [
+  { id: 'wise-brook-1762', title: 'Campaigns', detail: 'Open campaign records and approvals.' },
+  { id: 'friendly-path-8200', title: 'Analytics', detail: 'Review performance and delivery.' },
+  { id: 'softly-second-7684', title: 'Audiences', detail: 'Inspect targeting and audience ideas.' },
+  { id: 'happily-storm-2690', title: 'Creatives', detail: 'Check assets and creative testing.' },
+  { id: 'sunny-minute-1092', title: 'Budgets', detail: 'See pacing and budget constraints.' },
+  { id: 'zesty-grass-9196', title: 'AI Optimization', detail: 'Open optimization suggestions.' },
+];
+
+function moneyTotal(values: Array<string | null | undefined>) {
+  const total = values.reduce((sum, item) => sum + Number(item || 0), 0);
+  if (!total) return '—';
+  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(total);
 }
 
-/* Lulu dropdown navigation — intentionally isolated from page content. */
-const luluDropdownNavigation = [{
-  "label": "Dashboard",
-  "pages": [{
-    "id": "fancily-leaf-1766",
-    "label": "Executive Dashboard"
-  }]
-}, {
-  "label": "AI",
-  "pages": [{
-    "id": "fresh-moon-5374",
-    "label": "Assistant"
-  }, {
-    "id": "radiant-dusk-9079",
-    "label": "Agents"
-  }, {
-    "id": "calmly-park-3313",
-    "label": "Agent Marketplace"
-  }, {
-    "id": "rich-field-1880",
-    "label": "Knowledge"
-  }, {
-    "id": "wondrously-second-5656",
-    "label": "Actions"
-  }, {
-    "id": "sunny-moon-6307",
-    "label": "Conversations"
-  }, {
-    "id": "sparkling-cave-8456",
-    "label": "Activity"
-  }]
-}, {
-  "label": "CRM",
-  "pages": [{
-    "id": "bright-meadow-7537",
-    "label": "Overview"
-  }, {
-    "id": "sturdy-month-1562",
-    "label": "Contacts"
-  }, {
-    "id": "kindly-pool-8785",
-    "label": "Companies"
-  }, {
-    "id": "swift-hour-7844",
-    "label": "Leads"
-  }, {
-    "id": "smartly-shade-4619",
-    "label": "Deals"
-  }, {
-    "id": "calmly-cloud-9988",
-    "label": "Pipeline"
-  }, {
-    "id": "cosmic-pool-1616",
-    "label": "Activities"
-  }, {
-    "id": "deeply-noon-9539",
-    "label": "Tasks"
-  }, {
-    "id": "sunnily-gulf-7520",
-    "label": "Customer Segments"
-  }, {
-    "id": "gracefully-storm-2649",
-    "label": "Customer Intelligence"
-  }]
-}, {
-  "label": "Marketing",
-  "pages": [{
-    "id": "dreamily-soil-9290",
-    "label": "Campaigns"
-  }, {
-    "id": "wondrous-cloud-1355",
-    "label": "Content"
-  }, {
-    "id": "sparklingly-home-7386",
-    "label": "Strategy"
-  }, {
-    "id": "gently-shade-2476",
-    "label": "Campaigns"
-  }, {
-    "id": "kind-time-4492",
-    "label": "Keywords"
-  }, {
-    "id": "smartly-shore-1468",
-    "label": "Competitors"
-  }, {
-    "id": "breezily-wood-5980",
-    "label": "Audiences"
-  }, {
-    "id": "breezy-shore-6734",
-    "label": "Analytics"
-  }]
-}, {
-  "label": "Advertising",
-  "pages": [{
-    "id": "finely-garden-9221",
-    "label": "Overview"
-  }, {
-    "id": "friendly-path-8200",
-    "label": "Analytics"
-  }, {
-    "id": "wise-brook-1762",
-    "label": "Campaigns"
-  }, {
-    "id": "softly-second-7684",
-    "label": "Audiences"
-  }, {
-    "id": "happily-storm-2690",
-    "label": "Creatives"
-  }, {
-    "id": "sunny-minute-1092",
-    "label": "Budgets"
-  }, {
-    "id": "zesty-grass-9196",
-    "label": "AI Optimization"
-  }, {
-    "id": "nicely-shade-2637",
-    "label": "Tracking & Attribution"
-  }, {
-    "id": "nice-moon-2056",
-    "label": "AI Campaign & Ad Builder"
-  }, {
-    "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
-  }, {
-    "id": "solid-sand-5563",
-    "label": "AI Experiments & A/B Testing"
-  }, {
-    "id": "sunny-summer-2293",
-    "label": "Ad Accounts & Platform Management"
-  }]
-}, {
-  "label": "Intelligence",
-  "pages": [{
-    "id": "serene-cloud-7079",
-    "label": "Intelligence Overview"
-  }, {
-    "id": "tender-water-4095",
-    "label": "Executive Overview"
-  }, {
-    "id": "swiftly-cliff-4166",
-    "label": "Business Health"
-  }, {
-    "id": "sharp-current-9677",
-    "label": "Growth"
-  }, {
-    "id": "proudly-river-8017",
-    "label": "Revenue"
-  }, {
-    "id": "dreamily-shade-6192",
-    "label": "Customers"
-  }, {
-    "id": "nicely-hour-4035",
-    "label": "Sales"
-  }, {
-    "id": "eagerly-winter-3152",
-    "label": "Marketing"
-  }, {
-    "id": "sharply-wood-4560",
-    "label": "Advertising Intelligence"
-  }, {
-    "id": "bold-ocean-5847",
-    "label": "Ecommerce Intelligence"
-  }, {
-    "id": "cozily-path-5612",
-    "label": "Finance Intelligence"
-  }, {
-    "id": "gently-light-6089",
-    "label": "Operations Intelligence"
-  }, {
-    "id": "cool-town-1727",
-    "label": "Products Intelligence"
-  }, {
-    "id": "swift-pool-5077",
-    "label": "KPI Explorer"
-  }, {
-    "id": "friendly-ground-4157",
-    "label": "Reports"
-  }, {
-    "id": "brave-stream-5322",
-    "label": "Comparisons"
-  }, {
-    "id": "sparkling-time-5280",
-    "label": "Comparisons"
-  }, {
-    "id": "wispy-current-7490",
-    "label": "Forecasts"
-  }, {
-    "id": "kindly-year-8981",
-    "label": "Benchmarks"
-  }, {
-    "id": "serenely-creek-1765",
-    "label": "Trends"
-  }, {
-    "id": "sparklingly-light-7230",
-    "label": "Anomalies"
-  }, {
-    "id": "clever-soil-5964",
-    "label": "Attribution"
-  }, {
-    "id": "serenely-week-1771",
-    "label": "AI Insights"
-  }, {
-    "id": "daring-home-4179",
-    "label": "AI Recommendations"
-  }, {
-    "id": "wispy-leaf-3778",
-    "label": "AI Tasks"
-  }, {
-    "id": "happily-brook-7061",
-    "label": "Opportunities"
-  }, {
-    "id": "radiant-cave-9340",
-    "label": "Decisions"
-  }, {
-    "id": "boldly-time-5189",
-    "label": "Risk Center"
-  }, {
-    "id": "proud-rain-4772",
-    "label": "Activity Timeline"
-  }]
-}, {
-  "label": "Finance",
-  "pages": [{
-    "id": "quietly-stone-4158",
-    "label": "Overview"
-  }, {
-    "id": "breezy-soil-2475",
-    "label": "Invoices"
-  }, {
-    "id": "tender-creek-3139",
-    "label": "Offers & Quotes"
-  }, {
-    "id": "cool-rain-6499",
-    "label": "Income"
-  }, {
-    "id": "richly-land-8084",
-    "label": "Transactions"
-  }, {
-    "id": "calm-tide-3752",
-    "label": "Payments"
-  }, {
-    "id": "zesty-earth-3938",
-    "label": "Expenses"
-  }, {
-    "id": "bravely-bay-4544",
-    "label": "Customers"
-  }, {
-    "id": "eager-minute-1586",
-    "label": "Vendors"
-  }, {
-    "id": "fair-bridge-8618",
-    "label": "Accounts"
-  }, {
-    "id": "soft-town-3284",
-    "label": "Cash Flow"
-  }, {
-    "id": "wisely-gate-3183",
-    "label": "Budgets"
-  }, {
-    "id": "sharp-morning-7310",
-    "label": "Financial Planning"
-  }, {
-    "id": "sparklingly-city-3338",
-    "label": "Reconciliation"
-  }, {
-    "id": "radiant-hour-5376",
-    "label": "Recurring Revenue"
-  }, {
-    "id": "lucky-park-8649",
-    "label": "Payouts"
-  }, {
-    "id": "vibrantly-second-9428",
-    "label": "Financial Automation"
-  }, {
-    "id": "sturdy-week-3372",
-    "label": "Taxes"
-  }, {
-    "id": "boldly-field-4971",
-    "label": "Finance Settings"
-  }]
-}, {
-  "label": "Sales",
-  "pages": [{
-    "id": "fine-park-8079",
-    "label": "Overview"
-  }, {
-    "id": "softly-autumn-9038",
-    "label": "Leads"
-  }, {
-    "id": "wildly-sun-6424",
-    "label": "Opportunities"
-  }, {
-    "id": "deeply-month-1392",
-    "label": "Deals"
-  }, {
-    "id": "sweet-evening-7753",
-    "label": "Pipeline"
-  }, {
-    "id": "warmly-road-3804",
-    "label": "Activities"
-  }, {
-    "id": "wondrously-gate-2200",
-    "label": "Tasks"
-  }, {
-    "id": "sharp-cliff-6925",
-    "label": "Customer Segments"
-  }, {
-    "id": "lovingly-shore-4782",
-    "label": "Forecast"
-  }, {
-    "id": "rich-moon-9195",
-    "label": "Reports"
-  }, {
-    "id": "lively-house-6788",
-    "label": "Commissions"
-  }, {
-    "id": "gentle-cliff-7133",
-    "label": "Goals"
-  }, {
-    "id": "kindly-morning-7115",
-    "label": "Territories"
-  }, {
-    "id": "friendly-tower-1528",
-    "label": "Lead Assignment"
-  }]
-}, {
-  "label": "Website & Commerce",
-  "pages": [{
-    "id": "lulu-website-portal-9012",
-    "label": "Website"
-  }, {
-    "id": "website-wordpress-jetpack-9013",
-    "label": "WordPress / Jetpack"
-  }, {
-    "id": "website-webflow-9014",
-    "label": "Webflow"
-  }, {
-    "id": "website-pages-cms-9015",
-    "label": "Pages & CMS"
-  }, {
-    "id": "website-posts-9016",
-    "label": "Posts"
-  }, {
-    "id": "website-media-assets-9017",
-    "label": "Media & Assets"
-  }, {
-    "id": "website-domains-9018",
-    "label": "Domains"
-  }, {
-    "id": "sparklingly-moon-5114",
-    "label": "SEO"
-  }, {
-    "id": "zealously-path-4224",
-    "label": "GEO"
-  }, {
-    "id": "sunny-house-9595",
-    "label": "AEO"
-  }, {
-    "id": "daring-brook-9034",
-    "label": "Reviews"
-  }, {
-    "id": "smart-ocean-3898",
-    "label": "Overview"
-  }, {
-    "id": "nice-year-6253",
-    "label": "Stores"
-  }, {
-    "id": "nicely-ocean-1051",
-    "label": "Products"
-  }, {
-    "id": "richly-forest-5832",
-    "label": "Categories"
-  }, {
-    "id": "mightily-shore-7108",
-    "label": "Orders"
-  }, {
-    "id": "fancy-ground-8040",
-    "label": "Customers"
-  }, {
-    "id": "serenely-sand-9226",
-    "label": "Carts"
-  }, {
-    "id": "smart-village-1099",
-    "label": "Inventory"
-  }, {
-    "id": "dreamy-shade-5445",
-    "label": "Returns & Refunds"
-  }, {
-    "id": "sharply-sky-4161",
-    "label": "Discounts & Promotions"
-  }, {
-    "id": "wildly-time-4260",
-    "label": "Carts & Abandoned Carts"
-  }, {
-    "id": "quietly-moon-4186",
-    "label": "Shipping"
-  }, {
-    "id": "merry-castle-3260",
-    "label": "Payments"
-  }, {
-    "id": "merry-cliff-8846",
-    "label": "Coupons"
-  }, {
-    "id": "safely-dawn-7731",
-    "label": "Subscriptions"
-  }, {
-    "id": "purely-dusk-2409",
-    "label": "Shipping & Fulfillment"
-  }, {
-    "id": "soft-hill-4757",
-    "label": "Taxes"
-  }, {
-    "id": "safely-air-9334",
-    "label": "Collections"
-  }, {
-    "id": "merry-land-6169",
-    "label": "Store Performance"
-  }]
-}, {
-  "label": "Settings",
-  "pages": [{
-    "id": "nicely-land-1864",
-    "label": "Settings"
-  }, {
-    "id": "glad-coast-1428",
-    "label": "Integrations"
-  }, {
-    "id": "pure-minute-5446",
-    "label": "Billing"
-  }]
-}] as const;
-function LuluSectionNavigation({
-  activeId
-}: {
-  activeId: string;
-}) {
-  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
-    {luluDropdownNavigation.map(section => {
-      const isActiveSection = section.pages.some(page => page.id === activeId);
-      return <details key={section.label} open={isActiveSection} className="group rounded-lg">
-        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
-          <span data-lulu-section-soon={section.label !== "Website & Commerce" && section.label !== "Settings" ? "true" : undefined}>{section.label}</span>
-          <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
-        </summary>
-        <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
-          {section.pages.map(page => {
-            const isActivePage = page.id === activeId;
-            return <a key={page.id} {...pageLinkProps(page.id)} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
-              {page.label}
-              {!pageLinkProps(page.id)["data-lulu-soon"] ? null : null}
-            </a>;
-          })}
+export function AdvertisingWorkspace() {
+  const { selectedWorkspace } = useLuluApp();
+  const [query, setQuery] = useState('');
+  const campaigns = useLiveRecords('advertising_campaigns');
+  const workspaceId = selectedWorkspace?.id ?? null;
+
+  const filteredCampaigns = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return campaigns.items;
+    return campaigns.items.filter((record) =>
+      `${record.name} ${record.description ?? ''} ${record.status} ${record.stage ?? ''} ${record.tags.join(' ')}`
+        .toLowerCase()
+        .includes(normalized),
+    );
+  }, [campaigns.items, query]);
+
+  const activeCampaigns = useMemo(
+    () => campaigns.items.filter((record) => /active|running|live/i.test(record.status || '')),
+    [campaigns.items],
+  );
+  const reviewCampaigns = useMemo(
+    () => campaigns.items.filter((record) => /paused|error|draft|review/i.test(`${record.status} ${record.stage ?? ''}`)),
+    [campaigns.items],
+  );
+
+  if (campaigns.loading && campaigns.items.length === 0) {
+    return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-muted-foreground">Loading live advertising data…</main>;
+  }
+
+  if (campaigns.error && campaigns.items.length === 0) {
+    return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-destructive">{campaigns.error}</main>;
+  }
+
+  return (
+    <main className="min-h-screen bg-[var(--background)] text-foreground">
+      <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8 sm:py-8">
+        <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Advertising</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">Advertising Overview</h1>
+            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+              This workspace should stay centered on live campaign status, budget exposure and the items that need approval or optimization.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void campaigns.refresh()}
+            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary"
+          >
+            <RefreshCw size={15} />
+            Refresh
+          </button>
+        </header>
+
+        <WorkspaceIntelligencePanel workspaceId={workspaceId} />
+
+        <section className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <article className="rounded-xl border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">Campaigns</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{campaigns.total}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Tracked advertising records</p>
+          </article>
+          <article className="rounded-xl border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">Active</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{activeCampaigns.length}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Campaigns currently marked live</p>
+          </article>
+          <article className="rounded-xl border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">Needs review</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{reviewCampaigns.length}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Draft, paused or flagged records</p>
+          </article>
+          <article className="rounded-xl border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">Tracked spend</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{moneyTotal(campaigns.items.map((record) => record.valueAmount))}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Summed from current live records</p>
+          </article>
+        </section>
+
+        <section className="mb-6 rounded-xl border border-border bg-card p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Quick access</p>
+              <h2 className="mt-1 text-lg font-semibold text-foreground">Open an advertising workspace</h2>
+            </div>
+            <label className="flex items-center gap-2 rounded-lg border border-border bg-background/50 px-3 py-2 text-sm text-foreground">
+              <Search size={15} className="text-muted-foreground" />
+              <input
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search campaign records"
+                className="w-full min-w-0 bg-transparent outline-none placeholder:text-muted-foreground"
+              />
+            </label>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            {advertisingQuickLinks.map((item) => (
+              <a
+                key={item.id}
+                {...pageLinkProps(item.id)}
+                className="rounded-xl border border-border bg-background/50 p-4 transition hover:border-border hover:bg-background"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <strong className="text-sm text-foreground">{item.title}</strong>
+                  <ArrowRight size={15} className="text-muted-foreground" />
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{item.detail}</p>
+              </a>
+            ))}
+          </div>
+        </section>
+
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.3fr)_minmax(0,0.9fr)]">
+          <section className="rounded-xl border border-border bg-card p-5">
+            <div className="flex items-center gap-2">
+              <Target size={16} className="text-foreground" />
+              <h2 className="text-lg font-semibold text-foreground">Live campaigns</h2>
+            </div>
+            {filteredCampaigns.length === 0 ? (
+              <p className="mt-4 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">
+                No campaign records match the current search.
+              </p>
+            ) : (
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full min-w-[720px] text-left text-sm">
+                  <thead className="border-b border-border text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                    <tr>
+                      <th className="pb-3 font-medium">Campaign</th>
+                      <th className="pb-3 font-medium">Status</th>
+                      <th className="pb-3 font-medium">Stage</th>
+                      <th className="pb-3 font-medium">Value</th>
+                      <th className="pb-3 font-medium">Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filteredCampaigns.slice(0, 12).map((record) => (
+                      <tr key={record.id}>
+                        <td className="py-3">
+                          <div className="font-medium text-foreground">{record.name}</div>
+                          <div className="text-xs text-muted-foreground">{record.description ?? 'No additional detail'}</div>
+                        </td>
+                        <td className="py-3 text-foreground">{record.status}</td>
+                        <td className="py-3 text-muted-foreground">{record.stage ?? '—'}</td>
+                        <td className="py-3 text-foreground">{record.valueAmount ?? '—'} {record.currency ?? ''}</td>
+                        <td className="py-3 text-muted-foreground">{new Date(record.updatedAt).toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          <div className="grid gap-6">
+            <section className="rounded-xl border border-border bg-card p-5">
+              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Needs attention</p>
+              <h2 className="mt-1 text-lg font-semibold text-foreground">Review queue</h2>
+              <div className="mt-4 space-y-3">
+                {reviewCampaigns.slice(0, 5).map((record) => (
+                  <article key={record.id} className="rounded-lg border border-border bg-background/50 px-4 py-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <strong className="text-sm text-foreground">{record.name}</strong>
+                      <span className="text-xs text-muted-foreground">{record.status}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">{record.description ?? record.stage ?? 'No additional detail'}</p>
+                  </article>
+                ))}
+                {reviewCampaigns.length === 0 && (
+                  <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
+                    No advertising records are currently flagged for review.
+                  </p>
+                )}
+              </div>
+            </section>
+
+            <section className="rounded-xl border border-border bg-card p-5">
+              <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Latest activity</p>
+              <h2 className="mt-1 text-lg font-semibold text-foreground">Recent updates</h2>
+              <div className="mt-4 space-y-3">
+                {campaigns.items
+                  .slice()
+                  .sort((left, right) => new Date(right.updatedAt).getTime() - new Date(left.updatedAt).getTime())
+                  .slice(0, 5)
+                  .map((record) => (
+                    <article key={record.id} className="rounded-lg border border-border bg-background/50 px-4 py-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <strong className="text-sm text-foreground">{record.name}</strong>
+                        <span className="text-xs text-muted-foreground">{new Date(record.updatedAt).toLocaleDateString()}</span>
+                      </div>
+                      <p className="mt-1 text-sm text-muted-foreground">{record.status}{record.stage ? ` · ${record.stage}` : ''}</p>
+                    </article>
+                  ))}
+              </div>
+            </section>
+          </div>
         </div>
-      </details>;
-    })}
-  </nav>;
+      </div>
+    </main>
+  );
 }
-import { pageLinkProps } from '../../../../routing';
