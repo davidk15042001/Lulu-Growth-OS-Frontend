@@ -48,6 +48,7 @@ type AgentHealthGroup = {
   description: string;
   badgeClassName: string;
   borderClassName: string;
+  panelClassName: string;
 };
 
 const AGENT_HEALTH_GROUPS: AgentHealthGroup[] = [
@@ -55,29 +56,33 @@ const AGENT_HEALTH_GROUPS: AgentHealthGroup[] = [
     id: 'critical',
     label: 'Kritisch',
     description: 'Diese Agenten brauchen sofort Aufmerksamkeit.',
-    badgeClassName: 'bg-red-500/12 text-red-300 border-red-400/25',
-    borderClassName: 'border-red-400/20',
+    badgeClassName: 'bg-red-500/20 text-red-200 border-red-300/40',
+    borderClassName: 'border-red-400/30',
+    panelClassName: 'bg-red-950/20',
   },
   {
     id: 'dangerous',
     label: 'Gefaehrlich',
     description: 'Diese Agenten laufen nicht sauber oder wirken instabil.',
-    badgeClassName: 'bg-amber-500/12 text-amber-200 border-amber-400/25',
-    borderClassName: 'border-amber-400/20',
+    badgeClassName: 'bg-orange-500/20 text-orange-100 border-orange-300/40',
+    borderClassName: 'border-orange-400/30',
+    panelClassName: 'bg-orange-950/20',
   },
   {
     id: 'okay',
     label: 'Okay',
     description: 'Diese Agenten sind vorhanden, aber noch nicht klar stark oder kritisch.',
-    badgeClassName: 'bg-slate-400/12 text-slate-200 border-slate-300/20',
+    badgeClassName: 'bg-sky-500/14 text-sky-100 border-sky-300/30',
     borderClassName: 'border-border',
+    panelClassName: 'bg-sky-950/10',
   },
   {
     id: 'very_good',
     label: 'Sehr gut',
     description: 'Diese Agenten wirken stabil und ohne erkennbare Warnsignale.',
-    badgeClassName: 'bg-emerald-500/12 text-emerald-200 border-emerald-400/25',
-    borderClassName: 'border-emerald-400/20',
+    badgeClassName: 'bg-emerald-500/20 text-emerald-100 border-emerald-300/40',
+    borderClassName: 'border-emerald-400/30',
+    panelClassName: 'bg-emerald-950/20',
   },
 ];
 
@@ -106,6 +111,8 @@ function lowerSignals(record: WorkspaceRecord) {
     textValue(record.data?.runStatus),
     textValue(record.data?.syncStatus),
     textValue(record.data?.warning),
+    textValue(record.data?.error),
+    textValue(record.data?.summary),
   ]
     .filter(Boolean)
     .join(' ')
@@ -149,6 +156,45 @@ function resolveAgentHealthBucket(record: WorkspaceRecord): AgentHealthBucket {
   return 'okay';
 }
 
+function severityScore(record: WorkspaceRecord, bucket: AgentHealthBucket) {
+  const signals = lowerSignals(record);
+  let score = bucket === 'critical' ? 100 : bucket === 'dangerous' ? 70 : bucket === 'okay' ? 40 : 10;
+
+  const weightedSignals: Array<[string, number]> = [
+    ['failed', 40],
+    ['error', 32],
+    ['critical', 30],
+    ['degraded', 28],
+    ['blocked', 28],
+    ['offline', 26],
+    ['warning', 18],
+    ['danger', 18],
+    ['review', 12],
+    ['paused', 10],
+    ['waiting', 8],
+    ['queued', 7],
+    ['pending', 6],
+    ['running', 5],
+    ['healthy', -12],
+    ['completed', -14],
+    ['active', -10],
+    ['ready', -12],
+    ['stable', -16],
+    ['success', -18],
+  ];
+
+  for (const [keyword, weight] of weightedSignals) {
+    if (signals.includes(keyword)) score += weight;
+  }
+
+  const tasks = Number(textValue(record.data?.tasks) || 0);
+  if (Number.isFinite(tasks) && tasks > 0) {
+    score += Math.min(tasks, 20);
+  }
+
+  return score;
+}
+
 function simpleFeedback(record: WorkspaceRecord, bucket: AgentHealthBucket) {
   const status = textValue(record.status) || 'Unbekannt';
   if (bucket === 'critical') {
@@ -163,8 +209,13 @@ function simpleFeedback(record: WorkspaceRecord, bucket: AgentHealthBucket) {
   return `Grundsaetzlich okay: Dieser Agent ist aktuell ${status.toLowerCase()}, aber die Lage ist noch nicht eindeutig positiv oder kritisch.`;
 }
 
-function sortByRecency(items: WorkspaceRecord[]) {
+function sortBySeverity(items: WorkspaceRecord[]) {
   return [...items].sort((left, right) => {
+    const leftBucket = resolveAgentHealthBucket(left);
+    const rightBucket = resolveAgentHealthBucket(right);
+    const leftSeverity = severityScore(left, leftBucket);
+    const rightSeverity = severityScore(right, rightBucket);
+    if (rightSeverity !== leftSeverity) return rightSeverity - leftSeverity;
     const leftTime = new Date(left.updatedAt).getTime();
     const rightTime = new Date(right.updatedAt).getTime();
     return rightTime - leftTime;
@@ -184,14 +235,14 @@ export const LuluAIAgents = () => {
       grouped[resolveAgentHealthBucket(record)].push(record);
     }
     return {
-      critical: sortByRecency(grouped.critical),
-      dangerous: sortByRecency(grouped.dangerous),
-      okay: sortByRecency(grouped.okay),
-      very_good: sortByRecency(grouped.very_good),
+      critical: sortBySeverity(grouped.critical),
+      dangerous: sortBySeverity(grouped.dangerous),
+      okay: sortBySeverity(grouped.okay),
+      very_good: sortBySeverity(grouped.very_good),
     };
   }, [items]);
 
-  return <div className="lulu-shell"><aside className="lulu-sidebar" aria-label="Primary navigation"><div className="lulu-logo"><span className="sparkle">✦</span><span>Lulu AI</span></div><LuluSectionNavigation activeId="radiant-dusk-9079" /></aside><main className="lulu-main"><header className="page-header"><div className="breadcrumb"><span>AI Platform</span><ChevronRight size={13} /><strong>AI Agents</strong></div><div className="title-row"><div><h1>AI Agents</h1><p>Alle AI Agents nach Prioritaet sortiert, mit einfacher Einschaetzung und klarem Feedback.</p></div><div className="header-actions"><button className="ghost-button"><LayoutTemplate size={15} />Agent Templates</button><button className="ghost-button"><Store size={15} />Agent Marketplace</button><button type="button" className="primary-button" disabled aria-disabled="true" title="Create Agent coming soon" style={{ cursor: 'not-allowed', opacity: 0.55 }}><Plus size={15} />Create Agent <span aria-hidden="true">(soon)</span></button></div></div></header>{loading ? <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">Loading live AI agents…</div> : error ? <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center text-sm text-destructive">{error}</div> : !items.length ? <section className="flex min-h-[560px] items-center justify-center rounded-xl border border-dashed border-border bg-card p-10 text-center"><Bot className="mx-auto text-muted-foreground" size={38} /><h2 className="mt-4 text-xl font-semibold text-foreground">No AI agents available yet</h2><p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Configure an authorized AI agent or connect an agent source to populate this page. No example agent names, task counts, health values or performance statistics are displayed.</p></section> : <section className="content-section space-y-5"><div className="section-heading"><h2>Your AI Agents</h2><span>{items.length} live records</span></div>{AGENT_HEALTH_GROUPS.map(group => <section key={group.id} className={`rounded-2xl border bg-card p-4 sm:p-5 ${group.borderClassName}`}><div className="flex flex-col gap-2 border-b border-border/70 pb-4 sm:flex-row sm:items-center sm:justify-between"><div><h3 className="text-lg font-semibold text-foreground">{group.label}</h3><p className="text-sm text-muted-foreground">{group.description}</p></div><span className={`inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold ${group.badgeClassName}`}>{groupedAgents[group.id].length} Agent{groupedAgents[group.id].length === 1 ? '' : 'en'}</span></div>{groupedAgents[group.id].length === 0 ? <p className="pt-4 text-sm text-muted-foreground">Aktuell keine Agenten in dieser Kategorie.</p> : <div className="grid gap-3 pt-4">{groupedAgents[group.id].map(record => <article key={record.id} className="rounded-xl border border-border bg-background/70 p-4"><div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h4 className="text-base font-semibold text-foreground">{record.name}</h4><span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${group.badgeClassName}`}>{group.label}</span><span className="inline-flex items-center rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground">{textValue(record.status) || 'Recorded'}</span></div><p className="mt-2 text-sm leading-6 text-muted-foreground">{record.description || 'Live AI agent record'}</p><p className="mt-3 text-sm font-medium text-foreground">{simpleFeedback(record, group.id)}</p></div><div className="grid min-w-[220px] gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-1"><div><span className="font-medium text-foreground">Typ:</span> {textValue(record.data?.type) || 'Agent'}</div><div><span className="font-medium text-foreground">Tasks:</span> {textValue(record.data?.tasks) || '—'}</div><div><span className="font-medium text-foreground">Stage:</span> {textValue(record.stage) || textValue(record.data?.stage) || '—'}</div><div><span className="font-medium text-foreground">Aktualisiert:</span> {formatUpdatedAt(record.updatedAt)}</div></div></div></article>)}</div>}</section>)}</section>}</main></div>;
+  return <div className="lulu-shell"><aside className="lulu-sidebar" aria-label="Primary navigation"><div className="lulu-logo"><span className="sparkle">✦</span><span>Lulu AI</span></div><LuluSectionNavigation activeId="radiant-dusk-9079" /></aside><main className="lulu-main"><header className="page-header"><div className="breadcrumb"><span>AI Platform</span><ChevronRight size={13} /><strong>AI Agents</strong></div><div className="title-row"><div><h1>AI Agents</h1><p>Alle AI Agents nach Prioritaet sortiert, mit einfacher Einschaetzung und klarem Feedback.</p></div><div className="header-actions"><button className="ghost-button"><LayoutTemplate size={15} />Agent Templates</button><button className="ghost-button"><Store size={15} />Agent Marketplace</button><button type="button" className="primary-button" disabled aria-disabled="true" title="Create Agent coming soon" style={{ cursor: 'not-allowed', opacity: 0.55 }}><Plus size={15} />Create Agent <span aria-hidden="true">(soon)</span></button></div></div></header>{loading ? <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">Loading live AI agents…</div> : error ? <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center text-sm text-destructive">{error}</div> : !items.length ? <section className="flex min-h-[560px] items-center justify-center rounded-xl border border-dashed border-border bg-card p-10 text-center"><Bot className="mx-auto text-muted-foreground" size={38} /><h2 className="mt-4 text-xl font-semibold text-foreground">No AI agents available yet</h2><p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Configure an authorized AI agent or connect an agent source to populate this page. No example agent names, task counts, health values or performance statistics are displayed.</p></section> : <section className="content-section space-y-5"><div className="section-heading"><h2>Your AI Agents</h2><span>{items.length} live records</span></div>{AGENT_HEALTH_GROUPS.map(group => <section key={group.id} className={`rounded-2xl border bg-card p-4 sm:p-5 ${group.borderClassName} ${group.panelClassName}`}><div className="flex flex-col gap-2 border-b border-border/70 pb-4 sm:flex-row sm:items-center sm:justify-between"><div><h3 className="text-lg font-semibold text-foreground">{group.label}</h3><p className="text-sm text-muted-foreground">{group.description}</p></div><span className={`inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold ${group.badgeClassName}`}>{groupedAgents[group.id].length} Agent{groupedAgents[group.id].length === 1 ? '' : 'en'}</span></div>{groupedAgents[group.id].length === 0 ? <p className="pt-4 text-sm text-muted-foreground">Aktuell keine Agenten in dieser Kategorie.</p> : <div className="grid gap-3 pt-4">{groupedAgents[group.id].map(record => <article key={record.id} className={`rounded-xl border p-4 ${group.borderClassName} bg-background/85`}><div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h4 className="text-base font-semibold text-foreground">{record.name}</h4><span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${group.badgeClassName}`}>{group.label}</span><span className="inline-flex items-center rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground">{textValue(record.status) || 'Recorded'}</span></div><p className="mt-2 text-sm leading-6 text-muted-foreground">{record.description || 'Live AI agent record'}</p><p className="mt-3 text-sm font-medium text-foreground">{simpleFeedback(record, group.id)}</p></div><div className="grid min-w-[220px] gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-1"><div><span className="font-medium text-foreground">Typ:</span> {textValue(record.data?.type) || 'Agent'}</div><div><span className="font-medium text-foreground">Tasks:</span> {textValue(record.data?.tasks) || '—'}</div><div><span className="font-medium text-foreground">Stage:</span> {textValue(record.stage) || textValue(record.data?.stage) || '—'}</div><div><span className="font-medium text-foreground">Aktualisiert:</span> {formatUpdatedAt(record.updatedAt)}</div></div></div></article>)}</div>}</section>)}</section>}</main></div>;
 };
 const luluDropdownNavigation = [{
   "label": "Dashboard",
