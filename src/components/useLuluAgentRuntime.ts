@@ -77,6 +77,21 @@ const runtimeCache = new Map<string, AgentRuntimeSnapshot>();
 const inflightRuntimeLoads = new Map<string, Promise<AgentRuntimeSnapshot>>();
 const pageAgentEnsureTimestamps = new Map<string, number>();
 
+export function clearRuntimeSnapshotCache(workspaceId?: string) {
+  if (!workspaceId) {
+    runtimeCache.clear();
+    inflightRuntimeLoads.clear();
+    return;
+  }
+  const prefix = `${workspaceId}:`;
+  for (const key of [...runtimeCache.keys()]) {
+    if (key.startsWith(prefix)) runtimeCache.delete(key);
+  }
+  for (const key of [...inflightRuntimeLoads.keys()]) {
+    if (key.startsWith(prefix)) inflightRuntimeLoads.delete(key);
+  }
+}
+
 function interpolate(template: string, values: Array<string | number>) {
   return values.reduce<string>((message, value, index) => message.replace(`{{${index}}}`, String(value)), template);
 }

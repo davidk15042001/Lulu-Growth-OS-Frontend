@@ -6,6 +6,7 @@ import type { PageDefinition } from "../pages-manifest";
 import { pagePath } from "../routing";
 import { useLuluApp } from "../api/LuluAppContext";
 import { LuluWorkspaceRefreshButton } from "../components/LuluWorkspaceTopBar";
+import { subscribeWorkspaceRefresh } from "../components/workspace-refresh-events";
 import { availablePages } from "./page-registry";
 
 function AuthenticatedSearchBar() {
@@ -86,9 +87,22 @@ export function PageFrame({
   page: PageDefinition;
   isStandalone: boolean;
 }) {
+  const { selectedWorkspace } = useLuluApp();
+  const [refreshVersion, setRefreshVersion] = useState(0);
+
   useEffect(() => {
     document.title = page.name;
   }, [page]);
+
+  useEffect(() => {
+    if (!selectedWorkspace?.id) return;
+    return subscribeWorkspaceRefresh(selectedWorkspace.id, () => {
+      // #region debug-point C:page-shell-refresh-event
+      fetch("http://127.0.0.1:7777/event", { method: "POST", body: JSON.stringify({ sessionId: "update-button-broken", runId: "pre-fix", hypothesisId: "C", location: "src/app/PageShell.tsx:workspace-refresh", msg: "[DEBUG] Page shell received workspace refresh event", data: { workspaceId: selectedWorkspace.id, pageSlug: page.slug }, ts: Date.now() }) }).catch(() => {});
+      // #endregion
+      setRefreshVersion((current) => current + 1);
+    });
+  }, [selectedWorkspace?.id]);
 
   return (
     <>
@@ -97,7 +111,7 @@ export function PageFrame({
         className={`page-frame${isStandalone ? " page-frame--auth" : ""}`}
         style={isStandalone ? { height: "auto", minHeight: "100vh", overflow: "visible" } : undefined}
       >
-        <NativePage slug={page.slug} />
+        <NativePage key={`${page.slug}:${refreshVersion}`} slug={page.slug} />
       </main>
     </>
   );

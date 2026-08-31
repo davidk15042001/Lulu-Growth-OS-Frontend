@@ -1,0 +1,931 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lulu Intelligence - Kundenbroschuere</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      :root {
+        --bg: #07111f;
+        --panel: rgba(13, 26, 46, 0.78);
+        --panel-strong: rgba(8, 18, 34, 0.94);
+        --line: rgba(157, 185, 255, 0.2);
+        --text: #eff4ff;
+        --muted: #b6c3df;
+        --cyan: #6ff5ff;
+        --blue: #4d7bff;
+        --violet: #8a5bff;
+        --pink: #d78bff;
+        --green: #71f2be;
+        --shadow: 0 28px 90px rgba(0, 0, 0, 0.34);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #0a1018;
+        color: var(--text);
+        font-family: "Segoe UI", Inter, Arial, sans-serif;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      body {
+        counter-reset: page;
+      }
+
+      .page {
+        position: relative;
+        min-height: 297mm;
+        padding: 18mm 16mm 16mm;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at top left, rgba(111, 245, 255, 0.18), transparent 22%),
+          radial-gradient(circle at top right, rgba(138, 91, 255, 0.18), transparent 24%),
+          linear-gradient(160deg, #091120 0%, #081425 38%, #0c1830 100%);
+        break-after: page;
+      }
+
+      .page:last-child {
+        break-after: auto;
+      }
+
+      .grid-2,
+      .grid-3 {
+        display: grid;
+        gap: 10mm;
+      }
+
+      .grid-2 {
+        grid-template-columns: 1.2fr 0.8fr;
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        border: 1px solid rgba(111, 245, 255, 0.22);
+        border-radius: 999px;
+        background: rgba(111, 245, 255, 0.08);
+        color: #dffefe;
+        font-size: 10.5pt;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--cyan), var(--violet));
+        box-shadow: 0 0 18px rgba(111, 245, 255, 0.7);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        margin-top: 12mm;
+        font-size: 30pt;
+        line-height: 1.05;
+        letter-spacing: -0.03em;
+      }
+
+      h2 {
+        font-size: 21pt;
+        line-height: 1.08;
+        letter-spacing: -0.025em;
+      }
+
+      h3 {
+        font-size: 13pt;
+        line-height: 1.25;
+      }
+
+      .lead {
+        margin-top: 7mm;
+        max-width: 132mm;
+        color: var(--muted);
+        font-size: 13pt;
+        line-height: 1.55;
+      }
+
+      .topbar,
+      .footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .topbar img {
+        height: 14mm;
+        width: auto;
+      }
+
+      .top-meta {
+        color: #d5ddf4;
+        font-size: 9.5pt;
+        text-align: right;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 10mm;
+        align-items: center;
+        margin-top: 12mm;
+      }
+
+      .hero-copy {
+        padding-right: 4mm;
+      }
+
+      .hero-card,
+      .panel,
+      .metric,
+      .compare-card,
+      .use-case,
+      .timeline-card {
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        box-shadow: var(--shadow);
+      }
+
+      .hero-card {
+        position: relative;
+        min-height: 86mm;
+        padding: 8mm;
+        overflow: hidden;
+      }
+
+      .hero-card::before {
+        content: "";
+        position: absolute;
+        inset: -18% auto auto -8%;
+        width: 40mm;
+        height: 40mm;
+        border-radius: 50%;
+        background: rgba(111, 245, 255, 0.16);
+        filter: blur(18px);
+      }
+
+      .hero-card::after {
+        content: "";
+        position: absolute;
+        right: -16px;
+        bottom: -26px;
+        width: 60mm;
+        height: 60mm;
+        border-radius: 50%;
+        background: rgba(138, 91, 255, 0.18);
+        filter: blur(24px);
+      }
+
+      .hero-visual {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        gap: 6mm;
+      }
+
+      .hero-visual img {
+        width: 100%;
+        border-radius: 20px;
+      }
+
+      .mini-metrics {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4mm;
+      }
+
+      .metric {
+        padding: 5mm;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 18pt;
+        line-height: 1;
+        margin-bottom: 3mm;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 9.5pt;
+        line-height: 1.35;
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 7mm;
+      }
+
+      .pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        color: #edf2ff;
+        font-size: 9.5pt;
+        font-weight: 600;
+      }
+
+      .section {
+        margin-top: 10mm;
+      }
+
+      .section > p {
+        margin-top: 4mm;
+        color: var(--muted);
+        font-size: 11.2pt;
+        line-height: 1.55;
+      }
+
+      .panel {
+        padding: 7mm;
+      }
+
+      .panel p {
+        margin-top: 3mm;
+        color: var(--muted);
+        font-size: 10.4pt;
+        line-height: 1.5;
+      }
+
+      .replace-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5mm;
+        margin-top: 8mm;
+      }
+
+      .replace-card {
+        padding: 6mm;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .replace-card h3 {
+        margin-bottom: 2.5mm;
+      }
+
+      .replace-card p {
+        color: var(--muted);
+        font-size: 10pt;
+        line-height: 1.45;
+      }
+
+      .compare-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5mm;
+        margin-top: 8mm;
+      }
+
+      .compare-card {
+        padding: 6mm;
+      }
+
+      .compare-card .label {
+        color: #dce5ff;
+        font-size: 9pt;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .compare-card h3 {
+        margin-top: 3mm;
+      }
+
+      .compare-card ul,
+      .use-case ul,
+      .timeline-card ul {
+        margin: 3mm 0 0;
+        padding-left: 4.5mm;
+        color: var(--muted);
+        font-size: 10pt;
+        line-height: 1.5;
+      }
+
+      .visual-box {
+        margin-top: 8mm;
+        padding: 5mm;
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background:
+          linear-gradient(145deg, rgba(111, 245, 255, 0.08), rgba(138, 91, 255, 0.08)),
+          rgba(255, 255, 255, 0.03);
+      }
+
+      .visual-box svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .use-case-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5mm;
+        margin-top: 7mm;
+      }
+
+      .use-case {
+        padding: 6mm;
+      }
+
+      .use-case p,
+      .timeline-card p {
+        margin-top: 3mm;
+        color: var(--muted);
+        font-size: 10.2pt;
+        line-height: 1.52;
+      }
+
+      .stats-band {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4mm;
+        margin-top: 7mm;
+      }
+
+      .stats-band .metric {
+        min-height: 29mm;
+      }
+
+      .timeline {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 5mm;
+        margin-top: 8mm;
+      }
+
+      .timeline-card {
+        padding: 6mm;
+      }
+
+      .timeline-card strong {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 10mm;
+        height: 10mm;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--cyan), var(--violet));
+        color: #02101f;
+        font-size: 10pt;
+      }
+
+      .cta {
+        margin-top: 10mm;
+        padding: 8mm;
+        border-radius: 24px;
+        background:
+          radial-gradient(circle at left, rgba(111, 245, 255, 0.16), transparent 28%),
+          radial-gradient(circle at right, rgba(215, 139, 255, 0.18), transparent 24%),
+          linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: var(--shadow);
+      }
+
+      .cta p {
+        margin-top: 3mm;
+        color: var(--muted);
+        font-size: 11.2pt;
+        line-height: 1.55;
+      }
+
+      .footer {
+        position: absolute;
+        left: 16mm;
+        right: 16mm;
+        bottom: 9mm;
+        color: rgba(221, 230, 255, 0.82);
+        font-size: 9pt;
+      }
+
+      .footer::before {
+        counter-increment: page;
+        content: "Seite " counter(page);
+      }
+
+      .footer span {
+        margin-left: auto;
+      }
+
+      .accent {
+        color: #fff;
+      }
+
+      .muted-strong {
+        color: #dbe5ff;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="page">
+      <div class="topbar">
+        <img src="./branding/lulu-intelligence-logo.png" alt="Lulu Intelligence" />
+        <div class="top-meta">
+          Kundenbroschüre<br />
+          Enterprise AI Workforce Platform
+        </div>
+      </div>
+
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">Die neue Kategorie fuer Wachstum</div>
+          <h1>
+            Eine Plattform, die <span class="accent">Agenturen, Handelsfirmen und Vertriebsmitarbeiter</span>
+            durch spezialisierte KI-Mitarbeiter ersetzt.
+          </h1>
+          <p class="lead">
+            Lulu Intelligence ist kein Chatbot und kein weiteres Dashboard. Es ist eine operative
+            Unternehmensplattform, in der jede Geschaeftsseite ihren eigenen spezialisierten KI-Agenten
+            bekommt: fuer Marktanalyse, Vertrieb, Kampagnen, Angebotslogik, Kundenwissen, Finance und
+            laufende Optimierung.
+          </p>
+          <div class="pill-row">
+            <div class="pill">Analyse, Ausfuehrung und Optimierung in einem System</div>
+            <div class="pill">Persistentes Unternehmenswissen statt einzelner Chats</div>
+            <div class="pill">Spezialisierte Agenten pro Geschaeftsbereich</div>
+            <div class="pill">Operative Automatisierung mit Freigabe-Gates</div>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-visual">
+            <img src="./brochure-assets/hero-orb.png" alt="Lulu Intelligence Visual" />
+            <div class="mini-metrics">
+              <div class="metric">
+                <strong>1</strong>
+                <span>Zentrale Plattform statt Tool-Zoo, Dienstleister-Chaos und manueller Uebergaben</span>
+              </div>
+              <div class="metric">
+                <strong>24/7</strong>
+                <span>Kontinuierliche Markt- und Vertriebsarbeit ohne Leerlaufzeiten</span>
+              </div>
+              <div class="metric">
+                <strong>∞</strong>
+                <span>Skalierbare KI-Mitarbeiter pro Seite, Bereich und Workflow</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Was Kunden sofort verstehen muessen</h2>
+        <p>
+          Lulu Intelligence ersetzt nicht nur einzelne Tools. Es ersetzt ganze operative Konstrukte:
+          Marketing-Agenturen, Prospecting-Teams, Handels- und Recherche-Setups, Reporting-Stacks und
+          einen grossen Teil der taeglichen Vertriebsarbeit. Was frueher auf mehrere Anbieter, Teams und
+          Abstimmungsrunden verteilt war, laeuft hier in einem verbundenen KI-System.
+        </p>
+      </div>
+
+      <div class="footer"><span>Lulu Intelligence</span></div>
+    </section>
+
+    <section class="page">
+      <div class="topbar">
+        <div class="eyebrow">Das Kernproblem</div>
+        <div class="top-meta">Warum klassische Modelle heute zu langsam sind</div>
+      </div>
+
+      <div class="grid-2 section">
+        <div class="panel">
+          <h2>Die alte Welt ist fragmentiert, teuer und langsam</h2>
+          <p>
+            Unternehmen verteilen Wachstum heute haeufig auf externe Agenturen, CRM-Pflege, manuelle
+            Marktanalyse, Vertriebsteams, Reporting und isolierte Software-Tools. Jede Uebergabe kostet
+            Zeit. Jede Schnittstelle erzeugt Informationsverlust. Jede externe Partei denkt nur in ihrem
+            Ausschnitt, aber niemand steuert das Gesamtsystem in Echtzeit.
+          </p>
+          <div class="replace-grid">
+            <div class="replace-card">
+              <h3>Agenturen</h3>
+              <p>
+                Kampagnen, Content, Auswertungen und Strategie werden in getrennten Schritten geliefert,
+                oft ohne tiefes Echtzeitverstaendnis fuer das gesamte Unternehmen.
+              </p>
+            </div>
+            <div class="replace-card">
+              <h3>Handelsfirmen & Research-Strukturen</h3>
+              <p>
+                Produkt-, Markt- und Wettbewerbsdaten werden manuell gesammelt, bewertet und weitergereicht.
+                Dadurch entstehen Verzugszeiten und Opportunitaetsverluste.
+              </p>
+            </div>
+            <div class="replace-card">
+              <h3>Vertriebsmitarbeiter</h3>
+              <p>
+                Prospecting, Segmentierung, Follow-ups und Opportunity-Logik haengen an Einzelpersonen,
+                Tagesform und begrenzter Kapazitaet.
+              </p>
+            </div>
+            <div class="replace-card">
+              <h3>Tool-Stapel</h3>
+              <p>
+                CRM, Reporting, Marketing, Analyse, Content und Finance laufen nebeneinander. Entscheidungen
+                werden dadurch spaeter, teurer und haeufig schwaecher.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Was Lulu stattdessen macht</h2>
+          <p>
+            Lulu Intelligence verbindet Unternehmenswissen, operative Ausfuehrung und spezialisierte
+            KI-Agenten in einer einzigen Umgebung. Jede Seite im System ist der Arbeitsplatz eines
+            spezifischen KI-Mitarbeiters. Dieser kennt Kontext, arbeitet dauerhaft mit und fuehrt
+            Aufgaben innerhalb klarer Freigabe-Regeln aus.
+          </p>
+          <div class="visual-box">
+            <svg viewBox="0 0 520 400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Connected AI workflow illustration">
+              <defs>
+                <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#6ff5ff"/>
+                  <stop offset="100%" stop-color="#8a5bff"/>
+                </linearGradient>
+                <linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#4d7bff"/>
+                  <stop offset="100%" stop-color="#d78bff"/>
+                </linearGradient>
+              </defs>
+              <rect x="60" y="34" width="400" height="78" rx="22" fill="rgba(255,255,255,0.05)" stroke="rgba(255,255,255,0.16)"/>
+              <text x="260" y="72" fill="#eff4ff" font-size="24" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">Unternehmenswissen</text>
+              <text x="260" y="96" fill="#b6c3df" font-size="15" font-family="Segoe UI, Arial" text-anchor="middle">Angebote, Kunden, Maerkte, Prozesse, Ziele</text>
+              <line x1="260" y1="112" x2="260" y2="168" stroke="url(#g1)" stroke-width="6" stroke-linecap="round"/>
+              <circle cx="260" cy="190" r="46" fill="url(#g1)" opacity="0.95"/>
+              <text x="260" y="186" fill="#07111f" font-size="18" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="800">Lulu</text>
+              <text x="260" y="208" fill="#07111f" font-size="15" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">AI Core</text>
+              <line x1="260" y1="236" x2="140" y2="300" stroke="url(#g2)" stroke-width="5" stroke-linecap="round"/>
+              <line x1="260" y1="236" x2="260" y2="300" stroke="url(#g2)" stroke-width="5" stroke-linecap="round"/>
+              <line x1="260" y1="236" x2="380" y2="300" stroke="url(#g2)" stroke-width="5" stroke-linecap="round"/>
+              <rect x="70" y="300" width="140" height="64" rx="20" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)"/>
+              <rect x="190" y="300" width="140" height="64" rx="20" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)"/>
+              <rect x="310" y="300" width="140" height="64" rx="20" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)"/>
+              <text x="140" y="336" fill="#eff4ff" font-size="18" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">Marketing</text>
+              <text x="260" y="336" fill="#eff4ff" font-size="18" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">Sales</text>
+              <text x="380" y="336" fill="#eff4ff" font-size="18" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">Finance</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer"><span>Vom Tool-Stack zur AI Workforce</span></div>
+    </section>
+
+    <section class="page">
+      <div class="topbar">
+        <div class="eyebrow">Marktpositionierung</div>
+        <div class="top-meta">Warum Lulu Intelligence die einzige Plattform ihrer Art ist</div>
+      </div>
+
+      <div class="section">
+        <h2>Die einzige Plattform, die Beratung, Ausfuehrung und Unternehmensgedaechtnis in einem System vereint</h2>
+        <p>
+          Viele Anbieter sind entweder Chatbots, Agentur-Ersatz fuer eine Einzeldisziplin oder einzelne
+          Automatisierungstools. Lulu Intelligence ist die einzige konsequent als operative
+          Unternehmensinfrastruktur gedachte Plattform: mit spezialisierten Agenten pro Seite, zentralem
+          Wissen, laufender Analyse und echter Ausfuehrung in einem verbundenen System.
+        </p>
+      </div>
+
+      <div class="compare-grid">
+        <div class="compare-card">
+          <div class="label">Andere Tools</div>
+          <h3>Antworten auf Fragen</h3>
+          <ul>
+            <li>meist ohne dauerhaftes Unternehmenswissen</li>
+            <li>keine klare Rollenlogik pro Geschaeftsbereich</li>
+            <li>geben Empfehlungen, fuehren aber kaum operativ aus</li>
+          </ul>
+        </div>
+        <div class="compare-card">
+          <div class="label">Klassische Agenturen</div>
+          <h3>Liefern Ausschnitte</h3>
+          <ul>
+            <li>langsame Briefings und Rueckkopplungsschleifen</li>
+            <li>keine 24/7 Optimierung in Echtzeit</li>
+            <li>jeder Bereich arbeitet meist isoliert vom Rest</li>
+          </ul>
+        </div>
+        <div class="compare-card">
+          <div class="label">Lulu Intelligence</div>
+          <h3>Arbeitet wie ein vernetztes KI-Unternehmen</h3>
+          <ul>
+            <li>page-basierte Agenten mit klarer Zuständigkeit</li>
+            <li>persistente Knowledge-Snapshots pro Bereich</li>
+            <li>Analyse, Strategie, Ausfuehrung und Review als Pipeline</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="grid-2 section">
+        <div class="panel">
+          <h2>Fuenf harte Wettbewerbsvorteile</h2>
+          <p class="muted-strong">
+            Das ist der Unterschied zwischen einer beeindruckenden Demo und einem System, das echte
+            Unternehmensleistung uebernimmt.
+          </p>
+          <div class="replace-grid">
+            <div class="replace-card">
+              <h3>1. Spezialisten statt Einheits-KI</h3>
+              <p>Jede Seite ist einem spezifischen Agenten zugeordnet. Dadurch arbeitet das System rollenscharf und nicht generisch.</p>
+            </div>
+            <div class="replace-card">
+              <h3>2. Wissen, das erhalten bleibt</h3>
+              <p>Kontext verschwindet nicht nach einer Chat-Session. Lulu speichert und nutzt Unternehmenswissen dauerhaft weiter.</p>
+            </div>
+            <div class="replace-card">
+              <h3>3. Echte operative Wirkung</h3>
+              <p>Das System analysiert nicht nur, sondern bereitet reale naechste Schritte vor und fuehrt sie kontrolliert aus.</p>
+            </div>
+            <div class="replace-card">
+              <h3>4. Kontrolle statt Black Box</h3>
+              <p>Write-Actions laufen ueber Approval-Gates. Unternehmen behalten damit jederzeit Steuerung und Nachvollziehbarkeit.</p>
+            </div>
+            <div class="replace-card">
+              <h3>5. Eine Plattform statt Silos</h3>
+              <p>Marketing, CRM, Finance, Reviews, Commerce und Audiences arbeiten mit derselben Wahrheit und nicht gegeneinander.</p>
+            </div>
+            <div class="replace-card">
+              <h3>6. Endlos skalierbar</h3>
+              <p>Ein Agent ist kein Engpass. Lulu kann beliebig viele spezialisierte KI-Mitarbeiter parallel bereitstellen.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>Was durch Lulu konkret ersetzt wird</h2>
+          <p>
+            Lulu Intelligence ersetzt oder reduziert ganze externe und interne Strukturen, weil dieselbe
+            Plattform Analyse, Entscheidungsvorbereitung und Ausfuehrung uebernimmt.
+          </p>
+          <div class="visual-box">
+            <svg viewBox="0 0 520 430" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Replacement categories illustration">
+              <defs>
+                <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#6ff5ff"/>
+                  <stop offset="100%" stop-color="#8a5bff"/>
+                </linearGradient>
+              </defs>
+              <circle cx="260" cy="214" r="92" fill="none" stroke="url(#ring)" stroke-width="18"/>
+              <circle cx="260" cy="214" r="46" fill="url(#ring)"/>
+              <text x="260" y="207" fill="#07111f" font-size="18" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="800">Lulu</text>
+              <text x="260" y="229" fill="#07111f" font-size="15" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">Core</text>
+              <rect x="42" y="54" width="146" height="64" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)"/>
+              <rect x="332" y="54" width="146" height="64" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)"/>
+              <rect x="32" y="308" width="156" height="64" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)"/>
+              <rect x="332" y="308" width="156" height="64" rx="18" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)"/>
+              <text x="115" y="82" fill="#eff4ff" font-size="17" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">Agenturen</text>
+              <text x="115" y="103" fill="#b6c3df" font-size="13" font-family="Segoe UI, Arial" text-anchor="middle">Content, Ads, Analyse</text>
+              <text x="405" y="82" fill="#eff4ff" font-size="17" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">Vertrieb</text>
+              <text x="405" y="103" fill="#b6c3df" font-size="13" font-family="Segoe UI, Arial" text-anchor="middle">Prospecting, Follow-up</text>
+              <text x="110" y="336" fill="#eff4ff" font-size="17" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">Research</text>
+              <text x="110" y="357" fill="#b6c3df" font-size="13" font-family="Segoe UI, Arial" text-anchor="middle">Wettbewerb, Markt, Daten</text>
+              <text x="410" y="336" fill="#eff4ff" font-size="17" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">Handelsstrukturen</text>
+              <text x="410" y="357" fill="#b6c3df" font-size="13" font-family="Segoe UI, Arial" text-anchor="middle">Suche, Bewertung, Steuerung</text>
+              <line x1="198" y1="118" x2="226" y2="156" stroke="url(#ring)" stroke-width="5" stroke-linecap="round"/>
+              <line x1="322" y1="118" x2="294" y2="156" stroke="url(#ring)" stroke-width="5" stroke-linecap="round"/>
+              <line x1="188" y1="308" x2="228" y2="266" stroke="url(#ring)" stroke-width="5" stroke-linecap="round"/>
+              <line x1="332" y1="308" x2="292" y2="266" stroke="url(#ring)" stroke-width="5" stroke-linecap="round"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer"><span>Einzigartig durch Systemarchitektur</span></div>
+    </section>
+
+    <section class="page">
+      <div class="topbar">
+        <div class="eyebrow">Einsatzbereiche</div>
+        <div class="top-meta">Fuer Agenturen, Handel, Vertrieb und wachsende Unternehmen</div>
+      </div>
+
+      <div class="section">
+        <h2>Eine Plattform fuer praktisch jede umsatzrelevante Funktion</h2>
+        <p>
+          Weil Lulu Intelligence aus spezialisierten Agenten besteht, kann dieselbe Plattform je nach
+          Geschaeftsmodell unterschiedliche Rollen vollstaendig uebernehmen oder massiv verstaerken.
+        </p>
+      </div>
+
+      <div class="use-case-grid">
+        <div class="use-case">
+          <h3>Fuer Agenturen</h3>
+          <p>
+            Lulu ersetzt Strategie-Folien, manuelle Recherchen, uneinheitliche Reports und Teile der
+            operativen Kampagnenarbeit. Agenturen koennen damit intern extrem schlank werden oder ihre
+            eigene Leistung mit einem Bruchteil des bisherigen Aufwands liefern.
+          </p>
+          <ul>
+            <li>schnelleres Kunden-Onboarding</li>
+            <li>skalierbare Analyse ohne Senior-Overhead</li>
+            <li>klare Priorisierung von Optimierungshebeln</li>
+          </ul>
+        </div>
+        <div class="use-case">
+          <h3>Fuer Handelsfirmen</h3>
+          <p>
+            Produktbewertung, Zielmarkt-Sichtung, Wettbewerbsbeobachtung, Angebotslogik und laufende
+            Anpassung koennen in derselben Plattform zusammenlaufen. Damit sinkt die Abhaengigkeit von
+            Zwischenhaendlern, Recherche-Dienstleistern und langsamen Abstimmungsprozessen.
+          </p>
+          <ul>
+            <li>Marktchancen schneller erkennen</li>
+            <li>SKU- und Angebotslogik datenbasiert steuern</li>
+            <li>Risiken und Potenziale frueher sichtbar machen</li>
+          </ul>
+        </div>
+        <div class="use-case">
+          <h3>Fuer Vertriebsorganisationen</h3>
+          <p>
+            Lulu ersetzt Prospecting-Routinen, Vorqualifizierung, Teile der Opportunity-Logik und eine
+            grosse Menge repetitiver Follow-up-Arbeit. Vertrieb wird damit von Personenabhaengigkeit zu
+            einem skalierbaren Betriebssystem.
+          </p>
+          <ul>
+            <li>saubere Segmentierung statt Bauchgefuehl</li>
+            <li>mehr relevante Chancen bei weniger Personalkosten</li>
+            <li>kontinuierliche Pipeline-Arbeit rund um die Uhr</li>
+          </ul>
+        </div>
+        <div class="use-case">
+          <h3>Fuer CEOs und Inhaber</h3>
+          <p>
+            Statt mehrere Agenturen, Tools und Teams zu koordinieren, erhalten Entscheider ein einziges
+            System, das das Unternehmen laufend analysiert, priorisiert und in die richtige Richtung
+            bewegt. Das reduziert Komplexitaet und beschleunigt Entscheidungen massiv.
+          </p>
+          <ul>
+            <li>eine Wahrheit statt zehn Datenquellen</li>
+            <li>klarer Blick auf Hebel, Engpaesse und Chancen</li>
+            <li>mehr Kontrolle bei deutlich weniger Management-Last</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="visual-box">
+        <svg viewBox="0 0 1060 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Industry application map">
+          <defs>
+            <linearGradient id="mapGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#6ff5ff"/>
+              <stop offset="100%" stop-color="#8a5bff"/>
+            </linearGradient>
+          </defs>
+          <rect x="420" y="76" width="220" height="96" rx="26" fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.18)"/>
+          <text x="530" y="116" fill="#eff4ff" font-size="28" font-family="Segoe UI, Arial" text-anchor="middle" font-weight="700">Lulu Intelligence</text>
+          <text x="530" y="145" fill="#b6c3df" font-size="18" font-family="Segoe UI, Arial" text-anchor="middle">Vernetzte KI-Mitarbeiter</text>
+          <g fill="rgba(255,255,255,0.06)" stroke="rgba(255,255,255,0.16)">
+            <rect x="30" y="30" width="240" height="68" rx="20"/>
+            <rect x="790" y="30" width="240" height="68" rx="20"/>
+            <rect x="30" y="152" width="240" height="68" rx="20"/>
+            <rect x="790" y="152" width="240" height="68" rx="20"/>
+          </g>
+          <g fill="#eff4ff" font-size="24" font-family="Segoe UI, Arial" font-weight="700" text-anchor="middle">
+            <text x="150" y="72">Agenturen</text>
+            <text x="910" y="72">Handel</text>
+            <text x="150" y="194">Vertrieb</text>
+            <text x="910" y="194">Dienstleister & SaaS</text>
+          </g>
+          <g stroke="url(#mapGrad)" stroke-width="6" stroke-linecap="round">
+            <line x1="270" y1="64" x2="420" y2="112"/>
+            <line x1="790" y1="64" x2="640" y2="112"/>
+            <line x1="270" y1="186" x2="420" y2="136"/>
+            <line x1="790" y1="186" x2="640" y2="136"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="footer"><span>Einsetzbar ueber mehrere Branchen hinweg</span></div>
+    </section>
+
+    <section class="page">
+      <div class="topbar">
+        <div class="eyebrow">Business Case</div>
+        <div class="top-meta">Warum Kunden mit Lulu schneller, schlanker und profitabler werden</div>
+      </div>
+
+      <div class="section">
+        <h2>Der betriebswirtschaftliche Effekt ist nicht nur Automatisierung, sondern Strukturgewinn</h2>
+        <p>
+          Unternehmen sparen mit Lulu nicht nur Personalkosten oder Agenturbudgets. Sie gewinnen vor allem
+          Geschwindigkeit, Klarheit und Entscheidungsqualitaet. Genau das macht aus einer KI-Spielerei ein
+          operatives Gewinnsystem.
+        </p>
+      </div>
+
+      <div class="stats-band">
+        <div class="metric">
+          <strong>Weniger</strong>
+          <span>Abhaengigkeit von externen Dienstleistern und wechselnder Dienstleistungsqualitaet</span>
+        </div>
+        <div class="metric">
+          <strong>Schneller</strong>
+          <span>Entscheidungen, Marktreaktionen und Vertriebsbewegungen durch zentrale Echtzeit-Logik</span>
+        </div>
+        <div class="metric">
+          <strong>Klarer</strong>
+          <span>Verbindung aus Analyse, Priorisierung und Umsetzung ohne Medienbruch</span>
+        </div>
+        <div class="metric">
+          <strong>Skalierbarer</strong>
+          <span>Mehr Output ohne linearen Anstieg von Headcount, Agenturbudget oder Overhead</span>
+        </div>
+      </div>
+
+      <div class="grid-2 section">
+        <div class="panel">
+          <h2>Typische Vorteile fuer Kunden</h2>
+          <div class="replace-grid">
+            <div class="replace-card">
+              <h3>Mehr Geschwindigkeit</h3>
+              <p>Analyse, Empfehlung und naechster Schritt kommen aus einer Logik und nicht aus mehreren Meetings.</p>
+            </div>
+            <div class="replace-card">
+              <h3>Mehr Marge</h3>
+              <p>Weniger Zwischenstationen, weniger externe Kosten und weniger manuelle Leerlaufzeiten.</p>
+            </div>
+            <div class="replace-card">
+              <h3>Mehr Konsistenz</h3>
+              <p>Jeder Bereich arbeitet mit demselben Unternehmenskontext und denselben Prioritaeten.</p>
+            </div>
+            <div class="replace-card">
+              <h3>Mehr Skalierung</h3>
+              <p>Neue Agenten, Bereiche und Workflows lassen sich ohne klassisches Teamwachstum erweitern.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>So fuehrt ein Kunde Lulu ein</h2>
+          <p>
+            Lulu kann schlank starten und dann Bereich fuer Bereich wachsen. Dadurch sehen Kunden schnell
+            Wirkung, ohne ihr gesamtes Unternehmen auf einmal umbauen zu muessen.
+          </p>
+          <div class="timeline">
+            <div class="timeline-card">
+              <strong>1</strong>
+              <h3>Wissen verbinden</h3>
+              <p>Firmeninformationen, Angebote, Ziele, Kundenkontext und Prozesse werden zentral verankert.</p>
+            </div>
+            <div class="timeline-card">
+              <strong>2</strong>
+              <h3>Agenten aktivieren</h3>
+              <p>Die relevanten KI-Mitarbeiter fuer Sales, Marketing, Finance oder Commerce werden freigeschaltet.</p>
+            </div>
+            <div class="timeline-card">
+              <strong>3</strong>
+              <h3>Operativ skalieren</h3>
+              <p>Analyse, Ausfuehrung und Optimierung laufen dauerhaft weiter und bauen messbare Leistung auf.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta">
+        <h2>Lulu Intelligence ist die Plattform fuer Unternehmen, die keine Agenturen mehr steuern wollen, sondern Ergebnisse.</h2>
+        <p>
+          Wer heute noch Wachstum ueber mehrere Dienstleister, Einzeltools und personengebundene Prozesse
+          organisiert, arbeitet automatisch langsamer als moeglich. Lulu ersetzt diese alte Struktur durch
+          ein intelligentes, verbundenes und skalierbares Betriebssystem fuer Analyse, Vertrieb und
+          Umsetzung.
+        </p>
+      </div>
+
+      <div class="footer"><span>Lulu Intelligence Kundenbroschuere</span></div>
+    </section>
+  </body>
+</html>
