@@ -101,7 +101,13 @@ export function MinimalAgentWorkspacePage({
           ) : null}
         </header>
 
-        <WorkspaceIntelligencePanel workspaceId={workspaceId} />
+        <WorkspaceIntelligencePanel
+          workspaceId={workspaceId}
+          pageId={agentContract.pageId}
+          title={`${agentContract.pageLabel} intelligence`}
+          summaryBadge="Live page data"
+          refreshLabel="Update page"
+        />
 
         {isKnowledgePage ? <KnowledgeBaseWorkspace /> : null}
 

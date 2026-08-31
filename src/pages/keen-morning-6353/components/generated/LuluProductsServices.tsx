@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Check, CircleHelp, Sparkles, X } from "lucide-re
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
+import { exitOnboardingToLogin } from '../../../../components/OnboardingHeader';
 type OfferingType = "Product" | "Service";
 type OfferingStatus = "Active" | "Coming Soon" | "Planned" | "Discontinued";
 type Offering = {
@@ -162,6 +163,7 @@ export function LuluProductsServices() {
   const [selectedId, setSelectedId] = useState("");
   const [showHelp, setShowHelp] = useState(false);
   const [toast, setToast] = useState("");
+  const [exiting, setExiting] = useState(false);
   useEffect(() => {
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
@@ -340,10 +342,27 @@ export function LuluProductsServices() {
     setEditing(item);
     setSelectedId(item.id);
   }
+  async function handleExit() {
+    if (exiting) return;
+    const confirmed = window.confirm("Cancel onboarding and return to the login page?");
+    if (!confirmed) return;
+    setExiting(true);
+    await exitOnboardingToLogin();
+  }
   return <main className="min-h-screen bg-[var(--background)] font-[Inter,sans-serif] text-[var(--foreground)] lg:grid lg:grid-cols-[minmax(0,1.12fr)_minmax(360px,.88fr)]">
       <section className="flex justify-center px-4 py-6 sm:px-8 lg:items-start lg:px-12 lg:py-12 xl:px-16">
         <div className="w-full max-w-2xl">
-          <Logo />
+          <div className="flex items-center justify-between gap-3">
+            <Logo />
+            <button
+              type="button"
+              onClick={() => void handleExit()}
+              disabled={exiting}
+              className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] px-3.5 text-sm font-medium text-[var(--foreground)] shadow-sm transition hover:bg-[var(--secondary)] disabled:cursor-wait disabled:opacity-60"
+            >
+              {exiting ? "Leaving…" : "Cancel setup"}
+            </button>
+          </div>
 
           <nav aria-label="Setup progress" className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--card)]/60 p-4 shadow-[0_14px_40px_rgba(0,0,0,0.05)] sm:p-5">
             <div className="mb-3 flex items-center justify-between">

@@ -3,11 +3,13 @@ import { ArrowRight, CheckCircle2, RefreshCw, Unplug } from "lucide-react";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../../api/client";
 import { formatLiveDate } from "../../api/live-panel-ui";
 import { workspaceAppApi, type GoogleBusinessState } from "../../api/workspace-app";
+import { exitOnboardingToLogin } from "../OnboardingHeader";
 
 export function GoogleBusinessConnectionSetup({ workspaceId }: { workspaceId: string }) {
   const [state, setState] = useState<GoogleBusinessState | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [exiting, setExiting] = useState(false);
   const [error, setError] = useState("");
   const [technicalDetails, setTechnicalDetails] = useState("");
   const [notice, setNotice] = useState("");
@@ -85,6 +87,14 @@ export function GoogleBusinessConnectionSetup({ workspaceId }: { workspaceId: st
     }
   }
 
+  async function handleExit() {
+    if (exiting) return;
+    const confirmed = window.confirm("Cancel onboarding and return to the login page?");
+    if (!confirmed) return;
+    setExiting(true);
+    await exitOnboardingToLogin();
+  }
+
   const summaryItems = [
     {
       label: "Connection",
@@ -124,6 +134,7 @@ export function GoogleBusinessConnectionSetup({ workspaceId }: { workspaceId: st
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => void handleExit()} disabled={exiting || busy || loading} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--foreground)]/35 disabled:cursor-not-allowed disabled:opacity-50">{exiting ? "Leaving…" : "Cancel setup"}</button>
             <button type="button" onClick={() => void load()} disabled={loading || busy} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--foreground)]/35 disabled:cursor-not-allowed disabled:opacity-50"><RefreshCw size={16} />Refresh</button>
             <button type="button" onClick={() => void sync()} disabled={!state?.connected || busy || loading} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--foreground)]/35 disabled:cursor-not-allowed disabled:opacity-50"><ArrowRight size={16} />Sync</button>
             <button type="button" onClick={() => void connect()} disabled={busy || loading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">{state?.connected ? (state?.reauthRequired ? "Reconnect Google" : "Reconnect OAuth") : "Connect Google"}</button>
