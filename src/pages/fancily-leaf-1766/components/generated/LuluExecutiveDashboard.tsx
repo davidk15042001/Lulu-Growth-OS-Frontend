@@ -133,6 +133,21 @@ export const luluDropdownNavigation = [{
     "id": "eagerly-winter-3152",
     "label": "Marketing"
   }, {
+    "id": "gently-shade-2476",
+    "label": "Campaign Tracker"
+  }, {
+    "id": "kind-time-4492",
+    "label": "Keywords"
+  }, {
+    "id": "smartly-shore-1468",
+    "label": "Competitors"
+  }, {
+    "id": "breezily-wood-5980",
+    "label": "Audiences"
+  }, {
+    "id": "breezy-shore-6734",
+    "label": "Analytics"
+  }, {
     "id": "sparklingly-moon-5114",
     "label": "SEO"
   }, {
@@ -402,21 +417,6 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "sparklingly-home-7386",
     "label": "Strategy"
-  }, {
-    "id": "gently-shade-2476",
-    "label": "Campaign Tracker"
-  }, {
-    "id": "kind-time-4492",
-    "label": "Keywords"
-  }, {
-    "id": "smartly-shore-1468",
-    "label": "Competitors"
-  }, {
-    "id": "breezily-wood-5980",
-    "label": "Audiences"
-  }, {
-    "id": "breezy-shore-6734",
-    "label": "Analytics"
   }, {
     "id": "finely-garden-9221",
     "label": "Overview"
