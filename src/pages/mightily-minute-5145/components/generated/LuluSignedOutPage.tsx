@@ -1,6 +1,6 @@
 import { Check, RotateCcw } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { pageLinkProps } from '../../../../routing';
+import { HOME_PAGE_SLUG, pageLinkProps } from '../../../../routing';
 import { requestApi } from '../../../../api/client';
 import { clearSelectedWorkspaceId } from '../../../../api/session';
 type SignOutState = 'success' | 'error';
@@ -64,7 +64,7 @@ export function LuluSignedOutPage({
               <p className="mt-1 text-[13px] leading-5 text-[var(--foreground)]">For additional security, close this browser window if you're using a shared device.</p>
             </div>}
 
-          <a {...pageLinkProps(isError ? 'brightly-door-5741' : 'fancily-leaf-1766')} className="mt-5 flex min-h-11 w-full items-center justify-center rounded-lg px-3 text-[13px] text-[var(--foreground)] transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)] focus-visible:ring-offset-2">
+          <a {...pageLinkProps(isError ? 'brightly-door-5741' : HOME_PAGE_SLUG)} className="mt-5 flex min-h-11 w-full items-center justify-center rounded-lg px-3 text-[13px] text-[var(--foreground)] transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)] focus-visible:ring-offset-2">
             <span>{isError ? 'Return to Login' : 'Return to Lulu AI'}</span>
           </a>
 

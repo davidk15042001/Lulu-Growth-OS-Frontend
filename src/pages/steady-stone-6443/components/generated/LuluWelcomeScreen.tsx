@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BarChart3, Check, ChevronDown, CircleHelp, Database, LockKeyhole, Network, X } from 'lucide-react';
-import { navigateApp, pageLinkProps, routes } from '../../../../routing';
+import { HOME_PAGE_SLUG, navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { getAdminLandingPath, isAdminUser, prefersWorkspaceSurface } from '../../../../api/session';
 type FeaturePill = {
@@ -111,7 +111,7 @@ export function LuluWelcomeScreen() {
       `}</style>
 
       <header className="mx-auto flex h-14 w-full max-w-[1280px] shrink-0 items-center justify-between px-5 sm:px-8 lg:px-10">
-        <a {...pageLinkProps('fancily-leaf-1766')} aria-label="Lulu AI home" className="welcome-enter flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--border)]">
+        <a {...pageLinkProps(HOME_PAGE_SLUG)} aria-label="Lulu AI home" className="welcome-enter flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--border)]">
           <span aria-hidden="true" className="grid h-8 w-8 place-items-center rounded-full bg-[var(--primary)] text-base font-bold text-[var(--primary-foreground)]">
             <span>L</span>
           </span>

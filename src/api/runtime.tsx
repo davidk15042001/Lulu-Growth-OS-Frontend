@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { navigateApp, routes } from "../routing";
+import { HOME_PAGE_SLUG, navigateApp, routes } from "../routing";
 import { GlobalBranding } from "../branding/GlobalBranding";
 import { LegacyChromeCleanup } from "../branding/LegacyChromeCleanup";
 import { GlobalLanguageSwitcher } from "../i18n/GlobalLanguageSwitcher";
@@ -105,6 +105,6 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     <LegacyChromeCleanup />
     <GlobalLanguageSwitcher />
     <GlobalUploadFeedback />
-    {state === "ready" && workspaceId && contract.kind !== "public" && slug === "fancily-leaf-1766" && <PostAnalysisCreationPrompt workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} />}
+    {state === "ready" && workspaceId && contract.kind !== "public" && slug === HOME_PAGE_SLUG && <PostAnalysisCreationPrompt workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} />}
   </>;
 }

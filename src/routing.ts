@@ -1,3 +1,5 @@
+export const HOME_PAGE_SLUG = "fresh-moon-5374";
+
 export const routes = {
   auth: {
     login: "/login",
@@ -19,7 +21,7 @@ export const routes = {
     billings: "/billings",
   },
   app: {
-    dashboard: "/app/fancily-leaf-1766",
+    dashboard: `/app/${HOME_PAGE_SLUG}`,
     website: "/app/website",
     email: "/app/email",
     calendar: "/app/calendar",
@@ -117,6 +119,7 @@ const REMOVED_PAGE_SLUGS = new Set([
 ]);
 
 const TOP_LEVEL_PAGE_SLUGS = new Set([
+  HOME_PAGE_SLUG,
   "fancily-leaf-1766",
   "lulu-website-portal-9012",
   "lulu-email-portal-9013",
