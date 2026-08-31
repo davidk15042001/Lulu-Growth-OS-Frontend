@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
   Plug, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
   Settings as SettingsIcon, Search, RefreshCw, ShieldCheck, ChevronRight,
-  Lock, Unlock, UserCheck, RotateCcw, Ban, PlayCircle, Save, Filter,
+  Lock, Unlock, UserCheck, RotateCcw, Ban, PlayCircle, Save, Filter, Trash2,
   LayoutGrid, MessageSquare, Menu, X, LogIn
 } from "lucide-react";
 
@@ -75,6 +75,15 @@ type UserDetail = UserRow & {
   workspaces: Array<{ id: string; companyName: string; role: string; onboardingStep: string; onboardingCompletedAt: string | null; joinedAt: string }>;
   sessions: Array<{ id: string; userAgent: string | null; ipAddress: string | null; createdAt: string; lastUsedAt: string | null; expiresAt: string; revoked: boolean }>;
   usage: Array<{ metricKey: string; total: string; periodStart: string | null; periodEnd: string | null }>;
+};
+type DeleteUserResult = {
+  userId: string;
+  previousEmail: string;
+  redactedEmail: string;
+  deletedWorkspaceCount: number;
+  deletedIntegrationCount: number;
+  deletedMembershipCount: number;
+  deletedWorkspaceNames: string[];
 };
 type SessionUser = {
   id: string;
@@ -587,6 +596,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
   const [saving, setSaving] = useState("");
   const [workspaceSavingId, setWorkspaceSavingId] = useState("");
   const [impersonating, setImpersonating] = useState(false);
+  const [notice, setNotice] = useState("");
 
   const load = async (q?: string) => {
     setLoading(true); onError("");
@@ -599,7 +609,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
   useEffect(() => { void load(search); }, []);
 
   const openDetail = async (id: string) => {
-    setDetailLoading(true); onError(""); setDetail(null);
+    setDetailLoading(true); onError(""); setNotice(""); setDetail(null);
     try {
       const res = await requestApi<UserDetail>({ path: `/admin/users/${id}` });
       setDetail(res.data);
@@ -609,7 +619,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
 
   const runAction = async (action: "lock" | "unlock" | "verify" | "reset-sessions") => {
     if (!detail) return;
-    setSaving(action); onError("");
+    setSaving(action); onError(""); setNotice("");
     try {
       const res = await requestApi<UserDetail>({ path: `/admin/users/${detail.id}`, method: "PATCH", body: { action } });
       setDetail(res.data);
@@ -620,7 +630,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
 
   const skipWorkspaceOnboarding = async (workspaceId: string) => {
     if (!detail) return;
-    setWorkspaceSavingId(workspaceId); onError("");
+    setWorkspaceSavingId(workspaceId); onError(""); setNotice("");
     try {
       await requestApi<WorkspaceDetail>({ path: `/admin/workspaces/${workspaceId}`, method: "PATCH", body: { action: "skip-onboarding" } });
       const res = await requestApi<UserDetail>({ path: `/admin/users/${detail.id}` });
@@ -632,7 +642,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
 
   const impersonateUser = async () => {
     if (!detail) return;
-    setImpersonating(true); onError("");
+    setImpersonating(true); onError(""); setNotice("");
     try {
       const res = await requestApi<{ token: string; user: SessionUser }>({ path: `/admin/users/${detail.id}/impersonate`, method: "POST", body: {} });
       setStoredUser(res.data.user);
@@ -642,6 +652,24 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
       onError(getFriendlyErrorMessage(e, "Der Account konnte nicht zur Ansicht übernommen werden."));
     } finally {
       setImpersonating(false);
+    }
+  };
+
+  const deleteUser = async () => {
+    if (!detail) return;
+    const confirmed = window.confirm(`Delete ${detail.email} and remove their connected workspace data? This will revoke access immediately and delete owned workspaces with their connected integrations.`);
+    if (!confirmed) return;
+    setSaving("delete"); onError(""); setNotice("");
+    try {
+      const res = await requestApi<DeleteUserResult>({ path: `/admin/users/${detail.id}`, method: "DELETE" });
+      setDetail(null);
+      setRows((current) => current.filter((row) => row.id !== detail.id));
+      setNotice(`Deleted ${res.data.previousEmail}. Removed ${res.data.deletedWorkspaceCount} workspace(s), ${res.data.deletedIntegrationCount} integration connection(s), and ${res.data.deletedMembershipCount} membership link(s).`);
+      await load(search);
+    } catch (e) {
+      onError(getFriendlyErrorMessage(e, "Der User konnte nicht gelöscht werden."));
+    } finally {
+      setSaving("");
     }
   };
 
@@ -656,6 +684,11 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
 
   return (
     <div className="space-y-5">
+      {notice ? (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+          {notice}
+        </div>
+      ) : null}
       <DataTable<UserRow>
         loading={loading} rows={rows} searchValue={search} searchOnChange={debouncedSearch}
         columns={[
@@ -700,6 +733,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
               <button disabled={!!saving} onClick={() => runAction("reset-sessions")} className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"><RotateCcw size={14} /> Reset Sessions</button>
               <button disabled={!!saving} onClick={() => runAction("unlock")} className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-800 hover:bg-sky-100 disabled:opacity-50"><Unlock size={14} /> Unlock</button>
               <button disabled={!!saving} onClick={() => runAction("lock")} className="inline-flex items-center gap-1.5 rounded-md border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-800 hover:bg-rose-100 disabled:opacity-50"><Lock size={14} /> Lock</button>
+              <button disabled={!!saving || impersonating} onClick={() => void deleteUser()} className="inline-flex items-center gap-1.5 rounded-md border border-rose-300 bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-700 disabled:opacity-50"><Trash2 size={14} /> Delete User</button>
               {saving ? <span className="text-xs text-slate-500">Speichere {saving}…</span> : null}
             </div>
           </div>

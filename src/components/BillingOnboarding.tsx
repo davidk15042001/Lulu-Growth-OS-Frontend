@@ -27,6 +27,7 @@ export function BillingOnboarding() {
   const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
   const postActionTarget = admin ? getAdminLandingPath(routes.app.dashboard) : routes.app.dashboard;
+  const visiblePlans = billingPlans.filter((plan) => plan.id !== "test");
 
   useEffect(() => {
     if (!paymentSucceeded || !selectedWorkspace) return;
@@ -158,12 +159,12 @@ export function BillingOnboarding() {
           </div>
           <p className="mt-6 text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Choose your workspace access</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Select the way you want Lulu to work.</h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Choose the level of control that fits your business. Starter and AI access are billed annually in RMB. The Test package activates full AI without billing.</p>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Choose the level of control that fits your business. Starter and AI access are billed annually in RMB.</p>
           <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-[var(--foreground)]">Select a package to open the secure payment process immediately.</p>
         </section>
 
         <section className="mb-8 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]" aria-labelledby="payg-title">
-          <div className="border-b border-[var(--border)] px-5 py-5 sm:px-7"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Transparent billing</p><h2 id="payg-title" className="mt-2 text-xl font-semibold">Starter and AI include separate usage billing.</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-foreground)]">Starter and AI usage closes every Monday and is charged automatically to the saved card. The Test package is billing-free and starts immediately after password confirmation.</p></div>
+          <div className="border-b border-[var(--border)] px-5 py-5 sm:px-7"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Transparent billing</p><h2 id="payg-title" className="mt-2 text-xl font-semibold">Starter and AI include separate usage billing.</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-foreground)]">Usage closes every Monday and is charged automatically to the saved card. A payment link appears only if automatic collection fails.</p></div>
           <div className="grid gap-px bg-[var(--border)] sm:grid-cols-2">
             <div className="flex gap-3 bg-[var(--card)] p-5 sm:p-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)]"><Cpu size={18} /></span><div><h3 className="text-sm font-semibold">API usage</h3><p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">Input tokens cost $5 per million and output tokens cost $10 per million.</p></div></div>
             <div className="flex gap-3 bg-[var(--card)] p-5 sm:p-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)]"><Server size={18} /></span><div><h3 className="text-sm font-semibold">AWS usage</h3><p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">For Starter and AI, actual allocated AWS provider costs are charged at exactly twice the provider price.</p></div></div>
@@ -175,7 +176,7 @@ export function BillingOnboarding() {
         </section>}
 
         <section aria-label="Available plans" className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {billingPlans.map((plan) => {
+          {visiblePlans.map((plan) => {
             const { icon: Icon, accent } = planPresentation[plan.id];
             const isSelected = selectedPlan === plan.id;
             return (
@@ -206,8 +207,8 @@ export function BillingOnboarding() {
           </div>
           <div className="overflow-x-auto">
             <table className="w-full min-w-[680px] text-left text-sm">
-              <thead><tr className="border-b border-[var(--border)] text-xs uppercase tracking-[.12em] text-[var(--muted-foreground)]"><th className="px-5 py-4 font-semibold sm:px-7">Capability</th>{billingPlans.map((plan) => <th key={plan.id} className="px-4 py-4 text-center font-semibold">{plan.name}</th>)}</tr></thead>
-              <tbody>{billingCapabilities.map((capability) => <tr key={capability.id} className="border-b border-[var(--border)] last:border-0"><th className="px-5 py-4 font-medium sm:px-7">{capability.label}</th>{billingPlans.map((plan) => <td key={`${capability.id}-${plan.id}`} className="px-4 py-4 text-center">{capability.availability[plan.id] ? <Check className="mx-auto" size={17} aria-label="Included" /> : <span className="text-[var(--muted-foreground)]" aria-label="Not included">—</span>}</td>)}</tr>)}</tbody>
+              <thead><tr className="border-b border-[var(--border)] text-xs uppercase tracking-[.12em] text-[var(--muted-foreground)]"><th className="px-5 py-4 font-semibold sm:px-7">Capability</th>{visiblePlans.map((plan) => <th key={plan.id} className="px-4 py-4 text-center font-semibold">{plan.name}</th>)}</tr></thead>
+              <tbody>{billingCapabilities.map((capability) => <tr key={capability.id} className="border-b border-[var(--border)] last:border-0"><th className="px-5 py-4 font-medium sm:px-7">{capability.label}</th>{visiblePlans.map((plan) => <td key={`${capability.id}-${plan.id}`} className="px-4 py-4 text-center">{capability.availability[plan.id] ? <Check className="mx-auto" size={17} aria-label="Included" /> : <span className="text-[var(--muted-foreground)]" aria-label="Not included">—</span>}</td>)}</tr>)}</tbody>
             </table>
           </div>
         </section>
