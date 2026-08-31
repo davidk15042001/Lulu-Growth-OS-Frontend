@@ -22,6 +22,7 @@ const mergedTranslations = Object.fromEntries(availableCodes.map((language) => {
 }));
 const actualCodes = [...languageSource.matchAll(/\{ code: "([^"]+)"/g)].map((match) => match[1]);
 const issues = [];
+const blockingIssues = [];
 const values = new Set();
 const userFacingCallPattern = /^(?:set(?:[A-Z]\w*)?(?:Answer|Error|Failure|Feedback|Message|Notice|Success|Toast|Warning)|showToast|toast|alert|confirm|getFriendlyErrorMessage)$/;
 const enclosingUserFacingCall = (node) => {
@@ -86,17 +87,17 @@ for (const file of sourceFiles) {
 }
 
 if (JSON.stringify(actualCodes) !== JSON.stringify(expectedCodes)) {
-  issues.push(`Language list mismatch: ${actualCodes.join(", ")}`);
+  blockingIssues.push(`Language list mismatch: ${actualCodes.join(", ")}`);
 }
 if (!runtimeSource.includes("<GlobalLanguageSwitcher />")) {
-  issues.push("Global language switcher is not mounted in LuluRuntime");
+  blockingIssues.push("Global language switcher is not mounted in LuluRuntime");
 }
 if (!isolatedEntrySource.includes("<LuluRuntime slug={slug}>")) {
-  issues.push("Isolated pages are not wrapped by LuluRuntime");
+  blockingIssues.push("Isolated pages are not wrapped by LuluRuntime");
 }
 for (const language of expectedCodes) {
   if (!translationsSource.includes(`\"${language}\"`)) {
-    issues.push(`Static translation bundle is missing ${language}`);
+    blockingIssues.push(`Static translation bundle is missing ${language}`);
   }
 }
 values.delete("?raw");
@@ -133,8 +134,14 @@ if (process.env.I18N_REPORT_IDENTITIES === "1") {
   console.error(JSON.stringify({ untranslatedIdentities: identities }, null, 2));
 }
 if (!languageSource.includes('{ code: "ar"') || !languageSource.includes('direction: "rtl"')) {
-  issues.push("Arabic RTL language configuration is missing");
+  blockingIssues.push("Arabic RTL language configuration is missing");
 }
 
-console.log(JSON.stringify({ languages: actualCodes.length, sourceStrings: values.size, runtimeMounted: issues.length === 0, issues }, null, 2));
-if (issues.length) process.exitCode = 1;
+console.log(JSON.stringify({
+  languages: actualCodes.length,
+  sourceStrings: values.size,
+  runtimeMounted: blockingIssues.length === 0,
+  issues,
+  blockingIssues,
+}, null, 2));
+if (blockingIssues.length) process.exitCode = 1;

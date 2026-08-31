@@ -5,9 +5,14 @@ const root = process.cwd();
 const manifestSource = readFileSync(resolve(root, "src/pages-manifest.ts"), "utf8");
 const manifestJson = manifestSource.match(/export const pages: PageDefinition\[\] = (\[[\s\S]*\]);/)?.[1];
 if (!manifestJson) throw new Error("Unable to parse src/pages-manifest.ts");
+const routingSource = readFileSync(resolve(root, "src/routing.ts"), "utf8");
 
 const manifest = JSON.parse(manifestJson);
-const manifestSlugs = new Set(manifest.map((page) => page.slug));
+const removedBlock = routingSource.match(/const REMOVED_PAGE_SLUGS = new Set\(\[([\s\S]*?)\]\);/)?.[1] ?? "";
+const removedSlugs = new Set(
+  [...removedBlock.matchAll(/"([a-z]+(?:-[a-z]+)+-\d{4})"/g)].map((match) => match[1]),
+);
+const manifestSlugs = new Set(manifest.map((page) => page.slug).filter((slug) => !removedSlugs.has(slug)));
 const contractsSource = readFileSync(resolve(root, "src/api/page-contracts.ts"), "utf8");
 const contractedSlugs = new Set(
   [...contractsSource.matchAll(/["']([a-z]+(?:-[a-z]+)+-\d{4})["']/g)].map((match) => match[1]),

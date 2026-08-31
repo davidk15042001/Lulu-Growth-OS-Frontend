@@ -130,9 +130,6 @@ export function LuluWorkspaceRefreshButton() {
     let stopped = false;
     const poll = async () => {
       try {
-        // #region debug-point B:topbar-poll-start
-        fetch("http://127.0.0.1:7777/event", { method: "POST", body: JSON.stringify({ sessionId: "update-button-broken", runId: "pre-fix", hypothesisId: "B", location: "src/components/LuluWorkspaceTopBar.tsx:poll:start", msg: "[DEBUG] Topbar polling refresh status", data: { workspaceId, jobId: job.id, cachedStatus: job.status }, ts: Date.now() }) }).catch(() => {});
-        // #endregion
         const response = await workspaceAppApi.contentRefreshStatus(workspaceId, job.id);
         if (stopped) return;
         if (isStale(response.data)) {
@@ -142,23 +139,14 @@ export function LuluWorkspaceRefreshButton() {
         }
         setJob(response.data);
         window.localStorage.setItem(ACTIVE_JOB_KEY, JSON.stringify(response.data));
-        // #region debug-point B:topbar-poll-response
-        fetch("http://127.0.0.1:7777/event", { method: "POST", body: JSON.stringify({ sessionId: "update-button-broken", runId: "pre-fix", hypothesisId: "B", location: "src/components/LuluWorkspaceTopBar.tsx:poll:response", msg: "[DEBUG] Topbar received refresh status", data: { workspaceId, jobId: response.data.id, status: response.data.status, phase: response.data.currentPhase, progress: response.data.progress, errorMessage: response.data.errorMessage }, ts: Date.now() }) }).catch(() => {});
-        // #endregion
         if (isDone(response.data)) {
           clearStoredJob();
           if (response.data.status === 'completed') {
             clearRuntimeSnapshotCache(workspaceId);
-            // #region debug-point C:topbar-emit-refresh
-            fetch("http://127.0.0.1:7777/event", { method: "POST", body: JSON.stringify({ sessionId: "update-button-broken", runId: "pre-fix", hypothesisId: "C", location: "src/components/LuluWorkspaceTopBar.tsx:poll:completed", msg: "[DEBUG] Topbar completed refresh and emits page reload", data: { workspaceId, jobId: response.data.id }, ts: Date.now() }) }).catch(() => {});
-            // #endregion
             emitWorkspaceRefreshed(workspaceId, 'topbar-update');
           }
         }
       } catch (cause) {
-        // #region debug-point B:topbar-poll-error
-        fetch("http://127.0.0.1:7777/event", { method: "POST", body: JSON.stringify({ sessionId: "update-button-broken", runId: "pre-fix", hypothesisId: "B", location: "src/components/LuluWorkspaceTopBar.tsx:poll:error", msg: "[DEBUG] Topbar failed to poll refresh status", data: { workspaceId, jobId: job.id, message: cause instanceof Error ? cause.message : String(cause) }, ts: Date.now() }) }).catch(() => {});
-        // #endregion
         if (stopped) return;
         if (cause instanceof ApiError && cause.status === 404) {
           clearStoredJob();
@@ -182,20 +170,11 @@ export function LuluWorkspaceRefreshButton() {
     }
     setError(null);
     try {
-      // #region debug-point A:topbar-start-request
-      fetch("http://127.0.0.1:7777/event", { method: "POST", body: JSON.stringify({ sessionId: "update-button-broken", runId: "pre-fix", hypothesisId: "A", location: "src/components/LuluWorkspaceTopBar.tsx:refresh:start", msg: "[DEBUG] Topbar starts workspace refresh", data: { workspaceId, running }, ts: Date.now() }) }).catch(() => {});
-      // #endregion
       const response = await workspaceAppApi.startContentRefresh(workspaceId);
       setJob(response.data.job);
       window.localStorage.setItem(ACTIVE_JOB_KEY, JSON.stringify(response.data.job));
       setShowStatusDialog(true);
-      // #region debug-point A:topbar-start-response
-      fetch("http://127.0.0.1:7777/event", { method: "POST", body: JSON.stringify({ sessionId: "update-button-broken", runId: "pre-fix", hypothesisId: "A", location: "src/components/LuluWorkspaceTopBar.tsx:refresh:response", msg: "[DEBUG] Topbar received workspace refresh job", data: { workspaceId, jobId: response.data.job.id, status: response.data.job.status, reused: response.data.reused, modules: response.data.job.modules }, ts: Date.now() }) }).catch(() => {});
-      // #endregion
     } catch (cause) {
-      // #region debug-point A:topbar-start-error
-      fetch("http://127.0.0.1:7777/event", { method: "POST", body: JSON.stringify({ sessionId: "update-button-broken", runId: "pre-fix", hypothesisId: "A", location: "src/components/LuluWorkspaceTopBar.tsx:refresh:error", msg: "[DEBUG] Topbar failed to start workspace refresh", data: { workspaceId, message: cause instanceof Error ? cause.message : String(cause) }, ts: Date.now() }) }).catch(() => {});
-      // #endregion
       setError(cause instanceof ApiError ? cause.message : t('Workspace update could not be started'));
     }
   }

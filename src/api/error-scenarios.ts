@@ -149,6 +149,11 @@ const exactScenarios: Record<string, ErrorScenario> = {
   CALENDAR_OAUTH_ACCESS_TOKEN_MISSING: { category: "integration", userAction: "connect-platform", retryable: false },
   CALENDAR_ACCOUNT_LOOKUP_FAILED: { category: "integration", userAction: "retry", retryable: true },
   CALENDAR_SYNC_FAILED: { category: "integration", userAction: "retry", retryable: true },
+  IMPERSONATION_INVALID_TARGET: { category: "authorization", userAction: "contact-admin", retryable: false },
+  IMPERSONATION_NOT_ACTIVE: { category: "authorization", userAction: "sign-in", retryable: false },
+  GOOGLE_BUSINESS_NOT_CONNECTED: { category: "integration", userAction: "connect-platform", retryable: false },
+  GOOGLE_BUSINESS_REAUTH_REQUIRED: { category: "integration", userAction: "connect-platform", retryable: false },
+  GOOGLE_BUSINESS_API_ERROR: { category: "integration", userAction: "retry", retryable: true },
 };
 
 export function getErrorScenario(code: string, status = 0): ErrorScenario {

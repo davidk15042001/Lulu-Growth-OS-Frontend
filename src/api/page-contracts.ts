@@ -90,7 +90,6 @@ export const RESOURCE_BY_SLUG: Readonly<Record<string, string>> = {
   "sparklingly-light-7230": "anomalies",
   "clever-soil-5964": "ad_attributions",
   "kindly-year-8981": "benchmarks",
-  "brave-stream-5322": "comparisons",
   "sparkling-time-5280": "comparisons",
   "cosmic-pool-1616": "crm_activities",
   "kindly-pool-8785": "crm_companies",

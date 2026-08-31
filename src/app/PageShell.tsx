@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { Menu, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { NativePage } from "../NativePage";
 import type { PageDefinition } from "../pages-manifest";
@@ -9,7 +9,15 @@ import { LuluWorkspaceRefreshButton } from "../components/LuluWorkspaceTopBar";
 import { subscribeWorkspaceRefresh } from "../components/workspace-refresh-events";
 import { availablePages } from "./page-registry";
 
-function AuthenticatedSearchBar() {
+function AuthenticatedSearchBar({
+  navigationOpen,
+  onToggleNavigation,
+  onCloseNavigation,
+}: {
+  navigationOpen: boolean;
+  onToggleNavigation: () => void;
+  onCloseNavigation: () => void;
+}) {
   const navigate = useNavigate();
   const { currentUser, selectedWorkspace } = useLuluApp();
   const [query, setQuery] = useState("");
@@ -34,10 +42,21 @@ function AuthenticatedSearchBar() {
     navigate(pagePath(target.slug));
     setQuery("");
     setOpen(false);
+    onCloseNavigation();
   };
 
   return (
     <div className="lulu-auth-search-wrap" data-lulu-auth-search="true">
+      <button
+        type="button"
+        className="lulu-auth-nav-toggle"
+        aria-label={navigationOpen ? "Close navigation" : "Open navigation"}
+        aria-controls="lulu-global-navigation"
+        aria-expanded={navigationOpen}
+        onClick={onToggleNavigation}
+      >
+        {navigationOpen ? <X aria-hidden="true" size={18} /> : <Menu aria-hidden="true" size={18} />}
+      </button>
       <div className="lulu-auth-logo" data-lulu-no-translate="true" translate="no">
         <img src="/branding/lulu-intelligence-logo.png" alt="Lulu AI" draggable={false} />
       </div>
@@ -69,6 +88,7 @@ function AuthenticatedSearchBar() {
                 navigate(pagePath(item.slug));
                 setQuery("");
                 setOpen(false);
+                onCloseNavigation();
               }}
             >
               <strong>{item.name}</strong>
@@ -89,29 +109,42 @@ export function PageFrame({
 }) {
   const { selectedWorkspace } = useLuluApp();
   const [refreshVersion, setRefreshVersion] = useState(0);
+  const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
 
   useEffect(() => {
     document.title = page.name;
   }, [page]);
 
   useEffect(() => {
+    setMobileNavigationOpen(false);
+  }, [isStandalone, page.slug]);
+
+  useEffect(() => {
     if (!selectedWorkspace?.id) return;
     return subscribeWorkspaceRefresh(selectedWorkspace.id, () => {
-      // #region debug-point C:page-shell-refresh-event
-      fetch("http://127.0.0.1:7777/event", { method: "POST", body: JSON.stringify({ sessionId: "update-button-broken", runId: "pre-fix", hypothesisId: "C", location: "src/app/PageShell.tsx:workspace-refresh", msg: "[DEBUG] Page shell received workspace refresh event", data: { workspaceId: selectedWorkspace.id, pageSlug: page.slug }, ts: Date.now() }) }).catch(() => {});
-      // #endregion
       setRefreshVersion((current) => current + 1);
     });
-  }, [selectedWorkspace?.id]);
+  }, [page.slug, selectedWorkspace?.id]);
 
   return (
     <>
-      {!isStandalone && <AuthenticatedSearchBar />}
+      {!isStandalone && (
+        <AuthenticatedSearchBar
+          navigationOpen={mobileNavigationOpen}
+          onToggleNavigation={() => setMobileNavigationOpen((current) => !current)}
+          onCloseNavigation={() => setMobileNavigationOpen(false)}
+        />
+      )}
       <main
         className={`page-frame${isStandalone ? " page-frame--auth" : ""}`}
         style={isStandalone ? { height: "auto", minHeight: "100vh", overflow: "visible" } : undefined}
       >
-        <NativePage key={`${page.slug}:${refreshVersion}`} slug={page.slug} />
+        <NativePage
+          key={`${page.slug}:${refreshVersion}`}
+          slug={page.slug}
+          mobileNavigationOpen={mobileNavigationOpen}
+          onCloseMobileNavigation={() => setMobileNavigationOpen(false)}
+        />
       </main>
     </>
   );

@@ -76,7 +76,15 @@ function pageSlugFromPath(pathname: string) {
   return segments[0] ?? "";
 }
 
-export function NativePage({ slug }: { slug: string }) {
+export function NativePage({
+  slug,
+  mobileNavigationOpen = false,
+  onCloseMobileNavigation,
+}: {
+  slug: string;
+  mobileNavigationOpen?: boolean;
+  onCloseMobileNavigation?: () => void;
+}) {
   const effectiveSlug = slug === "lulu-website-portal-9012" ? (() => {
     const section = new URLSearchParams(window.location.search).get("section");
     return section ? `website-${section}` : slug;
@@ -202,8 +210,18 @@ export function NativePage({ slug }: { slug: string }) {
     if (useMinimalAgentPage && agentContract) {
       return (
         <LuluRuntime slug={slug}>
-          <div className="lulu-global-shell">
-            <LuluGlobalNavigation activeSlug={effectiveSlug} />
+          <div className={`lulu-global-shell${mobileNavigationOpen ? " lulu-global-shell--nav-open" : ""}`}>
+            <div
+              className="lulu-global-navigation__backdrop"
+              aria-hidden={!mobileNavigationOpen}
+              onClick={onCloseMobileNavigation}
+            />
+            <LuluGlobalNavigation
+              activeSlug={effectiveSlug}
+              mobileOpen={mobileNavigationOpen}
+              onNavigate={onCloseMobileNavigation}
+              onRequestClose={onCloseMobileNavigation}
+            />
             <div className="lulu-global-content">
               <LuluAgentWorkspaceHeader contract={agentContract} />
               <div className="lulu-native-page">
@@ -225,8 +243,22 @@ export function NativePage({ slug }: { slug: string }) {
 
   return (
     <LuluRuntime slug={slug}>
-      <div className={`lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}`}>
-        {!isNavigationFree && <LuluGlobalNavigation activeSlug={effectiveSlug} />}
+      <div className={`lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}${mobileNavigationOpen ? " lulu-global-shell--nav-open" : ""}`}>
+        {!isNavigationFree && (
+          <>
+            <div
+              className="lulu-global-navigation__backdrop"
+              aria-hidden={!mobileNavigationOpen}
+              onClick={onCloseMobileNavigation}
+            />
+            <LuluGlobalNavigation
+              activeSlug={effectiveSlug}
+              mobileOpen={mobileNavigationOpen}
+              onNavigate={onCloseMobileNavigation}
+              onRequestClose={onCloseMobileNavigation}
+            />
+          </>
+        )}
         <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
           {!isNavigationFree && agentContract ? <LuluAgentWorkspaceHeader contract={agentContract} /> : null}
           <div className="lulu-native-page">

@@ -1,4 +1,4 @@
-import { CalendarDays, ChevronDown, LogOut, RefreshCw } from "lucide-react";
+import { CalendarDays, ChevronDown, LogOut, RefreshCw, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
@@ -141,7 +141,17 @@ function websiteLockLabel(status: string) {
   return "Website wird generiert";
 }
 
-export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
+export function LuluGlobalNavigation({
+  activeSlug,
+  mobileOpen = false,
+  onNavigate,
+  onRequestClose,
+}: {
+  activeSlug: string;
+  mobileOpen?: boolean;
+  onNavigate?: () => void;
+  onRequestClose?: () => void;
+}) {
   const t = useTranslation();
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
   const signOut = async () => {
@@ -150,6 +160,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
     } finally {
       window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY);
       clearSelectedWorkspaceId();
+      onNavigate?.();
       navigateApp(routes.auth.login);
     }
   };
@@ -199,8 +210,22 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
     }))
     .filter((section) => section.pages.length > 0), [activeSlug]);
   return (
-    <aside className="lulu-global-navigation" data-lulu-global-navigation="true">
-      <div className="lulu-global-navigation__workspace-label">Workspace</div>
+    <aside
+      id="lulu-global-navigation"
+      className={`lulu-global-navigation${mobileOpen ? " is-mobile-open" : ""}`}
+      data-lulu-global-navigation="true"
+    >
+      <div className="lulu-global-navigation__workspace-label">
+        <span>{t("Workspace")}</span>
+        <button
+          type="button"
+          className="lulu-global-navigation__close"
+          aria-label={t("Close navigation")}
+          onClick={onRequestClose}
+        >
+          <X aria-hidden="true" size={16} />
+        </button>
+      </div>
       <nav className="lulu-global-navigation__sections">
         {navigationSections.map((section, index) => {
           const isActiveSection = section.pages.some((page) => page.id === activeSlug);
@@ -215,6 +240,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                 {...calendarProps}
                 className={`lulu-global-navigation__primary-link${isCalendarActive ? " is-active" : ""}`}
                 aria-current={isCalendarActive ? "page" : undefined}
+                onClick={() => onNavigate?.()}
               >
                 <CalendarDays aria-hidden="true" size={16} />
                 <span>{t("Calendar")}</span>
@@ -253,7 +279,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                       aria-current={isActivePage ? "page" : undefined}
                       aria-disabled={isDropdownLinkLocked || undefined}
                       tabIndex={isDropdownLinkLocked ? -1 : undefined}
-                      onClick={isDropdownLinkLocked ? (event) => event.preventDefault() : undefined}
+                      onClick={isDropdownLinkLocked ? (event) => event.preventDefault() : () => onNavigate?.()}
                       aria-label={isDropdownLinkLocked ? `${displayLabel} gesperrt: ${lockedLabel}` : displayLabel}
                       title={isDropdownLinkLocked ? lockedLabel : undefined}
                     >

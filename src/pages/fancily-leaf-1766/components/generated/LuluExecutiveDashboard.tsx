@@ -193,9 +193,6 @@ export const luluDropdownNavigation = [{
     "id": "friendly-ground-4157",
     "label": "Reports"
   }, {
-    "id": "brave-stream-5322",
-    "label": "Comparisons"
-  }, {
     "id": "sparkling-time-5280",
     "label": "Comparisons"
   }, {

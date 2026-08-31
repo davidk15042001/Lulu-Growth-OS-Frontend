@@ -68,8 +68,19 @@ const NO_APPROVAL: LuluAgentApprovalPolicy = Object.freeze({
   gates: [],
 });
 
+const MARKET_LEADERSHIP_SUFFIX = "Compare against competitors and category leaders wherever relevant, close the highest-leverage gaps, and move the business toward becoming number one.";
+
 function approval(...gates: string[]): LuluAgentApprovalPolicy {
   return { requiresApproval: true, gates };
+}
+
+function withCompetitiveObjective(objective: string) {
+  const normalized = objective.trim();
+  if (!normalized) return MARKET_LEADERSHIP_SUFFIX;
+  if (/compet/i.test(normalized) || /category leader/i.test(normalized) || /number one/i.test(normalized)) {
+    return normalized;
+  }
+  return `${normalized} ${MARKET_LEADERSHIP_SUFFIX}`;
 }
 
 function detail(
@@ -82,7 +93,16 @@ function detail(
   uiStates: readonly LuluAgentUiState[],
   successMetrics: readonly string[],
 ): LuluAgentContractDetail {
-  return { agentName, autonomy, objective, integrations, jobs, approvalPolicy, uiStates, successMetrics };
+  return {
+    agentName,
+    autonomy,
+    objective: withCompetitiveObjective(objective),
+    integrations,
+    jobs,
+    approvalPolicy,
+    uiStates,
+    successMetrics,
+  };
 }
 
 const registryDetails: Readonly<Record<string, LuluAgentContractDetail>> = {

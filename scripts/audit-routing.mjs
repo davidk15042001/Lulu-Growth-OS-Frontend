@@ -15,8 +15,9 @@ const appSource = readFileSync(join(root, "src", "App.tsx"), "utf8");
 const routingSource = readFileSync(join(root, "src", "routing.ts"), "utf8");
 const issues = [];
 
-if (pages.length !== 140) issues.push(`Expected 140 manifest pages, found ${pages.length}`);
-if (manifestPageDirectories.length !== 140) issues.push(`Expected 140 manifest page directories, found ${manifestPageDirectories.length}`);
+if (pages.length !== manifestPageDirectories.length) {
+  issues.push(`Manifest pages (${pages.length}) and manifest-backed page directories (${manifestPageDirectories.length}) are out of sync`);
+}
 
 for (const page of pages) {
   if (!manifestPageDirectories.includes(page.slug)) issues.push(`Missing page directory: ${page.slug}`);
