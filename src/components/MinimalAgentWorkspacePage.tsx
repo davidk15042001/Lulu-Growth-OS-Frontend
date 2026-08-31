@@ -6,6 +6,7 @@ import type { WorkspaceRecord } from "../api/records";
 import { useLiveRecords } from "../api/useLiveRecords";
 import { type LuluAgentContract } from "../config/lulu-agent-registry";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { KnowledgeBaseWorkspace } from "./KnowledgeBaseWorkspace";
 import { WorkspaceIntelligencePanel } from "./WorkspaceIntelligencePanel";
 
 const OVERVIEW_RESOURCE_BY_PAGE_ID: Readonly<Record<string, string>> = {
@@ -77,6 +78,7 @@ export function MinimalAgentWorkspacePage({
   );
 
   const approvalGates = agentContract.approvalPolicy.gates.slice(0, 3);
+  const isKnowledgePage = slug === "rich-field-1880";
 
   return (
     <main className="min-h-screen bg-[var(--background)] text-foreground">
@@ -101,7 +103,9 @@ export function MinimalAgentWorkspacePage({
 
         <WorkspaceIntelligencePanel workspaceId={workspaceId} />
 
-        {resourceType ? (
+        {isKnowledgePage ? <KnowledgeBaseWorkspace /> : null}
+
+        {!isKnowledgePage && resourceType ? (
           <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <article className="rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Records")}</p>
@@ -153,7 +157,7 @@ export function MinimalAgentWorkspacePage({
           </section>
         )}
 
-        <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)]">
+        {!isKnowledgePage ? <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)]">
           <section className="rounded-xl border border-border bg-card p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -260,7 +264,7 @@ export function MinimalAgentWorkspacePage({
               </div>
             </section>
           </div>
-        </div>
+        </div> : null}
       </div>
     </main>
   );

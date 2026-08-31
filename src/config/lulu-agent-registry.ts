@@ -44,6 +44,8 @@ export type LuluAgentSection = {
   pages: readonly LuluAgentContract[];
 };
 
+const DASHBOARD_LABEL = "Dashboard";
+const STATISTICS_LABEL = "Statistiken";
 const GOOGLE_BUSINESS_LABEL = "Google Business";
 const GOOGLE_BUSINESS_PAGE_IDS = new Set(["daring-brook-9034", "fresh-tide-9404", "glad-coast-1428"]);
 const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
@@ -237,6 +239,7 @@ const registryDetails: Readonly<Record<string, LuluAgentContractDetail>> = {
 const baseNavigationSections = (luluDropdownNavigation as unknown as readonly { label: string; pages: readonly NavigationPage[] }[])
   .map((section) => ({
     ...section,
+    label: section.label === DASHBOARD_LABEL ? STATISTICS_LABEL : section.label,
     pages: [...section.pages].filter((page) => isPageAvailable(page.id) && !GOOGLE_BUSINESS_PAGE_IDS.has(page.id)),
   }))
   .filter((section) => section.pages.length > 0);
@@ -253,8 +256,6 @@ const googleBusinessSection: NavigationSection = {
 function buildVisibleSections() {
   const sections = [...baseNavigationSections];
   const websiteIndex = sections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
-  const financeIndex = sections.findIndex((section) => section.label === FINANCE_LABEL);
-  const settingsIndex = sections.findIndex((section) => section.label === SETTINGS_LABEL);
 
   if (websiteIndex !== -1 && googleBusinessSection.pages.length > 0) {
     sections.splice(websiteIndex + 1, 0, googleBusinessSection);
@@ -262,11 +263,17 @@ function buildVisibleSections() {
     sections.push(googleBusinessSection);
   }
 
-  if (financeIndex !== -1 && settingsIndex !== -1) {
+  const financeIndex = sections.findIndex((section) => section.label === FINANCE_LABEL);
+  const statisticsIndex = sections.findIndex((section) => section.label === STATISTICS_LABEL);
+  const settingsIndex = sections.findIndex((section) => section.label === SETTINGS_LABEL);
+
+  if (financeIndex !== -1 && statisticsIndex !== -1 && settingsIndex !== -1) {
     const currentFinanceIndex = sections.findIndex((section) => section.label === FINANCE_LABEL);
     const [financeSection] = sections.splice(currentFinanceIndex, 1);
+    const currentStatisticsIndex = sections.findIndex((section) => section.label === STATISTICS_LABEL);
+    const [statisticsSection] = sections.splice(currentStatisticsIndex, 1);
     const currentSettingsIndex = sections.findIndex((section) => section.label === SETTINGS_LABEL);
-    sections.splice(currentSettingsIndex, 0, financeSection);
+    sections.splice(currentSettingsIndex, 0, financeSection, statisticsSection);
   }
 
   return sections;

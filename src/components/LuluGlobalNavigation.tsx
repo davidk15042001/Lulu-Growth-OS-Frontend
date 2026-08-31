@@ -10,6 +10,8 @@ import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/ge
 type NavigationPage = { id: string; label: string; soon?: boolean };
 type NavigationSection = { label: string; pages: readonly NavigationPage[] };
 
+const DASHBOARD_LABEL = "Dashboard";
+const STATISTICS_LABEL = "Statistiken";
 const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
 const GOOGLE_BUSINESS_LABEL = "Google Business";
 const FINANCE_LABEL = "Finance";
@@ -28,6 +30,7 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
   const availableSections = (luluDropdownNavigation as readonly NavigationSection[])
     .map((section) => ({
       ...section,
+      label: section.label === DASHBOARD_LABEL ? STATISTICS_LABEL : section.label,
       pages: section.pages.filter((page) => isPageAvailable(page.id) && !GOOGLE_BUSINESS_PAGE_IDS.has(page.id)),
     }))
     .filter((section) => section.pages.length > 0);
@@ -36,9 +39,7 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     pages: GOOGLE_BUSINESS_SECTION.pages.filter((page) => isPageAvailable(page.id)),
   };
 
-  const financeIndex = availableSections.findIndex((section) => section.label === FINANCE_LABEL);
   const webPresenceIndex = availableSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
-  const settingsIndex = availableSections.findIndex((section) => section.label === SETTINGS_LABEL);
 
   const reorderedSections = [...availableSections];
 
@@ -48,11 +49,17 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     reorderedSections.push(googleBusinessSection);
   }
 
-  if (financeIndex !== -1 && settingsIndex !== -1) {
+  const financeIndex = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
+  const statisticsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
+  const settingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
+
+  if (financeIndex !== -1 && statisticsIndex !== -1 && settingsIndex !== -1) {
     const currentFinanceIndex = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
     const [financeSection] = reorderedSections.splice(currentFinanceIndex, 1);
+    const currentStatisticsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
+    const [statisticsSection] = reorderedSections.splice(currentStatisticsIndex, 1);
     const currentSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
-    reorderedSections.splice(currentSettingsIndex, 0, financeSection);
+    reorderedSections.splice(currentSettingsIndex, 0, financeSection, statisticsSection);
   }
 
   return reorderedSections;

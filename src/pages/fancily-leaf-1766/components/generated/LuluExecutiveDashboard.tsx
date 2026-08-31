@@ -23,7 +23,7 @@ export const LuluExecutiveDashboard = () => {
       <div className="mx-auto max-w-6xl px-5 py-6 sm:px-8 sm:py-8">
         <header className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Dashboard</p>
+            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">Statistiken</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">Executive Dashboard</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
               {workspaceName} is operated through specialized agent workspaces. Start with the workspace that needs attention right now.
@@ -101,7 +101,7 @@ export const LuluExecutiveDashboard = () => {
 
 /* Lulu dropdown navigation — intentionally isolated from page content. */
 export const luluDropdownNavigation = [{
-  "label": "Dashboard",
+  "label": "Statistiken",
   "pages": [{
     "id": "fancily-leaf-1766",
     "label": "Executive Dashboard"
