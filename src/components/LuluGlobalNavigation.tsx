@@ -194,8 +194,10 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
     <aside className="lulu-global-navigation" data-lulu-global-navigation="true">
       <div className="lulu-global-navigation__workspace-label">Workspace</div>
       <nav className="lulu-global-navigation__sections">
-        {navigationSections.map((section) => {
+        {navigationSections.map((section, index) => {
           const isActiveSection = section.pages.some((page) => page.id === activeSlug);
+          const previousSection = index > 0 ? navigationSections[index - 1] : null;
+          const needsSeparator = previousSection?.label === FINANCE_LABEL && section.label === STATISTICS_LABEL;
           if (section.label === "Calendar") {
             const calendarProps = pageLinkProps("lulu-calendar-portal-9014");
             const isCalendarActive = activeSlug === "lulu-calendar-portal-9014" || activeSlug.startsWith("calendar-");
@@ -212,7 +214,11 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
             );
           }
           return (
-            <details key={section.label} open={isActiveSection}>
+            <details
+              key={section.label}
+              open={isActiveSection}
+              className={needsSeparator ? "lulu-global-navigation__section-divider-before" : undefined}
+            >
               <summary
                 className={isActiveSection ? "is-active" : undefined}
               >

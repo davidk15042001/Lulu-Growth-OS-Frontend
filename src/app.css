@@ -96,6 +96,7 @@ button, input { font: inherit; }
 .lulu-global-navigation__primary-link:hover,.lulu-global-navigation__primary-link.is-active{background:var(--secondary);color:var(--foreground)}
 .lulu-global-navigation__primary-link.is-active{font-weight:600}
 .lulu-global-navigation__sections details{margin-bottom:2px}
+.lulu-global-navigation__sections details.lulu-global-navigation__section-divider-before{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
 .lulu-global-navigation__sections summary{display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;list-style:none;border-radius:9px;padding:9px 10px;color:var(--muted-foreground);font-size:.86rem;transition:background .18s ease,color .18s ease}
 .lulu-global-navigation__sections summary::-webkit-details-marker{display:none}
 .lulu-global-navigation__sections summary:hover,.lulu-global-navigation__sections summary.is-active{background:var(--secondary);color:var(--foreground)}
