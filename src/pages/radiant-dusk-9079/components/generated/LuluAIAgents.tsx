@@ -1,4 +1,5 @@
 import { useLiveRecords } from '../../../../api/useLiveRecords';
+import type { WorkspaceRecord } from '../../../../api/records';
 import { useMemo, useState } from 'react';
 import { Activity, AlertTriangle, ArrowUpDown, BarChart3, BookOpen, Brain, Check, CheckCircle, ChevronDown, ChevronRight, Clock3, DollarSign, FileEdit, Globe, Heart, HelpCircle, LayoutDashboard, LayoutTemplate, LineChart, MessageSquare, MessagesSquare, MoreHorizontal, Pause, PauseCircle, PenTool, Plus, Search, Settings, ShieldAlert, Sparkles, Store, Target, TrendingUp, Users, Wrench, X, Zap, Bot, Filter, Layers } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -39,9 +40,158 @@ const navPlatform: Array<Record<string, any>> = [];
 const stats: Array<Record<string, any>> = [];
 const chartBars: number[] = [];
 const statusColor = (status: Agent['status']) => status === 'Active' ? 'var(--chart-4)' : status === 'Paused' ? 'var(--foreground)' : status === 'Draft' ? 'var(--primary)' : 'var(--foreground)';
+type AgentHealthBucket = 'critical' | 'dangerous' | 'okay' | 'very_good';
+
+type AgentHealthGroup = {
+  id: AgentHealthBucket;
+  label: string;
+  description: string;
+  badgeClassName: string;
+  borderClassName: string;
+};
+
+const AGENT_HEALTH_GROUPS: AgentHealthGroup[] = [
+  {
+    id: 'critical',
+    label: 'Kritisch',
+    description: 'Diese Agenten brauchen sofort Aufmerksamkeit.',
+    badgeClassName: 'bg-red-500/12 text-red-300 border-red-400/25',
+    borderClassName: 'border-red-400/20',
+  },
+  {
+    id: 'dangerous',
+    label: 'Gefaehrlich',
+    description: 'Diese Agenten laufen nicht sauber oder wirken instabil.',
+    badgeClassName: 'bg-amber-500/12 text-amber-200 border-amber-400/25',
+    borderClassName: 'border-amber-400/20',
+  },
+  {
+    id: 'okay',
+    label: 'Okay',
+    description: 'Diese Agenten sind vorhanden, aber noch nicht klar stark oder kritisch.',
+    badgeClassName: 'bg-slate-400/12 text-slate-200 border-slate-300/20',
+    borderClassName: 'border-border',
+  },
+  {
+    id: 'very_good',
+    label: 'Sehr gut',
+    description: 'Diese Agenten wirken stabil und ohne erkennbare Warnsignale.',
+    badgeClassName: 'bg-emerald-500/12 text-emerald-200 border-emerald-400/25',
+    borderClassName: 'border-emerald-400/20',
+  },
+];
+
+function textValue(value: unknown) {
+  if (typeof value === 'string') return value.trim();
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  return '';
+}
+
+function formatUpdatedAt(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat('de-DE', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
+}
+
+function lowerSignals(record: WorkspaceRecord) {
+  return [
+    record.status,
+    record.stage,
+    textValue(record.data?.health),
+    textValue(record.data?.state),
+    textValue(record.data?.severity),
+    textValue(record.data?.runStatus),
+    textValue(record.data?.syncStatus),
+    textValue(record.data?.warning),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+}
+
+function resolveAgentHealthBucket(record: WorkspaceRecord): AgentHealthBucket {
+  const signals = lowerSignals(record);
+  if (
+    signals.includes('failed') ||
+    signals.includes('error') ||
+    signals.includes('critical') ||
+    signals.includes('degraded') ||
+    signals.includes('blocked') ||
+    signals.includes('offline')
+  ) {
+    return 'critical';
+  }
+  if (
+    signals.includes('danger') ||
+    signals.includes('warning') ||
+    signals.includes('running') ||
+    signals.includes('queued') ||
+    signals.includes('pending') ||
+    signals.includes('review') ||
+    signals.includes('paused') ||
+    signals.includes('waiting')
+  ) {
+    return 'dangerous';
+  }
+  if (
+    signals.includes('completed') ||
+    signals.includes('healthy') ||
+    signals.includes('active') ||
+    signals.includes('ready') ||
+    signals.includes('stable') ||
+    signals.includes('success')
+  ) {
+    return 'very_good';
+  }
+  return 'okay';
+}
+
+function simpleFeedback(record: WorkspaceRecord, bucket: AgentHealthBucket) {
+  const status = textValue(record.status) || 'Unbekannt';
+  if (bucket === 'critical') {
+    return `Sofort pruefen: Dieser Agent ist aktuell ${status.toLowerCase()} und braucht direkte Aufmerksamkeit.`;
+  }
+  if (bucket === 'dangerous') {
+    return `Bitte beobachten: Dieser Agent ist aktuell ${status.toLowerCase()} und noch nicht stabil abgeschlossen.`;
+  }
+  if (bucket === 'very_good') {
+    return `Laeuft gut: Dieser Agent ist aktuell ${status.toLowerCase()} und zeigt keine offensichtlichen Warnsignale.`;
+  }
+  return `Grundsaetzlich okay: Dieser Agent ist aktuell ${status.toLowerCase()}, aber die Lage ist noch nicht eindeutig positiv oder kritisch.`;
+}
+
+function sortByRecency(items: WorkspaceRecord[]) {
+  return [...items].sort((left, right) => {
+    const leftTime = new Date(left.updatedAt).getTime();
+    const rightTime = new Date(right.updatedAt).getTime();
+    return rightTime - leftTime;
+  });
+}
+
 export const LuluAIAgents = () => {
   const { items, loading, error } = useLiveRecords('ai_agents');
-  return <div className="lulu-shell"><aside className="lulu-sidebar" aria-label="Primary navigation"><div className="lulu-logo"><span className="sparkle">✦</span><span>Lulu AI</span></div><LuluSectionNavigation activeId="radiant-dusk-9079" /></aside><main className="lulu-main"><header className="page-header"><div className="breadcrumb"><span>AI Platform</span><ChevronRight size={13} /><strong>AI Agents</strong></div><div className="title-row"><div><h1>AI Agents</h1><p>Create and manage specialized AI agents for your business.</p></div><div className="header-actions"><button className="ghost-button"><LayoutTemplate size={15} />Agent Templates</button><button className="ghost-button"><Store size={15} />Agent Marketplace</button><button type="button" className="primary-button" disabled aria-disabled="true" title="Create Agent coming soon" style={{ cursor: 'not-allowed', opacity: 0.55 }}><Plus size={15} />Create Agent <span aria-hidden="true">(soon)</span></button></div></div></header>{loading ? <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">Loading live AI agents…</div> : error ? <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center text-sm text-destructive">{error}</div> : !items.length ? <section className="flex min-h-[560px] items-center justify-center rounded-xl border border-dashed border-border bg-card p-10 text-center"><Bot className="mx-auto text-muted-foreground" size={38} /><h2 className="mt-4 text-xl font-semibold text-foreground">No AI agents available yet</h2><p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Configure an authorized AI agent or connect an agent source to populate this page. No example agent names, task counts, health values or performance statistics are displayed.</p></section> : <section className="content-section"><div className="section-heading"><h2>Your AI Agents</h2><span>{items.length} live records</span></div><div className="recent-table"><div className="table-row table-header"><span>Agent</span><span>Description</span><span>Status</span><span>Type</span><span>Tasks</span><span>Updated</span></div>{items.map(record => <div className="table-row" key={record.id}><strong>{record.name}</strong><span>{record.description || 'Live AI agent record'}</span><span className="table-status">{record.status || 'Recorded'}</span><span>{String(record.data?.type || 'Agent')}</span><span>{String(record.data?.tasks || '—')}</span><span>{record.updatedAt}</span></div>)}</div></section>}</main></div>;
+  const groupedAgents = useMemo(() => {
+    const grouped = {
+      critical: [] as WorkspaceRecord[],
+      dangerous: [] as WorkspaceRecord[],
+      okay: [] as WorkspaceRecord[],
+      very_good: [] as WorkspaceRecord[],
+    };
+    for (const record of items) {
+      grouped[resolveAgentHealthBucket(record)].push(record);
+    }
+    return {
+      critical: sortByRecency(grouped.critical),
+      dangerous: sortByRecency(grouped.dangerous),
+      okay: sortByRecency(grouped.okay),
+      very_good: sortByRecency(grouped.very_good),
+    };
+  }, [items]);
+
+  return <div className="lulu-shell"><aside className="lulu-sidebar" aria-label="Primary navigation"><div className="lulu-logo"><span className="sparkle">✦</span><span>Lulu AI</span></div><LuluSectionNavigation activeId="radiant-dusk-9079" /></aside><main className="lulu-main"><header className="page-header"><div className="breadcrumb"><span>AI Platform</span><ChevronRight size={13} /><strong>AI Agents</strong></div><div className="title-row"><div><h1>AI Agents</h1><p>Alle AI Agents nach Prioritaet sortiert, mit einfacher Einschaetzung und klarem Feedback.</p></div><div className="header-actions"><button className="ghost-button"><LayoutTemplate size={15} />Agent Templates</button><button className="ghost-button"><Store size={15} />Agent Marketplace</button><button type="button" className="primary-button" disabled aria-disabled="true" title="Create Agent coming soon" style={{ cursor: 'not-allowed', opacity: 0.55 }}><Plus size={15} />Create Agent <span aria-hidden="true">(soon)</span></button></div></div></header>{loading ? <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">Loading live AI agents…</div> : error ? <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center text-sm text-destructive">{error}</div> : !items.length ? <section className="flex min-h-[560px] items-center justify-center rounded-xl border border-dashed border-border bg-card p-10 text-center"><Bot className="mx-auto text-muted-foreground" size={38} /><h2 className="mt-4 text-xl font-semibold text-foreground">No AI agents available yet</h2><p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Configure an authorized AI agent or connect an agent source to populate this page. No example agent names, task counts, health values or performance statistics are displayed.</p></section> : <section className="content-section space-y-5"><div className="section-heading"><h2>Your AI Agents</h2><span>{items.length} live records</span></div>{AGENT_HEALTH_GROUPS.map(group => <section key={group.id} className={`rounded-2xl border bg-card p-4 sm:p-5 ${group.borderClassName}`}><div className="flex flex-col gap-2 border-b border-border/70 pb-4 sm:flex-row sm:items-center sm:justify-between"><div><h3 className="text-lg font-semibold text-foreground">{group.label}</h3><p className="text-sm text-muted-foreground">{group.description}</p></div><span className={`inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold ${group.badgeClassName}`}>{groupedAgents[group.id].length} Agent{groupedAgents[group.id].length === 1 ? '' : 'en'}</span></div>{groupedAgents[group.id].length === 0 ? <p className="pt-4 text-sm text-muted-foreground">Aktuell keine Agenten in dieser Kategorie.</p> : <div className="grid gap-3 pt-4">{groupedAgents[group.id].map(record => <article key={record.id} className="rounded-xl border border-border bg-background/70 p-4"><div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h4 className="text-base font-semibold text-foreground">{record.name}</h4><span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${group.badgeClassName}`}>{group.label}</span><span className="inline-flex items-center rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground">{textValue(record.status) || 'Recorded'}</span></div><p className="mt-2 text-sm leading-6 text-muted-foreground">{record.description || 'Live AI agent record'}</p><p className="mt-3 text-sm font-medium text-foreground">{simpleFeedback(record, group.id)}</p></div><div className="grid min-w-[220px] gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-1"><div><span className="font-medium text-foreground">Typ:</span> {textValue(record.data?.type) || 'Agent'}</div><div><span className="font-medium text-foreground">Tasks:</span> {textValue(record.data?.tasks) || '—'}</div><div><span className="font-medium text-foreground">Stage:</span> {textValue(record.stage) || textValue(record.data?.stage) || '—'}</div><div><span className="font-medium text-foreground">Aktualisiert:</span> {formatUpdatedAt(record.updatedAt)}</div></div></div></article>)}</div>}</section>)}</section>}</main></div>;
 };
 const luluDropdownNavigation = [{
   "label": "Dashboard",

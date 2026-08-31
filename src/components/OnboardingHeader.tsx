@@ -35,7 +35,7 @@ export function OnboardingHeader({ step, totalSteps = steps.length, showBrandNam
 
   const handleExit = async () => {
     if (exiting) return;
-    const confirmed = window.confirm("Cancel onboarding and return to the login page?");
+    const confirmed = window.confirm("Onboarding abbrechen und zur Login-Seite zurueckkehren?");
     if (!confirmed) return;
     setExiting(true);
     await exitOnboardingToLogin();
@@ -43,12 +43,12 @@ export function OnboardingHeader({ step, totalSteps = steps.length, showBrandNam
 
   return (
     <header className="mx-auto w-full max-w-5xl px-5 pt-8 sm:px-8 lg:px-12 lg:pt-10">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <a href="/" className="flex items-center gap-3" aria-label="Lulu Intelligence home">
           <img src="/branding/lulu-intelligence-logo.png" alt="Lulu Intelligence" className="h-9 w-auto object-contain" />
           {showBrandName && <span className="text-xl font-semibold tracking-[-0.03em] text-[var(--foreground)]">Lulu AI</span>}
         </a>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2 sm:items-end">
           <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)]">
             Company setup · {step === totalSteps ? "Complete" : "In progress"}
           </span>
@@ -56,9 +56,9 @@ export function OnboardingHeader({ step, totalSteps = steps.length, showBrandNam
             type="button"
             onClick={() => void handleExit()}
             disabled={exiting}
-            className="inline-flex h-9 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] px-3 text-xs font-semibold text-[var(--foreground)] transition hover:bg-[var(--secondary)] disabled:cursor-wait disabled:opacity-60"
+            className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-semibold text-[var(--foreground)] shadow-sm transition hover:bg-[var(--secondary)] disabled:cursor-wait disabled:opacity-60 sm:w-auto"
           >
-            {exiting ? "Leaving…" : "Cancel setup"}
+            {exiting ? "Verlasse Onboarding..." : "Onboarding abbrechen"}
           </button>
         </div>
       </div>

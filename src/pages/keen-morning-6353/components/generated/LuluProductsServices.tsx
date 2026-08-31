@@ -344,7 +344,7 @@ export function LuluProductsServices() {
   }
   async function handleExit() {
     if (exiting) return;
-    const confirmed = window.confirm("Cancel onboarding and return to the login page?");
+    const confirmed = window.confirm("Onboarding abbrechen und zur Login-Seite zurueckkehren?");
     if (!confirmed) return;
     setExiting(true);
     await exitOnboardingToLogin();
@@ -358,9 +358,9 @@ export function LuluProductsServices() {
               type="button"
               onClick={() => void handleExit()}
               disabled={exiting}
-              className="inline-flex h-10 shrink-0 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] px-3.5 text-sm font-medium text-[var(--foreground)] shadow-sm transition hover:bg-[var(--secondary)] disabled:cursor-wait disabled:opacity-60"
+              className="inline-flex h-11 shrink-0 items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-semibold text-[var(--foreground)] shadow-sm transition hover:bg-[var(--secondary)] disabled:cursor-wait disabled:opacity-60"
             >
-              {exiting ? "Leaving…" : "Cancel setup"}
+              {exiting ? "Verlasse Onboarding..." : "Onboarding abbrechen"}
             </button>
           </div>
 
