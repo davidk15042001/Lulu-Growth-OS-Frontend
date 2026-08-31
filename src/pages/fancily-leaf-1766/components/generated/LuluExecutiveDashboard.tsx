@@ -148,6 +148,18 @@ export const luluDropdownNavigation = [{
     "id": "breezy-shore-6734",
     "label": "Analytics"
   }, {
+    "id": "sparklingly-home-7386",
+    "label": "Strategy"
+  }, {
+    "id": "friendly-path-8200",
+    "label": "Advertising Analytics"
+  }, {
+    "id": "zesty-grass-9196",
+    "label": "AI Optimization"
+  }, {
+    "id": "solid-sand-5563",
+    "label": "AI Experiments & A/B Testing"
+  }, {
     "id": "sparklingly-moon-5114",
     "label": "SEO"
   }, {
@@ -415,14 +427,8 @@ export const luluDropdownNavigation = [{
     "id": "wondrous-cloud-1355",
     "label": "Content"
   }, {
-    "id": "sparklingly-home-7386",
-    "label": "Strategy"
-  }, {
     "id": "finely-garden-9221",
     "label": "Overview"
-  }, {
-    "id": "friendly-path-8200",
-    "label": "Advertising Analytics"
   }, {
     "id": "wise-brook-1762",
     "label": "Advertising Campaigns"
@@ -436,9 +442,6 @@ export const luluDropdownNavigation = [{
     "id": "sunny-minute-1092",
     "label": "Budgets"
   }, {
-    "id": "zesty-grass-9196",
-    "label": "AI Optimization"
-  }, {
     "id": "nicely-shade-2637",
     "label": "Tracking & Attribution"
   }, {
@@ -447,9 +450,6 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "sunnily-peak-7188",
     "label": "Publishing & Approval Center"
-  }, {
-    "id": "solid-sand-5563",
-    "label": "AI Experiments & A/B Testing"
   }, {
     "id": "sunny-summer-2293",
     "label": "Ad Accounts & Platform Management"
