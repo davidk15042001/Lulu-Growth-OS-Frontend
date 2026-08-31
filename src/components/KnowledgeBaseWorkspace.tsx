@@ -1,9 +1,10 @@
-import { BookOpen, Pencil, Plus, RefreshCw, Save, Trash2, X } from "lucide-react";
+import { BookOpen, Pencil, Plus, RefreshCw, Save, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import {
   onboardingApi,
+  type AiBusinessProfileSuggestion,
   type Competitor,
   type CustomerSegment,
   type Offering,
@@ -80,6 +81,14 @@ function nullable(value: string) {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+function appendCsvItem(value: string, nextItem: string) {
+  const trimmed = nextItem.trim();
+  if (!trimmed) return value;
+  const items = csvToList(value);
+  if (!items.some((item) => item.toLowerCase() === trimmed.toLowerCase())) items.push(trimmed);
+  return items.join(", ");
+}
+
 function offeringDraftFrom(item?: Offering | null): OfferingDraft {
   return {
     id: item?.id ?? "",
@@ -134,6 +143,48 @@ function platformDraftFrom(item?: Platform | null): PlatformDraft {
     externalAccountId: item?.externalAccountId ?? "",
     grantedScopes: listToCsv(item?.grantedScopes),
   };
+}
+
+type SuggestionFieldCardProps = {
+  title: string;
+  description: string;
+  suggestions: AiBusinessProfileSuggestion[];
+  onUse: (value: string) => void;
+  disabled: boolean;
+  actionLabel?: string;
+};
+
+function SuggestionFieldCard({ title, description, suggestions, onUse, disabled, actionLabel = "Use in form" }: SuggestionFieldCardProps) {
+  return (
+    <article className="rounded-xl border border-border bg-card p-5">
+      <div>
+        <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">AI Suggestions</p>
+        <h3 className="mt-1 text-base font-semibold text-foreground">{title}</h3>
+        <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+      </div>
+      <div className="mt-4 grid gap-3">
+        {suggestions.map((item, index) => (
+          <div key={`${title}-${index}-${item.value}`} className="rounded-lg border border-border bg-background/40 p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">#{index + 1}</span>
+                  <span className="rounded-full bg-secondary px-2 py-1 text-[11px] text-foreground">Score {item.score}</span>
+                </div>
+                <div className="mt-3 text-sm font-medium text-foreground">{item.value}</div>
+                <p className="mt-2 text-sm text-muted-foreground">{item.whyItFits}</p>
+                <p className="mt-2 text-xs text-muted-foreground">Competitor gap: {item.competitorGap}</p>
+              </div>
+              <button type="button" disabled={disabled} onClick={() => onUse(item.value)} className={actionClass}>
+                <Sparkles size={14} />
+                {actionLabel}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </article>
+  );
 }
 
 export function KnowledgeBaseWorkspace() {
@@ -217,6 +268,8 @@ export function KnowledgeBaseWorkspace() {
     competitors: snapshot?.competitors.length ?? 0,
     platforms: snapshot?.platforms.length ?? 0,
   }), [snapshot]);
+  const aiBusinessProfile = snapshot?.aiBusinessProfile ?? null;
+  const recommendedAiProfile = aiBusinessProfile?.payload.recommendedProfile ?? null;
 
   async function runAction(key: string, successMessage: string, action: () => Promise<void>) {
     setBusyKey(key);
@@ -231,6 +284,41 @@ export function KnowledgeBaseWorkspace() {
     } finally {
       setBusyKey(null);
     }
+  }
+
+  async function saveBusinessProfileDraft(override?: Partial<{
+    valueProposition: string;
+    targetMarket: string;
+    shortBrandDescription: string;
+    primaryIcp: string;
+    usp: string;
+    primaryChallenges: string[];
+    languages: string[];
+  }>) {
+    if (!workspaceId) return;
+    const workspace = snapshot?.workspace;
+    await onboardingApi.saveBusinessDescription(workspaceId, {
+      businessDescription: nullable(businessForm.businessDescription),
+      valueProposition: nullable(override?.valueProposition ?? businessForm.valueProposition),
+      targetMarket: nullable(override?.targetMarket ?? businessForm.targetMarket),
+      shortBrandDescription: nullable(override?.shortBrandDescription ?? businessForm.shortBrandDescription),
+      positioningTags: csvToList(businessForm.positioningTags),
+      legalForm: workspace?.legalForm ?? null,
+      foundingYear: workspace?.foundingYear ?? null,
+      employeeCount: workspace?.employeeCount ?? null,
+      annualRevenueRange: workspace?.annualRevenueRange ?? null,
+      businessModelType: workspace?.businessModelType ?? null,
+      companyStage: workspace?.companyStage ?? null,
+      salesModel: workspace?.salesModel ?? null,
+      salesCycleDays: workspace?.salesCycleDays ?? null,
+      primaryIcp: nullable(override?.primaryIcp ?? businessForm.primaryIcp),
+      usp: nullable(override?.usp ?? businessForm.usp),
+      mission: workspace?.mission ?? null,
+      vision: workspace?.vision ?? null,
+      primaryChallenges: override?.primaryChallenges ?? csvToList(businessForm.primaryChallenges),
+      languages: override?.languages ?? csvToList(businessForm.languages),
+      regulatedIndustries: workspace?.regulatedIndustries ?? [],
+    });
   }
 
   if (loading) {
@@ -262,6 +350,231 @@ export function KnowledgeBaseWorkspace() {
         <article className="rounded-xl border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">Connected Platforms</p>
           <p className="mt-2 text-2xl font-semibold text-foreground">{counts.platforms}</p>
+        </article>
+      </section>
+
+      <section className="grid gap-6">
+        <article className="rounded-xl border border-border bg-card p-5">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                  <Sparkles size={17} />
+                </span>
+                <div>
+                  <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">AI Knowledge Draft</p>
+                  <h2 className="mt-1 text-lg font-semibold text-foreground">Generated Positioning, ICP, USP & Competitor Comparison</h2>
+                </div>
+              </div>
+              <p className="mt-4 max-w-4xl text-sm text-muted-foreground">
+                Generate 5-10 high-quality options for the core business profile fields on this page. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.
+              </p>
+              {aiBusinessProfile?.generatedAt ? (
+                <p className="mt-3 text-xs text-muted-foreground">
+                  Last generated {new Date(aiBusinessProfile.generatedAt).toLocaleString()} {aiBusinessProfile.model ? `· ${aiBusinessProfile.model}` : ""}
+                </p>
+              ) : null}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {recommendedAiProfile ? (
+                <button
+                  type="button"
+                  disabled={!canEdit || busyKey === "apply-ai-profile"}
+                  onClick={() => void runAction("apply-ai-profile", "Recommended AI profile applied.", async () => {
+                    await saveBusinessProfileDraft({
+                      valueProposition: recommendedAiProfile.valueProposition,
+                      targetMarket: recommendedAiProfile.targetMarket,
+                      shortBrandDescription: recommendedAiProfile.shortBrandDescription,
+                      primaryIcp: recommendedAiProfile.primaryIcp,
+                      usp: recommendedAiProfile.usp,
+                      primaryChallenges: recommendedAiProfile.primaryChallenges,
+                      languages: recommendedAiProfile.languages,
+                    });
+                  })}
+                  className={actionClass}
+                >
+                  <Save size={15} />
+                  Apply Recommended Set
+                </button>
+              ) : null}
+              <button
+                type="button"
+                disabled={!canEdit || busyKey === "generate-ai-profile"}
+                onClick={() => void runAction("generate-ai-profile", "AI business profile generated.", async () => {
+                  await onboardingApi.generateAiBusinessProfile(workspaceId, { timeoutMs: 300000 });
+                })}
+                className={primaryActionClass}
+              >
+                <Sparkles size={15} />
+                {aiBusinessProfile ? "Regenerate" : "Generate"}
+              </button>
+            </div>
+          </div>
+
+          {aiBusinessProfile ? (
+            <div className="mt-6 grid gap-6">
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                <h3 className="text-sm font-semibold text-foreground">AI Summary</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{aiBusinessProfile.payload.summary}</p>
+              </div>
+
+              {recommendedAiProfile ? (
+                <div className="grid gap-4 xl:grid-cols-2">
+                  <div className="rounded-xl border border-border bg-background/40 p-4">
+                    <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Recommended Best Set</p>
+                    <div className="mt-3 grid gap-3">
+                      <div>
+                        <p className="text-xs text-muted-foreground">Value Proposition</p>
+                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.valueProposition}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Target Market</p>
+                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.targetMarket}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Primary ICP</p>
+                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.primaryIcp}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">USP</p>
+                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.usp}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Short Brand Description</p>
+                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.shortBrandDescription}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="rounded-xl border border-border bg-background/40 p-4">
+                    <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Recommended Lists</p>
+                    <div className="mt-3">
+                      <p className="text-xs text-muted-foreground">Primary Challenges</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {recommendedAiProfile.primaryChallenges.map((item) => (
+                          <span key={item} className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">{item}</span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="mt-4">
+                      <p className="text-xs text-muted-foreground">Languages</p>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {recommendedAiProfile.languages.map((item) => (
+                          <span key={item} className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">{item}</span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="grid gap-6 xl:grid-cols-2">
+                <SuggestionFieldCard
+                  title="Value Proposition"
+                  description="Top options for the strongest business promise."
+                  suggestions={aiBusinessProfile.payload.suggestions.valuePropositions}
+                  disabled={!canEdit}
+                  onUse={(value) => setBusinessForm((current) => ({ ...current, valueProposition: value }))}
+                />
+                <SuggestionFieldCard
+                  title="Target Market"
+                  description="Focused market definitions with clearer competitive whitespace."
+                  suggestions={aiBusinessProfile.payload.suggestions.targetMarkets}
+                  disabled={!canEdit}
+                  onUse={(value) => setBusinessForm((current) => ({ ...current, targetMarket: value }))}
+                />
+                <SuggestionFieldCard
+                  title="Primary ICP"
+                  description="Sharper ideal-customer definitions for strategy and messaging."
+                  suggestions={aiBusinessProfile.payload.suggestions.primaryIcps}
+                  disabled={!canEdit}
+                  onUse={(value) => setBusinessForm((current) => ({ ...current, primaryIcp: value }))}
+                />
+                <SuggestionFieldCard
+                  title="USP"
+                  description="Differentiators designed to win against the competitor set."
+                  suggestions={aiBusinessProfile.payload.suggestions.usps}
+                  disabled={!canEdit}
+                  onUse={(value) => setBusinessForm((current) => ({ ...current, usp: value }))}
+                />
+                <SuggestionFieldCard
+                  title="Short Brand Description"
+                  description="Condensed brand narratives you can immediately use on the page."
+                  suggestions={aiBusinessProfile.payload.suggestions.shortBrandDescriptions}
+                  disabled={!canEdit}
+                  onUse={(value) => setBusinessForm((current) => ({ ...current, shortBrandDescription: value }))}
+                />
+                <SuggestionFieldCard
+                  title="Primary Challenges"
+                  description="Top challenge angles worth capturing in the workspace profile."
+                  suggestions={aiBusinessProfile.payload.suggestions.primaryChallenges}
+                  disabled={!canEdit}
+                  actionLabel="Add to list"
+                  onUse={(value) => setBusinessForm((current) => ({ ...current, primaryChallenges: appendCsvItem(current.primaryChallenges, value) }))}
+                />
+                <SuggestionFieldCard
+                  title="Languages"
+                  description="Strategic language priorities inferred from context and competition."
+                  suggestions={aiBusinessProfile.payload.suggestions.languages}
+                  disabled={!canEdit}
+                  actionLabel="Add to list"
+                  onUse={(value) => setBusinessForm((current) => ({ ...current, languages: appendCsvItem(current.languages, value) }))}
+                />
+              </div>
+
+              <div className="rounded-xl border border-border bg-background/30 p-5">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Top 10 Competitor Comparison</p>
+                  <h3 className="mt-1 text-base font-semibold text-foreground">Where the workspace can win</h3>
+                </div>
+                <div className="mt-4 grid gap-4">
+                  {aiBusinessProfile.payload.competitorComparison.map((competitor) => (
+                    <div key={competitor.name} className="rounded-lg border border-border bg-card p-4">
+                      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-foreground">{competitor.name}</div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            {[competitor.competitorType, competitor.market, competitor.websiteUrl].filter(Boolean).join(" · ") || "Competitor context"}
+                          </div>
+                          {competitor.positioning ? <p className="mt-3 text-sm text-muted-foreground">{competitor.positioning}</p> : null}
+                        </div>
+                        <div className="max-w-xl rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
+                          <span className="font-medium">Why you can win:</span> {competitor.whyYouCanWin}
+                        </div>
+                      </div>
+                      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Strengths</p>
+                          <ul className="mt-2 grid gap-2 text-sm text-muted-foreground">
+                            {competitor.strengths.map((item) => <li key={`${competitor.name}-strength-${item}`}>• {item}</li>)}
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Weaknesses</p>
+                          <ul className="mt-2 grid gap-2 text-sm text-muted-foreground">
+                            {competitor.weaknesses.map((item) => <li key={`${competitor.name}-weakness-${item}`}>• {item}</li>)}
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Whitespace</p>
+                          <ul className="mt-2 grid gap-2 text-sm text-muted-foreground">
+                            {competitor.whitespace.map((item) => <li key={`${competitor.name}-whitespace-${item}`}>• {item}</li>)}
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-6 rounded-xl border border-dashed border-border bg-background/20 p-8 text-center">
+              <Sparkles className="mx-auto text-muted-foreground" size={32} />
+              <h3 className="mt-4 text-lg font-semibold text-foreground">No AI business profile generated yet</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Generate a draft to get 5-10 high-quality options for positioning, ICP, USP, brand description, challenges, languages, and a full comparison against the top 10 competitors.
+              </p>
+            </div>
+          )}
         </article>
       </section>
 
@@ -330,29 +643,7 @@ export function KnowledgeBaseWorkspace() {
               type="button"
               disabled={!canEdit || busyKey === "business"}
               onClick={() => void runAction("business", "Business context saved.", async () => {
-                const workspace = snapshot?.workspace;
-                await onboardingApi.saveBusinessDescription(workspaceId, {
-                  businessDescription: nullable(businessForm.businessDescription),
-                  valueProposition: nullable(businessForm.valueProposition),
-                  targetMarket: nullable(businessForm.targetMarket),
-                  shortBrandDescription: nullable(businessForm.shortBrandDescription),
-                  positioningTags: csvToList(businessForm.positioningTags),
-                  legalForm: workspace?.legalForm ?? null,
-                  foundingYear: workspace?.foundingYear ?? null,
-                  employeeCount: workspace?.employeeCount ?? null,
-                  annualRevenueRange: workspace?.annualRevenueRange ?? null,
-                  businessModelType: workspace?.businessModelType ?? null,
-                  companyStage: workspace?.companyStage ?? null,
-                  salesModel: workspace?.salesModel ?? null,
-                  salesCycleDays: workspace?.salesCycleDays ?? null,
-                  primaryIcp: nullable(businessForm.primaryIcp),
-                  usp: nullable(businessForm.usp),
-                  mission: workspace?.mission ?? null,
-                  vision: workspace?.vision ?? null,
-                  primaryChallenges: csvToList(businessForm.primaryChallenges),
-                  languages: csvToList(businessForm.languages),
-                  regulatedIndustries: workspace?.regulatedIndustries ?? [],
-                });
+                await saveBusinessProfileDraft();
               })}
               className={primaryActionClass}
             >

@@ -91,6 +91,55 @@ export type Platform = {
   lastError: string | null;
 };
 
+export type AiBusinessProfileSuggestion = {
+  value: string;
+  whyItFits: string;
+  competitorGap: string;
+  score: number;
+};
+
+export type AiBusinessProfileCompetitorComparison = {
+  name: string;
+  websiteUrl: string | null;
+  competitorType: string | null;
+  market: string | null;
+  positioning: string | null;
+  strengths: string[];
+  weaknesses: string[];
+  whitespace: string[];
+  whyYouCanWin: string;
+};
+
+export type AiBusinessProfile = {
+  workspaceId: string;
+  model: string | null;
+  generatedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  payload: {
+    summary: string;
+    recommendedProfile: {
+      valueProposition: string;
+      targetMarket: string;
+      primaryIcp: string;
+      usp: string;
+      shortBrandDescription: string;
+      primaryChallenges: string[];
+      languages: string[];
+    };
+    suggestions: {
+      valuePropositions: AiBusinessProfileSuggestion[];
+      targetMarkets: AiBusinessProfileSuggestion[];
+      primaryIcps: AiBusinessProfileSuggestion[];
+      usps: AiBusinessProfileSuggestion[];
+      shortBrandDescriptions: AiBusinessProfileSuggestion[];
+      primaryChallenges: AiBusinessProfileSuggestion[];
+      languages: AiBusinessProfileSuggestion[];
+    };
+    competitorComparison: AiBusinessProfileCompetitorComparison[];
+  };
+};
+
 export type OnboardingSnapshot = {
   workspace: Workspace;
   offerings: Offering[];
@@ -98,6 +147,7 @@ export type OnboardingSnapshot = {
   competitors: Competitor[];
   platforms: Platform[];
   completion: Record<string, unknown>;
+  aiBusinessProfile: AiBusinessProfile | null;
 };
 
 export const onboardingApi = {
@@ -157,6 +207,10 @@ export const onboardingApi = {
   }),
   deleteCompetitor: (workspaceId: string, competitorId: string) => requestApi<null>({
     path: workspaceApiPath(workspaceId, `/onboarding/competitors/${competitorId}`), method: "DELETE",
+  }),
+  aiBusinessProfile: (workspaceId: string) => requestApi<AiBusinessProfile | null>({ path: workspaceApiPath(workspaceId, "/onboarding/ai-business-profile") }),
+  generateAiBusinessProfile: (workspaceId: string, options?: { timeoutMs?: number }) => requestApi<AiBusinessProfile>({
+    path: workspaceApiPath(workspaceId, "/onboarding/ai-business-profile"), method: "POST", body: {}, timeoutMs: options?.timeoutMs,
   }),
   complete: (workspaceId: string) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/complete"), method: "POST", body: {} }),
   createBillingCheckout: (workspaceId: string, input: { planKey: "viewer" | "starter" | "ai" | "test"; successUrl: string; backUrl: string; password?: string }) => requestApi<{
