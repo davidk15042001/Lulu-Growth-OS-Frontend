@@ -107,7 +107,7 @@ export function LuluCrmPage() {
           <button
             type="button"
             onClick={() => void refreshAll()}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary sm:w-auto"
           >
             <RefreshCw size={15} />
             Refresh
@@ -167,30 +167,50 @@ export function LuluCrmPage() {
                 No CRM records match the current view yet.
               </p>
             ) : (
-              <div className="mt-4 overflow-x-auto">
-                <table className="w-full min-w-[720px] text-left text-sm">
-                  <thead className="border-b border-border text-xs uppercase tracking-[0.12em] text-muted-foreground">
-                    <tr>
-                      <th className="pb-3 font-medium">Record</th>
-                      <th className="pb-3 font-medium">Type</th>
-                      <th className="pb-3 font-medium">Status</th>
-                      <th className="pb-3 font-medium">Detail</th>
-                      <th className="pb-3 font-medium">Updated</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {rows.slice(0, 12).map((row) => (
-                      <tr key={row.id}>
-                        <td className="py-3 font-medium text-foreground">{row.label}</td>
-                        <td className="py-3 text-muted-foreground">{row.type}</td>
-                        <td className="py-3 text-foreground">{row.status}</td>
-                        <td className="py-3 text-muted-foreground">{row.detail}</td>
-                        <td className="py-3 text-muted-foreground">{new Date(row.updatedAt).toLocaleString()}</td>
+              <>
+                <div className="mt-4 grid gap-3 md:hidden">
+                  {rows.slice(0, 12).map((row) => (
+                    <article key={row.id} className="rounded-lg border border-border bg-background/50 px-4 py-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium text-foreground">{row.label}</div>
+                          <div className="mt-1 text-xs uppercase tracking-[0.12em] text-muted-foreground">{row.type}</div>
+                        </div>
+                        <span className="rounded-full border border-border bg-card px-2.5 py-1 text-[11px] text-foreground">{row.status}</span>
+                      </div>
+                      <p className="mt-3 text-sm text-muted-foreground">{row.detail}</p>
+                      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                        <span>{row.amount ?? '—'}</span>
+                        <span>{new Date(row.updatedAt).toLocaleString()}</span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+                <div className="mt-4 hidden overflow-x-auto md:block">
+                  <table className="w-full min-w-[720px] text-left text-sm">
+                    <thead className="border-b border-border text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                      <tr>
+                        <th className="pb-3 font-medium">Record</th>
+                        <th className="pb-3 font-medium">Type</th>
+                        <th className="pb-3 font-medium">Status</th>
+                        <th className="pb-3 font-medium">Detail</th>
+                        <th className="pb-3 font-medium">Updated</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {rows.slice(0, 12).map((row) => (
+                        <tr key={row.id}>
+                          <td className="py-3 font-medium text-foreground">{row.label}</td>
+                          <td className="py-3 text-muted-foreground">{row.type}</td>
+                          <td className="py-3 text-foreground">{row.status}</td>
+                          <td className="py-3 text-muted-foreground">{row.detail}</td>
+                          <td className="py-3 text-muted-foreground">{new Date(row.updatedAt).toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </section>
 

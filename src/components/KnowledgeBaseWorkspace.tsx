@@ -61,10 +61,10 @@ type PlatformDraft = {
   grantedScopes: string;
 };
 
-const inputClass = "mt-1 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary";
-const textareaClass = "mt-1 min-h-24 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition focus:border-primary";
-const actionClass = "inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60";
-const primaryActionClass = "inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60";
+const inputClass = "mt-1 h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground outline-none transition focus:border-primary";
+const textareaClass = "mt-1 min-h-28 w-full rounded-lg border border-border bg-background px-3 py-3 text-sm text-foreground outline-none transition focus:border-primary";
+const actionClass = "inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 text-sm text-foreground hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto";
+const primaryActionClass = "inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-3 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto";
 
 function csvToList(value: string) {
   return value
@@ -179,7 +179,7 @@ function SuggestionFieldCard({ title, description, suggestions, onUse, disabled,
       <div className="mt-4 grid gap-3">
         {suggestions.map((item, index) => (
           <div key={`${title}-${index}-${item.value}`} className="rounded-lg border border-border bg-background/40 p-4">
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">#{index + 1}</span>
@@ -389,7 +389,7 @@ export function KnowledgeBaseWorkspace() {
                 </p>
               ) : null}
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:flex-wrap">
               {recommendedAiProfile ? (
                 <button
                   type="button"
@@ -426,7 +426,7 @@ export function KnowledgeBaseWorkspace() {
           </div>
 
           {aiBusinessProfile ? (
-            <div className="mt-6 grid gap-6">
+              <div className="mt-6 grid gap-6">
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
                 <h3 className="text-sm font-semibold text-foreground">AI Summary</h3>
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{aiBusinessProfile.payload.summary}</p>
@@ -461,7 +461,7 @@ export function KnowledgeBaseWorkspace() {
                   </div>
                   <div className="rounded-xl border border-border bg-background/40 p-4">
                     <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Recommended Lists</p>
-                    <div className="mt-3">
+                      <div className="mt-3">
                       <p className="text-xs text-muted-foreground">Primary Challenges</p>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {recommendedAiProfile.primaryChallenges.map((item) => (
@@ -535,7 +535,7 @@ export function KnowledgeBaseWorkspace() {
                 />
               </div>
 
-              <div className="rounded-xl border border-border bg-background/30 p-5">
+              <div className="rounded-xl border border-border bg-background/30 p-4 sm:p-5">
                 <div>
                   <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Top 10 Competitor Comparison</p>
                   <h3 className="mt-1 text-base font-semibold text-foreground">Where the workspace can win</h3>
@@ -551,7 +551,7 @@ export function KnowledgeBaseWorkspace() {
                           </div>
                           {competitor.positioning ? <p className="mt-3 text-sm text-muted-foreground">{competitor.positioning}</p> : null}
                         </div>
-                        <div className="max-w-xl rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
+                        <div className="w-full max-w-xl rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-foreground">
                           <span className="font-medium">Why you can win:</span> {competitor.whyYouCanWin}
                         </div>
                       </div>
@@ -696,7 +696,7 @@ export function KnowledgeBaseWorkspace() {
               ))}
               {snapshot && snapshot.offerings.length === 0 ? <div className="rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">No offerings stored yet.</div> : null}
             </div>
-            <div className="rounded-lg border border-border bg-background/40 p-4">
+            <div className="order-first rounded-lg border border-border bg-background/40 p-4 xl:order-none">
               <h3 className="text-sm font-semibold text-foreground">{offeringDraft.id ? "Edit offering" : "Add offering"}</h3>
               <div className="mt-4 grid gap-3">
                 <label className="text-sm text-muted-foreground">Name<input className={inputClass} disabled={!canEdit} value={offeringDraft.name} onChange={(event) => setOfferingDraft((current) => ({ ...current, name: event.target.value }))} /></label>
@@ -714,7 +714,7 @@ export function KnowledgeBaseWorkspace() {
                 <label className="text-sm text-muted-foreground">URL<input className={inputClass} disabled={!canEdit} value={offeringDraft.url} onChange={(event) => setOfferingDraft((current) => ({ ...current, url: event.target.value }))} /></label>
                 <label className="text-sm text-muted-foreground">Differentiators (comma-separated)<textarea className={textareaClass} disabled={!canEdit} value={offeringDraft.differentiators} onChange={(event) => setOfferingDraft((current) => ({ ...current, differentiators: event.target.value }))} /></label>
               </div>
-              <div className="mt-4 flex justify-end gap-2">
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
                 {offeringDraft.id ? <button type="button" disabled={!canEdit} onClick={() => setOfferingDraft(offeringDraftFrom())} className={actionClass}><X size={14} />Cancel</button> : null}
                 <button
                   type="button"
@@ -850,7 +850,7 @@ export function KnowledgeBaseWorkspace() {
               ))}
               {snapshot && snapshot.customerSegments.length === 0 ? <div className="rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">No customer segments stored yet.</div> : null}
             </div>
-            <div className="rounded-lg border border-border bg-background/40 p-4">
+            <div className="order-first rounded-lg border border-border bg-background/40 p-4 xl:order-none">
               <h3 className="text-sm font-semibold text-foreground">{segmentDraft.id ? "Edit segment" : "Add segment"}</h3>
               <div className="mt-4 grid gap-3">
                 <label className="text-sm text-muted-foreground">Name<input className={inputClass} disabled={!canEdit} value={segmentDraft.name} onChange={(event) => setSegmentDraft((current) => ({ ...current, name: event.target.value }))} /></label>
@@ -863,7 +863,7 @@ export function KnowledgeBaseWorkspace() {
                 <label className="text-sm text-muted-foreground">Notes<textarea className={textareaClass} disabled={!canEdit} value={segmentDraft.notes} onChange={(event) => setSegmentDraft((current) => ({ ...current, notes: event.target.value }))} /></label>
                 <label className="inline-flex items-center gap-2 text-sm text-foreground"><input type="checkbox" disabled={!canEdit} checked={segmentDraft.primarySegment} onChange={(event) => setSegmentDraft((current) => ({ ...current, primarySegment: event.target.checked }))} />Primary segment</label>
               </div>
-              <div className="mt-4 flex justify-end gap-2">
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
                 {segmentDraft.id ? <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom())} className={actionClass}><X size={14} />Cancel</button> : null}
                 <button
                   type="button"
@@ -918,7 +918,7 @@ export function KnowledgeBaseWorkspace() {
               ))}
               {snapshot && snapshot.competitors.length === 0 ? <div className="rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">No competitors stored yet.</div> : null}
             </div>
-            <div className="rounded-lg border border-border bg-background/40 p-4">
+            <div className="order-first rounded-lg border border-border bg-background/40 p-4 xl:order-none">
               <h3 className="text-sm font-semibold text-foreground">{competitorDraft.id ? "Edit competitor" : "Add competitor"}</h3>
               <div className="mt-4 grid gap-3">
                 <label className="text-sm text-muted-foreground">Name<input className={inputClass} disabled={!canEdit} value={competitorDraft.name} onChange={(event) => setCompetitorDraft((current) => ({ ...current, name: event.target.value }))} /></label>
@@ -933,7 +933,7 @@ export function KnowledgeBaseWorkspace() {
                 <label className="text-sm text-muted-foreground">Differentiators (comma-separated)<textarea className={textareaClass} disabled={!canEdit} value={competitorDraft.differentiators} onChange={(event) => setCompetitorDraft((current) => ({ ...current, differentiators: event.target.value }))} /></label>
                 <label className="text-sm text-muted-foreground">Notes<textarea className={textareaClass} disabled={!canEdit} value={competitorDraft.notes} onChange={(event) => setCompetitorDraft((current) => ({ ...current, notes: event.target.value }))} /></label>
               </div>
-              <div className="mt-4 flex justify-end gap-2">
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
                 {competitorDraft.id ? <button type="button" disabled={!canEdit} onClick={() => setCompetitorDraft(competitorDraftFrom())} className={actionClass}><X size={14} />Cancel</button> : null}
                 <button
                   type="button"
@@ -990,7 +990,7 @@ export function KnowledgeBaseWorkspace() {
               ))}
               {snapshot && snapshot.platforms.length === 0 ? <div className="rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">No platforms stored yet.</div> : null}
             </div>
-            <div className="rounded-lg border border-border bg-background/40 p-4">
+            <div className="order-first rounded-lg border border-border bg-background/40 p-4 xl:order-none">
               <h3 className="text-sm font-semibold text-foreground">{platformDraft.id ? "Edit platform" : "Add platform"}</h3>
               <div className="mt-4 grid gap-3">
                 <label className="text-sm text-muted-foreground">Name<input className={inputClass} disabled={!canEdit} value={platformDraft.name} onChange={(event) => setPlatformDraft((current) => ({ ...current, name: event.target.value }))} /></label>
@@ -1002,7 +1002,7 @@ export function KnowledgeBaseWorkspace() {
                 <label className="text-sm text-muted-foreground">External Account ID<input className={inputClass} disabled={!canEdit} value={platformDraft.externalAccountId} onChange={(event) => setPlatformDraft((current) => ({ ...current, externalAccountId: event.target.value }))} /></label>
                 <label className="text-sm text-muted-foreground">Granted Scopes (comma-separated)<textarea className={textareaClass} disabled={!canEdit} value={platformDraft.grantedScopes} onChange={(event) => setPlatformDraft((current) => ({ ...current, grantedScopes: event.target.value }))} /></label>
               </div>
-              <div className="mt-4 flex justify-end gap-2">
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
                 {platformDraft.id ? <button type="button" disabled={!canEdit} onClick={() => setPlatformDraft(platformDraftFrom())} className={actionClass}><X size={14} />Cancel</button> : null}
                 <button
                   type="button"

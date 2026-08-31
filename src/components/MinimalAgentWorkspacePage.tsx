@@ -82,7 +82,7 @@ export function MinimalAgentWorkspacePage({
 
   return (
     <main className="min-h-screen bg-[var(--background)] text-foreground">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-5 py-6 sm:px-8 sm:py-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-5 sm:px-8 sm:py-8">
         <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{agentContract.sectionLabel}</p>
@@ -93,7 +93,7 @@ export function MinimalAgentWorkspacePage({
             <button
               type="button"
               onClick={() => void records.refresh()}
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary sm:w-auto"
             >
               <RefreshCw size={15} />
               {t("Refresh")}
@@ -157,7 +157,7 @@ export function MinimalAgentWorkspacePage({
           </section>
         )}
 
-        {!isKnowledgePage ? <div className="grid gap-6 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)]">
+        {!isKnowledgePage ? <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)]">
           <section className="rounded-xl border border-border bg-card p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -225,7 +225,7 @@ export function MinimalAgentWorkspacePage({
             )}
           </section>
 
-          <div className="grid gap-6">
+          <div className="grid gap-5">
             <section className="rounded-xl border border-border bg-card p-5">
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
                 {resourceType ? t("Needs attention") : t("Approval boundary")}

@@ -238,7 +238,7 @@ export function LuluReviewsPage() {
     fontFamily: 'Poppins'
   }}>
     {mobile && <button className="fixed inset-0 z-20 bg-black/30 lg:hidden" aria-label="Close navigation" onClick={() => setMobile(false)} />}
-    <aside className={`${mobile ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-30 w-[220px] flex-col bg-[var(--sidebar)] px-3 py-5 lg:flex`}>
+    <aside className={`${mobile ? 'flex' : 'hidden'} fixed inset-y-0 left-0 z-30 w-[min(86vw,220px)] flex-col bg-[var(--sidebar)] px-3 py-5 lg:flex`}>
       <div className="mb-7 flex items-center gap-2 px-2">
         <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--primary)] font-bold text-primary-foreground">L</span>
         <strong className="text-foreground">Lulu AI</strong>
@@ -254,32 +254,32 @@ export function LuluReviewsPage() {
     </aside>
 
     <main className="lg:ml-[220px]">
-      <header className="flex h-14 items-center justify-between bg-[var(--sidebar)] px-4 text-foreground sm:px-7">
-        <div className="flex items-center gap-3">
+      <header className="flex min-h-14 flex-wrap items-center justify-between gap-3 bg-[var(--sidebar)] px-4 py-3 text-foreground sm:px-7">
+        <div className="flex min-w-0 items-center gap-3">
           <button className="lg:hidden" onClick={() => setMobile(true)} aria-label="Open navigation">
             <Menu size={19} />
           </button>
-          <span className="text-xs text-muted-foreground">Website &amp; Commerce</span>
-          <span className="text-muted-foreground">/</span>
+          <span className="truncate text-xs text-muted-foreground">Website &amp; Commerce</span>
+          <span className="hidden text-muted-foreground sm:inline">/</span>
           <span className="text-xs">Reviews</span>
         </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => void refresh()} className="hidden text-xs text-foreground sm:block">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <button onClick={() => void refresh()} className="inline-flex items-center justify-center rounded-md border border-[var(--border)] px-3 py-2 text-xs text-foreground sm:border-0 sm:px-0 sm:py-0">
             <RefreshCw size={14} className="mr-1 inline" />
             Refresh
           </button>
-          <button onClick={() => void connectGoogleBusiness()} disabled={busyConnect} className="rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] disabled:opacity-60">
+          <button onClick={() => void connectGoogleBusiness()} disabled={busyConnect} className="inline-flex items-center justify-center rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] disabled:opacity-60">
             {busyConnect ? <Loader2 size={13} className="mr-1 inline animate-spin" /> : <Globe2 size={13} className="mr-1 inline" />}
             {connectionMode === 'connected' ? 'Reconnect Google' : connectionMode === 'reauth' ? 'Reconnect Google' : 'Connect Google'}
           </button>
         </div>
       </header>
 
-      <div className="px-4 py-6 sm:px-8">
+      <div className="px-4 py-5 sm:px-8 sm:py-6">
         {error && <div role="alert" className="mb-5 rounded-lg border border-chart-5/30 bg-chart-5/10 px-4 py-3 text-sm text-chart-5">{error}</div>}
         {message && <div className="mb-5 rounded-lg border border-chart-4/30 bg-chart-4/10 px-4 py-3 text-sm text-chart-4">{message}</div>}
 
-        <div className="flex flex-wrap items-end justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <Pill tone="purple" icon={<Sparkles size={12} />}>Reputation Intelligence</Pill>
             <h1 className="mt-2 text-3xl font-bold tracking-tight">Google Reviews Manager</h1>
@@ -426,7 +426,7 @@ export function LuluReviewsPage() {
                       </div>
                       <Store size={16} className="text-muted-foreground" />
                     </div>
-                    <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
+                    <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-3">
                       <div>
                         <p className="text-muted-foreground">Reviews</p>
                         <strong>{compactNumber(location.totalReviewCount)}</strong>
@@ -460,7 +460,7 @@ export function LuluReviewsPage() {
                   <p className="mt-2 text-sm text-muted-foreground">Passe Standort, Suche oder Scope an, damit Lulu wieder Reviews für die Bearbeitung anzeigen kann.</p>
                 </div> : <div className="mt-5 space-y-4">
                   {visibleReviews.map(review => <article key={review.id} className="rounded-xl border border-[var(--border)] bg-background p-5">
-                      <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <h3 className="text-lg font-semibold">{review.reviewerDisplayName}</h3>
@@ -476,7 +476,7 @@ export function LuluReviewsPage() {
                           </div>
                         </div>
 
-                        <div className="max-w-xl text-sm text-muted-foreground">
+                        <div className="w-full max-w-xl text-sm text-muted-foreground">
                           <p>{review.summary}</p>
                         </div>
                       </div>
@@ -498,8 +498,8 @@ export function LuluReviewsPage() {
                         </div>
 
                         <div className="rounded-xl border border-[var(--border)] bg-card p-4">
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
+                          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                            <div className="min-w-0">
                               <h4 className="font-semibold">Owner Reply</h4>
                               <p className="mt-1 text-xs text-muted-foreground">Lulu schlägt die Antwort vor, du kannst sie direkt an Google senden.</p>
                             </div>
@@ -515,7 +515,7 @@ export function LuluReviewsPage() {
                         [review.id]: event.target.value
                       }))} rows={7} className="mt-4 w-full rounded-xl border border-[var(--border)] bg-background px-3 py-3 text-sm outline-none" />
 
-                          <div className="mt-4 flex flex-wrap gap-2">
+                          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
                             <button type="button" onClick={() => setReplyDrafts(current => ({
                           ...current,
                           [review.id]: review.suggestedReply

@@ -80,7 +80,7 @@ export function LuluAIAssistant() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <section className="mx-auto flex min-h-screen w-full max-w-4xl flex-col px-4 py-6 sm:px-6 sm:py-8">
-        <div className="rounded-3xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
+        <div className="rounded-3xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0">
               <p className="text-xs font-medium uppercase tracking-[0.16em] text-[var(--muted-foreground)]">
@@ -97,7 +97,7 @@ export function LuluAIAssistant() {
             <button
               type="button"
               onClick={startNewConversation}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--foreground)]/35"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--foreground)]/35 sm:w-auto"
             >
               <Plus size={16} />
               New conversation
@@ -120,8 +120,8 @@ export function LuluAIAssistant() {
           </div>
         </div>
 
-        <section className="mt-5 flex flex-1 flex-col rounded-3xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm sm:p-5">
-          <div className="flex-1 space-y-3">
+        <section className="mt-5 flex flex-1 flex-col rounded-3xl border border-[var(--border)] bg-[var(--card)] p-3 shadow-sm sm:p-5">
+          <div className="flex flex-1 flex-col gap-3">
             {!liveMessages.length ? (
               <div className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--background)]/60 p-6 text-center">
                 <p className="text-sm font-medium text-[var(--foreground)]">Start with one clear question.</p>
@@ -133,10 +133,10 @@ export function LuluAIAssistant() {
               liveMessages.map((message) => (
                 <article
                   key={message.id}
-                  className={`rounded-2xl border border-[var(--border)] p-4 text-sm leading-6 ${
+                  className={`w-full max-w-[94%] rounded-2xl border border-[var(--border)] p-3 text-sm leading-6 sm:max-w-[86%] sm:p-4 ${
                     message.role === "user"
-                      ? "ml-6 bg-[var(--background)]/70"
-                      : "mr-6 bg-[var(--secondary)]/35"
+                      ? "self-end bg-[var(--background)]/70"
+                      : "self-start bg-[var(--secondary)]/35"
                   }`}
                 >
                   {message.content}
@@ -152,7 +152,7 @@ export function LuluAIAssistant() {
           </div>
 
           <form
-            className="mt-4 flex gap-2"
+            className="mt-4 flex flex-col gap-2 sm:flex-row"
             onSubmit={(event) => {
               event.preventDefault();
               void sendMessage();
@@ -168,7 +168,7 @@ export function LuluAIAssistant() {
             <button
               type="submit"
               disabled={processingState || !query.trim()}
-              className="inline-flex items-center gap-2 rounded-2xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-[var(--primary-foreground)] transition disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-[var(--primary-foreground)] transition disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
             >
               <Send size={16} />
               {processingState ? "Working..." : "Send"}
