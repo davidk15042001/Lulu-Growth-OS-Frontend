@@ -126,7 +126,6 @@ export const RESOURCE_BY_SLUG: Readonly<Record<string, string>> = {
   "soft-town-3284": "finance_cashflow",
   "bravely-bay-4544": "finance_customers",
   "zesty-earth-3938": "finance_expenses",
-  "boldly-field-4971": "finance_settings",
   "vibrantly-second-9428": "finance_automations",
   "sharp-morning-7310": "finance_plans",
   "cool-rain-6499": "finance_income",

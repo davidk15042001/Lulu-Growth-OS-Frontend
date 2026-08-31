@@ -192,18 +192,9 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "proud-rain-4772",
     "label": "Activity Timeline"
-  }]
-}, {
-  "label": "Finance",
-  "pages": [{
+  }, {
     "id": "quietly-stone-4158",
     "label": "Finance Overview"
-  }, {
-    "id": "breezy-soil-2475",
-    "label": "Finance Invoices"
-  }, {
-    "id": "tender-creek-3139",
-    "label": "Finance Offers & Quotes"
   }, {
     "id": "cool-rain-6499",
     "label": "Finance Income"
@@ -250,9 +241,6 @@ export const luluDropdownNavigation = [{
     "id": "sturdy-week-3372",
     "label": "Finance Taxes"
   }, {
-    "id": "boldly-field-4971",
-    "label": "Finance Settings"
-  }, {
     "id": "fine-park-8079",
     "label": "Sales Overview"
   }, {
@@ -294,6 +282,15 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "friendly-tower-1528",
     "label": "Sales Lead Assignment"
+  }]
+}, {
+  "label": "Finance",
+  "pages": [{
+    "id": "breezy-soil-2475",
+    "label": "Finance Invoices"
+  }, {
+    "id": "tender-creek-3139",
+    "label": "Finance Offers & Quotes"
   }]
 }, {
   "label": "AI",

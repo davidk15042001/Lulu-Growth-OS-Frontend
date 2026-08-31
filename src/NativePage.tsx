@@ -6,7 +6,7 @@ import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
 import { LuluAgentWorkspaceHeader } from "./components/LuluAgentWorkspaceHeader";
 import { MinimalAgentWorkspacePage } from "./components/MinimalAgentWorkspacePage";
-import { routes } from "./routing";
+import { isPageAvailable, navigateApp, routes } from "./routing";
 import { getPageContract } from "./api/page-contracts";
 import { getLuluAgentContract } from "./config/lulu-agent-registry";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
@@ -89,6 +89,7 @@ export function NativePage({ slug }: { slug: string }) {
   })() : slug;
   const [App, setApp] = useState<ComponentType | null>(null);
   const [error, setError] = useState<unknown>(null);
+  const pageAvailable = isPageAvailable(slug);
   const contract = getPageContract(slug);
   const agentContract = getLuluAgentContract(effectiveSlug);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
@@ -96,6 +97,10 @@ export function NativePage({ slug }: { slug: string }) {
   const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(slug, effectiveSlug, contract, Boolean(agentContract));
 
   useEffect(() => {
+    if (!pageAvailable) {
+      navigateApp(routes.app.dashboard, { replace: true });
+      return;
+    }
     if (useMinimalAgentPage) {
       setApp(null);
       setError(null);
@@ -171,7 +176,15 @@ export function NativePage({ slug }: { slug: string }) {
         pageFrame.classList.remove("page-frame--auth");
       }
     };
-  }, [slug, useMinimalAgentPage, isAuthPage]);
+  }, [slug, useMinimalAgentPage, isAuthPage, pageAvailable]);
+
+  if (!pageAvailable) {
+    return (
+      <main className="page-loading" role="status">
+        Loading page…
+      </main>
+    );
+  }
 
   if (error) {
     return (

@@ -51,6 +51,7 @@ const GOOGLE_BUSINESS_PAGE_IDS = new Set(["daring-brook-9034", "fresh-tide-9404"
 const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
+const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
 
 const UI_CONNECT_SYNC = ["connecting", "syncing", "completed", "attention_required"] as const satisfies readonly LuluAgentUiState[];
 const UI_SYNC_ANALYZE = ["syncing", "analyzing", "completed"] as const satisfies readonly LuluAgentUiState[];
@@ -133,7 +134,6 @@ const registryDetails: Readonly<Record<string, LuluAgentContractDetail>> = {
   "lucky-park-8649": detail("Payout Agent", "A2", "Keep payouts visible and correct.", ["Processor payouts", "bank arrivals"], ["detect missing payouts", "track timing"], approval("payout configuration changes"), UI_ATTENTION_APPROVAL, ["payout accuracy", "payout latency"]),
   "vibrantly-second-9428": detail("Finance Automation Agent", "A4", "Automate repetitive finance work.", ["Finance workflows", "triggers", "approvals"], ["run automations", "route exceptions"], approval("enabling new automation rules"), UI_EXECUTE_APPROVAL, ["manual finance work reduction", "automation success rate"]),
   "sturdy-week-3372": detail("Tax Agent", "A2", "Reduce tax mistakes.", ["Tax settings", "invoices", "orders"], ["detect mismatches", "flag filing risk"], approval("filing or tax submission"), UI_ATTENTION_APPROVAL, ["tax error reduction", "tax issue detection"]),
-  "boldly-field-4971": detail("Finance Config Agent", "A2", "Hold finance rules and defaults.", ["Configurations", "mappings", "roles"], ["validate config", "suggest corrections"], approval("settings changes"), UI_COMPLETE, ["config correctness", "rule consistency"]),
   "fine-park-8079": detail("CSO Agent", "A2", "Run the sales domain from one overview.", ["CRM", "finance", "pipeline"], ["summarize sales health", "rank gaps"], approval("external sales action"), UI_ANALYZE_APPROVAL, ["sales visibility", "pipeline health"]),
   "softly-autumn-9038": detail("Lead Agent", "A3", "Qualify sales leads effectively.", ["CRM", "lead sources", "enrichment"], ["score leads", "route leads"], approval("external outreach"), UI_ANALYZE_APPROVAL, ["lead-to-opportunity rate", "lead response time"]),
   "wildly-sun-6424": detail("Opportunity Agent", "A3", "Develop qualified opportunities.", ["CRM", "meeting notes", "fit signals"], ["update opportunity briefs", "flag blockers"], approval("offer changes"), UI_MONITOR_APPROVAL, ["opportunity conversion", "opportunity cycle time"]),
@@ -263,17 +263,47 @@ function buildVisibleSections() {
     sections.push(googleBusinessSection);
   }
 
+  const currentFinanceIndex = sections.findIndex((section) => section.label === FINANCE_LABEL);
+  const currentStatisticsIndex = sections.findIndex((section) => section.label === STATISTICS_LABEL);
+
+  if (currentFinanceIndex !== -1 && currentStatisticsIndex !== -1) {
+    const financeSection = sections[currentFinanceIndex];
+    const statisticsSection = sections[currentStatisticsIndex];
+    const keptFinancePages = financeSection.pages.filter((page) => FINANCE_SECTION_KEEP_IDS.has(page.id));
+    const movedToStatistics = financeSection.pages.filter((page) => !FINANCE_SECTION_KEEP_IDS.has(page.id));
+
+    sections[currentStatisticsIndex] = {
+      ...statisticsSection,
+      pages: [...statisticsSection.pages, ...movedToStatistics],
+    };
+
+    if (keptFinancePages.length > 0) {
+      sections[currentFinanceIndex] = {
+        ...financeSection,
+        pages: keptFinancePages,
+      };
+    } else {
+      sections.splice(currentFinanceIndex, 1);
+    }
+  }
+
   const financeIndex = sections.findIndex((section) => section.label === FINANCE_LABEL);
   const statisticsIndex = sections.findIndex((section) => section.label === STATISTICS_LABEL);
   const settingsIndex = sections.findIndex((section) => section.label === SETTINGS_LABEL);
 
-  if (financeIndex !== -1 && statisticsIndex !== -1 && settingsIndex !== -1) {
-    const currentFinanceIndex = sections.findIndex((section) => section.label === FINANCE_LABEL);
-    const [financeSection] = sections.splice(currentFinanceIndex, 1);
-    const currentStatisticsIndex = sections.findIndex((section) => section.label === STATISTICS_LABEL);
-    const [statisticsSection] = sections.splice(currentStatisticsIndex, 1);
-    const currentSettingsIndex = sections.findIndex((section) => section.label === SETTINGS_LABEL);
-    sections.splice(currentSettingsIndex, 0, financeSection, statisticsSection);
+  if (statisticsIndex !== -1 && settingsIndex !== -1) {
+    const currentStatsIndex = sections.findIndex((section) => section.label === STATISTICS_LABEL);
+    const [statisticsSection] = sections.splice(currentStatsIndex, 1);
+    const refreshedSettingsIndex = sections.findIndex((section) => section.label === SETTINGS_LABEL);
+    const currentFinanceIndexForOrder = sections.findIndex((section) => section.label === FINANCE_LABEL);
+
+    if (currentFinanceIndexForOrder !== -1) {
+      const [financeSection] = sections.splice(currentFinanceIndexForOrder, 1);
+      const currentSettingsIndex = sections.findIndex((section) => section.label === SETTINGS_LABEL);
+      sections.splice(currentSettingsIndex, 0, financeSection, statisticsSection);
+    } else {
+      sections.splice(refreshedSettingsIndex, 0, statisticsSection);
+    }
   }
 
   return sections;

@@ -111,6 +111,7 @@ export function pagePath(slug: string) {
 
 const REMOVED_PAGE_SLUGS = new Set([
   "brave-stream-5322",
+  "boldly-field-4971",
   "website-settings-9019",
   LEGACY_ADVERTISING_AUDIENCES_SLUG,
 ]);

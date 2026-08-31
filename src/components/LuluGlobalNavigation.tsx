@@ -16,6 +16,7 @@ const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
 const GOOGLE_BUSINESS_LABEL = "Google Business";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
+const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
 const GOOGLE_BUSINESS_PAGE_IDS = new Set(["daring-brook-9034", "fresh-tide-9404", "glad-coast-1428"]);
 const GOOGLE_BUSINESS_SECTION: NavigationSection = {
   label: GOOGLE_BUSINESS_LABEL,
@@ -49,17 +50,47 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     reorderedSections.push(googleBusinessSection);
   }
 
+  const currentFinanceIndex = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
+  const currentStatisticsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
+
+  if (currentFinanceIndex !== -1 && currentStatisticsIndex !== -1) {
+    const financeSection = reorderedSections[currentFinanceIndex];
+    const statisticsSection = reorderedSections[currentStatisticsIndex];
+    const keptFinancePages = financeSection.pages.filter((page) => FINANCE_SECTION_KEEP_IDS.has(page.id));
+    const movedToStatistics = financeSection.pages.filter((page) => !FINANCE_SECTION_KEEP_IDS.has(page.id));
+
+    reorderedSections[currentStatisticsIndex] = {
+      ...statisticsSection,
+      pages: [...statisticsSection.pages, ...movedToStatistics],
+    };
+
+    if (keptFinancePages.length > 0) {
+      reorderedSections[currentFinanceIndex] = {
+        ...financeSection,
+        pages: keptFinancePages,
+      };
+    } else {
+      reorderedSections.splice(currentFinanceIndex, 1);
+    }
+  }
+
   const financeIndex = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
   const statisticsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
   const settingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
 
-  if (financeIndex !== -1 && statisticsIndex !== -1 && settingsIndex !== -1) {
-    const currentFinanceIndex = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
-    const [financeSection] = reorderedSections.splice(currentFinanceIndex, 1);
-    const currentStatisticsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
-    const [statisticsSection] = reorderedSections.splice(currentStatisticsIndex, 1);
-    const currentSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
-    reorderedSections.splice(currentSettingsIndex, 0, financeSection, statisticsSection);
+  if (statisticsIndex !== -1 && settingsIndex !== -1) {
+    const currentStatsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
+    const [statisticsSection] = reorderedSections.splice(currentStatsIndex, 1);
+    const refreshedSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
+    const currentFinanceIndexForOrder = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
+
+    if (currentFinanceIndexForOrder !== -1) {
+      const [financeSection] = reorderedSections.splice(currentFinanceIndexForOrder, 1);
+      const currentSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
+      reorderedSections.splice(currentSettingsIndex, 0, financeSection, statisticsSection);
+    } else {
+      reorderedSections.splice(refreshedSettingsIndex, 0, statisticsSection);
+    }
   }
 
   return reorderedSections;

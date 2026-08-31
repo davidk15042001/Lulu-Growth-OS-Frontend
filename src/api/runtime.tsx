@@ -16,7 +16,7 @@ import { workspaceApi } from "./workspaces";
 import { useLuluApp } from "./LuluAppContext";
 
 const STATIC_RESOURCE_PAGE_SLUGS = new Set([
-  "bold-ocean-5847", "boldly-field-4971", "brave-stream-5322", "calmly-park-3313", "crisp-week-7116",
+  "bold-ocean-5847", "brave-stream-5322", "calmly-park-3313", "crisp-week-7116",
   "daring-brook-9034", "dreamy-shade-5445", "fancily-leaf-1766", "finely-garden-9221", "gentle-cliff-7133",
   "glad-coast-1428", "happily-brook-7061", "kindly-morning-7115", "kindly-year-8981", "lucky-park-8649",
   "merry-castle-3260", "mightily-shore-7108", "nice-moon-2056", "purely-dusk-2409", "quietly-moon-4186",

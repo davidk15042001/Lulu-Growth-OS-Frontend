@@ -601,14 +601,6 @@ export const pages: PageDefinition[] = [
     "previewImageUrl": "https://storage.googleapis.com/storage.magicpath.ai/component-previews/93737b43-f052-4a27-a2ee-be4b55d381a1.png"
   },
   {
-    "id": "437844461897261123",
-    "name": "Lulu AI — Finance — Finance Settings",
-    "slug": "boldly-field-4971",
-    "generatedName": "boldly-field-4971",
-    "selectedRevisionId": "438651666821189632",
-    "previewImageUrl": "https://storage.googleapis.com/storage.magicpath.ai/component-previews/97306c21-4ee0-4457-ad7a-da7aa3bc7eb0.png"
-  },
-  {
     "id": "437844461901455386",
     "name": "Lulu AI — Finance — Financial Automation",
     "slug": "vibrantly-second-9428",
