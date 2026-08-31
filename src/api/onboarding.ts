@@ -110,6 +110,24 @@ export type AiBusinessProfileCompetitorComparison = {
   whyYouCanWin: string;
 };
 
+export type AiGeneratedCustomerSegment = {
+  name: string;
+  industry: string | null;
+  companySize: string | null;
+  region: string | null;
+  maturityLevel: string | null;
+  painPoints: string[];
+  jobsToBeDone: string[];
+  decisionCriteria: string[];
+  useCases: string[];
+  buyingRoles: string[];
+  priceSensitivity: string | null;
+  primarySegment: boolean;
+  notes: string | null;
+  score: number;
+  whyItFits: string;
+};
+
 export type AiBusinessProfile = {
   workspaceId: string;
   model: string | null;
@@ -136,6 +154,7 @@ export type AiBusinessProfile = {
       primaryChallenges: AiBusinessProfileSuggestion[];
       languages: AiBusinessProfileSuggestion[];
     };
+    customerSegments: AiGeneratedCustomerSegment[];
     competitorComparison: AiBusinessProfileCompetitorComparison[];
   };
 };
@@ -211,6 +230,9 @@ export const onboardingApi = {
   aiBusinessProfile: (workspaceId: string) => requestApi<AiBusinessProfile | null>({ path: workspaceApiPath(workspaceId, "/onboarding/ai-business-profile") }),
   generateAiBusinessProfile: (workspaceId: string, options?: { timeoutMs?: number }) => requestApi<AiBusinessProfile>({
     path: workspaceApiPath(workspaceId, "/onboarding/ai-business-profile"), method: "POST", body: {}, timeoutMs: options?.timeoutMs,
+  }),
+  applyAiCustomerSegments: (workspaceId: string) => requestApi<{ items: CustomerSegment[] }>({
+    path: workspaceApiPath(workspaceId, "/onboarding/ai-business-profile/customer-segments/apply"), method: "POST", body: {},
   }),
   complete: (workspaceId: string) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/complete"), method: "POST", body: {} }),
   createBillingCheckout: (workspaceId: string, input: { planKey: "viewer" | "starter" | "ai" | "test"; successUrl: string; backUrl: string; password?: string }) => requestApi<{

@@ -5,6 +5,7 @@ import { useLuluApp } from "../api/LuluAppContext";
 import {
   onboardingApi,
   type AiBusinessProfileSuggestion,
+  type AiGeneratedCustomerSegment,
   type Competitor,
   type CustomerSegment,
   type Offering,
@@ -115,6 +116,19 @@ function segmentDraftFrom(item?: CustomerSegment | null): SegmentDraft {
     painPoints: listToCsv(item?.painPoints),
     useCases: listToCsv(item?.useCases),
     primarySegment: item?.primarySegment ?? false,
+  };
+}
+
+function segmentDraftFromAi(item: AiGeneratedCustomerSegment): SegmentDraft {
+  return {
+    id: "",
+    name: item.name,
+    industry: item.industry ?? "",
+    region: item.region ?? "",
+    notes: item.notes ?? item.whyItFits,
+    painPoints: listToCsv(item.painPoints),
+    useCases: listToCsv(item.useCases),
+    primarySegment: item.primarySegment,
   };
 }
 
@@ -363,11 +377,11 @@ export function KnowledgeBaseWorkspace() {
                 </span>
                 <div>
                   <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">AI Knowledge Draft</p>
-                  <h2 className="mt-1 text-lg font-semibold text-foreground">Generated Positioning, ICP, USP & Competitor Comparison</h2>
+                  <h2 className="mt-1 text-lg font-semibold text-foreground">Generated Positioning, Customer Segments & Competitor Comparison</h2>
                 </div>
               </div>
               <p className="mt-4 max-w-4xl text-sm text-muted-foreground">
-                Generate 5-10 high-quality options for the core business profile fields on this page. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.
+                Generate 5-10 high-quality options for the core business profile fields on this page, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.
               </p>
               {aiBusinessProfile?.generatedAt ? (
                 <p className="mt-3 text-xs text-muted-foreground">
@@ -571,7 +585,7 @@ export function KnowledgeBaseWorkspace() {
               <Sparkles className="mx-auto text-muted-foreground" size={32} />
               <h3 className="mt-4 text-lg font-semibold text-foreground">No AI business profile generated yet</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Generate a draft to get 5-10 high-quality options for positioning, ICP, USP, brand description, challenges, languages, and a full comparison against the top 10 competitors.
+                Generate a draft to get 5-10 high-quality options for positioning, ICP, USP, brand description, challenges, languages, the top 20 customer segments, and a full comparison against the top 10 competitors.
               </p>
             </div>
           )}
@@ -737,10 +751,88 @@ export function KnowledgeBaseWorkspace() {
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Customer Intelligence</p>
               <h2 className="mt-1 text-lg font-semibold text-foreground">Customer Segments</h2>
             </div>
-            <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom())} className={actionClass}><Plus size={15} />New</button>
+            <div className="flex flex-wrap gap-2">
+              {aiBusinessProfile?.payload.customerSegments?.length ? (
+                <button
+                  type="button"
+                  disabled={!canEdit || busyKey === "apply-ai-customer-segments"}
+                  onClick={() => void runAction("apply-ai-customer-segments", "AI customer segments applied.", async () => {
+                    await onboardingApi.applyAiCustomerSegments(workspaceId);
+                  })}
+                  className={actionClass}
+                >
+                  <Sparkles size={15} />
+                  Apply Top 20 AI Segments
+                </button>
+              ) : null}
+              <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom())} className={actionClass}><Plus size={15} />New</button>
+            </div>
           </div>
           <div className="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
             <div className="grid gap-3">
+              {aiBusinessProfile?.payload.customerSegments?.length ? (
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+                  <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
+                      <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">AI Top 20</p>
+                      <h3 className="mt-1 text-sm font-semibold text-foreground">Best-ranked customer segments for this workspace</h3>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        These 20 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 20 at once.
+                      </p>
+                    </div>
+                    <div className="rounded-full border border-primary/20 bg-background/80 px-3 py-1 text-xs text-foreground">
+                      {aiBusinessProfile.payload.customerSegments.length} generated
+                    </div>
+                  </div>
+                  <div className="mt-4 grid gap-3">
+                    {aiBusinessProfile.payload.customerSegments.map((item, index) => (
+                      <div key={`${item.name}-${index}`} className="rounded-lg border border-border bg-card p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="rounded-full bg-primary/10 px-2 py-1 text-[11px] font-medium text-primary">#{index + 1}</span>
+                              <span className="rounded-full bg-secondary px-2 py-1 text-[11px] text-foreground">Score {item.score}</span>
+                              {item.primarySegment ? <span className="rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] text-emerald-700">Primary</span> : null}
+                            </div>
+                            <div className="mt-3 text-sm font-medium text-foreground">{item.name}</div>
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              {[item.industry, item.companySize, item.region, item.maturityLevel].filter(Boolean).join(" · ") || "Customer segment"}
+                            </div>
+                            <p className="mt-3 text-sm text-muted-foreground">{item.whyItFits}</p>
+                            <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                              <div>
+                                <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">Pain Points</p>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {item.painPoints.slice(0, 5).map((pain) => (
+                                    <span key={`${item.name}-pain-${pain}`} className="rounded-full border border-border bg-background px-2 py-1 text-[11px] text-foreground">{pain}</span>
+                                  ))}
+                                </div>
+                              </div>
+                              <div>
+                                <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground">Use Cases</p>
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {item.useCases.slice(0, 5).map((useCase) => (
+                                    <span key={`${item.name}-use-${useCase}`} className="rounded-full border border-border bg-background px-2 py-1 text-[11px] text-foreground">{useCase}</span>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            disabled={!canEdit}
+                            onClick={() => setSegmentDraft(segmentDraftFromAi(item))}
+                            className={actionClass}
+                          >
+                            <Sparkles size={14} />
+                            Use in form
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
               {(snapshot?.customerSegments ?? []).map((item) => (
                 <div key={item.id} className="rounded-lg border border-border bg-background/60 p-4">
                   <div className="flex items-start justify-between gap-3">
