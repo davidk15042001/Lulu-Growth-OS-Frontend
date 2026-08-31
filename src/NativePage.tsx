@@ -43,31 +43,10 @@ const navigationFreePaths = new Set([
   "/onboarding/setup-complete",
 ]);
 
-const MINIMAL_AGENT_PAGE_EXCEPTIONS = new Set([
-  "fancily-leaf-1766",
-  "fresh-moon-5374",
-  "fresh-tide-9404",
-]);
-
 function shouldUseMinimalAgentPage(
-  slug: string,
-  effectiveSlug: string,
-  contract: ReturnType<typeof getPageContract>,
   hasAgentContract: boolean,
 ) {
-  if (!hasAgentContract) return false;
-  if (MINIMAL_AGENT_PAGE_EXCEPTIONS.has(slug)) return false;
-  if (slug === "lulu-website-portal-9012" || slug === "lulu-email-portal-9013" || slug === "lulu-calendar-portal-9014") {
-    return effectiveSlug === slug;
-  }
-  return (
-    contract?.kind === "workspace" ||
-    contract?.kind === "resource" ||
-    contract?.kind === "metrics" ||
-    contract?.kind === "ai" ||
-    contract?.kind === "billing" ||
-    contract?.kind === "integrations"
-  );
+  return hasAgentContract;
 }
 
 function pageSlugFromPath(pathname: string) {
@@ -98,11 +77,11 @@ export function NativePage({
   const [App, setApp] = useState<ComponentType | null>(null);
   const [error, setError] = useState<unknown>(null);
   const pageAvailable = isPageAvailable(slug);
-  const contract = getPageContract(slug);
+  const contract = getPageContract(effectiveSlug) ?? getPageContract(slug);
   const agentContract = getLuluAgentContract(effectiveSlug);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
   const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname);
-  const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(slug, effectiveSlug, contract, Boolean(agentContract));
+  const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(Boolean(agentContract));
 
   useEffect(() => {
     if (!pageAvailable) {
@@ -226,7 +205,7 @@ export function NativePage({
               <LuluAgentWorkspaceHeader contract={agentContract} />
               <div className="lulu-native-page">
                 <PageErrorBoundary pageName={slug}>
-                  <MinimalAgentWorkspacePage slug={slug} contract={contract} agentContract={agentContract} />
+                  <MinimalAgentWorkspacePage slug={effectiveSlug} contract={contract} agentContract={agentContract} />
                 </PageErrorBoundary>
               </div>
             </div>

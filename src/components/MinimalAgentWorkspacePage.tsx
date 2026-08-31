@@ -5,7 +5,9 @@ import type { WorkspaceRecord } from "../api/records";
 import { useLiveRecords } from "../api/useLiveRecords";
 import { type LuluAgentContract } from "../config/lulu-agent-registry";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { AgentRuntimeControlPanel } from "./AgentRuntimeControlPanel";
 import { KnowledgeBaseWorkspace } from "./KnowledgeBaseWorkspace";
+import { usePageAgentRun } from "./usePageAgentRun";
 import { WorkspaceIntelligencePanel } from "./WorkspaceIntelligencePanel";
 
 const OVERVIEW_RESOURCE_BY_PAGE_ID: Readonly<Record<string, string>> = {
@@ -51,6 +53,7 @@ export function MinimalAgentWorkspacePage({
   const workspaceId = selectedWorkspace?.id ?? null;
   const resourceType = resolveResourceType(slug, contract);
   const records = useLiveRecords(resourceType, "limit=25");
+  const pageRuntime = usePageAgentRun(workspaceId, agentContract, t);
 
   const recentRecords = useMemo(
     () =>
@@ -96,6 +99,8 @@ export function MinimalAgentWorkspacePage({
           title={`${agentContract.pageLabel} intelligence`}
           summaryBadge="Live page data"
         />
+
+        <AgentRuntimeControlPanel runtime={pageRuntime} pageLabel={agentContract.pageLabel} />
 
         {isKnowledgePage ? <KnowledgeBaseWorkspace /> : null}
 
