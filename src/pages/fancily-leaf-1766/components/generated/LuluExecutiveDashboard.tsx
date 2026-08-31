@@ -316,6 +316,12 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "friendly-tower-1528",
     "label": "Sales Lead Assignment"
+  }, {
+    "id": "sunny-moon-6307",
+    "label": "Conversations"
+  }, {
+    "id": "sparkling-cave-8456",
+    "label": "Activity"
   }]
 }, {
   "label": "Finance",
@@ -343,12 +349,6 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "wondrously-second-5656",
     "label": "Actions"
-  }, {
-    "id": "sunny-moon-6307",
-    "label": "Conversations"
-  }, {
-    "id": "sparkling-cave-8456",
-    "label": "Activity"
   }]
 }, {
   "label": "CRM",
