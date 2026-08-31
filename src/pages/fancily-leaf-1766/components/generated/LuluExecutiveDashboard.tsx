@@ -124,17 +124,32 @@ export const luluDropdownNavigation = [{
     "id": "dreamily-shade-6192",
     "label": "Customers"
   }, {
+    "id": "gracefully-storm-2649",
+    "label": "Customer Intelligence"
+  }, {
     "id": "nicely-hour-4035",
     "label": "Sales"
   }, {
     "id": "eagerly-winter-3152",
     "label": "Marketing"
   }, {
+    "id": "sparklingly-moon-5114",
+    "label": "SEO"
+  }, {
+    "id": "zealously-path-4224",
+    "label": "GEO"
+  }, {
+    "id": "sunny-house-9595",
+    "label": "AEO"
+  }, {
     "id": "sharply-wood-4560",
     "label": "Advertising Intelligence"
   }, {
     "id": "bold-ocean-5847",
     "label": "Ecommerce Intelligence"
+  }, {
+    "id": "merry-land-6169",
+    "label": "Store Performance"
   }, {
     "id": "cozily-path-5612",
     "label": "Finance Intelligence"
@@ -345,9 +360,6 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "sunnily-gulf-7520",
     "label": "Customer Segments"
-  }, {
-    "id": "gracefully-storm-2649",
-    "label": "Customer Intelligence"
   }]
 }, {
   "label": "Email",
@@ -466,15 +478,6 @@ export const luluDropdownNavigation = [{
     "id": "website-domains-9018",
     "label": "Domains"
   }, {
-    "id": "sparklingly-moon-5114",
-    "label": "SEO"
-  }, {
-    "id": "zealously-path-4224",
-    "label": "GEO"
-  }, {
-    "id": "sunny-house-9595",
-    "label": "AEO"
-  }, {
     "id": "daring-brook-9034",
     "label": "Reviews"
   }, {
@@ -531,9 +534,6 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "safely-air-9334",
     "label": "Collections"
-  }, {
-    "id": "merry-land-6169",
-    "label": "Store Performance"
   }]
 }, {
   "label": "Settings",
