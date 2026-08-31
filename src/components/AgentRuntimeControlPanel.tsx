@@ -360,9 +360,21 @@ export function AgentRuntimeControlPanel({
                 <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
                   <span>{t("Stage")}: {packet.stage ?? "—"}</span>
                   <span>{t("Mode")}: {textValue(packet.data.executionMode) || "—"}</span>
+                  <span>{t("Policy")}: {textValue(packet.data.policyDecision) || "—"}</span>
+                  <span>{t("Command")}: {textValue(packet.data.primaryCommandType) || "—"}</span>
                   <span>{t("Outputs")}: {results.length || resultCount(packet)}</span>
                   <span>{t("Updated")}: {formatLiveDate(packet.updatedAt)}</span>
                 </div>
+                {textValue(packet.data.requiresHumanReviewReason) ? (
+                  <p className="mt-3 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+                    {textValue(packet.data.requiresHumanReviewReason)}
+                  </p>
+                ) : null}
+                {textValue(packet.data.executionNextAttemptAt) ? (
+                  <p className="mt-3 text-xs text-amber-600 dark:text-amber-300">
+                    {t("Next retry")}: {formatLiveDate(textValue(packet.data.executionNextAttemptAt))}
+                  </p>
+                ) : null}
               </article>
             )) : (
               <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
