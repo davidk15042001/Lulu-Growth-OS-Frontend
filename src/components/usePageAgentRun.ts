@@ -8,12 +8,47 @@ import {
   type AgentRunDetails,
 } from "../api/agents";
 import { getFriendlyErrorMessage } from "../api/client";
+import { getRecord, type WorkspaceRecord } from "../api/records";
 import type { LuluAgentContract } from "../config/lulu-agent-registry";
 
 type AgentDecision = "approved" | "rejected" | "cancelled";
+type RecordRef = { id: string; resourceType: string };
+type ExecutionPacket = { packet: WorkspaceRecord; results: WorkspaceRecord[] };
 
 function newestFirst(left: AgentRun, right: AgentRun) {
   return Date.parse(right.updatedAt) - Date.parse(left.updatedAt);
+}
+
+function stringValue(value: unknown) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function stringList(value: unknown) {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+    : [];
+}
+
+function extractActionRecordRefs(details: AgentRunDetails | null): RecordRef[] {
+  if (!details) return [];
+  const refs = new Map<string, RecordRef>();
+  for (const step of details.steps) {
+    const actionRecord = step.result?.actionRecord;
+    if (!actionRecord || typeof actionRecord !== "object") continue;
+    const recordId = stringValue((actionRecord as Record<string, unknown>).id);
+    const resourceType = stringValue((actionRecord as Record<string, unknown>).resourceType);
+    if (!recordId || !resourceType) continue;
+    refs.set(`${resourceType}:${recordId}`, { id: recordId, resourceType });
+  }
+  return [...refs.values()];
+}
+
+function extractResultRecordRefs(packet: WorkspaceRecord): RecordRef[] {
+  const ids = stringList(packet.data?.resultRecordIds);
+  const resourceTypes = stringList(packet.data?.resultResourceTypes);
+  return ids
+    .map((id, index) => ({ id, resourceType: resourceTypes[index] ?? "" }))
+    .filter((entry) => entry.id && entry.resourceType);
 }
 
 export function usePageAgentRun(
@@ -26,11 +61,58 @@ export function usePageAgentRun(
   const [error, setError] = useState("");
   const [latestRun, setLatestRun] = useState<AgentRun | null>(null);
   const [details, setDetails] = useState<AgentRunDetails | null>(null);
+  const [executionPackets, setExecutionPackets] = useState<ExecutionPacket[]>([]);
+  const [executionLoading, setExecutionLoading] = useState(false);
+  const [executionError, setExecutionError] = useState("");
+
+  const refreshExecution = useCallback(async (nextDetails: AgentRunDetails | null) => {
+    const refs = extractActionRecordRefs(nextDetails);
+    if (refs.length === 0) {
+      setExecutionPackets([]);
+      setExecutionError("");
+      return;
+    }
+
+    setExecutionLoading(true);
+    try {
+      const packets = (await Promise.all(refs.map(async (ref) => {
+        try {
+          return await getRecord(ref.resourceType, ref.id);
+        } catch {
+          return null;
+        }
+      }))).filter((record): record is WorkspaceRecord => Boolean(record));
+
+      const grouped = await Promise.all(
+        packets.map(async (packet) => {
+          const resultRefs = extractResultRecordRefs(packet);
+          const results = (await Promise.all(resultRefs.map(async (ref) => {
+            try {
+              return await getRecord(ref.resourceType, ref.id);
+            } catch {
+              return null;
+            }
+          }))).filter((record): record is WorkspaceRecord => Boolean(record));
+          return { packet, results };
+        }),
+      );
+
+      setExecutionPackets(grouped.sort((left, right) => Date.parse(right.packet.updatedAt) - Date.parse(left.packet.updatedAt)));
+      setExecutionError("");
+    } catch (nextError) {
+      setExecutionPackets([]);
+      setExecutionError(getFriendlyErrorMessage(nextError, t("The execution records could not be loaded.")));
+    } finally {
+      setExecutionLoading(false);
+    }
+  }, [t]);
 
   const load = useCallback(async (preserveDetails = false) => {
     if (!workspaceId) {
       setLatestRun(null);
       setDetails(null);
+      setExecutionPackets([]);
+      setExecutionError("");
       setError("");
       return;
     }
@@ -42,22 +124,26 @@ export function usePageAgentRun(
       setLatestRun(nextRun);
       if (!nextRun) {
         setDetails(null);
+        setExecutionPackets([]);
+        setExecutionError("");
         setError("");
         return;
       }
       if (preserveDetails && details?.run.id === nextRun.id) {
+        await refreshExecution(details);
         setError("");
         return;
       }
       const detailResponse = await agentApi.detail(workspaceId, nextRun.id);
       setDetails(detailResponse.data);
+      await refreshExecution(detailResponse.data);
       setError("");
     } catch (nextError) {
       setError(getFriendlyErrorMessage(nextError, t("The page agent runtime could not be loaded.")));
     } finally {
       setLoading(false);
     }
-  }, [contract.pageId, details?.run.id, t, workspaceId]);
+  }, [contract.pageId, details, refreshExecution, t, workspaceId]);
 
   useEffect(() => {
     void load();
@@ -78,6 +164,7 @@ export function usePageAgentRun(
       const detailResponse = await agentApi.detail(workspaceId, created.data.id);
       setLatestRun(created.data);
       setDetails(detailResponse.data);
+      await refreshExecution(detailResponse.data);
       setError("");
     } catch (nextError) {
       setError(getFriendlyErrorMessage(nextError, t("The page agent could not be started.")));
@@ -106,6 +193,7 @@ export function usePageAgentRun(
       const response = await agentApi.approve(workspaceId, latestRun.id, stepId, decision);
       setDetails(response.data);
       setLatestRun(response.data.run);
+      await refreshExecution(response.data);
       setError("");
     } catch (nextError) {
       setError(getFriendlyErrorMessage(nextError, t("The approval decision could not be saved.")));
@@ -124,6 +212,11 @@ export function usePageAgentRun(
     [details],
   );
 
+  const executionArtifacts = useMemo(
+    () => executionPackets.flatMap((entry) => entry.results),
+    [executionPackets],
+  );
+
   return {
     loading,
     acting,
@@ -132,6 +225,10 @@ export function usePageAgentRun(
     details,
     pendingApprovalSteps,
     recentSteps,
+    executionPackets,
+    executionArtifacts,
+    executionLoading,
+    executionError,
     refresh: () => load(),
     start,
     retry: start,
