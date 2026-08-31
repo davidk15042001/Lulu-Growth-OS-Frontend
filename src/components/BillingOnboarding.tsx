@@ -205,7 +205,29 @@ export function BillingOnboarding() {
             <h2 className="text-lg font-semibold">Compare access levels</h2>
             <p className="mt-1 text-sm text-[var(--muted-foreground)]">Every plan starts with the same connected business context. The difference is what Lulu can do with it.</p>
           </div>
-          <div className="overflow-x-auto">
+          <div className="grid gap-4 p-5 sm:hidden">
+            {billingCapabilities.map((capability) => (
+              <article key={capability.id} className="rounded-xl border border-[var(--border)] bg-[var(--background)]/45 p-4">
+                <h3 className="text-sm font-semibold text-[var(--foreground)]">{capability.label}</h3>
+                <div className="mt-3 grid gap-2">
+                  {visiblePlans.map((plan) => (
+                    <div key={`${capability.id}-${plan.id}-mobile`} className="flex items-center justify-between gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm">
+                      <span className="font-medium">{plan.name}</span>
+                      {capability.availability[plan.id] ? (
+                        <span className="inline-flex items-center gap-1.5 text-[var(--foreground)]">
+                          <Check size={16} aria-hidden="true" />
+                          Included
+                        </span>
+                      ) : (
+                        <span className="text-[var(--muted-foreground)]">Not included</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+          <div className="hidden overflow-x-auto sm:block">
             <table className="w-full min-w-[680px] text-left text-sm">
               <thead><tr className="border-b border-[var(--border)] text-xs uppercase tracking-[.12em] text-[var(--muted-foreground)]"><th className="px-5 py-4 font-semibold sm:px-7">Capability</th>{visiblePlans.map((plan) => <th key={plan.id} className="px-4 py-4 text-center font-semibold">{plan.name}</th>)}</tr></thead>
               <tbody>{billingCapabilities.map((capability) => <tr key={capability.id} className="border-b border-[var(--border)] last:border-0"><th className="px-5 py-4 font-medium sm:px-7">{capability.label}</th>{visiblePlans.map((plan) => <td key={`${capability.id}-${plan.id}`} className="px-4 py-4 text-center">{capability.availability[plan.id] ? <Check className="mx-auto" size={17} aria-label="Included" /> : <span className="text-[var(--muted-foreground)]" aria-label="Not included">—</span>}</td>)}</tr>)}</tbody>

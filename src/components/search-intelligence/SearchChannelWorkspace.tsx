@@ -342,7 +342,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
 
         <section className="grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
           <article className="rounded-3xl border border-white/10 bg-white/5 p-5">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <p className="text-sm uppercase tracking-[0.22em] text-slate-400">Analyse</p>
                 <h2 className="mt-2 text-xl font-semibold">DataForSEO-Lauf starten</h2>
@@ -354,7 +354,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
                 type="button"
                 onClick={runAnalysis}
                 disabled={analyzing || applying}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
               >
                 {analyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 Analyse mit Auto-Apply
@@ -428,14 +428,14 @@ export function SearchChannelWorkspace({ channel }: Props) {
                   type="checkbox"
                   checked={form.autoApply}
                   onChange={(event) => setForm((current) => ({ ...current, autoApply: event.target.checked }))}
-                  className="h-4 w-4 rounded border-white/10 bg-slate-900"
+                  className="h-5 w-5 rounded border-white/10 bg-slate-900"
                 />
               </label>
             </div>
           </article>
 
           <article className="rounded-3xl border border-white/10 bg-white/5 p-5">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <p className="text-sm uppercase tracking-[0.22em] text-slate-400">Auto-Apply</p>
                 <h2 className="mt-2 text-xl font-semibold">Verbundene Ziele</h2>
@@ -447,7 +447,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
                 type="button"
                 onClick={runApply}
                 disabled={applying || analyzing || selectedTargetIds.length === 0}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
               >
                 {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                 Jetzt veroeffentlichen
@@ -473,7 +473,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
                             event.target.checked ? [...current, target.id] : current.filter((id) => id !== target.id),
                           );
                         }}
-                        className="mt-1 h-4 w-4 rounded border-white/10 bg-slate-900"
+                        className="mt-0.5 h-5 w-5 rounded border-white/10 bg-slate-900"
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">

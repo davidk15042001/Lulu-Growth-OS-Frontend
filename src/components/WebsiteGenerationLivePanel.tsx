@@ -232,7 +232,7 @@ export function WebsiteGenerationLivePanel({
             <p className="mt-1 max-w-3xl text-sm leading-5 text-[#50575e]">{detail}</p>
           </div>
         </div>
-        <button type="button" onClick={onClose} aria-label={t("Close generation window")} title={t("Close generation window")} className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[#dcdcde] text-[#50575e] transition hover:bg-[#f6f7f7]">
+        <button type="button" onClick={onClose} aria-label={t("Close generation window")} title={t("Close generation window")} className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#dcdcde] text-[#50575e] transition hover:bg-[#f6f7f7]">
           <X aria-hidden="true" size={17} />
         </button>
       </header>
@@ -245,9 +245,9 @@ export function WebsiteGenerationLivePanel({
               <span className="truncate text-xs font-semibold text-[#1d2327]">{selectedPage?.title ?? (stoppedWithoutPreview ? t("Website preview unavailable") : t("Live website preview"))}</span>
             </div>
             <div className="flex items-center gap-2">
-              {selectedPage?.content && <button type="button" onClick={() => setPreviewMode("generated")} aria-pressed={!showPublished} className={`rounded-md px-2.5 py-1.5 text-xs font-medium ${!showPublished ? "bg-[#2271b1] text-white" : "bg-white text-[#50575e]"}`}>{t("Generated preview")}</button>}
-              {canShowPublished && <button type="button" onClick={() => setPreviewMode("published")} aria-pressed={showPublished} className={`rounded-md px-2.5 py-1.5 text-xs font-medium ${showPublished ? "bg-[#2271b1] text-white" : "bg-white text-[#50575e]"}`}>{t("WordPress live")}</button>}
-              {selectedPage?.url && <a href={selectedPage.url} target="_blank" rel="noreferrer" aria-label={t("Open published page in a new tab")} title={t("Open published page in a new tab")} className="grid h-8 w-8 place-items-center rounded-md bg-white text-[#2271b1]"><ExternalLink aria-hidden="true" size={14} /></a>}
+              {selectedPage?.content && <button type="button" onClick={() => setPreviewMode("generated")} aria-pressed={!showPublished} className={`rounded-xl px-3 py-2 text-xs font-medium ${!showPublished ? "bg-[#2271b1] text-white" : "bg-white text-[#50575e]"}`}>{t("Generated preview")}</button>}
+              {canShowPublished && <button type="button" onClick={() => setPreviewMode("published")} aria-pressed={showPublished} className={`rounded-xl px-3 py-2 text-xs font-medium ${showPublished ? "bg-[#2271b1] text-white" : "bg-white text-[#50575e]"}`}>{t("WordPress live")}</button>}
+              {selectedPage?.url && <a href={selectedPage.url} target="_blank" rel="noreferrer" aria-label={t("Open published page in a new tab")} title={t("Open published page in a new tab")} className="grid h-10 w-10 place-items-center rounded-xl bg-white text-[#2271b1]"><ExternalLink aria-hidden="true" size={15} /></a>}
             </div>
           </div>
           <div className="relative min-h-[300px] flex-1 overflow-hidden rounded-xl border border-[#c3c4c7] bg-white shadow-inner">
@@ -336,7 +336,7 @@ export function WebsiteGenerationActivityToast({ activity, onClick, t }: { activ
 }
 
 export function WebsiteGenerationProcessButton({ percent, label, onClick, t }: { percent: number; label: string; onClick: () => void; t: Translate }) {
-  return <button type="button" onClick={onClick} aria-label={t("Open website generation progress")} className="fixed bottom-5 right-20 z-[999] flex max-w-[calc(100vw-6rem)] items-center gap-3 rounded-full border border-[#dcdcde] bg-white px-4 py-2.5 text-left text-[#1d2327] shadow-2xl transition hover:-translate-y-0.5 hover:border-[#2271b1]">
+  return <button type="button" onClick={onClick} aria-label={t("Open website generation progress")} className="fixed bottom-5 left-4 right-4 z-[999] flex items-center gap-3 rounded-full border border-[#dcdcde] bg-white px-4 py-3 text-left text-[#1d2327] shadow-2xl transition hover:-translate-y-0.5 hover:border-[#2271b1] sm:left-auto sm:right-20 sm:max-w-[calc(100vw-6rem)] sm:py-2.5">
     <RefreshCw aria-hidden="true" size={16} className="shrink-0 animate-spin text-[#2271b1]" />
     <span className="min-w-0 truncate text-xs font-semibold">{label}</span>
     <strong className="shrink-0 text-sm text-[#2271b1]">{Math.min(100, Math.max(0, Math.round(percent)))}%</strong>
