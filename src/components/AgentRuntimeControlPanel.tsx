@@ -42,6 +42,15 @@ function recordTone(record: WorkspaceRecord) {
   return "border-border bg-background/70";
 }
 
+function payloadPreview(value: Record<string, unknown> | null | undefined) {
+  if (!value) return "";
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return "";
+  }
+}
+
 export function AgentRuntimeControlPanel({
   runtime,
   pageLabel,
@@ -58,6 +67,7 @@ export function AgentRuntimeControlPanel({
   const isBlocked = status === "waiting_approval";
   const executedPacketCount = runtime.executionPackets.filter((entry) => packetExecutionStatus(entry.packet) === "executed").length;
   const artifactCount = runtime.executionArtifacts.length;
+  const currentHealth = runtime.currentHealth;
 
   return (
     <section className="rounded-xl border border-border bg-card p-5">
@@ -139,6 +149,35 @@ export function AgentRuntimeControlPanel({
         </article>
       </div>
 
+      {currentHealth ? (
+        <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <article className="rounded-lg border border-border bg-background/60 p-4">
+            <p className="text-xs text-muted-foreground">{t("Success rate")}</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{currentHealth.successRate ?? 0}%</p>
+          </article>
+          <article className="rounded-lg border border-border bg-background/60 p-4">
+            <p className="text-xs text-muted-foreground">{t("Failed runs")}</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{currentHealth.failedRunCount}</p>
+          </article>
+          <article className="rounded-lg border border-border bg-background/60 p-4">
+            <p className="text-xs text-muted-foreground">{t("Recent runs")}</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{currentHealth.recentRunCount}</p>
+          </article>
+          <article className="rounded-lg border border-border bg-background/60 p-4">
+            <p className="text-xs text-muted-foreground">{t("Connected tools")}</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{currentHealth.connectedIntegrations.length}</p>
+          </article>
+          <article className="rounded-lg border border-border bg-background/60 p-4">
+            <p className="text-xs text-muted-foreground">{t("Last error")}</p>
+            <p className="mt-2 text-sm font-medium text-foreground">{currentHealth.lastErrorCode ?? t("No recent error")}</p>
+          </article>
+          <article className="rounded-lg border border-border bg-background/60 p-4">
+            <p className="text-xs text-muted-foreground">{t("Execution profile")}</p>
+            <p className="mt-2 text-sm font-medium text-foreground">{currentHealth.executionProfile.executorToolName ?? t("Read only")}</p>
+          </article>
+        </div>
+      ) : null}
+
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <section className="rounded-lg border border-border bg-background/40 p-4">
           <div className="flex items-center gap-2">
@@ -213,6 +252,74 @@ export function AgentRuntimeControlPanel({
                 {isBlocked
                   ? t("This run is blocked, but the backend has not returned any actionable approval step yet.")
                   : t("No approval is currently waiting for this page agent.")}
+              </p>
+            )}
+          </div>
+        </section>
+      </div>
+
+      <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+        <section className="rounded-lg border border-border bg-background/40 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">{t("Run history")}</h3>
+              <p className="mt-1 text-xs text-muted-foreground">{t("Recent page-agent runs for this workspace page.")}</p>
+            </div>
+            <div className="text-xs text-muted-foreground">{t("Total")}: {runtime.runs.length}</div>
+          </div>
+          <div className="mt-4 space-y-3">
+            {runtime.runs.length > 0 ? runtime.runs.slice(0, 10).map((run) => (
+              <button
+                key={run.id}
+                type="button"
+                onClick={() => void runtime.selectRun(run.id)}
+                disabled={runtime.acting}
+                className={`flex w-full flex-col rounded-lg border px-4 py-3 text-left transition hover:bg-background/80 ${runtime.selectedRunId === run.id ? "border-primary/40 bg-primary/5" : "border-border bg-background/70"}`}
+              >
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="text-sm font-medium text-foreground">{run.goal}</div>
+                  <div className={`rounded-full border px-2.5 py-1 text-xs font-medium ${statusTone(run.status)}`}>{run.status}</div>
+                </div>
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
+                  <span>{t("Updated")}: {formatLiveDate(run.updatedAt)}</span>
+                  <span>{t("Run id")}: {run.id.slice(0, 8)}</span>
+                </div>
+              </button>
+            )) : (
+              <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
+                {runtime.loading ? t("Loading recent runs…") : t("No run history exists for this page agent yet.")}
+              </p>
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-lg border border-border bg-background/40 p-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h3 className="text-sm font-semibold text-foreground">{t("Event stream")}</h3>
+              <p className="mt-1 text-xs text-muted-foreground">{t("Latest backend events, payloads, and approval signals for the selected run.")}</p>
+            </div>
+            <div className="text-xs text-muted-foreground">{t("Events")}: {runtime.recentEvents.length}</div>
+          </div>
+          <div className="mt-4 space-y-3">
+            {runtime.recentEvents.length > 0 ? runtime.recentEvents.map((event) => (
+              <article key={event.id} className="rounded-lg border border-border bg-background/70 px-4 py-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="text-sm font-medium text-foreground">{event.eventType}</div>
+                  <div className="text-xs text-muted-foreground">{formatLiveDate(event.createdAt)}</div>
+                </div>
+                <div className="mt-1 text-xs uppercase tracking-[0.12em] text-muted-foreground">
+                  {event.agentRole ?? t("system")}
+                </div>
+                {payloadPreview(event.payload) ? (
+                  <pre className="mt-3 overflow-x-auto rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
+                    {payloadPreview(event.payload)}
+                  </pre>
+                ) : null}
+              </article>
+            )) : (
+              <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
+                {runtime.loading ? t("Loading recent events…") : t("No backend event stream is available for this run yet.")}
               </p>
             )}
           </div>

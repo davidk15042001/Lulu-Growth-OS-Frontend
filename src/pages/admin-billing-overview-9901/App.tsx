@@ -271,12 +271,15 @@ function toneFromStatus(status: string): "emerald" | "amber" | "rose" | "slate" 
   return "sky";
 }
 
-function DataTable<T>({ columns, rows, loading, searchOnChange, searchValue }: {
+function DataTable<T>({ columns, rows, loading, searchOnChange, searchValue, getRowKey, onRowClick, selectedKey }: {
   columns: Array<{ key: string; label: string; render?: (row: T) => React.ReactNode; className?: string }>;
   rows: T[];
   loading?: boolean;
   searchOnChange?: (v: string) => void;
   searchValue?: string;
+  getRowKey?: (row: T, index: number) => string;
+  onRowClick?: (row: T) => void;
+  selectedKey?: string | null;
 }) {
   return (
     <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -310,15 +313,22 @@ function DataTable<T>({ columns, rows, loading, searchOnChange, searchValue }: {
               <tr><td colSpan={columns.length} className="px-4 py-10 text-center text-slate-500">Loading…</td></tr>
             ) : rows.length === 0 ? (
               <tr><td colSpan={columns.length} className="px-4 py-10 text-center text-slate-500">No data available.</td></tr>
-            ) : rows.map((row, idx) => (
-              <tr key={`row-${idx}`} className="hover:bg-slate-50/60">
+            ) : rows.map((row, idx) => {
+              const rowKey = getRowKey ? getRowKey(row, idx) : `row-${idx}`;
+              const active = selectedKey !== null && selectedKey !== undefined && rowKey === selectedKey;
+              return (
+              <tr
+                key={rowKey}
+                className={`${onRowClick ? "cursor-pointer" : ""} ${active ? "bg-indigo-50/70" : "hover:bg-slate-50/60"}`}
+                onClick={() => onRowClick?.(row)}
+              >
                 {columns.map((col) => (
                   <td key={col.key} className={`whitespace-nowrap px-4 py-2.5 text-slate-700 ${col.className ?? ""}`}>
                     {col.render ? col.render(row) : (row as unknown as Record<string, React.ReactNode>)[col.key]}
                   </td>
                 ))}
               </tr>
-            ))}
+            )})}
           </tbody>
         </table>
       </div>
@@ -331,6 +341,31 @@ function EmptyPanel({ title, hint }: { title: string; hint?: string }) {
     <div className="rounded-xl border border-dashed border-slate-200 bg-white/60 p-8 text-center">
       <div className="text-base font-semibold text-slate-800">{title}</div>
       {hint ? <div className="mt-1 text-sm text-slate-500">{hint}</div> : null}
+    </div>
+  );
+}
+
+function DetailPanel({ title, rows, raw }: { title: string; rows: Array<{ label: string; value: React.ReactNode }>; raw: unknown }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
+      <div className="border-b border-slate-100 px-5 py-4">
+        <div className="text-base font-semibold">{title}</div>
+        <div className="text-sm text-slate-500">Direkter Drilldown mit den wichtigsten Metadaten.</div>
+      </div>
+      <div className="divide-y divide-slate-100">
+        {rows.map((row) => (
+          <div key={row.label} className="flex items-start justify-between gap-4 px-5 py-3">
+            <div className="text-sm text-slate-500">{row.label}</div>
+            <div className="max-w-[70%] text-right text-sm font-medium text-slate-900 break-all">{row.value}</div>
+          </div>
+        ))}
+      </div>
+      <div className="border-t border-slate-100 px-5 py-4">
+        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Raw payload</div>
+        <pre className="max-h-[420px] overflow-auto rounded-lg bg-slate-950 px-4 py-3 text-xs text-slate-100">
+          {JSON.stringify(raw, null, 2)}
+        </pre>
+      </div>
     </div>
   );
 }
@@ -1137,30 +1172,52 @@ function WebsitesPage({ onError }: { onError: (m: string) => void }) {
 function AgentsPage({ onError }: { onError: (m: string) => void }) {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AgentRow[]>([]);
+  const [selected, setSelected] = useState<AgentRow | null>(null);
   const load = async () => {
     setLoading(true); onError("");
     try {
       const res = await requestApi<{ agents: AgentRow[] }>({ path: "/admin/agents?limit=200" });
       setRows(res.data.agents);
+      setSelected((current) => res.data.agents.find((row) => row.id === current?.id) ?? res.data.agents[0] ?? null);
     } catch (e) { onError(getFriendlyErrorMessage(e, "Agents konnten nicht geladen werden.")); }
     finally { setLoading(false); }
   };
   useEffect(() => { void load(); }, []);
   return (
-    <DataTable<AgentRow>
-      loading={loading} rows={rows}
-      columns={[
-        { key: "workspaceName", label: "Workspace", render: (r) => r.workspaceName ?? "—" },
-        { key: "name", label: "Agent", render: (r) => <div className="flex items-center gap-2"><div className="font-medium">{r.name}</div><Pill tone="violet">{r.agentType}</Pill></div> },
-        { key: "mode", label: "Mode", render: (r) => <Pill tone="sky">{r.mode}</Pill> },
-        { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
-        { key: "model", label: "Model", render: (r) => `${r.modelProvider ?? "—"} / ${r.modelName ?? "—"}` },
-        { key: "version", label: "Version", render: (r) => `v${r.version}` },
-        { key: "runCount", label: "Runs", render: (r) => r.runCount },
-        { key: "createdAt", label: "Created", render: (r) => dateOnly(r.createdAt) },
-        { key: "updatedAt", label: "Updated", render: (r) => dateOnly(r.updatedAt) },
-      ]}
-    />
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+      <DataTable<AgentRow>
+        loading={loading} rows={rows}
+        getRowKey={(row) => row.id}
+        onRowClick={setSelected}
+        selectedKey={selected?.id ?? null}
+        columns={[
+          { key: "workspaceName", label: "Workspace", render: (r) => r.workspaceName ?? "—" },
+          { key: "name", label: "Agent", render: (r) => <div className="flex items-center gap-2"><div className="font-medium">{r.name}</div><Pill tone="violet">{r.agentType}</Pill></div> },
+          { key: "mode", label: "Mode", render: (r) => <Pill tone="sky">{r.mode}</Pill> },
+          { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
+          { key: "model", label: "Model", render: (r) => `${r.modelProvider ?? "—"} / ${r.modelName ?? "—"}` },
+          { key: "version", label: "Version", render: (r) => `v${r.version}` },
+          { key: "runCount", label: "Runs", render: (r) => r.runCount },
+          { key: "createdAt", label: "Created", render: (r) => dateOnly(r.createdAt) },
+          { key: "updatedAt", label: "Updated", render: (r) => dateOnly(r.updatedAt) },
+        ]}
+      />
+      {selected ? (
+        <DetailPanel
+          title={selected.name}
+          rows={[
+            { label: "Workspace", value: selected.workspaceName ?? "—" },
+            { label: "Status", value: selected.status },
+            { label: "Mode", value: selected.mode },
+            { label: "Type", value: selected.agentType },
+            { label: "Model", value: `${selected.modelProvider ?? "—"} / ${selected.modelName ?? "—"}` },
+            { label: "Runs", value: selected.runCount },
+            { label: "Updated", value: date(selected.updatedAt) },
+          ]}
+          raw={selected}
+        />
+      ) : <EmptyPanel title="Kein Agent ausgewählt" hint="Wähle links einen Agenten aus." />}
+    </div>
   );
 }
 
@@ -1197,28 +1254,49 @@ function IntegrationsPage({ onError }: { onError: (m: string) => void }) {
 function ApprovalsPage({ onError }: { onError: (m: string) => void }) {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<ApprovalRow[]>([]);
+  const [selected, setSelected] = useState<ApprovalRow | null>(null);
   const load = async () => {
     setLoading(true); onError("");
     try {
       const res = await requestApi<{ approvals: ApprovalRow[] }>({ path: "/admin/approvals?limit=200" });
       setRows(res.data.approvals);
+      setSelected((current) => res.data.approvals.find((row) => row.id === current?.id) ?? res.data.approvals[0] ?? null);
     } catch (e) { onError(getFriendlyErrorMessage(e, "Approvals konnten nicht geladen werden.")); }
     finally { setLoading(false); }
   };
   useEffect(() => { void load(); }, []);
   return (
-    <DataTable<ApprovalRow>
-      loading={loading} rows={rows}
-      columns={[
-        { key: "workspaceName", label: "Workspace", render: (r) => r.workspaceName ?? "—" },
-        { key: "approvalType", label: "Type", render: (r) => <Pill tone="violet">{r.approvalType}</Pill> },
-        { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
-        { key: "requesterEmail", label: "Requester", render: (r) => r.requesterEmail ?? "—" },
-        { key: "reason", label: "Reason", render: (r) => r.reason ?? "—" },
-        { key: "createdAt", label: "Created", render: (r) => date(r.createdAt) },
-        { key: "resolvedAt", label: "Resolved", render: (r) => date(r.resolvedAt) },
-      ]}
-    />
+    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+      <DataTable<ApprovalRow>
+        loading={loading} rows={rows}
+        getRowKey={(row) => row.id}
+        onRowClick={setSelected}
+        selectedKey={selected?.id ?? null}
+        columns={[
+          { key: "workspaceName", label: "Workspace", render: (r) => r.workspaceName ?? "—" },
+          { key: "approvalType", label: "Type", render: (r) => <Pill tone="violet">{r.approvalType}</Pill> },
+          { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
+          { key: "requesterEmail", label: "Requester", render: (r) => r.requesterEmail ?? "—" },
+          { key: "reason", label: "Reason", render: (r) => r.reason ?? "—" },
+          { key: "createdAt", label: "Created", render: (r) => date(r.createdAt) },
+          { key: "resolvedAt", label: "Resolved", render: (r) => date(r.resolvedAt) },
+        ]}
+      />
+      {selected ? (
+        <DetailPanel
+          title={`Approval ${selected.approvalType}`}
+          rows={[
+            { label: "Workspace", value: selected.workspaceName ?? "—" },
+            { label: "Status", value: selected.status },
+            { label: "Requester", value: selected.requesterEmail ?? "—" },
+            { label: "Reason", value: selected.reason ?? "—" },
+            { label: "Created", value: date(selected.createdAt) },
+            { label: "Resolved", value: date(selected.resolvedAt) },
+          ]}
+          raw={selected}
+        />
+      ) : <EmptyPanel title="Keine Approval ausgewählt" hint="Wähle links eine Approval aus." />}
+    </div>
   );
 }
 
@@ -1323,11 +1401,13 @@ function SupportPage({ onError }: { onError: (m: string) => void }) {
 function ErrorsPage({ onError }: { onError: (m: string) => void }) {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<ErrorRow[]>([]);
+  const [selected, setSelected] = useState<ErrorRow | null>(null);
   const load = async () => {
     setLoading(true); onError("");
     try {
       const res = await requestApi<{ errors: ErrorRow[] }>({ path: "/admin/errors?limit=200" });
       setRows(res.data.errors);
+      setSelected((current) => res.data.errors.find((row) => row.id === current?.id) ?? res.data.errors[0] ?? null);
     } catch (e) { onError(getFriendlyErrorMessage(e, "Error events konnten nicht geladen werden.")); }
     finally { setLoading(false); }
   };
@@ -1341,29 +1421,49 @@ function ErrorsPage({ onError }: { onError: (m: string) => void }) {
       <div className="flex items-center justify-end">
         <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">Use Update in the navigation bar</span>
       </div>
-      <DataTable<ErrorRow>
-        loading={loading} rows={rows}
-        columns={[
-          { key: "level", label: "Level", render: (r) => <Pill tone={toneFromLevel(r.level)}>{r.level.toUpperCase()}</Pill> },
-          { key: "source", label: "Source", render: (r) => r.source ? <Pill tone="violet">{r.source}</Pill> : "—" },
-          { key: "message", label: "Message", render: (r) => (
-            <div className="max-w-2xl">
-              <div className="truncate font-mono text-xs">{r.message}</div>
-              {(r.requestId || r.correlationId) ? (
-                <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-slate-400 font-mono">
-                  {r.requestId ? <>req: {r.requestId}</> : null}
-                  {r.correlationId ? <>corr: {r.correlationId}</> : null}
-                </div>
-              ) : null}
-            </div>
-          ) },
-          { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
-          { key: "occurrenceCount", label: "Occurrences", render: (r) => <span className="font-mono font-semibold">{r.occurrenceCount}</span> },
-          { key: "workspaceId", label: "WS", render: (r) => r.workspaceId ? <span className="font-mono text-[11px] text-slate-500">{r.workspaceId.slice(0, 8)}…</span> : "—" },
-          { key: "createdAt", label: "First seen", render: (r) => date(r.createdAt) },
-          { key: "resolvedAt", label: "Resolved", render: (r) => dateOnly(r.resolvedAt) },
-        ]}
-      />
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+        <DataTable<ErrorRow>
+          loading={loading} rows={rows}
+          getRowKey={(row) => row.id}
+          onRowClick={setSelected}
+          selectedKey={selected?.id ?? null}
+          columns={[
+            { key: "level", label: "Level", render: (r) => <Pill tone={toneFromLevel(r.level)}>{r.level.toUpperCase()}</Pill> },
+            { key: "source", label: "Source", render: (r) => r.source ? <Pill tone="violet">{r.source}</Pill> : "—" },
+            { key: "message", label: "Message", render: (r) => (
+              <div className="max-w-2xl">
+                <div className="truncate font-mono text-xs">{r.message}</div>
+                {(r.requestId || r.correlationId) ? (
+                  <div className="mt-1 flex flex-wrap gap-2 text-[10px] text-slate-400 font-mono">
+                    {r.requestId ? <>req: {r.requestId}</> : null}
+                    {r.correlationId ? <>corr: {r.correlationId}</> : null}
+                  </div>
+                ) : null}
+              </div>
+            ) },
+            { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
+            { key: "occurrenceCount", label: "Occurrences", render: (r) => <span className="font-mono font-semibold">{r.occurrenceCount}</span> },
+            { key: "workspaceId", label: "WS", render: (r) => r.workspaceId ? <span className="font-mono text-[11px] text-slate-500">{r.workspaceId.slice(0, 8)}…</span> : "—" },
+            { key: "createdAt", label: "First seen", render: (r) => date(r.createdAt) },
+            { key: "resolvedAt", label: "Resolved", render: (r) => dateOnly(r.resolvedAt) },
+          ]}
+        />
+        {selected ? (
+          <DetailPanel
+            title={`Error ${selected.level.toUpperCase()}`}
+            rows={[
+              { label: "Source", value: selected.source ?? "—" },
+              { label: "Status", value: selected.status },
+              { label: "Occurrences", value: selected.occurrenceCount },
+              { label: "Request", value: selected.requestId ?? "—" },
+              { label: "Correlation", value: selected.correlationId ?? "—" },
+              { label: "Created", value: date(selected.createdAt) },
+              { label: "Resolved", value: date(selected.resolvedAt) },
+            ]}
+            raw={selected}
+          />
+        ) : <EmptyPanel title="Kein Error ausgewählt" hint="Wähle links einen Error aus." />}
+      </div>
     </div>
   );
 }
@@ -1405,11 +1505,13 @@ function AuditPage({ onError }: { onError: (m: string) => void }) {
 function JobsPage({ onError }: { onError: (m: string) => void }) {
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<JobRow[]>([]);
+  const [selected, setSelected] = useState<JobRow | null>(null);
   const load = async () => {
     setLoading(true); onError("");
     try {
       const res = await requestApi<{ jobs: JobRow[] }>({ path: "/admin/jobs?limit=200" });
       setRows(res.data.jobs);
+      setSelected((current) => res.data.jobs.find((row) => row.id === current?.id) ?? res.data.jobs[0] ?? null);
     } catch (e) { onError(getFriendlyErrorMessage(e, "Jobs konnten nicht geladen werden.")); }
     finally { setLoading(false); }
   };
@@ -1419,25 +1521,45 @@ function JobsPage({ onError }: { onError: (m: string) => void }) {
       <div className="flex items-center justify-end">
         <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">Use Update in the navigation bar</span>
       </div>
-      <DataTable<JobRow>
-        loading={loading} rows={rows}
-        columns={[
-          { key: "jobType", label: "Job", render: (r) => <div className="font-mono text-xs">{r.jobType}</div> },
-          { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
-          { key: "attempt", label: "Attempt", render: (r) => `${r.attempt}/${r.maxAttempts}` },
-          { key: "workspaceId", label: "WS", render: (r) => r.workspaceId ? <span className="font-mono text-[11px] text-slate-500">{r.workspaceId.slice(0, 8)}…</span> : "—" },
-          { key: "scheduledAt", label: "Scheduled", render: (r) => date(r.scheduledAt) },
-          { key: "startedAt", label: "Started", render: (r) => date(r.startedAt) },
-          { key: "completedAt", label: "Completed", render: (r) => dateOnly(r.completedAt) },
-          { key: "failedAt", label: "Failed", render: (r) => r.failedAt ? (
-            <div>
-              <div className="text-rose-700">{date(r.failedAt)}</div>
-              {r.errorMessage ? <div className="text-[11px] text-rose-600 max-w-xs truncate font-mono">{r.errorMessage}</div> : null}
-            </div>
-          ) : "—" },
-          { key: "correlationId", label: "Corr", render: (r) => r.correlationId ? <span className="font-mono text-[10px] text-slate-500">{r.correlationId.slice(0, 10)}…</span> : "—" },
-        ]}
-      />
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+        <DataTable<JobRow>
+          loading={loading} rows={rows}
+          getRowKey={(row) => row.id}
+          onRowClick={setSelected}
+          selectedKey={selected?.id ?? null}
+          columns={[
+            { key: "jobType", label: "Job", render: (r) => <div className="font-mono text-xs">{r.jobType}</div> },
+            { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
+            { key: "attempt", label: "Attempt", render: (r) => `${r.attempt}/${r.maxAttempts}` },
+            { key: "workspaceId", label: "WS", render: (r) => r.workspaceId ? <span className="font-mono text-[11px] text-slate-500">{r.workspaceId.slice(0, 8)}…</span> : "—" },
+            { key: "scheduledAt", label: "Scheduled", render: (r) => date(r.scheduledAt) },
+            { key: "startedAt", label: "Started", render: (r) => date(r.startedAt) },
+            { key: "completedAt", label: "Completed", render: (r) => dateOnly(r.completedAt) },
+            { key: "failedAt", label: "Failed", render: (r) => r.failedAt ? (
+              <div>
+                <div className="text-rose-700">{date(r.failedAt)}</div>
+                {r.errorMessage ? <div className="text-[11px] text-rose-600 max-w-xs truncate font-mono">{r.errorMessage}</div> : null}
+              </div>
+            ) : "—" },
+            { key: "correlationId", label: "Corr", render: (r) => r.correlationId ? <span className="font-mono text-[10px] text-slate-500">{r.correlationId.slice(0, 10)}…</span> : "—" },
+          ]}
+        />
+        {selected ? (
+          <DetailPanel
+            title={selected.jobType}
+            rows={[
+              { label: "Status", value: selected.status },
+              { label: "Attempt", value: `${selected.attempt}/${selected.maxAttempts}` },
+              { label: "Workspace", value: selected.workspaceId ?? "—" },
+              { label: "Scheduled", value: date(selected.scheduledAt) },
+              { label: "Started", value: date(selected.startedAt) },
+              { label: "Completed", value: date(selected.completedAt) },
+              { label: "Failed", value: date(selected.failedAt) },
+            ]}
+            raw={selected}
+          />
+        ) : <EmptyPanel title="Kein Job ausgewählt" hint="Wähle links einen Job aus." />}
+      </div>
     </div>
   );
 }

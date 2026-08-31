@@ -6,6 +6,40 @@ export type AgentRunStatus = 'queued' | 'planning' | 'running' | 'waiting_approv
 export type AgentStep = { id: string; runId: string; sequenceNo: number; agentRole: string; title: string; instruction: string; status: string; toolName: string | null; approvalId: string | null; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; };
 export type AgentRun = { id: string; workspaceId: string; goal: string; status: AgentRunStatus; plan: Record<string, unknown>; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; createdAt: string; updatedAt: string; };
 export type AgentRunDetails = { run: AgentRun; steps: AgentStep[]; events: Array<{ id: string; eventType: string; agentRole: string | null; payload: Record<string, unknown>; createdAt: string }> };
+export type AgentHealthItem = {
+  pageId: string;
+  pageLabel: string;
+  sectionLabel: string;
+  module: string;
+  successRate: number | null;
+  recentRunCount: number;
+  failedRunCount: number;
+  lastRunStatus: string;
+  lastRunAt: string | null;
+  lastErrorCode: string | null;
+  latestActionSummary: string | null;
+  connectedIntegrations: Array<{ name: string; category: string; status: string }>;
+  latestSyncSources: string[];
+  errorClasses: string[];
+  approvalGates: string[];
+  executionProfile: {
+    analystToolName: string;
+    executorToolName: string | null;
+    actionResourceType: string | null;
+    resourceTypes: string[];
+    telemetryTags: string[];
+  };
+};
+export type AgentHealth = {
+  summary: {
+    totalPages: number;
+    activePages: number;
+    healthyPages: number;
+    pagesNeedingAttention: number;
+    connectedPlatformCount: number;
+  };
+  items: AgentHealthItem[];
+};
 export type IntelligenceMetric = {
   metricKey: string;
   value: unknown;
@@ -117,6 +151,7 @@ export function autoAgentGoalForContract(contract: LuluAgentContract) {
 export const agentApi = {
   list: (workspaceId: string, query?: AgentQuery) => requestApi<{ items: AgentRun[] }>({ path: withAgentQuery(workspaceApiPath(workspaceId, '/agent-runs'), query) }),
   knowledge: (workspaceId: string, query?: AgentQuery) => requestApi<IntelligenceBundle>({ path: withAgentQuery(intelligencePath(workspaceId), query) }),
+  health: (workspaceId: string, query?: AgentQuery) => requestApi<AgentHealth>({ path: withAgentQuery(workspaceApiPath(workspaceId, '/agent-runs/health'), query) }),
   create: (workspaceId: string, goal: string, options?: CreateAgentRunOptions) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, '/agent-runs'), method: 'POST', body: { goal, module: options?.module, page: options?.page, dedupeMinutes: options?.dedupeMinutes } }),
   detail: (workspaceId: string, runId: string) => requestApi<AgentRunDetails>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}`) }),
   cancel: (workspaceId: string, runId: string) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/cancel`), method: 'POST', body: {} }),
