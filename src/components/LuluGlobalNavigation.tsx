@@ -4,6 +4,7 @@ import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing"
 import { requestApi } from "../api/client";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { pages as manifestPages } from "../pages-manifest";
 import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
 import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 
@@ -26,6 +27,13 @@ const GOOGLE_BUSINESS_SECTION: NavigationSection = {
     { id: "glad-coast-1428", label: "Integrations" },
   ],
 };
+const NAVIGATION_PAGE_LABELS = new Map(
+  manifestPages.map((page) => [page.slug, page.name.replace(/^Lulu AI\s+—\s+/, "")]),
+);
+
+function getNavigationPageLabel(page: NavigationPage) {
+  return NAVIGATION_PAGE_LABELS.get(page.id) ?? page.label;
+}
 
 const baseNavigationSections: readonly NavigationSection[] = (() => {
   const availableSections = (luluDropdownNavigation as readonly NavigationSection[])
@@ -234,6 +242,7 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                   const isActivePage = page.id === activeSlug;
                   const isDropdownLinkLocked = !available;
                   const lockedLabel = "Navigation-Link gesperrt";
+                  const displayLabel = getNavigationPageLabel(page);
                   return (
                     <a
                       key={page.id}
@@ -245,10 +254,10 @@ export function LuluGlobalNavigation({ activeSlug }: { activeSlug: string }) {
                       aria-disabled={isDropdownLinkLocked || undefined}
                       tabIndex={isDropdownLinkLocked ? -1 : undefined}
                       onClick={isDropdownLinkLocked ? (event) => event.preventDefault() : undefined}
-                      aria-label={isDropdownLinkLocked ? `${page.label} gesperrt: ${lockedLabel}` : page.label}
+                      aria-label={isDropdownLinkLocked ? `${displayLabel} gesperrt: ${lockedLabel}` : displayLabel}
                       title={isDropdownLinkLocked ? lockedLabel : undefined}
                     >
-                      <span>{page.label}</span>
+                      <span>{displayLabel}</span>
                     </a>
                   );
                 })}
