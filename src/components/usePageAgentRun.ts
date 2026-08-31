@@ -45,6 +45,16 @@ function extractActionRecordRefs(details: AgentRunDetails | null): RecordRef[] {
 }
 
 function extractResultRecordRefs(packet: WorkspaceRecord): RecordRef[] {
+  const structured = packet.data?.resultRecords;
+  if (Array.isArray(structured)) {
+    const refs = new Map<string, RecordRef>();
+    for (const entry of structured) {
+      const recordId = stringValue((entry as Record<string, unknown>)?.id);
+      const resourceType = stringValue((entry as Record<string, unknown>)?.resourceType);
+      if (recordId && resourceType) refs.set(`${resourceType}:${recordId}`, { id: recordId, resourceType });
+    }
+    if (refs.size > 0) return [...refs.values()];
+  }
   const ids = stringList(packet.data?.resultRecordIds);
   const resourceTypes = stringList(packet.data?.resultResourceTypes);
   return ids
@@ -81,7 +91,8 @@ export function usePageAgentRun(
     try {
       const packets = (await Promise.all(refs.map(async (ref) => {
         try {
-          return await getRecord(ref.resourceType, ref.id);
+          const response = await getRecord(ref.resourceType, ref.id);
+          return response.data;
         } catch {
           return null;
         }
@@ -92,7 +103,8 @@ export function usePageAgentRun(
           const resultRefs = extractResultRecordRefs(packet);
           const results = (await Promise.all(resultRefs.map(async (ref) => {
             try {
-              return await getRecord(ref.resourceType, ref.id);
+              const response = await getRecord(ref.resourceType, ref.id);
+              return response.data;
             } catch {
               return null;
             }

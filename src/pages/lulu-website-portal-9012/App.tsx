@@ -291,6 +291,7 @@ export default function App() {
   const [generationPanelOpen, setGenerationPanelOpen] = useState(true);
   const [generationCancelling, setGenerationCancelling] = useState(false);
   const [generationResuming, setGenerationResuming] = useState(false);
+  const [generationPublishing, setGenerationPublishing] = useState(false);
   const [generationTargetDialogOpen, setGenerationTargetDialogOpen] = useState(false);
   const [generationTargetProvider, setGenerationTargetProvider] = useState<Provider>(initialProvider);
   const [generationTargetMode, setGenerationTargetMode] = useState<WebsiteGenerationTargetMode | null>(null);
@@ -501,6 +502,22 @@ export default function App() {
     }
   };
 
+  const publishAutomaticGeneration = async () => {
+    if (!workspaceId || !generationJob || !["generated", "preview"].includes(generationJob.job.status) || generationPublishing) return;
+    setGenerationPublishing(true);
+    setError("");
+    try {
+      const response = await websitesApi.publishGenerationJob(workspaceId, generationJob.siteId, generationJob.job.id);
+      setGenerationJob((current) => current ? { ...current, job: response.data } : current);
+      setGenerationPanelOpen(true);
+      void refresh();
+    } catch (requestError) {
+      setError(getFriendlyErrorMessage(requestError, t("Website could not be published.")));
+    } finally {
+      setGenerationPublishing(false);
+    }
+  };
+
   useEffect(() => {
     if (!workspaceId || !generationJob || isTerminalGenerationJob(generationJob.job)) return;
     let cancelled = false;
@@ -670,7 +687,7 @@ export default function App() {
       {generationTargetDialogOpen && !generationIsBlocking && <ViewportPortal><WebsiteGenerationTargetDialog provider={generationTargetProvider} sites={sites} selectedSiteId={selectedSiteId} mode={generationTargetMode} busy={generationStarting === generationTargetProvider} onSelectSite={(siteId) => { setSelectedSiteId(siteId); setSelectedDomainId(""); }} onSelectMode={setGenerationTargetMode} onCancel={() => setGenerationTargetDialogOpen(false)} onContinue={() => { if (generationTargetMode) void startAutomaticGeneration(generationTargetProvider, generationTargetMode); }} t={t} /></ViewportPortal>}
       {generationNotification && !generationPanelOpen && <WebsiteGenerationActivityToast activity={generationNotification} onClick={() => { setGenerationPanelOpen(true); setGenerationNotification(null); }} t={t} />}
       {(error || connectionBusy) && <div role={error ? "alert" : "status"} className="fixed left-1/2 top-4 z-[70] w-[min(560px,calc(100vw-2rem))] -translate-x-1/2 rounded-xl border border-border bg-card px-4 py-3 text-sm text-foreground shadow-2xl" aria-live="polite">{error || `${connectionBusy === "wordpress" ? "WordPress / Jetpack" : "Webflow"} wird verbunden…`}</div>}
-      {generationJob && generationPanelOpen && <ViewportPortal><WebsiteGenerationLivePanel job={generationJob.job} providerLabel={generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"} percent={generationPercent} label={generationLabel} detail={generationDetail} running={generationIsBlocking} cancelling={generationCancelling} resuming={generationResuming} onCancel={() => void cancelAutomaticGeneration()} onResume={() => void resumeAutomaticGeneration()} onClose={() => { setGenerationPanelOpen(false); if (isTerminalGenerationJob(generationJob.job)) setGenerationJob(null); }} t={t} /></ViewportPortal>}
+      {generationJob && generationPanelOpen && <ViewportPortal><WebsiteGenerationLivePanel job={generationJob.job} providerLabel={generationJob.provider === "wordpress" ? "WordPress / Jetpack" : "Webflow"} percent={generationPercent} label={generationLabel} detail={generationDetail} running={generationIsBlocking} cancelling={generationCancelling} resuming={generationResuming} publishing={generationPublishing} onCancel={() => void cancelAutomaticGeneration()} onResume={() => void resumeAutomaticGeneration()} onPublish={() => void publishAutomaticGeneration()} onClose={() => { setGenerationPanelOpen(false); if (isTerminalGenerationJob(generationJob.job)) setGenerationJob(null); }} t={t} /></ViewportPortal>}
       {generationStarting && !generationJob && generationPanelOpen && <ViewportPortal><div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/20 p-4 backdrop-blur-[2px]"><div role="dialog" aria-modal="true" aria-labelledby="website-generation-start-title" style={{ color: "#111827" }} className="pointer-events-auto relative my-0 max-h-[calc(100dvh-2rem)] w-full max-w-md overflow-y-auto rounded-2xl border border-border bg-card p-6 text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)] sm:p-7"><button type="button" onClick={() => setGenerationPanelOpen(false)} aria-label={t("Close generation window")} className="absolute right-4 top-4 rounded-lg border border-border p-2 text-[#4b5563] hover:bg-secondary">×</button><div className="flex items-start gap-4"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><RefreshCw size={22} className="animate-spin" /></div><div><h2 id="website-generation-start-title" className="pr-8 text-lg font-semibold text-[#111827]">{t("Website is being created")}</h2><p className="mt-2 text-sm leading-6 text-[#4b5563]">{t("The connection was confirmed. Lulu creates a structured copy and SEO profile from your company data, then applies it to the standard template.")}</p><p className="mt-3 text-xs text-[#4b5563]">{generationStarting === "wordpress" ? "WordPress / Jetpack" : "Webflow"}</p></div></div><div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary"><div className="h-full w-1/4 animate-pulse rounded-full bg-primary" /></div></div></div></ViewportPortal>}
       {!generationPanelOpen && (generationStarting || (generationJob && generationIsBlocking)) && <WebsiteGenerationProcessButton percent={generationJob ? generationPercent : 3} label={generationJob ? generationLabel : t("Website is being created")} onClick={() => setGenerationPanelOpen(true)} t={t} />}
       <main data-lulu-scroll-container className="min-h-screen min-w-0 overflow-x-hidden">

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, Bell, CheckCircle2, Circle, CircleStop, ExternalLink, FileText, Play, RefreshCw, X } from "lucide-react";
+import { AlertCircle, Bell, CheckCircle2, Circle, CircleStop, ExternalLink, FileText, Play, RefreshCw, Upload, X } from "lucide-react";
 import type { WebsiteGenerationJob } from "../api/websites";
 
 type Translate = (key: string) => string;
@@ -155,9 +155,11 @@ export function WebsiteGenerationLivePanel({
   running,
   cancelling,
   resuming,
+  publishing,
   onClose,
   onCancel,
   onResume,
+  onPublish,
   t,
 }: {
   job: WebsiteGenerationJob;
@@ -168,9 +170,11 @@ export function WebsiteGenerationLivePanel({
   running: boolean;
   cancelling: boolean;
   resuming: boolean;
+  publishing: boolean;
   onClose: () => void;
   onCancel: () => void;
   onResume: () => void;
+  onPublish: () => void;
   t: Translate;
 }) {
   const pages = useMemo(() => generationPages(job), [job]);
@@ -317,7 +321,7 @@ export function WebsiteGenerationLivePanel({
           </div>
 
           <div className="mt-5 border-t border-[#dcdcde] pt-4">
-            {running ? <button type="button" disabled={cancelling} onClick={onCancel} className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"><CircleStop aria-hidden="true" size={16} />{cancelling ? t("Cancelling…") : t("Cancel generation")}</button> : job.status === "cancelled" ? <div className="grid gap-2"><button type="button" disabled={resuming} onClick={onResume} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-wait disabled:opacity-60">{resuming ? <RefreshCw aria-hidden="true" size={16} className="animate-spin" /> : <Play aria-hidden="true" size={16} />}{resuming ? t("Resuming…") : t("Continue generation")}</button><button type="button" onClick={onClose} className="w-full rounded-lg border border-[#dcdcde] px-4 py-2.5 text-sm font-semibold text-[#1d2327] transition hover:bg-[#f6f7f7]">{t("Close")}</button></div> : <button type="button" onClick={onClose} className="w-full rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96]">{t("Close")}</button>}
+            {running ? <button type="button" disabled={cancelling} onClick={onCancel} className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"><CircleStop aria-hidden="true" size={16} />{cancelling ? t("Cancelling…") : t("Cancel generation")}</button> : job.status === "cancelled" ? <div className="grid gap-2"><button type="button" disabled={resuming} onClick={onResume} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-wait disabled:opacity-60">{resuming ? <RefreshCw aria-hidden="true" size={16} className="animate-spin" /> : <Play aria-hidden="true" size={16} />}{resuming ? t("Resuming…") : t("Continue generation")}</button><button type="button" onClick={onClose} className="w-full rounded-lg border border-[#dcdcde] px-4 py-2.5 text-sm font-semibold text-[#1d2327] transition hover:bg-[#f6f7f7]">{t("Close")}</button></div> : ["generated", "preview"].includes(job.status) ? <div className="grid gap-2"><button type="button" disabled={publishing} onClick={onPublish} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-wait disabled:opacity-60">{publishing ? <RefreshCw aria-hidden="true" size={16} className="animate-spin" /> : <Upload aria-hidden="true" size={16} />}{publishing ? t("Publishing…") : t("Publish website")}</button><button type="button" onClick={onClose} className="w-full rounded-lg border border-[#dcdcde] px-4 py-2.5 text-sm font-semibold text-[#1d2327] transition hover:bg-[#f6f7f7]">{t("Close")}</button></div> : <button type="button" onClick={onClose} className="w-full rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96]">{t("Close")}</button>}
             <p className="mt-2 text-center text-[11px] leading-4 text-[#646970]">{running ? t("You can close this window. Generation continues in the background.") : job.status === "failed" ? t("Generation has stopped. No background work is still running.") : job.status === "cancelled" ? t("Completed sections and published pages are saved. Continuing starts at the next missing section.") : setupActionRequired ? t("The pages are published. Complete the highlighted WordPress setup steps.") : t("Published intermediate results remain saved in WordPress.")}</p>
           </div>
         </aside>
