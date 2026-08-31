@@ -83,7 +83,7 @@ export function MinimalAgentWorkspacePage({
   return (
     <main className="min-h-screen bg-[var(--background)] text-foreground">
       <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-5 sm:px-8 sm:py-8">
-        <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <header className="lulu-minimal-agent-page__header flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{agentContract.sectionLabel}</p>
             <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">{agentContract.pageLabel}</h1>

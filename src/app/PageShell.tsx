@@ -120,6 +120,14 @@ export function PageFrame({
   }, [isStandalone, page.slug]);
 
   useEffect(() => {
+    if (isStandalone) return;
+    document.body.classList.toggle("lulu-mobile-nav-open", mobileNavigationOpen);
+    return () => {
+      document.body.classList.remove("lulu-mobile-nav-open");
+    };
+  }, [isStandalone, mobileNavigationOpen]);
+
+  useEffect(() => {
     if (!selectedWorkspace?.id) return;
     return subscribeWorkspaceRefresh(selectedWorkspace.id, () => {
       setRefreshVersion((current) => current + 1);
