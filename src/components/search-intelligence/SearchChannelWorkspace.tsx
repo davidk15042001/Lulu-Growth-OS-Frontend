@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Bot,
-  CheckCircle2,
   ExternalLink,
   Globe,
   Loader2,
-  RefreshCw,
   Search,
   Sparkles,
   Target,
@@ -13,8 +11,6 @@ import {
 } from "lucide-react";
 import { getFriendlyErrorMessage } from "../../api/client";
 import {
-  analyzeSearchChannel,
-  applySearchChannel,
   getSearchChannelSummary,
   type AnalyzeSearchInput,
   type SearchChannel,
@@ -86,30 +82,6 @@ function formatDate(value: string | null) {
   }).format(date);
 }
 
-function buildApplyActivityMessage(
-  prefix: string,
-  successVerb: string,
-  appliedCount: number,
-  failedTargets: Array<{ label: string }> = [],
-) {
-  const failedCount = failedTargets.length;
-  if (failedCount === 0) {
-    return appliedCount > 0
-      ? `${prefix} ${appliedCount} Ziel${appliedCount === 1 ? "" : "e"} wurden ${successVerb}.`
-      : prefix;
-  }
-  const labels = failedTargets
-    .map((target) => target.label.trim())
-    .filter(Boolean)
-    .slice(0, 2)
-    .join(", ");
-  const suffix = labels ? ` Betroffen: ${labels}.` : "";
-  if (appliedCount > 0) {
-    return `${prefix} ${appliedCount} Ziel${appliedCount === 1 ? "" : "e"} wurden ${successVerb}, ${failedCount} Ziel${failedCount === 1 ? "" : "e"} konnten nicht veroeffentlicht werden.${suffix}`;
-  }
-  return `${prefix} Die Datensaetze wurden gespeichert, aber Auto-Apply konnte fuer ${failedCount} Ziel${failedCount === 1 ? "" : "e"} nicht abgeschlossen werden.${suffix}`;
-}
-
 function statusTone(value: string) {
   const normalized = value.toLowerCase();
   if (normalized.includes("answer") || normalized.includes("mention") || normalized.includes("rank")) {
@@ -164,8 +136,6 @@ export function SearchChannelWorkspace({ channel }: Props) {
   const [query, setQuery] = useState("");
   const [form, setForm] = useState<AnalysisForm>(DEFAULT_FORM);
   const [selectedTargetIds, setSelectedTargetIds] = useState<string[]>([]);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [applying, setApplying] = useState(false);
 
   const loadSummary = useCallback(async () => {
     setLoading(true);
@@ -218,45 +188,6 @@ export function SearchChannelWorkspace({ channel }: Props) {
     [selectedTargetIds, summary],
   );
 
-  async function runAnalysis() {
-    setAnalyzing(true);
-    setError(null);
-    setActivity(null);
-    try {
-      const response = await analyzeSearchChannel(channel, form);
-      setSummary(response.data);
-      const appliedCount = response.data.appliedTargets?.length ?? 0;
-      setActivity(buildApplyActivityMessage("Analyse abgeschlossen.", "automatisch aktualisiert", appliedCount, response.data.failedTargets ?? []));
-    } catch (cause) {
-      setError(getFriendlyErrorMessage(cause, "Die Analyse konnte nicht gestartet werden."));
-    } finally {
-      setAnalyzing(false);
-    }
-  }
-
-  async function runApply() {
-    if (selectedTargetIds.length === 0) {
-      setError("Bitte waehle mindestens ein verbundenes Ziel aus.");
-      return;
-    }
-    setApplying(true);
-    setError(null);
-    setActivity(null);
-    try {
-      const response = await applySearchChannel(channel, {
-        targetSiteIds: selectedTargetIds,
-        publish: true,
-      });
-      const appliedCount = response.data.appliedTargets.length;
-      setActivity(buildApplyActivityMessage("Auto-Apply abgeschlossen.", "veroeffentlicht", appliedCount, response.data.failedTargets ?? []));
-      await loadSummary();
-    } catch (cause) {
-      setError(getFriendlyErrorMessage(cause, "Das Auto-Apply konnte nicht ausgefuehrt werden."));
-    } finally {
-      setApplying(false);
-    }
-  }
-
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
@@ -293,15 +224,9 @@ export function SearchChannelWorkspace({ channel }: Props) {
                 </span>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => void loadSummary()}
-              disabled={loading || analyzing || applying}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-slate-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
-              Status aktualisieren
-            </button>
+            <p className="max-w-sm rounded-2xl border border-cyan-400/20 bg-cyan-400/10 px-4 py-3 text-sm text-cyan-100">
+              Analyse, Refresh und Auto-Apply laufen jetzt zentral ueber den Update-Button in der Navigation.
+            </p>
           </div>
         </section>
 
@@ -350,15 +275,9 @@ export function SearchChannelWorkspace({ channel }: Props) {
                   Die Analyse schreibt direkt in die Channel-Records und veroeffentlicht bei Bedarf automatisch auf allen verbundenen Zielen.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={runAnalysis}
-                disabled={analyzing || applying}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
-              >
-                {analyzing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                Analyse mit Auto-Apply
-              </button>
+              <p className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-300 lg:max-w-sm">
+                Der naechste DataForSEO-Lauf wird ueber den globalen Update-Button gestartet.
+              </p>
             </div>
             <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               <label className="space-y-2 text-sm">
@@ -443,15 +362,9 @@ export function SearchChannelWorkspace({ channel }: Props) {
                   Manuelles Re-Apply bleibt verfuegbar. Standardmaessig sind alle gefundenen Ziele vorausgewaehlt.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={runApply}
-                disabled={applying || analyzing || selectedTargetIds.length === 0}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-400 px-4 py-3 text-sm font-semibold text-slate-950 transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-60 lg:w-auto"
-              >
-                {applying ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                Jetzt veroeffentlichen
-              </button>
+              <p className="rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-3 text-sm text-slate-300 lg:max-w-sm">
+                Neue Ergebnisse werden beim globalen Update automatisch auf die verbundenen Ziele uebertragen.
+              </p>
             </div>
 
             <div className="mt-5 space-y-3">

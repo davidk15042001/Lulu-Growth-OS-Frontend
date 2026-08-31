@@ -1,4 +1,4 @@
-import { BookOpen, Pencil, Plus, RefreshCw, Save, Sparkles, Trash2, X } from "lucide-react";
+import { BookOpen, Pencil, Plus, Save, Sparkles, Trash2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
@@ -411,17 +411,6 @@ export function KnowledgeBaseWorkspace() {
                   Apply Recommended Set
                 </button>
               ) : null}
-              <button
-                type="button"
-                disabled={!canEdit || busyKey === "generate-ai-profile"}
-                onClick={() => void runAction("generate-ai-profile", "AI business profile generated.", async () => {
-                  await onboardingApi.generateAiBusinessProfile(workspaceId, { timeoutMs: 300000 });
-                })}
-                className={primaryActionClass}
-              >
-                <Sparkles size={15} />
-                {aiBusinessProfile ? "Regenerate" : "Generate"}
-              </button>
             </div>
           </div>
 
@@ -585,7 +574,7 @@ export function KnowledgeBaseWorkspace() {
               <Sparkles className="mx-auto text-muted-foreground" size={32} />
               <h3 className="mt-4 text-lg font-semibold text-foreground">No AI business profile generated yet</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Generate a draft to get 5-10 high-quality options for positioning, ICP, USP, brand description, challenges, languages, the top 20 customer segments, and a full comparison against the top 10 competitors.
+                Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, the top 20 customer segments, and the full comparison against the top 10 competitors.
               </p>
             </div>
           )}
@@ -599,10 +588,6 @@ export function KnowledgeBaseWorkspace() {
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Workspace Profile</p>
               <h2 className="mt-1 text-lg font-semibold text-foreground">Company Information</h2>
             </div>
-            <button type="button" onClick={() => void refresh()} className={actionClass}>
-              <RefreshCw size={15} />
-              Refresh
-            </button>
           </div>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="text-sm text-muted-foreground">Company Name<input disabled={!canEdit} className={inputClass} value={companyForm.companyName} onChange={(event) => setCompanyForm((current) => ({ ...current, companyName: event.target.value }))} /></label>

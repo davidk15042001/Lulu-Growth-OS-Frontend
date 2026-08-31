@@ -56,7 +56,7 @@ export function MetricsPanel({ workspaceId, onClose }: { workspaceId: string; on
 
   return <LivePanelShell title="Live metrics" subtitle={`${metrics.length} configured metrics`} onClose={onClose}>
     <LiveError message={error} />
-    <LiveSection title="Metrics" action={<button className="lulu-live-button" onClick={() => void loadMetrics()} disabled={busy}>Refresh</button>}>
+    <LiveSection title="Metrics" action={<span className="lulu-live-message">Use Update in the navigation bar.</span>}>
       {metrics.length === 0 ? <LiveEmpty>No live metrics yet.</LiveEmpty> : <div className="lulu-live-form"><label>Select metric<select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>{metrics.map((metric) => <option key={metric.id} value={metric.id}>{metric.name}</option>)}</select></label></div>}
       {metrics.map((metric) => <article className="lulu-live-row" key={metric.id}>
         <div className="lulu-live-row-top"><div><strong>{metric.name}</strong><span>{metric.key} · {metric.domain}</span></div><span className="lulu-live-badge good">{metric.latestValue ?? "—"} {metric.unit}</span></div>

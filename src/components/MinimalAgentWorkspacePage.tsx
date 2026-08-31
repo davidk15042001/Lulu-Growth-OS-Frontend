@@ -1,4 +1,3 @@
-import { RefreshCw } from "lucide-react";
 import { useMemo } from "react";
 import { useLuluApp } from "../api/LuluAppContext";
 import { getPageContract, RESOURCE_BY_SLUG, type PageContract } from "../api/page-contracts";
@@ -89,16 +88,6 @@ export function MinimalAgentWorkspacePage({
             <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">{agentContract.pageLabel}</h1>
             <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{agentContract.objective}</p>
           </div>
-          {resourceType ? (
-            <button
-              type="button"
-              onClick={() => void records.refresh()}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary sm:w-auto"
-            >
-              <RefreshCw size={15} />
-              {t("Refresh")}
-            </button>
-          ) : null}
         </header>
 
         <WorkspaceIntelligencePanel
@@ -106,7 +95,6 @@ export function MinimalAgentWorkspacePage({
           pageId={agentContract.pageId}
           title={`${agentContract.pageLabel} intelligence`}
           summaryBadge="Live page data"
-          refreshLabel="Update page"
         />
 
         {isKnowledgePage ? <KnowledgeBaseWorkspace /> : null}

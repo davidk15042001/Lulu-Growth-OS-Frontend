@@ -1,4 +1,4 @@
-import { ArrowRight, RefreshCw, Sparkles } from 'lucide-react';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { WorkspaceIntelligencePanel } from '../../../../components/WorkspaceIntelligencePanel';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
@@ -29,14 +29,9 @@ export const LuluExecutiveDashboard = () => {
               {workspaceName} is operated through specialized agent workspaces. Start with the workspace that needs attention right now.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary"
-          >
-            <RefreshCw size={15} />
-            Refresh
-          </button>
+          <span className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground">
+            Use Update in the navigation bar
+          </span>
         </header>
 
         <WorkspaceIntelligencePanel workspaceId={selectedWorkspace?.id ?? null} />

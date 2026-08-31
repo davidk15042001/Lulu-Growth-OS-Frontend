@@ -6,7 +6,7 @@ import { routes } from "../../routing";
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
   Plug, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
-  Settings as SettingsIcon, Search, RefreshCw, ShieldCheck, ChevronRight,
+  Settings as SettingsIcon, Search, ShieldCheck, ChevronRight,
   Lock, Unlock, UserCheck, RotateCcw, Ban, PlayCircle, Save, Filter, Trash2,
   LayoutGrid, MessageSquare, Menu, X, LogIn
 } from "lucide-react";
@@ -459,9 +459,9 @@ function DashboardPage({ onError }: { onError: (m: string) => void }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-end">
-        <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-700 hover:bg-slate-50" onClick={load}>
-          <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Refresh
-        </button>
+        <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">
+          Use Update in the navigation bar
+        </span>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -547,9 +547,9 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
           <Pill tone="sky">API: {money(totalApi)}</Pill>
           <Pill tone="violet">Storage: {money(totalStorage)}</Pill>
           <Pill tone="amber">Bytes: {sizeMB(totalStorageBytes)}</Pill>
-          <button className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-slate-700 hover:bg-slate-50" onClick={load}>
-            <RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Aktualisieren
-          </button>
+          <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">
+            Use Update in the navigation bar
+          </span>
         </div>
       </div>
 
@@ -1069,7 +1069,7 @@ function CrmPage({ onError }: { onError: (m: string) => void }) {
             {types.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
-        <button onClick={() => load(search, typeFilter)} className="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"><RefreshCw size={14} /> Refresh</button>
+        <span className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">Use Update in the navigation bar</span>
       </div>
       <DataTable<CrmRow>
         loading={loading} rows={rows} searchValue={search}
@@ -1339,7 +1339,7 @@ function ErrorsPage({ onError }: { onError: (m: string) => void }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-end">
-        <button onClick={load} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"><RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Refresh</button>
+        <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">Use Update in the navigation bar</span>
       </div>
       <DataTable<ErrorRow>
         loading={loading} rows={rows}
@@ -1417,7 +1417,7 @@ function JobsPage({ onError }: { onError: (m: string) => void }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-end">
-        <button onClick={load} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"><RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Refresh</button>
+        <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">Use Update in the navigation bar</span>
       </div>
       <DataTable<JobRow>
         loading={loading} rows={rows}
@@ -1463,7 +1463,7 @@ function SettingsPage({ onError }: { onError: (m: string) => void }) {
             <div className="text-base font-semibold">System Settings</div>
             <div className="text-sm text-slate-500">Globale Plattform-Parameter (read-only View)</div>
           </div>
-          <button onClick={load} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm hover:bg-slate-50"><RefreshCw size={14} className={loading ? "animate-spin" : ""} /> Refresh</button>
+          <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">Use Update in the navigation bar</span>
         </div>
         <div className="divide-y divide-slate-100">
           {loading ? <div className="p-10 text-center text-slate-500">Loading…</div> :

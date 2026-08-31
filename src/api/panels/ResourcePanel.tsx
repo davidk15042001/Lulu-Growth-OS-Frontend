@@ -107,7 +107,7 @@ export function ResourcePanel({ workspaceId, resourceType, onClose }: { workspac
 
   return <LivePanelShell title="Live workspace data" subtitle={resourceType} onClose={onClose}>
     <LiveError message={error} />
-    <LiveSection title={`${records.length} live records`} action={<button className="lulu-live-button" onClick={() => void load()} disabled={busy}>{busy ? "Loading…" : "Refresh"}</button>}>
+    <LiveSection title={`${records.length} live records`} action={<span className="lulu-live-message">Use Update in the navigation bar.</span>}>
       <form className="lulu-live-form" onSubmit={(event) => { event.preventDefault(); void load(); }}>
         <label>Search<input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search name and description" /></label>
       </form>

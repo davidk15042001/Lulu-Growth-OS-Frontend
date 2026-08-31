@@ -57,7 +57,7 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
 
   return <LivePanelShell title="Live integrations" subtitle="Connections and synchronization jobs" onClose={onClose}>
     <LiveError message={error} />
-    <LiveSection title={`${platforms.length} connections`} action={<button className="lulu-live-button" onClick={() => void load()} disabled={busy}>Refresh</button>}>
+    <LiveSection title={`${platforms.length} connections`} action={<span className="lulu-live-message">Use Update in the navigation bar.</span>}>
       {platforms.length === 0 ? <LiveEmpty>No integrations configured.</LiveEmpty> : platforms.map((platform) => <article className="lulu-live-row" key={platform.id}>
         <div className="lulu-live-row-top"><div><strong>{platform.name}</strong><span>{platform.category}{platform.integrationKey ? ` · ${platform.integrationKey}` : ""}</span></div><span className={`lulu-live-badge ${platform.connectionStatus === "connected" ? "good" : ""}`}>{platform.connectionStatus}</span></div>
         <small>Last sync: {formatLiveDate(platform.lastSyncedAt)}{platform.lastError ? ` · ${platform.lastError}` : ""}</small>

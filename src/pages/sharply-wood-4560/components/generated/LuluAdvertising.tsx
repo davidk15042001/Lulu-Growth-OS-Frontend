@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Download, Plus, RefreshCw, Search, Sparkles, SlidersHorizontal, X } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Kpi = {
@@ -102,7 +102,7 @@ export function LuluAdvertising() {
   if (advertisingRecords.length === 0) return <main className="min-h-screen bg-[var(--background)] p-6 text-foreground sm:p-10"><div className="mx-auto max-w-3xl rounded-2xl border border-dashed border-border bg-card p-8 text-center"><Sparkles className="mx-auto mb-4 text-muted-foreground" size={28} /><h1 className="text-2xl font-semibold">Advertising</h1><p className="mt-3 text-sm text-muted-foreground">No live advertising data is available yet. Connect a verified advertising platform before reviewing spend, ROAS or conversion metrics.</p></div></main>;
   return <div className="flex min-h-screen bg-[var(--background)]"><aside className="sticky top-0 hidden h-screen w-60 shrink-0 flex-col overflow-hidden border-r border-border bg-[var(--sidebar)] p-4 lg:flex"><div className="mb-5 flex items-center gap-3 px-2 py-3"><div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-lg font-bold text-primary-foreground">L</div><span className="font-semibold text-foreground">Lulu AI</span></div><LuluSectionNavigation activeId="sharply-wood-4560" /></aside><div className="min-w-0 flex-1"><main className="dashboard">
     <style>{styles}</style>
-    <header className="header"><div><nav className="crumb">Intelligence <span>/</span> Business Intelligence <span>/</span> Advertising</nav><h1>Advertising</h1><p>Understand advertising spend, performance, conversions and revenue across every connected paid media platform.</p></div><div className="actions"><button className="ask-btn"><Sparkles size={15} /> Ask Lulu AI</button><button><RefreshCw size={14} /> Refresh</button><button><Plus size={14} /> Create Report</button><button><Download size={14} /> Export</button></div></header>
+    <header className="header"><div><nav className="crumb">Intelligence <span>/</span> Business Intelligence <span>/</span> Advertising</nav><h1>Advertising</h1><p>Understand advertising spend, performance, conversions and revenue across every connected paid media platform.</p></div><div className="actions"><button className="ask-btn"><Sparkles size={15} /> Ask Lulu AI</button><span className="inline-flex items-center rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground">Use Update in the navigation bar</span><button><Plus size={14} /> Create Report</button><button><Download size={14} /> Export</button></div></header>
     {error && <div className="alert error"><X size={16} /> Advertising analysis couldn’t be loaded <button onClick={() => setError(false)}>Try Again</button></div>}
     <div className="filters"><button>Date Range <b>Live records</b><ChevronDown size={14} /></button><span className="vs">vs</span><button><b>Live comparison</b><ChevronDown size={14} /></button><i></i><button><b>Connected platforms</b><ChevronDown size={14} /></button><button>Accounts <b>Connected accounts</b><ChevronDown size={14} /></button><small>Live status</small></div>
     <div className="section"><label className="eyebrow">Advertising Overview</label><div className="kpi-grid">{kpis.map(k => <article className="kpi" key={k.label}><span className="eyebrow">{k.label}</span><strong>{k.value}</strong><small>vs previous {k.prev}</small><div className="kpi-bottom"><b className={k.good ? 'positive' : 'negative'}>{k.good ? <ArrowUp size={13} /> : <ArrowDown size={13} />} {k.delta} <span>{k.pct}</span></b><span className="coverage">4 platforms</span></div><Sparkline path={k.spark} /></article>)}</div></div>
@@ -757,3 +757,4 @@ function LuluSectionNavigation({
   </nav>;
 }
 import { pageLinkProps } from '../../../../routing';
+

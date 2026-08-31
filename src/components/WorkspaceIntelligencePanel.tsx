@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AlertTriangle, CheckCircle2, Clock3, Database, RefreshCw, Sparkles } from 'lucide-react';
 import { agentApi, type IntelligenceBundle } from '../api/agents';
-import { workspaceAppApi, type ContentRefreshJob } from '../api/workspace-app';
 import { ApiError } from '../api/client';
 
 type Props = {
@@ -9,7 +8,6 @@ type Props = {
   pageId?: string | null;
   title?: string;
   summaryBadge?: string;
-  refreshLabel?: string;
 };
 
 function statusLabel(status: string) {
@@ -25,13 +23,10 @@ export function WorkspaceIntelligencePanel({
   pageId = null,
   title,
   summaryBadge,
-  refreshLabel,
 }: Props) {
   const [bundle, setBundle] = useState<IntelligenceBundle | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [refreshJob, setRefreshJob] = useState<ContentRefreshJob | null>(null);
-  const [refreshing, setRefreshing] = useState(false);
   const [showAllMobileSignals, setShowAllMobileSignals] = useState(false);
 
   const load = async () => {
@@ -48,37 +43,7 @@ export function WorkspaceIntelligencePanel({
     }
   };
 
-  const startRefresh = async () => {
-    if (!workspaceId || refreshing) return;
-    setRefreshing(true);
-    setError(null);
-    try {
-      const response = await workspaceAppApi.startContentRefresh(workspaceId);
-      setRefreshJob(response.data.job);
-    } catch (cause) {
-      setError(cause instanceof ApiError ? cause.message : 'The workspace update could not be started.');
-      setRefreshing(false);
-    }
-  };
-
   useEffect(() => { void load(); }, [pageId, workspaceId]);
-  useEffect(() => {
-    if (!workspaceId || !refreshJob || ['completed', 'failed', 'cancelled'].includes(refreshJob.status)) return;
-    const timer = window.setInterval(async () => {
-      try {
-        const response = await workspaceAppApi.contentRefreshStatus(workspaceId, refreshJob.id);
-        setRefreshJob(response.data);
-        if (['completed', 'failed', 'cancelled'].includes(response.data.status)) {
-          setRefreshing(false);
-          await load();
-        }
-      } catch (cause) {
-        setError(cause instanceof ApiError ? cause.message : 'The workspace update status could not be loaded.');
-        setRefreshing(false);
-      }
-    }, 2000);
-    return () => window.clearInterval(timer);
-  }, [workspaceId, refreshJob?.id, refreshJob?.status]);
 
   const counts = useMemo(() => {
     const metrics = bundle?.metrics ?? [];
@@ -105,7 +70,6 @@ export function WorkspaceIntelligencePanel({
   if (!workspaceId) return null;
   const resolvedTitle = title ?? (pageId ? 'Page intelligence' : 'Workspace intelligence');
   const resolvedBadge = summaryBadge ?? (pageId ? 'Live page data' : 'Live workspace data');
-  const resolvedRefreshLabel = refreshLabel ?? (pageId ? 'Update page' : 'Update workspace');
   const pendingTitle = pageId ? 'Initial page intelligence analysis pending' : 'Initial intelligence analysis pending';
   const pendingDescription = pageId
     ? 'The page analysis starts automatically and uses only page-specific signals, onboarding data and connected sources. No demo values are shown.'
@@ -116,11 +80,9 @@ export function WorkspaceIntelligencePanel({
   if (!bundle?.snapshot) return <section className="mb-7 rounded-xl border border-border bg-card p-5"><div className="flex items-start gap-3"><Clock3 className="mt-0.5 shrink-0 text-muted-foreground" size={18} /><div><h2 className="text-sm font-semibold text-foreground">{pendingTitle}</h2><p className="mt-1 text-sm leading-6 text-muted-foreground">{pendingDescription}</p></div></div></section>;
 
   return <section className="mb-7 rounded-xl border border-border bg-card p-4 sm:p-6">
-    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div className="flex flex-col gap-4">
       <div className="flex min-w-0 items-start gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"><Sparkles size={17} /></div><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h2 className="text-base font-semibold text-foreground">{resolvedTitle}</h2><span className="rounded-full bg-chart-4/10 px-2 py-1 text-[11px] font-medium text-chart-4">{resolvedBadge}</span></div><p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{bundle.snapshot.executiveSummary || 'The initial business intelligence analysis has been completed.'}</p></div></div>
-      <button type="button" onClick={() => void startRefresh()} disabled={refreshing} aria-label={resolvedRefreshLabel} className="inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-md border border-border px-3 py-2 text-xs text-foreground hover:bg-secondary disabled:cursor-wait disabled:opacity-60 sm:w-auto"><RefreshCw className={refreshing ? 'animate-spin' : ''} size={13} /> {refreshing ? `Updating ${refreshJob?.progress ?? 0}%` : resolvedRefreshLabel}</button>
     </div>
-    {refreshJob && <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">{refreshJob.status === 'completed' ? (pageId ? 'Page content is up to date.' : 'Workspace content is up to date.') : refreshJob.status === 'failed' ? (refreshJob.errorMessage || `${resolvedRefreshLabel} failed.`) : `Updating ${refreshJob.currentPhase} · ${refreshJob.progress}%`}</div>}
     <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
       {visibleSummaryCards.map((card) => (
         <div key={card.label} className="rounded-lg border border-border bg-background/40 p-3">

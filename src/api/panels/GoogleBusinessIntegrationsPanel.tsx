@@ -71,7 +71,7 @@ export function GoogleBusinessIntegrationsPanel({ workspaceId, onClose }: { work
 
   return <LivePanelShell title="Google Business Integrations" subtitle="Connection, sync and account visibility" onClose={onClose}>
     <LiveError message={error || notice} />
-    <LiveSection title="Connection" action={<button className="lulu-live-button" onClick={() => void load()} disabled={busy}>Refresh</button>}>
+    <LiveSection title="Connection" action={<span className="lulu-live-message">Use Update in the navigation bar.</span>}>
       {!state ? <LiveEmpty>Loading Google Business…</LiveEmpty> : <article className="lulu-live-row">
         <div className="lulu-live-row-top">
           <div>
