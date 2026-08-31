@@ -199,8 +199,8 @@ export function LuluWorkspaceRefreshButton() {
         <span className="lulu-auth-search-refresh__label">{running ? `${job?.progress ?? 0}%` : t('Update')}</span>
       </button>
       {showStatusDialog && job ? (
-        <div className="fixed inset-0 z-[90] overflow-y-auto bg-slate-950/60 p-4 pt-24 sm:flex sm:items-start sm:justify-center sm:pt-28">
-          <div className="mx-auto w-full max-w-lg rounded-2xl border border-white/10 bg-slate-900 p-5 text-white shadow-2xl">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/60 p-4">
+          <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-slate-900 p-5 text-white shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Workspace update</p>
