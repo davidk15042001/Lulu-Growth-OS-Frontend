@@ -120,6 +120,7 @@ const REMOVED_PAGE_SLUGS = new Set([
   "calmly-cloud-9988",
   "sunnily-gulf-7520",
   "smartly-shade-4619",
+  "bright-meadow-7537",
 ]);
 
 const TOP_LEVEL_PAGE_SLUGS = new Set([

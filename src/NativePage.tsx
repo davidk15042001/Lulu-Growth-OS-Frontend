@@ -80,7 +80,6 @@ const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   "purely-dusk-2409",
   "soft-hill-4757",
   "safely-air-9334",
-  "bright-meadow-7537",
   "sturdy-month-1562",
   "kindly-pool-8785",
   "cosmic-pool-1616",
