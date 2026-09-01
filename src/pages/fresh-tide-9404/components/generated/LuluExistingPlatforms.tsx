@@ -1,10 +1,9 @@
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowRight, BarChart3, CircleCheck, Globe, Search, Store, Trash2, UsersRound, X } from "lucide-react";
+import { ArrowRight, BarChart3, CircleCheck, Globe, Store, Trash2, UsersRound, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 import { onboardingApi } from '../../../../api/onboarding';
-import { GoogleBusinessConnectionSetup } from '../../../../components/google-business/GoogleBusinessConnectionSetup';
 import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 interface Platform {
   id: string;
@@ -45,8 +44,8 @@ const platformGroups: PlatformGroup[] = [
     Shopify: { intro: "Connect a Shopify store using its myshopify.com domain. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/shopify/callback", steps: ["Open the Shopify Dev Dashboard and create or select the app.", "Configure the Admin API scopes `read_products` and `read_content` and add the callback URL shown above.", "Copy your store domain in the exact format `example.myshopify.com`.", "Click Connect here, enter the store domain, and approve the app installation."], links: [{ label: "Open Shopify Dev Dashboard", url: "https://dev.shopify.com/dashboard" }, { label: "Read Shopify OAuth Guide", url: "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/authorization-code-grant" }] },
   };
 export const LuluExistingPlatforms = () => {
+  const isOnboarding = window.location.pathname.startsWith("/onboarding/");
   const [platforms, setPlatforms] = useState<Platform[]>([]);
-  const [query, setQuery] = useState("");
   const [error, setError] = useState('');
   const [technicalDetails, setTechnicalDetails] = useState('');
   const [guidePlatform, setGuidePlatform] = useState<string | null>(null);
@@ -120,6 +119,7 @@ export const LuluExistingPlatforms = () => {
   };
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!isOnboarding) return;
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
     setError('');
@@ -142,33 +142,19 @@ export const LuluExistingPlatforms = () => {
       setError(getFriendlyErrorMessage(cause, 'We could not remove this platform. Please try again.'));
     }
   };
-  const activeWorkspaceId = getSelectedWorkspaceId();
-  if (activeWorkspaceId) return <GoogleBusinessConnectionSetup workspaceId={activeWorkspaceId} />;
   return <main className="min-h-screen bg-[var(--background)] font-['Poppins',sans-serif] text-[var(--foreground)]">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
         <div className="w-full max-w-3xl">
-          <OnboardingHeader step={3} />
-          <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
+          {isOnboarding && <OnboardingHeader step={3} />}
+          {isOnboarding && <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
             03 / 04 · Company profile
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold leading-tight text-[var(--foreground)]">
-            Your existing platforms
-          </h1>
-          <p className="mt-3 text-sm leading-6 text-[var(--muted-foreground)]">
-            Connect the systems that hold your business signal. Lulu turns them
-            into one context layer.
-          </p>
+          </p>}
           <form onSubmit={submit} className="mt-8 space-y-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.08)] sm:p-6 lg:p-7">
-            
-            <label className="block text-sm font-medium text-[var(--foreground)]">
-              <span className="flex items-center justify-between gap-3"><span>Search platforms</span><span className="text-xs font-normal text-[var(--muted-foreground)]">{platformGroups.reduce((count, group) => count + group.platforms.length, 0)} available</span></span>
-              <input value={query} onChange={event => setQuery(event.target.value)} placeholder="Search Salesforce, Google Ads, Analytics…" className="mt-2 h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-4 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--primary)]/15" />
-            </label>
             {error && <div role="alert" className="space-y-2 rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm leading-6 text-[var(--destructive)]"><p className="font-medium text-[var(--destructive)]">{error}</p>{technicalDetails && <details><summary className="cursor-pointer text-xs font-semibold text-[var(--destructive)]">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--destructive)]">{technicalDetails}</p></details>}</div>}
             <div className="space-y-5">
               {platformGroups.map(group => {
               const Icon = group.icon;
-              const groupPlatforms = group.platforms.filter(name => name.toLowerCase().includes(query.toLowerCase()));
+              const groupPlatforms = group.platforms;
               const comingSoon = group.comingSoon === true;
               return <section key={group.id} className={`rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-4 shadow-sm sm:p-5 ${comingSoon ? 'opacity-70' : ''}`} aria-labelledby={`${group.id}-heading`} aria-disabled={comingSoon}>
                   <div className="flex items-start justify-between gap-4">
@@ -200,11 +186,11 @@ export const LuluExistingPlatforms = () => {
                 </section>;
               })}
             </div>
-            <button type="submit" className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)]">
+            {isOnboarding && <button type="submit" className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)]">
               
               Continue to billing
               <ArrowRight size={16} />
-            </button>
+            </button>}
           </form>
         </div>
       </section>

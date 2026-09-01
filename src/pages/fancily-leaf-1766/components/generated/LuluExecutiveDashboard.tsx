@@ -322,6 +322,15 @@ export const luluDropdownNavigation = [{
   }, {
     "id": "sparkling-cave-8456",
     "label": "Activity"
+  }, {
+    "id": "radiant-dusk-9079",
+    "label": "Agents"
+  }, {
+    "id": "wondrously-second-5656",
+    "label": "Actions"
+  }, {
+    "id": "glad-coast-1428",
+    "label": "Integrations"
   }]
 }, {
   "label": "Finance",
@@ -338,17 +347,8 @@ export const luluDropdownNavigation = [{
     "id": "fresh-moon-5374",
     "label": "Assistant"
   }, {
-    "id": "radiant-dusk-9079",
-    "label": "Agents"
-  }, {
-    "id": "calmly-park-3313",
-    "label": "Agent Marketplace"
-  }, {
     "id": "rich-field-1880",
     "label": "Knowledge"
-  }, {
-    "id": "wondrously-second-5656",
-    "label": "Actions"
   }]
 }, {
   "label": "CRM",
@@ -530,11 +530,8 @@ export const luluDropdownNavigation = [{
 }, {
   "label": "Settings",
   "pages": [{
-    "id": "nicely-land-1864",
-    "label": "Settings"
-  }, {
-    "id": "glad-coast-1428",
-    "label": "Integrations"
+    "id": "fresh-tide-9404",
+    "label": "Integration"
   }, {
     "id": "pure-minute-5446",
     "label": "Billing"

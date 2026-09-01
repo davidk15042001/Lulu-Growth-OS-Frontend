@@ -1,5 +1,5 @@
 import { CalendarDays, ChevronDown, LogOut, RefreshCw, X } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
@@ -18,18 +18,16 @@ const GOOGLE_BUSINESS_LABEL = "Google Business";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
 const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
-const GOOGLE_BUSINESS_PAGE_IDS = new Set(["daring-brook-9034", "fresh-tide-9404", "glad-coast-1428"]);
+const GOOGLE_BUSINESS_PAGE_IDS = new Set<string>();
 const GOOGLE_BUSINESS_SECTION: NavigationSection = {
   label: GOOGLE_BUSINESS_LABEL,
-  pages: [
-    { id: "daring-brook-9034", label: "Reviews" },
-    { id: "fresh-tide-9404", label: "Connection Setup" },
-    { id: "glad-coast-1428", label: "Integrations" },
-  ],
+  pages: [],
 };
 const NAVIGATION_PAGE_LABELS = new Map(
   manifestPages.map((page) => [page.slug, page.name.replace(/^Lulu AI\s+—\s+/, "")]),
 );
+NAVIGATION_PAGE_LABELS.set("glad-coast-1428", "Integrations");
+NAVIGATION_PAGE_LABELS.set("fresh-tide-9404", "Verbindungen");
 
 function getNavigationPageLabel(page: NavigationPage) {
   return NAVIGATION_PAGE_LABELS.get(page.id) ?? page.label;
@@ -101,7 +99,16 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     }
   }
 
-  return reorderedSections;
+  return reorderedSections.map((section) =>
+    section.label === STATISTICS_LABEL
+      ? {
+          ...section,
+          pages: [...section.pages].sort((a, b) =>
+            getNavigationPageLabel(a).localeCompare(getNavigationPageLabel(b), undefined, { sensitivity: "base" }),
+          ),
+        }
+      : section,
+  );
 })();
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
@@ -248,11 +255,15 @@ export function LuluGlobalNavigation({
             );
           }
           return (
-            <details
-              key={section.label}
-              open={isActiveSection}
-              className={needsSeparator ? "lulu-global-navigation__section-divider-before" : undefined}
-            >
+            <Fragment key={section.label}>
+              {needsSeparator && (
+                <div className="lulu-global-navigation__primary-link lulu-global-navigation__primary-link--divider lulu-global-navigation__primary-link--locked">
+                  <span>Agent Marketplace</span>
+                </div>
+              )}
+              <details
+                open={isActiveSection}
+              >
               <summary
                 className={isActiveSection ? "is-active" : undefined}
               >
@@ -304,7 +315,8 @@ export function LuluGlobalNavigation({
                   </div>
                 )}
               </div>
-            </details>
+              </details>
+            </Fragment>
           );
         })}
       </nav>

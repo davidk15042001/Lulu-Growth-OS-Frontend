@@ -6,7 +6,7 @@ import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
 import { LuluAgentWorkspaceHeader } from "./components/LuluAgentWorkspaceHeader";
 import { MinimalAgentWorkspacePage } from "./components/MinimalAgentWorkspacePage";
-import { isPageAvailable, navigateApp, routes } from "./routing";
+import { isPageAvailable, navigateApp, routes, HOME_PAGE_SLUG } from "./routing";
 import { getPageContract } from "./api/page-contracts";
 import { getLuluAgentContract } from "./config/lulu-agent-registry";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
@@ -43,9 +43,68 @@ const navigationFreePaths = new Set([
   "/onboarding/setup-complete",
 ]);
 
+const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
+  HOME_PAGE_SLUG,
+  "fresh-tide-9404",
+  "pure-minute-5446",
+  "breezy-soil-2475",
+  "tender-creek-3139",
+  "dreamily-soil-9290",
+  "wondrous-cloud-1355",
+  "finely-garden-9221",
+  "wise-brook-1762",
+  "softly-second-7684",
+  "happily-storm-2690",
+  "sunny-minute-1092",
+  "nicely-shade-2637",
+  "nice-moon-2056",
+  "sunnily-peak-7188",
+  "sunny-summer-2293",
+  "lulu-website-portal-9012",
+  "daring-brook-9034",
+  "smart-ocean-3898",
+  "nice-year-6253",
+  "nicely-ocean-1051",
+  "richly-forest-5832",
+  "mightily-shore-7108",
+  "fancy-ground-8040",
+  "serenely-sand-9226",
+  "smart-village-1099",
+  "dreamy-shade-5445",
+  "sharply-sky-4161",
+  "wildly-time-4260",
+  "quietly-moon-4186",
+  "merry-castle-3260",
+  "merry-cliff-8846",
+  "safely-dawn-7731",
+  "purely-dusk-2409",
+  "soft-hill-4757",
+  "safely-air-9334",
+  "bright-meadow-7537",
+  "sturdy-month-1562",
+  "kindly-pool-8785",
+  "swift-hour-7844",
+  "smartly-shade-4619",
+  "calmly-cloud-9988",
+  "cosmic-pool-1616",
+  "deeply-noon-9539",
+  "sunnily-gulf-7520",
+  "email-inbox",
+  "email-starred",
+  "email-sent",
+  "email-drafts",
+  "email-automations",
+  "email-settings",
+  "rich-field-1880",
+]);
+
 function shouldUseMinimalAgentPage(
   hasAgentContract: boolean,
+  slug: string,
 ) {
+  // Pages with a dedicated custom interface render their own component
+  // instead of the generic agent workspace.
+  if (CUSTOM_INTERFACE_PAGE_SLUGS.has(slug)) return false;
   return hasAgentContract;
 }
 
@@ -81,7 +140,7 @@ export function NativePage({
   const agentContract = getLuluAgentContract(effectiveSlug);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
   const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname);
-  const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(Boolean(agentContract));
+  const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(Boolean(agentContract), effectiveSlug);
 
   useEffect(() => {
     if (!pageAvailable) {
@@ -239,7 +298,7 @@ export function NativePage({
           </>
         )}
         <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
-          {!isNavigationFree && agentContract ? <LuluAgentWorkspaceHeader contract={agentContract} /> : null}
+          {!isNavigationFree && agentContract && !CUSTOM_INTERFACE_PAGE_SLUGS.has(effectiveSlug) ? <LuluAgentWorkspaceHeader contract={agentContract} /> : null}
           <div className="lulu-native-page">
             <PageErrorBoundary pageName={slug}>
               <LiveResourceGate

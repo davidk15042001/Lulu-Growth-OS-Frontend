@@ -97,6 +97,9 @@ button, input { font: inherit; }
 .lulu-global-navigation__primary-link{display:flex;align-items:center;gap:9px;min-height:44px;margin-bottom:2px;border-radius:9px;padding:9px 10px;color:var(--muted-foreground);font-size:.86rem;text-decoration:none;transition:background .18s ease,color .18s ease}
 .lulu-global-navigation__primary-link:hover,.lulu-global-navigation__primary-link.is-active{background:var(--secondary);color:var(--foreground)}
 .lulu-global-navigation__primary-link.is-active{font-weight:600}
+.lulu-global-navigation__primary-link--divider{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.lulu-global-navigation__primary-link--locked{cursor:default;opacity:.68}
+.lulu-global-navigation__primary-link--locked:hover{background:transparent;color:var(--muted-foreground)}
 .lulu-global-navigation__sections details{margin-bottom:2px}
 .lulu-global-navigation__sections details.lulu-global-navigation__section-divider-before{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
 .lulu-global-navigation__sections summary{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;cursor:pointer;list-style:none;border-radius:9px;padding:9px 10px;color:var(--muted-foreground);font-size:.86rem;transition:background .18s ease,color .18s ease}
@@ -154,7 +157,9 @@ button, input { font: inherit; }
 .lulu-global-content .lulu-native-page aside[class*="w-[246px]"],
 .lulu-global-content .lulu-native-page aside.sidebar,
 .lulu-global-content .lulu-native-page aside.activity-sidebar,
-.lulu-global-content .lulu-native-page aside.actions-sidebar{display:none!important}
+.lulu-global-content .lulu-native-page aside.actions-sidebar,
+.lulu-global-content .lulu-native-page aside.rail,
+.lulu-global-content .lulu-native-page aside.lulu-sidebar{display:none!important}
 .lulu-global-content .lulu-native-page main{width:100%!important;min-width:0!important;margin-left:0!important}
 .lulu-global-content .lulu-native-page [class*="w-[246px]"],.lulu-global-content .lulu-native-page [class*="w-[232px]"],.lulu-global-content .lulu-native-page .sidebar,.lulu-global-content .lulu-native-page .activity-sidebar,.lulu-global-content .lulu-native-page .actions-sidebar{display:none!important}
 .lulu-global-content .lulu-native-page [class*="min-h-screen"]{min-height:calc(100vh - 66px)}
