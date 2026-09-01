@@ -191,7 +191,7 @@ export function LuluBilling() {
         {activeTab !== 'overview' && activeTab !== 'current-plan' && <BillingTabPanels activeTab={activeTab} onTabChange={setActiveTab} />}
       </section>
 
-      <button type="button" onClick={() => setAssistantOpen(!assistantOpen)} className="fixed bottom-5 right-5 z-10 flex items-center gap-2 rounded-full border border-border/30 bg-[var(--primary)] px-4 py-3 text-xs font-medium text-primary-foreground shadow-2xl shadow-black/40 transition hover:border-border hover:bg-[var(--primary)]" aria-label="Ask Lulu AI about billing"><MessageCircle size={16} className="text-foreground" /><span className="hidden sm:inline">Ask Lulu AI about billing...</span></button>
+      
       {assistantOpen && <div className="fixed bottom-[72px] right-5 z-10 w-[280px] rounded-xl border border-[var(--muted-foreground)] bg-[var(--secondary)] p-4 shadow-2xl"><div className="flex items-center gap-2 text-sm font-medium text-foreground"><Sparkles size={15} className="text-foreground" />Lulu AI Billing Assistant</div><p className="mt-3 text-xs leading-5 text-muted-foreground">I can help explain your upcoming invoice, usage, or plan options.</p><button type="button" onClick={() => setAssistantOpen(false)} className="mt-3 text-xs text-foreground">Got it</button></div>}
     </main>;
 }
