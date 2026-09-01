@@ -29,6 +29,16 @@ export type AiMessage = {
   createdAt: string;
 };
 
+export type AssistantToolCall = { name: string; args: Record<string, unknown>; result: unknown };
+export type AssistantPendingAction = { id: string; type: string; summary: string; payload: Record<string, unknown> };
+export type AssistantResponse = {
+  userMessage: AiMessage;
+  assistantMessage: AiMessage;
+  model: string;
+  toolCalls: AssistantToolCall[];
+  pendingActions: AssistantPendingAction[];
+};
+
 export const aiApi = {
   conversations: (workspaceId: string, query = "limit=100&archived=false") => requestApi<{
     items: Conversation[]; pagination: Pagination;
@@ -53,11 +63,16 @@ export const aiApi = {
     method: "POST",
     body: { content, metadata },
   }),
-  respond: (workspaceId: string, conversationId: string, content: string, metadata?: Record<string, unknown>) => requestApi<{
-    userMessage: AiMessage; assistantMessage: AiMessage; model: string;
-  }>({
+  respond: (workspaceId: string, conversationId: string, content: string, metadata?: Record<string, unknown>) => requestApi<AssistantResponse>({
     path: workspaceApiPath(workspaceId, `/ai/conversations/${conversationId}/respond`),
     method: "POST",
     body: { content, metadata },
+  }),
+  executeAction: (workspaceId: string, conversationId: string, action: AssistantPendingAction) => requestApi<{
+    status: string; message: string; resourceType: string | null; recordId: string | null;
+  }>({
+    path: workspaceApiPath(workspaceId, `/ai/conversations/${conversationId}/actions`),
+    method: "POST",
+    body: { action },
   }),
 };
