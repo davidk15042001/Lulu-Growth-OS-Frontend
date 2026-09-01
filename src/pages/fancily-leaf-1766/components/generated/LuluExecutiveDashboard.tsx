@@ -357,10 +357,7 @@ export const luluDropdownNavigation = [{
     "label": "Overview"
   }, {
     "id": "sturdy-month-1562",
-    "label": "Contacts"
-  }, {
-    "id": "kindly-pool-8785",
-    "label": "Companies"
+    "label": "Contacts & Companies"
   }, {
     "id": "swift-hour-7844",
     "label": "Leads"

@@ -298,7 +298,7 @@ export const pages: PageDefinition[] = [
   },
   {
     "id": "437844461897261142",
-    "name": "Lulu AI — CRM — Contacts",
+    "name": "Lulu AI — CRM — Contacts & Companies",
     "slug": "sturdy-month-1562",
     "generatedName": "sturdy-month-1562",
     "selectedRevisionId": "438651258014941184",

@@ -1,21 +1,12 @@
-import { Theme } from './settings/types';
-import { LuluCompanies } from './components/generated/LuluCompanies';
-// %IMPORT_STATEMENT
-
-let theme: Theme = 'light';
+import { useEffect } from 'react';
+import { navigateApp } from '../../routing';
 
 function App() {
-  function setTheme(theme: Theme) {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }
+  useEffect(() => {
+    navigateApp('/app/sturdy-month-1562', { replace: true });
+  }, []);
 
-  setTheme(theme);
-
-  return <LuluCompanies />; // %EXPORT_STATEMENT%
+  return null;
 }
 
 export default App;
