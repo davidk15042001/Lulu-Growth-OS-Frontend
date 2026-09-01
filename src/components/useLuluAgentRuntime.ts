@@ -838,7 +838,7 @@ export function useLuluAgentRuntime(
     };
 
     void load();
-    const timer = window.setInterval(() => void load(), 45_000);
+    const timer = window.setInterval(() => void load(), 60_000);
     return () => {
       active = false;
       window.clearInterval(timer);

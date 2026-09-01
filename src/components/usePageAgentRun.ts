@@ -177,7 +177,7 @@ export function usePageAgentRun(
   useEffect(() => {
     void load();
     if (!workspaceId) return;
-    const timer = window.setInterval(() => void load(true), 15_000);
+    const timer = window.setInterval(() => void load(true), 30_000);
     return () => window.clearInterval(timer);
   }, [load, workspaceId]);
 
