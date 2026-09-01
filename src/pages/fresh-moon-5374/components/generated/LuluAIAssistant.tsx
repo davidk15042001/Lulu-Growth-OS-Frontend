@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
-import { Bot, Check, Plus, Send, Sparkles, User, X } from "lucide-react";
+import { Bot, Plus, Send, Sparkles, User } from "lucide-react";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import {
   aiApi,
-  type AssistantPendingAction,
   type AssistantToolCall,
   type Conversation,
   type AiMessage,
@@ -10,39 +10,54 @@ import {
 import { getFriendlyErrorMessage } from "../../../../api/client";
 import { getSelectedWorkspaceId } from "../../../../api/session";
 
-type PendingActionState = AssistantPendingAction & {
-  status: "pending" | "approved" | "rejected";
-  result?: string;
-};
-
 type ChatMessage = {
   id: string;
   role: "user" | "assistant";
   content: string;
   toolCalls?: AssistantToolCall[];
-  pendingActions?: PendingActionState[];
 };
 
 function toolLabel(name: string) {
   if (name === "list_records") return "Daten abgefragt";
   if (name === "get_knowledge") return "Knowledge gelesen";
   if (name === "get_agent_health") return "Agenten geprüft";
-  if (name === "request_action") return "Aktion vorgeschlagen";
+  if (name === "request_action") return "Aktion ausgeführt";
   return name;
 }
 
-function actionLabel(type: string) {
-  const labels: Record<string, string> = {
-    "crm.create_followup_task": "CRM-Follow-up erstellen",
-    "sales.create_followup_task": "Sales-Follow-up erstellen",
-    "advertising.create_optimization": "Anzeigen-Optimierung erstellen",
-    "finance.create_automation": "Finanz-Automation erstellen",
-    "google_reviews.reply": "Google-Bewertung beantworten",
-    "email.create_draft": "E-Mail-Entwurf erstellen",
-    "email.create_ai_draft": "KI-E-Mail-Entwurf erstellen",
-    "website.publish_job": "Website veröffentlichen",
-  };
-  return labels[type] ?? type;
+type ChartSpec = { type?: string; title?: string; labels?: string[]; values?: number[] };
+
+function ChartBlock({ spec }: { spec: ChartSpec }) {
+  const labels = Array.isArray(spec.labels) ? spec.labels : [];
+  const values = Array.isArray(spec.values) ? spec.values : [];
+  const data = labels.map((label, index) => ({ label, value: typeof values[index] === "number" ? values[index] : 0 }));
+  if (!labels.length || !values.length) return null;
+  return (
+    <div className="my-3 overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--background)] p-3">
+      {spec.title && <p className="mb-2 text-xs font-semibold text-[var(--muted-foreground)]">{spec.title}</p>}
+      <div className="h-56 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          {spec.type === "line" ? (
+            <LineChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} />
+              <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} />
+              <Tooltip cursor={{ stroke: "var(--border)" }} />
+              <Line type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} dot={false} />
+            </LineChart>
+          ) : (
+            <BarChart data={data}>
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+              <XAxis dataKey="label" stroke="var(--muted-foreground)" fontSize={12} tickLine={false} />
+              <YAxis stroke="var(--muted-foreground)" fontSize={12} tickLine={false} />
+              <Tooltip cursor={{ fill: "var(--secondary)" }} />
+              <Bar dataKey="value" fill="var(--primary)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          )}
+        </ResponsiveContainer>
+      </div>
+    </div>
+  );
 }
 
 function renderInline(text: string): ReactNode[] {
@@ -119,6 +134,7 @@ function renderMarkdown(text: string): ReactNode[] {
     const line = lines[i];
 
     if (line.trim().startsWith("```")) {
+      const language = line.trim().slice(3).trim().toLowerCase();
       const codeLines: string[] = [];
       i += 1;
       while (i < lines.length && !lines[i].trim().startsWith("```")) {
@@ -126,11 +142,53 @@ function renderMarkdown(text: string): ReactNode[] {
         i += 1;
       }
       i += 1;
-      blocks.push(
-        <pre key={key++} className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--background)] p-3 font-mono text-[13px] leading-5">
-          <code>{codeLines.join("\n")}</code>
-        </pre>
-      );
+      const content = codeLines.join("\n");
+
+      if (language === "chart") {
+        try {
+          const spec = JSON.parse(content) as ChartSpec;
+          blocks.push(<ChartBlock key={key++} spec={spec} />);
+        } catch {
+          blocks.push(
+            <pre key={key++} className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--background)] p-3 font-mono text-[13px] leading-5">
+              <code>{content}</code>
+            </pre>
+          );
+        }
+      } else {
+        blocks.push(
+          <pre key={key++} className="overflow-x-auto rounded-xl border border-[var(--border)] bg-[var(--background)] p-3 font-mono text-[13px] leading-5">
+            <code>{content}</code>
+          </pre>
+        );
+      }
+      continue;
+    }
+
+    if (/^\s*\|.*\|\s*$/.test(line)) {
+      const rows: string[][] = [];
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+        rows.push(lines[i].split("|").slice(1, -1).map((cell) => cell.trim()));
+        i += 1;
+      }
+      const header = rows[0] ?? [];
+      const body = rows.slice(1).filter((row) => !row.every((cell) => /^:?-{3,}:?$/.test(cell)));
+      if (header.length && body.length) {
+        blocks.push(
+          <div key={key++} className="my-2 overflow-x-auto rounded-xl border border-[var(--border)]">
+            <table className="w-full border-collapse text-left text-sm">
+              <thead>
+                <tr>{header.map((cell, ci) => <th key={ci} className="border-b border-[var(--border)] bg-[var(--secondary)]/40 px-3 py-2 font-semibold">{renderInline(cell)}</th>)}</tr>
+              </thead>
+              <tbody>
+                {body.map((row, ri) => (
+                  <tr key={ri}>{row.map((cell, ci) => <td key={ci} className="border-b border-[var(--border)] px-3 py-2 align-top last:border-b-0">{renderInline(cell)}</td>)}</tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
       continue;
     }
 
@@ -177,6 +235,7 @@ function renderMarkdown(text: string): ReactNode[] {
       && !/^#{1,3}\s/.test(lines[i])
       && !/^\s*[-*]\s+/.test(lines[i])
       && !/^\s*\d+[.)]\s+/.test(lines[i])
+      && !/^\s*\|.*\|\s*$/.test(lines[i])
       && !lines[i].trim().startsWith("```")
     ) {
       paragraph.push(lines[i]);
@@ -274,7 +333,6 @@ export function LuluAIAssistant() {
           role: "assistant",
           content: response.data.assistantMessage.content,
           toolCalls: response.data.toolCalls,
-          pendingActions: response.data.pendingActions.map((action) => ({ ...action, status: "pending" })),
         },
       ]);
       void loadConversations();
@@ -282,50 +340,6 @@ export function LuluAIAssistant() {
       setError(getFriendlyErrorMessage(cause, "Lulu AI konnte keine Antwort vorbereiten. Bitte versuche es erneut."));
     } finally {
       setProcessing(false);
-    }
-  };
-
-  const decideAction = async (messageId: string, actionId: string, decision: "approved" | "rejected") => {
-    if (!workspaceId || !activeConversationId) return;
-    setMessages((current) =>
-      current.map((message) =>
-        message.id === messageId && message.pendingActions
-          ? {
-              ...message,
-              pendingActions: message.pendingActions.map((action) =>
-                action.id === actionId ? { ...action, status: decision } : action
-              ),
-            }
-          : message
-      )
-    );
-
-    if (decision === "rejected") return;
-
-    const action = messages.find((message) => message.id === messageId)?.pendingActions?.find((item) => item.id === actionId);
-    if (!action) return;
-
-    try {
-      const result = await aiApi.executeAction(workspaceId, activeConversationId, action);
-      const resultText = result.data.message || `${actionLabel(action.type)} ausgeführt.`;
-      setMessages((current) => [
-        ...current,
-        { id: `result-${Date.now()}`, role: "assistant", content: resultText },
-      ]);
-      setMessages((current) =>
-        current.map((message) =>
-          message.id === messageId && message.pendingActions
-            ? {
-                ...message,
-                pendingActions: message.pendingActions.map((item) =>
-                  item.id === actionId ? { ...item, status: "approved", result: resultText } : item
-                ),
-              }
-            : message
-        )
-      );
-    } catch (cause) {
-      setError(getFriendlyErrorMessage(cause, "Die Aktion konnte nicht ausgeführt werden."));
     }
   };
 
@@ -339,7 +353,7 @@ export function LuluAIAssistant() {
         </span>
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-sm font-semibold">{activeConversation?.title ?? "Lulu AI Assistant"}</h1>
-          <p className="truncate text-xs text-[var(--muted-foreground)]">Fragt ab · steuert · Agenten antworten im Chat</p>
+          <p className="truncate text-xs text-[var(--muted-foreground)]">Handelt autonom · meldet sich proaktiv · Tabellen &amp; Charts</p>
         </div>
         <button
           type="button"
@@ -379,14 +393,14 @@ export function LuluAIAssistant() {
               </span>
               <h2 className="mt-4 text-lg font-semibold">Womit kann ich dir helfen?</h2>
               <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">
-                Frag nach Daten, lass dir Handlungen empfehlen oder steuere dein System direkt. Riskante Aktionen bestätigst du hier im Chat.
+                Frag nach Daten, gib eine Aufgabe oder lass Lulu selbstständig analysieren und handeln. Die Agenten melden sich hier mit Ergebnissen, Bewertungen und nächsten Zielen.
               </p>
             </div>
           )}
 
           {messages.map((message) => (
             <div key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`flex max-w-[88%] gap-2.5 ${message.role === "user" ? "flex-row-reverse" : ""}`}>
+              <div className={`flex max-w-[92%] gap-2.5 ${message.role === "user" ? "flex-row-reverse" : ""}`}>
                 <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${
                   message.role === "user" ? "bg-[var(--secondary)] text-[var(--muted-foreground)]" : "bg-[var(--primary)] text-[var(--primary-foreground)]"
                 }`}>
@@ -406,41 +420,6 @@ export function LuluAIAssistant() {
                         <span key={index} className="inline-flex items-center gap-1 rounded-full border border-[var(--border)] px-2 py-0.5 text-[11px] text-[var(--muted-foreground)]">
                           {toolLabel(call.name)}
                         </span>
-                      ))}
-                    </div>
-                  )}
-
-                  {message.pendingActions && message.pendingActions.length > 0 && (
-                    <div className="mt-3 space-y-2">
-                      {message.pendingActions.map((action) => (
-                        <div key={action.id} className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-3">
-                          <p className="text-xs font-medium">{actionLabel(action.type)}</p>
-                          <p className="mt-1 text-xs text-[var(--muted-foreground)]">{action.summary}</p>
-                          {action.status === "pending" ? (
-                            <div className="mt-2 flex gap-2">
-                              <button
-                                type="button"
-                                onClick={() => void decideAction(message.id, action.id, "approved")}
-                                className="inline-flex items-center gap-1 rounded-lg bg-[var(--primary)] px-3 py-1.5 text-xs font-semibold text-[var(--primary-foreground)] transition hover:opacity-90"
-                              >
-                                <Check size={13} />
-                                Bestätigen
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => void decideAction(message.id, action.id, "rejected")}
-                                className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-semibold transition hover:bg-[var(--secondary)]"
-                              >
-                                <X size={13} />
-                                Ablehnen
-                              </button>
-                            </div>
-                          ) : action.status === "approved" ? (
-                            <p className="mt-2 flex items-center gap-1.5 text-xs font-medium text-emerald-600"><Check size={13} /> Ausgeführt</p>
-                          ) : (
-                            <p className="mt-2 text-xs text-[var(--muted-foreground)]">Abgelehnt</p>
-                          )}
-                        </div>
                       ))}
                     </div>
                   )}
@@ -491,7 +470,7 @@ export function LuluAIAssistant() {
                 void send();
               }
             }}
-            placeholder="Frage stellen oder steuern …"
+            placeholder="Frage stellen oder Aufgabe geben …"
             rows={1}
             className="min-h-[44px] flex-1 resize-none rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-sm outline-none transition focus:ring-2 focus:ring-[var(--ring)]"
             disabled={processing}
