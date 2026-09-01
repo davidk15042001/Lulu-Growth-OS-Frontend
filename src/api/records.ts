@@ -49,6 +49,17 @@ export function createRecord(resourceType: string, input: RecordInput) {
   });
 }
 
+export function ingestRecord(
+  resourceType: string,
+  input: { name: string; text: string; files: { name: string; type: string; dataUrl: string }[] }
+) {
+  return requestApi<WorkspaceRecord>({
+    path: workspacePath(`/records/${resourceType}/ingest`),
+    method: "POST",
+    body: input,
+  });
+}
+
 export function updateRecord(resourceType: string, recordId: string, input: Partial<RecordInput> & { expectedVersion?: number }) {
   return requestApi<WorkspaceRecord>({
     path: workspacePath(`/records/${resourceType}/${recordId}`),

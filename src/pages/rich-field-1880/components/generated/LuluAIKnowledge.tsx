@@ -2,7 +2,7 @@ import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { useMemo, useRef, useState } from 'react';
 import { Activity, AlertTriangle, ArrowUpDown, BarChart3, BookOpen, Brain, CheckCircle2, ChevronDown, ChevronRight, Clock3, Database, FileText, Globe, Heart, HelpCircle, LayoutDashboard, LayoutTemplate, LineChart, MessageSquare, MessagesSquare, MoreHorizontal, Plus, RefreshCw, Search, Settings, ShieldCheck, ShoppingBag, Store, TrendingUp, Upload, X, Zap, Bot, Filter, Users, Sparkles, SlidersHorizontal } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { createRecord } from '../../../../api/records';
+import { ingestRecord } from '../../../../api/records';
 import { getFriendlyErrorMessage } from '../../../../api/client';
 type Knowledge = {
   id: string;
@@ -99,15 +99,10 @@ export const LuluAIKnowledge = () => {
     }
     setSubmitting(true);
     try {
-      await createRecord('ai_knowledge', {
+      await ingestRecord('ai_knowledge', {
         name: title.trim() || (files[0]?.name ?? 'Untitled knowledge'),
-        description: text.trim() || null,
-        status: 'Active',
-        data: {
-          source: 'manual',
-          text: text.trim(),
-          files: files.map(f => ({ name: f.name, type: f.type, dataUrl: f.dataUrl }))
-        }
+        text: text.trim(),
+        files: files.map(f => ({ name: f.name, type: f.type, dataUrl: f.dataUrl }))
       });
       setTitle('');
       setText('');
