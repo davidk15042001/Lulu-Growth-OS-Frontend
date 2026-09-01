@@ -116,6 +116,10 @@ const REMOVED_PAGE_SLUGS = new Set([
   "boldly-field-4971",
   "website-settings-9019",
   LEGACY_ADVERTISING_AUDIENCES_SLUG,
+  "swift-hour-7844",
+  "calmly-cloud-9988",
+  "sunnily-gulf-7520",
+  "smartly-shade-4619",
 ]);
 
 const TOP_LEVEL_PAGE_SLUGS = new Set([
