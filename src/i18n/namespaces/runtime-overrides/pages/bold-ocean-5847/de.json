@@ -1,1 +1,19 @@
-{}
+{
+  "Categories": "Kategorien",
+  "Category": "Kategorie",
+  "Connect an ecommerce platform to populate verified products and categories.": "Verbinden Sie eine E-Commerce-Plattform, um verifizierte Produkte und Kategorien zu füllen.",
+  "Description": "Beschreibung",
+  "Ecommerce": "E-Commerce",
+  "Intelligence / Ecommerce": "Intelligence / E-Commerce",
+  "Loading live ecommerce data...": "Live-E-Commerce-Daten werden geladen...",
+  "No ecommerce data available yet": "Noch keine E-Commerce-Daten verfügbar",
+  "Product": "Produkt",
+  "Products": "Produkte",
+  "Recorded": "Erfasst",
+  "Search ecommerce products": "Suchen Sie nach E-Commerce-Produkten",
+  "Status": "Status",
+  "Updated": "Aktualisiert",
+  "Use Update in the navigation bar": "Verwenden Sie „Aktualisieren“ in der Navigationsleiste",
+  "Verified ecommerce product records from the connected workspace.": "Verifizierte E-Commerce-Produktdatensätze aus dem verbundenen Workspace.",
+  "Visible": "Sichtbar"
+}

@@ -1,1 +1,21 @@
-{}
+{
+  "Advertising / Budgets": "广告 / 预算",
+  "Budget": "预算",
+  "Budget records": "预算记录",
+  "Budget value": "预算值",
+  "Budgets": "预算",
+  "Connect a verified advertising platform before budget records appear here.": "在预算记录出现在此处之前连接经过验证的广告平台。",
+  "Loading live budgets...": "正在加载实时预算...",
+  "No live advertising budgets yet": "还没有实时广告预算",
+  "Platform": "平台",
+  "Platforms": "平台",
+  "Recorded": "已记录",
+  "Refresh": "刷新",
+  "Search live budget records": "搜索实时预算记录",
+  "Spend": "支出",
+  "Status": "状态",
+  "Updated": "已更新",
+  "Utilization": "利用率",
+  "Verified budget records from the connected workspace.": "已验证连接工作区的预算记录。",
+  "Visible": "可见"
+}

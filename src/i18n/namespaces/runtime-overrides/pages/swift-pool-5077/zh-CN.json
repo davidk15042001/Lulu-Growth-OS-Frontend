@@ -1,1 +1,20 @@
-{}
+{
+  "Categories": "类别",
+  "Category": "类别",
+  "Connect and analyze a verified data source before KPIs appear here.": "在 KPI 出现在此处之前连接并分析经过验证的数据源。",
+  "Description": "描述",
+  "Intelligence / KPI Explorer": "智能 / KPI 探索器",
+  "KPI": "KPI",
+  "KPI Explorer": "KPI 浏览器",
+  "KPIs": "KPI",
+  "Loading live KPIs...": "正在加载实时 KPI...",
+  "No verified KPIs yet": "暂时没有已验证的 KPI",
+  "Recorded": "已记录",
+  "Refresh": "刷新",
+  "Search live KPIs": "搜索实时 KPI",
+  "Source": "来源",
+  "Status": "状态",
+  "Updated": "已更新",
+  "Verified KPI definitions from the connected workspace.": "已验证连接工作区中的 KPI 定义。",
+  "Visible": "可见"
+}

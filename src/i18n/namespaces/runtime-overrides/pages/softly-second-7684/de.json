@@ -1,1 +1,19 @@
-{}
+{
+  "Active": "Aktiv",
+  "Advertising / Audiences": "Werbung / Zielgruppen",
+  "Audience": "Zielgruppe",
+  "Audiences": "Zielgruppen",
+  "Connect a verified advertising platform before audience records appear here.": "Verbinden Sie eine verifizierte Werbeplattform, bevor hier Zuschauerdatensätze erscheinen.",
+  "Description": "Beschreibung",
+  "Loading live audiences...": "Live-Publikum wird geladen...",
+  "No live advertising audiences yet": "Noch kein Live-Werbepublikum",
+  "Platform": "Plattform",
+  "Recorded": "Erfasst",
+  "Search live audiences": "Live-Zielgruppen durchsuchen",
+  "Stage": "Phase",
+  "Status": "Status",
+  "Updated": "Aktualisiert",
+  "Use Update in the navigation bar": "Verwenden Sie „Aktualisieren“ in der Navigationsleiste",
+  "Verified audience records from the connected workspace.": "Verifizierte Zielgruppendatensätze aus dem verbundenen Arbeitsbereich.",
+  "Visible": "Sichtbar"
+}

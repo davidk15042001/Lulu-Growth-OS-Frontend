@@ -1,1 +1,20 @@
-{}
+{
+  "Categories": "Kategorien",
+  "Category": "Kategorie",
+  "Connect and analyze a verified data source before KPIs appear here.": "Verbinden und analysieren Sie eine verifizierte Datenquelle, bevor KPIs hier erscheinen.",
+  "Description": "Beschreibung",
+  "Intelligence / KPI Explorer": "Intelligence / KPI-Explorer",
+  "KPI": "KPI",
+  "KPI Explorer": "KPI-Explorer",
+  "KPIs": "KPIs",
+  "Loading live KPIs...": "Live-KPIs werden geladen...",
+  "No verified KPIs yet": "Noch keine verifizierten KPIs",
+  "Recorded": "Erfasst",
+  "Refresh": "Aktualisieren",
+  "Search live KPIs": "Live-KPIs durchsuchen",
+  "Source": "Quelle",
+  "Status": "Status",
+  "Updated": "Aktualisiert",
+  "Verified KPI definitions from the connected workspace.": "Verifizierte KPI-Definitionen aus dem verbundenen Arbeitsbereich.",
+  "Visible": "Sichtbar"
+}

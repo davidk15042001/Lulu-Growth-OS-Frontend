@@ -1,1 +1,15 @@
-{}
+{
+  "For additional security, close this browser window if you're using a shared device.": "为增强安全性，如您正在使用共享设备，请关闭此浏览器窗口。",
+  "L": "L",
+  "Lulu AI": "Lulu AI",
+  "Return to Login": "返回登录",
+  "Return to Lulu AI": "返回 Lulu AI",
+  "Sign In Again": "重新登录",
+  "Sign-out could not be confirmed": "无法确认已退出登录",
+  "Try Again": "重试",
+  "We couldn't confirm that your session was fully signed out. Please sign in again only after your session has been securely cleared.": "无法确认您的会话已完全退出。请仅在会话被安全清除后重新登录。",
+  "You can safely close this window.": "您可以安全地关闭此窗口。",
+  "You have been securely signed out of your Lulu AI account.": "您已安全退出 Lulu AI 账户。",
+  "You're signed out": "您已退出登录",
+  "Your session has been ended.": "您的会话已结束。"
+}

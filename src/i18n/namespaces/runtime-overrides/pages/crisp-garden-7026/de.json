@@ -1,1 +1,18 @@
-{}
+{
+  "A quick reset and you’re back to the context that moves your business forward.": "Ein kurzer Reset, und Sie sind wieder im Kontext, der Ihr Unternehmen voranbringt.",
+  "A reset code was sent to": "Ein Zurücksetzungscode wurde gesendet an",
+  "ACCOUNT RECOVERY": "ACCOUNT-WIEDERHERSTELLUNG",
+  "Back to sign in": "Zurück zur Anmeldung",
+  "Check your inbox.": "Prüfen Sie Ihren Posteingang.",
+  "Enter reset code": "Zurücksetzungscode eingeben",
+  "Enter your work email and we’ll send a secure reset code.": "Geben Sie Ihre geschäftliche E-Mail-Adresse ein, und wir senden Ihnen einen sicheren Zurücksetzungscode.",
+  "L": "L",
+  "Lulu AI": "Lulu AI",
+  "Reset your password.": "Setzen Sie Ihr Passwort zurück.",
+  "Send reset code": "Code zum Zurücksetzen senden",
+  "Sending…": "Wird gesendet…",
+  "We could not send the reset code. Please try again.": "Der Zurücksetzungscode konnte nicht gesendet werden. Bitte versuche es erneut.",
+  "Work email": "Geschäftliche E-Mail",
+  "you@company.com": "du@unternehmen.de",
+  "Your workspace stays yours.": "Ihr Workspace bleibt Ihrer."
+}

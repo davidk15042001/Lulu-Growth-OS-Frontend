@@ -1,1 +1,19 @@
-{}
+{
+  "Categories": "类别",
+  "Category": "类别",
+  "Connect an ecommerce platform to populate verified products and categories.": "连接电子商务平台以填充经过验证的产品和类别。",
+  "Description": "描述",
+  "Ecommerce": "电子商务",
+  "Intelligence / Ecommerce": "智能 / 电商",
+  "Loading live ecommerce data...": "正在加载实时电子商务数据...",
+  "No ecommerce data available yet": "尚无可用的电子商务数据",
+  "Product": "产品",
+  "Products": "产品",
+  "Recorded": "已记录",
+  "Search ecommerce products": "搜索电商产品",
+  "Status": "状态",
+  "Updated": "已更新",
+  "Use Update in the navigation bar": "使用导航栏中的更新",
+  "Verified ecommerce product records from the connected workspace.": "来自已连接工作区的已验证电商产品记录。",
+  "Visible": "可见"
+}

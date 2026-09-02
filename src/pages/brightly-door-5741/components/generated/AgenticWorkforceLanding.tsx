@@ -16,10 +16,6 @@ const competitors = [
   'Oracle AI Agent Studio',
 ];
 
-const sectionDisplayLabels: Record<string, string> = {
-  Statistiken: 'Intelligence & Analytics',
-};
-
 // The registry appends a shared competitive-suffix to most objectives. Strip it for
 // the public landing page so each agent reads as a single, focused purpose.
 const COMPETITIVE_SUFFIX = 'Compare against competitors and category leaders wherever relevant, close the highest-leverage gaps, and move the business toward becoming number one.';
@@ -33,6 +29,18 @@ function shortObjective(objective: string) {
 
 export const AgenticWorkforceLanding = () => {
   const t = useTranslation();
+  const sectionDisplayLabels: Record<string, string> = {
+    AI: t('AI'),
+    CRM: t('CRM'),
+    Email: t('Email'),
+    Calendar: t('Calendar'),
+    Marketing: t('Marketing'),
+    'Website & Commerce': t('Website & Commerce'),
+    'Google Business': t('Google Business'),
+    Finance: t('Finance'),
+    Statistiken: t('Intelligence & Analytics'),
+    Settings: t('Settings'),
+  };
   const totalAgents = useMemo(
     () => luluVisibleNavigationAgentSections.reduce((sum, section) => sum + section.pages.length, 0),
     [],
@@ -133,8 +141,8 @@ export const AgenticWorkforceLanding = () => {
                   <div className="grid gap-3 border-t border-slate-100 p-5 sm:grid-cols-2 sm:p-6 lg:grid-cols-3">
                     {section.pages.map((agent) => (
                       <article key={agent.pageId} className="rounded-xl border border-slate-200 bg-slate-50 p-4 transition hover:border-violet-300 hover:bg-white">
-                        <h5 className="text-sm font-semibold text-slate-950">{agent.agentName}</h5>
-                        <p className="mt-1.5 text-[13px] leading-6 text-slate-600">{shortObjective(agent.objective)}</p>
+                        <h5 className="text-sm font-semibold text-slate-950">{t(agent.agentName)}</h5>
+                        <p className="mt-1.5 text-[13px] leading-6 text-slate-600">{t(shortObjective(agent.objective))}</p>
                       </article>
                     ))}
                   </div>

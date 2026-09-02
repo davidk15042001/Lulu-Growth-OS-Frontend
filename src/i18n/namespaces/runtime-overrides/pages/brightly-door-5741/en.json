@@ -1,1 +1,12 @@
-{}
+{
+  "accountNotFound": "We could not find an account with this email.",
+  "invalidCredentials": "The email or password is not correct. Please check both and try again.",
+  "missingCredentials": "Please enter your email and password.",
+  "timeout": "The server is not responding. Please try again shortly.",
+  "createAccount": "Create account",
+  "email": "Work email",
+  "forgotPassword": "Forgot password?",
+  "password": "Password",
+  "signIn": "Sign in",
+  "signingIn": "Signing in…"
+}

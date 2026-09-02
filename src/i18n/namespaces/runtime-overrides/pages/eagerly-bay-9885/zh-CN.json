@@ -1,1 +1,19 @@
-{}
+{
+  "Email": "电子邮件",
+  "Email verified": "邮箱已验证",
+  "L": "L",
+  "ONE LAST STEP": "最后一步",
+  "Protected by Lulu AI": "由 Lulu AI 保护",
+  "Resend code": "重新发送验证码",
+  "Verification code": "验证码",
+  "Verification code resent": "验证码已重新发送",
+  "Verification helps keep every Lulu workspace secure and trusted.": "验证有助于确保每个 Lulu 工作区的安全与可信。",
+  "Verify email": "验证电子邮箱",
+  "Verify your email.": "验证您的电子邮件。",
+  "Verifying…": "正在验证…",
+  "We could not confirm this code. Please try again.": "无法确认此验证码。请重试。",
+  "We could not send a new code. Please try again.": "无法发送新验证码。请重试。",
+  "We sent a six-digit verification code to your email.": "我们已向您的邮箱发送了六位数验证码。",
+  "Your connected company, in context.": "结合上下文了解您的已连接公司。",
+  "Your Lulu workspace is ready.": "您的 Lulu 工作区已就绪。"
+}

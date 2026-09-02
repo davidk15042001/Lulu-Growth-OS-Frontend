@@ -1,1 +1,19 @@
-{}
+{
+  "Active": "已激活",
+  "Advertising / Audiences": "广告 / 受众",
+  "Audience": "受众",
+  "Audiences": "受众群体",
+  "Connect a verified advertising platform before audience records appear here.": "在此处显示受众记录之前，请连接经过验证的广告平台。",
+  "Description": "描述",
+  "Loading live audiences...": "正在加载现场观众...",
+  "No live advertising audiences yet": "尚无直播广告受众",
+  "Platform": "平台",
+  "Recorded": "已记录",
+  "Search live audiences": "搜索实时受众",
+  "Stage": "阶段",
+  "Status": "状态",
+  "Updated": "已更新",
+  "Use Update in the navigation bar": "使用导航栏中的更新",
+  "Verified audience records from the connected workspace.": "从连接的工作区验证观众记录。",
+  "Visible": "可见"
+}

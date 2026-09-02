@@ -1,1 +1,21 @@
-{}
+{
+  "Advertising / Budgets": "Werbung / Budgets",
+  "Budget": "Budget",
+  "Budget records": "Budgetaufzeichnungen",
+  "Budget value": "Budgetwert",
+  "Budgets": "Budgets",
+  "Connect a verified advertising platform before budget records appear here.": "Verbinden Sie eine verifizierte Werbeplattform, bevor hier Budgetaufzeichnungen angezeigt werden.",
+  "Loading live budgets...": "Live-Budgets werden geladen...",
+  "No live advertising budgets yet": "Noch keine Live-Werbebudgets",
+  "Platform": "Plattform",
+  "Platforms": "Plattformen",
+  "Recorded": "Erfasst",
+  "Refresh": "Aktualisieren",
+  "Search live budget records": "Live-Budgetdatensätze durchsuchen",
+  "Spend": "Ausgaben",
+  "Status": "Status",
+  "Updated": "Aktualisiert",
+  "Utilization": "Auslastung",
+  "Verified budget records from the connected workspace.": "Verifizierte Budgetdatensätze aus dem verbundenen Arbeitsbereich.",
+  "Visible": "Sichtbar"
+}

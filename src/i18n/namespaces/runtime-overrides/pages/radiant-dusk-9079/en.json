@@ -1,1 +1,9 @@
-{}
+{
+  "Aktuell keine Agenten in dieser Kategorie.": "Currently no agents in this category.",
+  "Alle AI Agents nach Prioritaet sortiert, mit einfacher Einschaetzung und klarem Feedback.": "All AI agents sorted by priority, with easy assessment and clear feedback.",
+  "Diese Agenten brauchen sofort Aufmerksamkeit.": "These agents need immediate attention.",
+  "Diese Agenten laufen nicht sauber oder wirken instabil.": "These agents do not run smoothly or appear unstable.",
+  "Diese Agenten sind vorhanden, aber noch nicht klar stark oder kritisch.": "These agents are present, but not yet clearly strong or critical.",
+  "Diese Agenten wirken stabil und ohne erkennbare Warnsignale.": "These agents appear stable and without any noticeable warning signs.",
+  "Sehr gut": "Very good"
+}

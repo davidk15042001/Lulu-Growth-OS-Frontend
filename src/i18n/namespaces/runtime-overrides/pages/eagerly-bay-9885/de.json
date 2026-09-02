@@ -1,1 +1,19 @@
-{}
+{
+  "Email": "E-Mail",
+  "Email verified": "E-Mail verifiziert",
+  "L": "L",
+  "ONE LAST STEP": "NOCH EIN LETZTER SCHRITT",
+  "Protected by Lulu AI": "Geschützt durch Lulu AI",
+  "Resend code": "Code erneut senden",
+  "Verification code": "Bestätigungscode",
+  "Verification code resent": "Bestätigungscode erneut gesendet",
+  "Verification helps keep every Lulu workspace secure and trusted.": "Die Verifizierung trägt dazu bei, dass jeder Lulu-Workspace sicher und vertrauenswürdig bleibt.",
+  "Verify email": "E-Mail bestätigen",
+  "Verify your email.": "Bestätige deine E-Mail.",
+  "Verifying…": "Wird bestätigt …",
+  "We could not confirm this code. Please try again.": "Dieser Code konnte nicht bestätigt werden. Bitte versuche es erneut.",
+  "We could not send a new code. Please try again.": "Es konnte kein neuer Code gesendet werden. Bitte versuche es erneut.",
+  "We sent a six-digit verification code to your email.": "Wir haben einen sechsstelligen Bestätigungscode an Ihre E-Mail gesendet.",
+  "Your connected company, in context.": "Ihr vernetztes Unternehmen im Kontext.",
+  "Your Lulu workspace is ready.": "Ihr Lulu-Arbeitsbereich ist bereit."
+}

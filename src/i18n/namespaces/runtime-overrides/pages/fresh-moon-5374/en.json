@@ -1,1 +1,10 @@
-{}
+{
+  "Die Unterhaltung konnte nicht geladen werden.": "The conversation could not be loaded.",
+  "Frag nach Daten, gib eine Aufgabe oder lass Lulu selbstständig analysieren und handeln. Die Agenten melden sich hier mit Ergebnissen, Bewertungen und nächsten Zielen.": "Ask for data, give a task or let Lulu analyze and act independently. The agents report here with results, ratings and next destinations.",
+  "Lulu AI konnte keine Antwort vorbereiten. Bitte versuche es erneut.": "Lulu AI couldn't prepare a response. Please try again.",
+  "Womit kann ich dir helfen?": "What can I help you with?",
+  "Frage stellen oder Aufgabe geben …": "Ask a question or give a task...",
+  "Neuer Chat": "New chat",
+  "Handelt autonom · meldet sich proaktiv · Tabellen &amp; Charts": "Acts autonomously · reports proactively · Tables & charts",
+  "Handelt autonom · meldet sich proaktiv · Tabellen & Charts": "Acts autonomously · reports proactively · Tables & charts"
+}

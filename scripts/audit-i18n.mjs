@@ -1,7 +1,13 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { execFileSync } from "node:child_process";
-import ts from "typescript";
+import {
+  collectI18nSourceCatalog,
+  hasMatchingPlaceholders,
+  isLikelyEnglishSentence,
+  isLikelyGermanSource,
+  requiresHanTranslation,
+} from "./i18n-source-catalog.mjs";
+import { pageSlugFromSourcePath, STATISTICS_PAGE_SLUGS } from "./i18n-scope.mjs";
 
 const root = process.cwd();
 const languageSource = readFileSync(join(root, "src", "i18n", "languages.ts"), "utf8");
@@ -23,68 +29,7 @@ const mergedTranslations = Object.fromEntries(availableCodes.map((language) => {
 const actualCodes = [...languageSource.matchAll(/\{ code: "([^"]+)"/g)].map((match) => match[1]);
 const issues = [];
 const blockingIssues = [];
-const values = new Set();
-const userFacingCallPattern = /^(?:set(?:[A-Z]\w*)?(?:Answer|Error|Failure|Feedback|Message|Notice|Success|Toast|Warning)|showToast|toast|alert|confirm|getFriendlyErrorMessage)$/;
-const enclosingUserFacingCall = (node) => {
-  let current = node.parent;
-  for (let depth = 0; current && depth < 6; depth += 1, current = current.parent) {
-    if (!ts.isCallExpression(current)) continue;
-    const callee = current.expression.getText();
-    if (userFacingCallPattern.test(callee.split(".").at(-1) ?? "")) return current;
-  }
-};
-const looksLikeUiText = (value) => {
-  const text = value.replace(/\s+/g, " ").trim();
-  const technicalStyleLiteral = /(?:\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw)|rgba?\([^)]*\)|#[0-9a-f]{3,8})/i;
-  return text.length >= 1 && text.length <= 400 && /[A-Za-z]/.test(text)
-    && !technicalStyleLiteral.test(text)
-    && !/^(?:https?:\/\/\S+|[./#][\w./:-]+)$/i.test(text) && !text.includes("var(--")
-    && !/(?:^|\s)(?:bg-|text-|border-|px-|py-|mt-|mb-|grid|flex|rounded|hover:|focus:|w-|h-|min-|max-)/.test(text);
-};
-const sourceFiles = [];
-function collectSourceFiles(directory, relativeDirectory) {
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
-    const relativePath = join(relativeDirectory, entry.name);
-    const absolutePath = join(directory, entry.name);
-    if (entry.isDirectory()) collectSourceFiles(absolutePath, relativePath);
-    else if (/\.(tsx?|ts)$/.test(entry.name)) sourceFiles.push(relativePath);
-  }
-}
-collectSourceFiles(join(root, "src"), "src");
-for (const file of sourceFiles) {
-  const source = readFileSync(join(root, file), "utf8");
-  const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true, file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS);
-  const visit = (node) => {
-    if (ts.isJsxText(node)) {
-      const text = node.getText(tree).replace(/\s+/g, " ").trim();
-      if (looksLikeUiText(text)) values.add(text);
-    }
-    if (ts.isStringLiteral(node)) {
-      const text = node.text.replace(/\s+/g, " ").trim();
-      const parent = node.parent;
-      let ancestor = parent;
-      while (ancestor && (ts.isConditionalExpression(ancestor) || ts.isBinaryExpression(ancestor) || ts.isParenthesizedExpression(ancestor))) ancestor = ancestor.parent;
-      const jsxAttribute = ancestor && ts.isJsxExpression(ancestor) && ts.isJsxAttribute(ancestor.parent) ? ancestor.parent : undefined;
-      const isVisibleExpression = Boolean(ancestor && ts.isJsxExpression(ancestor) && (!jsxAttribute || ["aria-label", "placeholder", "title"].includes(jsxAttribute.name.getText(tree))));
-      const isStructuredContent = ts.isArrayLiteralExpression(parent) || ts.isPropertyAssignment(parent);
-      const isContentValue = isVisibleExpression || (isStructuredContent && !/^[\w./:-]+$/.test(text));
-      const isAttribute = ts.isJsxAttribute(parent) && ["aria-label", "placeholder", "title"].includes(parent.name.getText(tree));
-      const isUserFacingCall = Boolean(enclosingUserFacingCall(node));
-      if ((isAttribute || isContentValue || isUserFacingCall) && looksLikeUiText(text)) values.add(text);
-    }
-    if (ts.isTemplateExpression(node)) {
-      const jsxExpression = ts.isJsxExpression(node.parent) ? node.parent : undefined;
-      const attribute = jsxExpression && ts.isJsxAttribute(jsxExpression.parent) ? jsxExpression.parent : undefined;
-      const attributeName = attribute?.name.getText(tree);
-      if ((jsxExpression && (!attribute || ["aria-label", "placeholder", "title"].includes(attributeName ?? ""))) || enclosingUserFacingCall(node)) {
-        const text = `${node.head.text}${node.templateSpans.map((span, index) => `{{${index}}}${span.literal.text}`).join("")}`.replace(/\s+/g, " ").trim();
-        if (looksLikeUiText(text)) values.add(text);
-      }
-    }
-    ts.forEachChild(node, visit);
-  };
-  visit(tree);
-}
+const { values, valuesByFile } = collectI18nSourceCatalog(root);
 
 if (JSON.stringify(actualCodes) !== JSON.stringify(expectedCodes)) {
   blockingIssues.push(`Language list mismatch: ${actualCodes.join(", ")}`);
@@ -104,18 +49,21 @@ values.delete("?raw");
 for (const language of ["de", "zh-CN"]) {
   const missing = [...values].filter((source) => !mergedTranslations[language]?.[source]);
   if (missing.length) issues.push(`${language} is missing ${missing.length} UI strings (examples: ${missing.slice(0, 5).join(" | ")})`);
-  const placeholderErrors = [...values].filter((source) => {
-    const expected = [...source.matchAll(/\{\{\d+\}\}/g)].map((match) => match[0]).sort();
-    const actual = [...String(mergedTranslations[language]?.[source] ?? "").matchAll(/\{\{\d+\}\}/g)].map((match) => match[0]).sort();
-    return JSON.stringify(expected) !== JSON.stringify(actual);
-  });
+  const placeholderErrors = [...values].filter((source) => mergedTranslations[language]?.[source]
+    && !hasMatchingPlaceholders(source, mergedTranslations[language][source]));
   if (placeholderErrors.length) issues.push(`${language} has ${placeholderErrors.length} placeholder mismatches (examples: ${placeholderErrors.slice(0, 5).join(" | ")})`);
+  if (language === "zh-CN") {
+    const untranslatedNaturalLanguage = [...values].filter((source) => requiresHanTranslation(source)
+      && !/[\u3400-\u9fff]/.test(mergedTranslations[language]?.[source] ?? ""));
+    if (untranslatedNaturalLanguage.length) {
+      issues.push(`zh-CN has ${untranslatedNaturalLanguage.length} untranslated natural-language strings (examples: ${untranslatedNaturalLanguage.slice(0, 5).join(" | ")})`);
+    }
+  }
   if (process.env.I18N_REPORT_MISSING === "1" && (missing.length || placeholderErrors.length)) {
     console.error(JSON.stringify({ language, missing, placeholderErrors }, null, 2));
   }
 }
-const germanSourcePattern = /[äöüÄÖÜß]|\b(?:abbrechen|abgebrochen|abmelden|aktualisieren|alle|anmeldung|analysieren|ansehen|anzeigen|assets organisieren|ausstehend|auswählen|bearbeiten|beim|benutzer|bereich|beschreibe|bestätigt|beiträge|bilder|bitte|dabei|damit|dateien?|dein(?:e|en|er|es)?|der|des|die|dies(?:e|en|er|es)?|direkt|domains verwalten|durch|einträge|entwürfe|erneut|erstellen|erstellt|fehlgeschlagen|firmenbeschreibung|für|generiert|generierung|gespeicherte|gewählt|hochladen|inhalte|kann|keine|konnte|kunden|laden|löschen|medien|medienbibliothek|medienobjekt|monatliche|nach|nicht|noch|nur|öffnen|prüfe|seite|seiten|schließen|sicherheit|speichern|struktur|titel|über|unternehmen|verbinden|verbundener|verbindung|verbindungsmodus|verfügbar|verifiziert|veröffentlichung|veröffentlicht|verwalte|verwaltung aktiviert|vorschau|wenn|werden|wird|wähle|zeige|zurück)\b/i;
-const untranslatedEnglish = [...values].filter((source) => germanSourcePattern.test(source)
+const untranslatedEnglish = [...values].filter((source) => isLikelyGermanSource(source)
   && (!mergedTranslations.en?.[source] || mergedTranslations.en[source] === source));
 if (untranslatedEnglish.length) {
   issues.push(`en is missing ${untranslatedEnglish.length} translations for non-English source strings (examples: ${untranslatedEnglish.slice(0, 5).join(" | ")})`);
@@ -123,13 +71,53 @@ if (untranslatedEnglish.length) {
     console.error(JSON.stringify({ untranslatedEnglish }, null, 2));
   }
 }
+
+const namespaceRoot = join(root, "src", "i18n", "namespaces");
+const readNamespace = (kind, namespace, language) => {
+  const file = namespace.startsWith("page:")
+    ? join(namespaceRoot, kind, "pages", namespace.slice("page:".length), `${language}.json`)
+    : join(namespaceRoot, kind, namespace, `${language}.json`);
+  return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : {};
+};
+const namespaceTable = (namespace, language) => ({
+  ...readNamespace("locales", namespace, language),
+  ...readNamespace("runtime-overrides", namespace, language),
+});
+for (const language of expectedCodes) {
+  const core = namespaceTable("core", language);
+  const workspace = namespaceTable("workspace-shell", language);
+  const pages = new Map();
+  const namespaceMissing = new Set();
+  const namespacePlaceholderErrors = new Set();
+  for (const [file, fileValues] of valuesByFile) {
+    const slug = pageSlugFromSourcePath(file);
+    const page = slug
+      ? (pages.get(slug) ?? (() => {
+        const table = namespaceTable(`page:${slug}`, language);
+        pages.set(slug, table);
+        return table;
+      })())
+      : {};
+    for (const source of fileValues) {
+      if (language === "en" && !isLikelyGermanSource(source)) continue;
+      const translation = page[source] ?? core[source] ?? workspace[source];
+      if (!translation) namespaceMissing.add(`${slug ?? "core"}: ${source}`);
+      else if (!hasMatchingPlaceholders(source, translation)) namespacePlaceholderErrors.add(`${slug ?? "core"}: ${source}`);
+    }
+  }
+  if (namespaceMissing.size) {
+    const examples = [...namespaceMissing].slice(0, 5);
+    issues.push(`${language} route namespaces are missing ${namespaceMissing.size} UI strings (examples: ${examples.join(" | ")})`);
+  }
+  if (namespacePlaceholderErrors.size) {
+    const examples = [...namespacePlaceholderErrors].slice(0, 5);
+    issues.push(`${language} route namespaces have ${namespacePlaceholderErrors.size} placeholder mismatches (examples: ${examples.join(" | ")})`);
+  }
+}
 if (process.env.I18N_REPORT_IDENTITIES === "1") {
-  const likelyEnglishText = (source) => !germanSourcePattern.test(source)
-    && (source.match(/[A-Za-z][A-Za-z'-]{2,}/g)?.length ?? 0) >= 2
-    && !/^(?:Lulu AI|WordPress|Jetpack|Webflow|Shopify|WooCommerce|Google|Meta|LinkedIn|Stripe|PayPal)(?:\s*[·/|&—-]\s*[\w .&/-]+)?$/i.test(source);
   const identities = Object.fromEntries(["de", "zh-CN"].map((language) => [
     language,
-    [...values].filter((source) => likelyEnglishText(source) && mergedTranslations[language]?.[source] === source),
+    [...values].filter((source) => isLikelyEnglishSentence(source) && mergedTranslations[language]?.[source] === source),
   ]));
   console.error(JSON.stringify({ untranslatedIdentities: identities }, null, 2));
 }
@@ -137,8 +125,9 @@ if (process.env.I18N_REPORT_IDENTITIES === "1") {
 console.log(JSON.stringify({
   languages: actualCodes.length,
   sourceStrings: values.size,
+  excludedStatisticsPages: STATISTICS_PAGE_SLUGS.size,
   runtimeMounted: blockingIssues.length === 0,
   issues,
   blockingIssues,
 }, null, 2));
-if (blockingIssues.length) process.exitCode = 1;
+if (blockingIssues.length || issues.length) process.exitCode = 1;

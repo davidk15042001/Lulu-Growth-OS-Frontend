@@ -1,1 +1,15 @@
-{}
+{
+  "For additional security, close this browser window if you're using a shared device.": "Schließen Sie für zusätzliche Sicherheit dieses Browserfenster, wenn Sie ein gemeinsam genutztes Gerät verwenden.",
+  "L": "L",
+  "Lulu AI": "Lulu AI",
+  "Return to Login": "Zur Anmeldung zurückkehren",
+  "Return to Lulu AI": "Zurück zu Lulu AI",
+  "Sign In Again": "Erneut anmelden",
+  "Sign-out could not be confirmed": "Abmeldung konnte nicht bestätigt werden",
+  "Try Again": "Erneut versuchen",
+  "We couldn't confirm that your session was fully signed out. Please sign in again only after your session has been securely cleared.": "Wir konnten nicht bestätigen, dass Ihre Sitzung vollständig abgemeldet wurde. Melden Sie sich erst wieder an, nachdem Ihre Sitzung sicher beendet wurde.",
+  "You can safely close this window.": "Sie können dieses Fenster bedenkenlos schließen.",
+  "You have been securely signed out of your Lulu AI account.": "Sie wurden sicher von Ihrem Lulu AI-Konto abgemeldet.",
+  "You're signed out": "Sie sind abgemeldet",
+  "Your session has been ended.": "Ihre Sitzung wurde beendet."
+}
