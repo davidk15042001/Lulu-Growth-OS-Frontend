@@ -333,6 +333,7 @@ export function GlobalLanguageSwitcher({ showButton = true }: { showButton?: boo
   const t = useTranslation();
   const [open, setOpen] = useState(false);
   const timer = useRef<number | undefined>(undefined);
+  const shellRef = useRef<HTMLDivElement | null>(null);
   const current = getLanguage(language);
   const isWorkspaceApp = location.pathname.startsWith("/app/");
   const namespaces = useMemo(() => requiredNamespaces(location.pathname, location.search), [location.pathname, location.search]);
@@ -385,9 +386,20 @@ export function GlobalLanguageSwitcher({ showButton = true }: { showButton?: boo
     switchLanguage(next);
   };
 
+  useEffect(() => {
+    if (!open) return;
+    const handleOutsidePointerDown = (event: PointerEvent) => {
+      if (shellRef.current && !shellRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', handleOutsidePointerDown);
+    return () => document.removeEventListener('pointerdown', handleOutsidePointerDown);
+  }, [open]);
+
   if (!showButton) return null;
 
-  return createPortal(<><div className={`lulu-language-shell${isWorkspaceApp ? " lulu-language-shell--workspace" : ""}`} data-lulu-no-translate="true" translate="no">
+  return createPortal(<><div ref={shellRef} className={`lulu-language-shell${isWorkspaceApp ? " lulu-language-shell--workspace" : ""}`} data-lulu-no-translate="true" translate="no">
     {open && <div className="lulu-language-menu" role="menu" aria-label={t("Select language")}><div className="lulu-language-title">{t("Language")}</div><div className="lulu-language-list">{languages.map((option) => {
       const available = isAvailableLanguageCode(option.code);
       return <button className="lulu-language-option" type="button" role="menuitemradio" aria-checked={option.code === language} disabled={!available} key={option.code} onClick={(event) => { event.preventDefault(); event.stopPropagation(); if (available) selectLanguage(option.code); }} onPointerDown={(event) => event.stopPropagation()}><span lang={option.code} dir={option.direction}>{option.nativeName}{!available && ` (${t("soon")})`}</span><small>{t(option.name)}</small>{option.code === language && <Check aria-hidden="true" size={15} />}</button>;
