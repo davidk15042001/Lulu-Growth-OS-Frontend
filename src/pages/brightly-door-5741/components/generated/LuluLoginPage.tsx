@@ -4,6 +4,7 @@ import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import { LoginFeaturesLanding } from './LoginFeaturesLanding';
+import { AgenticWorkforceLanding } from './AgenticWorkforceLanding';
 import {
   clearPendingInvitation,
   getAdminLandingPath,
@@ -283,5 +284,6 @@ export const LuluLoginPage = () => {
         </aside>
       </div>
       <LoginFeaturesLanding />
+      <AgenticWorkforceLanding />
     </main>;
 };
