@@ -9,6 +9,9 @@ import {
 } from "../../../../api/ai";
 import { getFriendlyErrorMessage } from "../../../../api/client";
 import { getSelectedWorkspaceId } from "../../../../api/session";
+import { workspaceAppApi } from "../../../../api/workspace-app";
+import { emitWorkspaceRefreshed } from "../../../../components/workspace-refresh-events";
+import { clearRuntimeSnapshotCache } from "../../../../components/useLuluAgentRuntime";
 
 type ChatMessage = {
   id: string;
@@ -308,6 +311,26 @@ export function LuluAIAssistant() {
     setError("");
   };
 
+  const pollWorkspaceRefresh = async () => {
+    if (!workspaceId) return;
+    try {
+      const started = await workspaceAppApi.startContentRefresh(workspaceId);
+      const jobId = started.data.job.id;
+      for (let attempt = 0; attempt < 60; attempt += 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        const status = await workspaceAppApi.contentRefreshStatus(workspaceId, jobId);
+        if (status.data.status === "completed") {
+          clearRuntimeSnapshotCache(workspaceId);
+          emitWorkspaceRefreshed(workspaceId, "assistant");
+          return;
+        }
+        if (["failed", "cancelled"].includes(status.data.status)) return;
+      }
+    } catch {
+      // The navigation update button already surfaces refresh errors.
+    }
+  };
+
   const send = async () => {
     const content = input.trim();
     if (!content || !workspaceId || processing) return;
@@ -336,6 +359,11 @@ export function LuluAIAssistant() {
         },
       ]);
       void loadConversations();
+
+      const requestedRefresh = (response.data.toolCalls ?? []).some(
+        (call) => call.name === "request_action" && call.args?.type === "workspace.refresh",
+      );
+      if (requestedRefresh) void pollWorkspaceRefresh();
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "Lulu AI konnte keine Antwort vorbereiten. Bitte versuche es erneut."));
     } finally {
