@@ -406,5 +406,16 @@
   "Agent konnte nicht gestartet werden.": "The agent could not be started.",
   "Keine offenen Freigaben.": "No open approvals.",
   "Freigeben": "Approve",
-  "Ablehnen": "Reject"
+  "Ablehnen": "Reject",
+  "Agent konnte nicht gestoppt werden.": "The agent could not be stopped.",
+  "Datensatz konnte nicht gespeichert werden.": "The record could not be saved.",
+  "Datensatz konnte nicht gelöscht werden.": "The record could not be deleted.",
+  "Nur lesbar": "Read only",
+  "Datensätze werden geladen …": "Loading records…",
+  "Keine Datensätze.": "No records.",
+  "Speichern": "Save",
+  "Abbrechen": "Cancel",
+  "Bearbeiten": "Edit",
+  "Löschen": "Delete",
+  "Stoppen": "Stop"
 }

@@ -35,5 +35,16 @@
   "Keine offenen Freigaben.": "没有待处理的审批。",
   "Freigeben": "批准",
   "Ablehnen": "拒绝",
-  "Start": "启动"
+  "Start": "启动",
+  "Agent konnte nicht gestoppt werden.": "无法停止代理。",
+  "Datensatz konnte nicht gespeichert werden.": "无法保存记录。",
+  "Datensatz konnte nicht gelöscht werden.": "无法删除记录。",
+  "Nur lesbar": "只读",
+  "Datensätze werden geladen …": "正在加载记录…",
+  "Keine Datensätze.": "没有记录。",
+  "Speichern": "保存",
+  "Abbrechen": "取消",
+  "Bearbeiten": "编辑",
+  "Löschen": "删除",
+  "Stoppen": "停止"
 }

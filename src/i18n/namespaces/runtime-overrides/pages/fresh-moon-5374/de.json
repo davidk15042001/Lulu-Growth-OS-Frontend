@@ -35,5 +35,16 @@
   "Keine offenen Freigaben.": "Keine offenen Freigaben.",
   "Freigeben": "Freigeben",
   "Ablehnen": "Ablehnen",
-  "Start": "Starten"
+  "Start": "Starten",
+  "Agent konnte nicht gestoppt werden.": "Agent konnte nicht gestoppt werden.",
+  "Datensatz konnte nicht gespeichert werden.": "Datensatz konnte nicht gespeichert werden.",
+  "Datensatz konnte nicht gelöscht werden.": "Datensatz konnte nicht gelöscht werden.",
+  "Nur lesbar": "Nur lesbar",
+  "Datensätze werden geladen …": "Datensätze werden geladen …",
+  "Keine Datensätze.": "Keine Datensätze.",
+  "Speichern": "Speichern",
+  "Abbrechen": "Abbrechen",
+  "Bearbeiten": "Bearbeiten",
+  "Löschen": "Löschen",
+  "Stoppen": "Stoppen"
 }
