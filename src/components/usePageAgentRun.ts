@@ -207,23 +207,25 @@ export function usePageAgentRun(
   }, [contract, t, workspaceId]);
 
   const cancel = useCallback(async () => {
-    if (!workspaceId || !latestRun) return;
+    const runId = details?.run.id ?? latestRun?.id;
+    if (!workspaceId || !runId) return;
     setActing(true);
     try {
-      await agentApi.cancel(workspaceId, latestRun.id);
+      await agentApi.cancel(workspaceId, runId);
       await load();
     } catch (nextError) {
       setError(getFriendlyErrorMessage(nextError, t("The current page agent run could not be cancelled.")));
     } finally {
       setActing(false);
     }
-  }, [latestRun, load, t, workspaceId]);
+  }, [details, latestRun, load, t, workspaceId]);
 
   const decide = useCallback(async (stepId: string, decision: AgentDecision) => {
-    if (!workspaceId || !latestRun) return;
+    const runId = details?.run.id ?? latestRun?.id;
+    if (!workspaceId || !runId) return;
     setActing(true);
     try {
-      const response = await agentApi.approve(workspaceId, latestRun.id, stepId, decision);
+      const response = await agentApi.approve(workspaceId, runId, stepId, decision);
       setDetails(response.data);
       setLatestRun(response.data.run);
       await refreshExecution(response.data);
@@ -233,7 +235,7 @@ export function usePageAgentRun(
     } finally {
       setActing(false);
     }
-  }, [latestRun, t, workspaceId]);
+  }, [details, latestRun, refreshExecution, t, workspaceId]);
 
   const pendingApprovalSteps = useMemo(
     () => details?.steps.filter((step) => step.status === "waiting_approval") ?? [],
