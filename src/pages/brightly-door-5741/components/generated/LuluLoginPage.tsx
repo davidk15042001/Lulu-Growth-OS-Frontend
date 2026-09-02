@@ -6,6 +6,9 @@ import { switchLanguage, useLanguage, useTranslation } from '../../../../i18n/Gl
 import { getLanguage, isAvailableLanguageCode, languages } from '../../../../i18n/languages';
 import { LoginFeaturesLanding } from './LoginFeaturesLanding';
 import { AgenticWorkforceLanding } from './AgenticWorkforceLanding';
+import { Button } from '../../../../components/ui/button';
+import { Input } from '../../../../components/ui/input';
+import { Label } from '../../../../components/ui/label';
 import {
   clearPendingInvitation,
   getAdminLandingPath,
@@ -128,7 +131,7 @@ export const LuluLoginPage = () => {
       setLoading(false);
     }
   };
-  return <main data-deploy-rev="2026-09-02-login-premium-1" className="auth-shell relative min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+  return <main data-deploy-rev="2026-09-02-login-premium-1" className="auth-shell relative min-h-screen overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
       <div className="fixed right-4 top-4 z-30" data-lulu-no-translate="true" translate="no">
         <button type="button" onClick={() => setLangOpen((v) => !v)} aria-haspopup="menu" aria-expanded={langOpen} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur transition hover:bg-white">
           <Globe2 size={14} />
@@ -185,20 +188,20 @@ export const LuluLoginPage = () => {
                   </span>
                 </div>
                 <div className="mt-5 space-y-4">
-                  <label htmlFor="login-email" className="block text-sm text-[var(--muted-foreground)]">
+                  <Label htmlFor="login-email" className="block text-sm text-[var(--muted-foreground)]">
                     {t('email')}
-                    <input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="mt-1.5 h-12 w-full rounded-xl border border-[var(--border)] bg-white/80 px-3.5 text-[15px] text-[var(--foreground)] outline-none transition focus:border-indigo-400 focus:ring-[3px] focus:ring-indigo-500/15" />
-                  </label>
-                  <label htmlFor="login-password" className="block text-sm text-[var(--muted-foreground)]">
+                    <Input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="mt-1.5 h-12 w-full rounded-xl border-[var(--border)] bg-white/80 px-3.5 text-[15px] text-[var(--foreground)] focus:border-indigo-400 focus:ring-[3px] focus:ring-indigo-500/15" />
+                  </Label>
+                  <Label htmlFor="login-password" className="block text-sm text-[var(--muted-foreground)]">
                     {t('password')}
                     <div className="relative">
-                      <input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="mt-1.5 h-12 w-full rounded-xl border border-[var(--border)] bg-white/80 px-3.5 pr-11 text-[15px] text-[var(--foreground)] outline-none transition focus:border-indigo-400 focus:ring-[3px] focus:ring-indigo-500/15" />
+                      <Input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="mt-1.5 h-12 w-full rounded-xl border-[var(--border)] bg-white/80 px-3.5 pr-11 text-[15px] text-[var(--foreground)] focus:border-indigo-400 focus:ring-[3px] focus:ring-indigo-500/15" />
                       <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
                     </div>
-                  </label>
-                  <button disabled={loading} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500 font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">
+                  </Label>
+                  <Button type="submit" disabled={loading} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500 font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">
                     {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}
-                  </button>
+                  </Button>
                   {statusMessage && <p role="status" className="text-sm text-[var(--muted-foreground)]">{statusMessage}</p>}
                   {error && <div role="alert" className="space-y-1 text-sm text-[var(--destructive)]"><p>{error}</p>{errorDetails && <p className="break-words text-xs opacity-80">{errorDetails}</p>}</div>}
                   {s && <p className="flex items-center gap-2 text-sm text-[var(--chart-4)]"><Check size={15} /> {t('Signed in successfully.')}</p>}
