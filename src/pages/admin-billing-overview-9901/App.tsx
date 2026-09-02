@@ -75,6 +75,7 @@ type UserDetail = UserRow & {
   workspaces: Array<{ id: string; companyName: string; role: string; onboardingStep: string; onboardingCompletedAt: string | null; joinedAt: string }>;
   sessions: Array<{ id: string; userAgent: string | null; ipAddress: string | null; createdAt: string; lastUsedAt: string | null; expiresAt: string; revoked: boolean }>;
   usage: Array<{ metricKey: string; total: string; periodStart: string | null; periodEnd: string | null }>;
+  creditBalance: number;
 };
 type DeleteUserResult = {
   userId: string;
@@ -112,6 +113,7 @@ type WorkspaceDetail = WorkspaceRow & {
   crmByType: Array<{ resourceType: string; count: number }>;
   websites: Array<{ id: string; title: string; platform: string; status: string; domain: string | null; publishedAt: string | null; createdAt: string }>;
   usage: Array<{ metricKey: string; total: string; periodStart: string | null; periodEnd: string | null }>;
+  creditBalance: number;
 };
 
 type CrmRow = {
@@ -755,6 +757,9 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
             <div>
               <div className="text-lg font-semibold text-slate-900">{detail.email}</div>
               <div className="text-sm text-slate-500">{nameOf(detail.firstName, detail.lastName)} · User ID {detail.id}</div>
+              <div className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-indigo-100 bg-indigo-50 px-2 py-0.5 text-xs font-medium text-indigo-800">
+                Credits: {detail.creditBalance ?? 0}
+              </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button
@@ -854,6 +859,9 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
   const [detail, setDetail] = useState<WorkspaceDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [saving, setSaving] = useState("");
+  const [creditAmount, setCreditAmount] = useState("");
+  const [creditNote, setCreditNote] = useState("");
+  const [creditSaving, setCreditSaving] = useState(false);
 
   const load = async (q?: string) => {
     setLoading(true); onError("");
@@ -883,6 +891,20 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
       await load(search);
     } catch (e) { onError(getFriendlyErrorMessage(e, "Aktion fehlgeschlagen.")); }
     finally { setSaving(""); }
+  };
+
+  const addCredits = async () => {
+    if (!detail) return;
+    const amount = Number(creditAmount);
+    if (!Number.isFinite(amount) || amount <= 0) { onError("Bitte eine gültige positive Credit-Anzahl eingeben."); return; }
+    setCreditSaving(true); onError("");
+    try {
+      const res = await requestApi<{ workspaceId: string; balance: number; added: number }>({ path: `/admin/workspaces/${detail.id}/credits`, method: "POST", body: { amount, note: creditNote || undefined } });
+      setDetail({ ...detail, creditBalance: res.data.balance });
+      setCreditAmount(""); setCreditNote("");
+      await load(search);
+    } catch (e) { onError(getFriendlyErrorMessage(e, "Credits konnten nicht zugewiesen werden.")); }
+    finally { setCreditSaving(false); }
   };
 
   const debounced = (() => {
@@ -953,6 +975,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                 <div className="flex justify-between"><dt className="text-slate-500">Trial ends</dt><dd>{dateOnly(detail.trialEndsAt)}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Period</dt><dd>{dateOnly(detail.periodStartsAt)} – {dateOnly(detail.periodEndsAt)}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Seats</dt><dd>{detail.seats ?? "—"}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">Credits</dt><dd className="font-semibold text-indigo-700">{detail.creditBalance ?? 0}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Onboarding</dt><dd>{detail.onboardingStep}{detail.onboardingCompletedAt ? " (Done / skipped possible)" : ""}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Files purged</dt><dd>{dateOnly(detail.filesPurgedAt)}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Legal form</dt><dd>{detail.legalForm ?? "—"}</dd></div>
@@ -964,6 +987,31 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                 <div className="flex justify-between"><dt className="text-slate-500">Sales model</dt><dd>{detail.salesModel ?? "—"}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Sales cycle</dt><dd>{detail.salesCycleDays ? `${detail.salesCycleDays} days` : "—"}</dd></div>
               </dl>
+              <div className="mt-4 rounded-lg border border-indigo-100 bg-indigo-50/50 p-3">
+                <div className="mb-2 text-xs font-semibold text-indigo-800">Credits zuweisen</div>
+                <div className="flex items-center gap-2">
+                  <input
+                    value={creditAmount}
+                    onChange={(e) => setCreditAmount(e.target.value)}
+                    placeholder="Anzahl"
+                    inputMode="decimal"
+                    className="w-24 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-indigo-400"
+                  />
+                  <input
+                    value={creditNote}
+                    onChange={(e) => setCreditNote(e.target.value)}
+                    placeholder="Notiz (optional)"
+                    className="min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-indigo-400"
+                  />
+                  <button
+                    disabled={creditSaving}
+                    onClick={() => void addCredits()}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-md border border-indigo-200 bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                  >
+                    {creditSaving ? "Speichere…" : "Hinzufügen"}
+                  </button>
+                </div>
+              </div>
               <div className="mt-3">
                 <div className="text-slate-500 text-xs mb-1">Business Description</div>
                 <div className="text-sm text-slate-700 whitespace-pre-wrap break-words">{detail.businessDescription || "—"}</div>
