@@ -62,35 +62,25 @@ const usage: Array<Record<string, any>> = [];
 const quality: Array<Record<string, any>> = [];
 const filterOptions = ['Knowledge Type', 'Source', 'Status', 'Freshness'];
 const statusColor = (status: string) => status === 'Active' || status === 'Ready' || status === 'Connected' || status === 'Healthy' || status === 'Synced' ? 'var(--chart-4)' : status === 'Processing' ? 'var(--primary)' : status === 'Needs Attention' || status === 'Failed' ? 'var(--chart-1)' : 'var(--muted-foreground)';
-type UploadedFile = { name: string; type: string; dataUrl: string };
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
-}
 export const LuluAIKnowledge = () => {
   const { items, loading, error, refresh } = useLiveRecords('ai_knowledge');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
-  const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  async function handleFiles(selected: FileList | null) {
+  function handleFiles(selected: FileList | null) {
     if (!selected) return;
-    const next: UploadedFile[] = [];
+    const next: File[] = [];
     for (const file of Array.from(selected)) {
       if (file.size > 5 * 1024 * 1024) {
         setSubmitError(`"${file.name}" is larger than 5 MB. Please choose a smaller file.`);
         continue;
       }
-      const dataUrl = await readFileAsDataUrl(file);
-      next.push({ name: file.name, type: file.type, dataUrl });
+      next.push(file);
     }
     setFiles(prev => [...prev, ...next]);
   }
@@ -103,11 +93,11 @@ export const LuluAIKnowledge = () => {
     }
     setSubmitting(true);
     try {
-      await ingestRecord('ai_knowledge', {
-        name: title.trim() || (files[0]?.name ?? 'Untitled knowledge'),
-        text: text.trim(),
-        files: files.map(f => ({ name: f.name, type: f.type, dataUrl: f.dataUrl }))
-      });
+      const form = new FormData();
+      form.append('name', title.trim() || (files[0]?.name ?? 'Untitled knowledge'));
+      form.append('text', text.trim());
+      for (const file of files) form.append('files', file, file.name);
+      await ingestRecord('ai_knowledge', form);
       setTitle('');
       setText('');
       setFiles([]);

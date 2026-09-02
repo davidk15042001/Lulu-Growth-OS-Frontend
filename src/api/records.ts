@@ -49,14 +49,11 @@ export function createRecord(resourceType: string, input: RecordInput) {
   });
 }
 
-export function ingestRecord(
-  resourceType: string,
-  input: { name: string; text: string; files: { name: string; type: string; dataUrl: string }[] }
-) {
+export function ingestRecord(resourceType: string, form: FormData) {
   return requestApi<WorkspaceRecord>({
-    path: workspacePath(`/records/${resourceType}/ingest`),
+    path: workspacePath(`/records/${resourceType}/upload`),
     method: "POST",
-    body: input,
+    body: form,
   });
 }
 
