@@ -529,3 +529,8 @@ export function requestApi<T>(request: ApiRequest): Promise<ApiEnvelope<T>> {
     window.parent.postMessage({ type: API_REQUEST_MESSAGE, id, request: serializableRequest }, window.location.origin);
   });
 }
+
+export { API_BASE_URL };
+export function getAccessToken() {
+  return accessToken;
+}

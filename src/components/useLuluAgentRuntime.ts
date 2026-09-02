@@ -22,6 +22,7 @@ import { workspaceAppApi, type BillingState, type GoogleBusinessState, type Goog
 import { websitesApi, type WebsiteGenerationJob, type WebsiteSite } from "../api/websites";
 import type { LuluAgentContract, LuluAgentUiState } from "../config/lulu-agent-registry";
 import { useLanguage } from "../i18n/GlobalLanguageSwitcher";
+import { subscribeWorkspaceEvents } from "../api/agent-stream";
 
 export type LiveCard = {
   label: string;
@@ -888,6 +889,25 @@ export function useLuluAgentRuntime(
       active = false;
     };
   }, [contract, language, workspaceId]);
+
+  useEffect(() => {
+    if (!workspaceId) return;
+    let debounceTimer: number | undefined;
+    const unsubscribe = subscribeWorkspaceEvents(workspaceId, (event) => {
+      if (event.type !== "record.created" && event.type !== "run.completed" && event.type !== "run.failed") return;
+      clearRuntimeSnapshotCache(workspaceId);
+      if (debounceTimer) window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(() => {
+        void loadRuntimeSnapshot(workspaceId, contract, language, t)
+          .then((next) => setSnapshot(next))
+          .catch(() => {});
+      }, 2000);
+    });
+    return () => {
+      if (debounceTimer) window.clearTimeout(debounceTimer);
+      unsubscribe();
+    };
+  }, [workspaceId, contract, language, t]);
 
   return useMemo(() => {
     const generic = createGenericCards(t, snapshot.bootstrap, snapshot.platforms);
