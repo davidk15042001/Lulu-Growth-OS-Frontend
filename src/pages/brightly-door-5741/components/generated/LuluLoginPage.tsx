@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, BarChart3, Check, Eye, EyeOff, Globe2, LoaderCircle, ShieldCheck, Sparkles, Workflow } from 'lucide-react';
+import { ArrowRight, Bot, Check, Eye, EyeOff, Globe2, LoaderCircle, ShieldCheck, Sparkles, Star, TrendingUp } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
@@ -24,6 +24,27 @@ async function requestWithTimeout<T>(request: ApiRequest, timeoutMs = 15000) {
   }
 }
 
+const loginStyles = `
+@keyframes luluFadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+@keyframes luluFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes luluFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
+@keyframes luluPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.9)}}
+@keyframes luluGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes luluGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+.lulu-login-orb{position:absolute;border-radius:9999px;filter:blur(90px);pointer-events:none;will-change:transform}
+.lulu-login-orb--violet{background:radial-gradient(circle,rgba(124,58,237,.42),transparent 70%);animation:luluFloat 9s ease-in-out infinite}
+.lulu-login-orb--sky{background:radial-gradient(circle,rgba(14,165,233,.4),transparent 70%);animation:luluFloat 12s ease-in-out infinite reverse}
+.lulu-login-orb--emerald{background:radial-gradient(circle,rgba(16,185,129,.34),transparent 70%);animation:luluFloat 11s ease-in-out infinite}
+.lulu-login-fade-up{animation:luluFadeUp .8s cubic-bezier(.16,1,.3,1) both}
+.lulu-login-fade-in{animation:luluFadeIn 1s ease both}
+.lulu-login-d1{animation-delay:.06s}.lulu-login-d2{animation-delay:.14s}.lulu-login-d3{animation-delay:.22s}.lulu-login-d4{animation-delay:.3s}.lulu-login-d5{animation-delay:.38s}.lulu-login-d6{animation-delay:.46s}
+.lulu-login-gradient-text{background:linear-gradient(100deg,#7c3aed,#2563eb 45%,#0ea5e9 70%,#10b981);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:luluGradient 9s ease infinite}
+.lulu-login-live-dot{position:relative;display:inline-block;height:8px;width:8px;border-radius:9999px;background:#10b981}
+.lulu-login-live-dot::after{content:"";position:absolute;inset:0;border-radius:9999px;background:#10b981;animation:luluPulse 1.8s ease-out infinite}
+.lulu-login-bar{transform-origin:bottom;animation:luluGrow 1s cubic-bezier(.16,1,.3,1) both}
+.lulu-login-glass{background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.74));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+`;
+
 export const LuluLoginPage = () => {
   const t = useTranslation();
   const [e, setE] = useState('');
@@ -34,36 +55,10 @@ export const LuluLoginPage = () => {
   const [error, setError] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
-  const quickHighlights = [
-    {
-      icon: Globe2,
-      title: t('Connected business context'),
-      text: t('Bring company, product, audience and website signals into one workspace.'),
-    },
-    {
-      icon: BarChart3,
-      title: t('Verified live signals'),
-      text: t('Keep decisions grounded in connected data, metrics and operational visibility.'),
-    },
-    {
-      icon: Workflow,
-      title: t('Actionable AI guidance'),
-      text: t('Move from analysis to recommended next steps, approvals and execution.'),
-    },
-  ];
-  const heroCards = [
-    {
-      title: t('Audience intelligence'),
-      text: t('Discover who to prioritize, why they matter and how to reach them with clearer positioning.'),
-    },
-    {
-      title: t('Website and commerce'),
-      text: t('Coordinate SEO, GEO, AEO, websites, shops and business integrations from one operating system.'),
-    },
-    {
-      title: t('Workspace operations'),
-      text: t('Manage billing, permissions, reviews, files and AI workflows without losing context.'),
-    },
+  const stats = [
+    { icon: Bot, value: '130+', label: t('Autonomous AI agents') },
+    { icon: TrendingUp, value: '10+', label: t('Business integrations') },
+    { icon: Globe2, value: '3', label: t('Native languages') },
   ];
   const integrationNames = ['WordPress', 'Webflow', 'Google Business', 'Google Analytics', 'HubSpot', 'Shopify'];
   const submit = async (x: React.FormEvent) => {
@@ -128,115 +123,160 @@ export const LuluLoginPage = () => {
       setLoading(false);
     }
   };
-  return <main data-deploy-rev="2026-08-30-login-landing-refresh-1" className="auth-shell min-h-screen bg-[var(--background)] text-[var(--foreground)]">
-      <div className="grid min-h-screen xl:grid-cols-[minmax(0,540px)_minmax(0,1fr)]">
-        <section className="relative flex items-center justify-center overflow-hidden bg-[linear-gradient(180deg,rgba(99,102,241,.08),transparent_30%),linear-gradient(0deg,rgba(148,163,184,.08),transparent_32%)] p-6 sm:p-8 lg:p-10">
-          <div className="absolute inset-x-0 top-0 h-40 bg-[radial-gradient(circle_at_top,rgba(99,102,241,.18),transparent_70%)]" aria-hidden="true" />
-          <div className="relative w-full max-w-lg">
-            <div className="lulu-global-brand-host flex items-center gap-2" data-lulu-no-translate="true" translate="no">
-              <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--primary)] font-bold text-[var(--primary-foreground)]">L</span>
-              <b className="text-xl">Lulu AI</b>
-            </div>
-            <div className="mt-10">
-              <p className="text-xs font-semibold tracking-[.18em] text-[var(--foreground)]/80">{t('welcome')}</p>
-              <h1 className="mt-3 text-4xl font-semibold tracking-[-.04em] text-[var(--foreground)] sm:text-5xl">{t('Sign in to your live growth workspace.')}</h1>
-              <p className="mt-4 max-w-xl text-base leading-7 text-[var(--muted-foreground)]">{t('Access your connected business context, verified signals and next best actions in one place.')}</p>
+  return <main data-deploy-rev="2026-09-02-login-premium-1" className="auth-shell relative min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <style>{loginStyles}</style>
+      <div className="grid min-h-screen xl:grid-cols-[minmax(0,520px)_minmax(0,1fr)]">
+        <section className="relative flex items-center justify-center overflow-hidden px-6 py-12 sm:px-8 lg:px-10">
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            <div className="lulu-login-orb lulu-login-orb--violet -left-24 top-[-6rem] h-96 w-96" />
+            <div className="lulu-login-orb lulu-login-orb--sky right-[-4rem] top-1/3 h-80 w-80" />
+            <div className="lulu-login-orb lulu-login-orb--emerald -bottom-24 left-1/3 h-80 w-80" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,.04)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,.04)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
+          </div>
+
+          <div className="relative w-full max-w-md">
+            <div className="lulu-login-fade-up flex items-center gap-2.5" data-lulu-no-translate="true" translate="no">
+              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-sky-500 font-bold text-white shadow-lg shadow-indigo-500/25">L</span>
+              <b className="text-xl tracking-tight">Lulu AI</b>
             </div>
 
-            <div className="mt-8 grid gap-3">
-              {quickHighlights.map(({ icon: Icon, title, text }) => <div key={title} className="flex items-start gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)]/90 p-4 shadow-sm backdrop-blur">
-                  <span className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)] text-[var(--foreground)]">
-                    <Icon size={18} />
+            <div className="lulu-login-fade-up lulu-login-d1 mt-9">
+              <span className="inline-flex items-center gap-2 rounded-full border border-indigo-200/70 bg-white/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide text-indigo-700 shadow-sm">
+                <Sparkles size={13} />
+                {t('AI operating system for growth')}
+              </span>
+              <h1 className="mt-4 text-4xl font-semibold tracking-[-.04em] leading-[1.05] text-[var(--foreground)] sm:text-5xl">
+                {t('Your business, in one intelligent workspace.')}
+              </h1>
+              <p className="mt-4 max-w-md text-[15px] leading-7 text-[var(--muted-foreground)]">
+                {t('Sign in to access connected context, verified signals and AI-guided next steps.')}
+              </p>
+            </div>
+
+            <form onSubmit={submit} className="lulu-login-fade-up lulu-login-d2 mt-8 rounded-3xl bg-gradient-to-br from-indigo-500/20 via-transparent to-emerald-500/20 p-px shadow-2xl shadow-indigo-500/10" aria-label={t('Sign in form')}>
+              <div className="lulu-login-glass rounded-3xl p-6 sm:p-7">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-[var(--foreground)]">{t('signIn')}</p>
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[var(--muted-foreground)]">
+                    <ShieldCheck size={13} className="text-emerald-600" />
+                    {t('Server-side by design')}
                   </span>
-                  <div>
-                    <p className="text-sm font-semibold text-[var(--foreground)]">{title}</p>
-                    <p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">{text}</p>
-                  </div>
-                </div>)}
-            </div>
-
-            <form onSubmit={submit} className="mt-8 rounded-3xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-xl shadow-black/5 sm:p-7" aria-label={t('Sign in form')}>
-              <div className="flex flex-wrap items-center gap-2 text-xs font-medium text-[var(--muted-foreground)]">
-                <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--secondary)] px-3 py-1.5"><ShieldCheck size={13} /> {t('Secure workspace access')}</span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--secondary)] px-3 py-1.5"><Sparkles size={13} /> {t('AI-first workspace')}</span>
-              </div>
-              <div className="mt-5 space-y-4">
-                <label htmlFor="login-email" className="block text-sm text-[var(--muted-foreground)]">
-                  {t('email')}
-                  <input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="mt-1 h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-                </label>
-                <label htmlFor="login-password" className="block text-sm text-[var(--muted-foreground)]">
-                  {t('password')}
-                  <div className="relative">
-                    <input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="mt-1 h-12 w-full rounded-xl border border-[var(--border)] bg-[var(--secondary)] px-3 pr-10 text-[var(--foreground)] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-                    <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="absolute right-3 top-4 text-[var(--muted-foreground)]">{show ? <EyeOff size={16} /> : <Eye size={16} />}</button>
-                  </div>
-                </label>
-                <button disabled={loading} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}</button>
-                {statusMessage && <p role="status" className="text-sm text-[var(--muted-foreground)]">{statusMessage}</p>}
-                {error && <div role="alert" className="space-y-1 text-sm text-[var(--destructive)]"><p>{error}</p>{errorDetails && <p className="break-words text-xs opacity-80">{errorDetails}</p>}</div>}
-                {s && <p className="flex items-center gap-2 text-sm text-[var(--chart-4)]"><Check size={15} /> {t('Signed in successfully.')}</p>}
-              </div>
-              <div className="mt-6 flex justify-between gap-4 text-sm">
-                <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)} className="text-[var(--foreground)]">{t('forgotPassword')}</button>
-                <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="text-[var(--muted-foreground)]">{t('createAccount')}</button>
+                </div>
+                <div className="mt-5 space-y-4">
+                  <label htmlFor="login-email" className="block text-sm text-[var(--muted-foreground)]">
+                    {t('email')}
+                    <input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="mt-1.5 h-12 w-full rounded-xl border border-[var(--border)] bg-white/80 px-3.5 text-[15px] text-[var(--foreground)] outline-none transition focus:border-indigo-400 focus:ring-[3px] focus:ring-indigo-500/15" />
+                  </label>
+                  <label htmlFor="login-password" className="block text-sm text-[var(--muted-foreground)]">
+                    {t('password')}
+                    <div className="relative">
+                      <input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="mt-1.5 h-12 w-full rounded-xl border border-[var(--border)] bg-white/80 px-3.5 pr-11 text-[15px] text-[var(--foreground)] outline-none transition focus:border-indigo-400 focus:ring-[3px] focus:ring-indigo-500/15" />
+                      <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
+                    </div>
+                  </label>
+                  <button disabled={loading} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500 font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">
+                    {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}
+                  </button>
+                  {statusMessage && <p role="status" className="text-sm text-[var(--muted-foreground)]">{statusMessage}</p>}
+                  {error && <div role="alert" className="space-y-1 text-sm text-[var(--destructive)]"><p>{error}</p>{errorDetails && <p className="break-words text-xs opacity-80">{errorDetails}</p>}</div>}
+                  {s && <p className="flex items-center gap-2 text-sm text-[var(--chart-4)]"><Check size={15} /> {t('Signed in successfully.')}</p>}
+                </div>
+                <div className="mt-6 flex items-center justify-between text-sm">
+                  <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)} className="font-medium text-[var(--foreground)] transition hover:opacity-70">{t('forgotPassword')}</button>
+                  <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="font-medium text-indigo-600 transition hover:opacity-70">{t('createAccount')}</button>
+                </div>
               </div>
             </form>
+
+            <div className="lulu-login-fade-up lulu-login-d3 mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
+              <span className="flex items-center gap-0.5" data-lulu-no-translate="true" translate="no" aria-label="4.9 out of 5">
+                {[0, 1, 2, 3, 4].map(i => <Star key={i} size={13} className="fill-amber-400 text-amber-400" />)}
+              </span>
+              <span className="font-semibold text-[var(--foreground)]">4.9/5</span>
+              <span>·</span>
+              <span>{t('Loved by growth teams')}</span>
+            </div>
           </div>
         </section>
 
-        <aside className="hidden border-l border-[var(--border)] bg-[linear-gradient(180deg,#f8fafc_0%,#eef2ff_48%,#ffffff_100%)] px-10 py-12 text-slate-900 xl:flex xl:flex-col">
-          <div className="inline-flex items-center gap-2 self-start rounded-full border border-violet-200 bg-white px-3 py-1.5 text-xs font-semibold text-violet-700 shadow-sm">
-            <Sparkles size={13} />
-            {t('Lulu AI platform')}
-          </div>
-          <div className="mt-8 max-w-3xl">
-            <h2 className="text-5xl font-semibold tracking-[-.05em] text-slate-950">{t('One login for your whole business context.')}</h2>
-            <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">{t('From onboarding and audience intelligence to websites, CRM, reviews and billing, Lulu keeps teams aligned around verified signals and AI-supported next steps.')}</p>
+        <aside className="relative hidden overflow-hidden bg-[#0b1020] text-white xl:flex xl:flex-col xl:justify-center">
+          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+            <div className="lulu-login-orb lulu-login-orb--violet -right-20 top-[-6rem] h-[28rem] w-[28rem]" />
+            <div className="lulu-login-orb lulu-login-orb--sky -left-24 bottom-[-8rem] h-[26rem] w-[26rem]" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.05)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-transparent to-emerald-500/10" />
           </div>
 
-          <div className="mt-10 grid gap-4 lg:grid-cols-3">
-            {heroCards.map(({ title, text }, index) => <article key={title} className={`rounded-3xl border p-5 shadow-sm ${index === 0 ? 'border-violet-200 bg-violet-50' : index === 1 ? 'border-sky-200 bg-sky-50' : 'border-emerald-200 bg-emerald-50'}`}>
-                <p className="text-sm font-semibold text-slate-950">{title}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{text}</p>
-              </article>)}
-          </div>
-
-          <div className="mt-10 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/70">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[.18em] text-slate-400">{t('Lulu Intelligence / Overview')}</p>
-                <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{t('Turn business signals into confident action.')}</h3>
-              </div>
-              <span className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">
-                <ShieldCheck size={13} />
-                {t('Server-side by design')}
-              </span>
+          <div className="relative mx-auto w-full max-w-2xl px-12 py-16">
+            <div className="lulu-login-fade-up inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-semibold backdrop-blur">
+              <span className="lulu-login-live-dot" />
+              {t('Live product')}
             </div>
-            <div className="mt-6 grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
-              <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-                <p className="text-sm font-semibold text-slate-900">{t('What you get after login')}</p>
-                <div className="mt-4 space-y-3">
-                  <div className="flex items-start gap-3">
-                    <span className="mt-1 h-2.5 w-2.5 rounded-full bg-violet-500" />
-                    <p className="text-sm leading-6 text-slate-600">{t('Analyze your company, product, audience and performance context in one connected workspace.')}</p>
+
+            <h2 className="lulu-login-fade-up lulu-login-d1 mt-8 text-5xl font-semibold tracking-[-.04em] leading-[1.05]">
+              {t('One login.')} <span className="lulu-login-gradient-text">{t('Every growth signal, unified.')}</span>
+            </h2>
+            <p className="lulu-login-fade-up lulu-login-d2 mt-5 max-w-xl text-lg leading-8 text-slate-300">
+              {t('From onboarding and audience intelligence to websites, CRM, reviews and billing, Lulu keeps teams aligned around verified signals and AI-supported next steps.')}
+            </p>
+
+            <div className="lulu-login-fade-up lulu-login-d3 mt-10 grid grid-cols-3 gap-4">
+              {stats.map(({ icon: Icon, value, label }) => (
+                <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
+                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 text-white">
+                    <Icon size={17} />
+                  </span>
+                  <p className="mt-4 text-2xl font-semibold tracking-tight">{value}</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-400">{label}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="lulu-login-fade-up lulu-login-d4 mt-10 rounded-[1.75rem] border border-white/10 bg-white/[.06] p-6 shadow-2xl shadow-black/40 backdrop-blur">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-[.18em] text-slate-400">{t('Lulu Intelligence / Overview')}</p>
+                  <h3 className="mt-1.5 text-xl font-semibold tracking-tight">{t('Turn business signals into confident action.')}</h3>
+                </div>
+                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-400/15 px-3 py-1.5 text-xs font-semibold text-emerald-300">
+                  <span className="lulu-login-live-dot" />
+                  {t('Live-ready')}
+                </span>
+              </div>
+              <div className="mt-6 grid gap-5 sm:grid-cols-[.9fr_1.1fr]">
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                  <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
+                    <Sparkles size={14} className="text-violet-300" />
+                    {t('Intelligence score')}
                   </div>
-                  <div className="flex items-start gap-3">
-                    <span className="mt-1 h-2.5 w-2.5 rounded-full bg-sky-500" />
-                    <p className="text-sm leading-6 text-slate-600">{t('Review verified signals, AI hypotheses and recommended actions without losing the source context.')}</p>
+                  <p className="mt-5 text-5xl font-semibold tracking-tight">94</p>
+                  <p className="mt-2 text-xs leading-5 text-slate-400">{t('Signals, hypotheses and recommendations ranked for confident decisions.')}</p>
+                  <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div className="h-full w-[94%] rounded-full bg-gradient-to-r from-violet-400 to-emerald-400" />
                   </div>
-                  <div className="flex items-start gap-3">
-                    <span className="mt-1 h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                    <p className="text-sm leading-6 text-slate-600">{t('Coordinate website, commerce, CRM, reviews, billing and workspace operations from one place.')}</p>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium text-slate-400">{t('Business signals')}</span>
+                    <span className="rounded-full bg-emerald-400/15 px-2 py-1 text-[10px] font-semibold text-emerald-300">{t('Connected')}</span>
+                  </div>
+                  <div className="mt-6 flex h-28 items-end gap-2">
+                    {[34, 52, 41, 68, 58, 79, 64, 88, 72, 94].map((height, index) => (
+                      <span key={index} className="lulu-login-bar flex-1 rounded-t bg-gradient-to-t from-violet-500 to-sky-400" style={{ height: `${height}%`, animationDelay: `${0.15 + index * 0.06}s` }} />
+                    ))}
+                  </div>
+                  <div className="mt-4 flex items-center justify-between text-[11px] text-slate-500">
+                    <span>{t('Connected data')}</span>
+                    <span>{t('Live metrics')}</span>
                   </div>
                 </div>
               </div>
-              <div className="rounded-2xl border border-slate-200 bg-white p-5">
-                <p className="text-sm font-semibold text-slate-900">{t('Built to connect the systems behind your business')}</p>
-                <div className="mt-4 flex flex-wrap gap-2 text-sm text-slate-600">
-                  {integrationNames.map((name) => <span key={name} className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 font-medium">{name}</span>)}
-                </div>
-                <p className="mt-5 text-sm leading-6 text-slate-500">{t('Connect your business context.')} {t('Let AI structure and analyze it.')}</p>
+            </div>
+
+            <div className="lulu-login-fade-up lulu-login-d5 mt-10 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium uppercase tracking-[.16em] text-slate-500">{t('Built to connect the systems behind your business')}</span>
+              <div className="flex flex-wrap gap-2">
+                {integrationNames.map(name => <span key={name} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300">{name}</span>)}
               </div>
             </div>
           </div>
