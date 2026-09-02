@@ -29,5 +29,11 @@
   "Datensätze": "Datensätze",
   "im Workspace": "im Workspace",
   "Agenten suchen …": "Agenten suchen …",
-  "Keine Agenten gefunden.": "Keine Agenten gefunden."
+  "Keine Agenten gefunden.": "Keine Agenten gefunden.",
+  "Die Freigabe konnte nicht bearbeitet werden.": "Die Freigabe konnte nicht bearbeitet werden.",
+  "Agent konnte nicht gestartet werden.": "Agent konnte nicht gestartet werden.",
+  "Keine offenen Freigaben.": "Keine offenen Freigaben.",
+  "Freigeben": "Freigeben",
+  "Ablehnen": "Ablehnen",
+  "Start": "Starten"
 }

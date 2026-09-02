@@ -24,5 +24,10 @@
   "Datensätze": "Records",
   "im Workspace": "in workspace",
   "Agenten suchen …": "Search agents…",
-  "Keine Agenten gefunden.": "No agents found."
+  "Keine Agenten gefunden.": "No agents found.",
+  "Die Freigabe konnte nicht bearbeitet werden.": "The approval could not be processed.",
+  "Agent konnte nicht gestartet werden.": "The agent could not be started.",
+  "Keine offenen Freigaben.": "No open approvals.",
+  "Freigeben": "Approve",
+  "Ablehnen": "Reject"
 }

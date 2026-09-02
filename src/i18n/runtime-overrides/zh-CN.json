@@ -3353,5 +3353,10 @@
   "Datensätze": "数据集",
   "im Workspace": "在工作区",
   "Agenten suchen …": "搜索代理…",
-  "Keine Agenten gefunden.": "未找到代理。"
+  "Keine Agenten gefunden.": "未找到代理。",
+  "Die Freigabe konnte nicht bearbeitet werden.": "无法处理审批。",
+  "Agent konnte nicht gestartet werden.": "无法启动代理。",
+  "Keine offenen Freigaben.": "没有待处理的审批。",
+  "Freigeben": "批准",
+  "Ablehnen": "拒绝"
 }

@@ -1,21 +1,33 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   Activity,
+  Check,
   CheckCircle2,
   Layers,
+  Play,
   RefreshCw,
   Search,
   ShieldAlert,
+  X,
 } from "lucide-react";
-import { agentApi, type AgentHealth, type AgentHealthItem } from "../../../../api/agents";
+import {
+  agentApi,
+  agentModuleForContract,
+  agentPageContextFromContract,
+  autoAgentGoalForContract,
+  type AgentHealth,
+  type AgentHealthItem,
+} from "../../../../api/agents";
 import { workspaceApi } from "../../../../api/workspaces";
 import type { WorkspaceBootstrap } from "../../../../api/types";
+import { approvalApi, type Approval } from "../../../../api/approvals";
 import { getFriendlyErrorMessage } from "../../../../api/client";
 import { getSelectedWorkspaceId } from "../../../../api/session";
 import { workspaceAppApi } from "../../../../api/workspace-app";
 import { isPageAvailable, navigateApp, pagePath } from "../../../../routing";
 import { clearRuntimeSnapshotCache } from "../../../../components/useLuluAgentRuntime";
 import { emitWorkspaceRefreshed } from "../../../../components/workspace-refresh-events";
+import { getLuluAgentContract } from "../../../../config/lulu-agent-registry";
 
 type StatusKind = "ok" | "warn" | "danger" | "idle";
 
@@ -66,10 +78,15 @@ export function LuluCommandCenter() {
   const workspaceId = getSelectedWorkspaceId();
   const [health, setHealth] = useState<AgentHealth | null>(null);
   const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null);
+  const [approvals, setApprovals] = useState<Approval[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [decidingId, setDecidingId] = useState<string | null>(null);
+  const [startingPageId, setStartingPageId] = useState<string | null>(null);
+  const [startedPageId, setStartedPageId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!workspaceId) return;
@@ -88,9 +105,22 @@ export function LuluCommandCenter() {
     }
   }, [workspaceId]);
 
+  const loadApprovals = useCallback(async () => {
+    if (!workspaceId) return;
+    try {
+      const result = await approvalApi.list(workspaceId, "status=pending&limit=50");
+      setApprovals(result.data.items);
+    } catch {
+      setApprovals([]);
+    }
+  }, [workspaceId]);
+
   useEffect(() => {
     void load();
-  }, [load]);
+    void loadApprovals();
+  }, [load, loadApprovals]);
+
+  const canEdit = bootstrap?.permissions.canEdit ?? false;
 
   const refreshAll = async () => {
     if (!workspaceId || refreshing) return;
@@ -116,6 +146,44 @@ export function LuluCommandCenter() {
     }
   };
 
+  const decide = async (approvalId: string, decision: "approved" | "rejected") => {
+    if (!workspaceId || decidingId) return;
+    setDecidingId(approvalId);
+    setActionError("");
+    try {
+      await approvalApi.decide(workspaceId, approvalId, decision);
+      await Promise.all([loadApprovals(), load()]);
+    } catch (cause) {
+      setActionError(getFriendlyErrorMessage(cause, "Die Freigabe konnte nicht bearbeitet werden."));
+    } finally {
+      setDecidingId(null);
+    }
+  };
+
+  const startAgent = async (pageId: string) => {
+    if (!workspaceId || startingPageId) return;
+    setStartingPageId(pageId);
+    setActionError("");
+    try {
+      const contract = getLuluAgentContract(pageId);
+      const goal = contract
+        ? autoAgentGoalForContract(contract)
+        : `[page-agent:${pageId}] Analyze and act.`;
+      const module = contract ? agentModuleForContract(contract) : undefined;
+      const page = contract ? agentPageContextFromContract(contract) : undefined;
+      await agentApi.create(workspaceId, goal, { module, page });
+      setStartedPageId(pageId);
+      window.setTimeout(() => {
+        setStartedPageId((current) => (current === pageId ? null : current));
+        void load();
+      }, 2500);
+    } catch (cause) {
+      setActionError(getFriendlyErrorMessage(cause, "Agent konnte nicht gestartet werden."));
+    } finally {
+      setStartingPageId(null);
+    }
+  };
+
   const items = useMemo(() => {
     if (!health) return [];
     return health.items
@@ -129,7 +197,7 @@ export function LuluCommandCenter() {
 
   const groups = useMemo(() => groupBySection(items), [items]);
   const summary = health?.summary ?? null;
-  const pendingApprovals = bootstrap?.approvals.pending ?? 0;
+  const pendingApprovals = bootstrap?.approvals.pending ?? approvals.length;
   const totalRecords = bootstrap?.records.total ?? 0;
 
   return (
@@ -154,6 +222,11 @@ export function LuluCommandCenter() {
         {error && (
           <p className="rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-2.5 text-sm text-[var(--destructive)]">
             {error}
+          </p>
+        )}
+        {actionError && (
+          <p className="rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-2.5 text-sm text-[var(--destructive)]">
+            {actionError}
           </p>
         )}
 
@@ -196,6 +269,59 @@ export function LuluCommandCenter() {
               </div>
             </div>
 
+            {canEdit && (
+              <section className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+                <div className="mb-3 flex items-center justify-between">
+                  <h3 className="flex items-center gap-2 text-sm font-semibold">
+                    <ShieldAlert size={15} />
+                    Offene Freigaben
+                  </h3>
+                  <span className="text-xs text-[var(--muted-foreground)]">{approvals.length}</span>
+                </div>
+                {approvals.length === 0 ? (
+                  <p className="text-sm text-[var(--muted-foreground)]">Keine offenen Freigaben.</p>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {approvals.map((approval) => (
+                      <div
+                        key={approval.id}
+                        className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-medium">{approval.title}</p>
+                          <p className="truncate text-xs text-[var(--muted-foreground)]">
+                            {approval.actionType}
+                            {approval.impactAmount ? ` · ${approval.impactAmount} ${approval.impactCurrency ?? ""}` : ""}
+                            {approval.description ? ` · ${approval.description}` : ""}
+                          </p>
+                        </div>
+                        <div className="flex shrink-0 items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => void decide(approval.id, "approved")}
+                            disabled={decidingId === approval.id}
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
+                          >
+                            <Check size={14} />
+                            Freigeben
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void decide(approval.id, "rejected")}
+                            disabled={decidingId === approval.id}
+                            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] disabled:opacity-60"
+                          >
+                            <X size={14} />
+                            Ablehnen
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )}
+
             <div className="relative">
               <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)]" />
               <input
@@ -218,18 +344,38 @@ export function LuluCommandCenter() {
                     </h3>
                     <div className="flex flex-col gap-1.5">
                       {sectionItems.map((item) => (
-                        <button
+                        <div
                           key={item.pageId}
-                          type="button"
-                          onClick={() => navigateApp(pagePath(item.pageId))}
-                          className="flex w-full items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-left transition hover:bg-[var(--secondary)]/50"
+                          className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] transition hover:bg-[var(--secondary)]/50"
                         >
-                          <div className="min-w-0">
-                            <p className="truncate text-sm font-medium">{item.pageLabel || item.pageId}</p>
-                            <p className="truncate text-xs text-[var(--muted-foreground)]">{item.module}{item.failedRunCount > 0 ? ` · ${item.failedRunCount} Fehler` : ""}</p>
-                          </div>
-                          <StatusBadge kind={statusKind(item)} label={statusLabel(item)} />
-                        </button>
+                          <button
+                            type="button"
+                            onClick={() => navigateApp(pagePath(item.pageId))}
+                            className="flex min-w-0 flex-1 items-center justify-between gap-3 px-4 py-3 text-left"
+                          >
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">{item.pageLabel || item.pageId}</p>
+                              <p className="truncate text-xs text-[var(--muted-foreground)]">{item.module}{item.failedRunCount > 0 ? ` · ${item.failedRunCount} Fehler` : ""}</p>
+                            </div>
+                            <StatusBadge kind={statusKind(item)} label={statusLabel(item)} />
+                          </button>
+                          {canEdit && (
+                            <button
+                              type="button"
+                              onClick={() => void startAgent(item.pageId)}
+                              disabled={startingPageId === item.pageId}
+                              title="Start"
+                              aria-label="Start"
+                              className="mr-3 grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] disabled:opacity-50"
+                            >
+                              {startedPageId === item.pageId ? (
+                                <Check size={15} className="text-emerald-600" />
+                              ) : (
+                                <Play size={15} />
+                              )}
+                            </button>
+                          )}
+                        </div>
                       ))}
                     </div>
                   </section>
