@@ -253,15 +253,20 @@ function renderMarkdown(text: string): ReactNode[] {
 
 export function LuluAIAssistant() {
   const workspaceId = getSelectedWorkspaceId();
+  const storageKey = workspaceId ? `lulu.ai.assistant.${workspaceId}` : null;
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [processing, setProcessing] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(false);
+  const [conversationsLoaded, setConversationsLoaded] = useState(false);
   const [error, setError] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const [view, setView] = useState<"command" | "assistant">("command");
+  const [view, setView] = useState<"command" | "assistant">(() => {
+    if (!storageKey) return "command";
+    return window.sessionStorage.getItem(`${storageKey}.view`) === "assistant" ? "assistant" : "command";
+  });
 
   const loadConversations = useCallback(async () => {
     if (!workspaceId) return;
@@ -270,6 +275,8 @@ export function LuluAIAssistant() {
       setConversations(result.data.items);
     } catch {
       // History is optional; the chat itself still works.
+    } finally {
+      setConversationsLoaded(true);
     }
   }, [workspaceId]);
 
@@ -306,13 +313,36 @@ export function LuluAIAssistant() {
     }
   };
 
+  // Remember the view and active conversation so the chat survives navigation.
+  useEffect(() => {
+    if (!storageKey) return;
+    window.sessionStorage.setItem(`${storageKey}.view`, view);
+  }, [storageKey, view]);
+
+  useEffect(() => {
+    if (!storageKey) return;
+    if (activeConversationId) window.sessionStorage.setItem(`${storageKey}.conversation`, activeConversationId);
+    else window.sessionStorage.removeItem(`${storageKey}.conversation`);
+  }, [storageKey, activeConversationId]);
+
+  useEffect(() => {
+    if (!storageKey || !conversationsLoaded || activeConversationId) return;
+    const storedId = window.sessionStorage.getItem(`${storageKey}.conversation`);
+    if (!storedId) return;
+    if (conversations.some((conversation) => conversation.id === storedId)) {
+      void selectConversation(storedId);
+    } else {
+      window.sessionStorage.removeItem(`${storageKey}.conversation`);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [storageKey, conversationsLoaded, conversations, activeConversationId]);
+
   const newConversation = () => {
     setActiveConversationId(null);
     setMessages([]);
     setInput("");
     setError("");
   };
-
   const pollWorkspaceRefresh = async () => {
     if (!workspaceId) return;
     try {
