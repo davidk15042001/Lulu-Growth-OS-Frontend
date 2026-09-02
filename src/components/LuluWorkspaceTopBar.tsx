@@ -109,7 +109,7 @@ export function LuluWorkspaceRefreshButton() {
   const [error, setError] = useState<string | null>(null);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const running = Boolean(job && !isDone(job) && !isStale(job));
-  const phaseLabel = job?.currentPhase ? (PHASE_LABELS[job.currentPhase] ?? job.currentPhase) : t('starting');
+  const phaseLabel = job?.currentPhase ? t(PHASE_LABELS[job.currentPhase] ?? job.currentPhase) : t('starting');
   const moduleStatuses = readModuleStatuses(job);
 
   useEffect(() => {
@@ -203,10 +203,10 @@ export function LuluWorkspaceRefreshButton() {
           <div className="w-full max-w-lg rounded-2xl border border-white/10 bg-slate-900 p-5 text-white shadow-2xl">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Workspace update</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">{t('Workspace update')}</p>
                 <h2 className="mt-1 text-lg font-semibold">{running ? `${job.progress}%` : phaseLabel}</h2>
                 <p className="mt-1 text-sm text-slate-300">
-                  {running ? `Currently updating ${phaseLabel}.` : job.status === 'completed' ? 'Workspace update completed.' : job.errorMessage ?? statusText}
+                  {running ? t('Currently updating') + ' ' + phaseLabel + '.' : job.status === 'completed' ? t('Workspace update completed.') : job.errorMessage ?? statusText}
                 </p>
               </div>
               <button
@@ -214,7 +214,7 @@ export function LuluWorkspaceRefreshButton() {
                 className="rounded-md border border-white/10 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/5"
                 onClick={() => setShowStatusDialog(false)}
               >
-                Close
+                {t('Close')}
               </button>
             </div>
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
@@ -227,14 +227,14 @@ export function LuluWorkspaceRefreshButton() {
               {moduleStatuses.length ? moduleStatuses.map((entry) => (
                 <div key={entry.module} className="rounded-xl border border-white/10 bg-white/5 px-3 py-2">
                   <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm font-medium capitalize">{PHASE_LABELS[entry.module] ?? entry.module}</span>
-                    <span className={`text-xs ${moduleStatusTone(entry.status)}`}>{moduleStatusLabel(entry.status)}</span>
+                    <span className="text-sm font-medium capitalize">{t(PHASE_LABELS[entry.module] ?? entry.module)}</span>
+                    <span className={`text-xs ${moduleStatusTone(entry.status)}`}>{t(moduleStatusLabel(entry.status))}</span>
                   </div>
                   {entry.error ? <p className="mt-1 text-xs text-rose-200">{entry.error}</p> : null}
                 </div>
               )) : (
                 <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-300">
-                  Preparing module status...
+                  {t('Preparing module status...')}
                 </div>
               )}
             </div>
