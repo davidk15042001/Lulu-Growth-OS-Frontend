@@ -319,9 +319,17 @@ export function useTranslation() {
   return useCallback((key: string) => loadedTables[language]?.[key] ?? loadedTables.en?.[key] ?? key, [language]);
 }
 
-export function GlobalLanguageSwitcher() {
+export function switchLanguage(next: LanguageCode) {
+  try {
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
+    document.cookie = `${LANGUAGE_STORAGE_KEY}=${encodeURIComponent(next)}; Max-Age=31536000; Path=/; SameSite=Lax`;
+  } catch { /* no persistence available */ }
+  window.dispatchEvent(new CustomEvent(LANGUAGE_EVENT, { detail: { language: next } }));
+}
+
+export function GlobalLanguageSwitcher({ showButton = true }: { showButton?: boolean } = {}) {
   const location = useLocation();
-  const [language, setLanguage] = useState<LanguageCode>(initialLanguage);
+  const language = useLanguage();
   const t = useTranslation();
   const [open, setOpen] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -373,14 +381,11 @@ export function GlobalLanguageSwitcher() {
   }, [language, namespaces]);
 
   const selectLanguage = (next: LanguageCode) => {
-    try {
-      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
-      document.cookie = `${LANGUAGE_STORAGE_KEY}=${encodeURIComponent(next)}; Max-Age=31536000; Path=/; SameSite=Lax`;
-    } catch { /* no persistence available */ }
     setOpen(false);
-    setLanguage(next);
-    window.dispatchEvent(new CustomEvent(LANGUAGE_EVENT, { detail: { language: next } }));
+    switchLanguage(next);
   };
+
+  if (!showButton) return null;
 
   return createPortal(<><div className={`lulu-language-shell${isWorkspaceApp ? " lulu-language-shell--workspace" : ""}`} data-lulu-no-translate="true" translate="no">
     {open && <div className="lulu-language-menu" role="menu" aria-label={t("Select language")}><div className="lulu-language-title">{t("Language")}</div><div className="lulu-language-list">{languages.map((option) => {

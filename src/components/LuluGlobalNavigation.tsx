@@ -1,9 +1,10 @@
-import { CalendarDays, ChevronDown, LogOut, RefreshCw, X } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, Languages, LogOut, RefreshCw, X } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
-import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { switchLanguage, useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { isAvailableLanguageCode, languages } from "../i18n/languages";
 import { pages as manifestPages } from "../pages-manifest";
 import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
 import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
@@ -151,6 +152,8 @@ export function LuluGlobalNavigation({
   onRequestClose?: () => void;
 }) {
   const t = useTranslation();
+  const language = useLanguage();
+  const [languageOpen, setLanguageOpen] = useState(false);
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
   const signOut = async () => {
     try {
@@ -290,14 +293,40 @@ export function LuluGlobalNavigation({
                   );
                 })}
                 {section.label === SETTINGS_LABEL && (
-                  <button
-                    type="button"
-                    className="lulu-global-navigation__subitem-action"
-                    onClick={() => void signOut()}
-                  >
-                    <LogOut aria-hidden="true" size={14} />
-                    <span>{t("Sign out")}</span>
-                  </button>
+                  <>
+                    <button
+                      type="button"
+                      className="lulu-global-navigation__subitem-action"
+                      onClick={() => setLanguageOpen((value) => !value)}
+                      aria-expanded={languageOpen}
+                    >
+                      <Languages aria-hidden="true" size={14} />
+                      <span>{t("Language")}</span>
+                    </button>
+                    {languageOpen && (
+                      <div className="lulu-global-navigation__language-list">
+                        {languages.filter((option) => isAvailableLanguageCode(option.code)).map((option) => (
+                          <button
+                            key={option.code}
+                            type="button"
+                            className={`lulu-global-navigation__language-option${option.code === language ? " is-active" : ""}`}
+                            onClick={() => switchLanguage(option.code)}
+                          >
+                            <span lang={option.code} dir={option.direction}>{option.nativeName}</span>
+                            {option.code === language && <Check aria-hidden="true" size={13} />}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      className="lulu-global-navigation__subitem-action"
+                      onClick={() => void signOut()}
+                    >
+                      <LogOut aria-hidden="true" size={14} />
+                      <span>{t("Sign out")}</span>
+                    </button>
+                  </>
                 )}
                 {websiteLock && section.label === WEBSITE_AND_COMMERCE_LABEL && (
                   <div className={`lulu-global-navigation__website-lock is-${websiteLock.status}`} role="status" aria-live="polite">
