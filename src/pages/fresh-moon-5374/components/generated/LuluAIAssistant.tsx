@@ -320,9 +320,8 @@ export function LuluAIAssistant() {
   }, [storageKey, view]);
 
   useEffect(() => {
-    if (!storageKey) return;
-    if (activeConversationId) window.sessionStorage.setItem(`${storageKey}.conversation`, activeConversationId);
-    else window.sessionStorage.removeItem(`${storageKey}.conversation`);
+    if (!storageKey || !activeConversationId) return;
+    window.sessionStorage.setItem(`${storageKey}.conversation`, activeConversationId);
   }, [storageKey, activeConversationId]);
 
   useEffect(() => {
@@ -342,6 +341,7 @@ export function LuluAIAssistant() {
     setMessages([]);
     setInput("");
     setError("");
+    if (storageKey) window.sessionStorage.removeItem(`${storageKey}.conversation`);
   };
   const pollWorkspaceRefresh = async () => {
     if (!workspaceId) return;
@@ -406,7 +406,7 @@ export function LuluAIAssistant() {
   const activeConversation = conversations.find((conversation) => conversation.id === activeConversationId) ?? null;
 
   return (
-    <main className="flex h-[calc(100dvh-0px)] min-h-0 flex-col bg-[var(--background)] text-[var(--foreground)]">
+    <main className="flex h-[calc(100dvh-66px)] min-h-0 flex-col bg-[var(--background)] text-[var(--foreground)]">
       <div className="flex shrink-0 items-center gap-1 border-b border-[var(--border)] px-3 py-1.5">
         <button type="button" onClick={() => setView("command")} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${view === "command" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"}`}>Steuerzentrale</button>
         <button type="button" onClick={() => setView("assistant")} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${view === "assistant" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"}`}>Assistent</button>
