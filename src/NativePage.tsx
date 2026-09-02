@@ -90,6 +90,8 @@ const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   "email-drafts",
   "email-automations",
   "email-settings",
+  "calendar-overview",
+  "calendar-settings",
   "rich-field-1880",
 ]);
 
