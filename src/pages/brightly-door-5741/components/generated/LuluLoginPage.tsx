@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { ArrowRight, Bot, Check, Eye, EyeOff, Globe2, LoaderCircle, ShieldCheck, Sparkles, Star, TrendingUp } from 'lucide-react';
+import { ArrowRight, Bot, Check, ChevronDown, Eye, EyeOff, Globe2, LoaderCircle, ShieldCheck, Sparkles, Star, TrendingUp } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
-import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
+import { switchLanguage, useLanguage, useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
+import { getLanguage, isAvailableLanguageCode, languages } from '../../../../i18n/languages';
 import { LoginFeaturesLanding } from './LoginFeaturesLanding';
 import { AgenticWorkforceLanding } from './AgenticWorkforceLanding';
 import {
@@ -48,6 +49,9 @@ const loginStyles = `
 
 export const LuluLoginPage = () => {
   const t = useTranslation();
+  const language = useLanguage();
+  const [langOpen, setLangOpen] = useState(false);
+  const currentLanguage = getLanguage(language);
   const [e, setE] = useState('');
   const [p, setP] = useState('');
   const [s, setS] = useState(false);
@@ -125,6 +129,23 @@ export const LuluLoginPage = () => {
     }
   };
   return <main data-deploy-rev="2026-09-02-login-premium-1" className="auth-shell relative min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+      <div className="fixed right-4 top-4 z-30" data-lulu-no-translate="true" translate="no">
+        <button type="button" onClick={() => setLangOpen((v) => !v)} aria-haspopup="menu" aria-expanded={langOpen} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur transition hover:bg-white">
+          <Globe2 size={14} />
+          <span>{currentLanguage.shortCode}</span>
+          <ChevronDown size={13} className={`transition ${langOpen ? 'rotate-180' : ''}`} />
+        </button>
+        {langOpen && (
+          <div role="menu" className="absolute right-0 mt-2 w-40 overflow-hidden rounded-xl border border-slate-200 bg-white p-1 shadow-xl">
+            {languages.filter((option) => isAvailableLanguageCode(option.code)).map((option) => (
+              <button key={option.code} type="button" role="menuitemradio" aria-checked={option.code === language} onClick={() => { switchLanguage(option.code); setLangOpen(false); }} className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition hover:bg-slate-100 ${option.code === language ? 'font-semibold text-indigo-600' : 'text-slate-700'}`}>
+                <span>{option.nativeName}</span>
+                {option.code === language && <Check size={14} />}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
       <style>{loginStyles}</style>
       <div className="grid min-h-screen xl:grid-cols-[minmax(0,520px)_minmax(0,1fr)]">
         <section className="relative flex items-center justify-center overflow-hidden px-6 py-12 sm:px-8 lg:px-10">
