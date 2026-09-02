@@ -99,16 +99,7 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     }
   }
 
-  return reorderedSections.map((section) =>
-    section.label === STATISTICS_LABEL
-      ? {
-          ...section,
-          pages: [...section.pages].sort((a, b) =>
-            getNavigationPageLabel(a).localeCompare(getNavigationPageLabel(b), undefined, { sensitivity: "base" }),
-          ),
-        }
-      : section,
-  );
+  return reorderedSections.filter((section) => section.label !== STATISTICS_LABEL);
 })();
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
