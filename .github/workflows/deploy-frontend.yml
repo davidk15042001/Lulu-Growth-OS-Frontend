@@ -77,7 +77,7 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$DEPLOY_USER" || { echo 'DEPLOY_USER is missing'; exit 1; }
-          rsync -az --omit-dir-times --delete dist/ \
+          rsync -rz --links --delete dist/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-ai.cn/html/"
 
       - name: Backend hochladen, migrieren und starten
@@ -86,7 +86,7 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
         run: |
           set -euo pipefail
-          rsync -az --omit-dir-times --delete \
+          rsync -rz --links --delete \
             --exclude .env \
             --exclude .git \
             --exclude node_modules \
