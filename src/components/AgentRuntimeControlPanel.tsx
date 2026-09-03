@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock3, Play, RefreshCw, ShieldAlert, XCircle } from "lucide-react";
+import { CheckCircle2, Clock3, ShieldAlert, XCircle } from "lucide-react";
 import { formatLiveDate } from "../api/live-panel-ui";
 import type { AgentRunStatus, AgentStep } from "../api/agents";
 import type { WorkspaceRecord } from "../api/records";
@@ -80,24 +80,6 @@ export function AgentRuntimeControlPanel({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => void runtime.start()}
-            disabled={runtime.acting}
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <Play size={15} />
-            {currentRun ? t("Start new run") : t("Start agent")}
-          </button>
-          <button
-            type="button"
-            onClick={() => void runtime.refresh()}
-            disabled={runtime.loading || runtime.acting}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <RefreshCw size={15} />
-            {t("Refresh")}
-          </button>
           {currentRun && isRunning ? (
             <button
               type="button"

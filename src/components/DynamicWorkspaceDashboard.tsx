@@ -83,7 +83,6 @@ export function DynamicWorkspaceDashboard() {
             <h1 className="mt-2 text-4xl font-semibold tracking-[-0.05em]">{bootstrap.workspace.companyName || "Your workspace"}</h1>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted-foreground)]">This dashboard only shows information returned by your connected workspace. No sample or demo metrics are displayed.</p>
           </div>
-          <button type="button" onClick={() => void load()} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-semibold hover:border-[var(--foreground)]"><RefreshCw size={15} />Refresh live data</button>
         </header>
 
         <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

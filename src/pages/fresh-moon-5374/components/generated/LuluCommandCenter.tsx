@@ -5,8 +5,6 @@ import {
   CheckCircle2,
   Layers,
   Pencil,
-  Play,
-  RefreshCw,
   Search,
   ShieldAlert,
   Square,
@@ -15,9 +13,6 @@ import {
 } from "lucide-react";
 import {
   agentApi,
-  agentModuleForContract,
-  agentPageContextFromContract,
-  autoAgentGoalForContract,
   type AgentHealth,
   type AgentHealthItem,
   type AgentRun,
@@ -35,11 +30,7 @@ import {
 } from "../../../../api/records";
 import { getFriendlyErrorMessage } from "../../../../api/client";
 import { getSelectedWorkspaceId } from "../../../../api/session";
-import { workspaceAppApi } from "../../../../api/workspace-app";
 import { isPageAvailable, navigateApp, pagePath } from "../../../../routing";
-import { clearRuntimeSnapshotCache } from "../../../../components/useLuluAgentRuntime";
-import { emitWorkspaceRefreshed } from "../../../../components/workspace-refresh-events";
-import { getLuluAgentContract } from "../../../../config/lulu-agent-registry";
 
 type StatusKind = "ok" | "warn" | "danger" | "idle";
 
@@ -112,12 +103,9 @@ export function LuluCommandCenter() {
   const [busyRecordId, setBusyRecordId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState("");
   const [actionError, setActionError] = useState("");
   const [decidingId, setDecidingId] = useState<string | null>(null);
-  const [startingPageId, setStartingPageId] = useState<string | null>(null);
-  const [startedPageId, setStartedPageId] = useState<string | null>(null);
   const [cancellingPageId, setCancellingPageId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -200,30 +188,6 @@ export function LuluCommandCenter() {
 
   const canEdit = bootstrap?.permissions.canEdit ?? false;
 
-  const refreshAll = async () => {
-    if (!workspaceId || refreshing) return;
-    setRefreshing(true);
-    try {
-      const started = await workspaceAppApi.startContentRefresh(workspaceId);
-      const jobId = started.data.job.id;
-      for (let attempt = 0; attempt < 60; attempt += 1) {
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        const status = await workspaceAppApi.contentRefreshStatus(workspaceId, jobId);
-        if (status.data.status === "completed") {
-          clearRuntimeSnapshotCache(workspaceId);
-          emitWorkspaceRefreshed(workspaceId, "command-center");
-          await load();
-          break;
-        }
-        if (["failed", "cancelled"].includes(status.data.status)) break;
-      }
-    } catch {
-      // The refresh error is surfaced by the navigation update button.
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
   const decide = async (approvalId: string, decision: "approved" | "rejected") => {
     if (!workspaceId || decidingId) return;
     setDecidingId(approvalId);
@@ -235,30 +199,6 @@ export function LuluCommandCenter() {
       setActionError(getFriendlyErrorMessage(cause, "Die Freigabe konnte nicht bearbeitet werden."));
     } finally {
       setDecidingId(null);
-    }
-  };
-
-  const startAgent = async (pageId: string) => {
-    if (!workspaceId || startingPageId) return;
-    setStartingPageId(pageId);
-    setActionError("");
-    try {
-      const contract = getLuluAgentContract(pageId);
-      const goal = contract
-        ? autoAgentGoalForContract(contract)
-        : `[page-agent:${pageId}] Analyze and act.`;
-      const module = contract ? agentModuleForContract(contract) : undefined;
-      const page = contract ? agentPageContextFromContract(contract) : undefined;
-      await agentApi.create(workspaceId, goal, { module, page });
-      setStartedPageId(pageId);
-      window.setTimeout(() => {
-        setStartedPageId((current) => (current === pageId ? null : current));
-        void Promise.all([load(), loadRuns()]);
-      }, 2500);
-    } catch (cause) {
-      setActionError(getFriendlyErrorMessage(cause, "Agent konnte nicht gestartet werden."));
-    } finally {
-      setStartingPageId(null);
     }
   };
 
@@ -327,20 +267,9 @@ export function LuluCommandCenter() {
   return (
     <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-6">
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <h2 className="text-lg font-semibold">Steuerzentrale</h2>
-            <p className="text-sm text-[var(--muted-foreground)]">Alle Agenten, Systeme und Freigaben an einem Ort.</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => void refreshAll()}
-            disabled={refreshing}
-            className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-foreground)] transition disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <RefreshCw size={15} className={refreshing ? "animate-spin" : undefined} />
-            {refreshing ? "Aktualisiere …" : "Alle aktualisieren"}
-          </button>
+        <div>
+          <h2 className="text-lg font-semibold">Steuerzentrale</h2>
+          <p className="text-sm text-[var(--muted-foreground)]">Alle Agenten, Systeme und Freigaben an einem Ort.</p>
         </div>
 
         {error && (
@@ -576,35 +505,18 @@ export function LuluCommandCenter() {
                               </div>
                               <StatusBadge kind={statusKind(item)} label={statusLabel(item)} />
                             </button>
-                            {canEdit && (
-                              activeRunId ? (
-                                <button
-                                  type="button"
-                                  onClick={() => void cancelAgent(item.pageId)}
-                                  disabled={cancellingPageId === item.pageId}
-                                  title="Stoppen"
-                                  aria-label="Stoppen"
-                                  className="mr-3 grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[var(--destructive)]/40 text-[var(--destructive)] transition hover:bg-[var(--destructive)]/10 disabled:opacity-50"
-                                >
-                                  <Square size={13} />
-                                </button>
-                              ) : (
-                                <button
-                                  type="button"
-                                  onClick={() => void startAgent(item.pageId)}
-                                  disabled={startingPageId === item.pageId}
-                                  title="Start"
-                                  aria-label="Start"
-                                  className="mr-3 grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] disabled:opacity-50"
-                                >
-                                  {startedPageId === item.pageId ? (
-                                    <Check size={15} className="text-emerald-600" />
-                                  ) : (
-                                    <Play size={15} />
-                                  )}
-                                </button>
-                              )
-                            )}
+                            {canEdit && activeRunId ? (
+                              <button
+                                type="button"
+                                onClick={() => void cancelAgent(item.pageId)}
+                                disabled={cancellingPageId === item.pageId}
+                                title="Stoppen"
+                                aria-label="Stoppen"
+                                className="mr-3 grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-[var(--destructive)]/40 text-[var(--destructive)] transition hover:bg-[var(--destructive)]/10 disabled:opacity-50"
+                              >
+                                <Square size={13} />
+                              </button>
+                            ) : null}
                           </div>
                         );
                       })}

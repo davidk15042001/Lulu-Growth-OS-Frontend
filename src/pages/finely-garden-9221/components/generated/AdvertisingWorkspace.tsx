@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { ArrowRight, RefreshCw, Search, Target } from 'lucide-react';
+import { ArrowRight, Search, Target } from 'lucide-react';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { WorkspaceIntelligencePanel } from '../../../../components/WorkspaceIntelligencePanel';
@@ -64,14 +64,6 @@ export function AdvertisingWorkspace() {
               This workspace should stay centered on live campaign status, budget exposure and the items that need approval or optimization.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => void campaigns.refresh()}
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground hover:bg-secondary"
-          >
-            <RefreshCw size={15} />
-            Refresh
-          </button>
         </header>
 
         <WorkspaceIntelligencePanel workspaceId={workspaceId} />
