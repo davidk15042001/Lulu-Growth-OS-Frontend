@@ -43,6 +43,7 @@ const CALENDAR_PAGE: PageDefinition = {
   selectedRevisionId: "local-calendar-workspace",
   previewImageUrl: null,
 };
+const EXISTING_PLATFORMS_PAGE = pages.find((page) => page.slug === "fresh-tide-9404")!;
 
 function AdminBillingRoute() {
   const { currentUser, loading } = useLuluApp();
@@ -67,6 +68,15 @@ function AdminOnlyAppRoute({ children }: { children: React.ReactNode }) {
   if (!currentUser) return <Navigate replace to={routes.auth.login} />;
   if (isAdminUser(currentUser) && !prefersWorkspaceSurface(currentUser)) return <Navigate replace to={ADMIN_PANEL_PATH} />;
   return <>{children}</>;
+}
+
+function BillingRoute() {
+  return (
+    <AdminOnlyAppRoute>
+      <BillingOnboarding />
+      <GlobalLanguageSwitcher />
+    </AdminOnlyAppRoute>
+  );
 }
 
 function PublicAuthRoute({ children }: { children: React.ReactNode }) {
@@ -233,8 +243,9 @@ export default function App() {
         <Route path="/register" element={<Navigate replace to={routes.auth.signUp} />} />
         <Route path={routes.onboarding.welcome} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.companyInformation} /></AdminOnlyAppRoute>} />
         <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.billing} /></AdminOnlyAppRoute>} />
-        <Route path={routes.onboarding.billing} element={<BillingOnboarding />} />
-        <Route path={routes.onboarding.billings} element={<BillingOnboarding />} />
+        <Route path={routes.onboarding.existingPlatforms} element={<AdminOnlyAppRoute><PageRoute page={EXISTING_PLATFORMS_PAGE} /></AdminOnlyAppRoute>} />
+        <Route path={routes.onboarding.billing} element={<BillingRoute />} />
+        <Route path={routes.onboarding.billings} element={<BillingRoute />} />
         <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.email} element={<AdminOnlyAppRoute><PageRoute page={EMAIL_PAGE} /></AdminOnlyAppRoute>} />

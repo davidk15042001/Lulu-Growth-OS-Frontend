@@ -76,6 +76,10 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   INTERNAL_ERROR: "A server error occurred. Please send the technical details to support.",
   API_ERROR: "The API returned an unexpected error. Please send the technical details to support.",
   BILLING_PLAN_INVALID: "The selected billing plan is not supported.",
+  BILLING_PLAN_NOT_AVAILABLE: "The selected billing plan is not available for this account.",
+  BILLING_TEST_PLAN_DISABLED: "The internal Test plan is not enabled on this server.",
+  BILLING_CHECKOUT_ALREADY_ACTIVE: "Another payment checkout is already active for this workspace.",
+  ONBOARDING_INCOMPLETE: "Complete the required onboarding steps before choosing a billing plan.",
   AIRWALLEX_CREDENTIALS_MISSING: "Airwallex is not configured on the server yet.",
   AIRWALLEX_AUTH_FAILED: "Airwallex could not authenticate the billing request.",
   AIRWALLEX_PRICE_NOT_CONFIGURED: "The selected annual plan is not configured in Airwallex yet.",
@@ -288,30 +292,19 @@ const ACCESS_TOKEN_STORAGE_KEY = "lulu_access_token";
 
 function readStoredAccessToken() {
   try {
-    const persistentToken = window.localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-    if (persistentToken) return persistentToken;
-
-    const legacySessionToken = window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
-    if (!legacySessionToken) return null;
-
-    window.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, legacySessionToken);
+    window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
     window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-    return legacySessionToken;
   } catch {
-    return null;
+    // Private browsing/storage restrictions must not break authentication.
   }
+  return null;
 }
 
 function storeAccessToken(token: string | null) {
   accessToken = token;
   try {
-    if (token) {
-      window.localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
-      window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-    } else {
-      window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-      window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-    }
+    window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
   } catch {
     // Private browsing/storage restrictions must not break authentication.
   }

@@ -64,7 +64,7 @@ export const LuluLoginPage = () => {
   const [errorDetails, setErrorDetails] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
   const stats = [
-    { icon: Bot, value: '130+', label: t('Autonomous AI agents') },
+    { icon: Bot, value: '131+', label: t('Autonomous AI agents') },
     { icon: TrendingUp, value: '10+', label: t('Business integrations') },
     { icon: Globe2, value: '3', label: t('Native languages') },
   ];

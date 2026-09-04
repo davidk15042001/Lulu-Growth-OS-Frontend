@@ -103,7 +103,9 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     {children}
     <GlobalBranding contractKind={contract.kind} />
     <LegacyChromeCleanup />
-    <GlobalLanguageSwitcher showButton={false} />
+    <GlobalLanguageSwitcher
+      showButton={slug !== "brightly-door-5741" && (contract.kind === "public" || contract.kind === "onboarding" || window.location.pathname.startsWith("/onboarding/"))}
+    />
     <GlobalUploadFeedback />
     {state === "ready" && workspaceId && contract.kind !== "public" && slug === HOME_PAGE_SLUG && <PostAnalysisCreationPrompt workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} />}
   </>;

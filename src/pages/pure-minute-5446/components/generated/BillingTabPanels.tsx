@@ -58,7 +58,6 @@ const auditRows: Array<Record<string, any>> = [];
 const billingPlanIcons: Record<BillingPlanId, typeof Zap> = {
   starter: Zap,
   ai: WandSparkles,
-  test: ShieldCheck,
 };
 function getProgressColor(percent: number) {
   if (percent > 90) {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Check, Cpu, Lock, Server, ShieldCheck, Sparkles, WandSparkles, X, Zap } from "lucide-react";
+import { ArrowRight, Check, Cpu, Lock, Server, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
 import { navigateApp, routes } from "../routing";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
@@ -12,7 +12,13 @@ import { getAdminLandingPath, isAdminUser } from "../api/session";
 const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string }> = {
   starter: { icon: Zap, accent: "bg-[var(--primary)] text-[var(--primary-foreground)]" },
   ai: { icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20" },
-  test: { icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-dashed border-[var(--primary)]/40" },
+};
+
+const onboardingPathByStep: Record<string, string> = {
+  company_information: routes.onboarding.companyInformation,
+  business_description: routes.onboarding.businessDescription,
+  products_services: routes.onboarding.existingPlatforms,
+  existing_platforms: routes.onboarding.existingPlatforms,
 };
 
 export function BillingOnboarding() {
@@ -22,12 +28,10 @@ export function BillingOnboarding() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [technicalError, setTechnicalError] = useState<string | null>(null);
-  const [testPassword, setTestPassword] = useState("");
-  const [testPasswordRequired, setTestPasswordRequired] = useState(false);
   const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
   const postActionTarget = admin ? getAdminLandingPath(routes.app.dashboard) : routes.app.dashboard;
-  const visiblePlans = billingPlans.filter((plan) => plan.id !== "test");
+  const visiblePlans = billingPlans;
 
   useEffect(() => {
     if (!paymentSucceeded || !selectedWorkspace) return;
@@ -102,7 +106,15 @@ export function BillingOnboarding() {
     return null;
   }
 
-  const startPlanCheckout = async (planId: BillingPlanId, password?: string) => {
+  if (!selectedWorkspace.onboardingCompletedAt) {
+    const requiredPath = onboardingPathByStep[selectedWorkspace.onboardingStep];
+    if (requiredPath) {
+      navigateApp(requiredPath, { replace: true });
+      return null;
+    }
+  }
+
+  const startPlanCheckout = async (planId: BillingPlanId) => {
     if (!selectedWorkspace || submitting || paymentStatus === "waiting") return;
     setSelectedPlan(planId);
     setSubmitting(true);
@@ -114,7 +126,6 @@ export function BillingOnboarding() {
         planKey: planId,
         successUrl: `${window.location.origin}${routes.onboarding.billing}?payment=success`,
         backUrl: `${window.location.origin}${routes.onboarding.billing}?payment=cancelled`,
-        ...(planId === "test" && password ? { password } : {}),
       });
       const billingResult = billingResponse.data;
       window.localStorage.setItem(`lulu:selected-plan:${selectedWorkspace.id}`, planId);
@@ -135,16 +146,6 @@ export function BillingOnboarding() {
 
   const selectPlan = (planId: BillingPlanId) => {
     if (submitting || paymentStatus === "waiting") return;
-    if (planId === "test") {
-      setSelectedPlan(planId);
-      setTestPassword("");
-      setTestPasswordRequired(true);
-      setError(null);
-      setTechnicalError(null);
-      return;
-    }
-    setTestPasswordRequired(false);
-    setTestPassword("");
     void startPlanCheckout(planId);
   };
 
@@ -172,7 +173,7 @@ export function BillingOnboarding() {
         </section>
 
         {(submitting || paymentStatus !== "idle" || error) && <section className={`mb-6 rounded-2xl border px-5 py-4 text-sm ${error || paymentStatus === "error" ? "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)]" : "border-[var(--border)] bg-[var(--secondary)] text-[var(--foreground)]"}`} role={error || paymentStatus === "error" ? "alert" : "status"}>
-          <div className="flex items-start gap-3"><ShieldCheck size={18} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="font-semibold">{paymentStatus === "waiting" ? "Payment method received — confirming your access…" : submitting ? (selectedPlan === "test" ? "Checking the Test password and activating the workspace…" : "Opening secure checkout…") : paymentStatus === "error" ? "Payment confirmation is taking longer than expected." : error}</p>{paymentStatus === "waiting" && <p className="mt-1 text-[var(--muted-foreground)]">We are waiting for Airwallex to confirm the saved payment method. This page will continue automatically.</p>}{paymentStatus === "error" && <p className="mt-1">Please wait a moment and refresh this page.</p>}{error && paymentStatus !== "error" && <p className="mt-1">Select the package again to retry.</p>}{technicalError && <details className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 text-left"><summary className="cursor-pointer text-xs font-semibold">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--muted-foreground)]">{technicalError}</p></details>}</div></div>
+          <div className="flex items-start gap-3"><ShieldCheck size={18} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="font-semibold">{paymentStatus === "waiting" ? "Payment method received — confirming your access…" : submitting ? "Opening secure checkout…" : paymentStatus === "error" ? "Payment confirmation is taking longer than expected." : error}</p>{paymentStatus === "waiting" && <p className="mt-1 text-[var(--muted-foreground)]">We are waiting for Airwallex to confirm the saved payment method. This page will continue automatically.</p>}{paymentStatus === "error" && <p className="mt-1">Please wait a moment and refresh this page.</p>}{error && paymentStatus !== "error" && <p className="mt-1">Select the package again to retry.</p>}{technicalError && <details className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 text-left"><summary className="cursor-pointer text-xs font-semibold">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--muted-foreground)]">{technicalError}</p></details>}</div></div>
         </section>}
 
         <section aria-label="Available plans" className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -193,7 +194,7 @@ export function BillingOnboarding() {
                 </ul>
                 <p className="mt-6 flex items-start gap-2 text-xs leading-5 text-[var(--muted-foreground)]"><Lock size={14} className="mt-0.5 shrink-0" aria-hidden="true" /><span>{plan.limitations}</span></p>
                 <button type="button" onClick={() => selectPlan(plan.id)} disabled={submitting || paymentStatus === "waiting"} aria-pressed={isSelected} className={`mt-7 inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition disabled:cursor-wait disabled:opacity-55 ${isSelected ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "border border-[var(--border)] bg-[var(--card)] hover:border-[var(--foreground)]"}`}>
-                  {isSelected && submitting ? (plan.id === "test" ? "Activating Test…" : "Opening secure checkout…") : plan.cta}<ArrowRight size={16} aria-hidden="true" />
+                  {isSelected && submitting ? "Opening secure checkout…" : plan.cta}<ArrowRight size={16} aria-hidden="true" />
                 </button>
               </article>
             );
@@ -236,8 +237,6 @@ export function BillingOnboarding() {
         </section>
 
       </div>
-
-      {testPasswordRequired && selectedPlan === "test" && <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-labelledby="test-plan-title" onMouseDown={(event) => { if (event.target === event.currentTarget && !submitting) { setTestPasswordRequired(false); setSelectedPlan(null); } }}><form className="relative w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl" onSubmit={(event) => { event.preventDefault(); if (testPassword) void startPlanCheckout("test", testPassword); }}><button type="button" disabled={submitting} onClick={() => { setTestPasswordRequired(false); setSelectedPlan(null); }} className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--secondary)] disabled:opacity-50" aria-label="Close"><X size={18} /></button><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Test plan</p><h2 id="test-plan-title" className="mt-2 text-2xl font-semibold">Activate the Test package</h2><p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">The Test package has no billing. Enter the confirmation password to unlock full AI access immediately and continue to the dashboard.</p><label className="mt-5 block text-xs font-semibold text-[var(--foreground)]">Test confirmation password<input autoFocus value={testPassword} onChange={(event) => setTestPassword(event.target.value)} autoComplete="off" type="password" placeholder="Enter the Test password" className="mt-2 h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 text-sm outline-none focus:border-[var(--primary)]" /></label>{error && <p className="mt-3 text-sm text-[var(--destructive)]" role="alert">{error}</p>}<button type="submit" disabled={submitting || testPassword.length === 0} className="mt-5 inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40">{submitting ? "Activating Test…" : "Activate Test package"}<ArrowRight size={16} /></button></form></div>}
     </main>
   );
 }

@@ -43,7 +43,7 @@ const featureGroups = [
 const integrationNames = ['WordPress', 'Webflow', 'HubSpot', 'Google Analytics', 'Shopify', 'Salesforce', 'Pipedrive'];
 
 const landingStats = [
-  { icon: Bot, value: '130+', label: 'Autonomous AI agents' },
+  { icon: Bot, value: '131+', label: 'Autonomous AI agents' },
   { icon: TrendingUp, value: '10+', label: 'Business integrations' },
   { icon: Globe2, value: '3', label: 'Native languages' },
   { icon: LockKeyhole, value: '24/7', label: 'Server-side security' },

@@ -3,7 +3,13 @@ import { Check, CircleAlert, Eye, EyeOff, LoaderCircle, X } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { clearPendingEmail, getPendingEmail } from '../../../../api/session';
-const requirements: Array<Record<string, any>> = [];
+const requirements = [
+  { id: 'length', label: 'At least 12 characters', test: (value: string) => value.length >= 12 },
+  { id: 'uppercase', label: 'One uppercase letter', test: (value: string) => /[A-Z]/.test(value) },
+  { id: 'lowercase', label: 'One lowercase letter', test: (value: string) => /[a-z]/.test(value) },
+  { id: 'number', label: 'One number', test: (value: string) => /[0-9]/.test(value) },
+  { id: 'special', label: 'One special character', test: (value: string) => /[^A-Za-z0-9]/.test(value) },
+];
 type StateKind = 'success' | 'expired' | 'invalid' | 'loading';
 type StateCardProps = {
   kind: StateKind;
@@ -82,6 +88,10 @@ export function LuluResetPassword() {
   const [confirmation, setConfirmation] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const passwordResults = requirements.map(requirement => ({ ...requirement, passed: requirement.test(password) }));
+  const passedRequirements = passwordResults.filter(requirement => requirement.passed).length;
+  const strengthSegments = password ? Math.max(1, Math.ceil((passedRequirements / requirements.length) * 4)) : 0;
+  const passwordIsStrong = passedRequirements === requirements.length;
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (loading) return;
@@ -89,8 +99,8 @@ export function LuluResetPassword() {
       setError('Enter your email and six-digit reset code.');
       return;
     }
-    if (password.length < 12) {
-      setError('Use at least 12 characters for your new password.');
+    if (!passwordIsStrong) {
+      setError('Use at least 12 characters with uppercase, lowercase, number and special character.');
       return;
     }
     if (password !== confirmation) {
@@ -137,16 +147,13 @@ export function LuluResetPassword() {
                 {showPassword ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
               </button>
             </div>
-            <div className="mt-2.5 flex items-center gap-1.5" aria-label="Password strength strong">
-              <span className="h-1 flex-1 rounded-full bg-[var(--primary)] text-primary-foreground" aria-hidden="true"></span>
-              <span className="h-1 flex-1 rounded-full bg-[var(--primary)] text-primary-foreground" aria-hidden="true"></span>
-              <span className="h-1 flex-1 rounded-full bg-[var(--primary)] text-primary-foreground" aria-hidden="true"></span>
-              <span className="h-1 flex-1 rounded-full bg-[var(--primary)] text-primary-foreground" aria-hidden="true"></span>
+            <div className="mt-2.5 flex items-center gap-1.5" aria-label={`Password strength ${passwordIsStrong ? 'strong' : 'incomplete'}`}>
+              {[0, 1, 2, 3].map(segment => <span key={segment} className={`h-1 flex-1 rounded-full ${segment < strengthSegments ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'}`} aria-hidden="true" />)}
             </div>
-            <p className="mt-1.5 text-right text-[11px] font-medium text-[var(--foreground)]">Strong</p>
+            <p className="mt-1.5 text-right text-[11px] font-medium text-[var(--foreground)]">{passwordIsStrong ? 'Strong' : 'Complete all requirements'}</p>
             <div className="mt-2 grid grid-cols-2 gap-x-3 gap-y-1.5" aria-label="Password requirements">
-              {requirements.map(requirement => <p key={requirement.id} className="flex items-center gap-1.5 text-[11px] leading-4 text-[var(--foreground)]">
-                <Check size={12} strokeWidth={3} aria-hidden="true" />
+              {passwordResults.map(requirement => <p key={requirement.id} className={`flex items-center gap-1.5 text-[11px] leading-4 ${requirement.passed ? 'text-[var(--foreground)]' : 'text-[var(--muted-foreground)]'}`}>
+                {requirement.passed ? <Check size={12} strokeWidth={3} aria-hidden="true" /> : <X size={12} aria-hidden="true" />}
                 <span>{requirement.label}</span>
               </p>)}
             </div>

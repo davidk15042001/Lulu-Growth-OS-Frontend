@@ -22,10 +22,11 @@ type UploadItem = DocumentRecord & {
 };
 
 const MAX_FILE_SIZE = 5000 * 1024;
-const ACCEPTED_FILES = "image/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv";
+const ACCEPTED_FILES = ".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv";
+const SAFE_IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp"]);
 
 function isImage(mimeType: string) {
-  return mimeType.startsWith("image/");
+  return SAFE_IMAGE_MIME_TYPES.has(mimeType.toLowerCase());
 }
 
 function formatFileSize(size: number) {
@@ -146,6 +147,9 @@ export const BusinessDescription = () => {
         });
         setReuploadRequired(workspace.onboardingFileReuploadRequired);
         const loaded = await Promise.all(documentsResponse.data.items.map(async (document) => {
+          if (document.mimeType.toLowerCase() === "image/svg+xml") {
+            return { ...document, url: "", kind: "document" as const, contentAvailable: false };
+          }
           try {
             const blob = await requestApiBlob(`/workspaces/${workspaceId}/onboarding/documents/${document.id}/content`);
             return { ...document, url: URL.createObjectURL(blob), kind: isImage(document.mimeType) ? "image" as const : "document" as const, contentAvailable: true };
@@ -288,7 +292,7 @@ export const BusinessDescription = () => {
         </form>
       </div></section>
 
-      {activeUpload && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="file-preview-title" onMouseDown={(event) => { if (event.target === event.currentTarget) setActiveUpload(null); }}><div className="flex h-[min(88vh,780px)] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-2xl"><header className="flex items-center justify-between gap-4 border-b border-[var(--border)] px-4 py-3 sm:px-5"><div className="min-w-0"><h2 id="file-preview-title" className="truncate text-sm font-semibold text-[var(--foreground)]">{activeUpload.fileName}</h2><p className="text-xs text-[var(--muted-foreground)]">{getFileExtension(activeUpload.fileName)} · {formatFileSize(activeUpload.sizeBytes)}</p></div><button type="button" onClick={() => setActiveUpload(null)} className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" aria-label="Vorschau schließen"><X size={18} /></button></header><iframe title={`Vorschau von ${activeUpload.fileName}`} src={activeUpload.url} className="min-h-0 flex-1 bg-white" /></div></div>}
+      {activeUpload && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="file-preview-title" onMouseDown={(event) => { if (event.target === event.currentTarget) setActiveUpload(null); }}><div className="flex h-[min(88vh,780px)] w-full max-w-5xl flex-col overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--card)] shadow-2xl"><header className="flex items-center justify-between gap-4 border-b border-[var(--border)] px-4 py-3 sm:px-5"><div className="min-w-0"><h2 id="file-preview-title" className="truncate text-sm font-semibold text-[var(--foreground)]">{activeUpload.fileName}</h2><p className="text-xs text-[var(--muted-foreground)]">{getFileExtension(activeUpload.fileName)} · {formatFileSize(activeUpload.sizeBytes)}</p></div><button type="button" onClick={() => setActiveUpload(null)} className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-[var(--muted-foreground)] hover:bg-[var(--secondary)] focus:outline-none focus:ring-2 focus:ring-[var(--ring)]" aria-label="Vorschau schließen"><X size={18} /></button></header><iframe title={`Vorschau von ${activeUpload.fileName}`} src={activeUpload.url} sandbox="" referrerPolicy="no-referrer" className="min-h-0 flex-1 bg-white" /></div></div>}
     </main>
   );
 };

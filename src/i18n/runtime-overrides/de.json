@@ -3402,5 +3402,12 @@
   "Abbrechen": "Abbrechen",
   "Bearbeiten": "Bearbeiten",
   "Löschen": "Löschen",
-  "Stoppen": "Stoppen"
+  "Stoppen": "Stoppen",
+  "The selected billing plan is not available for this account.": "Der ausgewählte Abrechnungsplan ist für dieses Konto nicht verfügbar.",
+  "The internal Test plan is not enabled on this server.": "Der interne Testtarif ist auf diesem Server nicht aktiviert.",
+  "Another payment checkout is already active for this workspace.": "Für diesen Workspace ist bereits ein anderer Bezahlvorgang aktiv.",
+  "Complete the required onboarding steps before choosing a billing plan.": "Schließe die erforderlichen Onboarding-Schritte ab, bevor du einen Abrechnungsplan auswählst.",
+  "Use at least 12 characters with uppercase, lowercase, number and special character.": "Verwende mindestens 12 Zeichen mit Großbuchstaben, Kleinbuchstaben, Zahl und Sonderzeichen.",
+  "Password strength {{0}}": "Passwortstärke: {{0}}",
+  "Complete all requirements": "Erfülle alle Anforderungen"
 }

@@ -25,7 +25,7 @@ export function PageRoute({ page }: { page: PageDefinition }) {
     || location.pathname === routes.auth.signUp
     || location.pathname.startsWith("/auth/");
   const isPublic = contract?.kind === "public" || isAuthPath;
-  const isOnboarding = contract?.kind === "onboarding";
+  const isOnboarding = contract?.kind === "onboarding" || location.pathname.startsWith("/onboarding/");
 
   if (page.slug === LEGACY_ADVERTISING_AUDIENCES_SLUG) {
     return <Navigate replace to={pagePath(PRIMARY_AUDIENCES_SLUG)} state={{ from: location.pathname }} />;

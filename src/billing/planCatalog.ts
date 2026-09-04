@@ -1,4 +1,4 @@
-export type BillingPlanId = "starter" | "ai" | "test";
+export type BillingPlanId = "starter" | "ai";
 
 export type BillingPlan = {
   id: BillingPlanId;
@@ -47,23 +47,6 @@ export const billingPlans: BillingPlan[] = [
     pricePeriod: "per year",
     cta: "Choose AI",
   },
-  {
-    id: "test",
-    name: "Test",
-    eyebrow: "Full AI access for verification",
-    description: "Use the complete AI package without billing. Enter the Test password to activate the workspace immediately.",
-    features: [
-      "Everything in AI",
-      "Full AI analysis, recommendations and actions",
-      "Full automation of supported workflows",
-      "No package fee and no usage billing",
-      "Immediate activation after password confirmation",
-    ],
-    limitations: "A confirmation password is required.",
-    price: "Free",
-    pricePeriod: "all included for testing",
-    cta: "Choose Test",
-  },
 ];
 
 export type BillingCapability = {
@@ -76,41 +59,41 @@ export const billingCapabilities: BillingCapability[] = [
   {
     id: "workspace-data",
     label: "View dashboards, reports and connected data",
-    availability: { starter: true, ai: true, test: true },
+    availability: { starter: true, ai: true },
   },
   {
     id: "workspace-management",
     label: "Manage workspace content and settings",
-    availability: { starter: true, ai: true, test: true },
+    availability: { starter: true, ai: true },
   },
   {
     id: "connected-platforms",
     label: "Manage connected websites and platforms",
-    availability: { starter: true, ai: true, test: true },
+    availability: { starter: true, ai: true },
   },
   {
     id: "automatic-analysis",
     label: "Automatic AI analysis and statistics",
-    availability: { starter: true, ai: true, test: true },
+    availability: { starter: true, ai: true },
   },
   {
     id: "specialized-automation",
     label: "SEO, GEO, AEO and Website recommendations and automation",
-    availability: { starter: true, ai: true, test: true },
+    availability: { starter: true, ai: true },
   },
   {
     id: "general-recommendations",
     label: "General AI insights and recommendations",
-    availability: { starter: false, ai: true, test: true },
+    availability: { starter: false, ai: true },
   },
   {
     id: "ai-assisted-decisions",
     label: "AI-assisted content and decisions",
-    availability: { starter: false, ai: true, test: true },
+    availability: { starter: false, ai: true },
   },
   {
     id: "general-automation",
     label: "Full automation of supported workflows",
-    availability: { starter: false, ai: true, test: true },
+    availability: { starter: false, ai: true },
   },
 ];
