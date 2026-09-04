@@ -293,18 +293,19 @@ const ACCESS_TOKEN_STORAGE_KEY = "lulu_access_token";
 function readStoredAccessToken() {
   try {
     window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-    window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    return window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
   } catch {
     // Private browsing/storage restrictions must not break authentication.
+    return null;
   }
-  return null;
 }
 
 function storeAccessToken(token: string | null) {
   accessToken = token;
   try {
     window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-    window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+    if (token) window.sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
+    else window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
   } catch {
     // Private browsing/storage restrictions must not break authentication.
   }
