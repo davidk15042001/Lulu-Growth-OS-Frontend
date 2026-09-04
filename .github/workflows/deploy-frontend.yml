@@ -90,7 +90,36 @@ jobs:
             --exclude .env \
             --exclude .git \
             --exclude node_modules \
+            --exclude '.deploy-stale-node_modules-*' \
             backend-source/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
-          ssh "$DEPLOY_USER@$DEPLOY_HOST" \
-            'set -e; cd /var/www/lulu-growth-os/backend; npm ci --omit=dev --ignore-scripts; node dist/database/run.js; if [ "$(id -u)" -eq 0 ]; then systemctl restart lulu-growth-backend; else sudo -n /usr/local/sbin/lulu-growth-backend-restart; fi; for attempt in $(seq 1 30); do if curl -fsS http://127.0.0.1:3000/api/v1/ready >/tmp/lulu-ready.json; then cat /tmp/lulu-ready.json; exit 0; fi; sleep 2; done; echo "Backend readiness check failed on port 3000" >&2; exit 1'
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          cd /var/www/lulu-growth-os/backend
+
+          if ! npm ci --omit=dev --ignore-scripts; then
+            test -d node_modules || { echo "npm ci failed before node_modules was created" >&2; exit 1; }
+            stale_path=".deploy-stale-node_modules-$(date +%Y%m%d%H%M%S)"
+            echo "Recovering from incompatible node_modules ownership: moving it to $stale_path"
+            mv node_modules "$stale_path"
+            npm ci --omit=dev --ignore-scripts
+          fi
+
+          node dist/database/run.js
+          if [ "$(id -u)" -eq 0 ]; then
+            systemctl restart lulu-growth-backend
+          else
+            sudo -n /usr/local/sbin/lulu-growth-backend-restart
+          fi
+
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3000/api/v1/ready >/tmp/lulu-ready.json; then
+              cat /tmp/lulu-ready.json
+              exit 0
+            fi
+            sleep 2
+          done
+
+          echo "Backend readiness check failed on port 3000" >&2
+          exit 1
+          REMOTE
