@@ -214,6 +214,9 @@ export const onboardingApi = {
   deletePlatform: (workspaceId: string, platformId: string) => requestApi<null>({
     path: workspaceApiPath(workspaceId, `/onboarding/platforms/${platformId}`), method: "DELETE",
   }),
+  continueExistingPlatforms: (workspaceId: string) => requestApi<Workspace>({
+    path: workspaceApiPath(workspaceId, "/onboarding/existing-platforms/continue"), method: "POST", body: {},
+  }),
   competitors: (workspaceId: string) => requestApi<{ items: Competitor[] }>({ path: workspaceApiPath(workspaceId, "/onboarding/competitors") }),
   discoverCompetitors: (workspaceId: string, options?: { timeoutMs?: number }) => requestApi<{ items: Competitor[] }>({
     path: workspaceApiPath(workspaceId, "/onboarding/competitors/discover"), method: "POST", body: {}, timeoutMs: options?.timeoutMs,

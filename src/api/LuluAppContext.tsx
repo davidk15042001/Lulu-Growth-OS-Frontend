@@ -6,7 +6,7 @@ import { workspaceApi } from "./workspaces";
 import type { Workspace, WorkspaceRole } from "./types";
 
 type Permissions = { role: WorkspaceRole | null; canEdit: boolean; canAdminister: boolean };
-type AppValue = { currentUser: CurrentUser | null; workspaces: Workspace[]; selectedWorkspace: Workspace | null; permissions: Permissions; capabilities: { aiGeneration: boolean; transactionalEmail: boolean }; loading: boolean; error: string | null; refresh: () => Promise<void>; selectWorkspace: (id: string) => void; can: (permission: "edit" | "administer") => boolean };
+type AppValue = { currentUser: CurrentUser | null; workspaces: Workspace[]; selectedWorkspace: Workspace | null; permissions: Permissions; capabilities: { aiGeneration: boolean; transactionalEmail: boolean }; loading: boolean; error: string | null; refresh: () => Promise<void>; selectWorkspace: (id: string) => void; updateWorkspace: (workspace: Workspace) => void; can: (permission: "edit" | "administer") => boolean };
 const empty: Permissions = { role: null, canEdit: false, canAdminister: false };
 const Context = createContext<AppValue | null>(null);
 const permissionsFor = (workspace: Workspace | undefined): Permissions => workspace ? { role: workspace.role, canEdit: workspace.planKey !== "viewer" && ["owner", "admin", "member"].includes(workspace.role), canAdminister: workspace.planKey !== "viewer" && ["owner", "admin"].includes(workspace.role) } : empty;
@@ -63,7 +63,11 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
   const selectedWorkspace = useMemo(() => workspaces.find((item) => item.id === selectedId) ?? null, [selectedId, workspaces]);
   const selectWorkspace = useCallback((id: string) => { const workspace = workspaces.find((item) => item.id === id); if (!workspace) return; setSelectedWorkspaceId(id); selectedIdRef.current = id; setSelectedId(id); setPermissions(permissionsFor(workspace)); }, [workspaces]);
-  const value = useMemo<AppValue>(() => ({ currentUser, workspaces, selectedWorkspace, permissions, capabilities, loading, error, refresh, selectWorkspace, can: (permission) => permission === "edit" ? permissions.canEdit : permissions.canAdminister }), [currentUser, workspaces, selectedWorkspace, permissions, capabilities, loading, error, refresh, selectWorkspace]);
+  const updateWorkspace = useCallback((workspace: Workspace) => {
+    setWorkspaces((current) => current.map((item) => item.id === workspace.id ? workspace : item));
+    if (selectedIdRef.current === workspace.id) setPermissions(permissionsFor(workspace));
+  }, []);
+  const value = useMemo<AppValue>(() => ({ currentUser, workspaces, selectedWorkspace, permissions, capabilities, loading, error, refresh, selectWorkspace, updateWorkspace, can: (permission) => permission === "edit" ? permissions.canEdit : permissions.canAdminister }), [currentUser, workspaces, selectedWorkspace, permissions, capabilities, loading, error, refresh, selectWorkspace, updateWorkspace]);
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 export function useLuluApp() { const value = useContext(Context); if (!value) throw new Error("useLuluApp must be used within LuluAppProvider"); return value; }

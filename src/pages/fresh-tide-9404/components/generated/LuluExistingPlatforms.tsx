@@ -2,6 +2,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { ArrowRight, BarChart3, CircleCheck, Globe, Store, Trash2, UsersRound, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from '../../../../api/client';
+import { useLuluApp } from '../../../../api/LuluAppContext';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 import { onboardingApi } from '../../../../api/onboarding';
 import { OnboardingHeader } from '../../../../components/OnboardingHeader';
@@ -44,6 +45,7 @@ const platformGroups: PlatformGroup[] = [
     Shopify: { intro: "Connect a Shopify store using its myshopify.com domain. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/shopify/callback", steps: ["Open the Shopify Dev Dashboard and create or select the app.", "Configure the Admin API scopes `read_products` and `read_content` and add the callback URL shown above.", "Copy your store domain in the exact format `example.myshopify.com`.", "Click Connect here, enter the store domain, and approve the app installation."], links: [{ label: "Open Shopify Dev Dashboard", url: "https://dev.shopify.com/dashboard" }, { label: "Read Shopify OAuth Guide", url: "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/authorization-code-grant" }] },
   };
 export const LuluExistingPlatforms = () => {
+  const { updateWorkspace } = useLuluApp();
   const isOnboarding = window.location.pathname.startsWith("/onboarding/");
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [error, setError] = useState('');
@@ -125,7 +127,8 @@ export const LuluExistingPlatforms = () => {
     setError('');
     setTechnicalDetails('');
     try {
-      await requestApi({ path: `/workspaces/${workspaceId}/onboarding/existing-platforms/continue`, method: 'POST', body: {} });
+      const response = await onboardingApi.continueExistingPlatforms(workspaceId);
+      updateWorkspace(response.data);
       navigateApp(routes.onboarding.billing);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, 'We could not save this onboarding step. Please try again.'));
