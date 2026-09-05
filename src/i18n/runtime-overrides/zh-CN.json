@@ -3465,5 +3465,14 @@
   "Factory and case-study privacy": "工厂与案例隐私",
   "Factory-level identities are intentionally not exposed on the public login page.": "公共登录页面不会显示工厂级身份信息。",
   "Aggregated public view": "公开汇总视图",
-  "No privacy-safe category breakdown yet.": "暂时没有可公开的隐私安全类别细分数据。"
+  "No privacy-safe category breakdown yet.": "暂时没有可公开的隐私安全类别细分数据。",
+  "OAuth Connections": "OAuth 连接",
+  "oauth-connections": "oauth-connections",
+  "Microsoft": "Microsoft",
+  "OAuth-Verbindungen konnten nicht geladen werden.": "无法加载 OAuth 连接。",
+  "Provider security": "服务商安全",
+  "Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.": "集中查看平台、电子邮件和日历中的所有外部 OAuth 连接。访问令牌和密钥永不显示。",
+  "Credentials": "凭据",
+  "Stored": "已存储",
+  "Token Expires": "令牌到期"
 }

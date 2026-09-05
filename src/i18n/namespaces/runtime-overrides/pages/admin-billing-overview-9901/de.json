@@ -263,5 +263,21 @@
   "Verified": "Verifiziert",
   "Version": "Version",
   "Website": "Website",
-  "Workspace": "Arbeitsbereich"
+  "Workspace": "Arbeitsbereich",
+  "OAuth Connections": "OAuth-Verbindungen",
+  "oauth-connections": "oauth-connections",
+  "Google Ads": "Google Ads",
+  "Google Analytics": "Google Analytics",
+  "Meta": "Meta",
+  "Microsoft": "Microsoft",
+  "Google": "Google",
+  "OAuth-Verbindungen konnten nicht geladen werden.": "OAuth-Verbindungen konnten nicht geladen werden.",
+  "Provider security": "Provider-Sicherheit",
+  "Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.": "Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.",
+  "Account": "Konto",
+  "Credentials": "Zugangsdaten",
+  "Stored": "Gespeichert",
+  "Missing": "Fehlt",
+  "Account ID": "Konto-ID",
+  "Token Expires": "Token-Ablauf"
 }

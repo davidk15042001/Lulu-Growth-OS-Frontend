@@ -417,5 +417,7 @@
   "Abbrechen": "Cancel",
   "Bearbeiten": "Edit",
   "Löschen": "Delete",
-  "Stoppen": "Stop"
+  "Stoppen": "Stop",
+  "OAuth-Verbindungen konnten nicht geladen werden.": "OAuth connections could not be loaded.",
+  "Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.": "Central overview of all external OAuth connections from platforms, email and calendar. Access tokens and secrets are never shown."
 }

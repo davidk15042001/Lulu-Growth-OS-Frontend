@@ -263,5 +263,21 @@
   "Verified": "已验证",
   "Version": "版本",
   "Website": "网站",
-  "Workspace": "工作区"
+  "Workspace": "工作区",
+  "OAuth Connections": "OAuth 连接",
+  "oauth-connections": "oauth-connections",
+  "Google Ads": "Google Ads",
+  "Google Analytics": "Google Analytics",
+  "Meta": "Meta",
+  "Microsoft": "Microsoft",
+  "Google": "Google",
+  "OAuth-Verbindungen konnten nicht geladen werden.": "无法加载 OAuth 连接。",
+  "Provider security": "服务商安全",
+  "Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.": "集中查看平台、电子邮件和日历中的所有外部 OAuth 连接。访问令牌和密钥永不显示。",
+  "Account": "账户",
+  "Credentials": "凭据",
+  "Stored": "已存储",
+  "Missing": "缺失",
+  "Account ID": "账户 ID",
+  "Token Expires": "令牌到期"
 }

@@ -3498,5 +3498,14 @@
   "Factory and case-study privacy": "Datenschutz für Fabriken und Case Studies",
   "Factory-level identities are intentionally not exposed on the public login page.": "Fabrikidentitäten werden auf der öffentlichen Loginseite bewusst nicht angezeigt.",
   "Aggregated public view": "Öffentliche aggregierte Ansicht",
-  "No privacy-safe category breakdown yet.": "Noch kein datenschutzsicherer Kategorie-Breakdown verfügbar."
+  "No privacy-safe category breakdown yet.": "Noch kein datenschutzsicherer Kategorie-Breakdown verfügbar.",
+  "OAuth Connections": "OAuth-Verbindungen",
+  "oauth-connections": "oauth-connections",
+  "Microsoft": "Microsoft",
+  "OAuth-Verbindungen konnten nicht geladen werden.": "OAuth-Verbindungen konnten nicht geladen werden.",
+  "Provider security": "Provider-Sicherheit",
+  "Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.": "Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.",
+  "Credentials": "Zugangsdaten",
+  "Stored": "Gespeichert",
+  "Token Expires": "Token-Ablauf"
 }

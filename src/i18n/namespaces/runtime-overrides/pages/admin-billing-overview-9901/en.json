@@ -37,5 +37,7 @@
   "Credits zuweisen": "Assign credits",
   "Direkter Drilldown mit den wichtigsten Metadaten.": "Direct drill-down with the most important metadata.",
   "Notiz (optional)": "Note (optional)",
-  "Ablauf": "Expiry"
+  "Ablauf": "Expiry",
+  "OAuth-Verbindungen konnten nicht geladen werden.": "OAuth connections could not be loaded.",
+  "Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.": "Central overview of all external OAuth connections from platforms, email and calendar. Access tokens and secrets are never shown."
 }
