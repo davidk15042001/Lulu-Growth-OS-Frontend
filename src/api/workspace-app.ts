@@ -29,6 +29,26 @@ export type AuditEntry = {
   createdAt: string;
 };
 
+export type WorkspaceSettings = {
+  workspaceId: string;
+  settings: {
+    sales?: {
+      moduleName?: string;
+      defaultCurrency?: string;
+      defaultTimeZone?: string;
+      defaultLanguage?: string;
+      defaultDateFormat?: string;
+      defaultNumberFormat?: string;
+      salesModuleEnabled?: boolean;
+      aiSalesAssistanceEnabled?: boolean;
+      salesNotificationsEnabled?: boolean;
+      salesActivityTrackingEnabled?: boolean;
+    };
+  };
+  createdAt: string | null;
+  updatedAt: string | null;
+};
+
 export type ContentRefreshJob = {
   id: string;
   workspaceId: string;
@@ -265,6 +285,12 @@ export const workspaceAppApi = {
   }),
   audit: (workspaceId: string, query = "limit=100") => requestApi<{ items: AuditEntry[]; pagination: Pagination }>({
     path: workspaceApiPath(workspaceId, `/audit?${query}`),
+  }),
+  settings: (workspaceId: string) => requestApi<WorkspaceSettings>({
+    path: workspaceApiPath(workspaceId, "/settings"),
+  }),
+  updateSettings: (workspaceId: string, input: Pick<WorkspaceSettings["settings"], "sales">) => requestApi<WorkspaceSettings>({
+    path: workspaceApiPath(workspaceId, "/settings"), method: "PATCH", body: input,
   }),
   billing: (workspaceId: string, query = "") => requestApi<BillingState>({
     path: workspaceApiPath(workspaceId, `/billing${query ? `?${query}` : ""}`),
