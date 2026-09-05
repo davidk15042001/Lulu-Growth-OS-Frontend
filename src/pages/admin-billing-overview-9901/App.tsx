@@ -6,7 +6,7 @@ import { DEFAULT_LANGUAGE, isAvailableLanguageCode, LANGUAGE_STORAGE_KEY } from 
 import { routes } from "../../routing";
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
-  Plug, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
+  Plug, KeyRound, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
   Settings as SettingsIcon, Search, ShieldCheck, ChevronRight,
   Lock, Unlock, UserCheck, RotateCcw, Ban, PlayCircle, Save, Filter, Trash2,
   LayoutGrid, MessageSquare, Menu, X, LogIn
@@ -16,7 +16,7 @@ type NavSection = { label: string; items: NavItem[] };
 type NavItem = { key: PageKey; label: string; icon: React.ReactElement; badge?: string };
 type PageKey =
   | "dashboard" | "users" | "workspaces" | "crm" | "billing" | "websites"
-  | "agents" | "integrations" | "approvals" | "conversations" | "files"
+  | "agents" | "integrations" | "oauth-connections" | "approvals" | "conversations" | "files"
   | "support" | "errors" | "audit" | "jobs" | "settings";
 
 const NAV: NavSection[] = [
@@ -41,6 +41,7 @@ const NAV: NavSection[] = [
       { key: "websites", label: "Websites & Shops", icon: <Globe size={16} /> },
       { key: "agents", label: "AI Agents", icon: <Bot size={16} /> },
       { key: "integrations", label: "Integrations", icon: <Plug size={16} /> },
+      { key: "oauth-connections", label: "OAuth Connections", icon: <KeyRound size={16} /> },
       { key: "approvals", label: "Approvals", icon: <CheckSquare2 size={16} /> },
       { key: "conversations", label: "Inbox / Conversations", icon: <MessageSquare size={16} /> },
       { key: "files", label: "Files & Storage", icon: <FileArchive size={16} /> },
@@ -142,6 +143,14 @@ type IntegrationRow = {
   provider: string; status: string; scopes: string[] | null;
   connectedAt: string; expiresAt: string | null; lastSyncedAt: string | null;
   lastError: string | null; syncCount: number;
+};
+type OAuthConnectionRow = {
+  id: string; connectionType: "platform" | "email" | "calendar"; provider: string;
+  displayName: string; workspaceId: string; workspaceName: string | null;
+  sourceStatus: string; status: string; hasCredentials: boolean;
+  accountIdentifier: string | null; scopes: string[] | null;
+  tokenExpiresAt: string | null; lastSyncedAt: string | null; lastError: string | null;
+  connectedAt: string; updatedAt: string;
 };
 type ApprovalRow = {
   id: string; workspaceId: string; workspaceName: string | null;
@@ -380,6 +389,7 @@ export default function App() {
     dashboard:['users.read','workspaces.read','billing.read','providers.read','agents.read','security.read'],
     users:['users.read'], workspaces:['workspaces.read'], billing:['billing.read'], crm:['workspaces.read'],
     websites:['providers.read'], agents:['agents.read'], integrations:['providers.read'], approvals:['agents.read'],
+    'oauth-connections':['providers.read'],
     conversations:['users.read','workspaces.read'], files:['workspaces.read'], support:['users.read','workspaces.read'],
     errors:['security.read'],audit:['audit.read'],jobs:['agents.read','providers.read'],settings:['security.read'],
   };
@@ -476,6 +486,7 @@ export default function App() {
             {page === "websites" ? <WebsitesPage onError={setError} /> : null}
             {page === "agents" ? <AgentsPage onError={setError} /> : null}
             {page === "integrations" ? <IntegrationsPage onError={setError} /> : null}
+            {page === "oauth-connections" ? <OAuthConnectionsPage onError={setError} /> : null}
             {page === "approvals" ? <ApprovalsPage onError={setError} /> : null}
             {page === "conversations" ? <ConversationsPage onError={setError} /> : null}
             {page === "files" ? <FilesPage onError={setError} /> : null}
@@ -1308,6 +1319,81 @@ function IntegrationsPage({ onError }: { onError: (m: string) => void }) {
         { key: "lastError", label: "Last Error", render: (r) => r.lastError ? <Pill tone="rose">Error</Pill> : "—" },
       ]}
     />
+  );
+}
+
+const oauthProviderLabels: Record<string, string> = {
+  "google-ads": "Google Ads",
+  "google-analytics": "Google Analytics",
+  "google-business": "Google Business",
+  meta: "Meta",
+  linkedin: "LinkedIn",
+  microsoft: "Microsoft",
+  google: "Google",
+};
+
+function oauthProviderLabel(provider: string) {
+  return oauthProviderLabels[provider] ?? provider.replace(/[-_]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
+  const [loading, setLoading] = useState(true);
+  const [rows, setRows] = useState<OAuthConnectionRow[]>([]);
+  const [search, setSearch] = useState("");
+  const load = async () => {
+    setLoading(true); onError("");
+    try {
+      const query = `/admin/oauth-connections?limit=500${search.trim() ? `&search=${encodeURIComponent(search.trim())}` : ""}`;
+      const res = await requestApi<{ connections: OAuthConnectionRow[] }>({ path: query });
+      setRows(res.data.connections);
+    } catch (e) { onError(getFriendlyErrorMessage(e, "OAuth-Verbindungen konnten nicht geladen werden.")); }
+    finally { setLoading(false); }
+  };
+  useEffect(() => { void load(); }, [search]);
+
+  const connected = rows.filter((row) => row.hasCredentials && !["error", "reauth_required", "missing_credentials", "disconnected"].includes(row.status)).length;
+  const needsAttention = rows.filter((row) => !row.hasCredentials || ["error", "reauth_required", "missing_credentials"].includes(row.status)).length;
+  const providerCount = new Set(rows.map((row) => row.provider)).size;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-2">
+        <div className="text-xs uppercase tracking-wide text-slate-400">Provider security</div>
+        <h1 className="text-2xl font-semibold text-slate-900">OAuth Connections</h1>
+        <p className="max-w-3xl text-sm text-slate-500">
+          Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KPI label="OAuth Connections" value={loading ? "—" : rows.length} hint="Loaded from all OAuth stores" accent="violet" />
+        <KPI label="With Credentials" value={loading ? "—" : connected} hint="Stored encrypted token material" accent="emerald" />
+        <KPI label="Needs Attention" value={loading ? "—" : needsAttention} hint="Missing, expired or errored" accent={needsAttention ? "rose" : "emerald"} />
+        <KPI label="Providers" value={loading ? "—" : providerCount} hint="Unique provider keys" accent="sky" />
+      </div>
+
+      <DataTable<OAuthConnectionRow>
+        loading={loading}
+        rows={rows}
+        searchOnChange={setSearch}
+        searchValue={search}
+        getRowKey={(row) => `${row.connectionType}-${row.id}`}
+        columns={[
+          { key: "workspaceName", label: "Workspace", render: (row) => row.workspaceName ?? "—" },
+          { key: "connectionType", label: "Source", render: (row) => <Pill tone="slate">{row.connectionType}</Pill> },
+          { key: "provider", label: "Provider", render: (row) => <div className="font-medium">{oauthProviderLabel(row.provider)}</div> },
+          { key: "displayName", label: "Account", render: (row) => <div className="max-w-xs truncate" title={row.displayName}>{row.displayName || "—"}</div> },
+          { key: "status", label: "Status", render: (row) => <Pill tone={toneFromStatus(row.status)}>{row.status}</Pill> },
+          { key: "hasCredentials", label: "Credentials", render: (row) => <Pill tone={row.hasCredentials ? "emerald" : "rose"}>{row.hasCredentials ? "Stored" : "Missing"}</Pill> },
+          { key: "scopes", label: "Scopes", render: (row) => row.scopes?.length ? <span className="font-mono text-xs">{row.scopes.length}</span> : "—" },
+          { key: "accountIdentifier", label: "Account ID", render: (row) => row.accountIdentifier ? <span className="font-mono text-xs">{row.accountIdentifier}</span> : "—" },
+          { key: "tokenExpiresAt", label: "Token Expires", render: (row) => date(row.tokenExpiresAt) },
+          { key: "lastSyncedAt", label: "Last Sync", render: (row) => date(row.lastSyncedAt) },
+          { key: "lastError", label: "Last Error", render: (row) => row.lastError ? <span className="max-w-xs truncate text-rose-700" title={row.lastError}>{row.lastError}</span> : "—" },
+          { key: "updatedAt", label: "Updated", render: (row) => date(row.updatedAt) },
+        ]}
+      />
+    </div>
   );
 }
 
