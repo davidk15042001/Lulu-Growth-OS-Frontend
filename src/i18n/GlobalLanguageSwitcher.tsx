@@ -59,6 +59,8 @@ const appliedAttributes = new WeakMap<Element, Map<string, string>>();
 const dynamicPatterns = new WeakMap<Record<string, string>, Array<{ regex: RegExp; translation: string }>>();
 const translatableAttributes = ["aria-label", "placeholder", "title"] as const;
 let translationWriteDepth = 0;
+let originalDocumentTitle = "";
+let appliedDocumentTitle = "";
 
 function withTranslationWrite<T>(callback: () => T): T {
   translationWriteDepth += 1;
@@ -308,6 +310,17 @@ function applyStaticTranslations(root: HTMLElement, language: LanguageCode, dict
   applyTranslationsToSubtree(root, dictionary);
 }
 
+function applyDocumentTitleTranslation(dictionary: Record<string, string>) {
+  const current = document.title;
+  const original = !originalDocumentTitle || (current !== originalDocumentTitle && current !== appliedDocumentTitle)
+    ? current
+    : originalDocumentTitle;
+  originalDocumentTitle = original;
+  const next = lookup(dictionary, original) ?? original;
+  if (next !== current) withTranslationWrite(() => { document.title = next; });
+  appliedDocumentTitle = next;
+}
+
 export function useLanguage() {
   const [language, setLanguage] = useState<LanguageCode>(initialLanguage);
   useEffect(() => {
@@ -358,7 +371,11 @@ export function GlobalLanguageSwitcher({ showButton = true }: { showButton?: boo
     } catch { /* no persistence available */ }
     const root = document.getElementById("root");
     if (!root) return;
-    const translate = () => applyStaticTranslations(root, language);
+    const translate = () => {
+      const dictionary = loadedTables[language] ?? {};
+      applyStaticTranslations(root, language, dictionary);
+      applyDocumentTitleTranslation(dictionary);
+    };
     void ensureNamespaces(language, namespaces).then(() => {
       if (!active) return;
       translate();
@@ -388,7 +405,12 @@ export function GlobalLanguageSwitcher({ showButton = true }: { showButton?: boo
       }, 50);
     });
     observer.observe(root, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: [...translatableAttributes] });
-    return () => { active = false; observer.disconnect(); window.clearTimeout(timer.current); };
+    const titleNode = document.querySelector("title");
+    const titleObserver = new MutationObserver(() => {
+      if (translationWriteDepth === 0) applyDocumentTitleTranslation(loadedTables[language] ?? {});
+    });
+    if (titleNode) titleObserver.observe(titleNode, { childList: true, subtree: true, characterData: true });
+    return () => { active = false; observer.disconnect(); titleObserver.disconnect(); window.clearTimeout(timer.current); };
   }, [language, namespaces]);
 
   const selectLanguage = (next: LanguageCode) => {

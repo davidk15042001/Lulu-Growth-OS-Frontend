@@ -3474,5 +3474,8 @@
   "Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.": "集中查看平台、电子邮件和日历中的所有外部 OAuth 连接。访问令牌和密钥永不显示。",
   "Credentials": "凭据",
   "Stored": "已存储",
-  "Token Expires": "令牌到期"
+  "Token Expires": "令牌到期",
+  "Verbindungen": "连接",
+  "To Admin Panel (Admin Mode)": "前往管理面板（管理模式）",
+  "To Workspace Platform (Workspace Mode)": "前往工作区平台（工作区模式）"
 }

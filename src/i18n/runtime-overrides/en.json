@@ -447,5 +447,8 @@
   "Fokus": "Focus",
   "Aktiv": "Active",
   "Aktualisiert:": "Updated:",
-  "Typ:": "Type:"
+  "Typ:": "Type:",
+  "Verbindungen": "Connections",
+  "To Admin Panel (Admin Mode)": "To Admin Panel (Admin Mode)",
+  "To Workspace Platform (Workspace Mode)": "To Workspace Platform (Workspace Mode)"
 }
