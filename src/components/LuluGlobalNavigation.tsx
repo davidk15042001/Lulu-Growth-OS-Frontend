@@ -6,7 +6,6 @@ import { AccountSessions } from './AccountSessions';
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
 import { switchLanguage, useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { isAvailableLanguageCode, languages } from "../i18n/languages";
-import { pages as manifestPages } from "../pages-manifest";
 import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
 import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 
@@ -25,14 +24,13 @@ const GOOGLE_BUSINESS_SECTION: NavigationSection = {
   label: GOOGLE_BUSINESS_LABEL,
   pages: [],
 };
-const NAVIGATION_PAGE_LABELS = new Map(
-  manifestPages.map((page) => [page.slug, page.name.replace(/^Lulu AI\s+—\s+/, "")]),
-);
-NAVIGATION_PAGE_LABELS.set("glad-coast-1428", "Integrations");
-NAVIGATION_PAGE_LABELS.set("fresh-tide-9404", "Verbindungen");
+const NAVIGATION_PAGE_LABEL_OVERRIDES = new Map([
+  ["glad-coast-1428", "Integrations"],
+  ["fresh-tide-9404", "Verbindungen"],
+]);
 
 function getNavigationPageLabel(page: NavigationPage) {
-  return NAVIGATION_PAGE_LABELS.get(page.id) ?? page.label;
+  return NAVIGATION_PAGE_LABEL_OVERRIDES.get(page.id) ?? page.label;
 }
 
 const baseNavigationSections: readonly NavigationSection[] = (() => {
