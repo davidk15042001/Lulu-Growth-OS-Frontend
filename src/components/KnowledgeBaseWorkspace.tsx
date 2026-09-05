@@ -219,6 +219,7 @@ export function KnowledgeBaseWorkspace() {
   const [businessForm, setBusinessForm] = useState({
     businessDescription: "",
     valueProposition: "",
+    vision: "",
     targetMarket: "",
     shortBrandDescription: "",
     primaryIcp: "",
@@ -252,6 +253,7 @@ export function KnowledgeBaseWorkspace() {
       setBusinessForm({
         businessDescription: response.data.workspace.businessDescription ?? "",
         valueProposition: response.data.workspace.valueProposition ?? "",
+        vision: response.data.workspace.vision ?? "",
         targetMarket: response.data.workspace.targetMarket ?? "",
         shortBrandDescription: response.data.workspace.shortBrandDescription ?? "",
         primaryIcp: response.data.workspace.primaryIcp ?? "",
@@ -302,6 +304,7 @@ export function KnowledgeBaseWorkspace() {
 
   async function saveBusinessProfileDraft(override?: Partial<{
     valueProposition: string;
+    vision: string;
     targetMarket: string;
     shortBrandDescription: string;
     primaryIcp: string;
@@ -328,7 +331,7 @@ export function KnowledgeBaseWorkspace() {
       primaryIcp: nullable(override?.primaryIcp ?? businessForm.primaryIcp),
       usp: nullable(override?.usp ?? businessForm.usp),
       mission: workspace?.mission ?? null,
-      vision: workspace?.vision ?? null,
+      vision: nullable(override?.vision ?? businessForm.vision),
       primaryChallenges: override?.primaryChallenges ?? csvToList(businessForm.primaryChallenges),
       languages: override?.languages ?? csvToList(businessForm.languages),
       regulatedIndustries: workspace?.regulatedIndustries ?? [],
@@ -381,7 +384,7 @@ export function KnowledgeBaseWorkspace() {
                 </div>
               </div>
               <p className="mt-4 max-w-4xl text-sm text-muted-foreground">
-                Generate 5-10 high-quality options for the core business profile fields on this page, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.
+                Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.
               </p>
               {aiBusinessProfile?.generatedAt ? (
                 <p className="mt-3 text-xs text-muted-foreground">
@@ -397,6 +400,7 @@ export function KnowledgeBaseWorkspace() {
                   onClick={() => void runAction("apply-ai-profile", "Recommended AI profile applied.", async () => {
                     await saveBusinessProfileDraft({
                       valueProposition: recommendedAiProfile.valueProposition,
+                      vision: recommendedAiProfile.vision,
                       targetMarket: recommendedAiProfile.targetMarket,
                       shortBrandDescription: recommendedAiProfile.shortBrandDescription,
                       primaryIcp: recommendedAiProfile.primaryIcp,
@@ -429,6 +433,10 @@ export function KnowledgeBaseWorkspace() {
                       <div>
                         <p className="text-xs text-muted-foreground">Value Proposition</p>
                         <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.valueProposition}</p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-muted-foreground">Vision</p>
+                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.vision}</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Target Market</p>
@@ -473,14 +481,21 @@ export function KnowledgeBaseWorkspace() {
               <div className="grid gap-6 xl:grid-cols-2">
                 <SuggestionFieldCard
                   title="Value Proposition"
-                  description="Top options for the strongest business promise."
+                  description="One AI-generated business promise grounded in the workspace context."
                   suggestions={aiBusinessProfile.payload.suggestions.valuePropositions}
                   disabled={!canEdit}
                   onUse={(value) => setBusinessForm((current) => ({ ...current, valueProposition: value }))}
                 />
                 <SuggestionFieldCard
+                  title="Vision"
+                  description="One AI-generated long-term direction for the business."
+                  suggestions={aiBusinessProfile.payload.suggestions.visions ?? []}
+                  disabled={!canEdit}
+                  onUse={(value) => setBusinessForm((current) => ({ ...current, vision: value }))}
+                />
+                <SuggestionFieldCard
                   title="Target Market"
-                  description="Focused market definitions with clearer competitive whitespace."
+                  description="Five AI-ranked market opportunities with clearer competitive whitespace."
                   suggestions={aiBusinessProfile.payload.suggestions.targetMarkets}
                   disabled={!canEdit}
                   onUse={(value) => setBusinessForm((current) => ({ ...current, targetMarket: value }))}
@@ -623,6 +638,7 @@ export function KnowledgeBaseWorkspace() {
           <div className="mt-4 grid gap-4">
             <label className="text-sm text-muted-foreground">Business Description<textarea disabled={!canEdit} className={textareaClass} value={businessForm.businessDescription} onChange={(event) => setBusinessForm((current) => ({ ...current, businessDescription: event.target.value }))} /></label>
             <label className="text-sm text-muted-foreground">Value Proposition<textarea disabled={!canEdit} className={textareaClass} value={businessForm.valueProposition} onChange={(event) => setBusinessForm((current) => ({ ...current, valueProposition: event.target.value }))} /></label>
+            <label className="text-sm text-muted-foreground">Vision<textarea disabled={!canEdit} className={textareaClass} value={businessForm.vision} onChange={(event) => setBusinessForm((current) => ({ ...current, vision: event.target.value }))} /></label>
             <div className="grid gap-4 md:grid-cols-2">
               <label className="text-sm text-muted-foreground">Target Market<input disabled={!canEdit} className={inputClass} value={businessForm.targetMarket} onChange={(event) => setBusinessForm((current) => ({ ...current, targetMarket: event.target.value }))} /></label>
               <label className="text-sm text-muted-foreground">Primary ICP<input disabled={!canEdit} className={inputClass} value={businessForm.primaryIcp} onChange={(event) => setBusinessForm((current) => ({ ...current, primaryIcp: event.target.value }))} /></label>

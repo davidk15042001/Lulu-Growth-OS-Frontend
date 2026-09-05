@@ -3524,5 +3524,6 @@
   "Card": "银行卡",
   "Opening secure checkout…": "正在打开安全结账…",
   "Pay API usage": "支付 API 用量",
-  "Payment details are handled securely by Airwallex. Available methods depend on your merchant setup, currency and region.": "支付信息由 Airwallex 安全处理。可用支付方式取决于商户设置、币种和地区。"
+  "Payment details are handled securely by Airwallex. Available methods depend on your merchant setup, currency and region.": "支付信息由 Airwallex 安全处理。可用支付方式取决于商户设置、币种和地区。",
+  "Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.": "生成一个高质量价值主张、一个长期愿景和五个按优先级排序的目标市场，并给出最合适的 20 个 AI 排名客户细分。该草案使用当前入驻数据，并与此工作区采用的十个主要竞争对手进行比较。"
 }
