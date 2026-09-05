@@ -26,17 +26,11 @@ const tabs: Tab[] = [{
   id: 'plans',
   label: 'Plans'
 }, {
-  id: 'usage',
-  label: 'Usage'
-}, {
   id: 'ai-usage',
   label: 'AI Usage'
 }, {
   id: 'credits',
   label: 'Credits'
-}, {
-  id: 'add-ons',
-  label: 'Add-ons'
 }, {
   id: 'payments',
   label: 'Payments'
@@ -49,9 +43,6 @@ const tabs: Tab[] = [{
 }, {
   id: 'subscription',
   label: 'Subscription'
-}, {
-  id: 'settings',
-  label: 'Settings'
 }];
 const invoices: Invoice[] = [];
 const insights: Insight[] = [];
