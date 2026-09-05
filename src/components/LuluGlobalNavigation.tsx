@@ -2,6 +2,7 @@ import { CalendarDays, Check, ChevronDown, Languages, LogOut, RefreshCw, X } fro
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
+import { AccountSessions } from './AccountSessions';
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
 import { switchLanguage, useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { isAvailableLanguageCode, languages } from "../i18n/languages";
@@ -154,6 +155,7 @@ export function LuluGlobalNavigation({
   const t = useTranslation();
   const language = useLanguage();
   const [languageOpen, setLanguageOpen] = useState(false);
+  const [sessionsOpen, setSessionsOpen] = useState(false);
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
   const signOut = async () => {
     try {
@@ -294,6 +296,8 @@ export function LuluGlobalNavigation({
                 })}
                 {section.label === SETTINGS_LABEL && (
                   <>
+                    <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setSessionsOpen(true)}>{t('Active sessions')}</button>
+                    {sessionsOpen && <AccountSessions onClose={() => setSessionsOpen(false)} />}
                     <button
                       type="button"
                       className="lulu-global-navigation__subitem-action"

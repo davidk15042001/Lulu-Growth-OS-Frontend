@@ -45,7 +45,7 @@ function Tag({
   return <span className={`tag ${kind}`}>{children}</span>;
 }
 export const LuluGrowth = () => {
-  const { items: growthRecords, loading: growthLoading, error: growthError } = useLiveRecords('business_growth');
+  const { items: growthRecords, loading: growthLoading, error: growthError } = useLiveRecords('growth_opportunities');
   const [mobileNav, setMobileNav] = useState(false);
   const [expanded, setExpanded] = useState<string[]>(['Revenue Growth', 'Customer Growth']);
   const [granularity, setGranularity] = useState('Daily');

@@ -46,47 +46,57 @@
 }
 
 :root {
-  color: #171717;
-  background: #f7f7f5;
-  --background: #fafaf9;
-  --foreground: #171717;
+  color: #0b1020;
+  background: #f5f7ff;
+  --background: #f7f8ff;
+  --foreground: #0b1020;
   --card: #ffffff;
-  --card-foreground: #171717;
+  --card-foreground: #0b1020;
   --popover: #ffffff;
-  --popover-foreground: #171717;
-  --border: #e4e4df;
-  --input: #e4e4df;
-  --secondary: #f1f1ee;
-  --secondary-foreground: #171717;
-  --muted: #f1f1ee;
-  --muted-foreground: #73736d;
-  --accent: #f1f1ee;
-  --accent-foreground: #171717;
-  --primary: #171717;
+  --popover-foreground: #0b1020;
+  --border: #e3e7f2;
+  --input: #d8deec;
+  --secondary: #eef0ff;
+  --secondary-foreground: #312e81;
+  --muted: #f0f2f9;
+  --muted-foreground: #64708a;
+  --accent: #eef0ff;
+  --accent-foreground: #312e81;
+  --primary: #5b46f5;
   --primary-foreground: #ffffff;
-  --ring: #171717;
+  --ring: #7c5cff;
   --destructive: #b42318;
-  --radius: 0.5rem;
-  --chart-1: #2563eb;
-  --chart-2: #0ea5e9;
+  --radius: 0.875rem;
+  --chart-1: #7c3aed;
+  --chart-2: #2563eb;
   --chart-3: #7c3aed;
-  --chart-4: #3f8f68;
-  --chart-5: #eab308;
-  --sidebar: #fafaf9;
-  --sidebar-foreground: #171717;
-  --sidebar-primary: #171717;
+  --chart-4: #10b981;
+  --chart-5: #f59e0b;
+  --sidebar: #0b1020;
+  --sidebar-foreground: #e8ebff;
+  --sidebar-primary: #8b7cff;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f1ee;
-  --sidebar-accent-foreground: #171717;
-  --sidebar-border: #e4e4df;
-  --sidebar-ring: #171717;
+  --sidebar-accent: #1b2240;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255,255,255,.12);
+  --sidebar-ring: #8b7cff;
+  --lulu-navy: #0b1020;
+  --lulu-violet: #7c3aed;
+  --lulu-indigo: #4f46e5;
+  --lulu-sky: #0ea5e9;
+  --lulu-emerald: #10b981;
+  --lulu-gradient: linear-gradient(110deg, #7c3aed 0%, #4f46e5 42%, #0ea5e9 74%, #10b981 100%);
+  --lulu-page-gradient: radial-gradient(circle at 10% 0%, rgba(124,58,237,.10), transparent 32rem), radial-gradient(circle at 100% 10%, rgba(14,165,233,.10), transparent 34rem), #f7f8ff;
+  --lulu-surface-border: color-mix(in srgb, #e3e7f2 88%, #ffffff 12%);
+  --lulu-card-shadow: 0 18px 45px rgba(38, 45, 90, .08);
+  --lulu-card-shadow-hover: 0 24px 55px rgba(79, 70, 229, .16);
   font-family: 'Poppins', sans-serif;
   font-synthesis: none;
 }
 
 * { box-sizing: border-box; }
 html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
-body { min-height: 100vh; font-family: 'Poppins', sans-serif; }
+body { min-height: 100vh; font-family: 'Poppins', sans-serif; background: var(--lulu-page-gradient); }
 html, body, #root, #root * , #root *::before, #root *::after { font-family: 'Poppins', sans-serif; }
 button, input, textarea, select { font-family: 'Poppins', sans-serif; }
 a { color: inherit; }
@@ -107,7 +117,7 @@ button, input { font: inherit; }
 .page-card strong { align-self: end; margin-top: 28px; font-size: 1rem; }
 .page-card > span:last-child { margin-top: 6px; color: #85857f; font-size: .75rem; }
 
-.page-frame { position: relative; width: 100%; min-height: 100vh; height: auto; overflow: visible; background: #fff; }
+.page-frame { position: relative; width: 100%; min-height: 100vh; height: auto; overflow: visible; background: var(--lulu-page-gradient); }
 
 /* Shared navigation shell for all authenticated native pages */
 .lulu-global-shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:calc(100vh - 66px);background:var(--background)}
@@ -301,3 +311,400 @@ body.lulu-mobile-nav-open{overflow:hidden}
 /* Compact navigation brand-to-section spacing */
 .page-frame aside > div.mb-9.flex.items-center.gap-3.px-2,
 .page-frame aside > div.mb-9.flex.items-center.gap-3.px-2.py-2 { margin-bottom: 1rem !important; }
+
+/* -------------------------------------------------------------------------
+   Lulu visual system
+   The authenticated product uses the same visual language as the landing
+   page: a quiet canvas, glass surfaces, deep navy navigation and a violet →
+   indigo → sky → emerald action gradient. These rules intentionally live at
+   the shell level so generated feature pages inherit the system as well.
+   ------------------------------------------------------------------------- */
+:where(.lulu-global-shell, .lulu-global-content, .lulu-native-page) {
+  --lulu-surface-border: color-mix(in srgb, var(--border) 88%, #ffffff 12%);
+}
+
+.lulu-global-shell {
+  position: relative;
+  isolation: isolate;
+  background: var(--lulu-page-gradient);
+}
+
+.lulu-global-shell::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  opacity: .32;
+  background-image: linear-gradient(rgba(79,70,229,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(79,70,229,.035) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, #000, transparent 84%);
+}
+
+.lulu-global-navigation {
+  border-right-color: rgba(255,255,255,.10);
+  background: linear-gradient(180deg, #0b1020 0%, #111936 58%, #171d3c 100%);
+  color: #e8ebff;
+  box-shadow: 14px 0 45px rgba(11,16,32,.08);
+}
+
+.lulu-global-navigation__workspace-label,
+.lulu-global-navigation__primary-link,
+.lulu-global-navigation__sections summary,
+.lulu-global-navigation__subitems a,
+.lulu-global-navigation__subitem-action,
+.lulu-global-navigation__language-option {
+  color: rgba(232,235,255,.72);
+}
+
+.lulu-global-navigation__workspace-label {
+  letter-spacing: .14em;
+}
+
+.lulu-global-navigation__primary-link,
+.lulu-global-navigation__sections summary {
+  border: 1px solid transparent;
+  transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease;
+}
+
+.lulu-global-navigation__primary-link:hover,
+.lulu-global-navigation__sections summary:hover,
+.lulu-global-navigation__primary-link.is-active,
+.lulu-global-navigation__sections summary.is-active {
+  border-color: rgba(139,124,255,.22);
+  background: linear-gradient(90deg, rgba(124,58,237,.28), rgba(14,165,233,.12));
+  color: #ffffff;
+}
+
+.lulu-global-navigation__primary-link.is-active,
+.lulu-global-navigation__subitems a.is-active {
+  box-shadow: 0 8px 22px rgba(79,70,229,.22);
+}
+
+.lulu-global-navigation__subitems {
+  border-left-color: rgba(139,124,255,.28);
+}
+
+.lulu-global-navigation__subitems a:hover,
+.lulu-global-navigation__subitem-action:hover,
+.lulu-global-navigation__language-option:hover {
+  background: rgba(255,255,255,.08);
+  color: #ffffff;
+}
+
+.lulu-global-navigation__subitems a.is-active {
+  border: 1px solid rgba(139,124,255,.25);
+  background: linear-gradient(100deg, #7c3aed, #4f46e5 54%, #0ea5e9);
+  color: #ffffff;
+}
+
+.lulu-global-navigation__subitems a.is-locked,
+.lulu-global-navigation__primary-link--locked {
+  background: rgba(255,255,255,.035);
+  color: rgba(232,235,255,.42);
+}
+
+.lulu-global-navigation__close {
+  border-color: rgba(255,255,255,.14);
+  background: rgba(255,255,255,.08);
+  color: #ffffff;
+}
+
+.lulu-global-navigation__avatar {
+  background: var(--lulu-gradient);
+  box-shadow: 0 8px 20px rgba(79,70,229,.36);
+}
+
+.lulu-global-navigation__account-copy strong { color: #ffffff; }
+.lulu-global-navigation__account-copy small { color: rgba(232,235,255,.58); }
+
+.lulu-global-content {
+  background: transparent;
+}
+
+.lulu-auth-search-wrap {
+  border-bottom-color: rgba(226,231,244,.84);
+  background: rgba(247,248,255,.78);
+  box-shadow: 0 10px 30px rgba(38,45,90,.04);
+}
+
+.lulu-auth-nav-toggle {
+  border-color: #dfe4f1;
+  background: rgba(255,255,255,.88);
+  color: var(--foreground);
+  box-shadow: 0 8px 22px rgba(38,45,90,.10);
+}
+
+.lulu-auth-search {
+  border-color: #dfe4f1;
+  background: rgba(255,255,255,.88);
+  box-shadow: 0 9px 26px rgba(38,45,90,.08);
+}
+
+.lulu-auth-search:focus-within {
+  border-color: rgba(99,82,246,.52);
+  box-shadow: 0 0 0 4px rgba(99,82,246,.10), 0 12px 30px rgba(38,45,90,.10);
+}
+
+.lulu-auth-search-button,
+.lulu-auth-search-refresh {
+  background: var(--lulu-gradient);
+  box-shadow: 0 8px 20px rgba(79,70,229,.25);
+}
+
+.lulu-auth-search-results {
+  border-color: #dfe4f1;
+  box-shadow: 0 24px 60px rgba(38,45,90,.16);
+}
+
+.lulu-agent-workspace-header {
+  border-bottom-color: rgba(226,231,244,.86);
+  background: rgba(247,248,255,.78);
+  box-shadow: 0 12px 32px rgba(38,45,90,.04);
+}
+
+.lulu-agent-workspace-header__eyebrow {
+  color: #6b63b5;
+}
+
+.lulu-agent-workspace-header__icon {
+  border-color: rgba(124,58,237,.20);
+  background: linear-gradient(135deg, rgba(124,58,237,.13), rgba(14,165,233,.12));
+  color: #5b46f5;
+  box-shadow: 0 8px 20px rgba(79,70,229,.10);
+}
+
+.lulu-agent-workspace-header__copy h1,
+.lulu-agent-workspace-header__summary-item strong {
+  color: var(--foreground);
+}
+
+.lulu-agent-workspace-header__badge,
+.lulu-agent-workspace-header__summary-item,
+.lulu-agent-workspace-header__details p,
+.lulu-agent-workspace-header__notice {
+  border-color: var(--lulu-surface-border);
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 8px 22px rgba(38,45,90,.05);
+}
+
+.lulu-native-page {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.lulu-native-page > * {
+  min-width: 0;
+}
+
+/* Generated pages share these semantic utility patterns. Keeping their
+   borders/shadows here makes cards feel related even when page markup differs. */
+.lulu-native-page [class*="rounded-xl"][class*="border"],
+.lulu-native-page [class*="rounded-2xl"][class*="border"],
+.lulu-native-page [class*="rounded-3xl"][class*="border"] {
+  border-color: var(--lulu-surface-border);
+  box-shadow: var(--lulu-card-shadow);
+}
+
+.lulu-native-page [class*="rounded-xl"][class*="border"]:hover,
+.lulu-native-page [class*="rounded-2xl"][class*="border"]:hover,
+.lulu-native-page [class*="rounded-3xl"][class*="border"]:hover {
+  border-color: rgba(124,58,237,.28);
+}
+
+.lulu-native-page a[class*="rounded"][class*="border"]:hover,
+.lulu-native-page button[class*="rounded"][class*="border"]:hover {
+  box-shadow: var(--lulu-card-shadow-hover);
+}
+
+.lulu-native-page table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.lulu-native-page :is(input, select, textarea):focus-visible,
+.lulu-native-page [role="combobox"]:focus-visible {
+  outline: none;
+  border-color: rgba(99,82,246,.62);
+  box-shadow: 0 0 0 4px rgba(99,82,246,.12);
+}
+
+.page-frame__loading,
+.page-loading {
+  background: var(--lulu-page-gradient);
+  color: var(--muted-foreground);
+}
+
+.not-found {
+  background: var(--lulu-page-gradient);
+}
+
+.not-found .eyebrow { color: #6b63b5; }
+.not-found a { background: var(--lulu-gradient); box-shadow: 0 10px 24px rgba(79,70,229,.25); }
+
+@media (min-width: 901px) {
+  .lulu-global-content {
+    min-width: 0;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1100px) {
+  .lulu-global-shell {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
+  .lulu-auth-search-wrap {
+    padding-inline: 16px;
+  }
+
+  .lulu-native-page [class*="grid-cols-4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 900px) {
+  .lulu-global-navigation {
+    background: linear-gradient(180deg, #0b1020 0%, #111936 100%);
+    box-shadow: 18px 0 50px rgba(11,16,32,.34);
+  }
+
+  .lulu-global-navigation__backdrop {
+    background: rgba(11,16,32,.64);
+    backdrop-filter: blur(4px);
+  }
+
+  .lulu-auth-search-wrap {
+    background: rgba(247,248,255,.92);
+  }
+}
+
+@media (max-width: 640px) {
+  .lulu-auth-search-wrap {
+    padding-inline: 10px;
+  }
+
+  .lulu-native-page [class*="grid-cols-2"],
+  .lulu-native-page [class*="grid-cols-3"],
+  .lulu-native-page [class*="grid-cols-4"],
+  .lulu-native-page [class*="grid-cols-5"],
+  .lulu-native-page [class*="grid-cols-6"] {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .lulu-native-page [class*="p-8"],
+  .lulu-native-page [class*="p-7"],
+  .lulu-native-page [class*="p-6"] {
+    padding: 1rem !important;
+  }
+
+  .lulu-native-page [class*="gap-8"],
+  .lulu-native-page [class*="gap-7"],
+  .lulu-native-page [class*="gap-6"] {
+    gap: 1rem !important;
+  }
+
+  .lulu-native-page :is(h1, h2, h3) {
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lulu-global-shell::before { opacity: .2; }
+  .lulu-global-navigation__primary-link,
+  .lulu-global-navigation__sections summary,
+  .lulu-native-page * { transition-duration: .01ms !important; }
+}
+
+/* Admin console shares the product visual system while keeping its denser
+   operations-oriented information architecture. */
+.lulu-admin-console {
+  position: relative;
+  isolation: isolate;
+  min-width: 320px;
+  background: var(--lulu-page-gradient) !important;
+}
+
+.lulu-admin-console > div > aside {
+  border-right-color: rgba(255,255,255,.10) !important;
+  background: linear-gradient(180deg, #0b1020 0%, #111936 58%, #171d3c 100%) !important;
+  color: #e8ebff;
+  box-shadow: 14px 0 45px rgba(11,16,32,.10);
+}
+
+.lulu-admin-console > div > aside :is(.text-slate-900, .text-slate-800, .text-slate-700, .text-slate-600, .text-slate-500, .text-slate-400) {
+  color: rgba(232,235,255,.72) !important;
+}
+
+.lulu-admin-console > div > aside .text-sm.font-semibold,
+.lulu-admin-console > div > aside .text-indigo-700,
+.lulu-admin-console > div > aside .text-indigo-600 {
+  color: #ffffff !important;
+}
+
+.lulu-admin-console > div > aside button {
+  border: 1px solid transparent;
+  color: rgba(232,235,255,.72);
+}
+
+.lulu-admin-console > div > aside button:hover,
+.lulu-admin-console > div > aside button.bg-indigo-50 {
+  border-color: rgba(139,124,255,.22);
+  background: linear-gradient(90deg, rgba(124,58,237,.28), rgba(14,165,233,.12)) !important;
+  color: #ffffff !important;
+}
+
+.lulu-admin-console > div > aside button.bg-indigo-50 span {
+  color: #ffffff !important;
+}
+
+.lulu-admin-console > div > div > header {
+  border-bottom-color: rgba(226,231,244,.86) !important;
+  background: rgba(247,248,255,.78) !important;
+  box-shadow: 0 12px 32px rgba(38,45,90,.04);
+}
+
+.lulu-admin-console > div > div > header button {
+  border-color: #dfe4f1;
+  background: rgba(255,255,255,.82);
+  color: #64708a;
+}
+
+.lulu-admin-console > div > div > header button:hover {
+  border-color: rgba(124,58,237,.28);
+  background: #f1efff;
+  color: #4f46e5;
+}
+
+.lulu-admin-console > div > div > main {
+  min-width: 0;
+  background: transparent;
+}
+
+.lulu-admin-console [class*="rounded-lg"][class*="border"],
+.lulu-admin-console [class*="rounded-xl"][class*="border"],
+.lulu-admin-console [class*="rounded-2xl"][class*="border"] {
+  border-color: var(--lulu-surface-border);
+  box-shadow: var(--lulu-card-shadow);
+}
+
+.lulu-admin-console [class*="bg-white"] {
+  background-color: rgba(255,255,255,.86) !important;
+}
+
+.lulu-admin-console table {
+  min-width: 680px;
+}
+
+@media (max-width: 767px) {
+  .lulu-admin-console > div > div > header {
+    padding-inline: 12px !important;
+  }
+
+  .lulu-admin-console > div > div > main {
+    padding-inline: 12px !important;
+  }
+
+  .lulu-admin-console > div > aside {
+    width: min(88vw, 320px) !important;
+  }
+}

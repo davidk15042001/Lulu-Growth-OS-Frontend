@@ -44,7 +44,7 @@ function Card({
   return <section className={`rounded-xl border border-border bg-card p-5 shadow-[0_2px_8px_rgba(0,0,0,0.03)] ${className}`}><header className="mb-5 flex items-start justify-between gap-3"><div><h2 className="text-[15px] font-bold tracking-tight text-foreground">{title}</h2>{subtitle && <p className="mt-1 text-xs text-muted-foreground">{subtitle}</p>}</div>{badge}</header>{children}</section>;
 }
 export function LuluCashFlow() {
-  const { items: liveRecords, loading: liveLoading, error: liveError } = useLiveRecords('finance_cash_flow');
+  const { items: liveRecords, loading: liveLoading, error: liveError } = useLiveRecords('finance_cashflow');
   const liveRows = liveRecords.map((record) => {
     const fields = record as unknown as Record<string, unknown>;
     return [record.name, record.valueAmount ?? '—', String(fields.direction ?? '—'), String(fields.category ?? '—'), String(fields.account ?? '—')];

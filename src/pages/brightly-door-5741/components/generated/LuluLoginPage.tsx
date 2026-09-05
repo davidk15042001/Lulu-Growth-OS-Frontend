@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { ArrowRight, Bot, Check, ChevronDown, Eye, EyeOff, Globe2, LoaderCircle, ShieldCheck, Sparkles, Star, TrendingUp } from 'lucide-react';
+import { ArrowRight, Check, ChevronDown, Eye, EyeOff, Globe2, LoaderCircle, ShieldCheck, Sparkles, Star } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
 import { switchLanguage, useLanguage, useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import { getLanguage, isAvailableLanguageCode, languages } from '../../../../i18n/languages';
 import { LoginFeaturesLanding } from './LoginFeaturesLanding';
 import { AgenticWorkforceLanding } from './AgenticWorkforceLanding';
+import { LandingKpiPanel } from '../../../../components/LandingKpiPanel';
 import { Button } from '../../../../components/ui/button';
 import { Input } from '../../../../components/ui/input';
 import { Label } from '../../../../components/ui/label';
@@ -63,11 +64,6 @@ export const LuluLoginPage = () => {
   const [error, setError] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
-  const stats = [
-    { icon: Bot, value: '131+', label: t('Autonomous AI agents') },
-    { icon: TrendingUp, value: '10+', label: t('Business integrations') },
-    { icon: Globe2, value: '3', label: t('Native languages') },
-  ];
   const integrationNames = ['WordPress', 'Webflow', 'Google Business', 'Google Analytics', 'HubSpot', 'Shopify'];
   const submit = async (x: React.FormEvent) => {
     x.preventDefault();
@@ -121,7 +117,8 @@ export const LuluLoginPage = () => {
         setError(t('The login request timed out. Please try again.'));
         setErrorDetails(t('Code: API_TIMEOUT · The server did not respond within 15 seconds.'));
       } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
-        setError(t('This account uses an outdated verification state. Please try signing in again after the latest deployment. Email OTP is no longer required for registration.'));
+        setPendingEmail(e);
+        navigateApp(routes.auth.verifyEmail);
       } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') setError(t('accountNotFound'));
       else if (cause instanceof ApiError && cause.code === 'INVALID_CREDENTIALS') setError(t('invalidCredentials'));
       else if (cause instanceof ApiError && cause.code === 'API_TIMEOUT') setError(t('timeout'));
@@ -245,59 +242,6 @@ export const LuluLoginPage = () => {
               {t('From onboarding and audience intelligence to websites, CRM, reviews and billing, Lulu keeps teams aligned around verified signals and AI-supported next steps.')}
             </p>
 
-            <div className="lulu-login-fade-up lulu-login-d3 mt-10 grid grid-cols-3 gap-4">
-              {stats.map(({ icon: Icon, value, label }) => (
-                <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur">
-                  <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/10 text-white">
-                    <Icon size={17} />
-                  </span>
-                  <p className="mt-4 text-2xl font-semibold tracking-tight">{value}</p>
-                  <p className="mt-1 text-xs leading-5 text-slate-400">{label}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="lulu-login-fade-up lulu-login-d4 mt-10 rounded-[1.75rem] border border-white/10 bg-white/[.06] p-6 shadow-2xl shadow-black/40 backdrop-blur">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[.18em] text-slate-400">{t('Lulu Intelligence / Overview')}</p>
-                  <h3 className="mt-1.5 text-xl font-semibold tracking-tight">{t('Turn business signals into confident action.')}</h3>
-                </div>
-                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-400/15 px-3 py-1.5 text-xs font-semibold text-emerald-300">
-                  <span className="lulu-login-live-dot" />
-                  {t('Live-ready')}
-                </span>
-              </div>
-              <div className="mt-6 grid gap-5 sm:grid-cols-[.9fr_1.1fr]">
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-                  <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-                    <Sparkles size={14} className="text-violet-300" />
-                    {t('Intelligence score')}
-                  </div>
-                  <p className="mt-5 text-5xl font-semibold tracking-tight">94</p>
-                  <p className="mt-2 text-xs leading-5 text-slate-400">{t('Signals, hypotheses and recommendations ranked for confident decisions.')}</p>
-                  <div className="mt-6 h-1.5 overflow-hidden rounded-full bg-white/10">
-                    <div className="h-full w-[94%] rounded-full bg-gradient-to-r from-violet-400 to-emerald-400" />
-                  </div>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-slate-400">{t('Business signals')}</span>
-                    <span className="rounded-full bg-emerald-400/15 px-2 py-1 text-[10px] font-semibold text-emerald-300">{t('Connected')}</span>
-                  </div>
-                  <div className="mt-6 flex h-28 items-end gap-2">
-                    {[34, 52, 41, 68, 58, 79, 64, 88, 72, 94].map((height, index) => (
-                      <span key={index} className="lulu-login-bar flex-1 rounded-t bg-gradient-to-t from-violet-500 to-sky-400" style={{ height: `${height}%`, animationDelay: `${0.15 + index * 0.06}s` }} />
-                    ))}
-                  </div>
-                  <div className="mt-4 flex items-center justify-between text-[11px] text-slate-500">
-                    <span>{t('Connected data')}</span>
-                    <span>{t('Live metrics')}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div className="lulu-login-fade-up lulu-login-d5 mt-10 flex flex-wrap items-center gap-2">
               <span className="text-xs font-medium uppercase tracking-[.16em] text-slate-500">{t('Built to connect the systems behind your business')}</span>
               <div className="flex flex-wrap gap-2">
@@ -307,6 +251,7 @@ export const LuluLoginPage = () => {
           </div>
         </aside>
       </div>
+      <LandingKpiPanel />
       <LoginFeaturesLanding />
       <AgenticWorkforceLanding />
     </main>;

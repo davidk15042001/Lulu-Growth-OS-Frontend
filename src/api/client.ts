@@ -43,7 +43,9 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   SESSION_REFRESH_UNAVAILABLE: "Your session is still saved, but the connection could not be restored. Please try again.",
   INVALID_REFRESH_TOKEN: "Your session has ended. Please sign in again.",
   REFRESH_TOKEN_EXPIRED: "Your session has ended. Please sign in again.",
-  TOKEN_REVOKED: "Your account was signed in on another device, so this session was ended. Please sign in again here if this was you.",
+  TOKEN_REVOKED: "This session was revoked. Please sign in again.",
+  REFRESH_REUSE_DETECTED: "This session was ended for security reasons. Please sign in again.",
+  OTP_RESEND_RATE_LIMITED: "Please wait 60 seconds before requesting another code.",
   IMPERSONATION_INVALID_TARGET: "This account cannot be opened in admin view.",
   IMPERSONATION_NOT_ACTIVE: "There is no active admin session to return to.",
   UNAUTHORIZED: "Please sign in to continue.",
@@ -379,7 +381,7 @@ async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Prom
   }
 
   const payload = await response.json().catch(() => null) as ApiEnvelope<T> | ApiErrorEnvelope | null;
-  if (response.status === 401 && allowRefresh && path !== "/auth/refresh") {
+  if (response.status === 401 && allowRefresh && !/^\/auth\/(refresh|login|register|verify-otp|resend-otp|forgot-password|reset-password|logout)$/.test(path)) {
     const refreshed = await refreshSession();
     if (refreshed.ok) return executeRequest<T>(request, false);
     if (!refreshed.terminal) throw new ApiError(503, "SESSION_REFRESH_UNAVAILABLE", "The session could not be refreshed right now");
@@ -402,10 +404,14 @@ async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Prom
 }
 
 async function refreshSession(): Promise<RefreshOutcome> {
-  refreshPromise ??= executeRequest<{ token: string }>(
+  const rotate = () => executeRequest<{ token: string }>(
     { path: "/auth/refresh", method: "POST", body: {} },
     false,
-  ).then(() => ({ ok: true as const })).catch((error) => {
+  );
+  // The HttpOnly cookie is shared across tabs. Hold the lock through the response
+  // so another tab rotates the replacement cookie, never its predecessor.
+  refreshPromise ??= (typeof navigator !== 'undefined' && navigator.locks
+    ? navigator.locks.request('lulu-session-refresh', rotate) : rotate()).then(() => ({ ok: true as const })).catch((error) => {
     const terminal = error instanceof ApiError && error.status === 401;
     if (terminal) clearClientSession();
     return { ok: false as const, terminal };

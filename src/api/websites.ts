@@ -22,6 +22,8 @@ export type WebsiteDomain = {
   siteId: string;
   hostname: string;
   verificationToken: string;
+  recordName: string;
+  expiresAt: string;
   verificationMethod: 'dns_txt' | 'dns_cname';
   status: string;
   verifiedAt: string | null;
@@ -82,6 +84,7 @@ export const websitesApi = {
   create: (workspaceId: string, body: { provider: WebsiteProvider; ownershipMode: WebsiteOwnershipMode; name: string; externalSiteId?: string; externalSiteUrl?: string }) => requestApi<WebsiteSite>({ path: `/workspaces/${workspaceId}/websites`, method: 'POST', body }),
   addDomain: (workspaceId: string, siteId: string, hostname: string) => requestApi<WebsiteDomain>({ path: `/workspaces/${workspaceId}/websites/${siteId}/domains`, method: 'POST', body: { hostname } }),
   verifyDomain: (workspaceId: string, siteId: string, domainId: string) => requestApi<WebsiteSite>({ path: `/workspaces/${workspaceId}/websites/${siteId}/domains/${domainId}/verify`, method: 'POST', body: {} }),
+  renewDomain: (workspaceId: string, siteId: string, domainId: string) => requestApi<WebsiteSite>({ path: `/workspaces/${workspaceId}/websites/${siteId}/domains/${domainId}/renew`, method: 'POST', body: {} }),
   createGenerationJob: (workspaceId: string, siteId: string, prompt: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs`, method: 'POST', body: { prompt }, timeoutMs: 180_000 }),
   getActiveGenerationJob: (workspaceId: string, siteId: string) => requestApi<WebsiteGenerationJob | null>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/active` }),
   getGenerationJob: (workspaceId: string, siteId: string, jobId: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/${jobId}` }),

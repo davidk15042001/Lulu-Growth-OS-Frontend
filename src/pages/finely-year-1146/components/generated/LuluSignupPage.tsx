@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
-import { clearSelectedWorkspaceId } from '../../../../api/session';
+import { clearSelectedWorkspaceId, setPendingEmail } from '../../../../api/session';
 const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 8 characters', test: value => value.length >= 8 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
 
 export function LuluSignupPage() {
@@ -61,12 +61,13 @@ export function LuluSignupPage() {
     setError('');
     clearSelectedWorkspaceId();
     try {
-      await requestApi({
+      const result = await requestApi<{verificationSent: boolean}>({
         path: '/auth/register',
         method: 'POST',
         body: { email, password, first_name: firstName, last_name: lastName },
       });
-      navigateApp(routes.auth.login);
+      setPendingEmail(email);
+      navigateApp(`${routes.auth.verifyEmail}${result.data.verificationSent ? '' : '?delivery=failed'}`);
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'EMAIL_IN_USE') {
         setError('An account already exists for this email address. Sign in or use a different email address.');

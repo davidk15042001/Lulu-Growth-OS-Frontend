@@ -36,6 +36,13 @@ jobs:
           ref: main
           path: backend-source
 
+      - name: Frontend/Backend-Verträge und Routing prüfen
+        env:
+          LULU_BACKEND_PATH: backend-source
+        run: |
+          npm run audit:api
+          npm run audit:routing
+
       - name: Backend-Abhängigkeiten prüfen
         working-directory: backend-source
         run: |

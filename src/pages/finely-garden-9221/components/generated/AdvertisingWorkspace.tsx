@@ -23,7 +23,7 @@ function moneyTotal(values: Array<string | null | undefined>) {
 export function AdvertisingWorkspace() {
   const { selectedWorkspace } = useLuluApp();
   const [query, setQuery] = useState('');
-  const campaigns = useLiveRecords('advertising_campaigns');
+  const campaigns = useLiveRecords('ad_campaigns');
   const workspaceId = selectedWorkspace?.id ?? null;
 
   const filteredCampaigns = useMemo(() => {

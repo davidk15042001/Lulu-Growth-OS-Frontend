@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getFriendlyErrorMessage, requestApi } from "../../api/client";
 import { setAdminSurface, setStoredUser } from "../../api/session";
+import { useLuluApp } from '../../api/LuluAppContext';
 import { DEFAULT_LANGUAGE, isAvailableLanguageCode, LANGUAGE_STORAGE_KEY } from "../../i18n/languages";
 import { routes } from "../../routing";
 import {
@@ -373,12 +374,23 @@ function DetailPanel({ title, rows, raw }: { title: string; rows: Array<{ label:
 }
 
 export default function App() {
-  const [page, setPage] = useState<PageKey>("dashboard");
+  const { currentUser } = useLuluApp();
+  const capabilities = currentUser?.adminCapabilities ?? [];
+  const required: Record<PageKey,string[]> = {
+    dashboard:['users.read','workspaces.read','billing.read','providers.read','agents.read','security.read'],
+    users:['users.read'], workspaces:['workspaces.read'], billing:['billing.read'], crm:['workspaces.read'],
+    websites:['providers.read'], agents:['agents.read'], integrations:['providers.read'], approvals:['agents.read'],
+    conversations:['users.read','workspaces.read'], files:['workspaces.read'], support:['users.read','workspaces.read'],
+    errors:['security.read'],audit:['audit.read'],jobs:['agents.read','providers.read'],settings:['security.read'],
+  };
+  const visibleNav = NAV.map(section => ({...section,items:section.items.filter(item => required[item.key].every(capability => capabilities.includes(capability)))})).filter(section => section.items.length);
+  const [selectedPage, setPage] = useState<PageKey>('dashboard');
+  const page = required[selectedPage].every(capability => capabilities.includes(capability)) ? selectedPage : visibleNav[0]?.items[0]?.key;
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [error, setError] = useState("");
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="lulu-admin-console min-h-screen bg-slate-50 text-slate-900">
       <div className="flex h-screen w-full">
         <aside className={`${sidebarOpen ? "w-64" : "w-0 -translate-x-full md:w-16 md:translate-x-0"} transition-all duration-200 shrink-0 border-r border-slate-200 bg-white md:static fixed left-0 top-0 z-30 h-full overflow-y-auto`}>
           <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
@@ -395,7 +407,7 @@ export default function App() {
           </div>
 
           <nav className="p-3 space-y-5">
-            {NAV.map((section) => (
+            {visibleNav.map((section) => (
               <div key={section.label}>
                 {sidebarOpen ? <div className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{section.label}</div> : null}
                 <ul className="space-y-0.5">
@@ -444,7 +456,7 @@ export default function App() {
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <Pill tone="emerald"><ShieldCheck size={12} className="mr-1" /> Admin: lulu.ai.cn@gmail.com</Pill>
+              <Pill tone="emerald"><ShieldCheck size={12} className="mr-1" /> {currentUser?.email}</Pill>
             </div>
           </header>
 
@@ -1658,7 +1670,7 @@ function SettingsPage({ onError }: { onError: (m: string) => void }) {
         <div className="text-base font-semibold mb-2">Admin Info</div>
         <ul className="space-y-2 text-sm text-slate-700">
           <li className="flex items-center gap-2"><LayoutGrid size={16} className="text-slate-400" /> <span>Backend API prefix: <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono">/api/v1/admin/*</code></span></li>
-          <li className="flex items-center gap-2"><ShieldCheck size={16} className="text-slate-400" /> <span>Admin check: role = admin + email = <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono">lulu.ai.cn@gmail.com</code></span></li>
+          <li className="flex items-center gap-2"><ShieldCheck size={16} className="text-slate-400" /> <span>Admin access is checked against server-assigned capabilities on every request.</span></li>
           <li className="flex items-center gap-2"><PlayCircle size={16} className="text-slate-400" /> <span>Plan actions call <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono">PATCH /admin/workspaces/:id</code> mit body <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono">{`{action, planKey?}`}</code></span></li>
           <li className="flex items-center gap-2"><Save size={16} className="text-slate-400" /> <span>All list queries support <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono">limit</code>, <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono">offset</code>, and for some <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono">search</code>.</span></li>
         </ul>

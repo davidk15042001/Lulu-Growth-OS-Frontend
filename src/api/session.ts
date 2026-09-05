@@ -5,15 +5,10 @@ const CURRENT_USER_KEY = "lulu.current-user";
 const ADMIN_SURFACE_KEY = "lulu.admin-surface";
 
 export const ADMIN_PANEL_PATH = "/app/admin-billing-overview-9901";
-export const ADMIN_REQUIRED_EMAIL = "lulu.ai.cn@gmail.com";
-export const ADMIN_REQUIRED_ROLE = "admin";
 export type AdminSurface = "admin" | "workspace";
 
-export function isAdminUser(user: { email?: string | null; role?: string | null } | null | undefined) {
-  if (!user) return false;
-  const email = typeof user.email === "string" ? user.email.trim().toLowerCase() : "";
-  const role = typeof user.role === "string" ? user.role : "";
-  return role === ADMIN_REQUIRED_ROLE && email === ADMIN_REQUIRED_EMAIL;
+export function isAdminUser(user: { adminCapabilities?: string[]; role?: string | null; impersonation?: { active: boolean } } | null | undefined) {
+  return user?.role === 'admin' && !user.impersonation?.active && Boolean(user.adminCapabilities?.length);
 }
 
 export function getAdminSurface(): AdminSurface {
@@ -32,7 +27,7 @@ export function setAdminSurface(surface: AdminSurface) {
   }
 }
 
-export function prefersWorkspaceSurface(user: { email?: string | null; role?: string | null } | null | undefined) {
+export function prefersWorkspaceSurface(user: { adminCapabilities?: string[]; role?: string | null } | null | undefined) {
   return isAdminUser(user) && getAdminSurface() === "workspace";
 }
 

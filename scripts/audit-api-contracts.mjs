@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = process.cwd();
@@ -21,6 +21,20 @@ const resourceTypes = [...contractsSource.matchAll(/:\s*["']([a-z][a-z0-9_]*)["'
   .map((match) => match[1]);
 const uniqueResourceTypes = new Set(resourceTypes);
 const issues = [];
+function sourceFiles(directory) {
+  return readdirSync(directory,{withFileTypes:true}).flatMap(entry => {
+    const path=resolve(directory,entry.name);
+    if(entry.isDirectory()) return removedSlugs.has(entry.name) ? [] : sourceFiles(path);
+    return /\.[jt]sx?$/.test(entry.name) ? [path] : [];
+  });
+}
+// Inspect actual literal resource consumers, not just the page-contract table.
+for(const path of sourceFiles(resolve(root,'src'))) {
+  const source=readFileSync(path,'utf8');
+  for(const match of source.matchAll(/\b(?:useLiveRecords|listRecords)\(\s*['"]([a-z][a-z0-9_]*)['"]/g)) {
+    uniqueResourceTypes.add(match[1]);
+  }
+}
 
 const clientContracts = {
   "src/api/auth.ts": ["/auth/register", "/auth/verify-otp", "/auth/login", "/auth/refresh", "/auth/logout", "/auth/logout-all", "/auth/forgot-password", "/auth/resend-otp", "/auth/reset-password", "/auth/me"],
@@ -32,6 +46,7 @@ const clientContracts = {
   "src/api/approvals.ts": ["/approvals", "/decision"],
   "src/api/ai.ts": ["/ai/conversations", "/messages", "/respond"],
   "src/api/workspace-app.ts": ["/members", "/saved-views", "/audit", "/billing", "/integrations/", "/sync"],
+  "src/api/landing-kpis.ts": ["/public/landing-kpis"],
 };
 
 for (const [relativePath, markers] of Object.entries(clientContracts)) {
@@ -68,6 +83,12 @@ if (existsSync(catalogPath)) {
       issues.push(`Frontend resource contract is missing in the backend catalog: ${resourceType}`);
     }
   }
+  const agentRegistry=readFileSync(resolve(backendRoot,'src/modules/agents/agent.registry.generated.ts'),'utf8');
+  for(const match of agentRegistry.matchAll(/"pageId":\s*"([^"]+)"/g)) {
+    if(removedSlugs.has(match[1])) issues.push(`Backend agent registry references a removed page: ${match[1]}`);
+  }
+} else {
+  issues.push('Backend resource catalog is required. Set LULU_BACKEND_PATH to the paired backend checkout.');
 }
 
 console.log(JSON.stringify({

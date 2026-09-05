@@ -6,6 +6,7 @@ export type CurrentUser = {
   firstName: string | null;
   lastName: string | null;
   role: "user" | "admin";
+  adminCapabilities?: string[];
   impersonation?: {
     active: boolean;
     adminEmail: string | null;
@@ -13,7 +14,7 @@ export type CurrentUser = {
 };
 
 export const authApi = {
-  register: (input: { email: string; password: string; first_name: string; last_name: string }) => requestApi<null>({
+  register: (input: { email: string; password: string; first_name: string; last_name: string }) => requestApi<{ verificationRequired: boolean; verificationSent: boolean }>({
     path: "/auth/register", method: "POST", body: input,
   }),
   verifyOtp: (email: string, code: string) => requestApi<null>({ path: "/auth/verify-otp", method: "POST", body: { email, code } }),
@@ -23,6 +24,9 @@ export const authApi = {
   refresh: () => requestApi<{ token: string; user: CurrentUser }>({ path: "/auth/refresh", method: "POST", body: {} }),
   logout: () => requestApi<null>({ path: "/auth/logout", method: "POST", body: {} }),
   logoutAll: () => requestApi<null>({ path: "/auth/logout-all", method: "POST", body: {} }),
+  sessions: () => requestApi<{ items: ActiveSession[] }>({ path: '/auth/sessions' }),
+  revokeSession: (id: string) => requestApi({ path: `/auth/sessions/${id}`, method: 'DELETE' }),
+  revokeOtherSessions: () => requestApi({ path: '/auth/sessions/revoke-others', method: 'POST', body: {} }),
   forgotPassword: (email: string) => requestApi<null>({ path: "/auth/forgot-password", method: "POST", body: { email } }),
   resendOtp: (email: string, purpose: "verify" | "password_reset") => requestApi<null>({
     path: "/auth/resend-otp", method: "POST", body: { email, purpose },
@@ -38,3 +42,4 @@ export const authApi = {
     path: "/auth/impersonation/stop", method: "POST", body: {},
   }),
 };
+export type ActiveSession = { id: string; createdAt: string; lastUsedAt: string; expiresAt: string; deviceLabel: string; current: boolean };

@@ -49,7 +49,7 @@ function AdminBillingRoute() {
   const { currentUser, loading } = useLuluApp();
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
   if (!currentUser) return <Navigate replace to={routes.auth.login} state={{ from: ADMIN_BILLING_PATH }} />;
-  if (currentUser.role !== "admin" || currentUser.email.trim().toLowerCase() !== "lulu.ai.cn@gmail.com") return <Navigate replace to="/not-found" />;
+  if (!isAdminUser(currentUser)) return <Navigate replace to="/not-found" />;
   return (
     <PageErrorBoundary pageName="admin-billing-overview-9901">
       <Suspense fallback={<main role="status" className="page-frame grid min-h-screen place-items-center">Loading admin panel…</main>}>

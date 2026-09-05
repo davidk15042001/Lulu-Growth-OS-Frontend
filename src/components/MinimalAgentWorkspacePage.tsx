@@ -11,7 +11,6 @@ import { usePageAgentRun } from "./usePageAgentRun";
 import { WorkspaceIntelligencePanel } from "./WorkspaceIntelligencePanel";
 
 const OVERVIEW_RESOURCE_BY_PAGE_ID: Readonly<Record<string, string>> = {
-  "bright-meadow-7537": "crm_contacts",
   "finely-garden-9221": "ad_campaigns",
   "quietly-stone-4158": "finance_invoices",
   "fine-park-8079": "sales_deals",

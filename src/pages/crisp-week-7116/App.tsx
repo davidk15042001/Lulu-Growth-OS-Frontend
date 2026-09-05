@@ -1,5 +1,5 @@
 import { Theme } from './settings/types';
-import { LuluVerificationEmail } from './components/generated/LuluVerificationEmail';
+import { LuluVerificationPage } from '../eagerly-bay-9885/components/generated/LuluVerificationPage';
 // %IMPORT_STATEMENT%
 
 let theme: Theme = 'light';
@@ -15,7 +15,7 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluVerificationEmail />; // %EXPORT_STATEMENT%
+  return <LuluVerificationPage />; // %EXPORT_STATEMENT%
 }
 
 export default App;

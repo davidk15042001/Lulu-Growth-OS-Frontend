@@ -68,7 +68,7 @@ function SectionTitle({
   return <div className="section-title"><h2>{title} {count && <span className="count">{count}</span>}</h2>{action && <button className="text-link">{action} <ArrowRight size={13} /></button>}</div>;
 }
 export function LuluPublishingCenter() {
-  const { items: publishingRecords, loading: publishingLoading, error: publishingError } = useLiveRecords('publishing_operations');
+  const { items: publishingRecords, loading: publishingLoading, error: publishingError } = useLiveRecords('ad_approvals');
   const [expanded, setExpanded] = useState('');
   const [query, setQuery] = useState('');
   const [toast, setToast] = useState('');

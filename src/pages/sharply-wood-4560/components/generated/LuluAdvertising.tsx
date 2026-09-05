@@ -90,7 +90,7 @@ function Gauge({
   return <div className="gauge-wrap"><div className="gauge"><div className="gauge-inner"><strong>{value}</strong><small>{score === 74 ? 'Good' : 'ROAS'}</small></div></div></div>;
 }
 export function LuluAdvertising() {
-  const { items: advertisingRecords, loading: advertisingLoading, error: advertisingError } = useLiveRecords('advertising_campaigns');
+  const { items: advertisingRecords, loading: advertisingLoading, error: advertisingError } = useLiveRecords('ad_campaigns');
   const [expanded, setExpanded] = useState<string | null>(null);
   const [model, setModel] = useState('Last Touch');
   const [query, setQuery] = useState('');

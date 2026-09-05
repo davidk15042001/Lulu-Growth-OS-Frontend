@@ -6,7 +6,7 @@ import { pageLinkProps } from '../../../../routing';
 
 const executiveQuickAccess = [
   { id: 'fresh-moon-5374', title: 'Assistant', detail: 'Ask Lulu AI directly.' },
-  { id: 'bright-meadow-7537', title: 'CRM', detail: 'Open contacts, leads, deals and tasks.' },
+  { id: 'sturdy-month-1562', title: 'CRM', detail: 'Open contacts, leads, deals and tasks.' },
   { id: 'quietly-stone-4158', title: 'Finance', detail: 'Review live financial records and balances.' },
   { id: 'finely-garden-9221', title: 'Advertising', detail: 'Check campaign performance and priorities.' },
   { id: 'lulu-website-portal-9012', title: 'Website', detail: 'Manage website delivery and connected providers.' },
@@ -353,29 +353,14 @@ export const luluDropdownNavigation = [{
 }, {
   "label": "CRM",
   "pages": [{
-    "id": "bright-meadow-7537",
-    "label": "Overview"
-  }, {
     "id": "sturdy-month-1562",
     "label": "Contacts & Companies"
-  }, {
-    "id": "swift-hour-7844",
-    "label": "Leads"
-  }, {
-    "id": "smartly-shade-4619",
-    "label": "Deals"
-  }, {
-    "id": "calmly-cloud-9988",
-    "label": "Pipeline"
   }, {
     "id": "cosmic-pool-1616",
     "label": "Activities"
   }, {
     "id": "deeply-noon-9539",
     "label": "Tasks"
-  }, {
-    "id": "sunnily-gulf-7520",
-    "label": "Customer Segments"
   }]
 }, {
   "label": "Email",
