@@ -30,6 +30,22 @@ const actualCodes = [...languageSource.matchAll(/\{ code: "([^"]+)"/g)].map((mat
 const issues = [];
 const blockingIssues = [];
 const { values, valuesByFile } = collectI18nSourceCatalog(root);
+const navigationSource = readFileSync(join(root, "src", "pages", "fancily-leaf-1766", "components", "generated", "LuluExecutiveDashboard.tsx"), "utf8");
+const navigationMatch = navigationSource.match(/export const luluDropdownNavigation = (\[.*?\]) as const;/s);
+let visibleNavigationLabels = [];
+
+if (!navigationMatch) {
+  blockingIssues.push("Dropdown navigation definition could not be parsed for translation coverage");
+} else {
+  try {
+    const navigationSections = JSON.parse(navigationMatch[1]);
+    visibleNavigationLabels = [...new Set(navigationSections
+      .filter((section) => section.label !== "Statistiken")
+      .flatMap((section) => [section.label, ...section.pages.map((page) => page.label)]))];
+  } catch {
+    blockingIssues.push("Dropdown navigation definition is not valid JSON for translation coverage");
+  }
+}
 
 if (JSON.stringify(actualCodes) !== JSON.stringify(expectedCodes)) {
   blockingIssues.push(`Language list mismatch: ${actualCodes.join(", ")}`);
@@ -46,6 +62,17 @@ for (const language of expectedCodes) {
   }
 }
 values.delete("?raw");
+for (const language of ["de", "zh-CN"]) {
+  const missingNavigationLabels = visibleNavigationLabels.filter((label) => !mergedTranslations[language]?.[label]);
+  if (missingNavigationLabels.length) {
+    issues.push(`${language} is missing ${missingNavigationLabels.length} navigation labels (examples: ${missingNavigationLabels.slice(0, 5).join(" | ")})`);
+  }
+}
+const untranslatedEnglishNavigationLabels = visibleNavigationLabels.filter((label) => isLikelyGermanSource(label)
+  && (!mergedTranslations.en?.[label] || mergedTranslations.en[label] === label));
+if (untranslatedEnglishNavigationLabels.length) {
+  issues.push(`en is missing ${untranslatedEnglishNavigationLabels.length} navigation labels (examples: ${untranslatedEnglishNavigationLabels.slice(0, 5).join(" | ")})`);
+}
 for (const language of ["de", "zh-CN"]) {
   const missing = [...values].filter((source) => !mergedTranslations[language]?.[source]);
   if (missing.length) issues.push(`${language} is missing ${missing.length} UI strings (examples: ${missing.slice(0, 5).join(" | ")})`);
@@ -129,6 +156,7 @@ if (process.env.I18N_REPORT_IDENTITIES === "1") {
 console.log(JSON.stringify({
   languages: actualCodes.length,
   sourceStrings: values.size,
+  visibleNavigationLabels: visibleNavigationLabels.length,
   excludedStatisticsPages: STATISTICS_PAGE_SLUGS.size,
   runtimeMounted: blockingIssues.length === 0,
   issues,

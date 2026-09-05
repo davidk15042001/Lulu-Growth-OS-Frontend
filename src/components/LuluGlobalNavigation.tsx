@@ -132,13 +132,13 @@ function readWebsiteGenerationLock() {
   }
 }
 
-function websiteLockLabel(status: string) {
-  if (status === "failed") return "Generierung fehlgeschlagen";
-  if (status === "cancelled") return "Generierung abgebrochen";
-  if (status === "publishing") return "Veröffentlichung läuft";
-  if (status === "preview") return "Vorschau wird vorbereitet";
-  if (status === "planning") return "Planung läuft";
-  return "Website wird generiert";
+function websiteLockLabel(status: string, t: (key: string) => string) {
+  if (status === "failed") return t("Generierung fehlgeschlagen");
+  if (status === "cancelled") return t("Generierung abgebrochen");
+  if (status === "publishing") return t("Veröffentlichung läuft");
+  if (status === "preview") return t("Vorschau wird vorbereitet");
+  if (status === "planning") return t("Planung läuft");
+  return t("Website wird generiert");
 }
 
 export function LuluGlobalNavigation({
@@ -205,7 +205,7 @@ export function LuluGlobalNavigation({
       window.clearInterval(timer);
     };
   }, []);
-  const websiteLockText = useMemo(() => websiteLock ? `${websiteLockLabel(websiteLock.status)} · ${websiteLock.status}` : "", [websiteLock]);
+  const websiteLockText = useMemo(() => websiteLock ? `${websiteLockLabel(websiteLock.status, t)} · ${t(websiteLock.status)}` : "", [t, websiteLock]);
   const navigationSections = useMemo(() => baseNavigationSections
     .map((section) => ({
       ...section,
@@ -254,7 +254,7 @@ export function LuluGlobalNavigation({
             <Fragment key={section.label}>
               {needsSeparator && (
                 <div className="lulu-global-navigation__primary-link lulu-global-navigation__primary-link--divider lulu-global-navigation__primary-link--locked">
-                  <span>Agent Marketplace</span>
+                  <span>{t("Agent Marketplace")}</span>
                 </div>
               )}
               <details
@@ -264,7 +264,7 @@ export function LuluGlobalNavigation({
                 className={isActiveSection ? "is-active" : undefined}
               >
                 <span className="lulu-global-navigation__section-label">
-                  <span>{section.label}</span>
+                  <span>{t(section.label)}</span>
                 </span>
                 <ChevronDown aria-hidden="true" size={14} />
               </summary>
@@ -274,8 +274,9 @@ export function LuluGlobalNavigation({
                   const available = Boolean(props.href);
                   const isActivePage = page.id === activeSlug;
                   const isDropdownLinkLocked = !available;
-                  const lockedLabel = "Navigation-Link gesperrt";
+                  const lockedLabel = t("Navigation link locked");
                   const displayLabel = getNavigationPageLabel(page);
+                  const translatedDisplayLabel = t(displayLabel);
                   return (
                     <a
                       key={page.id}
@@ -287,10 +288,10 @@ export function LuluGlobalNavigation({
                       aria-disabled={isDropdownLinkLocked || undefined}
                       tabIndex={isDropdownLinkLocked ? -1 : undefined}
                       onClick={isDropdownLinkLocked ? (event) => event.preventDefault() : () => onNavigate?.()}
-                      aria-label={isDropdownLinkLocked ? `${displayLabel} gesperrt: ${lockedLabel}` : displayLabel}
+                      aria-label={isDropdownLinkLocked ? `${translatedDisplayLabel}: ${lockedLabel}` : translatedDisplayLabel}
                       title={isDropdownLinkLocked ? lockedLabel : undefined}
                     >
-                      <span>{displayLabel}</span>
+                      <span>{translatedDisplayLabel}</span>
                     </a>
                   );
                 })}
