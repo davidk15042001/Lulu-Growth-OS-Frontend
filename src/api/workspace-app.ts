@@ -99,6 +99,18 @@ export type BillingState = {
     metadata: Record<string, unknown>;
     updatedAt: string;
   }>;
+  paygConfiguration: {
+    availablePaymentMethods: Array<"card" | "alipaycn" | "wechatpay">;
+    selectedPaymentMethod: "card" | "alipaycn" | "wechatpay" | null;
+    status: "not_configured" | "pending" | "active" | "failed";
+    automaticCollection: boolean;
+    paymentSourceConfigured: boolean;
+    latestSetup: null | {
+      id: string;
+      status: "PENDING" | "COMPLETED" | "CANCELLED" | "EXPIRED" | "FAILED";
+      paymentMethod: "card" | "alipaycn" | "wechatpay";
+    };
+  };
   payg: null | {
     enabled: boolean;
     currency: "USD";
@@ -107,6 +119,7 @@ export type BillingState = {
     periodEnd: string;
     nextInvoiceAt: string;
     collectionMethod: "AUTO_CHARGE" | "CHARGE_ON_CHECKOUT";
+    preferredPaymentMethod: "card" | "alipaycn" | "wechatpay" | null;
     aiAccessBlocked: boolean;
     blockedAt: string | null;
     blockReason: "PAYMENT_SOURCE_SETUP_REQUIRED" | "PAYMENT_SOURCE_REQUIRED" | "AUTOMATIC_PAYMENT_FAILED" | string | null;
@@ -302,6 +315,28 @@ export const workspaceAppApi = {
     reused: boolean;
   }>({
     path: workspaceApiPath(workspaceId, "/billing/payg/api-checkout"),
+    method: "POST",
+    body: {},
+  }),
+  configurePaygPaymentMethod: (workspaceId: string, input: {
+    paymentMethod: "card" | "alipaycn" | "wechatpay";
+    successUrl?: string;
+    backUrl?: string;
+  }) => requestApi<
+    | { mode: "card_setup"; paymentMethod: "card"; setupId: string; checkoutUrl: string }
+    | { mode: "manual_invoice"; paymentMethod: "alipaycn" | "wechatpay"; collectionMethod: "CHARGE_ON_CHECKOUT" }
+  >({
+    path: workspaceApiPath(workspaceId, "/billing/payg/payment-method"),
+    method: "POST",
+    body: input,
+  }),
+  syncPaygPaymentMethodSetup: (workspaceId: string, setupId: string) => requestApi<{
+    setupId: string;
+    paymentMethod: "card" | "alipaycn" | "wechatpay";
+    status: "pending" | "active" | "failed";
+    providerStatus: string;
+  }>({
+    path: workspaceApiPath(workspaceId, `/billing/payg/payment-method/setups/${encodeURIComponent(setupId)}/sync`),
     method: "POST",
     body: {},
   }),
