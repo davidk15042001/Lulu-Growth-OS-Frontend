@@ -17,29 +17,14 @@ type Insight = {
   detail: string;
 };
 const tabs: Tab[] = [{
-  id: 'overview',
-  label: 'Overview'
-}, {
-  id: 'current-plan',
-  label: 'Current Plan'
-}, {
-  id: 'plans',
-  label: 'Plans'
-}, {
   id: 'ai-usage',
   label: 'AI Usage'
-}, {
-  id: 'credits',
-  label: 'Credits'
 }, {
   id: 'payments',
   label: 'Payments'
 }, {
   id: 'invoices',
   label: 'Invoices'
-}, {
-  id: 'transactions',
-  label: 'Transactions'
 }, {
   id: 'subscription',
   label: 'Subscription'
@@ -104,7 +89,7 @@ function ProgressLine({
       }} /></div></div>;
 }
 export function LuluBilling() {
-  const [activeTab, setActiveTab] = useState('plans');
+  const [activeTab, setActiveTab] = useState('ai-usage');
   const [assistantOpen, setAssistantOpen] = useState(false);
   const { items: invoiceRecords, loading: invoicesLoading, error: invoicesError } = useLiveRecords('finance_invoices');
   const { items: paymentRecords, loading: paymentsLoading, error: paymentsError } = useLiveRecords('finance_payments');
