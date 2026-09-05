@@ -98,6 +98,7 @@ export type BillingState = {
     outputTokens: number;
     apiEvents: number;
     serverDays: number;
+    paymentMethods: Array<"card" | "alipaycn" | "wechatpay">;
     invoices: Array<{
       id: string;
       periodStart: string;
@@ -111,6 +112,7 @@ export type BillingState = {
       invoicePdfUrl: string | null;
       finalizedAt: string | null;
       paidAt: string | null;
+      billingMode: "weekly" | "api_pay_now";
     }>;
   };
 };
@@ -266,6 +268,16 @@ export const workspaceAppApi = {
   }),
   billing: (workspaceId: string, query = "") => requestApi<BillingState>({
     path: workspaceApiPath(workspaceId, `/billing${query ? `?${query}` : ""}`),
+  }),
+  createPaygApiUsageCheckout: (workspaceId: string) => requestApi<{
+    periodId: string;
+    paymentUrl: string | null;
+    status: "paid" | "payment_due" | "payment_failed" | "processing" | "failed";
+    reused: boolean;
+  }>({
+    path: workspaceApiPath(workspaceId, "/billing/payg/api-checkout"),
+    method: "POST",
+    body: {},
   }),
   googleReviews: (workspaceId: string, filters?: { locationId?: string; limit?: number }) => {
     const query = new URLSearchParams();

@@ -6,6 +6,7 @@ import type { PageDefinition } from "../pages-manifest";
 import { pagePath } from "../routing";
 import { useLuluApp } from "../api/LuluAppContext";
 import { LuluWorkspaceRefreshButton } from "../components/LuluWorkspaceTopBar";
+import { LuluUsageControl } from "../components/LuluUsageControl";
 import { subscribeWorkspaceRefresh } from "../components/workspace-refresh-events";
 import { availablePages } from "./page-registry";
 
@@ -77,6 +78,7 @@ function AuthenticatedSearchBar({
           <Search aria-hidden="true" size={17} />
         </button>
         <LuluWorkspaceRefreshButton />
+        <LuluUsageControl />
       </form>
       {open && matches.length > 0 && query.trim() && (
         <div className="lulu-auth-search-results">
