@@ -144,7 +144,7 @@ export function LandingKpiPanel() {
             <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {featuredKeys.map((key) => {
                 const metric = data?.metrics[key];
-                return <div key={key} title={metric?.source} className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur">
+                return <div key={key} title={t('Data source')} className="rounded-2xl border border-white/10 bg-white/[.06] p-4 backdrop-blur">
                   <div className="flex items-center justify-between gap-2 text-xs text-slate-400"><span>{t(KPI_LABELS[key])}</span><ArrowUpRight size={14} className="text-emerald-300" /></div>
                   <p className="mt-3 text-2xl font-semibold tracking-tight">{metric ? formatMetric(metric, locale) : '—'}</p>
                 </div>;
@@ -161,7 +161,7 @@ export function LandingKpiPanel() {
                   <div className="mt-3 space-y-2">
                     {group.keys.map((key) => {
                       const metric = data?.metrics[key];
-                      return <div key={key} title={metric?.source} className="flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-white/[.035] px-3 py-2.5 text-sm">
+                      return <div key={key} title={t('Data source')} className="flex items-center justify-between gap-4 rounded-xl border border-white/5 bg-white/[.035] px-3 py-2.5 text-sm">
                         <span className="text-slate-300">{t(KPI_LABELS[key])}</span><span className={`font-semibold ${metric?.available ? 'text-white' : 'text-slate-500'}`}>{metric ? formatMetric(metric, locale) : '—'}</span>
                       </div>;
                     })}

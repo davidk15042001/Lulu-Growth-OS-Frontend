@@ -2,12 +2,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Check, Languages as LanguagesIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 import { useLocation } from "react-router-dom";
+import deGlobalLocaleUrl from "./locales/de.json?url";
+import enGlobalLocaleUrl from "./locales/en.json?url";
+import zhCnGlobalLocaleUrl from "./locales/zh-CN.json?url";
 import deCoreLocaleUrl from "./namespaces/locales/core/de.json?url";
 import enCoreLocaleUrl from "./namespaces/locales/core/en.json?url";
 import zhCnCoreLocaleUrl from "./namespaces/locales/core/zh-CN.json?url";
 import deWorkspaceShellLocaleUrl from "./namespaces/locales/workspace-shell/de.json?url";
 import enWorkspaceShellLocaleUrl from "./namespaces/locales/workspace-shell/en.json?url";
 import zhCnWorkspaceShellLocaleUrl from "./namespaces/locales/workspace-shell/zh-CN.json?url";
+import deGlobalRuntimeOverrideUrl from "./runtime-overrides/de.json?url";
+import enGlobalRuntimeOverrideUrl from "./runtime-overrides/en.json?url";
+import zhCnGlobalRuntimeOverrideUrl from "./runtime-overrides/zh-CN.json?url";
 import deCoreRuntimeOverrideUrl from "./namespaces/runtime-overrides/core/de.json?url";
 import enCoreRuntimeOverrideUrl from "./namespaces/runtime-overrides/core/en.json?url";
 import zhCnCoreRuntimeOverrideUrl from "./namespaces/runtime-overrides/core/zh-CN.json?url";
@@ -24,14 +30,14 @@ const LANGUAGE_LOADED_EVENT = "lulu-language-loaded";
 type TranslationNamespace = string;
 
 const localeStaticNamespaceAssetUrls: Partial<Record<LanguageCode, Record<string, string>>> = {
-  en: { core: enCoreLocaleUrl, "workspace-shell": enWorkspaceShellLocaleUrl },
-  de: { core: deCoreLocaleUrl, "workspace-shell": deWorkspaceShellLocaleUrl },
-  "zh-CN": { core: zhCnCoreLocaleUrl, "workspace-shell": zhCnWorkspaceShellLocaleUrl },
+  en: { global: enGlobalLocaleUrl, core: enCoreLocaleUrl, "workspace-shell": enWorkspaceShellLocaleUrl },
+  de: { global: deGlobalLocaleUrl, core: deCoreLocaleUrl, "workspace-shell": deWorkspaceShellLocaleUrl },
+  "zh-CN": { global: zhCnGlobalLocaleUrl, core: zhCnCoreLocaleUrl, "workspace-shell": zhCnWorkspaceShellLocaleUrl },
 };
 const runtimeOverrideStaticNamespaceAssetUrls: Partial<Record<LanguageCode, Record<string, string>>> = {
-  en: { core: enCoreRuntimeOverrideUrl, "workspace-shell": enWorkspaceShellRuntimeOverrideUrl },
-  de: { core: deCoreRuntimeOverrideUrl, "workspace-shell": deWorkspaceShellRuntimeOverrideUrl },
-  "zh-CN": { core: zhCnCoreRuntimeOverrideUrl, "workspace-shell": zhCnWorkspaceShellRuntimeOverrideUrl },
+  en: { global: enGlobalRuntimeOverrideUrl, core: enCoreRuntimeOverrideUrl, "workspace-shell": enWorkspaceShellRuntimeOverrideUrl },
+  de: { global: deGlobalRuntimeOverrideUrl, core: deCoreRuntimeOverrideUrl, "workspace-shell": deWorkspaceShellRuntimeOverrideUrl },
+  "zh-CN": { global: zhCnGlobalRuntimeOverrideUrl, core: zhCnCoreRuntimeOverrideUrl, "workspace-shell": zhCnWorkspaceShellRuntimeOverrideUrl },
 };
 const loadedTables: Record<string, Record<string, string>> = {};
 const loadedNamespaceTables: Partial<Record<LanguageCode, Record<string, Record<string, string>>>> = {};
@@ -222,7 +228,11 @@ function pageNamespacesForPortalSection(pathname: string, search: string) {
 }
 
 function requiredNamespaces(pathname: string, search: string): TranslationNamespace[] {
-  const namespaces = new Set<TranslationNamespace>(["core"]);
+  // Page namespaces are intentionally small, but application chrome, shared
+  // registries and API-fed labels can appear on every route. Load the complete
+  // active-language catalog first so a language switch never falls back to a
+  // different source language merely because a label originated elsewhere.
+  const namespaces = new Set<TranslationNamespace>(["global", "core"]);
   const slug = pageSlugForPath(pathname);
   const usesWorkspaceShell = pathname.startsWith("/app/") || pathname === routes.onboarding.billing || pathname === routes.onboarding.billings;
   if (usesWorkspaceShell) namespaces.add("workspace-shell");

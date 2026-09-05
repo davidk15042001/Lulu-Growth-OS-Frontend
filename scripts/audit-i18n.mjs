@@ -100,7 +100,11 @@ for (const language of expectedCodes) {
       : {};
     for (const source of fileValues) {
       if (language === "en" && !isLikelyGermanSource(source)) continue;
-      const translation = page[source] ?? core[source] ?? workspace[source];
+      // The runtime always loads the complete active-language catalog before
+      // route-specific tables. Scoped entries intentionally win, while the
+      // global catalog guarantees shared labels and dynamic UI do not leak
+      // their source language on another route.
+      const translation = page[source] ?? workspace[source] ?? core[source] ?? mergedTranslations[language]?.[source];
       if (!translation) namespaceMissing.add(`${slug ?? "core"}: ${source}`);
       else if (!hasMatchingPlaceholders(source, translation)) namespacePlaceholderErrors.add(`${slug ?? "core"}: ${source}`);
     }
