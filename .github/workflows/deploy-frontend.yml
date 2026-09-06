@@ -202,6 +202,39 @@ jobs:
                 businessTableCount: tables.length,
                 preservedTables: ['schema_migrations'],
               }));
+              const { rows: blockers } = await client.query(`
+                SELECT DISTINCT
+                  activity.pid,
+                  activity.backend_start,
+                  activity.xact_start,
+                  activity.state,
+                  activity.wait_event_type,
+                  activity.wait_event
+                FROM pg_locks AS locks
+                JOIN pg_stat_activity AS activity ON activity.pid = locks.pid
+                JOIN pg_class AS relation ON relation.oid = locks.relation
+                JOIN pg_namespace AS namespace ON namespace.oid = relation.relnamespace
+                WHERE locks.locktype = 'relation'
+                  AND locks.granted
+                  AND namespace.nspname = 'public'
+                  AND relation.relname <> 'schema_migrations'
+                  AND activity.pid <> pg_backend_pid()
+                  AND activity.xact_start IS NOT NULL
+                  AND activity.xact_start < NOW() - INTERVAL '10 minutes'
+                  AND activity.state IN ('active', 'idle in transaction')
+              `);
+              if (blockers.length > 0) {
+                console.log(JSON.stringify({ terminatingStaleRelationLockHolders: blockers }));
+                for (const blocker of blockers) {
+                  const { rows: termination } = await client.query(
+                    'SELECT pg_terminate_backend($1) AS terminated',
+                    [blocker.pid],
+                  );
+                  if (termination[0]?.terminated !== true) {
+                    throw new Error(`Could not terminate verified stale relation-lock holder ${blocker.pid}`);
+                  }
+                }
+              }
               await client.query('BEGIN');
               try {
                 await client.query("SET LOCAL lock_timeout = '30s'");
@@ -217,7 +250,11 @@ jobs:
                 await client.query('ROLLBACK');
                 throw error;
               }
-              console.log(JSON.stringify({ clearedBusinessTables: tables.length, reset: true }));
+              console.log(JSON.stringify({
+                clearedBusinessTables: tables.length,
+                terminatedStaleRelationLockHolders: blockers.map((blocker) => blocker.pid),
+                reset: true,
+              }));
             } finally {
               await client.end();
             }
