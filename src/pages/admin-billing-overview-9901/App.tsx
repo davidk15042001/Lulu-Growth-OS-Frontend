@@ -88,6 +88,18 @@ type DeleteUserResult = {
   deletedSharedWorkspaceDataCount: number;
   deletedWorkspaceNames: string[];
 };
+type UserDeletionJob = {
+  id: string;
+  status: "queued" | "running" | "succeeded" | "failed" | "cancelled";
+  targetUserId: string;
+  targetEmail: string | null;
+  attempts: number;
+  errorMessage: string | null;
+  result: DeleteUserResult | null;
+  createdAt: string;
+  startedAt: string | null;
+  completedAt: string | null;
+};
 type SessionUser = {
   id: string;
   email: string;
@@ -657,6 +669,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
   const [workspaceSavingId, setWorkspaceSavingId] = useState("");
   const [impersonating, setImpersonating] = useState(false);
   const [notice, setNotice] = useState("");
+  const [deletionJob, setDeletionJob] = useState<UserDeletionJob | null>(null);
 
   const load = async (q?: string) => {
     setLoading(true); onError("");
@@ -667,6 +680,36 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
     finally { setLoading(false); }
   };
   useEffect(() => { void load(search); }, []);
+
+  useEffect(() => {
+    if (!deletionJob || !["queued", "running"].includes(deletionJob.status)) return;
+    const pendingJob = deletionJob;
+    const timer = window.setTimeout(() => {
+      void (async () => {
+        try {
+          const res = await requestApi<UserDeletionJob>({ path: `/admin/user-deletion-jobs/${pendingJob.id}` });
+          const next = res.data;
+          setDeletionJob(next);
+          if (next.status === "succeeded") {
+            const result = next.result;
+            const email = result?.previousEmail ?? next.targetEmail ?? "Der Benutzer";
+            setDetail((current) => current?.id === next.targetUserId ? null : current);
+            setRows((current) => current.filter((row) => row.id !== next.targetUserId));
+            setNotice(result
+              ? `${email} wurde vollständig gelöscht. Entfernt: ${result.deletedWorkspaceCount} Workspace(s), ${result.deletedIntegrationCount} Integration(en), ${result.deletedMembershipCount} Mitgliedschaft(en) und ${result.deletedSharedWorkspaceDataCount} persönliche Einträge in geteilten Workspaces.`
+              : `${email} wurde vollständig gelöscht.`);
+            await load(search);
+          } else if (next.status === "failed" || next.status === "cancelled") {
+            onError(`Die vollständige Löschung konnte nicht abgeschlossen werden.${next.errorMessage ? ` · ${next.errorMessage}` : ""}`);
+          }
+        } catch (e) {
+          const message = getFriendlyErrorMessage(e, "Der Löschstatus konnte nicht geladen werden.");
+          onError(`${message} · ${e instanceof ApiError ? getTechnicalErrorDetails(e) : "Code: UNKNOWN_ERROR"}`);
+        }
+      })();
+    }, 1_250);
+    return () => window.clearTimeout(timer);
+  }, [deletionJob?.id, deletionJob?.status]);
 
   const openDetail = async (id: string) => {
     setDetailLoading(true); onError(""); setNotice(""); setDetail(null);
@@ -721,11 +764,9 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
     if (!confirmed) return;
     setSaving("delete"); onError(""); setNotice("");
     try {
-      const res = await requestApi<DeleteUserResult>({ path: `/admin/users/${detail.id}`, method: "DELETE" });
-      setDetail(null);
-      setRows((current) => current.filter((row) => row.id !== detail.id));
-      setNotice(`${res.data.previousEmail} wurde endgültig gelöscht. Entfernt: ${res.data.deletedWorkspaceCount} Workspace(s), ${res.data.deletedIntegrationCount} Integration(en), ${res.data.deletedMembershipCount} Mitgliedschaft(en) und ${res.data.deletedSharedWorkspaceDataCount} persönliche Einträge in geteilten Workspaces.`);
-      await load(search);
+      const res = await requestApi<UserDeletionJob>({ path: `/admin/users/${detail.id}`, method: "DELETE" });
+      setDeletionJob(res.data);
+      setNotice(`${detail.email} wird vollständig im Hintergrund gelöscht. Der Zugriff wurde beendet; große Workspaces können einige Minuten benötigen.`);
     } catch (e) {
       // The deletion is irreversible, so a generic error leaves an operator
       // unable to distinguish a rejected request from a safely rolled-back
@@ -746,11 +787,19 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
     };
   })();
 
+  const deletingCurrentUser = !!detail && deletionJob?.targetUserId === detail.id && ["queued", "running"].includes(deletionJob.status);
+
   return (
     <div className="space-y-5">
       {notice ? (
         <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           {notice}
+        </div>
+      ) : null}
+      {deletionJob && ["queued", "running"].includes(deletionJob.status) ? (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          <span className="font-semibold">Löschung läuft im Hintergrund.</span>{" "}
+          {deletionJob.targetEmail ?? "Der Benutzer"} wird vollständig bereinigt. Diese Ansicht aktualisiert sich automatisch.
         </div>
       ) : null}
       <DataTable<UserRow>
@@ -790,17 +839,17 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               <button
-                disabled={!!saving || impersonating}
+                disabled={!!saving || impersonating || deletingCurrentUser}
                 onClick={() => void impersonateUser()}
                 className="inline-flex items-center gap-1.5 rounded-md border border-violet-200 bg-violet-50 px-3 py-1.5 text-xs font-medium text-violet-800 hover:bg-violet-100 disabled:opacity-50"
               >
                 <LogIn size={14} /> {impersonating ? "Öffne Account…" : "Zum Account wechseln"}
               </button>
-              <button disabled={!!saving} onClick={() => runAction("verify")} className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-100 disabled:opacity-50"><UserCheck size={14} /> Verify</button>
-              <button disabled={!!saving} onClick={() => runAction("reset-sessions")} className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"><RotateCcw size={14} /> Reset Sessions</button>
-              <button disabled={!!saving} onClick={() => runAction("unlock")} className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-800 hover:bg-sky-100 disabled:opacity-50"><Unlock size={14} /> Unlock</button>
-              <button disabled={!!saving} onClick={() => runAction("lock")} className="inline-flex items-center gap-1.5 rounded-md border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-800 hover:bg-rose-100 disabled:opacity-50"><Lock size={14} /> Lock</button>
-              <button disabled={!!saving || impersonating} onClick={() => void deleteUser()} className="inline-flex items-center gap-1.5 rounded-md border border-rose-300 bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-700 disabled:opacity-50"><Trash2 size={14} /> Benutzer endgültig löschen</button>
+              <button disabled={!!saving || deletingCurrentUser} onClick={() => runAction("verify")} className="inline-flex items-center gap-1.5 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-100 disabled:opacity-50"><UserCheck size={14} /> Verify</button>
+              <button disabled={!!saving || deletingCurrentUser} onClick={() => runAction("reset-sessions")} className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"><RotateCcw size={14} /> Reset Sessions</button>
+              <button disabled={!!saving || deletingCurrentUser} onClick={() => runAction("unlock")} className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-800 hover:bg-sky-100 disabled:opacity-50"><Unlock size={14} /> Unlock</button>
+              <button disabled={!!saving || deletingCurrentUser} onClick={() => runAction("lock")} className="inline-flex items-center gap-1.5 rounded-md border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-800 hover:bg-rose-100 disabled:opacity-50"><Lock size={14} /> Lock</button>
+              <button disabled={!!saving || impersonating || deletingCurrentUser} onClick={() => void deleteUser()} className="inline-flex items-center gap-1.5 rounded-md border border-rose-300 bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-700 disabled:opacity-50"><Trash2 size={14} /> {deletingCurrentUser ? "Löschung läuft…" : "Benutzer endgültig löschen"}</button>
               {saving ? <span className="text-xs text-slate-500">Speichere {saving}…</span> : null}
             </div>
           </div>
