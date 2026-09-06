@@ -128,6 +128,16 @@ jobs:
               pgrep -f 'dist/database/run\.js' >/dev/null || break
               sleep 1
             done
+            remaining_migration_pids="$(pgrep -f 'dist/database/run\.js' || true)"
+            if [ -n "$remaining_migration_pids" ]; then
+              echo "Force-stopping unresponsive stale migration runner"
+              kill -KILL $remaining_migration_pids || true
+              sleep 1
+            fi
+            if pgrep -f 'dist/database/run\.js' >/dev/null; then
+              echo "A stale migration runner could not be stopped; refusing to restart the API behind its lock" >&2
+              exit 1
+            fi
           fi
 
           if ! npm ci --omit=dev --ignore-scripts; then
