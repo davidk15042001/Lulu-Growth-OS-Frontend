@@ -10,6 +10,11 @@ on:
         required: false
         default: false
         type: boolean
+      diagnose_migration_locks:
+        description: "Read active PostgreSQL advisory locks during a recovery deployment"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -98,6 +103,7 @@ jobs:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           SKIP_MIGRATIONS: ${{ inputs.skip_migrations || 'false' }}
+          DIAGNOSE_MIGRATION_LOCKS: ${{ inputs.diagnose_migration_locks || 'false' }}
         run: |
           set -euo pipefail
           rsync -rz --links --delete \
@@ -110,8 +116,9 @@ jobs:
           # Keep the SSH transport alive while an otherwise long-running
           # production migration is executing.
           remote_skip_migrations="$(printf '%q' "$SKIP_MIGRATIONS")"
+          remote_diagnose_migration_locks="$(printf '%q' "$DIAGNOSE_MIGRATION_LOCKS")"
           ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=20 \
-            "$DEPLOY_USER@$DEPLOY_HOST" "SKIP_MIGRATIONS=$remote_skip_migrations bash -se" <<'REMOTE'
+            "$DEPLOY_USER@$DEPLOY_HOST" "SKIP_MIGRATIONS=$remote_skip_migrations DIAGNOSE_MIGRATION_LOCKS=$remote_diagnose_migration_locks bash -se" <<'REMOTE'
           set -euo pipefail
           cd /var/www/lulu-growth-os/backend
 
@@ -146,6 +153,41 @@ jobs:
             echo "Recovering from incompatible node_modules ownership: moving it to $stale_path"
             mv node_modules "$stale_path"
             npm ci --omit=dev --ignore-scripts
+          fi
+
+          if [ "$DIAGNOSE_MIGRATION_LOCKS" = "true" ]; then
+            # Emit only lock metadata, never SQL text or environment values.
+            # This is read-only and is available only through an explicit
+            # recovery deployment when a migration lock must be diagnosed.
+            node --input-type=module <<'NODE'
+            import { getPool } from './dist/db/pool.js';
+
+            const pool = getPool();
+            try {
+              const { rows } = await pool.query(`
+                SELECT
+                  activity.pid,
+                  activity.application_name,
+                  activity.backend_type,
+                  activity.state,
+                  activity.wait_event_type,
+                  activity.wait_event,
+                  activity.backend_start,
+                  activity.xact_start,
+                  activity.query_start,
+                  locks.classid::text AS class_id,
+                  locks.objid::text AS object_id,
+                  locks.objsubid AS object_sub_id
+                FROM pg_locks AS locks
+                JOIN pg_stat_activity AS activity ON activity.pid = locks.pid
+                WHERE locks.locktype = 'advisory' AND locks.granted
+                ORDER BY activity.backend_start ASC
+              `);
+              console.log(JSON.stringify({ advisoryLocks: rows }));
+            } finally {
+              await pool.end();
+            }
+            NODE
           fi
 
           if [ "$SKIP_MIGRATIONS" = "true" ]; then
