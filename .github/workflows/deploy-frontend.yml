@@ -171,9 +171,16 @@ jobs:
           # The API has not started, so collect only service state and recent
           # unit errors. This avoids exposing deployment secrets while making
           # a failed recovery deploy actionable in the Actions log.
-          systemctl status lulu-growth-backend --no-pager --full || true
-          journalctl -u lulu-growth-backend --no-pager -n 120 \
-            | grep -Ei 'error|fatal|exception|failed|migration|listen|database|exit|ready' \
-            || true
+          if [ "$(id -u)" -eq 0 ]; then
+            systemctl status lulu-growth-backend --no-pager --full || true
+            journalctl -u lulu-growth-backend --no-pager -n 120 \
+              | grep -Ei 'error|fatal|exception|failed|migration|listen|database|exit|ready' \
+              || true
+          else
+            sudo -n systemctl status lulu-growth-backend --no-pager --full || true
+            sudo -n journalctl -u lulu-growth-backend --no-pager -n 120 \
+              | grep -Ei 'error|fatal|exception|failed|migration|listen|database|exit|ready' \
+              || true
+          fi
           exit 1
           REMOTE
