@@ -14,7 +14,7 @@ export type CurrentUser = {
 };
 
 export const authApi = {
-  register: (input: { email: string; password: string; first_name: string; last_name: string }) => requestApi<{ verificationRequired: boolean; verificationSent: boolean }>({
+  register: (input: { email: string; password: string; first_name: string; last_name: string }) => requestApi<{ verificationRequired: false }>({
     path: "/auth/register", method: "POST", body: input,
   }),
   verifyOtp: (email: string, code: string) => requestApi<null>({ path: "/auth/verify-otp", method: "POST", body: { email, code } }),
