@@ -112,12 +112,12 @@ jobs:
           # while the web service itself remains healthy. It is safe to end
           # that exact stale runner before starting the new migration; this
           # never targets the running API service (dist/server.js).
-          stale_migration_pids="$(pgrep -f '[n]ode dist/database/run.js' || true)"
+          stale_migration_pids="$(pgrep -f 'dist/database/run\.js' || true)"
           if [ -n "$stale_migration_pids" ]; then
             echo "Stopping stale one-off migration runner before deployment"
             kill $stale_migration_pids || true
             for attempt in $(seq 1 10); do
-              pgrep -f '[n]ode dist/database/run.js' >/dev/null || break
+              pgrep -f 'dist/database/run\.js' >/dev/null || break
               sleep 1
             done
           fi
