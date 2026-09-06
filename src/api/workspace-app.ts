@@ -123,6 +123,7 @@ export type BillingState = {
     aiAccessBlocked: boolean;
     blockedAt: string | null;
     blockReason: "PAYMENT_SOURCE_SETUP_REQUIRED" | "PAYMENT_SOURCE_REQUIRED" | "AUTOMATIC_PAYMENT_FAILED" | string | null;
+    blockedPeriodId: string | null;
     paymentLink: string | null;
     apiCost: number;
     serverCost: number;
@@ -317,6 +318,39 @@ export const workspaceAppApi = {
     path: workspaceApiPath(workspaceId, "/billing/payg/api-checkout"),
     method: "POST",
     body: {},
+  }),
+  createPaygQrPayment: (workspaceId: string, input: {
+    paymentMethod: "alipaycn" | "wechatpay";
+    returnUrl: string;
+    periodId?: string;
+  }) => requestApi<{
+    paymentId: string;
+    paymentMethod: "alipaycn" | "wechatpay";
+    amount: number;
+    currency: "USD";
+    status: "requires_customer_action" | "pending" | "succeeded" | "cancelled" | "failed" | "expired";
+    qrPayload: string | null;
+    paymentUrl: string | null;
+    expiresAt: string | null;
+    paidAt: string | null;
+    reused: boolean;
+  }>({
+    path: workspaceApiPath(workspaceId, "/billing/payg/qr-payments"),
+    method: "POST",
+    body: input,
+  }),
+  syncPaygQrPayment: (workspaceId: string, paymentId: string) => requestApi<{
+    paymentId: string;
+    paymentMethod: "alipaycn" | "wechatpay";
+    amount: number;
+    currency: "USD";
+    status: "requires_customer_action" | "pending" | "succeeded" | "cancelled" | "failed" | "expired";
+    qrPayload: string | null;
+    paymentUrl: string | null;
+    expiresAt: string | null;
+    paidAt: string | null;
+  }>({
+    path: workspaceApiPath(workspaceId, `/billing/payg/qr-payments/${encodeURIComponent(paymentId)}`),
   }),
   configurePaygPaymentMethod: (workspaceId: string, input: {
     paymentMethod: "card" | "alipaycn" | "wechatpay";

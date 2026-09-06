@@ -19,10 +19,12 @@
     "check": "npm run typecheck && npm run audit:routing && npm run audit:api && npm run audit:branding && npm run audit:i18n && npm run audit:feedback && npm run audit:errors && npm run build"
   },
   "dependencies": {
+    "@types/qrcode": "^1.5.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.12",
     "lucide-react": "^0.468.0",
+    "qrcode": "^1.5.4",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.8.1",
