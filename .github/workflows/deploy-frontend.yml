@@ -171,6 +171,11 @@ jobs:
           # The API has not started, so collect only service state and recent
           # unit errors. This avoids exposing deployment secrets while making
           # a failed recovery deploy actionable in the Actions log.
+          systemctl show lulu-growth-backend --no-pager \
+            -p ActiveState -p SubState -p Result -p MainPID \
+            -p ExecMainCode -p ExecMainStatus -p ActiveEnterTimestamp \
+            -p StateChangeTimestamp || true
+          pgrep -a -f 'dist/(server|database/run)\.js' || true
           if [ "$(id -u)" -eq 0 ]; then
             systemctl status lulu-growth-backend --no-pager --full || true
             journalctl -u lulu-growth-backend --no-pager -n 120 \
