@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { getFriendlyErrorMessage, requestApi } from "../../api/client";
+import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from "../../api/client";
 import { setAdminSurface, setStoredUser } from "../../api/session";
 import { useLuluApp } from '../../api/LuluAppContext';
 import { DEFAULT_LANGUAGE, isAvailableLanguageCode, LANGUAGE_STORAGE_KEY } from "../../i18n/languages";
@@ -727,7 +727,11 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
       setNotice(`${res.data.previousEmail} wurde endgültig gelöscht. Entfernt: ${res.data.deletedWorkspaceCount} Workspace(s), ${res.data.deletedIntegrationCount} Integration(en), ${res.data.deletedMembershipCount} Mitgliedschaft(en) und ${res.data.deletedSharedWorkspaceDataCount} persönliche Einträge in geteilten Workspaces.`);
       await load(search);
     } catch (e) {
-      onError(getFriendlyErrorMessage(e, "Der User konnte nicht gelöscht werden."));
+      // The deletion is irreversible, so a generic error leaves an operator
+      // unable to distinguish a rejected request from a safely rolled-back
+      // server error. Surface only the already-sanitised API diagnostics.
+      const message = getFriendlyErrorMessage(e, "Der User konnte nicht gelöscht werden.");
+      onError(`${message} · ${e instanceof ApiError ? getTechnicalErrorDetails(e) : "Code: UNKNOWN_ERROR"}`);
     } finally {
       setSaving("");
     }
