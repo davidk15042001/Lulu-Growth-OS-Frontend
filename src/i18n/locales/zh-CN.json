@@ -21375,5 +21375,13 @@
   "Publishing failed: {{message}}": "发布失败：{{message}}",
   "The website was published, but WordPress reported: {{warning}}": "网站已发布，但 WordPress 报告：{{warning}}",
   "Verified company data and connected sources were loaded.": "已加载已验证的企业数据和连接的数据源。",
-  "Website copy and SEO data were completed and saved.": "网站文案和 SEO 数据已完成并保存。"
+  "Website copy and SEO data were completed and saved.": "网站文案和 SEO 数据已完成并保存。",
+  "{{0}} wurde vollständig gelöscht. Entfernt: {{1}} Workspace(s), {{2}} Integration(en), {{3}} Mitgliedschaft(en) und {{4}} persönliche Einträge in geteilten Workspaces.": "{{0}} 已被彻底删除。已移除：{{1}} 个工作区、{{2}} 个集成、{{3}} 个成员关系，以及共享工作区中的 {{4}} 条个人数据。",
+  "{{0}} wurde vollständig gelöscht.": "{{0}} 已被彻底删除。",
+  "Der Löschstatus konnte nicht geladen werden.": "无法加载删除状态。",
+  "{{0}} wird vollständig im Hintergrund gelöscht. Der Zugriff wurde beendet; große Workspaces können einige Minuten benötigen.": "正在后台彻底删除 {{0}}。访问权限已结束；大型工作区可能需要几分钟。",
+  "Löschung läuft im Hintergrund.": "正在后台删除。",
+  "Der Benutzer": "该用户",
+  "wird vollständig bereinigt. Diese Ansicht aktualisiert sich automatisch.": "正在被彻底清理。此页面会自动刷新。",
+  "Löschung läuft…": "正在删除…"
 }

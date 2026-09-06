@@ -765,5 +765,13 @@
   "We are waiting for Airwallex to confirm the saved card.": "We are waiting for Airwallex to confirm the saved card.",
   "Confirming payment method…": "Confirming payment method…",
   "Opening secure card setup…": "Opening secure card setup…",
-  "Continue to card setup": "Continue to card setup"
+  "Continue to card setup": "Continue to card setup",
+  "{{0}} wurde vollständig gelöscht. Entfernt: {{1}} Workspace(s), {{2}} Integration(en), {{3}} Mitgliedschaft(en) und {{4}} persönliche Einträge in geteilten Workspaces.": "{{0}} has been completely deleted. Removed: {{1}} workspace(s), {{2}} integration(s), {{3}} membership link(s), and {{4}} personal item(s) in shared workspaces.",
+  "{{0}} wurde vollständig gelöscht.": "{{0}} has been completely deleted.",
+  "Der Löschstatus konnte nicht geladen werden.": "The deletion status could not be loaded.",
+  "{{0}} wird vollständig im Hintergrund gelöscht. Der Zugriff wurde beendet; große Workspaces können einige Minuten benötigen.": "{{0}} is being completely deleted in the background. Access has been ended; large workspaces may take a few minutes.",
+  "Löschung läuft im Hintergrund.": "Deletion is running in the background.",
+  "Der Benutzer": "The user",
+  "wird vollständig bereinigt. Diese Ansicht aktualisiert sich automatisch.": "is being completely cleaned up. This page refreshes automatically.",
+  "Löschung läuft…": "Deletion in progress…"
 }

@@ -21375,5 +21375,13 @@
   "Publishing failed: {{message}}": "Veröffentlichung fehlgeschlagen: {{message}}",
   "The website was published, but WordPress reported: {{warning}}": "Die Website wurde veröffentlicht, aber WordPress meldet: {{warning}}",
   "Verified company data and connected sources were loaded.": "Bestätigte Unternehmensdaten und verbundene Quellen wurden geladen.",
-  "Website copy and SEO data were completed and saved.": "Website-Texte und SEO-Daten wurden fertiggestellt und gespeichert."
+  "Website copy and SEO data were completed and saved.": "Website-Texte und SEO-Daten wurden fertiggestellt und gespeichert.",
+  "{{0}} wurde vollständig gelöscht. Entfernt: {{1}} Workspace(s), {{2}} Integration(en), {{3}} Mitgliedschaft(en) und {{4}} persönliche Einträge in geteilten Workspaces.": "{{0}} wurde vollständig gelöscht. Entfernt: {{1}} Workspace(s), {{2}} Integration(en), {{3}} Mitgliedschaft(en) und {{4}} persönliche Einträge in geteilten Workspaces.",
+  "{{0}} wurde vollständig gelöscht.": "{{0}} wurde vollständig gelöscht.",
+  "Der Löschstatus konnte nicht geladen werden.": "Der Löschstatus konnte nicht geladen werden.",
+  "{{0}} wird vollständig im Hintergrund gelöscht. Der Zugriff wurde beendet; große Workspaces können einige Minuten benötigen.": "{{0}} wird vollständig im Hintergrund gelöscht. Der Zugriff wurde beendet; große Workspaces können einige Minuten benötigen.",
+  "Löschung läuft im Hintergrund.": "Löschung läuft im Hintergrund.",
+  "Der Benutzer": "Der Benutzer",
+  "wird vollständig bereinigt. Diese Ansicht aktualisiert sich automatisch.": "wird vollständig bereinigt. Diese Ansicht aktualisiert sich automatisch.",
+  "Löschung läuft…": "Löschung läuft…"
 }
