@@ -4,6 +4,12 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      skip_migrations:
+        description: "Only for a verified no-schema-change recovery deployment"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -91,6 +97,7 @@ jobs:
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          SKIP_MIGRATIONS: ${{ inputs.skip_migrations || 'false' }}
         run: |
           set -euo pipefail
           rsync -rz --links --delete \
@@ -130,7 +137,11 @@ jobs:
             npm ci --omit=dev --ignore-scripts
           fi
 
-          node dist/database/run.js
+          if [ "$SKIP_MIGRATIONS" = "true" ]; then
+            echo "Skipping migrations for this explicitly verified no-schema-change recovery deployment"
+          else
+            node dist/database/run.js
+          fi
           if [ "$(id -u)" -eq 0 ]; then
             systemctl restart lulu-growth-backend
           else
