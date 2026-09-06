@@ -165,6 +165,9 @@ jobs:
 
             const pool = getPool();
             try {
+              const { rows: migrationKeyRows } = await pool.query(
+                `SELECT hashtext('lulu_growth_os_schema_migrations')::text AS migration_lock_key`,
+              );
               const { rows } = await pool.query(`
                 SELECT
                   activity.pid,
@@ -184,7 +187,10 @@ jobs:
                 WHERE locks.locktype = 'advisory' AND locks.granted
                 ORDER BY activity.backend_start ASC
               `);
-              console.log(JSON.stringify({ advisoryLocks: rows }));
+              console.log(JSON.stringify({
+                migrationLockKey: migrationKeyRows[0]?.migration_lock_key ?? null,
+                advisoryLocks: rows,
+              }));
             } finally {
               await pool.end();
             }
