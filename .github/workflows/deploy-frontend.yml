@@ -109,8 +109,9 @@ jobs:
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
           # Keep the SSH transport alive while an otherwise long-running
           # production migration is executing.
+          remote_skip_migrations="$(printf '%q' "$SKIP_MIGRATIONS")"
           ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=20 \
-            "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+            "$DEPLOY_USER@$DEPLOY_HOST" "SKIP_MIGRATIONS=$remote_skip_migrations bash -se" <<'REMOTE'
           set -euo pipefail
           cd /var/www/lulu-growth-os/backend
 
