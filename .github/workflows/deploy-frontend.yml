@@ -15,6 +15,11 @@ on:
         required: false
         default: false
         type: boolean
+      recover_stale_migration_lock:
+        description: "Terminate only a verified stale Lulu migration-lock holder"
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: read
@@ -104,6 +109,7 @@ jobs:
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
           SKIP_MIGRATIONS: ${{ inputs.skip_migrations || 'false' }}
           DIAGNOSE_MIGRATION_LOCKS: ${{ inputs.diagnose_migration_locks || 'false' }}
+          RECOVER_STALE_MIGRATION_LOCK: ${{ inputs.recover_stale_migration_lock || 'false' }}
         run: |
           set -euo pipefail
           rsync -rz --links --delete \
@@ -117,8 +123,9 @@ jobs:
           # production migration is executing.
           remote_skip_migrations="$(printf '%q' "$SKIP_MIGRATIONS")"
           remote_diagnose_migration_locks="$(printf '%q' "$DIAGNOSE_MIGRATION_LOCKS")"
+          remote_recover_stale_migration_lock="$(printf '%q' "$RECOVER_STALE_MIGRATION_LOCK")"
           ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=20 \
-            "$DEPLOY_USER@$DEPLOY_HOST" "SKIP_MIGRATIONS=$remote_skip_migrations DIAGNOSE_MIGRATION_LOCKS=$remote_diagnose_migration_locks bash -se" <<'REMOTE'
+            "$DEPLOY_USER@$DEPLOY_HOST" "SKIP_MIGRATIONS=$remote_skip_migrations DIAGNOSE_MIGRATION_LOCKS=$remote_diagnose_migration_locks RECOVER_STALE_MIGRATION_LOCK=$remote_recover_stale_migration_lock bash -se" <<'REMOTE'
           set -euo pipefail
           cd /var/www/lulu-growth-os/backend
 
@@ -191,6 +198,48 @@ jobs:
                 migrationLockKey: migrationKeyRows[0]?.migration_lock_key ?? null,
                 advisoryLocks: rows,
               }));
+            } finally {
+              await pool.end();
+            }
+          NODE
+          fi
+
+          if [ "$RECOVER_STALE_MIGRATION_LOCK" = "true" ]; then
+            # This deliberate recovery path can terminate only the Lulu
+            # migration advisory-lock holder after it has waited at least ten
+            # minutes. It refuses to operate if the target is ambiguous.
+            node --input-type=module <<'NODE'
+            import 'dotenv/config';
+            import { getPool } from './dist/db/pool.js';
+
+            const pool = getPool();
+            try {
+              const { rows: holders } = await pool.query(`
+                SELECT activity.pid
+                FROM pg_locks AS locks
+                JOIN pg_stat_activity AS activity ON activity.pid = locks.pid
+                WHERE locks.locktype = 'advisory'
+                  AND locks.granted
+                  AND locks.classid = 0
+                  AND locks.objid = hashtext('lulu_growth_os_schema_migrations')
+                  AND locks.objsubid = 1
+                  AND activity.pid <> pg_backend_pid()
+                  AND activity.backend_start < NOW() - INTERVAL '10 minutes'
+                  AND activity.state = 'active'
+                  AND activity.wait_event_type = 'Lock'
+              `);
+              if (holders.length !== 1) {
+                throw new Error(`Expected exactly one verified stale migration lock holder; found ${holders.length}`);
+              }
+              const pid = holders[0].pid;
+              const { rows: result } = await pool.query(
+                'SELECT pg_terminate_backend($1) AS terminated',
+                [pid],
+              );
+              if (result[0]?.terminated !== true) {
+                throw new Error(`Could not terminate verified stale migration lock holder ${pid}`);
+              }
+              console.log(JSON.stringify({ terminatedStaleMigrationLockHolder: pid }));
             } finally {
               await pool.end();
             }
