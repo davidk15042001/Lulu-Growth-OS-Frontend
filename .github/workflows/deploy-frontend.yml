@@ -187,7 +187,7 @@ jobs:
             } finally {
               await pool.end();
             }
-            NODE
+          NODE
           fi
 
           if [ "$SKIP_MIGRATIONS" = "true" ]; then
