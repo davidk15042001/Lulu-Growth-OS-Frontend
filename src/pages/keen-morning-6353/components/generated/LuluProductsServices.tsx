@@ -102,13 +102,8 @@ const emptyOffering = (): Offering => ({
 const inputClass = "mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--border)]";
 const textareaClass = "mt-1 min-h-24 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-3 text-sm leading-6 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--border)]";
 function Logo() {
-  return <div className="flex items-center gap-2" aria-label="Lulu AI">
-      <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] font-bold text-primary-foreground">
-        <span>L</span>
-      </span>
-      <strong className="text-xl font-semibold tracking-[-0.03em] text-[var(--foreground)]">
-        <span>Lulu AI</span>
-      </strong>
+  return <div className="flex items-center" aria-label="Lulu Intelligence" data-lulu-no-translate="true" translate="no">
+      <img src="/branding/lulu-intelligence-logo.png" alt="Lulu Intelligence" className="h-9 w-auto object-contain" draggable={false} />
     </div>;
 }
 function Field({

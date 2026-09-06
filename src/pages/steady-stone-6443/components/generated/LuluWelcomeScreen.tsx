@@ -111,11 +111,8 @@ export function LuluWelcomeScreen() {
       `}</style>
 
       <header className="mx-auto flex h-14 w-full max-w-[1280px] shrink-0 items-center justify-between px-5 sm:px-8 lg:px-10">
-        <a {...pageLinkProps(HOME_PAGE_SLUG)} aria-label="Lulu AI home" className="welcome-enter flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--border)]">
-          <span aria-hidden="true" className="grid h-8 w-8 place-items-center rounded-full bg-[var(--primary)] text-base font-bold text-[var(--primary-foreground)]">
-            <span>L</span>
-          </span>
-          <span className="text-[15px] font-bold tracking-[-0.02em] text-[var(--foreground)]">Lulu AI</span>
+        <a {...pageLinkProps(HOME_PAGE_SLUG)} aria-label="Lulu Intelligence home" data-lulu-no-translate="true" translate="no" className="welcome-enter flex items-center rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--border)]">
+          <img src="/branding/lulu-intelligence-logo.png" alt="Lulu Intelligence" className="h-8 w-auto object-contain" draggable={false} />
         </a>
 
         <nav aria-label="Account options" className="welcome-enter welcome-delay-1 flex items-center gap-1.5">
