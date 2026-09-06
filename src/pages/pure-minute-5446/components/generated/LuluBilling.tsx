@@ -7,13 +7,12 @@ import { workspaceAppApi, type BillingState } from '../../../../api/workspace-ap
 import { LuluGlobalNavigation } from '../../../../components/LuluGlobalNavigation';
 
 const tabs = [
-  { id: 'ai-usage', label: 'AI Usage' },
   { id: 'payments', label: 'Payments' },
   { id: 'invoices', label: 'Invoices' },
   { id: 'subscription', label: 'Subscription' },
 ] as const;
 
-type BillingTab = typeof tabs[number]['id'];
+type BillingTab = typeof tabs[number]['id'] | 'ai-usage';
 type PaygPaymentMethod = 'card' | 'wechatpay' | 'alipaycn';
 
 const paymentMethodDetails: Record<PaygPaymentMethod, { label: string; detail: string; icon: typeof CreditCard; automatic: boolean }> = {
@@ -92,7 +91,7 @@ function PaygPaymentMethodSetup({
 
 export function LuluBilling() {
   const { selectedWorkspace, can } = useLuluApp();
-  const [activeTab, setActiveTab] = useState<BillingTab>('ai-usage');
+  const [activeTab, setActiveTab] = useState<BillingTab>('payments');
   const [state, setState] = useState<BillingState | null>(null);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);

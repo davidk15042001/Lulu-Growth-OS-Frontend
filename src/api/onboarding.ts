@@ -240,8 +240,8 @@ export const onboardingApi = {
     path: workspaceApiPath(workspaceId, "/onboarding/ai-business-profile/customer-segments/apply"), method: "POST", body: {},
   }),
   complete: (workspaceId: string) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/complete"), method: "POST", body: {} }),
-  createBillingCheckout: (workspaceId: string, input: { planKey: "starter" | "ai"; successUrl: string; backUrl: string }) => requestApi<{
-    planKey: "starter" | "ai";
+  createBillingCheckout: (workspaceId: string, input: { planKey: "ai"; successUrl: string; backUrl: string }) => requestApi<{
+    planKey: "ai";
     free: boolean;
     checkoutId?: string;
     checkoutUrl?: string;

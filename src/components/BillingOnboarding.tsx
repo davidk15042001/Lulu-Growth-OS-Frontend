@@ -5,12 +5,11 @@ import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../api/client
 import { useLuluApp } from "../api/LuluAppContext";
 import { onboardingApi } from "../api/onboarding";
 import { workspaceAppApi } from "../api/workspace-app";
-import { billingCapabilities, billingPlans, type BillingPlanId } from "../billing/planCatalog";
+import { billingPlans, type BillingPlanId } from "../billing/planCatalog";
 import { OnboardingHeader } from "./OnboardingHeader";
 import { getAdminLandingPath, isAdminUser } from "../api/session";
 
 const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string }> = {
-  starter: { icon: Zap, accent: "bg-[var(--primary)] text-[var(--primary-foreground)]" },
   ai: { icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20" },
 };
 
@@ -158,17 +157,17 @@ export function BillingOnboarding() {
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--card)]">
             <Sparkles size={22} aria-hidden="true" />
           </div>
-          <p className="mt-6 text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Choose your workspace access</p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Select the way you want Lulu to work.</h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">Choose the level of control that fits your business. Starter and AI access are billed annually in RMB.</p>
-          <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-[var(--foreground)]">Select a package to open the secure payment process immediately.</p>
+          <p className="mt-6 text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Lulu AI package</p>
+          <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Activate Lulu AI for your workspace.</h1>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">The Lulu AI package is billed annually at RMB 30,000.</p>
+          <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-[var(--foreground)]">Activate the package to open the secure payment process immediately.</p>
         </section>
 
         <section className="mb-8 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]" aria-labelledby="payg-title">
-          <div className="border-b border-[var(--border)] px-5 py-5 sm:px-7"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Transparent billing</p><h2 id="payg-title" className="mt-2 text-xl font-semibold">Starter and AI include separate usage billing.</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-foreground)]">Usage closes every Monday and is charged automatically to the saved card. A payment link appears only if automatic collection fails.</p></div>
+          <div className="border-b border-[var(--border)] px-5 py-5 sm:px-7"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Transparent billing</p><h2 id="payg-title" className="mt-2 text-xl font-semibold">Lulu AI includes separate usage billing.</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-foreground)]">API and server usage are billed separately from the annual package and can be reviewed in workspace billing.</p></div>
           <div className="grid gap-px bg-[var(--border)] sm:grid-cols-2">
             <div className="flex gap-3 bg-[var(--card)] p-5 sm:p-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)]"><Cpu size={18} /></span><div><h3 className="text-sm font-semibold">API usage</h3><p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">Input tokens cost $5 per million and output tokens cost $10 per million.</p></div></div>
-            <div className="flex gap-3 bg-[var(--card)] p-5 sm:p-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)]"><Server size={18} /></span><div><h3 className="text-sm font-semibold">AWS usage</h3><p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">For Starter and AI, actual allocated AWS provider costs are charged at exactly twice the provider price.</p></div></div>
+            <div className="flex gap-3 bg-[var(--card)] p-5 sm:p-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)]"><Server size={18} /></span><div><h3 className="text-sm font-semibold">AWS usage</h3><p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">Actual allocated AWS provider costs are charged at exactly twice the provider price.</p></div></div>
           </div>
         </section>
 
@@ -176,13 +175,12 @@ export function BillingOnboarding() {
           <div className="flex items-start gap-3"><ShieldCheck size={18} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="font-semibold">{paymentStatus === "waiting" ? "Payment method received — confirming your access…" : submitting ? "Opening secure checkout…" : paymentStatus === "error" ? "Payment confirmation is taking longer than expected." : error}</p>{paymentStatus === "waiting" && <p className="mt-1 text-[var(--muted-foreground)]">We are waiting for Airwallex to confirm the saved payment method. This page will continue automatically.</p>}{paymentStatus === "error" && <p className="mt-1">Please wait a moment and refresh this page.</p>}{error && paymentStatus !== "error" && <p className="mt-1">Select the package again to retry.</p>}{technicalError && <details className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 text-left"><summary className="cursor-pointer text-xs font-semibold">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--muted-foreground)]">{technicalError}</p></details>}</div></div>
         </section>}
 
-        <section aria-label="Available plans" className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <section aria-label="Available plans" className="mx-auto grid max-w-md gap-5">
           {visiblePlans.map((plan) => {
             const { icon: Icon, accent } = planPresentation[plan.id];
             const isSelected = selectedPlan === plan.id;
             return (
               <article key={plan.id} className={`relative flex flex-col rounded-2xl border p-6 transition sm:p-7 ${isSelected ? "border-[var(--foreground)] shadow-[0_20px_60px_rgba(0,0,0,0.10)]" : "border-[var(--border)] bg-[var(--card)]"}`}>
-                {plan.id === "ai" && <span className="absolute right-5 top-5 rounded-full bg-[var(--foreground)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-[var(--background)]">Recommended</span>}
                 <div className={`grid h-10 w-10 place-items-center rounded-xl ${accent}`}><Icon size={19} aria-hidden="true" /></div>
                 <p className="mt-6 text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">{plan.eyebrow}</p>
                 <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{plan.name}</h2>
@@ -199,41 +197,6 @@ export function BillingOnboarding() {
               </article>
             );
           })}
-        </section>
-
-        <section className="mt-8 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
-          <div className="border-b border-[var(--border)] px-5 py-5 sm:px-7">
-            <h2 className="text-lg font-semibold">Compare access levels</h2>
-            <p className="mt-1 text-sm text-[var(--muted-foreground)]">Every plan starts with the same connected business context. The difference is what Lulu can do with it.</p>
-          </div>
-          <div className="grid gap-4 p-5 sm:hidden">
-            {billingCapabilities.map((capability) => (
-              <article key={capability.id} className="rounded-xl border border-[var(--border)] bg-[var(--background)]/45 p-4">
-                <h3 className="text-sm font-semibold text-[var(--foreground)]">{capability.label}</h3>
-                <div className="mt-3 grid gap-2">
-                  {visiblePlans.map((plan) => (
-                    <div key={`${capability.id}-${plan.id}-mobile`} className="flex items-center justify-between gap-3 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2.5 text-sm">
-                      <span className="font-medium">{plan.name}</span>
-                      {capability.availability[plan.id] ? (
-                        <span className="inline-flex items-center gap-1.5 text-[var(--foreground)]">
-                          <Check size={16} aria-hidden="true" />
-                          Included
-                        </span>
-                      ) : (
-                        <span className="text-[var(--muted-foreground)]">Not included</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </article>
-            ))}
-          </div>
-          <div className="hidden overflow-x-auto sm:block">
-            <table className="w-full min-w-[680px] text-left text-sm">
-              <thead><tr className="border-b border-[var(--border)] text-xs uppercase tracking-[.12em] text-[var(--muted-foreground)]"><th className="px-5 py-4 font-semibold sm:px-7">Capability</th>{visiblePlans.map((plan) => <th key={plan.id} className="px-4 py-4 text-center font-semibold">{plan.name}</th>)}</tr></thead>
-              <tbody>{billingCapabilities.map((capability) => <tr key={capability.id} className="border-b border-[var(--border)] last:border-0"><th className="px-5 py-4 font-medium sm:px-7">{capability.label}</th>{visiblePlans.map((plan) => <td key={`${capability.id}-${plan.id}`} className="px-4 py-4 text-center">{capability.availability[plan.id] ? <Check className="mx-auto" size={17} aria-label="Included" /> : <span className="text-[var(--muted-foreground)]" aria-label="Not included">—</span>}</td>)}</tr>)}</tbody>
-            </table>
-          </div>
         </section>
 
       </div>
