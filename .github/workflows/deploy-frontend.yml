@@ -160,6 +160,7 @@ jobs:
             # This is read-only and is available only through an explicit
             # recovery deployment when a migration lock must be diagnosed.
             node --input-type=module <<'NODE'
+            import 'dotenv/config';
             import { getPool } from './dist/db/pool.js';
 
             const pool = getPool();
