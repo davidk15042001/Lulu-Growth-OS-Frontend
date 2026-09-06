@@ -82,10 +82,10 @@ type UserDetail = UserRow & {
 type DeleteUserResult = {
   userId: string;
   previousEmail: string;
-  redactedEmail: string;
   deletedWorkspaceCount: number;
   deletedIntegrationCount: number;
   deletedMembershipCount: number;
+  deletedSharedWorkspaceDataCount: number;
   deletedWorkspaceNames: string[];
 };
 type SessionUser = {
@@ -717,14 +717,14 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
 
   const deleteUser = async () => {
     if (!detail) return;
-    const confirmed = window.confirm(`Delete ${detail.email} and remove their connected workspace data? This will revoke access immediately and delete owned workspaces with their connected integrations.`);
+    const confirmed = window.confirm(`Account ${detail.email} endgültig löschen? Der Zugang wird sofort beendet. Eigene Workspaces einschließlich Integrationen werden gelöscht; persönliche Inhalte in geteilten Workspaces werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.`);
     if (!confirmed) return;
     setSaving("delete"); onError(""); setNotice("");
     try {
       const res = await requestApi<DeleteUserResult>({ path: `/admin/users/${detail.id}`, method: "DELETE" });
       setDetail(null);
       setRows((current) => current.filter((row) => row.id !== detail.id));
-      setNotice(`Deleted ${res.data.previousEmail}. Removed ${res.data.deletedWorkspaceCount} workspace(s), ${res.data.deletedIntegrationCount} integration connection(s), and ${res.data.deletedMembershipCount} membership link(s).`);
+      setNotice(`${res.data.previousEmail} wurde endgültig gelöscht. Entfernt: ${res.data.deletedWorkspaceCount} Workspace(s), ${res.data.deletedIntegrationCount} Integration(en), ${res.data.deletedMembershipCount} Mitgliedschaft(en) und ${res.data.deletedSharedWorkspaceDataCount} persönliche Einträge in geteilten Workspaces.`);
       await load(search);
     } catch (e) {
       onError(getFriendlyErrorMessage(e, "Der User konnte nicht gelöscht werden."));
@@ -796,7 +796,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
               <button disabled={!!saving} onClick={() => runAction("reset-sessions")} className="inline-flex items-center gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"><RotateCcw size={14} /> Reset Sessions</button>
               <button disabled={!!saving} onClick={() => runAction("unlock")} className="inline-flex items-center gap-1.5 rounded-md border border-sky-200 bg-sky-50 px-3 py-1.5 text-xs font-medium text-sky-800 hover:bg-sky-100 disabled:opacity-50"><Unlock size={14} /> Unlock</button>
               <button disabled={!!saving} onClick={() => runAction("lock")} className="inline-flex items-center gap-1.5 rounded-md border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-800 hover:bg-rose-100 disabled:opacity-50"><Lock size={14} /> Lock</button>
-              <button disabled={!!saving || impersonating} onClick={() => void deleteUser()} className="inline-flex items-center gap-1.5 rounded-md border border-rose-300 bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-700 disabled:opacity-50"><Trash2 size={14} /> Delete User</button>
+              <button disabled={!!saving || impersonating} onClick={() => void deleteUser()} className="inline-flex items-center gap-1.5 rounded-md border border-rose-300 bg-rose-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-rose-700 disabled:opacity-50"><Trash2 size={14} /> Benutzer endgültig löschen</button>
               {saving ? <span className="text-xs text-slate-500">Speichere {saving}…</span> : null}
             </div>
           </div>
