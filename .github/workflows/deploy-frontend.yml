@@ -100,9 +100,27 @@ jobs:
             --exclude '.deploy-stale-node_modules-*' \
             backend-source/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
-          ssh "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
+          # Keep the SSH transport alive while an otherwise long-running
+          # production migration is executing.
+          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=20 \
+            "$DEPLOY_USER@$DEPLOY_HOST" 'bash -se' <<'REMOTE'
           set -euo pipefail
           cd /var/www/lulu-growth-os/backend
+
+          # A previously interrupted Actions SSH session can leave only its
+          # one-off migration runner alive, holding the global migration lock
+          # while the web service itself remains healthy. It is safe to end
+          # that exact stale runner before starting the new migration; this
+          # never targets the running API service (dist/server.js).
+          stale_migration_pids="$(pgrep -f '[n]ode dist/database/run.js' || true)"
+          if [ -n "$stale_migration_pids" ]; then
+            echo "Stopping stale one-off migration runner before deployment"
+            kill $stale_migration_pids || true
+            for attempt in $(seq 1 10); do
+              pgrep -f '[n]ode dist/database/run.js' >/dev/null || break
+              sleep 1
+            done
+          fi
 
           if ! npm ci --omit=dev --ignore-scripts; then
             test -d node_modules || { echo "npm ci failed before node_modules was created" >&2; exit 1; }
