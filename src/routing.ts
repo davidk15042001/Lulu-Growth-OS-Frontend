@@ -5,8 +5,6 @@ export const routes = {
     login: "/login",
     signUp: "/auth/sign-up",
     forgotPassword: "/auth/forgot-password",
-    verificationEmail: "/auth/verification-email",
-    verifyEmail: "/auth/verify-email",
     resetPassword: "/auth/reset-password",
     sessionExpired: "/auth/session-expired",
     signedOut: "/auth/signed-out",
@@ -33,8 +31,6 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "brightly-door-5741": routes.auth.login,
   "finely-year-1146": routes.auth.signUp,
   "crisp-garden-7026": routes.auth.forgotPassword,
-  "crisp-week-7116": routes.auth.verificationEmail,
-  "eagerly-bay-9885": routes.auth.verifyEmail,
   "deep-coast-9085": routes.auth.resetPassword,
   "kind-morning-4984": routes.auth.sessionExpired,
   "mightily-minute-5145": routes.auth.signedOut,
@@ -121,6 +117,8 @@ const REMOVED_PAGE_SLUGS = new Set([
   "sunnily-gulf-7520",
   "smartly-shade-4619",
   "bright-meadow-7537",
+  "eagerly-bay-9885",
+  "crisp-week-7116",
 ]);
 
 const TOP_LEVEL_PAGE_SLUGS = new Set([

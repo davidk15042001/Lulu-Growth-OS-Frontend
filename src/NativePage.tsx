@@ -23,8 +23,6 @@ const authPageSlugs = new Set([
   "brightly-door-5741",
   "finely-year-1146",
   "crisp-garden-7026",
-  "crisp-week-7116",
-  "eagerly-bay-9885",
   "deep-coast-9085",
   "kind-morning-4984",
   "mightily-minute-5145",

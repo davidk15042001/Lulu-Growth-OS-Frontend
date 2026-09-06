@@ -201,8 +201,6 @@ function pageSlugForPath(pathname: string) {
     [routes.auth.login]: "brightly-door-5741",
     [routes.auth.signUp]: "finely-year-1146",
     [routes.auth.forgotPassword]: "crisp-garden-7026",
-    [routes.auth.verificationEmail]: "crisp-week-7116",
-    [routes.auth.verifyEmail]: "eagerly-bay-9885",
     [routes.auth.resetPassword]: "deep-coast-9085",
     [routes.auth.sessionExpired]: "kind-morning-4984",
     [routes.auth.signedOut]: "mightily-minute-5145",

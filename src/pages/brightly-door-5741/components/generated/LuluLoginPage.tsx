@@ -15,7 +15,6 @@ import {
   getAdminLandingPath,
   getPendingInvitation,
   isAdminUser,
-  setPendingEmail,
   setStoredUser,
   setSelectedWorkspaceId,
 } from '../../../../api/session';
@@ -116,10 +115,8 @@ export const LuluLoginPage = () => {
       if (cause instanceof DOMException && cause.name === 'AbortError') {
         setError(t('The login request timed out. Please try again.'));
         setErrorDetails(t('Code: API_TIMEOUT · The server did not respond within 15 seconds.'));
-      } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
-        setPendingEmail(e);
-        navigateApp(routes.auth.verifyEmail);
-      } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') setError(t('accountNotFound'));
+      } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') setError(t('This account uses an outdated verification state. Please try signing in again after the latest deployment. Email OTP is no longer required for registration.'));
+      else if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') setError(t('accountNotFound'));
       else if (cause instanceof ApiError && cause.code === 'INVALID_CREDENTIALS') setError(t('invalidCredentials'));
       else if (cause instanceof ApiError && cause.code === 'API_TIMEOUT') setError(t('timeout'));
       else setError(getFriendlyErrorMessage(cause, t('We could not sign you in. Please try again.')));

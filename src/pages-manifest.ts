@@ -1097,22 +1097,6 @@ export const pages: PageDefinition[] = [
     "previewImageUrl": "https://storage.googleapis.com/storage.magicpath.ai/component-previews/b977c0bf-680e-4f47-9876-39c175a48502.png"
   },
   {
-    "id": "437844461901455374",
-    "name": "Lulu AI Email Verification Page",
-    "slug": "eagerly-bay-9885",
-    "generatedName": "eagerly-bay-9885",
-    "selectedRevisionId": "438651585489412096",
-    "previewImageUrl": "https://storage.googleapis.com/storage.magicpath.ai/component-previews/25c7cfec-1fe3-4e42-9a28-d4f03794588d.png"
-  },
-  {
-    "id": "437844461897261102",
-    "name": "Lulu AI Verification Email",
-    "slug": "crisp-week-7116",
-    "generatedName": "crisp-week-7116",
-    "selectedRevisionId": "438652346042564608",
-    "previewImageUrl": "https://storage.googleapis.com/storage.magicpath.ai/component-previews/73152a09-4cf2-4b71-a4a5-785a68b43aad.png"
-  },
-  {
     "id": "lulu-website-management",
     "name": "Lulu AI — Website",
     "slug": "lulu-website-portal-9012",

@@ -256,8 +256,6 @@ export default function App() {
           const isAuthPage = resolvedPath === routes.auth.login
             || resolvedPath === routes.auth.signUp
             || resolvedPath === routes.auth.forgotPassword
-            || resolvedPath === routes.auth.verificationEmail
-            || resolvedPath === routes.auth.verifyEmail
             || resolvedPath === routes.auth.resetPassword
             || resolvedPath === routes.auth.sessionExpired
             || resolvedPath === routes.auth.signedOut;
