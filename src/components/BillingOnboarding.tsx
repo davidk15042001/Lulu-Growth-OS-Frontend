@@ -30,7 +30,10 @@ export function BillingOnboarding() {
   const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
   const postActionTarget = admin ? getAdminLandingPath(routes.app.dashboard) : routes.app.dashboard;
-  const visiblePlans = billingPlans;
+  // Only the AI package is currently offered for customer billing. Keep this
+  // explicit guard so legacy Explorer/Starter entries can never reappear in
+  // the checkout UI if they are reintroduced into the shared catalog.
+  const visiblePlans = billingPlans.filter((plan) => plan.id === "ai");
 
   useEffect(() => {
     if (!paymentSucceeded || !selectedWorkspace) return;
