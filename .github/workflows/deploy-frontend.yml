@@ -4,27 +4,6 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      skip_migrations:
-        description: "Only for a verified no-schema-change recovery deployment"
-        required: false
-        default: false
-        type: boolean
-      diagnose_migration_locks:
-        description: "Read active PostgreSQL advisory locks during a recovery deployment"
-        required: false
-        default: false
-        type: boolean
-      recover_stale_migration_lock:
-        description: "Terminate only a verified stale Lulu migration-lock holder"
-        required: false
-        default: false
-        type: boolean
-      reset_production_database:
-        description: "Irreversibly clear production business data while preserving the migration schema"
-        required: false
-        default: false
-        type: boolean
 
 permissions:
   contents: read
@@ -112,10 +91,6 @@ jobs:
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          SKIP_MIGRATIONS: ${{ inputs.skip_migrations || 'false' }}
-          DIAGNOSE_MIGRATION_LOCKS: ${{ inputs.diagnose_migration_locks || 'false' }}
-          RECOVER_STALE_MIGRATION_LOCK: ${{ inputs.recover_stale_migration_lock || 'false' }}
-          RESET_PRODUCTION_DATABASE: ${{ inputs.reset_production_database || 'false' }}
         run: |
           set -euo pipefail
           rsync -rz --links --delete \
@@ -127,39 +102,10 @@ jobs:
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
           # Keep the SSH transport alive while an otherwise long-running
           # production migration is executing.
-          remote_skip_migrations="$(printf '%q' "$SKIP_MIGRATIONS")"
-          remote_diagnose_migration_locks="$(printf '%q' "$DIAGNOSE_MIGRATION_LOCKS")"
-          remote_recover_stale_migration_lock="$(printf '%q' "$RECOVER_STALE_MIGRATION_LOCK")"
-          remote_reset_production_database="$(printf '%q' "$RESET_PRODUCTION_DATABASE")"
           ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=20 \
-            "$DEPLOY_USER@$DEPLOY_HOST" "SKIP_MIGRATIONS=$remote_skip_migrations DIAGNOSE_MIGRATION_LOCKS=$remote_diagnose_migration_locks RECOVER_STALE_MIGRATION_LOCK=$remote_recover_stale_migration_lock RESET_PRODUCTION_DATABASE=$remote_reset_production_database bash -se" <<'REMOTE'
+            "$DEPLOY_USER@$DEPLOY_HOST" "bash -se" <<'REMOTE'
           set -euo pipefail
           cd /var/www/lulu-growth-os/backend
-
-          # A previously interrupted Actions SSH session can leave only its
-          # one-off migration runner alive, holding the global migration lock
-          # while the web service itself remains healthy. It is safe to end
-          # that exact stale runner before starting the new migration; this
-          # never targets the running API service (dist/server.js).
-          stale_migration_pids="$(pgrep -f 'dist/database/run\.js' || true)"
-          if [ -n "$stale_migration_pids" ]; then
-            echo "Stopping stale one-off migration runner before deployment"
-            kill $stale_migration_pids || true
-            for attempt in $(seq 1 10); do
-              pgrep -f 'dist/database/run\.js' >/dev/null || break
-              sleep 1
-            done
-            remaining_migration_pids="$(pgrep -f 'dist/database/run\.js' || true)"
-            if [ -n "$remaining_migration_pids" ]; then
-              echo "Force-stopping unresponsive stale migration runner"
-              kill -KILL $remaining_migration_pids || true
-              sleep 1
-            fi
-            if pgrep -f 'dist/database/run\.js' >/dev/null; then
-              echo "A stale migration runner could not be stopped; refusing to restart the API behind its lock" >&2
-              exit 1
-            fi
-          fi
 
           if ! npm ci --omit=dev --ignore-scripts; then
             test -d node_modules || { echo "npm ci failed before node_modules was created" >&2; exit 1; }
@@ -169,187 +115,7 @@ jobs:
             npm ci --omit=dev --ignore-scripts
           fi
 
-          if [ "$RESET_PRODUCTION_DATABASE" = "true" ]; then
-            # This one-time, explicitly dispatched operation removes business
-            # rows only. The schema_migrations table is preserved so the
-            # deployed schema remains valid and no migrations rerun blindly.
-            node --input-type=module <<'NODE'
-            import 'dotenv/config';
-            import pg from 'pg';
-
-            const connectionString = process.env.DATABASE_URL;
-            if (!connectionString) throw new Error('DATABASE_URL is not configured on the production server');
-            const client = new pg.Client({
-              connectionString,
-              ssl: process.env.DATABASE_SSL === 'true' ? { rejectUnauthorized: false } : undefined,
-            });
-            const quoteIdentifier = (value) => `"${String(value).replaceAll('"', '""')}"`;
-            await client.connect();
-            try {
-              const identity = await client.query(
-                'SELECT current_database() AS database_name, current_user AS database_user',
-              );
-              const { rows: tables } = await client.query(`
-                SELECT table_schema, table_name
-                FROM information_schema.tables
-                WHERE table_type = 'BASE TABLE'
-                  AND table_schema = 'public'
-                  AND table_name <> 'schema_migrations'
-                ORDER BY table_name
-              `);
-              console.log(JSON.stringify({
-                target: identity.rows[0],
-                businessTableCount: tables.length,
-                preservedTables: ['schema_migrations'],
-              }));
-              const { rows: blockers } = await client.query(`
-                SELECT DISTINCT
-                  activity.pid,
-                  activity.backend_start,
-                  activity.xact_start,
-                  activity.state,
-                  activity.wait_event_type,
-                  activity.wait_event
-                FROM pg_locks AS locks
-                JOIN pg_stat_activity AS activity ON activity.pid = locks.pid
-                JOIN pg_class AS relation ON relation.oid = locks.relation
-                JOIN pg_namespace AS namespace ON namespace.oid = relation.relnamespace
-                WHERE locks.locktype = 'relation'
-                  AND locks.granted
-                  AND namespace.nspname = 'public'
-                  AND relation.relname <> 'schema_migrations'
-                  AND activity.pid <> pg_backend_pid()
-                  AND activity.xact_start IS NOT NULL
-                  AND activity.xact_start < NOW() - INTERVAL '10 minutes'
-                  AND activity.state IN ('active', 'idle in transaction')
-              `);
-              if (blockers.length > 0) {
-                console.log(JSON.stringify({ terminatingStaleRelationLockHolders: blockers }));
-                for (const blocker of blockers) {
-                  const { rows: termination } = await client.query(
-                    'SELECT pg_terminate_backend($1) AS terminated',
-                    [blocker.pid],
-                  );
-                  if (termination[0]?.terminated !== true) {
-                    throw new Error(`Could not terminate verified stale relation-lock holder ${blocker.pid}`);
-                  }
-                }
-              }
-              await client.query('BEGIN');
-              try {
-                await client.query("SET LOCAL lock_timeout = '30s'");
-                await client.query("SET LOCAL statement_timeout = '5min'");
-                if (tables.length > 0) {
-                  const tableList = tables
-                    .map((table) => `${quoteIdentifier(table.table_schema)}.${quoteIdentifier(table.table_name)}`)
-                    .join(', ');
-                  await client.query(`TRUNCATE TABLE ${tableList} RESTART IDENTITY CASCADE`);
-                }
-                await client.query('COMMIT');
-              } catch (error) {
-                await client.query('ROLLBACK');
-                throw error;
-              }
-              console.log(JSON.stringify({
-                clearedBusinessTables: tables.length,
-                terminatedStaleRelationLockHolders: blockers.map((blocker) => blocker.pid),
-                reset: true,
-              }));
-            } finally {
-              await client.end();
-            }
-          NODE
-          fi
-
-          if [ "$DIAGNOSE_MIGRATION_LOCKS" = "true" ]; then
-            # Emit only lock metadata, never SQL text or environment values.
-            # This is read-only and is available only through an explicit
-            # recovery deployment when a migration lock must be diagnosed.
-            node --input-type=module <<'NODE'
-            import 'dotenv/config';
-            import { getPool } from './dist/db/pool.js';
-
-            const pool = getPool();
-            try {
-              const { rows: migrationKeyRows } = await pool.query(
-                `SELECT hashtext('lulu_growth_os_schema_migrations')::text AS migration_lock_key`,
-              );
-              const { rows } = await pool.query(`
-                SELECT
-                  activity.pid,
-                  activity.application_name,
-                  activity.backend_type,
-                  activity.state,
-                  activity.wait_event_type,
-                  activity.wait_event,
-                  activity.backend_start,
-                  activity.xact_start,
-                  activity.query_start,
-                  locks.classid::text AS class_id,
-                  locks.objid::text AS object_id,
-                  locks.objsubid AS object_sub_id
-                FROM pg_locks AS locks
-                JOIN pg_stat_activity AS activity ON activity.pid = locks.pid
-                WHERE locks.locktype = 'advisory' AND locks.granted
-                ORDER BY activity.backend_start ASC
-              `);
-              console.log(JSON.stringify({
-                migrationLockKey: migrationKeyRows[0]?.migration_lock_key ?? null,
-                advisoryLocks: rows,
-              }));
-            } finally {
-              await pool.end();
-            }
-          NODE
-          fi
-
-          if [ "$RECOVER_STALE_MIGRATION_LOCK" = "true" ]; then
-            # This deliberate recovery path can terminate only the Lulu
-            # migration advisory-lock holder after it has waited at least ten
-            # minutes. It refuses to operate if the target is ambiguous.
-            node --input-type=module <<'NODE'
-            import 'dotenv/config';
-            import { getPool } from './dist/db/pool.js';
-
-            const pool = getPool();
-            try {
-              const { rows: holders } = await pool.query(`
-                SELECT activity.pid
-                FROM pg_locks AS locks
-                JOIN pg_stat_activity AS activity ON activity.pid = locks.pid
-                WHERE locks.locktype = 'advisory'
-                  AND locks.granted
-                  AND locks.classid = 0
-                  AND locks.objid = hashtext('lulu_growth_os_schema_migrations')
-                  AND locks.objsubid = 1
-                  AND activity.pid <> pg_backend_pid()
-                  AND activity.backend_start < NOW() - INTERVAL '10 minutes'
-                  AND activity.state = 'active'
-                  AND activity.wait_event_type = 'Lock'
-              `);
-              if (holders.length !== 1) {
-                throw new Error(`Expected exactly one verified stale migration lock holder; found ${holders.length}`);
-              }
-              const pid = holders[0].pid;
-              const { rows: result } = await pool.query(
-                'SELECT pg_terminate_backend($1) AS terminated',
-                [pid],
-              );
-              if (result[0]?.terminated !== true) {
-                throw new Error(`Could not terminate verified stale migration lock holder ${pid}`);
-              }
-              console.log(JSON.stringify({ terminatedStaleMigrationLockHolder: pid }));
-            } finally {
-              await pool.end();
-            }
-          NODE
-          fi
-
-          if [ "$SKIP_MIGRATIONS" = "true" ]; then
-            echo "Skipping migrations for this explicitly verified no-schema-change recovery deployment"
-          else
-            node dist/database/run.js
-          fi
+          node dist/database/run.js
           if [ "$(id -u)" -eq 0 ]; then
             systemctl restart lulu-growth-backend
           else
@@ -365,24 +131,5 @@ jobs:
           done
 
           echo "Backend readiness check failed on port 3000" >&2
-          # The API has not started, so collect only service state and recent
-          # unit errors. This avoids exposing deployment secrets while making
-          # a failed recovery deploy actionable in the Actions log.
-          systemctl show lulu-growth-backend --no-pager \
-            -p ActiveState -p SubState -p Result -p MainPID \
-            -p ExecMainCode -p ExecMainStatus -p ActiveEnterTimestamp \
-            -p StateChangeTimestamp || true
-          pgrep -a -f 'dist/(server|database/run)\.js' || true
-          if [ "$(id -u)" -eq 0 ]; then
-            systemctl status lulu-growth-backend --no-pager --full || true
-            journalctl -u lulu-growth-backend --no-pager -n 120 \
-              | grep -Ei 'error|fatal|exception|failed|migration|listen|database|exit|ready' \
-              || true
-          else
-            sudo -n systemctl status lulu-growth-backend --no-pager --full || true
-            sudo -n journalctl -u lulu-growth-backend --no-pager -n 120 \
-              | grep -Ei 'error|fatal|exception|failed|migration|listen|database|exit|ready' \
-              || true
-          fi
           exit 1
           REMOTE
