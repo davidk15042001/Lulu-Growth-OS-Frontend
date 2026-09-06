@@ -168,5 +168,12 @@ jobs:
           done
 
           echo "Backend readiness check failed on port 3000" >&2
+          # The API has not started, so collect only service state and recent
+          # unit errors. This avoids exposing deployment secrets while making
+          # a failed recovery deploy actionable in the Actions log.
+          systemctl status lulu-growth-backend --no-pager --full || true
+          journalctl -u lulu-growth-backend --no-pager -n 120 \
+            | grep -Ei 'error|fatal|exception|failed|migration|listen|database|exit|ready' \
+            || true
           exit 1
           REMOTE
