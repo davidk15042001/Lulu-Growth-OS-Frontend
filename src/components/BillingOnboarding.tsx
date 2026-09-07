@@ -162,7 +162,7 @@ export function BillingOnboarding() {
           </div>
           <p className="mt-6 text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Lulu AI package</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Activate Lulu AI for your workspace.</h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">The Lulu AI package is billed annually at RMB 30,000.</p>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">The Lulu AI package is billed annually at RMB 16,000, plus a 5% commission on each Lulu-attributed sale.</p>
           <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-[var(--foreground)]">Activate the package to open the secure payment process immediately.</p>
         </section>
 

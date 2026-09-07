@@ -10,7 +10,7 @@ type PlanId = "ai";
 type Plan = { id: PlanId; name: string; eyebrow: string; description: string; icon: typeof WandSparkles; accent: string; features: string[]; limitations: string; price: string; pricePeriod: string; cta: string };
 
 const plans: Plan[] = [
-  { id: "ai", name: "AI", eyebrow: "Let Lulu run growth", description: "Give Lulu the authority to recommend, execute and automate the work across your workspace.", icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20", features: ["AI insights and recommendations", "AI-assisted content and decisions", "Full automation of supported workflows", "API and AWS usage collected automatically every Monday"], limitations: "You stay in control with configurable approvals and safeguards", price: "RMB 30,000", pricePeriod: "per year", cta: "Activate AI" },
+  { id: "ai", name: "AI", eyebrow: "Let Lulu run growth", description: "Give Lulu the authority to recommend, execute and automate the work across your workspace.", icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20", features: ["AI insights and recommendations", "AI-assisted content and decisions", "Full automation of supported workflows", "API and AWS usage collected automatically every Monday", "5% commission on each Lulu-attributed sale"], limitations: "You stay in control with configurable approvals and safeguards", price: "RMB 16,000", pricePeriod: "per year", cta: "Activate AI" },
 ];
 
 const formatMoney = (value: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
