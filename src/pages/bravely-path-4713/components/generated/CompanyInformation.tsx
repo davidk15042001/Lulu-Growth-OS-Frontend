@@ -7,8 +7,9 @@ import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 type CompanyForm = {
   companyName: string;
   industry: string;
-  companySize: string;
   countryRegion: string;
+  taxId: string;
+  address: string;
 };
 export const CompanyInformation = () => {
   const [saved, setSaved] = useState(false);
@@ -17,8 +18,9 @@ export const CompanyInformation = () => {
   const [form, setForm] = useState<CompanyForm>({
     companyName: "",
     industry: "",
-    companySize: "",
-    countryRegion: ""
+    countryRegion: "",
+    taxId: "",
+    address: ""
   });
   useEffect(() => {
     const workspaceId = getSelectedWorkspaceId();
@@ -27,8 +29,9 @@ export const CompanyInformation = () => {
       .then(response => setForm({
         companyName: response.data.workspace.companyName,
         industry: response.data.workspace.industry ?? '',
-        companySize: response.data.workspace.companySize ?? '',
         countryRegion: response.data.workspace.countryRegion ?? '',
+        taxId: response.data.workspace.taxId ?? '',
+        address: response.data.workspace.address ?? '',
       }))
       .catch(() => undefined);
   }, []);
@@ -54,8 +57,9 @@ export const CompanyInformation = () => {
       await requestApi({ path: `/workspaces/${workspaceId}/onboarding/company-information`, method: 'PATCH', body: {
         companyName: form.companyName,
         industry: form.industry || null,
-        companySize: form.companySize || null,
         countryRegion: form.countryRegion || null,
+        taxId: form.taxId || null,
+        address: form.address || null,
       } });
       setSaved(true);
       navigateApp(routes.onboarding.businessDescription);
@@ -97,15 +101,19 @@ export const CompanyInformation = () => {
             </label>
 
             <label className="block text-sm font-medium text-[var(--muted-foreground)]">
-              <span>Company size</span>
-              <input value={form.companySize} onChange={event => update("companySize", event.target.value)} type="text" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--border)]" />
+              <span>Country/region</span>
+              <input value={form.countryRegion} onChange={event => update("countryRegion", event.target.value)} type="text" autoComplete="country-name" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--border)]" />
               
             </label>
 
             <label className="block text-sm font-medium text-[var(--muted-foreground)]">
-              <span>Country/region</span>
-              <input value={form.countryRegion} onChange={event => update("countryRegion", event.target.value)} type="text" autoComplete="country-name" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--border)]" />
-              
+              <span>Tax ID</span>
+              <input value={form.taxId} onChange={event => update("taxId", event.target.value)} type="text" autoComplete="off" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--border)]" />
+            </label>
+
+            <label className="block text-sm font-medium text-[var(--muted-foreground)]">
+              <span>Business address</span>
+              <textarea value={form.address} onChange={event => update("address", event.target.value)} autoComplete="street-address" rows={3} className="mt-1 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-2.5 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--border)]" />
             </label>
 
             <button type="submit" disabled={loading || !form.companyName.trim()} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[var(--border)] focus:ring-offset-2 focus:ring-offset-[var(--border)]">

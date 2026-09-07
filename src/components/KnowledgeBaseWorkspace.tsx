@@ -213,8 +213,9 @@ export function KnowledgeBaseWorkspace() {
   const [companyForm, setCompanyForm] = useState({
     companyName: "",
     industry: "",
-    companySize: "",
     countryRegion: "",
+    taxId: "",
+    address: "",
   });
   const [businessForm, setBusinessForm] = useState({
     businessDescription: "",
@@ -247,8 +248,9 @@ export function KnowledgeBaseWorkspace() {
       setCompanyForm({
         companyName: response.data.workspace.companyName ?? "",
         industry: response.data.workspace.industry ?? "",
-        companySize: response.data.workspace.companySize ?? "",
         countryRegion: response.data.workspace.countryRegion ?? "",
+        taxId: response.data.workspace.taxId ?? "",
+        address: response.data.workspace.address ?? "",
       });
       setBusinessForm({
         businessDescription: response.data.workspace.businessDescription ?? "",
@@ -607,8 +609,9 @@ export function KnowledgeBaseWorkspace() {
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="text-sm text-muted-foreground">Company Name<input disabled={!canEdit} className={inputClass} value={companyForm.companyName} onChange={(event) => setCompanyForm((current) => ({ ...current, companyName: event.target.value }))} /></label>
             <label className="text-sm text-muted-foreground">Industry<input disabled={!canEdit} className={inputClass} value={companyForm.industry} onChange={(event) => setCompanyForm((current) => ({ ...current, industry: event.target.value }))} /></label>
-            <label className="text-sm text-muted-foreground">Company Size<input disabled={!canEdit} className={inputClass} value={companyForm.companySize} onChange={(event) => setCompanyForm((current) => ({ ...current, companySize: event.target.value }))} /></label>
             <label className="text-sm text-muted-foreground">Country / Region<input disabled={!canEdit} className={inputClass} value={companyForm.countryRegion} onChange={(event) => setCompanyForm((current) => ({ ...current, countryRegion: event.target.value }))} /></label>
+            <label className="text-sm text-muted-foreground">Tax ID<input disabled={!canEdit} className={inputClass} value={companyForm.taxId} onChange={(event) => setCompanyForm((current) => ({ ...current, taxId: event.target.value }))} /></label>
+            <label className="text-sm text-muted-foreground">Business address<textarea disabled={!canEdit} className={textareaClass} rows={3} value={companyForm.address} onChange={(event) => setCompanyForm((current) => ({ ...current, address: event.target.value }))} /></label>
           </div>
           <div className="mt-4 flex justify-end">
             <button
@@ -618,8 +621,9 @@ export function KnowledgeBaseWorkspace() {
                 await onboardingApi.saveCompanyInformation(workspaceId, {
                   companyName: companyForm.companyName.trim(),
                   industry: nullable(companyForm.industry),
-                  companySize: nullable(companyForm.companySize),
                   countryRegion: nullable(companyForm.countryRegion),
+                  taxId: nullable(companyForm.taxId),
+                  address: nullable(companyForm.address),
                 });
               })}
               className={primaryActionClass}

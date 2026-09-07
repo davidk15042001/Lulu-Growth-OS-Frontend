@@ -8,6 +8,8 @@ export type CreateWorkspaceInput = {
   industry?: string | null;
   companySize?: string | null;
   countryRegion?: string | null;
+  taxId?: string | null;
+  address?: string | null;
 };
 
 export type UpdateWorkspaceInput = Partial<CreateWorkspaceInput> & {

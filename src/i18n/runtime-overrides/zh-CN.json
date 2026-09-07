@@ -3664,5 +3664,7 @@
   "wechatpay": "微信支付",
   "Show WeChat Pay QR": "显示微信支付二维码",
   "alipaycn": "支付宝",
-  "Show Alipay QR": "显示支付宝二维码"
+  "Show Alipay QR": "显示支付宝二维码",
+  "Tax ID": "税号",
+  "Business address": "企业地址"
 }

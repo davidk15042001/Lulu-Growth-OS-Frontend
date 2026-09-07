@@ -174,7 +174,7 @@ export type OnboardingSnapshot = {
 export const onboardingApi = {
   snapshot: (workspaceId: string) => requestApi<OnboardingSnapshot>({ path: workspaceApiPath(workspaceId, "/onboarding") }),
   saveCompanyInformation: (workspaceId: string, input: {
-    companyName: string; industry: string | null; companySize: string | null; countryRegion: string | null;
+    companyName: string; industry: string | null; countryRegion: string | null; taxId: string | null; address: string | null;
   }) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/company-information"), method: "PATCH", body: input }),
   saveBusinessDescription: (workspaceId: string, input: {
     businessDescription: string | null; valueProposition: string | null; targetMarket: string | null; shortBrandDescription: string | null; positioningTags: string[];

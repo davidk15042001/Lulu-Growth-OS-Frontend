@@ -14,6 +14,8 @@ export type Workspace = {
   industry: string | null;
   companySize: string | null;
   countryRegion: string | null;
+  taxId: string | null;
+  address: string | null;
   businessDescription: string | null;
   valueProposition: string | null;
   targetMarket: string | null;

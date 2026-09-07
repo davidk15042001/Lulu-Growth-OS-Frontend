@@ -2604,5 +2604,7 @@
   "Card": "Karte",
   "Pay API usage": "API-Nutzung bezahlen",
   "Payment details are handled securely by Airwallex. Available methods depend on your merchant setup, currency and region.": "Zahlungsdaten werden sicher von Airwallex verarbeitet. Verfügbare Methoden hängen von Merchant-Setup, Währung und Region ab.",
-  "Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.": "Erstelle ein hochwertiges Wertversprechen, eine nachhaltige Vision und fünf priorisierte Zielmärkte sowie die 20 besten, von KI bewerteten Kundensegmente. Der Entwurf nutzt die aktuellen Onboarding-Daten und vergleicht sie mit den zehn wichtigsten Wettbewerbern dieses Arbeitsbereichs."
+  "Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.": "Erstelle ein hochwertiges Wertversprechen, eine nachhaltige Vision und fünf priorisierte Zielmärkte sowie die 20 besten, von KI bewerteten Kundensegmente. Der Entwurf nutzt die aktuellen Onboarding-Daten und vergleicht sie mit den zehn wichtigsten Wettbewerbern dieses Arbeitsbereichs.",
+  "Tax ID": "Steuer-ID",
+  "Business address": "Geschäftsadresse"
 }

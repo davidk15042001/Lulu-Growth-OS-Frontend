@@ -3697,5 +3697,7 @@
   "wechatpay": "WeChat Pay",
   "Show WeChat Pay QR": "WeChat-Pay-QR anzeigen",
   "alipaycn": "Alipay",
-  "Show Alipay QR": "Alipay-QR anzeigen"
+  "Show Alipay QR": "Alipay-QR anzeigen",
+  "Tax ID": "Steuer-ID",
+  "Business address": "Geschäftsadresse"
 }
