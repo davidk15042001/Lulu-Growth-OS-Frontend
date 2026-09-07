@@ -23,6 +23,7 @@ export const routes = {
     website: "/app/website",
     email: "/app/email",
     calendar: "/app/calendar",
+    products: "/app/products",
   },
   allPages: "/all-pages",
 } as const;
@@ -40,6 +41,7 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "lulu-website-portal-9012": routes.app.website,
   "lulu-email-portal-9013": routes.app.email,
   "lulu-calendar-portal-9014": routes.app.calendar,
+  "nicely-ocean-1051": routes.app.products,
 };
 
 export const LEGACY_SETUP_COMPLETE_PATH = "/onboarding/setup-complete";

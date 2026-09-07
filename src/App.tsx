@@ -24,6 +24,7 @@ import { Directory } from "./app/Directory";
 import { PageRoute } from "./app/PageRoute";
 import { availablePages } from "./app/page-registry";
 import { PageErrorBoundary } from "./PageErrorBoundary";
+import ProductsPage from "./pages/canonical-products/ProductsPage";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
@@ -250,8 +251,10 @@ export default function App() {
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.email} element={<AdminOnlyAppRoute><PageRoute page={EMAIL_PAGE} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><PageRoute page={CALENDAR_PAGE} /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.products} element={<AdminOnlyAppRoute><ProductsPage /></AdminOnlyAppRoute>} />
         {pages.map((page) => {
           if (!isPageAvailable(page.slug)) return null;
+          if (page.slug === "nicely-ocean-1051") return null;
           const resolvedPath = pagePath(page.slug);
           const isAuthPage = resolvedPath === routes.auth.login
             || resolvedPath === routes.auth.signUp
