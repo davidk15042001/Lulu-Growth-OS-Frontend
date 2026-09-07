@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
-import { getSelectedWorkspaceId, setSelectedWorkspaceId } from '../../../../api/session';
+import { clearSelectedWorkspaceId, getSelectedWorkspaceId, setSelectedWorkspaceId } from '../../../../api/session';
 import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 type CompanyForm = {
   companyName: string;
@@ -49,6 +49,14 @@ export const CompanyInformation = () => {
     setError('');
     try {
       let workspaceId = getSelectedWorkspaceId();
+      if (workspaceId) {
+        const workspaces = await requestApi<{ items: Array<{ id: string }> }>({ path: '/workspaces' });
+        if (!workspaces.data.items.some(item => item.id === workspaceId)) {
+          workspaceId = workspaces.data.items[0]?.id ?? null;
+          if (workspaceId) setSelectedWorkspaceId(workspaceId);
+          else clearSelectedWorkspaceId();
+        }
+      }
       if (!workspaceId) {
         const created = await requestApi<{ id: string }>({ path: '/workspaces', method: 'POST', body: form });
         workspaceId = created.data.id;

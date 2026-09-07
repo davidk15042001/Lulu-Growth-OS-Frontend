@@ -15,6 +15,7 @@ import {
   getAdminLandingPath,
   getPendingInvitation,
   isAdminUser,
+  clearSelectedWorkspaceId,
   setStoredUser,
   setSelectedWorkspaceId,
 } from '../../../../api/session';
@@ -108,6 +109,7 @@ export const LuluLoginPage = () => {
         setSelectedWorkspaceId(workspace.id);
         navigateApp(routes.app.dashboard);
       } else {
+        clearSelectedWorkspaceId();
         navigateApp(routes.onboarding.companyInformation);
       }
     } catch (cause) {
