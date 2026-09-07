@@ -512,6 +512,9 @@ export const luluDropdownNavigation = [{
 }, {
   "label": "Settings",
   "pages": [{
+    "id": "nicely-land-1864",
+    "label": "Workspace settings"
+  }, {
     "id": "fresh-tide-9404",
     "label": "Integration"
   }, {

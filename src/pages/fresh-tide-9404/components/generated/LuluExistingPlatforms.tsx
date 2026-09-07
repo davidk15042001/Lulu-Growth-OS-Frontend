@@ -35,7 +35,8 @@ const platformGroups: PlatformGroup[] = [
     Shopify: { intro: "Connect a Shopify store using its myshopify.com domain. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/shopify/callback", steps: ["Open the Shopify Dev Dashboard and create or select the app.", "Configure the Admin API scopes `read_products` and `read_content` and add the callback URL shown above.", "Copy your store domain in the exact format `example.myshopify.com`.", "Click Connect here, enter the store domain, and approve the app installation."], links: [{ label: "Open Shopify Dev Dashboard", url: "https://dev.shopify.com/dashboard" }, { label: "Read Shopify OAuth Guide", url: "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/authorization-code-grant" }] },
   };
 export const LuluExistingPlatforms = () => {
-  const { updateWorkspace } = useLuluApp();
+  const { updateWorkspace, can } = useLuluApp();
+  const canEdit = can('edit');
   const isOnboarding = window.location.pathname.startsWith("/onboarding/");
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [error, setError] = useState('');
@@ -66,6 +67,7 @@ export const LuluExistingPlatforms = () => {
       });
   }, []);
   const connectPlatform = async (name: string) => {
+    if (!canEdit) return;
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId || platforms.some(platform => platform.name === name)) return;
     const providerMap: Record<string, string> = {
@@ -102,7 +104,7 @@ export const LuluExistingPlatforms = () => {
   };
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!isOnboarding) return;
+    if (!isOnboarding || !canEdit) return;
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
     setError('');
@@ -117,6 +119,7 @@ export const LuluExistingPlatforms = () => {
     }
   };
   const removePlatform = async (id: string) => {
+    if (!canEdit) return;
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
     try {
@@ -163,14 +166,14 @@ export const LuluExistingPlatforms = () => {
                           <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}{platformComingSoon && <span className="ml-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)]">(soon)</span>}</strong>
                           <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : "Not connected"}</span>
                         </span>
-                        <div className={`col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3 ${platformComingSoon ? 'pointer-events-none' : ''}`}>{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)]" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={platformComingSoon || connectingPlatform === name} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{platformComingSoon ? "(soon)" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={platformComingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{platformComingSoon ? "(soon)" : "Guide"}</button></div>
+                        <div className={`col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3 ${platformComingSoon ? 'pointer-events-none' : ''}`}>{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} disabled={!canEdit} aria-disabled={!canEdit} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-50" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={platformComingSoon || connectingPlatform === name || !canEdit} aria-disabled={!canEdit} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{platformComingSoon ? "(soon)" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={platformComingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{platformComingSoon ? "(soon)" : "Guide"}</button></div>
                       </article>;
                   })}
                   </div>
                 </section>;
               })}
             </div>
-            {isOnboarding && <button type="submit" className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)]">
+            {isOnboarding && <button type="submit" disabled={!canEdit} aria-disabled={!canEdit} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50">
               
               Continue to billing
               <ArrowRight size={16} />
@@ -197,7 +200,7 @@ export const LuluExistingPlatforms = () => {
             </li>)}
           </ol>
           <div className="mt-6 flex justify-end">
-            <button type="button" onClick={() => { setGuidePlatform(null); void connectPlatform(guidePlatform); }} className="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90">Connect {guidePlatform}<ArrowRight size={15} /></button>
+            <button type="button" onClick={() => { setGuidePlatform(null); void connectPlatform(guidePlatform); }} disabled={!canEdit} aria-disabled={!canEdit} className="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">Connect {guidePlatform}<ArrowRight size={15} /></button>
           </div>
         </div>
       </div>}

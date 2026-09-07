@@ -43,6 +43,7 @@ const navigationFreePaths = new Set([
 
 const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   HOME_PAGE_SLUG,
+  "nicely-land-1864",
   "fresh-tide-9404",
   "pure-minute-5446",
   "breezy-soil-2475",
