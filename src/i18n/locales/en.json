@@ -879,5 +879,14 @@
   "Geschlossen": "Closed",
   "Aufmerksamkeit nötig": "Needs attention",
   "Offen": "Open",
-  "Senden": "Send"
+  "Senden": "Send",
+  "Live": "Live",
+  "Die Konversation konnte nicht geladen werden.": "The conversation could not be loaded.",
+  "Keine Textnachricht": "No text message",
+  "Cross-Workspace-Zugriff bleibt auditiert.": "Cross-workspace access remains audited.",
+  "Konversation auswählen, um Details mit Workspace-Kontext zu sehen.": "Select a conversation to view its workspace context.",
+  "Konversation": "Conversation",
+  "Nachrichten": "Messages",
+  "Keine Nachrichten.": "No messages.",
+  "channels": "channels"
 }

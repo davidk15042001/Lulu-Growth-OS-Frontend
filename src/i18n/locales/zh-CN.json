@@ -21488,5 +21488,14 @@
   "Geschlossen": "已关闭",
   "Aufmerksamkeit nötig": "需要关注",
   "Offen": "开放",
-  "Senden": "发送"
+  "Senden": "发送",
+  "Live": "实时",
+  "Die Konversation konnte nicht geladen werden.": "无法加载会话。",
+  "Keine Textnachricht": "无文本消息",
+  "Cross-Workspace-Zugriff bleibt auditiert.": "跨工作区访问会保留审计记录。",
+  "Konversation auswählen, um Details mit Workspace-Kontext zu sehen.": "选择会话以查看其工作区上下文。",
+  "Konversation": "会话",
+  "Nachrichten": "消息",
+  "Keine Nachrichten.": "暂无消息。",
+  "channels": "个频道"
 }
