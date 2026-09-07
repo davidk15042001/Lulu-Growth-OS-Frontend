@@ -49,3 +49,20 @@ export const workspaceApi = {
     path: workspaceApiPath(workspaceId, "/bootstrap"), signal,
   }),
 };
+
+export type EffectiveEntitlement = { key: string; enabled: boolean; limit: string | null; source: string; reason: string };
+export type WorkspaceBusinessIdentity = {
+  workspaceId: string;
+  organization: { id: string; name: string; displayName: string | null; country: string | null; status: string } | null;
+  legalEntity: { id: string; legalName: string; registrationCountry: string | null; registrationNumber: string | null; legalForm: string | null; taxIdentifier: string | null; registeredAddress: string | null; status: string; verificationStatus: string } | null;
+  factory: { id: string; name: string; factoryCode: string | null; country: string | null; region: string | null; city: string | null; timezone: string | null; defaultCurrency: string | null; defaultLanguage: string | null; status: string } | null;
+  brands: Array<{ id: string; name: string; domain: string | null; logoUrl: string | null; status: string }>;
+  locations: Array<{ id: string; type: string; country: string | null; region: string | null; city: string | null; timezone: string | null; status: string }>;
+};
+
+export const workspaceFoundationApi = {
+  entitlements: (workspaceId: string, signal?: AbortSignal) => requestApi<Record<string, EffectiveEntitlement>>({ path: workspaceApiPath(workspaceId, "/entitlements"), signal }),
+  addEntitlementOverride: (workspaceId: string, input: { entitlementKey: string; enabled?: boolean; limitValue?: number | null; reason: string; expiresAt?: string | null }) => requestApi<{ id: string }>({ path: workspaceApiPath(workspaceId, "/entitlements"), method: "POST", body: input }),
+  removeEntitlementOverride: (workspaceId: string, overrideId: string) => requestApi<{ id: string }>({ path: workspaceApiPath(workspaceId, `/entitlements/overrides/${encodeURIComponent(overrideId)}`), method: "DELETE" }),
+  businessIdentity: (workspaceId: string, signal?: AbortSignal) => requestApi<WorkspaceBusinessIdentity>({ path: workspaceApiPath(workspaceId, "/business-identity"), signal }),
+};

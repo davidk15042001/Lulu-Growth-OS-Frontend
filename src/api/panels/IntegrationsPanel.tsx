@@ -2,17 +2,26 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { onboardingApi, type Platform } from "../onboarding";
 import { getFriendlyErrorMessage } from "../client";
 import { workspaceAppApi } from "../workspace-app";
+import { providerControlApi, type ProviderConnection } from "../providers";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 
 export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
+  const [providerConnections, setProviderConnections] = useState<ProviderConnection[]>([]);
   const [draft, setDraft] = useState({ name: "", category: "other", integrationKey: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
   const load = useCallback(async () => {
     setBusy(true); setError("");
-    try { setPlatforms((await onboardingApi.platforms(workspaceId)).data.items); }
+    try {
+      const [legacy, controlPlane] = await Promise.all([
+        onboardingApi.platforms(workspaceId),
+        providerControlApi.connections(workspaceId),
+      ]);
+      setPlatforms(legacy.data.items);
+      setProviderConnections(controlPlane.data.connections);
+    }
     catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load your integrations. Please try again.")); }
     finally { setBusy(false); }
   }, [workspaceId]);
@@ -30,6 +39,31 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
     setBusy(true); setError("");
     try { await onboardingApi.updatePlatform(workspaceId, platform.id, { connectionStatus }); await load(); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not change this integration. Please try again.")); setBusy(false); }
+  }
+
+  async function verifyProvider(connectionId: string) {
+    setBusy(true); setError("");
+    try { await providerControlApi.verify(workspaceId, connectionId); await load(); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not verify this provider connection.")); setBusy(false); }
+  }
+
+  async function updateProviderMode(connection: ProviderConnection, mode: ProviderConnection["mode"]) {
+    setBusy(true); setError("");
+    try { await providerControlApi.changeMode(workspaceId, connection.id, mode); await load(); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not update the provider mode.")); setBusy(false); }
+  }
+
+  async function syncProvider(connectionId: string) {
+    setBusy(true); setError("");
+    try { await providerControlApi.sync(workspaceId, connectionId); await load(); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not queue the provider sync.")); setBusy(false); }
+  }
+
+  async function disconnectProvider(connectionId: string, displayName: string) {
+    if (!window.confirm(`Disconnect ${displayName}? Existing records remain available, but provider operations stop.`)) return;
+    setBusy(true); setError("");
+    try { await providerControlApi.disconnect(workspaceId, connectionId); await load(); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not disconnect this provider.")); setBusy(false); }
   }
 
   async function connect(platform: Platform) {
@@ -57,6 +91,20 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
 
   return <LivePanelShell title="Live integrations" subtitle="Connections and synchronization jobs" onClose={onClose}>
     <LiveError message={error} />
+    <LiveSection title="Provider Control Plane" action={<span className="lulu-live-message">Provider state is backend-controlled. Secrets never leave the server.</span>}>
+      {providerConnections.length === 0 ? <LiveEmpty>No canonical provider connections are available for this workspace.</LiveEmpty> : providerConnections.map((connection) => <article className="lulu-live-row" key={connection.id}>
+        <div className="lulu-live-row-top"><div><strong>{connection.displayName}</strong><span>{connection.providerKey} · {connection.scopeType}</span></div><span className={`lulu-live-badge ${connection.healthStatus === "HEALTHY" ? "good" : ""}`}>{connection.status} · {connection.healthStatus}</span></div>
+        <small>{connection.mode} · {connection.authorizationState}{connection.externalAccountId ? ` · account ${connection.externalAccountId}` : ""}{connection.healthReason ? ` · ${connection.healthReason}` : ""}</small>
+        {connection.capabilities.length > 0 && <div className="lulu-live-message" style={{ marginTop: 8 }}>Capabilities: {connection.capabilities.map((capability) => `${capability.capabilityKey} (${capability.status})`).join(", ")}</div>}
+        {connection.accounts.length > 0 && <div className="lulu-live-message" style={{ marginTop: 4 }}>Accounts: {connection.accounts.map((account) => account.name || account.externalAccountId).join(", ")}</div>}
+        <div className="lulu-live-actions" style={{ marginTop: 8 }}>
+          <select aria-label={`Mode for ${connection.displayName}`} value={connection.mode} disabled={busy || connection.scopeType !== "WORKSPACE"} onChange={(event) => void updateProviderMode(connection, event.target.value as ProviderConnection["mode"])}><option value="CUSTOMER_OWNED">Customer owned</option><option value="LULU_MANAGED">Lulu managed</option><option value="PARTNER_MANAGED">Partner managed</option><option value="HYBRID">Hybrid</option></select>
+          <button className="lulu-live-button" disabled={busy || connection.scopeType !== "WORKSPACE"} onClick={() => void verifyProvider(connection.id)}>Verify</button>
+          <button className="lulu-live-button" disabled={busy || connection.scopeType !== "WORKSPACE" || connection.status === "DISCONNECTED"} onClick={() => void syncProvider(connection.id)}>Sync</button>
+          <button className="lulu-live-button danger" disabled={busy || connection.scopeType !== "WORKSPACE" || connection.status === "DISCONNECTED"} onClick={() => void disconnectProvider(connection.id, connection.displayName)}>Disconnect</button>
+        </div>
+      </article>)}
+    </LiveSection>
     <LiveSection title={`${platforms.length} connections`} action={<span className="lulu-live-message">Use Update in the navigation bar.</span>}>
       {platforms.length === 0 ? <LiveEmpty>No integrations configured.</LiveEmpty> : platforms.map((platform) => <article className="lulu-live-row" key={platform.id}>
         <div className="lulu-live-row-top"><div><strong>{platform.name}</strong><span>{platform.category}{platform.integrationKey ? ` · ${platform.integrationKey}` : ""}</span></div><span className={`lulu-live-badge ${platform.connectionStatus === "connected" ? "good" : ""}`}>{platform.connectionStatus}</span></div>

@@ -3709,5 +3709,19 @@
   "Lulu central": "Lulu 中央账户",
   "Management": "管理方式",
   "Deine Rolle besitzt nur Leserechte. Ein Administrator mit „providers.manage“ kann zentrale Verbindungen verwalten.": "你的角色只有只读权限。拥有“providers.manage”权限的管理员可以管理中央连接。",
-  "lulu_managed": "Lulu 托管"
+  "lulu_managed": "Lulu 托管",
+  "We could not verify this provider connection.": "无法验证此提供商连接。",
+  "We could not update the provider mode.": "无法更新提供商模式。",
+  "We could not queue the provider sync.": "无法安排提供商同步。",
+  "Disconnect {{0}}? Existing records remain available, but provider operations stop.": "要断开 {{0}} 吗？现有记录会保留，但提供商操作将停止。",
+  "We could not disconnect this provider.": "无法断开此提供商连接。",
+  "Provider Control Plane": "提供商控制中心",
+  "Provider state is backend-controlled. Secrets never leave the server.": "提供商状态由后端控制。机密信息不会离开服务器。",
+  "No canonical provider connections are available for this workspace.": "此工作区没有可用的规范提供商连接。",
+  "Capabilities:": "功能：",
+  "Accounts:": "账户：",
+  "Mode for {{0}}": "{{0}} 的模式",
+  "Customer owned": "客户自有",
+  "Partner managed": "合作伙伴管理",
+  "Hybrid": "混合"
 }

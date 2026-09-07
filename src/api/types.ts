@@ -5,10 +5,12 @@ export type Pagination = {
   pages: number;
 };
 
-export type WorkspaceRole = "owner" | "admin" | "member" | "viewer";
+export type WorkspaceRole = "owner" | "admin" | "sales_manager" | "sales_user" | "marketing_manager" | "marketing_user" | "finance_manager" | "operations_manager" | "member" | "viewer";
 
 export type Workspace = {
   id: string;
+  organizationId: string | null;
+  factoryId: string | null;
   companyName: string;
   slug: string | null;
   industry: string | null;
@@ -48,8 +50,9 @@ export type Workspace = {
 
 export type WorkspaceBootstrap = {
   workspace: Workspace;
-  permissions: { role: WorkspaceRole; canEdit: boolean; canAdminister: boolean };
+  permissions: { role: WorkspaceRole; canEdit: boolean; canAdminister: boolean; capabilities: string[] };
   capabilities: { aiGeneration: boolean; transactionalEmail: boolean };
+  entitlements: Record<string, { key: string; enabled: boolean; limit: string | null; source: string; reason: string }>;
   records: {
     total: number;
     byType: Record<string, number>;

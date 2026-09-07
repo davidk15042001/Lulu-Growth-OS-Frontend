@@ -1,5 +1,5 @@
 import { requestApi } from "./client";
-import type { Pagination, WorkspaceInvitation, WorkspaceMember } from "./types";
+import type { Pagination, WorkspaceInvitation, WorkspaceMember, WorkspaceRole } from "./types";
 import { workspaceApiPath } from "./types";
 
 export type SavedView = {
@@ -276,10 +276,10 @@ export const workspaceAppApi = {
   members: (workspaceId: string) => requestApi<{ members: WorkspaceMember[]; invitations: WorkspaceInvitation[] }>({
     path: workspaceApiPath(workspaceId, "/members"),
   }),
-  invite: (workspaceId: string, email: string, role: "admin" | "member" | "viewer") => requestApi<WorkspaceInvitation>({
+  invite: (workspaceId: string, email: string, role: Exclude<WorkspaceRole, "owner">) => requestApi<WorkspaceInvitation>({
     path: workspaceApiPath(workspaceId, "/members"), method: "POST", body: { email, role },
   }),
-  updateMember: (workspaceId: string, memberId: string, role: "admin" | "member" | "viewer") => requestApi<WorkspaceMember>({
+  updateMember: (workspaceId: string, memberId: string, role: Exclude<WorkspaceRole, "owner">) => requestApi<WorkspaceMember>({
     path: workspaceApiPath(workspaceId, `/members/${memberId}`), method: "PATCH", body: { role },
   }),
   removeMember: (workspaceId: string, memberId: string) => requestApi<null>({

@@ -3742,5 +3742,19 @@
   "Lulu central": "Lulu zentral",
   "Management": "Verwaltung",
   "Deine Rolle besitzt nur Leserechte. Ein Administrator mit „providers.manage“ kann zentrale Verbindungen verwalten.": "Deine Rolle besitzt nur Leserechte. Ein Administrator mit „providers.manage“ kann zentrale Verbindungen verwalten.",
-  "lulu_managed": "Lulu-managed"
+  "lulu_managed": "Lulu-managed",
+  "We could not verify this provider connection.": "Diese Provider-Verbindung konnte nicht überprüft werden.",
+  "We could not update the provider mode.": "Der Provider-Modus konnte nicht aktualisiert werden.",
+  "We could not queue the provider sync.": "Die Provider-Synchronisierung konnte nicht eingeplant werden.",
+  "Disconnect {{0}}? Existing records remain available, but provider operations stop.": "{{0}} trennen? Vorhandene Datensätze bleiben erhalten, aber Provider-Aktionen werden angehalten.",
+  "We could not disconnect this provider.": "Dieser Provider konnte nicht getrennt werden.",
+  "Provider Control Plane": "Provider-Steuerung",
+  "Provider state is backend-controlled. Secrets never leave the server.": "Der Provider-Status wird vom Backend gesteuert. Geheimnisse verlassen niemals den Server.",
+  "No canonical provider connections are available for this workspace.": "Für diesen Arbeitsbereich sind keine kanonischen Provider-Verbindungen verfügbar.",
+  "Capabilities:": "Funktionen:",
+  "Accounts:": "Konten:",
+  "Mode for {{0}}": "Modus für {{0}}",
+  "Customer owned": "Kundeneigen",
+  "Partner managed": "Partnerverwaltet",
+  "Hybrid": "Hybrid"
 }
