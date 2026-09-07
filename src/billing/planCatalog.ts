@@ -1,5 +1,8 @@
 export type BillingPlanId = "ai";
 
+/** Canonical annual price shown for the customer-facing Lulu AI package. */
+export const LULU_AI_ANNUAL_PRICE = "¥17,888 CNY";
+
 export type BillingPlan = {
   id: BillingPlanId;
   name: string;
@@ -26,7 +29,7 @@ export const billingPlans: BillingPlan[] = [
       "5% commission on each Lulu-attributed sale",
     ],
     limitations: "You stay in control with configurable approvals and safeguards",
-    price: "RMB 16,000",
+    price: LULU_AI_ANNUAL_PRICE,
     pricePeriod: "per year",
     cta: "Choose AI",
   },
