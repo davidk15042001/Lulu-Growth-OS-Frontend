@@ -9,7 +9,7 @@ import {
   Plug, KeyRound, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
   Settings as SettingsIcon, Search, ShieldCheck, ChevronRight,
   Lock, Unlock, UserCheck, RotateCcw, Ban, PlayCircle, Save, Filter, Trash2,
-  LayoutGrid, MessageSquare, Menu, X, LogIn
+  LayoutGrid, MessageSquare, Menu, X, LogIn, ExternalLink, Unplug, LoaderCircle
 } from "lucide-react";
 
 type NavSection = { label: string; items: NavItem[] };
@@ -181,8 +181,9 @@ type IntegrationRow = {
   lastError: string | null; syncCount: number;
 };
 type OAuthConnectionRow = {
-  id: string; connectionType: "platform" | "email" | "calendar"; provider: string;
-  displayName: string; workspaceId: string; workspaceName: string | null;
+  id: string; connectionType: "admin" | "platform" | "email" | "calendar"; provider: string;
+  displayName: string; workspaceId: string | null; workspaceName: string | null;
+  management: "workspace" | "lulu_managed";
   sourceStatus: string; status: string; hasCredentials: boolean;
   accountIdentifier: string | null; scopes: string[] | null;
   tokenExpiresAt: string | null; lastSyncedAt: string | null; lastError: string | null;
@@ -430,7 +431,10 @@ export default function App() {
     errors:['security.read'],audit:['audit.read'],jobs:['agents.read','providers.read'],settings:['security.read'],
   };
   const visibleNav = NAV.map(section => ({...section,items:section.items.filter(item => required[item.key].every(capability => capabilities.includes(capability)))})).filter(section => section.items.length);
-  const [selectedPage, setPage] = useState<PageKey>('dashboard');
+  const [selectedPage, setPage] = useState<PageKey>(() => {
+    const requested = new URLSearchParams(window.location.search).get('page');
+    return requested && NAV.some((section) => section.items.some((item) => item.key === requested)) ? requested as PageKey : 'dashboard';
+  });
   const page = required[selectedPage].every(capability => capabilities.includes(capability)) ? selectedPage : visibleNav[0]?.items[0]?.key;
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [error, setError] = useState("");
@@ -1515,6 +1519,7 @@ const oauthProviderLabels: Record<string, string> = {
   "google-business": "Google Business",
   meta: "Meta",
   linkedin: "LinkedIn",
+  "tiktok-ads": "TikTok Ads",
   microsoft: "Microsoft",
   google: "Google",
 };
@@ -1524,9 +1529,12 @@ function oauthProviderLabel(provider: string) {
 }
 
 function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
+  const { currentUser } = useLuluApp();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<OAuthConnectionRow[]>([]);
   const [search, setSearch] = useState("");
+  const [busyProvider, setBusyProvider] = useState<string | null>(null);
+  const canManage = currentUser?.adminCapabilities?.includes("providers.manage") ?? false;
   const load = async () => {
     setLoading(true); onError("");
     try {
@@ -1541,6 +1549,36 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
   const connected = rows.filter((row) => row.hasCredentials && !["error", "reauth_required", "missing_credentials", "disconnected"].includes(row.status)).length;
   const needsAttention = rows.filter((row) => !row.hasCredentials || ["error", "reauth_required", "missing_credentials"].includes(row.status)).length;
   const providerCount = new Set(rows.map((row) => row.provider)).size;
+  const managedProviders = [
+    { provider: "google-ads", label: "Google Ads", detail: "Central Lulu Ads account for all workspace campaigns." },
+    { provider: "google-analytics", label: "Google Analytics", detail: "Central measurement property used by Lulu-managed reporting." },
+    { provider: "meta", label: "Meta Ads", detail: "Central Meta Business account for workspace campaigns." },
+    { provider: "linkedin", label: "LinkedIn Ads", detail: "Central LinkedIn Ads account for workspace campaigns." },
+    { provider: "tiktok-ads", label: "TikTok Ads", detail: "Central TikTok Ads account for workspace campaigns." },
+  ] as const;
+  const managedRowFor = (provider: string) => rows.find((row) => row.connectionType === "admin" && row.provider === provider) ?? null;
+  const connectManaged = async (provider: string) => {
+    if (!canManage || busyProvider) return;
+    setBusyProvider(provider); onError("");
+    try {
+      const returnTo = "/app/admin-billing-overview-9901?page=oauth-connections";
+      const result = await requestApi<{ authorizationUrl: string }>({ path: `/admin/oauth-connections/${encodeURIComponent(provider)}/start?returnTo=${encodeURIComponent(returnTo)}`, method: "POST", body: {} });
+      window.location.assign(result.data.authorizationUrl);
+    } catch (e) {
+      onError(getFriendlyErrorMessage(e, "Die zentrale Provider-Verbindung konnte nicht gestartet werden."));
+      setBusyProvider(null);
+    }
+  };
+  const disconnectManaged = async (provider: string) => {
+    if (!canManage || busyProvider) return;
+    if (!window.confirm(`Die zentrale ${oauthProviderLabel(provider)}-Verbindung wirklich trennen?`)) return;
+    setBusyProvider(provider); onError("");
+    try {
+      await requestApi({ path: `/admin/oauth-connections/${encodeURIComponent(provider)}`, method: "DELETE" });
+      await load();
+    } catch (e) { onError(getFriendlyErrorMessage(e, "Die zentrale Provider-Verbindung konnte nicht getrennt werden.")); }
+    finally { setBusyProvider(null); }
+  };
 
   return (
     <div className="space-y-6">
@@ -1548,9 +1586,35 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
         <div className="text-xs uppercase tracking-wide text-slate-400">Provider security</div>
         <h1 className="text-2xl font-semibold text-slate-900">OAuth Connections</h1>
         <p className="max-w-3xl text-sm text-slate-500">
-          Zentrale Übersicht aller externen OAuth-Verbindungen aus Plattformen, E-Mail und Kalender. Zugriffstoken und Secrets werden niemals angezeigt.
+          Zentrale Übersicht aller externen OAuth-Verbindungen. Lulu-managed Provider werden hier einmalig für Lulu verbunden; Workspace-Integrationen bleiben bei den jeweiligen Kunden.
         </p>
       </div>
+
+      <section className="rounded-2xl border border-indigo-100 bg-indigo-50/60 p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-indigo-600">Lulu managed</div>
+            <h2 className="mt-1 text-lg font-semibold text-slate-900">Zentrale Marketing- und Analytics-Verbindungen</h2>
+            <p className="mt-1 max-w-3xl text-sm text-slate-600">Alle Kampagnen, die ein Workspace über Lulu anlegt, werden künftig über diese zentralen Provider-Konten ausgeführt. Google Business bleibt dagegen eine Workspace-Verbindung.</p>
+          </div>
+          <Pill tone="violet">Admin only</Pill>
+        </div>
+        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {managedProviders.map(({ provider, label, detail }) => {
+            const row = managedRowFor(provider);
+            const connected = Boolean(row?.hasCredentials && row.status === "connected");
+            const busy = busyProvider === provider;
+            return <article key={provider} className="rounded-xl border border-white/80 bg-white p-4 shadow-sm">
+              <div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold text-slate-900">{label}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p></div><Pill tone={connected ? "emerald" : "slate"}>{connected ? "Connected" : "Not connected"}</Pill></div>
+              {row?.displayName ? <p className="mt-3 truncate text-xs text-slate-600" title={row.displayName}>Account: {row.displayName}</p> : null}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {connected ? <button type="button" onClick={() => void disconnectManaged(provider)} disabled={!canManage || busy} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700 disabled:cursor-not-allowed disabled:opacity-50"><Unplug size={14} />{busy ? "Working…" : "Disconnect"}</button> : <button type="button" onClick={() => void connectManaged(provider)} disabled={!canManage || busy} className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{busy ? <LoaderCircle size={14} className="animate-spin" /> : <ExternalLink size={14} />}{busy ? "Opening…" : "Connect centrally"}</button>}
+              </div>
+            </article>;
+          })}
+        </div>
+        {!canManage ? <p className="mt-4 text-xs text-slate-500">Deine Rolle besitzt nur Leserechte. Ein Administrator mit „providers.manage“ kann zentrale Verbindungen verwalten.</p> : null}
+      </section>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <KPI label="OAuth Connections" value={loading ? "—" : rows.length} hint="Loaded from all OAuth stores" accent="violet" />
@@ -1566,9 +1630,10 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
         searchValue={search}
         getRowKey={(row) => `${row.connectionType}-${row.id}`}
         columns={[
-          { key: "workspaceName", label: "Workspace", render: (row) => row.workspaceName ?? "—" },
+          { key: "workspaceName", label: "Workspace", render: (row) => row.workspaceName ?? (row.management === "lulu_managed" ? "Lulu central" : "—") },
           { key: "connectionType", label: "Source", render: (row) => <Pill tone="slate">{row.connectionType}</Pill> },
           { key: "provider", label: "Provider", render: (row) => <div className="font-medium">{oauthProviderLabel(row.provider)}</div> },
+          { key: "management", label: "Management", render: (row) => <Pill tone={row.management === "lulu_managed" ? "violet" : "slate"}>{row.management === "lulu_managed" ? "Lulu managed" : "Workspace"}</Pill> },
           { key: "displayName", label: "Account", render: (row) => <div className="max-w-xs truncate" title={row.displayName}>{row.displayName || "—"}</div> },
           { key: "status", label: "Status", render: (row) => <Pill tone={toneFromStatus(row.status)}>{row.status}</Pill> },
           { key: "hasCredentials", label: "Credentials", render: (row) => <Pill tone={row.hasCredentials ? "emerald" : "rose"}>{row.hasCredentials ? "Stored" : "Missing"}</Pill> },
