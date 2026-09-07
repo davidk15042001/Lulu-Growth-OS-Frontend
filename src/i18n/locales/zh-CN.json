@@ -21479,5 +21479,14 @@
   "Wieder öffnen": "重新打开",
   "Als gelöst markieren": "标记为已解决",
   "Der Kontext erscheint nach Auswahl.": "选择后将显示上下文。",
-  "Keine Demo-Daten": "没有演示数据"
+  "Keine Demo-Daten": "没有演示数据",
+  "AI automatisch": "AI 自动处理",
+  "AI unterstützt": "AI 辅助处理",
+  "Menschlich": "人工处理",
+  "Eskaliert": "已升级",
+  "Gelöst": "已解决",
+  "Geschlossen": "已关闭",
+  "Aufmerksamkeit nötig": "需要关注",
+  "Offen": "开放",
+  "Senden": "发送"
 }

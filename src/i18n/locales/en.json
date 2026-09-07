@@ -870,5 +870,14 @@
   "Als gelöst markieren": "Mark as resolved",
   "Der Kontext erscheint nach Auswahl.": "Context appears after selection.",
   "Keine Demo-Daten": "No demo data",
-  "Übersicht": "Overview"
+  "Übersicht": "Overview",
+  "AI automatisch": "AI automatic",
+  "AI unterstützt": "AI assisted",
+  "Menschlich": "Human",
+  "Eskaliert": "Escalated",
+  "Gelöst": "Resolved",
+  "Geschlossen": "Closed",
+  "Aufmerksamkeit nötig": "Needs attention",
+  "Offen": "Open",
+  "Senden": "Send"
 }
