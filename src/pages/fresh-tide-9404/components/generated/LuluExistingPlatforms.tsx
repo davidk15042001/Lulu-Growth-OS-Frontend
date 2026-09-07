@@ -112,7 +112,7 @@ export const LuluExistingPlatforms = () => {
     try {
       const response = await onboardingApi.continueExistingPlatforms(workspaceId);
       updateWorkspace(response.data);
-      navigateApp(routes.onboarding.billing);
+      navigateApp(routes.app.dashboard);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, 'We could not save this onboarding step. Please try again.'));
       setTechnicalDetails(getTechnicalErrorDetails(cause));
@@ -175,7 +175,7 @@ export const LuluExistingPlatforms = () => {
             </div>
             {isOnboarding && <button type="submit" disabled={!canEdit} aria-disabled={!canEdit} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50">
               
-              Continue to billing
+              Finish setup and open Lulu
               <ArrowRight size={16} />
             </button>}
           </form>

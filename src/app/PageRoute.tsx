@@ -12,7 +12,7 @@ const onboardingPathByStep: Record<string, string> = {
   products_services: routes.onboarding.productsServices,
   existing_platforms: routes.onboarding.existingPlatforms,
   billing: routes.onboarding.billing,
-  setup_complete: routes.onboarding.billing,
+  setup_complete: routes.app.dashboard,
 };
 
 export function PageRoute({ page }: { page: PageDefinition }) {
