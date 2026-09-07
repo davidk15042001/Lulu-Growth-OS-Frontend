@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Check, Cpu, Lock, Server, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
+import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
 import { navigateApp, routes } from "../routing";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
@@ -164,14 +164,6 @@ export function BillingOnboarding() {
           <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Activate Lulu AI for your workspace.</h1>
           <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">The Lulu AI package is billed annually at RMB 16,000, plus a 5% commission on each Lulu-attributed sale.</p>
           <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-[var(--foreground)]">Activate the package to open the secure payment process immediately.</p>
-        </section>
-
-        <section className="mb-8 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]" aria-labelledby="payg-title">
-          <div className="border-b border-[var(--border)] px-5 py-5 sm:px-7"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Transparent billing</p><h2 id="payg-title" className="mt-2 text-xl font-semibold">Lulu AI includes separate usage billing.</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--muted-foreground)]">API and server usage are billed separately from the annual package and can be reviewed in workspace billing.</p></div>
-          <div className="grid gap-px bg-[var(--border)] sm:grid-cols-2">
-            <div className="flex gap-3 bg-[var(--card)] p-5 sm:p-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)]"><Cpu size={18} /></span><div><h3 className="text-sm font-semibold">API usage</h3><p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">Input tokens cost $5 per million and output tokens cost $10 per million.</p></div></div>
-            <div className="flex gap-3 bg-[var(--card)] p-5 sm:p-6"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)]"><Server size={18} /></span><div><h3 className="text-sm font-semibold">AWS usage</h3><p className="mt-1 text-sm leading-6 text-[var(--muted-foreground)]">Actual allocated AWS provider costs are charged at exactly twice the provider price.</p></div></div>
-          </div>
         </section>
 
         {(submitting || paymentStatus !== "idle" || error) && <section className={`mb-6 rounded-2xl border px-5 py-4 text-sm ${error || paymentStatus === "error" ? "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)]" : "border-[var(--border)] bg-[var(--secondary)] text-[var(--foreground)]"}`} role={error || paymentStatus === "error" ? "alert" : "status"}>
