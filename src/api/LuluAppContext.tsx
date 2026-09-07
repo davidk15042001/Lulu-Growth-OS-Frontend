@@ -54,7 +54,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch (cause) {
-      if (cause instanceof ApiError && (cause.status === 401 || cause.code === 'ACCOUNT_UNVERIFIED' || cause.code === 'ACCOUNT_DELETED')) { clearStoredUser(); setCurrentUser(null); setWorkspaces([]); setPermissions(empty); setCapabilities({ aiGeneration: false, transactionalEmail: false }); setError(null); }
+      if (cause instanceof ApiError && (cause.status === 401 || cause.code === 'SESSION_REFRESH_UNAVAILABLE' || cause.code === 'ACCOUNT_UNVERIFIED' || cause.code === 'ACCOUNT_DELETED')) { clearStoredUser(); setCurrentUser(null); setWorkspaces([]); setPermissions(empty); setCapabilities({ aiGeneration: false, transactionalEmail: false }); setError(null); }
       else setError("Your session could not be restored. Please sign in again.");
     } finally { setLoading(false); }
   }, []);

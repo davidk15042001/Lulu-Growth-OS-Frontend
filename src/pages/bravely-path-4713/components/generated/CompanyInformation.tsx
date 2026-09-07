@@ -1,8 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { ArrowRight, Check } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
-import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
-import { clearSelectedWorkspaceId, getSelectedWorkspaceId, setSelectedWorkspaceId } from '../../../../api/session';
+import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
+import { clearSelectedWorkspaceId, clearStoredUser, getSelectedWorkspaceId, setSelectedWorkspaceId } from '../../../../api/session';
 import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 type CompanyForm = {
   companyName: string;
@@ -72,6 +72,12 @@ export const CompanyInformation = () => {
       setSaved(true);
       navigateApp(routes.onboarding.businessDescription);
     } catch (cause) {
+      if (cause instanceof ApiError && (cause.status === 401 || cause.code === 'SESSION_REFRESH_UNAVAILABLE')) {
+        clearStoredUser();
+        clearSelectedWorkspaceId();
+        navigateApp(routes.auth.login, { replace: true });
+        return;
+      }
       setError(getFriendlyErrorMessage(cause, 'We could not save your company information. Please try again.'));
     } finally {
       setLoading(false);
