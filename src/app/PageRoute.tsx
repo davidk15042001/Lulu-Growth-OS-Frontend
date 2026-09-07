@@ -11,7 +11,7 @@ const onboardingPathByStep: Record<string, string> = {
   business_description: routes.onboarding.businessDescription,
   products_services: routes.onboarding.productsServices,
   existing_platforms: routes.onboarding.existingPlatforms,
-  billing: routes.onboarding.billing,
+  billing: routes.app.dashboard,
   setup_complete: routes.app.dashboard,
 };
 
