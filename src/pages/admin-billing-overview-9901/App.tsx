@@ -128,6 +128,30 @@ type WorkspaceDetail = WorkspaceRow & {
   websites: Array<{ id: string; title: string; platform: string; status: string; domain: string | null; publishedAt: string | null; createdAt: string }>;
   usage: Array<{ metricKey: string; total: string; periodStart: string | null; periodEnd: string | null }>;
   creditBalance: number;
+  paygUsage: {
+    periodStart: string;
+    periodEnd: string;
+    apiCostUsd: number;
+    serverCostUsd: number;
+    apiCreditUsd: number;
+    serverCreditUsd: number;
+    apiBillableUsd: number;
+    serverBillableUsd: number;
+    totalBillableUsd: number;
+  } | null;
+  usageAdjustments: Array<{
+    id: string;
+    metric: "api" | "server";
+    amountUsd: string;
+    periodStart: string;
+    periodEnd: string;
+    paygPeriodId: string | null;
+    appliedAt: string | null;
+    reason: string;
+    createdBy: string | null;
+    createdByEmail: string | null;
+    createdAt: string;
+  }>;
 };
 
 type CrmRow = {
@@ -938,6 +962,10 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
   const [creditAmount, setCreditAmount] = useState("");
   const [creditNote, setCreditNote] = useState("");
   const [creditSaving, setCreditSaving] = useState(false);
+  const [usageMetric, setUsageMetric] = useState<"api" | "server">("api");
+  const [usageAmount, setUsageAmount] = useState("");
+  const [usageReason, setUsageReason] = useState("");
+  const [usageSaving, setUsageSaving] = useState(false);
 
   const load = async (q?: string) => {
     setLoading(true); onError("");
@@ -981,6 +1009,33 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
       await load(search);
     } catch (e) { onError(getFriendlyErrorMessage(e, "Credits konnten nicht zugewiesen werden.")); }
     finally { setCreditSaving(false); }
+  };
+
+  const addUsageAdjustment = async () => {
+    if (!detail) return;
+    const amountUsd = Number(usageAmount);
+    const reason = usageReason.trim();
+    if (!Number.isFinite(amountUsd) || amountUsd <= 0) {
+      onError("Bitte einen gültigen positiven USD-Betrag eingeben.");
+      return;
+    }
+    if (!reason) {
+      onError("Bitte einen Grund für die Nutzungs-Gutschrift angeben.");
+      return;
+    }
+    setUsageSaving(true); onError("");
+    try {
+      await requestApi({
+        path: `/admin/workspaces/${detail.id}/usage-adjustments`,
+        method: "POST",
+        body: { metric: usageMetric, amountUsd, reason },
+      });
+      const refreshed = await requestApi<WorkspaceDetail>({ path: `/admin/workspaces/${detail.id}` });
+      setDetail(refreshed.data);
+      setUsageAmount(""); setUsageReason("");
+    } catch (e) {
+      onError(getFriendlyErrorMessage(e, "Die Nutzungs-Gutschrift konnte nicht gespeichert werden."));
+    } finally { setUsageSaving(false); }
   };
 
   const debounced = (() => {
@@ -1192,6 +1247,85 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                   ))}
                 </div>
               ) : <EmptyPanel title="No usage" />}
+            </div>
+
+            <div className="rounded-lg border border-amber-200 bg-amber-50/40 p-4 xl:col-span-3">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="text-sm font-semibold text-slate-800">PAYG Usage-Angebot / Gutschrift</div>
+                  <div className="mt-1 max-w-2xl text-xs leading-5 text-slate-600">
+                    Eine Gutschrift reduziert ausschließlich die noch nicht abgerechnete aktuelle PAYG-Periode. Die Rohdaten bleiben unverändert; bereits ausgestellte Rechnungen werden nicht nachträglich geändert.
+                  </div>
+                </div>
+                {detail.paygUsage ? (
+                  <div className="grid grid-cols-2 gap-x-5 gap-y-1 text-right text-xs text-slate-600 sm:grid-cols-4">
+                    <span>API offen <strong className="ml-1 text-slate-900">${detail.paygUsage.apiBillableUsd.toFixed(2)}</strong></span>
+                    <span>Server offen <strong className="ml-1 text-slate-900">${detail.paygUsage.serverBillableUsd.toFixed(2)}</strong></span>
+                    <span>API-Gutschrift <strong className="ml-1 text-emerald-700">${detail.paygUsage.apiCreditUsd.toFixed(2)}</strong></span>
+                    <span>Server-Gutschrift <strong className="ml-1 text-emerald-700">${detail.paygUsage.serverCreditUsd.toFixed(2)}</strong></span>
+                  </div>
+                ) : <span className="text-xs text-slate-500">PAYG ist für diesen Workspace nicht konfiguriert.</span>}
+              </div>
+              <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-[150px_150px_minmax(0,1fr)_auto]">
+                <select
+                  value={usageMetric}
+                  onChange={(e) => setUsageMetric(e.target.value as "api" | "server")}
+                  disabled={usageSaving || !detail.paygUsage}
+                  className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-amber-400 disabled:opacity-50"
+                >
+                  <option value="api">API-Gutschrift</option>
+                  <option value="server">Server-Gutschrift</option>
+                </select>
+                <input
+                  value={usageAmount}
+                  onChange={(e) => setUsageAmount(e.target.value)}
+                  placeholder="Betrag in USD"
+                  inputMode="decimal"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  disabled={usageSaving || !detail.paygUsage}
+                  className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-amber-400 disabled:opacity-50"
+                />
+                <input
+                  value={usageReason}
+                  onChange={(e) => setUsageReason(e.target.value)}
+                  placeholder="Grund (z. B. Willkommensangebot)"
+                  maxLength={500}
+                  disabled={usageSaving || !detail.paygUsage}
+                  className="min-w-0 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-amber-400 disabled:opacity-50"
+                />
+                <button
+                  disabled={usageSaving || !detail.paygUsage}
+                  onClick={() => void addUsageAdjustment()}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-md border border-amber-300 bg-amber-500 px-3 py-2 text-xs font-semibold text-white hover:bg-amber-600 disabled:opacity-50"
+                >
+                  {usageSaving ? "Speichere…" : "Gutschrift geben"}
+                </button>
+              </div>
+              {detail.usageAdjustments.length ? (
+                <div className="mt-4 overflow-x-auto rounded-md border border-amber-100 bg-white">
+                  <table className="w-full min-w-[680px] text-xs">
+                    <thead className="border-b border-slate-100 text-left uppercase tracking-wide text-slate-400">
+                      <tr>
+                        <th className="px-3 py-2">Typ</th><th className="px-3 py-2">Betrag</th><th className="px-3 py-2">Grund</th><th className="px-3 py-2">Periode</th><th className="px-3 py-2">Status</th><th className="px-3 py-2">Erstellt</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {detail.usageAdjustments.map((adjustment) => (
+                        <tr key={adjustment.id} className="border-b border-slate-50 last:border-0">
+                          <td className="px-3 py-2 font-medium">{adjustment.metric === "api" ? "API" : "Server"}</td>
+                          <td className="px-3 py-2 font-semibold text-emerald-700">${Number(adjustment.amountUsd).toFixed(2)}</td>
+                          <td className="max-w-[260px] truncate px-3 py-2 text-slate-600" title={adjustment.reason}>{adjustment.reason}</td>
+                          <td className="whitespace-nowrap px-3 py-2 text-slate-500">{dateOnly(adjustment.periodStart)} – {dateOnly(adjustment.periodEnd)}</td>
+                          <td className="px-3 py-2"><Pill tone={adjustment.appliedAt ? "sky" : "amber"}>{adjustment.appliedAt ? "An Periode gebunden" : "Offen"}</Pill></td>
+                          <td className="whitespace-nowrap px-3 py-2 text-slate-500">{dateOnly(adjustment.createdAt)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : <div className="mt-4 text-xs text-slate-500">Noch keine PAYG-Gutschriften vergeben.</div>}
             </div>
           </div>
         </div>
