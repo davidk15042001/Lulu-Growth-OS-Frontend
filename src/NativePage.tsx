@@ -230,13 +230,23 @@ export function NativePage({
 
   if (error) {
     return (
-      <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-foreground" role="status">
-        <div className="max-w-md rounded-xl border border-border bg-[var(--card)] p-6 text-center">
-          <h1 className="text-lg font-semibold">Live workspace</h1>
-          <p className="mt-2 text-sm text-muted-foreground">Live data is temporarily unavailable. Your layout remains accessible.</p>
-          <button type="button" onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-foreground)]">Reload page</button>
+      <LuluRuntime slug={slug}>
+        <div className={`lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}${mobileNavigationOpen ? " lulu-global-shell--nav-open" : ""}`}>
+          {!isNavigationFree && <div className="lulu-global-navigation__backdrop" aria-hidden={!mobileNavigationOpen} onClick={onCloseMobileNavigation} />}
+          {!isNavigationFree && <LuluGlobalNavigation activeSlug={effectiveSlug} mobileOpen={mobileNavigationOpen} onNavigate={onCloseMobileNavigation} onRequestClose={onCloseMobileNavigation} />}
+          <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
+            <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-foreground" role="status">
+              <div className="max-w-md rounded-xl border border-border bg-[var(--card)] p-6 text-center">
+                <h1 className="text-lg font-semibold">Live workspace</h1>
+                <p className="mt-2 text-sm text-muted-foreground">Live data is temporarily unavailable. Your layout remains accessible.</p>
+                <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                  <button type="button" onClick={() => window.location.reload()} className="rounded-lg bg-[var(--primary)] px-4 py-2 text-sm font-semibold text-[var(--primary-foreground)]">Reload page</button>
+                </div>
+              </div>
+            </main>
+          </div>
         </div>
-      </main>
+      </LuluRuntime>
     );
   }
 

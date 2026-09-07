@@ -18,11 +18,16 @@ const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
 const GOOGLE_BUSINESS_LABEL = "Google Business";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
+const OMNICHANNEL_LABEL = "OmniChannel";
 const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
 const GOOGLE_BUSINESS_PAGE_IDS = new Set<string>();
 const GOOGLE_BUSINESS_SECTION: NavigationSection = {
   label: GOOGLE_BUSINESS_LABEL,
   pages: [],
+};
+const OMNICHANNEL_SECTION = {
+  label: OMNICHANNEL_LABEL,
+  pages: [{ id: "omnichannel", label: "Inbox" }],
 };
 const NAVIGATION_PAGE_LABEL_OVERRIDES = new Map([
   ["glad-coast-1428", "Integrations"],
@@ -46,12 +51,19 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     pages: GOOGLE_BUSINESS_SECTION.pages.filter((page) => isPageAvailable(page.id)),
   };
 
-  const webPresenceIndex = availableSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
-
   const reorderedSections = [...availableSections];
 
-  if (webPresenceIndex !== -1 && googleBusinessSection.pages.length > 0) {
-    reorderedSections.splice(webPresenceIndex + 1, 0, googleBusinessSection);
+  // OmniChannel has a canonical route but is not part of the generated
+  // dropdown manifest. Keep it in the same global navigation so users can
+  // reach it from every authenticated page.
+  if (!reorderedSections.some((section) => section.label === OMNICHANNEL_LABEL)) {
+    const emailIndex = reorderedSections.findIndex((section) => section.label === "Email");
+    reorderedSections.splice(emailIndex === -1 ? 0 : emailIndex + 1, 0, OMNICHANNEL_SECTION);
+  }
+
+  const currentWebPresenceIndex = reorderedSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
+  if (currentWebPresenceIndex !== -1 && googleBusinessSection.pages.length > 0) {
+    reorderedSections.splice(currentWebPresenceIndex + 1, 0, googleBusinessSection);
   } else if (googleBusinessSection.pages.length > 0) {
     reorderedSections.push(googleBusinessSection);
   }
@@ -241,7 +253,11 @@ export function LuluGlobalNavigation({
                 {...calendarProps}
                 className={`lulu-global-navigation__primary-link${isCalendarActive ? " is-active" : ""}`}
                 aria-current={isCalendarActive ? "page" : undefined}
-                onClick={() => onNavigate?.()}
+                onClick={(event) => {
+                  event.preventDefault();
+                  onNavigate?.();
+                  if (calendarProps.href) navigateApp(calendarProps.href);
+                }}
               >
                 <CalendarDays aria-hidden="true" size={16} />
                 <span>{t("Calendar")}</span>
@@ -285,7 +301,15 @@ export function LuluGlobalNavigation({
                       aria-current={isActivePage ? "page" : undefined}
                       aria-disabled={isDropdownLinkLocked || undefined}
                       tabIndex={isDropdownLinkLocked ? -1 : undefined}
-                      onClick={isDropdownLinkLocked ? (event) => event.preventDefault() : () => onNavigate?.()}
+                      onClick={(event) => {
+                        if (isDropdownLinkLocked || !props.href) {
+                          event.preventDefault();
+                          return;
+                        }
+                        event.preventDefault();
+                        onNavigate?.();
+                        navigateApp(props.href);
+                      }}
                       aria-label={isDropdownLinkLocked ? `${translatedDisplayLabel}: ${lockedLabel}` : translatedDisplayLabel}
                       title={isDropdownLinkLocked ? lockedLabel : undefined}
                     >

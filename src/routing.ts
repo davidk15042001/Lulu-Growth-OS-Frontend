@@ -130,6 +130,7 @@ const TOP_LEVEL_PAGE_SLUGS = new Set([
   "lulu-website-portal-9012",
   "lulu-email-portal-9013",
   "lulu-calendar-portal-9014",
+  "omnichannel",
 ]);
 
 export function isPageAvailable(slug: string) {

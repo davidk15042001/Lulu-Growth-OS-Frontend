@@ -20,7 +20,7 @@ export function PageRoute({ page }: { page: PageDefinition }) {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const section = searchParams.get("section");
-  const { currentUser, selectedWorkspace, loading, error: workspaceError, refresh } = useLuluApp();
+  const { currentUser, selectedWorkspace, loading, error: workspaceError } = useLuluApp();
   const isAuthPath = location.pathname === routes.auth.login
     || location.pathname === routes.auth.signUp
     || location.pathname.startsWith("/auth/");
@@ -65,26 +65,7 @@ export function PageRoute({ page }: { page: PageDefinition }) {
     return <Navigate replace to={routes.app.dashboard} state={{ from: location.pathname }} />;
   }
 
-  if (!isPublic && !isOnboarding && currentUser && !selectedWorkspace) {
-    if (workspaceError) {
-      return (
-        <main role="alert" className="page-frame grid min-h-screen place-items-center p-6">
-          <div className="max-w-md rounded-2xl border border-border bg-card p-6 text-center">
-            <h1 className="text-lg font-semibold">Workspace konnte nicht geladen werden</h1>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Deine Anmeldung ist noch vorhanden. Die Workspace-Daten konnten gerade nicht geladen werden.
-            </p>
-            <button
-              type="button"
-              onClick={() => void refresh()}
-              className="mt-5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
-            >
-              Erneut versuchen
-            </button>
-          </div>
-        </main>
-      );
-    }
+  if (!isPublic && !isOnboarding && currentUser && !selectedWorkspace && !workspaceError) {
     return <Navigate replace to={routes.onboarding.companyInformation} state={{ from: location.pathname }} />;
   }
 
