@@ -24,6 +24,7 @@ export const routes = {
     email: "/app/email",
     calendar: "/app/calendar",
     products: "/app/products",
+    omnichannel: "/app/omnichannel",
   },
   allPages: "/all-pages",
 } as const;
