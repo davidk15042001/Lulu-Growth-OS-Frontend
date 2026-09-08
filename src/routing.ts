@@ -25,6 +25,10 @@ export const routes = {
     calendar: "/app/calendar",
     products: "/app/products",
     omnichannel: "/app/omnichannel",
+    quotes: "/app/quotes",
+    quotesNew: "/app/quotes/new",
+    invoices: "/app/invoices",
+    invoicesNew: "/app/invoices/new",
   },
   allPages: "/all-pages",
 } as const;

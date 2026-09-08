@@ -1,0 +1,33 @@
+import { useEffect, useState } from 'react';
+import { CheckCircle2, FileText, XCircle } from 'lucide-react';
+import { requestApi } from '../../api/client';
+import { useParams } from 'react-router-dom';
+import { useTranslation } from '../../i18n/GlobalLanguageSwitcher';
+
+type Document = { type: 'QUOTE' | 'INVOICE'; number: string; status: string; currency: string; versionNumber?: number; validUntil?: string | null; issueDate?: string | null; dueDate?: string | null; subtotal: string; discountTotal: string; shippingTotal: string; taxTotal: string; grandTotal: string; amountPaid?: string; amountDue?: string; lines: Array<{ productName: string; quantity: string; quantityUnit?: string | null; unitPrice: string; lineTotal: string }> };
+
+export default function PublicCommercialDocumentPage() {
+  const { token } = useParams<{ token: string }>();
+  const t = useTranslation();
+  const [document, setDocument] = useState<Document | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState('');
+  const [deciding, setDeciding] = useState(false);
+
+  useEffect(() => {
+    if (!token) return;
+    void requestApi<Document>({ path: `/public/commercial-documents/${encodeURIComponent(token)}` }).then((result) => setDocument(result.data)).catch(() => setMessage(t('This document is unavailable or the link has expired.'))).finally(() => setLoading(false));
+  }, [token, t]);
+
+  const decide = async (decision: 'ACCEPTED' | 'DECLINED') => {
+    if (!token || !document || document.type !== 'QUOTE') return;
+    setDeciding(true); setMessage('');
+    try { await requestApi({ path: `/public/commercial-documents/${encodeURIComponent(token)}/decision`, method: 'POST', body: { decision } }); setDocument({ ...document, status: decision }); setMessage(decision === 'ACCEPTED' ? t('Thank you. The quote was accepted.') : t('The quote was declined.')); } catch { setMessage(t('The decision could not be saved.')); } finally { setDeciding(false); }
+  };
+
+  if (loading) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-sm text-[var(--muted-foreground)]">{t('Loading document…')}</main>;
+  if (!document) return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6"><div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 text-center"><FileText className="mx-auto mb-3 opacity-50"/><p className="text-sm">{message || t('Document not found.')}</p></div></main>;
+  return <main className="min-h-screen bg-[var(--background)] p-4 sm:p-8"><article className="mx-auto max-w-3xl overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--card)] shadow-sm"><header className="border-b border-[var(--border)] p-6 sm:p-10"><p className="text-xs uppercase tracking-[.18em] text-[var(--muted-foreground)]">{t('Lulu Commerce')}</p><div className="mt-3 flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-3xl font-semibold">{document.type === 'QUOTE' ? t('Quote') : t('Invoice')}</h1><p className="mt-1 text-sm text-[var(--muted-foreground)]">{document.number}{document.versionNumber ? ` · ${t('Version')} ${document.versionNumber}` : ''}</p></div><span className="rounded-full bg-[var(--secondary)] px-3 py-1.5 text-xs font-medium">{document.status}</span></div></header><section className="space-y-6 p-6 sm:p-10"><div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4"><Info label={t('Subtotal')} value={`${document.subtotal} ${document.currency}`}/><Info label={t('Discount')} value={`${document.discountTotal} ${document.currency}`}/><Info label={t('Shipping')} value={`${document.shippingTotal} ${document.currency}`}/><Info label={t('Total')} value={`${document.grandTotal} ${document.currency}`}/></div><div className="overflow-x-auto rounded-2xl border border-[var(--border)]"><table className="w-full min-w-[520px] text-left text-sm"><thead className="border-b border-[var(--border)] text-xs text-[var(--muted-foreground)]"><tr><th className="px-4 py-3">{t('Product')}</th><th className="px-4 py-3">{t('Quantity')}</th><th className="px-4 py-3 text-right">{t('Unit price')}</th><th className="px-4 py-3 text-right">{t('Amount')}</th></tr></thead><tbody className="divide-y divide-[var(--border)]">{document.lines.map((line, index) => <tr key={`${line.productName}-${index}`}><td className="px-4 py-3 font-medium">{line.productName}</td><td className="px-4 py-3">{line.quantity} {line.quantityUnit || ''}</td><td className="px-4 py-3 text-right">{line.unitPrice} {document.currency}</td><td className="px-4 py-3 text-right font-medium">{line.lineTotal} {document.currency}</td></tr>)}</tbody></table></div>{document.type === 'QUOTE' && ['SENT','VIEWED'].includes(document.status) ? <div className="flex flex-wrap gap-3"><button type="button" disabled={deciding} onClick={() => void decide('ACCEPTED')} className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-50"><CheckCircle2 size={16}/> {t('Accept quote')}</button><button type="button" disabled={deciding} onClick={() => void decide('DECLINED')} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-medium text-rose-700 disabled:opacity-50"><XCircle size={16}/> {t('Decline')}</button></div> : null}{message ? <p role="status" className="text-sm text-[var(--muted-foreground)]">{message}</p> : null}</section></article></main>;
+}
+
+function Info({ label, value }: { label: string; value: string }) { return <div><p className="text-xs text-[var(--muted-foreground)]">{label}</p><p className="mt-1 font-medium">{value}</p></div>; }

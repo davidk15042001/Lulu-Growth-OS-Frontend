@@ -1,0 +1,19 @@
+{
+  "Commercial documents could not be loaded.": "Commercial documents could not be loaded.",
+  "Admin overview": "Admin overview",
+  "Global": "Global",
+  "Workspace context remains visible; access and data come exclusively from the Admin API.": "Workspace context remains visible; access and data come exclusively from the Admin API.",
+  "Search document, status or workspace…": "Search document, status or workspace…",
+  "No documents found.": "No documents found.",
+  "Lulu Platform Operations": "Lulu Platform Operations",
+  "Document": "Document",
+  "Workspace": "Workspace",
+  "Status": "Status",
+  "Creation": "Creation",
+  "Amount": "Amount",
+  "Created": "Created",
+  "Quotes": "Quotes",
+  "Invoices": "Invoices",
+  "Refresh": "Refresh",
+  "Loading…": "Loading…"
+}

@@ -29,6 +29,10 @@ const OMNICHANNEL_SECTION = {
   label: OMNICHANNEL_LABEL,
   pages: [{ id: "omnichannel", label: "Inbox" }],
 };
+const COMMERCIAL_DOCUMENTS_SECTION = {
+  label: "Sales",
+  pages: [{ id: "quotes", label: "Quotes" }, { id: "invoices", label: "Invoices" }],
+};
 const NAVIGATION_PAGE_LABEL_OVERRIDES = new Map([
   ["glad-coast-1428", "Integrations"],
   ["fresh-tide-9404", "Verbindungen"],
@@ -59,6 +63,10 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
   if (!reorderedSections.some((section) => section.label === OMNICHANNEL_LABEL)) {
     const emailIndex = reorderedSections.findIndex((section) => section.label === "Email");
     reorderedSections.splice(emailIndex === -1 ? 0 : emailIndex + 1, 0, OMNICHANNEL_SECTION);
+  }
+  if (!reorderedSections.some((section) => section.label === COMMERCIAL_DOCUMENTS_SECTION.label)) {
+    const crmIndex = reorderedSections.findIndex((section) => section.label === "CRM");
+    reorderedSections.splice(crmIndex === -1 ? 0 : crmIndex + 1, 0, COMMERCIAL_DOCUMENTS_SECTION);
   }
 
   const currentWebPresenceIndex = reorderedSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);

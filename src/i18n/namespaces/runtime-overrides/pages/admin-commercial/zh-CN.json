@@ -1,0 +1,19 @@
+{
+  "Commercial documents could not be loaded.": "无法加载商业文档。",
+  "Admin overview": "管理员概览",
+  "Global": "全局",
+  "Workspace context remains visible; access and data come exclusively from the Admin API.": "工作区上下文始终可见；访问和数据完全来自管理员 API。",
+  "Search document, status or workspace…": "搜索文档、状态或工作区…",
+  "No documents found.": "未找到文档。",
+  "Lulu Platform Operations": "Lulu 平台运营",
+  "Document": "文档",
+  "Workspace": "工作区",
+  "Status": "状态",
+  "Creation": "创建方式",
+  "Amount": "金额",
+  "Created": "创建时间",
+  "Quotes": "报价单",
+  "Invoices": "发票",
+  "Refresh": "刷新",
+  "Loading…": "加载中…"
+}

@@ -1,0 +1,19 @@
+{
+  "Commercial documents could not be loaded.": "Die kommerziellen Dokumente konnten nicht geladen werden.",
+  "Admin overview": "Admin-Übersicht",
+  "Global": "Global",
+  "Workspace context remains visible; access and data come exclusively from the Admin API.": "Der Workspace-Kontext bleibt sichtbar; Zugriff und Daten kommen ausschließlich aus der Admin-API.",
+  "Search document, status or workspace…": "Dokument, Status oder Workspace suchen…",
+  "No documents found.": "Keine Dokumente gefunden.",
+  "Lulu Platform Operations": "Lulu-Plattformbetrieb",
+  "Document": "Dokument",
+  "Workspace": "Workspace",
+  "Status": "Status",
+  "Creation": "Erstellung",
+  "Amount": "Betrag",
+  "Created": "Erstellt",
+  "Quotes": "Angebote",
+  "Invoices": "Rechnungen",
+  "Refresh": "Aktualisieren",
+  "Loading…": "Wird geladen…"
+}

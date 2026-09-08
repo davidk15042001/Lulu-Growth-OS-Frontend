@@ -27,6 +27,9 @@ import { PageErrorBoundary } from "./PageErrorBoundary";
 import ProductsPage from "./pages/canonical-products/ProductsPage";
 import OmniChannelPage from "./pages/canonical-omnichannel/OmniChannelPage";
 import AdminOmniChannelPage from "./pages/admin-omnichannel/AdminOmniChannelPage";
+import CommercialDocumentsPage from "./pages/canonical-commercial/CommercialDocumentsPage";
+import AdminCommercialDocumentsPage from "./pages/admin-commercial/AdminCommercialDocumentsPage";
+import PublicCommercialDocumentPage from "./pages/public-commercial/PublicCommercialDocumentPage";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
@@ -73,12 +76,12 @@ function AdminOnlyAppRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function AdminOmniChannelRoute() {
+function AdminOmniChannelRoute({ children }: { children?: React.ReactNode }) {
   const { currentUser, loading } = useLuluApp();
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
   if (!currentUser) return <Navigate replace to={routes.auth.login} />;
   if (!isAdminUser(currentUser)) return <Navigate replace to="/not-found" />;
-  return <AdminOmniChannelPage />;
+  return children ?? <AdminOmniChannelPage />;
 }
 
 function BillingRoute() {
@@ -257,13 +260,20 @@ export default function App() {
         <Route path={routes.onboarding.existingPlatforms} element={<AdminOnlyAppRoute><PageRoute page={EXISTING_PLATFORMS_PAGE} /></AdminOnlyAppRoute>} />
         <Route path={routes.onboarding.billing} element={<BillingRoute />} />
         <Route path={routes.onboarding.billings} element={<BillingRoute />} />
+        <Route path="/documents/commercial/:token" element={<PublicCommercialDocumentPage />} />
         <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
         <Route path="/admin/omnichannel" element={<AdminOmniChannelRoute />} />
+        <Route path="/admin/quotes" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="quotes" /></AdminOmniChannelRoute>} />
+        <Route path="/admin/invoices" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="invoices" /></AdminOmniChannelRoute>} />
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.email} element={<AdminOnlyAppRoute><PageRoute page={EMAIL_PAGE} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><PageRoute page={CALENDAR_PAGE} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.products} element={<AdminOnlyAppRoute><ProductsPage /></AdminOnlyAppRoute>} />
         <Route path={routes.app.omnichannel} element={<AdminOnlyAppRoute><OmniChannelPage /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.quotesNew} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" create /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.quotes} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.invoicesNew} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="invoices" create /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.invoices} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="invoices" /></AdminOnlyAppRoute>} />
         {pages.map((page) => {
           if (!isPageAvailable(page.slug)) return null;
           if (page.slug === "nicely-ocean-1051") return null;
