@@ -66,6 +66,7 @@ type Plan = "explorer" | "starter" | "ai" | "test";
 type Customer = {
   id: string; firstName: string | null; lastName: string | null; email: string;
   companyName: string; planKey: Plan; subscriptionStatus: string;
+  customPriceMinor: string | number | null; customPriceCurrency: string | null;
   startDate: string | null; expiryDate: string | null;
   apiCostMinor: string; storageCostMinor: string; storageBytes: string;
   apiCostUsd: string; serverCostUsd: string;
@@ -127,6 +128,7 @@ type WorkspaceDetail = WorkspaceRow & {
   primaryIcp: string | null; usp: string | null; mission: string | null; vision: string | null;
   primaryChallenges: string[] | null; languages: string[] | null; regulatedIndustries: string[] | null;
   fileReuploadRequired: boolean; trialEndsAt: string | null; periodStartsAt: string | null; periodEndsAt: string | null; seats: number | null;
+  customPriceMinor: number | null; customPriceCurrency: string | null; customPriceReason: string | null; customPriceSetBy: string | null; customPriceSetAt: string | null;
   members: Array<{ id: string; email: string; firstName: string | null; lastName: string | null; role: string; joinedAt: string | null }>;
   crmByType: Array<{ resourceType: string; count: number }>;
   websites: Array<{ id: string; title: string; platform: string; status: string; domain: string | null; publishedAt: string | null; createdAt: string }>;
@@ -284,6 +286,7 @@ const dateOnly = (value: string | null | undefined) =>
   value ? new Intl.DateTimeFormat(currentDateLocale(), { dateStyle: "medium" }).format(new Date(value)) : "—";
 const monthNow = () => new Date().toISOString().slice(0, 7);
 const sizeMB = (bytes: string | number | null) => `${(Number(bytes || 0) / 1024 / 1024).toFixed(2)} MB`;
+const moneyCny = (minor: string | number | null | undefined) => new Intl.NumberFormat(currentDateLocale(), { style: "currency", currency: "CNY", maximumFractionDigits: 2 }).format(Number(minor ?? 0) / 100);
 const nameOf = (first: string | null, last: string | null, fallback = "") => {
   const parts = [first, last].filter(Boolean);
   return parts.length ? parts.join(" ") : fallback;
@@ -682,6 +685,7 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
               </select>
             )
           ) },
+          { key: "customPriceMinor", label: t("Customer price"), render: (c) => c.customPriceMinor === null || c.customPriceMinor === undefined ? t("Catalog price") : <span className="font-mono text-xs">{moneyCny(c.customPriceMinor)}</span> },
           { key: "subscriptionStatus", label: "Status", render: (c) => <Pill tone={toneFromStatus(c.subscriptionStatus)}>{c.subscriptionStatus}</Pill> },
           { key: "startDate", label: "Start", render: (c) => dateOnly(c.startDate) },
           { key: "expiryDate", label: "Ablauf", render: (c) => dateOnly(c.expiryDate) },
@@ -964,6 +968,7 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
 }
 
 function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
+  const t = useTranslation();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<WorkspaceRow[]>([]);
   const [search, setSearch] = useState("");
@@ -977,6 +982,9 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
   const [usageAmount, setUsageAmount] = useState("");
   const [usageReason, setUsageReason] = useState("");
   const [usageSaving, setUsageSaving] = useState(false);
+  const [subscriptionPrice, setSubscriptionPrice] = useState("");
+  const [subscriptionPriceReason, setSubscriptionPriceReason] = useState("");
+  const [subscriptionPriceSaving, setSubscriptionPriceSaving] = useState(false);
 
   const load = async (q?: string) => {
     setLoading(true); onError("");
@@ -993,6 +1001,8 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
     try {
       const res = await requestApi<WorkspaceDetail>({ path: `/admin/workspaces/${id}` });
       setDetail(res.data);
+      setSubscriptionPrice(res.data.customPriceMinor === null || res.data.customPriceMinor === undefined ? "" : (Number(res.data.customPriceMinor) / 100).toFixed(2));
+      setSubscriptionPriceReason("");
     } catch (e) { onError(getFriendlyErrorMessage(e, "Workspace details konnten nicht geladen werden.")); }
     finally { setDetailLoading(false); }
   };
@@ -1047,6 +1057,32 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
     } catch (e) {
       onError(getFriendlyErrorMessage(e, "Die Nutzungs-Gutschrift konnte nicht gespeichert werden."));
     } finally { setUsageSaving(false); }
+  };
+
+  const saveSubscriptionPrice = async (restoreCatalog = false) => {
+    if (!detail) return;
+    const rawAmount = subscriptionPrice.trim();
+    const amountCny = restoreCatalog || rawAmount === "" ? null : Number(rawAmount);
+    if (amountCny !== null && (!Number.isFinite(amountCny) || amountCny < 0 || amountCny > 10_000_000 || Math.abs(amountCny * 100 - Math.round(amountCny * 100)) > 1e-6)) {
+      onError(t("Subscription price must be between 0 and 10,000,000 CNY with at most two decimal places"));
+      return;
+    }
+    const reason = (restoreCatalog ? t("Catalog price restored") : subscriptionPriceReason).trim();
+    if (!reason) {
+      onError(t("A reason is required for every subscription price change"));
+      return;
+    }
+    setSubscriptionPriceSaving(true); onError("");
+    try {
+      await requestApi({ path: `/admin/workspaces/${detail.id}/subscription-price`, method: "PATCH", body: { amountCny, reason } });
+      const refreshed = await requestApi<WorkspaceDetail>({ path: `/admin/workspaces/${detail.id}` });
+      setDetail(refreshed.data);
+      setSubscriptionPrice(refreshed.data.customPriceMinor === null || refreshed.data.customPriceMinor === undefined ? "" : (Number(refreshed.data.customPriceMinor) / 100).toFixed(2));
+      setSubscriptionPriceReason("");
+      await load(search);
+    } catch (e) {
+      onError(getFriendlyErrorMessage(e, t("The subscription price could not be updated.")));
+    } finally { setSubscriptionPriceSaving(false); }
   };
 
   const debounced = (() => {
@@ -1114,6 +1150,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
               <div className="mb-2 text-sm font-semibold text-slate-700">Profile</div>
               <dl className="space-y-1 text-sm text-slate-700">
                 <div className="flex justify-between"><dt className="text-slate-500">Plan</dt><dd className="font-medium">{detail.planKey} · {detail.subscriptionStatus}</dd></div>
+                <div className="flex justify-between"><dt className="text-slate-500">{t("Customer price")}</dt><dd className="font-medium">{detail.customPriceMinor === null || detail.customPriceMinor === undefined ? t("Catalog price") : moneyCny(detail.customPriceMinor)}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Trial ends</dt><dd>{dateOnly(detail.trialEndsAt)}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Period</dt><dd>{dateOnly(detail.periodStartsAt)} – {dateOnly(detail.periodEndsAt)}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Seats</dt><dd>{detail.seats ?? "—"}</dd></div>
@@ -1152,6 +1189,57 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                   >
                     {creditSaving ? "Speichere…" : "Hinzufügen"}
                   </button>
+                </div>
+              </div>
+              <div className="mt-4 rounded-lg border border-violet-100 bg-violet-50/50 p-3">
+                <div className="mb-1 text-xs font-semibold text-violet-900">{t("Customer subscription price")}</div>
+                <div className="mb-3 text-xs leading-5 text-slate-600">
+                  {t("Set a workspace-specific annual price in CNY. It is used for future subscription checkouts; existing invoices and active provider subscriptions are not changed retroactively.")}
+                </div>
+                <div className="mb-2 text-xs text-slate-600">
+                  {detail.customPriceMinor === null || detail.customPriceMinor === undefined
+                    ? t("Currently using the catalog price")
+                    : `${t("Current override")}: ${moneyCny(detail.customPriceMinor)}${detail.customPriceSetAt ? ` · ${dateOnly(detail.customPriceSetAt)}` : ""}`}
+                </div>
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-[150px_minmax(0,1fr)]">
+                  <input
+                    value={subscriptionPrice}
+                    onChange={(e) => setSubscriptionPrice(e.target.value)}
+                    placeholder={t("Annual amount in CNY")}
+                    inputMode="decimal"
+                    type="number"
+                    min="0"
+                    max="10000000"
+                    step="0.01"
+                    disabled={subscriptionPriceSaving}
+                    className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-violet-400 disabled:opacity-50"
+                  />
+                  <input
+                    value={subscriptionPriceReason}
+                    onChange={(e) => setSubscriptionPriceReason(e.target.value)}
+                    placeholder={t("Reason (required)")}
+                    maxLength={500}
+                    disabled={subscriptionPriceSaving}
+                    className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-violet-400 disabled:opacity-50"
+                  />
+                </div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <button
+                    disabled={subscriptionPriceSaving}
+                    onClick={() => void saveSubscriptionPrice()}
+                    className="inline-flex items-center gap-1 rounded-md border border-violet-200 bg-violet-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-violet-700 disabled:opacity-50"
+                  >
+                    {subscriptionPriceSaving ? t("Saving…") : t("Save customer price")}
+                  </button>
+                  {detail.customPriceMinor !== null && detail.customPriceMinor !== undefined ? (
+                    <button
+                      disabled={subscriptionPriceSaving}
+                      onClick={() => void saveSubscriptionPrice(true)}
+                      className="inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      {t("Use catalog price")}
+                    </button>
+                  ) : null}
                 </div>
               </div>
               <div className="mt-3">
