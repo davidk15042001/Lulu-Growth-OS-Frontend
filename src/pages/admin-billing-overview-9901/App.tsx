@@ -5,6 +5,7 @@ import { useLuluApp } from '../../api/LuluAppContext';
 import { DEFAULT_LANGUAGE, isAvailableLanguageCode, LANGUAGE_STORAGE_KEY } from "../../i18n/languages";
 import { routes } from "../../routing";
 import SupportInbox from '../support/SupportPage';
+import AdminOmniChannelPage from '../admin-omnichannel/AdminOmniChannelPage';
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
   Plug, KeyRound, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
@@ -529,7 +530,7 @@ export default function App() {
             {page === "integrations" ? <IntegrationsPage onError={setError} /> : null}
             {page === "oauth-connections" ? <OAuthConnectionsPage onError={setError} /> : null}
             {page === "approvals" ? <ApprovalsPage onError={setError} /> : null}
-            {page === "conversations" ? <ConversationsPage onError={setError} /> : null}
+            {page === "conversations" ? <AdminOmniChannelPage /> : null}
             {page === "files" ? <FilesPage onError={setError} /> : null}
             {page === "support" ? <SupportInbox admin /> : null}
             {page === "errors" ? <ErrorsPage onError={setError} /> : null}
