@@ -95,7 +95,6 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     }
   }
 
-  const financeIndex = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
   const statisticsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
   const settingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
 
@@ -106,7 +105,19 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     reorderedSections.splice(currentSettingsIndex, 0, statisticsSection);
   }
 
-  return reorderedSections.filter((section) => section.label !== STATISTICS_LABEL && section.pages.length > 0);
+  const visibleSections = reorderedSections.filter((section) => section.label !== STATISTICS_LABEL && section.pages.length > 0);
+  const visibleFinanceIndex = visibleSections.findIndex((section) => section.label === FINANCE_LABEL);
+  const visibleWebsiteIndex = visibleSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
+  const visibleSettingsIndex = visibleSections.findIndex((section) => section.label === SETTINGS_LABEL);
+
+  // Keep Finance immediately after Website & Commerce and before Settings.
+  if (visibleFinanceIndex !== -1 && visibleWebsiteIndex !== -1 && visibleSettingsIndex !== -1) {
+    const [financeSection] = visibleSections.splice(visibleFinanceIndex, 1);
+    const nextSettingsIndex = visibleSections.findIndex((section) => section.label === SETTINGS_LABEL);
+    visibleSections.splice(nextSettingsIndex, 0, financeSection);
+  }
+
+  return visibleSections;
 })();
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
