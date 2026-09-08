@@ -268,7 +268,7 @@ export function NativePage({
             />
             <div className="lulu-global-content">
               <LuluAgentWorkspaceHeader contract={agentContract} />
-              <div className="lulu-native-page">
+              <div className="lulu-native-page lulu-native-page--without-secondary-navigation">
                 <PageErrorBoundary pageName={slug}>
                   <MinimalAgentWorkspacePage slug={effectiveSlug} contract={contract} agentContract={agentContract} />
                 </PageErrorBoundary>
@@ -305,7 +305,7 @@ export function NativePage({
         )}
         <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
           {!isNavigationFree && agentContract && !CUSTOM_INTERFACE_PAGE_SLUGS.has(effectiveSlug) ? <LuluAgentWorkspaceHeader contract={agentContract} /> : null}
-          <div className="lulu-native-page">
+          <div className="lulu-native-page lulu-native-page--without-secondary-navigation">
             <PageErrorBoundary pageName={slug}>
               <LiveResourceGate
                 enabled={contract?.kind === "resource" && usesStaticResourceGate(slug)}
