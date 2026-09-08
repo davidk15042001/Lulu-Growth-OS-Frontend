@@ -228,6 +228,19 @@ export function LuluGlobalNavigation({
       pages: section.pages.filter((page) => page.id === activeSlug || isPageAvailable(page.id)),
     }))
     .filter((section) => section.pages.length > 0), [activeSlug]);
+  const activeSectionLabel = useMemo(
+    () => navigationSections.find((section) => section.pages.some((page) => page.id === activeSlug))?.label ?? null,
+    [activeSlug, navigationSections],
+  );
+  const [openSectionLabel, setOpenSectionLabel] = useState<string | null>(() => (
+    baseNavigationSections.find((section) => section.pages.some((page) => page.id === activeSlug))?.label ?? null
+  ));
+
+  // Automatically reveal the section containing the current page after every
+  // route change. Users can still collapse it or inspect another section.
+  useEffect(() => {
+    setOpenSectionLabel(activeSectionLabel);
+  }, [activeSectionLabel]);
   return (
     <aside
       id="lulu-global-navigation"
@@ -278,7 +291,10 @@ export function LuluGlobalNavigation({
                 </div>
               )}
               <details
-                open={isActiveSection}
+                open={openSectionLabel === section.label}
+                onToggle={(event) => {
+                  setOpenSectionLabel(event.currentTarget.open ? section.label : null);
+                }}
               >
               <summary
                 className={isActiveSection ? "is-active" : undefined}

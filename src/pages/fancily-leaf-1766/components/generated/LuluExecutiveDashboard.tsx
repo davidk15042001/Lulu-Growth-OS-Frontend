@@ -1,4 +1,5 @@
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { WorkspaceIntelligencePanel } from '../../../../components/WorkspaceIntelligencePanel';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
@@ -535,10 +536,16 @@ export function LuluSectionNavigation({
     ...section,
     pages: section.pages.filter((page) => isPageAvailable(page.id) && page.id !== "nicely-land-1864"),
   })).filter((section) => section.pages.length > 0);
+  const activeSectionLabel = sections.find((section) => section.pages.some((page) => page.id === activeId))?.label ?? null;
+  const [openSectionLabel, setOpenSectionLabel] = useState<string | null>(activeSectionLabel);
+
+  useEffect(() => {
+    setOpenSectionLabel(activeSectionLabel);
+  }, [activeSectionLabel]);
   return <nav className="min-h-0 min-w-0 flex-1 space-y-1 overflow-x-hidden overflow-y-auto pr-1" aria-label={t("Lulu AI sections")}>
     {sections.map(section => {
       const isActiveSection = section.pages.some(page => page.id === activeId);
-      return <details key={section.label} open={isActiveSection} className="group rounded-lg">
+      return <details key={section.label} open={openSectionLabel === section.label} onToggle={(event) => setOpenSectionLabel(event.currentTarget.open ? section.label : null)} className="group rounded-lg">
         <summary className={`flex min-w-0 cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm leading-5 transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
           <span data-lulu-section-soon={section.label !== "Website & Commerce" && section.label !== "Settings" ? "true" : undefined}>{t(section.label)}</span>
           <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
