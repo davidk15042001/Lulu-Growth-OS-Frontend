@@ -247,7 +247,10 @@ type DashboardStats = {
 };
 
 const money = (minor: string | number | null) => `${(Number(minor || 0) / 100).toFixed(2)} CNY`;
-const moneyUsd = (amount: string | number | null) => `$${Number(amount || 0).toFixed(2)} USD`;
+const moneyUsd = (amount: string | number | null) => {
+  const value = Number(amount ?? 0);
+  return `$${Number.isFinite(value) ? value.toFixed(2) : "0.00"} USD`;
+};
 const DATE_LOCALE_BY_LANGUAGE = {
   en: "en-US",
   de: "de-DE",
