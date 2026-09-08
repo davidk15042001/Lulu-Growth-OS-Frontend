@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from "../../api/client";
+import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, requestApiBlob } from "../../api/client";
 import { setAdminSurface, setStoredUser } from "../../api/session";
 import { useLuluApp } from '../../api/LuluAppContext';
 import { DEFAULT_LANGUAGE, isAvailableLanguageCode, LANGUAGE_STORAGE_KEY } from "../../i18n/languages";
 import { routes } from "../../routing";
+import SupportInbox from '../support/SupportPage';
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
   Plug, KeyRound, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
@@ -530,7 +531,7 @@ export default function App() {
             {page === "approvals" ? <ApprovalsPage onError={setError} /> : null}
             {page === "conversations" ? <ConversationsPage onError={setError} /> : null}
             {page === "files" ? <FilesPage onError={setError} /> : null}
-            {page === "support" ? <SupportPage onError={setError} /> : null}
+            {page === "support" ? <SupportInbox admin /> : null}
             {page === "errors" ? <ErrorsPage onError={setError} /> : null}
             {page === "audit" ? <AuditPage onError={setError} /> : null}
             {page === "jobs" ? <JobsPage onError={setError} /> : null}
@@ -1422,7 +1423,7 @@ function WebsitesPage({ onError }: { onError: (m: string) => void }) {
         { key: "platform", label: "Platform", render: (r) => <Pill tone="violet">{r.platform}</Pill> },
         { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
         { key: "templateId", label: "Template", render: (r) => r.templateId ?? "—" },
-        { key: "version", label: "V", render: (r) => `v${r.version}` },
+        { key: "version", label: "V", render: (r) => r.version == null ? "—" : `v${r.version}` },
         { key: "lastGeneratedAt", label: "Generated", render: (r) => dateOnly(r.lastGeneratedAt) },
         { key: "lastSyncedAt", label: "Synced", render: (r) => dateOnly(r.lastSyncedAt) },
         { key: "publishedAt", label: "Published", render: (r) => dateOnly(r.publishedAt) },
@@ -1458,7 +1459,7 @@ function AgentsPage({ onError }: { onError: (m: string) => void }) {
           { key: "mode", label: "Mode", render: (r) => <Pill tone="sky">{r.mode}</Pill> },
           { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
           { key: "model", label: "Model", render: (r) => `${r.modelProvider ?? "—"} / ${r.modelName ?? "—"}` },
-          { key: "version", label: "Version", render: (r) => `v${r.version}` },
+          { key: "version", label: "Version", render: (r) => r.version == null ? "—" : `v${r.version}` },
           { key: "runCount", label: "Runs", render: (r) => r.runCount },
           { key: "createdAt", label: "Created", render: (r) => dateOnly(r.createdAt) },
           { key: "updatedAt", label: "Updated", render: (r) => dateOnly(r.updatedAt) },
@@ -1729,18 +1730,31 @@ function ConversationsPage({ onError }: { onError: (m: string) => void }) {
 }
 
 function FilesPage({ onError }: { onError: (m: string) => void }) {
+  const { currentUser } = useLuluApp();
+  const [downloading,setDownloading] = useState<string|null>(null);
+  const download = async (row:FileRow) => {
+    setDownloading(row.id); onError('');
+    try {
+      const blob=await requestApiBlob(`/admin/files/${encodeURIComponent(row.source ?? '')}/${encodeURIComponent(row.id)}/download`);
+      const url=URL.createObjectURL(blob);const link=document.createElement('a');
+      link.href=url;link.download=row.fileName;document.body.appendChild(link);link.click();link.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),1000);
+    } catch(error) {onError(getFriendlyErrorMessage(error));} finally {setDownloading(null);}
+  };
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<FileRow[]>([]);
+  const [offset, setOffset] = useState(0);
   const load = async () => {
     setLoading(true); onError("");
     try {
-      const res = await requestApi<{ files: FileRow[] }>({ path: "/admin/files?limit=200" });
+      const res = await requestApi<{ files: FileRow[] }>({ path: `/admin/files?limit=200&offset=${offset}` });
       setRows(res.data.files);
     } catch (e) { onError(getFriendlyErrorMessage(e, "Files konnten nicht geladen werden.")); }
     finally { setLoading(false); }
   };
-  useEffect(() => { void load(); }, []);
-  return (
+  useEffect(() => { void load(); }, [offset]);
+  return (<div className="space-y-3">
+    <div className="flex gap-3"><button disabled={loading || offset===0} onClick={()=>setOffset(v=>Math.max(0,v-200))}>Previous</button><span>{offset+1}–{offset+rows.length}</span><button disabled={loading || rows.length<200} onClick={()=>setOffset(v=>v+200)}>Next</button><button disabled={loading} onClick={()=>void load()}>Refresh</button></div>
     <DataTable<FileRow>
       loading={loading} rows={rows}
       columns={[
@@ -1751,7 +1765,8 @@ function FilesPage({ onError }: { onError: (m: string) => void }) {
             <div className="text-xs text-slate-500 font-mono">{r.mimeType ?? "—"}</div>
           </div>
         ) },
-        { key: "fileSizeBytes", label: "Size", render: (r) => sizeMB(r.fileSizeBytes) },
+        { key: "fileSizeBytes", label: "Size", render: (r) => r.fileSizeBytes == null ? "—" : sizeMB(r.fileSizeBytes) },
+        { key: "download", label: "Download", render: (r) => currentUser?.adminCapabilities?.includes('files.read') && ['onboarding','record','omnichannel'].includes(r.source ?? '') ? <button disabled={downloading!==null} onClick={()=>void download(r)}>Download</button> : '—' },
         { key: "source", label: "Source", render: (r) => r.source ? <Pill tone="sky">{r.source}</Pill> : "—" },
         { key: "uploadedByEmail", label: "Uploaded by", render: (r) => r.uploadedByEmail ?? "—" },
         { key: "uploadedAt", label: "Uploaded", render: (r) => date(r.uploadedAt) },
@@ -1762,7 +1777,7 @@ function FilesPage({ onError }: { onError: (m: string) => void }) {
           </div>
         ) },
       ]}
-    />
+    /></div>
   );
 }
 
@@ -1783,7 +1798,7 @@ function SupportPage({ onError }: { onError: (m: string) => void }) {
       loading={loading} rows={rows}
       columns={[
         { key: "workspaceName", label: "Workspace", render: (r) => r.workspaceName ?? "—" },
-        { key: "subject", label: "Ticket", render: (r) => <div className="max-w-md truncate font-medium">{r.subject}</div> },
+        { key: "subject", label: "Ticket", render: (r) => <a href="/admin/support" className="max-w-md truncate font-medium underline">{r.subject}</a> },
         { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
         { key: "priority", label: "Priority", render: (r) => <Pill tone={r.priority === "high" ? "rose" : r.priority === "medium" ? "amber" : "slate"}>{r.priority}</Pill> },
         { key: "category", label: "Category", render: (r) => r.category ? <Pill tone="sky">{r.category}</Pill> : "—" },

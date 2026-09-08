@@ -1,4 +1,12 @@
 {
+  "Previous messages": "Ältere Nachrichten",
+  "Next messages": "Neuere Nachrichten",
+  "Create ticket": "Ticket erstellen",
+  "No support tickets.": "Keine Support-Tickets.",
+  "Select a ticket.": "Wähle ein Ticket aus.",
+  "Send reply": "Antwort senden",
+  "Resolve ticket": "Ticket lösen",
+  "Support could not be loaded.": "Support konnte nicht geladen werden.",
   "Loading…": "Laden…",
   "Loading": "Laden…",
   "Last active": "Zuletzt aktiv",

@@ -29,6 +29,7 @@ import OmniChannelPage from "./pages/canonical-omnichannel/OmniChannelPage";
 import AdminOmniChannelPage from "./pages/admin-omnichannel/AdminOmniChannelPage";
 import CommercialDocumentsPage from "./pages/canonical-commercial/CommercialDocumentsPage";
 import AdminCommercialDocumentsPage from "./pages/admin-commercial/AdminCommercialDocumentsPage";
+import SupportPage from "./pages/support/SupportPage";
 import PublicCommercialDocumentPage from "./pages/public-commercial/PublicCommercialDocumentPage";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
@@ -263,6 +264,8 @@ export default function App() {
         <Route path="/documents/commercial/:token" element={<PublicCommercialDocumentPage />} />
         <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
         <Route path="/admin/omnichannel" element={<AdminOmniChannelRoute />} />
+        <Route path="/admin/support" element={<AdminOmniChannelRoute><SupportPage admin /></AdminOmniChannelRoute>} />
+        <Route path="/app/support" element={<AdminOnlyAppRoute><SupportPage /></AdminOnlyAppRoute>} />
         <Route path="/admin/quotes" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="quotes" /></AdminOmniChannelRoute>} />
         <Route path="/admin/invoices" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="invoices" /></AdminOmniChannelRoute>} />
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
