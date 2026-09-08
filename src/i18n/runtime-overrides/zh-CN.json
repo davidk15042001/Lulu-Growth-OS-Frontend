@@ -1856,6 +1856,7 @@
   "jobs": "职位",
   "Use Update in the navigation bar": "使用导航栏中的更新",
   "API:": "应用程序编程接口：",
+  "Server:": "服务器：",
   "Storage:": "存储：",
   "Bytes:": "字节：",
   "Delete {{0}} and remove their connected workspace data? This will revoke access immediately and delete owned workspaces with their connected integrations.": "删除 {{0}} 并删除其连接的工作区数据？这将立即撤销访问权限并删除拥有的工作区及其连接的集成。",

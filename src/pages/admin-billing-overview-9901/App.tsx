@@ -3,6 +3,7 @@ import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi
 import { setAdminSurface, setStoredUser } from "../../api/session";
 import { useLuluApp } from '../../api/LuluAppContext';
 import { DEFAULT_LANGUAGE, isAvailableLanguageCode, LANGUAGE_STORAGE_KEY } from "../../i18n/languages";
+import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { routes } from "../../routing";
 import SupportInbox from '../support/SupportPage';
 import AdminOmniChannelPage from '../admin-omnichannel/AdminOmniChannelPage';
@@ -617,6 +618,7 @@ function DashboardPage({ onError }: { onError: (m: string) => void }) {
 }
 
 function BillingPage({ onError }: { onError: (m: string) => void }) {
+  const t = useTranslation();
   const [month, setMonth] = useState(monthNow());
   const [overview, setOverview] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
@@ -653,7 +655,7 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
         <input type="month" className="rounded-md border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-indigo-400" value={month} onChange={(e) => setMonth(e.target.value)} />
         <div className="ml-auto flex items-center gap-2 text-sm">
           <Pill tone="sky">API: {moneyUsd(totalApiUsd)}{totalApi > 0 ? ` · ${money(totalApi)}` : ""}</Pill>
-          <Pill tone="violet">Server: {moneyUsd(totalServerUsd)}</Pill>
+          <Pill tone="violet">{t("Server:")} {moneyUsd(totalServerUsd)}</Pill>
           <Pill tone="amber">Bytes: {sizeMB(totalStorageBytes)}</Pill>
           <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">
             Use Update in the navigation bar
