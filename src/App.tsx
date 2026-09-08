@@ -33,6 +33,7 @@ import SupportPage from "./pages/support/SupportPage";
 import PublicCommercialDocumentPage from "./pages/public-commercial/PublicCommercialDocumentPage";
 import CrmWorkspacePage from "./pages/canonical-crm/CrmWorkspacePage";
 import WorkspaceRecordsPage from "./pages/canonical-records/WorkspaceRecordsPage";
+import ProfilePage from "./pages/canonical-profile/ProfilePage";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
@@ -287,6 +288,7 @@ export default function App() {
         <Route path="/admin/omnichannel" element={<AdminOmniChannelRoute />} />
         <Route path="/admin/support" element={<AdminOmniChannelRoute><SupportPage admin /></AdminOmniChannelRoute>} />
         <Route path="/app/support" element={<AdminOnlyAppRoute><SupportPage /></AdminOnlyAppRoute>} />
+        <Route path="/app/profile" element={<AdminOnlyAppRoute><ProfilePage /></AdminOnlyAppRoute>} />
         <Route path="/admin/quotes" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="quotes" /></AdminOmniChannelRoute>} />
         <Route path="/admin/invoices" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="invoices" /></AdminOmniChannelRoute>} />
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />

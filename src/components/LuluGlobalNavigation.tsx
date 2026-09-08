@@ -53,8 +53,12 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
 
   const reorderedSections = [...availableSections];
   const supportSettings = reorderedSections.find(section => section.label === SETTINGS_LABEL);
-  if (supportSettings) supportSettings.pages.push({ id: "support", label: "Support" });
-  else reorderedSections.push({label: SETTINGS_LABEL, pages: [{id: "support", label: "Support"}]});
+  if (supportSettings) {
+    supportSettings.pages.push({ id: "profile", label: "Profile" });
+    supportSettings.pages.push({ id: "support", label: "Support" });
+  } else {
+    reorderedSections.push({label: SETTINGS_LABEL, pages: [{id: "profile", label: "Profile"}, {id: "support", label: "Support"}]});
+  }
 
   // OmniChannel has a canonical route but is not part of the generated
   // dropdown manifest. Keep it in the same global navigation so users can

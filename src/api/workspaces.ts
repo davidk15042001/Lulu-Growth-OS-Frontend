@@ -66,3 +66,30 @@ export const workspaceFoundationApi = {
   removeEntitlementOverride: (workspaceId: string, overrideId: string) => requestApi<{ id: string }>({ path: workspaceApiPath(workspaceId, `/entitlements/overrides/${encodeURIComponent(overrideId)}`), method: "DELETE" }),
   businessIdentity: (workspaceId: string, signal?: AbortSignal) => requestApi<WorkspaceBusinessIdentity>({ path: workspaceApiPath(workspaceId, "/business-identity"), signal }),
 };
+
+export type WorkspaceProfile = {
+  workspaceId: string;
+  companyName: string;
+  industry: string | null;
+  countryRegion: string | null;
+  taxId: string | null;
+  address: string | null;
+  legalForm: string | null;
+  legalRepresentative: string | null;
+  phoneNumber: string | null;
+  bankAccountNumber: string | null;
+  bankOpeningBank: string | null;
+  bankBranch: string | null;
+  bankCode: string | null;
+};
+
+export type WorkspaceProfileInput = Partial<Omit<WorkspaceProfile, 'workspaceId'>>;
+
+export const workspaceProfileApi = {
+  get: (workspaceId: string, signal?: AbortSignal) => requestApi<WorkspaceProfile>({
+    path: workspaceApiPath(workspaceId, '/profile'), signal,
+  }),
+  update: (workspaceId: string, input: WorkspaceProfileInput) => requestApi<WorkspaceProfile>({
+    path: workspaceApiPath(workspaceId, '/profile'), method: 'PATCH', body: input,
+  }),
+};

@@ -534,7 +534,10 @@ export function LuluSectionNavigation({
     ...luluDropdownNavigation.filter((section) => section.label !== "Statistiken" && (section.label as string) !== "Revenue"),
   ].map((section) => ({
     ...section,
-    pages: section.pages.filter((page) => isPageAvailable(page.id) && page.id !== "nicely-land-1864"),
+    pages: [
+      ...section.pages.filter((page) => isPageAvailable(page.id) && page.id !== "nicely-land-1864"),
+      ...(section.label === "Settings" ? [{ id: "profile", label: "Profile" }, { id: "support", label: "Support" }] : []),
+    ],
   })).filter((section) => section.pages.length > 0);
   const activeSectionLabel = sections.find((section) => section.pages.some((page) => page.id === activeId))?.label ?? null;
   const [openSectionLabel, setOpenSectionLabel] = useState<string | null>(activeSectionLabel);

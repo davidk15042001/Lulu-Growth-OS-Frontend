@@ -38,6 +38,9 @@ export const authApi = {
   updateMe: (input: { firstName?: string; lastName?: string }) => requestApi<CurrentUser>({
     path: "/auth/me", method: "PATCH", body: input,
   }),
+  changePassword: (input: { currentPassword: string; newPassword: string }) => requestApi<{ requiresReauthentication: boolean }>({
+    path: "/auth/change-password", method: "POST", body: input,
+  }),
   stopImpersonation: () => requestApi<{ token: string; user: CurrentUser }>({
     path: "/auth/impersonation/stop", method: "POST", body: {},
   }),
