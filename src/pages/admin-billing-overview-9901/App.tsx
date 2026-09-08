@@ -67,6 +67,7 @@ type Customer = {
   companyName: string; planKey: Plan; subscriptionStatus: string;
   startDate: string | null; expiryDate: string | null;
   apiCostMinor: string; storageCostMinor: string; storageBytes: string;
+  apiCostUsd: string; serverCostUsd: string;
 };
 type Overview = { month: string; periodStart: string; periodEnd: string; customers: Customer[] };
 
@@ -246,6 +247,7 @@ type DashboardStats = {
 };
 
 const money = (minor: string | number | null) => `${(Number(minor || 0) / 100).toFixed(2)} CNY`;
+const moneyUsd = (amount: string | number | null) => `$${Number(amount || 0).toFixed(2)} USD`;
 const DATE_LOCALE_BY_LANGUAGE = {
   en: "en-US",
   de: "de-DE",
@@ -637,7 +639,8 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
   };
 
   const totalApi = overview?.customers.reduce((s, c) => s + Number(c.apiCostMinor || 0), 0) ?? 0;
-  const totalStorage = overview?.customers.reduce((s, c) => s + Number(c.storageCostMinor || 0), 0) ?? 0;
+  const totalApiUsd = overview?.customers.reduce((s, c) => s + Number(c.apiCostUsd || 0), 0) ?? 0;
+  const totalServerUsd = overview?.customers.reduce((s, c) => s + Number(c.serverCostUsd || 0), 0) ?? 0;
   const totalStorageBytes = overview?.customers.reduce((s, c) => s + Number(c.storageBytes || 0), 0) ?? 0;
 
   return (
@@ -646,8 +649,8 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
         <label className="text-sm font-medium text-slate-700">Monat</label>
         <input type="month" className="rounded-md border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-indigo-400" value={month} onChange={(e) => setMonth(e.target.value)} />
         <div className="ml-auto flex items-center gap-2 text-sm">
-          <Pill tone="sky">API: {money(totalApi)}</Pill>
-          <Pill tone="violet">Storage: {money(totalStorage)}</Pill>
+          <Pill tone="sky">API: {moneyUsd(totalApiUsd)}{totalApi > 0 ? ` · ${money(totalApi)}` : ""}</Pill>
+          <Pill tone="violet">Server: {moneyUsd(totalServerUsd)}</Pill>
           <Pill tone="amber">Bytes: {sizeMB(totalStorageBytes)}</Pill>
           <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">
             Use Update in the navigation bar
@@ -680,8 +683,8 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
           { key: "subscriptionStatus", label: "Status", render: (c) => <Pill tone={toneFromStatus(c.subscriptionStatus)}>{c.subscriptionStatus}</Pill> },
           { key: "startDate", label: "Start", render: (c) => dateOnly(c.startDate) },
           { key: "expiryDate", label: "Ablauf", render: (c) => dateOnly(c.expiryDate) },
-          { key: "apiCostMinor", label: "API", render: (c) => <span className="font-mono text-xs">{money(c.apiCostMinor)}</span> },
-          { key: "storageCostMinor", label: "Storage", render: (c) => <span className="font-mono text-xs">{money(c.storageCostMinor)}</span> },
+          { key: "apiCostUsd", label: "API", render: (c) => <span className="font-mono text-xs">{moneyUsd(c.apiCostUsd)}</span> },
+          { key: "serverCostUsd", label: "Server", render: (c) => <span className="font-mono text-xs">{moneyUsd(c.serverCostUsd)}</span> },
           { key: "storageBytes", label: "Größe", render: (c) => <span className="font-mono text-xs">{sizeMB(c.storageBytes)}</span> },
         ]}
       />
