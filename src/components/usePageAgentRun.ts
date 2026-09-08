@@ -7,6 +7,7 @@ import {
   type AgentHealth,
   type AgentRun,
   type AgentRunDetails,
+  isBudgetProtectedAgentInput,
 } from "../api/agents";
 import { getFriendlyErrorMessage } from "../api/client";
 import { getRecord, type WorkspaceRecord } from "../api/records";
@@ -238,7 +239,7 @@ export function usePageAgentRun(
   }, [details, latestRun, refreshExecution, t, workspaceId]);
 
   const pendingApprovalSteps = useMemo(
-    () => details?.steps.filter((step) => step.status === "waiting_approval") ?? [],
+    () => details?.steps.filter((step) => step.status === "waiting_approval" && isBudgetProtectedAgentInput(step.toolInput)) ?? [],
     [details],
   );
 

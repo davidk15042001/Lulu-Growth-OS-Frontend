@@ -16,6 +16,7 @@ import {
   type AgentHealth,
   type AgentHealthItem,
   type AgentRun,
+  isBudgetProtectedAgentInput,
 } from "../../../../api/agents";
 import { workspaceApi } from "../../../../api/workspaces";
 import type { WorkspaceBootstrap } from "../../../../api/types";
@@ -86,6 +87,12 @@ function runPageId(run: AgentRun): string | null {
     if (typeof value === "string") return value;
   }
   return null;
+}
+
+function isVisibleApproval(approval: Approval) {
+  // Non-agent approvals belong to other business workflows and remain visible.
+  if (!approval.actionType.startsWith("agent_")) return true;
+  return isBudgetProtectedAgentInput(approval.payload);
 }
 
 export function LuluCommandCenter() {
@@ -261,7 +268,10 @@ export function LuluCommandCenter() {
 
   const groups = useMemo(() => groupBySection(items), [items]);
   const summary = health?.summary ?? null;
-  const pendingApprovals = bootstrap?.approvals.pending ?? approvals.length;
+  const visibleApprovals = useMemo(() => approvals.filter(isVisibleApproval), [approvals]);
+  const pendingApprovals = bootstrap?.approvals.pending === undefined
+    ? visibleApprovals.length
+    : Math.max(0, bootstrap.approvals.pending - (approvals.length - visibleApprovals.length));
   const totalRecords = bootstrap?.records.total ?? 0;
 
   return (
@@ -328,16 +338,16 @@ export function LuluCommandCenter() {
                   <ShieldAlert size={15} />
                   Offene Freigaben
                 </h3>
-                <span className="text-xs text-[var(--muted-foreground)]">{approvals.length}</span>
+                <span className="text-xs text-[var(--muted-foreground)]">{visibleApprovals.length}</span>
               </div>
               {!canEdit && (
                 <p className="mb-2 text-xs text-[var(--muted-foreground)]">Nur lesbar</p>
               )}
-              {approvals.length === 0 ? (
+              {visibleApprovals.length === 0 ? (
                 <p className="text-sm text-[var(--muted-foreground)]">Keine offenen Freigaben.</p>
               ) : (
                 <div className="flex flex-col gap-2">
-                  {approvals.map((approval) => (
+                  {visibleApprovals.map((approval) => (
                     <div
                       key={approval.id}
                       className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5"

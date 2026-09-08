@@ -153,7 +153,6 @@ export const RESOURCE_BY_SLUG: Readonly<Record<string, string>> = {
   "wildly-sun-6424": "sales_opportunities",
   "gentle-cliff-7133": "sales_goals",
   "rich-moon-9195": "sales_reports",
-  "nicely-land-1864": "sales_settings",
   "wondrously-gate-2200": "sales_tasks",
   "kindly-morning-7115": "sales_territories",
   "warmly-road-3804": "sales_activities",

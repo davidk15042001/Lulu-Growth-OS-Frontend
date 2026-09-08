@@ -567,9 +567,7 @@ function DashboardPage({ onError }: { onError: (m: string) => void }) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-end">
-        <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">
-          Use Update in the navigation bar
-        </span>
+        <button type="button" disabled={loading} onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -657,9 +655,7 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
           <Pill tone="sky">API: {moneyUsd(totalApiUsd)}{totalApi > 0 ? ` · ${money(totalApi)}` : ""}</Pill>
           <Pill tone="violet">{t("Server:")} {moneyUsd(totalServerUsd)}</Pill>
           <Pill tone="amber">Bytes: {sizeMB(totalStorageBytes)}</Pill>
-          <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">
-            Use Update in the navigation bar
-          </span>
+          <button type="button" disabled={loading} onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
         </div>
       </div>
 
@@ -1376,7 +1372,7 @@ function CrmPage({ onError }: { onError: (m: string) => void }) {
             {types.map((t) => <option key={t} value={t}>{t}</option>)}
           </select>
         </div>
-        <span className="inline-flex items-center rounded-md border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">Use Update in the navigation bar</span>
+        <button type="button" disabled={loading} onClick={() => void load(search, typeFilter)} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
       </div>
       <DataTable<CrmRow>
         loading={loading} rows={rows} searchValue={search}
@@ -1841,7 +1837,7 @@ function ErrorsPage({ onError }: { onError: (m: string) => void }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-end">
-        <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">Use Update in the navigation bar</span>
+        <button type="button" disabled={loading} onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
       </div>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
         <DataTable<ErrorRow>
@@ -1941,7 +1937,7 @@ function JobsPage({ onError }: { onError: (m: string) => void }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-end">
-        <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">Use Update in the navigation bar</span>
+        <button type="button" disabled={loading} onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
       </div>
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
         <DataTable<JobRow>
@@ -2007,7 +2003,7 @@ function SettingsPage({ onError }: { onError: (m: string) => void }) {
             <div className="text-base font-semibold">System Settings</div>
             <div className="text-sm text-slate-500">Globale Plattform-Parameter (read-only View)</div>
           </div>
-          <span className="inline-flex items-center rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-500">Use Update in the navigation bar</span>
+          <button type="button" disabled={loading} onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
         </div>
         <div className="divide-y divide-slate-100">
           {loading ? <div className="p-10 text-center text-slate-500">Loading…</div> :

@@ -31,6 +31,8 @@ import CommercialDocumentsPage from "./pages/canonical-commercial/CommercialDocu
 import AdminCommercialDocumentsPage from "./pages/admin-commercial/AdminCommercialDocumentsPage";
 import SupportPage from "./pages/support/SupportPage";
 import PublicCommercialDocumentPage from "./pages/public-commercial/PublicCommercialDocumentPage";
+import CrmWorkspacePage from "./pages/canonical-crm/CrmWorkspacePage";
+import WorkspaceRecordsPage from "./pages/canonical-records/WorkspaceRecordsPage";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
@@ -51,6 +53,25 @@ const CALENDAR_PAGE: PageDefinition = {
   previewImageUrl: null,
 };
 const EXISTING_PLATFORMS_PAGE = pages.find((page) => page.slug === "fresh-tide-9404")!;
+const FINANCE_RECORD_ROUTES = [
+  ["quietly-stone-4158", "finance_accounts", "Finance Overview"],
+  ["cool-rain-6499", "finance_income", "Income"],
+  ["richly-land-8084", "finance_transactions", "Transactions"],
+  ["calm-tide-3752", "finance_payments", "Payments"],
+  ["zesty-earth-3938", "finance_expenses", "Expenses"],
+  ["bravely-bay-4544", "finance_customers", "Customers"],
+  ["eager-minute-1586", "finance_vendors", "Vendors"],
+  ["fair-bridge-8618", "finance_accounts", "Accounts"],
+  ["soft-town-3284", "finance_cashflow", "Cash Flow"],
+  ["wisely-gate-3183", "finance_budgets", "Budgets"],
+  ["sharp-morning-7310", "finance_plans", "Financial Planning"],
+  ["sparklingly-city-3338", "finance_reconciliations", "Reconciliation"],
+  ["radiant-hour-5376", "finance_recurring_revenue", "Recurring Revenue"],
+  ["lucky-park-8649", "finance_payouts", "Payouts"],
+  ["vibrantly-second-9428", "finance_automations", "Financial Automation"],
+  ["sturdy-week-3372", "finance_taxes", "Taxes"],
+  ["boldly-field-4971", "finance_settings", "Finance Settings"],
+] as const;
 
 function AdminBillingRoute() {
   const { currentUser, loading } = useLuluApp();
@@ -272,7 +293,15 @@ export default function App() {
         <Route path={routes.app.email} element={<AdminOnlyAppRoute><PageRoute page={EMAIL_PAGE} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><PageRoute page={CALENDAR_PAGE} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.products} element={<AdminOnlyAppRoute><ProductsPage /></AdminOnlyAppRoute>} />
+        <Route path="/app/nicely-ocean-1051" element={<AdminOnlyAppRoute><ProductsPage /></AdminOnlyAppRoute>} />
         <Route path={routes.app.omnichannel} element={<AdminOnlyAppRoute><OmniChannelPage /></AdminOnlyAppRoute>} />
+        <Route path="/app/sturdy-month-1562" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="contacts" /></AdminOnlyAppRoute>} />
+        <Route path="/app/kindly-pool-8785" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="companies" /></AdminOnlyAppRoute>} />
+        <Route path="/app/cosmic-pool-1616" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="activities" /></AdminOnlyAppRoute>} />
+        <Route path="/app/deeply-noon-9539" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="tasks" /></AdminOnlyAppRoute>} />
+        <Route path="/app/breezy-soil-2475" element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="invoices" /></AdminOnlyAppRoute>} />
+        <Route path="/app/tender-creek-3139" element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" /></AdminOnlyAppRoute>} />
+        {FINANCE_RECORD_ROUTES.map(([slug, resourceType, title]) => <Route key={slug} path={`/app/${slug}`} element={<AdminOnlyAppRoute><WorkspaceRecordsPage activeSlug={slug} resourceType={resourceType} title={title} /></AdminOnlyAppRoute>} />)}
         <Route path={routes.app.quotesNew} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" create /></AdminOnlyAppRoute>} />
         <Route path={routes.app.quotes} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" /></AdminOnlyAppRoute>} />
         <Route path={routes.app.invoicesNew} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="invoices" create /></AdminOnlyAppRoute>} />
@@ -280,6 +309,7 @@ export default function App() {
         {pages.map((page) => {
           if (!isPageAvailable(page.slug)) return null;
           if (page.slug === "nicely-ocean-1051") return null;
+          if (page.slug === "nicely-land-1864") return null;
           const resolvedPath = pagePath(page.slug);
           const isAuthPage = resolvedPath === routes.auth.login
             || resolvedPath === routes.auth.signUp

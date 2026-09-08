@@ -19,7 +19,6 @@ const GOOGLE_BUSINESS_LABEL = "Google Business";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
 const OMNICHANNEL_LABEL = "OmniChannel";
-const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
 const GOOGLE_BUSINESS_PAGE_IDS = new Set<string>();
 const GOOGLE_BUSINESS_SECTION: NavigationSection = {
   label: GOOGLE_BUSINESS_LABEL,
@@ -28,10 +27,6 @@ const GOOGLE_BUSINESS_SECTION: NavigationSection = {
 const OMNICHANNEL_SECTION = {
   label: OMNICHANNEL_LABEL,
   pages: [{ id: "omnichannel", label: "Inbox" }],
-};
-const COMMERCIAL_DOCUMENTS_SECTION = {
-  label: "Sales",
-  pages: [{ id: "quotes", label: "Quotes" }, { id: "invoices", label: "Invoices" }],
 };
 const NAVIGATION_PAGE_LABEL_OVERRIDES = new Map([
   ["glad-coast-1428", "Integrations"],
@@ -47,9 +42,9 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     .map((section) => ({
       ...section,
       label: section.label === DASHBOARD_LABEL ? STATISTICS_LABEL : section.label,
-      pages: section.pages.filter((page) => isPageAvailable(page.id) && !GOOGLE_BUSINESS_PAGE_IDS.has(page.id)),
+      pages: section.pages.filter((page) => isPageAvailable(page.id) && !GOOGLE_BUSINESS_PAGE_IDS.has(page.id) && page.label !== "Revenue" && page.id !== "nicely-land-1864"),
     }))
-    .filter((section) => section.pages.length > 0);
+    .filter((section) => section.label !== "Revenue" && section.pages.length > 0);
   const googleBusinessSection = {
     ...GOOGLE_BUSINESS_SECTION,
     pages: GOOGLE_BUSINESS_SECTION.pages.filter((page) => isPageAvailable(page.id)),
@@ -67,10 +62,6 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     const emailIndex = reorderedSections.findIndex((section) => section.label === "Email");
     reorderedSections.splice(emailIndex === -1 ? 0 : emailIndex + 1, 0, OMNICHANNEL_SECTION);
   }
-  if (!reorderedSections.some((section) => section.label === COMMERCIAL_DOCUMENTS_SECTION.label)) {
-    const crmIndex = reorderedSections.findIndex((section) => section.label === "CRM");
-    reorderedSections.splice(crmIndex === -1 ? 0 : crmIndex + 1, 0, COMMERCIAL_DOCUMENTS_SECTION);
-  }
 
   const currentWebPresenceIndex = reorderedSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
   if (currentWebPresenceIndex !== -1 && googleBusinessSection.pages.length > 0) {
@@ -85,22 +76,13 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
   if (currentFinanceIndex !== -1 && currentStatisticsIndex !== -1) {
     const financeSection = reorderedSections[currentFinanceIndex];
     const statisticsSection = reorderedSections[currentStatisticsIndex];
-    const keptFinancePages = financeSection.pages.filter((page) => FINANCE_SECTION_KEEP_IDS.has(page.id));
-    const movedToStatistics = financeSection.pages.filter((page) => !FINANCE_SECTION_KEEP_IDS.has(page.id));
-
-    reorderedSections[currentStatisticsIndex] = {
-      ...statisticsSection,
-      pages: [...statisticsSection.pages, ...movedToStatistics],
+    const intelligenceFinancePages = statisticsSection.pages.filter((page) => page.label.startsWith("Finance "));
+    const remainingStatisticsPages = statisticsSection.pages.filter((page) => !page.label.startsWith("Finance "));
+    reorderedSections[currentStatisticsIndex] = { ...statisticsSection, pages: remainingStatisticsPages };
+    reorderedSections[currentFinanceIndex] = {
+      ...financeSection,
+      pages: [...financeSection.pages, ...intelligenceFinancePages.filter((page) => !financeSection.pages.some((existing) => existing.id === page.id))],
     };
-
-    if (keptFinancePages.length > 0) {
-      reorderedSections[currentFinanceIndex] = {
-        ...financeSection,
-        pages: keptFinancePages,
-      };
-    } else {
-      reorderedSections.splice(currentFinanceIndex, 1);
-    }
   }
 
   const financeIndex = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
@@ -110,19 +92,11 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
   if (statisticsIndex !== -1 && settingsIndex !== -1) {
     const currentStatsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
     const [statisticsSection] = reorderedSections.splice(currentStatsIndex, 1);
-    const refreshedSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
-    const currentFinanceIndexForOrder = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
-
-    if (currentFinanceIndexForOrder !== -1) {
-      const [financeSection] = reorderedSections.splice(currentFinanceIndexForOrder, 1);
-      const currentSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
-      reorderedSections.splice(currentSettingsIndex, 0, financeSection, statisticsSection);
-    } else {
-      reorderedSections.splice(refreshedSettingsIndex, 0, statisticsSection);
-    }
+    const currentSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
+    reorderedSections.splice(currentSettingsIndex, 0, statisticsSection);
   }
 
-  return reorderedSections.filter((section) => section.label !== STATISTICS_LABEL);
+  return reorderedSections.filter((section) => section.pages.length > 0);
 })();
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);

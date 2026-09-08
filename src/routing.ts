@@ -126,6 +126,9 @@ const REMOVED_PAGE_SLUGS = new Set([
   "bright-meadow-7537",
   "eagerly-bay-9885",
   "crisp-week-7116",
+  // Workspace-level Sales settings were retired in favour of the canonical
+  // CRM and commercial-policy surfaces.
+  "nicely-land-1864",
 ]);
 
 const TOP_LEVEL_PAGE_SLUGS = new Set([

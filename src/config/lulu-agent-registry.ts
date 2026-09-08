@@ -247,7 +247,6 @@ const registryDetails: Readonly<Record<string, LuluAgentContractDetail>> = {
   "fresh-tide-9404": detail("Google OAuth Agent", "A2", "Connect the account safely via OAuth.", ["OAuth", "Google account and location selection"], ["start auth", "validate scopes"], approval("final connect"), UI_CONNECT_SYNC, ["successful connection rate", "setup completion rate"]),
   "glad-coast-1428": detail("Google Integration Agent", "A3", "Keep Google sync healthy.", ["OAuth credentials", "sync jobs", "API status"], ["monitor token health", "retry syncs"], approval("remapping or reconnecting"), UI_CONNECT_SYNC, ["sync uptime", "integration health"]),
 
-  "nicely-land-1864": detail("Workspace Admin Agent", "A2", "Hold workspace-wide defaults and operating rules.", ["Workspace profile", "permissions", "automation settings"], ["audit config", "suggest defaults"], approval("changing settings"), UI_COMPLETE, ["config quality", "policy consistency"]),
   "pure-minute-5446": detail("Billing Agent", "A2", "Keep the Lulu account commercially healthy.", ["Subscription", "invoices", "payment method", "usage"], ["summarize billing state", "detect payment issues"], approval("plan or payment changes"), UI_COMPLETE, ["billing issue resolution", "billing clarity"]),
 };
 

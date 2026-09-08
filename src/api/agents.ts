@@ -3,7 +3,19 @@ import { workspaceApiPath } from './types';
 import type { LuluAgentContract } from '../config/lulu-agent-registry';
 
 export type AgentRunStatus = 'queued' | 'planning' | 'running' | 'waiting_approval' | 'completed' | 'failed' | 'cancelled';
-export type AgentStep = { id: string; runId: string; sequenceNo: number; agentRole: string; title: string; instruction: string; status: string; toolName: string | null; approvalId: string | null; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; };
+export type AgentStep = { id: string; runId: string; sequenceNo: number; agentRole: string; title: string; instruction: string; status: string; toolName: string | null; toolInput: Record<string, unknown> | null; approvalId: string | null; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; };
+
+/** Budget changes are the only agent actions that intentionally remain manual. */
+export function isBudgetProtectedAgentInput(input: Record<string, unknown> | null | undefined): boolean {
+  if (!input) return false;
+  if (input.budgetProtected === true) return true;
+  const markers = [input.actionResourceType, input.resourceType, input.toolName]
+    .concat(Array.isArray(input.resourceTypes) ? input.resourceTypes : [])
+    .concat(Array.isArray(input.approvalGates) ? input.approvalGates : []);
+  if (markers.some((value) => typeof value === "string" && /\bbudget\b/i.test(value))) return true;
+  const commands = Array.isArray(input.commands) ? input.commands : [];
+  return commands.some((command) => command && typeof command === "object" && isBudgetProtectedAgentInput(command as Record<string, unknown>));
+}
 export type AgentRun = { id: string; workspaceId: string; goal: string; status: AgentRunStatus; plan: Record<string, unknown>; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; createdAt: string; updatedAt: string; };
 export type AgentRunDetails = { run: AgentRun; steps: AgentStep[]; events: Array<{ id: string; eventType: string; agentRole: string | null; payload: Record<string, unknown>; createdAt: string }> };
 export type AgentHealthItem = {
