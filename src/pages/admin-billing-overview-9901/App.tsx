@@ -139,13 +139,14 @@ type WorkspaceDetail = WorkspaceRow & {
     serverCostUsd: number;
     apiCreditUsd: number;
     serverCreditUsd: number;
+    storageCreditUsd: number;
     apiBillableUsd: number;
     serverBillableUsd: number;
     totalBillableUsd: number;
   } | null;
   usageAdjustments: Array<{
     id: string;
-    metric: "api" | "server";
+    metric: "api" | "server" | "storage";
     amountUsd: string;
     periodStart: string;
     periodEnd: string;
@@ -972,7 +973,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
   const [creditAmount, setCreditAmount] = useState("");
   const [creditNote, setCreditNote] = useState("");
   const [creditSaving, setCreditSaving] = useState(false);
-  const [usageMetric, setUsageMetric] = useState<"api" | "server">("api");
+  const [usageMetric, setUsageMetric] = useState<"api" | "server" | "storage">("api");
   const [usageAmount, setUsageAmount] = useState("");
   const [usageReason, setUsageReason] = useState("");
   const [usageSaving, setUsageSaving] = useState(false);
@@ -1262,29 +1263,31 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
             <div className="rounded-lg border border-amber-200 bg-amber-50/40 p-4 xl:col-span-3">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <div className="text-sm font-semibold text-slate-800">PAYG Usage-Angebot / Gutschrift</div>
-                  <div className="mt-1 max-w-2xl text-xs leading-5 text-slate-600">
-                    Eine Gutschrift reduziert ausschließlich die noch nicht abgerechnete aktuelle PAYG-Periode. Die Rohdaten bleiben unverändert; bereits ausgestellte Rechnungen werden nicht nachträglich geändert.
-                  </div>
+              <div className="text-sm font-semibold text-slate-800">API / AI / Storage-Kosten anpassen</div>
+              <div className="mt-1 max-w-2xl text-xs leading-5 text-slate-600">
+                    Auditiertes Angebot oder Geschenk: Eine Gutschrift reduziert ausschließlich die noch nicht abgerechnete aktuelle PAYG-Periode. API umfasst AI- und externe API-Aufrufe; Storage wird gemeinsam mit der Server-/Infrastruktur-Nutzung verrechnet. Rohdaten und bereits ausgestellte Rechnungen bleiben unverändert.
+              </div>
                 </div>
                 {detail.paygUsage ? (
-                  <div className="grid grid-cols-2 gap-x-5 gap-y-1 text-right text-xs text-slate-600 sm:grid-cols-4">
+                  <div className="grid grid-cols-2 gap-x-5 gap-y-1 text-right text-xs text-slate-600 sm:grid-cols-5">
                     <span>API offen <strong className="ml-1 text-slate-900">${detail.paygUsage.apiBillableUsd.toFixed(2)}</strong></span>
                     <span>Server offen <strong className="ml-1 text-slate-900">${detail.paygUsage.serverBillableUsd.toFixed(2)}</strong></span>
-                    <span>API-Gutschrift <strong className="ml-1 text-emerald-700">${detail.paygUsage.apiCreditUsd.toFixed(2)}</strong></span>
+                    <span>API/AI-Gutschrift <strong className="ml-1 text-emerald-700">${detail.paygUsage.apiCreditUsd.toFixed(2)}</strong></span>
                     <span>Server-Gutschrift <strong className="ml-1 text-emerald-700">${detail.paygUsage.serverCreditUsd.toFixed(2)}</strong></span>
+                    <span>Storage-Gutschrift <strong className="ml-1 text-emerald-700">${Number(detail.paygUsage.storageCreditUsd ?? 0).toFixed(2)}</strong></span>
                   </div>
                 ) : <span className="text-xs text-slate-500">PAYG ist für diesen Workspace nicht konfiguriert.</span>}
               </div>
               <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-[150px_150px_minmax(0,1fr)_auto]">
                 <select
                   value={usageMetric}
-                  onChange={(e) => setUsageMetric(e.target.value as "api" | "server")}
+                  onChange={(e) => setUsageMetric(e.target.value as "api" | "server" | "storage")}
                   disabled={usageSaving || !detail.paygUsage}
                   className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-amber-400 disabled:opacity-50"
                 >
-                  <option value="api">API-Gutschrift</option>
+                  <option value="api">API / AI-Gutschrift</option>
                   <option value="server">Server-Gutschrift</option>
+                  <option value="storage">Storage-Gutschrift</option>
                 </select>
                 <input
                   value={usageAmount}
@@ -1324,7 +1327,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                     <tbody>
                       {detail.usageAdjustments.map((adjustment) => (
                         <tr key={adjustment.id} className="border-b border-slate-50 last:border-0">
-                          <td className="px-3 py-2 font-medium">{adjustment.metric === "api" ? "API" : "Server"}</td>
+                          <td className="px-3 py-2 font-medium">{adjustment.metric === "api" ? "API / AI" : adjustment.metric === "storage" ? "Storage" : "Server"}</td>
                           <td className="px-3 py-2 font-semibold text-emerald-700">${Number(adjustment.amountUsd).toFixed(2)}</td>
                           <td className="max-w-[260px] truncate px-3 py-2 text-slate-600" title={adjustment.reason}>{adjustment.reason}</td>
                           <td className="whitespace-nowrap px-3 py-2 text-slate-500">{dateOnly(adjustment.periodStart)} – {dateOnly(adjustment.periodEnd)}</td>
