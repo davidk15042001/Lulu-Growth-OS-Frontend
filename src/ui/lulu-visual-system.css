@@ -43,7 +43,7 @@
 
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
   min-height: calc(100vh - 66px);
-  padding: clamp(16px, 2.8vw, 38px);
+  padding: 0;
   background: transparent !important;
 }
 
@@ -69,6 +69,39 @@
   line-height: 1.05;
 }
 
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.eyebrow, .breadcrumb, .breadcrumbs, .crumb) {
+  color: #6b63b5;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+}
+
+/* Legacy generated pages expose a predictable page-header class. Turning it
+   into the same elevated hero surface as Calendar removes the most visible
+   style differences without changing component behavior. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page .page-header,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > main > div[class*="mx-auto"] > header:first-child,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page--surface-shell > main > div > header:first-child {
+  margin-bottom: clamp(18px, 2.4vw, 28px);
+  padding: clamp(22px, 3.2vw, 36px);
+  border: 1px solid var(--lulu-surface-border);
+  border-radius: 26px;
+  background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(245,244,255,.92)) !important;
+  box-shadow: 0 18px 46px rgba(38,45,90,.08);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.title-row, .header-row) {
+  gap: 18px;
+  align-items: flex-end;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.page-actions, .header-actions, .top-actions, .header-buttons) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
 /* Keep controls visually consistent while preserving page-specific semantics. */
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea) {
   border-color: var(--input);
@@ -80,12 +113,49 @@
   color: var(--muted-foreground);
 }
 
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea):hover {
+  border-color: #c8cfe0;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea):focus {
+  border-color: rgba(91,70,245,.62);
+  box-shadow: 0 0 0 4px rgba(91,70,245,.11);
+  outline: none;
+}
+
 /* Cards from generated pages inherit the same soft glass surface as Calendar. */
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="rounded-xl"][class*="border"],
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="rounded-2xl"][class*="border"],
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="rounded-3xl"][class*="border"] {
   border-color: var(--lulu-surface-border);
   box-shadow: var(--lulu-card-shadow);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  .section,
+  .bottom-card,
+  .table-card,
+  .metric-card,
+  .summary-card,
+  .stat-card,
+  .risk-card,
+  .platform-card,
+  .ai-card,
+  .content-section,
+  .directory-section
+) {
+  border-color: var(--lulu-surface-border);
+  border-radius: 20px;
+  background: rgba(255,255,255,.88);
+  box-shadow: var(--lulu-card-shadow);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page article {
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page article:hover {
+  border-color: rgba(91,70,245,.24);
 }
 
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a)[class*="bg-gradient-to-r"][class*="from-primary"],
@@ -96,17 +166,169 @@
   box-shadow: 0 9px 22px rgba(79,70,229,.22);
 }
 
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  button.primary,
+  button.primary-button,
+  button.accent,
+  .button.primary,
+  .button.accent
+) {
+  border-color: transparent !important;
+  border-radius: 12px;
+  background: linear-gradient(110deg, #7c3aed 0%, #4f46e5 48%, #0ea5e9 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 9px 22px rgba(79,70,229,.22);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  button.primary,
+  button.primary-button,
+  button.accent,
+  .button.primary,
+  .button.accent,
+  button[class*="bg-primary"]
+):hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow: 0 14px 30px rgba(79,70,229,.28);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  button.ghost-button,
+  button.secondary,
+  button.icon-btn,
+  button.icon-button,
+  .button:not(.primary):not(.accent)
+) {
+  border-color: var(--lulu-surface-border);
+  border-radius: 11px;
+  background: rgba(255,255,255,.82);
+  color: var(--foreground);
+}
+
+/* Tables and data workspaces receive a calm, readable hierarchy. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page table {
+  width: 100%;
+  background: rgba(255,255,255,.82);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page thead {
+  background: linear-gradient(90deg, rgba(238,240,255,.96), rgba(247,248,255,.96));
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page th {
+  color: #65708a;
+  font-size: .69rem;
+  font-weight: 700;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page tbody tr {
+  transition: background .16s ease;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page tbody tr:hover {
+  background: rgba(91,70,245,.045);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.table-wrap, .recent-table, [class*="overflow-x-auto"][class*="rounded"]) {
+  border-color: var(--lulu-surface-border);
+  border-radius: 18px;
+}
+
+/* Tabs remain compact and clearly communicate the selected state. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page .tabs {
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--lulu-surface-border);
+  border-radius: 13px;
+  background: rgba(238,240,255,.72);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page .tab {
+  border-radius: 9px;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page .tab.active {
+  border-color: transparent;
+  background: #ffffff;
+  color: #4f46e5;
+  box-shadow: 0 5px 14px rgba(38,45,90,.10);
+}
+
+/* Empty and loading states look intentional instead of unfinished. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="border-dashed"] {
+  border-color: rgba(91,70,245,.24) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,.90), rgba(238,240,255,.72)) !important;
+}
+
+/* Dialogs, drawers and context panels use the same depth system. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.modal-backdrop, [class*="fixed"][class*="inset-0"][class*="bg-black/"]) {
+  background: rgba(11,16,32,.50) !important;
+  backdrop-filter: blur(8px);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.modal, [role="dialog"]) {
+  border-color: var(--lulu-surface-border);
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 32px 90px rgba(11,16,32,.28);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page aside[class*="fixed"][class*="right-0"] {
+  border-color: var(--lulu-surface-border);
+  background: rgba(255,255,255,.96);
+  box-shadow: -24px 0 70px rgba(11,16,32,.20);
+  backdrop-filter: blur(18px);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page ::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page ::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: rgba(100,112,138,.30);
+  background-clip: padding-box;
+}
+
 @media (max-width: 900px) {
   .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
-    padding: 14px;
+    padding: 0;
+  }
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page .page-header,
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > main > div[class*="mx-auto"] > header:first-child,
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page--surface-shell > main > div > header:first-child {
+    padding: 20px;
+    border-radius: 20px;
+  }
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.title-row, .header-row) {
+    align-items: stretch;
+    flex-direction: column;
   }
 }
 
 @media (max-width: 640px) {
   .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
-    padding: 10px;
+    padding: 0;
   }
   .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page h1 {
     font-size: clamp(1.65rem, 8vw, 2.35rem);
+  }
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page .page-header,
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > main > div[class*="mx-auto"] > header:first-child,
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page--surface-shell > main > div > header:first-child {
+    margin: 10px 10px 16px;
+    padding: 18px;
+    border-radius: 18px;
+  }
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.page-actions, .header-actions, .top-actions, .header-buttons) {
+    align-items: stretch;
+  }
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.page-actions, .header-actions, .top-actions, .header-buttons) > * {
+    min-height: 44px;
   }
 }
