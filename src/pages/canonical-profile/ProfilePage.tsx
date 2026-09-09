@@ -20,8 +20,8 @@ const emptyProfile: ProfileForm = {
 const emptyPassword: PasswordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
 const inputClass = 'w-full rounded-xl border border-[var(--border)] bg-transparent px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-[var(--ring)]';
 
-function profileToForm(profile: WorkspaceProfile): ProfileForm {
-  return Object.fromEntries(Object.keys(emptyProfile).map((key) => [key, profile[key as keyof ProfileForm] ?? ''])) as ProfileForm;
+function profileToForm(profile: WorkspaceProfile | null | undefined): ProfileForm {
+  return Object.fromEntries(Object.keys(emptyProfile).map((key) => [key, profile?.[key as keyof ProfileForm] ?? ''])) as ProfileForm;
 }
 
 function workspaceToProfileForm(workspace: NonNullable<ReturnType<typeof useLuluApp>['selectedWorkspace']>): ProfileForm {
@@ -51,7 +51,11 @@ export default function ProfilePage() {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
-  const canManageWorkspaceProfile = permissions.canAdminister;
+  // Company/legal identity is required before billing is active.  Keep this
+  // screen available to workspace owners/admins even when the commercial
+  // workspace.write entitlement is disabled; the backend still performs the
+  // authoritative membership/capability check.
+  const canManageWorkspaceProfile = permissions.role === 'owner' || permissions.role === 'admin';
   const workspaceId = selectedWorkspace?.id;
 
   useEffect(() => {
@@ -117,9 +121,15 @@ export default function ProfilePage() {
     try {
       const payload = Object.fromEntries(Object.entries(profile).map(([key, value]) => [key, typeof value === 'string' && !value.trim() ? null : typeof value === 'string' ? value.trim() : value]));
       const response = await workspaceProfileApi.update(workspaceId, payload);
-      setProfile(profileToForm(response.data));
+      // A rolling deployment or proxy may return a successful envelope before
+      // the response body is populated. Keep the submitted values in that
+      // case instead of turning a successful save into a client-side error.
+      const savedProfile = response.data && typeof response.data === 'object'
+        ? profileToForm(response.data)
+        : profile;
+      setProfile(savedProfile);
       // Keep the shared workspace header in sync for the next navigation.
-      if (selectedWorkspace) updateWorkspace({ ...selectedWorkspace, companyName: response.data.companyName, industry: response.data.industry, countryRegion: response.data.countryRegion, taxId: response.data.taxId, address: response.data.address, legalForm: response.data.legalForm });
+      if (selectedWorkspace && response.data && typeof response.data === 'object') updateWorkspace({ ...selectedWorkspace, companyName: response.data.companyName, industry: response.data.industry, countryRegion: response.data.countryRegion, taxId: response.data.taxId, address: response.data.address, legalForm: response.data.legalForm });
       setNotice(t('Company profile was updated.'));
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, t('The company profile could not be saved.')));
