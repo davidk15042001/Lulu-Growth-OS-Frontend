@@ -342,3 +342,81 @@ details[open] > :not(summary) {
   }
 }
 /* LULU_MODERN_SYSTEM_V1_END */
+
+/* Native workspace shell overrides. The global Lulu navigation owns the dark
+   rail; the knowledge canvas itself must remain a bright, readable surface. */
+.lulu-global-content .lulu-native-page .lulu-shell {
+  width: 100%;
+  height: auto;
+  min-height: calc(100vh - 66px);
+  overflow: visible;
+  background: transparent !important;
+}
+
+.lulu-global-content .lulu-native-page .lulu-main {
+  width: 100%;
+  overflow: visible;
+  padding: clamp(20px, 3vw, 38px);
+  background: transparent !important;
+}
+
+.lulu-global-content .lulu-native-page .lulu-main .page-header {
+  max-width: 1500px;
+  margin-inline: auto;
+  padding: clamp(26px, 4vw, 42px);
+}
+
+.lulu-global-content .lulu-native-page .grounding-banner,
+.lulu-global-content .lulu-native-page .lulu-main > .content-section,
+.lulu-global-content .lulu-native-page .lulu-main > section:not(.content-section) {
+  width: 100%;
+  max-width: 1500px;
+  margin-inline: auto;
+}
+
+.lulu-global-content .lulu-native-page .grounding-banner {
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border: 1px solid rgba(91,70,245,.16);
+  border-left: 4px solid #5b46f5;
+  border-radius: 14px;
+  background: rgba(255,255,255,.90);
+  box-shadow: 0 8px 24px rgba(38,45,90,.055);
+}
+
+.lulu-global-content .lulu-native-page .lulu-main > .content-section {
+  margin-bottom: 26px;
+  padding: 20px;
+  border: 1px solid var(--lulu-surface-border);
+  border-radius: 21px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 16px 40px rgba(38,45,90,.08);
+}
+
+.lulu-global-content .lulu-native-page .content-section .section-heading {
+  margin: 0;
+  padding: 2px 2px 16px;
+}
+
+.lulu-global-content .lulu-native-page .content-section .section-heading h2 {
+  color: #11172b;
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.lulu-global-content .lulu-native-page .knowledge-table {
+  overflow-x: auto;
+  border: 1px solid var(--lulu-surface-border);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.lulu-global-content .lulu-native-page .knowledge-table .table-row {
+  min-width: 900px;
+  padding-inline: 20px;
+}
+
+@media (max-width: 700px) {
+  .lulu-global-content .lulu-native-page .lulu-main { padding: 12px; }
+  .lulu-global-content .lulu-native-page .lulu-main > .content-section { padding: 12px; }
+}

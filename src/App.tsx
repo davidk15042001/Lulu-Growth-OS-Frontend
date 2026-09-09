@@ -228,8 +228,10 @@ function InvitationAccept() {
 
 export default function App() {
   const { currentUser } = useLuluApp();
+  const location = useLocation();
   const [restoringAdmin, setRestoringAdmin] = useState(false);
   const [impersonationError, setImpersonationError] = useState("");
+  const isPublicMeeting = location.pathname.startsWith("/calendar/meeting/");
 
   useEffect(() => installApiBroker(), []);
 
@@ -251,8 +253,8 @@ export default function App() {
 
   return (
     <>
-      {currentUser?.impersonation?.active ? (
-        <div className="fixed left-1/2 top-4 z-[95] flex w-[min(92vw,720px)] -translate-x-1/2 items-center justify-between gap-3 rounded-2xl border border-violet-200 bg-violet-50/95 px-4 py-3 text-sm text-violet-950 shadow-[0_12px_30px_rgba(76,29,149,0.15)] backdrop-blur">
+      {currentUser?.impersonation?.active && !isPublicMeeting ? (
+        <div className="fixed bottom-4 right-4 z-[95] flex w-[min(calc(100vw-2rem),540px)] items-center justify-between gap-3 rounded-2xl border border-violet-200 bg-white/95 px-4 py-3 text-sm text-violet-950 shadow-[0_20px_55px_rgba(76,29,149,0.2)] backdrop-blur-xl sm:bottom-5 sm:right-5">
           <div className="min-w-0">
             <div className="font-semibold">Admin-Ansicht im User-Account aktiv</div>
             <div className="truncate text-xs text-violet-800">

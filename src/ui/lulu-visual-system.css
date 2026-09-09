@@ -214,7 +214,6 @@
   .insight-card,
   .recommendation,
   .ai-box,
-  .workspace,
   .create-modal
 ) {
   border-color: var(--lulu-surface-border);

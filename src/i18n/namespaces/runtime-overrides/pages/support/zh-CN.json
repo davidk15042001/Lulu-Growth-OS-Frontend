@@ -2,8 +2,10 @@
   "ADMIN": "管理员",
   "Back": "返回",
   "Create ticket": "创建工单",
+  "Create a support request and keep the complete conversation in one place.": "创建支持请求，并在一个位置查看完整对话。",
   "Customer": "客户",
   "Loading…": "加载中…",
+  "Lulu Care": "Lulu 客户支持",
   "Message": "消息",
   "Next": "下一步",
   "Next messages": "较新的消息",
@@ -17,5 +19,9 @@
   "Subject": "主题",
   "Support": "支持",
   "Support could not be loaded.": "无法加载支持工单。",
+  "Describe the issue and the Lulu team will reply here.": "请描述问题，Lulu 团队将在此回复。",
+  "tickets": "个工单",
+  "Your new requests will appear here.": "你的新请求将显示在这里。",
+  "Choose a conversation from the inbox to view its history and reply.": "请从收件箱中选择一个对话，以查看记录并回复。",
   "Workspace": "工作区"
 }
