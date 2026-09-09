@@ -27,7 +27,9 @@ export function WorkspaceSurfaceShell({ activeSlug, children }: { activeSlug: st
           {mobileOpen ? <X size={18} /> : <Menu size={18} />}
           <span className="sr-only">{mobileOpen ? t("Close navigation") : t("Open navigation")}</span>
         </button>
-        {children}
+        <div className="lulu-native-page lulu-native-page--surface-shell lulu-native-page--without-secondary-navigation">
+          {children}
+        </div>
       </div>
     </div>
   );

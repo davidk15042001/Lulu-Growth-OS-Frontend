@@ -1,0 +1,112 @@
+/* Shared authenticated workspace visual system.
+   Loaded after page-local generated styles so every navigation surface uses
+   the same Lulu canvas, surfaces and responsive rhythm. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) {
+  --background: #f7f8ff;
+  --foreground: #0b1020;
+  --card: #ffffff;
+  --card-foreground: #0b1020;
+  --popover: #ffffff;
+  --popover-foreground: #0b1020;
+  --border: #e3e7f2;
+  --input: #d8deec;
+  --secondary: #eef0ff;
+  --secondary-foreground: #312e81;
+  --muted: #f0f2f9;
+  --muted-foreground: #64708a;
+  --accent: #eef0ff;
+  --accent-foreground: #312e81;
+  --primary: #5b46f5;
+  --primary-foreground: #ffffff;
+  --ring: #7c5cff;
+  --destructive: #b42318;
+  --radius: 0.875rem;
+  --sidebar: #0b1020;
+  --sidebar-foreground: #e8ebff;
+  --sidebar-primary: #8b7cff;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1b2240;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255,255,255,.12);
+  --sidebar-ring: #8b7cff;
+  --lulu-page-gradient: radial-gradient(circle at 10% 0%, rgba(124,58,237,.10), transparent 32rem), radial-gradient(circle at 100% 10%, rgba(14,165,233,.10), transparent 34rem), #f7f8ff;
+  --lulu-surface-border: #e1e5f0;
+  --lulu-card-shadow: 0 18px 45px rgba(38,45,90,.08);
+  --lulu-card-shadow-hover: 0 24px 55px rgba(79,70,229,.16);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free),
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content {
+  background: var(--lulu-page-gradient);
+  color: var(--foreground);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
+  min-height: calc(100vh - 66px);
+  padding: clamp(16px, 2.8vw, 38px);
+  background: transparent !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > main,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > section {
+  background: transparent !important;
+}
+
+/* Generated pages use these utility classes for full-page canvases. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > * [class*="min-h-screen"][class*="bg-[var(--background)]"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > [class*="min-h-screen"][class*="bg-[var(--background)]"] {
+  min-height: auto !important;
+  background: transparent !important;
+}
+
+/* A consistent page heading rhythm across generated and native modules. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(h1, h2, h3) {
+  letter-spacing: -.035em;
+}
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page h1 {
+  font-size: clamp(1.9rem, 3.4vw, 3.25rem);
+  font-weight: 750;
+  line-height: 1.05;
+}
+
+/* Keep controls visually consistent while preserving page-specific semantics. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea) {
+  border-color: var(--input);
+  border-radius: 12px;
+  background: rgba(255,255,255,.84);
+  color: var(--foreground);
+}
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea)::placeholder {
+  color: var(--muted-foreground);
+}
+
+/* Cards from generated pages inherit the same soft glass surface as Calendar. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="rounded-xl"][class*="border"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="rounded-2xl"][class*="border"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="rounded-3xl"][class*="border"] {
+  border-color: var(--lulu-surface-border);
+  box-shadow: var(--lulu-card-shadow);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a)[class*="bg-gradient-to-r"][class*="from-primary"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a)[class*="bg-primary"] {
+  background: linear-gradient(110deg, #7c3aed 0%, #4f46e5 48%, #0ea5e9 100%) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: 0 9px 22px rgba(79,70,229,.22);
+}
+
+@media (max-width: 900px) {
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 640px) {
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
+    padding: 10px;
+  }
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page h1 {
+    font-size: clamp(1.65rem, 8vw, 2.35rem);
+  }
+}

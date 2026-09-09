@@ -10,6 +10,7 @@ import { isPageAvailable, navigateApp, routes, HOME_PAGE_SLUG } from "./routing"
 import { getPageContract } from "./api/page-contracts";
 import { getLuluAgentContract } from "./config/lulu-agent-registry";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
+import luluVisualSystemCss from "./ui/lulu-visual-system.css?inline";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -183,6 +184,7 @@ export function NativePage({
 
     let styleElement: HTMLStyleElement | null = null;
     let mobileStyleElement: HTMLStyleElement | null = null;
+    let visualSystemStyleElement: HTMLStyleElement | null = null;
     void Promise.all([appLoader(), styleLoader?.()]).then(([module, css]) => {
       if (!active) return;
       if (css) {
@@ -195,6 +197,12 @@ export function NativePage({
       mobileStyleElement.dataset.luluNativeMobile = slug;
       mobileStyleElement.textContent = nativeMobileCss;
       document.head.appendChild(mobileStyleElement);
+      if (slug !== "lulu-calendar-portal-9014") {
+        visualSystemStyleElement = document.createElement("style");
+        visualSystemStyleElement.dataset.luluVisualSystem = slug;
+        visualSystemStyleElement.textContent = luluVisualSystemCss;
+        document.head.appendChild(visualSystemStyleElement);
+      }
       if (isAuthPage) {
         const livePageFrame = document.querySelector<HTMLElement>(".page-frame");
         livePageFrame?.classList.add("page-frame--auth");
@@ -212,6 +220,7 @@ export function NativePage({
       active = false;
       styleElement?.remove();
       mobileStyleElement?.remove();
+      visualSystemStyleElement?.remove();
       if (pageFrame && isAuthPage) {
         if (previousPageFrameStyle == null) pageFrame.removeAttribute("style");
         else pageFrame.setAttribute("style", previousPageFrameStyle);
