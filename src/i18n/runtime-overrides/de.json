@@ -4126,5 +4126,19 @@
   "No customer selected": "Kein Kunde ausgewählt",
   "Date and time": "Datum und Uhrzeit",
   "minutes": "Minuten",
-  "hours": "Stunden"
+  "hours": "Stunden",
+  "Run now": "Lauf jetzt",
+  "AI actions are not enabled for this workspace. Ask a workspace administrator for help.": "KI-Aktionen sind für diesen Arbeitsbereich nicht aktiviert. Bitten Sie einen Arbeitsbereichsadministrator um Hilfe.",
+  "You do not have permission to run this assistant action.": "Sie sind nicht berechtigt, diese Assistentenaktion auszuführen.",
+  "The approval for this assistant action has expired. Ask the assistant to prepare it again.": "Die Genehmigung für diese Hilfsmaßnahme ist abgelaufen. Bitten Sie den Assistenten, es erneut vorzubereiten.",
+  "This assistant action was rejected and was not executed.": "Diese Hilfsaktion wurde abgelehnt und nicht ausgeführt.",
+  "The assistant action could not be completed. Please try again.": "Die Assistentenaktion konnte nicht abgeschlossen werden. Bitte versuchen Sie es erneut.",
+  "We could not load the assistant actions.": "Wir konnten die Assistentenaktionen nicht laden.",
+  "Assistant actions": "Assistentenaktionen",
+  "No assistant actions for this conversation.": "Für dieses Gespräch gibt es keine Hilfsaktionen.",
+  "pending_approval": "ausstehende_Genehmigung",
+  "Owner/Admin approval required": "Genehmigung des Eigentümers/Administrators erforderlich",
+  "The assistant action could not be refreshed or executed.": "Die Assistentenaktion konnte nicht aktualisiert oder ausgeführt werden.",
+  "Check approval": "Genehmigung prüfen",
+  "The server restarted while this action was running. Please review its result before trying again.": "Der Server wurde neu gestartet, während diese Aktion ausgeführt wurde. Bitte überprüfen Sie das Ergebnis, bevor Sie es erneut versuchen."
 }

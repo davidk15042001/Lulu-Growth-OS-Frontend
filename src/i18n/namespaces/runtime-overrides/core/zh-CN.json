@@ -2891,5 +2891,19 @@
   "Workspace-wide activity timeline entries.": "工作区范围内的活动时间线条目。",
   "End the admin workspace view before changing this password.": "请先退出管理员工作区视图，再修改此密码。",
   "The current password is incorrect.": "当前密码不正确。",
-  "The new password must be different from your current password.": "新密码必须与当前密码不同。"
+  "The new password must be different from your current password.": "新密码必须与当前密码不同。",
+  "AI actions are not enabled for this workspace. Ask a workspace administrator for help.": "此工作区未启用 AI 操作。向工作区管理员寻求帮助。",
+  "Assistant actions": "辅助动作",
+  "Check approval": "检查批准",
+  "No assistant actions for this conversation.": "此对话没有辅助操作。",
+  "Owner/Admin approval required": "需要所有者/管理员批准",
+  "pending_approval": "待批准",
+  "Run now": "立即运行",
+  "The approval for this assistant action has expired. Ask the assistant to prepare it again.": "此辅助行动的批准已过期。请助理再次准备。",
+  "The assistant action could not be completed. Please try again.": "辅助操作无法完成。请再试一次。",
+  "The assistant action could not be refreshed or executed.": "无法刷新或执行辅助操作。",
+  "This assistant action was rejected and was not executed.": "此辅助操作被拒绝且未执行。",
+  "We could not load the assistant actions.": "我们无法加载辅助操作。",
+  "You do not have permission to run this assistant action.": "您无权运行此助理操作。",
+  "The server restarted while this action was running. Please review its result before trying again.": "此操作运行时服务器重新启动。请在重试之前查看其结果。"
 }

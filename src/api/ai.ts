@@ -30,7 +30,20 @@ export type AiMessage = {
 };
 
 export type AssistantToolCall = { name: string; args: Record<string, unknown>; result: unknown };
-export type AssistantPendingAction = { id: string; type: string; summary: string; payload: Record<string, unknown> };
+export type AssistantPendingAction = {
+  id: string;
+  conversationId: string;
+  type: string;
+  summary: string;
+  payload: Record<string, unknown>;
+  status: "pending_approval" | "ready" | "executing" | "succeeded" | "failed" | "rejected" | "cancelled" | "expired";
+  approvalId: string | null;
+  requiresApproval: boolean;
+  result?: Record<string, unknown> | null;
+  errorCode?: string | null;
+  errorMessage?: string | null;
+  expiresAt?: string | null;
+};
 export type AssistantResponse = {
   userMessage: AiMessage;
   assistantMessage: AiMessage;
@@ -68,11 +81,12 @@ export const aiApi = {
     method: "POST",
     body: { content, metadata },
   }),
-  executeAction: (workspaceId: string, conversationId: string, action: AssistantPendingAction) => requestApi<{
-    status: string; message: string; resourceType: string | null; recordId: string | null;
-  }>({
+  actions: (workspaceId: string, conversationId: string) => requestApi<AssistantPendingAction[]>({
+    path: workspaceApiPath(workspaceId, `/ai/conversations/${conversationId}/actions`),
+  }),
+  executeAction: (workspaceId: string, conversationId: string, actionId: string) => requestApi<AssistantPendingAction>({
     path: workspaceApiPath(workspaceId, `/ai/conversations/${conversationId}/actions`),
     method: "POST",
-    body: { action },
+    body: { actionId },
   }),
 };

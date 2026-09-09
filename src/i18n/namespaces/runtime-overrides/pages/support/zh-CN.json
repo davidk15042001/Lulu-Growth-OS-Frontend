@@ -23,5 +23,7 @@
   "tickets": "个工单",
   "Your new requests will appear here.": "你的新请求将显示在这里。",
   "Choose a conversation from the inbox to view its history and reply.": "请从收件箱中选择一个对话，以查看记录并回复。",
-  "Workspace": "工作区"
+  "Workspace": "工作区",
+  "Conversation": "对话",
+  "Inbox": "收件箱"
 }

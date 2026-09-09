@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { aiApi, type AiMessage, type Conversation } from "../ai";
+import { aiApi, type AiMessage, type AssistantPendingAction, type Conversation } from "../ai";
 import { agentApi, type AgentRunDetails } from "../agents";
 import { getFriendlyErrorMessage } from "../client";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
@@ -8,6 +8,7 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [messages, setMessages] = useState<AiMessage[]>([]);
+  const [actions, setActions] = useState<AssistantPendingAction[]>([]);
   const [content, setContent] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -31,6 +32,13 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
 
   useEffect(() => { void loadConversations(); }, [loadConversations]);
   useEffect(() => { void loadMessages(); }, [loadMessages]);
+
+  const loadActions = useCallback(async () => {
+    if (!selectedId) { setActions([]); return; }
+    try { setActions((await aiApi.actions(workspaceId, selectedId)).data); }
+    catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load the assistant actions.")); }
+  }, [selectedId, workspaceId]);
+  useEffect(() => { void loadActions(); }, [loadActions]);
 
   const loadAgentRuns = useCallback(async () => {
     try {
@@ -65,9 +73,14 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
     try {
       let conversationId = selectedId;
       if (!conversationId) conversationId = (await aiApi.createConversation(workspaceId, { title: content.trim().slice(0, 80) })).data.id;
-      await aiApi.respond(workspaceId, conversationId, content.trim());
+      const response = await aiApi.respond(workspaceId, conversationId, content.trim());
       setContent(""); setSelectedId(conversationId);
-      await Promise.all([loadConversations(), aiApi.messages(workspaceId, conversationId).then((response) => setMessages(response.data.items))]);
+      setActions(response.data.pendingActions);
+      await Promise.all([
+        loadConversations(),
+        aiApi.messages(workspaceId, conversationId).then((messagesResponse) => setMessages(messagesResponse.data.items)),
+        aiApi.actions(workspaceId, conversationId).then((actionsResponse) => setActions(actionsResponse.data)),
+      ]);
     } catch (cause) { setError(getFriendlyErrorMessage(cause, "Lulu AI could not prepare an answer. Please try again.")); }
     finally { setBusy(false); }
   }
@@ -86,6 +99,20 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
     <LiveSection title="Messages">
       {messages.length === 0 ? <LiveEmpty>Start the conversation below.</LiveEmpty> : messages.map((message) => <article className={`lulu-live-message ${message.role}`} key={message.id}><small>{message.role} · {formatLiveDate(message.createdAt)}</small>{message.content}</article>)}
       <form className="lulu-live-form" onSubmit={send}><label>Message<textarea value={content} onChange={(event) => setContent(event.target.value)} placeholder="Ask Lulu AI…" /></label><button className="lulu-live-button primary" disabled={busy || !content.trim()}>{busy ? "Generating…" : "Send"}</button></form>
+    </LiveSection>
+    <LiveSection title="Assistant actions">
+      {actions.length === 0 ? <LiveEmpty>No assistant actions for this conversation.</LiveEmpty> : actions.map((action) => <article className="lulu-live-row" key={action.id}>
+        <div className="lulu-live-row-top"><div><strong>{action.summary}</strong><span>{action.type}</span></div><span className={`lulu-live-badge ${action.status === "succeeded" ? "good" : ""}`}>{action.status.replaceAll("_", " ")}</span></div>
+        {action.status === "pending_approval" && <small>Owner/Admin approval required{action.approvalId ? ` · ${action.approvalId}` : ""}.</small>}
+        {action.errorMessage && <span>{action.errorMessage}</span>}
+        {action.result && <small>{JSON.stringify(action.result)}</small>}
+        {["pending_approval", "ready", "executing"].includes(action.status) && <button className="lulu-live-button" style={{ marginTop: 8 }} onClick={async () => {
+          setBusy(true); setError("");
+          try { await aiApi.executeAction(workspaceId, action.conversationId, action.id); await loadActions(); }
+          catch (cause) { setError(getFriendlyErrorMessage(cause, "The assistant action could not be refreshed or executed.")); }
+          finally { setBusy(false); }
+        }}>{action.status === "pending_approval" ? "Check approval" : "Run now"}</button>}
+      </article>)}
     </LiveSection>
   </LivePanelShell>;
 }

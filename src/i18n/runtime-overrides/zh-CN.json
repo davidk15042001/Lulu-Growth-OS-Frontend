@@ -4103,5 +4103,19 @@
   "No customer selected": "没有选择客户",
   "Date and time": "日期和时间",
   "minutes": "分钟",
-  "hours": "小时"
+  "hours": "小时",
+  "Run now": "立即运行",
+  "AI actions are not enabled for this workspace. Ask a workspace administrator for help.": "此工作区未启用 AI 操作。向工作区管理员寻求帮助。",
+  "You do not have permission to run this assistant action.": "您无权运行此助理操作。",
+  "The approval for this assistant action has expired. Ask the assistant to prepare it again.": "此辅助行动的批准已过期。请助理再次准备。",
+  "This assistant action was rejected and was not executed.": "此辅助操作被拒绝且未执行。",
+  "The assistant action could not be completed. Please try again.": "辅助操作无法完成。请再试一次。",
+  "We could not load the assistant actions.": "我们无法加载辅助操作。",
+  "Assistant actions": "辅助动作",
+  "No assistant actions for this conversation.": "此对话没有辅助操作。",
+  "pending_approval": "待批准",
+  "Owner/Admin approval required": "需要所有者/管理员批准",
+  "The assistant action could not be refreshed or executed.": "无法刷新或执行辅助操作。",
+  "Check approval": "检查批准",
+  "The server restarted while this action was running. Please review its result before trying again.": "此操作运行时服务器重新启动。请在重试之前查看其结果。"
 }

@@ -23,5 +23,7 @@
   "tickets": "Tickets",
   "Your new requests will appear here.": "Deine neuen Anfragen erscheinen hier.",
   "Choose a conversation from the inbox to view its history and reply.": "Wähle eine Unterhaltung im Posteingang aus, um den Verlauf anzusehen und zu antworten.",
-  "Workspace": "Workspace"
+  "Workspace": "Workspace",
+  "Conversation": "Konversation",
+  "Inbox": "Posteingang"
 }
