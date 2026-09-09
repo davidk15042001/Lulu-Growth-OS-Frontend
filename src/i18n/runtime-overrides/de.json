@@ -4060,5 +4060,8 @@
   "AI optimization records.": "Aufzeichnungen zur KI-Optimierung.",
   "{{0}} execution activity": "{{0}}-Ausführungsaktivität",
   "Approval required": "Genehmigung erforderlich",
-  "Planning": "Planung"
+  "Planning": "Planung",
+  "End the admin workspace view before changing this password.": "Beende zuerst die Admin-Ansicht des Workspaces, bevor du dieses Passwort änderst.",
+  "The current password is incorrect.": "Das aktuelle Passwort ist falsch.",
+  "The new password must be different from your current password.": "Das neue Passwort muss sich vom aktuellen Passwort unterscheiden."
 }

@@ -49,5 +49,8 @@
   "Workspace settings": "工作区设置",
   "Your account": "你的账户",
   "Your personal profile could not be saved.": "无法保存你的个人资料。",
-  "Your personal profile was updated.": "你的个人资料已更新。"
+  "Your personal profile was updated.": "你的个人资料已更新。",
+  "End the admin workspace view before changing this password.": "请先退出管理员工作区视图，再修改此密码。",
+  "The current password is incorrect.": "当前密码不正确。",
+  "The new password must be different from your current password.": "新密码必须与当前密码不同。"
 }

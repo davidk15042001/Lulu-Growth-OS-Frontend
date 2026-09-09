@@ -4037,5 +4037,8 @@
   "Every agent is scoped to an explicit set of capabilities.": "每个智能体均限定在明确的一组能力范围内。",
   "Supported agents": "受支持的智能体",
   "Enable this action for approved agents and workflows.": "为已批准的智能体和工作流启用此操作。",
-  "Intelligence Overview": "智能分析概览"
+  "Intelligence Overview": "智能分析概览",
+  "End the admin workspace view before changing this password.": "请先退出管理员工作区视图，再修改此密码。",
+  "The current password is incorrect.": "当前密码不正确。",
+  "The new password must be different from your current password.": "新密码必须与当前密码不同。"
 }

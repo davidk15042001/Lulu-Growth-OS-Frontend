@@ -49,5 +49,8 @@
   "Workspace settings": "Workspace-Einstellungen",
   "Your account": "Dein Konto",
   "Your personal profile could not be saved.": "Dein persönliches Profil konnte nicht gespeichert werden.",
-  "Your personal profile was updated.": "Dein persönliches Profil wurde aktualisiert."
+  "Your personal profile was updated.": "Dein persönliches Profil wurde aktualisiert.",
+  "End the admin workspace view before changing this password.": "Beende zuerst die Admin-Ansicht des Workspaces, bevor du dieses Passwort änderst.",
+  "The current password is incorrect.": "Das aktuelle Passwort ist falsch.",
+  "The new password must be different from your current password.": "Das neue Passwort muss sich vom aktuellen Passwort unterscheiden."
 }
