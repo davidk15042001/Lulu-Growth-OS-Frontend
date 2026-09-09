@@ -8,10 +8,10 @@ import { DEFAULT_WEBSITE_SECTION, WEBSITE_PORTAL_SLUG } from "./page-registry";
 
 const onboardingPathByStep: Record<string, string> = {
   company_information: routes.onboarding.companyInformation,
-  business_description: routes.onboarding.businessDescription,
+  business_description: routes.onboarding.productsServices,
   products_services: routes.onboarding.productsServices,
-  existing_platforms: routes.onboarding.existingPlatforms,
-  billing: routes.app.dashboard,
+  existing_platforms: routes.onboarding.productsServices,
+  billing: routes.onboarding.billing,
   setup_complete: routes.app.dashboard,
 };
 
@@ -49,8 +49,8 @@ export function PageRoute({ page }: { page: PageDefinition }) {
     return <Navigate replace to={{ pathname: routes.app.website, search: `?${params.toString()}` }} />;
   }
 
-  if (location.pathname === routes.onboarding.productsServices || location.pathname === "/onboarding/ai-preferences") {
-    return <Navigate replace to={routes.onboarding.existingPlatforms} state={{ from: location.pathname }} />;
+  if (location.pathname === "/onboarding/ai-preferences") {
+    return <Navigate replace to={routes.onboarding.productsServices} state={{ from: location.pathname }} />;
   }
 
   if (!isPublic && loading) {
@@ -74,12 +74,9 @@ export function PageRoute({ page }: { page: PageDefinition }) {
     return params.has("connected") || params.has("oauthCode") || params.has("oauthError");
   })();
 
-  if (
-    isOnboarding
-    && selectedWorkspace?.onboardingFileReuploadRequired
-    && location.pathname !== routes.onboarding.businessDescription
-  ) {
-    return <Navigate replace to={routes.onboarding.businessDescription} state={{ from: location.pathname }} />;
+  if (isOnboarding && selectedWorkspace && !selectedWorkspace.onboardingCompletedAt) {
+    const target = onboardingPathByStep[selectedWorkspace.onboardingStep] ?? routes.onboarding.companyInformation;
+    if (location.pathname !== target) return <Navigate replace to={target} state={{ from: location.pathname }} />;
   }
 
   if (!isPublic && !isOnboarding && !oauthReturn && currentUser && selectedWorkspace && !selectedWorkspace.onboardingCompletedAt) {

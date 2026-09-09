@@ -2905,5 +2905,7 @@
   "This assistant action was rejected and was not executed.": "此辅助操作被拒绝且未执行。",
   "We could not load the assistant actions.": "我们无法加载辅助操作。",
   "You do not have permission to run this assistant action.": "您无权运行此助理操作。",
-  "The server restarted while this action was running. Please review its result before trying again.": "此操作运行时服务器重新启动。请在重试之前查看其结果。"
+  "The server restarted while this action was running. Please review its result before trying again.": "此操作运行时服务器重新启动。请在重试之前查看其结果。",
+  "Abbrechen": "取消",
+  "Workspace update could not be cancelled": "无法取消工作区更新"
 }

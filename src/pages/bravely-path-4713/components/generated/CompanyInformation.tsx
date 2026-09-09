@@ -70,7 +70,7 @@ export const CompanyInformation = () => {
         address: form.address || null,
       } });
       setSaved(true);
-      navigateApp(routes.onboarding.businessDescription);
+      window.location.assign(routes.onboarding.productsServices);
     } catch (cause) {
       if (cause instanceof ApiError && (cause.status === 401 || cause.code === 'SESSION_REFRESH_UNAVAILABLE')) {
         clearStoredUser();
@@ -86,10 +86,10 @@ export const CompanyInformation = () => {
   return <main className="min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)]">
       <section className="flex items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
         <div className="w-full max-w-xl">
-          <OnboardingHeader step={1} />
+          <OnboardingHeader step={2} />
 
           <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-            <span>01 / 04 · Company profile</span>
+            <span>02 / 03 · Company profile</span>
           </p>
           <h1 className="mt-2 text-3xl font-semibold leading-tight text-[var(--foreground)] sm:text-4xl">
             <span>Company information</span>

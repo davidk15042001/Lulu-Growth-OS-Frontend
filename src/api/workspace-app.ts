@@ -444,6 +444,9 @@ export const workspaceAppApi = {
   contentRefreshStatus: (workspaceId: string, jobId: string) => requestApi<ContentRefreshJob>({
     path: workspaceApiPath(workspaceId, `/content-refresh/${encodeURIComponent(jobId)}?ts=${Date.now()}`),
   }),
+  cancelContentRefresh: (workspaceId: string, jobId: string) => requestApi<ContentRefreshJob>({
+    path: workspaceApiPath(workspaceId, `/content-refresh/${encodeURIComponent(jobId)}`), method: "POST", body: {},
+  }),
   contentAssets: (workspaceId: string, module?: string) => requestApi<{ items: ContentAsset[] }>({
     path: workspaceApiPath(workspaceId, `/content-assets${module ? `?module=${encodeURIComponent(module)}` : ""}`),
   }),

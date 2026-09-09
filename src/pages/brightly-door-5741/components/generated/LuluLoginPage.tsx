@@ -101,16 +101,22 @@ export const LuluLoginPage = () => {
         clearPendingInvitation();
       }
       setStatusMessage(t('Loading your workspace…'));
-      const workspaces = await requestWithTimeout<{ items: Array<{ id: string }> }>({ path: '/workspaces' });
+      const workspaces = await requestWithTimeout<{ items: Array<{ id: string; onboardingStep: string; onboardingCompletedAt: string | null }> }>({ path: '/workspaces' });
       const workspace = workspaces.data.items.find(item => item.id === invitedWorkspaceId) ?? workspaces.data.items[0];
       setS(true);
       setStatusMessage(t('Signed in successfully.'));
       if (workspace) {
         setSelectedWorkspaceId(workspace.id);
-        navigateApp(routes.app.dashboard);
+        navigateApp(workspace.onboardingCompletedAt
+          ? routes.app.dashboard
+          : workspace.onboardingStep === 'billing'
+            ? routes.onboarding.billing
+            : workspace.onboardingStep === 'products_services'
+              ? routes.onboarding.productsServices
+              : routes.onboarding.companyInformation);
       } else {
         clearSelectedWorkspaceId();
-        navigateApp(routes.onboarding.companyInformation);
+        navigateApp(routes.onboarding.billing);
       }
     } catch (cause) {
       setStatusMessage('');

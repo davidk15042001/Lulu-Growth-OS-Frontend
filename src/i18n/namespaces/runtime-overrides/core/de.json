@@ -2905,5 +2905,7 @@
   "This assistant action was rejected and was not executed.": "Diese Hilfsaktion wurde abgelehnt und nicht ausgeführt.",
   "We could not load the assistant actions.": "Wir konnten die Assistentenaktionen nicht laden.",
   "You do not have permission to run this assistant action.": "Sie sind nicht berechtigt, diese Assistentenaktion auszuführen.",
-  "The server restarted while this action was running. Please review its result before trying again.": "Der Server wurde neu gestartet, während diese Aktion ausgeführt wurde. Bitte überprüfen Sie das Ergebnis, bevor Sie es erneut versuchen."
+  "The server restarted while this action was running. Please review its result before trying again.": "Der Server wurde neu gestartet, während diese Aktion ausgeführt wurde. Bitte überprüfen Sie das Ergebnis, bevor Sie es erneut versuchen.",
+  "Abbrechen": "Abbrechen",
+  "Workspace update could not be cancelled": "Die Aktualisierung des Arbeitsbereichs konnte nicht abgebrochen werden"
 }

@@ -129,7 +129,7 @@ function RightPanel() {
         <Sparkles size={42} className="text-[var(--foreground)]" aria-hidden="true" />
         
         <span className="rounded-full border border-[var(--border)] bg-card px-3 py-1 text-xs font-medium text-[var(--foreground)]">
-          <span>Step 3 of 5</span>
+          <span>Step 3 of 3</span>
         </span>
       </div>
 
@@ -159,6 +159,7 @@ export function LuluProductsServices() {
   const [showHelp, setShowHelp] = useState(false);
   const [toast, setToast] = useState("");
   const [exiting, setExiting] = useState(false);
+  const [completing, setCompleting] = useState(false);
   useEffect(() => {
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
@@ -344,6 +345,18 @@ export function LuluProductsServices() {
     setExiting(true);
     await exitOnboardingToLogin();
   }
+  async function finishOnboarding() {
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId || offerings.length === 0 || completing) return;
+    setCompleting(true);
+    try {
+      await requestApi({ path: `/workspaces/${workspaceId}/onboarding/complete`, method: 'POST', body: {} });
+      window.location.assign(routes.app.dashboard);
+    } catch (cause) {
+      setToast(getFriendlyErrorMessage(cause, 'We could not complete onboarding. Please try again.'));
+      setCompleting(false);
+    }
+  }
   return <main className="min-h-screen bg-[var(--background)] font-[Inter,sans-serif] text-[var(--foreground)] lg:grid lg:grid-cols-[minmax(0,1.12fr)_minmax(360px,.88fr)]">
       <section className="flex justify-center px-4 py-6 sm:px-8 lg:items-start lg:px-12 lg:py-12 xl:px-16">
         <div className="w-full max-w-2xl">
@@ -365,10 +378,10 @@ export function LuluProductsServices() {
                 <span>Company setup</span>
               </p>
               <p className="text-xs font-medium text-[var(--foreground)]">
-                <span>Step 3 of 5</span>
+                <span>Step 3 of 3</span>
               </p>
             </div>
-            <ol className="grid grid-cols-5 gap-1.5" aria-label="Company setup steps">
+            <ol className="grid grid-cols-3 gap-1.5" aria-label="Company setup steps">
               
               {stepItems.map(step => <li key={step.id} className="min-w-0">
                   <span className={`block h-1.5 rounded-full ${step.state === "complete" ? "bg-[var(--primary)]" : step.state === "current" ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={step.label} />
@@ -380,7 +393,7 @@ export function LuluProductsServices() {
 
           <section className="mt-8" aria-labelledby="products-heading">
             <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-              <span>03 / 05 · Your offerings</span>
+              <span>03 / 03 · Your offerings</span>
             </p>
             <h1 id="products-heading" className="mt-3 max-w-2xl text-4xl font-semibold leading-[1.05] tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
               
@@ -740,14 +753,14 @@ export function LuluProductsServices() {
             </section> : null}
 
           <footer className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <button type="button" onClick={() => navigateApp(routes.onboarding.businessDescription)} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-semibold text-[var(--foreground)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:shadow-md">
+            <button type="button" onClick={() => navigateApp(routes.onboarding.companyInformation)} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-semibold text-[var(--foreground)] shadow-sm transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:shadow-md">
               
               <ArrowLeft size={16} aria-hidden="true" />
               <span>Back</span>
             </button>
-            <button type="button" disabled={offerings.length === 0} onClick={() => navigateApp(routes.onboarding.existingPlatforms)} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 text-sm font-semibold text-primary-foreground shadow-[0_12px_28px_color-mix(in_srgb,var(--primary)_24%,transparent)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="button" disabled={offerings.length === 0 || completing} onClick={() => void finishOnboarding()} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 text-sm font-semibold text-primary-foreground shadow-[0_12px_28px_color-mix(in_srgb,var(--primary)_24%,transparent)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:cursor-not-allowed disabled:opacity-50">
               
-              <span>Continue</span>
+              <span>{completing ? 'Completing…' : 'Finish setup'}</span>
               <ArrowRight size={16} aria-hidden="true" />
             </button>
           </footer>

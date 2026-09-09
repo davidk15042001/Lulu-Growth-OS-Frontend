@@ -625,6 +625,7 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
   const [overview, setOverview] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState("");
+  const [costEditor, setCostEditor] = useState<{ customer: Customer; apiAiCostUsd: string; storageCostUsd: string; reason: string } | null>(null);
 
   const load = async () => {
     setLoading(true); onError("");
@@ -645,6 +646,45 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
     finally { setSavingId(""); }
   };
 
+  const openCostEditor = async (customer: Customer) => {
+    setSavingId(`${customer.id}:cost`); onError("");
+    try {
+      const detail = await requestApi<WorkspaceDetail>({ path: `/admin/workspaces/${customer.id}` });
+      setCostEditor({
+        customer,
+        apiAiCostUsd: String(detail.data.paygUsage?.apiBillableUsd ?? Number(customer.apiCostUsd || 0)),
+        storageCostUsd: String(detail.data.paygUsage?.serverBillableUsd ?? Number(customer.serverCostUsd || 0)),
+        reason: "Manuelle Kostenanpassung durch Admin",
+      });
+    } catch (cause) { onError(getFriendlyErrorMessage(cause, "Die aktuellen Kosten konnten nicht geladen werden.")); }
+    finally { setSavingId(""); }
+  };
+
+  const saveUsageCosts = async () => {
+    if (!costEditor) return;
+    const apiAiCostUsd = Number(costEditor.apiAiCostUsd);
+    const storageCostUsd = Number(costEditor.storageCostUsd);
+    if (![apiAiCostUsd, storageCostUsd].every((value) => Number.isFinite(value) && value >= 0) || !costEditor.reason.trim()) {
+      onError("Bitte gültige Kostenwerte und einen Grund angeben.");
+      return;
+    }
+    setSavingId(`${costEditor.customer.id}:cost`); onError("");
+    try {
+      const response = await requestApi<{ apiBillableUsd: number; serverBillableUsd: number }>({
+        path: `/admin/workspaces/${costEditor.customer.id}/usage-costs`, method: "PUT",
+        body: { apiAiCostUsd, storageCostUsd, reason: costEditor.reason.trim() },
+      });
+      setOverview((current) => current ? {
+        ...current,
+        customers: current.customers.map((item) => item.id === costEditor.customer.id
+          ? { ...item, apiCostUsd: String(response.data.apiBillableUsd), serverCostUsd: String(response.data.serverBillableUsd) }
+          : item),
+      } : current);
+      setCostEditor(null);
+    } catch (cause) { onError(getFriendlyErrorMessage(cause, "Die API/AI- und Storage-Kosten konnten nicht gespeichert werden.")); }
+    finally { setSavingId(""); }
+  };
+
   const totalApi = overview?.customers.reduce((s, c) => s + Number(c.apiCostMinor || 0), 0) ?? 0;
   const totalApiUsd = overview?.customers.reduce((s, c) => s + Number(c.apiCostUsd || 0), 0) ?? 0;
   const totalServerUsd = overview?.customers.reduce((s, c) => s + Number(c.serverCostUsd || 0), 0) ?? 0;
@@ -657,11 +697,26 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
         <input type="month" className="rounded-md border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-indigo-400" value={month} onChange={(e) => setMonth(e.target.value)} />
         <div className="ml-auto flex items-center gap-2 text-sm">
           <Pill tone="sky">API: {moneyUsd(totalApiUsd)}{totalApi > 0 ? ` · ${money(totalApi)}` : ""}</Pill>
-          <Pill tone="violet">{t("Server:")} {moneyUsd(totalServerUsd)}</Pill>
+          <Pill tone="violet">Storage / Infrastruktur: {moneyUsd(totalServerUsd)}</Pill>
           <Pill tone="amber">Bytes: {sizeMB(totalStorageBytes)}</Pill>
           <button type="button" disabled={loading} onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
         </div>
       </div>
+
+      {costEditor ? (
+        <section className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4 shadow-sm" aria-label="API AI und Storage Kosten bearbeiten">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div><h3 className="font-semibold text-slate-900">Kosten bearbeiten · {costEditor.customer.companyName}</h3><p className="mt-1 text-xs text-slate-600">Die Werte gelten für die offene Abrechnungsperiode und werden revisionssicher protokolliert.</p></div>
+            <button type="button" onClick={() => setCostEditor(null)} className="rounded-md border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-600 hover:bg-slate-50">Abbrechen</button>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-[170px_170px_minmax(220px,1fr)_auto]">
+            <label className="text-xs font-medium text-slate-600">API / AI in USD<input type="number" min="0" step="0.01" value={costEditor.apiAiCostUsd} onChange={(event) => setCostEditor({ ...costEditor, apiAiCostUsd: event.target.value })} className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900" /></label>
+            <label className="text-xs font-medium text-slate-600">Storage in USD<input type="number" min="0" step="0.01" value={costEditor.storageCostUsd} onChange={(event) => setCostEditor({ ...costEditor, storageCostUsd: event.target.value })} className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900" /></label>
+            <label className="text-xs font-medium text-slate-600">Grund<input value={costEditor.reason} maxLength={500} onChange={(event) => setCostEditor({ ...costEditor, reason: event.target.value })} className="mt-1 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900" /></label>
+            <button type="button" disabled={savingId === `${costEditor.customer.id}:cost`} onClick={() => void saveUsageCosts()} className="self-end rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50">{savingId === `${costEditor.customer.id}:cost` ? "Speichere…" : "Kosten speichern"}</button>
+          </div>
+        </section>
+      ) : null}
 
       <DataTable<Customer>
         loading={loading}
@@ -690,8 +745,9 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
           { key: "startDate", label: "Start", render: (c) => dateOnly(c.startDate) },
           { key: "expiryDate", label: "Ablauf", render: (c) => dateOnly(c.expiryDate) },
           { key: "apiCostUsd", label: "API", render: (c) => <span className="font-mono text-xs">{moneyUsd(c.apiCostUsd)}</span> },
-          { key: "serverCostUsd", label: "Server", render: (c) => <span className="font-mono text-xs">{moneyUsd(c.serverCostUsd)}</span> },
+          { key: "serverCostUsd", label: "Storage", render: (c) => <span className="font-mono text-xs">{moneyUsd(c.serverCostUsd)}</span> },
           { key: "storageBytes", label: "Größe", render: (c) => <span className="font-mono text-xs">{sizeMB(c.storageBytes)}</span> },
+          { key: "costActions", label: "Kosten", render: (c) => <button type="button" disabled={savingId === `${c.id}:cost`} onClick={() => void openCostEditor(c)} className="rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50">{savingId === `${c.id}:cost` ? "Lade…" : "Bearbeiten"}</button> },
         ]}
       />
     </div>

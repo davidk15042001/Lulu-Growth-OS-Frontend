@@ -108,6 +108,7 @@ export function LuluWorkspaceRefreshButton() {
   const [job, setJob] = useState<ContentRefreshJob | null>(() => readStoredJob(workspaceId));
   const [error, setError] = useState<string | null>(null);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   const running = Boolean(job && !isDone(job) && !isStale(job));
   const phaseLabel = job?.currentPhase ? t(PHASE_LABELS[job.currentPhase] ?? job.currentPhase) : t('starting');
   const moduleStatuses = readModuleStatuses(job);
@@ -179,6 +180,22 @@ export function LuluWorkspaceRefreshButton() {
     }
   }
 
+  async function cancelWorkspaceRefresh() {
+    if (!workspaceId || !job || !running || cancelling) return;
+    setCancelling(true);
+    setError(null);
+    try {
+      const response = await workspaceAppApi.cancelContentRefresh(workspaceId, job.id);
+      setJob(response.data);
+      clearStoredJob();
+      setShowStatusDialog(false);
+    } catch (cause) {
+      setError(cause instanceof ApiError ? cause.message : t('Workspace update could not be cancelled'));
+    } finally {
+      setCancelling(false);
+    }
+  }
+
   const statusText = running
     ? `${t('Updating workspace')} · ${phaseLabel} · ${job?.progress ?? 0}%`
     : job?.status === 'completed'
@@ -209,13 +226,24 @@ export function LuluWorkspaceRefreshButton() {
                   {running ? t('Currently updating') + ' ' + phaseLabel + '.' : job.status === 'completed' ? t('Workspace update completed.') : job.errorMessage ?? statusText}
                 </p>
               </div>
-              <button
-                type="button"
-                className="rounded-md border border-white/10 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/5"
-                onClick={() => setShowStatusDialog(false)}
-              >
-                {t('Close')}
-              </button>
+              {running ? (
+                <button
+                  type="button"
+                  className="rounded-md border border-rose-300/30 px-3 py-1.5 text-xs text-rose-100 hover:bg-rose-400/10 disabled:opacity-50"
+                  onClick={() => void cancelWorkspaceRefresh()}
+                  disabled={cancelling}
+                >
+                  {cancelling ? t('Cancelling…') : t('Abbrechen')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="rounded-md border border-white/10 px-3 py-1.5 text-xs text-slate-200 hover:bg-white/5"
+                  onClick={() => setShowStatusDialog(false)}
+                >
+                  {t('Close')}
+                </button>
+              )}
             </div>
             <div className="mt-4 h-2 overflow-hidden rounded-full bg-white/10">
               <div

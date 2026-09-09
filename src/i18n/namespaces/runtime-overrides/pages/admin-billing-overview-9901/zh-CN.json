@@ -367,5 +367,19 @@
   "Refresh": "刷新",
   "TikTok Ads": "抖音广告",
   "wird vollständig bereinigt. Diese Ansicht aktualisiert sich automatisch.": "正在被彻底清理。此页面会自动刷新。",
-  "Working…": "处理中…"
+  "Working…": "处理中…",
+  "Abbrechen": "取消",
+  "API / AI in USD": "API / AI 美元",
+  "API AI und Storage Kosten bearbeiten": "编辑 API AI 和存储成本",
+  "Bearbeiten": "编辑",
+  "Die aktuellen Kosten konnten nicht geladen werden.": "无法加载当前成本。",
+  "Die API/AI- und Storage-Kosten konnten nicht gespeichert werden.": "API/AI和存储成本无法节省。",
+  "Die Werte gelten für die offene Abrechnungsperiode und werden revisionssicher protokolliert.": "这些值适用于开放计费周期，并以防审计的方式记录。",
+  "Kosten": "科斯滕",
+  "Kosten bearbeiten ·": "编辑费用",
+  "Kosten speichern": "节省成本",
+  "Lade…": "拉德…",
+  "Manuelle Kostenanpassung durch Admin": "管理员手动调整成本",
+  "Storage / Infrastruktur:": "存储/基础设施：",
+  "Storage in USD": "美元存储"
 }

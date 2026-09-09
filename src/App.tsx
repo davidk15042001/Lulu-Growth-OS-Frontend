@@ -54,7 +54,6 @@ const CALENDAR_PAGE: PageDefinition = {
   selectedRevisionId: "local-calendar-workspace",
   previewImageUrl: null,
 };
-const EXISTING_PLATFORMS_PAGE = pages.find((page) => page.slug === "fresh-tide-9404")!;
 const FINANCE_RECORD_ROUTES = [
   ["quietly-stone-4158", "finance_accounts", "Finance Overview"],
   ["cool-rain-6499", "finance_income", "Income"],
@@ -115,6 +114,14 @@ function BillingRoute() {
       <GlobalLanguageSwitcher />
     </AdminOnlyAppRoute>
   );
+}
+
+function RemovedOnboardingRoute() {
+  const { selectedWorkspace, loading } = useLuluApp();
+  if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your workspace…</main>;
+  if (!selectedWorkspace || selectedWorkspace.onboardingStep === "billing") return <Navigate replace to={routes.onboarding.billing} />;
+  if (selectedWorkspace.onboardingCompletedAt) return <Navigate replace to={routes.app.dashboard} />;
+  return <Navigate replace to={selectedWorkspace.onboardingStep === "company_information" ? routes.onboarding.companyInformation : routes.onboarding.productsServices} />;
 }
 
 function PublicAuthRoute({ children }: { children: React.ReactNode }) {
@@ -281,9 +288,10 @@ export default function App() {
         <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
         <Route path="/auth/login" element={<Navigate replace to={routes.auth.login} />} />
         <Route path="/register" element={<Navigate replace to={routes.auth.signUp} />} />
-        <Route path={routes.onboarding.welcome} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.companyInformation} /></AdminOnlyAppRoute>} />
+        <Route path={routes.onboarding.welcome} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.billing} /></AdminOnlyAppRoute>} />
         <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.billing} /></AdminOnlyAppRoute>} />
-        <Route path={routes.onboarding.existingPlatforms} element={<AdminOnlyAppRoute><PageRoute page={EXISTING_PLATFORMS_PAGE} /></AdminOnlyAppRoute>} />
+        <Route path={routes.onboarding.businessDescription} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
+        <Route path={routes.onboarding.existingPlatforms} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
         <Route path={routes.onboarding.billing} element={<BillingRoute />} />
         <Route path={routes.onboarding.billings} element={<BillingRoute />} />
         <Route path="/documents/commercial/:token" element={<PublicCommercialDocumentPage />} />
@@ -314,6 +322,7 @@ export default function App() {
         <Route path={routes.app.invoices} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="invoices" /></AdminOnlyAppRoute>} />
         {pages.map((page) => {
           if (!isPageAvailable(page.slug)) return null;
+          if (page.slug === "quiet-garden-9477" || page.slug === "fresh-tide-9404") return null;
           if (page.slug === "nicely-ocean-1051") return null;
           if (page.slug === "nicely-land-1864") return null;
           const resolvedPath = pagePath(page.slug);

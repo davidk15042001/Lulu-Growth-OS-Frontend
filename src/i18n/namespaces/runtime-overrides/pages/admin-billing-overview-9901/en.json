@@ -116,5 +116,14 @@
   "Löschung läuft im Hintergrund.": "Deletion is running in the background.",
   "Löschung läuft…": "Deletion in progress…",
   "lulu_managed": "Lulu managed",
-  "wird vollständig bereinigt. Diese Ansicht aktualisiert sich automatisch.": "is being completely cleaned up. This page refreshes automatically."
+  "wird vollständig bereinigt. Diese Ansicht aktualisiert sich automatisch.": "is being completely cleaned up. This page refreshes automatically.",
+  "Abbrechen": "Cancel",
+  "API AI und Storage Kosten bearbeiten": "Edit API AI and storage costs",
+  "Bearbeiten": "Edit",
+  "Die aktuellen Kosten konnten nicht geladen werden.": "The current costs could not be loaded.",
+  "Die API/AI- und Storage-Kosten konnten nicht gespeichert werden.": "The API/AI and storage costs could not be saved.",
+  "Die Werte gelten für die offene Abrechnungsperiode und werden revisionssicher protokolliert.": "The values apply to the open billing period and are logged in an audit-proof manner.",
+  "Kosten bearbeiten ·": "Edit costs",
+  "Kosten speichern": "Save costs",
+  "Manuelle Kostenanpassung durch Admin": "Manual cost adjustment by admin"
 }

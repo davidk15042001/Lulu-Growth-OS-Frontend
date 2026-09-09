@@ -13,13 +13,6 @@ const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string
   ai: { icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20" },
 };
 
-const onboardingPathByStep: Record<string, string> = {
-  company_information: routes.onboarding.companyInformation,
-  business_description: routes.onboarding.businessDescription,
-  products_services: routes.onboarding.existingPlatforms,
-  existing_platforms: routes.onboarding.existingPlatforms,
-};
-
 export function BillingOnboarding() {
   const { currentUser, selectedWorkspace, loading, refresh } = useLuluApp();
   const admin = isAdminUser(currentUser);
@@ -29,7 +22,7 @@ export function BillingOnboarding() {
   const [technicalError, setTechnicalError] = useState<string | null>(null);
   const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
-  const postActionTarget = admin ? getAdminLandingPath(routes.app.dashboard) : routes.app.dashboard;
+  const postActionTarget = admin ? getAdminLandingPath(routes.app.dashboard) : routes.onboarding.companyInformation;
   // Only the AI package is currently offered for customer billing. Keep this
   // explicit guard so legacy Explorer/Starter entries can never reappear in
   // the checkout UI if they are reintroduced into the shared catalog.
@@ -89,6 +82,20 @@ export function BillingOnboarding() {
     navigateApp(postActionTarget, { replace: true });
   }, [loading, paymentSucceeded, postActionTarget, selectedWorkspace]);
 
+  useEffect(() => {
+    if (loading || paymentSucceeded || !selectedWorkspace || selectedWorkspace.onboardingCompletedAt) return;
+    let active = true;
+    void workspaceAppApi.billing(selectedWorkspace.id).then((response) => {
+      const subscription = response.data.subscription;
+      if (!active || subscription?.status !== "active" || !["internal", "airwallex"].includes(subscription.provider)) return;
+      const target = selectedWorkspace.onboardingStep === "products_services"
+        ? routes.onboarding.productsServices
+        : routes.onboarding.companyInformation;
+      navigateApp(target, { replace: true });
+    }).catch(() => undefined);
+    return () => { active = false; };
+  }, [loading, paymentSucceeded, selectedWorkspace]);
+
   if (loading) {
     return <main className="grid min-h-screen place-items-center bg-[var(--background)] text-sm text-[var(--muted-foreground)]">Loading your workspace…</main>;
   }
@@ -99,21 +106,8 @@ export function BillingOnboarding() {
   }
 
   if (!selectedWorkspace) {
-    navigateApp(routes.onboarding.companyInformation, { replace: true });
+    navigateApp(routes.auth.login, { replace: true });
     return null;
-  }
-
-  if (selectedWorkspace.onboardingFileReuploadRequired) {
-    navigateApp(routes.onboarding.businessDescription, { replace: true });
-    return null;
-  }
-
-  if (!selectedWorkspace.onboardingCompletedAt) {
-    const requiredPath = onboardingPathByStep[selectedWorkspace.onboardingStep];
-    if (requiredPath) {
-      navigateApp(requiredPath, { replace: true });
-      return null;
-    }
   }
 
   const startPlanCheckout = async (planId: BillingPlanId) => {
@@ -154,7 +148,7 @@ export function BillingOnboarding() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
-        <OnboardingHeader step={4} showBrandName={false} />
+        <OnboardingHeader step={1} showBrandName={false} />
 
         <section className="mx-auto max-w-3xl py-14 text-center sm:py-16">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--card)]">
