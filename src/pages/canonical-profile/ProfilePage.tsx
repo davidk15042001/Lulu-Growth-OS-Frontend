@@ -24,6 +24,18 @@ function profileToForm(profile: WorkspaceProfile): ProfileForm {
   return Object.fromEntries(Object.keys(emptyProfile).map((key) => [key, profile[key as keyof ProfileForm] ?? ''])) as ProfileForm;
 }
 
+function workspaceToProfileForm(workspace: NonNullable<ReturnType<typeof useLuluApp>['selectedWorkspace']>): ProfileForm {
+  return {
+    ...emptyProfile,
+    companyName: workspace.companyName ?? '',
+    industry: workspace.industry ?? '',
+    countryRegion: workspace.countryRegion ?? '',
+    taxId: workspace.taxId ?? '',
+    address: workspace.address ?? '',
+    legalForm: workspace.legalForm ?? '',
+  };
+}
+
 export default function ProfilePage() {
   const t = useTranslation();
   const { currentUser, selectedWorkspace, permissions, updateWorkspace } = useLuluApp();
@@ -55,8 +67,26 @@ export default function ProfilePage() {
     setLoading(true);
     setError('');
     void workspaceProfileApi.get(workspaceId)
-      .then((response) => { if (active) setProfile(profileToForm(response.data)); })
-      .catch((cause) => { if (active) setError(getFriendlyErrorMessage(cause, t('The company profile could not be loaded.'))); })
+      .then((response) => {
+        if (!active) return;
+        // Keep the response contract strict, but do not blank the complete
+        // profile if a rolling deployment returns an incomplete envelope.
+        if (response.data && typeof response.data === 'object') setProfile(profileToForm(response.data));
+        else if (selectedWorkspace) setProfile(workspaceToProfileForm(selectedWorkspace));
+      })
+      .catch((cause) => {
+        if (!active) return;
+        // The workspace list already contains the non-sensitive company
+        // fields. Use it as a read-only fallback while the protected profile
+        // endpoint recovers, so an optional banking-field issue cannot make
+        // the whole Profile page unusable.
+        if (selectedWorkspace) {
+          setProfile(workspaceToProfileForm(selectedWorkspace));
+          setError('');
+          return;
+        }
+        setError(getFriendlyErrorMessage(cause, t('The company profile could not be loaded.')));
+      })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [workspaceId, canManageWorkspaceProfile, t]);
