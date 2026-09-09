@@ -32,8 +32,8 @@
   "monthly, yearly...": "每月、每年...",
   "Offering names": "产品名称",
   "Offering saved": "产品或服务已保存",
-  "Onboarding abbrechen": "取消入职",
-  "Onboarding abbrechen und zur Login-Seite zurueckkehren?": "取消登录并返回登录页面？",
+  "Onboarding abbrechen": "取消引导流程",
+  "Onboarding abbrechen und zur Login-Seite zurueckkehren?": "要取消引导流程并返回登录页面吗？",
   "Product or service removed": "产品或服务已移除",
   "Products &amp; Services": "产品与amp; 服务",
   "Save offering": "保存产品方案",
@@ -47,7 +47,7 @@
   "Too expensive, integration effort...": "太贵了，集成工作...",
   "Unable to load offerings": "无法加载产品与服务",
   "Value propositions": "价值主张",
-  "Verlasse Onboarding...": "维拉斯入职...",
+  "Verlasse Onboarding...": "正在退出引导流程…",
   "We could not remove this product or service. Please try again.": "无法移除此产品或服务。请重试。",
   "We could not save this product or service. Please try again.": "无法保存此产品或服务。请重试。",
   "What do you offer?": "你们提供什么？",
@@ -66,5 +66,6 @@
   "Categories": "类别",
   "Descriptions": "描述",
   "Product": "产品",
-  "Subscription": "订阅"
+  "Subscription": "订阅",
+  "Lulu Intelligence": "Lulu Intelligence"
 }

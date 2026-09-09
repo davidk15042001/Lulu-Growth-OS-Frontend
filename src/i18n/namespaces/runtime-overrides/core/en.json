@@ -76,5 +76,21 @@
   "Opening secure checkout…": "Opening secure checkout…",
   "Pay API usage": "Pay API usage",
   "Payment details are handled securely by Airwallex. Available methods depend on your merchant setup, currency and region.": "Payment details are handled securely by Airwallex. Available methods depend on your merchant setup, currency and region.",
-  "Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.": "Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace."
+  "Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.": "Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.",
+  "Antworten": "Responses",
+  "Deutsch": "German",
+  "Fragen": "Questions",
+  "Generierung abgebrochen": "Generation cancelled",
+  "Generierung fehlgeschlagen": "Generation failed",
+  "Planung läuft": "Planning in progress",
+  "Quelle": "Source",
+  "Sichtbarkeit": "Visibility",
+  "Sprache": "Language",
+  "Verbindungen": "Connections",
+  "Veröffentlichung läuft": "Publishing in progress",
+  "Volumen": "Volume",
+  "von": "of",
+  "Vorschau wird vorbereitet": "Preparing preview",
+  "Website wird generiert": "Website is being generated",
+  "Fragen, Antwortqualitaet und Antwortluecken aus DataForSEO mit sofortigem Auto-Apply auf verbundene Websites.": "Questions, answer quality and answer gaps from DataForSEO with immediate auto-apply to connected websites."
 }

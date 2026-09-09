@@ -12,8 +12,9 @@
   "Creation": "创建方式",
   "Amount": "金额",
   "Created": "创建时间",
-  "Quotes": "报价单",
+  "Quotes": "行情",
   "Invoices": "发票",
   "Refresh": "刷新",
-  "Loading…": "加载中…"
+  "Loading…": "加载中…",
+  "quotes": "报价单"
 }

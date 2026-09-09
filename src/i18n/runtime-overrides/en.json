@@ -594,5 +594,7 @@
   "{{0}} wurde gespeichert.": "{{0}} saved.",
   "Beschreibung": "Description",
   "Aktualisiert": "Updated",
-  "Name *": "Name *"
+  "Name *": "Name *",
+  "Fragen, Antwortqualitaet und Antwortluecken aus DataForSEO mit sofortigem Auto-Apply auf verbundene Websites.": "Questions, answer quality and answer gaps from DataForSEO with immediate auto-apply to connected websites.",
+  "Kategorie:": "Category:"
 }

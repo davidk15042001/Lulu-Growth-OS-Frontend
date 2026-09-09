@@ -12,8 +12,9 @@
   "Creation": "Erstellung",
   "Amount": "Betrag",
   "Created": "Erstellt",
-  "Quotes": "Angebote",
+  "Quotes": "Zitate",
   "Invoices": "Rechnungen",
   "Refresh": "Aktualisieren",
-  "Loading…": "Wird geladen…"
+  "Loading…": "Laden…",
+  "quotes": "Angebote"
 }

@@ -232,7 +232,7 @@
   "Taxes": "Steuern",
   "Territories": "Gebiete",
   "Timeline": "Zeitachse",
-  "Total": "Gesamt",
+  "Total": "Gesamtsumme",
   "Transactions": "Transaktionen",
   "Trends": "Trends",
   "Type": "Typ",
@@ -240,5 +240,5 @@
   "Vendors": "Anbieter",
   "Webflow": "Webflow",
   "Website": "Website",
-  "Workspace": "Arbeitsbereich"
+  "Workspace": "Workspace"
 }

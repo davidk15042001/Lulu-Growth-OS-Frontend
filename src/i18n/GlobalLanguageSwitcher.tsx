@@ -57,10 +57,13 @@ const appliedText = new WeakMap<Text, string>();
 const originalAttributes = new WeakMap<Element, Map<string, string>>();
 const appliedAttributes = new WeakMap<Element, Map<string, string>>();
 const dynamicPatterns = new WeakMap<Record<string, string>, Array<{ regex: RegExp; translation: string }>>();
+const reverseTranslations = new WeakMap<Record<string, string>, Map<string, string | null>>();
+const reverseDynamicPatterns = new WeakMap<Record<string, string>, Array<{ regex: RegExp; placeholderIndexes: number[]; source: string }>>();
 const translatableAttributes = ["aria-label", "placeholder", "title"] as const;
 let translationWriteDepth = 0;
 let originalDocumentTitle = "";
 let appliedDocumentTitle = "";
+let languageSwitchRequest = 0;
 
 function withTranslationWrite<T>(callback: () => T): T {
   translationWriteDepth += 1;
@@ -81,7 +84,7 @@ function applyTranslationsToSubtree(root: Node, dictionary: Record<string, strin
       let applied = appliedAttributes.get(element);
       const previousOriginal = originals?.get(attribute);
       const previousApplied = applied?.get(attribute);
-      const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
+      const original = resolveOriginalValue(current, previousOriginal, previousApplied);
       if (!originals) { originals = new Map(); originalAttributes.set(element, originals); }
       if (!applied) { applied = new Map(); appliedAttributes.set(element, applied); }
       originals.set(attribute, original);
@@ -102,7 +105,7 @@ function applyTranslationsToSubtree(root: Node, dictionary: Record<string, strin
       const current = text.data;
       const previousOriginal = originalText.get(text);
       const previousApplied = appliedText.get(text);
-      const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
+      const original = resolveOriginalValue(current, previousOriginal, previousApplied);
       originalText.set(text, original);
       const key = original.trim();
       const translated = lookup(dictionary, key);
@@ -130,7 +133,7 @@ function applyTranslationsToSubtree(root: Node, dictionary: Record<string, strin
         const current = text.data;
         const previousOriginal = originalText.get(text);
         const previousApplied = appliedText.get(text);
-        const original = previousOriginal === undefined || (current !== previousOriginal && current !== previousApplied) ? current : previousOriginal;
+        const original = resolveOriginalValue(current, previousOriginal, previousApplied);
         originalText.set(text, original);
         const key = original.trim();
         const translated = lookup(dictionary, key);
@@ -188,6 +191,67 @@ function lookup(dictionary: Record<string, string>, source: string) {
     if (!match) continue;
     return translation.replace(/\{\{(\d+)\}\}/g, (_, index) => match[Number(index) + 1] ?? "");
   }
+}
+
+function templateMatcher(template: string) {
+  const placeholderIndexes: number[] = [];
+  let expression = "^";
+  let cursor = 0;
+  for (const match of template.matchAll(/\{\{(\d+)\}\}/g)) {
+    expression += template.slice(cursor, match.index).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    expression += "(.+?)";
+    placeholderIndexes.push(Number(match[1]));
+    cursor = (match.index ?? 0) + match[0].length;
+  }
+  expression += template.slice(cursor).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  expression += "$";
+  return { regex: new RegExp(expression), placeholderIndexes };
+}
+
+function reverseLookup(dictionary: Record<string, string>, rendered: string) {
+  let exact = reverseTranslations.get(dictionary);
+  if (!exact) {
+    exact = new Map();
+    for (const [source, translation] of Object.entries(dictionary)) {
+      const existing = exact.get(translation);
+      exact.set(translation, existing === undefined || existing === source ? source : null);
+    }
+    reverseTranslations.set(dictionary, exact);
+  }
+  const exactSource = exact.get(rendered);
+  if (exactSource) return exactSource;
+
+  let patterns = reverseDynamicPatterns.get(dictionary);
+  if (!patterns) {
+    patterns = Object.entries(dictionary)
+      .filter(([source, translation]) => source.includes("{{") && translation.includes("{{"))
+      .map(([source, translation]) => ({ ...templateMatcher(translation), source }));
+    reverseDynamicPatterns.set(dictionary, patterns);
+  }
+  for (const { regex, placeholderIndexes, source } of patterns) {
+    const match = rendered.match(regex);
+    if (!match) continue;
+    const values = new Map<number, string>();
+    placeholderIndexes.forEach((placeholder, index) => values.set(placeholder, match[index + 1] ?? ""));
+    return source.replace(/\{\{(\d+)\}\}/g, (_, index) => values.get(Number(index)) ?? "");
+  }
+}
+
+function recoverCanonicalSource(rendered: string) {
+  for (const dictionary of Object.values(loadedTables)) {
+    const source = reverseLookup(dictionary, rendered);
+    if (source) return source;
+  }
+  return rendered;
+}
+
+function resolveOriginalValue(current: string, previousOriginal?: string, previousApplied?: string) {
+  if (previousOriginal !== undefined && (current === previousOriginal || current === previousApplied)) return previousOriginal;
+  const leading = current.match(/^\s*/)?.[0] ?? "";
+  const trailing = current.match(/\s*$/)?.[0] ?? "";
+  const trimmed = current.trim();
+  const recovered = recoverCanonicalSource(trimmed);
+  return recovered === trimmed ? current : `${leading}${recovered}${trailing}`;
 }
 
 async function loadJsonTable(url: string) {
@@ -310,9 +374,11 @@ function applyStaticTranslations(root: HTMLElement, language: LanguageCode, dict
 
 function applyDocumentTitleTranslation(dictionary: Record<string, string>) {
   const current = document.title;
-  const original = !originalDocumentTitle || (current !== originalDocumentTitle && current !== appliedDocumentTitle)
-    ? current
-    : originalDocumentTitle;
+  const original = resolveOriginalValue(
+    current,
+    originalDocumentTitle || undefined,
+    appliedDocumentTitle || undefined,
+  );
   originalDocumentTitle = original;
   const next = lookup(dictionary, original) ?? original;
   if (next !== current) withTranslationWrite(() => { document.title = next; });
@@ -340,12 +406,21 @@ export function useTranslation() {
   return useCallback((key: string) => loadedTables[language]?.[key] ?? loadedTables.en?.[key] ?? key, [language]);
 }
 
-export function switchLanguage(next: LanguageCode) {
+export async function switchLanguage(next: LanguageCode) {
+  const request = ++languageSwitchRequest;
   try {
+    // Keep the current language intact until every table needed by the visible
+    // route is ready. This prevents a partial English/German/Chinese render
+    // while a newly selected catalog is still downloading.
+    await ensureNamespaces(next, requiredNamespaces(window.location.pathname, window.location.search));
+    if (request !== languageSwitchRequest) return;
     window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
     document.cookie = `${LANGUAGE_STORAGE_KEY}=${encodeURIComponent(next)}; Max-Age=31536000; Path=/; SameSite=Lax`;
-  } catch { /* no persistence available */ }
-  window.dispatchEvent(new CustomEvent(LANGUAGE_EVENT, { detail: { language: next } }));
+    window.dispatchEvent(new CustomEvent(LANGUAGE_EVENT, { detail: { language: next } }));
+    window.dispatchEvent(new Event(LANGUAGE_LOADED_EVENT));
+  } catch (error) {
+    console.error("Language catalog could not be loaded", error);
+  }
 }
 
 export function GlobalLanguageSwitcher({ showButton = true }: { showButton?: boolean } = {}) {
@@ -374,11 +449,13 @@ export function GlobalLanguageSwitcher({ showButton = true }: { showButton?: boo
       applyStaticTranslations(root, language, dictionary);
       applyDocumentTitleTranslation(dictionary);
     };
-    void ensureNamespaces(language, namespaces).then(() => {
-      if (!active) return;
-      translate();
-      window.dispatchEvent(new Event(LANGUAGE_LOADED_EVENT));
-    });
+    void ensureNamespaces(language, namespaces)
+      .then(() => {
+        if (!active) return;
+        translate();
+        window.dispatchEvent(new Event(LANGUAGE_LOADED_EVENT));
+      })
+      .catch((error) => console.error("Language catalog could not be loaded", error));
     const observer = new MutationObserver((mutations) => {
       if (translationWriteDepth > 0) return;
       window.clearTimeout(timer.current);

@@ -45,11 +45,22 @@ function requiredForLanguage(language, source) {
 function needsTranslation(language, source, translation) {
   if (!requiredForLanguage(language, source)) return false;
   if (!translation || !hasMatchingPlaceholders(source, translation)) return true;
+  if (process.env.I18N_RETRANSLATE_GERMAN_SOURCES === "1"
+    && language === "zh-CN"
+    && isLikelyGermanSource(source)) return true;
   if (language === "zh-CN" && requiresHanTranslation(source) && !/[\u3400-\u9fff]/.test(translation)) return true;
   return process.env.I18N_RETRANSLATE_IDENTITIES === "1"
     && language !== "en"
     && isLikelyEnglishSentence(source)
     && translation === source;
+}
+
+function normalizeKnownTerminology(language, source, translation) {
+  if (!translation || language !== "zh-CN" || !/(?:\bagents?\b|agenten)/i.test(source)) return translation;
+  return translation
+    .replace(/人工智能代理/g, "AI 智能体")
+    .replace(/AI\s*代理/g, "AI 智能体")
+    .replace(/代理商|代理人|代理/g, "智能体");
 }
 
 function protectPlaceholders(source) {
@@ -131,7 +142,8 @@ async function translateItems(language, items, persist) {
   for (const group of sourceGroups) {
     const batches = makeBatches(group.items);
     let nextBatch = 0;
-    const workerCount = Math.min(3, batches.length);
+    const configuredWorkers = Math.max(1, Number(process.env.I18N_TRANSLATION_WORKERS ?? 3) || 1);
+    const workerCount = Math.min(configuredWorkers, batches.length);
     await Promise.all(Array.from({ length: workerCount }, async () => {
       while (nextBatch < batches.length) {
         const batchIndex = nextBatch;
@@ -151,6 +163,11 @@ const { values, valuesByFile } = collectI18nSourceCatalog(root);
 console.log(`Active translation scope: ${values.size} UI strings; ${STATISTICS_PAGE_SLUGS.size} Statistics pages excluded.`);
 
 for (const language of languages) {
+  const existing = mergedRoot(language);
+  for (const source of values) {
+    const normalized = normalizeKnownTerminology(language, source, existing[source]);
+    if (normalized && normalized !== existing[source]) rootOverrides[language][source] = normalized;
+  }
   const current = mergedRoot(language);
   const pending = [...values]
     .filter((source) => needsTranslation(language, source, current[source]))

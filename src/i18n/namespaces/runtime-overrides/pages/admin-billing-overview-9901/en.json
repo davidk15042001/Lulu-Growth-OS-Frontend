@@ -102,5 +102,19 @@
   "Connect centrally": "Connect centrally",
   "Disconnect": "Disconnect",
   "Lulu central": "Lulu central",
-  "Management": "Management"
+  "Management": "Management",
+  "{{0}} wird vollständig im Hintergrund gelöscht. Der Zugriff wurde beendet; große Workspaces können einige Minuten benötigen.": "{{0}} is being completely deleted in the background. Access has been ended; large workspaces may take a few minutes.",
+  "{{0}} wurde vollständig gelöscht.": "{{0}} has been completely deleted.",
+  "{{0}} wurde vollständig gelöscht. Entfernt: {{1}} Workspace(s), {{2}} Integration(en), {{3}} Mitgliedschaft(en) und {{4}} persönliche Einträge in geteilten Workspaces.": "{{0}} has been completely deleted. Removed: {{1}} workspace(s), {{2}} integration(s), {{3}} membership link(s), and {{4}} personal item(s) in shared workspaces.",
+  "Account {{0}} endgültig löschen? Der Zugang wird sofort beendet. Eigene Workspaces einschließlich Integrationen werden gelöscht; persönliche Inhalte in geteilten Workspaces werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.": "Permanently delete account {{0}}? Access will end immediately. Owned workspaces and their integrations will be deleted; personal content in shared workspaces will also be removed. This action cannot be undone.",
+  "Aktualisieren": "Refresh",
+  "Anzahl": "Count",
+  "Benutzer endgültig löschen": "Permanently delete user",
+  "Deine Rolle besitzt nur Leserechte. Ein Administrator mit „providers.manage“ kann zentrale Verbindungen verwalten.": "Your role has read-only access. An administrator with “providers.manage” can manage central connections.",
+  "Der Benutzer": "The user",
+  "Der Löschstatus konnte nicht geladen werden.": "The deletion status could not be loaded.",
+  "Löschung läuft im Hintergrund.": "Deletion is running in the background.",
+  "Löschung läuft…": "Deletion in progress…",
+  "lulu_managed": "Lulu managed",
+  "wird vollständig bereinigt. Diese Ansicht aktualisiert sich automatisch.": "is being completely cleaned up. This page refreshes automatically."
 }

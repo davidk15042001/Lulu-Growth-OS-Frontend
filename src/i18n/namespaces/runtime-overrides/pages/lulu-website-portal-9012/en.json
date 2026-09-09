@@ -125,5 +125,10 @@
   "Zeige verbundene Hostnames und ihren aktuellen Verifizierungsstatus.": "View connected hostnames and their current verification status.",
   "Medien": "Media",
   "Sicherheit": "Security",
-  "Verbindung": "connection"
+  "Verbindung": "connection",
+  "Domainstatus": "Domain status",
+  "Redaktionsplan": "Editorial calendar",
+  "Seitenstruktur": "Page structure",
+  "Seitenzuordnung": "Page mapping",
+  "Verifizierung": "Verification"
 }

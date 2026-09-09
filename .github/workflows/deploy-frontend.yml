@@ -16,25 +16,27 @@ jobs:
       - name: Frontend auschecken
         uses: actions/checkout@v6
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Frontend installieren, prüfen und bauen
-        run: |
-          set -euo pipefail
-          npm ci
-          npm run typecheck
-          npm run audit:i18n
-          npm run build
-
       - name: Backend auschecken
         uses: actions/checkout@v6
         with:
           repository: davidk15042001/Lulu-Growth-OS-Backend
           ref: main
           path: backend-source
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Frontend installieren, prüfen und bauen
+        env:
+          LULU_BACKEND_PATH: backend-source
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run typecheck
+          npm run audit:i18n
+          npm run build
 
       - name: Frontend/Backend-Verträge und Routing prüfen
         env:

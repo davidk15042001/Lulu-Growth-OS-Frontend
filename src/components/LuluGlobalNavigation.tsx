@@ -365,7 +365,7 @@ export function LuluGlobalNavigation({
                             className={`lulu-global-navigation__language-option${option.code === language ? " is-active" : ""}`}
                             onClick={() => switchLanguage(option.code)}
                           >
-                            <span lang={option.code} dir={option.direction}>{option.nativeName}</span>
+                            <span lang={option.code} dir={option.direction} data-lulu-no-translate="true" translate="no">{option.nativeName}</span>
                             {option.code === language && <Check aria-hidden="true" size={13} />}
                           </button>
                         ))}

@@ -1,0 +1,21 @@
+{
+  "ADMIN": "ADMIN",
+  "Back": "Zurück",
+  "Create ticket": "Ticket erstellen",
+  "Customer": "Kunde",
+  "Loading…": "Laden…",
+  "Message": "Nachricht",
+  "Next": "Weiter",
+  "Next messages": "Neuere Nachrichten",
+  "No support tickets.": "Keine Support-Tickets.",
+  "Previous": "Vorherige",
+  "Previous messages": "Ältere Nachrichten",
+  "Refresh": "Aktualisieren",
+  "Resolve ticket": "Ticket lösen",
+  "Select a ticket.": "Wähle ein Ticket aus.",
+  "Send reply": "Antwort senden",
+  "Subject": "Betreff",
+  "Support": "Support",
+  "Support could not be loaded.": "Support konnte nicht geladen werden.",
+  "Workspace": "Workspace"
+}

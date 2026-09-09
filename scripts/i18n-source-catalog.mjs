@@ -1,9 +1,9 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import ts from "typescript";
 import { isTranslationSourceFile } from "./i18n-scope.mjs";
 
-export const germanSourcePattern = /[äöüÄÖÜß]|\b(?:abbrechen|abgebrochen|abmelden|aktualisieren|alle|anmeldung|analysiere|analysieren|anfrage|ansehen|anzeigen|antwort|assets organisieren|aufgabe|ausspielung|ausstehend|auswählen|automatisch|automatische|automatischer|bearbeiten|beim|benutzer|bereich|beschreibe|bestand|bestätigt|beiträge|bewertung|bilder|bitte|dabei|damit|daten|dateien?|dein(?:e|en|er|es)?|der|des|die|dies(?:e|en|er|es)?|direkt|domains verwalten|durch|einträge|entwürfe|erneut|ergebnis|ergebnisse|erstellen|erstellt|fehlgeschlagen|firmenbeschreibung|frage|freigabe|freigaben|fuer|für|gegen|generiert|generierung|gespeichert|gespeicherte|gewählt|halten|handelt|hauptquelle|hebel|hochladen|inhalte|jetzt|kann|keine|konnte|kunden|laden|lage|lauf|letzte|letzten|löschen|markt|medien|medienbibliothek|medienobjekt|meldet|metadaten|minuten|monatliche|nach|negativquote|neuer|nicht|noch|notiz|nur|offene|öffnen|persistierte|priorisiert|proaktiv|profil|prüfe|seite|seiten|schließen|schneller|sehr|sicherheit|signale|speichern|standort|struktur|strukturen|tabellen|titel|über|unternehmen|verbinden|verbunden|verbundener|verbindung|verbindungsmodus|verfügbar|verifiziert|verlasse|veröffentlichung|veröffentlicht|verwalte|verwaltung aktiviert|vorsprung|vorschau|wartet|warum|website generieren|wenn|werden|wettbewerber|wichtig|wird|wähle|zeige|ziele?|zuweisen|zurück)\b/i;
+export const germanSourcePattern = /[äöüÄÖÜß]|\b(?:abbrechen|abgebrochen|abmelden|aktualisieren|alle|anmeldung|analysiere|analysieren|anfrage|ansehen|anzeigen|antwort|antwortqualitaet|antwortluecken|assets organisieren|aufgabe|ausspielung|ausstehend|auswählen|automatisch|automatische|automatischer|bearbeiten|beim|benutzer|bereich|beschreibe|bestand|bestätigt|beiträge|bewertung|bilder|bitte|dabei|damit|daten|dateien?|dein(?:e|en|er|es)?|der|des|die|dies(?:e|en|er|es)?|direkt|domains verwalten|durch|einträge|entwürfe|erneut|ergebnis|ergebnisse|erstellen|erstellt|fehlgeschlagen|firmenbeschreibung|frage|freigabe|freigaben|fuer|für|gegen|generiert|generierung|gespeichert|gespeicherte|gewählt|halten|handelt|hauptquelle|hebel|hinten|hochladen|inhalte|jetzt|kann|kategorie|keine|konnte|kunden|laden|lage|lauf|letzte|letzten|löschen|markt|medien|medienbibliothek|medienobjekt|meldet|metadaten|minuten|monatliche|nach|negativquote|neuer|nicht|noch|notiz|nur|offene|öffnen|persistierte|priorisiert|proaktiv|profil|prüfe|schon|seite|seiten|schließen|schneller|sehr|sicherheit|signale|sollte|sofortigem|speichern|standort|struktur|strukturen|tabellen|titel|über|unternehmen|verbinden|verbunden|verbundene|verbundener|verbindung|verbindungsmodus|verfügbar|verifiziert|verlasse|veröffentlichung|veröffentlicht|verwalte|verwaltung aktiviert|vorsprung|vorschau|wartet|warum|website generieren|wenn|werden|wettbewerber|wichtig|wird|wo|wähle|zeige|ziele?|zuweisen|zurück)\b/i;
 
 const userFacingCallPattern = /^(?:set(?:[A-Z]\w*)?(?:Answer|Error|Failure|Feedback|Message|Notice|Success|Toast|Warning)|showToast|toast|alert|confirm|getFriendlyErrorMessage)$/;
 const jsxEntities = {
@@ -104,6 +104,32 @@ export function collectI18nSourceCatalog(root = process.cwd()) {
     };
     visit(tree);
     if (fileValues.size) valuesByFile.set(file, fileValues);
+  }
+
+  // Labels returned by the backend resource catalog are rendered in the UI at
+  // runtime and therefore cannot be discovered by scanning frontend JSX alone.
+  // Include that canonical API contract when it is available locally (or via
+  // LULU_BACKEND_PATH in CI), so dynamic records cannot leak English labels into
+  // German or Chinese screens.
+  const backendRoot = process.env.LULU_BACKEND_PATH
+    ?? join(root, "..", "Lulu-Growth-OS-Backend");
+  const resourceCatalogPath = join(backendRoot, "src", "domain", "resource-catalog.ts");
+  if (existsSync(resourceCatalogPath)) {
+    const apiValues = new Set();
+    const resourceCatalogSource = readFileSync(resourceCatalogPath, "utf8");
+    for (const match of resourceCatalogSource.matchAll(/label:\s*'([^']+)'\s*,\s*description:\s*'([^']+)'/g)) {
+      for (const value of [match[1], match[2]]) {
+        const text = value.replace(/\s+/g, " ").trim();
+        if (!looksLikeUiText(text)) continue;
+        values.add(text);
+        apiValues.add(text);
+      }
+    }
+    // Agent activity names are assembled by the backend from the page label.
+    // Keeping this as a placeholder pattern translates every such runtime name.
+    apiValues.add("{{0}} execution activity");
+    values.add("{{0}} execution activity");
+    if (apiValues.size) valuesByFile.set("src/i18n/backend-api-contract.ts", apiValues);
   }
 
   values.delete("?raw");

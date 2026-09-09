@@ -1,1 +1,7 @@
-{}
+{
+  "active": "Active",
+  "cancelled": "Cancelled",
+  "failed": "Failed",
+  "pending": "Pending",
+  "succeeded": "Succeeded"
+}

@@ -46,5 +46,19 @@
   "Abbrechen": "Abbrechen",
   "Bearbeiten": "Bearbeiten",
   "Löschen": "Löschen",
-  "Stoppen": "Stoppen"
+  "Stoppen": "Stoppen",
+  "Active": "Aktiv",
+  "Approval required": "Genehmigung erforderlich",
+  "Calendar": "Kalender",
+  "Cancelled": "Storniert",
+  "Dashboard": "Dashboard",
+  "Email": "E-Mail",
+  "Error": "Fehler",
+  "errors": "Fehler",
+  "Finance": "Finanzen",
+  "Marketing": "Marketing",
+  "Planning": "Planung",
+  "Queued": "In der Warteschlange",
+  "Ready": "Bereit",
+  "Website": "Website"
 }

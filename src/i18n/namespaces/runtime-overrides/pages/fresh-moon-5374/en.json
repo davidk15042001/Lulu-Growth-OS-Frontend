@@ -40,5 +40,7 @@
   "Abbrechen": "Cancel",
   "Bearbeiten": "Edit",
   "Löschen": "Delete",
-  "Stoppen": "Stop"
+  "Stoppen": "Stop",
+  "Senden": "Send",
+  "Unterhaltung": "Conversation"
 }

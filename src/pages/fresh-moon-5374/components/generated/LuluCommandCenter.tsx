@@ -32,10 +32,21 @@ import {
 import { getFriendlyErrorMessage } from "../../../../api/client";
 import { getSelectedWorkspaceId } from "../../../../api/session";
 import { isPageAvailable, navigateApp, pagePath } from "../../../../routing";
+import { useTranslation } from "../../../../i18n/GlobalLanguageSwitcher";
 
 type StatusKind = "ok" | "warn" | "danger" | "idle";
 
 const ACTIVE_RUN_STATUSES = new Set(["queued", "planning", "running", "waiting_approval"]);
+const MODULE_LABELS: Readonly<Record<string, string>> = {
+  ai: "AI",
+  calendar: "Calendar",
+  crm: "CRM",
+  dashboard: "Dashboard",
+  email: "Email",
+  finance: "Finance",
+  marketing: "Marketing",
+  website: "Website",
+};
 
 function statusKind(item: AgentHealthItem): StatusKind {
   if (item.lastRunStatus === "failed") return "danger";
@@ -46,15 +57,15 @@ function statusKind(item: AgentHealthItem): StatusKind {
   return "idle";
 }
 
-function statusLabel(item: AgentHealthItem): string {
+function statusLabel(item: AgentHealthItem, t: (key: string) => string): string {
   switch (item.lastRunStatus) {
-    case "completed": return "Bereit";
-    case "failed": return "Fehler";
-    case "waiting_approval": return "Freigabe nötig";
-    case "running": return "Aktiv";
-    case "queued": return "Warteschlange";
-    case "planning": return "Planung";
-    case "cancelled": return "Abgebrochen";
+    case "completed": return t("Ready");
+    case "failed": return t("Error");
+    case "waiting_approval": return t("Approval required");
+    case "running": return t("Active");
+    case "queued": return t("Queued");
+    case "planning": return t("Planning");
+    case "cancelled": return t("Cancelled");
     default: return "—";
   }
 }
@@ -96,6 +107,7 @@ function isVisibleApproval(approval: Approval) {
 }
 
 export function LuluCommandCenter() {
+  const t = useTranslation();
   const workspaceId = getSelectedWorkspaceId();
   const [health, setHealth] = useState<AgentHealth | null>(null);
   const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null);
@@ -401,7 +413,7 @@ export function LuluCommandCenter() {
                     onClick={() => setSelectedResourceType(type.key)}
                     className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${selectedResourceType === type.key ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "border border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"}`}
                   >
-                    {type.label}
+                    {t(type.label)}
                   </button>
                 ))}
               </div>
@@ -493,7 +505,7 @@ export function LuluCommandCenter() {
                 {groups.map(([section, sectionItems]) => (
                   <section key={section}>
                     <h3 className="mb-2 flex items-center gap-2 text-sm font-semibold text-[var(--muted-foreground)]">
-                      {section}
+                      {t(section)}
                       <span className="text-xs font-normal text-[var(--muted-foreground)]/70">{sectionItems.length}</span>
                     </h3>
                     <div className="flex flex-col gap-1.5">
@@ -510,10 +522,10 @@ export function LuluCommandCenter() {
                               className="flex min-w-0 flex-1 items-center justify-between gap-3 px-4 py-3 text-left"
                             >
                               <div className="min-w-0">
-                                <p className="truncate text-sm font-medium">{item.pageLabel || item.pageId}</p>
-                                <p className="truncate text-xs text-[var(--muted-foreground)]">{item.module}{item.failedRunCount > 0 ? ` · ${item.failedRunCount} Fehler` : ""}</p>
+                                <p className="truncate text-sm font-medium">{item.pageLabel ? t(item.pageLabel) : item.pageId}</p>
+                                <p className="truncate text-xs text-[var(--muted-foreground)]">{t(MODULE_LABELS[item.module] ?? item.module)}{item.failedRunCount > 0 ? ` · ${item.failedRunCount} ${t("errors")}` : ""}</p>
                               </div>
-                              <StatusBadge kind={statusKind(item)} label={statusLabel(item)} />
+                              <StatusBadge kind={statusKind(item)} label={statusLabel(item, t)} />
                             </button>
                             {canEdit && activeRunId ? (
                               <button

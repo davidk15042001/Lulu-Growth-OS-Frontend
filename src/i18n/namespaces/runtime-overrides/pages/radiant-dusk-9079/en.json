@@ -5,5 +5,8 @@
   "Diese Agenten laufen nicht sauber oder wirken instabil.": "These agents do not run smoothly or appear unstable.",
   "Diese Agenten sind vorhanden, aber noch nicht klar stark oder kritisch.": "These agents are present, but not yet clearly strong or critical.",
   "Diese Agenten wirken stabil und ohne erkennbare Warnsignale.": "These agents appear stable and without any noticeable warning signs.",
-  "Sehr gut": "Very good"
+  "Sehr gut": "Very good",
+  "Aktualisiert:": "Updated:",
+  "Kritisch": "Critical",
+  "Typ:": "Type:"
 }

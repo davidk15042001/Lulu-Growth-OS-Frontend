@@ -1,0 +1,21 @@
+{
+  "ADMIN": "管理员",
+  "Back": "返回",
+  "Create ticket": "创建工单",
+  "Customer": "客户",
+  "Loading…": "加载中…",
+  "Message": "消息",
+  "Next": "下一步",
+  "Next messages": "较新的消息",
+  "No support tickets.": "暂无支持工单。",
+  "Previous": "上一项",
+  "Previous messages": "较早的消息",
+  "Refresh": "刷新",
+  "Resolve ticket": "解决工单",
+  "Select a ticket.": "请选择工单。",
+  "Send reply": "发送回复",
+  "Subject": "主题",
+  "Support": "支持",
+  "Support could not be loaded.": "无法加载支持工单。",
+  "Workspace": "工作区"
+}

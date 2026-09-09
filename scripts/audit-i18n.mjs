@@ -85,6 +85,18 @@ for (const language of ["de", "zh-CN"]) {
     if (untranslatedNaturalLanguage.length) {
       issues.push(`zh-CN has ${untranslatedNaturalLanguage.length} untranslated natural-language strings (examples: ${untranslatedNaturalLanguage.slice(0, 5).join(" | ")})`);
     }
+    const germanFragments = [...values].filter((source) => {
+      const translation = mergedTranslations[language]?.[source] ?? "";
+      return /[\u3400-\u9fff]/.test(translation) && isLikelyGermanSource(translation);
+    });
+    if (germanFragments.length) {
+      issues.push(`zh-CN has ${germanFragments.length} translations containing German fragments (examples: ${germanFragments.slice(0, 5).join(" | ")})`);
+    }
+    const agentTerminologyErrors = [...values].filter((source) => /(?:\bagents?\b|agenten)/i.test(source)
+      && /代理商|代理人|代理/.test(mergedTranslations[language]?.[source] ?? ""));
+    if (agentTerminologyErrors.length) {
+      issues.push(`zh-CN has ${agentTerminologyErrors.length} inconsistent AI-agent terms (examples: ${agentTerminologyErrors.slice(0, 5).join(" | ")})`);
+    }
   }
   if (process.env.I18N_REPORT_MISSING === "1" && (missing.length || placeholderErrors.length)) {
     console.error(JSON.stringify({ language, missing, placeholderErrors }, null, 2));
