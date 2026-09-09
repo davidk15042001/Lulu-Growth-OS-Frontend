@@ -116,10 +116,15 @@ export default function ProfilePage() {
 
   const updateCompanyProfile = async () => {
     if (!workspaceId || !canManageWorkspaceProfile) return;
-    if (!profile.companyName.trim()) { setError(t('Company name is required.')); return; }
+    // Every profile field can be saved independently.  The workspace name is
+    // required by the database, so an empty company-name input is simply
+    // omitted and the already persisted name remains unchanged while another
+    // field is updated.
+    const entries = Object.entries(profile).filter(([key, value]) => key !== 'companyName' || (typeof value === 'string' && value.trim()));
+    if (entries.length === 0) { setError(t('Enter at least one profile detail.')); return; }
     setSavingProfile(true); setError(''); setNotice('');
     try {
-      const payload = Object.fromEntries(Object.entries(profile).map(([key, value]) => [key, typeof value === 'string' && !value.trim() ? null : typeof value === 'string' ? value.trim() : value]));
+      const payload = Object.fromEntries(entries.map(([key, value]) => [key, typeof value === 'string' && !value.trim() ? null : typeof value === 'string' ? value.trim() : value]));
       const response = await workspaceProfileApi.update(workspaceId, payload);
       // A rolling deployment or proxy may return a successful envelope before
       // the response body is populated. Keep the submitted values in that

@@ -3851,6 +3851,7 @@
   "Ask a workspace owner or admin to manage these details.": "Bitte einen Workspace-Inhaber oder Administrator, diese Angaben zu verwalten.",
   "Store the payout details used for this workspace. Access is limited to workspace admins.": "Speichere die für diesen Workspace verwendeten Auszahlungsdaten. Der Zugriff ist auf Workspace-Administratoren beschränkt.",
   "Company name is required.": "Der Firmenname ist erforderlich.",
+  "Enter at least one profile detail.": "Geben Sie mindestens ein Profildetail ein.",
   "Your personal profile was updated.": "Dein persönliches Profil wurde aktualisiert.",
   "Your personal profile could not be saved.": "Dein persönliches Profil konnte nicht gespeichert werden.",
   "Company profile was updated.": "Das Firmenprofil wurde aktualisiert.",
