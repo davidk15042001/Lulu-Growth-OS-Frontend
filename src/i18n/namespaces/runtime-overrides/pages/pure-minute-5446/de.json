@@ -478,6 +478,7 @@
   "The card setup is still pending. Complete the secure Airwallex page, then check again.": "Die Karteneinrichtung steht noch aus. Schließe die sichere Airwallex-Seite ab und prüfe anschließend erneut.",
   "The QR payment could not be created.": "Die QR-Zahlung konnte nicht erstellt werden.",
   "The QR payment status could not be updated.": "Der Status der QR-Zahlung konnte nicht aktualisiert werden.",
+  "There is no unpaid API usage to pay right now.": "Aktuell gibt es keine unbezahlte API-Nutzung.",
   "This payment was not completed. Create a new QR payment to try again.": "Diese Zahlung wurde nicht abgeschlossen. Erstelle eine neue QR-Zahlung, um es erneut zu versuchen.",
   "This QR code has expired. Create a new QR payment to continue.": "Dieser QR-Code ist abgelaufen. Erstelle eine neue QR-Zahlung, um fortzufahren.",
   "Trial ends": "Der Prozess endet",

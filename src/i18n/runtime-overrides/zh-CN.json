@@ -666,6 +666,7 @@
   "PAYMENT_SOURCE_SETUP_REQUIRED": "需要设置付款方式",
   "Connect a card to continue using the Test plan.": "请绑定银行卡以继续使用 Test 套餐。",
   "The automatic usage payment was not completed.": "自动用量付款未完成。",
+  "There is no unpaid API usage to pay right now.": "当前没有需要支付的 API 使用费用。",
   "Select Test below, enter the password and complete the secure Airwallex card setup.": "请在下方选择 Test，输入密码并完成安全的 Airwallex 银行卡设置。",
   "All AI functions stay blocked until the outstanding usage invoice is paid. Non-AI pages remain available.": "在未支付未结用量账单前，所有 AI 功能将保持锁定。非 AI 页面仍可使用。",
   "Open payment link": "打开付款链接",

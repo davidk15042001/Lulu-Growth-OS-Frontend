@@ -667,6 +667,7 @@
   "PAYMENT_SOURCE_SETUP_REQUIRED": "ZAHLUNGSMETHODE_MUSS_EINGERICHTET_WERDEN",
   "Connect a card to continue using the Test plan.": "Verbinden Sie eine Karte, um das Test-Paket weiter zu verwenden.",
   "The automatic usage payment was not completed.": "Die automatische Nutzungszahlung wurde nicht abgeschlossen.",
+  "There is no unpaid API usage to pay right now.": "Aktuell gibt es keine unbezahlte API-Nutzung.",
   "Select Test below, enter the password and complete the secure Airwallex card setup.": "Wählen Sie unten Test, geben Sie das Passwort ein und schließen Sie die sichere Airwallex-Karteneinrichtung ab.",
   "All AI functions stay blocked until the outstanding usage invoice is paid. Non-AI pages remain available.": "Alle AI-Funktionen bleiben gesperrt, bis die offene Nutzungsrechnung bezahlt ist. Seiten ohne AI bleiben verfügbar.",
   "Open payment link": "Zahlungslink öffnen",

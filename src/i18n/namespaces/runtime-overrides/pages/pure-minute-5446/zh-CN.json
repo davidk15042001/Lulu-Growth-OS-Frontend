@@ -478,6 +478,7 @@
   "The card setup is still pending. Complete the secure Airwallex page, then check again.": "银行卡设置仍待完成。请完成安全的 Airwallex 页面后再次检查。",
   "The QR payment could not be created.": "无法创建二维码支付。",
   "The QR payment status could not be updated.": "无法更新二维码支付状态。",
+  "There is no unpaid API usage to pay right now.": "当前没有需要支付的 API 使用费用。",
   "This payment was not completed. Create a new QR payment to try again.": "此支付未完成。请创建新的二维码支付后重试。",
   "This QR code has expired. Create a new QR payment to continue.": "此二维码已过期。请创建新的二维码支付以继续。",
   "Trial ends": "审判结束",
