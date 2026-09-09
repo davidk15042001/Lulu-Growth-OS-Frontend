@@ -207,6 +207,9 @@ export const onboardingApi = {
   startOAuth: (workspaceId: string, provider: string, shop?: string, returnTo?: string) => requestApi<{ provider: string; authorizationUrl: string }>({
     path: workspaceApiPath(workspaceId, `/onboarding/platforms/${encodeURIComponent(provider)}/connect?${new URLSearchParams({ ...(shop ? { shop } : {}), ...(returnTo ? { returnTo } : {}) }).toString()}`),
   }),
+  oauthSelfServicePermissions: (workspaceId: string) => requestApi<{ providers: string[] }>({
+    path: workspaceApiPath(workspaceId, "/onboarding/oauth-self-service-permissions"),
+  }),
   createPlatform: (workspaceId: string, input: Record<string, unknown>) => requestApi<Platform>({
     path: workspaceApiPath(workspaceId, "/onboarding/platforms"), method: "POST", body: input,
   }),

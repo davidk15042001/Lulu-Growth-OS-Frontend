@@ -8,8 +8,10 @@ import { onboardingApi } from '../../../../api/onboarding';
 import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 interface Platform {
   id: string;
+  integrationKey: string | null;
   name: string;
   type: string;
+  connectionStatus: string;
   status: string;
 }
 interface PlatformGroup {
@@ -25,7 +27,13 @@ const platformGroups: PlatformGroup[] = [
   { id: 'crm', label: 'CRM & Sales', description: 'Connect customer, pipeline and sales systems that contain your business relationships.', icon: UsersRound, platforms: ['Salesforce', 'HubSpot', 'Pipedrive'], comingSoonPlatforms: ['Salesforce', 'Pipedrive'] },
   { id: 'website', label: 'Website & Publishing', description: 'Connect the website platforms Lulu can use for content, publishing and website intelligence.', icon: Globe, platforms: ['WordPress', 'Webflow'] },
   { id: 'commerce', label: 'Commerce', description: 'Connect commerce platforms to analyze products, orders and customer activity.', icon: Store, platforms: ['Shopify'], comingSoonPlatforms: ['Shopify'] },
+  { id: 'social', label: 'Social & Messaging', description: 'Connect your own approved social and messaging accounts instead of using Lulu’s central provider account.', icon: UsersRound, platforms: ['WhatsApp', 'Instagram', 'Facebook', 'LinkedIn'] },
 ];
+const providerKeysByName: Record<string, string> = {
+  Salesforce: 'salesforce', Pipedrive: 'pipedrive', HubSpot: 'hubspot',
+  Webflow: 'webflow', WordPress: 'wordpress', Shopify: 'shopify',
+  WhatsApp: 'whatsapp', Instagram: 'instagram', Facebook: 'facebook', LinkedIn: 'linkedin',
+};
   const guideContent: Record<string, { intro: string; steps: string[]; links?: Array<{ label: string; url: string }> }> = {
     Salesforce: { intro: "Connect a Salesforce organization through a Connected App. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/salesforce/callback", steps: ["Open Salesforce Setup → App Manager → New Connected App.", "Enable OAuth Settings and add the callback URL shown above.", "Add the `api`, `refresh_token` and `offline_access` scopes, then save.", "Wait for Salesforce to activate the app, return here and click Connect.", "Approve Lulu in Salesforce and choose the organization you want to connect."], links: [{ label: "Open Salesforce Developer Portal", url: "https://developer.salesforce.com/" }] },
     Pipedrive: { intro: "Connect the Pipedrive account that contains your sales pipeline. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/pipedrive/callback", steps: ["Open the Pipedrive Developer Hub and create an OAuth app.", "Enter the callback URL shown above as the app redirect URL.", "Copy the Client ID and Client Secret to the backend environment; never put them in the browser.", "Click Connect here and approve the requested `base` access in Pipedrive."], links: [{ label: "Open Pipedrive Developer Hub", url: "https://developers.pipedrive.com/" }] },
@@ -33,12 +41,17 @@ const platformGroups: PlatformGroup[] = [
     Webflow: { intro: "Connect a Webflow workspace or site. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/webflow/callback", steps: ["Open Webflow Developers and create a Data Client app.", "Set the callback URL shown above in the app settings.", "Enable the `sites:read` scope and copy the client credentials to the Lulu backend.", "Make sure you are a Webflow workspace administrator.", "Click Connect here and authorize the Webflow app."], links: [{ label: "Open Webflow Developers", url: "https://developers.webflow.com/" }, { label: "Read Webflow OAuth Guide", url: "https://developers.webflow.com/data/reference/oauth-app" }] },
     WordPress: { intro: "Connect a WordPress.com or Jetpack account. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/wordpress/callback", steps: ["Open the WordPress.com Developer Portal and create an OAuth application.", "Add the callback URL shown above and copy the Client ID and Client Secret to the backend.", "Confirm that the account can access the intended WordPress.com or Jetpack site.", "Click Connect here and approve the WordPress authorization."], links: [{ label: "Open WordPress Developer Portal", url: "https://developer.wordpress.com/apps/" }, { label: "Read WordPress OAuth2 Guide", url: "https://developer.wordpress.com/docs/api/oauth2/" }] },
     Shopify: { intro: "Connect a Shopify store using its myshopify.com domain. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/shopify/callback", steps: ["Open the Shopify Dev Dashboard and create or select the app.", "Configure the Admin API scopes `read_products` and `read_content` and add the callback URL shown above.", "Copy your store domain in the exact format `example.myshopify.com`.", "Click Connect here, enter the store domain, and approve the app installation."], links: [{ label: "Open Shopify Dev Dashboard", url: "https://dev.shopify.com/dashboard" }, { label: "Read Shopify OAuth Guide", url: "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/authorization-code-grant" }] },
+    WhatsApp: { intro: "Connect your own WhatsApp Business account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable WhatsApp for your workspace.", "Click Connect and sign in with the Meta account that manages the WhatsApp Business account.", "Choose the intended business and approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
+    Instagram: { intro: "Connect your own Instagram professional account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable Instagram for your workspace.", "Make sure the Instagram professional account is linked to the correct Meta business.", "Click Connect, choose the account and approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
+    Facebook: { intro: "Connect your own Facebook Pages account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable Facebook for your workspace.", "Click Connect and sign in with a Meta account that can manage the intended Page.", "Choose the Page and approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
+    LinkedIn: { intro: "Connect your own LinkedIn account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable LinkedIn for your workspace.", "Click Connect and sign in with the LinkedIn account that manages the intended organization or campaigns.", "Approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
   };
 export const LuluExistingPlatforms = () => {
   const { updateWorkspace, can } = useLuluApp();
   const canEdit = can('edit');
   const isOnboarding = window.location.pathname.startsWith("/onboarding/");
   const [platforms, setPlatforms] = useState<Platform[]>([]);
+  const [allowedSelfServiceProviders, setAllowedSelfServiceProviders] = useState<string[]>([]);
   const [error, setError] = useState('');
   const [technicalDetails, setTechnicalDetails] = useState('');
   const [guidePlatform, setGuidePlatform] = useState<string | null>(null);
@@ -54,13 +67,21 @@ export const LuluExistingPlatforms = () => {
     }
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
-    requestApi<{ platforms: Array<{ id: string; name: string; category: string; connectionStatus: string }> }>({ path: `/workspaces/${workspaceId}/onboarding` })
-      .then(response => setPlatforms(response.data.platforms.map(platform => ({
+    Promise.all([
+      requestApi<{ platforms: Array<{ id: string; integrationKey: string | null; name: string; category: string; connectionStatus: string }> }>({ path: `/workspaces/${workspaceId}/onboarding` }),
+      onboardingApi.oauthSelfServicePermissions(workspaceId),
+    ])
+      .then(([response, permissionResponse]) => {
+        setAllowedSelfServiceProviders(permissionResponse.data.providers);
+        setPlatforms(response.data.platforms.map(platform => ({
         id: platform.id,
+        integrationKey: platform.integrationKey,
         name: platform.name,
         type: platform.category,
-        status: platform.connectionStatus === 'connected' ? 'Connected' : platform.connectionStatus === 'error' ? 'Needs review' : 'Pending',
-      }))))
+        connectionStatus: platform.connectionStatus,
+        status: platform.connectionStatus === 'connected' ? 'Connected' : platform.connectionStatus === 'error' ? 'Needs review' : platform.connectionStatus === 'disconnected' ? 'Disconnected' : 'Pending',
+        })));
+      })
       .catch(cause => {
         setError(getFriendlyErrorMessage(cause, 'We could not load your platforms. Please try again.'));
         setTechnicalDetails(getTechnicalErrorDetails(cause));
@@ -69,16 +90,8 @@ export const LuluExistingPlatforms = () => {
   const connectPlatform = async (name: string) => {
     if (!canEdit) return;
     const workspaceId = getSelectedWorkspaceId();
-    if (!workspaceId || platforms.some(platform => platform.name === name)) return;
-    const providerMap: Record<string, string> = {
-      Salesforce: 'salesforce',
-      Pipedrive: 'pipedrive',
-      HubSpot: 'hubspot',
-      Webflow: 'webflow',
-      WordPress: 'wordpress',
-      Shopify: 'shopify',
-    };
-    const provider = providerMap[name];
+    const provider = providerKeysByName[name];
+    if (!workspaceId || platforms.some(platform => (platform.integrationKey === provider || platform.name === name) && platform.connectionStatus === 'connected')) return;
     if (!provider) {
       setError(`${name} connection is not configured yet.`);
       return;
@@ -156,7 +169,11 @@ export const LuluExistingPlatforms = () => {
                   </div>
                   <div className={`mt-5 grid gap-3 md:grid-cols-2 ${comingSoon ? 'pointer-events-none' : ''}`}>
                     {groupPlatforms.map(name => {
-                    const connected = platforms.find(platform => platform.name === name);
+                    const provider = providerKeysByName[name];
+                    const existing = platforms.find(platform => platform.integrationKey === provider || platform.name === name);
+                    const connected = existing?.connectionStatus === 'connected' ? existing : undefined;
+                    const needsAdminApproval = ['whatsapp', 'instagram', 'facebook', 'linkedin'].includes(provider);
+                    const blockedByAdmin = needsAdminApproval && !allowedSelfServiceProviders.includes(provider);
                     const platformComingSoon = comingSoon || group.comingSoonPlatforms?.includes(name) === true;
                     return <article key={name} className={`grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.03)] transition hover:-translate-y-0.5 hover:border-[var(--primary)]/45 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] [grid-template-columns:auto_minmax(0,1fr)] ${platformComingSoon ? 'opacity-65' : ''}`}>
                         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[var(--secondary)] text-[var(--foreground)]">
@@ -164,9 +181,9 @@ export const LuluExistingPlatforms = () => {
                         </span>
                         <span className="min-w-0 flex-1">
                           <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}{platformComingSoon && <span className="ml-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)]">(soon)</span>}</strong>
-                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : "Not connected"}</span>
+                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : blockedByAdmin ? "Admin approval required" : existing?.status ?? "Not connected"}</span>
                         </span>
-                        <div className={`col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3 ${platformComingSoon ? 'pointer-events-none' : ''}`}>{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} disabled={!canEdit} aria-disabled={!canEdit} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-50" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={platformComingSoon || connectingPlatform === name || !canEdit} aria-disabled={!canEdit} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{platformComingSoon ? "(soon)" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={platformComingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{platformComingSoon ? "(soon)" : "Guide"}</button></div>
+                        <div className={`col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3 ${platformComingSoon ? 'pointer-events-none' : ''}`}>{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} disabled={!canEdit} aria-disabled={!canEdit} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-50" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={platformComingSoon || blockedByAdmin || connectingPlatform === name || !canEdit} aria-disabled={platformComingSoon || blockedByAdmin || !canEdit} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{platformComingSoon ? "(soon)" : blockedByAdmin ? "Admin approval" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={platformComingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{platformComingSoon ? "(soon)" : "Guide"}</button></div>
                       </article>;
                   })}
                   </div>

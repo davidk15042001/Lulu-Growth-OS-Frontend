@@ -322,7 +322,7 @@ export default function App() {
         <Route path={routes.app.invoices} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="invoices" /></AdminOnlyAppRoute>} />
         {pages.map((page) => {
           if (!isPageAvailable(page.slug)) return null;
-          if (page.slug === "quiet-garden-9477" || page.slug === "fresh-tide-9404") return null;
+          if (page.slug === "quiet-garden-9477") return null;
           if (page.slug === "nicely-ocean-1051") return null;
           if (page.slug === "nicely-land-1864") return null;
           const resolvedPath = pagePath(page.slug);

@@ -196,6 +196,10 @@ type OAuthConnectionRow = {
   tokenExpiresAt: string | null; lastSyncedAt: string | null; lastError: string | null;
   connectedAt: string; updatedAt: string;
 };
+type OAuthSelfServiceWorkspace = {
+  workspaceId: string; workspaceName: string; ownerEmail: string | null;
+  allowedProviders: string[];
+};
 type ApprovalRow = {
   id: string; workspaceId: string; workspaceName: string | null;
   approvalType: string; status: string; reason: string | null;
@@ -1671,6 +1675,9 @@ const oauthProviderLabels: Record<string, string> = {
   "google-analytics": "Google Analytics",
   "google-business": "Google Business",
   meta: "Meta",
+  facebook: "Facebook",
+  instagram: "Instagram",
+  whatsapp: "WhatsApp",
   linkedin: "LinkedIn",
   "tiktok-ads": "TikTok Ads",
   microsoft: "Microsoft",
@@ -1685,15 +1692,23 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
   const { currentUser } = useLuluApp();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<OAuthConnectionRow[]>([]);
+  const [permissionRows, setPermissionRows] = useState<OAuthSelfServiceWorkspace[]>([]);
+  const [permissionProviders, setPermissionProviders] = useState<string[]>([]);
   const [search, setSearch] = useState("");
   const [busyProvider, setBusyProvider] = useState<string | null>(null);
+  const [busyPermission, setBusyPermission] = useState<string | null>(null);
   const canManage = currentUser?.adminCapabilities?.includes("providers.manage") ?? false;
   const load = async () => {
     setLoading(true); onError("");
     try {
       const query = `/admin/oauth-connections?limit=500${search.trim() ? `&search=${encodeURIComponent(search.trim())}` : ""}`;
-      const res = await requestApi<{ connections: OAuthConnectionRow[] }>({ path: query });
-      setRows(res.data.connections);
+      const [connectionRes, permissionRes] = await Promise.all([
+        requestApi<{ connections: OAuthConnectionRow[] }>({ path: query }),
+        requestApi<{ workspaces: OAuthSelfServiceWorkspace[]; providers: string[] }>({ path: `/admin/oauth-self-service${search.trim() ? `?search=${encodeURIComponent(search.trim())}` : ""}` }),
+      ]);
+      setRows(connectionRes.data.connections);
+      setPermissionRows(permissionRes.data.workspaces);
+      setPermissionProviders(permissionRes.data.providers);
     } catch (e) { onError(getFriendlyErrorMessage(e, "OAuth-Verbindungen konnten nicht geladen werden.")); }
     finally { setLoading(false); }
   };
@@ -1706,6 +1721,9 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
     { provider: "google-ads", label: "Google Ads", detail: "Central Lulu Ads account for all workspace campaigns." },
     { provider: "google-analytics", label: "Google Analytics", detail: "Central measurement property used by Lulu-managed reporting." },
     { provider: "meta", label: "Meta Ads", detail: "Central Meta Business account for workspace campaigns." },
+    { provider: "facebook", label: "Facebook", detail: "Central Facebook Pages account for publishing and engagement." },
+    { provider: "instagram", label: "Instagram", detail: "Central Instagram professional account for content and messages." },
+    { provider: "whatsapp", label: "WhatsApp", detail: "Central WhatsApp Business account for customer messaging." },
     { provider: "linkedin", label: "LinkedIn Ads", detail: "Central LinkedIn Ads account for workspace campaigns." },
     { provider: "tiktok-ads", label: "TikTok Ads", detail: "Central TikTok Ads account for workspace campaigns." },
   ] as const;
@@ -1731,6 +1749,21 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
       await load();
     } catch (e) { onError(getFriendlyErrorMessage(e, "Die zentrale Provider-Verbindung konnte nicht getrennt werden.")); }
     finally { setBusyProvider(null); }
+  };
+  const setSelfServicePermission = async (workspace: OAuthSelfServiceWorkspace, provider: string, allowed: boolean) => {
+    if (!canManage || busyPermission) return;
+    const key = `${workspace.workspaceId}:${provider}`;
+    setBusyPermission(key); onError("");
+    try {
+      await requestApi({ path: `/admin/oauth-self-service/${workspace.workspaceId}/${encodeURIComponent(provider)}`, method: "PUT", body: { allowed } });
+      setPermissionRows((current) => current.map((row) => row.workspaceId !== workspace.workspaceId ? row : {
+        ...row,
+        allowedProviders: allowed
+          ? Array.from(new Set([...row.allowedProviders, provider])).sort()
+          : row.allowedProviders.filter((item) => item !== provider),
+      }));
+    } catch (e) { onError(getFriendlyErrorMessage(e, "Die OAuth-Freigabe konnte nicht gespeichert werden.")); }
+    finally { setBusyPermission(null); }
   };
 
   return (
@@ -1767,6 +1800,37 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
           })}
         </div>
         {!canManage ? <p className="mt-4 text-xs text-slate-500">Deine Rolle besitzt nur Leserechte. Ein Administrator mit „providers.manage“ kann zentrale Verbindungen verwalten.</p> : null}
+      </section>
+
+      <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-indigo-600">Eigene Benutzerkonten</div>
+            <h2 className="mt-1 text-lg font-semibold text-slate-900">OAuth-Self-Service pro Workspace</h2>
+            <p className="mt-1 max-w-3xl text-sm text-slate-600">Erlaubt ein Admin einen Provider, kann der Benutzer sein eigenes Konto verbinden. Ohne Freigabe nutzt Lulu weiterhin ausschließlich die zentrale Admin-Verbindung. Beim Entziehen der Freigabe werden gespeicherte Workspace-Tokens dieses Providers entfernt.</p>
+          </div>
+          <Pill tone="violet">Admin approval</Pill>
+        </div>
+        <div className="mt-5 overflow-x-auto rounded-xl border border-slate-200">
+          <table className="min-w-full divide-y divide-slate-200 text-left text-xs">
+            <thead className="bg-slate-50 text-slate-500"><tr>
+              <th className="sticky left-0 z-10 min-w-56 bg-slate-50 px-3 py-3 font-semibold">Workspace / Benutzer</th>
+              {permissionProviders.map((provider) => <th key={provider} className="min-w-28 px-3 py-3 text-center font-semibold">{oauthProviderLabel(provider)}</th>)}
+            </tr></thead>
+            <tbody className="divide-y divide-slate-100 bg-white">
+              {permissionRows.map((workspace) => <tr key={workspace.workspaceId}>
+                <td className="sticky left-0 z-10 bg-white px-3 py-3"><div className="font-medium text-slate-900">{workspace.workspaceName}</div><div className="mt-0.5 text-slate-500">{workspace.ownerEmail ?? "Kein Owner"}</div></td>
+                {permissionProviders.map((provider) => {
+                  const allowed = workspace.allowedProviders.includes(provider);
+                  const busy = busyPermission === `${workspace.workspaceId}:${provider}`;
+                  return <td key={provider} className="px-3 py-3 text-center"><button type="button" role="switch" aria-checked={allowed} disabled={!canManage || Boolean(busyPermission)} onClick={() => void setSelfServicePermission(workspace, provider, !allowed)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${allowed ? "bg-emerald-500" : "bg-slate-300"} disabled:cursor-not-allowed disabled:opacity-50`} title={`${oauthProviderLabel(provider)}: ${allowed ? "eigene Verbindung erlaubt" : "nur zentrale Verbindung"}`}><span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition ${allowed ? "translate-x-6" : "translate-x-1"}`} />{busy ? <span className="sr-only">Speichere</span> : null}</button></td>;
+                })}
+              </tr>)}
+              {!loading && permissionRows.length === 0 ? <tr><td colSpan={permissionProviders.length + 1} className="px-4 py-8 text-center text-sm text-slate-500">Keine Workspaces gefunden.</td></tr> : null}
+            </tbody>
+          </table>
+        </div>
+        {!canManage ? <p className="mt-3 text-xs text-slate-500">Deine Rolle besitzt nur Leserechte.</p> : null}
       </section>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

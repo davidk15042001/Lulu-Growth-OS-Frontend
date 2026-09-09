@@ -1,4 +1,9 @@
 {
+  "Die OAuth-Freigabe konnte nicht gespeichert werden.": "The OAuth permission could not be saved.",
+  "Erlaubt ein Admin einen Provider, kann der Benutzer sein eigenes Konto verbinden. Ohne Freigabe nutzt Lulu weiterhin ausschließlich die zentrale Admin-Verbindung. Beim Entziehen der Freigabe werden gespeicherte Workspace-Tokens dieses Providers entfernt.": "When an admin allows a provider, the user can connect their own account. Without permission, Lulu continues to use only the central admin connection. Revoking permission removes stored workspace tokens for that provider.",
+  "Workspace / Benutzer": "Workspace / user",
+  "Keine Workspaces gefunden.": "No workspaces found.",
+  "Deine Rolle besitzt nur Leserechte.": "Your role has read-only access.",
   "A reason is required for every subscription price change": "A reason is required for every subscription price change",
   "Annual amount in CNY": "Annual amount in CNY",
   "Catalog price": "Catalog price",
