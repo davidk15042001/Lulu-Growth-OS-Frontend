@@ -37,7 +37,10 @@ export default function CalendarPortal() {
     if (!workspaceId) return;
     const [result, customerResult] = await Promise.all([
       calendarApi.nativeEvents(workspaceId, { ...(query.trim() ? { q: query.trim() } : {}), limit: 300 }),
-      listRecords('customers', 'limit=200'),
+      // The records API caps a single page at 100 items.  Requesting 200
+      // previously returned 422 and caused Promise.all to hide the otherwise
+      // healthy calendar response behind a misleading calendar error.
+      listRecords('customers', 'limit=100'),
     ]);
     setEvents(result.data.items);
     setCustomers(customerResult.data.items);
