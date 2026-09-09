@@ -6,6 +6,8 @@ import { calendarApi } from '../../api/calendar';
 import { getFriendlyErrorMessage } from '../../api/client';
 import { useTranslation } from '../../i18n/GlobalLanguageSwitcher';
 
+// Tokens are minted by the backend; the Agora certificate never reaches this client.
+
 export default function CalendarMeetingPage() {
   const { token = '' } = useParams<{ token: string }>();
   const t = useTranslation();
