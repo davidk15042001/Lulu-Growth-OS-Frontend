@@ -60,5 +60,8 @@
   "Planning": "规划",
   "Queued": "排队",
   "Ready": "已就绪",
-  "Website": "网站"
+  "Website": "网站",
+  "{{0}} execution activity": "{{0}} 执行记录",
+  "Commerce": "商业",
+  "Google Business": "Google 商业资料"
 }

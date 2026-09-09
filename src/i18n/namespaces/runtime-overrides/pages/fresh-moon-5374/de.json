@@ -60,5 +60,8 @@
   "Planning": "Planung",
   "Queued": "In der Warteschlange",
   "Ready": "Bereit",
-  "Website": "Website"
+  "Website": "Website",
+  "{{0}} execution activity": "{{0}}-Ausführungsaktivität",
+  "Commerce": "Handel",
+  "Google Business": "Google Business"
 }

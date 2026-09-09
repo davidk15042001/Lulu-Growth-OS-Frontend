@@ -4036,5 +4036,6 @@
   "Configure an authorized AI agent or connect an agent source to populate this page. No example agent names, task counts, health values or performance statistics are displayed.": "配置授权的 AI 智能体或连接智能体源以填充此页面。不显示示例智能体名称、任务计数、运行状况值或性能统计数据。",
   "Every agent is scoped to an explicit set of capabilities.": "每个智能体均限定在明确的一组能力范围内。",
   "Supported agents": "受支持的智能体",
-  "Enable this action for approved agents and workflows.": "为已批准的智能体和工作流启用此操作。"
+  "Enable this action for approved agents and workflows.": "为已批准的智能体和工作流启用此操作。",
+  "Intelligence Overview": "智能分析概览"
 }

@@ -38,15 +38,27 @@ type StatusKind = "ok" | "warn" | "danger" | "idle";
 
 const ACTIVE_RUN_STATUSES = new Set(["queued", "planning", "running", "waiting_approval"]);
 const MODULE_LABELS: Readonly<Record<string, string>> = {
+  aeo: "AEO",
   ai: "AI",
   calendar: "Calendar",
+  commerce: "Commerce",
   crm: "CRM",
   dashboard: "Dashboard",
   email: "Email",
   finance: "Finance",
+  geo: "GEO",
   marketing: "Marketing",
+  reputation: "Google Business",
+  seo: "SEO",
   website: "Website",
 };
+
+function translatedRecordName(name: string, t: (key: string) => string): string {
+  const suffix = " execution activity";
+  if (!name.endsWith(suffix)) return t(name);
+  const pageLabel = name.slice(0, -suffix.length);
+  return t("{{0}} execution activity").replace("{{0}}", t(pageLabel));
+}
 
 function statusKind(item: AgentHealthItem): StatusKind {
   if (item.lastRunStatus === "failed") return "danger";
@@ -455,8 +467,8 @@ export function LuluCommandCenter() {
                         </div>
                       ) : (
                         <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-medium">{record.name}</p>
-                          <p className="truncate text-xs text-[var(--muted-foreground)]">{record.status}</p>
+                          <p className="truncate text-sm font-medium">{translatedRecordName(record.name, t)}</p>
+                          <p className="truncate text-xs text-[var(--muted-foreground)]">{t(record.status)}</p>
                         </div>
                       )}
                       {canEdit && editingRecordId !== record.id && (
