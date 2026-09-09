@@ -2888,5 +2888,8 @@
   "Territory definitions and assignments.": "Gebietsdefinitionen und -zuweisungen.",
   "Trends": "Trends",
   "Vendor records.": "Lieferantenaufzeichnungen.",
-  "Workspace-wide activity timeline entries.": "Arbeitsbereichsweite Aktivitätszeitleisteneinträge."
+  "Workspace-wide activity timeline entries.": "Arbeitsbereichsweite Aktivitätszeitleisteneinträge.",
+  "End the admin workspace view before changing this password.": "Beende zuerst die Admin-Ansicht des Workspaces, bevor du dieses Passwort änderst.",
+  "The current password is incorrect.": "Das aktuelle Passwort ist falsch.",
+  "The new password must be different from your current password.": "Das neue Passwort muss sich vom aktuellen Passwort unterscheiden."
 }

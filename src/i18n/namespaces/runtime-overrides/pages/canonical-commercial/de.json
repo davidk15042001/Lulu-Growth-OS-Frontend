@@ -68,5 +68,12 @@
   "Unit price": "Stückpreis",
   "USD": "USD",
   "Valid until": "Gültig bis",
-  "Version": "Version"
+  "Version": "Version",
+  "Account": "Konto",
+  "Bank code": "Bankleitzahl",
+  "Bank details": "Bankdaten",
+  "Legal form": "Rechtsform",
+  "Legal representative": "Gesetzlicher Vertreter",
+  "Phone number": "Telefonnummer",
+  "Tax ID": "Steuer-ID"
 }

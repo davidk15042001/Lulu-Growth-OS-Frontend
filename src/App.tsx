@@ -34,6 +34,7 @@ import PublicCommercialDocumentPage from "./pages/public-commercial/PublicCommer
 import CrmWorkspacePage from "./pages/canonical-crm/CrmWorkspacePage";
 import WorkspaceRecordsPage from "./pages/canonical-records/WorkspaceRecordsPage";
 import ProfilePage from "./pages/canonical-profile/ProfilePage";
+import CalendarMeetingPage from "./pages/calendar-meeting/CalendarMeetingPage";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
@@ -136,7 +137,7 @@ function AdminSurfaceSwitcher() {
   const navigate = useNavigate();
 
   if (loading || !isAdminUser(currentUser)) return null;
-  if (location.pathname === routes.auth.login || location.pathname.startsWith("/auth/") || location.pathname === "/not-found") return null;
+  if (location.pathname === routes.auth.login || location.pathname.startsWith("/auth/") || location.pathname.startsWith("/calendar/meeting/") || location.pathname === "/not-found") return null;
 
   const onAdminPanel = location.pathname === ADMIN_PANEL_PATH;
   const onWorkspaceApp = location.pathname.startsWith("/app/");
@@ -284,6 +285,7 @@ export default function App() {
         <Route path={routes.onboarding.billing} element={<BillingRoute />} />
         <Route path={routes.onboarding.billings} element={<BillingRoute />} />
         <Route path="/documents/commercial/:token" element={<PublicCommercialDocumentPage />} />
+        <Route path="/calendar/meeting/:token" element={<CalendarMeetingPage />} />
         <Route path={ADMIN_BILLING_PATH} element={<AdminBillingRoute />} />
         <Route path="/admin/omnichannel" element={<AdminOmniChannelRoute />} />
         <Route path="/admin/support" element={<AdminOmniChannelRoute><SupportPage admin /></AdminOmniChannelRoute>} />

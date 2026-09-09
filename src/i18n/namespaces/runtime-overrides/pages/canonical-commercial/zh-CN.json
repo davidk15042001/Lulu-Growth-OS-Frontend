@@ -68,5 +68,12 @@
   "Unit price": "单价",
   "USD": "USD",
   "Valid until": "有效期至",
-  "Version": "版本"
+  "Version": "版本",
+  "Account": "账户",
+  "Bank code": "银行代码",
+  "Bank details": "银行信息",
+  "Legal form": "法律形式",
+  "Legal representative": "法定代表人",
+  "Phone number": "电话号码",
+  "Tax ID": "税号"
 }

@@ -2888,5 +2888,8 @@
   "Territory definitions and assignments.": "区域定义和分配。",
   "Trends": "趋势",
   "Vendor records.": "供应商记录。",
-  "Workspace-wide activity timeline entries.": "工作区范围内的活动时间线条目。"
+  "Workspace-wide activity timeline entries.": "工作区范围内的活动时间线条目。",
+  "End the admin workspace view before changing this password.": "请先退出管理员工作区视图，再修改此密码。",
+  "The current password is incorrect.": "当前密码不正确。",
+  "The new password must be different from your current password.": "新密码必须与当前密码不同。"
 }

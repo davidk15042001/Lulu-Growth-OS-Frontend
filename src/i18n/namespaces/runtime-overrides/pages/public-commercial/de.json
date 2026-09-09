@@ -20,5 +20,13 @@
   "The quote was declined.": "Das Angebot wurde abgelehnt.",
   "The decision could not be saved.": "Die Entscheidung konnte nicht gespeichert werden.",
   "ACCEPTED": "Angenommen",
-  "QUOTE": "Angebot"
+  "QUOTE": "Angebot",
+  "Account": "Konto",
+  "Bank code": "Bankleitzahl",
+  "Bank details": "Bankdaten",
+  "Legal form": "Rechtsform",
+  "Legal representative": "Gesetzlicher Vertreter",
+  "Phone number": "Telefonnummer",
+  "Seller": "Verkäufer",
+  "Tax ID": "Steuer-ID"
 }
