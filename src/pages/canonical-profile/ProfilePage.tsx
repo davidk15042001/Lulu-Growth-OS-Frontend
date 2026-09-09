@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Building2, CheckCircle2, Eye, EyeOff, LockKeyhole, Save, UserRound } from 'lucide-react';
 import { authApi } from '../../api/auth';
-import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails } from '../../api/client';
+import { getFriendlyErrorMessage } from '../../api/client';
 import { clearStoredUser } from '../../api/session';
 import { useLuluApp } from '../../api/LuluAppContext';
 import { workspaceProfileApi, type WorkspaceProfile } from '../../api/workspaces';
@@ -19,14 +19,6 @@ const emptyProfile: ProfileForm = {
 };
 const emptyPassword: PasswordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
 const inputClass = 'w-full rounded-xl border border-[var(--border)] bg-transparent px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-[var(--ring)]';
-
-function profileErrorMessage(cause: unknown, fallback: string) {
-  const message = getFriendlyErrorMessage(cause, fallback);
-  if (cause instanceof ApiError && (cause.code === 'API_ERROR' || cause.code === 'INTERNAL_ERROR')) {
-    return `${message} ${getTechnicalErrorDetails(cause)}`;
-  }
-  return message;
-}
 
 function profileToForm(profile: WorkspaceProfile | null | undefined): ProfileForm {
   return Object.fromEntries(Object.keys(emptyProfile).map((key) => [key, profile?.[key as keyof ProfileForm] ?? ''])) as ProfileForm;
@@ -97,7 +89,7 @@ export default function ProfilePage() {
           setError('');
           return;
         }
-        setError(profileErrorMessage(cause, t('The company profile could not be loaded.')));
+        setError(getFriendlyErrorMessage(cause, t('The company profile could not be loaded.')));
       })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
@@ -145,7 +137,7 @@ export default function ProfilePage() {
       if (selectedWorkspace && response.data && typeof response.data === 'object') updateWorkspace({ ...selectedWorkspace, companyName: response.data.companyName, industry: response.data.industry, countryRegion: response.data.countryRegion, taxId: response.data.taxId, address: response.data.address, legalForm: response.data.legalForm });
       setNotice(t('Company profile was updated.'));
     } catch (cause) {
-      setError(profileErrorMessage(cause, t('The company profile could not be saved.')));
+      setError(getFriendlyErrorMessage(cause, t('The company profile could not be saved.')));
     } finally { setSavingProfile(false); }
   };
 

@@ -259,8 +259,15 @@ export function getFriendlyErrorMessage(
   fallback = "Something went wrong. Please try again.",
 ) {
   if (!(error instanceof ApiError)) return fallback;
-  if (fallback && isGenericServerErrorMessage(error)) return fallback;
-  return error.message;
+  const message = fallback && isGenericServerErrorMessage(error) ? fallback : error.message;
+  // Server-side failures used to be reduced to a generic sentence by each
+  // individual page. Keep the friendly text, but attach the same safe,
+  // actionable request diagnostics everywhere so support can identify the
+  // failing endpoint without exposing tokens, payloads or stack traces.
+  if (error.status >= 500 || error.code === "API_ERROR" || error.code === "INTERNAL_ERROR") {
+    return `${message} · ${getTechnicalErrorDetails(error)}`;
+  }
+  return message;
 }
 
 function safeTechnicalDetails(details: unknown) {
