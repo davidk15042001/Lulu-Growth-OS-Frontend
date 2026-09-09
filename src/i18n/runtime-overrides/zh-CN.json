@@ -4087,5 +4087,14 @@
   "Ends": "结束",
   "Location (optional)": "地点（可选）",
   "Agora video meeting": "声网视频会议",
-  "Description (optional)": "说明（可选）"
+  "Description (optional)": "说明（可选）",
+  "Guest link created.": "访客链接已创建。",
+  "The guest link could not be created.": "无法创建访客链接。",
+  "Create guest link": "创建访客链接",
+  "Enter a title and date/time.": "输入标题和日期/时间。",
+  "Customer (optional)": "客户（可选）",
+  "No customer selected": "没有选择客户",
+  "Date and time": "日期和时间",
+  "minutes": "分钟",
+  "hours": "小时"
 }

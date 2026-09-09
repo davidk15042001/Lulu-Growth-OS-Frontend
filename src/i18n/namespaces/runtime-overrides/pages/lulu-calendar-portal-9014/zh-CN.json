@@ -119,5 +119,16 @@
   "Your calendar": "你的日历",
   "Your name": "您的姓名",
   "Lulu / Agora RTC": "露露 / Agora RTC",
-  "Lulu Intelligence / Calendar": "露露智能/日历"
+  "Lulu Intelligence / Calendar": "露露智能/日历",
+  "Create guest link": "创建访客链接",
+  "Customer": "客户",
+  "Customer (optional)": "客户（可选）",
+  "Date and time": "日期和时间",
+  "Duration": "时长",
+  "Enter a title and date/time.": "输入标题和日期/时间。",
+  "Guest link created.": "访客链接已创建。",
+  "hours": "小时",
+  "minutes": "分钟",
+  "No customer selected": "没有选择客户",
+  "The guest link could not be created.": "无法创建访客链接。"
 }

@@ -75,6 +75,8 @@ export type NativeCalendarEvent = {
   timezone: string;
   location: string | null;
   status: 'scheduled' | 'cancelled' | 'completed';
+  customerId: string | null;
+  customerName: string | null;
   agoraChannelName: string;
   guestJoinPath: string | null;
   createdAt: string;
@@ -105,8 +107,9 @@ export const calendarApi = {
     nativeEvents: NativeCalendarEvent[];
   }>({ path: `/workspaces/${workspaceId}/calendar/overview${queryString(values)}` }),
   nativeEvents: (workspaceId: string, values: { q?: string; from?: string; to?: string; limit?: number } = {}) => requestApi<{ items: NativeCalendarEvent[] }>({ path: `/workspaces/${workspaceId}/calendar/events${queryString(values)}` }),
-  createNativeEvent: (workspaceId: string, body: { title: string; description?: string; startAt: string; endAt: string; timezone?: string; location?: string }) => requestApi<NativeCalendarEvent & { guestToken: string; guestJoinPath: string }>({ path: `/workspaces/${workspaceId}/calendar/events`, method: 'POST', body }),
+  createNativeEvent: (workspaceId: string, body: { title: string; description?: string; startAt: string; endAt: string; timezone?: string; location?: string; customerId?: string }) => requestApi<NativeCalendarEvent & { guestToken: string; guestJoinPath: string }>({ path: `/workspaces/${workspaceId}/calendar/events`, method: 'POST', body }),
   deleteNativeEvent: (workspaceId: string, eventId: string) => requestApi<void>({ path: `/workspaces/${workspaceId}/calendar/events/${eventId}`, method: 'DELETE' }),
+  createGuestLink: (workspaceId: string, eventId: string) => requestApi<NativeCalendarEvent & { guestToken: string; guestJoinPath: string }>({ path: `/workspaces/${workspaceId}/calendar/events/${eventId}/guest-link`, method: 'POST', body: {} }),
   createAgoraToken: (workspaceId: string, eventId: string, userAccount?: string) => requestApi<AgoraToken>({ path: `/workspaces/${workspaceId}/calendar/events/${eventId}/agora-token`, method: 'POST', body: userAccount ? { userAccount } : {} }),
   createGuestAgoraToken: (token: string, guestName?: string) => requestApi<Omit<AgoraToken, 'userAccount'> & { userAccount: string; workspaceName?: string }>({ path: `/public/calendar/meetings/${encodeURIComponent(token)}/agora-token`, method: 'POST', body: guestName ? { guestName } : {} }),
   accounts: (workspaceId: string) => requestApi<{ items: CalendarAccount[] }>({ path: `/workspaces/${workspaceId}/calendar/accounts` }),

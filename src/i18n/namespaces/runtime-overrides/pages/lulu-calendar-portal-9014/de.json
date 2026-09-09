@@ -119,5 +119,16 @@
   "Your calendar": "Ihr Kalender",
   "Your name": "Ihr Name",
   "Lulu / Agora RTC": "Lulu / Agora RTC",
-  "Lulu Intelligence / Calendar": "Lulu Intelligence / Kalender"
+  "Lulu Intelligence / Calendar": "Lulu Intelligence / Kalender",
+  "Create guest link": "Gastlink erstellen",
+  "Customer": "Kunde",
+  "Customer (optional)": "Kunde (optional)",
+  "Date and time": "Datum und Uhrzeit",
+  "Duration": "Dauer",
+  "Enter a title and date/time.": "Geben Sie einen Titel und Datum/Uhrzeit ein.",
+  "Guest link created.": "Gastlink erstellt.",
+  "hours": "Stunden",
+  "minutes": "Minuten",
+  "No customer selected": "Kein Kunde ausgewählt",
+  "The guest link could not be created.": "Der Gastlink konnte nicht erstellt werden."
 }

@@ -4110,5 +4110,14 @@
   "Ends": "Endet",
   "Location (optional)": "Standort (optional)",
   "Agora video meeting": "Agora-Videotreffen",
-  "Description (optional)": "Beschreibung (optional)"
+  "Description (optional)": "Beschreibung (optional)",
+  "Guest link created.": "Gastlink erstellt.",
+  "The guest link could not be created.": "Der Gastlink konnte nicht erstellt werden.",
+  "Create guest link": "Gastlink erstellen",
+  "Enter a title and date/time.": "Geben Sie einen Titel und Datum/Uhrzeit ein.",
+  "Customer (optional)": "Kunde (optional)",
+  "No customer selected": "Kein Kunde ausgewählt",
+  "Date and time": "Datum und Uhrzeit",
+  "minutes": "Minuten",
+  "hours": "Stunden"
 }
