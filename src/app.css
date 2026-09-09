@@ -360,6 +360,43 @@ body.lulu-mobile-nav-open{overflow:hidden}
   box-shadow: 14px 0 45px rgba(11,16,32,.08);
 }
 
+.lulu-global-navigation::before {
+  display: block;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 4px;
+  margin: 0 10px 16px;
+  border-radius: 999px;
+  background: var(--lulu-gradient);
+  box-shadow: 0 6px 18px rgba(79,70,229,.40);
+  content: "";
+}
+
+.lulu-global-navigation__sections {
+  scrollbar-color: rgba(139,124,255,.32) transparent;
+  scrollbar-width: thin;
+}
+
+.lulu-global-navigation__sections::-webkit-scrollbar { width: 6px; }
+.lulu-global-navigation__sections::-webkit-scrollbar-track { background: transparent; }
+.lulu-global-navigation__sections::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(139,124,255,.30);
+}
+
+.lulu-global-navigation__sections details[open] > summary { color: #ffffff; }
+.lulu-global-navigation__sections summary svg,
+.lulu-global-navigation__primary-link svg {
+  flex: 0 0 auto;
+  transition: color .2s ease, transform .2s ease;
+}
+.lulu-global-navigation__primary-link:hover svg,
+.lulu-global-navigation__sections summary:hover svg { color: #a99dff; }
+.lulu-global-navigation__sections details[open] > summary svg:last-child {
+  color: #8b7cff;
+  transform: rotate(180deg);
+}
+
 .lulu-global-navigation__workspace-label,
 .lulu-global-navigation__primary-link,
 .lulu-global-navigation__sections summary,
@@ -436,8 +473,9 @@ body.lulu-mobile-nav-open{overflow:hidden}
 
 .lulu-auth-search-wrap {
   border-bottom-color: rgba(226,231,244,.84);
-  background: rgba(247,248,255,.78);
+  background: rgba(247,248,255,.88);
   box-shadow: 0 10px 30px rgba(38,45,90,.04);
+  backdrop-filter: blur(20px) saturate(1.15);
 }
 
 .lulu-auth-nav-toggle {
@@ -464,6 +502,12 @@ body.lulu-mobile-nav-open{overflow:hidden}
   box-shadow: 0 8px 20px rgba(79,70,229,.25);
 }
 
+.lulu-auth-search-button:hover,
+.lulu-auth-search-refresh:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(79,70,229,.30);
+}
+
 .lulu-auth-search-results {
   border-color: #dfe4f1;
   box-shadow: 0 24px 60px rgba(38,45,90,.16);
@@ -471,7 +515,7 @@ body.lulu-mobile-nav-open{overflow:hidden}
 
 .lulu-agent-workspace-header {
   border-bottom-color: rgba(226,231,244,.86);
-  background: rgba(247,248,255,.78);
+  background: rgba(247,248,255,.88);
   box-shadow: 0 12px 32px rgba(38,45,90,.04);
 }
 
@@ -692,11 +736,57 @@ body.lulu-mobile-nav-open{overflow:hidden}
   background: transparent;
 }
 
+.lulu-admin-console > div > div > main h1 {
+  color: #0b1020;
+  font-size: clamp(1.8rem, 3vw, 2.7rem);
+  font-weight: 750;
+  letter-spacing: -.045em;
+  line-height: 1.08;
+}
+
+.lulu-admin-console > div > div > main h2,
+.lulu-admin-console > div > div > main h3 {
+  color: #11172b;
+  font-weight: 700;
+  letter-spacing: -.025em;
+}
+
+.lulu-admin-console > div > div > main > div > header:first-child:has(h1),
+.lulu-admin-console > div > div > main > div > div:first-child:has(h1) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(20px, 2.8vw, 32px);
+  border: 1px solid var(--lulu-surface-border);
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(255,255,255,.97), rgba(244,245,255,.91));
+  box-shadow: 0 18px 46px rgba(38,45,90,.08);
+}
+
+.lulu-admin-console > div > div > main > div > header:first-child:has(h1)::after,
+.lulu-admin-console > div > div > main > div > div:first-child:has(h1)::after {
+  position: absolute;
+  right: -70px;
+  bottom: -110px;
+  z-index: -1;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(14,165,233,.15), rgba(124,58,237,.07) 52%, transparent 72%);
+  content: "";
+}
+
 .lulu-admin-console [class*="rounded-lg"][class*="border"],
 .lulu-admin-console [class*="rounded-xl"][class*="border"],
 .lulu-admin-console [class*="rounded-2xl"][class*="border"] {
   border-color: var(--lulu-surface-border);
   box-shadow: var(--lulu-card-shadow);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.lulu-admin-console [class*="rounded-xl"][class*="border"]:hover,
+.lulu-admin-console [class*="rounded-2xl"][class*="border"]:hover {
+  border-color: rgba(91,70,245,.25);
 }
 
 .lulu-admin-console [class*="bg-white"] {
@@ -705,6 +795,56 @@ body.lulu-mobile-nav-open{overflow:hidden}
 
 .lulu-admin-console table {
   min-width: 680px;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: rgba(255,255,255,.90);
+}
+
+.lulu-admin-console thead {
+  background: linear-gradient(90deg, rgba(238,240,255,.96), rgba(247,248,255,.96));
+}
+
+.lulu-admin-console th {
+  color: #65708a !important;
+  font-size: .69rem;
+  font-weight: 700;
+  letter-spacing: .075em;
+  text-transform: uppercase;
+}
+
+.lulu-admin-console tbody tr { transition: background .16s ease; }
+.lulu-admin-console tbody tr:hover { background: rgba(91,70,245,.045); }
+
+.lulu-admin-console :is(input, select, textarea) {
+  border-color: #d8deec;
+  border-radius: 11px;
+  background: rgba(255,255,255,.90);
+  transition: border-color .18s ease, box-shadow .18s ease;
+}
+
+.lulu-admin-console :is(input, select, textarea):focus {
+  border-color: rgba(91,70,245,.62);
+  box-shadow: 0 0 0 4px rgba(91,70,245,.11);
+  outline: none;
+}
+
+.lulu-admin-console main button[class*="bg-indigo"],
+.lulu-admin-console main button[class*="bg-violet"],
+.lulu-admin-console main a[class*="bg-indigo"],
+.lulu-admin-console main a[class*="bg-violet"] {
+  border-color: transparent !important;
+  background: var(--lulu-gradient) !important;
+  color: #ffffff !important;
+  box-shadow: 0 9px 22px rgba(79,70,229,.22);
+}
+
+.lulu-admin-console main :is(button, a) {
+  transition: transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+
+.lulu-admin-console main :is(button, a):focus-visible {
+  outline: 3px solid rgba(91,70,245,.22);
+  outline-offset: 3px;
 }
 
 @media (max-width: 767px) {
@@ -718,5 +858,11 @@ body.lulu-mobile-nav-open{overflow:hidden}
 
   .lulu-admin-console > div > aside {
     width: min(88vw, 320px) !important;
+  }
+
+  .lulu-admin-console > div > div > main > div > header:first-child:has(h1),
+  .lulu-admin-console > div > div > main > div > div:first-child:has(h1) {
+    padding: 19px;
+    border-radius: 19px;
   }
 }
