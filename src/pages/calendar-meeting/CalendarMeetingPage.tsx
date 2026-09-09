@@ -7,6 +7,7 @@ import { getFriendlyErrorMessage } from '../../api/client';
 import { useTranslation } from '../../i18n/GlobalLanguageSwitcher';
 
 // Tokens are minted by the backend; the Agora certificate never reaches this client.
+// REST credentials are likewise server-only and are never bundled here.
 
 export default function CalendarMeetingPage() {
   const { token = '' } = useParams<{ token: string }>();
