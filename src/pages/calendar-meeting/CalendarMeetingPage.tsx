@@ -5,6 +5,7 @@ import { useParams } from 'react-router-dom';
 import { calendarApi } from '../../api/calendar';
 import { getFriendlyErrorMessage } from '../../api/client';
 import { useTranslation } from '../../i18n/GlobalLanguageSwitcher';
+import '../lulu-calendar-portal-9014/index.css';
 
 // Tokens are minted by the backend; the Agora certificate never reaches this client.
 // REST credentials are likewise server-only and are never bundled here.
