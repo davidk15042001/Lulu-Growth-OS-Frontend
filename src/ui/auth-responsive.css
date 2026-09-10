@@ -25,7 +25,9 @@ body:has(.auth-shell) {
 }
 
 .auth-shell > section,
-.auth-shell > aside {
+.auth-shell > aside,
+.auth-login-stage > section,
+.auth-login-stage > aside {
   min-width: 0;
 }
 
@@ -60,7 +62,8 @@ body:has(.auth-shell) {
     overscroll-behavior-y: auto;
   }
 
-  .auth-shell > section {
+  .auth-shell > section,
+  .auth-login-stage > section {
     min-height: 0 !important;
     height: auto !important;
     overflow: visible !important;
@@ -68,12 +71,14 @@ body:has(.auth-shell) {
     padding: clamp(1.25rem, 5vw, 3rem) clamp(1rem, 5vw, 2.5rem) max(3rem, env(safe-area-inset-bottom)) !important;
   }
 
-  .auth-shell > section > div {
+  .auth-shell > section > div,
+  .auth-login-stage > section > div {
     width: min(100%, 34rem);
     margin-inline: auto;
   }
 
-  .auth-shell > aside {
+  .auth-shell > aside,
+  .auth-login-stage > aside {
     display: none !important;
   }
 
@@ -107,19 +112,23 @@ body:has(.auth-shell) {
     overflow: visible !important;
   }
 
-  .auth-shell > section {
+  .auth-shell > section,
+  .auth-login-stage > section {
     height: auto !important;
     min-height: 100vh;
     overflow: visible !important;
   }
 
-  .auth-shell > aside {
-    align-self: start;
+  .auth-shell > aside,
+  .auth-login-stage > aside {
+    align-self: stretch;
+    min-height: 100vh;
   }
 }
 
 @media (max-width: 420px) {
-  .auth-shell > section {
+  .auth-shell > section,
+  .auth-login-stage > section {
     padding-inline: 1rem !important;
   }
 

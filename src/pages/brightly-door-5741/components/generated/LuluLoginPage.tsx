@@ -1,12 +1,11 @@
 import { useState } from 'react';
-import { ArrowRight, Check, ChevronDown, Eye, EyeOff, Globe2, LoaderCircle, ShieldCheck, Sparkles, Star } from 'lucide-react';
+import { Activity, ArrowRight, Check, ChevronDown, Eye, EyeOff, Globe2, Layers3, LoaderCircle, Network, Radar, ShieldCheck, Sparkles, Target, Zap } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
 import { switchLanguage, useLanguage, useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import { getLanguage, isAvailableLanguageCode, languages } from '../../../../i18n/languages';
 import { LoginFeaturesLanding } from './LoginFeaturesLanding';
 import { AgenticWorkforceLanding } from './AgenticWorkforceLanding';
-import { LandingKpiPanel } from '../../../../components/LandingKpiPanel';
 import { Button } from '../../../../components/ui/button';
 import { Input } from '../../../../components/ui/input';
 import { Label } from '../../../../components/ui/label';
@@ -37,6 +36,8 @@ const loginStyles = `
 @keyframes luluPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.9)}}
 @keyframes luluGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes luluGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes luluScan{0%{transform:translateY(-140%);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(680%);opacity:0}}
+@keyframes luluSignal{0%,100%{box-shadow:0 0 0 0 rgba(36,228,243,.15)}50%{box-shadow:0 0 0 11px rgba(36,228,243,0)}}
 .lulu-login-orb{position:absolute;border-radius:9999px;filter:blur(90px);pointer-events:none;will-change:transform}
 .lulu-login-orb--violet{background:radial-gradient(circle,rgba(124,58,237,.42),transparent 70%);animation:luluFloat 9s ease-in-out infinite}
 .lulu-login-orb--sky{background:radial-gradient(circle,rgba(14,165,233,.4),transparent 70%);animation:luluFloat 12s ease-in-out infinite reverse}
@@ -49,7 +50,17 @@ const loginStyles = `
 .lulu-login-live-dot::after{content:"";position:absolute;inset:0;border-radius:9999px;background:#10b981;animation:luluPulse 1.8s ease-out infinite}
 .lulu-login-bar{transform-origin:bottom;animation:luluGrow 1s cubic-bezier(.16,1,.3,1) both}
 .lulu-login-glass{background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.74));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
+.lulu-login-entry-link{color:#fff!important}
+.lulu-runtime-scan{animation:luluScan 5s linear infinite}
+.lulu-runtime-signal{animation:luluSignal 2.6s ease-in-out infinite}
 `;
+
+const runtimeSteps = [
+  { icon: Radar, label: 'Observe', text: 'Live signals across every connected system' },
+  { icon: Network, label: 'Orchestrate', text: 'The smallest effective agent team is assembled' },
+  { icon: Zap, label: 'Execute', text: 'Work is completed across the business' },
+  { icon: ShieldCheck, label: 'Verify', text: 'Independent auditors validate every outcome' },
+] as const;
 
 export const LuluLoginPage = () => {
   const t = useTranslation();
@@ -64,7 +75,7 @@ export const LuluLoginPage = () => {
   const [error, setError] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
-  const integrationNames = ['WordPress', 'Webflow', 'Google Business', 'Google Analytics', 'HubSpot', 'Shopify'];
+  const operatingDomains = ['Online Presence', 'CRM', 'Social Media', 'Communication', 'Bookkeeping', 'Paid Ads'];
   const submit = async (x: React.FormEvent) => {
     x.preventDefault();
     if (loading) return;
@@ -133,8 +144,8 @@ export const LuluLoginPage = () => {
       setLoading(false);
     }
   };
-  return <main data-deploy-rev="2026-09-02-login-premium-1" className="auth-shell relative min-h-screen overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
-      <div className="fixed right-4 top-4 z-30" data-lulu-no-translate="true" translate="no">
+  return <main data-deploy-rev="2026-09-10-agentic-landing-1" className="auth-shell relative min-h-screen overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
+      <div className="fixed right-4 top-4 z-30 w-fit" data-lulu-no-translate="true" translate="no">
         <button type="button" onClick={() => setLangOpen((v) => !v)} aria-haspopup="menu" aria-expanded={langOpen} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur transition hover:bg-white">
           <Globe2 size={14} />
           <span>{currentLanguage.shortCode}</span>
@@ -152,8 +163,8 @@ export const LuluLoginPage = () => {
         )}
       </div>
       <style>{loginStyles}</style>
-      <div className="grid min-h-screen xl:grid-cols-[minmax(0,520px)_minmax(0,1fr)]">
-        <section className="relative flex items-center justify-center overflow-hidden px-6 py-12 sm:px-8 lg:px-10">
+      <div className="auth-login-stage grid min-h-screen xl:grid-cols-[minmax(0,560px)_minmax(0,1fr)]">
+        <section className="relative flex items-center justify-center overflow-hidden px-6 py-12 sm:px-8 lg:px-12">
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
             <div className="lulu-login-orb lulu-login-orb--violet -left-24 top-[-6rem] h-96 w-96" />
             <div className="lulu-login-orb lulu-login-orb--sky right-[-4rem] top-1/3 h-80 w-80" />
@@ -167,20 +178,20 @@ export const LuluLoginPage = () => {
               <b className="text-xl tracking-tight">Lulu AI</b>
             </div>
 
-            <div className="lulu-login-fade-up lulu-login-d1 mt-9">
+            <div className="lulu-login-fade-up lulu-login-d1 mt-10">
               <span className="inline-flex items-center gap-2 rounded-full border border-indigo-200/70 bg-white/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide text-indigo-700 shadow-sm">
                 <Sparkles size={13} />
-                {t('AI operating system for growth')}
+                {t('The autonomous operating system')}
               </span>
               <h1 className="mt-4 text-4xl font-semibold tracking-[-.04em] leading-[1.05] text-[var(--foreground)] sm:text-5xl">
-                {t('Your business, in one intelligent workspace.')}
+                {t('Your company does not need more software. It needs execution.')}
               </h1>
               <p className="mt-4 max-w-md text-[15px] leading-7 text-[var(--muted-foreground)]">
-                {t('Sign in to access connected context, verified signals and AI-guided next steps.')}
+                {t('Connect once. Lulu runs the company — autonomously, continuously and inside clear boundaries.')}
               </p>
             </div>
 
-            <form onSubmit={submit} className="lulu-login-fade-up lulu-login-d2 mt-8 rounded-3xl bg-gradient-to-br from-indigo-500/20 via-transparent to-emerald-500/20 p-px shadow-2xl shadow-indigo-500/10" aria-label={t('Sign in form')}>
+            <form id="login-access" onSubmit={submit} className="lulu-login-fade-up lulu-login-d2 mt-8 rounded-3xl bg-gradient-to-br from-indigo-500/20 via-transparent to-emerald-500/20 p-px shadow-2xl shadow-indigo-500/10" aria-label={t('Sign in form')}>
               <div className="lulu-login-glass rounded-3xl p-6 sm:p-7">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-[var(--foreground)]">{t('signIn')}</p>
@@ -215,18 +226,15 @@ export const LuluLoginPage = () => {
               </div>
             </form>
 
-            <div className="lulu-login-fade-up lulu-login-d3 mt-6 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
-              <span className="flex items-center gap-0.5" data-lulu-no-translate="true" translate="no" aria-label="4.9 out of 5">
-                {[0, 1, 2, 3, 4].map(i => <Star key={i} size={13} className="fill-amber-400 text-amber-400" />)}
-              </span>
-              <span className="font-semibold text-[var(--foreground)]">4.9/5</span>
-              <span>·</span>
-              <span>{t('Loved by growth teams')}</span>
+            <div className="lulu-login-fade-up lulu-login-d3 mt-6 grid grid-cols-3 divide-x divide-slate-200 rounded-2xl border border-slate-200/80 bg-white/60 py-3 text-center shadow-sm backdrop-blur">
+              <div><b className="block text-sm text-slate-950">140+</b><span className="text-[10px] uppercase tracking-wide text-slate-500">{t('AI agents')}</span></div>
+              <div><b className="block text-sm text-slate-950">24/7</b><span className="text-[10px] uppercase tracking-wide text-slate-500">{t('Execution')}</span></div>
+              <div><b className="block text-sm text-slate-950">0</b><span className="text-[10px] uppercase tracking-wide text-slate-500">{t('Routine approvals')}</span></div>
             </div>
           </div>
         </section>
 
-        <aside className="relative hidden overflow-hidden bg-[#0b1020] text-white xl:flex xl:flex-col xl:justify-center">
+        <aside className="relative hidden overflow-hidden bg-[#070914] text-white xl:flex xl:flex-col xl:justify-center">
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
             <div className="lulu-login-orb lulu-login-orb--violet -right-20 top-[-6rem] h-[28rem] w-[28rem]" />
             <div className="lulu-login-orb lulu-login-orb--sky -left-24 bottom-[-8rem] h-[26rem] w-[26rem]" />
@@ -234,30 +242,60 @@ export const LuluLoginPage = () => {
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-transparent to-emerald-500/10" />
           </div>
 
-          <div className="relative mx-auto w-full max-w-2xl px-12 py-16">
+          <div className="relative mx-auto w-full max-w-3xl px-12 py-16 2xl:px-16">
             <div className="lulu-login-fade-up inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-semibold backdrop-blur">
               <span className="lulu-login-live-dot" />
-              {t('Live product')}
+              {t('Autonomous execution layer · Live')}
             </div>
 
-            <h2 className="lulu-login-fade-up lulu-login-d1 mt-8 text-5xl font-semibold tracking-[-.04em] leading-[1.05]">
-              {t('One login.')} <span className="lulu-login-gradient-text">{t('Every growth signal, unified.')}</span>
+            <h2 className="lulu-login-fade-up lulu-login-d1 mt-7 text-5xl font-semibold tracking-[-.05em] leading-[1.02] 2xl:text-6xl">
+              {t('Connect once.')} <span className="lulu-login-gradient-text">{t('Lulu runs the company.')}</span>
             </h2>
-            <p className="lulu-login-fade-up lulu-login-d2 mt-5 max-w-xl text-lg leading-8 text-slate-300">
-              {t('From onboarding and audience intelligence to websites, CRM, reviews and billing, Lulu keeps teams aligned around verified signals and AI-supported next steps.')}
+            <p className="lulu-login-fade-up lulu-login-d2 mt-5 max-w-2xl text-lg leading-8 text-slate-300">
+              {t('More than 140 AI agents understand the business, choose the right team, make decisions, execute the work and learn from every verified outcome.')}
             </p>
 
-            <div className="lulu-login-fade-up lulu-login-d5 mt-10 flex flex-wrap items-center gap-2">
-              <span className="text-xs font-medium uppercase tracking-[.16em] text-slate-500">{t('Built to connect the systems behind your business')}</span>
-              <div className="flex flex-wrap gap-2">
-                {integrationNames.map(name => <span key={name} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-slate-300">{name}</span>)}
+            <div className="lulu-login-fade-up lulu-login-d3 relative mt-9 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.055] p-6 shadow-2xl shadow-violet-950/50 backdrop-blur-xl">
+              <div className="lulu-runtime-scan pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-transparent via-cyan-300/[.08] to-transparent" aria-hidden="true" />
+              <div className="relative flex items-center justify-between gap-4 border-b border-white/10 pb-5">
+                <div className="flex items-center gap-3">
+                  <span className="lulu-runtime-signal grid h-11 w-11 place-items-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10"><img src="/branding/lulu-agentic-mark.svg" alt="" className="h-7 w-7 object-contain" /></span>
+                  <div><p className="text-sm font-semibold">{t('Lulu Agentic Runtime')}</p><p className="text-xs text-slate-400">{t('Continuous autonomous operation')}</p></div>
+                </div>
+                <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.16em] text-emerald-200"><Activity size={12} />{t('Operating')}</span>
+              </div>
+
+              <div className="relative mt-5 rounded-2xl border border-violet-300/15 bg-gradient-to-br from-violet-400/10 via-white/[.035] to-cyan-300/[.08] p-5">
+                <div className="flex items-start gap-3"><Target size={18} className="mt-0.5 shrink-0 text-cyan-300" /><div><p className="text-[10px] font-semibold uppercase tracking-[.18em] text-slate-400">{t('Permanent North Star')}</p><p className="mt-2 text-sm font-medium leading-6 text-white">{t('Build a trusted global brand at maximum sustainable speed — and become the number-one choice worldwide.')}</p></div></div>
+              </div>
+
+              <div className="relative mt-4 grid gap-2 sm:grid-cols-2">
+                {runtimeSteps.map(({ icon: Icon, label, text }, index) => (
+                  <div key={label} className="group rounded-2xl border border-white/[.08] bg-black/15 p-4 transition hover:border-cyan-300/25 hover:bg-white/[.07]">
+                    <div className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-lg bg-white/10 text-cyan-200"><Icon size={14} /></span><span className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-300">0{index + 1} · {t(label)}</span></div>
+                    <p className="mt-3 text-xs leading-5 text-slate-400">{t(text)}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="relative mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
+                <div className="flex items-center gap-2 text-xs font-medium text-emerald-200"><ShieldCheck size={14} />{t('No human approval queue')}</div>
+                <div className="flex items-center gap-2 text-xs text-slate-400"><Layers3 size={14} />{t('Budget is the only routine customer boundary')}</div>
+              </div>
+            </div>
+
+            <div className="lulu-login-fade-up lulu-login-d5 mt-7">
+              <p className="text-[10px] font-semibold uppercase tracking-[.2em] text-slate-500">{t('One operating system across the entire company')}</p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {operatingDomains.map(name => <span key={name} className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300">{t(name)}</span>)}
               </div>
             </div>
           </div>
         </aside>
       </div>
-      <LandingKpiPanel />
-      <LoginFeaturesLanding />
-      <AgenticWorkforceLanding />
+      <div className="lulu-login-story">
+        <LoginFeaturesLanding />
+        <AgenticWorkforceLanding />
+      </div>
     </main>;
 };

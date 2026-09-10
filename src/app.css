@@ -319,9 +319,9 @@ body.lulu-mobile-nav-open{overflow:hidden}
 .lulu-global-content--auth,.lulu-global-content--auth .lulu-native-page{width:100%;min-width:0}
 .lulu-global-content--auth [data-lulu-global-navigation="true"],.lulu-global-content--auth .lulu-global-navigation,.page-frame--auth [data-lulu-global-navigation="true"]{display:none!important}
 .lulu-global-content--auth .auth-shell{display:block!important;width:100%!important;min-width:0}
-.lulu-global-content--auth .auth-shell>div:first-child{width:100%;min-width:0}
-.lulu-global-content--auth .auth-shell>div:first-child>section,.lulu-global-content--auth .auth-shell>div:first-child>aside{min-width:0}
-@media(max-width:899px){.lulu-global-content--auth .auth-shell>div:first-child{display:block}.lulu-global-content--auth .auth-shell>div:first-child>aside{display:none!important}}
+.lulu-global-content--auth .auth-shell>.auth-login-stage{width:100%;min-width:0}
+.lulu-global-content--auth .auth-shell>.auth-login-stage>section,.lulu-global-content--auth .auth-shell>.auth-login-stage>aside{min-width:0}
+@media(max-width:899px){.lulu-global-content--auth .auth-shell>.auth-login-stage{display:block}.lulu-global-content--auth .auth-shell>.auth-login-stage>aside{display:none!important}}
 
 /* Compact navigation brand-to-section spacing */
 .page-frame aside > div.mb-9.flex.items-center.gap-3.px-2,

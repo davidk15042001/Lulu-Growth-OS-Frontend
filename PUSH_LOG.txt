@@ -134,3 +134,6 @@ Push-Zeitstempel: 2026-08-27 22:12:00 Europe/Berlin
 
 Push-Zeitstempel: 2026-09-10 11:38:09 Europe/Berlin
 Änderungen: Command Center und Agentenübersicht zeigen jetzt das echte 145-Agenten-Ökosystem, das dynamisch ausgewählte autonome Team, Auswahlgründe, den permanenten North Star sowie die einzige Kundenkontrolle für neues Werbebudget. Die Oberfläche ist vollständig auf Englisch, Deutsch und Chinesisch synchronisiert.
+
+Push-Zeitstempel: 2026-09-10 12:42:29 Europe/Berlin
+Änderungen: Die öffentliche Login-Landingpage wurde vollständig auf Lulu als autonome Execution Layer ausgerichtet: permanenter globaler North Star, mehr als 140 AI Agents, dynamische Team-Orchestrierung, 24/7-Ausführung ohne Routinefreigaben, alle zentralen Unternehmensbereiche sowie der transparente Prepaid-Adspend-Flow inklusive 4%-Gebühr und unterstützten Zahlungsarten. Desktop und Mobile wurden visuell geprüft; Englisch, Deutsch und Chinesisch sind synchronisiert.
