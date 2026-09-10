@@ -46,5 +46,20 @@
   "Select a product to inspect its master data.": "Wähle ein Produkt aus, um seine Stammdaten zu prüfen.",
   "Service": "Service",
   "Short description": "Kurzbeschreibung",
-  "Status": "Status"
+  "Status": "Status",
+  "0 approvals": "0 Freigaben",
+  "Add an authoritative product image. Lulu starts automatically and returns only media that passes the premium gate.": "Füge ein verbindliches Original-Produktbild hinzu. Lulu startet automatisch und veröffentlicht nur Ergebnisse, die die Premium-Prüfung bestehen.",
+  "approved": "genehmigt",
+  "Auto retry": "Automatischer Wiederholungsversuch",
+  "Autonomous campaign production": "Autonome Kampagnenproduktion",
+  "AWAITING REFERENCE": "Warten auf Referenz",
+  "IMAGE": "BILD",
+  "Independent QA": "Unabhängige Qualitätssicherung",
+  "Lulu Premium Media": "Lulu Premium Media",
+  "Premium": "Premium",
+  "Premium only": "Nur Premium",
+  "Premium-only models create, independently audit, finish and publish product images and videos. No human approval is required.": "Premium-Modelle erstellen, prüfen, veredeln und veröffentlichen Produktbilder und Videos selbstständig. Eine menschliche Freigabe ist nicht erforderlich.",
+  "QA": "Qualitätssicherung",
+  "READY FOR KEY": "BEREIT FÜR DEN SCHLÜSSEL",
+  "The production engine is installed. Completing the secure server configuration activates it.": "Die Produktions-Engine ist installiert. Die vollständige sichere Serverkonfiguration aktiviert sie."
 }

@@ -46,5 +46,20 @@
   "Select a product to inspect its master data.": "选择产品以查看其主数据。",
   "Service": "服务",
   "Short description": "简短描述",
-  "Status": "状态"
+  "Status": "状态",
+  "0 approvals": "0 批准",
+  "Add an authoritative product image. Lulu starts automatically and returns only media that passes the premium gate.": "添加权威的产品图片。 Lulu 自动启动并仅返回通过高级门的媒体。",
+  "approved": "已批准",
+  "Auto retry": "自动重试",
+  "Autonomous campaign production": "自主战役生产",
+  "AWAITING REFERENCE": "等待参考",
+  "IMAGE": "图像",
+  "Independent QA": "独立质量保证",
+  "Lulu Premium Media": "露露高级媒体",
+  "Premium": "高级版",
+  "Premium only": "仅限高级版",
+  "Premium-only models create, independently audit, finish and publish product images and videos. No human approval is required.": "仅限高级版的模型创建、独立审核、完成和发布产品图像和视频。无需人工批准。",
+  "QA": "质量保证",
+  "READY FOR KEY": "准备好钥匙",
+  "The production engine is installed. Completing the secure server configuration activates it.": "生产引擎已安装。完成安全服务器配置后即可启用。"
 }

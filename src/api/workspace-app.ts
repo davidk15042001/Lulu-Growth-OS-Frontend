@@ -132,6 +132,22 @@ export type BillingState = {
     outputTokens: number;
     apiEvents: number;
     serverDays: number;
+    pricing?: {
+      inputPerMillionUsd: number;
+      outputPerMillionUsd: number;
+      premiumMediaPerKieCreditUsd: number;
+      serverProviderCostMultiplier: number;
+    };
+    usageBreakdown?: Array<{
+      provider: string;
+      model: string;
+      operation: string;
+      events: number;
+      inputTokens: number;
+      outputTokens: number;
+      kieCredits: number;
+      customerCost: number;
+    }>;
     paymentMethods: Array<"card" | "alipaycn" | "wechatpay">;
     invoices: Array<{
       id: string;

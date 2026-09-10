@@ -1,4 +1,4 @@
-import { CreditCard, Database, ExternalLink, LoaderCircle, RefreshCw, Server, X, Zap } from "lucide-react";
+import { CreditCard, Database, ExternalLink, Film, LoaderCircle, RefreshCw, Server, X, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLuluApp } from "../api/LuluAppContext";
 import { getFriendlyErrorMessage } from "../api/client";
@@ -31,6 +31,34 @@ function paymentMethodLabel(method: string, t: (key: string) => string) {
   return t("Card");
 }
 
+function mediaModelLabel(model: string) {
+  const labels: Record<string, string> = {
+    "kling/v3-turbo-image-to-video": "Kling 3.0 Turbo",
+    veo3: "Veo 3.1",
+    "flux-2/pro-image-to-image": "FLUX 2 Pro",
+    "flux-2/pro-text-to-image": "FLUX 2 Pro",
+    "seedream/5-pro-image-to-image": "Seedream 5 Pro",
+    "seedream/5-pro-text-to-image": "Seedream 5 Pro",
+    "topaz/image-upscale": "Topaz Image",
+    "topaz/video-upscale": "Topaz Video",
+    "gemini-3-pro": "Gemini 3 Pro",
+  };
+  return labels[model] ?? model;
+}
+
+function mediaOperationLabel(operation: string, t: (key: string) => string) {
+  const labels: Record<string, string> = {
+    image_generation: "Image generation",
+    video_generation: "Video generation",
+    image_upscale: "Image finishing",
+    video_upscale: "Video finishing",
+    image_quality_gate: "Image quality check",
+    video_quality_gate: "Video quality check",
+    premium_media: "Premium media",
+  };
+  return t(labels[operation] ?? "Premium media");
+}
+
 export function LuluUsageControl() {
   const { selectedWorkspace } = useLuluApp();
   const t = useTranslation();
@@ -43,6 +71,16 @@ export function LuluUsageControl() {
 
   const payg = billing?.payg ?? null;
   const total = payg ? payg.apiCost + payg.serverCost : null;
+  const mediaUsage = useMemo(() => payg?.usageBreakdown?.filter((entry) => entry.provider === "kie.ai") ?? [], [payg]);
+  const mediaCost = useMemo(() => mediaUsage.reduce((sum, entry) => sum + entry.customerCost, 0), [mediaUsage]);
+  const mediaCredits = useMemo(() => mediaUsage.reduce((sum, entry) => sum + entry.kieCredits, 0), [mediaUsage]);
+  const textApiCost = payg ? Math.max(0, payg.apiCost - mediaCost) : 0;
+  const pricing = payg?.pricing ?? {
+    inputPerMillionUsd: 5,
+    outputPerMillionUsd: 10,
+    premiumMediaPerKieCreditUsd: 0.01,
+    serverProviderCostMultiplier: 2,
+  };
   const pendingApiPayment = useMemo(
     () => payg?.invoices.find((invoice) => invoice.billingMode === "api_pay_now" && ["processing", "payment_due", "payment_failed"].includes(invoice.status)) ?? null,
     [payg],
@@ -140,7 +178,7 @@ export function LuluUsageControl() {
                 <div className="lulu-usage-metrics">
                   <article className="lulu-usage-metric lulu-usage-metric--api">
                     <div className="lulu-usage-metric__icon"><Zap aria-hidden="true" size={18} /></div>
-                    <div><span>{t("API usage")}</span><strong>{formatMoney(payg.apiCost, "USD", language)}</strong></div>
+                    <div><span>{t("AI & media usage")}</span><strong>{formatMoney(payg.apiCost, "USD", language)}</strong></div>
                     <p>{formatInteger(payg.inputTokens, language)} {t("input tokens")} · {formatInteger(payg.outputTokens, language)} {t("output tokens")} · {formatInteger(payg.apiEvents, language)} {t("API calls")}</p>
                     <small>{t("Pay API usage now to reset this API counter. New usage starts a new API balance.")}</small>
                   </article>
@@ -151,6 +189,25 @@ export function LuluUsageControl() {
                     <small>{t("Server and storage usage stays in the current weekly billing period when API usage is paid.")}</small>
                   </article>
                 </div>
+
+                <section className="lulu-usage-prices" aria-labelledby="lulu-usage-prices-title">
+                  <div className="lulu-usage-prices__header">
+                    <div><span>{t("Transparent rates")}</span><h3 id="lulu-usage-prices-title">{t("Prices & costs")}</h3></div>
+                    <small>{t("Only recorded usage is charged")}</small>
+                  </div>
+                  <div className="lulu-usage-prices__grid">
+                    <div><span>{t("AI text and API")}</span><strong>{formatMoney(textApiCost, "USD", language)}</strong><small>{formatMoney(pricing.inputPerMillionUsd, "USD", language)} / 1M {t("input tokens")} · {formatMoney(pricing.outputPerMillionUsd, "USD", language)} / 1M {t("output tokens")}</small></div>
+                    <div><span>{t("Premium media")}</span><strong>{formatMoney(mediaCost, "USD", language)}</strong><small>{formatInteger(mediaCredits, language)} {t("Kie credits")} · {formatMoney(pricing.premiumMediaPerKieCreditUsd, "USD", language)} {t("per Kie credit")}</small></div>
+                    <div><span>{t("Server & storage")}</span><strong>{formatMoney(payg.serverCost, "USD", language)}</strong><small>{pricing.serverProviderCostMultiplier}× {t("provider cost")}</small></div>
+                  </div>
+                  {mediaUsage.length > 0 && <div className="lulu-usage-media-breakdown">
+                    <div className="lulu-usage-media-breakdown__title"><Film aria-hidden="true" size={15} />{t("Premium media cost breakdown")}</div>
+                    {mediaUsage.map((entry) => <div className="lulu-usage-media-row" key={`${entry.model}:${entry.operation}`}>
+                      <div><strong>{mediaModelLabel(entry.model)}</strong><span>{mediaOperationLabel(entry.operation, t)} · {formatInteger(entry.events, language)} {t("operations")} · {formatInteger(entry.kieCredits, language)} {t("Kie credits")}</span></div>
+                      <strong>{formatMoney(entry.customerCost, "USD", language)}</strong>
+                    </div>)}
+                  </div>}
+                </section>
 
                 <div className="lulu-usage-total"><span>{t("Current usage total")}</span><strong>{formatMoney(payg.estimatedTotal, "USD", language)}</strong></div>
 
