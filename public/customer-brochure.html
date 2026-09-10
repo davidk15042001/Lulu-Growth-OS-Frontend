@@ -60,6 +60,37 @@
         break-after: auto;
       }
 
+      @media print {
+        .page {
+          width: 280mm;
+          min-height: 396mm;
+          padding: 24mm 21.333mm 21.333mm;
+          zoom: 0.75;
+        }
+
+        .page--market-overview {
+          width: 210mm;
+          min-height: 297mm;
+          padding: 18mm 16mm 16mm;
+          zoom: 1;
+        }
+
+        .page--market-overview .compare-grid {
+          min-height: 148mm;
+          margin-top: 12mm;
+        }
+
+        .page--market-overview .compare-card {
+          padding: 10mm 7mm;
+        }
+
+        .page--business-case .topbar {
+          display: grid;
+          grid-template-columns: max-content minmax(0, 1fr);
+          gap: 10mm;
+        }
+      }
+
       .grid-2,
       .grid-3 {
         display: grid;
@@ -76,6 +107,7 @@
 
       .eyebrow {
         display: inline-flex;
+        flex: 0 0 auto;
         align-items: center;
         gap: 8px;
         padding: 7px 12px;
@@ -452,7 +484,7 @@
   <body>
     <section class="page">
       <div class="topbar">
-        <img src="./branding/lulu-intelligence-logo.png" alt="Lulu Intelligence" />
+        <img src="./branding/lulu-agentic-logo-dark.svg" alt="Lulu" />
         <div class="top-meta">
           Kundenbroschüre<br />
           Enterprise AI Workforce Platform
@@ -605,7 +637,7 @@
       <div class="footer"><span>Vom Tool-Stack zur AI Workforce</span></div>
     </section>
 
-    <section class="page">
+    <section class="page page--market-overview">
       <div class="topbar">
         <div class="eyebrow">Marktpositionierung</div>
         <div class="top-meta">Warum Lulu Intelligence die einzige Plattform ihrer Art ist</div>
@@ -649,6 +681,15 @@
             <li>Analyse, Strategie, Ausfuehrung und Review als Pipeline</li>
           </ul>
         </div>
+      </div>
+
+      <div class="footer"><span>Warum Lulu eine eigene Kategorie definiert</span></div>
+    </section>
+
+    <section class="page page--market-details">
+      <div class="topbar">
+        <div class="eyebrow">Wettbewerbsvorteile</div>
+        <div class="top-meta">Eine operative Plattform statt isolierter KI-Werkzeuge</div>
       </div>
 
       <div class="grid-2 section">
@@ -832,7 +873,7 @@
       <div class="footer"><span>Einsetzbar ueber mehrere Branchen hinweg</span></div>
     </section>
 
-    <section class="page">
+    <section class="page page--business-case">
       <div class="topbar">
         <div class="eyebrow">Business Case</div>
         <div class="top-meta">Warum Kunden mit Lulu schneller, schlanker und profitabler werden</div>

@@ -1,9 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-label="Lulu">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" role="img" aria-labelledby="title desc">
+  <title id="title">Lulu agentic mark</title>
+  <desc id="desc">Two interlocking L-shaped paths forming a continuous autonomous loop.</desc>
   <defs>
-    <clipPath id="favicon-left">
+    <clipPath id="lulu-left">
       <rect width="90" height="180" />
     </clipPath>
-    <clipPath id="favicon-right">
+    <clipPath id="lulu-right">
       <rect x="90" width="90" height="180" />
     </clipPath>
   </defs>
@@ -14,7 +16,7 @@
     stroke-width="28"
     stroke-linecap="round"
     stroke-linejoin="round"
-    clip-path="url(#favicon-left)"
+    clip-path="url(#lulu-left)"
   />
   <path
     d="M42 24v66c0 31 24 56 55 56s55-25 55-56c0-26-21-47-47-47S58 64 58 90c0 22 18 40 40 40s40-18 40-40v66"
@@ -23,6 +25,6 @@
     stroke-width="28"
     stroke-linecap="round"
     stroke-linejoin="round"
-    clip-path="url(#favicon-right)"
+    clip-path="url(#lulu-right)"
   />
 </svg>

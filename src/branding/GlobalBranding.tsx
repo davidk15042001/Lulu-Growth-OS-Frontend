@@ -2,7 +2,8 @@ import { useLayoutEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { PageContract } from "../api/page-contracts";
 
-const LOGO_PATH = "/branding/lulu-intelligence-logo.png";
+const LOGO_PATH = "/branding/lulu-agentic-logo.svg";
+const DARK_LOGO_PATH = "/branding/lulu-agentic-logo-dark.svg";
 const NAMED_BRAND_SELECTOR = [
   ".brand",
   ".wordmark",
@@ -116,6 +117,7 @@ const globalBrandStyles = `
 .lulu-global-brand-host>:not(.lulu-global-brand-image):not(button){display:none!important}
 .lulu-global-brand-host>button{font-size:initial!important}
 .lulu-global-brand-image{display:block!important;width:min(184px,100%)!important;height:auto!important;max-height:69px!important;object-fit:contain!important;object-position:left center!important;border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;user-select:none!important}
+.dark .lulu-global-brand-image{content:url("${DARK_LOGO_PATH}")}
 header .lulu-global-brand-image,footer .lulu-global-brand-image{width:min(176px,100%)!important}
 @media(max-width:900px){aside .lulu-global-brand-host{min-height:42px!important}aside .lulu-global-brand-image{width:min(150px,100%)!important;max-height:56px!important}}
 `;

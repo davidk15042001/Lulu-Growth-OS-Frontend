@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 180" role="img" aria-labelledby="title desc">
+  <title id="title">Lulu</title>
+  <desc id="desc">Lulu agentic loop mark with wordmark.</desc>
+  <defs>
+    <clipPath id="lulu-logo-left">
+      <rect width="90" height="180" />
+    </clipPath>
+    <clipPath id="lulu-logo-right">
+      <rect x="90" width="90" height="180" />
+    </clipPath>
+  </defs>
+  <g>
+    <path
+      d="M42 24v66c0 31 24 56 55 56s55-25 55-56c0-26-21-47-47-47S58 64 58 90c0 22 18 40 40 40s40-18 40-40v66"
+      fill="none"
+      stroke="#6D28FF"
+      stroke-width="28"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      clip-path="url(#lulu-logo-left)"
+    />
+    <path
+      d="M42 24v66c0 31 24 56 55 56s55-25 55-56c0-26-21-47-47-47S58 64 58 90c0 22 18 40 40 40s40-18 40-40v66"
+      fill="none"
+      stroke="#00CFE8"
+      stroke-width="28"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      clip-path="url(#lulu-logo-right)"
+    />
+  </g>
+  <text
+    x="205"
+    y="125"
+    fill="#0B1020"
+    font-family="Inter, Avenir Next, Segoe UI, Arial, sans-serif"
+    font-size="102"
+    font-weight="750"
+    letter-spacing="-5"
+  >Lulu</text>
+</svg>

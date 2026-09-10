@@ -57,7 +57,7 @@ export function AuthenticatedWorkspaceTopBar({
         {navigationOpen ? <X aria-hidden="true" size={18} /> : <Menu aria-hidden="true" size={18} />}
       </button>
       <div className="lulu-auth-logo" data-lulu-no-translate="true" translate="no">
-        <img src="/branding/lulu-intelligence-logo.png" alt="Lulu AI" draggable={false} />
+        <img className="lulu-agentic-logo-image" src="/branding/lulu-agentic-logo.svg" alt="Lulu" draggable={false} />
       </div>
       <form className="lulu-auth-search" role="search" onSubmit={submit}>
         <label className="sr-only" htmlFor="lulu-global-search">Search Lulu AI</label>

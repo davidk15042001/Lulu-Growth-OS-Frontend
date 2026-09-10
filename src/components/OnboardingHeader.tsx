@@ -45,7 +45,7 @@ export function OnboardingHeader({ step, totalSteps = steps.length, showBrandNam
     <header className="mx-auto w-full max-w-5xl px-5 pt-8 sm:px-8 lg:px-12 lg:pt-10">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
         <a href="/" className="flex items-center gap-3" aria-label="Lulu Intelligence home">
-          <img src="/branding/lulu-intelligence-logo.png" alt="Lulu Intelligence" className="h-9 w-auto object-contain" />
+          <img src="/branding/lulu-agentic-logo.svg" alt="Lulu" className="lulu-agentic-logo-image h-9 w-auto object-contain" />
           {showBrandName && <span className="text-xl font-semibold tracking-[-0.03em] text-[var(--foreground)]">Lulu AI</span>}
         </a>
         <div className="flex flex-col gap-2 sm:items-end">

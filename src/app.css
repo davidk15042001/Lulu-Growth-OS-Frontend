@@ -265,6 +265,8 @@ a[data-lulu-soon="true"]::after {
 .lulu-viewport-portal [role="alertdialog"] h2{color:#b91c1c!important}
 
 /* Global authenticated search bar */
+.lulu-agentic-logo-image{content:url("/branding/lulu-agentic-logo.svg")}
+.dark .lulu-agentic-logo-image{content:url("/branding/lulu-agentic-logo-dark.svg")}
 .lulu-auth-search-wrap{position:sticky;top:0;z-index:80;isolation:isolate;display:flex;min-height:var(--lulu-workspace-topbar-height);align-items:center;gap:12px;width:100%;padding:10px clamp(16px,2.5vw,28px);background:color-mix(in srgb,var(--background) 96%,transparent);border-bottom:1px solid var(--border);backdrop-filter:blur(14px)}
 .lulu-auth-nav-toggle{display:none;align-items:center;justify-content:center;width:44px;height:44px;flex:0 0 auto;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--foreground);box-shadow:0 6px 16px rgba(0,0,0,.06)}
 .lulu-auth-logo{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:144px;height:54px}
