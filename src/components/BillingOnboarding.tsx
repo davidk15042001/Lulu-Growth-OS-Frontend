@@ -7,7 +7,6 @@ import { onboardingApi } from "../api/onboarding";
 import { workspaceAppApi } from "../api/workspace-app";
 import { billingPlans, type BillingPlanId } from "../billing/planCatalog";
 import { OnboardingHeader } from "./OnboardingHeader";
-import { getAdminLandingPath, isAdminUser } from "../api/session";
 
 const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string }> = {
   ai: { icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20" },
@@ -15,14 +14,13 @@ const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string
 
 export function BillingOnboarding() {
   const { currentUser, selectedWorkspace, loading, refresh } = useLuluApp();
-  const admin = isAdminUser(currentUser);
   const [selectedPlan, setSelectedPlan] = useState<BillingPlanId | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [technicalError, setTechnicalError] = useState<string | null>(null);
   const paymentSucceeded = new URLSearchParams(window.location.search).get("payment") === "success";
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "waiting" | "error">(paymentSucceeded ? "waiting" : "idle");
-  const postActionTarget = admin ? getAdminLandingPath(routes.app.dashboard) : routes.app.dashboard;
+  const postActionTarget = routes.app.profile;
   // Only the AI package is currently offered for customer billing. Keep this
   // explicit guard so legacy Explorer/Starter entries can never reappear in
   // the checkout UI if they are reintroduced into the shared catalog.
@@ -79,14 +77,15 @@ export function BillingOnboarding() {
 
   useEffect(() => {
     if (loading || !selectedWorkspace?.onboardingCompletedAt || paymentSucceeded) return;
-    navigateApp(postActionTarget, { replace: true });
+    navigateApp(routes.app.dashboard, { replace: true });
   }, [loading, paymentSucceeded, postActionTarget, selectedWorkspace]);
 
   useEffect(() => {
     if (loading || paymentSucceeded || !selectedWorkspace || selectedWorkspace.onboardingCompletedAt) return;
     if (selectedWorkspace.onboardingStep !== "billing") {
-      navigateApp(selectedWorkspace.onboardingStep === "company_information"
-        ? routes.onboarding.companyInformation
+      navigateApp(selectedWorkspace.onboardingStep === "company_information" ? routes.onboarding.companyInformation
+        : selectedWorkspace.onboardingStep === "profile_completion" ? routes.app.profile
+        : selectedWorkspace.onboardingStep === "knowledge_base" ? routes.app.knowledgeBase
         : routes.onboarding.billing, { replace: true });
       return;
     }
@@ -95,7 +94,6 @@ export function BillingOnboarding() {
       const subscription = response.data.subscription;
       if (!active || subscription?.status !== "active" || !["internal", "airwallex"].includes(subscription.provider)) return;
       try {
-        await onboardingApi.complete(selectedWorkspace.id);
         await refresh();
         if (active) navigateApp(postActionTarget, { replace: true });
       } catch (cause) {

@@ -171,9 +171,16 @@ export type OnboardingSnapshot = {
   aiBusinessProfile: AiBusinessProfile | null;
 };
 
+export type OnboardingDocument={id:string;workspaceId:string;fileName:string;mimeType:string;sizeBytes:number;createdAt:string};
+
 export const onboardingApi = {
   snapshot: (workspaceId: string) => requestApi<OnboardingSnapshot>({ path: workspaceApiPath(workspaceId, "/onboarding") }),
+  documents:(workspaceId:string)=>requestApi<{items:OnboardingDocument[]}>({path:workspaceApiPath(workspaceId,"/onboarding/documents")}),
+  uploadDocument:(workspaceId:string,file:File)=>{const body=new FormData();body.append('file',file,file.name);return requestApi<OnboardingDocument>({path:workspaceApiPath(workspaceId,"/onboarding/documents"),method:'POST',body});},
+  deleteDocument:(workspaceId:string,documentId:string)=>requestApi<null>({path:workspaceApiPath(workspaceId,`/onboarding/documents/${documentId}`),method:'DELETE'}),
+  activateKnowledge:(workspaceId:string,input:{text:string;documentIds:string[]})=>requestApi<{completed:true;activationId:string;productIds:string[];classification:Record<string,unknown>;premiumJobs:Array<{productId:string;status:string}>}>({path:workspaceApiPath(workspaceId,"/onboarding/knowledge-activation"),method:'POST',body:input,timeoutMs:240_000}),
   saveCompanyInformation: (workspaceId: string, input: {
+    fullName?:string;password?:string;repeatPassword?:string;
     companyName: string; industry: string | null; countryRegion: string | null; taxId: string | null; address: string | null;
   }) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/company-information"), method: "PATCH", body: input }),
   saveBusinessDescription: (workspaceId: string, input: {

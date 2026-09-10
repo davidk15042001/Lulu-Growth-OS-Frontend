@@ -81,9 +81,12 @@ export type WorkspaceProfile = {
   bankOpeningBank: string | null;
   bankBranch: string | null;
   bankCode: string | null;
+  onboardingStep: string;
+  profileCompletedAt: string | null;
+  missingRequiredFields: string[];
 };
 
-export type WorkspaceProfileInput = Partial<Omit<WorkspaceProfile, 'workspaceId'>>;
+export type WorkspaceProfileInput = Partial<Omit<WorkspaceProfile, 'workspaceId' | 'onboardingStep' | 'profileCompletedAt' | 'missingRequiredFields'>>;
 
 export const workspaceProfileApi = {
   get: (workspaceId: string, signal?: AbortSignal) => requestApi<WorkspaceProfile>({

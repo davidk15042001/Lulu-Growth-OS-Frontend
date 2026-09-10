@@ -1,21 +1,12 @@
-import { CreditCard, Database, ExternalLink, Film, LoaderCircle, RefreshCw, Server, X, Zap } from "lucide-react";
+import { Database, ExternalLink, Film, LoaderCircle, RefreshCw, X, Zap } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useLuluApp } from "../api/LuluAppContext";
 import { getFriendlyErrorMessage } from "../api/client";
 import { workspaceAppApi, type BillingState } from "../api/workspace-app";
 import { useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { navigateApp } from "../routing";
 
-function safeHostedUrl(value: string | null | undefined) {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" ? url.toString() : null;
-  } catch {
-    return null;
-  }
-}
-
-function formatMoney(value: number, currency: "USD", language: string) {
+function formatMoney(value: number, currency: string, language: string) {
   const locale = language === "de" ? "de-DE" : language === "zh-CN" ? "zh-CN" : "en-US";
   return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 2 }).format(value);
 }
@@ -23,12 +14,6 @@ function formatMoney(value: number, currency: "USD", language: string) {
 function formatInteger(value: number, language: string) {
   const locale = language === "de" ? "de-DE" : language === "zh-CN" ? "zh-CN" : "en-US";
   return new Intl.NumberFormat(locale).format(value);
-}
-
-function paymentMethodLabel(method: string, t: (key: string) => string) {
-  if (method === "alipaycn") return t("Alipay");
-  if (method === "wechatpay") return t("WeChat Pay");
-  return t("Card");
 }
 
 function mediaModelLabel(model: string) {
@@ -66,11 +51,12 @@ export function LuluUsageControl() {
   const [open, setOpen] = useState(false);
   const [billing, setBilling] = useState<BillingState | null>(null);
   const [loading, setLoading] = useState(false);
-  const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const payg = billing?.payg ?? null;
-  const total = payg ? payg.apiCost + payg.serverCost : null;
+  const apiWallet = billing?.apiWallet ?? { availableAmount:0,spentAmount:0,totalFundedAmount:0,currency:'CNY' as const,packages:[1000,2500,5000,9000],enabled:false };
+  const storagePricing = billing?.storagePricing ?? {storagePerGbMonthUsd:.2165,classAPerMillionOperationsUsd:4.95,classBPerMillionOperationsUsd:.396};
+  const total = payg ? payg.serverCost : null;
   const mediaUsage = useMemo(() => payg?.usageBreakdown?.filter((entry) => entry.provider === "kie.ai") ?? [], [payg]);
   const mediaCost = useMemo(() => mediaUsage.reduce((sum, entry) => sum + entry.customerCost, 0), [mediaUsage]);
   const mediaCredits = useMemo(() => mediaUsage.reduce((sum, entry) => sum + entry.kieCredits, 0), [mediaUsage]);
@@ -81,10 +67,6 @@ export function LuluUsageControl() {
     premiumMediaPerKieCreditUsd: 0.01,
     serverProviderCostMultiplier: 2,
   };
-  const pendingApiPayment = useMemo(
-    () => payg?.invoices.find((invoice) => invoice.billingMode === "api_pay_now" && ["processing", "payment_due", "payment_failed"].includes(invoice.status)) ?? null,
-    [payg],
-  );
 
   const load = async () => {
     if (!selectedWorkspace) return;
@@ -106,26 +88,6 @@ export function LuluUsageControl() {
   // Loading is intentionally triggered when the panel opens or the active workspace changes.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, selectedWorkspace?.id]);
-
-  const payApiUsageNow = async () => {
-    if (!selectedWorkspace || !payg || paying || payg.apiCost <= 0) return;
-    setPaying(true);
-    setError(null);
-    try {
-      const response = await workspaceAppApi.createPaygApiUsageCheckout(selectedWorkspace.id);
-      const paymentUrl = safeHostedUrl(response.data.paymentUrl);
-      await load();
-      if (!paymentUrl) {
-        setError(t("A payment is already being prepared. Refresh usage in a moment to open it."));
-        return;
-      }
-      window.location.assign(paymentUrl);
-    } catch (cause) {
-      setError(getFriendlyErrorMessage(cause, t("Could not start the secure API payment.")));
-    } finally {
-      setPaying(false);
-    }
-  };
 
   if (!selectedWorkspace) return null;
 
@@ -178,15 +140,15 @@ export function LuluUsageControl() {
                 <div className="lulu-usage-metrics">
                   <article className="lulu-usage-metric lulu-usage-metric--api">
                     <div className="lulu-usage-metric__icon"><Zap aria-hidden="true" size={18} /></div>
-                    <div><span>{t("AI & media usage")}</span><strong>{formatMoney(payg.apiCost, "USD", language)}</strong></div>
+                    <div><span>{t("Prepaid AI balance")}</span><strong>{formatMoney(apiWallet.availableAmount, "CNY", language)}</strong></div>
                     <p>{formatInteger(payg.inputTokens, language)} {t("input tokens")} · {formatInteger(payg.outputTokens, language)} {t("output tokens")} · {formatInteger(payg.apiEvents, language)} {t("API calls")}</p>
-                    <small>{t("Pay API usage now to reset this API counter. New usage starts a new API balance.")}</small>
+                    <small>{apiWallet.enabled?t("AI and premium media can execute automatically."):t("AI execution waits for confirmed wallet funds.")}</small>
                   </article>
                   <article className="lulu-usage-metric">
-                    <div className="lulu-usage-metric__icon"><Server aria-hidden="true" size={18} /></div>
-                    <div><span>{t("Server & storage")}</span><strong>{formatMoney(payg.serverCost, "USD", language)}</strong></div>
-                    <p>{formatInteger(payg.serverDays, language)} {t("allocated days")} · {t("weekly charge")}</p>
-                    <small>{t("Server and storage usage stays in the current weekly billing period when API usage is paid.")}</small>
+                    <div className="lulu-usage-metric__icon"><Database aria-hidden="true" size={18} /></div>
+                    <div><span>{t("Cloudflare R2 storage")}</span><strong>{formatMoney(payg.serverCost, "USD", language)}</strong></div>
+                    <p>{formatInteger(payg.serverDays, language)} {t("metered days")} · {t("weekly charge")}</p>
+                    <small>{t("Only R2 storage and operations are billed pay as you go. No free tier is deducted.")}</small>
                   </article>
                 </div>
 
@@ -196,9 +158,9 @@ export function LuluUsageControl() {
                     <small>{t("Only recorded usage is charged")}</small>
                   </div>
                   <div className="lulu-usage-prices__grid">
-                    <div><span>{t("AI text and API")}</span><strong>{formatMoney(textApiCost, "USD", language)}</strong><small>{formatMoney(pricing.inputPerMillionUsd, "USD", language)} / 1M {t("input tokens")} · {formatMoney(pricing.outputPerMillionUsd, "USD", language)} / 1M {t("output tokens")}</small></div>
+                    <div><span>{t("AI usage · prepaid")}</span><strong>{formatMoney(apiWallet.spentAmount, "CNY", language)}</strong><small>{formatMoney(textApiCost, "USD", language)} {t("recorded this period")} · {formatMoney(pricing.inputPerMillionUsd, "USD", language)} / 1M {t("input tokens")} · {formatMoney(pricing.outputPerMillionUsd, "USD", language)} / 1M {t("output tokens")}</small></div>
                     <div><span>{t("Premium media")}</span><strong>{formatMoney(mediaCost, "USD", language)}</strong><small>{formatInteger(mediaCredits, language)} {t("Kie credits")} · {formatMoney(pricing.premiumMediaPerKieCreditUsd, "USD", language)} {t("per Kie credit")}</small></div>
-                    <div><span>{t("Server & storage")}</span><strong>{formatMoney(payg.serverCost, "USD", language)}</strong><small>{pricing.serverProviderCostMultiplier}× {t("provider cost")}</small></div>
+                    <div><span>{t("R2 storage")}</span><strong>{formatMoney(payg.serverCost, "USD", language)}</strong><small>{formatMoney(storagePricing.storagePerGbMonthUsd,"USD",language)} / GB-month · {formatMoney(storagePricing.classAPerMillionOperationsUsd,"USD",language)} / 1M Class A · {formatMoney(storagePricing.classBPerMillionOperationsUsd,"USD",language)} / 1M Class B</small></div>
                   </div>
                   {mediaUsage.length > 0 && <div className="lulu-usage-media-breakdown">
                     <div className="lulu-usage-media-breakdown__title"><Film aria-hidden="true" size={15} />{t("Premium media cost breakdown")}</div>
@@ -209,20 +171,15 @@ export function LuluUsageControl() {
                   </div>}
                 </section>
 
-                <div className="lulu-usage-total"><span>{t("Current usage total")}</span><strong>{formatMoney(payg.estimatedTotal, "USD", language)}</strong></div>
-
-                {pendingApiPayment && <div className="lulu-usage-pending"><CreditCard aria-hidden="true" size={16} /><span>{t("An API payment is awaiting confirmation.")} {formatMoney(pendingApiPayment.apiCost, "USD", language)}</span>{safeHostedUrl(pendingApiPayment.hostedInvoiceUrl) && <a href={safeHostedUrl(pendingApiPayment.hostedInvoiceUrl)!} target="_blank" rel="noreferrer">{t("Open secure checkout")}<ExternalLink aria-hidden="true" size={13} /></a>}</div>}
+                <div className="lulu-usage-total"><span>{t("Current storage PAYG total")}</span><strong>{formatMoney(payg.estimatedTotal, "USD", language)}</strong></div>
 
                 <div className="lulu-usage-payment">
                   <div>
-                    <h3>{t("Pay API usage now")}</h3>
-                    <p>{t("Only API usage is settled now. Server and storage remain on the weekly invoice.")}</p>
-                    <div className="lulu-usage-payment__methods" aria-label={t("Available payment methods")}>
-                      {payg.paymentMethods.map((method) => <span key={method}>{paymentMethodLabel(method, t)}</span>)}
-                    </div>
+                    <h3>{t("Fund AI execution")}</h3>
+                    <p>{t("Choose 1,000, 2,500, 5,000 or 9,000 RMB. Card, Alipay and WeChat Pay are supported.")}</p>
                   </div>
-                  <button type="button" onClick={() => void payApiUsageNow()} disabled={paying || payg.apiCost <= 0 || Boolean(pendingApiPayment)}>
-                    {paying ? <><LoaderCircle aria-hidden="true" size={16} className="animate-spin" />{t("Opening secure checkout…")}</> : <>{t("Pay API usage")}{<ExternalLink aria-hidden="true" size={15} />}</>}
+                  <button type="button" onClick={() => navigateApp('/app/pure-minute-5446')}>
+                    {t("Open AI wallet")}{<ExternalLink aria-hidden="true" size={15} />}
                   </button>
                 </div>
                 <p className="lulu-usage-security-note">{t("Payment details are handled securely by Airwallex. Available methods depend on your merchant setup, currency and region.")}</p>

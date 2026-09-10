@@ -14,7 +14,7 @@ type OnboardingHeaderProps = {
   showBrandName?: boolean;
 };
 
-const steps = ["Company Information", "Billing"];
+const steps = ["Company Information", "Billing", "Company Profile", "Knowledge Base"];
 
 export async function exitOnboardingToLogin() {
   try {
@@ -67,7 +67,7 @@ export function OnboardingHeader({ step, totalSteps = steps.length, showBrandNam
           <p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--foreground)]">Company setup</p>
           <p className="text-xs font-semibold text-[var(--foreground)]">Step {step} of {totalSteps}</p>
         </div>
-        <ol className="grid grid-cols-2 gap-1.5">
+        <ol className="grid grid-cols-4 gap-1.5">
           {steps.map((label, index) => (
             <li key={label} className="min-w-0">
               <span className={`block h-1.5 rounded-full ${index < step ? "bg-[var(--primary)]" : "bg-[var(--secondary)]"}`} title={label} />

@@ -25,6 +25,8 @@ export const routes = {
     calendar: "/app/calendar",
     products: "/app/products",
     omnichannel: "/app/omnichannel",
+    profile: "/app/profile",
+    knowledgeBase: "/app/rich-field-1880",
     quotes: "/app/quotes",
     quotesNew: "/app/quotes/new",
     invoices: "/app/invoices",

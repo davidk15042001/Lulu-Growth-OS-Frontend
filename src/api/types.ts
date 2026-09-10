@@ -40,6 +40,9 @@ export type Workspace = {
   regulatedIndustries: string[];
   onboardingStep: string;
   onboardingCompletedAt: string | null;
+  billingSkippedAt: string | null;
+  profileCompletedAt: string | null;
+  knowledgeBaseCompletedAt: string | null;
   onboardingFileReuploadRequired: boolean;
   onboardingFilesPurgedAt: string | null;
   createdAt: string;

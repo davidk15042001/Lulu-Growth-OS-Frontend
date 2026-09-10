@@ -73,7 +73,10 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
           navigateApp(routes.onboarding.businessDescription, { replace: true });
           return;
         }
-        if (contract?.kind !== "onboarding") {
+        // Activation pages deliberately cannot read the normal workspace
+        // bootstrap. Avoid turning that server-side security boundary into a
+        // misleading offline banner while Profile or Knowledge Base is open.
+        if (contract?.kind !== "onboarding" && workspace.onboardingCompletedAt) {
           await workspaceApi.bootstrap(workspace.id);
           if (disposed) return;
         }

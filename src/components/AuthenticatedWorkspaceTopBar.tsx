@@ -20,16 +20,18 @@ export function AuthenticatedWorkspaceTopBar({
   const navigate = useNavigate();
   const t = useTranslation();
   const { currentUser, selectedWorkspace } = useLuluApp();
+  const activationLocked = Boolean(selectedWorkspace && !selectedWorkspace.onboardingCompletedAt
+    && (selectedWorkspace.onboardingStep === 'profile_completion' || selectedWorkspace.onboardingStep === 'knowledge_base'));
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
 
   const matches = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return [];
+    if (!normalized || activationLocked) return [];
     return availablePages
       .filter((item) => `${item.name} ${item.generatedName}`.toLowerCase().includes(normalized))
       .slice(0, 6);
-  }, [query]);
+  }, [activationLocked, query]);
 
   if (!currentUser || !selectedWorkspace) return null;
 
@@ -70,7 +72,7 @@ export function AuthenticatedWorkspaceTopBar({
           </span>
         </div>
       </div>
-      <form className="lulu-auth-search" role="search" onSubmit={submit}>
+      {activationLocked ? <div className="lulu-auth-search"><span className="text-xs font-semibold text-[var(--muted-foreground)]">Complete activation to unlock Lulu</span></div> : <form className="lulu-auth-search" role="search" onSubmit={submit}>
         <label className="sr-only" htmlFor="lulu-global-search">Search Lulu AI</label>
         <input
           id="lulu-global-search"
@@ -88,7 +90,7 @@ export function AuthenticatedWorkspaceTopBar({
         </button>
         <LuluWorkspaceRefreshButton />
         <LuluUsageControl />
-      </form>
+      </form>}
       {open && matches.length > 0 && query.trim() && (
         <div className="lulu-auth-search-results">
           {matches.map((item) => (

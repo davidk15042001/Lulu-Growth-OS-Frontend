@@ -89,14 +89,28 @@ function AdminBillingRoute() {
   );
 }
 
+function activationTarget(step: string) {
+  if (step === "company_information") return routes.onboarding.companyInformation;
+  if (step === "billing") return routes.onboarding.billing;
+  if (step === "profile_completion") return routes.app.profile;
+  if (step === "knowledge_base") return routes.app.knowledgeBase;
+  return routes.onboarding.companyInformation;
+}
+
 function AdminOnlyAppRoute({ children }: { children: React.ReactNode }) {
-  const { currentUser, loading } = useLuluApp();
+  const { currentUser, selectedWorkspace, loading } = useLuluApp();
   const location = useLocation();
   const isPublicAuthPath = location.pathname === routes.auth.login || location.pathname.startsWith("/auth/");
   if (isPublicAuthPath) return <>{children}</>;
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
   if (!currentUser) return <Navigate replace to={routes.auth.login} />;
   if (isAdminUser(currentUser) && !prefersWorkspaceSurface(currentUser)) return <Navigate replace to={ADMIN_PANEL_PATH} />;
+  if (selectedWorkspace && !selectedWorkspace.onboardingCompletedAt) {
+    const target = activationTarget(selectedWorkspace.onboardingStep);
+    const onRequiredPage = location.pathname === target
+      || (selectedWorkspace.onboardingStep === "billing" && location.pathname === routes.onboarding.billings);
+    if (!onRequiredPage) return <Navigate replace to={target} />;
+  }
   return <>{children}</>;
 }
 
@@ -122,8 +136,7 @@ function RemovedOnboardingRoute() {
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your workspace…</main>;
   if (!selectedWorkspace) return <Navigate replace to={routes.onboarding.companyInformation} />;
   if (selectedWorkspace.onboardingCompletedAt) return <Navigate replace to={routes.app.dashboard} />;
-  if (selectedWorkspace.onboardingStep === "billing") return <Navigate replace to={routes.onboarding.billing} />;
-  return <Navigate replace to={selectedWorkspace.onboardingStep === "company_information" ? routes.onboarding.companyInformation : routes.onboarding.billing} />;
+  return <Navigate replace to={activationTarget(selectedWorkspace.onboardingStep)} />;
 }
 
 function PublicAuthRoute({ children }: { children: React.ReactNode }) {

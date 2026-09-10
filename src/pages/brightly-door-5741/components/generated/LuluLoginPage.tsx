@@ -118,11 +118,11 @@ export const LuluLoginPage = () => {
       setStatusMessage(t('Signed in successfully.'));
       if (workspace) {
         setSelectedWorkspaceId(workspace.id);
-        navigateApp(workspace.onboardingCompletedAt
-          ? routes.app.dashboard
-          : workspace.onboardingStep === 'company_information'
-            ? routes.onboarding.companyInformation
-            : routes.onboarding.billing);
+        navigateApp(workspace.onboardingCompletedAt ? routes.app.dashboard
+          : workspace.onboardingStep === 'company_information' ? routes.onboarding.companyInformation
+          : workspace.onboardingStep === 'billing' ? routes.onboarding.billing
+          : workspace.onboardingStep === 'profile_completion' ? routes.app.profile
+          : routes.app.knowledgeBase);
       } else {
         clearSelectedWorkspaceId();
         navigateApp(routes.onboarding.companyInformation);

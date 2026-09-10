@@ -7,6 +7,7 @@ import { type LuluAgentContract } from "../config/lulu-agent-registry";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { AgentRuntimeControlPanel } from "./AgentRuntimeControlPanel";
 import { KnowledgeBaseWorkspace } from "./KnowledgeBaseWorkspace";
+import { KnowledgeActivationGate } from "./KnowledgeActivationGate";
 import { usePageAgentRun } from "./usePageAgentRun";
 import { WorkspaceIntelligencePanel } from "./WorkspaceIntelligencePanel";
 
@@ -79,6 +80,9 @@ export function MinimalAgentWorkspacePage({
   );
 
   const isKnowledgePage = slug === "rich-field-1880";
+  const activationMode = isKnowledgePage && selectedWorkspace?.onboardingStep === 'knowledge_base' && !selectedWorkspace.onboardingCompletedAt;
+
+  if (activationMode) return <main className="min-h-screen bg-[var(--background)] px-4 sm:px-8"><KnowledgeActivationGate /></main>;
 
   return (
     <main className="lulu-minimal-agent-page min-h-screen bg-[var(--background)] text-foreground">

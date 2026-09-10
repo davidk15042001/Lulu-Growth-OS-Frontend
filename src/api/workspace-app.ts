@@ -79,6 +79,8 @@ export type ContentAsset = {
 };
 
 export type BillingState = {
+  apiWallet: { availableAmount:number;spentAmount:number;totalFundedAmount:number;currency:'CNY';packages:number[];enabled:boolean };
+  storagePricing: { currency:'USD';freeTierDeduction:false;providerMarkupPercent:10;additionalStoragePerGbMonthUsd:number;storagePerGbMonthUsd:number;classAPerMillionOperationsUsd:number;classBPerMillionOperationsUsd:number;egressPerGbUsd:number };
   subscription: null | {
     workspaceId: string;
     provider: string;
@@ -325,20 +327,10 @@ export const workspaceAppApi = {
   billing: (workspaceId: string, query = "") => requestApi<BillingState>({
     path: workspaceApiPath(workspaceId, `/billing${query ? `?${query}` : ""}`),
   }),
-  createPaygApiUsageCheckout: (workspaceId: string) => requestApi<{
-    periodId: string;
-    paymentUrl: string | null;
-    status: "paid" | "payment_due" | "payment_failed" | "processing" | "failed";
-    reused: boolean;
-  }>({
-    path: workspaceApiPath(workspaceId, "/billing/payg/api-checkout"),
-    method: "POST",
-    body: {},
-  }),
   createPaygQrPayment: (workspaceId: string, input: {
     paymentMethod: "alipaycn" | "wechatpay";
     returnUrl: string;
-    periodId?: string;
+    periodId: string;
   }) => requestApi<{
     paymentId: string;
     paymentMethod: "alipaycn" | "wechatpay";

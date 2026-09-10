@@ -395,5 +395,13 @@
   "Kein Owner": "Kein Owner",
   "Keine Workspaces gefunden.": "Keine Workspaces gefunden.",
   "OAuth-Self-Service pro Workspace": "OAuth-Self-Service pro Workspace",
-  "Workspace / Benutzer": "Workspace / Benutzer"
+  "Workspace / Benutzer": "Workspace / Benutzer",
+  "AI agents": "KI-Agenten",
+  "Autonomous execution": "Autonome Ausführung",
+  "Billing konnte nicht übersprungen werden.": "Billing konnte nicht übersprungen werden.",
+  "live": "live",
+  "Live": "Live",
+  "Lulu": "Lulu",
+  "Lulu Platform Operations": "Lulu-Plattformbetrieb",
+  "Skip Billing": "Abrechnung überspringen"
 }

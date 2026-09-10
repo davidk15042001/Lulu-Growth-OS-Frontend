@@ -621,5 +621,6 @@
   "Lulu analysiert, entscheidet, delegiert und führt Aktionen innerhalb der Systemgrenzen selbstständig aus. Nur neues Paid-Media-Budget erfordert eine Aufladung durch den Kunden.": "Lulu independently analyzes, decides, delegates, and executes within system boundaries. Only new paid-media budget requires a customer top-up.",
   "Das Agenten-Ökosystem konnte nicht geladen werden.": "The agent ecosystem could not be loaded.",
   "Lulu stellt für jede Situation automatisch das kleinste wirksame Team zusammen.": "Lulu automatically assembles the smallest effective team for every situation.",
-  "Agenten-Ökosystem wird geladen …": "Loading agent ecosystem …"
+  "Agenten-Ökosystem wird geladen …": "Loading agent ecosystem …",
+  "Billing konnte nicht übersprungen werden.": "Billing could not be skipped."
 }

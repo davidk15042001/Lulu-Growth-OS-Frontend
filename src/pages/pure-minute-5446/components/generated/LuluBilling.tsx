@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AlertCircle, CheckCircle2, CreditCard, Database, Landmark, LoaderCircle, QrCode, Receipt, RefreshCw, Server, ShieldCheck, Sparkles, WalletCards } from 'lucide-react';
+import { AlertCircle, CheckCircle2, CreditCard, Database, Landmark, LoaderCircle, QrCode, RefreshCw, ShieldCheck, WalletCards } from 'lucide-react';
 import QRCode from 'qrcode';
 import { getFriendlyErrorMessage } from '../../../../api/client';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { workspaceAppApi, type BillingState } from '../../../../api/workspace-app';
 import { LuluGlobalNavigation } from '../../../../components/LuluGlobalNavigation';
+import { ApiWalletPanel } from '../../../../components/ApiWalletPanel';
 
 const tabs = [
   { id: 'payments', label: 'Payments' },
@@ -12,13 +13,13 @@ const tabs = [
   { id: 'subscription', label: 'Subscription' },
 ] as const;
 
-type BillingTab = typeof tabs[number]['id'] | 'ai-usage';
+type BillingTab = typeof tabs[number]['id'];
 type PaygPaymentMethod = 'card' | 'wechatpay' | 'alipaycn';
 
 const paymentMethodDetails: Record<PaygPaymentMethod, { label: string; detail: string; icon: typeof CreditCard; automatic: boolean }> = {
-  card: { label: 'Bank card', detail: 'Save a card securely with Airwallex for automatic weekly collection.', icon: CreditCard, automatic: true },
-  wechatpay: { label: 'WeChat Pay', detail: 'Pay API usage instantly with a one-time QR code.', icon: QrCode, automatic: false },
-  alipaycn: { label: 'Alipay', detail: 'Pay API usage instantly with a one-time QR code.', icon: Landmark, automatic: false },
+  card: { label: 'Bank card', detail: 'Save a card securely with Airwallex for automatic weekly storage collection.', icon: CreditCard, automatic: true },
+  wechatpay: { label: 'WeChat Pay', detail: 'Pay a storage invoice with a one-time QR code.', icon: QrCode, automatic: false },
+  alipaycn: { label: 'Alipay', detail: 'Pay a storage invoice with a one-time QR code.', icon: Landmark, automatic: false },
 };
 
 type QrPayment = {
@@ -68,7 +69,7 @@ function PaygPaymentMethodSetup({
   const selectedDetail = selected ? paymentMethodDetails[selected] : null;
   return <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
     <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between">
-      <div><div className="flex items-center gap-2"><WalletCards size={19} /><h2 className="text-lg font-semibold">Pay-as-you-go payment method</h2></div><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Choose how Lulu settles weekly API and server usage. Lulu never receives or stores card, WeChat, or Alipay credentials.</p></div>
+      <div><div className="flex items-center gap-2"><WalletCards size={19} /><h2 className="text-lg font-semibold">Storage PAYG payment method</h2></div><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Choose how Lulu settles weekly storage usage. AI and advertising remain separate prepaid wallets.</p></div>
       {configuration.status === 'active' && selectedDetail && <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700"><CheckCircle2 size={14} />{selectedDetail.automatic ? `${selectedDetail.label} configured` : `${selectedDetail.label} selected`}</span>}
       {configuration.status === 'pending' && <span className="inline-flex w-fit items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-700"><LoaderCircle size={14} className="animate-spin" />Card setup pending</span>}
     </div>
@@ -116,10 +117,13 @@ export function LuluBilling() {
   const selectedQrPaymentMethod = paymentConfiguration.selectedPaymentMethod === 'wechatpay' || paymentConfiguration.selectedPaymentMethod === 'alipaycn'
     ? paymentConfiguration.selectedPaymentMethod
     : null;
-  const blockedPeriodId = payg?.blockedPeriodId ?? null;
   const subscription = state?.subscription ?? null;
   const paidInvoices = useMemo(() => payg?.invoices ?? [], [payg]);
-  const hasPayableApiUsage = Number(payg?.apiCost ?? 0) >= 0.01;
+  const payableStorageInvoice = paidInvoices.find((invoice) =>
+    ['payment_due', 'payment_failed', 'failed'].includes(invoice.status)
+    && invoice.billingMode === 'weekly'
+    && invoice.totalCost >= 0.01
+  ) ?? null;
 
   const syncCardSetup = useCallback(async (setupId: string, automatic = false) => {
     if (!selectedWorkspace || !can('administer')) return;
@@ -148,7 +152,7 @@ export function LuluBilling() {
         ? { paymentMethod, successUrl: returnUrl, backUrl: returnUrl }
         : { paymentMethod });
       if (response.data.mode === 'card_setup') { window.location.assign(response.data.checkoutUrl); return; }
-      setNotice(`${paymentMethodDetails[paymentMethod].label} is ready. Click “Pay API usage” to open the QR code immediately.`);
+      setNotice(`${paymentMethodDetails[paymentMethod].label} is ready for the next Cloudflare R2 storage invoice.`);
       await load();
     } catch (cause) { setError(getFriendlyErrorMessage(cause, 'Payment method could not be configured.')); }
     finally { setConfiguring(false); }
@@ -162,14 +166,14 @@ export function LuluBilling() {
     }));
   }, []);
 
-  const prepareQrPayment = useCallback(async (paymentMethod: Exclude<PaygPaymentMethod, 'card'>, periodId?: string) => {
+  const prepareQrPayment = useCallback(async (paymentMethod: Exclude<PaygPaymentMethod, 'card'>, periodId: string) => {
     if (!selectedWorkspace || !can('administer')) return;
     setPaying(true); setError(''); setNotice('');
     try {
       const response = await workspaceAppApi.createPaygQrPayment(selectedWorkspace.id, {
         paymentMethod,
         returnUrl: `${window.location.origin}${window.location.pathname}`,
-        ...(periodId ? { periodId } : {}),
+        periodId,
       });
       const payment = response.data;
       setQrPayment(payment);
@@ -187,7 +191,7 @@ export function LuluBilling() {
       setQrPayment(payment);
       await renderQr(payment);
       if (payment.status === 'succeeded') {
-        setNotice(`${paymentMethodDetails[payment.paymentMethod].label} payment confirmed. Your API usage has been settled.`);
+        setNotice(`${paymentMethodDetails[payment.paymentMethod].label} payment confirmed. Your storage invoice has been settled.`);
         await load();
       }
     } catch (cause) { setError(getFriendlyErrorMessage(cause, 'The QR payment status could not be updated.')); }
@@ -199,23 +203,7 @@ export function LuluBilling() {
     return () => window.clearInterval(timer);
   }, [qrPayment, syncQrPayment]);
 
-  const payApiUsage = async () => {
-    if (!selectedWorkspace || !payg || !hasPayableApiUsage || !can('administer') || paymentConfiguration.status !== 'active') return;
-    const selectedMethod = paymentConfiguration.selectedPaymentMethod;
-    if (selectedMethod === 'wechatpay' || selectedMethod === 'alipaycn') {
-      await prepareQrPayment(selectedMethod);
-      return;
-    }
-    setPaying(true); setError('');
-    try {
-      const checkout = await workspaceAppApi.createPaygApiUsageCheckout(selectedWorkspace.id);
-      if (checkout.data.paymentUrl) { window.location.assign(checkout.data.paymentUrl); return; }
-      await load();
-    } catch (cause) { setError(getFriendlyErrorMessage(cause, 'API usage payment could not be created.')); }
-    finally { setPaying(false); }
-  };
-
-  const topLabel = payg?.aiAccessBlocked ? 'AI access is paused until the outstanding usage charge is paid.' : 'Usage and billing data are calculated only from your workspace records.';
+  const topLabel = 'AI and advertising run from prepaid balances. Only Cloudflare R2 storage remains pay as you go.';
   const paymentSetup = <PaygPaymentMethodSetup configuration={paymentConfiguration} canAdminister={can('administer')} busy={configuring} onConfigure={(method) => void configurePaymentMethod(method)} onSync={(setupId) => void syncCardSetup(setupId)} />;
   const qrPaymentPanel = qrPayment && <section className="rounded-2xl border border-primary/30 bg-primary/5 p-5 sm:p-6" aria-live="polite">
     <div className="flex flex-wrap items-start justify-between gap-4"><div><div className="flex items-center gap-2"><QrCode size={19} /><h2 className="text-lg font-semibold">{paymentMethodDetails[qrPayment.paymentMethod].label} QR payment</h2></div><p className="mt-2 text-sm text-muted-foreground">Amount due: <span className="font-semibold text-foreground">{money(qrPayment.amount, qrPayment.currency)}</span></p></div><button type="button" onClick={() => { setQrPayment(null); setQrImage(null); }} className="rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium">Close</button></div>
@@ -227,9 +215,33 @@ export function LuluBilling() {
       <header className="mb-8 flex flex-col gap-5 border-b border-border pb-7 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Workspace settings</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em]">Billing</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{topLabel}</p></div><button type="button" onClick={() => void load()} disabled={loading} className="inline-flex w-fit items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium disabled:opacity-50"><RefreshCw size={15} className={loading ? 'animate-spin' : ''} />Refresh</button></header>
       {error && <div role="alert" className="mb-5 flex gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"><AlertCircle size={18} className="shrink-0" /><span>{error}</span></div>}
       {notice && <div role="status" className="mb-5 flex gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-foreground"><CheckCircle2 size={18} className="shrink-0 text-emerald-700" /><span>{notice}</span></div>}
-      {payg?.aiAccessBlocked && <div role="alert" className="mb-5 flex items-center justify-between gap-4 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm"><span>{payg.blockReason ? `${payg.blockReason.replaceAll('_', ' ')}.` : 'AI access is blocked.'}</span>{selectedQrPaymentMethod && blockedPeriodId ? <button type="button" onClick={() => void prepareQrPayment(selectedQrPaymentMethod, blockedPeriodId)} disabled={paying} className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50">Pay now · QR opens</button> : payg.paymentLink ? <a href={payg.paymentLink} className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground">Pay outstanding usage</a> : null}</div>}
+      <ApiWalletPanel />
+      {state?.storagePricing?<section className="mb-6 rounded-2xl border border-border bg-card p-5 sm:p-6"><div className="flex items-center gap-2"><Database size={18}/><h2 className="font-semibold">Cloudflare R2 storage · PAYG</h2></div><p className="mt-2 text-sm text-muted-foreground">No free-tier deduction. R2 Standard provider rates include a 10% Lulu margin; storage also includes $0.20 per GB-month.</p><dl className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><div className="rounded-xl bg-secondary p-4"><dt className="text-xs text-muted-foreground">Storage</dt><dd className="mt-1 font-semibold">${state.storagePricing.storagePerGbMonthUsd} / GB-month</dd></div><div className="rounded-xl bg-secondary p-4"><dt className="text-xs text-muted-foreground">Class A operations</dt><dd className="mt-1 font-semibold">${state.storagePricing.classAPerMillionOperationsUsd} / million</dd></div><div className="rounded-xl bg-secondary p-4"><dt className="text-xs text-muted-foreground">Class B operations</dt><dd className="mt-1 font-semibold">${state.storagePricing.classBPerMillionOperationsUsd} / million</dd></div><div className="rounded-xl bg-secondary p-4"><dt className="text-xs text-muted-foreground">Internet egress</dt><dd className="mt-1 font-semibold">$0 / GB</dd></div></dl></section>:null}
       <nav aria-label="Billing sections" className="mb-6 flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1">{tabs.map((tab) => <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`shrink-0 rounded-lg px-4 py-2.5 text-sm font-medium ${activeTab === tab.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>{tab.label}</button>)}</nav>
-      {loading ? <div className="grid min-h-72 place-items-center rounded-2xl border border-border bg-card text-sm text-muted-foreground"><span className="inline-flex items-center gap-2"><LoaderCircle size={17} className="animate-spin" />Loading billing data…</span></div> : activeTab === 'ai-usage' ? <div className="space-y-5">{paymentSetup}{!payg ? <Empty title="Configure pay-as-you-go to view usage" detail="Choose a payment method first. AI and server usage are shown here only from this workspace after use is recorded." /> : <><section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><article className="rounded-2xl border border-border bg-card p-5"><Sparkles size={18} /><p className="mt-5 text-xs text-muted-foreground">AI API cost</p><p className="mt-2 text-2xl font-semibold">{money(payg.apiCost, payg.currency)}</p></article><article className="rounded-2xl border border-border bg-card p-5"><Server size={18} /><p className="mt-5 text-xs text-muted-foreground">Server cost</p><p className="mt-2 text-2xl font-semibold">{money(payg.serverCost, payg.currency)}</p></article><article className="rounded-2xl border border-border bg-card p-5"><WalletCards size={18} /><p className="mt-5 text-xs text-muted-foreground">Current estimate</p><p className="mt-2 text-2xl font-semibold">{money(payg.estimatedTotal, payg.currency)}</p></article><article className="rounded-2xl border border-border bg-card p-5"><Receipt size={18} /><p className="mt-5 text-xs text-muted-foreground">Next billing date</p><p className="mt-2 text-lg font-semibold">{date(payg.nextInvoiceAt)}</p></article></section></>}</div> : activeTab === 'payments' ? <div className="space-y-5">{paymentSetup}{qrPaymentPanel}{payg && <section className="rounded-2xl border border-border bg-card p-5 sm:p-6"><h2 className="text-lg font-semibold">Collection status</h2><p className="mt-1 text-sm text-muted-foreground">Collection method: {payg.collectionMethod.replaceAll('_', ' ')}</p>{can('administer') && paymentConfiguration.status === 'active' && <><button type="button" onClick={() => void payApiUsage()} disabled={paying || !hasPayableApiUsage} className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50"><CreditCard size={15} />{paying ? 'Preparing payment…' : paymentConfiguration.selectedPaymentMethod === 'wechatpay' ? 'Pay with WeChat Pay · QR opens' : paymentConfiguration.selectedPaymentMethod === 'alipaycn' ? 'Pay with Alipay · QR opens' : 'Pay API usage now'}</button>{!hasPayableApiUsage && <p className="mt-3 text-sm text-muted-foreground">There is no unpaid API usage to pay right now.</p>}</>}</section>}</div> : activeTab === 'invoices' ? paidInvoices.length === 0 ? <Empty title="No billing invoices yet" detail="Invoices are added here only after a billing period is processed. No sample invoices are shown." /> : <section className="overflow-hidden rounded-2xl border border-border bg-card"><div className="border-b border-border p-5"><h2 className="text-lg font-semibold">Billing invoices</h2></div><div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="px-5 py-3">Period</th><th className="px-5 py-3">API</th><th className="px-5 py-3">Server</th><th className="px-5 py-3">Total</th><th className="px-5 py-3">Status</th><th className="px-5 py-3">Invoice</th></tr></thead><tbody className="divide-y divide-border">{paidInvoices.map((invoice) => <tr key={invoice.id}><td className="px-5 py-4 text-muted-foreground">{date(invoice.periodStart)} – {date(invoice.periodEnd)}</td><td className="px-5 py-4">{money(invoice.apiCost, invoice.currency)}</td><td className="px-5 py-4">{money(invoice.serverCost, invoice.currency)}</td><td className="px-5 py-4 font-medium">{money(invoice.totalCost, invoice.currency)}</td><td className="px-5 py-4"><Status>{invoice.status}</Status></td><td className="px-5 py-4">{invoice.hostedInvoiceUrl ? <a className="text-primary underline" href={invoice.hostedInvoiceUrl}>Open</a> : invoice.invoicePdfUrl ? <a className="text-primary underline" href={invoice.invoicePdfUrl}>PDF</a> : <span className="text-muted-foreground">Not available</span>}</td></tr>)}</tbody></table></div></section> : !subscription ? <Empty title="No subscription configured" detail="Your subscription status will be shown after a plan has been activated for this workspace." /> : <section className="rounded-2xl border border-border bg-card p-5 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">Current subscription</p><h2 className="mt-2 text-3xl font-semibold">{subscription.planKey}</h2><p className="mt-2"><Status>{subscription.status}</Status></p></div><CheckCircle2 size={24} className="text-foreground" /></div><dl className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"><div><dt className="text-xs text-muted-foreground">Seats</dt><dd className="mt-1 text-lg font-semibold">{subscription.seats}</dd></div><div><dt className="text-xs text-muted-foreground">Current period starts</dt><dd className="mt-1 text-sm font-medium">{date(subscription.currentPeriodStartsAt)}</dd></div><div><dt className="text-xs text-muted-foreground">Current period ends</dt><dd className="mt-1 text-sm font-medium">{date(subscription.currentPeriodEndsAt)}</dd></div><div><dt className="text-xs text-muted-foreground">Trial ends</dt><dd className="mt-1 text-sm font-medium">{date(subscription.trialEndsAt)}</dd></div><div><dt className="text-xs text-muted-foreground">Cancellation</dt><dd className="mt-1 text-sm font-medium">{subscription.cancelAtPeriodEnd ? 'Scheduled at period end' : 'Not scheduled'}</dd></div><div><dt className="text-xs text-muted-foreground">Provider</dt><dd className="mt-1 text-sm font-medium">{subscription.provider}</dd></div></dl></section>}
+      {loading ? (
+        <div className="grid min-h-72 place-items-center rounded-2xl border border-border bg-card text-sm text-muted-foreground"><span className="inline-flex items-center gap-2"><LoaderCircle size={17} className="animate-spin" />Loading billing data…</span></div>
+      ) : activeTab === 'payments' ? (
+        <div className="space-y-5">
+          {paymentSetup}
+          {qrPaymentPanel}
+          {payg && <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+            <h2 className="text-lg font-semibold">Cloudflare R2 collection</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Current metered storage estimate: <span className="font-semibold text-foreground">{money(payg.serverCost, payg.currency)}</span> · next invoice {date(payg.nextInvoiceAt)}.</p>
+            {payableStorageInvoice ? <div className="mt-5 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
+              <p className="text-sm font-semibold">Storage invoice due · {money(payableStorageInvoice.totalCost, payableStorageInvoice.currency)}</p>
+              {can('administer') && selectedQrPaymentMethod ? <button type="button" onClick={() => void prepareQrPayment(selectedQrPaymentMethod, payableStorageInvoice.id)} disabled={paying} className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"><QrCode size={15} />{paying ? 'Preparing QR…' : `Pay with ${paymentMethodDetails[selectedQrPaymentMethod].label}`}</button> : payableStorageInvoice.hostedInvoiceUrl ? <a href={payableStorageInvoice.hostedInvoiceUrl} target="_blank" rel="noreferrer" className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"><CreditCard size={15} />Open secure payment</a> : <p className="mt-2 text-sm text-muted-foreground">Refresh after Airwallex has prepared the secure payment link.</p>}
+            </div> : <p className="mt-5 rounded-xl bg-secondary p-4 text-sm text-muted-foreground">There is no unpaid storage invoice. AI and advertising funds are managed only through their prepaid wallets.</p>}
+          </section>}
+        </div>
+      ) : activeTab === 'invoices' ? paidInvoices.length === 0 ? (
+        <Empty title="No storage invoices yet" detail="Invoices appear after a metered Cloudflare R2 billing period is processed." />
+      ) : (
+        <section className="overflow-hidden rounded-2xl border border-border bg-card"><div className="border-b border-border p-5"><h2 className="text-lg font-semibold">Storage invoices</h2></div><div className="overflow-x-auto"><table className="w-full min-w-[680px] text-left text-sm"><thead className="border-b border-border text-xs uppercase tracking-wider text-muted-foreground"><tr><th className="px-5 py-3">Period</th><th className="px-5 py-3">R2 usage</th><th className="px-5 py-3">Total</th><th className="px-5 py-3">Status</th><th className="px-5 py-3">Invoice</th></tr></thead><tbody className="divide-y divide-border">{paidInvoices.map((invoice) => <tr key={invoice.id}><td className="px-5 py-4 text-muted-foreground">{date(invoice.periodStart)} – {date(invoice.periodEnd)}</td><td className="px-5 py-4">{money(invoice.serverCost, invoice.currency)}</td><td className="px-5 py-4 font-medium">{money(invoice.totalCost, invoice.currency)}</td><td className="px-5 py-4"><Status>{invoice.status}</Status></td><td className="px-5 py-4">{invoice.hostedInvoiceUrl ? <a className="text-primary underline" href={invoice.hostedInvoiceUrl} target="_blank" rel="noreferrer">Open</a> : invoice.invoicePdfUrl ? <a className="text-primary underline" href={invoice.invoicePdfUrl} target="_blank" rel="noreferrer">PDF</a> : <span className="text-muted-foreground">Not available</span>}</td></tr>)}</tbody></table></div></section>
+      ) : !subscription ? (
+        <Empty title="No subscription configured" detail="Your subscription status will be shown after a plan has been activated for this workspace." />
+      ) : (
+        <section className="rounded-2xl border border-border bg-card p-5 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">Current subscription</p><h2 className="mt-2 text-3xl font-semibold">{subscription.planKey}</h2><p className="mt-2"><Status>{subscription.status}</Status></p></div><CheckCircle2 size={24} className="text-foreground" /></div><dl className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"><div><dt className="text-xs text-muted-foreground">Seats</dt><dd className="mt-1 text-lg font-semibold">{subscription.seats}</dd></div><div><dt className="text-xs text-muted-foreground">Current period starts</dt><dd className="mt-1 text-sm font-medium">{date(subscription.currentPeriodStartsAt)}</dd></div><div><dt className="text-xs text-muted-foreground">Current period ends</dt><dd className="mt-1 text-sm font-medium">{date(subscription.currentPeriodEndsAt)}</dd></div><div><dt className="text-xs text-muted-foreground">Trial ends</dt><dd className="mt-1 text-sm font-medium">{date(subscription.trialEndsAt)}</dd></div><div><dt className="text-xs text-muted-foreground">Cancellation</dt><dd className="mt-1 text-sm font-medium">{subscription.cancelAtPeriodEnd ? 'Scheduled at period end' : 'Not scheduled'}</dd></div><div><dt className="text-xs text-muted-foreground">Provider</dt><dd className="mt-1 text-sm font-medium">{subscription.provider}</dd></div></dl></section>
+      )}
     </main>
   </div>;
 }

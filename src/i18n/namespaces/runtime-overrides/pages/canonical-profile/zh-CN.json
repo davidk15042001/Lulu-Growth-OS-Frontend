@@ -53,5 +53,9 @@
   "Your personal profile was updated.": "你的个人资料已更新。",
   "End the admin workspace view before changing this password.": "请先退出管理员工作区视图，再修改此密码。",
   "The current password is incorrect.": "当前密码不正确。",
-  "The new password must be different from your current password.": "新密码必须与当前密码不同。"
+  "The new password must be different from your current password.": "新密码必须与当前密码不同。",
+  "Activation gate · 3 of 4": "激活门 · 3 of 4",
+  "Complete every company, legal, contact and banking field to continue.": "完成每个公司、法律、联系人和银行领域的工作以继续。",
+  "Complete the operating identity.": "完成操作标识。",
+  "Every field below is required before Lulu can structure your Knowledge Base. All other workspace areas remain locked.": "在 Lulu 构建您的知识库之前，以下每个字段都是必需的。所有其他工作区均保持锁定状态。"
 }

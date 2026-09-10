@@ -53,5 +53,9 @@
   "Your personal profile was updated.": "Dein persönliches Profil wurde aktualisiert.",
   "End the admin workspace view before changing this password.": "Beende zuerst die Admin-Ansicht des Workspaces, bevor du dieses Passwort änderst.",
   "The current password is incorrect.": "Das aktuelle Passwort ist falsch.",
-  "The new password must be different from your current password.": "Das neue Passwort muss sich vom aktuellen Passwort unterscheiden."
+  "The new password must be different from your current password.": "Das neue Passwort muss sich vom aktuellen Passwort unterscheiden.",
+  "Activation gate · 3 of 4": "Aktivierungstor · 3 von 4",
+  "Complete every company, legal, contact and banking field to continue.": "Füllen Sie alle Firmen-, Rechts-, Kontakt- und Bankfelder aus, um fortzufahren.",
+  "Complete the operating identity.": "Vervollständigen Sie die Betriebsidentität.",
+  "Every field below is required before Lulu can structure your Knowledge Base. All other workspace areas remain locked.": "Jedes der unten aufgeführten Felder ist erforderlich, bevor Lulu Ihre Wissensdatenbank strukturieren kann. Alle anderen Arbeitsbereichsbereiche bleiben gesperrt."
 }

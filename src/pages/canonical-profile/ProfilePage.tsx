@@ -5,11 +5,13 @@ import { getFriendlyErrorMessage } from '../../api/client';
 import { clearStoredUser } from '../../api/session';
 import { useLuluApp } from '../../api/LuluAppContext';
 import { workspaceProfileApi, type WorkspaceProfile } from '../../api/workspaces';
-import { routes } from '../../routing';
+import { navigateApp, routes } from '../../routing';
+import { OnboardingHeader } from '../../components/OnboardingHeader';
 import { useTranslation } from '../../i18n/GlobalLanguageSwitcher';
 import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
 
-type ProfileForm = Omit<WorkspaceProfile, 'workspaceId'>;
+type ProfileField = 'companyName'|'industry'|'countryRegion'|'taxId'|'address'|'legalForm'|'legalRepresentative'|'phoneNumber'|'bankAccountNumber'|'bankOpeningBank'|'bankBranch'|'bankCode';
+type ProfileForm = Record<ProfileField,string>;
 type AccountForm = { firstName: string; lastName: string };
 type PasswordForm = { currentPassword: string; newPassword: string; confirmPassword: string };
 
@@ -38,7 +40,7 @@ function workspaceToProfileForm(workspace: NonNullable<ReturnType<typeof useLulu
 
 export default function ProfilePage() {
   const t = useTranslation();
-  const { currentUser, selectedWorkspace, permissions, updateWorkspace } = useLuluApp();
+  const { currentUser, selectedWorkspace, permissions, updateWorkspace, refresh } = useLuluApp();
   const [account, setAccount] = useState<AccountForm>({ firstName: currentUser?.firstName ?? '', lastName: currentUser?.lastName ?? '' });
   const [profile, setProfile] = useState<ProfileForm>(emptyProfile);
   const [loading, setLoading] = useState(false);
@@ -57,6 +59,7 @@ export default function ProfilePage() {
   // authoritative membership/capability check.
   const canManageWorkspaceProfile = permissions.role === 'owner' || permissions.role === 'admin';
   const workspaceId = selectedWorkspace?.id;
+  const activationMode = selectedWorkspace?.onboardingStep === 'profile_completion' && !selectedWorkspace.onboardingCompletedAt;
 
   useEffect(() => {
     setAccount({ firstName: currentUser?.firstName ?? '', lastName: currentUser?.lastName ?? '' });
@@ -120,6 +123,10 @@ export default function ProfilePage() {
     // required by the database, so an empty company-name input is simply
     // omitted and the already persisted name remains unchanged while another
     // field is updated.
+    if (activationMode) {
+      const missing=Object.entries(profile).filter(([,value])=>!value.trim()).map(([key])=>key);
+      if(missing.length){setError(t('Complete every company, legal, contact and banking field to continue.'));return;}
+    }
     const entries = Object.entries(profile).filter(([key, value]) => key !== 'companyName' || (typeof value === 'string' && value.trim()));
     if (entries.length === 0) { setError(t('Enter at least one profile detail.')); return; }
     setSavingProfile(true); setError(''); setNotice('');
@@ -136,6 +143,10 @@ export default function ProfilePage() {
       // Keep the shared workspace header in sync for the next navigation.
       if (selectedWorkspace && response.data && typeof response.data === 'object') updateWorkspace({ ...selectedWorkspace, companyName: response.data.companyName, industry: response.data.industry, countryRegion: response.data.countryRegion, taxId: response.data.taxId, address: response.data.address, legalForm: response.data.legalForm });
       setNotice(t('Company profile was updated.'));
+      if (activationMode && response.data?.onboardingStep === 'knowledge_base') {
+        await refresh();
+        navigateApp(routes.app.knowledgeBase, { replace: true });
+      }
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, t('The company profile could not be saved.')));
     } finally { setSavingProfile(false); }
@@ -167,17 +178,18 @@ export default function ProfilePage() {
     <label key={key} className={options.wide ? 'sm:col-span-2' : undefined}>
       <span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{label}</span>
       <div className="relative">
-        <input type={options.sensitive ? 'password' : options.type ?? 'text'} value={profile[key] ?? ''} onChange={(event) => updateField(key, event.target.value)} className={`${inputClass}${options.sensitive ? ' pr-10' : ''}`} autoComplete="off" />
+        <input required={activationMode} aria-required={activationMode} type={options.sensitive ? 'password' : options.type ?? 'text'} value={profile[key] ?? ''} onChange={(event) => updateField(key, event.target.value)} className={`${inputClass}${options.sensitive ? ' pr-10' : ''}`} autoComplete="off" />
       </div>
     </label>
   );
 
   if (!selectedWorkspace) return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame p-8"><h1 className="text-2xl font-semibold">{t('Profile')}</h1><p className="mt-2 text-[var(--muted-foreground)]">{t('Choose a workspace to continue.')}</p></main></WorkspaceSurfaceShell>;
 
-  return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame min-h-screen bg-[var(--background)] p-4 sm:p-8"><div className="mx-auto max-w-5xl space-y-6">
+  return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame min-h-screen bg-[var(--background)] p-4 sm:p-8">{activationMode?<OnboardingHeader step={3} showBrandName={false}/>:null}<div className="mx-auto max-w-5xl space-y-6">
     <header><p className="eyebrow">{t('Workspace settings')}</p><h1 className="text-3xl font-semibold tracking-tight">{t('Profile')}</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">{t('Manage your account and the legal, contact and banking details for this workspace.')}</p></header>
     {error ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</div> : null}
     {notice ? <div role="status" className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"><CheckCircle2 size={16}/>{notice}</div> : null}
+    {activationMode?<section className="rounded-2xl border border-violet-500/25 bg-violet-500/5 p-5"><p className="text-xs font-semibold uppercase tracking-[.18em] text-violet-700">Activation gate · 3 of 4</p><h2 className="mt-2 text-xl font-semibold">Complete the operating identity.</h2><p className="mt-2 text-sm text-[var(--muted-foreground)]">Every field below is required before Lulu can structure your Knowledge Base. All other workspace areas remain locked.</p></section>:null}
 
     <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
       <div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><UserRound size={18}/></div><div><h2 className="text-lg font-semibold">{t('Your account')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Update your name or change your password.')}</p></div></div>

@@ -395,5 +395,13 @@
   "Kein Owner": "无所有者",
   "Keine Workspaces gefunden.": "未找到工作区。",
   "OAuth-Self-Service pro Workspace": "每个工作区的 OAuth 自助授权",
-  "Workspace / Benutzer": "工作区 / 用户"
+  "Workspace / Benutzer": "工作区 / 用户",
+  "AI agents": "AI 智能体",
+  "Autonomous execution": "自主执行",
+  "Billing konnte nicht übersprungen werden.": "无法跳过计费。",
+  "live": "实时",
+  "Live": "实时",
+  "Lulu": "Lulu",
+  "Lulu Platform Operations": "Lulu 平台运营",
+  "Skip Billing": "跳过计费"
 }

@@ -19,13 +19,15 @@ const paymentMethods: Array<{ id: AdSpendPaymentMethod; label: string; detail: s
   { id: 'alipaycn', label: 'Alipay', detail: 'Scan QR code' },
   { id: 'wechatpay', label: 'WeChat Pay', detail: 'Scan QR code' },
 ];
+const adSpendPackages=[10_000,25_000,50_000,90_000] as const;
+function secureCheckoutUrl(value:string|null){if(!value)return null;try{const url=new URL(value);return url.protocol==='https:'?url.toString():null;}catch{return null;}}
 
 export function LuluBudgets() {
   const { selectedWorkspace, permissions } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? null;
   const [query, setQuery] = useState('');
   const [overview, setOverview] = useState<AdSpendOverview | null>(null);
-  const [amount, setAmount] = useState('100');
+  const [amount, setAmount] = useState('10000');
   const [paymentMethod, setPaymentMethod] = useState<AdSpendPaymentMethod>('card');
   const [activeTopup, setActiveTopup] = useState<AdSpendTopup | null>(null);
   const [qrImage, setQrImage] = useState('');
@@ -91,7 +93,11 @@ export function LuluBudgets() {
       });
       const topup = response.data.topup;
       setActiveTopup(topup);
-      if (paymentMethod === 'card' && topup.checkoutUrl) window.location.assign(topup.checkoutUrl);
+      if (paymentMethod === 'card') {
+        const checkout=secureCheckoutUrl(topup.checkoutUrl);
+        if(!checkout)throw new Error('The secure checkout URL is missing.');
+        window.location.assign(checkout);
+      }
     } catch (cause) {
       setPaymentError(getFriendlyErrorMessage(cause, 'The ad spend payment could not be created.'));
     } finally { setPaying(false); }
@@ -126,7 +132,7 @@ export function LuluBudgets() {
             <div className="border-t border-border bg-background/40 p-6 sm:p-8 lg:border-l lg:border-t-0">
               <p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Add advertising budget</p>
               <label className="mt-5 block text-sm font-medium">Amount credited to ads</label>
-              <div className="mt-2 flex items-center rounded-xl border border-border bg-card px-4"><span className="text-muted-foreground">¥</span><input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" className="w-full bg-transparent px-3 py-3 text-lg font-semibold outline-none" aria-label="Ad spend amount in RMB" /></div>
+              <div className="mt-2 grid grid-cols-2 gap-2">{adSpendPackages.map(value=><button key={value} type="button" onClick={()=>setAmount(String(value))} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${normalizedAmount===value?'border-primary bg-primary text-primary-foreground':'border-border bg-card hover:bg-secondary'}`}>{money.format(value)}</button>)}</div>
               <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">{paymentMethods.map((method) => <button key={method.id} type="button" onClick={() => setPaymentMethod(method.id)} className={`rounded-xl border p-3 text-left transition ${paymentMethod === method.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border bg-card hover:bg-secondary'}`}><span className="flex items-center gap-2 text-sm font-semibold">{method.id === 'card' ? <CreditCard size={15} /> : <QrCode size={15} />}{method.label}</span><span className="mt-1 block text-[11px] text-muted-foreground">{method.detail}</span></button>)}</div>
               <dl className="mt-5 space-y-2 rounded-xl border border-border bg-card p-4 text-sm"><div className="flex justify-between"><dt className="text-muted-foreground">Ad spend</dt><dd>{money.format(normalizedAmount)}</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">Lulu fee (4%)</dt><dd>{money.format(feeAmount)}</dd></div><div className="flex justify-between border-t border-border pt-2 font-semibold"><dt>Total charged</dt><dd>{money.format(totalAmount)}</dd></div></dl>
               <button type="button" onClick={() => void topUp()} disabled={!permissions.canAdminister || normalizedAmount < 1 || paying} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">{paying ? <Loader2 className="animate-spin" size={16} /> : paymentMethod === 'card' ? <CreditCard size={16} /> : <QrCode size={16} />}{paying ? 'Creating payment…' : `Pay ${money.format(totalAmount)}`}</button>

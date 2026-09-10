@@ -8,6 +8,7 @@ import { switchLanguage, useLanguage, useTranslation } from "../i18n/GlobalLangu
 import { isAvailableLanguageCode, languages } from "../i18n/languages";
 import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
 import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
+import { useLuluApp } from "../api/LuluAppContext";
 
 type NavigationPage = { id: string; label: string; soon?: boolean };
 type NavigationSection = { label: string; pages: readonly NavigationPage[] };
@@ -173,6 +174,7 @@ export function LuluGlobalNavigation({
   onRequestClose?: () => void;
 }) {
   const t = useTranslation();
+  const { selectedWorkspace } = useLuluApp();
   const language = useLanguage();
   const [languageOpen, setLanguageOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
@@ -226,12 +228,16 @@ export function LuluGlobalNavigation({
     };
   }, []);
   const websiteLockText = useMemo(() => websiteLock ? `${websiteLockLabel(websiteLock.status, t)} · ${t(websiteLock.status)}` : "", [t, websiteLock]);
+  const activationPageId = !selectedWorkspace?.onboardingCompletedAt
+    ? selectedWorkspace?.onboardingStep === 'profile_completion' ? 'profile'
+      : selectedWorkspace?.onboardingStep === 'knowledge_base' ? 'rich-field-1880' : null
+    : null;
   const navigationSections = useMemo(() => baseNavigationSections
     .map((section) => ({
       ...section,
-      pages: section.pages.filter((page) => page.id === activeSlug || isPageAvailable(page.id)),
+      pages: section.pages.filter((page) => (!activationPageId || page.id === activationPageId) && (page.id === activeSlug || isPageAvailable(page.id))),
     }))
-    .filter((section) => section.pages.length > 0), [activeSlug]);
+    .filter((section) => section.pages.length > 0), [activeSlug,activationPageId]);
   const activeSectionLabel = useMemo(
     () => navigationSections.find((section) => section.pages.some((page) => page.id === activeSlug))?.label ?? null,
     [activeSlug, navigationSections],
@@ -355,7 +361,7 @@ export function LuluGlobalNavigation({
                 })}
                 {section.label === SETTINGS_LABEL && (
                   <>
-                    <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setSessionsOpen(true)}>{t('Active sessions')}</button>
+                    {!activationPageId && <><button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setSessionsOpen(true)}>{t('Active sessions')}</button>
                     {sessionsOpen && <AccountSessions onClose={() => setSessionsOpen(false)} />}
                     <button
                       type="button"
@@ -380,7 +386,7 @@ export function LuluGlobalNavigation({
                           </button>
                         ))}
                       </div>
-                    )}
+                    )}</>}
                     <button
                       type="button"
                       className="lulu-global-navigation__subitem-action"
@@ -402,6 +408,7 @@ export function LuluGlobalNavigation({
             </Fragment>
           );
         })}
+        {activationPageId && activationPageId !== 'profile' && <div className="lulu-global-navigation__submenu"><button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void signOut()}><LogOut aria-hidden="true" size={14} /><span>{t("Sign out")}</span></button></div>}
       </nav>
     </aside>
   );

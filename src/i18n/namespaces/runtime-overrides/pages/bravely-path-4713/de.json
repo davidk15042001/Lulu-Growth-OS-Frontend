@@ -16,5 +16,13 @@
   "We could not save your company information. Please try again.": "Deine Unternehmensinformationen konnten nicht gespeichert werden. Bitte versuche es erneut.",
   "02 / 03 · Company profile": "02 / 03 · Firmenprofil",
   "01 / 03 · Company profile": "01 / 03 · Firmenprofil",
-  "01 / 02 · Company profile": "01 / 02 · Firmenprofil"
+  "01 / 02 · Company profile": "01 / 02 · Firmenprofil",
+  "01 / 04 · Secure account & company": "01 / 04 · Sicheres Konto und Unternehmen",
+  "Confirm the account owner and the business Lulu will operate for.": "Bestätigen Sie den Kontoinhaber und das Unternehmen, für das Lulu tätig sein wird.",
+  "Full name": "Vollständiger Name",
+  "Hide password": "Passwort ausblenden",
+  "Password": "Passwort",
+  "Passwords do not match.": "Die Passwörter stimmen nicht überein.",
+  "Repeat password": "Passwort wiederholen",
+  "Show password": "Passwort anzeigen"
 }

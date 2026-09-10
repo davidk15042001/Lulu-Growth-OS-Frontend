@@ -130,5 +130,7 @@
   "Die OAuth-Freigabe konnte nicht gespeichert werden.": "The OAuth permission could not be saved.",
   "Erlaubt ein Admin einen Provider, kann der Benutzer sein eigenes Konto verbinden. Ohne Freigabe nutzt Lulu weiterhin ausschließlich die zentrale Admin-Verbindung. Beim Entziehen der Freigabe werden gespeicherte Workspace-Tokens dieses Providers entfernt.": "When an admin allows a provider, the user can connect their own account. Without permission, Lulu continues to use only the central admin connection. Revoking permission removes stored workspace tokens for that provider.",
   "Keine Workspaces gefunden.": "No workspaces found.",
-  "Workspace / Benutzer": "Workspace / user"
+  "Workspace / Benutzer": "Workspace / user",
+  "Billing konnte nicht übersprungen werden.": "Billing could not be skipped.",
+  "Lulu Platform Operations": "Lulu platform operations"
 }
