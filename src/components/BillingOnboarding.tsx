@@ -87,7 +87,7 @@ export function BillingOnboarding() {
     if (selectedWorkspace.onboardingStep !== "billing") {
       navigateApp(selectedWorkspace.onboardingStep === "company_information"
         ? routes.onboarding.companyInformation
-        : routes.onboarding.productsServices, { replace: true });
+        : routes.onboarding.billing, { replace: true });
       return;
     }
     let active = true;
@@ -163,7 +163,7 @@ export function BillingOnboarding() {
   return (
     <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
-        <OnboardingHeader step={3} showBrandName={false} />
+        <OnboardingHeader step={2} showBrandName={false} />
 
         <section className="mx-auto max-w-3xl py-14 text-center sm:py-16">
           <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl border border-[var(--border)] bg-[var(--card)]">
@@ -206,12 +206,12 @@ export function BillingOnboarding() {
         <div className="mx-auto mt-6 max-w-md">
           <button
             type="button"
-            onClick={() => navigateApp(routes.onboarding.productsServices)}
+            onClick={() => navigateApp(routes.onboarding.companyInformation)}
             disabled={submitting || paymentStatus === "waiting"}
             className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--foreground)] hover:bg-[var(--secondary)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             <ArrowLeft size={16} aria-hidden="true" />
-            <span>Back to Products &amp; Services</span>
+            <span>Back to Company Information</span>
           </button>
         </div>
 

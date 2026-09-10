@@ -120,11 +120,9 @@ export const LuluLoginPage = () => {
         setSelectedWorkspaceId(workspace.id);
         navigateApp(workspace.onboardingCompletedAt
           ? routes.app.dashboard
-          : workspace.onboardingStep === 'billing'
-            ? routes.onboarding.billing
-            : workspace.onboardingStep === 'products_services'
-              ? routes.onboarding.productsServices
-              : routes.onboarding.companyInformation);
+          : workspace.onboardingStep === 'company_information'
+            ? routes.onboarding.companyInformation
+            : routes.onboarding.billing);
       } else {
         clearSelectedWorkspaceId();
         navigateApp(routes.onboarding.companyInformation);

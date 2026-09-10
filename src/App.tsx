@@ -123,7 +123,7 @@ function RemovedOnboardingRoute() {
   if (!selectedWorkspace) return <Navigate replace to={routes.onboarding.companyInformation} />;
   if (selectedWorkspace.onboardingCompletedAt) return <Navigate replace to={routes.app.dashboard} />;
   if (selectedWorkspace.onboardingStep === "billing") return <Navigate replace to={routes.onboarding.billing} />;
-  return <Navigate replace to={selectedWorkspace.onboardingStep === "company_information" ? routes.onboarding.companyInformation : routes.onboarding.productsServices} />;
+  return <Navigate replace to={selectedWorkspace.onboardingStep === "company_information" ? routes.onboarding.companyInformation : routes.onboarding.billing} />;
 }
 
 function PublicAuthRoute({ children }: { children: React.ReactNode }) {
@@ -293,6 +293,7 @@ export default function App() {
         <Route path={routes.onboarding.welcome} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
         <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
         <Route path={routes.onboarding.businessDescription} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
+        <Route path={routes.onboarding.productsServices} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
         <Route path={routes.onboarding.existingPlatforms} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
         <Route path={routes.onboarding.billing} element={<BillingRoute />} />
         <Route path={routes.onboarding.billings} element={<BillingRoute />} />
@@ -325,6 +326,7 @@ export default function App() {
         {pages.map((page) => {
           if (!isPageAvailable(page.slug)) return null;
           if (page.slug === "quiet-garden-9477") return null;
+          if (page.slug === "keen-morning-6353") return null;
           if (page.slug === "nicely-ocean-1051") return null;
           if (page.slug === "nicely-land-1864") return null;
           const resolvedPath = pagePath(page.slug);

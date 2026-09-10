@@ -8,9 +8,9 @@ import { DEFAULT_WEBSITE_SECTION, WEBSITE_PORTAL_SLUG } from "./page-registry";
 
 const onboardingPathByStep: Record<string, string> = {
   company_information: routes.onboarding.companyInformation,
-  business_description: routes.onboarding.productsServices,
-  products_services: routes.onboarding.productsServices,
-  existing_platforms: routes.onboarding.productsServices,
+  business_description: routes.onboarding.billing,
+  products_services: routes.onboarding.billing,
+  existing_platforms: routes.onboarding.billing,
   billing: routes.onboarding.billing,
   setup_complete: routes.app.dashboard,
 };
@@ -20,13 +20,12 @@ const onboardingOrderByStep: Record<string, number> = {
   business_description: 2,
   products_services: 2,
   existing_platforms: 2,
-  billing: 3,
+  billing: 2,
 };
 
 const onboardingOrderByPath: Record<string, number> = {
   [routes.onboarding.companyInformation]: 1,
-  [routes.onboarding.productsServices]: 2,
-  [routes.onboarding.billing]: 3,
+  [routes.onboarding.billing]: 2,
 };
 
 export function PageRoute({ page }: { page: PageDefinition }) {
@@ -64,7 +63,7 @@ export function PageRoute({ page }: { page: PageDefinition }) {
   }
 
   if (location.pathname === "/onboarding/ai-preferences") {
-    return <Navigate replace to={routes.onboarding.productsServices} state={{ from: location.pathname }} />;
+    return <Navigate replace to={routes.onboarding.billing} state={{ from: location.pathname }} />;
   }
 
   if (!isPublic && loading) {

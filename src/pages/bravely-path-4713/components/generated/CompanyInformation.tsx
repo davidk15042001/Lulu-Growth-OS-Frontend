@@ -70,7 +70,7 @@ export const CompanyInformation = () => {
         address: form.address || null,
       } });
       setSaved(true);
-      window.location.assign(routes.onboarding.productsServices);
+      window.location.assign(routes.onboarding.billing);
     } catch (cause) {
       if (cause instanceof ApiError && (cause.status === 401 || cause.code === 'SESSION_REFRESH_UNAVAILABLE')) {
         clearStoredUser();
@@ -89,7 +89,7 @@ export const CompanyInformation = () => {
           <OnboardingHeader step={1} />
 
           <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-            <span>01 / 03 · Company profile</span>
+            <span>01 / 02 · Company profile</span>
           </p>
           <h1 className="mt-2 text-3xl font-semibold leading-tight text-[var(--foreground)] sm:text-4xl">
             <span>Company information</span>
