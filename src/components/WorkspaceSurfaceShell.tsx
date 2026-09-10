@@ -1,7 +1,6 @@
-import { Menu, X } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { LuluGlobalNavigation } from "./LuluGlobalNavigation";
-import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { AuthenticatedWorkspaceTopBar } from "./AuthenticatedWorkspaceTopBar";
 
 /**
  * Shared chrome for the canonical pages that are mounted directly from App.tsx.
@@ -9,28 +8,30 @@ import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
  * here prevents direct routes (quotes, invoices and CRM) from losing navigation.
  */
 export function WorkspaceSurfaceShell({ activeSlug, children }: { activeSlug: string; children: ReactNode }) {
-  const t = useTranslation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const close = () => setMobileOpen(false);
+
+  useEffect(() => {
+    document.body.classList.toggle("lulu-mobile-nav-open", mobileOpen);
+    return () => document.body.classList.remove("lulu-mobile-nav-open");
+  }, [mobileOpen]);
+
   return (
-    <div className={`lulu-global-shell${mobileOpen ? " lulu-global-shell--nav-open" : ""}`}>
-      <div className="lulu-global-navigation__backdrop" aria-hidden={!mobileOpen} onClick={close} />
-      <LuluGlobalNavigation activeSlug={activeSlug} mobileOpen={mobileOpen} onNavigate={close} onRequestClose={close} />
-      <div className="lulu-global-content">
-        <button
-          type="button"
-          className="lulu-auth-nav-toggle"
-          aria-label={mobileOpen ? t("Close navigation") : t("Open navigation")}
-          aria-expanded={mobileOpen}
-          onClick={() => setMobileOpen((value) => !value)}
-        >
-          {mobileOpen ? <X size={18} /> : <Menu size={18} />}
-          <span className="sr-only">{mobileOpen ? t("Close navigation") : t("Open navigation")}</span>
-        </button>
-        <div className="lulu-native-page lulu-native-page--surface-shell lulu-native-page--without-secondary-navigation">
-          {children}
+    <>
+      <AuthenticatedWorkspaceTopBar
+        navigationOpen={mobileOpen}
+        onToggleNavigation={() => setMobileOpen((value) => !value)}
+        onCloseNavigation={close}
+      />
+      <div className={`lulu-global-shell${mobileOpen ? " lulu-global-shell--nav-open" : ""}`}>
+        <div className="lulu-global-navigation__backdrop" aria-hidden={!mobileOpen} onClick={close} />
+        <LuluGlobalNavigation activeSlug={activeSlug} mobileOpen={mobileOpen} onNavigate={close} onRequestClose={close} />
+        <div className="lulu-global-content">
+          <div className="lulu-native-page lulu-native-page--surface-shell lulu-native-page--without-secondary-navigation">
+            {children}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

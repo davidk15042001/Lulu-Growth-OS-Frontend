@@ -35,6 +35,7 @@ import CrmWorkspacePage from "./pages/canonical-crm/CrmWorkspacePage";
 import WorkspaceRecordsPage from "./pages/canonical-records/WorkspaceRecordsPage";
 import ProfilePage from "./pages/canonical-profile/ProfilePage";
 import CalendarMeetingPage from "./pages/calendar-meeting/CalendarMeetingPage";
+import { WorkspaceSurfaceShell } from "./components/WorkspaceSurfaceShell";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
@@ -306,8 +307,8 @@ export default function App() {
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.email} element={<AdminOnlyAppRoute><PageRoute page={EMAIL_PAGE} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><PageRoute page={CALENDAR_PAGE} /></AdminOnlyAppRoute>} />
-        <Route path={routes.app.products} element={<AdminOnlyAppRoute><ProductsPage /></AdminOnlyAppRoute>} />
-        <Route path="/app/nicely-ocean-1051" element={<AdminOnlyAppRoute><ProductsPage /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.products} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="nicely-ocean-1051"><ProductsPage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
+        <Route path="/app/nicely-ocean-1051" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="nicely-ocean-1051"><ProductsPage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path={routes.app.omnichannel} element={<AdminOnlyAppRoute><OmniChannelPage /></AdminOnlyAppRoute>} />
         <Route path="/app/sturdy-month-1562" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="contacts" /></AdminOnlyAppRoute>} />
         <Route path="/app/kindly-pool-8785" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="companies" /></AdminOnlyAppRoute>} />

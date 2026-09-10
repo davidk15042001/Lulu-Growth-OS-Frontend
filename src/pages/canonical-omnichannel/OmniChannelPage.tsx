@@ -1,17 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Bot, CheckCircle2, Menu, MessageCircle, MoreHorizontal, Paperclip, Send, UserRound, XCircle } from 'lucide-react';
+import { Bot, CheckCircle2, MessageCircle, MoreHorizontal, Paperclip, Send, UserRound, XCircle } from 'lucide-react';
 import { getFriendlyErrorMessage } from '../../api/client';
 import { omnichannelApi, type OmniConversation, type OmniMessage } from '../../api/omnichannel';
 import { useLuluApp } from '../../api/LuluAppContext';
 import { subscribeWorkspaceEvents } from '../../api/agent-stream';
-import { LuluGlobalNavigation } from '../../components/LuluGlobalNavigation';
+import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
 import { useTranslation } from '../../i18n/GlobalLanguageSwitcher';
 
 function modeLabel(mode:string){return mode==='AI_AUTO'?'AI automatisch':mode==='AI_ASSISTED'?'AI unterstützt':mode==='HUMAN'?'Menschlich':'Eskaliert';}
 function statusLabel(status:string){return status==='RESOLVED'?'Gelöst':status==='CLOSED'?'Geschlossen':status==='ESCALATED'?'Aufmerksamkeit nötig':'Offen';}
 export default function OmniChannelPage(){
   const {selectedWorkspace}=useLuluApp(); const workspaceId=selectedWorkspace?.id; const t=useTranslation();
-  const [mobileNavigationOpen,setMobileNavigationOpen]=useState(false);
   const [items,setItems]=useState<OmniConversation[]>([]); const [selected,setSelected]=useState<OmniConversation|null>(null); const [messages,setMessages]=useState<OmniMessage[]>([]); const [analytics,setAnalytics]=useState<Record<string,number>>({}); const [loading,setLoading]=useState(true); const [error,setError]=useState(''); const [draft,setDraft]=useState(''); const [noteMode,setNoteMode]=useState(false); const [busy,setBusy]=useState(false);
   const load=useCallback(async()=>{if(!workspaceId)return;setLoading(true);setError('');try{const [list,stats]=await Promise.all([omnichannelApi.conversations(workspaceId,'limit=50'),omnichannelApi.analytics(workspaceId)]);setItems(list.data.items);setAnalytics(stats.data);if(selected && list.data.items.some(item=>item.id===selected.id)){const detail=await omnichannelApi.conversation(workspaceId,selected.id);setSelected(detail.data.conversation);setMessages(detail.data.messages);}else if(list.data.items[0]){const detail=await omnichannelApi.conversation(workspaceId,list.data.items[0].id);setSelected(detail.data.conversation);setMessages(detail.data.messages);}else{setSelected(null);setMessages([]);}}catch(cause){setError(getFriendlyErrorMessage(cause,'OmniChannel konnte nicht geladen werden.'));}finally{setLoading(false);}},[workspaceId,selected]);
   useEffect(()=>{void load();},[load]);
@@ -20,19 +19,10 @@ export default function OmniChannelPage(){
   const submit=async()=>{if(!workspaceId||!selected||!draft.trim())return;setBusy(true);try{const id=crypto.randomUUID();const result=noteMode?await omnichannelApi.note(workspaceId,selected.id,draft):await omnichannelApi.send(workspaceId,selected.id,draft,id);setMessages((current)=>[...current,result.data]);setDraft('');}catch(cause){setError(getFriendlyErrorMessage(cause,'Nachricht konnte nicht gesendet werden.'));}finally{setBusy(false);}};
   const takeover=async()=>{if(!workspaceId||!selected)return;setBusy(true);try{const r=selected.handlingMode==='HUMAN'?await omnichannelApi.returnToAi(workspaceId,selected.id):await omnichannelApi.takeOver(workspaceId,selected.id);setSelected(r.data);setItems(current=>current.map(item=>item.id===r.data.id?r.data:item));}catch(cause){setError(getFriendlyErrorMessage(cause,'Handling-Modus konnte nicht geändert werden.'));}finally{setBusy(false);}};
   const empty=!loading&&!items.length;
-  if(!workspaceId)return <div className={`lulu-global-shell${mobileNavigationOpen ? " lulu-global-shell--nav-open" : ""}`}>
-    <div className="lulu-global-navigation__backdrop" aria-hidden={!mobileNavigationOpen} onClick={()=>setMobileNavigationOpen(false)} />
-    <LuluGlobalNavigation activeSlug="omnichannel" mobileOpen={mobileNavigationOpen} onNavigate={()=>setMobileNavigationOpen(false)} onRequestClose={()=>setMobileNavigationOpen(false)} />
-    <div className="lulu-global-content">
-      <button type="button" className="lulu-auth-nav-toggle" aria-label={t("Open navigation")} onClick={()=>setMobileNavigationOpen(true)}><Menu size={18}/><span className="sr-only">{t("Open navigation")}</span></button>
+  if(!workspaceId)return <WorkspaceSurfaceShell activeSlug="omnichannel">
       <main className="page-frame grid min-h-[70vh] place-items-center p-6"><div className="max-w-md text-center"><p className="text-lg font-semibold">Kein Workspace ausgewählt.</p><p className="mt-2 text-sm text-[var(--muted-foreground)]">{t("Live data is temporarily unavailable. Your layout remains accessible.")}</p></div></main>
-    </div>
-  </div>;
-  return <div className={`lulu-global-shell${mobileNavigationOpen ? " lulu-global-shell--nav-open" : ""}`}>
-    <div className="lulu-global-navigation__backdrop" aria-hidden={!mobileNavigationOpen} onClick={()=>setMobileNavigationOpen(false)} />
-    <LuluGlobalNavigation activeSlug="omnichannel" mobileOpen={mobileNavigationOpen} onNavigate={()=>setMobileNavigationOpen(false)} onRequestClose={()=>setMobileNavigationOpen(false)} />
-    <div className="lulu-global-content">
-      <button type="button" className="lulu-auth-nav-toggle" aria-label={t("Open navigation")} onClick={()=>setMobileNavigationOpen(true)}><Menu size={18}/><span className="sr-only">{t("Open navigation")}</span></button>
+  </WorkspaceSurfaceShell>;
+  return <WorkspaceSurfaceShell activeSlug="omnichannel">
       <main className="page-frame min-h-screen bg-[var(--background)] px-4 py-6 sm:px-6 lg:px-8">
     <div className="mx-auto max-w-[1500px] space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p className="eyebrow">Lulu OmniChannel</p><h1 className="text-3xl font-semibold tracking-tight">Kommunikationszentrale</h1><p className="mt-1 text-sm text-[var(--muted-foreground)]">Alle Nachrichten deines Workspace an einem sicheren Ort.</p></div><div className="flex gap-2 text-xs"><span className="rounded-full bg-[var(--secondary)] px-3 py-2">{analytics.total_conversations??0} Konversationen</span><span className="rounded-full bg-[var(--secondary)] px-3 py-2">{analytics.ai_handled??0} AI-geführt</span></div></header>
@@ -44,6 +34,5 @@ export default function OmniChannelPage(){
       </section>
     </div>
       </main>
-    </div>
-  </div>;
+  </WorkspaceSurfaceShell>;
 }
