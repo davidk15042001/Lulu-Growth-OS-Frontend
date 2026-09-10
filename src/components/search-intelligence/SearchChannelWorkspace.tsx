@@ -201,7 +201,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
                 </span>
                 <span className="inline-flex items-center gap-2 rounded-full border border-violet-400/25 bg-violet-400/10 px-3 py-1 text-violet-200">
                   <Wand2 className="h-3.5 w-3.5" />
-                  Automatische Freigabe aktiv
+                  Autonome Veröffentlichung aktiv
                 </span>
                 <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-emerald-200">
                   <Target className="h-3.5 w-3.5" />
@@ -340,7 +340,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
               </label>
               <label className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm">
                 <div>
-                  <p className="font-medium text-slate-100">Auto-Freigabe</p>
+                  <p className="font-medium text-slate-100">Autonome Veröffentlichung</p>
                   <p className="text-xs text-slate-400">Analyse pusht direkt auf verbundene Ziele</p>
                 </div>
                 <input

@@ -375,7 +375,7 @@ function buildAiLiveData(
       },
       {
         label: t("Autonomy"),
-        value: t("0 approval gates"),
+        value: t("Autonomous execution"),
         detail: t("Only adding paid-media funds requires a customer action."),
       },
       {
@@ -487,7 +487,7 @@ function buildGoogleBusinessLiveData(
     impactDetail: interpolate(t("Reputation impact is grounded in {{0}} reviews, {{1}} unanswered items and {{2}} locations."), [reviews.summary.totalReviews, reviews.summary.unansweredCount, business.summary.locationCount]),
     latestActivityAt: reviews.reviews[0]?.updateTime ?? reviews.reviews[0]?.createTime ?? null,
     pendingApprovalCount: reviews.summary.unansweredCount,
-    runtimeStatusHint: reviews.summary.unansweredCount > 0 ? "needs_approval" : "monitoring",
+    runtimeStatusHint: reviews.summary.unansweredCount > 0 ? "executing" : "monitoring",
   };
 }
 
@@ -571,7 +571,7 @@ function createGenericCards(
       },
       {
         label: t("Autonomy boundary"),
-        value: t("0 approval gates"),
+        value: t("Autonomous execution"),
         detail: t("Only prepaid ad spend is customer-authorized; all downstream actions execute automatically."),
       },
       {

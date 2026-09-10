@@ -42,5 +42,12 @@
   "Löschen": "Delete",
   "Stoppen": "Stop",
   "Senden": "Send",
-  "Unterhaltung": "Conversation"
+  "Unterhaltung": "Conversation",
+  "Budget required": "Budget required",
+  "Alle Agenten, Systeme und Ausführungen an einem Ort.": "All agents, systems, and executions in one place.",
+  "Ausführungsmodus": "Execution mode",
+  "Autonom": "Autonomous",
+  "nur Budget wird vorab aufgeladen": "only budget is prepaid",
+  "Autonome Ausführung": "Autonomous execution",
+  "Lulu analysiert, entscheidet und führt Aktionen innerhalb der Systemgrenzen selbstständig aus. Nur neues Paid-Media-Budget erfordert eine Aufladung durch den Kunden.": "Lulu analyzes, decides, and executes autonomously within system boundaries. Only new paid-media budget requires customer funding."
 }

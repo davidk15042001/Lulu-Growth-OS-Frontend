@@ -2939,5 +2939,17 @@
   "Only adding paid-media funds requires a customer action.": "仅添加付费媒体资金需要客户采取行动。",
   "Only new paid-media funds need customer authorization. Every other agent action executes automatically within system safeguards.": "只有新增付费媒体资金需要客户授权。其他所有 AI 智能体操作都会在系统保护范围内自动执行。",
   "Only prepaid ad spend is customer-authorized; all downstream actions execute automatically.": "只有预付费广告支出才是客户授权的；所有下游操作都会自动执行。",
-  "What Lulu executes automatically": "Lulu 自动执行什么"
+  "What Lulu executes automatically": "Lulu 自动执行什么",
+  "Execution mode": "执行模式",
+  "Latest backend events, payloads, and execution signals for the selected run.": "所选运行的最新后端事件、负载和执行信号。",
+  "Autonome Veröffentlichung aktiv": "自主发布已启用",
+  "Autonome Veröffentlichung": "自主发布",
+  "Budget required": "需要预算",
+  "Autonomous execution stays inside entitlements, provider limits and the prepaid ad-spend balance": "自主执行受权限、提供商限制和预付广告预算余额约束。",
+  "risk and execution streams": "风险与执行数据流",
+  "execution audit": "执行审计",
+  "Validate and execute launches autonomously.": "自主验证并执行发布。",
+  "execution queue": "执行队列",
+  "execute ready publications": "执行已就绪的发布",
+  "execution latency": "执行延迟"
 }

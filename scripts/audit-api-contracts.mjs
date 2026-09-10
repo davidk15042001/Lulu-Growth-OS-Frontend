@@ -43,7 +43,6 @@ const clientContracts = {
   "src/api/records.ts": ["/resource-types", "/records/", "/restore"],
   "src/api/metrics.ts": ["/metrics", "/points"],
   "src/api/notifications.ts": ["/notifications", "/read-all", "/read"],
-  "src/api/approvals.ts": ["/approvals", "/decision"],
   "src/api/ai.ts": ["/ai/conversations", "/messages", "/respond"],
   "src/api/workspace-app.ts": ["/members", "/saved-views", "/audit", "/billing", "/integrations/", "/sync"],
   "src/api/landing-kpis.ts": ["/public/landing-kpis"],

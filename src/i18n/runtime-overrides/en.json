@@ -608,5 +608,14 @@
   "API AI und Storage Kosten bearbeiten": "Edit API AI and storage costs",
   "Kosten bearbeiten ·": "Edit costs",
   "Die Werte gelten für die offene Abrechnungsperiode und werden revisionssicher protokolliert.": "The values apply to the open billing period and are logged in an audit-proof manner.",
-  "Kosten speichern": "Save costs"
+  "Kosten speichern": "Save costs",
+  "Autonome Veröffentlichung aktiv": "Autonomous publishing active",
+  "Autonome Veröffentlichung": "Autonomous publishing",
+  "Budget required": "Budget required",
+  "Alle Agenten, Systeme und Ausführungen an einem Ort.": "All agents, systems, and executions in one place.",
+  "Ausführungsmodus": "Execution mode",
+  "Autonom": "Autonomous",
+  "nur Budget wird vorab aufgeladen": "only budget is prepaid",
+  "Autonome Ausführung": "Autonomous execution",
+  "Lulu analysiert, entscheidet und führt Aktionen innerhalb der Systemgrenzen selbstständig aus. Nur neues Paid-Media-Budget erfordert eine Aufladung durch den Kunden.": "Lulu analyzes, decides, and executes autonomously within system boundaries. Only new paid-media budget requires customer funding."
 }

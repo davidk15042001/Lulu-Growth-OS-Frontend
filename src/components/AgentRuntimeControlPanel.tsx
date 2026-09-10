@@ -116,8 +116,8 @@ export function AgentRuntimeControlPanel({
           <p className="mt-2 text-2xl font-semibold text-foreground">{stepCount}</p>
         </article>
         <article className="rounded-lg border border-border bg-background/60 p-4">
-          <p className="text-xs text-muted-foreground">{t("Human approvals")}</p>
-          <p className="mt-2 text-2xl font-semibold text-foreground">0</p>
+          <p className="text-xs text-muted-foreground">{t("Execution mode")}</p>
+          <p className="mt-2 text-sm font-semibold text-foreground">{t("Autonomous")}</p>
         </article>
         <article className="rounded-lg border border-border bg-background/60 p-4">
           <p className="text-xs text-muted-foreground">{t("Action packets")}</p>
@@ -241,7 +241,7 @@ export function AgentRuntimeControlPanel({
           <div className="flex items-center justify-between gap-3">
             <div>
               <h3 className="text-sm font-semibold text-foreground">{t("Event stream")}</h3>
-              <p className="mt-1 text-xs text-muted-foreground">{t("Latest backend events, payloads, and approval signals for the selected run.")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("Latest backend events, payloads, and execution signals for the selected run.")}</p>
             </div>
             <div className="text-xs text-muted-foreground">{t("Events")}: {runtime.recentEvents.length}</div>
           </div>

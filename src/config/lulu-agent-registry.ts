@@ -12,7 +12,6 @@ export type LuluAgentUiState =
   | "drafting"
   | "monitoring"
   | "analyzing"
-  | "needs_approval"
   | "executing"
   | "completed"
   | "attention_required";
@@ -56,11 +55,11 @@ const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139
 const UI_CONNECT_SYNC = ["connecting", "syncing", "completed", "attention_required"] as const satisfies readonly LuluAgentUiState[];
 const UI_SYNC_ANALYZE = ["syncing", "analyzing", "completed"] as const satisfies readonly LuluAgentUiState[];
 const UI_MONITOR_ANALYZE = ["monitoring", "analyzing", "completed"] as const satisfies readonly LuluAgentUiState[];
-const UI_MONITOR_APPROVAL = ["monitoring", "needs_approval", "executing", "completed"] as const satisfies readonly LuluAgentUiState[];
-const UI_ANALYZE_APPROVAL = ["analyzing", "needs_approval", "completed"] as const satisfies readonly LuluAgentUiState[];
-const UI_DRAFT_APPROVAL = ["drafting", "needs_approval", "completed"] as const satisfies readonly LuluAgentUiState[];
-const UI_EXECUTE_APPROVAL = ["executing", "needs_approval", "completed"] as const satisfies readonly LuluAgentUiState[];
-const UI_ATTENTION_APPROVAL = ["monitoring", "attention_required", "needs_approval"] as const satisfies readonly LuluAgentUiState[];
+const UI_MONITOR_APPROVAL = ["monitoring", "executing", "completed"] as const satisfies readonly LuluAgentUiState[];
+const UI_ANALYZE_APPROVAL = ["analyzing", "completed"] as const satisfies readonly LuluAgentUiState[];
+const UI_DRAFT_APPROVAL = ["drafting", "executing", "completed"] as const satisfies readonly LuluAgentUiState[];
+const UI_EXECUTE_APPROVAL = ["executing", "completed"] as const satisfies readonly LuluAgentUiState[];
+const UI_ATTENTION_APPROVAL = ["monitoring", "attention_required", "executing"] as const satisfies readonly LuluAgentUiState[];
 const UI_COMPLETE = ["completed"] as const satisfies readonly LuluAgentUiState[];
 
 const NO_APPROVAL: LuluAgentApprovalPolicy = Object.freeze({
@@ -101,7 +100,7 @@ function detail(
     integrations,
     jobs,
     approvalPolicy,
-    uiStates: uiStates.filter((state) => state !== "needs_approval"),
+    uiStates,
     successMetrics,
   };
 }
@@ -109,7 +108,7 @@ function detail(
 const registryDetails: Readonly<Record<string, LuluAgentContractDetail>> = {
   "fancily-leaf-1766": detail("CEO Agent", "A2", "Run the workspace from one command center.", ["All connected systems"], ["roll up signals", "reprioritize work"], approval("cross-domain execution"), UI_ANALYZE_APPROVAL, ["issue detection speed", "task throughput"]),
   "serene-cloud-7079": detail("Chief Intelligence Agent", "A2", "Merge business signals into one model.", ["All domain data"], ["aggregate signals", "cluster themes"], NO_APPROVAL, UI_SYNC_ANALYZE, ["insight quality", "duplicate reduction"]),
-  "tender-water-4095": detail("Management Briefing Agent", "A2", "Prepare the operator briefing.", ["All major KPIs", "risk and approval streams"], ["prepare daily brief", "summarize changes"], approval("external sharing"), UI_ANALYZE_APPROVAL, ["brief usefulness", "decision response time"]),
+  "tender-water-4095": detail("Management Briefing Agent", "A2", "Prepare the operator briefing.", ["All major KPIs", "risk and execution streams"], ["prepare daily brief", "summarize changes"], approval("external sharing"), UI_ANALYZE_APPROVAL, ["brief usefulness", "decision response time"]),
   "swiftly-cliff-4166": detail("Business Health Agent", "A2", "Detect business health deterioration early.", ["Revenue", "ops", "support", "traffic"], ["compute health score", "watch trend shifts"], approval("auto-remediation"), UI_ATTENTION_APPROVAL, ["time to detection", "alert precision"]),
   "sharp-current-9677": detail("Growth Agent", "A3", "Continuously find growth levers.", ["Marketing", "sales", "product", "finance"], ["find bottlenecks", "score opportunities"], approval("launching major growth actions"), UI_ANALYZE_APPROVAL, ["qualified opportunities", "revenue impact"]),
   "proudly-river-8017": detail("Revenue Agent", "A2", "Explain and improve revenue performance.", ["Orders", "subscriptions", "invoices", "attribution"], ["detect leakage", "trace revenue drivers"], approval("pricing changes"), UI_MONITOR_ANALYZE, ["revenue retention", "leakage reduction"]),
@@ -133,9 +132,9 @@ const registryDetails: Readonly<Record<string, LuluAgentContractDetail>> = {
   "daring-home-4179": detail("Recommendation Agent", "A2", "Turn insights into next actions.", ["Insights", "goals", "constraints"], ["generate recommendations", "estimate impact"], approval("action execution"), UI_ANALYZE_APPROVAL, ["recommendation acceptance", "impact realized"]),
   "wispy-leaf-3778": detail("Task Orchestrator", "A3", "Convert strategy into executable tasks.", ["Recommendations", "task systems"], ["create tasks", "sequence dependencies"], approval("cross-system writes"), UI_EXECUTE_APPROVAL, ["task completion rate", "handoff speed"]),
   "happily-brook-7061": detail("Opportunity Agent", "A2", "Maintain a ranked opportunity backlog.", ["Growth", "sales", "product", "finance"], ["identify upside", "score value"], approval("launching major opportunities"), UI_ANALYZE_APPROVAL, ["opportunity realization", "pipeline quality"]),
-  "radiant-cave-9340": detail("Decision Agent", "A2", "Support structured decision making.", ["Recommendations", "approvals", "historical outcomes"], ["draft decision memos", "record rationale"], approval("final decision sign-off"), UI_ANALYZE_APPROVAL, ["decision cycle time", "decision traceability"]),
+  "radiant-cave-9340": detail("Decision Agent", "A2", "Support structured decision making.", ["Recommendations", "execution audit", "historical outcomes"], ["draft decision memos", "record rationale"], approval("final decision sign-off"), UI_ANALYZE_APPROVAL, ["decision cycle time", "decision traceability"]),
   "boldly-time-5189": detail("Risk Agent", "A2", "Centralize risks and mitigation.", ["Alerts", "finance", "compliance", "ops"], ["maintain risk register", "monitor mitigation"], approval("remediation steps"), UI_ATTENTION_APPROVAL, ["prevented incidents", "mitigation coverage"]),
-  "proud-rain-4772": detail("Activity Chronicle Agent", "A2", "Preserve an explainable history of action.", ["Agent logs", "sync logs", "approvals"], ["append events", "correlate cause and effect"], NO_APPROVAL, UI_SYNC_ANALYZE, ["audit completeness", "timeline coherence"]),
+  "proud-rain-4772": detail("Activity Chronicle Agent", "A2", "Preserve an explainable history of action.", ["Agent logs", "sync logs", "execution audit"], ["append events", "correlate cause and effect"], NO_APPROVAL, UI_SYNC_ANALYZE, ["audit completeness", "timeline coherence"]),
 
   "quietly-stone-4158": detail("CFO Agent", "A2", "Run the finance domain as a whole.", ["Finance stack", "billing", "revenue systems"], ["summarize finance status", "rank issues"], approval("financial execution"), UI_ANALYZE_APPROVAL, ["finance issue resolution speed", "cash visibility"]),
   "breezy-soil-2475": detail("Invoice Agent", "A3", "Keep invoicing accurate and timely.", ["Invoices", "CRM", "payments"], ["generate drafts", "chase overdue items"], approval("sending invoices"), UI_DRAFT_APPROVAL, ["DSO", "invoice error rate"]),
@@ -153,7 +152,7 @@ const registryDetails: Readonly<Record<string, LuluAgentContractDetail>> = {
   "sparklingly-city-3338": detail("Reconciliation Agent", "A3", "Match records across finance systems.", ["Orders", "invoices", "payouts", "ledger"], ["detect mismatches", "suggest fixes"], approval("auto-fixes"), UI_ATTENTION_APPROVAL, ["reconciliation completion", "mismatch resolution time"]),
   "radiant-hour-5376": detail("Recurring Revenue Agent", "A2", "Protect recurring revenue quality.", ["Subscriptions", "churn", "upgrades"], ["compute movement", "detect churn patterns"], approval("pricing changes"), UI_MONITOR_ANALYZE, ["net revenue retention", "churn visibility"]),
   "lucky-park-8649": detail("Payout Agent", "A2", "Keep payouts visible and correct.", ["Processor payouts", "bank arrivals"], ["detect missing payouts", "track timing"], approval("payout configuration changes"), UI_ATTENTION_APPROVAL, ["payout accuracy", "payout latency"]),
-  "vibrantly-second-9428": detail("Finance Automation Agent", "A4", "Automate repetitive finance work.", ["Finance workflows", "triggers", "approvals"], ["run automations", "route exceptions"], approval("enabling new automation rules"), UI_EXECUTE_APPROVAL, ["manual finance work reduction", "automation success rate"]),
+  "vibrantly-second-9428": detail("Finance Automation Agent", "A4", "Automate repetitive finance work.", ["Finance workflows", "triggers", "execution audit"], ["run automations", "route exceptions"], approval("enabling new automation rules"), UI_EXECUTE_APPROVAL, ["manual finance work reduction", "automation success rate"]),
   "sturdy-week-3372": detail("Tax Agent", "A2", "Reduce tax mistakes.", ["Tax settings", "invoices", "orders"], ["detect mismatches", "flag filing risk"], approval("filing or tax submission"), UI_ATTENTION_APPROVAL, ["tax error reduction", "tax issue detection"]),
   "fine-park-8079": detail("CSO Agent", "A2", "Run the sales domain from one overview.", ["CRM", "finance", "pipeline"], ["summarize sales health", "rank gaps"], approval("external sales action"), UI_ANALYZE_APPROVAL, ["sales visibility", "pipeline health"]),
   "softly-autumn-9038": detail("Lead Agent", "A3", "Qualify sales leads effectively.", ["CRM", "lead sources", "enrichment"], ["score leads", "route leads"], approval("external outreach"), UI_ANALYZE_APPROVAL, ["lead-to-opportunity rate", "lead response time"]),
@@ -176,7 +175,7 @@ const registryDetails: Readonly<Record<string, LuluAgentContractDetail>> = {
   "rich-field-1880": detail("Knowledge Agent", "A3", "Store reusable business memory.", ["Docs", "notes", "synced data", "chat history"], ["ingest knowledge", "link entities"], approval("deletion or sharing"), UI_SYNC_ANALYZE, ["retrieval quality", "knowledge freshness"]),
   "wondrously-second-5656": detail("Action Agent", "A4", "Execute approved tasks across systems.", ["Integrations", "workflows", "task definitions"], ["perform actions", "log runs"], approval("irreversible actions"), UI_EXECUTE_APPROVAL, ["successful action rate", "rollback readiness"]),
   "sunny-moon-6307": detail("Conversation Agent", "A2", "Preserve thread continuity across agents.", ["Chats", "artifacts", "memory"], ["summarize threads", "route context"], approval("external sending"), UI_COMPLETE, ["context retention quality", "handoff quality"]),
-  "sparkling-cave-8456": detail("AI Audit Agent", "A2", "Make agent work inspectable.", ["Logs", "run history", "approvals"], ["render activity feed", "explain actions"], NO_APPROVAL, UI_COMPLETE, ["audit completeness", "traceability"]),
+  "sparkling-cave-8456": detail("AI Audit Agent", "A2", "Make agent work inspectable.", ["Logs", "run history", "execution audit"], ["render activity feed", "explain actions"], NO_APPROVAL, UI_COMPLETE, ["audit completeness", "traceability"]),
 
   "sturdy-month-1562": detail("Contact Agent", "A3", "Maintain reliable person records.", ["CRM", "enrichment", "communications"], ["enrich contacts", "dedupe records"], approval("external outreach or deletion"), UI_SYNC_ANALYZE, ["contact completeness", "duplicate reduction"]),
   "kindly-pool-8785": detail("Company Agent", "A3", "Maintain reliable company records.", ["CRM", "enrichment", "deal data"], ["enrich companies", "detect duplicates"], approval("merge or delete operations"), UI_SYNC_ANALYZE, ["account completeness", "duplicate reduction"]),
@@ -210,7 +209,7 @@ const registryDetails: Readonly<Record<string, LuluAgentContractDetail>> = {
   "zesty-grass-9196": detail("Ads Optimization Agent", "A4", "Continuously optimize ads under constraints.", ["Campaign metrics", "bids", "budgets"], ["apply optimizations", "learn from outcomes"], approval("major scaling or pausing"), UI_EXECUTE_APPROVAL, ["incremental ROAS gain", "optimization win rate"]),
   "nicely-shade-2637": detail("Measurement Agent", "A3", "Maintain measurement integrity.", ["Pixels", "events", "UTM rules", "analytics"], ["check tracking health", "detect missing events"], approval("altering live tracking"), UI_ATTENTION_APPROVAL, ["measurement completeness", "tracking accuracy"]),
   "nice-moon-2056": detail("Ad Builder Agent", "A3", "Generate ready-to-launch ad structures.", ["Offer context", "audiences", "products"], ["build campaigns", "build ad sets"], approval("publishing"), UI_DRAFT_APPROVAL, ["launch preparation speed", "builder adoption"]),
-  "sunnily-peak-7188": detail("Approval Agent", "A3", "Manage final launch control.", ["Draft assets", "approval queue", "policy rules"], ["validate readiness", "present approval queue"], approval("final publish"), UI_EXECUTE_APPROVAL, ["publishing error reduction", "approval turnaround"]),
+  "sunnily-peak-7188": detail("Publishing Agent", "A3", "Validate and execute launches autonomously.", ["Draft assets", "execution queue", "policy rules"], ["validate readiness", "execute ready publications"], approval("final publish"), UI_EXECUTE_APPROVAL, ["publishing error reduction", "execution latency"]),
   "solid-sand-5563": detail("Experiment Agent", "A4", "Systematically run experiments.", ["Campaign performance", "hypotheses", "variants"], ["design tests", "evaluate winners"], approval("launching tests"), UI_EXECUTE_APPROVAL, ["experiment velocity", "test win rate"]),
   "sunny-summer-2293": detail("Ad Platform Agent", "A2", "Keep ad platform connectivity stable.", ["OAuth", "ad account configs", "permissions"], ["monitor connection health", "sync accounts"], approval("permission or account changes"), UI_CONNECT_SYNC, ["integration uptime", "account sync success"]),
 

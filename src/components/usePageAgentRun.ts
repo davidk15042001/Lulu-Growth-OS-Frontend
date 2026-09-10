@@ -6,13 +6,11 @@ import {
   type AgentHealth,
   type AgentRun,
   type AgentRunDetails,
-  isBudgetProtectedAgentInput,
 } from "../api/agents";
 import { getFriendlyErrorMessage } from "../api/client";
 import { getRecord, type WorkspaceRecord } from "../api/records";
 import type { LuluAgentContract } from "../config/lulu-agent-registry";
 
-type AgentDecision = "approved" | "rejected" | "cancelled";
 type RecordRef = { id: string; resourceType: string };
 type ExecutionPacket = { packet: WorkspaceRecord; results: WorkspaceRecord[] };
 
@@ -220,28 +218,6 @@ export function usePageAgentRun(
     }
   }, [details, latestRun, load, t, workspaceId]);
 
-  const decide = useCallback(async (stepId: string, decision: AgentDecision) => {
-    const runId = details?.run.id ?? latestRun?.id;
-    if (!workspaceId || !runId) return;
-    setActing(true);
-    try {
-      const response = await agentApi.approve(workspaceId, runId, stepId, decision);
-      setDetails(response.data);
-      setLatestRun(response.data.run);
-      await refreshExecution(response.data);
-      setError("");
-    } catch (nextError) {
-      setError(getFriendlyErrorMessage(nextError, t("The approval decision could not be saved.")));
-    } finally {
-      setActing(false);
-    }
-  }, [details, latestRun, refreshExecution, t, workspaceId]);
-
-  const pendingApprovalSteps = useMemo(
-    () => details?.steps.filter((step) => step.status === "waiting_approval" && isBudgetProtectedAgentInput(step.toolInput)) ?? [],
-    [details],
-  );
-
   const recentSteps = useMemo(
     () => (details?.steps ?? []).slice().sort((left, right) => right.sequenceNo - left.sequenceNo).slice(0, 6),
     [details],
@@ -289,7 +265,6 @@ export function usePageAgentRun(
     details,
     health,
     currentHealth,
-    pendingApprovalSteps,
     recentSteps,
     recentEvents,
     executionPackets,
@@ -300,7 +275,6 @@ export function usePageAgentRun(
     start,
     retry: start,
     cancel,
-    decide,
     selectRun,
   };
 }

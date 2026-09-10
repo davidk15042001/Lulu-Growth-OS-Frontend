@@ -89,7 +89,7 @@ function moduleStatusLabel(status: string) {
   if (status === 'completed') return 'Completed';
   if (status === 'running') return 'Running';
   if (status === 'failed') return 'Failed';
-  if (status === 'waiting_approval') return 'Waiting for approval';
+  if (status === 'waiting_approval') return 'Budget required';
   if (status === 'cancelled') return 'Cancelled';
   return 'Queued';
 }

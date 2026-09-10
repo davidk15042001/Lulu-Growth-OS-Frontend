@@ -159,5 +159,4 @@ export const agentApi = {
   create: (workspaceId: string, options?: CreateAgentRunOptions) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, '/agent-runs'), method: 'POST', body: { module: options?.module, page: options?.page, dedupeMinutes: options?.dedupeMinutes } }),
   detail: (workspaceId: string, runId: string) => requestApi<AgentRunDetails>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}`) }),
   cancel: (workspaceId: string, runId: string) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/cancel`), method: 'POST', body: {} }),
-  approve: (workspaceId: string, runId: string, stepId: string, decision: 'approved' | 'rejected' | 'cancelled' = 'approved') => requestApi<AgentRunDetails>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/steps/${stepId}/approve`), method: 'POST', body: { decision } }),
 };

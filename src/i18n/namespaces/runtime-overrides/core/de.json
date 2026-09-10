@@ -2939,5 +2939,17 @@
   "Only adding paid-media funds requires a customer action.": "Lediglich das Hinzufügen von Paid-Media-Mitteln erfordert eine Aktion des Kunden.",
   "Only new paid-media funds need customer authorization. Every other agent action executes automatically within system safeguards.": "Lediglich neue Paid-Media-Fonds benötigen eine Kundenfreigabe. Jede andere Agentenaktion wird innerhalb der Systemsicherheitsmaßnahmen automatisch ausgeführt.",
   "Only prepaid ad spend is customer-authorized; all downstream actions execute automatically.": "Nur Prepaid-Werbeausgaben werden vom Kunden autorisiert; Alle nachgelagerten Aktionen werden automatisch ausgeführt.",
-  "What Lulu executes automatically": "Was Lulu automatisch ausführt"
+  "What Lulu executes automatically": "Was Lulu automatisch ausführt",
+  "Execution mode": "Ausführungsmodus",
+  "Latest backend events, payloads, and execution signals for the selected run.": "Neueste Backend-Ereignisse, Nutzdaten und Ausführungssignale für den ausgewählten Lauf.",
+  "Autonome Veröffentlichung aktiv": "Autonome Veröffentlichung aktiv",
+  "Autonome Veröffentlichung": "Autonome Veröffentlichung",
+  "Budget required": "Budget erforderlich",
+  "Autonomous execution stays inside entitlements, provider limits and the prepaid ad-spend balance": "Autonome Ausführung bleibt innerhalb von Berechtigungen, Anbietergrenzen und dem vorausbezahlten Werbebudget.",
+  "risk and execution streams": "Risiko- und Ausführungsströme",
+  "execution audit": "Ausführungsprotokoll",
+  "Validate and execute launches autonomously.": "Starts autonom validieren und ausführen.",
+  "execution queue": "Ausführungswarteschlange",
+  "execute ready publications": "Bereite Veröffentlichungen ausführen",
+  "execution latency": "Ausführungslatenz"
 }

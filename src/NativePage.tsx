@@ -8,6 +8,7 @@ import { LuluAgentWorkspaceHeader } from "./components/LuluAgentWorkspaceHeader"
 import { MinimalAgentWorkspacePage } from "./components/MinimalAgentWorkspacePage";
 import { isPageAvailable, navigateApp, routes, HOME_PAGE_SLUG } from "./routing";
 import { getPageContract } from "./api/page-contracts";
+import type { PageContract } from "./api/page-contracts";
 import { getLuluAgentContract } from "./config/lulu-agent-registry";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
 import luluVisualSystemCss from "./ui/lulu-visual-system.css?inline";
@@ -95,10 +96,23 @@ const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   "rich-field-1880",
 ]);
 
+// Only interfaces whose primary controls are backed by dedicated production
+// APIs remain custom. Every other resource route uses the live agent workspace
+// instead of rendering legacy generated dashboards with decorative controls or
+// sample-derived claims.
+const VERIFIED_RESOURCE_INTERFACES = new Set([
+  "sunny-minute-1092", // prepaid ad-spend wallet and checkout
+  "sunny-summer-2293", // provider account connection
+  "daring-brook-9034", // Google Business reviews
+  "rich-field-1880", // knowledge base
+]);
+
 function shouldUseMinimalAgentPage(
   hasAgentContract: boolean,
   slug: string,
+  contract: PageContract | undefined,
 ) {
+  if (contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)) return hasAgentContract;
   // Pages with a dedicated custom interface render their own component
   // instead of the generic agent workspace.
   if (CUSTOM_INTERFACE_PAGE_SLUGS.has(slug)) return false;
@@ -137,7 +151,7 @@ export function NativePage({
   const agentContract = getLuluAgentContract(effectiveSlug);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
   const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname);
-  const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(Boolean(agentContract), effectiveSlug);
+  const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(Boolean(agentContract), effectiveSlug, contract);
 
   useEffect(() => {
     if (!pageAvailable) {

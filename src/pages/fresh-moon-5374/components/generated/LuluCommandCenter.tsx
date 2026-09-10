@@ -9,18 +9,15 @@ import {
   ShieldAlert,
   Square,
   Trash2,
-  X,
 } from "lucide-react";
 import {
   agentApi,
   type AgentHealth,
   type AgentHealthItem,
   type AgentRun,
-  isBudgetProtectedAgentInput,
 } from "../../../../api/agents";
 import { workspaceApi } from "../../../../api/workspaces";
 import type { WorkspaceBootstrap } from "../../../../api/types";
-import { approvalApi, type Approval } from "../../../../api/approvals";
 import {
   archiveRecord,
   listRecords,
@@ -73,7 +70,7 @@ function statusLabel(item: AgentHealthItem, t: (key: string) => string): string 
   switch (item.lastRunStatus) {
     case "completed": return t("Ready");
     case "failed": return t("Error");
-    case "waiting_approval": return t("Approval required");
+    case "waiting_approval": return t("Budget required");
     case "running": return t("Active");
     case "queued": return t("Queued");
     case "planning": return t("Planning");
@@ -112,18 +109,11 @@ function runPageId(run: AgentRun): string | null {
   return null;
 }
 
-function isVisibleApproval(approval: Approval) {
-  // Non-agent approvals belong to other business workflows and remain visible.
-  if (!approval.actionType.startsWith("agent_")) return true;
-  return isBudgetProtectedAgentInput(approval.payload);
-}
-
 export function LuluCommandCenter() {
   const t = useTranslation();
   const workspaceId = getSelectedWorkspaceId();
   const [health, setHealth] = useState<AgentHealth | null>(null);
   const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null);
-  const [approvals, setApprovals] = useState<Approval[]>([]);
   const [activeRuns, setActiveRuns] = useState<Map<string, string>>(new Map());
   const [resourceTypes, setResourceTypes] = useState<ResourceTypeDefinition[]>([]);
   const [selectedResourceType, setSelectedResourceType] = useState<string | null>(null);
@@ -136,7 +126,6 @@ export function LuluCommandCenter() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionError, setActionError] = useState("");
-  const [decidingId, setDecidingId] = useState<string | null>(null);
   const [cancellingPageId, setCancellingPageId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
@@ -153,16 +142,6 @@ export function LuluCommandCenter() {
       setError(getFriendlyErrorMessage(cause, "Die Steuerzentrale konnte nicht geladen werden."));
     } finally {
       setLoading(false);
-    }
-  }, [workspaceId]);
-
-  const loadApprovals = useCallback(async () => {
-    if (!workspaceId) return;
-    try {
-      const result = await approvalApi.list(workspaceId, "status=pending&limit=50");
-      setApprovals(result.data.items);
-    } catch {
-      setApprovals([]);
     }
   }, [workspaceId]);
 
@@ -208,30 +187,15 @@ export function LuluCommandCenter() {
 
   useEffect(() => {
     void load();
-    void loadApprovals();
     void loadRuns();
     void loadResourceTypes();
-  }, [load, loadApprovals, loadRuns, loadResourceTypes]);
+  }, [load, loadRuns, loadResourceTypes]);
 
   useEffect(() => {
     if (selectedResourceType) void loadRecords(selectedResourceType);
   }, [selectedResourceType, loadRecords]);
 
   const canEdit = bootstrap?.permissions.canEdit ?? false;
-
-  const decide = async (approvalId: string, decision: "approved" | "rejected") => {
-    if (!workspaceId || decidingId) return;
-    setDecidingId(approvalId);
-    setActionError("");
-    try {
-      await approvalApi.decide(workspaceId, approvalId, decision);
-      await Promise.all([loadApprovals(), load()]);
-    } catch (cause) {
-      setActionError(getFriendlyErrorMessage(cause, "Die Freigabe konnte nicht bearbeitet werden."));
-    } finally {
-      setDecidingId(null);
-    }
-  };
 
   const cancelAgent = async (pageId: string) => {
     const runId = activeRuns.get(pageId);
@@ -292,10 +256,6 @@ export function LuluCommandCenter() {
 
   const groups = useMemo(() => groupBySection(items), [items]);
   const summary = health?.summary ?? null;
-  const visibleApprovals = useMemo(() => approvals.filter(isVisibleApproval), [approvals]);
-  const pendingApprovals = bootstrap?.approvals.pending === undefined
-    ? visibleApprovals.length
-    : Math.max(0, bootstrap.approvals.pending - (approvals.length - visibleApprovals.length));
   const totalRecords = bootstrap?.records.total ?? 0;
 
   return (
@@ -303,7 +263,7 @@ export function LuluCommandCenter() {
       <div className="mx-auto flex w-full max-w-5xl flex-col gap-6">
         <div>
           <h2 className="text-lg font-semibold">Steuerzentrale</h2>
-          <p className="text-sm text-[var(--muted-foreground)]">Alle Agenten, Systeme und Freigaben an einem Ort.</p>
+          <p className="text-sm text-[var(--muted-foreground)]">Alle Agenten, Systeme und Ausführungen an einem Ort.</p>
         </div>
 
         {error && (
@@ -341,10 +301,10 @@ export function LuluCommandCenter() {
               <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
                 <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
                   <ShieldAlert size={15} />
-                  <span className="text-xs">Offene Freigaben</span>
+                  <span className="text-xs">Ausführungsmodus</span>
                 </div>
-                <p className="mt-2 text-2xl font-semibold">{pendingApprovals}</p>
-                <p className="text-xs text-[var(--muted-foreground)]">warten auf Entscheidung</p>
+                <p className="mt-2 text-lg font-semibold">Autonom</p>
+                <p className="text-xs text-[var(--muted-foreground)]">nur Budget wird vorab aufgeladen</p>
               </div>
               <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
                 <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
@@ -360,56 +320,11 @@ export function LuluCommandCenter() {
               <div className="mb-3 flex items-center justify-between">
                 <h3 className="flex items-center gap-2 text-sm font-semibold">
                   <ShieldAlert size={15} />
-                  Offene Freigaben
+                  Autonome Ausführung
                 </h3>
-                <span className="text-xs text-[var(--muted-foreground)]">{visibleApprovals.length}</span>
+                <span className="text-xs text-emerald-600">Aktiv</span>
               </div>
-              {!canEdit && (
-                <p className="mb-2 text-xs text-[var(--muted-foreground)]">Nur lesbar</p>
-              )}
-              {visibleApprovals.length === 0 ? (
-                <p className="text-sm text-[var(--muted-foreground)]">Keine offenen Freigaben.</p>
-              ) : (
-                <div className="flex flex-col gap-2">
-                  {visibleApprovals.map((approval) => (
-                    <div
-                      key={approval.id}
-                      className="flex flex-wrap items-center gap-3 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2.5"
-                    >
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium">{approval.title}</p>
-                        <p className="truncate text-xs text-[var(--muted-foreground)]">
-                          {approval.actionType}
-                          {approval.impactAmount ? ` · ${approval.impactAmount} ${approval.impactCurrency ?? ""}` : ""}
-                          {approval.description ? ` · ${approval.description}` : ""}
-                        </p>
-                      </div>
-                      {canEdit && (
-                        <div className="flex shrink-0 items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => void decide(approval.id, "approved")}
-                            disabled={decidingId === approval.id}
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-60"
-                          >
-                            <Check size={14} />
-                            Freigeben
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => void decide(approval.id, "rejected")}
-                            disabled={decidingId === approval.id}
-                            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--border)] px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] disabled:opacity-60"
-                          >
-                            <X size={14} />
-                            Ablehnen
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
+              <p className="text-sm text-[var(--muted-foreground)]">Lulu analysiert, entscheidet und führt Aktionen innerhalb der Systemgrenzen selbstständig aus. Nur neues Paid-Media-Budget erfordert eine Aufladung durch den Kunden.</p>
             </section>
 
             <section className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">

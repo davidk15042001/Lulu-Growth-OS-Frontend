@@ -22,7 +22,6 @@ const UI_STATE_TRANSLATION_KEYS: Record<LuluAgentUiState, string> = {
   drafting: "Drafting",
   monitoring: "Monitoring",
   analyzing: "Analyzing",
-  needs_approval: "Migrating to autonomy",
   executing: "Executing",
   completed: "Completed",
   attention_required: "Attention required",
