@@ -2951,5 +2951,7 @@
   "Validate and execute launches autonomously.": "Starts autonom validieren und ausführen.",
   "execution queue": "Ausführungswarteschlange",
   "execute ready publications": "Bereite Veröffentlichungen ausführen",
-  "execution latency": "Ausführungslatenz"
+  "execution latency": "Ausführungslatenz",
+  "Autonomous": "Autonom",
+  "Autonomous execution": "Autonome Ausführung"
 }

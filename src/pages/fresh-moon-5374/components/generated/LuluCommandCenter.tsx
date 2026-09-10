@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import {
   agentApi,
+  type AgentEcosystem,
   type AgentHealth,
   type AgentHealthItem,
   type AgentRun,
@@ -113,6 +114,7 @@ export function LuluCommandCenter() {
   const t = useTranslation();
   const workspaceId = getSelectedWorkspaceId();
   const [health, setHealth] = useState<AgentHealth | null>(null);
+  const [ecosystem, setEcosystem] = useState<AgentEcosystem | null>(null);
   const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null);
   const [activeRuns, setActiveRuns] = useState<Map<string, string>>(new Map());
   const [resourceTypes, setResourceTypes] = useState<ResourceTypeDefinition[]>([]);
@@ -131,11 +133,13 @@ export function LuluCommandCenter() {
   const load = useCallback(async () => {
     if (!workspaceId) return;
     try {
-      const [healthResponse, bootstrapResponse] = await Promise.all([
+      const [healthResponse, ecosystemResponse, bootstrapResponse] = await Promise.all([
         agentApi.health(workspaceId),
+        agentApi.ecosystem(workspaceId),
         workspaceApi.bootstrap(workspaceId),
       ]);
       setHealth(healthResponse.data);
+      setEcosystem(ecosystemResponse.data);
       setBootstrap(bootstrapResponse.data);
       setError("");
     } catch (cause) {
@@ -287,8 +291,8 @@ export function LuluCommandCenter() {
                   <Activity size={15} />
                   <span className="text-xs">Agenten</span>
                 </div>
-                <p className="mt-2 text-2xl font-semibold">{summary?.totalPages ?? 0}</p>
-                <p className="text-xs text-[var(--muted-foreground)]">{summary?.activePages ?? 0} aktiv</p>
+                <p className="mt-2 text-2xl font-semibold">{ecosystem?.summary.registeredAgents ?? summary?.totalPages ?? 0}</p>
+                <p className="text-xs text-[var(--muted-foreground)]">{ecosystem?.summary.activeTeamSize ?? summary?.activePages ?? 0} im aktuellen Team</p>
               </div>
               <div className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
                 <div className="flex items-center gap-2 text-[var(--muted-foreground)]">
@@ -324,7 +328,28 @@ export function LuluCommandCenter() {
                 </h3>
                 <span className="text-xs text-emerald-600">Aktiv</span>
               </div>
-              <p className="text-sm text-[var(--muted-foreground)]">Lulu analysiert, entscheidet und führt Aktionen innerhalb der Systemgrenzen selbstständig aus. Nur neues Paid-Media-Budget erfordert eine Aufladung durch den Kunden.</p>
+              <p className="text-sm text-[var(--muted-foreground)]">Lulu analysiert, entscheidet, delegiert und führt Aktionen innerhalb der Systemgrenzen selbstständig aus. Nur neues Paid-Media-Budget erfordert eine Aufladung durch den Kunden.</p>
+              {ecosystem && (
+                <div className="mt-4 grid gap-4 border-t border-[var(--border)] pt-4 lg:grid-cols-[1.2fr_1fr]">
+                  <div>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Permanent North Star</p>
+                    <p className="mt-1.5 text-sm font-medium leading-6">{ecosystem.northStar}</p>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--muted-foreground)]">Dynamisches Team</p>
+                      <span className="text-xs text-[var(--muted-foreground)]">{ecosystem.summary.activeSpecialists} Spezialisten</span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {ecosystem.activeTeam.slice(0, 8).map((agent) => (
+                        <span key={agent.id} title={agent.selectionReasons.join(' · ')} className="rounded-full border border-[var(--border)] bg-[var(--background)] px-2.5 py-1 text-[11px] font-medium">
+                          {agent.name}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
             </section>
 
             <section className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">

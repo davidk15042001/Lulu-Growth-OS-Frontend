@@ -48,6 +48,75 @@ export type AgentHealth = {
   };
   items: AgentHealthItem[];
 };
+export type AgentEcosystemMember = {
+  id: string;
+  version: string;
+  name: string;
+  tier: 'executive' | 'domain_lead' | 'specialist' | 'auditor';
+  module: string;
+  spendPermission: 'none' | 'prepaid_ad_spend_only';
+  domain: string;
+  purpose: string;
+  capabilities: string[];
+  kpis: string[];
+  score: number;
+  selectionReasons: string[];
+  performance: {
+    runCount: number;
+    successCount: number;
+    failureCount: number;
+    selectionCount: number;
+    performanceScore: number;
+    lastStatus: string | null;
+    lastRunAt: string | null;
+  } | null;
+};
+export type AgentEcosystemDefinition = {
+  id: string;
+  version: string;
+  name: string;
+  tier: 'executive' | 'domain_lead' | 'specialist' | 'auditor';
+  module: string;
+  spendPermission: 'none' | 'prepaid_ad_spend_only';
+  domain: string;
+  purpose: string;
+  capabilities: string[];
+  requiredTools: string[];
+  activationTriggers: string[];
+  permissions: string[];
+  kpis: string[];
+  confidenceRequirement: 'low' | 'medium' | 'high';
+  pageId: string | null;
+};
+export type AgentEcosystem = {
+  northStar: string;
+  autonomy: {
+    mode: 'fully_agentic';
+    routineHumanApproval: false;
+    onlyRoutineCustomerBoundary: 'prepaid_ad_spend_funding';
+  };
+  summary: {
+    minimumRequired: number;
+    registeredAgents: number;
+    pageSpecialists: number;
+    systemAgents: number;
+    byTier: Record<string, number>;
+    activeTeamSize: number;
+    activeSpecialists: number;
+    candidatesConsidered: number;
+    connectedPlatformCount: number;
+    liveResourceTypeCount: number;
+  };
+  activeTeam: AgentEcosystemMember[];
+  definitions: AgentEcosystemDefinition[];
+  latestCycle: {
+    id: string;
+    triggerType: string;
+    status: string;
+    selectedAgentIds: string[];
+    createdAt: string;
+  } | null;
+};
 export type IntelligenceMetric = {
   metricKey: string;
   value: unknown;
@@ -156,6 +225,7 @@ export const agentApi = {
   list: (workspaceId: string, query?: AgentQuery) => requestApi<{ items: AgentRun[] }>({ path: withAgentQuery(workspaceApiPath(workspaceId, '/agent-runs'), query) }),
   knowledge: (workspaceId: string, query?: AgentQuery) => requestApi<IntelligenceBundle>({ path: withAgentQuery(intelligencePath(workspaceId), query) }),
   health: (workspaceId: string, query?: AgentQuery) => requestApi<AgentHealth>({ path: withAgentQuery(workspaceApiPath(workspaceId, '/agent-runs/health'), query) }),
+  ecosystem: (workspaceId: string) => requestApi<AgentEcosystem>({ path: workspaceApiPath(workspaceId, '/agent-runs/ecosystem') }),
   create: (workspaceId: string, options?: CreateAgentRunOptions) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, '/agent-runs'), method: 'POST', body: { module: options?.module, page: options?.page, dedupeMinutes: options?.dedupeMinutes } }),
   detail: (workspaceId: string, runId: string) => requestApi<AgentRunDetails>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}`) }),
   cancel: (workspaceId: string, runId: string) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/cancel`), method: 'POST', body: {} }),

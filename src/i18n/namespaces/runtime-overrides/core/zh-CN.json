@@ -2951,5 +2951,7 @@
   "Validate and execute launches autonomously.": "自主验证并执行发布。",
   "execution queue": "执行队列",
   "execute ready publications": "执行已就绪的发布",
-  "execution latency": "执行延迟"
+  "execution latency": "执行延迟",
+  "Autonomous": "自治",
+  "Autonomous execution": "自主执行"
 }

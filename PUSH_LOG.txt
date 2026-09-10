@@ -131,3 +131,6 @@ Push-Zeitstempel: 2026-08-27 21:36:00 Europe/Berlin
 
 Push-Zeitstempel: 2026-08-27 22:12:00 Europe/Berlin
 Änderungen: Frontend Commit fdb9e4e (Admin-only UI mode). Ab sofort werden Admins (lulu.ai.cn@gmail.com + Rolle admin) NACH LOGIN DIREKT auf /app/admin-billing-overview-9901 weitergeleitet (kein normales Dashboard/Onboarding/Welcome mehr). Alle regulären /app/* User-Routen sind für Admins gesperrt und leiten automatisch auf das Admin-Panel um. Helper isAdminUser() in session.ts + ADMIN_PANEL_PATH Konstante zentralisiert. SessionStorage => localStorage (Stay signed in) aus Commit 0956546 bleibt aktiv.
+
+Push-Zeitstempel: 2026-09-10 11:38:09 Europe/Berlin
+Änderungen: Command Center und Agentenübersicht zeigen jetzt das echte 145-Agenten-Ökosystem, das dynamisch ausgewählte autonome Team, Auswahlgründe, den permanenten North Star sowie die einzige Kundenkontrolle für neues Werbebudget. Die Oberfläche ist vollständig auf Englisch, Deutsch und Chinesisch synchronisiert.

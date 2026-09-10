@@ -1,8 +1,11 @@
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import type { WorkspaceRecord } from '../../../../api/records';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Activity, AlertTriangle, ArrowUpDown, BarChart3, BookOpen, Brain, Check, CheckCircle, ChevronDown, ChevronRight, Clock3, DollarSign, FileEdit, Globe, Heart, HelpCircle, LayoutDashboard, LayoutTemplate, LineChart, MessageSquare, MessagesSquare, MoreHorizontal, Pause, PauseCircle, PenTool, Plus, Search, Settings, ShieldAlert, Sparkles, Store, Target, TrendingUp, Users, Wrench, X, Zap, Bot, Filter, Layers } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { agentApi, type AgentEcosystem } from '../../../../api/agents';
+import { getFriendlyErrorMessage } from '../../../../api/client';
+import { getSelectedWorkspaceId } from '../../../../api/session';
 interface Agent {
   id: string;
   name: string;
@@ -223,26 +226,71 @@ function sortBySeverity(items: WorkspaceRecord[]) {
 }
 
 export const LuluAIAgents = () => {
-  const { items, loading, error } = useLiveRecords('ai_agents');
-  const groupedAgents = useMemo(() => {
-    const grouped = {
-      critical: [] as WorkspaceRecord[],
-      dangerous: [] as WorkspaceRecord[],
-      okay: [] as WorkspaceRecord[],
-      very_good: [] as WorkspaceRecord[],
-    };
-    for (const record of items) {
-      grouped[resolveAgentHealthBucket(record)].push(record);
-    }
-    return {
-      critical: sortBySeverity(grouped.critical),
-      dangerous: sortBySeverity(grouped.dangerous),
-      okay: sortBySeverity(grouped.okay),
-      very_good: sortBySeverity(grouped.very_good),
-    };
-  }, [items]);
+  const workspaceId = getSelectedWorkspaceId();
+  const [ecosystem, setEcosystem] = useState<AgentEcosystem | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [query, setQuery] = useState('');
 
-  return <div className="lulu-shell"><aside className="lulu-sidebar" aria-label="Primary navigation"><div className="lulu-logo"><span className="sparkle">✦</span><span>Lulu AI</span></div><LuluSectionNavigation activeId="radiant-dusk-9079" /></aside><main className="lulu-main"><header className="page-header"><div className="breadcrumb"><span>AI Platform</span><ChevronRight size={13} /><strong>AI Agents</strong></div><div className="title-row"><div><h1>AI Agents</h1><p>Alle AI Agents nach Prioritaet sortiert, mit einfacher Einschaetzung und klarem Feedback.</p></div><div className="header-actions"><button className="ghost-button"><LayoutTemplate size={15} />Agent Templates</button><button className="ghost-button"><Store size={15} />Agent Marketplace</button><button type="button" className="primary-button" disabled aria-disabled="true" title="Create Agent coming soon" style={{ cursor: 'not-allowed', opacity: 0.55 }}><Plus size={15} />Create Agent <span aria-hidden="true">(soon)</span></button></div></div></header>{loading ? <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">Loading live AI agents…</div> : error ? <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center text-sm text-destructive">{error}</div> : !items.length ? <section className="flex min-h-[560px] items-center justify-center rounded-xl border border-dashed border-border bg-card p-10 text-center"><Bot className="mx-auto text-muted-foreground" size={38} /><h2 className="mt-4 text-xl font-semibold text-foreground">No AI agents available yet</h2><p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Configure an authorized AI agent or connect an agent source to populate this page. No example agent names, task counts, health values or performance statistics are displayed.</p></section> : <section className="content-section space-y-5"><div className="section-heading"><h2>Your AI Agents</h2><span>{items.length} live records</span></div>{AGENT_HEALTH_GROUPS.map(group => <section key={group.id} className={`rounded-2xl border bg-card p-4 sm:p-5 ${group.borderClassName} ${group.panelClassName}`}><div className="flex flex-col gap-2 border-b border-border/70 pb-4 sm:flex-row sm:items-center sm:justify-between"><div><h3 className="text-lg font-semibold text-foreground">{group.label}</h3><p className="text-sm text-muted-foreground">{group.description}</p></div><span className={`inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-semibold ${group.badgeClassName}`}>{groupedAgents[group.id].length} Agent{groupedAgents[group.id].length === 1 ? '' : 'en'}</span></div>{groupedAgents[group.id].length === 0 ? <p className="pt-4 text-sm text-muted-foreground">Aktuell keine Agenten in dieser Kategorie.</p> : <div className="grid gap-3 pt-4">{groupedAgents[group.id].map(record => <article key={record.id} className={`rounded-xl border p-4 ${group.borderClassName} bg-background/85`}><div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h4 className="text-base font-semibold text-foreground">{record.name}</h4><span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-semibold ${group.badgeClassName}`}>{group.label}</span><span className="inline-flex items-center rounded-full border border-border px-2.5 py-1 text-[11px] font-medium text-muted-foreground">{textValue(record.status) || 'Recorded'}</span></div><p className="mt-2 text-sm leading-6 text-muted-foreground">{record.description || 'Live AI agent record'}</p><p className="mt-3 text-sm font-medium text-foreground">{simpleFeedback(record, group.id)}</p></div><div className="grid min-w-[220px] gap-2 text-sm text-muted-foreground sm:grid-cols-2 lg:grid-cols-1"><div><span className="font-medium text-foreground">Typ:</span> {textValue(record.data?.type) || 'Agent'}</div><div><span className="font-medium text-foreground">Tasks:</span> {textValue(record.data?.tasks) || '—'}</div><div><span className="font-medium text-foreground">Stage:</span> {textValue(record.stage) || textValue(record.data?.stage) || '—'}</div><div><span className="font-medium text-foreground">Aktualisiert:</span> {formatUpdatedAt(record.updatedAt)}</div></div></div></article>)}</div>}</section>)}</section>}</main></div>;
+  useEffect(() => {
+    let mounted = true;
+    if (!workspaceId) {
+      setError('Kein Workspace ausgewählt.');
+      setLoading(false);
+      return () => { mounted = false; };
+    }
+    void agentApi.ecosystem(workspaceId)
+      .then((response) => {
+        if (!mounted) return;
+        setEcosystem(response.data);
+        setError('');
+      })
+      .catch((cause) => {
+        if (mounted) setError(getFriendlyErrorMessage(cause, 'Das Agenten-Ökosystem konnte nicht geladen werden.'));
+      })
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
+  }, [workspaceId]);
+
+  const activeIds = useMemo(() => new Set(ecosystem?.activeTeam.map((agent) => agent.id) ?? []), [ecosystem]);
+  const filteredDefinitions = useMemo(() => {
+    const needle = query.trim().toLowerCase();
+    const definitions = ecosystem?.definitions ?? [];
+    if (!needle) return definitions;
+    return definitions.filter((agent) => `${agent.name} ${agent.domain} ${agent.module} ${agent.purpose}`.toLowerCase().includes(needle));
+  }, [ecosystem, query]);
+  const tiers = [
+    { id: 'executive', label: 'Executive Orchestrator' },
+    { id: 'domain_lead', label: 'Domain Leads' },
+    { id: 'auditor', label: 'Independent Auditors' },
+    { id: 'specialist', label: 'Specialists' },
+  ] as const;
+
+  return <div className="lulu-shell">
+    <aside className="lulu-sidebar" aria-label="Primary navigation"><div className="lulu-logo"><span className="sparkle">✦</span><span>Lulu AI</span></div><LuluSectionNavigation activeId="radiant-dusk-9079" /></aside>
+    <main className="lulu-main">
+      <header className="page-header">
+        <div className="breadcrumb"><span>AI Platform</span><ChevronRight size={13} /><strong>Agent Ecosystem</strong></div>
+        <div className="title-row"><div><h1>Agent Ecosystem</h1><p>Lulu stellt für jede Situation automatisch das kleinste wirksame Team zusammen.</p></div><span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700"><span className="h-2 w-2 rounded-full bg-emerald-500" />Fully agentic</span></div>
+      </header>
+      {loading ? <div className="rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">Agenten-Ökosystem wird geladen …</div> : error ? <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-8 text-center text-sm text-destructive">{error}</div> : ecosystem ? <section className="content-section space-y-5">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-2xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Registered Agents</p><p className="mt-2 text-3xl font-semibold">{ecosystem.summary.registeredAgents}</p><p className="mt-1 text-xs text-muted-foreground">{ecosystem.summary.pageSpecialists} specialists + {ecosystem.summary.systemAgents} system agents</p></div>
+          <div className="rounded-2xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Current Team</p><p className="mt-2 text-3xl font-semibold">{ecosystem.summary.activeTeamSize}</p><p className="mt-1 text-xs text-muted-foreground">{ecosystem.summary.activeSpecialists} dynamically selected specialists</p></div>
+          <div className="rounded-2xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Connected Systems</p><p className="mt-2 text-3xl font-semibold">{ecosystem.summary.connectedPlatformCount}</p><p className="mt-1 text-xs text-muted-foreground">{ecosystem.summary.liveResourceTypeCount} live data domains</p></div>
+          <div className="rounded-2xl border border-border bg-card p-4"><p className="text-xs text-muted-foreground">Human Approvals</p><p className="mt-2 text-3xl font-semibold">0</p><p className="mt-1 text-xs text-muted-foreground">Only new ad-spend funding is customer controlled</p></div>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-5"><div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground"><Target size={15} />Permanent North Star</div><p className="mt-3 max-w-4xl text-base font-medium leading-7 text-foreground">{ecosystem.northStar}</p></div>
+        <div className="rounded-2xl border border-border bg-card p-5"><div className="section-heading"><h2>Active autonomous team</h2><span>{ecosystem.activeTeam.length} selected now</span></div><div className="mt-4 grid gap-3 md:grid-cols-2">{ecosystem.activeTeam.map((agent) => <article key={agent.id} className="rounded-xl border border-border bg-background/85 p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold text-foreground">{agent.name}</h3><p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">{agent.tier.replace('_', ' ')} · {agent.domain}</p></div><span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">Active</span></div><p className="mt-3 text-sm leading-6 text-muted-foreground">{agent.purpose}</p><p className="mt-3 text-xs text-muted-foreground">Selected because: {agent.selectionReasons.join(' · ')}</p></article>)}</div></div>
+        <div className="relative"><Search size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search all agents …" className="w-full rounded-xl border border-border bg-card py-2.5 pl-10 pr-4 text-sm outline-none focus:ring-2 focus:ring-ring" /></div>
+        {tiers.map((tier) => {
+          const members = filteredDefinitions.filter((agent) => agent.tier === tier.id);
+          if (!members.length) return null;
+          return <details key={tier.id} open={tier.id !== 'specialist'} className="rounded-2xl border border-border bg-card p-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-3 font-semibold [&::-webkit-details-marker]:hidden"><span>{tier.label}</span><span className="text-xs font-normal text-muted-foreground">{members.length} agents</span></summary><div className="mt-4 grid gap-2 md:grid-cols-2">{members.map((agent) => <div key={agent.id} className="rounded-xl border border-border bg-background/70 p-3"><div className="flex items-center justify-between gap-2"><p className="truncate text-sm font-semibold">{agent.name}</p><span className={`h-2.5 w-2.5 shrink-0 rounded-full ${activeIds.has(agent.id) ? 'bg-emerald-500' : 'bg-muted-foreground/25'}`} title={activeIds.has(agent.id) ? 'Selected for the current team' : 'Available on demand'} /></div><p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">{agent.purpose}</p><div className="mt-2 flex flex-wrap gap-1">{agent.capabilities.slice(0, 3).map((capability) => <span key={capability} className="rounded-full border border-border px-2 py-0.5 text-[10px] text-muted-foreground">{capability.replaceAll('_', ' ')}</span>)}</div></div>)}</div></details>;
+        })}
+      </section> : null}
+    </main>
+  </div>;
 };
 const luluDropdownNavigation = [{
   "label": "Dashboard",
