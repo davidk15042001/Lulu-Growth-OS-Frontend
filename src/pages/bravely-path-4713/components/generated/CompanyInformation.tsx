@@ -114,22 +114,6 @@ export const CompanyInformation = () => {
               
             </label>
 
-            <label className="block text-sm font-medium text-[var(--muted-foreground)]">
-              <span>Country/region</span>
-              <input value={form.countryRegion} onChange={event => update("countryRegion", event.target.value)} type="text" autoComplete="country-name" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--border)]" />
-              
-            </label>
-
-            <label className="block text-sm font-medium text-[var(--muted-foreground)]">
-              <span>Tax ID</span>
-              <input value={form.taxId} onChange={event => update("taxId", event.target.value)} type="text" autoComplete="off" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--border)]" />
-            </label>
-
-            <label className="block text-sm font-medium text-[var(--muted-foreground)]">
-              <span>Business address</span>
-              <textarea value={form.address} onChange={event => update("address", event.target.value)} autoComplete="street-address" rows={3} className="mt-1 w-full resize-y rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 py-2.5 text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:border-[var(--border)]" />
-            </label>
-
             <button type="submit" disabled={loading || !form.companyName.trim()} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[var(--border)] focus:ring-offset-2 focus:ring-offset-[var(--border)]">
               
               <span>{loading ? "Saving…" : saved ? "Saved" : "Save changes"}</span>
