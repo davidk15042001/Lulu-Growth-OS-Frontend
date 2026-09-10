@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
-import { Menu, Search, X } from "lucide-react";
+import { Activity, Menu, Search, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLuluApp } from "../api/LuluAppContext";
 import { pagePath } from "../routing";
 import { availablePages } from "../app/page-registry";
 import { LuluWorkspaceRefreshButton } from "./LuluWorkspaceTopBar";
 import { LuluUsageControl } from "./LuluUsageControl";
+import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 
 export function AuthenticatedWorkspaceTopBar({
   navigationOpen,
@@ -17,6 +18,7 @@ export function AuthenticatedWorkspaceTopBar({
   onCloseNavigation: () => void;
 }) {
   const navigate = useNavigate();
+  const t = useTranslation();
   const { currentUser, selectedWorkspace } = useLuluApp();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -56,8 +58,17 @@ export function AuthenticatedWorkspaceTopBar({
       >
         {navigationOpen ? <X aria-hidden="true" size={18} /> : <Menu aria-hidden="true" size={18} />}
       </button>
-      <div className="lulu-auth-logo" data-lulu-no-translate="true" translate="no">
-        <img className="lulu-agentic-logo-image" src="/branding/lulu-agentic-logo.svg" alt="Lulu" draggable={false} />
+      <div className="lulu-auth-brand">
+        <div className="lulu-auth-logo" data-lulu-no-translate="true" translate="no">
+          <img className="lulu-agentic-logo-image" src="/branding/lulu-agentic-logo.svg" alt="Lulu" draggable={false} />
+        </div>
+        <div className="lulu-auth-runtime" aria-label={`${t("Autonomous execution")} · 140+ ${t("AI agents")}`}>
+          <span className="lulu-auth-runtime__signal" aria-hidden="true"><Activity size={12} /></span>
+          <span className="lulu-auth-runtime__copy">
+            <strong>{t("Autonomous")}</strong>
+            <small>140+ {t("AI agents")}</small>
+          </span>
+        </div>
       </div>
       <form className="lulu-auth-search" role="search" onSubmit={submit}>
         <label className="sr-only" htmlFor="lulu-global-search">Search Lulu AI</label>

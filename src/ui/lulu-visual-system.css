@@ -580,3 +580,761 @@
     min-height: 44px;
   }
 }
+
+/* -------------------------------------------------------------------------
+   Agentic Control Plane
+   A cinematic, information-dense product layer shared by every authenticated
+   workspace. It intentionally targets stable shell and semantic component
+   hooks so generated feature screens keep all behavior and live data.
+   ------------------------------------------------------------------------- */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) {
+  --lulu-ink-950: #070a16;
+  --lulu-ink-900: #0b1020;
+  --lulu-ink-850: #10172d;
+  --lulu-electric-violet: #8b5cf6;
+  --lulu-electric-indigo: #5865f2;
+  --lulu-electric-cyan: #13b7e9;
+  --lulu-electric-mint: #18d6a2;
+  --lulu-hairline: rgba(89, 99, 142, .16);
+  --lulu-control-shadow: 0 24px 70px rgba(20, 26, 58, .11);
+  grid-template-columns: 270px minmax(0, 1fr);
+  background:
+    radial-gradient(circle at 16% 5%, rgba(139, 92, 246, .13), transparent 28rem),
+    radial-gradient(circle at 92% 8%, rgba(19, 183, 233, .12), transparent 34rem),
+    linear-gradient(180deg, #f8f9ff 0%, #f3f5fc 100%);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free)::before {
+  opacity: .62;
+  background-image:
+    linear-gradient(rgba(79, 70, 229, .042) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 70, 229, .042) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(to bottom, #000 0%, rgba(0, 0, 0, .58) 55%, transparent 100%);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content {
+  isolation: isolate;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content::before,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content::after {
+  position: fixed;
+  z-index: -1;
+  width: min(34vw, 520px);
+  height: min(34vw, 520px);
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(10px);
+  content: "";
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content::before {
+  top: 8%;
+  right: -12%;
+  background: radial-gradient(circle, rgba(14, 165, 233, .10), transparent 68%);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content::after {
+  bottom: -12%;
+  left: 18%;
+  background: radial-gradient(circle, rgba(124, 58, 237, .09), transparent 68%);
+}
+
+/* Global command deck */
+.lulu-auth-search-wrap {
+  min-height: 78px;
+  border-bottom: 1px solid rgba(139, 124, 255, .18);
+  background:
+    radial-gradient(circle at 18% -120%, rgba(124, 58, 237, .52), transparent 34%),
+    radial-gradient(circle at 78% -140%, rgba(14, 165, 233, .34), transparent 32%),
+    rgba(7, 10, 22, .96);
+  color: #f8f9ff;
+  box-shadow: 0 14px 45px rgba(7, 10, 22, .18);
+  backdrop-filter: blur(24px) saturate(1.25);
+}
+
+.lulu-auth-brand {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 13px;
+}
+
+.lulu-auth-logo {
+  width: 122px;
+  height: 46px;
+}
+
+.lulu-auth-search-wrap .lulu-agentic-logo-image {
+  content: url("/branding/lulu-agentic-logo-dark.svg");
+}
+
+.lulu-auth-runtime {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 42px;
+  padding: 6px 11px 6px 8px;
+  border: 1px solid rgba(255, 255, 255, .10);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, .055);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .055);
+}
+
+.lulu-auth-runtime__signal {
+  position: relative;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, .42), rgba(19, 183, 233, .30));
+  color: #dffaff;
+  box-shadow: 0 0 24px rgba(19, 183, 233, .18);
+}
+
+.lulu-auth-runtime__signal::after {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid #0a1020;
+  border-radius: 50%;
+  background: #2ce6a8;
+  box-shadow: 0 0 10px rgba(44, 230, 168, .8);
+  content: "";
+}
+
+.lulu-auth-runtime__copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  line-height: 1.1;
+}
+
+.lulu-auth-runtime__copy strong {
+  color: #ffffff;
+  font-size: .68rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.lulu-auth-runtime__copy small {
+  color: rgba(232, 235, 255, .58);
+  font-size: .64rem;
+}
+
+.lulu-auth-search {
+  max-width: 720px;
+  border-color: rgba(255, 255, 255, .13);
+  background: rgba(255, 255, 255, .075);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 12px 35px rgba(0, 0, 0, .16);
+}
+
+.lulu-auth-search:focus-within {
+  border-color: rgba(153, 139, 255, .62);
+  background: rgba(255, 255, 255, .105);
+  box-shadow: 0 0 0 4px rgba(124, 92, 255, .12), 0 14px 38px rgba(0, 0, 0, .22);
+}
+
+.lulu-auth-search input {
+  color: #ffffff;
+}
+
+.lulu-auth-search input::placeholder {
+  color: rgba(232, 235, 255, .48);
+}
+
+.lulu-auth-search-button,
+.lulu-auth-search-refresh {
+  background: linear-gradient(115deg, #8b5cf6, #5865f2 48%, #13b7e9) !important;
+  box-shadow: 0 9px 28px rgba(88, 101, 242, .32);
+}
+
+.lulu-auth-usage {
+  border-color: rgba(255, 255, 255, .12);
+  background: rgba(255, 255, 255, .075);
+  color: #f4f6ff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .055);
+}
+
+.lulu-auth-usage:hover {
+  border-color: rgba(139, 124, 255, .42);
+  background: rgba(139, 124, 255, .14);
+}
+
+.lulu-auth-search-results {
+  top: calc(100% + 7px);
+  border-color: rgba(139, 124, 255, .22);
+  background: rgba(11, 16, 32, .97);
+  color: #f5f7ff;
+  box-shadow: 0 30px 90px rgba(7, 10, 22, .36);
+  backdrop-filter: blur(22px);
+}
+
+.lulu-auth-search-results button {
+  border-color: rgba(255, 255, 255, .07);
+  color: #f5f7ff;
+}
+
+.lulu-auth-search-results button:hover {
+  background: linear-gradient(90deg, rgba(124, 58, 237, .25), rgba(14, 165, 233, .10));
+}
+
+.lulu-auth-nav-toggle {
+  border-color: rgba(255, 255, 255, .14);
+  background: rgba(255, 255, 255, .08);
+  color: #ffffff;
+}
+
+/* Living navigation rail */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-navigation {
+  padding: 14px 12px 12px;
+  border-right-color: rgba(139, 124, 255, .14);
+  background:
+    radial-gradient(circle at 35% 2%, rgba(124, 58, 237, .24), transparent 24%),
+    radial-gradient(circle at 110% 60%, rgba(14, 165, 233, .12), transparent 36%),
+    linear-gradient(180deg, #080b18 0%, #0c1225 48%, #111731 100%);
+  box-shadow: 18px 0 60px rgba(7, 10, 22, .12);
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-navigation::before {
+  width: 54px;
+  margin: 0 9px 12px;
+  background: linear-gradient(90deg, #9c6cff, #5865f2, #13b7e9, #18d6a2);
+  box-shadow: 0 7px 24px rgba(88, 101, 242, .48);
+}
+
+.lulu-global-navigation__system {
+  position: relative;
+  flex: 0 0 auto;
+  overflow: hidden;
+  margin: 0 1px 13px;
+  padding: 12px 13px;
+  border: 1px solid rgba(139, 124, 255, .17);
+  border-radius: 15px;
+  background: linear-gradient(145deg, rgba(139, 92, 246, .14), rgba(19, 183, 233, .055));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .055), 0 12px 34px rgba(0, 0, 0, .13);
+}
+
+.lulu-global-navigation__system::after {
+  position: absolute;
+  right: -32px;
+  bottom: -38px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(19, 183, 233, .22), transparent 66%);
+  pointer-events: none;
+  content: "";
+}
+
+.lulu-global-navigation__system-heading {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: rgba(232, 235, 255, .64);
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+
+.lulu-global-navigation__system-orbit {
+  position: relative;
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(139, 92, 246, .18);
+  color: #bfc5ff;
+}
+
+.lulu-global-navigation__system-orbit::after {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #27dda5;
+  box-shadow: 0 0 10px rgba(39, 221, 165, .9);
+  content: "";
+  animation: lulu-runtime-pulse 2.2s ease-in-out infinite;
+}
+
+.lulu-global-navigation__system-count {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.lulu-global-navigation__system-count strong {
+  background: linear-gradient(100deg, #ffffff, #bfc5ff 45%, #81e7ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 1.35rem;
+  letter-spacing: -.05em;
+}
+
+.lulu-global-navigation__system-count span {
+  color: rgba(232, 235, 255, .72);
+  font-size: .72rem;
+}
+
+.lulu-global-navigation__section-label::before {
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  margin-right: 5px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #9b7cff, #17bce8);
+  box-shadow: 0 0 12px rgba(139, 124, 255, .34);
+  content: "";
+}
+
+.lulu-global-navigation__sections details:nth-of-type(3n + 2) .lulu-global-navigation__section-label::before {
+  background: linear-gradient(135deg, #17bce8, #22d3a2);
+}
+
+.lulu-global-navigation__sections details:nth-of-type(3n) .lulu-global-navigation__section-label::before {
+  background: linear-gradient(135deg, #f472b6, #9b7cff);
+}
+
+.lulu-global-navigation__primary-link,
+.lulu-global-navigation__sections summary {
+  min-height: 42px;
+  border-radius: 11px;
+  font-weight: 620;
+}
+
+.lulu-global-navigation__subitems {
+  margin-left: 17px;
+  padding: 4px 0 6px 10px;
+}
+
+.lulu-global-navigation__subitems a,
+.lulu-global-navigation__subitem-action {
+  min-height: 38px;
+  border-radius: 9px;
+}
+
+.lulu-global-navigation__subitems a.is-active {
+  position: relative;
+  background: linear-gradient(102deg, rgba(139, 92, 246, .94), rgba(88, 101, 242, .92) 55%, rgba(19, 183, 233, .88));
+  box-shadow: 0 12px 28px rgba(88, 101, 242, .30), inset 0 1px 0 rgba(255, 255, 255, .18);
+}
+
+.lulu-global-navigation__subitems a.is-active::after {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #c7fff0;
+  box-shadow: 0 0 10px rgba(199, 255, 240, .8);
+  content: "";
+  transform: translateY(-50%);
+}
+
+/* Agent runtime hero */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-agent-workspace-header {
+  position: relative;
+  top: auto;
+  z-index: 2;
+  gap: 14px;
+  overflow: hidden;
+  margin: clamp(14px, 2vw, 24px) clamp(14px, 2.3vw, 30px) 0;
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid rgba(139, 124, 255, .22);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 9% -15%, rgba(139, 92, 246, .44), transparent 34%),
+    radial-gradient(circle at 95% 10%, rgba(19, 183, 233, .23), transparent 32%),
+    linear-gradient(138deg, #090d1d 0%, #111833 48%, #101d36 100%);
+  color: #f8f9ff;
+  box-shadow: 0 30px 80px rgba(9, 13, 29, .20), inset 0 1px 0 rgba(255, 255, 255, .07);
+  backdrop-filter: none;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-agent-workspace-header::before {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, .035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, .035) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: linear-gradient(105deg, rgba(0, 0, 0, .88), transparent 80%);
+  content: "";
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-agent-workspace-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.lulu-agent-workspace-header__eyebrow {
+  color: #aaa4ff;
+  letter-spacing: .15em;
+}
+
+.lulu-agent-workspace-header__headline {
+  margin-top: 8px;
+}
+
+.lulu-agent-workspace-header__identity {
+  gap: 16px;
+}
+
+.lulu-agent-workspace-header__icon {
+  width: 52px;
+  height: 52px;
+  border-color: rgba(173, 160, 255, .30);
+  border-radius: 16px;
+  background: linear-gradient(145deg, rgba(139, 92, 246, .34), rgba(19, 183, 233, .20));
+  color: #ffffff;
+  box-shadow: 0 14px 35px rgba(88, 101, 242, .24), inset 0 1px 0 rgba(255, 255, 255, .12);
+}
+
+.lulu-agent-workspace-header__copy h1 {
+  background: linear-gradient(95deg, #ffffff, #e5e7ff 52%, #a6edff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(1.7rem, 2.6vw, 2.75rem);
+  font-weight: 760;
+  letter-spacing: -.052em;
+}
+
+.lulu-agent-workspace-header__copy p {
+  max-width: 80ch;
+  margin-top: 9px;
+  color: rgba(232, 235, 255, .65);
+  font-size: .87rem;
+}
+
+.lulu-agent-workspace-header__badge {
+  position: relative;
+  min-height: 40px;
+  padding-inline: 14px 16px;
+  border-color: rgba(72, 226, 179, .24) !important;
+  background: rgba(24, 214, 162, .10) !important;
+  color: #caffef;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .06), 0 10px 26px rgba(0, 0, 0, .14);
+}
+
+.lulu-agent-workspace-header__badge::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2ce6a8;
+  box-shadow: 0 0 12px rgba(44, 230, 168, .85);
+  content: "";
+  animation: lulu-runtime-pulse 2.2s ease-in-out infinite;
+}
+
+.lulu-agent-workspace-header__summary {
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.lulu-agent-workspace-header__summary-item,
+.lulu-agent-workspace-header__details p,
+.lulu-agent-workspace-header__notice {
+  border-color: rgba(255, 255, 255, .10);
+  background: rgba(255, 255, 255, .055);
+  color: rgba(240, 243, 255, .76);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .045);
+}
+
+.lulu-agent-workspace-header__summary-item {
+  min-height: 82px;
+  padding: 13px 14px;
+  border-radius: 15px;
+}
+
+.lulu-agent-workspace-header__summary-item span {
+  color: rgba(174, 181, 221, .66);
+}
+
+.lulu-agent-workspace-header__summary-item strong {
+  color: #f6f7ff;
+  font-size: .82rem;
+}
+
+.lulu-agent-workspace-header__summary-item:first-child {
+  border-color: rgba(44, 230, 168, .18);
+  background: linear-gradient(145deg, rgba(44, 230, 168, .09), rgba(255, 255, 255, .045));
+}
+
+.lulu-agent-workspace-header__details {
+  gap: 9px;
+}
+
+.lulu-agent-workspace-header__details p {
+  border-radius: 14px;
+  color: rgba(232, 235, 255, .60);
+  line-height: 1.55;
+}
+
+/* Content surfaces */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-minimal-agent-page > div {
+  max-width: 1480px;
+  gap: 18px;
+  padding-top: clamp(18px, 2.2vw, 28px);
+  padding-bottom: 60px;
+}
+
+.lulu-workspace-intelligence-panel,
+.lulu-agent-runtime-panel {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(99, 82, 246, .15) !important;
+  border-radius: 22px !important;
+  background: rgba(255, 255, 255, .88) !important;
+  box-shadow: var(--lulu-control-shadow) !important;
+  backdrop-filter: blur(18px);
+}
+
+.lulu-workspace-intelligence-panel::before,
+.lulu-agent-runtime-panel::before {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #8b5cf6, #5865f2 42%, #13b7e9 72%, #18d6a2);
+  content: "";
+}
+
+.lulu-workspace-intelligence-panel > div:first-child > div:first-child > div:first-child,
+.lulu-agent-runtime-panel > div:first-child > div:first-child {
+  position: relative;
+}
+
+.lulu-agent-kpi-grid {
+  gap: 12px;
+}
+
+.lulu-agent-kpi {
+  position: relative;
+  isolation: isolate;
+  min-height: 124px;
+  overflow: hidden;
+  padding: 19px !important;
+  border-color: rgba(99, 82, 246, .13) !important;
+  border-radius: 19px !important;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .96), rgba(245, 246, 255, .88)) !important;
+  box-shadow: 0 15px 38px rgba(25, 32, 74, .08) !important;
+}
+
+.lulu-agent-kpi::after {
+  position: absolute;
+  right: -32px;
+  bottom: -42px;
+  z-index: -1;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(139, 92, 246, .16), transparent 68%);
+  content: "";
+}
+
+.lulu-agent-kpi:nth-child(2)::after { background: radial-gradient(circle, rgba(19, 183, 233, .16), transparent 68%); }
+.lulu-agent-kpi:nth-child(3)::after { background: radial-gradient(circle, rgba(244, 114, 182, .14), transparent 68%); }
+.lulu-agent-kpi:nth-child(4)::after { background: radial-gradient(circle, rgba(24, 214, 162, .15), transparent 68%); }
+
+.lulu-agent-kpi > p:nth-child(2) {
+  background: linear-gradient(100deg, #161c37, #5545d8 70%, #0d99c7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 2rem;
+  letter-spacing: -.055em;
+}
+
+.lulu-agent-runtime-panel > div:nth-of-type(n + 2) article {
+  border-color: rgba(88, 101, 242, .12);
+  background: linear-gradient(145deg, rgba(249, 250, 255, .92), rgba(241, 243, 251, .72));
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page .page-header,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > main > div[class*="mx-auto"] > header:first-child,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page--surface-shell > main > div > header:first-child,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="mx-auto"] > header:first-child:has(h1),
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="mx-auto"] > div:first-child:has(h1) {
+  border-color: rgba(99, 82, 246, .15);
+  background:
+    radial-gradient(circle at 94% -10%, rgba(19, 183, 233, .13), transparent 36%),
+    radial-gradient(circle at 14% 120%, rgba(139, 92, 246, .10), transparent 38%),
+    rgba(255, 255, 255, .90) !important;
+  box-shadow: 0 24px 65px rgba(25, 32, 74, .10);
+  backdrop-filter: blur(18px);
+}
+
+.lulu-executive-dashboard > main > div > header:first-child {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(24px, 3.4vw, 40px);
+  border: 1px solid rgba(139, 124, 255, .22);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 15% -25%, rgba(139, 92, 246, .46), transparent 34%),
+    radial-gradient(circle at 92% 12%, rgba(19, 183, 233, .24), transparent 34%),
+    linear-gradient(140deg, #090d1d, #111833 54%, #102037);
+  box-shadow: 0 30px 80px rgba(9, 13, 29, .20);
+}
+
+.lulu-executive-dashboard > main > div > header:first-child :is(h1, p) {
+  color: #ffffff;
+}
+
+.lulu-executive-dashboard > main > div > header:first-child p:last-child {
+  color: rgba(232, 235, 255, .64);
+}
+
+.lulu-executive-dashboard > main > div > section,
+.lulu-executive-dashboard > main > div > div > section {
+  border-color: rgba(99, 82, 246, .14);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, .88);
+  box-shadow: 0 18px 48px rgba(25, 32, 74, .08);
+  backdrop-filter: blur(16px);
+}
+
+.lulu-executive-dashboard > main > div > section:nth-of-type(2) {
+  border-color: rgba(88, 101, 242, .20);
+  background: linear-gradient(135deg, rgba(139, 92, 246, .09), rgba(19, 183, 233, .07));
+}
+
+@keyframes lulu-runtime-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .55; transform: scale(.78); }
+}
+
+@media (max-width: 1180px) {
+  .lulu-auth-runtime { display: none; }
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) { grid-template-columns: 238px minmax(0, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .lulu-auth-search-wrap {
+    background:
+      radial-gradient(circle at 20% -100%, rgba(124, 58, 237, .46), transparent 42%),
+      rgba(7, 10, 22, .97);
+  }
+
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-navigation {
+    padding-top: 16px;
+  }
+
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-agent-workspace-header {
+    margin: 12px 12px 0;
+    padding: 22px;
+    border-radius: 22px;
+  }
+
+  .lulu-agent-workspace-header__summary {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .lulu-auth-logo {
+    display: flex !important;
+    width: 92px;
+    height: 34px;
+  }
+
+  .lulu-auth-search {
+    padding-left: 10px;
+    border-radius: 13px;
+  }
+
+  .lulu-auth-search-button {
+    width: 42px;
+    flex-basis: 42px;
+  }
+
+  .lulu-global-navigation__system {
+    margin-bottom: 10px;
+  }
+
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-agent-workspace-header {
+    max-width: calc(100vw - 20px);
+    margin: 10px 10px 0;
+    padding: 19px;
+    border-radius: 20px;
+  }
+
+  .lulu-agent-workspace-header__headline,
+  .lulu-agent-workspace-header__identity {
+    align-items: flex-start;
+  }
+
+  .lulu-agent-workspace-header__identity,
+  .lulu-agent-workspace-header__copy {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .lulu-agent-workspace-header__copy {
+    flex: 1 1 auto;
+  }
+
+  .lulu-agent-workspace-header__headline {
+    flex-direction: column;
+  }
+
+  .lulu-agent-workspace-header__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+  }
+
+  .lulu-agent-workspace-header__copy h1 {
+    font-size: clamp(1.5rem, 8vw, 2rem);
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  .lulu-agent-workspace-header__badges {
+    justify-content: flex-start;
+  }
+
+  .lulu-agent-workspace-header__summary,
+  .lulu-agent-workspace-header__details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lulu-agent-workspace-header__summary-item {
+    min-height: 0;
+  }
+
+  .lulu-workspace-intelligence-panel,
+  .lulu-agent-runtime-panel {
+    border-radius: 18px !important;
+  }
+
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lulu-auth-runtime__signal::after,
+  .lulu-global-navigation__system-orbit::after,
+  .lulu-agent-workspace-header__badge::before {
+    animation: none;
+  }
+}

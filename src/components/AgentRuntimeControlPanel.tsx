@@ -68,7 +68,7 @@ export function AgentRuntimeControlPanel({
   const currentHealth = runtime.currentHealth;
 
   return (
-    <section className="rounded-xl border border-border bg-card p-5">
+    <section className="lulu-agent-runtime-panel rounded-xl border border-border bg-card p-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("Agent runtime")}</p>

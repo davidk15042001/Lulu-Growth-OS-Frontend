@@ -81,16 +81,8 @@ export function MinimalAgentWorkspacePage({
   const isKnowledgePage = slug === "rich-field-1880";
 
   return (
-    <main className="min-h-screen bg-[var(--background)] text-foreground">
+    <main className="lulu-minimal-agent-page min-h-screen bg-[var(--background)] text-foreground">
       <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-5 sm:px-8 sm:py-8">
-        <header className="lulu-minimal-agent-page__header flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted-foreground">{agentContract.sectionLabel}</p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">{agentContract.pageLabel}</h1>
-            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">{agentContract.objective}</p>
-          </div>
-        </header>
-
         <WorkspaceIntelligencePanel
           workspaceId={workspaceId}
           pageId={agentContract.pageId}
@@ -103,23 +95,23 @@ export function MinimalAgentWorkspacePage({
         {isKnowledgePage ? <KnowledgeBaseWorkspace /> : null}
 
         {!isKnowledgePage && resourceType ? (
-          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <article className="rounded-xl border border-border bg-card p-4">
+          <section className="lulu-agent-kpi-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Records")}</p>
               <p className="mt-2 text-2xl font-semibold text-foreground">{records.total}</p>
               <p className="mt-1 text-xs text-muted-foreground">{t("Live records in this workflow")}</p>
             </article>
-            <article className="rounded-xl border border-border bg-card p-4">
+            <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Active")}</p>
               <p className="mt-2 text-2xl font-semibold text-foreground">{activeRecords}</p>
               <p className="mt-1 text-xs text-muted-foreground">{t("Items not marked complete")}</p>
             </article>
-            <article className="rounded-xl border border-border bg-card p-4">
+            <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Needs attention")}</p>
               <p className="mt-2 text-2xl font-semibold text-foreground">{attentionRecords.length}</p>
               <p className="mt-1 text-xs text-muted-foreground">{t("Flagged by status, stage or description")}</p>
             </article>
-            <article className="rounded-xl border border-border bg-card p-4">
+            <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Signal tags")}</p>
               <p className="mt-2 text-2xl font-semibold text-foreground">{signalTags.length}</p>
               <p className="mt-1 text-xs text-muted-foreground">{signalTags.length > 0 ? signalTags.join(" · ") : t("No dominant tags yet")}</p>

@@ -869,3 +869,436 @@ body.lulu-mobile-nav-open{overflow:hidden}
     border-radius: 19px;
   }
 }
+
+/* -------------------------------------------------------------------------
+   Lulu Admin Mission Control
+   The admin surface is deliberately denser than the customer workspace, but
+   uses the same spectral accents, depth, live-state language and control
+   geometry. Existing Tailwind utilities retain behavior; this layer supplies
+   the product identity and hierarchy.
+   ------------------------------------------------------------------------- */
+.lulu-admin-console {
+  --lulu-admin-ink: #070a16;
+  --lulu-admin-panel: rgba(255, 255, 255, .91);
+  --lulu-admin-line: rgba(89, 99, 142, .16);
+  --lulu-admin-glow: linear-gradient(112deg, #8b5cf6, #5865f2 46%, #13b7e9 76%, #18d6a2);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% -2%, rgba(139, 92, 246, .14), transparent 31rem),
+    radial-gradient(circle at 92% 7%, rgba(19, 183, 233, .12), transparent 34rem),
+    linear-gradient(180deg, #f8f9ff, #f1f4fb) !important;
+}
+
+.lulu-admin-console::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .65;
+  background-image:
+    linear-gradient(rgba(79, 70, 229, .04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 70, 229, .04) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: linear-gradient(to bottom, #000, transparent 90%);
+  content: "";
+}
+
+.lulu-admin-console > div > aside {
+  width: 278px;
+  border-right-color: rgba(139, 124, 255, .14) !important;
+  background:
+    radial-gradient(circle at 34% -2%, rgba(124, 58, 237, .28), transparent 26%),
+    radial-gradient(circle at 110% 65%, rgba(14, 165, 233, .14), transparent 38%),
+    linear-gradient(180deg, #080b18 0%, #0c1225 50%, #111731 100%) !important;
+  box-shadow: 18px 0 60px rgba(7, 10, 22, .15);
+  scrollbar-color: rgba(139, 124, 255, .30) transparent;
+  scrollbar-width: thin;
+}
+
+.lulu-admin-console > div > aside::-webkit-scrollbar { width: 6px; }
+.lulu-admin-console > div > aside::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(139, 124, 255, .28); }
+
+.lulu-admin-console__brand {
+  min-height: 73px;
+  border-bottom-color: rgba(255, 255, 255, .075) !important;
+  background: rgba(255, 255, 255, .018);
+}
+
+.lulu-admin-console__mark {
+  display: grid;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  place-items: center;
+  border: 1px solid rgba(171, 158, 255, .24);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(139, 92, 246, .30), rgba(19, 183, 233, .16));
+  box-shadow: 0 11px 27px rgba(88, 101, 242, .28), inset 0 1px 0 rgba(255, 255, 255, .10);
+}
+
+.lulu-admin-console__mark img {
+  display: block;
+  width: 25px;
+  height: 25px;
+  object-fit: contain;
+}
+
+.lulu-admin-console__runtime {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  min-height: 48px;
+  padding: 10px 12px;
+  border: 1px solid rgba(139, 124, 255, .17);
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(139, 92, 246, .14), rgba(19, 183, 233, .055));
+  color: rgba(232, 235, 255, .70);
+  font-size: .72rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .055);
+}
+
+.lulu-admin-console__runtime::after {
+  position: absolute;
+  right: -22px;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(19, 183, 233, .20), transparent 68%);
+  content: "";
+}
+
+.lulu-admin-console__runtime-dot {
+  position: relative;
+  z-index: 1;
+  width: 8px;
+  height: 8px;
+  flex: 0 0 8px;
+  border-radius: 50%;
+  background: #2ce6a8;
+  box-shadow: 0 0 13px rgba(44, 230, 168, .82);
+  animation: lulu-admin-pulse 2.2s ease-in-out infinite;
+}
+
+.lulu-admin-console__runtime strong {
+  color: #ffffff;
+  font-size: .88rem;
+}
+
+.lulu-admin-console__runtime small {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+  color: #74f5cb;
+  font-size: .6rem;
+  font-weight: 700;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.lulu-admin-console > div > aside nav > div > div:first-child {
+  color: rgba(174, 181, 221, .50) !important;
+  letter-spacing: .14em;
+}
+
+.lulu-admin-console > div > aside nav button {
+  min-height: 41px;
+  border-radius: 11px;
+}
+
+.lulu-admin-console > div > aside nav button:hover,
+.lulu-admin-console > div > aside nav button.bg-indigo-50 {
+  border-color: rgba(139, 124, 255, .24);
+  background: linear-gradient(94deg, rgba(139, 92, 246, .28), rgba(19, 183, 233, .10)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .055);
+}
+
+.lulu-admin-console > div > aside nav button.bg-indigo-50 {
+  box-shadow: 0 12px 28px rgba(88, 101, 242, .22), inset 0 1px 0 rgba(255, 255, 255, .08);
+}
+
+.lulu-admin-console > div > div > header.lulu-admin-console__topbar {
+  min-height: 74px;
+  border-bottom-color: rgba(139, 124, 255, .16) !important;
+  background:
+    radial-gradient(circle at 84% -160%, rgba(19, 183, 233, .34), transparent 29%),
+    radial-gradient(circle at 18% -170%, rgba(139, 92, 246, .42), transparent 30%),
+    rgba(7, 10, 22, .96) !important;
+  color: #ffffff;
+  box-shadow: 0 14px 45px rgba(7, 10, 22, .16) !important;
+  backdrop-filter: blur(24px) saturate(1.2);
+}
+
+.lulu-admin-console > div > div > header.lulu-admin-console__topbar .text-slate-400 {
+  color: rgba(170, 178, 218, .62) !important;
+}
+
+.lulu-admin-console > div > div > header.lulu-admin-console__topbar .text-slate-900 {
+  color: #ffffff !important;
+}
+
+.lulu-admin-console__topbar > div:last-child > span:last-child {
+  border: 1px solid rgba(255, 255, 255, .11);
+  background: rgba(255, 255, 255, .07) !important;
+  color: rgba(240, 243, 255, .82) !important;
+}
+
+.lulu-admin-console__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 0 11px;
+  border: 1px solid rgba(44, 230, 168, .18);
+  border-radius: 999px;
+  background: rgba(44, 230, 168, .08);
+  color: #bfffea;
+  font-size: .69rem;
+  font-weight: 650;
+}
+
+.lulu-admin-console__live > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2ce6a8;
+  box-shadow: 0 0 12px rgba(44, 230, 168, .84);
+}
+
+.lulu-admin-console__main {
+  position: relative;
+  background:
+    radial-gradient(circle at 94% 2%, rgba(19, 183, 233, .08), transparent 26rem),
+    radial-gradient(circle at 8% 96%, rgba(139, 92, 246, .07), transparent 28rem) !important;
+}
+
+.lulu-admin-console__main > div {
+  max-width: 1680px;
+  margin-inline: auto;
+}
+
+.lulu-admin-console__main [class*="rounded-xl"][class*="border"],
+.lulu-admin-console__main [class*="rounded-lg"][class*="border"] {
+  border-color: var(--lulu-admin-line);
+  background-color: var(--lulu-admin-panel) !important;
+  box-shadow: 0 18px 48px rgba(25, 32, 74, .075);
+  backdrop-filter: blur(15px);
+}
+
+.lulu-admin-console__main > div > div:first-child:has(> button:only-child),
+.lulu-admin-console__main > div > div:first-child:has(> label) {
+  min-height: 54px;
+  padding: 8px;
+  border: 1px solid var(--lulu-admin-line);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, .76);
+  box-shadow: 0 12px 32px rgba(25, 32, 74, .055);
+}
+
+.lulu-admin-console__main table {
+  background: transparent;
+}
+
+.lulu-admin-console__main thead {
+  background: linear-gradient(90deg, rgba(238, 240, 255, .96), rgba(245, 249, 255, .96));
+}
+
+.lulu-admin-console__main tbody tr {
+  transition: background .16s ease, box-shadow .16s ease;
+}
+
+.lulu-admin-console__main tbody tr:hover {
+  background: linear-gradient(90deg, rgba(139, 92, 246, .055), rgba(19, 183, 233, .035));
+}
+
+.lulu-admin-console__main tbody tr.bg-indigo-50\/70 {
+  background: linear-gradient(90deg, rgba(139, 92, 246, .12), rgba(19, 183, 233, .065)) !important;
+}
+
+.lulu-admin-console__main :is(input, select, textarea) {
+  min-height: 39px;
+  border-color: rgba(89, 99, 142, .20);
+  background: rgba(255, 255, 255, .90);
+}
+
+.lulu-admin-console__main :is(button, a)[class*="bg-indigo"],
+.lulu-admin-console__main :is(button, a)[class*="bg-violet"] {
+  background: var(--lulu-admin-glow) !important;
+  box-shadow: 0 10px 26px rgba(88, 101, 242, .24);
+}
+
+.lulu-admin-console__main pre {
+  border: 1px solid rgba(139, 124, 255, .16);
+  background:
+    linear-gradient(rgba(255, 255, 255, .025) 1px, transparent 1px),
+    #080c19 !important;
+  background-size: 100% 24px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .045);
+}
+
+.lulu-admin-console .lulu-admin-standalone {
+  min-height: auto;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+.lulu-admin-console .lulu-admin-standalone::before {
+  display: none;
+}
+
+.lulu-admin-console .lulu-admin-standalone > div > nav {
+  display: none;
+}
+
+/* Standalone admin routes use the same operations canvas. */
+.lulu-admin-standalone {
+  --background: #f5f7fd;
+  --foreground: #0b1020;
+  --card: rgba(255, 255, 255, .91);
+  --border: rgba(89, 99, 142, .17);
+  --secondary: #eef0ff;
+  --muted-foreground: #65708a;
+  position: relative;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(139, 92, 246, .15), transparent 30rem),
+    radial-gradient(circle at 96% 7%, rgba(19, 183, 233, .13), transparent 34rem),
+    linear-gradient(180deg, #f8f9ff, #f2f4fb) !important;
+}
+
+.lulu-admin-standalone::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .58;
+  background-image:
+    linear-gradient(rgba(79, 70, 229, .04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79, 70, 229, .04) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: linear-gradient(to bottom, #000, transparent 92%);
+  content: "";
+}
+
+.lulu-admin-standalone > div > nav {
+  border-color: rgba(139, 124, 255, .18) !important;
+  background: rgba(9, 13, 29, .94) !important;
+  color: rgba(232, 235, 255, .70);
+  box-shadow: 0 18px 50px rgba(9, 13, 29, .16);
+  backdrop-filter: blur(20px);
+}
+
+.lulu-admin-standalone > div > nav a:hover,
+.lulu-admin-standalone > div > nav a[class*="bg-[var(--foreground)]"] {
+  background: linear-gradient(110deg, rgba(139, 92, 246, .92), rgba(88, 101, 242, .92), rgba(19, 183, 233, .88)) !important;
+  color: #ffffff !important;
+}
+
+.lulu-admin-standalone > div > header:first-of-type,
+.lulu-admin-support > div > header:first-child {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: clamp(24px, 3.2vw, 38px);
+  border: 1px solid rgba(139, 124, 255, .22);
+  border-radius: 27px;
+  background:
+    radial-gradient(circle at 12% -30%, rgba(139, 92, 246, .45), transparent 36%),
+    radial-gradient(circle at 94% 5%, rgba(19, 183, 233, .24), transparent 34%),
+    linear-gradient(140deg, #090d1d, #111833 54%, #102037) !important;
+  color: #ffffff;
+  box-shadow: 0 30px 80px rgba(9, 13, 29, .20);
+}
+
+.lulu-admin-standalone > div > header:first-of-type :is(h1, .eyebrow),
+.lulu-admin-support > div > header:first-child :is(h1, p) {
+  color: #ffffff !important;
+}
+
+.lulu-admin-standalone > div > header:first-of-type p:last-child,
+.lulu-admin-support > div > header:first-child p:last-child {
+  color: rgba(232, 235, 255, .64) !important;
+}
+
+.lulu-admin-standalone > div > header:first-of-type button {
+  border-color: rgba(255, 255, 255, .14) !important;
+  background: rgba(255, 255, 255, .08);
+  color: #ffffff;
+}
+
+.lulu-admin-standalone section,
+.lulu-admin-standalone aside,
+.lulu-admin-standalone > div > div[class*="rounded"] {
+  border-color: rgba(89, 99, 142, .16);
+  box-shadow: 0 20px 54px rgba(25, 32, 74, .085);
+  backdrop-filter: blur(16px);
+}
+
+.lulu-admin-standalone table {
+  background: rgba(255, 255, 255, .80);
+}
+
+.lulu-admin-standalone thead {
+  background: linear-gradient(90deg, rgba(238, 240, 255, .96), rgba(245, 249, 255, .96));
+}
+
+.lulu-admin-standalone tbody tr { transition: background .16s ease; }
+.lulu-admin-standalone tbody tr:hover { background: rgba(88, 101, 242, .045); }
+
+@keyframes lulu-admin-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .55; transform: scale(.78); }
+}
+
+@media (max-width: 960px) {
+  .lulu-admin-console__live { display: none; }
+}
+
+@media (min-width: 768px) {
+  .lulu-admin-console > div > aside[class*="md:w-16"] {
+    width: 4rem;
+  }
+
+  .lulu-admin-console > div > aside[class*="md:w-16"] .lulu-admin-console__brand {
+    padding-inline: 1rem;
+  }
+
+  .lulu-admin-console > div > aside[class*="md:w-16"] .lulu-admin-console__mark {
+    width: 2rem;
+    height: 2rem;
+    flex-basis: 2rem;
+  }
+
+  .lulu-admin-console > div > aside[class*="md:w-16"] .lulu-admin-console__mark img {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .lulu-admin-console > div > aside {
+    width: min(88vw, 320px) !important;
+  }
+
+  .lulu-admin-console__topbar {
+    min-height: 68px;
+  }
+
+  .lulu-admin-console__topbar > div:last-child > span:last-child {
+    max-width: 148px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .lulu-admin-standalone > div > header:first-of-type,
+  .lulu-admin-support > div > header:first-child {
+    padding: 22px;
+    border-radius: 21px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lulu-admin-console__runtime-dot { animation: none; }
+}

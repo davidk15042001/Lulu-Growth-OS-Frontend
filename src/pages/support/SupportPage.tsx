@@ -68,7 +68,7 @@ function SupportInbox({ base, admin, canReply }: { base: string | null; admin: b
   const secondary = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 text-sm font-semibold transition hover:border-violet-300 hover:bg-violet-50 disabled:cursor-not-allowed disabled:opacity-40';
   const primary = 'inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500 px-5 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(79,70,229,.24)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-40';
 
-  return <main className={`${admin ? '' : 'page-frame'} min-h-screen bg-transparent p-4 sm:p-6 lg:p-8`}>
+  return <main className={`${admin ? 'lulu-admin-standalone lulu-admin-support' : 'page-frame'} min-h-screen bg-transparent p-4 sm:p-6 lg:p-8`}>
     <div className="mx-auto max-w-[1440px] space-y-6">
       <header className="relative isolate overflow-hidden rounded-[26px] border border-[var(--border)] bg-gradient-to-br from-white via-white to-violet-50 p-6 shadow-[0_18px_46px_rgba(38,45,90,.08)] sm:p-8">
         <div className="absolute -bottom-24 -right-16 -z-10 h-64 w-64 rounded-full bg-gradient-to-br from-violet-200/60 to-sky-200/50 blur-2xl" />

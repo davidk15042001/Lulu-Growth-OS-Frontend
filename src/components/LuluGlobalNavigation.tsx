@@ -1,4 +1,4 @@
-import { CalendarDays, Check, ChevronDown, Languages, LogOut, RefreshCw, X } from "lucide-react";
+import { Activity, CalendarDays, Check, ChevronDown, Languages, LogOut, RefreshCw, X } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState } from "react";
 import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
 import { requestApi } from "../api/client";
@@ -261,6 +261,16 @@ export function LuluGlobalNavigation({
         >
           <X aria-hidden="true" size={16} />
         </button>
+      </div>
+      <div className="lulu-global-navigation__system" role="status">
+        <div className="lulu-global-navigation__system-heading">
+          <span className="lulu-global-navigation__system-orbit" aria-hidden="true"><Activity size={13} /></span>
+          <span>{t("Autonomous execution")}</span>
+        </div>
+        <div className="lulu-global-navigation__system-count">
+          <strong>140+</strong>
+          <span>{t("AI agents")}</span>
+        </div>
       </div>
       <nav className="lulu-global-navigation__sections">
         {navigationSections.map((section, index) => {

@@ -456,21 +456,31 @@ export default function App() {
   const [error, setError] = useState("");
 
   return (
-    <div className="lulu-admin-console min-h-screen bg-slate-50 text-slate-900">
+    <div className="lulu-admin-console min-h-screen bg-slate-50 text-slate-900" data-admin-page={page}>
       <div className="flex h-screen w-full">
         <aside className={`${sidebarOpen ? "w-64" : "w-0 -translate-x-full md:w-16 md:translate-x-0"} transition-all duration-200 shrink-0 border-r border-slate-200 bg-white md:static fixed left-0 top-0 z-30 h-full overflow-y-auto`}>
-          <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 text-white font-bold">L</div>
+          <div className="lulu-admin-console__brand flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="lulu-admin-console__mark">
+                <img src="/branding/lulu-agentic-mark.svg" alt="" aria-hidden="true" draggable={false} />
+              </div>
               {sidebarOpen ? (
-                <div>
-                  <div className="text-sm font-semibold leading-tight">Lulu CRM</div>
-                  <div className="text-[11px] text-slate-500">Admin Console</div>
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold leading-tight">Lulu</div>
+                  <div className="text-[11px] text-slate-500">Autonomous execution</div>
                 </div>
               ) : null}
             </div>
             <button className="md:hidden text-slate-500 hover:text-slate-700" onClick={() => setSidebarOpen(false)}><X size={18} /></button>
           </div>
+
+          {sidebarOpen ? (
+            <div className="lulu-admin-console__runtime mx-3 mt-3">
+              <span className="lulu-admin-console__runtime-dot" aria-hidden="true" />
+              <span><strong>140+</strong> AI agents</span>
+              <small>live</small>
+            </div>
+          ) : null}
 
           <nav className="p-3 space-y-5">
             {visibleNav.map((section) => (
@@ -508,20 +518,21 @@ export default function App() {
         {sidebarOpen ? <div className="md:hidden fixed inset-0 z-20 bg-black/20" onClick={() => setSidebarOpen(false)} /> : null}
 
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="flex items-center justify-between gap-3 border-b border-slate-200 bg-white/80 backdrop-blur px-6 py-3.5">
+          <header className="lulu-admin-console__topbar flex items-center justify-between gap-3 border-b border-slate-200 bg-white/80 backdrop-blur px-6 py-3.5">
             <div className="flex items-center gap-3">
               <button className="rounded-md border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50 md:hidden" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
               <button className="hidden md:inline-flex rounded-md border border-slate-200 p-1.5 text-slate-500 hover:bg-slate-50" onClick={() => setSidebarOpen((v) => !v)}>
                 {sidebarOpen ? <ChevronRight size={18} /> : <Menu size={18} />}
               </button>
               <div>
-                <div className="text-xs uppercase tracking-wide text-slate-400">Admin</div>
+                <div className="text-xs uppercase tracking-wide text-slate-400">Lulu Platform Operations</div>
                 <div className="text-lg font-semibold text-slate-900">
                   {NAV.flatMap((s) => s.items).find((i) => i.key === page)?.label ?? "Dashboard"}
                 </div>
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <span className="lulu-admin-console__live"><span aria-hidden="true" /> Live</span>
               <Pill tone="emerald"><ShieldCheck size={12} className="mr-1" /> {currentUser?.email}</Pill>
             </div>
           </header>
@@ -533,7 +544,7 @@ export default function App() {
             </div>
           ) : null}
 
-          <main className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
+          <main className="lulu-admin-console__main flex-1 overflow-y-auto px-6 py-6 space-y-6">
             {page === "dashboard" ? <DashboardPage onError={setError} /> : null}
             {page === "billing" ? <BillingPage onError={setError} /> : null}
             {page === "users" ? <UsersPage onError={setError} /> : null}
