@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ArrowRight, Check, Lock, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Lock, ShieldCheck, Sparkles, WandSparkles, Zap } from "lucide-react";
 import { navigateApp, routes } from "../routing";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
@@ -202,6 +202,18 @@ export function BillingOnboarding() {
             );
           })}
         </section>
+
+        <div className="mx-auto mt-6 max-w-md">
+          <button
+            type="button"
+            onClick={() => navigateApp(routes.onboarding.productsServices)}
+            disabled={submitting || paymentStatus === "waiting"}
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--foreground)] hover:bg-[var(--secondary)] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <ArrowLeft size={16} aria-hidden="true" />
+            <span>Back to Products &amp; Services</span>
+          </button>
+        </div>
 
       </div>
     </main>

@@ -15,6 +15,20 @@ const onboardingPathByStep: Record<string, string> = {
   setup_complete: routes.app.dashboard,
 };
 
+const onboardingOrderByStep: Record<string, number> = {
+  company_information: 1,
+  business_description: 2,
+  products_services: 2,
+  existing_platforms: 2,
+  billing: 3,
+};
+
+const onboardingOrderByPath: Record<string, number> = {
+  [routes.onboarding.companyInformation]: 1,
+  [routes.onboarding.productsServices]: 2,
+  [routes.onboarding.billing]: 3,
+};
+
 export function PageRoute({ page }: { page: PageDefinition }) {
   const contract = getPageContract(page.slug);
   const location = useLocation();
@@ -76,7 +90,13 @@ export function PageRoute({ page }: { page: PageDefinition }) {
 
   if (isOnboarding && selectedWorkspace && !selectedWorkspace.onboardingCompletedAt) {
     const target = onboardingPathByStep[selectedWorkspace.onboardingStep] ?? routes.onboarding.companyInformation;
-    if (location.pathname !== target) return <Navigate replace to={target} state={{ from: location.pathname }} />;
+    const currentOrder = onboardingOrderByStep[selectedWorkspace.onboardingStep] ?? 1;
+    const requestedOrder = onboardingOrderByPath[location.pathname];
+    // Completed steps stay editable. Only attempts to skip forward are sent
+    // back to the next required step.
+    if (requestedOrder === undefined || requestedOrder > currentOrder) {
+      return <Navigate replace to={target} state={{ from: location.pathname }} />;
+    }
   }
 
   if (!isPublic && !isOnboarding && !oauthReturn && currentUser && selectedWorkspace && !selectedWorkspace.onboardingCompletedAt) {
