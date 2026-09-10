@@ -127,7 +127,7 @@ export const LuluLoginPage = () => {
               : routes.onboarding.companyInformation);
       } else {
         clearSelectedWorkspaceId();
-        navigateApp(routes.onboarding.billing);
+        navigateApp(routes.onboarding.companyInformation);
       }
     } catch (cause) {
       setStatusMessage('');

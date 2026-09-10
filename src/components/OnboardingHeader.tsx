@@ -14,7 +14,7 @@ type OnboardingHeaderProps = {
   showBrandName?: boolean;
 };
 
-const steps = ["Billing", "Company Information", "Products & Services"];
+const steps = ["Company Information", "Products & Services", "Billing"];
 
 export async function exitOnboardingToLogin() {
   try {
@@ -50,7 +50,7 @@ export function OnboardingHeader({ step, totalSteps = steps.length, showBrandNam
         </a>
         <div className="flex flex-col gap-2 sm:items-end">
           <span className="rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-xs font-semibold text-[var(--muted-foreground)]">
-            Company setup · {step === totalSteps ? "Complete" : "In progress"}
+            Company setup · {step === totalSteps ? "Final step" : "In progress"}
           </span>
           <button
             type="button"

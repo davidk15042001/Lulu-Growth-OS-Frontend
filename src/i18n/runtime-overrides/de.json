@@ -4520,5 +4520,13 @@
   "Video generation": "Videogenerierung",
   "Image finishing": "Bildveredelung",
   "Video finishing": "Video-Finishing",
-  "Image quality check": "Überprüfung der Bildqualität"
+  "Image quality check": "Überprüfung der Bildqualität",
+  "We could not complete onboarding after confirming your billing plan.": "Wir konnten die Einrichtung nach der Bestätigung Ihres Abrechnungsplans nicht abschließen.",
+  "We could not verify your billing status.": "Wir konnten Ihren Abrechnungsstatus nicht überprüfen.",
+  "Final step": "Letzter Schritt",
+  "01 / 03 · Company profile": "01 / 03 · Firmenprofil",
+  "Step 2 of 3": "Schritt 2 von 3",
+  "We could not continue to billing. Please try again.": "Wir konnten nicht mit der Abrechnung fortfahren. Bitte versuchen Sie es erneut.",
+  "02 / 03 · Your offerings": "02 / 03 · Ihre Angebote",
+  "Continuing…": "Weiter…"
 }

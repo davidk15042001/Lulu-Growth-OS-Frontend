@@ -120,8 +120,9 @@ function BillingRoute() {
 function RemovedOnboardingRoute() {
   const { selectedWorkspace, loading } = useLuluApp();
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your workspace…</main>;
-  if (!selectedWorkspace || selectedWorkspace.onboardingStep === "billing") return <Navigate replace to={routes.onboarding.billing} />;
+  if (!selectedWorkspace) return <Navigate replace to={routes.onboarding.companyInformation} />;
   if (selectedWorkspace.onboardingCompletedAt) return <Navigate replace to={routes.app.dashboard} />;
+  if (selectedWorkspace.onboardingStep === "billing") return <Navigate replace to={routes.onboarding.billing} />;
   return <Navigate replace to={selectedWorkspace.onboardingStep === "company_information" ? routes.onboarding.companyInformation : routes.onboarding.productsServices} />;
 }
 
@@ -289,8 +290,8 @@ export default function App() {
         <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
         <Route path="/auth/login" element={<Navigate replace to={routes.auth.login} />} />
         <Route path="/register" element={<Navigate replace to={routes.auth.signUp} />} />
-        <Route path={routes.onboarding.welcome} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.billing} /></AdminOnlyAppRoute>} />
-        <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<AdminOnlyAppRoute><Navigate replace to={routes.onboarding.billing} /></AdminOnlyAppRoute>} />
+        <Route path={routes.onboarding.welcome} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
+        <Route path={LEGACY_SETUP_COMPLETE_PATH} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
         <Route path={routes.onboarding.businessDescription} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
         <Route path={routes.onboarding.existingPlatforms} element={<AdminOnlyAppRoute><RemovedOnboardingRoute /></AdminOnlyAppRoute>} />
         <Route path={routes.onboarding.billing} element={<BillingRoute />} />

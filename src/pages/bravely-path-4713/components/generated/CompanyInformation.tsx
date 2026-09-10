@@ -86,10 +86,10 @@ export const CompanyInformation = () => {
   return <main className="min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)]">
       <section className="flex items-center justify-center px-5 py-8 sm:px-8 lg:px-12">
         <div className="w-full max-w-xl">
-          <OnboardingHeader step={2} />
+          <OnboardingHeader step={1} />
 
           <p className="mt-10 text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-            <span>02 / 03 · Company profile</span>
+            <span>01 / 03 · Company profile</span>
           </p>
           <h1 className="mt-2 text-3xl font-semibold leading-tight text-[var(--foreground)] sm:text-4xl">
             <span>Company information</span>

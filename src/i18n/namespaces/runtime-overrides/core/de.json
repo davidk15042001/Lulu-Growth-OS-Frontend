@@ -2986,5 +2986,8 @@
   "Veo 3.1": "Veo 3.1",
   "Video finishing": "Video-Finishing",
   "Video generation": "Videogenerierung",
-  "Video quality check": "Überprüfung der Videoqualität"
+  "Video quality check": "Überprüfung der Videoqualität",
+  "Final step": "Letzter Schritt",
+  "We could not complete onboarding after confirming your billing plan.": "Wir konnten die Einrichtung nach der Bestätigung Ihres Abrechnungsplans nicht abschließen.",
+  "We could not verify your billing status.": "Wir konnten Ihren Abrechnungsstatus nicht überprüfen."
 }

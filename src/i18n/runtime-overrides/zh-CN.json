@@ -4497,5 +4497,13 @@
   "Video generation": "视频生成",
   "Image finishing": "图像整理",
   "Video finishing": "视频整理",
-  "Image quality check": "图像质量检查"
+  "Image quality check": "图像质量检查",
+  "We could not complete onboarding after confirming your billing plan.": "确认计费方案后，我们无法完成初始化设置。",
+  "We could not verify your billing status.": "我们无法验证您的账单状态。",
+  "Final step": "最后一步",
+  "01 / 03 · Company profile": "01 / 03 · 公司简介",
+  "Step 2 of 3": "第 2 步（共 3 步）",
+  "We could not continue to billing. Please try again.": "无法继续前往账单设置。请重试。",
+  "02 / 03 · Your offerings": "02 / 03 · 您的产品与服务",
+  "Continuing…": "正在继续…"
 }

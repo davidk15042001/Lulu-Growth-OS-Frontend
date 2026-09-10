@@ -50,7 +50,11 @@ type FieldProps = {
   required?: boolean;
 };
 const initialOfferings: Offering[] = [];
-const stepItems: Array<Record<string, any>> = [];
+const stepItems = [
+  { id: "company", label: "Company Information", state: "complete" },
+  { id: "products", label: "Products & Services", state: "current" },
+  { id: "billing", label: "Billing", state: "upcoming" },
+] as const;
 const offeringTypeOptions: {
   id: OfferingType;
   label: string;
@@ -129,7 +133,7 @@ function RightPanel() {
         <Sparkles size={42} className="text-[var(--foreground)]" aria-hidden="true" />
         
         <span className="rounded-full border border-[var(--border)] bg-card px-3 py-1 text-xs font-medium text-[var(--foreground)]">
-          <span>Step 3 of 3</span>
+          <span>Step 2 of 3</span>
         </span>
       </div>
 
@@ -345,15 +349,15 @@ export function LuluProductsServices() {
     setExiting(true);
     await exitOnboardingToLogin();
   }
-  async function finishOnboarding() {
+  async function continueToBilling() {
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId || offerings.length === 0 || completing) return;
     setCompleting(true);
     try {
-      await requestApi({ path: `/workspaces/${workspaceId}/onboarding/complete`, method: 'POST', body: {} });
-      window.location.assign(routes.app.dashboard);
+      await requestApi({ path: `/workspaces/${workspaceId}/onboarding/products-services/continue`, method: 'POST', body: {} });
+      window.location.assign(routes.onboarding.billing);
     } catch (cause) {
-      setToast(getFriendlyErrorMessage(cause, 'We could not complete onboarding. Please try again.'));
+      setToast(getFriendlyErrorMessage(cause, 'We could not continue to billing. Please try again.'));
       setCompleting(false);
     }
   }
@@ -378,7 +382,7 @@ export function LuluProductsServices() {
                 <span>Company setup</span>
               </p>
               <p className="text-xs font-medium text-[var(--foreground)]">
-                <span>Step 3 of 3</span>
+                <span>Step 2 of 3</span>
               </p>
             </div>
             <ol className="grid grid-cols-3 gap-1.5" aria-label="Company setup steps">
@@ -393,7 +397,7 @@ export function LuluProductsServices() {
 
           <section className="mt-8" aria-labelledby="products-heading">
             <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--foreground)]">
-              <span>03 / 03 · Your offerings</span>
+              <span>02 / 03 · Your offerings</span>
             </p>
             <h1 id="products-heading" className="mt-3 max-w-2xl text-4xl font-semibold leading-[1.05] tracking-[-0.05em] text-[var(--foreground)] sm:text-5xl">
               
@@ -758,9 +762,9 @@ export function LuluProductsServices() {
               <ArrowLeft size={16} aria-hidden="true" />
               <span>Back</span>
             </button>
-            <button type="button" disabled={offerings.length === 0 || completing} onClick={() => void finishOnboarding()} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 text-sm font-semibold text-primary-foreground shadow-[0_12px_28px_color-mix(in_srgb,var(--primary)_24%,transparent)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="button" disabled={offerings.length === 0 || completing} onClick={() => void continueToBilling()} className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-[var(--primary)] px-6 text-sm font-semibold text-primary-foreground shadow-[0_12px_28px_color-mix(in_srgb,var(--primary)_24%,transparent)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_color-mix(in_srgb,var(--primary)_30%,transparent)] disabled:cursor-not-allowed disabled:opacity-50">
               
-              <span>{completing ? 'Completing…' : 'Finish setup'}</span>
+              <span>{completing ? 'Continuing…' : 'Continue to billing'}</span>
               <ArrowRight size={16} aria-hidden="true" />
             </button>
           </footer>

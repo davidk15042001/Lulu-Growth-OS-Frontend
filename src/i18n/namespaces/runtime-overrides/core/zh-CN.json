@@ -2986,5 +2986,8 @@
   "Veo 3.1": "Veo 3.1",
   "Video finishing": "视频整理",
   "Video generation": "视频生成",
-  "Video quality check": "视频质量检查"
+  "Video quality check": "视频质量检查",
+  "Final step": "最后一步",
+  "We could not complete onboarding after confirming your billing plan.": "确认计费方案后，我们无法完成初始化设置。",
+  "We could not verify your billing status.": "我们无法验证您的账单状态。"
 }
