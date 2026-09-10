@@ -282,7 +282,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

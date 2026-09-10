@@ -1,4 +1,4 @@
-﻿import { useMemo, useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
 import { Activity, AlertCircle, ArrowDownUp, ArrowRight, Bell, Check, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Download, ExternalLink, Filter, Info, LayoutDashboard, LifeBuoy, ListFilter, MoreHorizontal, Package, PanelLeft, Plus, RefreshCw, Search, Send, Settings, Sparkles, Store, Truck, UserRound, X, Zap } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 type ShipmentStatus = 'In Transit' | 'Delivered' | 'Out for Delivery' | 'Label Created' | 'Delayed' | 'Unfulfilled';
@@ -196,7 +196,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

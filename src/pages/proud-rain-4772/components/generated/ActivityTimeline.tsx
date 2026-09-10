@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Activity, AlertTriangle, ArrowDown, ArrowUp, BarChart3, Bell, Bot, Check, CheckCircle2, ChevronDown, ChevronRight, CircleHelp, Clock3, Database, Download, FileText, Filter, Gauge, GitBranch, Lightbulb, Link2, ListFilter, Menu, MoreHorizontal, Plus, RefreshCw, Search, Settings2, ShieldAlert, Sparkles, Target, TrendingUp, User, Users, X, Zap } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 type EventType = 'insight' | 'risk' | 'recommendation' | 'decision' | 'task' | 'automation' | 'data' | 'opportunity' | 'anomaly' | 'forecast' | 'user';
@@ -281,7 +281,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

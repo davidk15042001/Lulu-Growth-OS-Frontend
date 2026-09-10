@@ -381,5 +381,19 @@
   "Lade…": "Lade…",
   "Manuelle Kostenanpassung durch Admin": "Manuelle Kostenanpassung durch Admin",
   "Storage / Infrastruktur:": "Lagerung / Infrastruktur:",
-  "Storage in USD": "Lagerung in USD"
+  "Storage in USD": "Lagerung in USD",
+  "Admin approval": "Admin-Freigabe",
+  "Central Facebook Pages account for publishing and engagement.": "Zentrales Facebook-Seitenkonto für Veröffentlichungen und Interaktionen.",
+  "Central Instagram professional account for content and messages.": "Zentrales professionelles Instagram-Konto für Inhalte und Nachrichten.",
+  "Central WhatsApp Business account for customer messaging.": "Zentrales WhatsApp-Business-Konto für Kundennachrichten.",
+  "Deine Rolle besitzt nur Leserechte.": "Deine Rolle besitzt nur Leserechte.",
+  "Die OAuth-Freigabe konnte nicht gespeichert werden.": "Die OAuth-Freigabe konnte nicht gespeichert werden.",
+  "Eigene Benutzerkonten": "Eigene Benutzerkonten",
+  "Erlaubt ein Admin einen Provider, kann der Benutzer sein eigenes Konto verbinden. Ohne Freigabe nutzt Lulu weiterhin ausschließlich die zentrale Admin-Verbindung. Beim Entziehen der Freigabe werden gespeicherte Workspace-Tokens dieses Providers entfernt.": "Erlaubt ein Admin einen Provider, kann der Benutzer sein eigenes Konto verbinden. Ohne Freigabe nutzt Lulu weiterhin ausschließlich die zentrale Admin-Verbindung. Beim Entziehen der Freigabe werden gespeicherte Workspace-Tokens dieses Providers entfernt.",
+  "Facebook": "Facebook",
+  "Instagram": "Instagram",
+  "Kein Owner": "Kein Owner",
+  "Keine Workspaces gefunden.": "Keine Workspaces gefunden.",
+  "OAuth-Self-Service pro Workspace": "OAuth-Self-Service pro Workspace",
+  "Workspace / Benutzer": "Workspace / Benutzer"
 }

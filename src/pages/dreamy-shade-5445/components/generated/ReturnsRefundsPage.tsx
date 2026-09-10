@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Activity, AlertCircle, ArrowDown, ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, Clock3, Download, Ellipsis, Filter, MoreHorizontal, Package, Plus, RefreshCw, Search, Send, Settings2, ShoppingBag, SlidersHorizontal, Sparkles, Store, UserRound, X, Zap } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 type ReturnItem = {
@@ -228,7 +228,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

@@ -205,5 +205,9 @@
   "Unavailable": "Nicht verfügbar",
   "Vendors": "Anbieter",
   "Webflow": "Webflow",
-  "Website": "Website"
+  "Website": "Website",
+  "All commission executions appear when live data is available.": "Alle Provisionsausführungen werden angezeigt, wenn Live-Daten verfügbar sind.",
+  "Autonomous Commission Runs": "Autonome Kommissionsläufe",
+  "Autonomous Publishing Center": "Autonomes Verlagszentrum",
+  "Calculated and executed automatically": "Automatisch berechnet und ausgeführt"
 }

@@ -7,7 +7,7 @@ type ModalKind = 'reject' | 'defer' | 'execute' | 'task' | null;
 const stats: any[][] = [];
 const recommendations: Array<Record<string, any>> = [];
 const rows: any[][] = [];
-const filters = ['All', 'Business Area', 'Priority', 'Status', 'Confidence', 'Urgency', 'Effort', 'Expected Impact', 'Requires Approval', 'Saved', 'Source', 'Date'];
+const filters = ['All', 'Business Area', 'Priority', 'Status', 'Confidence', 'Urgency', 'Effort', 'Expected Impact', 'Execution Policy', 'Saved', 'Source', 'Date'];
 const navWorkspace: Array<Record<string, any>> = [];
 const navManage: Array<Record<string, any>> = [];
 const navIntelligence: Array<Record<string, any>> = [];
@@ -151,7 +151,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Activity, ArrowUpDown, BarChart3, BookOpen, Bot, Brain, Check, CheckCircle, ChevronDown, ChevronRight, DollarSign, Globe, Grid3X3, Heart, HelpCircle, Layers, LayoutDashboard, LayoutTemplate, LineChart, MapPin, MessageSquare, MessagesSquare, PenTool, Plug, RefreshCw, Search, Settings, Settings2, ShieldCheck, ShoppingBag, Sparkles, Store, Target, TrendingUp, Users, X, Zap } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
@@ -245,7 +245,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

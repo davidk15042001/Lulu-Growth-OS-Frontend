@@ -46,7 +46,7 @@ export const LuluExecutiveDashboard = () => {
           <article className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Model</p>
             <p className="mt-2 text-lg font-semibold text-foreground">One page, one agent</p>
-            <p className="mt-1 text-sm text-muted-foreground">Each workspace focuses on one domain and keeps critical actions behind approval gates.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Each workspace focuses on one domain and executes continuously inside deterministic safeguards.</p>
           </article>
           <article className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Next step</p>
@@ -63,7 +63,7 @@ export const LuluExecutiveDashboard = () => {
           <ul className="mt-4 grid gap-3 text-sm text-muted-foreground md:grid-cols-3">
             <li className="rounded-lg border border-border bg-background/50 px-4 py-3">Open the right agent workspace for the current business area.</li>
             <li className="rounded-lg border border-border bg-background/50 px-4 py-3">Check whether live signals and knowledge are up to date.</li>
-            <li className="rounded-lg border border-border bg-background/50 px-4 py-3">Approve only the actions that should actually happen in the business.</li>
+            <li className="rounded-lg border border-border bg-background/50 px-4 py-3">Fund paid media when needed; Lulu executes every other business action automatically.</li>
           </ul>
         </section>
 
@@ -424,7 +424,7 @@ export const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "sunny-summer-2293",
     "label": "Ad Accounts & Platform Management"

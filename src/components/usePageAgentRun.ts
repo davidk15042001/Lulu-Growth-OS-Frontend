@@ -3,7 +3,6 @@ import {
   agentApi,
   agentModuleForContract,
   agentPageContextFromContract,
-  autoAgentGoalForContract,
   type AgentHealth,
   type AgentRun,
   type AgentRunDetails,
@@ -186,7 +185,7 @@ export function usePageAgentRun(
     if (!workspaceId) return;
     setActing(true);
     try {
-      const created = await agentApi.create(workspaceId, autoAgentGoalForContract(contract), {
+      const created = await agentApi.create(workspaceId, {
         module: agentModuleForContract(contract),
         page: agentPageContextFromContract(contract),
         dedupeMinutes: 15,

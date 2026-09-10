@@ -6,7 +6,6 @@ import type { LuluAgentContract, LuluAgentUiState } from "../config/lulu-agent-r
 import { useLuluAgentRuntime } from "./useLuluAgentRuntime";
 
 const UI_STATE_PRIORITY: readonly LuluAgentUiState[] = [
-  "needs_approval",
   "executing",
   "analyzing",
   "monitoring",
@@ -23,7 +22,7 @@ const UI_STATE_TRANSLATION_KEYS: Record<LuluAgentUiState, string> = {
   drafting: "Drafting",
   monitoring: "Monitoring",
   analyzing: "Analyzing",
-  needs_approval: "Needs approval",
+  needs_approval: "Migrating to autonomy",
   executing: "Executing",
   completed: "Completed",
   attention_required: "Attention required",

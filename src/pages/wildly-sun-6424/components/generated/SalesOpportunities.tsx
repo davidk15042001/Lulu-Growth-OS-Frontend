@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import { Bell, Bot, Check, ChevronDown, Download, Ellipsis, LayoutDashboard, Menu, Plus, RefreshCw, Search, Settings, Sparkles, Target, Users, X } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Opp = any;
@@ -172,7 +172,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Activity, AlertTriangle, Check, ChevronDown, CircleHelp, Clock3, Download, FileText, Globe2, Info, LayoutGrid, Menu, MoreHorizontal, RefreshCw, Search, Share2, SlidersHorizontal, Sparkles, Star, Target, Users } from 'lucide-react';
@@ -268,7 +268,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

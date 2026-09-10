@@ -5,14 +5,10 @@ import type { LuluAgentContract } from '../config/lulu-agent-registry';
 export type AgentRunStatus = 'queued' | 'planning' | 'running' | 'waiting_approval' | 'completed' | 'failed' | 'cancelled';
 export type AgentStep = { id: string; runId: string; sequenceNo: number; agentRole: string; title: string; instruction: string; status: string; toolName: string | null; toolInput: Record<string, unknown> | null; approvalId: string | null; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; };
 
-/** Budget changes are the only agent actions that intentionally remain manual. */
+/** Only a structured request for new customer funds is an authorization boundary. */
 export function isBudgetProtectedAgentInput(input: Record<string, unknown> | null | undefined): boolean {
   if (!input) return false;
-  if (input.budgetProtected === true) return true;
-  const markers = [input.actionResourceType, input.resourceType, input.toolName]
-    .concat(Array.isArray(input.resourceTypes) ? input.resourceTypes : [])
-    .concat(Array.isArray(input.approvalGates) ? input.approvalGates : []);
-  if (markers.some((value) => typeof value === "string" && /\bbudget\b/i.test(value))) return true;
+  if (input.budgetAuthority === 'customer_authorization_required') return true;
   const commands = Array.isArray(input.commands) ? input.commands : [];
   return commands.some((command) => command && typeof command === "object" && isBudgetProtectedAgentInput(command as Record<string, unknown>));
 }
@@ -156,15 +152,11 @@ export function agentModuleForContract(contract: LuluAgentContract): AgentModule
   return 'general';
 }
 
-export function autoAgentGoalForContract(contract: LuluAgentContract) {
-  return `[page-agent:${contract.pageId}] ${contract.agentName}: ${contract.objective}`;
-}
-
 export const agentApi = {
   list: (workspaceId: string, query?: AgentQuery) => requestApi<{ items: AgentRun[] }>({ path: withAgentQuery(workspaceApiPath(workspaceId, '/agent-runs'), query) }),
   knowledge: (workspaceId: string, query?: AgentQuery) => requestApi<IntelligenceBundle>({ path: withAgentQuery(intelligencePath(workspaceId), query) }),
   health: (workspaceId: string, query?: AgentQuery) => requestApi<AgentHealth>({ path: withAgentQuery(workspaceApiPath(workspaceId, '/agent-runs/health'), query) }),
-  create: (workspaceId: string, goal: string, options?: CreateAgentRunOptions) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, '/agent-runs'), method: 'POST', body: { goal, module: options?.module, page: options?.page, dedupeMinutes: options?.dedupeMinutes } }),
+  create: (workspaceId: string, options?: CreateAgentRunOptions) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, '/agent-runs'), method: 'POST', body: { module: options?.module, page: options?.page, dedupeMinutes: options?.dedupeMinutes } }),
   detail: (workspaceId: string, runId: string) => requestApi<AgentRunDetails>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}`) }),
   cancel: (workspaceId: string, runId: string) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/cancel`), method: 'POST', body: {} }),
   approve: (workspaceId: string, runId: string, stepId: string, decision: 'approved' | 'rejected' | 'cancelled' = 'approved') => requestApi<AgentRunDetails>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/steps/${stepId}/approve`), method: 'POST', body: { decision } }),

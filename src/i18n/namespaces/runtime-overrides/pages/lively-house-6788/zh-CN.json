@@ -205,5 +205,9 @@
   "Unavailable": "不可用",
   "Vendors": "供应商",
   "Webflow": "Webflow",
-  "Website": "网站"
+  "Website": "网站",
+  "All commission executions appear when live data is available.": "当实时数据可用时，所有佣金执行都会显示。",
+  "Autonomous Commission Runs": "自治委员会运行",
+  "Autonomous Publishing Center": "自治出版中心",
+  "Calculated and executed automatically": "自动计算并执行"
 }

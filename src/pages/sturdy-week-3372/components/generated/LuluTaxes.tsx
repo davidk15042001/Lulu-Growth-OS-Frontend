@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { Bell, Bot, BriefcaseBusiness, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Download, FileText, Filter, LayoutDashboard, MoreHorizontal, Plus, RefreshCw, Search, Settings2, Sparkles, WalletCards, X, ArrowUpRight, AlertTriangle, CheckCircle2, Clock3, ShieldCheck, SlidersHorizontal, Receipt, CircleDollarSign } from 'lucide-react';
 type Status = 'Paid' | 'Partially Paid' | 'Due' | 'Overdue' | 'Estimated' | 'Draft';
@@ -176,7 +176,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

@@ -1,4 +1,4 @@
-﻿import { useState, type ComponentType } from 'react';
+import { useState, type ComponentType } from 'react';
 import { Activity, AlertTriangle, ArrowDown, ArrowLeft, ArrowRight, BarChart3, Bell, Check, ChevronDown, CircleCheck, CircleX, Clock3, CreditCard, Download, ExternalLink, Eye, Filter, Grid2X2, HeartPulse, LayoutDashboard, Menu, MoreHorizontal, Package, RefreshCw, Search, Send, Settings, ShoppingBag, ShoppingCart, Sparkles, Store, Truck, UserRound, Users, X, Zap } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 type IconType = ComponentType<{
@@ -257,7 +257,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

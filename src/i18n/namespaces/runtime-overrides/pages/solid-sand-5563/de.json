@@ -298,5 +298,7 @@
   "Variant": "Variante",
   "Vendors": "Anbieter",
   "Webflow": "Webflow",
-  "Website": "Website"
+  "Website": "Website",
+  "Autonomous Publishing Center": "Autonomes Verlagszentrum",
+  "This change will be submitted to the Autonomous Publishing Center before being applied to the live campaign.": "Diese Änderung wird an das Autonomous Publishing Center übermittelt, bevor sie auf die Live-Kampagne angewendet wird."
 }

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { AnimatePresence, motion } from 'framer-motion';
 import { Activity, AlertTriangle, ArrowDownRight, ArrowRight, Bot, BriefcaseBusiness, Building2, CalendarDays, Check, ChevronDown, CircleHelp, Clock3, Command, Filter, Gauge, GripVertical, LayoutDashboard, ListTodo, Menu, MoreHorizontal, PanelRight, Plus, RefreshCcw, Search, Settings, SlidersHorizontal, Sparkles, Target, Trophy, UserRound, Users, X, Zap } from 'lucide-react';
@@ -295,7 +295,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

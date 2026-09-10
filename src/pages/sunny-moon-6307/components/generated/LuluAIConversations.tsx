@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Activity, Archive, ArrowDownUp, BarChart3, Bell, BookOpen, Bot, Brain, Check, CheckCircle2, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Clock3, Code2, Copy, Download, FileText, Filter, FolderOpen, Grip, Hash, Lightbulb, MessageSquare, MessagesSquare, MoreHorizontal, Paperclip, Pin, Plus, RefreshCw, Search, Send, Settings, Share2, Sparkles, Tag, Trash2, UserRound, Wrench, X, Zap } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Conversation = {
@@ -266,7 +266,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

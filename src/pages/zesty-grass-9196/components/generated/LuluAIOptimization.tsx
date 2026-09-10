@@ -1,4 +1,4 @@
-﻿import { useState, type ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { AlertCircle, AlertTriangle, ArrowRight, BarChart3, Bell, Calendar, Check, CheckCircle, ChevronDown, ChevronRight, Clock, Download, Eye, ExternalLink, Filter, Globe2, Image, Info, Lightbulb, Lock, Megaphone, MoreHorizontal, RefreshCw, Search, Shield, Sparkles, Target, TrendingDown, TrendingUp, Users, Video, X, Zap } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Modal = 'rec-detail' | 'action' | 'task' | 'run-analysis' | 'analysis-complete' | 'export' | null;
@@ -152,7 +152,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

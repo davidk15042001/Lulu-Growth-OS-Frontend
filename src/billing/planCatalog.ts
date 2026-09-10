@@ -28,7 +28,7 @@ export const billingPlans: BillingPlan[] = [
       "API and AWS usage collected automatically every Monday",
       "5% commission on each Lulu-attributed sale",
     ],
-    limitations: "You stay in control with configurable approvals and safeguards",
+    limitations: "Fully autonomous execution with prepaid ad spend as the only customer authorization boundary",
     price: LULU_AI_ANNUAL_PRICE,
     pricePeriod: "per year",
     cta: "Choose AI",

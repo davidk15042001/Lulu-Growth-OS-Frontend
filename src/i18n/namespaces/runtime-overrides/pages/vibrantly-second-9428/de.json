@@ -188,5 +188,10 @@
   "WordPress / Jetpack": "WordPress / Jetpack",
   "Workspace": "Workspace",
   "Workspace owner": "Arbeitsbereichsinhaber",
-  "Workspace settings": "Workspace-Einstellungen"
+  "Workspace settings": "Workspace-Einstellungen",
+  "Autonomous Publishing Center": "Autonomes Verlagszentrum",
+  "Autonomy Boundary": "Autonomiegrenze",
+  "Financial automations execute autonomously inside system permissions and audit policies. Only adding paid-media budget requires customer authorization.": "Finanzautomatisierungen werden innerhalb von Systemberechtigungen und Prüfrichtlinien autonom ausgeführt. Nur das Hinzufügen eines Paid-Media-Budgets erfordert die Genehmigung des Kunden.",
+  "Human Approvals": "Menschliche Zustimmung",
+  "Run repetitive financial processes autonomously with deterministic controls and complete audit trails.": "Führen Sie sich wiederholende Finanzprozesse autonom mit deterministischen Kontrollen und vollständigen Prüfprotokollen aus."
 }

@@ -381,5 +381,19 @@
   "Lade…": "拉德…",
   "Manuelle Kostenanpassung durch Admin": "管理员手动调整成本",
   "Storage / Infrastruktur:": "存储/基础设施：",
-  "Storage in USD": "美元存储"
+  "Storage in USD": "美元存储",
+  "Admin approval": "管理员许可",
+  "Central Facebook Pages account for publishing and engagement.": "用于发布和互动的中央 Facebook 公共主页账户。",
+  "Central Instagram professional account for content and messages.": "用于内容和消息的中央 Instagram 专业账户。",
+  "Central WhatsApp Business account for customer messaging.": "用于客户消息的中央 WhatsApp Business 账户。",
+  "Deine Rolle besitzt nur Leserechte.": "你的角色只有只读权限。",
+  "Die OAuth-Freigabe konnte nicht gespeichert werden.": "无法保存 OAuth 权限。",
+  "Eigene Benutzerkonten": "用户自有账户",
+  "Erlaubt ein Admin einen Provider, kann der Benutzer sein eigenes Konto verbinden. Ohne Freigabe nutzt Lulu weiterhin ausschließlich die zentrale Admin-Verbindung. Beim Entziehen der Freigabe werden gespeicherte Workspace-Tokens dieses Providers entfernt.": "管理员允许某个服务商后，用户可以连接自己的账户。未获许可时，Lulu 仅使用中央管理员连接。撤销许可后，将删除该服务商已存储的工作区令牌。",
+  "Facebook": "Facebook",
+  "Instagram": "Instagram",
+  "Kein Owner": "无所有者",
+  "Keine Workspaces gefunden.": "未找到工作区。",
+  "OAuth-Self-Service pro Workspace": "每个工作区的 OAuth 自助授权",
+  "Workspace / Benutzer": "工作区 / 用户"
 }

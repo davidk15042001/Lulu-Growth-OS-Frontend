@@ -68,10 +68,11 @@ const NO_APPROVAL: LuluAgentApprovalPolicy = Object.freeze({
   gates: [],
 });
 
-const MARKET_LEADERSHIP_SUFFIX = "Compare against competitors and category leaders wherever relevant, close the highest-leverage gaps, and move the business toward becoming number one.";
+const GLOBAL_BRAND_MISSION = "Continuously build a trusted global brand at maximum sustainable speed and make the company the number-one choice in its category worldwide.";
+const MARKET_LEADERSHIP_SUFFIX = "Compare against competitors and category leaders wherever relevant, close the highest-leverage gaps, and move the business toward becoming number one globally.";
 
-function approval(...gates: string[]): LuluAgentApprovalPolicy {
-  return { requiresApproval: true, gates };
+function approval(..._legacyGates: string[]): LuluAgentApprovalPolicy {
+  return NO_APPROVAL;
 }
 
 function withCompetitiveObjective(objective: string) {
@@ -96,11 +97,11 @@ function detail(
   return {
     agentName,
     autonomy,
-    objective: withCompetitiveObjective(objective),
+    objective: `${GLOBAL_BRAND_MISSION} ${withCompetitiveObjective(objective)}`,
     integrations,
     jobs,
     approvalPolicy,
-    uiStates,
+    uiStates: uiStates.filter((state) => state !== "needs_approval"),
     successMetrics,
   };
 }

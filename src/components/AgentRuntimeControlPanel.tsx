@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock3, ShieldAlert, XCircle } from "lucide-react";
+import { Clock3, ShieldCheck, XCircle } from "lucide-react";
 import { formatLiveDate } from "../api/live-panel-ui";
 import type { AgentRunStatus, AgentStep } from "../api/agents";
 import type { WorkspaceRecord } from "../api/records";
@@ -62,9 +62,7 @@ export function AgentRuntimeControlPanel({
   const currentRun = runtime.details?.run ?? runtime.latestRun;
   const status = currentRun?.status ?? "idle";
   const stepCount = runtime.details?.steps.length ?? 0;
-  const approvalCount = runtime.pendingApprovalSteps.length;
   const isRunning = status === "queued" || status === "planning" || status === "running";
-  const isBlocked = status === "waiting_approval";
   const executedPacketCount = runtime.executionPackets.filter((entry) => packetExecutionStatus(entry.packet) === "executed").length;
   const artifactCount = runtime.executionArtifacts.length;
   const currentHealth = runtime.currentHealth;
@@ -74,9 +72,9 @@ export function AgentRuntimeControlPanel({
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("Agent runtime")}</p>
-          <h2 className="mt-1 text-lg font-semibold text-foreground">{t("Run control and approvals")}</h2>
+          <h2 className="mt-1 text-lg font-semibold text-foreground">{t("Autonomous execution control")}</h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            {t("This is the live execution layer for this page agent, including the current run, recent steps and approvals.")}
+            {t("This is the live execution layer for the permanent global-brand mission. Actions execute automatically and remain fully auditable.")}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -118,8 +116,8 @@ export function AgentRuntimeControlPanel({
           <p className="mt-2 text-2xl font-semibold text-foreground">{stepCount}</p>
         </article>
         <article className="rounded-lg border border-border bg-background/60 p-4">
-          <p className="text-xs text-muted-foreground">{t("Approvals")}</p>
-          <p className="mt-2 text-2xl font-semibold text-foreground">{approvalCount}</p>
+          <p className="text-xs text-muted-foreground">{t("Human approvals")}</p>
+          <p className="mt-2 text-2xl font-semibold text-foreground">0</p>
         </article>
         <article className="rounded-lg border border-border bg-background/60 p-4">
           <p className="text-xs text-muted-foreground">{t("Action packets")}</p>
@@ -193,49 +191,13 @@ export function AgentRuntimeControlPanel({
 
         <section className="rounded-lg border border-border bg-background/40 p-4">
           <div className="flex items-center gap-2">
-            <ShieldAlert size={16} className="text-muted-foreground" />
-            <h3 className="text-sm font-semibold text-foreground">{t("Approval queue")}</h3>
+            <ShieldCheck size={16} className="text-emerald-600" />
+            <h3 className="text-sm font-semibold text-foreground">{t("Autonomy boundary")}</h3>
           </div>
-          <div className="mt-4 space-y-3">
-            {runtime.pendingApprovalSteps.length > 0 ? runtime.pendingApprovalSteps.map((step) => (
-              <article key={step.id} className="rounded-lg border border-amber-500/20 bg-amber-500/5 px-4 py-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-medium text-foreground">{step.title}</div>
-                    <div className="mt-1 text-xs uppercase tracking-[0.12em] text-muted-foreground">
-                      {pageLabel} · {step.agentRole}
-                    </div>
-                    <p className="mt-2 text-sm text-muted-foreground">{step.instruction}</p>
-                  </div>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={() => void runtime.decide(step.id, "approved")}
-                    disabled={runtime.acting}
-                    className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <CheckCircle2 size={15} />
-                    {t("Approve")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void runtime.decide(step.id, "rejected")}
-                    disabled={runtime.acting}
-                    className="inline-flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <XCircle size={15} />
-                    {t("Reject")}
-                  </button>
-                </div>
-              </article>
-            )) : (
-              <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
-                {isBlocked
-                  ? t("This run is blocked, but the backend has not returned any actionable approval step yet.")
-                  : t("No approval is currently waiting for this page agent.")}
-              </p>
-            )}
+          <div className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-4">
+            <p className="text-sm font-medium text-foreground">{t("No operational approval queue")}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("Lulu executes content, communication, finance workflows, online-presence updates and campaign optimization automatically. Only adding new paid-media funds requires an owner or administrator payment.")}</p>
+            <p className="mt-3 text-xs font-medium text-emerald-700 dark:text-emerald-300">{pageLabel} · {t("Autonomous and auditable")}</p>
           </div>
         </section>
       </div>

@@ -3,7 +3,6 @@ import {
   agentApi,
   agentModuleForContract,
   agentPageContextFromContract,
-  autoAgentGoalForContract,
   type AgentRun,
   type IntelligenceBundle,
 } from "../api/agents";
@@ -361,7 +360,6 @@ function buildAiLiveData(
   knowledge: IntelligenceBundle,
 ): SpecializedLiveData {
   const activeRuns = agentRuns.filter((run) => !["completed", "failed", "cancelled"].includes(run.status));
-  const waitingApprovalRuns = agentRuns.filter((run) => run.status === "waiting_approval");
   const conversationTitles = conversations.slice(0, 3).map((conversation) => conversation.title || t("Untitled conversation"));
   return {
     cards: [
@@ -376,9 +374,9 @@ function buildAiLiveData(
         detail: activeRuns.length > 0 ? listNames(activeRuns.slice(0, 3).map((run) => run.goal), 3) : t("No AI agent run is active right now."),
       },
       {
-        label: t("Approval pressure"),
-        value: interpolate(t("{{0}} runs waiting"), [waitingApprovalRuns.length]),
-        detail: waitingApprovalRuns.length > 0 ? listNames(waitingApprovalRuns.slice(0, 3).map((run) => run.goal), 3) : t("No AI action is currently waiting for approval."),
+        label: t("Autonomy"),
+        value: t("0 approval gates"),
+        detail: t("Only adding paid-media funds requires a customer action."),
       },
       {
         label: t("Knowledge depth"),
@@ -391,8 +389,8 @@ function buildAiLiveData(
     impactDetail: interpolate(t("AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections."), [conversations.length, activeRuns.length, knowledge.sections.length]),
     latestActivityAt: activeRuns[0]?.updatedAt ?? conversations[0]?.updatedAt ?? null,
     activeJobCount: activeRuns.length,
-    pendingApprovalCount: waitingApprovalRuns.length,
-    runtimeStatusHint: waitingApprovalRuns.length > 0 ? "needs_approval" : activeRuns.length > 0 ? "executing" : "monitoring",
+    pendingApprovalCount: 0,
+    runtimeStatusHint: activeRuns.length > 0 ? "executing" : "monitoring",
   };
 }
 
@@ -572,9 +570,9 @@ function createGenericCards(
         detail: syncingPlatforms.length > 0 ? providerNames(syncingPlatforms, 3) : t("No syncing or pending provider jobs right now."),
       },
       {
-        label: t("Approval queue"),
-        value: interpolate(t("{{0}} pending approvals"), [bootstrap?.approvals.pending ?? 0]),
-        detail: interpolate(t("{{0}} unread notifications across the workspace."), [bootstrap?.notifications.unread ?? 0]),
+        label: t("Autonomy boundary"),
+        value: t("0 approval gates"),
+        detail: t("Only prepaid ad spend is customer-authorized; all downstream actions execute automatically."),
       },
       {
         label: t("Live footprint"),
@@ -584,7 +582,7 @@ function createGenericCards(
     ],
     connectedPlatforms,
     activeJobCount: syncingPlatforms.length,
-    pendingApprovalCount: bootstrap?.approvals.pending ?? 0,
+    pendingApprovalCount: 0,
     hasConnectionIssues: brokenPlatforms.length > 0,
     latestActivityAt: bootstrap?.recentActivity[0]?.createdAt ?? null,
   };
@@ -616,8 +614,8 @@ function resolveRuntimeStatus(
   if (signals.connectedPlatformCount === 0 && contract.integrations.length > 0 && allowedRuntimeStatus(contract, "connecting")) {
     return "connecting";
   }
-  if (signals.pendingApprovalCount > 0 && allowedRuntimeStatus(contract, "needs_approval")) {
-    return "needs_approval";
+  if (signals.pendingApprovalCount > 0 && allowedRuntimeStatus(contract, "attention_required")) {
+    return "attention_required";
   }
   if (signals.activeJobCount > 0) {
     if (signals.runtimeStatusHint && allowedRuntimeStatus(contract, signals.runtimeStatusHint)) {
@@ -869,7 +867,7 @@ export function useLuluAgentRuntime(
           return;
         }
 
-        await agentApi.create(workspaceId, autoAgentGoalForContract(contract), {
+        await agentApi.create(workspaceId, {
           module: agentModuleForContract(contract),
           page: agentPageContextFromContract(contract),
           dedupeMinutes: 45,

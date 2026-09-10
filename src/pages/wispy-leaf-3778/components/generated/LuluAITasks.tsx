@@ -16,8 +16,8 @@ interface Task {
   progress?: number;
 }
 const stats: any[][] = [];
-const tabs = ['All Tasks', 'My Tasks', 'AI Tasks', 'Human Tasks', 'Pending Approval', 'Executing', 'Scheduled', 'Completed', 'Failed', 'Blocked', 'Archived'];
-const filters = ['Status', 'Priority', 'Business Area', 'Owner', 'AI / Human', 'Source', 'Platform', 'Due Date', 'Requires Approval', 'Execution Capability'];
+const tabs = ['All Tasks', 'AI Tasks', 'Executing', 'Scheduled', 'Completed', 'Failed', 'Blocked', 'Archived'];
+const filters = ['Status', 'Priority', 'Business Area', 'Owner', 'Source', 'Platform', 'Due Date', 'Execution Capability'];
 const approvals: any[][] = [];
 const tasks: Task[] = [];
 const logs: any[][] = [];
@@ -181,7 +181,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { ArrowDown, ArrowUp, ChevronDown, ChevronRight, Download, Plus, RefreshCw, Search, Sparkles, SlidersHorizontal, X } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 type Kpi = {
@@ -421,7 +421,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"

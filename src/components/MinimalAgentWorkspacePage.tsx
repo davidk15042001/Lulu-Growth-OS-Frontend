@@ -78,7 +78,6 @@ export function MinimalAgentWorkspacePage({
     [records.items],
   );
 
-  const approvalGates = agentContract.approvalPolicy.gates.slice(0, 3);
   const isKnowledgePage = slug === "rich-field-1880";
 
   return (
@@ -145,12 +144,8 @@ export function MinimalAgentWorkspacePage({
               </p>
             </article>
             <article className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs text-muted-foreground">{t("Approval boundary")}</p>
-              <p className="mt-3 text-sm text-foreground">
-                {agentContract.approvalPolicy.requiresApproval
-                  ? approvalGates.join(" · ")
-                  : t("This agent only needs approval when the user triggers a sensitive action.")}
-              </p>
+              <p className="text-xs text-muted-foreground">{t("Autonomy boundary")}</p>
+              <p className="mt-3 text-sm text-foreground">{t("Only new paid-media funds need customer authorization. Every other agent action executes automatically within system safeguards.")}</p>
             </article>
           </section>
         )}
@@ -226,10 +221,10 @@ export function MinimalAgentWorkspacePage({
           <div className="grid gap-5">
             <section className="rounded-xl border border-border bg-card p-5">
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
-                {resourceType ? t("Needs attention") : t("Approval boundary")}
+                {resourceType ? t("Needs attention") : t("Autonomy boundary")}
               </p>
               <h2 className="mt-1 text-lg font-semibold text-foreground">
-                {resourceType ? t("Priority queue") : t("What still needs a user decision")}
+                {resourceType ? t("Priority queue") : t("What Lulu executes automatically")}
               </h2>
               <div className="mt-4 space-y-3">
                 {resourceType ? (
@@ -248,15 +243,9 @@ export function MinimalAgentWorkspacePage({
                       {t("No records are currently flagged for attention.")}
                     </p>
                   )
-                ) : agentContract.approvalPolicy.requiresApproval ? (
-                  approvalGates.map((gate) => (
-                    <article key={gate} className="rounded-lg border border-border bg-background/50 px-4 py-3 text-sm text-foreground">
-                      {gate}
-                    </article>
-                  ))
                 ) : (
                   <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
-                    {t("This page is already reduced to the essential view. Sensitive actions still require explicit approval where relevant.")}
+                    {t("Lulu continuously analyzes, decides and executes here. The customer intervenes only to add paid-media budget.")}
                   </p>
                 )}
               </div>

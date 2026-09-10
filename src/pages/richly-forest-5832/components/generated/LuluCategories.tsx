@@ -1,4 +1,4 @@
-﻿import * as React from 'react';
+import * as React from 'react';
 import { ChevronDown, ChevronRight, ChevronsUpDown, CircleAlert, CircleCheck, Clock3, Copy, Ellipsis, GripVertical, LayoutGrid, List, MessageSquare, MoreHorizontal, Package, Plus, RefreshCw, Search, Settings2, Sparkles, Store, Tags, Trash2, Users, X, Zap } from 'lucide-react';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 const navItems = ['Dashboard', 'AI Platform', 'CRM', 'Marketing', 'Advertising', 'Ecommerce', 'Reports', 'Settings'];
@@ -237,7 +237,7 @@ const luluDropdownNavigation = [{
     "label": "AI Campaign & Ad Builder"
   }, {
     "id": "sunnily-peak-7188",
-    "label": "Publishing & Approval Center"
+    "label": "Autonomous Publishing Center"
   }, {
     "id": "solid-sand-5563",
     "label": "AI Experiments & A/B Testing"
