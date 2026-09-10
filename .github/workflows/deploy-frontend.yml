@@ -117,7 +117,21 @@ jobs:
             npm ci --omit=dev --ignore-scripts
           fi
 
-          node dist/database/run.js
+          # Run migrations with the exact environment used by the production
+          # service. Loading only the checkout's .env can silently target a
+          # different database or skip migrations altogether.
+          migration_command=(
+            systemd-run --quiet --wait --pipe --collect
+            --property=Type=oneshot
+            --property=WorkingDirectory=/var/www/lulu-growth-os/backend
+            --property=EnvironmentFile=/etc/lulu-growth-backend.env
+            /usr/bin/node /var/www/lulu-growth-os/backend/dist/database/run.js
+          )
+          if [ "$(id -u)" -eq 0 ]; then
+            "${migration_command[@]}"
+          else
+            sudo -n "${migration_command[@]}"
+          fi
           if [ "$(id -u)" -eq 0 ]; then
             systemctl restart lulu-growth-backend
           else
