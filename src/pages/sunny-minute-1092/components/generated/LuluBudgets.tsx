@@ -19,7 +19,7 @@ const paymentMethods: Array<{ id: AdSpendPaymentMethod; label: string; detail: s
   { id: 'alipaycn', label: 'Alipay', detail: 'Scan QR code' },
   { id: 'wechatpay', label: 'WeChat Pay', detail: 'Scan QR code' },
 ];
-const adSpendPackages=[10_000,25_000,50_000,90_000] as const;
+const adSpendPackages=[1,10_000,25_000,50_000,90_000] as const;
 function secureCheckoutUrl(value:string|null){if(!value)return null;try{const url=new URL(value);return url.protocol==='https:'?url.toString():null;}catch{return null;}}
 
 export function LuluBudgets() {

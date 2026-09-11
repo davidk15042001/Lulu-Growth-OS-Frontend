@@ -4,7 +4,7 @@ import { useCallback,useEffect,useState } from 'react';
 import { apiWalletApi,type ApiPaymentMethod,type ApiTopup,type ApiWalletOverview } from '../api/api-wallet';
 import { getFriendlyErrorMessage } from '../api/client';
 import { useLuluApp } from '../api/LuluAppContext';
-const packages=[1000,2500,5000,9000];
+const packages=[1,1000,2500,5000,9000];
 const methods:Array<{id:ApiPaymentMethod;label:string}>=[{id:'card',label:'Bank card'},{id:'alipaycn',label:'Alipay'},{id:'wechatpay',label:'WeChat Pay'}];
 const money=new Intl.NumberFormat('en',{style:'currency',currency:'CNY',currencyDisplay:'narrowSymbol',maximumFractionDigits:0});
 function secureCheckoutUrl(value:string|null){if(!value)return null;try{const url=new URL(value);return url.protocol==='https:'?url.toString():null;}catch{return null;}}
