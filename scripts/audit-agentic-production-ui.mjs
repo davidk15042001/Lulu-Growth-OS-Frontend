@@ -9,6 +9,8 @@ const globalNavigation = fs.readFileSync(path.join(root, 'src', 'components', 'L
 const adminBillingPage = fs.readFileSync(path.join(root, 'src', 'pages', 'admin-billing-overview-9901', 'App.tsx'), 'utf8');
 const loginPage = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door-5741', 'components', 'generated', 'LuluLoginPage.tsx'), 'utf8');
 const connectionSetupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fresh-tide-9404', 'components', 'generated', 'LuluExistingPlatforms.tsx'), 'utf8');
+const appRouter = fs.readFileSync(path.join(root, 'src', 'App.tsx'), 'utf8');
+const crmWorkspacePage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-crm', 'CrmWorkspacePage.tsx'), 'utf8');
 const failures = [];
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
@@ -45,6 +47,14 @@ if (authenticatedTopBar.includes('lulu-auth-runtime') || globalNavigation.includ
 
 if (!connectionSetupPage.includes("id: 'crm'") || !connectionSetupPage.includes("hidden: true") || !connectionSetupPage.includes('platformGroups.filter(group => !group.hidden)')) {
   failures.push('The CRM & Sales connection block is not hidden from the connection setup page.');
+}
+
+if (!appRouter.includes('<CrmWorkspacePage kind="companies" showEntitySwitcher={false} />')) {
+  failures.push('The sturdy-month CRM route is not locked to its companies-only view.');
+}
+
+if (!crmWorkspacePage.includes('showEntitySwitcher &&')) {
+  failures.push('The canonical CRM page cannot hide its contacts/companies tab switcher.');
 }
 
 const inspectedRoots = [

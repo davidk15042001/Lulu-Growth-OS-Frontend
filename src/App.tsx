@@ -325,7 +325,7 @@ export default function App() {
         <Route path={routes.app.products} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="nicely-ocean-1051"><ProductsPage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path="/app/nicely-ocean-1051" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="nicely-ocean-1051"><ProductsPage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path={routes.app.omnichannel} element={<AdminOnlyAppRoute><OmniChannelPage /></AdminOnlyAppRoute>} />
-        <Route path="/app/sturdy-month-1562" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="contacts" /></AdminOnlyAppRoute>} />
+        <Route path="/app/sturdy-month-1562" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="companies" showEntitySwitcher={false} /></AdminOnlyAppRoute>} />
         <Route path="/app/kindly-pool-8785" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="companies" /></AdminOnlyAppRoute>} />
         <Route path="/app/cosmic-pool-1616" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="activities" /></AdminOnlyAppRoute>} />
         <Route path="/app/deeply-noon-9539" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="tasks" /></AdminOnlyAppRoute>} />
