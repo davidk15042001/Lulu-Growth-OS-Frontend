@@ -70,9 +70,12 @@ if (!crmWorkspacePage.includes('showEntitySwitcher &&')) {
 if (
   !globalNavigation.includes('const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"])')
   || !globalNavigation.includes('pages: crmSection.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id))')
-  || globalNavigation.includes('section.label !== STATISTICS_LABEL && section.pages.length > 0')
 ) {
-  failures.push('CRM activities and tasks are not exposed exclusively through the Statistics navigation section.');
+  failures.push('CRM activities and tasks are not assigned to the Statistics section.');
+}
+
+if (!globalNavigation.includes('(section) => section.pages.length > 0 && section.label !== STATISTICS_LABEL')) {
+  failures.push('The Statistics dropdown is still visible in the customer navigation.');
 }
 
 if (

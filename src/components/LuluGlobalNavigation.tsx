@@ -152,7 +152,11 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     reorderedSections.splice(currentSettingsIndex, 0, statisticsSection);
   }
 
-  const visibleSections = reorderedSections.filter((section) => section.pages.length > 0);
+  // Statistics routes remain available for autonomous workflows and deep links,
+  // but the customer navigation intentionally does not expose the section.
+  const visibleSections = reorderedSections.filter(
+    (section) => section.pages.length > 0 && section.label !== STATISTICS_LABEL,
+  );
   const visibleFinanceIndex = visibleSections.findIndex((section) => section.label === FINANCE_LABEL);
   const visibleWebsiteIndex = visibleSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
   const visibleSettingsIndex = visibleSections.findIndex((section) => section.label === SETTINGS_LABEL);
