@@ -164,15 +164,15 @@ button, input { font: inherit; }
 
 @media (min-width: 901px) {
   .lulu-global-navigation {
-    position: fixed;
+    position: sticky;
     top: var(--lulu-workspace-topbar-height);
     right: auto;
-    bottom: 0;
-    left: 0;
+    bottom: auto;
+    left: auto;
     width: var(--lulu-workspace-navigation-width);
-    height: auto;
-    max-height: none;
-    align-self: auto;
+    height: calc(100dvh - var(--lulu-workspace-topbar-height));
+    max-height: calc(100dvh - var(--lulu-workspace-topbar-height));
+    align-self: start;
   }
 
   .lulu-global-content {

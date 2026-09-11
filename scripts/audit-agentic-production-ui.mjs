@@ -12,6 +12,7 @@ const connectionSetupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fre
 const appRouter = fs.readFileSync(path.join(root, 'src', 'App.tsx'), 'utf8');
 const crmWorkspacePage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-crm', 'CrmWorkspacePage.tsx'), 'utf8');
 const agentRegistry = fs.readFileSync(path.join(root, 'src', 'config', 'lulu-agent-registry.ts'), 'utf8');
+const assistantPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fresh-moon-5374', 'components', 'generated', 'LuluAIAssistant.tsx'), 'utf8');
 const failures = [];
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
@@ -26,8 +27,16 @@ if (!appCss.includes('overflow-x: clip !important;')) {
   failures.push('The application root does not prevent document-level horizontal scrolling.');
 }
 
-if (!appCss.includes('width: var(--lulu-workspace-navigation-width);') || !appCss.includes('grid-column: 2;')) {
+if (
+  !appCss.includes('position: sticky;')
+  || !appCss.includes('width: var(--lulu-workspace-navigation-width);')
+  || !appCss.includes('grid-column: 2;')
+) {
   failures.push('The desktop navigation is not pinned independently from document height.');
+}
+
+if (appCss.includes('position: fixed;\n    top: var(--lulu-workspace-topbar-height);')) {
+  failures.push('The desktop navigation can receive the top-bar offset twice.');
 }
 
 if (authenticatedTopBar.includes('role="search"') || authenticatedTopBar.includes('Search Lulu AI')) {
@@ -77,8 +86,17 @@ if (
   !globalNavigation.includes('const CRM_LANDING_PAGE_ID = "sturdy-month-1562"')
   || !globalNavigation.includes('if (section.label === CRM_LABEL) {')
   || !globalNavigation.includes('const crmProps = pageLinkProps(CRM_LANDING_PAGE_ID)')
+  || !globalNavigation.includes('<span className="lulu-global-navigation__section-label">')
 ) {
   failures.push('CRM is not a direct navigation link to the companies workspace.');
+}
+
+if (
+  assistantPage.includes('LuluCommandCenter')
+  || assistantPage.includes('setView("command")')
+  || assistantPage.includes('`${storageKey}.view`')
+) {
+  failures.push('The removed command-center switcher is still rendered on the AI Assistant page.');
 }
 
 if (

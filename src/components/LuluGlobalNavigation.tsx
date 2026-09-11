@@ -349,7 +349,9 @@ export function LuluGlobalNavigation({
                   if (crmProps.href) navigateApp(crmProps.href);
                 }}
               >
-                <span>{t(CRM_LABEL)}</span>
+                <span className="lulu-global-navigation__section-label">
+                  <span>{t(CRM_LABEL)}</span>
+                </span>
               </a>
             );
           }

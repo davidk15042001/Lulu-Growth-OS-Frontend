@@ -12,7 +12,6 @@ import { getSelectedWorkspaceId } from "../../../../api/session";
 import { workspaceAppApi } from "../../../../api/workspace-app";
 import { emitWorkspaceRefreshed } from "../../../../components/workspace-refresh-events";
 import { clearRuntimeSnapshotCache } from "../../../../components/useLuluAgentRuntime";
-import { LuluCommandCenter } from "./LuluCommandCenter";
 
 type ChatMessage = {
   id: string;
@@ -263,10 +262,6 @@ export function LuluAIAssistant() {
   const [conversationsLoaded, setConversationsLoaded] = useState(false);
   const [error, setError] = useState("");
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const [view, setView] = useState<"command" | "assistant">(() => {
-    if (!storageKey) return "command";
-    return window.sessionStorage.getItem(`${storageKey}.view`) === "assistant" ? "assistant" : "command";
-  });
 
   const loadConversations = useCallback(async () => {
     if (!workspaceId) return;
@@ -312,12 +307,6 @@ export function LuluAIAssistant() {
       setLoadingHistory(false);
     }
   };
-
-  // Remember the view and active conversation so the chat survives navigation.
-  useEffect(() => {
-    if (!storageKey) return;
-    window.sessionStorage.setItem(`${storageKey}.view`, view);
-  }, [storageKey, view]);
 
   useEffect(() => {
     if (!storageKey || !activeConversationId) return;
@@ -406,15 +395,7 @@ export function LuluAIAssistant() {
   const activeConversation = conversations.find((conversation) => conversation.id === activeConversationId) ?? null;
 
   return (
-    <main className="flex h-[calc(100dvh-66px)] min-h-0 flex-col bg-[var(--background)] text-[var(--foreground)]">
-      <div className="flex shrink-0 items-center gap-1 border-b border-[var(--border)] px-3 py-1.5">
-        <button type="button" onClick={() => setView("command")} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${view === "command" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"}`}>Steuerzentrale</button>
-        <button type="button" onClick={() => setView("assistant")} className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${view === "assistant" ? "bg-[var(--primary)] text-[var(--primary-foreground)]" : "text-[var(--muted-foreground)] hover:bg-[var(--secondary)]"}`}>Assistent</button>
-      </div>
-      {view === "command" ? (
-        <LuluCommandCenter />
-      ) : (
-        <>
+    <main className="flex h-[calc(100dvh-var(--lulu-workspace-topbar-height))] min-h-0 flex-col bg-[var(--background)] text-[var(--foreground)]">
       <header className="flex shrink-0 items-center gap-3 border-b border-[var(--border)] px-4 py-3 sm:px-6">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[var(--primary)] text-[var(--primary-foreground)]">
           <Sparkles size={17} />
@@ -553,8 +534,6 @@ export function LuluAIAssistant() {
           </button>
         </form>
       </footer>
-        </>
-      )}
     </main>
   );
 }
