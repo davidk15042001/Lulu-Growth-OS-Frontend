@@ -588,6 +588,8 @@
    hooks so generated feature screens keep all behavior and live data.
    ------------------------------------------------------------------------- */
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) {
+  --lulu-workspace-navigation-width: 270px;
+  --lulu-workspace-topbar-height: 78px;
   --lulu-ink-950: #070a16;
   --lulu-ink-900: #0b1020;
   --lulu-ink-850: #10172d;
@@ -597,7 +599,7 @@
   --lulu-electric-mint: #18d6a2;
   --lulu-hairline: rgba(89, 99, 142, .16);
   --lulu-control-shadow: 0 24px 70px rgba(20, 26, 58, .11);
-  grid-template-columns: 270px minmax(0, 1fr);
+  grid-template-columns: var(--lulu-workspace-navigation-width) minmax(0, 1fr);
   background:
     radial-gradient(circle at 16% 5%, rgba(139, 92, 246, .13), transparent 28rem),
     radial-gradient(circle at 92% 8%, rgba(19, 183, 233, .12), transparent 34rem),
@@ -1222,7 +1224,10 @@
 
 @media (max-width: 1180px) {
   .lulu-auth-runtime { display: none; }
-  .lulu-global-shell:not(.lulu-global-shell--navigation-free) { grid-template-columns: 238px minmax(0, 1fr); }
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) {
+    --lulu-workspace-navigation-width: 238px;
+    grid-template-columns: var(--lulu-workspace-navigation-width) minmax(0, 1fr);
+  }
 }
 
 @media (max-width: 900px) {

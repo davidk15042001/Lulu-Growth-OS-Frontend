@@ -91,13 +91,16 @@
   --lulu-card-shadow: 0 18px 45px rgba(38, 45, 90, .08);
   --lulu-card-shadow-hover: 0 24px 55px rgba(79, 70, 229, .16);
   --lulu-workspace-topbar-height: 75px;
+  --lulu-workspace-navigation-width: 248px;
   font-family: 'Poppins', sans-serif;
   font-synthesis: none;
 }
 
 * { box-sizing: border-box; }
-html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
-body { min-height: 100vh; font-family: 'Poppins', sans-serif; background: var(--lulu-page-gradient); }
+html, body, #root { width: 100%; max-width: 100%; min-height: 100%; margin: 0; }
+html, body { min-width: 320px; overflow-x: hidden !important; overflow-x: clip !important; }
+body { display: block !important; height: auto !important; min-height: 100vh; font-family: 'Poppins', sans-serif; background: var(--lulu-page-gradient); }
+#root { min-width: 0; min-height: 100vh; overflow-x: hidden; overflow-x: clip; }
 html, body, #root, #root * , #root *::before, #root *::after { font-family: 'Poppins', sans-serif; }
 button, input, textarea, select { font-family: 'Poppins', sans-serif; }
 a { color: inherit; }
@@ -118,10 +121,10 @@ button, input { font: inherit; }
 .page-card strong { align-self: end; margin-top: 28px; font-size: 1rem; }
 .page-card > span:last-child { margin-top: 6px; color: #85857f; font-size: .75rem; }
 
-.page-frame { position: relative; width: 100%; min-height: 100vh; height: auto; overflow: visible; background: var(--lulu-page-gradient); }
+.page-frame { position: relative; width: 100%; max-width: 100%; min-height: 100vh; height: auto; overflow: visible; overflow-x: clip; background: var(--lulu-page-gradient); }
 
 /* Shared navigation shell for all authenticated native pages */
-.lulu-global-shell{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:calc(100vh - var(--lulu-workspace-topbar-height));background:var(--background)}
+.lulu-global-shell{--lulu-workspace-navigation-width:248px;display:grid;width:100%;max-width:100%;grid-template-columns:var(--lulu-workspace-navigation-width) minmax(0,1fr);min-height:calc(100vh - var(--lulu-workspace-topbar-height));background:var(--background)}
 .lulu-global-navigation{position:sticky;top:var(--lulu-workspace-topbar-height);z-index:40;display:flex;height:calc(100dvh - var(--lulu-workspace-topbar-height));min-width:0;align-self:start;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);background:var(--sidebar,var(--card));padding:18px 12px 12px;color:var(--foreground)}
 .lulu-global-navigation__backdrop{display:none}
 .lulu-global-navigation__workspace-label{display:none}
@@ -157,7 +160,25 @@ button, input { font: inherit; }
 .lulu-global-navigation__account-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
 .lulu-global-navigation__account-copy strong{font-size:.75rem;font-weight:600}
 .lulu-global-navigation__account-copy small{font-size:.68rem;color:var(--muted-foreground)}
-.lulu-global-content{position:relative;z-index:0;min-width:0;min-height:calc(100vh - var(--lulu-workspace-topbar-height));overflow:visible}
+.lulu-global-content{position:relative;z-index:0;width:100%;max-width:100%;min-width:0;min-height:calc(100vh - var(--lulu-workspace-topbar-height));overflow:visible}
+
+@media (min-width: 901px) {
+  .lulu-global-navigation {
+    position: fixed;
+    top: var(--lulu-workspace-topbar-height);
+    right: auto;
+    bottom: 0;
+    left: 0;
+    width: var(--lulu-workspace-navigation-width);
+    height: auto;
+    max-height: none;
+    align-self: auto;
+  }
+
+  .lulu-global-content {
+    grid-column: 2;
+  }
+}
 .lulu-agent-workspace-header{position:sticky;top:0;z-index:35;isolation:isolate;display:flex;flex-direction:column;gap:12px;padding:14px clamp(16px,2.4vw,28px) 12px;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--background) 96%,transparent);backdrop-filter:blur(14px)}
 .lulu-agent-workspace-header__eyebrow{display:flex;align-items:center;gap:8px;color:var(--muted-foreground);font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
 .lulu-agent-workspace-header__headline{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}

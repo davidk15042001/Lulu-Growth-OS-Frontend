@@ -3,10 +3,23 @@ import path from 'node:path';
 
 const root = process.cwd();
 const nativePage = fs.readFileSync(path.join(root, 'src', 'NativePage.tsx'), 'utf8');
+const appCss = fs.readFileSync(path.join(root, 'src', 'app.css'), 'utf8');
 const failures = [];
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
   failures.push('Resource pages are not protected by the live production-interface gate.');
+}
+
+if (!appCss.includes('body { display: block !important; height: auto !important;')) {
+  failures.push('Page-local generated styles can override the root document flow.');
+}
+
+if (!appCss.includes('overflow-x: clip !important;')) {
+  failures.push('The application root does not prevent document-level horizontal scrolling.');
+}
+
+if (!appCss.includes('width: var(--lulu-workspace-navigation-width);') || !appCss.includes('grid-column: 2;')) {
+  failures.push('The desktop navigation is not pinned independently from document height.');
 }
 
 const inspectedRoots = [
