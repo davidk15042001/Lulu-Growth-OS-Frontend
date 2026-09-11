@@ -11,6 +11,7 @@ const loginPage = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door
 const connectionSetupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fresh-tide-9404', 'components', 'generated', 'LuluExistingPlatforms.tsx'), 'utf8');
 const appRouter = fs.readFileSync(path.join(root, 'src', 'App.tsx'), 'utf8');
 const crmWorkspacePage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-crm', 'CrmWorkspacePage.tsx'), 'utf8');
+const agentRegistry = fs.readFileSync(path.join(root, 'src', 'config', 'lulu-agent-registry.ts'), 'utf8');
 const failures = [];
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
@@ -55,6 +56,21 @@ if (!appRouter.includes('<CrmWorkspacePage kind="companies" showEntitySwitcher={
 
 if (!crmWorkspacePage.includes('showEntitySwitcher &&')) {
   failures.push('The canonical CRM page cannot hide its contacts/companies tab switcher.');
+}
+
+if (
+  !globalNavigation.includes('const STATISTICS_PAGE_IDS = new Set(["deeply-noon-9539"])')
+  || !globalNavigation.includes('pages: crmSection.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id))')
+  || globalNavigation.includes('section.label !== STATISTICS_LABEL && section.pages.length > 0')
+) {
+  failures.push('CRM tasks are not exposed exclusively through the Statistics navigation section.');
+}
+
+if (
+  !agentRegistry.includes('const STATISTICS_PAGE_IDS = new Set(["deeply-noon-9539"])')
+  || !agentRegistry.includes('pages: crmSection.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id))')
+) {
+  failures.push('The agent registry does not match the Statistics navigation placement for CRM tasks.');
 }
 
 const inspectedRoots = [

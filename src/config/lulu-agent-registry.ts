@@ -50,7 +50,9 @@ const GOOGLE_BUSINESS_PAGE_IDS = new Set(["daring-brook-9034", "fresh-tide-9404"
 const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
+const CRM_LABEL = "CRM";
 const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
+const STATISTICS_PAGE_IDS = new Set(["deeply-noon-9539"]);
 
 const UI_CONNECT_SYNC = ["connecting", "syncing", "completed", "attention_required"] as const satisfies readonly LuluAgentUiState[];
 const UI_SYNC_ANALYZE = ["syncing", "analyzing", "completed"] as const satisfies readonly LuluAgentUiState[];
@@ -269,6 +271,24 @@ const googleBusinessSection: NavigationSection = {
 
 function buildVisibleSections() {
   const sections = [...baseNavigationSections];
+  const crmIndex = sections.findIndex((section) => section.label === CRM_LABEL);
+  const statisticsPageIndex = sections.findIndex((section) => section.label === STATISTICS_LABEL);
+
+  if (crmIndex !== -1 && statisticsPageIndex !== -1) {
+    const crmSection = sections[crmIndex];
+    const statisticsSection = sections[statisticsPageIndex];
+    const movedToStatistics = crmSection.pages.filter((page) => STATISTICS_PAGE_IDS.has(page.id));
+
+    sections[crmIndex] = {
+      ...crmSection,
+      pages: crmSection.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id)),
+    };
+    sections[statisticsPageIndex] = {
+      ...statisticsSection,
+      pages: [...statisticsSection.pages, ...movedToStatistics],
+    };
+  }
+
   const websiteIndex = sections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
 
   if (websiteIndex !== -1 && googleBusinessSection.pages.length > 0) {

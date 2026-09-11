@@ -19,8 +19,10 @@ const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
 const GOOGLE_BUSINESS_LABEL = "Google Business";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
+const CRM_LABEL = "CRM";
 const OMNICHANNEL_LABEL = "OmniChannel";
 const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
+const STATISTICS_PAGE_IDS = new Set(["deeply-noon-9539"]);
 const GOOGLE_BUSINESS_PAGE_IDS = new Set<string>();
 const GOOGLE_BUSINESS_SECTION: NavigationSection = {
   label: GOOGLE_BUSINESS_LABEL,
@@ -53,6 +55,24 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
   };
 
   const reorderedSections = [...availableSections];
+  const crmIndex = reorderedSections.findIndex((section) => section.label === CRM_LABEL);
+  const statisticsPageIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
+
+  if (crmIndex !== -1 && statisticsPageIndex !== -1) {
+    const crmSection = reorderedSections[crmIndex];
+    const statisticsSection = reorderedSections[statisticsPageIndex];
+    const movedToStatistics = crmSection.pages.filter((page) => STATISTICS_PAGE_IDS.has(page.id));
+
+    reorderedSections[crmIndex] = {
+      ...crmSection,
+      pages: crmSection.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id)),
+    };
+    reorderedSections[statisticsPageIndex] = {
+      ...statisticsSection,
+      pages: [...statisticsSection.pages, ...movedToStatistics],
+    };
+  }
+
   const supportSettings = reorderedSections.find(section => section.label === SETTINGS_LABEL);
   if (supportSettings) {
     supportSettings.pages.push({ id: "profile", label: "Profile" });
@@ -110,7 +130,7 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     reorderedSections.splice(currentSettingsIndex, 0, statisticsSection);
   }
 
-  const visibleSections = reorderedSections.filter((section) => section.label !== STATISTICS_LABEL && section.pages.length > 0);
+  const visibleSections = reorderedSections.filter((section) => section.pages.length > 0);
   const visibleFinanceIndex = visibleSections.findIndex((section) => section.label === FINANCE_LABEL);
   const visibleWebsiteIndex = visibleSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
   const visibleSettingsIndex = visibleSections.findIndex((section) => section.label === SETTINGS_LABEL);
