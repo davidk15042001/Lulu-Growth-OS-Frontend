@@ -50,9 +50,11 @@ const GOOGLE_BUSINESS_PAGE_IDS = new Set(["daring-brook-9034", "fresh-tide-9404"
 const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
+const AI_LABEL = "AI";
 const CRM_LABEL = "CRM";
 const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
 const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
+const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"]);
 
 const UI_CONNECT_SYNC = ["connecting", "syncing", "completed", "attention_required"] as const satisfies readonly LuluAgentUiState[];
 const UI_SYNC_ANALYZE = ["syncing", "analyzing", "completed"] as const satisfies readonly LuluAgentUiState[];
@@ -286,6 +288,24 @@ function buildVisibleSections() {
     sections[statisticsPageIndex] = {
       ...statisticsSection,
       pages: [...statisticsSection.pages, ...movedToStatistics],
+    };
+  }
+
+  const aiIndex = sections.findIndex((section) => section.label === AI_LABEL);
+  const settingsPageIndex = sections.findIndex((section) => section.label === SETTINGS_LABEL);
+
+  if (aiIndex !== -1 && settingsPageIndex !== -1) {
+    const aiSection = sections[aiIndex];
+    const settingsSection = sections[settingsPageIndex];
+    const movedToSettings = aiSection.pages.filter((page) => SETTINGS_PAGE_IDS.has(page.id));
+
+    sections[aiIndex] = {
+      ...aiSection,
+      pages: aiSection.pages.filter((page) => !SETTINGS_PAGE_IDS.has(page.id)),
+    };
+    sections[settingsPageIndex] = {
+      ...settingsSection,
+      pages: [...settingsSection.pages, ...movedToSettings],
     };
   }
 

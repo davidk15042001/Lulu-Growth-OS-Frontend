@@ -19,11 +19,13 @@ const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
 const GOOGLE_BUSINESS_LABEL = "Google Business";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
+const AI_LABEL = "AI";
 const CRM_LABEL = "CRM";
 const CRM_LANDING_PAGE_ID = "sturdy-month-1562";
 const OMNICHANNEL_LABEL = "OmniChannel";
 const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
 const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
+const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"]);
 const GOOGLE_BUSINESS_PAGE_IDS = new Set<string>();
 const GOOGLE_BUSINESS_SECTION: NavigationSection = {
   label: GOOGLE_BUSINESS_LABEL,
@@ -71,6 +73,24 @@ const baseNavigationSections: readonly NavigationSection[] = (() => {
     reorderedSections[statisticsPageIndex] = {
       ...statisticsSection,
       pages: [...statisticsSection.pages, ...movedToStatistics],
+    };
+  }
+
+  const aiIndex = reorderedSections.findIndex((section) => section.label === AI_LABEL);
+  const settingsPageIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
+
+  if (aiIndex !== -1 && settingsPageIndex !== -1) {
+    const aiSection = reorderedSections[aiIndex];
+    const settingsSection = reorderedSections[settingsPageIndex];
+    const movedToSettings = aiSection.pages.filter((page) => SETTINGS_PAGE_IDS.has(page.id));
+
+    reorderedSections[aiIndex] = {
+      ...aiSection,
+      pages: aiSection.pages.filter((page) => !SETTINGS_PAGE_IDS.has(page.id)),
+    };
+    reorderedSections[settingsPageIndex] = {
+      ...settingsSection,
+      pages: [...settingsSection.pages, ...movedToSettings],
     };
   }
 

@@ -81,6 +81,21 @@ if (
   failures.push('CRM is not a direct navigation link to the companies workspace.');
 }
 
+if (
+  !globalNavigation.includes('const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"])')
+  || !globalNavigation.includes('pages: aiSection.pages.filter((page) => !SETTINGS_PAGE_IDS.has(page.id))')
+  || !globalNavigation.includes('pages: [...settingsSection.pages, ...movedToSettings]')
+) {
+  failures.push('Knowledge is not exposed exclusively through the Settings navigation section.');
+}
+
+if (
+  !agentRegistry.includes('const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"])')
+  || !agentRegistry.includes('pages: aiSection.pages.filter((page) => !SETTINGS_PAGE_IDS.has(page.id))')
+) {
+  failures.push('The agent registry does not match the Settings navigation placement for Knowledge.');
+}
+
 const inspectedRoots = [
   path.join(root, 'src', 'components'),
   path.join(root, 'src', 'pages', 'sunny-minute-1092'),
