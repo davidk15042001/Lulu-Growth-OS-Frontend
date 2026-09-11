@@ -59,18 +59,18 @@ if (!crmWorkspacePage.includes('showEntitySwitcher &&')) {
 }
 
 if (
-  !globalNavigation.includes('const STATISTICS_PAGE_IDS = new Set(["deeply-noon-9539"])')
+  !globalNavigation.includes('const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"])')
   || !globalNavigation.includes('pages: crmSection.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id))')
   || globalNavigation.includes('section.label !== STATISTICS_LABEL && section.pages.length > 0')
 ) {
-  failures.push('CRM tasks are not exposed exclusively through the Statistics navigation section.');
+  failures.push('CRM activities and tasks are not exposed exclusively through the Statistics navigation section.');
 }
 
 if (
-  !agentRegistry.includes('const STATISTICS_PAGE_IDS = new Set(["deeply-noon-9539"])')
+  !agentRegistry.includes('const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"])')
   || !agentRegistry.includes('pages: crmSection.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id))')
 ) {
-  failures.push('The agent registry does not match the Statistics navigation placement for CRM tasks.');
+  failures.push('The agent registry does not match the Statistics navigation placement for CRM activities and tasks.');
 }
 
 const inspectedRoots = [

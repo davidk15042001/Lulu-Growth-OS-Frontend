@@ -52,7 +52,7 @@ const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
 const CRM_LABEL = "CRM";
 const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
-const STATISTICS_PAGE_IDS = new Set(["deeply-noon-9539"]);
+const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
 
 const UI_CONNECT_SYNC = ["connecting", "syncing", "completed", "attention_required"] as const satisfies readonly LuluAgentUiState[];
 const UI_SYNC_ANALYZE = ["syncing", "analyzing", "completed"] as const satisfies readonly LuluAgentUiState[];
