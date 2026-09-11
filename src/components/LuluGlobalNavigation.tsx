@@ -20,6 +20,7 @@ const GOOGLE_BUSINESS_LABEL = "Google Business";
 const FINANCE_LABEL = "Finance";
 const SETTINGS_LABEL = "Settings";
 const CRM_LABEL = "CRM";
+const CRM_LANDING_PAGE_ID = "sturdy-month-1562";
 const OMNICHANNEL_LABEL = "OmniChannel";
 const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
 const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
@@ -310,6 +311,25 @@ export function LuluGlobalNavigation({
               >
                 <CalendarDays aria-hidden="true" size={16} />
                 <span>{t("Calendar")}</span>
+              </a>
+            );
+          }
+          if (section.label === CRM_LABEL) {
+            const crmProps = pageLinkProps(CRM_LANDING_PAGE_ID);
+            const isCrmActive = activeSlug === CRM_LANDING_PAGE_ID;
+            return (
+              <a
+                key={section.label}
+                {...crmProps}
+                className={`lulu-global-navigation__primary-link${isCrmActive ? " is-active" : ""}`}
+                aria-current={isCrmActive ? "page" : undefined}
+                onClick={(event) => {
+                  event.preventDefault();
+                  onNavigate?.();
+                  if (crmProps.href) navigateApp(crmProps.href);
+                }}
+              >
+                <span>{t(CRM_LABEL)}</span>
               </a>
             );
           }

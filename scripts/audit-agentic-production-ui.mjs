@@ -73,6 +73,14 @@ if (
   failures.push('The agent registry does not match the Statistics navigation placement for CRM activities and tasks.');
 }
 
+if (
+  !globalNavigation.includes('const CRM_LANDING_PAGE_ID = "sturdy-month-1562"')
+  || !globalNavigation.includes('if (section.label === CRM_LABEL) {')
+  || !globalNavigation.includes('const crmProps = pageLinkProps(CRM_LANDING_PAGE_ID)')
+) {
+  failures.push('CRM is not a direct navigation link to the companies workspace.');
+}
+
 const inspectedRoots = [
   path.join(root, 'src', 'components'),
   path.join(root, 'src', 'pages', 'sunny-minute-1092'),
