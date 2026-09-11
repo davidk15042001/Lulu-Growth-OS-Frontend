@@ -966,60 +966,6 @@ body.lulu-mobile-nav-open{overflow:hidden}
   object-fit: contain;
 }
 
-.lulu-admin-console__runtime {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  overflow: hidden;
-  min-height: 48px;
-  padding: 10px 12px;
-  border: 1px solid rgba(139, 124, 255, .17);
-  border-radius: 14px;
-  background: linear-gradient(145deg, rgba(139, 92, 246, .14), rgba(19, 183, 233, .055));
-  color: rgba(232, 235, 255, .70);
-  font-size: .72rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .055);
-}
-
-.lulu-admin-console__runtime::after {
-  position: absolute;
-  right: -22px;
-  width: 68px;
-  height: 68px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(19, 183, 233, .20), transparent 68%);
-  content: "";
-}
-
-.lulu-admin-console__runtime-dot {
-  position: relative;
-  z-index: 1;
-  width: 8px;
-  height: 8px;
-  flex: 0 0 8px;
-  border-radius: 50%;
-  background: #2ce6a8;
-  box-shadow: 0 0 13px rgba(44, 230, 168, .82);
-  animation: lulu-admin-pulse 2.2s ease-in-out infinite;
-}
-
-.lulu-admin-console__runtime strong {
-  color: #ffffff;
-  font-size: .88rem;
-}
-
-.lulu-admin-console__runtime small {
-  position: relative;
-  z-index: 1;
-  margin-left: auto;
-  color: #74f5cb;
-  font-size: .6rem;
-  font-weight: 700;
-  letter-spacing: .09em;
-  text-transform: uppercase;
-}
-
 .lulu-admin-console > div > aside nav > div > div:first-child {
   color: rgba(174, 181, 221, .50) !important;
   letter-spacing: .14em;
@@ -1269,11 +1215,6 @@ body.lulu-mobile-nav-open{overflow:hidden}
 .lulu-admin-standalone tbody tr { transition: background .16s ease; }
 .lulu-admin-standalone tbody tr:hover { background: rgba(88, 101, 242, .045); }
 
-@keyframes lulu-admin-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: .55; transform: scale(.78); }
-}
-
 @media (max-width: 960px) {
   .lulu-admin-console__live { display: none; }
 }
@@ -1320,10 +1261,6 @@ body.lulu-mobile-nav-open{overflow:hidden}
     padding: 22px;
     border-radius: 21px;
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lulu-admin-console__runtime-dot { animation: none; }
 }
 
 .lulu-usage-prices{margin-top:14px;border:1px solid color-mix(in srgb,var(--primary) 28%,var(--border));border-radius:14px;background:color-mix(in srgb,var(--primary) 4%,var(--card));padding:14px}.lulu-usage-prices__header{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}.lulu-usage-prices__header span{color:var(--primary);font-size:.66rem;font-weight:850;letter-spacing:.12em;text-transform:uppercase}.lulu-usage-prices__header h3{margin:3px 0 0;font-size:.98rem;letter-spacing:-.02em}.lulu-usage-prices__header>small{color:var(--muted-foreground);font-size:.66rem;text-align:right}.lulu-usage-prices__grid{display:grid;gap:8px;margin-top:12px}.lulu-usage-prices__grid>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;border-top:1px solid var(--border);padding-top:9px}.lulu-usage-prices__grid>div:first-child{border-top:0;padding-top:0}.lulu-usage-prices__grid span{color:var(--muted-foreground);font-size:.7rem;font-weight:750}.lulu-usage-prices__grid strong{font-size:.86rem}.lulu-usage-prices__grid small{grid-column:1/-1;color:var(--muted-foreground);font-size:.67rem;line-height:1.4}.lulu-usage-media-breakdown{margin-top:13px;border-top:1px solid var(--border);padding-top:12px}.lulu-usage-media-breakdown__title{display:flex;align-items:center;gap:7px;margin-bottom:7px;color:var(--foreground);font-size:.72rem;font-weight:800}.lulu-usage-media-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 0}.lulu-usage-media-row>div{min-width:0}.lulu-usage-media-row>div strong{display:block;overflow:hidden;text-overflow:ellipsis;font-size:.72rem;white-space:nowrap}.lulu-usage-media-row span{display:block;margin-top:2px;color:var(--muted-foreground);font-size:.65rem}.lulu-usage-media-row>strong{flex:0 0 auto;font-size:.74rem}

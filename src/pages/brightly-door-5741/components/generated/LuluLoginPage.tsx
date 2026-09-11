@@ -33,7 +33,6 @@ const loginStyles = `
 @keyframes luluFadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
 @keyframes luluFadeIn{from{opacity:0}to{opacity:1}}
 @keyframes luluFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-16px)}}
-@keyframes luluPulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.9)}}
 @keyframes luluGradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 @keyframes luluGrow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 @keyframes luluScan{0%{transform:translateY(-140%);opacity:0}15%{opacity:1}85%{opacity:1}100%{transform:translateY(680%);opacity:0}}
@@ -46,8 +45,6 @@ const loginStyles = `
 .lulu-login-fade-in{animation:luluFadeIn 1s ease both}
 .lulu-login-d1{animation-delay:.06s}.lulu-login-d2{animation-delay:.14s}.lulu-login-d3{animation-delay:.22s}.lulu-login-d4{animation-delay:.3s}.lulu-login-d5{animation-delay:.38s}.lulu-login-d6{animation-delay:.46s}
 .lulu-login-gradient-text{background:linear-gradient(100deg,#7c3aed,#2563eb 45%,#0ea5e9 70%,#10b981);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:luluGradient 9s ease infinite}
-.lulu-login-live-dot{position:relative;display:inline-block;height:8px;width:8px;border-radius:9999px;background:#10b981}
-.lulu-login-live-dot::after{content:"";position:absolute;inset:0;border-radius:9999px;background:#10b981;animation:luluPulse 1.8s ease-out infinite}
 .lulu-login-bar{transform-origin:bottom;animation:luluGrow 1s cubic-bezier(.16,1,.3,1) both}
 .lulu-login-glass{background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.74));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 .lulu-login-entry-link{color:#fff!important}
