@@ -83,3 +83,11 @@ export function restoreRecord(resourceType: string, recordId: string) {
     body: {},
   });
 }
+
+export function requestRecordEnrichment(resourceType: string, recordId: string) {
+  return requestApi<WorkspaceRecord>({
+    path: workspacePath(`/records/${resourceType}/${recordId}/enrich`),
+    method: "POST",
+    body: {},
+  });
+}

@@ -3063,5 +3063,6 @@
   "Waiting for AI funds": "Warten auf KI-Gelder",
   "Waiting for confirmed payment…": "Warten auf bestätigte Zahlung…",
   "The payment QR code could not be rendered.": "Der Zahlungs-QR-Code konnte nicht gerendert werden.",
-  "profile": "Profil"
+  "profile": "Profil",
+  "CRM": "CRM"
 }

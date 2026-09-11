@@ -3063,5 +3063,6 @@
   "Waiting for AI funds": "等待AI资金",
   "Waiting for confirmed payment…": "等待确认付款...",
   "The payment QR code could not be rendered.": "支付二维码无法渲染。",
-  "profile": "轮廓"
+  "profile": "轮廓",
+  "CRM": "CRM"
 }
