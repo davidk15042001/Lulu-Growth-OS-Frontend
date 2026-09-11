@@ -224,8 +224,7 @@ export const LuluLoginPage = () => {
               </div>
             </form>
 
-            <div className="lulu-login-fade-up lulu-login-d3 mt-6 grid grid-cols-3 divide-x divide-slate-200 rounded-2xl border border-slate-200/80 bg-white/60 py-3 text-center shadow-sm backdrop-blur">
-              <div><b className="block text-sm text-slate-950">140+</b><span className="text-[10px] uppercase tracking-wide text-slate-500">{t('AI agents')}</span></div>
+            <div className="lulu-login-fade-up lulu-login-d3 mt-6 grid grid-cols-2 divide-x divide-slate-200 rounded-2xl border border-slate-200/80 bg-white/60 py-3 text-center shadow-sm backdrop-blur">
               <div><b className="block text-sm text-slate-950">24/7</b><span className="text-[10px] uppercase tracking-wide text-slate-500">{t('Execution')}</span></div>
               <div><b className="block text-sm text-slate-950">0</b><span className="text-[10px] uppercase tracking-wide text-slate-500">{t('Routine approvals')}</span></div>
             </div>
@@ -241,16 +240,11 @@ export const LuluLoginPage = () => {
           </div>
 
           <div className="relative mx-auto w-full max-w-3xl px-12 py-16 2xl:px-16">
-            <div className="lulu-login-fade-up inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3.5 py-1.5 text-xs font-semibold backdrop-blur">
-              <span className="lulu-login-live-dot" />
-              {t('Autonomous execution layer · Live')}
-            </div>
-
-            <h2 className="lulu-login-fade-up lulu-login-d1 mt-7 text-5xl font-semibold tracking-[-.05em] leading-[1.02] 2xl:text-6xl">
+            <h2 className="lulu-login-fade-up lulu-login-d1 text-5xl font-semibold tracking-[-.05em] leading-[1.02] 2xl:text-6xl">
               {t('Connect once.')} <span className="lulu-login-gradient-text">{t('Lulu runs the company.')}</span>
             </h2>
             <p className="lulu-login-fade-up lulu-login-d2 mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-              {t('More than 140 AI agents understand the business, choose the right team, make decisions, execute the work and learn from every verified outcome.')}
+              {t('Specialized AI agents understand the business, choose the right team, make decisions, execute the work and learn from every verified outcome.')}
             </p>
 
             <div className="lulu-login-fade-up lulu-login-d3 relative mt-9 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.055] p-6 shadow-2xl shadow-violet-950/50 backdrop-blur-xl">

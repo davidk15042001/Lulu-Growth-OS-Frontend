@@ -467,20 +467,11 @@ export default function App() {
               {sidebarOpen ? (
                 <div className="min-w-0">
                   <div className="truncate text-sm font-semibold leading-tight">Lulu</div>
-                  <div className="text-[11px] text-slate-500">Autonomous execution</div>
                 </div>
               ) : null}
             </div>
             <button className="md:hidden text-slate-500 hover:text-slate-700" onClick={() => setSidebarOpen(false)}><X size={18} /></button>
           </div>
-
-          {sidebarOpen ? (
-            <div className="lulu-admin-console__runtime mx-3 mt-3">
-              <span className="lulu-admin-console__runtime-dot" aria-hidden="true" />
-              <span><strong>140+</strong> AI agents</span>
-              <small>live</small>
-            </div>
-          ) : null}
 
           <nav className="p-3 space-y-5">
             {visibleNav.map((section) => (

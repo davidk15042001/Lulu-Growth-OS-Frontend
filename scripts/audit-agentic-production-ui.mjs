@@ -5,6 +5,9 @@ const root = process.cwd();
 const nativePage = fs.readFileSync(path.join(root, 'src', 'NativePage.tsx'), 'utf8');
 const appCss = fs.readFileSync(path.join(root, 'src', 'app.css'), 'utf8');
 const authenticatedTopBar = fs.readFileSync(path.join(root, 'src', 'components', 'AuthenticatedWorkspaceTopBar.tsx'), 'utf8');
+const globalNavigation = fs.readFileSync(path.join(root, 'src', 'components', 'LuluGlobalNavigation.tsx'), 'utf8');
+const adminBillingPage = fs.readFileSync(path.join(root, 'src', 'pages', 'admin-billing-overview-9901', 'App.tsx'), 'utf8');
+const loginPage = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door-5741', 'components', 'generated', 'LuluLoginPage.tsx'), 'utf8');
 const failures = [];
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
@@ -29,6 +32,14 @@ if (authenticatedTopBar.includes('role="search"') || authenticatedTopBar.include
 
 if (!authenticatedTopBar.includes('className="lulu-auth-actions"')) {
   failures.push('Authenticated top-bar actions are not kept in their dedicated layout container.');
+}
+
+if ([authenticatedTopBar, globalNavigation, adminBillingPage, loginPage].some((source) => source.includes('140+'))) {
+  failures.push('A removed 140+ AI agents promotional claim is still visible in the application shell.');
+}
+
+if (authenticatedTopBar.includes('lulu-auth-runtime') || globalNavigation.includes('lulu-global-navigation__system') || adminBillingPage.includes('lulu-admin-console__runtime')) {
+  failures.push('A removed autonomous-execution navigation badge is still rendered.');
 }
 
 const inspectedRoots = [
