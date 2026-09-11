@@ -20,11 +20,12 @@ interface PlatformGroup {
   description: string;
   icon: typeof UsersRound;
   platforms: string[];
+  hidden?: boolean;
   comingSoon?: boolean;
   comingSoonPlatforms?: string[];
 }
 const platformGroups: PlatformGroup[] = [
-  { id: 'crm', label: 'CRM & Sales', description: 'Connect customer, pipeline and sales systems that contain your business relationships.', icon: UsersRound, platforms: ['Salesforce', 'HubSpot', 'Pipedrive'] },
+  { id: 'crm', label: 'CRM & Sales', description: 'Connect customer, pipeline and sales systems that contain your business relationships.', icon: UsersRound, platforms: ['Salesforce', 'HubSpot', 'Pipedrive'], hidden: true },
   { id: 'website', label: 'Website & Publishing', description: 'Connect the website platforms Lulu can use for content, publishing and website intelligence.', icon: Globe, platforms: ['WordPress', 'Webflow'] },
   { id: 'commerce', label: 'Commerce', description: 'Connect commerce platforms to analyze products, orders and customer activity.', icon: Store, platforms: ['Shopify'] },
   { id: 'social', label: 'Social & Messaging', description: 'Connect your own approved social and messaging accounts instead of using Lulu’s central provider account.', icon: UsersRound, platforms: ['WhatsApp', 'Instagram', 'Facebook', 'LinkedIn'] },
@@ -152,7 +153,7 @@ export const LuluExistingPlatforms = () => {
           <form onSubmit={submit} className="mt-8 space-y-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.08)] sm:p-6 lg:p-7">
             {error && <div role="alert" className="space-y-2 rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm leading-6 text-[var(--destructive)]"><p className="font-medium text-[var(--destructive)]">{error}</p>{technicalDetails && <details><summary className="cursor-pointer text-xs font-semibold text-[var(--destructive)]">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--destructive)]">{technicalDetails}</p></details>}</div>}
             <div className="space-y-5">
-              {platformGroups.map(group => {
+              {platformGroups.filter(group => !group.hidden).map(group => {
               const Icon = group.icon;
               const groupPlatforms = group.platforms;
               const comingSoon = group.comingSoon === true;
