@@ -92,6 +92,14 @@ if (
 }
 
 if (
+  !globalNavigation.includes('const DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL])')
+  || !globalNavigation.includes('if (DIRECT_SECTION_LABELS.has(section.label) && section.pages.length === 1)')
+  || !globalNavigation.includes('const directProps = pageLinkProps(page.id)')
+) {
+  failures.push('AI and OmniChannel are not direct navigation links.');
+}
+
+if (
   assistantPage.includes('LuluCommandCenter')
   || assistantPage.includes('setView("command")')
   || assistantPage.includes('`${storageKey}.view`')

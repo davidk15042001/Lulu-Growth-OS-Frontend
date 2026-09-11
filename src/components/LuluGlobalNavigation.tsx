@@ -23,6 +23,7 @@ const AI_LABEL = "AI";
 const CRM_LABEL = "CRM";
 const CRM_LANDING_PAGE_ID = "sturdy-month-1562";
 const OMNICHANNEL_LABEL = "OmniChannel";
+const DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL]);
 const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
 const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
 const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"]);
@@ -351,6 +352,40 @@ export function LuluGlobalNavigation({
               >
                 <span className="lulu-global-navigation__section-label">
                   <span>{t(CRM_LABEL)}</span>
+                </span>
+              </a>
+            );
+          }
+          if (DIRECT_SECTION_LABELS.has(section.label) && section.pages.length === 1) {
+            const page = section.pages[0]!;
+            const directProps = pageLinkProps(page.id);
+            const available = Boolean(directProps.href);
+            const lockedLabel = t("Navigation link locked");
+            const translatedLabel = t(section.label);
+            return (
+              <a
+                key={section.label}
+                {...directProps}
+                href={available ? directProps.href : undefined}
+                data-lulu-route={available ? directProps["data-lulu-route"] : undefined}
+                className={`lulu-global-navigation__primary-link${isActiveSection ? " is-active" : ""}${available ? "" : " is-locked"}`}
+                aria-current={isActiveSection ? "page" : undefined}
+                aria-disabled={!available || undefined}
+                tabIndex={available ? undefined : -1}
+                aria-label={available ? translatedLabel : `${translatedLabel}: ${lockedLabel}`}
+                title={available ? undefined : lockedLabel}
+                onClick={(event) => {
+                  if (!available || !directProps.href) {
+                    event.preventDefault();
+                    return;
+                  }
+                  event.preventDefault();
+                  onNavigate?.();
+                  navigateApp(directProps.href);
+                }}
+              >
+                <span className="lulu-global-navigation__section-label">
+                  <span>{translatedLabel}</span>
                 </span>
               </a>
             );
