@@ -292,6 +292,8 @@ a[data-lulu-soon="true"]::after {
 .lulu-auth-nav-toggle{display:none;align-items:center;justify-content:center;width:44px;height:44px;flex:0 0 auto;border:1px solid var(--border);border-radius:12px;background:var(--card);color:var(--foreground);box-shadow:0 6px 16px rgba(0,0,0,.06)}
 .lulu-auth-logo{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:144px;height:54px}
 .lulu-auth-logo img{display:block;width:100%;height:100%;object-fit:contain}
+.lulu-auth-actions{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-left:auto}
+.lulu-auth-activation-status{margin-left:auto;border:1px solid var(--border);border-radius:12px;background:var(--card);padding:10px 14px;color:var(--muted-foreground);font-size:.76rem;font-weight:700}
 .lulu-auth-search{display:flex;align-items:center;gap:10px;width:min(780px,100%);margin:0 auto;padding:5px 6px 5px 12px;border:1px solid var(--border);border-radius:14px;background:var(--card);box-shadow:0 6px 16px rgba(0,0,0,.06)}
 .lulu-auth-search input{min-width:0;flex:1;height:44px;border:0;outline:0;background:transparent;color:var(--foreground);font:inherit}
 .lulu-auth-search input::placeholder{color:var(--muted-foreground)}

@@ -4,6 +4,7 @@ import path from 'node:path';
 const root = process.cwd();
 const nativePage = fs.readFileSync(path.join(root, 'src', 'NativePage.tsx'), 'utf8');
 const appCss = fs.readFileSync(path.join(root, 'src', 'app.css'), 'utf8');
+const authenticatedTopBar = fs.readFileSync(path.join(root, 'src', 'components', 'AuthenticatedWorkspaceTopBar.tsx'), 'utf8');
 const failures = [];
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
@@ -20,6 +21,14 @@ if (!appCss.includes('overflow-x: clip !important;')) {
 
 if (!appCss.includes('width: var(--lulu-workspace-navigation-width);') || !appCss.includes('grid-column: 2;')) {
   failures.push('The desktop navigation is not pinned independently from document height.');
+}
+
+if (authenticatedTopBar.includes('role="search"') || authenticatedTopBar.includes('Search Lulu AI')) {
+  failures.push('The authenticated navigation still exposes the removed global search bar.');
+}
+
+if (!authenticatedTopBar.includes('className="lulu-auth-actions"')) {
+  failures.push('Authenticated top-bar actions are not kept in their dedicated layout container.');
 }
 
 const inspectedRoots = [
