@@ -57,5 +57,12 @@
   "Activation gate · 3 of 4": "激活门 · 3 of 4",
   "Complete every company, legal, contact and banking field to continue.": "完成每个公司、法律、联系人和银行领域的工作以继续。",
   "Complete the operating identity.": "完成操作标识。",
-  "Every field below is required before Lulu can structure your Knowledge Base. All other workspace areas remain locked.": "在 Lulu 构建您的知识库之前，以下每个字段都是必需的。所有其他工作区均保持锁定状态。"
+  "Every field below is required before Lulu can structure your Knowledge Base. All other workspace areas remain locked.": "在 Lulu 构建您的知识库之前，以下每个字段都是必需的。所有其他工作区均保持锁定状态。",
+  "Company name and industry are required to continue.": "需要填写公司名称和行业才能继续。",
+  "Confirm the minimum operating identity. Lulu enriches the remaining company information automatically.": "确认最基本的企业身份，Lulu 会自动补全其余公司信息。",
+  "Confirm the operating identity.": "确认企业身份。",
+  "Give Lulu the minimum context needed to begin enrichment.": "向 Lulu 提供开始补全信息所需的最少上下文。",
+  "Manage your account and optional company details for this workspace.": "管理此工作空间的账户和可选公司信息。",
+  "Only company name and industry are required. Lulu can research and enrich the remaining profile from connected sources and customer conversations.": "只需公司名称和行业。Lulu 可以从已连接的数据源和客户对话中研究并补全其余资料。",
+  "Optional legal, contact and banking details support documents and business identity.": "可选的法律、联系和银行信息可用于文档和企业身份。"
 }

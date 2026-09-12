@@ -42,5 +42,16 @@
   "Terms": "条款",
   "Terms of Service": "服务条款",
   "We could not create your account. Please try again.": "无法创建您的账户。请重试。",
-  "you@company.com": "你@company.com"
+  "you@company.com": "你@company.com",
+  "A new verification code was sent.": "新的验证码已发送。",
+  "At least 12 characters": "至少 12 个字符",
+  "Enter the six-digit code from your email.": "请输入电子邮件中的六位验证码。",
+  "Send a new code": "发送新验证码",
+  "Use another email": "使用其他电子邮件",
+  "Verification code": "验证码",
+  "Verify account": "验证账户",
+  "Verify your email": "验证您的电子邮件",
+  "We could not send a new code. Please try again.": "无法发送新验证码。请重试。",
+  "We could not verify this code. Request a new code and try again.": "无法验证此代码。请申请新代码后重试。",
+  "We sent a six-digit verification code to": "我们已将六位验证码发送至"
 }

@@ -42,5 +42,16 @@
   "Terms": "Bedingungen",
   "Terms of Service": "Nutzungsbedingungen",
   "We could not create your account. Please try again.": "Dein Konto konnte nicht erstellt werden. Bitte versuche es erneut.",
-  "you@company.com": "du@unternehmen.de"
+  "you@company.com": "du@unternehmen.de",
+  "A new verification code was sent.": "Ein neuer Bestätigungscode wurde gesendet.",
+  "At least 12 characters": "Mindestens 12 Zeichen",
+  "Enter the six-digit code from your email.": "Gib den sechsstelligen Code aus deiner E-Mail ein.",
+  "Send a new code": "Neuen Code senden",
+  "Use another email": "Andere E-Mail-Adresse verwenden",
+  "Verification code": "Bestätigungscode",
+  "Verify account": "Konto bestätigen",
+  "Verify your email": "E-Mail-Adresse bestätigen",
+  "We could not send a new code. Please try again.": "Es konnte kein neuer Code gesendet werden. Bitte versuche es erneut.",
+  "We could not verify this code. Request a new code and try again.": "Dieser Code konnte nicht bestätigt werden. Fordere einen neuen Code an und versuche es erneut.",
+  "We sent a six-digit verification code to": "Wir haben einen sechsstelligen Bestätigungscode gesendet an"
 }
