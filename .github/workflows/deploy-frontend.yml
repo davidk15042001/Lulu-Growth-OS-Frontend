@@ -83,8 +83,12 @@ jobs:
         env:
           DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
           DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
+          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
         run: |
           set -euo pipefail
+          test -n "$TWILIO_ACCOUNT_SID" || { echo 'TWILIO_ACCOUNT_SID is missing'; exit 1; }
+          test -n "$TWILIO_AUTH_TOKEN" || { echo 'TWILIO_AUTH_TOKEN is missing'; exit 1; }
           rsync -rz --links --delete \
             --exclude .env \
             --exclude .git \
@@ -93,6 +97,9 @@ jobs:
             --exclude '.deploy-stale-node_modules-*' \
             backend-source/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
+          printf 'TWILIO_ACCOUNT_SID=%s\nTWILIO_AUTH_TOKEN=%s\nTWILIO_WEBHOOK_URL=https://lulu-ai.cn/api/v1/provider-webhooks/twilio\nTWILIO_STATUS_CALLBACK_URL=https://lulu-ai.cn/api/v1/provider-webhooks/twilio\n' \
+            "$TWILIO_ACCOUNT_SID" "$TWILIO_AUTH_TOKEN" | \
+            ssh "$DEPLOY_USER@$DEPLOY_HOST" 'install -d -m 700 /var/www/lulu-growth-os/backend/.runtime-secrets && umask 077 && cat > /var/www/lulu-growth-os/backend/.runtime-secrets/twilio.env'
           # Keep the SSH transport alive while an otherwise long-running
           # production migration is executing.
           ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=20 \
