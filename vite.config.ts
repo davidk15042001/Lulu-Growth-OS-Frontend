@@ -30,6 +30,7 @@ export default defineConfig({
             }
             if (id.includes('react-router')) return 'router'
             if (id.includes('framer-motion')) return 'motion'
+            if (id.includes('agora-rtc-sdk-ng')) return 'video-calls'
             if (id.includes('lucide-react')) return 'icons'
             if (id.includes('recharts') || id.includes('victory') || id.includes('d3-')) return 'charts'
             return 'vendor'

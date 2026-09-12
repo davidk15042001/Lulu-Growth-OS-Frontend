@@ -191,9 +191,9 @@ export function LuluResetPassword() {
       </section>
     </main>
     <footer className="flex items-center justify-center gap-5 pb-6 text-center text-xs text-[var(--muted-foreground)]">
-      <a href="#privacy" className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">Privacy</a>
-      <a href="#terms" className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">Terms</a>
-      <a href="#security" className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">Security</a>
+      <a href="/privacy.html" className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">Privacy</a>
+      <a href="/terms.html" className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">Terms</a>
+      <a href="/.well-known/security.txt" className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">Security</a>
     </footer>
   </div>;
 }

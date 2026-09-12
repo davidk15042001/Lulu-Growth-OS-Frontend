@@ -14,7 +14,7 @@ export type CurrentUser = {
 };
 
 export const authApi = {
-  register: (input: { email: string; password: string; first_name: string; last_name: string }) => requestApi<{ verificationRequired: false }>({
+  register: (input: { email: string; password: string; first_name: string; last_name: string }) => requestApi<{ verificationRequired: boolean }>({
     path: "/auth/register", method: "POST", body: input,
   }),
   verifyOtp: (email: string, code: string) => requestApi<null>({ path: "/auth/verify-otp", method: "POST", body: { email, code } }),
@@ -38,6 +38,7 @@ export const authApi = {
   updateMe: (input: { firstName?: string; lastName?: string }) => requestApi<CurrentUser>({
     path: "/auth/me", method: "PATCH", body: input,
   }),
+  completeAdminMfa: (email:string,code:string)=>requestApi<{token:string;user:CurrentUser}>({path:'/auth/admin-mfa',method:'POST',body:{email,code}}),
   changePassword: (input: { currentPassword: string; newPassword: string }) => requestApi<{ requiresReauthentication: boolean }>({
     path: "/auth/change-password", method: "POST", body: input,
   }),

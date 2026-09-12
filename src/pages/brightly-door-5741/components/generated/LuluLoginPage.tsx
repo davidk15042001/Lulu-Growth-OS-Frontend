@@ -15,6 +15,7 @@ import {
   getPendingInvitation,
   isAdminUser,
   clearSelectedWorkspaceId,
+  setPendingEmail,
   setStoredUser,
   setSelectedWorkspaceId,
 } from '../../../../api/session';
@@ -72,6 +73,8 @@ export const LuluLoginPage = () => {
   const [error, setError] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
+  const [adminMfaRequired,setAdminMfaRequired]=useState(false);
+  const [adminMfaCode,setAdminMfaCode]=useState('');
   const operatingDomains = ['Online Presence', 'CRM', 'Social Media', 'Communication', 'Bookkeeping', 'Paid Ads'];
   const submit = async (x: React.FormEvent) => {
     x.preventDefault();
@@ -86,7 +89,15 @@ export const LuluLoginPage = () => {
     setStatusMessage(t('Checking your account…'));
     setS(false);
     try {
-      await requestWithTimeout({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
+      const loginResponse=adminMfaRequired
+        ? await requestWithTimeout<{token:string;user:unknown}>({path:'/auth/admin-mfa',method:'POST',body:{email:e,code:adminMfaCode}})
+        : await requestWithTimeout<{token?:string;mfaRequired?:boolean;email?:string}>({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
+      if(!adminMfaRequired&&'mfaRequired' in loginResponse.data&&loginResponse.data.mfaRequired){
+        setAdminMfaRequired(true);
+        setStatusMessage(t('Enter the six-digit code sent to your administrator email.'));
+        setLoading(false);
+        return;
+      }
       setStatusMessage(t('Loading your profile…'));
       const meResp = await requestWithTimeout<{ id: string; email: string; firstName: string | null; lastName: string | null; role: string }>({ path: '/auth/me' });
       const currentUser = meResp.data;
@@ -129,7 +140,10 @@ export const LuluLoginPage = () => {
       if (cause instanceof DOMException && cause.name === 'AbortError') {
         setError(t('The login request timed out. Please try again.'));
         setErrorDetails(t('Code: API_TIMEOUT · The server did not respond within 15 seconds.'));
-      } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') setError(t('This account uses an outdated verification state. Please try signing in again after the latest deployment. Email OTP is no longer required for registration.'));
+      } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
+        setPendingEmail(e);
+        navigateApp(routes.auth.signUp);
+      }
       else if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') setError(t('accountNotFound'));
       else if (cause instanceof ApiError && cause.code === 'INVALID_CREDENTIALS') setError(t('invalidCredentials'));
       else if (cause instanceof ApiError && cause.code === 'API_TIMEOUT') setError(t('timeout'));
@@ -207,9 +221,14 @@ export const LuluLoginPage = () => {
                       <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
                     </div>
                   </Label>
+                  {adminMfaRequired?<Label htmlFor="login-admin-mfa" className="block text-sm text-[var(--muted-foreground)]">
+                    {t('Administrator verification code')}
+                    <Input id="login-admin-mfa" name="adminMfaCode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={adminMfaCode} onChange={event=>setAdminMfaCode(event.target.value.replace(/\D/g,'').slice(0,6))} className="mt-1.5 h-12 w-full rounded-xl border-[var(--border)] bg-white/80 px-3.5 text-center text-lg tracking-[.35em]" />
+                  </Label>:null}
                   <Button type="submit" disabled={loading} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500 font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">
-                    {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}
+                    {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t(adminMfaRequired?'Verify administrator':'signIn')} <ArrowRight size={16} /></>}
                   </Button>
+                  {adminMfaRequired?<button type="button" onClick={()=>{setAdminMfaRequired(false);setAdminMfaCode('');setStatusMessage('');setError('');}} className="w-full text-center text-xs text-[var(--muted-foreground)] underline">{t('Back to password sign-in')}</button>:null}
                   {statusMessage && <p role="status" className="text-sm text-[var(--muted-foreground)]">{statusMessage}</p>}
                   {error && <div role="alert" className="space-y-1 text-sm text-[var(--destructive)]"><p>{error}</p>{errorDetails && <p className="break-words text-xs opacity-80">{errorDetails}</p>}</div>}
                   {s && <p className="flex items-center gap-2 text-sm text-[var(--chart-4)]"><Check size={15} /> {t('Signed in successfully.')}</p>}

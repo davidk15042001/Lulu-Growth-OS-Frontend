@@ -70,16 +70,16 @@ if (!crmWorkspacePage.includes('showEntitySwitcher &&')) {
   failures.push('The canonical CRM page cannot hide its contacts/companies tab switcher.');
 }
 
-for (const label of ['Lulu', 'Companies', 'Communications', 'Growth', 'Online Presence', 'Finance']) {
-  if (!globalNavigation.includes(`label: "${label}"`)) failures.push(`The consolidated ${label} navigation destination is missing.`);
+if (!globalNavigation.includes('section.label !== STATISTICS_LABEL')) {
+  failures.push('Statistics is not hidden from the restored customer navigation.');
 }
 
-if (globalNavigation.includes('STATISTICS_LABEL') || globalNavigation.includes('luluDropdownNavigation')) {
-  failures.push('The customer navigation still depends on the legacy generated dropdown tree.');
+if (!globalNavigation.includes('DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL])')) {
+  failures.push('AI and OmniChannel are not direct navigation links.');
 }
 
-if (!globalNavigation.includes('href: "/app/sturdy-month-1562"')) {
-  failures.push('Companies is not a direct navigation link to the companies workspace.');
+if (!globalNavigation.includes('if (section.label === CRM_LABEL) return directLink(section, CRM_LANDING_PAGE_ID)')) {
+  failures.push('CRM is not a direct navigation link to the companies workspace.');
 }
 
 if (
@@ -90,16 +90,12 @@ if (
   failures.push('The removed command-center switcher is still rendered on the AI Assistant page.');
 }
 
-if (!globalNavigation.includes('label: "Knowledge Base", href: routes.app.knowledgeBase')) {
+if (!globalNavigation.includes('SETTINGS_PAGE_IDS = new Set(["rich-field-1880"])') || !globalNavigation.includes('settings.pages = [...settings.pages, ...ai.pages.filter')) {
   failures.push('Knowledge is not exposed exclusively through the Settings navigation section.');
 }
 
 if (minimalAgentPage.includes('AgentRuntimeControlPanel') || minimalAgentPage.includes('usePageAgentRun') || minimalAgentPage.includes('Needs attention')) {
   failures.push('A customer-facing page still exposes agent runtime controls or a generic approval-like attention queue.');
-}
-
-if (authenticatedTopBar.includes('LuluWorkspaceRefreshButton')) {
-  failures.push('The removed customer Update control is still mounted in the top bar.');
 }
 
 if (!fundsControl.includes('adSpendApi.overview') || !fundsControl.includes('routes.app.adSpend') || !fundsControl.includes('routes.app.funds')) {

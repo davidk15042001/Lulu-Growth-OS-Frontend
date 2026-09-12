@@ -2,13 +2,14 @@ import { useState, type FormEvent } from 'react';
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
-import { clearPendingEmail, clearSelectedWorkspaceId } from '../../../../api/session';
-const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 8 characters', test: value => value.length >= 8 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
+import { clearPendingEmail, clearSelectedWorkspaceId, getPendingEmail, setPendingEmail } from '../../../../api/session';
+const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 12 characters', test: value => value.length >= 12 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
 
 export function LuluSignupPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
+  const pendingEmail = getPendingEmail();
+  const [email, setEmail] = useState(pendingEmail);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [accepted, setAccepted] = useState(false);
@@ -16,6 +17,9 @@ export function LuluSignupPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading'>('idle');
   const [error, setError] = useState('');
+  const [verificationMode, setVerificationMode] = useState(Boolean(pendingEmail));
+  const [verificationCode, setVerificationCode] = useState('');
+  const [resendMessage, setResendMessage] = useState('');
   const passwordResults = passwordRules.map(rule => ({ ...rule, passed: rule.test(password) }));
   const passedRules = passwordResults.filter(rule => rule.passed).length;
   const strengthSegments = password ? Math.max(1, Math.ceil((passedRules / passwordRules.length) * 4)) : 0;
@@ -61,13 +65,19 @@ export function LuluSignupPage() {
     setError('');
     clearSelectedWorkspaceId();
     try {
-      await requestApi<{ verificationRequired: false }>({
+      const response = await requestApi<{ verificationRequired: boolean }>({
         path: '/auth/register',
         method: 'POST',
         body: { email, password, first_name: firstName, last_name: lastName },
       });
-      clearPendingEmail();
-      navigateApp(routes.auth.login, { replace: true });
+      if (response.data.verificationRequired) {
+        setPendingEmail(email);
+        setVerificationMode(true);
+        setStatus('idle');
+      } else {
+        clearPendingEmail();
+        navigateApp(routes.auth.login, { replace: true });
+      }
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'EMAIL_IN_USE') {
         setError('An account already exists for this email address. Sign in or use a different email address.');
@@ -79,6 +89,33 @@ export function LuluSignupPage() {
       setStatus('idle');
     }
   }
+  async function verifyAccount(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!/^\d{6}$/.test(verificationCode) || status === 'loading') {
+      setError('Enter the six-digit code from your email.');
+      return;
+    }
+    setStatus('loading');
+    setError('');
+    try {
+      await requestApi({path:'/auth/verify-otp',method:'POST',body:{email,code:verificationCode}});
+      clearPendingEmail();
+      navigateApp(routes.auth.login,{replace:true});
+    } catch(cause) {
+      setError(getFriendlyErrorMessage(cause,'We could not verify this code. Request a new code and try again.'));
+      setStatus('idle');
+    }
+  }
+  async function resendVerification() {
+    if(status==='loading')return;
+    setStatus('loading');setError('');setResendMessage('');
+    try {
+      await requestApi({path:'/auth/resend-otp',method:'POST',body:{email,purpose:'verify'}});
+      setResendMessage('A new verification code was sent.');
+    } catch(cause) {
+      setError(getFriendlyErrorMessage(cause,'We could not send a new code. Please try again.'));
+    } finally { setStatus('idle'); }
+  }
   return <main className="auth-shell grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-1">
       <section className="flex items-start justify-center overflow-y-auto px-6 py-10">
         <div className="w-full max-w-md">
@@ -88,10 +125,19 @@ export function LuluSignupPage() {
           </div>
 
           <header className="mt-10 text-left">
-            <h1 id="signup-title" className="text-3xl font-semibold tracking-[-0.03em]">Create your Lulu AI account</h1>
+            <h1 id="signup-title" className="text-3xl font-semibold tracking-[-0.03em]">{verificationMode?'Verify your email':'Create your Lulu AI account'}</h1>
+            {verificationMode?<p className="mt-2 text-sm text-[var(--muted-foreground)]">We sent a six-digit verification code to <strong>{email}</strong>.</p>:null}
           </header>
 
-          <form className="mt-8" onSubmit={handleSubmit} noValidate>
+          {verificationMode?<form className="mt-8" onSubmit={verifyAccount} noValidate>
+            <label htmlFor="verification-code" className="mb-1 block text-[13px] font-medium">Verification code</label>
+            <input id="verification-code" name="verificationCode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={verificationCode} onChange={event=>setVerificationCode(event.target.value.replace(/\D/g,'').slice(0,6))} className="h-12 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-center text-xl tracking-[.35em] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
+            <button type="submit" disabled={status==='loading'} className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-50">{status==='loading'?<LoaderCircle size={16} className="animate-spin"/>:null}Verify account</button>
+            <button type="button" onClick={()=>void resendVerification()} disabled={status==='loading'} className="mt-3 h-10 w-full text-sm font-medium underline disabled:opacity-50">Send a new code</button>
+            <button type="button" onClick={()=>{clearPendingEmail();setVerificationMode(false);setVerificationCode('');setError('');}} className="h-10 w-full text-sm text-[var(--muted-foreground)]">Use another email</button>
+            {resendMessage?<p role="status" className="mt-2 text-sm text-[var(--chart-4)]">{resendMessage}</p>:null}
+            {error?<p role="alert" className="mt-3 flex items-start gap-2 text-[13px] text-[var(--destructive)]"><AlertCircle size={16} className="mt-0.5 shrink-0" />{error}</p>:null}
+          </form>:<form className="mt-8" onSubmit={handleSubmit} noValidate>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="signup-first-name" className="mb-1 block text-[13px] font-medium">First name</label>
@@ -147,7 +193,7 @@ export function LuluSignupPage() {
 
             <label className="mt-4 flex cursor-pointer items-start gap-2 text-[13px] leading-5">
               <input id="signup-accept-terms" name="acceptTerms" type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} autoComplete="off" required className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[var(--primary)]" />
-              <span>I agree to the <a href="https://lulu.ai/terms" target="_blank" rel="noreferrer" className="underline">Terms of Service</a> and <a href="https://lulu.ai/privacy" target="_blank" rel="noreferrer" className="underline">Privacy Policy</a>.</span>
+              <span>I agree to the <a href="/terms.html" target="_blank" rel="noreferrer" className="underline">Terms of Service</a> and <a href="/privacy.html" target="_blank" rel="noreferrer" className="underline">Privacy Policy</a>.</span>
             </label>
 
             <button type="submit" disabled={status === 'loading'} className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50">
@@ -155,14 +201,14 @@ export function LuluSignupPage() {
               <span>{status === 'loading' ? 'Creating account...' : 'Create Account'}</span>
             </button>
             {error && <p role="alert" className="mt-3 flex items-start gap-2 text-[13px] text-[var(--destructive)]"><AlertCircle size={16} className="mt-0.5 shrink-0" />{error}</p>}
-          </form>
+          </form>}
 
           <p className="mt-5 text-center text-[13px] text-[var(--muted-foreground)]">Already have a Lulu AI account? <a {...pageLinkProps('brightly-door-5741')} className="font-medium text-[var(--foreground)] hover:underline">Sign in</a></p>
 
           <nav aria-label="Legal links" className="mt-8 flex justify-center gap-5 text-xs text-[var(--muted-foreground)] lg:hidden">
-            <a href="#privacy" className="transition hover:text-[var(--foreground)]">Privacy</a>
-            <a href="#terms" className="transition hover:text-[var(--foreground)]">Terms</a>
-            <a href="#security" className="transition hover:text-[var(--foreground)]">Security</a>
+            <a href="/privacy.html" className="transition hover:text-[var(--foreground)]">Privacy</a>
+            <a href="/terms.html" className="transition hover:text-[var(--foreground)]">Terms</a>
+            <a href="/.well-known/security.txt" className="transition hover:text-[var(--foreground)]">Security</a>
           </nav>
         </div>
       </section>

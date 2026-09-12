@@ -63,7 +63,6 @@ const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   "sunny-summer-2293",
   "lulu-website-portal-9012",
   "daring-brook-9034",
-  "smart-ocean-3898",
   "nice-year-6253",
   "nicely-ocean-1051",
   "richly-forest-5832",

@@ -34,27 +34,27 @@ jobs:
         run: |
           set -euo pipefail
           npm ci
-          npm run typecheck
-          npm run audit:i18n
-          npm run build
-
-      - name: Frontend/Backend-Verträge und Routing prüfen
-        env:
-          LULU_BACKEND_PATH: backend-source
-        run: |
-          npm run audit:api
-          npm run audit:routing
+          npm run check
+          npm audit --omit=dev --audit-level=high
 
       - name: Backend-Abhängigkeiten prüfen
         working-directory: backend-source
         run: |
           set -euo pipefail
           npm ci
+          npm audit --omit=dev --audit-level=high
           npm run typecheck
           npm run test:migrations
           npm test
           npm run build
           npm run test:smoke
+
+      - name: Revisionsmanifest erzeugen
+        run: |
+          set -euo pipefail
+          frontend_sha="$(git rev-parse HEAD)"
+          backend_sha="$(git -C backend-source rev-parse HEAD)"
+          printf '{"frontend":"%s","backend":"%s","builtAt":"%s"}\n' "$frontend_sha" "$backend_sha" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist/release.json
 
       - name: SSH einrichten
         env:
@@ -78,16 +78,6 @@ jobs:
             fi
           fi
           ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
-
-      - name: Frontend hochladen
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: |
-          set -euo pipefail
-          test -n "$DEPLOY_USER" || { echo 'DEPLOY_USER is missing'; exit 1; }
-          rsync -rz --links --delete dist/ \
-            "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-ai.cn/html/"
 
       - name: Backend hochladen, migrieren und starten
         env:
@@ -124,13 +114,37 @@ jobs:
           fi
 
           for attempt in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:3000/api/v1/ready >/tmp/lulu-ready.json; then
-              cat /tmp/lulu-ready.json
+            if curl -fsS http://127.0.0.1:3000/api/v1/health >/tmp/lulu-health.json; then
+              cat /tmp/lulu-health.json
               exit 0
             fi
             sleep 2
           done
 
-          echo "Backend readiness check failed on port 3000" >&2
+          echo "Backend process health check failed on port 3000" >&2
           exit 1
           REMOTE
+
+      # Activate the browser bundle only after migrations, restart and backend
+      # process health succeeded. This prevents a new frontend from calling an old
+      # API when the backend half of a release fails.
+      - name: Frontend aktivieren
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set -euo pipefail
+          test -n "$DEPLOY_USER" || { echo 'DEPLOY_USER is missing'; exit 1; }
+          rsync -rz --links --delete dist/ \
+            "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-ai.cn/html/"
+
+      - name: Öffentlichen Release verifizieren
+        run: |
+          set -euo pipefail
+          curl --fail --silent --show-error --retry 5 --retry-all-errors https://lulu-ai.cn/api/v1/health | grep -q '"status":"ok"'
+          curl --fail --silent --show-error --retry 5 --retry-all-errors https://lulu-ai.cn/api/v1/ready | grep -q '"status":"ready"'
+          curl --fail --silent --show-error https://lulu-ai.cn/release.json | grep -q '"frontend"'
+          curl --fail --silent --show-error https://lulu-ai.cn/robots.txt | grep -q 'Sitemap:'
+          curl --fail --silent --show-error https://lulu-ai.cn/.well-known/security.txt | grep -q 'Contact:'
+          curl --fail --silent --show-error https://lulu-ai.cn/privacy.html | grep -q '<title>Privacy Policy'
+          curl --fail --silent --show-error https://lulu-ai.cn/terms.html | grep -q '<title>Terms of Service'

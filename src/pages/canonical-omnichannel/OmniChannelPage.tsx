@@ -95,7 +95,7 @@ export default function OmniChannelPage() {
             <div>
               <p className="eyebrow">Autonomous customer communication</p>
               <h1 className="text-3xl font-semibold tracking-tight">Communications</h1>
-              <p className="mt-2 max-w-3xl text-sm text-[var(--muted-foreground)]">Lulu handles email, website chat, WhatsApp, Instagram and Messenger as one continuous customer relationship.</p>
+              <p className="mt-2 max-w-3xl text-sm text-[var(--muted-foreground)]">Lulu handles email, website chat, Twilio WhatsApp and Facebook Messenger as one continuous customer relationship. Instagram messaging is enabled separately through Meta.</p>
             </div>
             <div className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800"><BadgeCheck size={15}/> No message approval required</div>
           </header>

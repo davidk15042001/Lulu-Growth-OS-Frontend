@@ -24,23 +24,23 @@ import { Directory } from "./app/Directory";
 import { PageRoute } from "./app/PageRoute";
 import { availablePages } from "./app/page-registry";
 import { PageErrorBoundary } from "./PageErrorBoundary";
-import ProductsPage from "./pages/canonical-products/ProductsPage";
-import OmniChannelPage from "./pages/canonical-omnichannel/OmniChannelPage";
-import AdminOmniChannelPage from "./pages/admin-omnichannel/AdminOmniChannelPage";
-import CommercialDocumentsPage from "./pages/canonical-commercial/CommercialDocumentsPage";
-import AdminCommercialDocumentsPage from "./pages/admin-commercial/AdminCommercialDocumentsPage";
-import SupportPage from "./pages/support/SupportPage";
-import PublicCommercialDocumentPage from "./pages/public-commercial/PublicCommercialDocumentPage";
-import CrmWorkspacePage from "./pages/canonical-crm/CrmWorkspacePage";
-import WorkspaceRecordsPage from "./pages/canonical-records/WorkspaceRecordsPage";
-import ProfilePage from "./pages/canonical-profile/ProfilePage";
-import GrowthPage from "./pages/canonical-growth/GrowthPage";
-import FinancePage from "./pages/canonical-finance/FinancePage";
-import KnowledgePage from "./pages/canonical-knowledge/KnowledgePage";
-import CalendarMeetingPage from "./pages/calendar-meeting/CalendarMeetingPage";
 import { WorkspaceSurfaceShell } from "./components/WorkspaceSurfaceShell";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
+const ProductsPage=lazy(()=>import("./pages/canonical-products/ProductsPage"));
+const OmniChannelPage=lazy(()=>import("./pages/canonical-omnichannel/OmniChannelPage"));
+const AdminOmniChannelPage=lazy(()=>import("./pages/admin-omnichannel/AdminOmniChannelPage"));
+const CommercialDocumentsPage=lazy(()=>import("./pages/canonical-commercial/CommercialDocumentsPage"));
+const AdminCommercialDocumentsPage=lazy(()=>import("./pages/admin-commercial/AdminCommercialDocumentsPage"));
+const SupportPage=lazy(()=>import("./pages/support/SupportPage"));
+const PublicCommercialDocumentPage=lazy(()=>import("./pages/public-commercial/PublicCommercialDocumentPage"));
+const CrmWorkspacePage=lazy(()=>import("./pages/canonical-crm/CrmWorkspacePage"));
+const WorkspaceRecordsPage=lazy(()=>import("./pages/canonical-records/WorkspaceRecordsPage"));
+const ProfilePage=lazy(()=>import("./pages/canonical-profile/ProfilePage"));
+const GrowthPage=lazy(()=>import("./pages/canonical-growth/GrowthPage"));
+const FinancePage=lazy(()=>import("./pages/canonical-finance/FinancePage"));
+const KnowledgePage=lazy(()=>import("./pages/canonical-knowledge/KnowledgePage"));
+const CalendarMeetingPage=lazy(()=>import("./pages/calendar-meeting/CalendarMeetingPage"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
 const FINANCE_RECORD_ROUTES = [
   ["quietly-stone-4158", "finance_accounts", "Finance Overview"],
@@ -282,9 +282,10 @@ export default function App() {
         </div>
       ) : null}
       <AdminSurfaceSwitcher />
+      <Suspense fallback={<main role="status" className="page-frame grid min-h-screen place-items-center">Loading Lulu AI…</main>}>
       <Routes>
         <Route path="/" element={<HomeOrAdminRoute />} />
-        <Route path={routes.allPages} element={<AdminOnlyAppRoute><Directory /></AdminOnlyAppRoute>} />
+        <Route path={routes.allPages} element={<AdminOmniChannelRoute><Directory /></AdminOmniChannelRoute>} />
         <Route path="/pages" element={<Navigate replace to={routes.allPages} />} />
         <Route path="/pages/:slug" element={<LegacyPageRedirect />} />
         <Route path="/auth/invitations/:token" element={<InvitationAccept />} />
@@ -353,6 +354,7 @@ export default function App() {
         <Route path="/not-found" element={<NotFound />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
     </>
   );
 }
