@@ -4831,5 +4831,21 @@
   "Connect and authorize the Lulu WhatsApp account in UnifyPort first.": "Verbinde und autorisiere zuerst das Lulu-WhatsApp-Konto in UnifyPort.",
   "Update account": "Konto aktualisieren",
   "Use as admin account": "Als Admin-Konto verwenden",
-  "UnifyPort Dashboard": "UnifyPort-Dashboard"
+  "UnifyPort Dashboard": "UnifyPort-Dashboard",
+  "WhatsApp uses Lulu’s managed messaging transport by default. Admin-approved workspace accounts can be connected separately.": "WhatsApp verwendet standardmäßig Lulus verwalteten Nachrichtentransport. Vom Admin freigegebene Workspace-Konten können separat verbunden werden.",
+  "Lulu uses its centrally managed WhatsApp sender by default. Once an administrator approves a private connection, the workspace can securely connect its own WhatsApp Business account.": "Lulu verwendet standardmäßig den zentral verwalteten WhatsApp-Absender. Sobald ein Administrator eine private Verbindung freigibt, kann der Workspace sein eigenes WhatsApp-Business-Konto sicher verbinden.",
+  "Ask an administrator to enable WhatsApp for this workspace if it is not yet approved.": "Bitte einen Administrator, WhatsApp für diesen Workspace freizuschalten, falls es noch nicht freigegeben ist.",
+  "After approval, click Connect and complete the secure WhatsApp setup.": "Klicke nach der Freigabe auf Verbinden und schließe die sichere WhatsApp-Einrichtung ab.",
+  "Lulu isolates the workspace account and routes its messages into the autonomous OmniChannel workflow.": "Lulu isoliert das Workspace-Konto und leitet dessen Nachrichten in den autonomen OmniChannel-Workflow weiter.",
+  "Approved by admin · Ready to connect": "Vom Admin freigegeben · Bereit zum Verbinden",
+  "Your workspace account will remain isolated. Until it is online, Lulu continues using the centrally managed sender.": "Dein Workspace-Konto bleibt isoliert. Bis es online ist, verwendet Lulu weiterhin den zentral verwalteten Absender.",
+  "Loading available connections…": "Verfügbare Verbindungen werden geladen…",
+  "Available connections": "Verfügbare Verbindungen",
+  "Admin-approved providers appear here immediately, even before the workspace has completed its connection.": "Vom Admin freigegebene Anbieter erscheinen hier sofort, noch bevor der Workspace seine Verbindung abgeschlossen hat.",
+  "No integrations available": "Keine Integrationen verfügbar",
+  "Ask your Lulu administrator to enable a managed provider or add a custom integration below.": "Bitte deinen Lulu-Administrator, einen verwalteten Anbieter freizuschalten, oder füge unten eine benutzerdefinierte Integration hinzu.",
+  "Approved by admin": "Vom Admin freigegeben",
+  "Your workspace is allowed to connect its own WhatsApp Business account.": "Dein Workspace darf sein eigenes WhatsApp-Business-Konto verbinden.",
+  "Open Connections to finish the secure WhatsApp setup.": "Öffne Verbindungen, um die sichere WhatsApp-Einrichtung abzuschließen.",
+  "Set up WhatsApp": "WhatsApp einrichten"
 }

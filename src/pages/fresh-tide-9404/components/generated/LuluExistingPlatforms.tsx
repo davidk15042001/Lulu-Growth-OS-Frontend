@@ -46,7 +46,7 @@ const platformGroups: PlatformGroup[] = [
   { id: 'crm', label: 'CRM & Sales', description: 'Connect customer, pipeline and sales systems that contain your business relationships.', icon: UsersRound, platforms: ['Salesforce', 'HubSpot', 'Pipedrive'], hidden: true },
   { id: 'website', label: 'Website & Publishing', description: 'Connect the website platforms Lulu can use for content, publishing and website intelligence.', icon: Globe, platforms: ['WordPress', 'Webflow'] },
   { id: 'commerce', label: 'Commerce', description: 'Connect commerce platforms to analyze products, orders and customer activity.', icon: Store, platforms: ['Shopify'] },
-  { id: 'social', label: 'Social & Messaging', description: 'WhatsApp and Facebook Messenger run through Lulu’s managed Twilio transport. Instagram and LinkedIn remain direct account connections.', icon: UsersRound, platforms: ['WhatsApp', 'Facebook Messenger', 'Instagram', 'LinkedIn'] },
+  { id: 'social', label: 'Social & Messaging', description: 'WhatsApp uses Lulu’s managed messaging transport by default. Admin-approved workspace accounts can be connected separately.', icon: UsersRound, platforms: ['WhatsApp', 'Facebook Messenger', 'Instagram', 'LinkedIn'] },
 ];
 const providerKeysByName: Record<string, string> = {
   Salesforce: 'salesforce', Pipedrive: 'pipedrive', HubSpot: 'hubspot',
@@ -60,7 +60,7 @@ const providerKeysByName: Record<string, string> = {
     Webflow: { intro: "Connect a Webflow workspace or site. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/webflow/callback", steps: ["Open Webflow Developers and create a Data Client app.", "Set the callback URL shown above in the app settings.", "Enable the `sites:read` scope and copy the client credentials to the Lulu backend.", "Make sure you are a Webflow workspace administrator.", "Click Connect here and authorize the Webflow app."], links: [{ label: "Open Webflow Developers", url: "https://developers.webflow.com/" }, { label: "Read Webflow OAuth Guide", url: "https://developers.webflow.com/data/reference/oauth-app" }] },
     WordPress: { intro: "Connect a WordPress.com or Jetpack account. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/wordpress/callback", steps: ["Open the WordPress.com Developer Portal and create an OAuth application.", "Add the callback URL shown above and copy the Client ID and Client Secret to the backend.", "Confirm that the account can access the intended WordPress.com or Jetpack site.", "Click Connect here and approve the WordPress authorization."], links: [{ label: "Open WordPress Developer Portal", url: "https://developer.wordpress.com/apps/" }, { label: "Read WordPress OAuth2 Guide", url: "https://developer.wordpress.com/docs/api/oauth2/" }] },
     Shopify: { intro: "Connect a Shopify store using its myshopify.com domain. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/shopify/callback", steps: ["Open the Shopify Dev Dashboard and create or select the app.", "Configure the Admin API scopes `read_products` and `read_content` and add the callback URL shown above.", "Copy your store domain in the exact format `example.myshopify.com`.", "Click Connect here, enter the store domain, and approve the app installation."], links: [{ label: "Open Shopify Dev Dashboard", url: "https://dev.shopify.com/dashboard" }, { label: "Read Shopify OAuth Guide", url: "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/authorization-code-grant" }] },
-    WhatsApp: { intro: "Lulu uses its centrally managed WhatsApp sender by default. If your administrator enables a private connection, you can onboard your own WhatsApp Business number securely through Meta and Twilio.", steps: ["No setup is required while the Lulu-managed sender is active.", "If needed, ask an administrator to enable WhatsApp self-service for this workspace.", "Click Connect, enter your WhatsApp Business number and display name, then complete Meta Embedded Signup.", "Lulu creates an isolated Twilio subaccount, registers the sender and routes messages into the autonomous OmniChannel workflow."] },
+    WhatsApp: { intro: "Lulu uses its centrally managed WhatsApp sender by default. Once an administrator approves a private connection, the workspace can securely connect its own WhatsApp Business account.", steps: ["No setup is required while the Lulu-managed sender is active.", "Ask an administrator to enable WhatsApp for this workspace if it is not yet approved.", "After approval, click Connect and complete the secure WhatsApp setup.", "Lulu isolates the workspace account and routes its messages into the autonomous OmniChannel workflow."] },
     'Facebook Messenger': { intro: "Lulu uses Twilio’s Facebook Messenger channel for the approved Facebook Page.", steps: ["Connect the intended Facebook Page in the Twilio Console.", "Complete any provider review or public-beta access requirements.", "Lulu registers the Messenger sender against this workspace.", "Verify one inbound and outbound message before production traffic is enabled."] },
     Instagram: { intro: "Connect your own Instagram professional account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable Instagram for your workspace.", "Make sure the Instagram professional account is linked to the correct Meta business.", "Click Connect, choose the account and approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
     LinkedIn: { intro: "Connect your own LinkedIn account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable LinkedIn for your workspace.", "Click Connect and sign in with the LinkedIn account that manages the intended organization or campaigns.", "Approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
@@ -140,11 +140,11 @@ export const LuluExistingPlatforms = () => {
     Promise.all([
       requestApi<{ platforms: Array<{ id: string; integrationKey: string | null; name: string; category: string; connectionStatus: string }> }>({ path: `/workspaces/${workspaceId}/onboarding` }),
       onboardingApi.oauthSelfServicePermissions(workspaceId),
-      onboardingApi.whatsappConnection(workspaceId),
+      onboardingApi.whatsappConnection(workspaceId).catch(() => null),
     ])
       .then(([response, permissionResponse, whatsappResponse]) => {
         setAllowedSelfServiceProviders(permissionResponse.data.providers);
-        setWhatsappConnection(whatsappResponse.data);
+        setWhatsappConnection(whatsappResponse?.data ?? null);
         setPlatforms(response.data.platforms.map(platform => ({
         id: platform.id,
         integrationKey: platform.integrationKey,
@@ -160,11 +160,12 @@ export const LuluExistingPlatforms = () => {
       });
   }, []);
   const openWhatsAppSignup = () => {
-    if (!whatsappConnection?.selfServiceAllowed) {
+    const approved = whatsappConnection?.selfServiceAllowed === true || allowedSelfServiceProviders.includes('whatsapp');
+    if (!approved) {
       setError('Your Lulu administrator has not enabled a private WhatsApp connection for this workspace. The Lulu-managed number remains active.');
       return;
     }
-    if (!whatsappConnection.embeddedSignupConfigured || !whatsappConnection.embeddedSignup) {
+    if (!whatsappConnection?.embeddedSignupConfigured || !whatsappConnection.embeddedSignup) {
       setError('WhatsApp self-service is enabled for this workspace, but Lulu is still awaiting Meta Tech Provider activation. The Lulu-managed number remains active.');
       return;
     }
@@ -318,6 +319,7 @@ export const LuluExistingPlatforms = () => {
       setError(getFriendlyErrorMessage(cause, 'We could not remove this platform. Please try again.'));
     }
   };
+  const whatsappApproved = whatsappConnection?.selfServiceAllowed === true || allowedSelfServiceProviders.includes('whatsapp');
   const guideIsManagedMessaging = guidePlatform === 'Facebook Messenger' || (guidePlatform === 'WhatsApp' && !whatsappConnection?.selfServiceAllowed);
   return <main className="min-h-screen bg-[var(--background)] font-['Poppins',sans-serif] text-[var(--foreground)]">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
@@ -350,7 +352,7 @@ export const LuluExistingPlatforms = () => {
                     const existing = platforms.find(platform => platform.integrationKey === provider || platform.name === name);
                     const connected = existing?.connectionStatus === 'connected' ? existing : undefined;
                     const isWhatsApp = name === 'WhatsApp';
-                    const luluManagedMessaging = name === 'Facebook Messenger' || (isWhatsApp && !whatsappConnection?.selfServiceAllowed);
+                    const luluManagedMessaging = name === 'Facebook Messenger' || (isWhatsApp && !whatsappApproved);
                     const needsAdminApproval = ['whatsapp', 'instagram', 'linkedin'].includes(provider);
                     const blockedByAdmin = needsAdminApproval && !allowedSelfServiceProviders.includes(provider);
                     const platformComingSoon = comingSoon || group.comingSoonPlatforms?.includes(name) === true;
@@ -360,7 +362,7 @@ export const LuluExistingPlatforms = () => {
                         </span>
                         <span className="min-w-0 flex-1">
                           <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}{platformComingSoon && <span className="ml-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Unavailable</span>}</strong>
-                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : isWhatsApp && whatsappConnection?.effectiveMode === 'LULU_MANAGED' ? (whatsappConnection.adminFallback.configured ? "Using Lulu’s WhatsApp number" : "Lulu sender awaiting activation") : luluManagedMessaging ? "Lulu-managed via Twilio" : blockedByAdmin ? "Provider access restricted" : existing?.status ?? "Not connected"}</span>
+                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : isWhatsApp && whatsappApproved ? "Approved by admin · Ready to connect" : isWhatsApp && whatsappConnection?.effectiveMode === 'LULU_MANAGED' ? (whatsappConnection.adminFallback.configured ? "Using Lulu’s WhatsApp number" : "Lulu sender awaiting activation") : luluManagedMessaging ? "Lulu-managed via Twilio" : blockedByAdmin ? "Provider access restricted" : existing?.status ?? "Not connected"}</span>
                         </span>
                         <div className={`col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3 ${platformComingSoon ? 'pointer-events-none' : ''}`}>{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} disabled={!canEdit} aria-disabled={!canEdit} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-50" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={luluManagedMessaging || platformComingSoon || blockedByAdmin || connectingPlatform === name || !canEdit} aria-disabled={luluManagedMessaging || platformComingSoon || blockedByAdmin || !canEdit} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{isWhatsApp && blockedByAdmin ? "Admin number" : luluManagedMessaging ? "Managed" : platformComingSoon ? "Unavailable" : blockedByAdmin ? "Restricted" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={platformComingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{platformComingSoon ? "Unavailable" : "Guide"}</button></div>
                       </article>;
@@ -384,7 +386,7 @@ export const LuluExistingPlatforms = () => {
             <div>
               <p className="text-xs font-medium uppercase tracking-[.18em] text-[var(--muted-foreground)]">Private workspace sender</p>
               <h2 id="whatsapp-connect-title" className="mt-2 text-2xl font-semibold text-[var(--foreground)]">Connect WhatsApp Business</h2>
-              <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">Your number will be isolated in a dedicated Twilio subaccount. Until it is online, Lulu continues using the centrally managed sender.</p>
+              <p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">Your workspace account will remain isolated. Until it is online, Lulu continues using the centrally managed sender.</p>
             </div>
             <button type="button" onClick={() => setWhatsappDialogOpen(false)} disabled={Boolean(connectingPlatform)} className="rounded-md p-2 text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)] disabled:opacity-50" aria-label="Close WhatsApp connection"><X size={18} /></button>
           </div>

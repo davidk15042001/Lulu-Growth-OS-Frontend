@@ -323,5 +323,14 @@
   "The synchronization could not be queued.": "Die Synchronisierung konnte nicht eingeplant werden.",
   "This creates a tenant-scoped integration record. It does not create any provider account or credential.": "Dadurch wird ein mandantenspezifischer Integrationsdatensatz erstellt. Es wird kein Anbieterkonto und keine Zugangsdaten erstellt.",
   "This integration does not have a configured OAuth provider.": "Für diese Integration ist kein OAuth-Anbieter konfiguriert.",
-  "Workspace settings": "Workspace-Einstellungen"
+  "Workspace settings": "Workspace-Einstellungen",
+  "Loading available connections…": "Verfügbare Verbindungen werden geladen…",
+  "Available connections": "Verfügbare Verbindungen",
+  "Admin-approved providers appear here immediately, even before the workspace has completed its connection.": "Vom Admin freigegebene Anbieter erscheinen hier sofort, noch bevor der Workspace seine Verbindung abgeschlossen hat.",
+  "No integrations available": "Keine Integrationen verfügbar",
+  "Ask your Lulu administrator to enable a managed provider or add a custom integration below.": "Bitte deinen Lulu-Administrator, einen verwalteten Anbieter freizuschalten, oder füge unten eine benutzerdefinierte Integration hinzu.",
+  "Approved by admin": "Vom Admin freigegeben",
+  "Your workspace is allowed to connect its own WhatsApp Business account.": "Dein Workspace darf sein eigenes WhatsApp-Business-Konto verbinden.",
+  "Open Connections to finish the secure WhatsApp setup.": "Öffne Verbindungen, um die sichere WhatsApp-Einrichtung abzuschließen.",
+  "Set up WhatsApp": "WhatsApp einrichten"
 }

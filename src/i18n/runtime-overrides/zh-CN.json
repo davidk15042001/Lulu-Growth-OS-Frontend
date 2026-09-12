@@ -4808,5 +4808,21 @@
   "Connect and authorize the Lulu WhatsApp account in UnifyPort first.": "请先在 UnifyPort 中连接并授权 Lulu WhatsApp 账户。",
   "Update account": "更新账户",
   "Use as admin account": "设为管理员账户",
-  "UnifyPort Dashboard": "UnifyPort 控制台"
+  "UnifyPort Dashboard": "UnifyPort 控制台",
+  "WhatsApp uses Lulu’s managed messaging transport by default. Admin-approved workspace accounts can be connected separately.": "WhatsApp 默认使用 Lulu 托管的消息传输。经管理员批准的工作区账户可以单独连接。",
+  "Lulu uses its centrally managed WhatsApp sender by default. Once an administrator approves a private connection, the workspace can securely connect its own WhatsApp Business account.": "Lulu 默认使用集中管理的 WhatsApp 发件账户。管理员批准私有连接后，工作区即可安全连接自己的 WhatsApp Business 账户。",
+  "Ask an administrator to enable WhatsApp for this workspace if it is not yet approved.": "如果尚未批准，请让管理员为此工作区启用 WhatsApp。",
+  "After approval, click Connect and complete the secure WhatsApp setup.": "批准后，点击“连接”并完成安全的 WhatsApp 设置。",
+  "Lulu isolates the workspace account and routes its messages into the autonomous OmniChannel workflow.": "Lulu 会隔离工作区账户，并将其消息路由到自主 OmniChannel 工作流。",
+  "Approved by admin · Ready to connect": "管理员已批准 · 可以连接",
+  "Your workspace account will remain isolated. Until it is online, Lulu continues using the centrally managed sender.": "您的工作区账户将保持隔离。在其上线前，Lulu 会继续使用集中管理的发件账户。",
+  "Loading available connections…": "正在加载可用连接…",
+  "Available connections": "可用连接",
+  "Admin-approved providers appear here immediately, even before the workspace has completed its connection.": "管理员批准的提供商会立即显示在这里，即使工作区尚未完成连接。",
+  "No integrations available": "没有可用的集成",
+  "Ask your Lulu administrator to enable a managed provider or add a custom integration below.": "请让 Lulu 管理员启用托管提供商，或在下方添加自定义集成。",
+  "Approved by admin": "管理员已批准",
+  "Your workspace is allowed to connect its own WhatsApp Business account.": "您的工作区已获准连接自己的 WhatsApp Business 账户。",
+  "Open Connections to finish the secure WhatsApp setup.": "打开“连接”以完成安全的 WhatsApp 设置。",
+  "Set up WhatsApp": "设置 WhatsApp"
 }

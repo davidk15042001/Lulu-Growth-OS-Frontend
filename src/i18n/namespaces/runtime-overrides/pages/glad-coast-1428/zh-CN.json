@@ -323,5 +323,14 @@
   "The synchronization could not be queued.": "无法将同步加入队列。",
   "This creates a tenant-scoped integration record. It does not create any provider account or credential.": "这会创建租户范围的集成记录，不会创建任何提供商账户或凭据。",
   "This integration does not have a configured OAuth provider.": "此集成未配置 OAuth 提供商。",
-  "Workspace settings": "工作区设置"
+  "Workspace settings": "工作区设置",
+  "Loading available connections…": "正在加载可用连接…",
+  "Available connections": "可用连接",
+  "Admin-approved providers appear here immediately, even before the workspace has completed its connection.": "管理员批准的提供商会立即显示在这里，即使工作区尚未完成连接。",
+  "No integrations available": "没有可用的集成",
+  "Ask your Lulu administrator to enable a managed provider or add a custom integration below.": "请让 Lulu 管理员启用托管提供商，或在下方添加自定义集成。",
+  "Approved by admin": "管理员已批准",
+  "Your workspace is allowed to connect its own WhatsApp Business account.": "您的工作区已获准连接自己的 WhatsApp Business 账户。",
+  "Open Connections to finish the secure WhatsApp setup.": "打开“连接”以完成安全的 WhatsApp 设置。",
+  "Set up WhatsApp": "设置 WhatsApp"
 }
