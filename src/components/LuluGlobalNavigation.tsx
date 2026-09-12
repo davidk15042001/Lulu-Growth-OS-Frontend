@@ -1,211 +1,95 @@
-import { CalendarDays, Check, ChevronDown, Languages, LogOut, RefreshCw, X } from "lucide-react";
-import { Fragment, useEffect, useMemo, useState } from "react";
-import { isPageAvailable, pageLinkProps, navigateApp, routes } from "../routing";
+import {
+  BookOpen,
+  Building2,
+  Check,
+  ChevronDown,
+  CircleHelp,
+  Globe2,
+  Languages,
+  Link2,
+  LogOut,
+  MessagesSquare,
+  Settings,
+  Sparkles,
+  TrendingUp,
+  WalletCards,
+  X,
+} from "lucide-react";
+import { useEffect, useMemo, useState, type ComponentType } from "react";
 import { requestApi } from "../api/client";
-import { AccountSessions } from './AccountSessions';
-import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
+import { useLuluApp } from "../api/LuluAppContext";
+import { clearSelectedWorkspaceId } from "../api/session";
+import { AccountSessions } from "./AccountSessions";
 import { switchLanguage, useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { isAvailableLanguageCode, languages } from "../i18n/languages";
-import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
-import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
-import { useLuluApp } from "../api/LuluAppContext";
+import { isWebPresenceNavigationSlug, navigateApp, routes } from "../routing";
 
-type NavigationPage = { id: string; label: string; soon?: boolean };
-type NavigationSection = { label: string; pages: readonly NavigationPage[] };
+type NavigationItem = {
+  id: string;
+  label: string;
+  href: string;
+  icon: ComponentType<{ size?: number; "aria-hidden"?: boolean }>;
+  isActive: (slug: string) => boolean;
+};
 
-const DASHBOARD_LABEL = "Dashboard";
-const STATISTICS_LABEL = "Statistiken";
-const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
-const GOOGLE_BUSINESS_LABEL = "Google Business";
-const FINANCE_LABEL = "Finance";
-const SETTINGS_LABEL = "Settings";
-const AI_LABEL = "AI";
-const CRM_LABEL = "CRM";
-const CRM_LANDING_PAGE_ID = "sturdy-month-1562";
-const OMNICHANNEL_LABEL = "OmniChannel";
-const DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL]);
-const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
-const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
-const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"]);
-const GOOGLE_BUSINESS_PAGE_IDS = new Set<string>();
-const GOOGLE_BUSINESS_SECTION: NavigationSection = {
-  label: GOOGLE_BUSINESS_LABEL,
-  pages: [],
-};
-const OMNICHANNEL_SECTION = {
-  label: OMNICHANNEL_LABEL,
-  pages: [{ id: "omnichannel", label: "Inbox" }],
-};
-const NAVIGATION_PAGE_LABEL_OVERRIDES = new Map([
-  ["glad-coast-1428", "Integrations"],
-  ["fresh-tide-9404", "Verbindungen"],
+const COMPANY_SLUGS = new Set(["sturdy-month-1562", "kindly-pool-8785"]);
+const COMMUNICATION_SLUGS = new Set(["communications", "omnichannel", "lulu-email-portal-9013", "lulu-calendar-portal-9014"]);
+const FINANCE_SLUGS = new Set([
+  "finance", "breezy-soil-2475", "tender-creek-3139", "quietly-stone-4158", "cool-rain-6499",
+  "richly-land-8084", "calm-tide-3752", "zesty-earth-3938", "bravely-bay-4544", "eager-minute-1586",
+  "fair-bridge-8618", "soft-town-3284", "wisely-gate-3183", "sharp-morning-7310", "sparklingly-city-3338",
+  "radiant-hour-5376", "lucky-park-8649", "vibrantly-second-9428", "sturdy-week-3372",
 ]);
+const SETTINGS_SLUGS = new Set(["profile", "rich-field-1880", "fresh-tide-9404", "glad-coast-1428", "support"]);
 
-function getNavigationPageLabel(page: NavigationPage) {
-  return NAVIGATION_PAGE_LABEL_OVERRIDES.get(page.id) ?? page.label;
-}
+const MAIN_NAVIGATION: readonly NavigationItem[] = [
+  { id: "lulu", label: "Lulu", href: routes.app.dashboard, icon: Sparkles, isActive: (slug) => slug === "fresh-moon-5374" },
+  { id: "companies", label: "Companies", href: "/app/sturdy-month-1562", icon: Building2, isActive: (slug) => COMPANY_SLUGS.has(slug) },
+  {
+    id: "communications",
+    label: "Communications",
+    href: routes.app.communications,
+    icon: MessagesSquare,
+    isActive: (slug) => COMMUNICATION_SLUGS.has(slug) || slug.startsWith("email-") || slug.startsWith("calendar-"),
+  },
+  { id: "growth", label: "Growth", href: routes.app.growth, icon: TrendingUp, isActive: (slug) => slug === "growth" },
+  {
+    id: "online-presence",
+    label: "Online Presence",
+    href: routes.app.onlinePresence,
+    icon: Globe2,
+    isActive: (slug) => slug === "online-presence" || slug === "nicely-ocean-1051" || isWebPresenceNavigationSlug(slug),
+  },
+  { id: "finance", label: "Finance", href: routes.app.finance, icon: WalletCards, isActive: (slug) => FINANCE_SLUGS.has(slug) },
+];
 
-const baseNavigationSections: readonly NavigationSection[] = (() => {
-  const availableSections = (luluDropdownNavigation as readonly NavigationSection[])
-    .map((section) => ({
-      ...section,
-      label: section.label === DASHBOARD_LABEL ? STATISTICS_LABEL : section.label,
-      pages: section.pages.filter((page) => isPageAvailable(page.id) && !GOOGLE_BUSINESS_PAGE_IDS.has(page.id) && page.label !== "Revenue" && page.id !== "nicely-land-1864"),
-    }))
-    .filter((section) => section.label !== "Revenue" && section.pages.length > 0);
-  const googleBusinessSection = {
-    ...GOOGLE_BUSINESS_SECTION,
-    pages: GOOGLE_BUSINESS_SECTION.pages.filter((page) => isPageAvailable(page.id)),
-  };
+const SETTINGS_ITEMS = [
+  { id: "profile", label: "Profile", href: routes.app.profile, icon: Building2 },
+  { id: "rich-field-1880", label: "Knowledge Base", href: routes.app.knowledgeBase, icon: BookOpen },
+  { id: "fresh-tide-9404", label: "Connections", href: routes.app.connections, icon: Link2 },
+  { id: "support", label: "Support", href: "/app/support", icon: CircleHelp },
+] as const;
 
-  const reorderedSections = [...availableSections];
-  const crmIndex = reorderedSections.findIndex((section) => section.label === CRM_LABEL);
-  const statisticsPageIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
-
-  if (crmIndex !== -1 && statisticsPageIndex !== -1) {
-    const crmSection = reorderedSections[crmIndex];
-    const statisticsSection = reorderedSections[statisticsPageIndex];
-    const movedToStatistics = crmSection.pages.filter((page) => STATISTICS_PAGE_IDS.has(page.id));
-
-    reorderedSections[crmIndex] = {
-      ...crmSection,
-      pages: crmSection.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id)),
-    };
-    reorderedSections[statisticsPageIndex] = {
-      ...statisticsSection,
-      pages: [...statisticsSection.pages, ...movedToStatistics],
-    };
-  }
-
-  const aiIndex = reorderedSections.findIndex((section) => section.label === AI_LABEL);
-  const settingsPageIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
-
-  if (aiIndex !== -1 && settingsPageIndex !== -1) {
-    const aiSection = reorderedSections[aiIndex];
-    const settingsSection = reorderedSections[settingsPageIndex];
-    const movedToSettings = aiSection.pages.filter((page) => SETTINGS_PAGE_IDS.has(page.id));
-
-    reorderedSections[aiIndex] = {
-      ...aiSection,
-      pages: aiSection.pages.filter((page) => !SETTINGS_PAGE_IDS.has(page.id)),
-    };
-    reorderedSections[settingsPageIndex] = {
-      ...settingsSection,
-      pages: [...settingsSection.pages, ...movedToSettings],
-    };
-  }
-
-  const supportSettings = reorderedSections.find(section => section.label === SETTINGS_LABEL);
-  if (supportSettings) {
-    supportSettings.pages.push({ id: "profile", label: "Profile" });
-    supportSettings.pages.push({ id: "support", label: "Support" });
-  } else {
-    reorderedSections.push({label: SETTINGS_LABEL, pages: [{id: "profile", label: "Profile"}, {id: "support", label: "Support"}]});
-  }
-
-  // OmniChannel has a canonical route but is not part of the generated
-  // dropdown manifest. Keep it in the same global navigation so users can
-  // reach it from every authenticated page.
-  if (!reorderedSections.some((section) => section.label === OMNICHANNEL_LABEL)) {
-    const emailIndex = reorderedSections.findIndex((section) => section.label === "Email");
-    reorderedSections.splice(emailIndex === -1 ? 0 : emailIndex + 1, 0, OMNICHANNEL_SECTION);
-  }
-
-  const currentWebPresenceIndex = reorderedSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
-  if (currentWebPresenceIndex !== -1 && googleBusinessSection.pages.length > 0) {
-    reorderedSections.splice(currentWebPresenceIndex + 1, 0, googleBusinessSection);
-  } else if (googleBusinessSection.pages.length > 0) {
-    reorderedSections.push(googleBusinessSection);
-  }
-
-  const currentFinanceIndex = reorderedSections.findIndex((section) => section.label === FINANCE_LABEL);
-  const currentStatisticsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
-
-  if (currentFinanceIndex !== -1 && currentStatisticsIndex !== -1) {
-    const financeSection = reorderedSections[currentFinanceIndex];
-    const statisticsSection = reorderedSections[currentStatisticsIndex];
-    const keptFinancePages = financeSection.pages.filter((page) => FINANCE_SECTION_KEEP_IDS.has(page.id));
-    const movedToStatistics = financeSection.pages.filter((page) => !FINANCE_SECTION_KEEP_IDS.has(page.id));
-
-    reorderedSections[currentStatisticsIndex] = {
-      ...statisticsSection,
-      pages: [...statisticsSection.pages, ...movedToStatistics],
-    };
-
-    if (keptFinancePages.length > 0) {
-      reorderedSections[currentFinanceIndex] = {
-        ...financeSection,
-        pages: keptFinancePages,
-      };
-    } else {
-      reorderedSections.splice(currentFinanceIndex, 1);
-    }
-  }
-
-  const statisticsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
-  const settingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
-
-  if (statisticsIndex !== -1 && settingsIndex !== -1) {
-    const currentStatsIndex = reorderedSections.findIndex((section) => section.label === STATISTICS_LABEL);
-    const [statisticsSection] = reorderedSections.splice(currentStatsIndex, 1);
-    const currentSettingsIndex = reorderedSections.findIndex((section) => section.label === SETTINGS_LABEL);
-    reorderedSections.splice(currentSettingsIndex, 0, statisticsSection);
-  }
-
-  // Statistics routes remain available for autonomous workflows and deep links,
-  // but the customer navigation intentionally does not expose the section.
-  const visibleSections = reorderedSections.filter(
-    (section) => section.pages.length > 0 && section.label !== STATISTICS_LABEL,
+function NavigationLink({ item, activeSlug, onNavigate }: { item: NavigationItem; activeSlug: string; onNavigate?: () => void }) {
+  const t = useTranslation();
+  const active = item.isActive(activeSlug);
+  const Icon = item.icon;
+  return (
+    <a
+      href={item.href}
+      data-lulu-route={item.href}
+      className={`lulu-global-navigation__primary-link${active ? " is-active" : ""}`}
+      aria-current={active ? "page" : undefined}
+      onClick={(event) => {
+        event.preventDefault();
+        onNavigate?.();
+        navigateApp(item.href);
+      }}
+    >
+      <Icon aria-hidden={true} size={17} />
+      <span>{t(item.label)}</span>
+    </a>
   );
-  const visibleFinanceIndex = visibleSections.findIndex((section) => section.label === FINANCE_LABEL);
-  const visibleWebsiteIndex = visibleSections.findIndex((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
-  const visibleSettingsIndex = visibleSections.findIndex((section) => section.label === SETTINGS_LABEL);
-
-  // Keep Finance immediately after Website & Commerce and before Settings.
-  if (visibleFinanceIndex !== -1 && visibleWebsiteIndex !== -1 && visibleSettingsIndex !== -1) {
-    const [financeSection] = visibleSections.splice(visibleFinanceIndex, 1);
-    const nextSettingsIndex = visibleSections.findIndex((section) => section.label === SETTINGS_LABEL);
-    visibleSections.splice(nextSettingsIndex, 0, financeSection);
-  }
-
-  return visibleSections;
-})();
-const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
-const WEBSITE_JOB_RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
-const WEBSITE_JOB_DISPLAY_STATUSES = new Set(["queued", "planning", "generated", "preview", "publishing", "failed", "cancelled"]);
-type StoredWebsiteGeneration = { workspaceId: string; siteId: string; provider: "wordpress" | "webflow"; job: WebsiteGenerationJob };
-
-function isBlockingWebsiteJob(job: Pick<WebsiteGenerationJob, "status" | "autoPublish">) {
-  return WEBSITE_JOB_RUNNING_STATUSES.has(job.status) || (job.autoPublish !== false && ["generated", "preview"].includes(job.status));
-}
-
-function readWebsiteGenerationLock() {
-  try {
-    const raw = window.localStorage.getItem(WEBSITE_GENERATION_STORAGE_KEY);
-    if (!raw) return null;
-    const value = JSON.parse(raw) as Partial<StoredWebsiteGeneration>;
-    const status = String(value.job?.status ?? "");
-    if (!value.workspaceId || value.workspaceId !== getSelectedWorkspaceId() || !value.siteId || !value.job?.id || !WEBSITE_JOB_DISPLAY_STATUSES.has(status)) return null;
-    return {
-      siteId: value.siteId,
-      jobId: value.job.id,
-      provider: value.provider === "webflow" ? "Webflow" : "WordPress / Jetpack",
-      status,
-      blocking: isBlockingWebsiteJob(value.job),
-      errorMessage: value.job?.errorMessage ?? null,
-    };
-  } catch {
-    return null;
-  }
-}
-
-function websiteLockLabel(status: string, t: (key: string) => string) {
-  if (status === "failed") return t("Generierung fehlgeschlagen");
-  if (status === "cancelled") return t("Generierung abgebrochen");
-  if (status === "publishing") return t("Veröffentlichung läuft");
-  if (status === "preview") return t("Vorschau wird vorbereitet");
-  if (status === "planning") return t("Planung läuft");
-  return t("Website wird generiert");
 }
 
 export function LuluGlobalNavigation({
@@ -220,83 +104,38 @@ export function LuluGlobalNavigation({
   onRequestClose?: () => void;
 }) {
   const t = useTranslation();
-  const { selectedWorkspace } = useLuluApp();
   const language = useLanguage();
+  const { selectedWorkspace } = useLuluApp();
+  const [settingsOpen, setSettingsOpen] = useState(() => SETTINGS_SLUGS.has(activeSlug));
   const [languageOpen, setLanguageOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
-  const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
+
+  const activationPageId = !selectedWorkspace?.onboardingCompletedAt
+    ? selectedWorkspace?.onboardingStep === "profile_completion"
+      ? "profile"
+      : selectedWorkspace?.onboardingStep === "knowledge_base"
+        ? "rich-field-1880"
+        : null
+    : null;
+  const visibleSettings = useMemo(
+    () => activationPageId ? SETTINGS_ITEMS.filter((item) => item.id === activationPageId) : SETTINGS_ITEMS,
+    [activationPageId],
+  );
+
+  useEffect(() => {
+    if (SETTINGS_SLUGS.has(activeSlug) || activationPageId) setSettingsOpen(true);
+  }, [activeSlug, activationPageId]);
+
   const signOut = async () => {
     try {
       await requestApi({ path: "/auth/logout", method: "POST", body: {} });
     } finally {
-      window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY);
       clearSelectedWorkspaceId();
       onNavigate?.();
       navigateApp(routes.auth.login);
     }
   };
-  useEffect(() => {
-    const update = () => setWebsiteLock(readWebsiteGenerationLock());
-    let requestRunning = false;
-    const poll = async () => {
-      update();
-      if (requestRunning) return;
-      const workspaceId = getSelectedWorkspaceId();
-      const current = readWebsiteGenerationLock();
-      if (!workspaceId || !current?.blocking) return;
-      requestRunning = true;
-      try {
-        const response = await websitesApi.getGenerationJob(workspaceId, current.siteId, current.jobId);
-        const raw = window.localStorage.getItem(WEBSITE_GENERATION_STORAGE_KEY);
-        const stored = raw ? JSON.parse(raw) as Partial<StoredWebsiteGeneration> : null;
-        if (!stored || stored.job?.id !== current.jobId) return;
-        const next = { ...stored, job: response.data } as StoredWebsiteGeneration;
-        if (isBlockingWebsiteJob(response.data) || ["failed", "cancelled"].includes(response.data.status)) {
-          window.localStorage.setItem(WEBSITE_GENERATION_STORAGE_KEY, JSON.stringify(next));
-        } else {
-          window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY);
-        }
-        update();
-      } catch {
-        // A temporary status request failure must never fabricate a failed generation.
-      } finally {
-        requestRunning = false;
-      }
-    };
-    window.addEventListener("storage", update);
-    window.addEventListener("lulu:website-generation-status", update);
-    const timer = window.setInterval(() => void poll(), 2500);
-    void poll();
-    return () => {
-      window.removeEventListener("storage", update);
-      window.removeEventListener("lulu:website-generation-status", update);
-      window.clearInterval(timer);
-    };
-  }, []);
-  const websiteLockText = useMemo(() => websiteLock ? `${websiteLockLabel(websiteLock.status, t)} · ${t(websiteLock.status)}` : "", [t, websiteLock]);
-  const activationPageId = !selectedWorkspace?.onboardingCompletedAt
-    ? selectedWorkspace?.onboardingStep === 'profile_completion' ? 'profile'
-      : selectedWorkspace?.onboardingStep === 'knowledge_base' ? 'rich-field-1880' : null
-    : null;
-  const navigationSections = useMemo(() => baseNavigationSections
-    .map((section) => ({
-      ...section,
-      pages: section.pages.filter((page) => (!activationPageId || page.id === activationPageId) && (page.id === activeSlug || isPageAvailable(page.id))),
-    }))
-    .filter((section) => section.pages.length > 0), [activeSlug,activationPageId]);
-  const activeSectionLabel = useMemo(
-    () => navigationSections.find((section) => section.pages.some((page) => page.id === activeSlug))?.label ?? null,
-    [activeSlug, navigationSections],
-  );
-  const [openSectionLabel, setOpenSectionLabel] = useState<string | null>(() => (
-    baseNavigationSections.find((section) => section.pages.some((page) => page.id === activeSlug))?.label ?? null
-  ));
 
-  // Automatically reveal the section containing the current page after every
-  // route change. Users can still collapse it or inspect another section.
-  useEffect(() => {
-    setOpenSectionLabel(activeSectionLabel);
-  }, [activeSectionLabel]);
   return (
     <aside
       id="lulu-global-navigation"
@@ -304,206 +143,87 @@ export function LuluGlobalNavigation({
       data-lulu-global-navigation="true"
     >
       <div className="lulu-global-navigation__workspace-label">
-        <span>{t("Workspace")}</span>
-        <button
-          type="button"
-          className="lulu-global-navigation__close"
-          aria-label={t("Close navigation")}
-          onClick={onRequestClose}
-        >
+        <span>{activationPageId ? t("Complete activation") : t("Workspace")}</span>
+        <button type="button" className="lulu-global-navigation__close" aria-label={t("Close navigation")} onClick={onRequestClose}>
           <X aria-hidden="true" size={16} />
         </button>
       </div>
+
       <nav className="lulu-global-navigation__sections">
-        {navigationSections.map((section, index) => {
-          const isActiveSection = section.pages.some((page) => page.id === activeSlug);
-          const previousSection = index > 0 ? navigationSections[index - 1] : null;
-          const needsSeparator = previousSection?.label === FINANCE_LABEL && section.label === STATISTICS_LABEL;
-          if (section.label === "Calendar") {
-            const calendarProps = pageLinkProps("lulu-calendar-portal-9014");
-            const isCalendarActive = activeSlug === "lulu-calendar-portal-9014" || activeSlug.startsWith("calendar-");
-            return (
-              <a
-                key={section.label}
-                {...calendarProps}
-                className={`lulu-global-navigation__primary-link${isCalendarActive ? " is-active" : ""}`}
-                aria-current={isCalendarActive ? "page" : undefined}
-                onClick={(event) => {
-                  event.preventDefault();
-                  onNavigate?.();
-                  if (calendarProps.href) navigateApp(calendarProps.href);
-                }}
-              >
-                <CalendarDays aria-hidden="true" size={16} />
-                <span>{t("Calendar")}</span>
-              </a>
-            );
-          }
-          if (section.label === CRM_LABEL) {
-            const crmProps = pageLinkProps(CRM_LANDING_PAGE_ID);
-            const isCrmActive = activeSlug === CRM_LANDING_PAGE_ID;
-            return (
-              <a
-                key={section.label}
-                {...crmProps}
-                className={`lulu-global-navigation__primary-link${isCrmActive ? " is-active" : ""}`}
-                aria-current={isCrmActive ? "page" : undefined}
-                onClick={(event) => {
-                  event.preventDefault();
-                  onNavigate?.();
-                  if (crmProps.href) navigateApp(crmProps.href);
-                }}
-              >
-                <span className="lulu-global-navigation__section-label">
-                  <span>{t(CRM_LABEL)}</span>
-                </span>
-              </a>
-            );
-          }
-          if (DIRECT_SECTION_LABELS.has(section.label) && section.pages.length === 1) {
-            const page = section.pages[0]!;
-            const directProps = pageLinkProps(page.id);
-            const available = Boolean(directProps.href);
-            const lockedLabel = t("Navigation link locked");
-            const translatedLabel = t(section.label);
-            return (
-              <a
-                key={section.label}
-                {...directProps}
-                href={available ? directProps.href : undefined}
-                data-lulu-route={available ? directProps["data-lulu-route"] : undefined}
-                className={`lulu-global-navigation__primary-link${isActiveSection ? " is-active" : ""}${available ? "" : " is-locked"}`}
-                aria-current={isActiveSection ? "page" : undefined}
-                aria-disabled={!available || undefined}
-                tabIndex={available ? undefined : -1}
-                aria-label={available ? translatedLabel : `${translatedLabel}: ${lockedLabel}`}
-                title={available ? undefined : lockedLabel}
-                onClick={(event) => {
-                  if (!available || !directProps.href) {
+        {!activationPageId && MAIN_NAVIGATION.map((item) => (
+          <NavigationLink key={item.id} item={item} activeSlug={activeSlug} onNavigate={onNavigate} />
+        ))}
+
+        <details open={settingsOpen} onToggle={(event) => setSettingsOpen(event.currentTarget.open)}>
+          <summary className={SETTINGS_SLUGS.has(activeSlug) ? "is-active" : undefined}>
+            <span className="lulu-global-navigation__section-label">
+              <Settings aria-hidden="true" size={17} />
+              <span>{t("Settings")}</span>
+            </span>
+            <ChevronDown aria-hidden="true" size={14} />
+          </summary>
+          <div className="lulu-global-navigation__subitems">
+            {visibleSettings.map((item) => {
+              const Icon = item.icon;
+              const active = item.id === activeSlug;
+              return (
+                <a
+                  key={item.id}
+                  href={item.href}
+                  data-lulu-route={item.href}
+                  className={active ? "is-active" : undefined}
+                  aria-current={active ? "page" : undefined}
+                  onClick={(event) => {
                     event.preventDefault();
-                    return;
-                  }
-                  event.preventDefault();
-                  onNavigate?.();
-                  navigateApp(directProps.href);
-                }}
-              >
-                <span className="lulu-global-navigation__section-label">
-                  <span>{translatedLabel}</span>
-                </span>
-              </a>
-            );
-          }
-          return (
-            <Fragment key={section.label}>
-              {needsSeparator && (
-                <div className="lulu-global-navigation__primary-link lulu-global-navigation__primary-link--divider lulu-global-navigation__primary-link--locked">
-                  <span>{t("Agent Marketplace")}</span>
-                </div>
-              )}
-              <details
-                open={openSectionLabel === section.label}
-                onToggle={(event) => {
-                  setOpenSectionLabel(event.currentTarget.open ? section.label : null);
-                }}
-              >
-              <summary
-                className={isActiveSection ? "is-active" : undefined}
-              >
-                <span className="lulu-global-navigation__section-label">
-                  <span>{t(section.label)}</span>
-                </span>
-                <ChevronDown aria-hidden="true" size={14} />
-              </summary>
-              <div className="lulu-global-navigation__subitems">
-                {section.pages.map((page) => {
-                  const props = pageLinkProps(page.id);
-                  const available = Boolean(props.href);
-                  const isActivePage = page.id === activeSlug;
-                  const isDropdownLinkLocked = !available;
-                  const lockedLabel = t("Navigation link locked");
-                  const displayLabel = getNavigationPageLabel(page);
-                  const translatedDisplayLabel = t(displayLabel);
-                  return (
-                    <a
-                      key={page.id}
-                      {...props}
-                      href={isDropdownLinkLocked ? undefined : props.href}
-                      data-lulu-route={isDropdownLinkLocked ? undefined : props["data-lulu-route"]}
-                      className={`${isActivePage ? "is-active" : ""}${isDropdownLinkLocked ? " is-locked" : ""}`.trim() || undefined}
-                      aria-current={isActivePage ? "page" : undefined}
-                      aria-disabled={isDropdownLinkLocked || undefined}
-                      tabIndex={isDropdownLinkLocked ? -1 : undefined}
-                      onClick={(event) => {
-                        if (isDropdownLinkLocked || !props.href) {
-                          event.preventDefault();
-                          return;
-                        }
-                        event.preventDefault();
-                        onNavigate?.();
-                        navigateApp(props.href);
-                      }}
-                      aria-label={isDropdownLinkLocked ? `${translatedDisplayLabel}: ${lockedLabel}` : translatedDisplayLabel}
-                      title={isDropdownLinkLocked ? lockedLabel : undefined}
-                    >
-                      <span>{translatedDisplayLabel}</span>
-                    </a>
-                  );
-                })}
-                {section.label === SETTINGS_LABEL && (
-                  <>
-                    {!activationPageId && <><button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setSessionsOpen(true)}>{t('Active sessions')}</button>
-                    {sessionsOpen && <AccountSessions onClose={() => setSessionsOpen(false)} />}
-                    <button
-                      type="button"
-                      className="lulu-global-navigation__subitem-action"
-                      onClick={() => setLanguageOpen((value) => !value)}
-                      aria-expanded={languageOpen}
-                    >
-                      <Languages aria-hidden="true" size={14} />
-                      <span>{t("Language")}</span>
-                    </button>
-                    {languageOpen && (
-                      <div className="lulu-global-navigation__language-list">
-                        {languages.filter((option) => isAvailableLanguageCode(option.code)).map((option) => (
-                          <button
-                            key={option.code}
-                            type="button"
-                            className={`lulu-global-navigation__language-option${option.code === language ? " is-active" : ""}`}
-                            onClick={() => switchLanguage(option.code)}
-                          >
-                            <span lang={option.code} dir={option.direction} data-lulu-no-translate="true" translate="no">{option.nativeName}</span>
-                            {option.code === language && <Check aria-hidden="true" size={13} />}
-                          </button>
-                        ))}
-                      </div>
-                    )}</>}
-                    <button
-                      type="button"
-                      className="lulu-global-navigation__subitem-action"
-                      onClick={() => void signOut()}
-                    >
-                      <LogOut aria-hidden="true" size={14} />
-                      <span>{t("Sign out")}</span>
-                    </button>
-                  </>
-                )}
-                {websiteLock && section.label === WEBSITE_AND_COMMERCE_LABEL && (
-                  <div className={`lulu-global-navigation__website-lock is-${websiteLock.status}`} role="status" aria-live="polite">
-                    <RefreshCw aria-hidden="true" size={13} className={websiteLock.blocking ? "animate-spin" : undefined} />
-                    <span>{websiteLockText}</span>
+                    onNavigate?.();
+                    navigateApp(item.href);
+                  }}
+                >
+                  <Icon aria-hidden={true} size={14} />
+                  <span>{t(item.label)}</span>
+                </a>
+              );
+            })}
+
+            {!activationPageId && (
+              <>
+                <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setSessionsOpen(true)}>
+                  {t("Active sessions")}
+                </button>
+                {sessionsOpen && <AccountSessions onClose={() => setSessionsOpen(false)} />}
+                <button
+                  type="button"
+                  className="lulu-global-navigation__subitem-action"
+                  onClick={() => setLanguageOpen((value) => !value)}
+                  aria-expanded={languageOpen}
+                >
+                  <Languages aria-hidden="true" size={14} />
+                  <span>{t("Language")}</span>
+                </button>
+                {languageOpen && (
+                  <div className="lulu-global-navigation__language-list">
+                    {languages.filter((option) => isAvailableLanguageCode(option.code)).map((option) => (
+                      <button
+                        key={option.code}
+                        type="button"
+                        className={`lulu-global-navigation__language-option${option.code === language ? " is-active" : ""}`}
+                        onClick={() => switchLanguage(option.code)}
+                      >
+                        <span lang={option.code} dir={option.direction} data-lulu-no-translate="true" translate="no">{option.nativeName}</span>
+                        {option.code === language && <Check aria-hidden="true" size={13} />}
+                      </button>
+                    ))}
                   </div>
                 )}
-              </div>
-              </details>
-            </Fragment>
-          );
-        })}
-        {activationPageId && activationPageId !== 'profile' && <div className="lulu-global-navigation__submenu"><button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void signOut()}><LogOut aria-hidden="true" size={14} /><span>{t("Sign out")}</span></button></div>}
+              </>
+            )}
+            <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void signOut()}>
+              <LogOut aria-hidden="true" size={14} />
+              <span>{t("Sign out")}</span>
+            </button>
+          </div>
+        </details>
       </nav>
     </aside>
   );
 }
-
-export type { NavigationPage, NavigationSection };
-

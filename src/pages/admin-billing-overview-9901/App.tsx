@@ -27,11 +27,10 @@ const NAV: NavSection[] = [
     label: "Overview",
     items: [
       { key: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={16} /> },
-      { key: "billing", label: "Billing Overview", icon: <CreditCard size={16} /> },
     ],
   },
   {
-    label: "Customers & CRM",
+    label: "Customers",
     items: [
       { key: "users", label: "Users", icon: <Users size={16} /> },
       { key: "workspaces", label: "Workspaces / Companies", icon: <Building2 size={16} /> },
@@ -39,21 +38,32 @@ const NAV: NavSection[] = [
     ],
   },
   {
-    label: "Platform",
+    label: "Money",
     items: [
-      { key: "websites", label: "Websites & Shops", icon: <Globe size={16} /> },
+      { key: "billing", label: "Billing & Funds", icon: <CreditCard size={16} /> },
+    ],
+  },
+  {
+    label: "Runtime & Connections",
+    items: [
       { key: "agents", label: "AI Agents", icon: <Bot size={16} /> },
       { key: "integrations", label: "Integrations", icon: <Plug size={16} /> },
       { key: "oauth-connections", label: "OAuth Connections", icon: <KeyRound size={16} /> },
-      { key: "approvals", label: "Approvals", icon: <CheckSquare2 size={16} /> },
+      { key: "websites", label: "Websites & Shops", icon: <Globe size={16} /> },
+      { key: "approvals", label: "Exceptions & Policy Events", icon: <CheckSquare2 size={16} /> },
+    ],
+  },
+  {
+    label: "Communications",
+    items: [
       { key: "conversations", label: "Inbox / Conversations", icon: <MessageSquare size={16} /> },
-      { key: "files", label: "Files & Storage", icon: <FileArchive size={16} /> },
       { key: "support", label: "Support Tickets", icon: <Headphones size={16} /> },
     ],
   },
   {
-    label: "Operations",
+    label: "Reliability & Security",
     items: [
+      { key: "files", label: "Files & Storage", icon: <FileArchive size={16} /> },
       { key: "errors", label: "Error Center", icon: <AlertTriangle size={16} />, badge: "new" },
       { key: "audit", label: "Audit Logs", icon: <Shield size={16} /> },
       { key: "jobs", label: "Background Jobs", icon: <Clock size={16} /> },
@@ -425,12 +435,12 @@ function DetailPanel({ title, rows, raw }: { title: string; rows: Array<{ label:
           </div>
         ))}
       </div>
-      <div className="border-t border-slate-100 px-5 py-4">
-        <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">Raw payload</div>
-        <pre className="max-h-[420px] overflow-auto rounded-lg bg-slate-950 px-4 py-3 text-xs text-slate-100">
+      <details className="border-t border-slate-100 px-5 py-4">
+        <summary className="cursor-pointer text-xs font-semibold uppercase tracking-wide text-slate-500">Advanced payload</summary>
+        <pre className="mt-3 max-h-[420px] overflow-auto rounded-lg bg-slate-950 px-4 py-3 text-xs text-slate-100">
           {JSON.stringify(raw, null, 2)}
         </pre>
-      </div>
+      </details>
     </div>
   );
 }
@@ -1878,7 +1888,7 @@ function ApprovalsPage({ onError }: { onError: (m: string) => void }) {
       const res = await requestApi<{ approvals: ApprovalRow[] }>({ path: "/admin/approvals?limit=200" });
       setRows(res.data.approvals);
       setSelected((current) => res.data.approvals.find((row) => row.id === current?.id) ?? res.data.approvals[0] ?? null);
-    } catch (e) { onError(getFriendlyErrorMessage(e, "Approvals konnten nicht geladen werden.")); }
+    } catch (e) { onError(getFriendlyErrorMessage(e, "Policy events could not be loaded.")); }
     finally { setLoading(false); }
   };
   useEffect(() => { void load(); }, []);
@@ -1901,7 +1911,7 @@ function ApprovalsPage({ onError }: { onError: (m: string) => void }) {
       />
       {selected ? (
         <DetailPanel
-          title={`Approval ${selected.approvalType}`}
+          title={`Policy event · ${selected.approvalType}`}
           rows={[
             { label: "Workspace", value: selected.workspaceName ?? "—" },
             { label: "Status", value: selected.status },
@@ -1912,7 +1922,7 @@ function ApprovalsPage({ onError }: { onError: (m: string) => void }) {
           ]}
           raw={selected}
         />
-      ) : <EmptyPanel title="Keine Approval ausgewählt" hint="Wähle links eine Approval aus." />}
+      ) : <EmptyPanel title="No policy event selected" hint="Select an event to inspect the autonomous decision boundary." />}
     </div>
   );
 }

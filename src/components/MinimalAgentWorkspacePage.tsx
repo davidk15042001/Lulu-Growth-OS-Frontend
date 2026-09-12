@@ -5,10 +5,6 @@ import type { WorkspaceRecord } from "../api/records";
 import { useLiveRecords } from "../api/useLiveRecords";
 import { type LuluAgentContract } from "../config/lulu-agent-registry";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
-import { AgentRuntimeControlPanel } from "./AgentRuntimeControlPanel";
-import { KnowledgeBaseWorkspace } from "./KnowledgeBaseWorkspace";
-import { KnowledgeActivationGate } from "./KnowledgeActivationGate";
-import { usePageAgentRun } from "./usePageAgentRun";
 import { WorkspaceIntelligencePanel } from "./WorkspaceIntelligencePanel";
 
 const OVERVIEW_RESOURCE_BY_PAGE_ID: Readonly<Record<string, string>> = {
@@ -33,12 +29,6 @@ function resolveResourceType(slug: string, contract: PageContract | undefined) {
   return OVERVIEW_RESOURCE_BY_PAGE_ID[slug] ?? RESOURCE_BY_SLUG[slug] ?? null;
 }
 
-function recordNeedsAttention(record: WorkspaceRecord) {
-  return /overdue|error|failed|pending|review|attention|due|draft|paused|risk/i.test(
-    `${record.status} ${record.stage ?? ""} ${record.description ?? ""}`,
-  );
-}
-
 export function MinimalAgentWorkspacePage({
   slug,
   contract,
@@ -53,7 +43,6 @@ export function MinimalAgentWorkspacePage({
   const workspaceId = selectedWorkspace?.id ?? null;
   const resourceType = resolveResourceType(slug, contract);
   const records = useLiveRecords(resourceType, "limit=25");
-  const pageRuntime = usePageAgentRun(workspaceId, agentContract, t);
 
   const recentRecords = useMemo(
     () =>
@@ -62,11 +51,6 @@ export function MinimalAgentWorkspacePage({
         .sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt))
         .slice(0, 6),
     [records.items],
-  );
-
-  const attentionRecords = useMemo(
-    () => recentRecords.filter(recordNeedsAttention).slice(0, 5),
-    [recentRecords],
   );
 
   const signalTags = useMemo(
@@ -79,11 +63,6 @@ export function MinimalAgentWorkspacePage({
     [records.items],
   );
 
-  const isKnowledgePage = slug === "rich-field-1880";
-  const activationMode = isKnowledgePage && selectedWorkspace?.onboardingStep === 'knowledge_base' && !selectedWorkspace.onboardingCompletedAt;
-
-  if (activationMode) return <main className="min-h-screen bg-[var(--background)] px-4 sm:px-8"><KnowledgeActivationGate /></main>;
-
   return (
     <main className="lulu-minimal-agent-page min-h-screen bg-[var(--background)] text-foreground">
       <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-5 sm:px-8 sm:py-8">
@@ -94,11 +73,7 @@ export function MinimalAgentWorkspacePage({
           summaryBadge="Live page data"
         />
 
-        <AgentRuntimeControlPanel runtime={pageRuntime} pageLabel={agentContract.pageLabel} />
-
-        {isKnowledgePage ? <KnowledgeBaseWorkspace /> : null}
-
-        {!isKnowledgePage && resourceType ? (
+        {resourceType ? (
           <section className="lulu-agent-kpi-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Records")}</p>
@@ -111,9 +86,9 @@ export function MinimalAgentWorkspacePage({
               <p className="mt-1 text-xs text-muted-foreground">{t("Items not marked complete")}</p>
             </article>
             <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
-              <p className="text-xs text-muted-foreground">{t("Needs attention")}</p>
-              <p className="mt-2 text-2xl font-semibold text-foreground">{attentionRecords.length}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{t("Flagged by status, stage or description")}</p>
+              <p className="text-xs text-muted-foreground">{t("Recent outcomes")}</p>
+              <p className="mt-2 text-2xl font-semibold text-foreground">{recentRecords.length}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("Latest autonomous updates")}</p>
             </article>
             <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Signal tags")}</p>
@@ -146,7 +121,7 @@ export function MinimalAgentWorkspacePage({
           </section>
         )}
 
-        {!isKnowledgePage ? <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)]">
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)]">
           <section className="rounded-xl border border-border bg-card p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -217,37 +192,19 @@ export function MinimalAgentWorkspacePage({
           <div className="grid gap-5">
             <section className="rounded-xl border border-border bg-card p-5">
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
-                {resourceType ? t("Needs attention") : t("Autonomy boundary")}
+                {t("Autonomous execution")}
               </p>
               <h2 className="mt-1 text-lg font-semibold text-foreground">
-                {resourceType ? t("Priority queue") : t("What Lulu executes automatically")}
+                {t("What Lulu handles here")}
               </h2>
               <div className="mt-4 space-y-3">
-                {resourceType ? (
-                  attentionRecords.length > 0 ? (
-                    attentionRecords.map((record) => (
-                      <article key={record.id} className="rounded-lg border border-border bg-background/50 px-4 py-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <strong className="text-sm text-foreground">{record.name}</strong>
-                          <span className="text-xs text-muted-foreground">{record.status}</span>
-                        </div>
-                        <p className="mt-1 text-sm text-muted-foreground">{record.description ?? record.stage ?? t("No additional detail")}</p>
-                      </article>
-                    ))
-                  ) : (
-                    <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
-                      {t("No records are currently flagged for attention.")}
-                    </p>
-                  )
-                ) : (
-                  <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
-                    {t("Lulu continuously analyzes, decides and executes here. The customer intervenes only to add paid-media budget.")}
-                  </p>
-                )}
+                <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
+                  {t("Lulu continuously analyzes, decides and executes here. There is no approval queue; only missing funds, expired connections, compliance blocks or technical failures can pause execution.")}
+                </p>
               </div>
             </section>
           </div>
-        </div> : null}
+        </div>
       </div>
     </main>
   );

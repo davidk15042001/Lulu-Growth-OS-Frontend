@@ -1,7 +1,7 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { ArrowLeftRight } from "lucide-react";
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
-import { pages, type PageDefinition } from "./pages-manifest";
+import { pages } from "./pages-manifest";
 import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
 import { LEGACY_SETUP_COMPLETE_PATH, isPageAvailable, pagePath, routes } from "./routing";
 import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from "./api/client";
@@ -34,27 +34,14 @@ import PublicCommercialDocumentPage from "./pages/public-commercial/PublicCommer
 import CrmWorkspacePage from "./pages/canonical-crm/CrmWorkspacePage";
 import WorkspaceRecordsPage from "./pages/canonical-records/WorkspaceRecordsPage";
 import ProfilePage from "./pages/canonical-profile/ProfilePage";
+import GrowthPage from "./pages/canonical-growth/GrowthPage";
+import FinancePage from "./pages/canonical-finance/FinancePage";
+import KnowledgePage from "./pages/canonical-knowledge/KnowledgePage";
 import CalendarMeetingPage from "./pages/calendar-meeting/CalendarMeetingPage";
 import { WorkspaceSurfaceShell } from "./components/WorkspaceSurfaceShell";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
-const EMAIL_PAGE: PageDefinition = {
-  id: "lulu-email-workspace",
-  name: "Lulu AI — Email",
-  slug: "lulu-email-portal-9013",
-  generatedName: "lulu-email-portal-9013",
-  selectedRevisionId: "local-email-workspace",
-  previewImageUrl: null,
-};
-const CALENDAR_PAGE: PageDefinition = {
-  id: "lulu-calendar-workspace",
-  name: "Lulu AI — Calendar",
-  slug: "lulu-calendar-portal-9014",
-  generatedName: "lulu-calendar-portal-9014",
-  selectedRevisionId: "local-calendar-workspace",
-  previewImageUrl: null,
-};
 const FINANCE_RECORD_ROUTES = [
   ["quietly-stone-4158", "finance_accounts", "Finance Overview"],
   ["cool-rain-6499", "finance_income", "Income"],
@@ -320,11 +307,16 @@ export default function App() {
         <Route path="/admin/quotes" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="quotes" /></AdminOmniChannelRoute>} />
         <Route path="/admin/invoices" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="invoices" /></AdminOmniChannelRoute>} />
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
-        <Route path={routes.app.email} element={<AdminOnlyAppRoute><PageRoute page={EMAIL_PAGE} /></AdminOnlyAppRoute>} />
-        <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><PageRoute page={CALENDAR_PAGE} /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.email} element={<AdminOnlyAppRoute><Navigate replace to={routes.app.communications} /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><Navigate replace to={routes.app.communications} /></AdminOnlyAppRoute>} />
+        <Route path="/app/website" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.onlinePresence} /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.communications} element={<AdminOnlyAppRoute><OmniChannelPage /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.growth} element={<AdminOnlyAppRoute><GrowthPage /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.finance} element={<AdminOnlyAppRoute><FinancePage /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.knowledgeBase} element={<AdminOnlyAppRoute><KnowledgePage /></AdminOnlyAppRoute>} />
         <Route path={routes.app.products} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="nicely-ocean-1051"><ProductsPage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path="/app/nicely-ocean-1051" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="nicely-ocean-1051"><ProductsPage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
-        <Route path={routes.app.omnichannel} element={<AdminOnlyAppRoute><OmniChannelPage /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.omnichannel} element={<AdminOnlyAppRoute><Navigate replace to={routes.app.communications} /></AdminOnlyAppRoute>} />
         <Route path="/app/sturdy-month-1562" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="companies" showEntitySwitcher={false} /></AdminOnlyAppRoute>} />
         <Route path="/app/kindly-pool-8785" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="companies" /></AdminOnlyAppRoute>} />
         <Route path="/app/cosmic-pool-1616" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="activities" /></AdminOnlyAppRoute>} />
@@ -342,6 +334,9 @@ export default function App() {
           if (page.slug === "keen-morning-6353") return null;
           if (page.slug === "nicely-ocean-1051") return null;
           if (page.slug === "nicely-land-1864") return null;
+          if (page.slug === "rich-field-1880") return null;
+          if (page.slug === "lulu-email-portal-9013") return null;
+          if (page.slug === "lulu-calendar-portal-9014") return null;
           const resolvedPath = pagePath(page.slug);
           const isAuthPage = resolvedPath === routes.auth.login
             || resolvedPath === routes.auth.signUp

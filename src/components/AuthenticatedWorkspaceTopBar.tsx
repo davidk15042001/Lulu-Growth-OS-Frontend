@@ -1,6 +1,5 @@
 import { Menu, X } from "lucide-react";
 import { useLuluApp } from "../api/LuluAppContext";
-import { LuluWorkspaceRefreshButton } from "./LuluWorkspaceTopBar";
 import { LuluUsageControl } from "./LuluUsageControl";
 
 export function AuthenticatedWorkspaceTopBar({
@@ -38,7 +37,6 @@ export function AuthenticatedWorkspaceTopBar({
         <div className="lulu-auth-activation-status">Complete activation to unlock Lulu</div>
       ) : (
         <div className="lulu-auth-actions">
-          <LuluWorkspaceRefreshButton />
           <LuluUsageControl />
         </div>
       )}

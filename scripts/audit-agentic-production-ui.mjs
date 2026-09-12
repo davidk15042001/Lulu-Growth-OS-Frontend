@@ -11,8 +11,11 @@ const loginPage = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door
 const connectionSetupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fresh-tide-9404', 'components', 'generated', 'LuluExistingPlatforms.tsx'), 'utf8');
 const appRouter = fs.readFileSync(path.join(root, 'src', 'App.tsx'), 'utf8');
 const crmWorkspacePage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-crm', 'CrmWorkspacePage.tsx'), 'utf8');
-const agentRegistry = fs.readFileSync(path.join(root, 'src', 'config', 'lulu-agent-registry.ts'), 'utf8');
 const assistantPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fresh-moon-5374', 'components', 'generated', 'LuluAIAssistant.tsx'), 'utf8');
+const minimalAgentPage = fs.readFileSync(path.join(root, 'src', 'components', 'MinimalAgentWorkspacePage.tsx'), 'utf8');
+const fundsControl = fs.readFileSync(path.join(root, 'src', 'components', 'LuluUsageControl.tsx'), 'utf8');
+const communicationsPage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-omnichannel', 'OmniChannelPage.tsx'), 'utf8');
+const profilePage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-profile', 'ProfilePage.tsx'), 'utf8');
 const failures = [];
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
@@ -67,39 +70,16 @@ if (!crmWorkspacePage.includes('showEntitySwitcher &&')) {
   failures.push('The canonical CRM page cannot hide its contacts/companies tab switcher.');
 }
 
-if (
-  !globalNavigation.includes('const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"])')
-  || !globalNavigation.includes('pages: crmSection.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id))')
-) {
-  failures.push('CRM activities and tasks are not assigned to the Statistics section.');
+for (const label of ['Lulu', 'Companies', 'Communications', 'Growth', 'Online Presence', 'Finance']) {
+  if (!globalNavigation.includes(`label: "${label}"`)) failures.push(`The consolidated ${label} navigation destination is missing.`);
 }
 
-if (!globalNavigation.includes('(section) => section.pages.length > 0 && section.label !== STATISTICS_LABEL')) {
-  failures.push('The Statistics dropdown is still visible in the customer navigation.');
+if (globalNavigation.includes('STATISTICS_LABEL') || globalNavigation.includes('luluDropdownNavigation')) {
+  failures.push('The customer navigation still depends on the legacy generated dropdown tree.');
 }
 
-if (
-  !agentRegistry.includes('const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"])')
-  || !agentRegistry.includes('pages: crmSection.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id))')
-) {
-  failures.push('The agent registry does not match the Statistics navigation placement for CRM activities and tasks.');
-}
-
-if (
-  !globalNavigation.includes('const CRM_LANDING_PAGE_ID = "sturdy-month-1562"')
-  || !globalNavigation.includes('if (section.label === CRM_LABEL) {')
-  || !globalNavigation.includes('const crmProps = pageLinkProps(CRM_LANDING_PAGE_ID)')
-  || !globalNavigation.includes('<span className="lulu-global-navigation__section-label">')
-) {
-  failures.push('CRM is not a direct navigation link to the companies workspace.');
-}
-
-if (
-  !globalNavigation.includes('const DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL])')
-  || !globalNavigation.includes('if (DIRECT_SECTION_LABELS.has(section.label) && section.pages.length === 1)')
-  || !globalNavigation.includes('const directProps = pageLinkProps(page.id)')
-) {
-  failures.push('AI and OmniChannel are not direct navigation links.');
+if (!globalNavigation.includes('href: "/app/sturdy-month-1562"')) {
+  failures.push('Companies is not a direct navigation link to the companies workspace.');
 }
 
 if (
@@ -110,19 +90,36 @@ if (
   failures.push('The removed command-center switcher is still rendered on the AI Assistant page.');
 }
 
-if (
-  !globalNavigation.includes('const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"])')
-  || !globalNavigation.includes('pages: aiSection.pages.filter((page) => !SETTINGS_PAGE_IDS.has(page.id))')
-  || !globalNavigation.includes('pages: [...settingsSection.pages, ...movedToSettings]')
-) {
+if (!globalNavigation.includes('label: "Knowledge Base", href: routes.app.knowledgeBase')) {
   failures.push('Knowledge is not exposed exclusively through the Settings navigation section.');
 }
 
-if (
-  !agentRegistry.includes('const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"])')
-  || !agentRegistry.includes('pages: aiSection.pages.filter((page) => !SETTINGS_PAGE_IDS.has(page.id))')
-) {
-  failures.push('The agent registry does not match the Settings navigation placement for Knowledge.');
+if (minimalAgentPage.includes('AgentRuntimeControlPanel') || minimalAgentPage.includes('usePageAgentRun') || minimalAgentPage.includes('Needs attention')) {
+  failures.push('A customer-facing page still exposes agent runtime controls or a generic approval-like attention queue.');
+}
+
+if (authenticatedTopBar.includes('LuluWorkspaceRefreshButton')) {
+  failures.push('The removed customer Update control is still mounted in the top bar.');
+}
+
+if (!fundsControl.includes('adSpendApi.overview') || !fundsControl.includes('routes.app.adSpend') || !fundsControl.includes('routes.app.funds')) {
+  failures.push('Funds does not combine AI and advertising wallets.');
+}
+
+if (fundsControl.includes('storagePerGbMonthUsd') || fundsControl.includes('classAPerMillionOperationsUsd')) {
+  failures.push('Funds exposes low-level storage-provider rates.');
+}
+
+if (communicationsPage.includes('omnichannelApi.send') || communicationsPage.includes('omnichannelApi.takeOver') || communicationsPage.includes('omnichannelApi.note')) {
+  failures.push('Communications still exposes manual customer-message operations.');
+}
+
+if (!profilePage.includes("(['companyName', 'industry'] as const)") || profilePage.includes('Complete every company, legal, contact and banking field')) {
+  failures.push('Profile activation is not limited to the minimum operating identity.');
+}
+
+if (!appRouter.includes('path={routes.app.communications}') || !appRouter.includes('path={routes.app.growth}') || !appRouter.includes('path={routes.app.finance}')) {
+  failures.push('The consolidated customer routes are not mounted.');
 }
 
 const inspectedRoots = [
