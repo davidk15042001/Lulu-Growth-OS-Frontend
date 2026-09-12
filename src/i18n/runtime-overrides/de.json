@@ -4821,5 +4821,15 @@
   "Enter the WhatsApp number in international format, for example +491701234567.": "Geben Sie die WhatsApp-Nummer im internationalen Format ein, zum Beispiel +491701234567.",
   "Enter the WhatsApp Business display name customers should see.": "Geben Sie den WhatsApp Business-Anzeigenamen ein, den Kunden sehen sollen.",
   "We could not connect this WhatsApp Business number.": "Wir konnten diese WhatsApp Business-Nummer nicht verbinden.",
-  "LULU_MANAGED": "LULU_MANAGED"
+  "LULU_MANAGED": "LULU_MANAGED",
+  "Select an authorized UnifyPort account": "Autorisiertes UnifyPort-Konto auswählen",
+  "No WhatsApp account registered in UnifyPort": "Kein WhatsApp-Konto in UnifyPort registriert",
+  "unknown": "unbekannt",
+  "global": "global",
+  "UnifyPort is not configured on the server.": "UnifyPort ist auf dem Server nicht konfiguriert.",
+  "The signed UnifyPort webhook is not configured.": "Der signierte UnifyPort-Webhook ist nicht konfiguriert.",
+  "Connect and authorize the Lulu WhatsApp account in UnifyPort first.": "Verbinde und autorisiere zuerst das Lulu-WhatsApp-Konto in UnifyPort.",
+  "Update account": "Konto aktualisieren",
+  "Use as admin account": "Als Admin-Konto verwenden",
+  "UnifyPort Dashboard": "UnifyPort-Dashboard"
 }

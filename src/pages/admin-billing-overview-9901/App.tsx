@@ -210,18 +210,15 @@ type OAuthSelfServiceWorkspace = {
   workspaceId: string; workspaceName: string; ownerEmail: string | null;
   allowedProviders: string[];
 };
-type TwilioAdminStatus = {
+type UnifyPortAdminStatus = {
   configured: boolean;
   webhookConfigured: boolean;
+  provider: "unifyport";
   whatsapp?: {
     configured: boolean;
-    identity: { identityId: string | null; address: string | null; displayName: string | null; status: string | null } | null;
-    availableSenders: Array<{ sid: string; address: string; displayName: string | null; status: string }>;
+    identity: { identityId: string; accountId: string; displayName: string; status: string; phone: string | null } | null;
+    availableAccounts: Array<{ id: string | null; name: string | null; region: string | null; status: string | null; runtimeStatus: string | null; phone: string | null }>;
   };
-};
-type TwilioWorkspaceAccount = {
-  workspaceId: string; workspaceName: string; senderAddress: string; displayName: string;
-  senderStatus: string; status: string; contentSid: string | null; contentApprovalStatus: string | null; lastError: string | null;
 };
 type ApprovalRow = {
   id: string; workspaceId: string; workspaceName: string | null;
@@ -1719,9 +1716,8 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
   const [rows, setRows] = useState<OAuthConnectionRow[]>([]);
   const [permissionRows, setPermissionRows] = useState<OAuthSelfServiceWorkspace[]>([]);
   const [permissionProviders, setPermissionProviders] = useState<string[]>([]);
-  const [twilioStatus, setTwilioStatus] = useState<TwilioAdminStatus | null>(null);
-  const [twilioWorkspaceAccounts, setTwilioWorkspaceAccounts] = useState<TwilioWorkspaceAccount[]>([]);
-  const [adminWhatsAppAddress, setAdminWhatsAppAddress] = useState("");
+  const [unifyPortStatus, setUnifyPortStatus] = useState<UnifyPortAdminStatus | null>(null);
+  const [adminWhatsAppAccountId, setAdminWhatsAppAccountId] = useState("");
   const [adminWhatsAppDisplayName, setAdminWhatsAppDisplayName] = useState("Lulu AI");
   const [search, setSearch] = useState("");
   const [busyProvider, setBusyProvider] = useState<string | null>(null);
@@ -1731,24 +1727,22 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
     setLoading(true); onError("");
     try {
       const query = `/admin/oauth-connections?limit=500${search.trim() ? `&search=${encodeURIComponent(search.trim())}` : ""}`;
-      const [connectionRes, permissionRes, twilioRes, twilioWorkspaceRes] = await Promise.all([
+      const [connectionRes, permissionRes, unifyPortRes] = await Promise.all([
         requestApi<{ connections: OAuthConnectionRow[] }>({ path: query }),
         requestApi<{ workspaces: OAuthSelfServiceWorkspace[]; providers: string[] }>({ path: `/admin/oauth-self-service${search.trim() ? `?search=${encodeURIComponent(search.trim())}` : ""}` }),
-        requestApi<TwilioAdminStatus>({ path: "/admin/twilio/status" }).catch(() => null),
-        requestApi<{ accounts: TwilioWorkspaceAccount[] }>({ path: "/admin/twilio/workspace-accounts" }).catch(() => null),
+        requestApi<UnifyPortAdminStatus>({ path: "/admin/unifyport/status" }).catch(() => null),
       ]);
       setRows(connectionRes.data.connections);
       setPermissionRows(permissionRes.data.workspaces);
       setPermissionProviders(permissionRes.data.providers);
-      const nextTwilioStatus = twilioRes?.data ?? null;
-      setTwilioStatus(nextTwilioStatus);
-      setTwilioWorkspaceAccounts(twilioWorkspaceRes?.data.accounts ?? []);
-      const selectedAddress = nextTwilioStatus?.whatsapp?.identity?.address
-        ?? nextTwilioStatus?.whatsapp?.availableSenders.find((sender) => sender.status.toUpperCase() === "ONLINE")?.address
+      const nextUnifyPortStatus = unifyPortRes?.data ?? null;
+      setUnifyPortStatus(nextUnifyPortStatus);
+      const selectedAccountId = nextUnifyPortStatus?.whatsapp?.identity?.accountId
+        ?? nextUnifyPortStatus?.whatsapp?.availableAccounts.find((account) => ["running", "ready", "connected"].includes((account.runtimeStatus ?? "").toLowerCase()))?.id
         ?? "";
-      setAdminWhatsAppAddress(selectedAddress);
-      const selectedSender = nextTwilioStatus?.whatsapp?.availableSenders.find((sender) => sender.address === selectedAddress);
-      setAdminWhatsAppDisplayName(nextTwilioStatus?.whatsapp?.identity?.displayName ?? selectedSender?.displayName ?? "Lulu AI");
+      setAdminWhatsAppAccountId(selectedAccountId);
+      const selectedAccount = nextUnifyPortStatus?.whatsapp?.availableAccounts.find((account) => account.id === selectedAccountId);
+      setAdminWhatsAppDisplayName(nextUnifyPortStatus?.whatsapp?.identity?.displayName ?? selectedAccount?.name ?? "Lulu AI");
     } catch (e) { onError(getFriendlyErrorMessage(e, "OAuth-Verbindungen konnten nicht geladen werden.")); }
     finally { setLoading(false); }
   };
@@ -1791,13 +1785,14 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
     finally { setBusyProvider(null); }
   };
   const configureAdminWhatsApp = async () => {
-    if (!canManage || busyProvider || !adminWhatsAppAddress) return;
+    if (!canManage || busyProvider || !adminWhatsAppAccountId) return;
     setBusyProvider("whatsapp"); onError("");
     try {
+      const selectedAccount=unifyPortStatus?.whatsapp?.availableAccounts.find(account=>account.id===adminWhatsAppAccountId);
       await requestApi({
-        path: "/admin/twilio/admin-whatsapp-sender",
+        path: "/admin/unifyport/identities",
         method: "PUT",
-        body: { address: adminWhatsAppAddress, displayName: adminWhatsAppDisplayName.trim() || "Lulu AI" },
+        body: { accountId: adminWhatsAppAccountId, workspaceId: null, displayName: adminWhatsAppDisplayName.trim() || selectedAccount?.name || "Lulu AI", phone: selectedAccount?.phone || null, defaultLanguage: "de" },
       });
       await load();
     } catch (e) { onError(getFriendlyErrorMessage(e, "Die zentrale WhatsApp-Nummer konnte nicht gespeichert werden.")); }
@@ -1818,21 +1813,6 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
     } catch (e) { onError(getFriendlyErrorMessage(e, "Die OAuth-Freigabe konnte nicht gespeichert werden.")); }
     finally { setBusyPermission(null); }
   };
-  const configureWorkspaceWhatsAppTemplate = async (workspace: OAuthSelfServiceWorkspace) => {
-    if (!canManage || busyPermission) return;
-    const existing = twilioWorkspaceAccounts.find((account) => account.workspaceId === workspace.workspaceId);
-    if (!existing) return;
-    const contentSid = window.prompt(`Approved Twilio Content SID for ${workspace.workspaceName}`, existing.contentSid ?? "")?.trim();
-    if (!contentSid) return;
-    const key = `${workspace.workspaceId}:whatsapp-template`;
-    setBusyPermission(key); onError("");
-    try {
-      await requestApi({ path: `/admin/twilio/workspace-accounts/${workspace.workspaceId}/content-template`, method: "PUT", body: { contentSid } });
-      await load();
-    } catch (e) { onError(getFriendlyErrorMessage(e, "The approved workspace WhatsApp template could not be saved.")); }
-    finally { setBusyPermission(null); }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-2">
@@ -1856,22 +1836,22 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
           {managedProviders.map(({ provider, label, detail }) => {
             const row = managedRowFor(provider);
             const isWhatsApp = provider === "whatsapp";
-            const connected = isWhatsApp ? Boolean(twilioStatus?.whatsapp?.configured) : Boolean(row?.hasCredentials && row.status === "connected");
+            const connected = isWhatsApp ? Boolean(unifyPortStatus?.whatsapp?.configured && unifyPortStatus.webhookConfigured) : Boolean(row?.hasCredentials && row.status === "connected");
             const busy = busyProvider === provider;
             return <article key={provider} className="rounded-xl border border-white/80 bg-white p-4 shadow-sm">
               <div className="flex items-start justify-between gap-3"><div><h3 className="font-semibold text-slate-900">{label}</h3><p className="mt-1 text-xs leading-5 text-slate-500">{detail}</p></div><Pill tone={connected ? "emerald" : "slate"}>{connected ? "Connected" : "Not connected"}</Pill></div>
               {isWhatsApp ? <>
                 <div className="mt-4 space-y-2">
-                  <select value={adminWhatsAppAddress} onChange={(event) => { setAdminWhatsAppAddress(event.target.value); const sender = twilioStatus?.whatsapp?.availableSenders.find((item) => item.address === event.target.value); if (sender?.displayName) setAdminWhatsAppDisplayName(sender.displayName); }} disabled={!canManage || busy || !twilioStatus?.configured} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 disabled:bg-slate-100">
-                    <option value="">{twilioStatus?.whatsapp?.availableSenders.length ? "Select an online WhatsApp sender" : "No WhatsApp sender registered in Twilio"}</option>
-                    {twilioStatus?.whatsapp?.availableSenders.map((sender) => <option key={sender.sid} value={sender.address} disabled={sender.status.toUpperCase() !== "ONLINE"}>{sender.address.replace(/^whatsapp:/, "")} · {sender.displayName ?? "Unnamed"} · {sender.status}</option>)}
+                  <select value={adminWhatsAppAccountId} onChange={(event) => { setAdminWhatsAppAccountId(event.target.value); const account = unifyPortStatus?.whatsapp?.availableAccounts.find((item) => item.id === event.target.value); if (account?.name) setAdminWhatsAppDisplayName(account.name); }} disabled={!canManage || busy || !unifyPortStatus?.configured} className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 disabled:bg-slate-100">
+                    <option value="">{unifyPortStatus?.whatsapp?.availableAccounts.length ? "Select an authorized UnifyPort account" : "No WhatsApp account registered in UnifyPort"}</option>
+                    {unifyPortStatus?.whatsapp?.availableAccounts.map((account) => <option key={account.id ?? account.name ?? "unknown"} value={account.id ?? ""} disabled={!account.id || !["running", "ready", "connected"].includes((account.runtimeStatus ?? "").toLowerCase())}>{account.phone ? `+${account.phone.replace(/^\+/, "")}` : account.name ?? account.id} · {account.runtimeStatus ?? account.status ?? "unknown"} · {account.region ?? "global"}</option>)}
                   </select>
-                  <input value={adminWhatsAppDisplayName} onChange={(event) => setAdminWhatsAppDisplayName(event.target.value)} disabled={!canManage || busy || !adminWhatsAppAddress} maxLength={160} placeholder="Lulu WhatsApp display name" className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 disabled:bg-slate-100" />
+                  <input value={adminWhatsAppDisplayName} onChange={(event) => setAdminWhatsAppDisplayName(event.target.value)} disabled={!canManage || busy || !adminWhatsAppAccountId} maxLength={160} placeholder="Lulu WhatsApp display name" className="h-10 w-full rounded-lg border border-slate-200 bg-white px-3 text-xs text-slate-700 disabled:bg-slate-100" />
                 </div>
-                {!twilioStatus?.configured ? <p className="mt-3 text-xs leading-5 text-amber-700">Twilio credentials are not configured.</p> : twilioStatus.whatsapp?.availableSenders.length === 0 ? <p className="mt-3 text-xs leading-5 text-amber-700">Register and approve the Lulu sender in Twilio first. It appears here automatically once Twilio reports it as online.</p> : null}
+                {!unifyPortStatus?.configured ? <p className="mt-3 text-xs leading-5 text-amber-700">UnifyPort is not configured on the server.</p> : !unifyPortStatus.webhookConfigured ? <p className="mt-3 text-xs leading-5 text-amber-700">The signed UnifyPort webhook is not configured.</p> : unifyPortStatus.whatsapp?.availableAccounts.length === 0 ? <p className="mt-3 text-xs leading-5 text-amber-700">Connect and authorize the Lulu WhatsApp account in UnifyPort first.</p> : null}
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <button type="button" onClick={() => void configureAdminWhatsApp()} disabled={!canManage || busy || !adminWhatsAppAddress || twilioStatus?.whatsapp?.availableSenders.find((sender) => sender.address === adminWhatsAppAddress)?.status.toUpperCase() !== "ONLINE"} className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{busy ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}{busy ? "Saving…" : connected ? "Update sender" : "Use as admin sender"}</button>
-                  <a href="https://console.twilio.com/us1/develop/sms/senders/whatsapp-senders" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700"><ExternalLink size={14} />Twilio Console</a>
+                  <button type="button" onClick={() => void configureAdminWhatsApp()} disabled={!canManage || busy || !adminWhatsAppAccountId || !["running", "ready", "connected"].includes((unifyPortStatus?.whatsapp?.availableAccounts.find((account) => account.id === adminWhatsAppAccountId)?.runtimeStatus ?? "").toLowerCase())} className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{busy ? <LoaderCircle size={14} className="animate-spin" /> : <Save size={14} />}{busy ? "Saving…" : connected ? "Update account" : "Use as admin account"}</button>
+                  <a href="https://www.unifyport.ai/dashboard/" target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-700"><ExternalLink size={14} />UnifyPort Dashboard</a>
                 </div>
               </> : <>
                 {row?.displayName ? <p className="mt-3 truncate text-xs text-slate-600" title={row.displayName}>Account: {row.displayName}</p> : null}
@@ -1906,9 +1886,7 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
                 {permissionProviders.map((provider) => {
                   const allowed = workspace.allowedProviders.includes(provider);
                   const busy = busyPermission === `${workspace.workspaceId}:${provider}`;
-                  const twilioAccount = provider === "whatsapp" ? twilioWorkspaceAccounts.find((account) => account.workspaceId === workspace.workspaceId) : null;
-                  const templateBusy = busyPermission === `${workspace.workspaceId}:whatsapp-template`;
-                  return <td key={provider} className="px-3 py-3 text-center"><div className="flex flex-col items-center gap-1.5"><button type="button" role="switch" aria-checked={allowed} disabled={!canManage || Boolean(busyPermission)} onClick={() => void setSelfServicePermission(workspace, provider, !allowed)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${allowed ? "bg-emerald-500" : "bg-slate-300"} disabled:cursor-not-allowed disabled:opacity-50`} title={`${oauthProviderLabel(provider)}: ${allowed ? "eigene Verbindung erlaubt" : "nur zentrale Verbindung"}`}><span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition ${allowed ? "translate-x-6" : "translate-x-1"}`} />{busy ? <span className="sr-only">Speichere</span> : null}</button>{twilioAccount ? <><span className="max-w-32 truncate font-mono text-[10px] text-slate-500" title={twilioAccount.senderAddress}>{twilioAccount.senderAddress.replace(/^whatsapp:/, "")}</span><button type="button" disabled={!canManage || Boolean(busyPermission)} onClick={() => void configureWorkspaceWhatsAppTemplate(workspace)} className={`text-[10px] font-semibold ${twilioAccount.contentApprovalStatus === "APPROVED" ? "text-emerald-600" : "text-amber-700"} disabled:opacity-50`}>{templateBusy ? "Checking…" : twilioAccount.contentApprovalStatus === "APPROVED" ? "Template approved" : "Set approved template"}</button></> : null}</div></td>;
+                  return <td key={provider} className="px-3 py-3 text-center"><div className="flex flex-col items-center gap-1.5"><button type="button" role="switch" aria-checked={allowed} disabled={!canManage || Boolean(busyPermission)} onClick={() => void setSelfServicePermission(workspace, provider, !allowed)} className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${allowed ? "bg-emerald-500" : "bg-slate-300"} disabled:cursor-not-allowed disabled:opacity-50`} title={`${oauthProviderLabel(provider)}: ${allowed ? "eigene Verbindung erlaubt" : "nur zentrale Verbindung"}`}><span className={`inline-block h-4 w-4 rounded-full bg-white shadow transition ${allowed ? "translate-x-6" : "translate-x-1"}`} />{busy ? <span className="sr-only">Speichere</span> : null}</button></div></td>;
                 })}
               </tr>)}
               {!loading && permissionRows.length === 0 ? <tr><td colSpan={permissionProviders.length + 1} className="px-4 py-8 text-center text-sm text-slate-500">Keine Workspaces gefunden.</td></tr> : null}

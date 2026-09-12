@@ -4798,5 +4798,15 @@
   "Enter the WhatsApp Business display name customers should see.": "输入客户应看到的 WhatsApp Business 显示名称。",
   "We could not connect this WhatsApp Business number.": "我们无法连接此 WhatsApp Business 号码。",
   "LULU_MANAGED": "LULU_MANAGED",
-  "Die zentrale WhatsApp-Nummer konnte nicht gespeichert werden.": "无法保存中央 WhatsApp 号码。"
+  "Die zentrale WhatsApp-Nummer konnte nicht gespeichert werden.": "无法保存中央 WhatsApp 号码。",
+  "Select an authorized UnifyPort account": "选择已授权的 UnifyPort 账户",
+  "No WhatsApp account registered in UnifyPort": "UnifyPort 中尚未注册 WhatsApp 账户",
+  "unknown": "未知",
+  "global": "全球",
+  "UnifyPort is not configured on the server.": "服务器尚未配置 UnifyPort。",
+  "The signed UnifyPort webhook is not configured.": "尚未配置已签名的 UnifyPort Webhook。",
+  "Connect and authorize the Lulu WhatsApp account in UnifyPort first.": "请先在 UnifyPort 中连接并授权 Lulu WhatsApp 账户。",
+  "Update account": "更新账户",
+  "Use as admin account": "设为管理员账户",
+  "UnifyPort Dashboard": "UnifyPort 控制台"
 }

@@ -429,5 +429,15 @@
   "Twilio credentials are not configured.": "未配置 Twilio 凭据。",
   "Unnamed": "未命名",
   "Update sender": "更新发件人",
-  "Use as admin sender": "用作管理员发件人"
+  "Use as admin sender": "用作管理员发件人",
+  "Select an authorized UnifyPort account": "选择已授权的 UnifyPort 账户",
+  "No WhatsApp account registered in UnifyPort": "UnifyPort 中尚未注册 WhatsApp 账户",
+  "unknown": "未知",
+  "global": "全球",
+  "UnifyPort is not configured on the server.": "服务器尚未配置 UnifyPort。",
+  "The signed UnifyPort webhook is not configured.": "尚未配置已签名的 UnifyPort Webhook。",
+  "Connect and authorize the Lulu WhatsApp account in UnifyPort first.": "请先在 UnifyPort 中连接并授权 Lulu WhatsApp 账户。",
+  "Update account": "更新账户",
+  "Use as admin account": "设为管理员账户",
+  "UnifyPort Dashboard": "UnifyPort 控制台"
 }

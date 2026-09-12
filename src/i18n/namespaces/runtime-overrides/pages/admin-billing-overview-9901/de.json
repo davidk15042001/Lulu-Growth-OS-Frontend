@@ -429,5 +429,15 @@
   "Twilio credentials are not configured.": "Twilio-Anmeldeinformationen sind nicht konfiguriert.",
   "Unnamed": "Unbenannt",
   "Update sender": "Absender aktualisieren",
-  "Use as admin sender": "Als Admin-Absender verwenden"
+  "Use as admin sender": "Als Admin-Absender verwenden",
+  "Select an authorized UnifyPort account": "Autorisiertes UnifyPort-Konto auswählen",
+  "No WhatsApp account registered in UnifyPort": "Kein WhatsApp-Konto in UnifyPort registriert",
+  "unknown": "unbekannt",
+  "global": "global",
+  "UnifyPort is not configured on the server.": "UnifyPort ist auf dem Server nicht konfiguriert.",
+  "The signed UnifyPort webhook is not configured.": "Der signierte UnifyPort-Webhook ist nicht konfiguriert.",
+  "Connect and authorize the Lulu WhatsApp account in UnifyPort first.": "Verbinde und autorisiere zuerst das Lulu-WhatsApp-Konto in UnifyPort.",
+  "Update account": "Konto aktualisieren",
+  "Use as admin account": "Als Admin-Konto verwenden",
+  "UnifyPort Dashboard": "UnifyPort-Dashboard"
 }
