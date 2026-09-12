@@ -99,6 +99,13 @@ jobs:
           set -euo pipefail
           cd /var/www/lulu-growth-os/backend
 
+          # Provision a stable, independent encryption key once. Existing v1
+          # credentials remain decryptable through the legacy JWT-derived key;
+          # all new provider credentials use this dedicated v2 key.
+          if ! grep -Eq '^PROVIDER_CREDENTIAL_KEY=[0-9a-fA-F]{64}$' .env; then
+            printf '\nPROVIDER_CREDENTIAL_KEY=%s\n' "$(openssl rand -hex 32)" >> .env
+          fi
+
           if ! npm ci --omit=dev --ignore-scripts; then
             test -d node_modules || { echo "npm ci failed before node_modules was created" >&2; exit 1; }
             stale_path=".deploy-stale-node_modules-$(date +%Y%m%d%H%M%S)"
