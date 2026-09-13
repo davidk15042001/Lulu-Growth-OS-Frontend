@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Activity, ArrowRight, Check, ChevronDown, Eye, EyeOff, Globe2, Layers3, LoaderCircle, Network, Radar, ShieldCheck, Sparkles, Target, Zap } from 'lucide-react';
+import { Activity, ArrowRight, BarChart3, BriefcaseBusiness, Check, ChevronDown, Eye, EyeOff, Globe2, Layers3, LoaderCircle, MessageSquare, Network, Radar, ShieldCheck, Sparkles, Target, UsersRound, Zap } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
 import { switchLanguage, useLanguage, useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
@@ -51,6 +51,16 @@ const loginStyles = `
 .lulu-login-entry-link{color:#fff!important}
 .lulu-runtime-scan{animation:luluScan 5s linear infinite}
 .lulu-runtime-signal{animation:luluSignal 2.6s ease-in-out infinite}
+.lulu-login-office-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.lulu-login-office-zone{position:relative;min-width:0;overflow:hidden;border:1px solid rgba(255,255,255,.09);border-radius:16px;background:linear-gradient(145deg,rgba(255,255,255,.08),rgba(255,255,255,.025));padding:12px}
+.lulu-login-office-zone::after{position:absolute;right:-25px;bottom:-32px;width:90px;height:60px;border:1px solid rgba(125,211,252,.12);background:rgba(125,211,252,.03);content:"";transform:skewY(-28deg) rotate(16deg);pointer-events:none}
+.lulu-login-office-zone__header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.lulu-login-office-zone__icon{display:grid;width:27px;height:27px;place-items:center;border-radius:9px;background:rgba(124,58,237,.18);color:#c4b5fd}
+.lulu-login-office-zone__status{display:inline-flex;align-items:center;gap:4px;color:#a7f3d0;font-size:9px;font-weight:700;letter-spacing:.11em;text-transform:uppercase}
+.lulu-login-office-zone__status::before{width:5px;height:5px;border-radius:50%;background:#6ee7b7;box-shadow:0 0 0 3px rgba(110,231,183,.12);content:""}
+.lulu-login-office-zone__title{margin-top:9px;color:#f8fafc;font-size:11px;font-weight:700;line-height:1.3}
+.lulu-login-office-zone__roles{display:block;margin-top:3px;overflow:hidden;color:#94a3b8;font-size:10px;line-height:1.4;text-overflow:ellipsis;white-space:nowrap}
+.lulu-login-office-link{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(255,255,255,.1);border-radius:999px;background:rgba(255,255,255,.05);padding:7px 10px;color:#cbd5e1;font-size:10px;font-weight:700}
 `;
 
 const runtimeSteps = [
@@ -58,6 +68,15 @@ const runtimeSteps = [
   { icon: Network, label: 'Orchestrate', text: 'The smallest effective agent team is assembled' },
   { icon: Zap, label: 'Execute', text: 'Work is completed across the business' },
   { icon: ShieldCheck, label: 'Verify', text: 'Independent auditors validate every outcome' },
+] as const;
+
+const officePreviewDepartments = [
+  { title: 'Executive', roles: 'Orchestrator · Auditors', icon: ShieldCheck },
+  { title: 'Sales & CRM', roles: 'Leads · Revenue · Follow-up', icon: BriefcaseBusiness },
+  { title: 'Communication', roles: 'Omnichannel · Email · Support', icon: MessageSquare },
+  { title: 'Marketing', roles: 'Brand · Content · Paid media', icon: Sparkles },
+  { title: 'Online Presence', roles: 'Website · SEO · Commerce', icon: Globe2 },
+  { title: 'Finance & Intelligence', roles: 'Bookkeeping · Analytics', icon: BarChart3 },
 ] as const;
 
 export const LuluLoginPage = () => {
@@ -289,6 +308,26 @@ export const LuluLoginPage = () => {
               <div className="relative mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-5">
                 <div className="flex items-center gap-2 text-xs font-medium text-emerald-200"><ShieldCheck size={14} />{t('No human approval queue')}</div>
                 <div className="flex items-center gap-2 text-xs text-slate-400"><Layers3 size={14} />{t('Budget is the only routine customer boundary')}</div>
+              </div>
+
+              <div className="relative mt-4 rounded-2xl border border-white/10 bg-slate-950/35 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="grid h-8 w-8 place-items-center rounded-xl bg-violet-300/10 text-violet-200"><UsersRound size={15} /></span>
+                    <div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-slate-400">{t('Virtual Office')}</p><p className="mt-0.5 text-xs font-semibold text-white">{t('One organization. Shared system state.')}</p></div>
+                  </div>
+                  <span className="lulu-login-office-link">{t('Office')} ↔ {t('Workspace')}</span>
+                </div>
+                <p className="mt-3 max-w-xl text-[11px] leading-5 text-slate-400">{t('Every visible employee represents persisted work, assignments and events — not a decorative animation.')}</p>
+                <div className="lulu-login-office-grid mt-4">
+                  {officePreviewDepartments.map(({ title, roles, icon: Icon }) => (
+                    <div key={title} className="lulu-login-office-zone">
+                      <div className="lulu-login-office-zone__header"><span className="lulu-login-office-zone__icon"><Icon size={14} /></span><span className="lulu-login-office-zone__status">{t('Ready')}</span></div>
+                      <p className="lulu-login-office-zone__title">{t(title)}</p>
+                      <span className="lulu-login-office-zone__roles">{t(roles)}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
 

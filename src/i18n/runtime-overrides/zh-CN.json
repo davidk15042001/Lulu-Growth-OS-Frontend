@@ -5378,5 +5378,15 @@
   "Verified intelligence insights": "已验证的智能洞察",
   "Impact not provided": "未提供影响",
   "not provided": "未提供",
-  "No source metadata": "无来源元数据"
+  "No source metadata": "无来源元数据",
+  "Orchestrator · Auditors": "编排智能体 · 审核智能体",
+  "Sales & CRM": "销售与 CRM",
+  "Leads · Revenue · Follow-up": "线索 · 营收 · 跟进",
+  "Omnichannel · Email · Support": "全渠道 · 邮件 · 支持",
+  "Brand · Content · Paid media": "品牌 · 内容 · 付费媒体",
+  "Website · SEO · Commerce": "网站 · SEO · 电商",
+  "Finance & Intelligence": "财务与智能分析",
+  "Bookkeeping · Analytics": "记账 · 分析",
+  "One organization. Shared system state.": "一个组织，共享同一系统状态。",
+  "Every visible employee represents persisted work, assignments and events — not a decorative animation.": "每个可见员工都对应已持久化的工作、分配和事件，而不是装饰性动画。"
 }
