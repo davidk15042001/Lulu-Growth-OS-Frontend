@@ -12,6 +12,9 @@ concurrency:
   group: lulu-production-deploy
   cancel-in-progress: true
 
+# Production deploys use the server-side privileged restart wrapper; the
+# deploy user is granted only that narrow command through sudoers.
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
