@@ -4,6 +4,8 @@ import type { PageDefinition } from "../pages-manifest";
 import { useLuluApp } from "../api/LuluAppContext";
 import { AuthenticatedWorkspaceTopBar } from "../components/AuthenticatedWorkspaceTopBar";
 import { subscribeWorkspaceRefresh } from "../components/workspace-refresh-events";
+import { useLocation } from "react-router-dom";
+import { isOfficePanelSurface } from "../routing";
 
 export function PageFrame({
   page,
@@ -13,6 +15,8 @@ export function PageFrame({
   isStandalone: boolean;
 }) {
   const { selectedWorkspace } = useLuluApp();
+  const location = useLocation();
+  const officePanel = isOfficePanelSurface(location.search);
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
 
@@ -25,12 +29,12 @@ export function PageFrame({
   }, [isStandalone, page.slug]);
 
   useEffect(() => {
-    if (isStandalone) return;
+    if (isStandalone || officePanel) return;
     document.body.classList.toggle("lulu-mobile-nav-open", mobileNavigationOpen);
     return () => {
       document.body.classList.remove("lulu-mobile-nav-open");
     };
-  }, [isStandalone, mobileNavigationOpen]);
+  }, [isStandalone, mobileNavigationOpen, officePanel]);
 
   useEffect(() => {
     if (!selectedWorkspace?.id) return;
@@ -41,7 +45,7 @@ export function PageFrame({
 
   return (
     <>
-      {!isStandalone && (
+      {!isStandalone && !officePanel && (
         <AuthenticatedWorkspaceTopBar
           navigationOpen={mobileNavigationOpen}
           onToggleNavigation={() => setMobileNavigationOpen((current) => !current)}
@@ -49,7 +53,7 @@ export function PageFrame({
         />
       )}
       <main
-        className={`page-frame${isStandalone ? " page-frame--auth" : ""}`}
+        className={`page-frame${isStandalone ? " page-frame--auth" : ""}${officePanel ? " page-frame--office-panel" : ""}`}
         style={isStandalone ? { height: "auto", minHeight: "100vh", overflow: "visible" } : undefined}
       >
         <NativePage

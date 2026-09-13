@@ -1,6 +1,6 @@
 import { Bot, Database, ExternalLink, LoaderCircle, Megaphone, RefreshCw, WalletCards, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { adSpendApi, type AdSpendOverview } from "../api/adspend";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { adSpendApi, type AdBudgetAuthorization, type AdSpendOverview } from "../api/adspend";
 import { useLuluApp } from "../api/LuluAppContext";
 import { getFriendlyErrorMessage } from "../api/client";
 import { workspaceAppApi, type BillingState } from "../api/workspace-app";
@@ -19,49 +19,118 @@ function formatInteger(value: number, language: string) {
 
 export function LuluUsageControl() {
   const { selectedWorkspace } = useLuluApp();
+  const workspaceId = selectedWorkspace?.id ?? null;
   const t = useTranslation();
   const language = useLanguage();
   const [open, setOpen] = useState(false);
   const [billing, setBilling] = useState<BillingState | null>(null);
   const [advertising, setAdvertising] = useState<AdSpendOverview | null>(null);
+  const [authorizations, setAuthorizations] = useState<AdBudgetAuthorization[]>([]);
+  const [loadedWorkspaceId, setLoadedWorkspaceId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [errorState, setErrorState] = useState<{ workspaceId: string; message: string } | null>(null);
+  const loadRequest = useRef(0);
+  const workspaceRef = useRef(workspaceId);
+  workspaceRef.current = workspaceId;
 
-  const load = async () => {
-    if (!selectedWorkspace) return;
+  const load = useCallback(async () => {
+    const request = ++loadRequest.current;
+    const targetWorkspaceId = workspaceId;
     setLoading(true);
-    setError(null);
-    const [billingResult, advertisingResult] = await Promise.allSettled([
-      workspaceAppApi.billing(selectedWorkspace.id),
-      adSpendApi.overview(selectedWorkspace.id),
-    ]);
-    if (billingResult.status === "fulfilled") setBilling(billingResult.value.data);
-    if (advertisingResult.status === "fulfilled") setAdvertising(advertisingResult.value.data);
-    if (billingResult.status === "rejected" && advertisingResult.status === "rejected") {
-      setError(getFriendlyErrorMessage(billingResult.reason, t("Could not load funds.")));
+    setBilling(null);
+    setAdvertising(null);
+    setAuthorizations([]);
+    setLoadedWorkspaceId(null);
+    setErrorState(null);
+    if (!targetWorkspaceId) { setLoading(false); return; }
+    try {
+      const [billingResult, advertisingResult, authorizationResult] = await Promise.allSettled([
+        workspaceAppApi.billing(targetWorkspaceId),
+        adSpendApi.overview(targetWorkspaceId),
+        adSpendApi.listBudgetAuthorizations(targetWorkspaceId),
+      ]);
+      if (request !== loadRequest.current || workspaceRef.current !== targetWorkspaceId) return;
+      if (billingResult.status === "rejected") throw billingResult.reason;
+      if (advertisingResult.status === "rejected") throw advertisingResult.reason;
+      if (authorizationResult.status === "rejected") throw authorizationResult.reason;
+      if (advertisingResult.value.data.wallet.workspaceId !== targetWorkspaceId || authorizationResult.value.data.some((authorization) => authorization.workspaceId !== targetWorkspaceId)) {
+        throw new Error("The funds response did not match the current workspace.");
+      }
+      setBilling(billingResult.value.data);
+      setAdvertising(advertisingResult.value.data);
+      setAuthorizations(authorizationResult.value.data);
+      setLoadedWorkspaceId(targetWorkspaceId);
+    } catch (cause) {
+      if (request === loadRequest.current && workspaceRef.current === targetWorkspaceId) {
+        setBilling(null);
+        setAdvertising(null);
+        setAuthorizations([]);
+        setLoadedWorkspaceId(null);
+        setErrorState({ workspaceId: targetWorkspaceId, message: getFriendlyErrorMessage(cause, t("Could not load funds.")) });
+      }
+    } finally {
+      if (request === loadRequest.current && workspaceRef.current === targetWorkspaceId) setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [t, workspaceId]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      loadRequest.current += 1;
+      setBilling(null);
+      setAdvertising(null);
+      setAuthorizations([]);
+      setLoadedWorkspaceId(null);
+      setErrorState(null);
+      setLoading(false);
+      return;
+    }
     void load();
-    // Loading is intentionally triggered only when the panel opens or the workspace changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, selectedWorkspace?.id]);
+    return () => { loadRequest.current += 1; };
+  }, [load, open]);
 
   if (!selectedWorkspace) return null;
 
-  const apiWallet = billing?.apiWallet;
-  const payg = billing?.payg;
-  const adWallet = advertising?.wallet;
+  const hasCurrentSnapshot = loadedWorkspaceId === workspaceId;
+  const currentError = errorState?.workspaceId === workspaceId ? errorState.message : null;
+  const showLoading = loading || (!hasCurrentSnapshot && !currentError);
+  const apiWallet = hasCurrentSnapshot ? billing?.apiWallet : undefined;
+  const payg = hasCurrentSnapshot ? billing?.payg : undefined;
+  const adWallet = hasCurrentSnapshot ? advertising?.wallet : undefined;
+  const now = Date.now();
+  const activeAuthorization = hasCurrentSnapshot && authorizations.some((authorization) => {
+    const startsAt = Date.parse(authorization.startsAt);
+    const endsAt = Date.parse(authorization.endsAt);
+    return authorization.workspaceId === workspaceId
+      && authorization.status === "ACTIVE"
+      && authorization.currency === adWallet?.currency
+      && authorization.remainingAmount > 0
+      && Number.isFinite(startsAt)
+      && Number.isFinite(endsAt)
+      && startsAt <= now
+      && endsAt > now;
+  });
+  const hasApiReversalDebt = (apiWallet?.reversalDebtAmount ?? 0) > 0;
+  const hasAdvertisingReversalDebt = (adWallet?.reversalDebtAmount ?? 0) > 0;
+  const advertisingReady = Boolean(!hasAdvertisingReversalDebt && adWallet?.adsEnabled && activeAuthorization);
+  const apiStatus = hasApiReversalDebt
+    ? t("AI execution is paused until the outstanding payment reversal balance is covered.")
+    : apiWallet?.enabled
+      ? t("Lulu can execute AI and premium-media work automatically.")
+      : t("Add AI funds to start autonomous execution.");
+  const advertisingStatus = hasAdvertisingReversalDebt
+    ? t("Paid advertising is paused until the outstanding payment reversal balance is covered.")
+    : advertisingReady
+      ? t("Paid campaigns can launch and optimize automatically within the active authorization.")
+      : adWallet?.adsEnabled
+        ? t("Advertising funds are available; a campaign budget authorization is still required.")
+        : t("Add advertising funds before paid campaigns can start.");
 
   return (
     <>
       <button
         type="button"
         className="lulu-auth-usage"
-        onClick={() => setOpen(true)}
+        onClick={() => { setLoading(true); setOpen(true); }}
         aria-haspopup="dialog"
         aria-expanded={open}
         title={t("Funds")}
@@ -94,25 +163,25 @@ export function LuluUsageControl() {
               </div>
             </header>
 
-            {loading && !billing && !advertising ? (
+            {showLoading ? (
               <div className="lulu-usage-state"><LoaderCircle aria-hidden="true" size={18} className="animate-spin" />{t("Loading funds…")}</div>
-            ) : error ? (
-              <div className="lulu-usage-error" role="alert">{error}</div>
+            ) : currentError ? (
+              <div className="lulu-usage-error" role="alert">{currentError}</div>
             ) : (
               <div className="lulu-usage-dialog__body">
                 <div className="lulu-usage-metrics">
                   <article className="lulu-usage-metric lulu-usage-metric--api">
                     <div className="lulu-usage-metric__icon"><Bot aria-hidden="true" size={18} /></div>
                     <div><span>{t("AI execution")}</span><strong>{formatMoney(apiWallet?.availableAmount ?? 0, "CNY", language)}</strong></div>
-                    <p>{formatMoney(apiWallet?.spentAmount ?? 0, "CNY", language)} {t("used")}</p>
-                    <small>{apiWallet?.enabled ? t("Lulu can execute AI and premium-media work automatically.") : t("Add AI funds to start autonomous execution.")}</small>
+                    <p>{formatMoney(apiWallet?.reservedAmount ?? 0, "CNY", language)} {t("reserved")} · {formatMoney(apiWallet?.spentAmount ?? 0, "CNY", language)} {t("used")}</p>
+                    <small>{apiStatus}</small>
                   </article>
 
                   <article className="lulu-usage-metric">
                     <div className="lulu-usage-metric__icon"><Megaphone aria-hidden="true" size={18} /></div>
                     <div><span>{t("Advertising")}</span><strong>{formatMoney(adWallet?.availableAmount ?? 0, "CNY", language)}</strong></div>
                     <p>{formatMoney(adWallet?.reservedAmount ?? 0, "CNY", language)} {t("reserved")} · {formatMoney(adWallet?.spentAmount ?? 0, "CNY", language)} {t("spent")}</p>
-                    <small>{adWallet?.adsEnabled ? t("Paid campaigns can launch and optimize automatically.") : t("Campaigns start automatically once advertising funds are available.")}</small>
+                    <small>{advertisingStatus}</small>
                   </article>
 
                   <article className="lulu-usage-metric">
@@ -136,7 +205,7 @@ export function LuluUsageControl() {
                 <div className="lulu-usage-payment">
                   <div>
                     <h3>{t("Fund advertising")}</h3>
-                    <p>{t("Lulu launches paid campaigns automatically after the top-up is confirmed.")}</p>
+                    <p>{t("Funds become usable after payment confirmation; paid execution also requires an active campaign budget authorization.")}</p>
                   </div>
                   <button type="button" onClick={() => { setOpen(false); navigateApp(routes.app.adSpend); }}>
                     {t("Add ad funds")}<ExternalLink aria-hidden="true" size={15} />

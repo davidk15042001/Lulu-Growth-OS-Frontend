@@ -332,5 +332,7 @@
   "Approved by admin": "管理员已批准",
   "Your workspace is allowed to connect its own WhatsApp Business account.": "您的工作区已获准连接自己的 WhatsApp Business 账户。",
   "Open Connections to finish the secure WhatsApp setup.": "打开“连接”以完成安全的 WhatsApp 设置。",
-  "Set up WhatsApp": "设置 WhatsApp"
+  "Set up WhatsApp": "设置 WhatsApp",
+  "Available": "可用",
+  "WhatsApp": "WhatsApp"
 }

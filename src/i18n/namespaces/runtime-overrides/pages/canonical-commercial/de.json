@@ -75,5 +75,15 @@
   "Legal form": "Rechtsform",
   "Legal representative": "Gesetzlicher Vertreter",
   "Phone number": "Telefonnummer",
-  "Tax ID": "Steuer-ID"
+  "Tax ID": "Steuer-ID",
+  "Creation unavailable": "Erstellung nicht verfügbar",
+  "Documents unavailable.": "Dokumente nicht verfügbar.",
+  "error": "Fehler",
+  "loading": "wird geladen",
+  "ready": "bereit",
+  "Refresh to verify the current workspace state.": "Aktualisieren Sie die Ansicht, um den aktuellen Arbeitsbereichsstatus zu prüfen.",
+  "refreshing": "wird aktualisiert",
+  "Showing the last successfully loaded data.": "Die zuletzt erfolgreich geladenen Daten werden angezeigt.",
+  "stale": "veraltet",
+  "Your workspace permissions do not allow this document to be created.": "Ihre Arbeitsbereichsberechtigungen erlauben die Erstellung dieses Dokuments nicht."
 }

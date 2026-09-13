@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, FileCheck2, FileText, Plus, RefreshCw, Send, ShieldAlert, Trash2 } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { useLuluApp } from '../../api/LuluAppContext';
 import { getFriendlyErrorMessage } from '../../api/client';
 import { commercialDocumentsApi, type DocumentSellerProfile, type Invoice, type Quote } from '../../api/commercial-documents';
@@ -17,7 +18,8 @@ function numeric(value: string) { const parsed = Number(value); return Number.is
 
 export default function CommercialDocumentsPage({ kind, create = false }: { kind: Kind; create?: boolean }) {
   const t = useTranslation();
-  const { selectedWorkspace, permissions } = useLuluApp();
+  const { selectedWorkspace, hasCapability } = useLuluApp();
+  const [searchParams, setSearchParams] = useSearchParams();
   const activeSlug = kind === 'quotes' ? 'tender-creek-3139' : 'breezy-soil-2475';
   const [quotes, setQuotes] = useState<Quote[]>([]); const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [selected, setSelected] = useState<Quote | Invoice | null>(null); const [detail, setDetail] = useState<Record<string, unknown> | null>(null);
@@ -25,20 +27,64 @@ export default function CommercialDocumentsPage({ kind, create = false }: { kind
   const [sellerProfile, setSellerProfile] = useState<DocumentSellerProfile | null>(null);
   const [form, setForm] = useState({ customerRecordId: '', currency: 'CNY', language: 'en', dueDate: '', validUntil: '', invoiceType: 'STANDARD', shippingTotal: '0' });
   const [lines, setLines] = useState<LineDraft[]>([emptyLine()]); const [loading, setLoading] = useState(false); const [saving, setSaving] = useState(false); const [error, setError] = useState('');
-  const canWrite = permissions.canEdit;
+  const invoiceOperation = useRef<{ fingerprint: string; key: string } | null>(null);
+  const [loadState, setLoadState] = useState<'loading' | 'refreshing' | 'ready' | 'stale' | 'error'>('loading');
+  const verifiedCollectionRef = useRef<string | null>(null);
+  const loadRequestRef = useRef(0);
+  const detailRequestRef = useRef(0);
+  const canCreate = hasCapability(kind === 'quotes' ? 'quotes.create' : 'invoices.create');
+  const canSendQuote = hasCapability('quotes.send');
+  const canIssueInvoice = hasCapability('invoices.issue');
+  const canSendInvoice = hasCapability('invoices.send');
 
   const load = async () => {
-    if (!selectedWorkspace || create) return; setLoading(true); setError('');
-    try { if (kind === 'quotes') setQuotes((await commercialDocumentsApi.listQuotes(selectedWorkspace.id)).data.items); else setInvoices((await commercialDocumentsApi.listInvoices(selectedWorkspace.id)).data.items); }
-    catch (cause) { setError(getFriendlyErrorMessage(cause, t('The documents could not be loaded.'))); } finally { setLoading(false); }
+    if (!selectedWorkspace || create) return;
+    const workspaceId = selectedWorkspace.id;
+    const collectionKey = `${workspaceId}:${kind}`;
+    const request = ++loadRequestRef.current;
+    const detailRequest = ++detailRequestRef.current;
+    const hasVerifiedData = verifiedCollectionRef.current === collectionKey;
+    setLoading(true); setLoadState(hasVerifiedData ? 'refreshing' : 'loading'); setError('');
+    try {
+      const items = kind === 'quotes'
+        ? (await commercialDocumentsApi.listQuotes(workspaceId)).data.items
+        : (await commercialDocumentsApi.listInvoices(workspaceId)).data.items;
+      if (request !== loadRequestRef.current) return;
+      if (kind === 'quotes') setQuotes(items as Quote[]); else setInvoices(items as Invoice[]);
+      verifiedCollectionRef.current = collectionKey;
+      setLoadState('ready');
+      const linkedId = searchParams.get('recordId');
+      const linked = linkedId ? items.find((item) => item.id === linkedId) : null;
+      if (linked && detailRequest === detailRequestRef.current) {
+        setSelected(linked);
+        const response = kind === 'quotes'
+          ? await commercialDocumentsApi.getQuote(workspaceId, linked.id)
+          : await commercialDocumentsApi.getInvoice(workspaceId, linked.id);
+        if (request !== loadRequestRef.current || detailRequest !== detailRequestRef.current) return;
+        setDetail(response.data as unknown as Record<string, unknown>);
+      }
+    }
+    catch (cause) {
+      if (request !== loadRequestRef.current) return;
+      const message = getFriendlyErrorMessage(cause, t('The documents could not be loaded.'));
+      const stale = verifiedCollectionRef.current === collectionKey;
+      setLoadState(stale ? 'stale' : 'error');
+      setError(stale ? `${t('Showing the last successfully loaded data.')} ${message}` : message);
+    } finally { if (request === loadRequestRef.current) setLoading(false); }
   };
+  useEffect(() => {
+    loadRequestRef.current += 1;
+    detailRequestRef.current += 1;
+    verifiedCollectionRef.current = null;
+    setQuotes([]); setInvoices([]); setSelected(null); setDetail(null); setLoadState('loading');
+  }, [selectedWorkspace?.id, kind]);
   useEffect(() => { void load(); }, [selectedWorkspace?.id, kind, create]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (!create || !selectedWorkspace) return; void Promise.all([productsApi.list(selectedWorkspace.id, 'limit=100'), listRecords('customers', 'limit=100'), commercialDocumentsApi.getDocumentSellerProfile(selectedWorkspace.id)]).then(([p, c, profile]) => { setProducts(p.data.items); setCustomers(c.data.items); setSellerProfile(profile.data); }).catch((cause) => setError(getFriendlyErrorMessage(cause, t('The creation form could not be loaded.')))); }, [create, selectedWorkspace?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const open = async (item: Quote | Invoice) => {
-    if (!selectedWorkspace) return; setSelected(item);
-    try { const response = kind === 'quotes' ? await commercialDocumentsApi.getQuote(selectedWorkspace.id, item.id) : await commercialDocumentsApi.getInvoice(selectedWorkspace.id, item.id); setDetail(response.data as unknown as Record<string, unknown>); }
-    catch (cause) { setError(getFriendlyErrorMessage(cause, t('The document could not be loaded.'))); }
+    if (!selectedWorkspace) return; const workspaceId = selectedWorkspace.id; const request = ++detailRequestRef.current; setSelected(item); setDetail(null);
+    try { const response = kind === 'quotes' ? await commercialDocumentsApi.getQuote(workspaceId, item.id) : await commercialDocumentsApi.getInvoice(workspaceId, item.id); if (request !== detailRequestRef.current) return; setDetail(response.data as unknown as Record<string, unknown>); setSearchParams((current) => { const next = new URLSearchParams(current); next.set('recordId', item.id); return next; }, { replace: true }); }
+    catch (cause) { if (request === detailRequestRef.current) setError(getFriendlyErrorMessage(cause, t('The document could not be loaded.'))); }
   };
   const updateLine = (index: number, key: keyof LineDraft, value: string) => setLines((current) => current.map((line, i) => i === index ? { ...line, [key]: value } : line));
   const selectProduct = (index: number, productId: string) => { const product = products.find((item) => item.id === productId); setLines((current) => current.map((line, i) => i === index ? { ...line, productId, productName: product?.name ?? '', sku: product?.sku ?? '', unitPrice: product?.defaultPrice ?? '0' } : line)); };
@@ -49,36 +95,52 @@ export default function CommercialDocumentsPage({ kind, create = false }: { kind
   }, [lines, form.shippingTotal]);
 
   const submit = async () => {
-    if (!selectedWorkspace || !canWrite) return;
+    if (!selectedWorkspace || !canCreate) return;
     const validLines = lines.filter((line) => line.productName.trim() && numeric(line.quantity) > 0);
     if (!form.customerRecordId || validLines.length === 0) { setError(t('Customer and at least one product line are required.')); return; }
     setSaving(true); setError('');
     try {
       const common = { customerRecordId: form.customerRecordId, currency: form.currency, language: form.language, lines: validLines.map((line) => ({ productId: line.productId || null, productName: line.productName.trim(), sku: line.sku || null, quantity: numeric(line.quantity), unitPrice: numeric(line.unitPrice), discount: numeric(line.discount), tax: numeric(line.tax), quantityUnit: line.quantityUnit || null })), shippingTotal: numeric(form.shippingTotal), source: 'workspace', creationMode: 'MANUAL' };
-      if (kind === 'quotes') await commercialDocumentsApi.createQuote(selectedWorkspace.id, { ...common, validUntil: form.validUntil || null }); else await commercialDocumentsApi.createInvoice(selectedWorkspace.id, { ...common, invoiceType: form.invoiceType, dueDate: form.dueDate || null });
+      if (kind === 'quotes') {
+        await commercialDocumentsApi.createQuote(selectedWorkspace.id, { ...common, validUntil: form.validUntil || null });
+      } else {
+        const invoiceRequest = { ...common, invoiceType: form.invoiceType, dueDate: form.dueDate || null };
+        const fingerprint = JSON.stringify(invoiceRequest);
+        if (invoiceOperation.current?.fingerprint !== fingerprint) {
+          invoiceOperation.current = { fingerprint, key: `workspace:invoice-create:${crypto.randomUUID()}` };
+        }
+        await commercialDocumentsApi.createInvoice(selectedWorkspace.id, {
+          ...invoiceRequest,
+          operationKey: invoiceOperation.current.key,
+        });
+      }
       navigateApp(kind === 'quotes' ? routes.app.quotes : routes.app.invoices);
     } catch (cause) { setError(getFriendlyErrorMessage(cause, t('The document could not be saved.'))); } finally { setSaving(false); }
   };
   const send = async () => {
-    if (!selectedWorkspace || !selected) return; setError('');
+    if (!selectedWorkspace || !selected) return;
+    if (kind === 'quotes' ? !canSendQuote : !canSendInvoice || selected.status === 'DRAFT' && !canIssueInvoice) return;
+    setError('');
     try { if (kind === 'quotes') await commercialDocumentsApi.sendQuote(selectedWorkspace.id, selected.id, { channel: 'secure_link' }); else { if (selected.status === 'DRAFT') await commercialDocumentsApi.issueInvoice(selectedWorkspace.id, selected.id); await commercialDocumentsApi.sendInvoice(selectedWorkspace.id, selected.id, { channel: 'secure_link' }); } await load(); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, t('The document could not be sent.'))); }
   };
 
   const title = kind === 'quotes' ? t('Quotes') : t('Invoices');
+  const canSendSelected = Boolean(selected) && (kind === 'quotes' ? canSendQuote : canSendInvoice && (selected!.status !== 'DRAFT' || canIssueInvoice));
   if (!selectedWorkspace) return <WorkspaceSurfaceShell activeSlug={activeSlug}><main className="page-frame p-8"><h1 className="text-2xl font-semibold">{title}</h1><p className="mt-2 text-[var(--muted-foreground)]">{t('Choose a workspace to continue.')}</p></main></WorkspaceSurfaceShell>;
+  if (create && !canCreate) return <WorkspaceSurfaceShell activeSlug={activeSlug}><main className="page-frame grid min-h-[70vh] place-items-center bg-[var(--background)] p-8"><div className="max-w-md text-center"><ShieldAlert className="mx-auto opacity-50"/><h1 className="mt-4 text-xl font-semibold">{t('Creation unavailable')}</h1><p className="mt-2 text-sm text-[var(--muted-foreground)]">{t('Your workspace permissions do not allow this document to be created.')}</p></div></main></WorkspaceSurfaceShell>;
   if (create) return <WorkspaceSurfaceShell activeSlug={activeSlug}><main className="page-frame min-h-screen bg-[var(--background)] p-4 sm:p-8"><div className="mx-auto max-w-7xl space-y-6">
     <button type="button" onClick={() => navigateApp(kind === 'quotes' ? routes.app.quotes : routes.app.invoices)} className="inline-flex items-center gap-2 text-sm text-[var(--muted-foreground)]"><ArrowLeft size={16}/>{t('Back')}</button>
     <header><p className="eyebrow">Lulu Commerce</p><h1 className="text-3xl font-semibold">{kind === 'quotes' ? t('Create quote') : t('Create invoice')}</h1><p className="mt-2 text-sm text-[var(--muted-foreground)]">{t('Totals and policy checks are calculated by the server.')}</p></header>
     {error ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</div> : null}
     <div className="grid gap-6 lg:grid-cols-2"><section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
       <div className="grid gap-4 sm:grid-cols-2"><label><span className="mb-1 block text-xs font-medium">{t('Customer')}</span><select value={form.customerRecordId} onChange={(event) => setForm({ ...form, customerRecordId: event.target.value })} className={inputClass}><option value="">{t('Select customer')}</option>{customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}</select></label><label><span className="mb-1 block text-xs font-medium">{t('Currency')}</span><select value={form.currency} onChange={(event) => setForm({ ...form, currency: event.target.value })} className={inputClass}><option>CNY</option><option>EUR</option><option>USD</option></select></label>{kind === 'quotes' ? <label><span className="mb-1 block text-xs font-medium">{t('Valid until')}</span><input type="date" value={form.validUntil} onChange={(event) => setForm({ ...form, validUntil: event.target.value })} className={inputClass}/></label> : <><label><span className="mb-1 block text-xs font-medium">{t('Invoice type')}</span><select value={form.invoiceType} onChange={(event) => setForm({ ...form, invoiceType: event.target.value })} className={inputClass}><option>STANDARD</option><option>PROFORMA</option><option>COMMERCIAL</option><option>DEPOSIT</option><option>FINAL</option></select></label><label><span className="mb-1 block text-xs font-medium">{t('Due date')}</span><input type="date" value={form.dueDate} onChange={(event) => setForm({ ...form, dueDate: event.target.value })} className={inputClass}/></label></>}</div>
-      <div className="mt-6 rounded-xl border border-[var(--border)] p-4"><div className="flex items-center justify-between"><h2 className="font-medium">{t('Line items')}</h2><button type="button" onClick={() => setLines((current) => [...current, emptyLine()])} className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs"><Plus size={14}/>{t('Add line')}</button></div><div className="mt-4 space-y-4">{lines.map((line, index) => <div key={index} className="rounded-xl border border-[var(--border)] bg-[var(--background)]/40 p-3"><div className="mb-3 flex items-center justify-between"><span className="text-xs font-medium text-[var(--muted-foreground)]">{t('Line item')} {index + 1}</span>{lines.length > 1 && <button type="button" onClick={() => setLines((current) => current.filter((_, i) => i !== index))} className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50" aria-label={t('Remove line')}><Trash2 size={15}/></button>}</div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><label className="sm:col-span-2 lg:col-span-4"><span className="mb-1 block text-xs font-medium">{t('Product')}</span><select value={line.productId} onChange={(event) => selectProduct(index, event.target.value)} className={inputClass}><option value="">{kind === 'quotes' ? t('Custom line') : t('Product')}</option>{products.map((product) => <option key={product.id} value={product.id}>{product.name}{product.sku ? ` · ${product.sku}` : ''}</option>)}</select></label>{kind === 'quotes' && <Field label={t('Product name')} value={line.productName} onChange={(value) => updateLine(index, 'productName', value)}/>}<Field label={t('Quantity')} value={line.quantity} onChange={(value) => updateLine(index, 'quantity', value)}/><Field label={t('Unit price')} value={line.unitPrice} onChange={(value) => updateLine(index, 'unitPrice', value)}/><Field label={t('Discount')} value={line.discount} onChange={(value) => updateLine(index, 'discount', value)}/><Field label={t('Tax')} value={line.tax} onChange={(value) => updateLine(index, 'tax', value)}/></div></div>)}</div></div><div className="mt-4 grid gap-4 sm:grid-cols-2"><Field label={t('Shipping')} value={form.shippingTotal} onChange={(value) => setForm({ ...form, shippingTotal: value })}/></div><div className="mt-6 flex justify-end"><button type="button" disabled={saving || !canWrite} onClick={() => void submit()} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-40"><FileCheck2 size={16}/>{saving ? t('Saving…') : kind === 'quotes' ? t('Save quote') : t('Save invoice')}</button></div>
+      <div className="mt-6 rounded-xl border border-[var(--border)] p-4"><div className="flex items-center justify-between"><h2 className="font-medium">{t('Line items')}</h2><button type="button" onClick={() => setLines((current) => [...current, emptyLine()])} className="inline-flex items-center gap-1 rounded-lg border border-[var(--border)] px-2.5 py-1.5 text-xs"><Plus size={14}/>{t('Add line')}</button></div><div className="mt-4 space-y-4">{lines.map((line, index) => <div key={index} className="rounded-xl border border-[var(--border)] bg-[var(--background)]/40 p-3"><div className="mb-3 flex items-center justify-between"><span className="text-xs font-medium text-[var(--muted-foreground)]">{t('Line item')} {index + 1}</span>{lines.length > 1 && <button type="button" onClick={() => setLines((current) => current.filter((_, i) => i !== index))} className="rounded-lg p-1.5 text-rose-600 hover:bg-rose-50" aria-label={t('Remove line')}><Trash2 size={15}/></button>}</div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><label className="sm:col-span-2 lg:col-span-4"><span className="mb-1 block text-xs font-medium">{t('Product')}</span><select value={line.productId} onChange={(event) => selectProduct(index, event.target.value)} className={inputClass}><option value="">{kind === 'quotes' ? t('Custom line') : t('Product')}</option>{products.map((product) => <option key={product.id} value={product.id}>{product.name}{product.sku ? ` · ${product.sku}` : ''}</option>)}</select></label>{kind === 'quotes' && <Field label={t('Product name')} value={line.productName} onChange={(value) => updateLine(index, 'productName', value)}/>}<Field label={t('Quantity')} value={line.quantity} onChange={(value) => updateLine(index, 'quantity', value)}/><Field label={t('Unit price')} value={line.unitPrice} onChange={(value) => updateLine(index, 'unitPrice', value)}/><Field label={t('Discount')} value={line.discount} onChange={(value) => updateLine(index, 'discount', value)}/><Field label={t('Tax')} value={line.tax} onChange={(value) => updateLine(index, 'tax', value)}/></div></div>)}</div></div><div className="mt-4 grid gap-4 sm:grid-cols-2"><Field label={t('Shipping')} value={form.shippingTotal} onChange={(value) => setForm({ ...form, shippingTotal: value })}/></div><div className="mt-6 flex justify-end"><button type="button" disabled={saving || !canCreate} onClick={() => void submit()} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-40"><FileCheck2 size={16}/>{saving ? t('Saving…') : kind === 'quotes' ? t('Save quote') : t('Save invoice')}</button></div>
     </section><DocumentPreview kind={kind} form={form} lines={lines} totals={previewTotals} customers={customers} sellerProfile={sellerProfile}/></div>
   </div></main></WorkspaceSurfaceShell>;
 
   const items = kind === 'quotes' ? quotes : invoices;
-  return <WorkspaceSurfaceShell activeSlug={activeSlug}><main className="page-frame min-h-screen bg-[var(--background)] p-4 sm:p-8"><div className="mx-auto max-w-7xl space-y-6"><header className="flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Lulu Commerce</p><h1 className="text-3xl font-semibold">{title}</h1><p className="mt-2 text-sm text-[var(--muted-foreground)]">{kind === 'quotes' ? t('Create, version and send commercial offers.') : t('Issue, send and track customer invoices.')}</p></div><div className="flex gap-2"><button type="button" onClick={() => void load()} className="rounded-xl border border-[var(--border)] p-2.5" aria-label={t('Refresh')}><RefreshCw size={16} className={loading ? 'animate-spin' : ''}/></button><button type="button" disabled={!canWrite} onClick={() => navigateApp(kind === 'quotes' ? routes.app.quotesNew : routes.app.invoicesNew)} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-40"><Plus size={16}/>{kind === 'quotes' ? t('New quote') : t('New invoice')}</button></div></header>{error ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</div> : null}<section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,.8fr)]"><div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]"><div className="border-b border-[var(--border)] px-5 py-4 text-sm text-[var(--muted-foreground)]">{items.length} {t('documents')}</div>{loading ? <div className="grid min-h-56 place-items-center text-sm text-[var(--muted-foreground)]">{t('Loading…')}</div> : items.length === 0 ? <div className="grid min-h-56 place-items-center p-8 text-center text-sm text-[var(--muted-foreground)]"><FileText size={30} className="mb-3 opacity-40"/><p>{kind === 'quotes' ? t('No quotes yet.') : t('No invoices yet.')}</p><p className="mt-1">{t('Create the first document for this workspace.')}</p></div> : <div className="divide-y divide-[var(--border)]">{items.map((item) => <button key={item.id} type="button" onClick={() => void open(item)} className={`flex w-full items-center justify-between gap-4 p-4 text-left hover:bg-[var(--secondary)] ${selected?.id === item.id ? 'bg-[var(--secondary)]' : ''}`}><div className="min-w-0"><p className="truncate font-medium">{kind === 'quotes' ? (item as Quote).quoteNumber : (item as Invoice).invoiceNumber}</p><p className="mt-1 text-xs text-[var(--muted-foreground)]">{item.creationMode} · {item.status} · {new Date(item.createdAt).toLocaleDateString()}</p></div><strong className="shrink-0">{kind === 'quotes' ? `${(item as Quote).grandTotal ?? '0'} ${(item as Quote).currency}` : `${(item as Invoice).grandTotal ?? '0'} ${(item as Invoice).currency}`}</strong></button>)}</div>}</div><div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">{selected && detail ? <Detail kind={kind} item={selected} detail={detail} onSend={() => void send()} canWrite={canWrite}/> : <div className="grid min-h-56 place-items-center text-center text-sm text-[var(--muted-foreground)]"><ShieldAlert size={30} className="mb-3 opacity-40"/><p>{t('Select a document to inspect it.')}</p></div>}</div></section></div></main></WorkspaceSurfaceShell>;
+  return <WorkspaceSurfaceShell activeSlug={activeSlug}><main className="page-frame min-h-screen bg-[var(--background)] p-4 sm:p-8"><div className="mx-auto max-w-7xl space-y-6"><header className="flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Lulu Commerce</p><h1 className="text-3xl font-semibold">{title}</h1><p className="mt-2 text-sm text-[var(--muted-foreground)]">{kind === 'quotes' ? t('Create, version and send commercial offers.') : t('Issue, send and track customer invoices.')}</p></div><div className="flex gap-2"><button type="button" onClick={() => void load()} className="rounded-xl border border-[var(--border)] p-2.5" aria-label={t('Refresh')}><RefreshCw size={16} className={loading ? 'animate-spin' : ''}/></button><button type="button" disabled={!canCreate} onClick={() => navigateApp(kind === 'quotes' ? routes.app.quotesNew : routes.app.invoicesNew)} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-40"><Plus size={16}/>{kind === 'quotes' ? t('New quote') : t('New invoice')}</button></div></header>{error ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</div> : null}<section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(340px,.8fr)]"><div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]"><div className="border-b border-[var(--border)] px-5 py-4 text-sm text-[var(--muted-foreground)]">{loadState === 'loading' || loadState === 'error' ? '—' : items.length} {t('documents')}</div>{(loadState === 'loading' || loadState === 'refreshing') && items.length === 0 ? <div className="grid min-h-56 place-items-center text-sm text-[var(--muted-foreground)]">{t('Loading…')}</div> : (loadState === 'error' || loadState === 'stale') && items.length === 0 ? <div className="grid min-h-56 place-items-center p-8 text-center text-sm text-[var(--muted-foreground)]"><ShieldAlert size={30} className="mb-3 opacity-40"/><p>{t('Documents unavailable.')}</p><p className="mt-1">{t('Refresh to verify the current workspace state.')}</p></div> : loadState === 'ready' && items.length === 0 ? <div className="grid min-h-56 place-items-center p-8 text-center text-sm text-[var(--muted-foreground)]"><FileText size={30} className="mb-3 opacity-40"/><p>{kind === 'quotes' ? t('No quotes yet.') : t('No invoices yet.')}</p><p className="mt-1">{t('Create the first document for this workspace.')}</p></div> : <div className="divide-y divide-[var(--border)]">{items.map((item) => <button key={item.id} type="button" onClick={() => void open(item)} className={`flex w-full items-center justify-between gap-4 p-4 text-left hover:bg-[var(--secondary)] ${selected?.id === item.id ? 'bg-[var(--secondary)]' : ''}`}><div className="min-w-0"><p className="truncate font-medium">{kind === 'quotes' ? (item as Quote).quoteNumber : (item as Invoice).invoiceNumber}</p><p className="mt-1 text-xs text-[var(--muted-foreground)]">{item.creationMode} · {item.status} · {new Date(item.createdAt).toLocaleDateString()}</p></div><strong className="shrink-0">{kind === 'quotes' ? `${(item as Quote).grandTotal ?? '0'} ${(item as Quote).currency}` : `${(item as Invoice).grandTotal ?? '0'} ${(item as Invoice).currency}`}</strong></button>)}</div>}</div><div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">{selected && detail ? <Detail kind={kind} item={selected} detail={detail} onSend={() => void send()} canWrite={canSendSelected}/> : <div className="grid min-h-56 place-items-center text-center text-sm text-[var(--muted-foreground)]"><ShieldAlert size={30} className="mb-3 opacity-40"/><p>{t('Select a document to inspect it.')}</p></div>}</div></section></div></main></WorkspaceSurfaceShell>;
 }
 
 function Field({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) { return <label><span className="mb-1 block text-xs font-medium">{label}</span><input value={value} onChange={(event) => onChange(event.target.value)} inputMode="decimal" className={inputClass}/></label>; }

@@ -6,7 +6,7 @@ import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
 import { LuluAgentWorkspaceHeader } from "./components/LuluAgentWorkspaceHeader";
 import { MinimalAgentWorkspacePage } from "./components/MinimalAgentWorkspacePage";
-import { isPageAvailable, navigateApp, routes, HOME_PAGE_SLUG } from "./routing";
+import { HOME_PAGE_SLUG, isOfficePanelSurface, isPageAvailable, navigateApp, routes } from "./routing";
 import { getPageContract } from "./api/page-contracts";
 import type { PageContract } from "./api/page-contracts";
 import { getLuluAgentContract } from "./config/lulu-agent-registry";
@@ -150,7 +150,15 @@ export function NativePage({
   const agentContract = getLuluAgentContract(effectiveSlug);
   const isAuthPage = authPageSlugs.has(slug) || window.location.pathname === "/login" || window.location.pathname === "/register" || window.location.pathname.startsWith("/auth/");
   const isNavigationFree = isAuthPage || navigationFreePaths.has(window.location.pathname);
+  const officePanel = isOfficePanelSurface();
+  const suppressGlobalChrome = isNavigationFree || officePanel;
   const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(Boolean(agentContract), effectiveSlug, contract);
+  const shellClassName = `lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}${officePanel ? " lulu-global-shell--office-panel" : ""}${mobileNavigationOpen && !officePanel ? " lulu-global-shell--nav-open" : ""}`;
+  const contentClassName = isNavigationFree
+    ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free"
+    : officePanel
+      ? "lulu-global-content lulu-global-content--office-panel"
+      : "lulu-global-content";
 
   useEffect(() => {
     if (!pageAvailable) {
@@ -253,10 +261,10 @@ export function NativePage({
   if (error) {
     return (
       <LuluRuntime slug={slug}>
-        <div className={`lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}${mobileNavigationOpen ? " lulu-global-shell--nav-open" : ""}`}>
-          {!isNavigationFree && <div className="lulu-global-navigation__backdrop" aria-hidden={!mobileNavigationOpen} onClick={onCloseMobileNavigation} />}
-          {!isNavigationFree && <LuluGlobalNavigation activeSlug={effectiveSlug} mobileOpen={mobileNavigationOpen} onNavigate={onCloseMobileNavigation} onRequestClose={onCloseMobileNavigation} />}
-          <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
+        <div className={shellClassName}>
+          {!suppressGlobalChrome && <div className="lulu-global-navigation__backdrop" aria-hidden={!mobileNavigationOpen} onClick={onCloseMobileNavigation} />}
+          {!suppressGlobalChrome && <LuluGlobalNavigation activeSlug={effectiveSlug} mobileOpen={mobileNavigationOpen} onNavigate={onCloseMobileNavigation} onRequestClose={onCloseMobileNavigation} />}
+          <div className={contentClassName}>
             <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-foreground" role="status">
               <div className="max-w-md rounded-xl border border-border bg-[var(--card)] p-6 text-center">
                 <h1 className="text-lg font-semibold">Live workspace</h1>
@@ -276,20 +284,22 @@ export function NativePage({
     if (useMinimalAgentPage && agentContract) {
       return (
         <LuluRuntime slug={slug}>
-          <div className={`lulu-global-shell${mobileNavigationOpen ? " lulu-global-shell--nav-open" : ""}`}>
-            <div
-              className="lulu-global-navigation__backdrop"
-              aria-hidden={!mobileNavigationOpen}
-              onClick={onCloseMobileNavigation}
-            />
-            <LuluGlobalNavigation
-              activeSlug={effectiveSlug}
-              mobileOpen={mobileNavigationOpen}
-              onNavigate={onCloseMobileNavigation}
-              onRequestClose={onCloseMobileNavigation}
-            />
-            <div className="lulu-global-content">
-              <LuluAgentWorkspaceHeader contract={agentContract} />
+          <div className={shellClassName}>
+            {!suppressGlobalChrome && <>
+              <div
+                className="lulu-global-navigation__backdrop"
+                aria-hidden={!mobileNavigationOpen}
+                onClick={onCloseMobileNavigation}
+              />
+              <LuluGlobalNavigation
+                activeSlug={effectiveSlug}
+                mobileOpen={mobileNavigationOpen}
+                onNavigate={onCloseMobileNavigation}
+                onRequestClose={onCloseMobileNavigation}
+              />
+            </>}
+            <div className={contentClassName}>
+              {!officePanel ? <LuluAgentWorkspaceHeader contract={agentContract} /> : null}
               <div className="lulu-native-page lulu-native-page--without-secondary-navigation">
                 <PageErrorBoundary pageName={slug}>
                   <MinimalAgentWorkspacePage slug={effectiveSlug} contract={contract} agentContract={agentContract} />
@@ -309,8 +319,8 @@ export function NativePage({
 
   return (
     <LuluRuntime slug={slug}>
-      <div className={`lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}${mobileNavigationOpen ? " lulu-global-shell--nav-open" : ""}`}>
-        {!isNavigationFree && (
+      <div className={shellClassName}>
+        {!suppressGlobalChrome && (
           <>
             <div
               className="lulu-global-navigation__backdrop"
@@ -325,8 +335,8 @@ export function NativePage({
             />
           </>
         )}
-        <div className={isNavigationFree ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free" : "lulu-global-content"}>
-          {!isNavigationFree && agentContract && !CUSTOM_INTERFACE_PAGE_SLUGS.has(effectiveSlug) ? <LuluAgentWorkspaceHeader contract={agentContract} /> : null}
+        <div className={contentClassName}>
+          {!isNavigationFree && !officePanel && agentContract && !CUSTOM_INTERFACE_PAGE_SLUGS.has(effectiveSlug) ? <LuluAgentWorkspaceHeader contract={agentContract} /> : null}
           <div className="lulu-native-page lulu-native-page--without-secondary-navigation">
             <PageErrorBoundary pageName={slug}>
               <LiveResourceGate

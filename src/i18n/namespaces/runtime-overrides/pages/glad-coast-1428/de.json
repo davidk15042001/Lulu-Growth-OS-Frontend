@@ -332,5 +332,7 @@
   "Approved by admin": "Vom Admin freigegeben",
   "Your workspace is allowed to connect its own WhatsApp Business account.": "Dein Workspace darf sein eigenes WhatsApp-Business-Konto verbinden.",
   "Open Connections to finish the secure WhatsApp setup.": "Öffne Verbindungen, um die sichere WhatsApp-Einrichtung abzuschließen.",
-  "Set up WhatsApp": "WhatsApp einrichten"
+  "Set up WhatsApp": "WhatsApp einrichten",
+  "Available": "Verfügbar",
+  "WhatsApp": "WhatsApp"
 }

@@ -105,5 +105,12 @@
   "Wähle ein Unternehmen aus.": "Wähle ein Unternehmen aus.",
   "Website": "Website",
   "Website wird gesucht": "Website wird gesucht",
-  "Wird ergänzt": "Wird ergänzt"
+  "Wird ergänzt": "Wird ergänzt",
+  "Aktualisiere die Seite, um den aktuellen Customer Graph zu verifizieren.": "Aktualisiere die Seite, um den aktuellen Customer Graph zu verifizieren.",
+  "Daten sind derzeit nicht verifizierbar.": "Daten sind derzeit nicht verifizierbar.",
+  "error": "Fehler",
+  "loading": "wird geladen",
+  "ready": "bereit",
+  "stale": "veraltet",
+  "Unternehmensdaten sind nicht verfügbar.": "Unternehmensdaten sind nicht verfügbar."
 }

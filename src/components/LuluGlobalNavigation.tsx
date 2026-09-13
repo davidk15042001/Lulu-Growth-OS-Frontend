@@ -7,79 +7,18 @@ import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
 import { AccountSessions } from "./AccountSessions";
 import { switchLanguage, useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { isAvailableLanguageCode, languages } from "../i18n/languages";
-import { luluDropdownNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 import { isPageAvailable, navigateApp, pageLinkProps, routes } from "../routing";
-
-type NavigationPage = { id: string; label: string; soon?: boolean };
-type NavigationSection = { label: string; pages: NavigationPage[] };
-
-const DASHBOARD_LABEL = "Dashboard";
-const STATISTICS_LABEL = "Statistiken";
-const WEBSITE_AND_COMMERCE_LABEL = "Website & Commerce";
-const FINANCE_LABEL = "Finance";
-const SETTINGS_LABEL = "Settings";
-const AI_LABEL = "AI";
-const CRM_LABEL = "CRM";
-const CRM_LANDING_PAGE_ID = "sturdy-month-1562";
-const OMNICHANNEL_LABEL = "OmniChannel";
-const DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL]);
-const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
-const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
-const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"]);
-const LABEL_OVERRIDES = new Map([["glad-coast-1428", "Integrations"], ["fresh-tide-9404", "Verbindungen"]]);
-
-function pageLabel(page: NavigationPage) {
-  return LABEL_OVERRIDES.get(page.id) ?? page.label;
-}
-
-const baseNavigationSections: readonly NavigationSection[] = (() => {
-  const sections: NavigationSection[] = (luluDropdownNavigation as readonly { label: string; pages: readonly NavigationPage[] }[])
-    .map((section) => ({
-      label: section.label === DASHBOARD_LABEL ? STATISTICS_LABEL : section.label,
-      pages: section.pages.filter((page) => isPageAvailable(page.id) && page.label !== "Revenue" && page.id !== "nicely-land-1864"),
-    }))
-    .filter((section) => section.label !== "Revenue" && section.pages.length > 0);
-
-  const crm = sections.find((section) => section.label === CRM_LABEL);
-  const statistics = sections.find((section) => section.label === STATISTICS_LABEL);
-  if (crm && statistics) {
-    statistics.pages = [...statistics.pages, ...crm.pages.filter((page) => STATISTICS_PAGE_IDS.has(page.id))];
-    crm.pages = crm.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id));
-  }
-
-  const ai = sections.find((section) => section.label === AI_LABEL);
-  let settings = sections.find((section) => section.label === SETTINGS_LABEL);
-  if (!settings) {
-    settings = { label: SETTINGS_LABEL, pages: [] };
-    sections.push(settings);
-  }
-  if (ai) {
-    settings.pages = [...settings.pages, ...ai.pages.filter((page) => SETTINGS_PAGE_IDS.has(page.id))];
-    ai.pages = ai.pages.filter((page) => !SETTINGS_PAGE_IDS.has(page.id));
-  }
-  settings.pages = [...settings.pages, { id: "profile", label: "Profile" }, { id: "support", label: "Support" }];
-
-  if (!sections.some((section) => section.label === OMNICHANNEL_LABEL)) {
-    const emailIndex = sections.findIndex((section) => section.label === "Email");
-    sections.splice(emailIndex < 0 ? 0 : emailIndex + 1, 0, { label: OMNICHANNEL_LABEL, pages: [{ id: "omnichannel", label: "Inbox" }] });
-  }
-
-  const finance = sections.find((section) => section.label === FINANCE_LABEL);
-  if (finance && statistics) {
-    statistics.pages = [...statistics.pages, ...finance.pages.filter((page) => !FINANCE_SECTION_KEEP_IDS.has(page.id))];
-    finance.pages = finance.pages.filter((page) => FINANCE_SECTION_KEEP_IDS.has(page.id));
-  }
-
-  // Deep analytics stay routable for Lulu but do not clutter the customer UI.
-  const visible = sections.filter((section) => section.pages.length > 0 && section.label !== STATISTICS_LABEL);
-  const financeIndex = visible.findIndex((section) => section.label === FINANCE_LABEL);
-  if (financeIndex >= 0) {
-    const [financeSection] = visible.splice(financeIndex, 1);
-    const settingsIndex = visible.findIndex((section) => section.label === SETTINGS_LABEL);
-    visible.splice(settingsIndex < 0 ? visible.length : settingsIndex, 0, financeSection!);
-  }
-  return visible;
-})();
+import {
+  CRM_LABEL,
+  CRM_LANDING_PAGE_ID,
+  DIRECT_SECTION_LABELS,
+  SETTINGS_LABEL,
+  WEBSITE_AND_COMMERCE_LABEL,
+  getWorkspaceCapabilityRoute,
+  getWorkspaceNavigationSections,
+  type NavigationPage,
+  type NavigationSection,
+} from "../config/workspace-capability-registry";
 
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
@@ -113,16 +52,27 @@ function websiteLockLabel(status: string, t: (key: string) => string) {
 export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigate, onRequestClose }: { activeSlug: string; mobileOpen?: boolean; onNavigate?: () => void; onRequestClose?: () => void }) {
   const t = useTranslation();
   const language = useLanguage();
-  const { selectedWorkspace } = useLuluApp();
+  const { selectedWorkspace, permissions } = useLuluApp();
   const [languageOpen, setLanguageOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
   const activationPageId = !selectedWorkspace?.onboardingCompletedAt
     ? selectedWorkspace?.onboardingStep === "profile_completion" ? "profile" : selectedWorkspace?.onboardingStep === "knowledge_base" ? "rich-field-1880" : null
     : null;
-  const navigationSections = useMemo(() => baseNavigationSections
-    .map((section) => ({ ...section, pages: section.pages.filter((page) => (!activationPageId || page.id === activationPageId) && (page.id === activeSlug || isPageAvailable(page.id))) }))
-    .filter((section) => section.pages.length > 0), [activeSlug, activationPageId]);
+  const navigationSections = useMemo(() => getWorkspaceNavigationSections()
+    .map((section) => ({
+      ...section,
+      pages: section.pages.filter((page) => {
+        if (!isPageAvailable(page.id) && page.id !== activeSlug) return false;
+        if (activationPageId) return page.id === activationPageId;
+        // During a rolling deploy or a workspace switch, retain only the current
+        // read surface. Never infer mutation rights from a role while bootstrap is unknown.
+        if (permissions.status !== "ready") return page.id === activeSlug;
+        const route = getWorkspaceCapabilityRoute(page.id);
+        return !route || route.requiredPermissions.every((capability) => permissions.capabilities.includes(capability));
+      }),
+    }))
+    .filter((section) => section.pages.length > 0), [activeSlug, activationPageId, permissions]);
   const activeSection = navigationSections.find((section) => section.pages.some((page) => page.id === activeSlug))?.label ?? null;
   const [openSection, setOpenSection] = useState<string | null>(() => activeSection);
 
@@ -180,7 +130,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
             {section.pages.map((page) => {
               const props = pageLinkProps(page.id);
               const available = Boolean(props.href);
-              return <a key={page.id} {...props} href={available ? props.href : undefined} data-lulu-route={available ? props["data-lulu-route"] : undefined} className={`${page.id === activeSlug ? "is-active" : ""}${available ? "" : " is-locked"}`.trim() || undefined} aria-current={page.id === activeSlug ? "page" : undefined} aria-disabled={!available || undefined} onClick={(event) => { event.preventDefault(); if (props.href) { onNavigate?.(); navigateApp(props.href); } }}><span>{t(pageLabel(page))}</span></a>;
+              return <a key={page.id} {...props} href={available ? props.href : undefined} data-lulu-route={available ? props["data-lulu-route"] : undefined} className={`${page.id === activeSlug ? "is-active" : ""}${available ? "" : " is-locked"}`.trim() || undefined} aria-current={page.id === activeSlug ? "page" : undefined} aria-disabled={!available || undefined} onClick={(event) => { event.preventDefault(); if (props.href) { onNavigate?.(); navigateApp(props.href); } }}><span>{t(page.label)}</span></a>;
             })}
             {section.label === SETTINGS_LABEL && <>
               {!activationPageId && <><button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setSessionsOpen(true)}>{t("Active sessions")}</button>{sessionsOpen && <AccountSessions onClose={() => setSessionsOpen(false)} />}
@@ -194,6 +144,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
         </details></Fragment>;
       })}
       {activationPageId && navigationSections.length === 0 && <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void signOut()}><LogOut aria-hidden="true" size={14} /><span>{t("Sign out")}</span></button>}
+      {!navigationSections.some((section) => section.label === SETTINGS_LABEL) && !activationPageId && <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void signOut()}><LogOut aria-hidden="true" size={14} /><span>{t("Sign out")}</span></button>}
     </nav>
   </aside>;
 }

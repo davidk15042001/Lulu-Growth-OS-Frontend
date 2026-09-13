@@ -105,5 +105,12 @@
   "Wähle ein Unternehmen aus.": "请选择一家企业。",
   "Website": "网站",
   "Website wird gesucht": "网站正在搜索中",
-  "Wird ergänzt": "正在补全"
+  "Wird ergänzt": "正在补全",
+  "Aktualisiere die Seite, um den aktuellen Customer Graph zu verifizieren.": "请刷新页面以验证当前客户关系图。",
+  "Daten sind derzeit nicht verifizierbar.": "当前无法验证数据。",
+  "error": "错误",
+  "loading": "加载中",
+  "ready": "就绪",
+  "stale": "数据已过期",
+  "Unternehmensdaten sind nicht verfügbar.": "公司数据不可用。"
 }

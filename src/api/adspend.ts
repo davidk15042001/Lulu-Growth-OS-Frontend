@@ -6,7 +6,8 @@ export type AdSpendTopupStatus = 'CREATED' | 'PENDING_PAYMENT' | 'REQUIRES_CUSTO
 
 export type AdSpendWallet = {
   workspaceId: string; currency: 'CNY'; availableAmount: number; reservedAmount: number;
-  spentAmount: number; refundedAmount: number; totalFundedAmount: number; totalFeeAmount: number;
+  spentAmount: number; refundedAmount: number; reversalDebtAmount: number;
+  totalFundedAmount: number; totalFeeAmount: number;
   feeBasisPoints: 400; adsEnabled: boolean; version: number; updatedAt: string;
 };
 
@@ -19,6 +20,30 @@ export type AdSpendTopup = {
 
 export type AdSpendOverview = { wallet: AdSpendWallet; topups: AdSpendTopup[] };
 
+export type AdBudgetAuthorization = {
+  id: string;
+  workspaceId: string;
+  createdBy: string;
+  provider: string;
+  accountId: string;
+  campaignId: string;
+  currency: string;
+  authorizedAmount: number;
+  reservedAmount: number;
+  consumedAmount: number;
+  remainingAmount: number;
+  startsAt: string;
+  endsAt: string;
+  status: 'ACTIVE' | 'EXHAUSTED' | 'REVOKED' | 'EXPIRED';
+  reason: string | null;
+  metadata: Record<string, unknown>;
+  revokedBy: string | null;
+  revokedAt: string | null;
+  version: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export const adSpendApi = {
   overview: (workspaceId: string) => requestApi<AdSpendOverview>({ path: workspaceApiPath(workspaceId, '/adspend') }),
   createTopup: (workspaceId: string, input: { amount: number; paymentMethod: AdSpendPaymentMethod; returnUrl: string }) =>
@@ -27,5 +52,26 @@ export const adSpendApi = {
     }),
   syncTopup: (workspaceId: string, topupId: string) => requestApi<AdSpendTopup>({
     path: workspaceApiPath(workspaceId, `/adspend/topups/${topupId}/sync`), method: 'POST', body: {},
+  }),
+  listBudgetAuthorizations: (workspaceId: string) => requestApi<AdBudgetAuthorization[]>({
+    path: workspaceApiPath(workspaceId, '/adspend/budget-authorizations'),
+  }),
+  createBudgetAuthorization: (workspaceId: string, input: {
+    provider: string;
+    accountId: string;
+    campaignId: string;
+    currency: string;
+    amount: number;
+    startsAt?: string;
+    endsAt: string;
+    idempotencyKey: string;
+    reason?: string;
+  }) => requestApi<AdBudgetAuthorization & { idempotent?: boolean }>({
+    path: workspaceApiPath(workspaceId, '/adspend/budget-authorizations'), method: 'POST', body: input,
+  }),
+  revokeBudgetAuthorization: (workspaceId: string, authorizationId: string, reason?: string) => requestApi<AdBudgetAuthorization & { idempotent?: boolean }>({
+    path: workspaceApiPath(workspaceId, `/adspend/budget-authorizations/${encodeURIComponent(authorizationId)}/revoke`),
+    method: 'POST',
+    body: reason ? { reason } : {},
   }),
 };

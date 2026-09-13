@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   agentApi,
-  agentModuleForContract,
-  agentPageContextFromContract,
   type AgentRun,
   type IntelligenceBundle,
 } from "../api/agents";
@@ -71,11 +69,9 @@ const DASHBOARD_SECTION_LABEL = "Dashboard";
 const AI_SECTION_LABEL = "AI";
 const MARKETING_SECTION_LABEL = "Marketing";
 const CACHE_TTL_MS = 30_000;
-const PAGE_AGENT_ENSURE_TTL_MS = 30 * 60 * 1000;
 
 const runtimeCache = new Map<string, AgentRuntimeSnapshot>();
 const inflightRuntimeLoads = new Map<string, Promise<AgentRuntimeSnapshot>>();
-const pageAgentEnsureTimestamps = new Map<string, number>();
 
 export function clearRuntimeSnapshotCache(workspaceId?: string) {
   if (!workspaceId) {
@@ -790,7 +786,6 @@ export function useLuluAgentRuntime(
   t: (key: string) => string,
 ): AgentRuntimeState {
   const language = useLanguage();
-  const [ensureError, setEnsureError] = useState("");
   const [snapshot, setSnapshot] = useState<AgentRuntimeSnapshot>({
     bootstrap: null,
     platforms: [],
@@ -802,7 +797,6 @@ export function useLuluAgentRuntime(
 
   useEffect(() => {
     if (!workspaceId) {
-      setEnsureError("");
       setSnapshot({
         bootstrap: null,
         platforms: [],
@@ -846,50 +840,6 @@ export function useLuluAgentRuntime(
 
   useEffect(() => {
     if (!workspaceId) return;
-    const ensureKey = `${workspaceId}:${contract.pageId}`;
-    const lastEnsuredAt = pageAgentEnsureTimestamps.get(ensureKey) ?? 0;
-    if (Date.now() - lastEnsuredAt < PAGE_AGENT_ENSURE_TTL_MS) return;
-
-    let active = true;
-
-    const ensurePageRun = async () => {
-      try {
-        const response = await agentApi.list(workspaceId, { pageId: contract.pageId });
-        if (!active) return;
-        const freshRun = response.data.items.find((run) => {
-          if (["queued", "planning", "running", "waiting_approval"].includes(run.status)) return true;
-          const updatedAt = Date.parse(run.updatedAt);
-          return Number.isFinite(updatedAt) && Date.now() - updatedAt < PAGE_AGENT_ENSURE_TTL_MS;
-        });
-        if (freshRun) {
-          setEnsureError("");
-          pageAgentEnsureTimestamps.set(ensureKey, Date.now());
-          return;
-        }
-
-        await agentApi.create(workspaceId, {
-          module: agentModuleForContract(contract),
-          page: agentPageContextFromContract(contract),
-          dedupeMinutes: 45,
-        });
-        if (!active) return;
-        setEnsureError("");
-        pageAgentEnsureTimestamps.set(ensureKey, Date.now());
-        runtimeCache.delete(getRuntimeCacheKey(workspaceId, contract.pageId, language));
-      } catch (error) {
-        if (!active) return;
-        setEnsureError(getFriendlyErrorMessage(error, t("This page agent could not start its background run. Please refresh and try again.")));
-      }
-    };
-
-    void ensurePageRun();
-    return () => {
-      active = false;
-    };
-  }, [contract, language, workspaceId]);
-
-  useEffect(() => {
-    if (!workspaceId) return;
     let debounceTimer: number | undefined;
     const unsubscribe = subscribeWorkspaceEvents(workspaceId, (event) => {
       if (event.type !== "record.created" && event.type !== "run.completed" && event.type !== "run.failed") return;
@@ -909,7 +859,7 @@ export function useLuluAgentRuntime(
 
   return useMemo(() => {
     const generic = createGenericCards(t, snapshot.bootstrap, snapshot.platforms);
-    const combinedLiveError = ensureError || snapshot.liveError;
+    const combinedLiveError = snapshot.liveError;
     const latestActivityAt = snapshot.specializedLiveData?.latestActivityAt ?? generic.latestActivityAt;
     const activeJobCount = Math.max(snapshot.specializedLiveData?.activeJobCount ?? 0, generic.activeJobCount);
     const pendingApprovalCount = Math.max(snapshot.specializedLiveData?.pendingApprovalCount ?? 0, generic.pendingApprovalCount);
@@ -945,5 +895,5 @@ export function useLuluAgentRuntime(
       connectedSystemsDetail,
       impactDetail,
     };
-  }, [contract.integrations.length, contract.jobs.length, ensureError, liveLoading, snapshot, t]);
+  }, [contract.integrations.length, contract.jobs.length, liveLoading, snapshot, t]);
 }

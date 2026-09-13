@@ -29,5 +29,11 @@
   "Schließen": "Schließen",
   "Speichern": "Speichern",
   "Status": "Status",
-  "Wird geladen …": "Wird geladen …"
+  "Wird geladen …": "Wird geladen …",
+  "Aktualisiere die Seite, um den aktuellen Workspace-Stand zu verifizieren.": "Aktualisiere die Seite, um den aktuellen Workspace-Stand zu verifizieren.",
+  "Datensätze sind derzeit nicht verfügbar.": "Datensätze sind derzeit nicht verfügbar.",
+  "error": "Fehler",
+  "loading": "wird geladen",
+  "ready": "bereit",
+  "stale": "veraltet"
 }

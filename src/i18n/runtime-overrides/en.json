@@ -673,5 +673,11 @@
   "Verifizierte Quellen": "Verified sources",
   "versendet.": "sent.",
   "Website": "Website",
-  "Die zentrale WhatsApp-Nummer konnte nicht gespeichert werden.": "The central WhatsApp number could not be saved."
+  "Die zentrale WhatsApp-Nummer konnte nicht gespeichert werden.": "The central WhatsApp number could not be saved.",
+  "Zuletzt erfolgreich geladene Produktdaten werden angezeigt. {{0}}": "Showing the last successfully loaded product data. {{0}}",
+  "Unternehmensdaten sind nicht verfügbar.": "Company data is unavailable.",
+  "Aktualisiere die Seite, um den aktuellen Customer Graph zu verifizieren.": "Refresh the page to verify the current Customer Graph.",
+  "Daten sind derzeit nicht verifizierbar.": "Data cannot currently be verified.",
+  "Datensätze sind derzeit nicht verfügbar.": "Records are currently unavailable.",
+  "Aktualisiere die Seite, um den aktuellen Workspace-Stand zu verifizieren.": "Refresh the page to verify the current workspace state."
 }

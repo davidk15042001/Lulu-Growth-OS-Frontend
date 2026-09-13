@@ -75,5 +75,15 @@
   "Legal form": "法律形式",
   "Legal representative": "法定代表人",
   "Phone number": "电话号码",
-  "Tax ID": "税号"
+  "Tax ID": "税号",
+  "Creation unavailable": "无法创建",
+  "Documents unavailable.": "文档不可用。",
+  "error": "错误",
+  "loading": "加载中",
+  "ready": "就绪",
+  "Refresh to verify the current workspace state.": "请刷新以验证当前工作区状态。",
+  "refreshing": "正在刷新",
+  "Showing the last successfully loaded data.": "正在显示上次成功加载的数据。",
+  "stale": "数据已过期",
+  "Your workspace permissions do not allow this document to be created.": "您的工作区权限不允许创建此文档。"
 }

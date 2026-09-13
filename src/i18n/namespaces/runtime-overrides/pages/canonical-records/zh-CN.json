@@ -29,5 +29,11 @@
   "Schließen": "关闭",
   "Speichern": "保存",
   "Status": "状态",
-  "Wird geladen …": "正在加载…"
+  "Wird geladen …": "正在加载…",
+  "Aktualisiere die Seite, um den aktuellen Workspace-Stand zu verifizieren.": "请刷新页面以验证当前工作区状态。",
+  "Datensätze sind derzeit nicht verfügbar.": "记录目前不可用。",
+  "error": "错误",
+  "loading": "加载中",
+  "ready": "就绪",
+  "stale": "数据已过期"
 }

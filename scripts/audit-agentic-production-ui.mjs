@@ -16,6 +16,8 @@ const minimalAgentPage = fs.readFileSync(path.join(root, 'src', 'components', 'M
 const fundsControl = fs.readFileSync(path.join(root, 'src', 'components', 'LuluUsageControl.tsx'), 'utf8');
 const communicationsPage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-omnichannel', 'OmniChannelPage.tsx'), 'utf8');
 const profilePage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-profile', 'ProfilePage.tsx'), 'utf8');
+const capabilityRegistry = fs.readFileSync(path.join(root, 'src', 'config', 'workspace-capability-registry.ts'), 'utf8');
+const observedAgentRuntime = fs.readFileSync(path.join(root, 'src', 'components', 'useLuluAgentRuntime.ts'), 'utf8');
 const failures = [];
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
@@ -70,11 +72,11 @@ if (!crmWorkspacePage.includes('showEntitySwitcher &&')) {
   failures.push('The canonical CRM page cannot hide its contacts/companies tab switcher.');
 }
 
-if (!globalNavigation.includes('section.label !== STATISTICS_LABEL')) {
+if (!capabilityRegistry.includes('section.label !== STATISTICS_LABEL')) {
   failures.push('Statistics is not hidden from the restored customer navigation.');
 }
 
-if (!globalNavigation.includes('DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL])')) {
+if (!capabilityRegistry.includes('DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL])')) {
   failures.push('AI and OmniChannel are not direct navigation links.');
 }
 
@@ -90,7 +92,7 @@ if (
   failures.push('The removed command-center switcher is still rendered on the AI Assistant page.');
 }
 
-if (!globalNavigation.includes('SETTINGS_PAGE_IDS = new Set(["rich-field-1880"])') || !globalNavigation.includes('settings.pages = [...settings.pages, ...ai.pages.filter')) {
+if (!capabilityRegistry.includes('SETTINGS_PAGE_IDS = new Set(["rich-field-1880"])') || !capabilityRegistry.includes('settings.pages = [...settings.pages, ...ai.pages.filter')) {
   failures.push('Knowledge is not exposed exclusively through the Settings navigation section.');
 }
 
@@ -106,16 +108,28 @@ if (fundsControl.includes('storagePerGbMonthUsd') || fundsControl.includes('clas
   failures.push('Funds exposes low-level storage-provider rates.');
 }
 
-if (communicationsPage.includes('omnichannelApi.send') || communicationsPage.includes('omnichannelApi.takeOver') || communicationsPage.includes('omnichannelApi.note')) {
-  failures.push('Communications still exposes manual customer-message operations.');
+if (!communicationsPage.includes('omnichannelApi.send') || !communicationsPage.includes('omnichannelApi.takeOver') || !communicationsPage.includes('omnichannelApi.note') || !communicationsPage.includes('omnichannelApi.returnToAi')) {
+  failures.push('Communications does not expose the canonical manual send, note, takeover and return-to-AI controls.');
+}
+
+if (observedAgentRuntime.includes('agentApi.create')) {
+  failures.push('Rendering an agent-aware page can still create an agent run implicitly.');
+}
+
+if (!capabilityRegistry.includes('workspaceCapabilityRoutes') || !capabilityRegistry.includes('buildWorkspaceDeepLink') || !globalNavigation.includes('getWorkspaceNavigationSections')) {
+  failures.push('Navigation and future Office deep links do not share the typed capability registry.');
 }
 
 if (!profilePage.includes("(['companyName', 'industry'] as const)") || profilePage.includes('Complete every company, legal, contact and banking field')) {
   failures.push('Profile activation is not limited to the minimum operating identity.');
 }
 
-if (!appRouter.includes('path={routes.app.communications}') || !appRouter.includes('path={routes.app.growth}') || !appRouter.includes('path={routes.app.finance}')) {
+if (!appRouter.includes('path={routes.app.omnichannel}') || !appRouter.includes('path={routes.app.growth}') || !appRouter.includes('path={routes.app.finance}')) {
   failures.push('The consolidated customer routes are not mounted.');
+}
+
+if (!appRouter.includes('<EmailWorkspacePage />') || !appRouter.includes('<CalendarWorkspacePage />')) {
+  failures.push('The canonical email and calendar routes do not render their real workspaces.');
 }
 
 const inspectedRoots = [

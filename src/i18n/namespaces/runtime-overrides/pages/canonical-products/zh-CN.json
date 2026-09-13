@@ -61,5 +61,14 @@
   "Premium-only models create, independently audit, finish and publish product images and videos. No human approval is required.": "仅限高级版的模型创建、独立审核、完成和发布产品图像和视频。无需人工批准。",
   "QA": "质量保证",
   "READY FOR KEY": "准备好钥匙",
-  "The production engine is installed. Completing the secure server configuration activates it.": "生产引擎已安装。完成安全服务器配置后即可启用。"
+  "The production engine is installed. Completing the secure server configuration activates it.": "生产引擎已安装。完成安全服务器配置后即可启用。",
+  "error": "错误",
+  "loading": "加载中",
+  "Products are loading…": "正在加载产品…",
+  "Products are unavailable.": "产品不可用。",
+  "ready": "就绪",
+  "Refresh to verify the current workspace state.": "请刷新以验证当前工作区状态。",
+  "refreshing": "正在刷新",
+  "stale": "数据已过期",
+  "Zuletzt erfolgreich geladene Produktdaten werden angezeigt. {{0}}": "正在显示上次成功加载的产品数据。{{0}}"
 }

@@ -57,7 +57,8 @@ export default function ProfilePage() {
   // screen available to workspace owners/admins even when the commercial
   // workspace.write entitlement is disabled; the backend still performs the
   // authoritative membership/capability check.
-  const canManageWorkspaceProfile = permissions.role === 'owner' || permissions.role === 'admin';
+  const canManageWorkspaceProfile = permissions.status === 'ready'
+    && (permissions.role === 'owner' || permissions.role === 'admin');
   const workspaceId = selectedWorkspace?.id;
   const activationMode = selectedWorkspace?.onboardingStep === 'profile_completion' && !selectedWorkspace.onboardingCompletedAt;
 

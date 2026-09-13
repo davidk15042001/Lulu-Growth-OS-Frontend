@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import {
   Archive,
   Building2,
@@ -28,7 +29,7 @@ import {
   updateRecord,
   type WorkspaceRecord,
 } from '../../api/records';
-import { useLiveRecords } from '../../api/useLiveRecords';
+import { useLiveRecords, type LiveRecordsLoadState } from '../../api/useLiveRecords';
 import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
 
 type Kind = 'contacts' | 'companies' | 'activities' | 'tasks';
@@ -97,6 +98,7 @@ function CompanyIntelligenceView({
   items,
   filtered,
   loading,
+  loadState,
   canWrite,
   busy,
   query,
@@ -107,10 +109,13 @@ function CompanyIntelligenceView({
   onEdit,
   onArchive,
   onRetry,
+  initialSelectedId,
+  onSelect,
 }: {
   items: WorkspaceRecord[];
   filtered: WorkspaceRecord[];
   loading: boolean;
+  loadState: LiveRecordsLoadState;
   canWrite: boolean;
   busy: boolean;
   query: string;
@@ -121,12 +126,15 @@ function CompanyIntelligenceView({
   onEdit: (record: WorkspaceRecord) => void;
   onArchive: (record: WorkspaceRecord) => void;
   onRetry: (record: WorkspaceRecord) => void;
+  initialSelectedId?: string | null;
+  onSelect: (recordId: string) => void;
 }) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId ?? null);
   useEffect(() => {
-    if (!filtered.length) setSelectedId(null);
+    if (initialSelectedId && filtered.some((item) => item.id === initialSelectedId)) setSelectedId(initialSelectedId);
+    else if (!filtered.length) setSelectedId(null);
     else if (!selectedId || !filtered.some((item) => item.id === selectedId)) setSelectedId(filtered[0]!.id);
-  }, [filtered, selectedId]);
+  }, [filtered, initialSelectedId, selectedId]);
   const selected = filtered.find((item) => item.id === selectedId) ?? null;
   const activeResearch = items.filter((record) => ['queued', 'researching'].includes(enrichmentStatus(record))).length;
   const average = items.length ? Math.round(items.reduce((sum, record) => sum + (companyEnrichment(record).completeness ?? 0), 0) / items.length) : 0;
@@ -146,9 +154,9 @@ function CompanyIntelligenceView({
     </header>
 
     <section className="grid gap-3 sm:grid-cols-3">
-      <Metric label="Unternehmen" value={items.length} detail="im Customer Graph" icon={<Building2 size={17}/>}/>
-      <Metric label="Datenabdeckung" value={`${average}%`} detail="über alle Profile" icon={<ShieldCheck size={17}/>}/>
-      <Metric label="Live-Recherche" value={activeResearch} detail={activeResearch ? 'läuft autonom' : 'alles verarbeitet'} icon={<Sparkles size={17}/>}/>
+      <Metric label="Unternehmen" value={loadState === 'loading' || loadState === 'error' ? '—' : items.length} detail="im Customer Graph" icon={<Building2 size={17}/>}/>
+      <Metric label="Datenabdeckung" value={loadState === 'loading' || loadState === 'error' ? '—' : `${average}%`} detail="über alle Profile" icon={<ShieldCheck size={17}/>}/>
+      <Metric label="Live-Recherche" value={loadState === 'loading' || loadState === 'error' ? '—' : activeResearch} detail={loadState === 'loading' || loadState === 'error' ? 'Stand nicht verifiziert' : activeResearch ? 'läuft autonom' : 'alles verarbeitet'} icon={<Sparkles size={17}/>}/>
     </section>
 
     <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(420px,.9fr)_minmax(0,1.35fr)]">
@@ -157,12 +165,13 @@ function CompanyIntelligenceView({
           <label className="relative min-w-0 flex-1"><Search size={16} className="absolute left-3 top-3 text-[var(--muted-foreground)]"/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Unternehmen durchsuchen …" className={`${inputClass} pl-9`}/></label>
           <span className="shrink-0 text-xs text-[var(--muted-foreground)]">{filtered.length} live</span>
         </div>
-        {loading ? <div className="grid min-h-80 place-items-center text-sm text-[var(--muted-foreground)]">Customer Graph wird geladen …</div>
-          : filtered.length === 0 ? <div className="grid min-h-80 place-items-center p-10 text-center"><div><Building2 size={34} className="mx-auto opacity-30"/><p className="mt-4 font-medium">Noch keine Unternehmen.</p><p className="mt-1 max-w-sm text-sm text-[var(--muted-foreground)]">Ein Name oder eine Website genügt. Lulu baut das vollständige Profil autonom auf.</p></div></div>
+        {loading && filtered.length === 0 ? <div className="grid min-h-80 place-items-center text-sm text-[var(--muted-foreground)]">Customer Graph wird geladen …</div>
+          : (loadState === 'error' || loadState === 'stale') && filtered.length === 0 ? <div className="grid min-h-80 place-items-center p-10 text-center"><div><CircleAlert size={34} className="mx-auto opacity-40"/><p className="mt-4 font-medium">Unternehmensdaten sind nicht verfügbar.</p><p className="mt-1 max-w-sm text-sm text-[var(--muted-foreground)]">Aktualisiere die Seite, um den aktuellen Customer Graph zu verifizieren.</p></div></div>
+          : loadState === 'ready' && filtered.length === 0 ? <div className="grid min-h-80 place-items-center p-10 text-center"><div><Building2 size={34} className="mx-auto opacity-30"/><p className="mt-4 font-medium">Noch keine Unternehmen.</p><p className="mt-1 max-w-sm text-sm text-[var(--muted-foreground)]">Ein Name oder eine Website genügt. Lulu baut das vollständige Profil autonom auf.</p></div></div>
             : <div className="max-h-[760px] divide-y divide-[var(--border)] overflow-y-auto">{filtered.map((record) => {
               const enrichment = companyEnrichment(record);
               const website = value(record, 'websiteUrl');
-              return <button key={record.id} type="button" onClick={() => setSelectedId(record.id)} className={`group flex w-full min-w-0 items-start gap-3 p-4 text-left transition hover:bg-[var(--secondary)] ${selectedId === record.id ? 'bg-[var(--secondary)]' : ''}`}>
+              return <button key={record.id} type="button" onClick={() => { setSelectedId(record.id); onSelect(record.id); }} className={`group flex w-full min-w-0 items-start gap-3 p-4 text-left transition hover:bg-[var(--secondary)] ${selectedId === record.id ? 'bg-[var(--secondary)]' : ''}`}>
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 text-xs font-semibold text-white shadow-sm">{initials(record.name)}</span>
                 <span className="min-w-0 flex-1">
                   <span className="flex min-w-0 items-center justify-between gap-2"><strong className="truncate text-sm">{record.name}</strong><span className="text-xs font-semibold tabular-nums">{enrichment.completeness ?? 0}%</span></span>
@@ -241,7 +250,8 @@ function IntelligenceSection({ title, icon, children }: { title: string; icon: R
 }
 
 export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { kind: Kind; showEntitySwitcher?: boolean }) {
-  const { permissions } = useLuluApp();
+  const { hasCapability } = useLuluApp();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [viewKind, setViewKind] = useState<Kind>(kind);
   const [query, setQuery] = useState('');
   const [modal, setModal] = useState(false);
@@ -253,9 +263,17 @@ export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { 
   const [notice, setNotice] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
   const resourceType = resourceFor[viewKind];
-  const { items, loading, error: loadError, refresh } = useLiveRecords(resourceType, query ? `search=${encodeURIComponent(query)}&limit=100` : 'limit=100');
-  const canWrite = permissions.canEdit;
+  const { items, loading, error: loadError, status: loadState, refresh } = useLiveRecords(resourceType, query ? `search=${encodeURIComponent(query)}&limit=100` : 'limit=100');
+  // Canonical CRM still uses the generic record endpoints. Their write,
+  // upload, archive and enrichment routes require workspace.write.
+  const canWrite = hasCapability('workspace.write');
   const filtered = useMemo(() => query ? items.filter((item) => `${item.name} ${JSON.stringify(item.data)}`.toLowerCase().includes(query.toLowerCase())) : items, [items, query]);
+  const linkedRecordId = searchParams.get('recordId');
+  const selectLinkedRecord = (recordId: string) => setSearchParams((current) => {
+    const next = new URLSearchParams(current);
+    next.set('recordId', recordId);
+    return next;
+  }, { replace: true });
 
   useEffect(() => { setViewKind(kind); setForm(emptyForm); setError(''); setNotice(''); setModal(false); setEditing(null); setImportOpen(false); }, [kind]);
   useEffect(() => {
@@ -286,7 +304,8 @@ export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { 
     setModal(true);
   };
   const save = async () => {
-    if (!canWrite || !form.name.trim()) { setError('Ein Name oder Titel ist erforderlich.'); return; }
+    if (!canWrite) return;
+    if (!form.name.trim()) { setError('Ein Name oder Titel ist erforderlich.'); return; }
     setBusy(true); setError(''); setNotice('');
     try {
       const companySocials = Object.fromEntries(socialKeys.map((key) => [key, nullable(form[key])]).filter((entry) => entry[1]));
@@ -316,15 +335,15 @@ export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { 
     {viewKind === 'companies' ? <>
       {(error || loadError) && <div role="alert" className="mx-auto mb-4 max-w-[1500px] rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error || loadError}</div>}
       {notice && <div className="mx-auto mb-4 max-w-[1500px] rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</div>}
-      <CompanyIntelligenceView items={items} filtered={filtered} loading={loading} canWrite={canWrite} busy={busy} query={query} setQuery={setQuery} refresh={refresh} onCreate={openNew} onImport={() => setImportOpen(true)} onEdit={openEdit} onArchive={(record) => void archive(record)} onRetry={(record) => void retry(record)}/>
+      <CompanyIntelligenceView items={items} filtered={filtered} loading={loading} loadState={loadState} canWrite={canWrite} busy={busy} query={query} setQuery={setQuery} refresh={refresh} onCreate={openNew} onImport={() => setImportOpen(true)} onEdit={openEdit} onArchive={(record) => void archive(record)} onRetry={(record) => void retry(record)} initialSelectedId={linkedRecordId} onSelect={selectLinkedRecord}/>
     </> : <div className="mx-auto max-w-7xl space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Lulu CRM</p><h1 className="text-3xl font-semibold">{title}</h1><p className="mt-2 text-sm text-[var(--muted-foreground)]">Live-Daten aus deinem Workspace – ohne Demo-Einträge.</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => void refresh()} className="rounded-xl border border-[var(--border)] p-2.5" aria-label="Aktualisieren"><RefreshCw size={16} className={loading ? 'animate-spin' : ''}/></button><button type="button" onClick={() => setImportOpen(true)} disabled={!canWrite} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-3 py-2.5 text-sm disabled:opacity-40"><FileUp size={15}/>Import</button><button type="button" onClick={openNew} disabled={!canWrite} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-40"><Plus size={16}/>Neu</button></div></header>
       {showEntitySwitcher && (kind === 'contacts' || kind === 'companies') && <div className="flex gap-2 border-b border-[var(--border)] pb-2"><button type="button" onClick={() => setViewKind('contacts')} className={`rounded-lg px-3 py-2 text-sm ${viewKind === 'contacts' ? 'bg-[var(--foreground)] text-[var(--background)]' : 'border border-[var(--border)]'}`}>Kontakte</button><button type="button" onClick={() => setViewKind('companies')} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm">Unternehmen</button></div>}
       {(error || loadError) && <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error || loadError}</div>}{notice && <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</div>}
-      <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)]"><div className="flex flex-wrap items-center gap-3 border-b border-[var(--border)] p-4"><label className="relative min-w-[240px] flex-1"><Search size={16} className="absolute left-3 top-3 text-[var(--muted-foreground)]"/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`${title} durchsuchen …`} className={`${inputClass} pl-9`}/></label><span className="text-xs text-[var(--muted-foreground)]">{filtered.length} live</span></div>{loading ? <div className="p-12 text-center text-sm text-[var(--muted-foreground)]">Wird geladen …</div> : filtered.length === 0 ? <div className="p-16 text-center text-sm text-[var(--muted-foreground)]"><p>Noch keine {title.toLowerCase()}.</p></div> : <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-[var(--border)] text-xs text-[var(--muted-foreground)]"><tr><th className="px-4 py-3">Name/Titel</th><th className="px-3 py-3">Status</th><th className="px-3 py-3">Details</th><th className="px-3 py-3">Erstellt</th><th className="px-3 py-3 text-right">Aktionen</th></tr></thead><tbody className="divide-y divide-[var(--border)]">{filtered.map((record) => <tr key={record.id}><td className="px-4 py-3 font-medium">{record.name}</td><td className="px-3 py-3"><span className="rounded-full bg-[var(--secondary)] px-2.5 py-1 text-xs">{record.status}</span></td><td className="max-w-[300px] truncate px-3 py-3 text-xs text-[var(--muted-foreground)]">{viewKind === 'contacts' ? `${value(record, 'email')} · ${value(record, 'phone')}` : `${value(record, 'priority')} · ${record.description || value(record, 'description') || '—'}`}</td><td className="px-3 py-3 text-xs text-[var(--muted-foreground)]">{new Date(record.createdAt).toLocaleDateString()}</td><td className="px-3 py-3 text-right"><div className="flex justify-end gap-1"><button type="button" onClick={() => void archive(record)} disabled={!canWrite || busy} className="rounded-lg p-2 text-rose-600 hover:bg-rose-50 disabled:opacity-40" aria-label="Archivieren"><Archive size={15}/></button>{(viewKind === 'tasks' || viewKind === 'activities') && record.status !== 'Completed' && <button type="button" onClick={() => void markDone(record)} disabled={!canWrite || busy} className="rounded-lg border border-[var(--border)] px-2 py-1 text-xs disabled:opacity-40">Erledigt</button>}</div></td></tr>)}</tbody></table></div>}</section>
+      <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)]"><div className="flex flex-wrap items-center gap-3 border-b border-[var(--border)] p-4"><label className="relative min-w-[240px] flex-1"><Search size={16} className="absolute left-3 top-3 text-[var(--muted-foreground)]"/><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`${title} durchsuchen …`} className={`${inputClass} pl-9`}/></label><span className="text-xs text-[var(--muted-foreground)]">{loadState === 'loading' || loadState === 'error' ? '—' : filtered.length} live</span></div>{loading && filtered.length === 0 ? <div className="p-12 text-center text-sm text-[var(--muted-foreground)]">Wird geladen …</div> : (loadState === 'error' || loadState === 'stale') && filtered.length === 0 ? <div className="p-16 text-center text-sm text-[var(--muted-foreground)]"><p>Daten sind derzeit nicht verifizierbar.</p></div> : loadState === 'ready' && filtered.length === 0 ? <div className="p-16 text-center text-sm text-[var(--muted-foreground)]"><p>Noch keine {title.toLowerCase()}.</p></div> : <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-[var(--border)] text-xs text-[var(--muted-foreground)]"><tr><th className="px-4 py-3">Name/Titel</th><th className="px-3 py-3">Status</th><th className="px-3 py-3">Details</th><th className="px-3 py-3">Erstellt</th><th className="px-3 py-3 text-right">Aktionen</th></tr></thead><tbody className="divide-y divide-[var(--border)]">{filtered.map((record) => <tr key={record.id}><td className="px-4 py-3 font-medium">{record.name}</td><td className="px-3 py-3"><span className="rounded-full bg-[var(--secondary)] px-2.5 py-1 text-xs">{record.status}</span></td><td className="max-w-[300px] truncate px-3 py-3 text-xs text-[var(--muted-foreground)]">{viewKind === 'contacts' ? `${value(record, 'email')} · ${value(record, 'phone')}` : `${value(record, 'priority')} · ${record.description || value(record, 'description') || '—'}`}</td><td className="px-3 py-3 text-xs text-[var(--muted-foreground)]">{new Date(record.createdAt).toLocaleDateString()}</td><td className="px-3 py-3 text-right"><div className="flex justify-end gap-1"><button type="button" onClick={() => void archive(record)} disabled={!canWrite || busy} className="rounded-lg p-2 text-rose-600 hover:bg-rose-50 disabled:opacity-40" aria-label="Archivieren"><Archive size={15}/></button>{(viewKind === 'tasks' || viewKind === 'activities') && record.status !== 'Completed' && <button type="button" onClick={() => void markDone(record)} disabled={!canWrite || busy} className="rounded-lg border border-[var(--border)] px-2 py-1 text-xs disabled:opacity-40">Erledigt</button>}</div></td></tr>)}</tbody></table></div>}</section>
     </div>}
 
-    {modal && <Modal title={editing ? 'Unternehmen korrigieren' : `Neue ${title}`} onClose={() => { setModal(false); setEditing(null); }}><div className="grid gap-4 sm:grid-cols-2">
+    {modal && canWrite && <Modal title={editing ? 'Unternehmen korrigieren' : `Neue ${title}`} onClose={() => { setModal(false); setEditing(null); }}><div className="grid gap-4 sm:grid-cols-2">
       <label><span className="mb-1 block text-xs">Name *</span><input autoFocus value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className={inputClass}/></label>
       <label><span className="mb-1 block text-xs">Status</span><select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value })} className={inputClass}><option>Active</option><option>Prospect</option><option>Customer</option><option>Partner</option><option>Inactive</option><option>Open</option><option>Scheduled</option><option>Completed</option></select></label>
       {viewKind === 'contacts' && <><label><span className="mb-1 block text-xs">E-Mail</span><input type="email" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} className={inputClass}/></label><label><span className="mb-1 block text-xs">Telefon</span><input value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} className={inputClass}/></label><label><span className="mb-1 block text-xs">Unternehmen</span><input value={form.company} onChange={(event) => setForm({ ...form, company: event.target.value })} className={inputClass}/></label></>}
@@ -339,7 +358,7 @@ export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { 
       {(viewKind === 'tasks' || viewKind === 'activities') && <><label><span className="mb-1 block text-xs">Fällig am</span><input type="date" value={form.dueAt} onChange={(event) => setForm({ ...form, dueAt: event.target.value })} className={inputClass}/></label><label><span className="mb-1 block text-xs">Priorität</span><select value={form.priority} onChange={(event) => setForm({ ...form, priority: event.target.value })} className={inputClass}><option>High</option><option>Medium</option><option>Low</option></select></label></>}
       {viewKind !== 'companies' && <label className="sm:col-span-2"><span className="mb-1 block text-xs">Notiz/Beschreibung</span><textarea value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} className={`${inputClass} min-h-24`}/></label>}
     </div><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => { setModal(false); setEditing(null); }} className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm">Abbrechen</button><button type="button" onClick={() => void save()} disabled={busy} className="rounded-xl bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)] disabled:opacity-40">{editing ? 'Speichern & neu anreichern' : 'Speichern'}</button></div></Modal>}
-    {importOpen && <Modal title={`Import ${title}`} onClose={() => setImportOpen(false)}><p className="text-sm text-[var(--muted-foreground)]">CSV, PDF oder Excel-Datei auswählen. Lulu verarbeitet und vervollständigt die Einträge autonom.</p><input ref={fileRef} type="file" accept=".csv,.xlsx,.xls,.pdf,.txt" onChange={(event) => void importFile(event.target.files?.[0])} className="mt-4 block w-full text-sm"/><div className="mt-5 flex justify-end"><button type="button" onClick={() => fileRef.current?.click()} disabled={busy} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)] disabled:opacity-40"><FileUp size={15}/>Datei auswählen</button></div></Modal>}
+    {importOpen && canWrite && <Modal title={`Import ${title}`} onClose={() => setImportOpen(false)}><p className="text-sm text-[var(--muted-foreground)]">CSV, PDF oder Excel-Datei auswählen. Lulu verarbeitet und vervollständigt die Einträge autonom.</p><input ref={fileRef} type="file" accept=".csv,.xlsx,.xls,.pdf,.txt" onChange={(event) => void importFile(event.target.files?.[0])} className="mt-4 block w-full text-sm"/><div className="mt-5 flex justify-end"><button type="button" onClick={() => fileRef.current?.click()} disabled={busy} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)] disabled:opacity-40"><FileUp size={15}/>Datei auswählen</button></div></Modal>}
   </main></WorkspaceSurfaceShell>;
 }
 

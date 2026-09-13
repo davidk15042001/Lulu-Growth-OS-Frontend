@@ -3,7 +3,7 @@ import { ArrowLeftRight } from "lucide-react";
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { pages } from "./pages-manifest";
 import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
-import { LEGACY_SETUP_COMPLETE_PATH, isPageAvailable, pagePath, routes } from "./routing";
+import { LEGACY_SETUP_COMPLETE_PATH, LULU_NAVIGATION_MESSAGE, isLuluNavigationMessage, isOfficePanelSurface, isPageAvailable, pagePath, routes } from "./routing";
 import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from "./api/client";
 import { authApi } from "./api/auth";
 import {
@@ -28,6 +28,8 @@ import { WorkspaceSurfaceShell } from "./components/WorkspaceSurfaceShell";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
 const ProductsPage=lazy(()=>import("./pages/canonical-products/ProductsPage"));
+const OrdersWorkspace=lazy(()=>import("./pages/canonical-commerce/OrdersWorkspace"));
+const InventoryWorkspace=lazy(()=>import("./pages/canonical-commerce/InventoryWorkspace"));
 const OmniChannelPage=lazy(()=>import("./pages/canonical-omnichannel/OmniChannelPage"));
 const AdminOmniChannelPage=lazy(()=>import("./pages/admin-omnichannel/AdminOmniChannelPage"));
 const CommercialDocumentsPage=lazy(()=>import("./pages/canonical-commercial/CommercialDocumentsPage"));
@@ -41,9 +43,12 @@ const GrowthPage=lazy(()=>import("./pages/canonical-growth/GrowthPage"));
 const FinancePage=lazy(()=>import("./pages/canonical-finance/FinancePage"));
 const KnowledgePage=lazy(()=>import("./pages/canonical-knowledge/KnowledgePage"));
 const CalendarMeetingPage=lazy(()=>import("./pages/calendar-meeting/CalendarMeetingPage"));
+const EmailWorkspacePage=lazy(()=>import("./pages/lulu-email-portal-9013/App"));
+const CalendarWorkspacePage=lazy(()=>import("./pages/lulu-calendar-portal-9014/App"));
+const VirtualOfficePage=lazy(()=>import("./pages/office/VirtualOfficePage"));
+const SocialPublishingPage=lazy(()=>import("./pages/canonical-social/SocialPublishingPage"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
 const FINANCE_RECORD_ROUTES = [
-  ["quietly-stone-4158", "finance_accounts", "Finance Overview"],
   ["cool-rain-6499", "finance_income", "Income"],
   ["richly-land-8084", "finance_transactions", "Transactions"],
   ["calm-tide-3752", "finance_payments", "Payments"],
@@ -145,7 +150,7 @@ function AdminSurfaceSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (loading || !isAdminUser(currentUser)) return null;
+  if (loading || !isAdminUser(currentUser) || isOfficePanelSurface(location.search)) return null;
   if (location.pathname === routes.auth.login || location.pathname.startsWith("/auth/") || location.pathname.startsWith("/calendar/meeting/") || location.pathname === "/not-found") return null;
 
   const onAdminPanel = location.pathname === ADMIN_PANEL_PATH;
@@ -238,11 +243,31 @@ function InvitationAccept() {
 export default function App() {
   const { currentUser } = useLuluApp();
   const location = useLocation();
+  const navigate = useNavigate();
   const [restoringAdmin, setRestoringAdmin] = useState(false);
   const [impersonationError, setImpersonationError] = useState("");
   const isPublicMeeting = location.pathname.startsWith("/calendar/meeting/");
+  const officePanel = isOfficePanelSurface(location.search);
 
   useEffect(() => installApiBroker(), []);
+  useEffect(() => {
+    const onRouteEvent = (event: Event) => {
+      const navigation = (event as CustomEvent<unknown>).detail;
+      if (!isLuluNavigationMessage(navigation)) return;
+      event.preventDefault();
+      navigate(navigation.to, { replace: navigation.replace });
+    };
+    const onRouteMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin || !isLuluNavigationMessage(event.data)) return;
+      navigate(event.data.to, { replace: event.data.replace });
+    };
+    window.addEventListener(LULU_NAVIGATION_MESSAGE, onRouteEvent);
+    window.addEventListener("message", onRouteMessage);
+    return () => {
+      window.removeEventListener(LULU_NAVIGATION_MESSAGE, onRouteEvent);
+      window.removeEventListener("message", onRouteMessage);
+    };
+  }, [navigate]);
 
   const stopImpersonation = async () => {
     if (!currentUser?.impersonation?.active || restoringAdmin) return;
@@ -262,7 +287,7 @@ export default function App() {
 
   return (
     <>
-      {currentUser?.impersonation?.active && !isPublicMeeting ? (
+      {currentUser?.impersonation?.active && !isPublicMeeting && !officePanel ? (
         <div className="fixed bottom-4 right-4 z-[95] flex w-[min(calc(100vw-2rem),540px)] items-center justify-between gap-3 rounded-2xl border border-violet-200 bg-white/95 px-4 py-3 text-sm text-violet-950 shadow-[0_20px_55px_rgba(76,29,149,0.2)] backdrop-blur-xl sm:bottom-5 sm:right-5">
           <div className="min-w-0">
             <div className="font-semibold">Admin-Ansicht im User-Account aktiv</div>
@@ -308,22 +333,29 @@ export default function App() {
         <Route path="/admin/quotes" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="quotes" /></AdminOmniChannelRoute>} />
         <Route path="/admin/invoices" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="invoices" /></AdminOmniChannelRoute>} />
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
-        <Route path={routes.app.email} element={<AdminOnlyAppRoute><Navigate replace to={routes.app.communications} /></AdminOnlyAppRoute>} />
-        <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><Navigate replace to={routes.app.communications} /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.office} element={<AdminOnlyAppRoute><VirtualOfficePage /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.email} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-email-portal-9013"><EmailWorkspacePage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
+        <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-calendar-portal-9014"><CalendarWorkspacePage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path="/app/website" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.onlinePresence} /></AdminOnlyAppRoute>} />
-        <Route path={routes.app.communications} element={<AdminOnlyAppRoute><OmniChannelPage /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.communications} element={<AdminOnlyAppRoute><Navigate replace to={routes.app.omnichannel} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.growth} element={<AdminOnlyAppRoute><GrowthPage /></AdminOnlyAppRoute>} />
         <Route path={routes.app.finance} element={<AdminOnlyAppRoute><FinancePage /></AdminOnlyAppRoute>} />
         <Route path={routes.app.knowledgeBase} element={<AdminOnlyAppRoute><KnowledgePage /></AdminOnlyAppRoute>} />
         <Route path={routes.app.products} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="nicely-ocean-1051"><ProductsPage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path="/app/nicely-ocean-1051" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="nicely-ocean-1051"><ProductsPage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
-        <Route path={routes.app.omnichannel} element={<AdminOnlyAppRoute><Navigate replace to={routes.app.communications} /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.orders} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="mightily-shore-7108"><OrdersWorkspace /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
+        <Route path="/app/mightily-shore-7108" element={<AdminOnlyAppRoute><Navigate replace to={{ pathname: routes.app.orders, search: location.search }} /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.inventory} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="smart-village-1099"><InventoryWorkspace /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
+        <Route path="/app/smart-village-1099" element={<AdminOnlyAppRoute><Navigate replace to={{ pathname: routes.app.inventory, search: location.search }} /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.omnichannel} element={<AdminOnlyAppRoute><OmniChannelPage /></AdminOnlyAppRoute>} />
         <Route path="/app/sturdy-month-1562" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="companies" showEntitySwitcher={false} /></AdminOnlyAppRoute>} />
-        <Route path="/app/kindly-pool-8785" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="companies" /></AdminOnlyAppRoute>} />
+        <Route path="/app/kindly-pool-8785" element={<AdminOnlyAppRoute><Navigate replace to="/app/sturdy-month-1562" /></AdminOnlyAppRoute>} />
         <Route path="/app/cosmic-pool-1616" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="activities" /></AdminOnlyAppRoute>} />
         <Route path="/app/deeply-noon-9539" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="tasks" /></AdminOnlyAppRoute>} />
         <Route path="/app/breezy-soil-2475" element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="invoices" /></AdminOnlyAppRoute>} />
         <Route path="/app/tender-creek-3139" element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" /></AdminOnlyAppRoute>} />
+        <Route path="/app/wondrous-cloud-1355" element={<AdminOnlyAppRoute><SocialPublishingPage /></AdminOnlyAppRoute>} />
+        <Route path="/app/quietly-stone-4158" element={<AdminOnlyAppRoute><FinancePage /></AdminOnlyAppRoute>} />
         {FINANCE_RECORD_ROUTES.map(([slug, resourceType, title]) => <Route key={slug} path={`/app/${slug}`} element={<AdminOnlyAppRoute><WorkspaceRecordsPage activeSlug={slug} resourceType={resourceType} title={title} /></AdminOnlyAppRoute>} />)}
         <Route path={routes.app.quotesNew} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" create /></AdminOnlyAppRoute>} />
         <Route path={routes.app.quotes} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" /></AdminOnlyAppRoute>} />
@@ -334,10 +366,13 @@ export default function App() {
           if (page.slug === "quiet-garden-9477") return null;
           if (page.slug === "keen-morning-6353") return null;
           if (page.slug === "nicely-ocean-1051") return null;
+          if (page.slug === "mightily-shore-7108") return null;
+          if (page.slug === "smart-village-1099") return null;
           if (page.slug === "nicely-land-1864") return null;
           if (page.slug === "rich-field-1880") return null;
           if (page.slug === "lulu-email-portal-9013") return null;
           if (page.slug === "lulu-calendar-portal-9014") return null;
+          if (page.slug === "wondrous-cloud-1355") return null;
           const resolvedPath = pagePath(page.slug);
           const isAuthPage = resolvedPath === routes.auth.login
             || resolvedPath === routes.auth.signUp

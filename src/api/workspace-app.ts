@@ -79,7 +79,7 @@ export type ContentAsset = {
 };
 
 export type BillingState = {
-  apiWallet: { availableAmount:number;spentAmount:number;totalFundedAmount:number;currency:'CNY';packages:number[];enabled:boolean };
+  apiWallet: { availableAmount:number;reservedAmount:number;spentAmount:number;reversalDebtAmount:number;totalFundedAmount:number;currency:'CNY';packages:number[];enabled:boolean };
   storagePricing: { currency:'USD';freeTierDeduction:false;providerMarkupPercent:10;additionalStoragePerGbMonthUsd:number;storagePerGbMonthUsd:number;classAPerMillionOperationsUsd:number;classBPerMillionOperationsUsd:number;egressPerGbUsd:number };
   subscription: null | {
     workspaceId: string;

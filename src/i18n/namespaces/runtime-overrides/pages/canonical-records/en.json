@@ -21,5 +21,8 @@
   "Noch keine": "No",
   "Schließen": "Close",
   "Speichern": "Save",
-  "Wird geladen …": "Loading …"
+  "Wird geladen …": "Loading …",
+  "Aktualisiere die Seite, um den aktuellen Workspace-Stand zu verifizieren.": "Refresh the page to verify the current workspace state.",
+  "Datensätze sind derzeit nicht verfügbar.": "Records are currently unavailable.",
+  "error": "Error"
 }

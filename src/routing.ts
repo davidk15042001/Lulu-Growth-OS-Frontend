@@ -19,6 +19,7 @@ export const routes = {
     billings: "/billings",
   },
   app: {
+    office: "/app/office",
     dashboard: `/app/${HOME_PAGE_SLUG}`,
     communications: "/app/communications",
     growth: "/app/growth",
@@ -31,7 +32,10 @@ export const routes = {
     email: "/app/email",
     calendar: "/app/calendar",
     products: "/app/products",
+    orders: "/app/orders",
+    inventory: "/app/inventory",
     omnichannel: "/app/omnichannel",
+    crmCompanies: "/app/sturdy-month-1562",
     profile: "/app/profile",
     knowledgeBase: "/app/rich-field-1880",
     quotes: "/app/quotes",
@@ -56,10 +60,16 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "lulu-email-portal-9013": routes.app.email,
   "lulu-calendar-portal-9014": routes.app.calendar,
   "nicely-ocean-1051": routes.app.products,
+  "mightily-shore-7108": routes.app.orders,
+  "smart-village-1099": routes.app.inventory,
+  "sturdy-month-1562": routes.app.crmCompanies,
+  "kindly-pool-8785": routes.app.crmCompanies,
+  "quietly-stone-4158": routes.app.finance,
 };
 
 export const LEGACY_SETUP_COMPLETE_PATH = "/onboarding/setup-complete";
 export const LULU_NAVIGATION_MESSAGE = "lulu:navigate";
+export const OFFICE_PANEL_SURFACE = "office-panel" as const;
 export const SUBPAGE_NAVIGATION_LOCKED = false;
 export const PRIMARY_AUDIENCES_SLUG = "breezily-wood-5980";
 export const PRIMARY_REVIEWS_SLUG = "daring-brook-9034";
@@ -206,6 +216,21 @@ export function isLuluNavigationMessage(value: unknown): value is LuluNavigation
   return message.type === LULU_NAVIGATION_MESSAGE && typeof message.to === "string" && message.to.startsWith("/");
 }
 
+/**
+ * The Office employee panel renders the canonical Workspace route in a
+ * same-origin iframe. This explicit surface flag lets every shell suppress
+ * only its global chrome while preserving the real page, API and data model.
+ */
+export function isOfficePanelSurface(search = typeof window === "undefined" ? "" : window.location.search) {
+  return new URLSearchParams(search).get("surface") === OFFICE_PANEL_SURFACE;
+}
+
+export function withOfficePanelSurface(to: string) {
+  const target = new URL(to, typeof window === "undefined" ? "https://lulu.local" : window.location.origin);
+  target.searchParams.set("surface", OFFICE_PANEL_SURFACE);
+  return `${target.pathname}${target.search}${target.hash}`;
+}
+
 export function navigateApp(to: string, options: { replace?: boolean } = {}) {
   const message: LuluNavigationMessage = {
     type: LULU_NAVIGATION_MESSAGE,
@@ -215,6 +240,16 @@ export function navigateApp(to: string, options: { replace?: boolean } = {}) {
 
   if (window.parent !== window) {
     const target = new URL(to, window.location.href);
+    // Navigation originating inside an employee's embedded Workspace stays in
+    // that surface. It must not unexpectedly replace the CEO's Office route,
+    // and the surface marker must survive navigation between real pages.
+    if (isOfficePanelSurface()) {
+      target.searchParams.set("surface", OFFICE_PANEL_SURFACE);
+      const next = `${target.pathname}${target.search}${target.hash}`;
+      if (options.replace) window.location.replace(next);
+      else window.location.assign(next);
+      return;
+    }
     const before = `${window.location.pathname}${window.location.search}`;
     window.parent.postMessage(message, window.location.origin);
     window.setTimeout(() => {
@@ -223,6 +258,15 @@ export function navigateApp(to: string, options: { replace?: boolean } = {}) {
     }, 180);
     return;
   }
+
+  // The application shell listens for this cancelable event and delegates to
+  // React Router. Standalone generated entries do not install that listener,
+  // so they safely fall back to a document navigation below.
+  const routeEvent = new CustomEvent<LuluNavigationMessage>(LULU_NAVIGATION_MESSAGE, {
+    detail: message,
+    cancelable: true,
+  });
+  if (!window.dispatchEvent(routeEvent)) return;
 
   if (options.replace) {
     window.location.replace(to);
