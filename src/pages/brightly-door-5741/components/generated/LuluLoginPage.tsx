@@ -166,6 +166,7 @@ export const LuluLoginPage = () => {
       else if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') setError(t('accountNotFound'));
       else if (cause instanceof ApiError && cause.code === 'INVALID_CREDENTIALS') setError(t('invalidCredentials'));
       else if (cause instanceof ApiError && cause.code === 'API_TIMEOUT') setError(t('timeout'));
+      else if (cause instanceof ApiError && cause.status >= 500) setError(t('The login service is temporarily unavailable. Please try again shortly.'));
       else setError(getFriendlyErrorMessage(cause, t('We could not sign you in. Please try again.')));
       if (!(cause instanceof DOMException && cause.name === 'AbortError')) setErrorDetails(getTechnicalErrorDetails(cause));
     } finally {

@@ -1,6 +1,7 @@
 {
   "Sign in form": "登录表单",
   "Checking your account…": "正在检查你的账户…",
+  "The login service is temporarily unavailable. Please try again shortly.": "登录服务暂时不可用，请稍后重试。",
   "Accepting your workspace invitation…": "正在接受你的工作区邀请…",
   "The login request timed out. Please try again.": "登录请求已超时，请重试。",
   "This account uses an outdated verification state. Please try signing in again after the latest deployment. Email OTP is no longer required for registration.": "此账户使用旧版验证状态。请在最新版本部署后重新登录。注册已不再需要电子邮件一次性验证码。",

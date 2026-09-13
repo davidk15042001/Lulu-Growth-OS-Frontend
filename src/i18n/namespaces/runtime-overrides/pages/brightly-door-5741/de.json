@@ -1,5 +1,6 @@
 {
   "Checking your account…": "Dein Konto wird geprüft…",
+  "The login service is temporarily unavailable. Please try again shortly.": "Der Login-Dienst ist vorübergehend nicht verfügbar. Bitte versuche es gleich erneut.",
   "Accepting your workspace invitation…": "Deine Workspace-Einladung wird angenommen…",
   "The login request timed out. Please try again.": "Die Login-Anfrage hat das Zeitlimit überschritten. Bitte versuche es erneut.",
   "This account uses an outdated verification state. Please try signing in again after the latest deployment. Email OTP is no longer required for registration.": "Dieses Konto verwendet einen veralteten Verifizierungsstatus. Bitte melde dich nach dem neuesten Deployment erneut an. Für die Registrierung ist kein E-Mail-Einmalcode mehr erforderlich.",
