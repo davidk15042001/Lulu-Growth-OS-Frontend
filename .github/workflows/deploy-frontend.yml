@@ -140,7 +140,10 @@ jobs:
           else
             if ! sudo -n /usr/local/sbin/lulu-growth-backend-restart; then
               echo 'The privileged restart wrapper failed; retrying with the checked-in production deploy script.' >&2
-              sudo -n /bin/sh /var/www/lulu-growth-os/backend/scripts/deploy-production-backend.sh
+              if ! sudo -n /bin/sh /var/www/lulu-growth-os/backend/scripts/deploy-production-backend.sh; then
+                echo 'The checked-in production deploy script failed; attempting a service-only recovery.' >&2
+                sudo -n /usr/bin/systemctl restart lulu-growth-backend
+              fi
             fi
           fi
 
