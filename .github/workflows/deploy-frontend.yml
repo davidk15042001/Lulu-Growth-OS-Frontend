@@ -173,6 +173,10 @@ jobs:
             echo "npm=$(npm --version 2>&1)"
             echo "dist_run=$(test -r /var/www/lulu-growth-os/backend/dist/database/run.js && echo present || echo missing)"
             echo "package_lock=$(test -r /var/www/lulu-growth-os/backend/package-lock.json && echo present || echo missing)"
+            echo "backend_env=$(test -r /var/www/lulu-growth-os/backend/.env && echo readable || echo unavailable)"
+            echo "systemctl_direct=$(systemctl is-active lulu-growth-backend 2>&1)"
+            echo "systemctl_user=$(systemctl --user is-active lulu-growth-backend 2>&1)"
+            ps -eo user,pid,args 2>/dev/null | grep -E '[n]ode .*dist/(server|database/run)\.js' | tail -n 10
             sudo -n /usr/bin/systemctl show lulu-growth-backend --no-pager \
               -p ActiveState -p SubState -p Result -p MainPID -p ExecMainCode -p ExecMainStatus \
               2>&1 | sed -E 's/(token|secret|password|key)[^= ]*=([^ ]+)/\1=[REDACTED]/Ig'
