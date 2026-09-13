@@ -95,8 +95,6 @@ jobs:
           TWILIO_PARTNER_SOLUTION_ID: ${{ secrets.TWILIO_PARTNER_SOLUTION_ID }}
         run: |
           set -euo pipefail
-          test -n "$TWILIO_ACCOUNT_SID" || { echo 'TWILIO_ACCOUNT_SID is missing'; exit 1; }
-          test -n "$TWILIO_AUTH_TOKEN" || { echo 'TWILIO_AUTH_TOKEN is missing'; exit 1; }
           rsync -rz --links --delete \
             --exclude .env \
             --exclude .git \
@@ -105,9 +103,13 @@ jobs:
             --exclude '.deploy-stale-node_modules-*' \
             backend-source/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
-          printf 'TWILIO_ACCOUNT_SID=%s\nTWILIO_AUTH_TOKEN=%s\nTWILIO_WEBHOOK_URL=https://lulu-ai.cn/api/v1/provider-webhooks/twilio\nTWILIO_STATUS_CALLBACK_URL=https://lulu-ai.cn/api/v1/provider-webhooks/twilio\nMETA_CLIENT_ID=%s\nMETA_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID=%s\nTWILIO_PARTNER_SOLUTION_ID=%s\nMETA_GRAPH_VERSION=v23.0\n' \
-            "$TWILIO_ACCOUNT_SID" "$TWILIO_AUTH_TOKEN" "$META_CLIENT_ID" "$META_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID" "$TWILIO_PARTNER_SOLUTION_ID" | \
-            ssh "$DEPLOY_USER@$DEPLOY_HOST" 'install -d -m 700 /var/www/lulu-growth-os/backend/.runtime-secrets && umask 077 && cat > /var/www/lulu-growth-os/backend/.runtime-secrets/twilio.env'
+          if [ -n "$TWILIO_ACCOUNT_SID" ] && [ -n "$TWILIO_AUTH_TOKEN" ]; then
+            printf 'TWILIO_ACCOUNT_SID=%s\nTWILIO_AUTH_TOKEN=%s\nTWILIO_WEBHOOK_URL=https://lulu-ai.cn/api/v1/provider-webhooks/twilio\nTWILIO_STATUS_CALLBACK_URL=https://lulu-ai.cn/api/v1/provider-webhooks/twilio\nMETA_CLIENT_ID=%s\nMETA_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID=%s\nTWILIO_PARTNER_SOLUTION_ID=%s\nMETA_GRAPH_VERSION=v23.0\n' \
+              "$TWILIO_ACCOUNT_SID" "$TWILIO_AUTH_TOKEN" "$META_CLIENT_ID" "$META_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID" "$TWILIO_PARTNER_SOLUTION_ID" | \
+              ssh "$DEPLOY_USER@$DEPLOY_HOST" 'install -d -m 700 /var/www/lulu-growth-os/backend/.runtime-secrets && umask 077 && cat > /var/www/lulu-growth-os/backend/.runtime-secrets/twilio.env'
+          else
+            echo 'Twilio GitHub secrets are not configured; preserving the server-side provider secret file.'
+          fi
           # Keep the SSH transport alive while an otherwise long-running
           # production migration is executing.
           ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=20 \
