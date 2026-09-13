@@ -21582,5 +21582,18 @@
   "Subtotal": "Zwischensumme",
   "ACCEPTED": "Angenommen",
   "QUOTE": "Angebot",
-  "Seller": "Verkäufer"
+  "Seller": "Verkäufer",
+  "Quality data is not available yet.": "Qualitätsdaten sind noch nicht verfügbar.",
+  "Quality intelligence": "Qualitätsintelligenz",
+  "Trust before execution": "Vertrauen vor Ausführung",
+  "Only persisted quality artifacts, reviews and release decisions appear here. No demo scores or synthetic findings are shown.": "Hier werden nur gespeicherte Qualitätsartefakte, Prüfungen und Freigabeentscheidungen angezeigt. Keine Demo-Werte oder künstlichen Befunde.",
+  "Loading quality data…": "Qualitätsdaten werden geladen …",
+  "Artifacts": "Artefakte",
+  "Blocked / withheld": "Blockiert / zurückgehalten",
+  "Released": "Freigegeben",
+  "Measured outcomes": "Gemessene Ergebnisse",
+  "No quality artifacts have been recorded yet.": "Es wurden noch keine Qualitätsartefakte erfasst.",
+  "RELEASED": "FREIGEGEBEN",
+  "review(s)": "Prüfung(en)",
+  "hard block(s)": "harte Blockierung(en)"
 }

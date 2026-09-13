@@ -21582,5 +21582,18 @@
   "Subtotal": "小计",
   "ACCEPTED": "已接受",
   "QUOTE": "报价单",
-  "Seller": "卖方"
+  "Seller": "卖方",
+  "Quality data is not available yet.": "质量数据尚未可用。",
+  "Quality intelligence": "质量智能",
+  "Trust before execution": "执行前建立信任",
+  "Only persisted quality artifacts, reviews and release decisions appear here. No demo scores or synthetic findings are shown.": "这里只显示已持久化的质量产物、评审和发布决策，不显示演示分数或虚构的问题。",
+  "Loading quality data…": "正在加载质量数据……",
+  "Artifacts": "产物",
+  "Blocked / withheld": "已阻止 / 已暂缓",
+  "Released": "已发布",
+  "Measured outcomes": "已测量结果",
+  "No quality artifacts have been recorded yet.": "尚未记录质量产物。",
+  "RELEASED": "已发布",
+  "review(s)": "次评审",
+  "hard block(s)": "个硬阻断"
 }
