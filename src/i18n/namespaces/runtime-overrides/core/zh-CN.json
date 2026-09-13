@@ -3149,5 +3149,18 @@
   "Paid advertising is paused until the outstanding payment reversal balance is covered.": "在未结清的付款冲销余额全部补足之前，付费广告将保持暂停。",
   "Paid campaigns can launch and optimize automatically within the active authorization.": "付费广告系列可在有效预算授权范围内自动启动并优化。",
   "Payment confirmed. No usable AI balance remains.": "付款已确认。当前没有可用的 AI 余额。",
-  "Payment confirmed. Refresh to verify the current AI wallet state.": "付款已确认。请刷新以核实当前 AI 钱包状态。"
+  "Payment confirmed. Refresh to verify the current AI wallet state.": "付款已确认。请刷新以核实当前 AI 钱包状态。",
+  "Fulfillment Manager": "履约经理",
+  "intelligence": "智能分析",
+  "Live page data": "实时页面数据",
+  "Derived": "推导",
+  "Not applicable": "不适用",
+  "The page analysis starts automatically and uses only page-specific signals, onboarding data and connected sources. No demo values are shown.": "页面分析会自动启动，仅使用页面专属信号、引导设置数据和已连接的数据源。不会显示演示数据。",
+  "The analysis starts automatically and uses only your onboarding data and connected sources. No demo values are shown.": "分析会自动启动，仅使用你的引导设置数据和已连接的数据源。不会显示演示数据。",
+  "Latest refresh failed. The last verified intelligence remains visible.": "最新刷新失败，最后一次已验证的智能分析仍然可见。",
+  "The latest refresh failed. Only the last successfully loaded records are shown.": "最新刷新失败。仅显示上次成功加载的记录。",
+  "Loading verified records…": "正在加载已验证的记录…",
+  "Verified records unavailable": "已验证的记录不可用",
+  "No metrics or success claims are inferred while the backend state is unavailable.": "后端状态不可用时，不推断任何指标或成功结论。",
+  "Status not provided": "未提供状态"
 }

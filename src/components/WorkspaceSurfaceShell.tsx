@@ -41,8 +41,17 @@ export function WorkspaceSurfaceShell({ activeSlug, children }: { activeSlug: st
     if (officePanel || !mobileOpen || !window.matchMedia("(max-width: 900px)").matches) return;
     const navigation = document.getElementById("lulu-global-navigation");
     if (!navigation) return;
+    const topbar = document.querySelector<HTMLElement>("[data-lulu-auth-topbar]");
+    const previousTopbarState = topbar ? {
+      inert: topbar.inert,
+      ariaHidden: topbar.getAttribute("aria-hidden"),
+    } : null;
     const previousRole = navigation.getAttribute("role");
     const previousModal = navigation.getAttribute("aria-modal");
+    if (topbar) {
+      topbar.inert = true;
+      topbar.setAttribute("aria-hidden", "true");
+    }
     navigation.setAttribute("role", "dialog");
     navigation.setAttribute("aria-modal", "true");
     window.requestAnimationFrame(() => navigation.querySelector<HTMLElement>(".lulu-global-navigation__close")?.focus());
@@ -74,6 +83,11 @@ export function WorkspaceSurfaceShell({ activeSlug, children }: { activeSlug: st
     window.addEventListener("keydown", onKeyDown);
     return () => {
       window.removeEventListener("keydown", onKeyDown);
+      if (topbar && previousTopbarState) {
+        topbar.inert = previousTopbarState.inert;
+        if (previousTopbarState.ariaHidden == null) topbar.removeAttribute("aria-hidden");
+        else topbar.setAttribute("aria-hidden", previousTopbarState.ariaHidden);
+      }
       if (previousRole == null) navigation.removeAttribute("role");
       else navigation.setAttribute("role", previousRole);
       if (previousModal == null) navigation.removeAttribute("aria-modal");

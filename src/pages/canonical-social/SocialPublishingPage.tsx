@@ -200,6 +200,8 @@ export default function SocialPublishingPage() {
   const [content, setContent] = useState<SocialContent[]>([]);
   const [publications, setPublications] = useState<SocialPublicationJob[]>([]);
   const [connections, setConnections] = useState<ProviderConnection[]>([]);
+  const [connectionState, setConnectionState] = useState<"loading" | "ready" | "error">("loading");
+  const [stateWorkspaceId, setStateWorkspaceId] = useState<string | null>(workspaceId);
   const [selectedPublication, setSelectedPublication] = useState<SocialPublicationJob | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -293,14 +295,17 @@ export default function SocialPublishingPage() {
   const loadConnections = useCallback(async () => {
     if (!workspaceId) return;
     const requestId = ++connectionRequestId.current;
+    setConnectionState("loading");
     setConnectionError("");
     try {
       const result = await providerControlApi.connections(workspaceId);
       if (activeWorkspaceId.current !== workspaceId || connectionRequestId.current !== requestId) return;
       setConnections(result.data.connections);
+      setConnectionState("ready");
     } catch (cause) {
       if (activeWorkspaceId.current !== workspaceId || connectionRequestId.current !== requestId) return;
       setConnections([]);
+      setConnectionState("error");
       setConnectionError(messageFor(cause, "Provider connections are unavailable. Account configuration and publishing remain disabled."));
     }
   }, [workspaceId]);
@@ -312,9 +317,12 @@ export default function SocialPublishingPage() {
   }, []);
 
   useEffect(() => {
+    setStateWorkspaceId(workspaceId);
     setAccounts([]);
     setContent([]);
     setPublications([]);
+    setConnections([]);
+    setConnectionState("loading");
     verifiedWorkspaceRef.current = null;
     setCoreState("loading");
     setSelectedPublication(null);
@@ -551,11 +559,15 @@ export default function SocialPublishingPage() {
     : contentDraft.contentType === "LINK"
       ? Boolean(contentDraft.message.trim()) && isPublicHttps(contentDraft.linkUrl.trim())
       : isPublicHttps(contentDraft.mediaUrl.trim());
-  const publishValid = !connectionError && Boolean(publicationAccountId && publicationContentId)
+  const publishValid = connectionState === "ready" && !connectionError && Boolean(publicationAccountId && publicationContentId)
     && (publicationExecution === "DRAFT" || !publicationSchedule || new Date(publicationSchedule).getTime() > Date.now());
 
   if (!selectedWorkspace) {
     return <WorkspaceSurfaceShell activeSlug="wondrous-cloud-1355"><main className="page-frame grid min-h-screen place-items-center p-8 text-sm text-[var(--muted-foreground)]">Choose a workspace to manage social publishing.</main></WorkspaceSurfaceShell>;
+  }
+
+  if (stateWorkspaceId !== workspaceId) {
+    return <WorkspaceSurfaceShell activeSlug="wondrous-cloud-1355"><main className="page-frame grid min-h-screen place-items-center p-8 text-sm text-[var(--muted-foreground)]"><LoaderCircle className="mr-2 animate-spin" size={18} />Loading canonical publishing state…</main></WorkspaceSurfaceShell>;
   }
 
   return (
@@ -572,7 +584,7 @@ export default function SocialPublishingPage() {
                 </p>
               </div>
               <div className="grid grid-cols-3 gap-2 sm:min-w-[430px]">
-                <HeroMetric label="Verified channels" value={coreState === "loading" || coreState === "error" ? "—" : String(availableAccounts.length)} />
+                <HeroMetric label="Verified channels" value={coreState === "loading" || coreState === "error" || connectionState !== "ready" ? "—" : String(availableAccounts.length)} />
                 <HeroMetric label="Ready assets" value={coreState === "loading" || coreState === "error" ? "—" : String(readyContent.length)} />
                 <HeroMetric label="Published" value={coreState === "loading" || coreState === "error" ? "—" : String(publications.filter((item) => item.status === "PUBLISHED").length)} />
               </div>
@@ -601,7 +613,7 @@ export default function SocialPublishingPage() {
           {notice ? <div role="status" className="flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-900"><BadgeCheck className="mt-0.5 shrink-0" size={18} /><span className="text-xs leading-5">{notice}</span></div> : null}
           {!canManageSocial && !canPublishSocial ? <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900"><ShieldAlert className="mt-0.5 shrink-0" size={18} /><span>You have read-only social access. Lulu will show real state, but management and publishing controls are disabled.</span></div> : null}
 
-          {(coreState === "loading" || coreState === "refreshing") && !accounts.length && !content.length && !publications.length ? (
+          {(coreState === "loading" || coreState === "refreshing" || connectionState === "loading") && !accounts.length && !content.length && !publications.length ? (
             <Surface className="grid min-h-[480px] place-items-center"><div className="flex items-center gap-3 text-sm text-[var(--muted-foreground)]"><LoaderCircle className="animate-spin" size={19} /> Loading canonical publishing state…</div></Surface>
           ) : (coreState === "error" || coreState === "stale") && !accounts.length && !content.length && !publications.length ? (
             <Surface className="grid min-h-[480px] place-items-center"><EmptyState icon={<ShieldAlert size={22}/>} title="Publishing state unavailable" description="Lulu could not verify channels, content or publication jobs. Refresh server state to try again." /></Surface>
@@ -612,6 +624,7 @@ export default function SocialPublishingPage() {
               selected={selectedAccount}
               selectedId={selectedAccountId}
               connectionError={connectionError}
+              connectionsLoading={connectionState === "loading"}
               canEdit={canManageSocial}
               busy={busy}
               composerOpen={showAccountComposer}
@@ -651,6 +664,7 @@ export default function SocialPublishingPage() {
               execution={publicationExecution}
               schedule={publicationSchedule}
               publishableContent={publishableContent}
+              providerStateLoading={connectionState === "loading"}
               valid={publishValid}
               canEdit={canPublishSocial}
               busy={busy}
@@ -679,6 +693,7 @@ function AccountsWorkspace(props: {
   selected: SocialAccount | null;
   selectedId: string | null;
   connectionError: string;
+  connectionsLoading: boolean;
   canEdit: boolean;
   busy: string;
   composerOpen: boolean;
@@ -698,10 +713,10 @@ function AccountsWorkspace(props: {
       <Surface className="overflow-hidden">
         <div className="flex items-center justify-between gap-4 border-b border-[var(--border)] p-5">
           <div><p className="text-[10px] font-semibold uppercase tracking-[.14em] text-[var(--muted-foreground)]">Provider identity</p><h2 className="mt-1 text-lg font-semibold">Verified channels</h2></div>
-          <button type="button" onClick={props.onOpenComposer} disabled={!props.canEdit} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 text-xs font-semibold text-[var(--background)] disabled:opacity-50"><Plus size={15} /> Add channel</button>
+          <button type="button" onClick={props.onOpenComposer} disabled={!props.canEdit || props.connectionsLoading} className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 text-xs font-semibold text-[var(--background)] disabled:opacity-50"><Plus size={15} /> Add channel</button>
         </div>
         {props.connectionError ? <div className="m-4 flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs leading-5 text-rose-800"><Unplug size={16} className="mt-0.5 shrink-0" />{props.connectionError}</div> : null}
-        {!props.connections.length && !props.connectionError ? <div className="mx-4 mt-4 flex items-start justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900"><span>No Facebook or Instagram provider connection is available. Lulu cannot configure or publish a channel.</span><button type="button" onClick={() => navigateApp(routes.app.connections)} className="inline-flex shrink-0 items-center gap-1 font-semibold">Connections <ArrowUpRight size={13} /></button></div> : null}
+        {!props.connections.length && !props.connectionError && !props.connectionsLoading ? <div className="mx-4 mt-4 flex items-start justify-between gap-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-xs text-amber-900"><span>No Facebook or Instagram provider connection is available. Lulu cannot configure or publish a channel.</span><button type="button" onClick={() => navigateApp(routes.app.connections)} className="inline-flex shrink-0 items-center gap-1 font-semibold">Connections <ArrowUpRight size={13} /></button></div> : null}
         {!props.accounts.length ? (
           <EmptyState icon={<ShieldCheck size={22} />} title="No publishing identity yet" description="Connect an exact Facebook Page or Instagram Business account. Lulu verifies provider ownership and required scopes before a post can run." />
         ) : (
@@ -742,7 +757,7 @@ function AccountsWorkspace(props: {
             </div>
           </div>
         ) : (
-          <EmptyState icon={<ShieldCheck size={22} />} title="Select a channel" description="Inspect the exact Page identity, verification result and current provider error before publishing." action={usableConnections.length && props.canEdit ? <button type="button" onClick={props.onOpenComposer} className={secondaryButtonClass}><Plus size={14} /> Add channel</button> : undefined} />
+          <EmptyState icon={<ShieldCheck size={22} />} title="Select a channel" description="Inspect the exact Page identity, verification result and current provider error before publishing." action={usableConnections.length && props.canEdit && !props.connectionsLoading ? <button type="button" onClick={props.onOpenComposer} className={secondaryButtonClass}><Plus size={14} /> Add channel</button> : undefined} />
         )}
       </Surface>
     </div>
@@ -799,6 +814,7 @@ function PublicationsWorkspace(props: {
   execution: "DRAFT" | "QUEUE";
   schedule: string;
   publishableContent: SocialContent[];
+  providerStateLoading: boolean;
   valid: boolean;
   canEdit: boolean;
   busy: string;
@@ -830,9 +846,9 @@ function PublicationsWorkspace(props: {
         <form onSubmit={props.onSubmit}>
           <div className="border-b border-[var(--border)] p-5"><p className="text-[10px] font-semibold uppercase tracking-[.14em] text-violet-600">Manual control · same canonical engine</p><h2 className="mt-1 text-lg font-semibold">Create publication</h2><p className="mt-2 text-xs leading-5 text-[var(--muted-foreground)]">Lulu's autonomous workflows use the same accounts, content and server-side publication worker.</p></div>
           <div className="space-y-4 p-5">
-            {!availableAccounts.length ? <div className="flex items-start justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900"><span>No verified channel is available. Publishing is disabled.</span><button type="button" onClick={() => navigateApp("/app/wondrous-cloud-1355?section=accounts")} className="inline-flex shrink-0 items-center gap-1 font-semibold">Channels <ArrowUpRight size={12} /></button></div> : null}
-            <Field label="Verified channel"><select value={props.accountId} onChange={(event) => props.onAccountChange(event.target.value)} className={inputClass}><option value="">Choose a channel</option>{availableAccounts.map((account) => <option key={account.id} value={account.id}>{account.displayName} · {account.provider}</option>)}</select></Field>
-            <Field label="Ready canonical content"><select value={props.contentId} onChange={(event) => props.onContentChange(event.target.value)} className={inputClass}><option value="">Choose ready content</option>{props.publishableContent.map((item) => <option key={item.id} value={item.id}>{item.contentType} · {(item.message || item.altText || item.mediaUrl || item.id).slice(0, 72)}</option>)}</select>{selectedAccount?.provider === "INSTAGRAM" ? <small>Instagram is fail-closed to verified single-image content in the current production connector.</small> : null}</Field>
+            {!availableAccounts.length && !props.providerStateLoading ? <div className="flex items-start justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs leading-5 text-amber-900"><span>No verified channel is available. Publishing is disabled.</span><button type="button" onClick={() => navigateApp("/app/wondrous-cloud-1355?section=accounts")} className="inline-flex shrink-0 items-center gap-1 font-semibold">Channels <ArrowUpRight size={12} /></button></div> : null}
+            <Field label="Verified channel"><select value={props.accountId} onChange={(event) => props.onAccountChange(event.target.value)} disabled={props.providerStateLoading} className={inputClass}><option value="">Choose a channel</option>{availableAccounts.map((account) => <option key={account.id} value={account.id}>{account.displayName} · {account.provider}</option>)}</select></Field>
+            <Field label="Ready canonical content"><select value={props.contentId} onChange={(event) => props.onContentChange(event.target.value)} disabled={props.providerStateLoading} className={inputClass}><option value="">Choose ready content</option>{props.publishableContent.map((item) => <option key={item.id} value={item.id}>{item.contentType} · {(item.message || item.altText || item.mediaUrl || item.id).slice(0, 72)}</option>)}</select>{selectedAccount?.provider === "INSTAGRAM" ? <small>Instagram is fail-closed to verified single-image content in the current production connector.</small> : null}</Field>
             {selectedContent ? <article className="rounded-xl border border-[var(--border)] bg-[var(--secondary)]/60 p-4"><div className="flex items-center justify-between gap-2"><span className="text-[10px] font-semibold uppercase tracking-[.12em] text-[var(--muted-foreground)]">Provider payload preview</span><StatusBadge status={selectedContent.status} /></div><p className="mt-3 whitespace-pre-wrap text-xs leading-5">{selectedContent.message || "No caption"}</p>{selectedContent.mediaUrl ? <p className="mt-2 truncate text-[10px] text-[var(--muted-foreground)]">Image: {selectedContent.mediaUrl}</p> : null}{selectedContent.linkUrl ? <p className="mt-2 truncate text-[10px] text-[var(--muted-foreground)]">Link: {selectedContent.linkUrl}</p> : null}{selectedAccount?.provider === "INSTAGRAM" && selectedContent.message.length > 2200 ? <p className="mt-3 text-xs font-medium text-rose-700">Instagram caption exceeds 2,200 characters. The server will reject this publication.</p> : null}</article> : null}
             <div className="grid grid-cols-2 gap-2">{(["QUEUE", "DRAFT"] as const).map((value) => <button key={value} type="button" onClick={() => props.onExecutionChange(value)} className={`min-h-11 rounded-xl border px-3 text-xs font-semibold ${props.execution === value ? "border-violet-300 bg-violet-50 text-violet-800" : "border-[var(--border)] text-[var(--muted-foreground)]"}`}>{value === "QUEUE" ? "Queue / schedule" : "Save job as draft"}</button>)}</div>
             {props.execution === "QUEUE" ? <Field label="Publish time (optional)"><input type="datetime-local" value={props.schedule} min={new Date(Date.now() + 60_000).toISOString().slice(0, 16)} onChange={(event) => props.onScheduleChange(event.target.value)} className={inputClass} /><small>Leave empty to queue immediately. The worker records Meta confirmation before showing PUBLISHED.</small></Field> : null}

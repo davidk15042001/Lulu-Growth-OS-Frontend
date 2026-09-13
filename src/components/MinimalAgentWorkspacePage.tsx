@@ -1,10 +1,12 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useLuluApp } from "../api/LuluAppContext";
+import { getFriendlyErrorMessage } from "../api/client";
 import { getPageContract, RESOURCE_BY_SLUG, type PageContract } from "../api/page-contracts";
-import type { WorkspaceRecord } from "../api/records";
+import { getRecord, type WorkspaceRecord } from "../api/records";
 import { useLiveRecords } from "../api/useLiveRecords";
 import { type LuluAgentContract } from "../config/lulu-agent-registry";
-import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { WorkspaceIntelligencePanel } from "./WorkspaceIntelligencePanel";
 
 const OVERVIEW_RESOURCE_BY_PAGE_ID: Readonly<Record<string, string>> = {
@@ -16,11 +18,11 @@ const OVERVIEW_RESOURCE_BY_PAGE_ID: Readonly<Record<string, string>> = {
   "pure-minute-5446": "finance_invoices",
 };
 
-function formatDate(value: string | null | undefined) {
+function formatDate(value: string | null | undefined, language: string) {
   if (!value) return "—";
   const parsed = Date.parse(value);
   if (!Number.isFinite(parsed)) return "—";
-  return new Date(parsed).toLocaleString();
+  return new Date(parsed).toLocaleString(language);
 }
 
 function resolveResourceType(slug: string, contract: PageContract | undefined) {
@@ -39,28 +41,80 @@ export function MinimalAgentWorkspacePage({
   agentContract: LuluAgentContract;
 }) {
   const t = useTranslation();
+  const language = useLanguage();
   const { selectedWorkspace } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? null;
   const resourceType = resolveResourceType(slug, contract);
   const records = useLiveRecords(resourceType, "limit=25");
+  const [searchParams] = useSearchParams();
+  const linkedRecordId = searchParams.get("recordId");
+  const linkedKey = workspaceId && resourceType && linkedRecordId
+    ? `${workspaceId}:${resourceType}:${linkedRecordId}`
+    : null;
+  const [linkedRecordState, setLinkedRecordState] = useState<{ key: string; record: WorkspaceRecord } | null>(null);
+  const [linkedRecordFailure, setLinkedRecordFailure] = useState<{ key: string; message: string } | null>(null);
+  const [linkedRecordLoadingKey, setLinkedRecordLoadingKey] = useState<string | null>(null);
+  const linkedRequestRef = useRef(0);
+  const linkedRecord = linkedRecordState?.key === linkedKey ? linkedRecordState.record : null;
+  const linkedRecordError = linkedRecordFailure?.key === linkedKey ? linkedRecordFailure.message : null;
+  const linkedRecordLoading = Boolean(linkedKey && linkedRecordLoadingKey === linkedKey);
+
+  useEffect(() => {
+    const request = ++linkedRequestRef.current;
+    if (!linkedKey || !linkedRecordId || !resourceType || !workspaceId) {
+      setLinkedRecordLoadingKey(null);
+      return;
+    }
+    const listedRecord = records.items.find((record) => record.id === linkedRecordId);
+    if (listedRecord) {
+      setLinkedRecordState({ key: linkedKey, record: listedRecord });
+      setLinkedRecordFailure(null);
+      setLinkedRecordLoadingKey(null);
+      return;
+    }
+    setLinkedRecordLoadingKey(linkedKey);
+    void getRecord(resourceType, linkedRecordId).then((response) => {
+      if (request !== linkedRequestRef.current || selectedWorkspace?.id !== workspaceId) return;
+      setLinkedRecordState({ key: linkedKey, record: response.data });
+      setLinkedRecordFailure(null);
+    }).catch((cause) => {
+      if (request !== linkedRequestRef.current || selectedWorkspace?.id !== workspaceId) return;
+      setLinkedRecordFailure({
+        key: linkedKey,
+        message: getFriendlyErrorMessage(cause, "The selected record could not be loaded."),
+      });
+    }).finally(() => {
+      if (request === linkedRequestRef.current) setLinkedRecordLoadingKey(null);
+    });
+    return () => { linkedRequestRef.current += 1; };
+  }, [linkedKey, linkedRecordId, records.items, resourceType, selectedWorkspace?.id, workspaceId]);
+
+  const visibleRecords = useMemo(
+    () => linkedRecord
+      ? [linkedRecord, ...records.items.filter((record) => record.id !== linkedRecord.id)]
+      : records.items,
+    [linkedRecord, records.items],
+  );
 
   const recentRecords = useMemo(
-    () =>
-      records.items
+    () => {
+      const sorted = visibleRecords
+        .filter((record) => record.id !== linkedRecord?.id)
         .slice()
-        .sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt))
-        .slice(0, 6),
-    [records.items],
+        .sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt));
+      return linkedRecord ? [linkedRecord, ...sorted].slice(0, 6) : sorted.slice(0, 6);
+    },
+    [linkedRecord, visibleRecords],
   );
 
   const signalTags = useMemo(
-    () => Array.from(new Set(records.items.flatMap((record) => record.tags).filter(Boolean))).slice(0, 4),
-    [records.items],
+    () => Array.from(new Set(visibleRecords.flatMap((record) => record.tags).filter(Boolean))).slice(0, 4),
+    [visibleRecords],
   );
 
   const activeRecords = useMemo(
-    () => records.items.filter((record) => !/done|completed|paid|won|archived|closed/i.test(record.status || "")).length,
-    [records.items],
+    () => visibleRecords.filter((record) => !/done|completed|paid|won|archived|closed/i.test(record.status || "")).length,
+    [visibleRecords],
   );
 
   return (
@@ -69,8 +123,8 @@ export function MinimalAgentWorkspacePage({
         <WorkspaceIntelligencePanel
           workspaceId={workspaceId}
           pageId={agentContract.pageId}
-          title={`${agentContract.pageLabel} intelligence`}
-          summaryBadge="Live page data"
+          title={`${t(agentContract.pageLabel)} ${t("intelligence")}`}
+          summaryBadge={t("Live page data")}
         />
 
         {resourceType ? (
@@ -81,17 +135,17 @@ export function MinimalAgentWorkspacePage({
               <p className="mt-1 text-xs text-muted-foreground">{t("Live records in this workflow")}</p>
             </article>
             <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
-              <p className="text-xs text-muted-foreground">{t("Active")}</p>
+              <p className="text-xs text-muted-foreground">{t("Active in view")}</p>
               <p className="mt-2 text-2xl font-semibold text-foreground">{activeRecords}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{t("Items not marked complete")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("Loaded records not marked complete")}</p>
             </article>
             <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
-              <p className="text-xs text-muted-foreground">{t("Recent outcomes")}</p>
+              <p className="text-xs text-muted-foreground">{t("Records shown")}</p>
               <p className="mt-2 text-2xl font-semibold text-foreground">{recentRecords.length}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{t("Latest autonomous updates")}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{t("Most recently updated records")}</p>
             </article>
             <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
-              <p className="text-xs text-muted-foreground">{t("Signal tags")}</p>
+              <p className="text-xs text-muted-foreground">{t("Tags in view")}</p>
               <p className="mt-2 text-2xl font-semibold text-foreground">{signalTags.length}</p>
               <p className="mt-1 text-xs text-muted-foreground">{signalTags.length > 0 ? signalTags.join(" · ") : t("No dominant tags yet")}</p>
             </article>
@@ -135,18 +189,25 @@ export function MinimalAgentWorkspacePage({
             </div>
 
             {resourceType ? (
-              records.loading && recentRecords.length === 0 ? (
+              linkedRecordLoading && recentRecords.length === 0 ? (
+                <p className="mt-4 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">{t("Loading selected record…")}</p>
+              ) : linkedRecordError && recentRecords.length === 0 ? (
+                <p role="alert" className="mt-4 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-destructive">{linkedRecordError}</p>
+              ) : records.loading && recentRecords.length === 0 ? (
                 <p className="mt-4 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">{t("Loading live records…")}</p>
-              ) : records.error ? (
+              ) : records.error && recentRecords.length === 0 ? (
                 <p className="mt-4 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-destructive">{records.error}</p>
               ) : recentRecords.length === 0 ? (
                 <p className="mt-4 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">{t("No live records are available for this page yet.")}</p>
               ) : (
                 <div className="mt-4 grid gap-3">
+                  {linkedRecordError ? <p role="alert" className="rounded-lg border border-dashed border-border px-4 py-3 text-sm text-destructive">{linkedRecordError}</p> : null}
+                  {records.error ? <p role="status" className="rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">{records.error}</p> : null}
                   {recentRecords.map((record) => (
-                    <article key={record.id} className="rounded-lg border border-border bg-background/50 px-4 py-3">
+                    <article key={record.id} className={`rounded-lg border px-4 py-3 ${record.id === linkedRecordId ? "border-primary/40 bg-primary/5" : "border-border bg-background/50"}`}>
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
+                          {record.id === linkedRecordId ? <p className="mb-1 text-[10px] font-semibold uppercase tracking-[.12em] text-primary">{t("Selected record")}</p> : null}
                           <div className="text-sm font-medium text-foreground">{record.name}</div>
                           <div className="mt-1 text-sm text-muted-foreground">{record.description ?? t("No additional detail")}</div>
                         </div>
@@ -160,7 +221,7 @@ export function MinimalAgentWorkspacePage({
                           {t("Value")}: {record.valueAmount ?? "—"} {record.currency ?? ""}
                         </span>
                         <span>
-                          {t("Updated")}: {formatDate(record.updatedAt)}
+                          {t("Updated")}: {formatDate(record.updatedAt, language)}
                         </span>
                       </div>
                     </article>

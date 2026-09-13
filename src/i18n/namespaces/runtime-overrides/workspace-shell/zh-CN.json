@@ -182,5 +182,20 @@
   "No AI knowledge snapshot is available yet.": "暂时还没有 AI 知识快照。",
   "Watching conversations, agent runs and shared knowledge.": "正在监控对话、智能员工运行和共享知识。",
   "Uses {{0}} connected systems, {{1}} conversations and {{2}} knowledge sections.": "使用 {{0}} 个已连接系统、{{1}} 个对话和 {{2}} 个知识章节。",
-  "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.": "AI 影响力建立在 {{0}} 个对话、{{1}} 个活跃运行和 {{2}} 个知识章节之上。"
+  "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.": "AI 影响力建立在 {{0}} 个对话、{{1}} 个活跃运行和 {{2}} 个知识章节之上。",
+  "Active in view": "视图中的活跃记录",
+  "Loaded records not marked complete": "当前加载且未标记为完成的记录",
+  "Records shown": "当前显示记录",
+  "Most recently updated records": "最近更新的记录",
+  "Tags in view": "视图中的标签",
+  "Loading selected record…": "正在加载所选记录…",
+  "The selected record could not be loaded.": "无法加载所选记录。",
+  "Selected record": "所选记录",
+  "Admin view active in user account": "用户账户的管理员视图已启用",
+  "You are viewing this Workspace as a user.": "你当前正以用户身份查看此工作区。",
+  "Admin": "管理员",
+  "unknown": "未知",
+  "Returning to the admin panel failed.": "返回管理面板失败。",
+  "Returning…": "正在返回…",
+  "Return to Admin Panel": "返回管理面板"
 }

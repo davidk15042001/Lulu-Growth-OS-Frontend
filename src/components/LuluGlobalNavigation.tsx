@@ -124,7 +124,10 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
         if (section.label === "Calendar") return directLink(section, "lulu-calendar-portal-9014", <CalendarDays aria-hidden="true" size={16} />);
         if (DIRECT_SECTION_LABELS.has(section.label)) return directLink(section, section.pages[0]!.id);
         const active = section.pages.some((page) => page.id === activeSlug);
-        return <Fragment key={section.label}><details open={openSection === section.label} onToggle={(event) => setOpenSection(event.currentTarget.open ? section.label : null)}>
+        return <Fragment key={section.label}><details open={openSection === section.label} onToggle={(event) => {
+          const isOpen = event.currentTarget.open;
+          setOpenSection((current) => isOpen ? section.label : current === section.label ? null : current);
+        }}>
           <summary className={active ? "is-active" : undefined}><span className="lulu-global-navigation__section-label"><span>{t(section.label)}</span></span><ChevronDown aria-hidden="true" size={14} /></summary>
           <div className="lulu-global-navigation__subitems">
             {section.pages.map((page) => {

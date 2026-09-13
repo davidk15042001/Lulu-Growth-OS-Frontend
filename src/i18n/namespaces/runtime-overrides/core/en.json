@@ -96,5 +96,18 @@
   "Abbrechen": "Cancel",
   "Autonome Veröffentlichung aktiv": "Autonomous publishing active",
   "Autonome Veröffentlichung": "Autonomous publishing",
-  "Budget required": "Budget required"
+  "Budget required": "Budget required",
+  "Fulfillment Manager": "Fulfillment Manager",
+  "intelligence": "intelligence",
+  "Live page data": "Live page data",
+  "Derived": "Derived",
+  "Not applicable": "Not applicable",
+  "The page analysis starts automatically and uses only page-specific signals, onboarding data and connected sources. No demo values are shown.": "The page analysis starts automatically and uses only page-specific signals, onboarding data and connected sources. No demo values are shown.",
+  "The analysis starts automatically and uses only your onboarding data and connected sources. No demo values are shown.": "The analysis starts automatically and uses only your onboarding data and connected sources. No demo values are shown.",
+  "Latest refresh failed. The last verified intelligence remains visible.": "Latest refresh failed. The last verified intelligence remains visible.",
+  "The latest refresh failed. Only the last successfully loaded records are shown.": "The latest refresh failed. Only the last successfully loaded records are shown.",
+  "Loading verified records…": "Loading verified records…",
+  "Verified records unavailable": "Verified records unavailable",
+  "No metrics or success claims are inferred while the backend state is unavailable.": "No metrics or success claims are inferred while the backend state is unavailable.",
+  "Status not provided": "Status not provided"
 }

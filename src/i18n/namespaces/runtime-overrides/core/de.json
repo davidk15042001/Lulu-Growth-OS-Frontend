@@ -3149,5 +3149,18 @@
   "Paid advertising is paused until the outstanding payment reversal balance is covered.": "Bezahlte Werbung bleibt pausiert, bis der offene Zahlungsrückbuchungssaldo vollständig ausgeglichen ist.",
   "Paid campaigns can launch and optimize automatically within the active authorization.": "Bezahlte Kampagnen können innerhalb der aktiven Budgetfreigabe automatisch starten und optimiert werden.",
   "Payment confirmed. No usable AI balance remains.": "Zahlung bestätigt. Es ist kein nutzbares AI-Guthaben mehr verfügbar.",
-  "Payment confirmed. Refresh to verify the current AI wallet state.": "Zahlung bestätigt. Aktualisieren Sie die Ansicht, um den aktuellen AI-Wallet-Status zu prüfen."
+  "Payment confirmed. Refresh to verify the current AI wallet state.": "Zahlung bestätigt. Aktualisieren Sie die Ansicht, um den aktuellen AI-Wallet-Status zu prüfen.",
+  "Fulfillment Manager": "Fulfillment-Manager",
+  "intelligence": "Intelligenz",
+  "Live page data": "Live-Seitendaten",
+  "Derived": "Abgeleitet",
+  "Not applicable": "Nicht zutreffend",
+  "The page analysis starts automatically and uses only page-specific signals, onboarding data and connected sources. No demo values are shown.": "Die Seitenanalyse startet automatisch und nutzt ausschließlich seitenspezifische Signale, Onboarding-Daten und verbundene Quellen. Es werden keine Demowerte angezeigt.",
+  "The analysis starts automatically and uses only your onboarding data and connected sources. No demo values are shown.": "Die Analyse startet automatisch und nutzt ausschließlich deine Onboarding-Daten und verbundenen Quellen. Es werden keine Demowerte angezeigt.",
+  "Latest refresh failed. The last verified intelligence remains visible.": "Die letzte Aktualisierung ist fehlgeschlagen. Die zuletzt verifizierte Intelligenz bleibt sichtbar.",
+  "The latest refresh failed. Only the last successfully loaded records are shown.": "Die letzte Aktualisierung ist fehlgeschlagen. Es werden nur die zuletzt erfolgreich geladenen Datensätze angezeigt.",
+  "Loading verified records…": "Verifizierte Datensätze werden geladen…",
+  "Verified records unavailable": "Verifizierte Datensätze sind nicht verfügbar",
+  "No metrics or success claims are inferred while the backend state is unavailable.": "Solange der Backend-Status nicht verfügbar ist, werden keine Kennzahlen oder Erfolgsaussagen abgeleitet.",
+  "Status not provided": "Kein Status angegeben"
 }

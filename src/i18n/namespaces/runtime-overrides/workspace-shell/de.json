@@ -182,5 +182,20 @@
   "No AI knowledge snapshot is available yet.": "Es ist noch kein KI-Wissens-Snapshot verfuegbar.",
   "Watching conversations, agent runs and shared knowledge.": "Ueberwacht Konversationen, Agenten-Runs und geteiltes Wissen.",
   "Uses {{0}} connected systems, {{1}} conversations and {{2}} knowledge sections.": "Nutzt {{0}} verbundene Systeme, {{1}} Konversationen und {{2}} Wissenssektionen.",
-  "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.": "Der KI-Impact basiert auf {{0}} Konversationen, {{1}} aktiven Runs und {{2}} Wissenssektionen."
+  "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.": "Der KI-Impact basiert auf {{0}} Konversationen, {{1}} aktiven Runs und {{2}} Wissenssektionen.",
+  "Active in view": "Aktiv in der Ansicht",
+  "Loaded records not marked complete": "Geladene Datensätze ohne Abschlussstatus",
+  "Records shown": "Angezeigte Datensätze",
+  "Most recently updated records": "Zuletzt aktualisierte Datensätze",
+  "Tags in view": "Tags in der Ansicht",
+  "Loading selected record…": "Ausgewählter Datensatz wird geladen…",
+  "The selected record could not be loaded.": "Der ausgewählte Datensatz konnte nicht geladen werden.",
+  "Selected record": "Ausgewählter Datensatz",
+  "Admin view active in user account": "Admin-Ansicht im Benutzerkonto aktiv",
+  "You are viewing this Workspace as a user.": "Du siehst diesen Workspace gerade als Benutzer.",
+  "Admin": "Administrator",
+  "unknown": "unbekannt",
+  "Returning to the admin panel failed.": "Der Rückwechsel zum Adminpanel ist fehlgeschlagen.",
+  "Returning…": "Rückwechsel…",
+  "Return to Admin Panel": "Zurück zum Adminpanel"
 }

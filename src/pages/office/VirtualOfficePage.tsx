@@ -138,16 +138,21 @@ function useOnlineStatus() {
 }
 
 function useOfficeOverview(workspaceId: string | null) {
-  const [overview, setOverview] = useState<OfficeOverview | null>(null);
+  const [snapshot, setSnapshot] = useState<{ workspaceId: string; overview: OfficeOverview } | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [failure, setFailure] = useState<{ workspaceId: string; message: string } | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
+  const overview = snapshot?.workspaceId === workspaceId ? snapshot.overview : null;
+  const error = failure?.workspaceId === workspaceId ? failure.message : null;
 
   const load = useCallback(async (silent = false) => {
+    if (silent && controllerRef.current) return;
     if (!workspaceId) {
-      setOverview(null);
+      setSnapshot(null);
+      setFailure(null);
       setLoading(false);
+      setRefreshing(false);
       return;
     }
     controllerRef.current?.abort();
@@ -157,11 +162,15 @@ function useOfficeOverview(workspaceId: string | null) {
     else setLoading(true);
     try {
       const response = await officeApi.overview(workspaceId, controller.signal);
-      setOverview(response.data);
-      setError(null);
+      if (controller.signal.aborted) return;
+      setSnapshot({ workspaceId, overview: response.data });
+      setFailure(null);
     } catch (cause) {
       if (controller.signal.aborted) return;
-      setError(getFriendlyErrorMessage(cause, "The Virtual Office could not load its verified operating state."));
+      setFailure({
+        workspaceId,
+        message: getFriendlyErrorMessage(cause, "The Virtual Office could not load its verified operating state."),
+      });
     } finally {
       if (controllerRef.current === controller) {
         setLoading(false);
@@ -190,7 +199,13 @@ function useOfficeOverview(workspaceId: string | null) {
     };
   }, [load]);
 
-  return { overview, loading, refreshing, error, reload: () => load(Boolean(overview)) };
+  return {
+    overview,
+    loading: loading || Boolean(workspaceId && !overview && !error),
+    refreshing,
+    error,
+    reload: () => load(Boolean(overview)),
+  };
 }
 
 function EmployeeStatus({ status }: { status: OfficeEmployeeStatus }) {
@@ -331,6 +346,7 @@ function WorkItemCard({
     sourceAgentIds: employee.sourceAgentIds,
     capabilityKeys: capabilities,
     relatedObjectType: item.relatedObjectType,
+    pageId: typeof item.context.pageId === "string" ? item.context.pageId : null,
     currentUserCapabilities,
   });
   return <article className="lulu-office-work-card">
@@ -394,6 +410,7 @@ function EmployeeWorkDrawer({
     employeeId: string;
     relatedObjectType?: string | null;
     recordId?: string | null;
+    pageId?: string | null;
   } | null>(null);
   const closeButtonRef = useRef<HTMLButtonElement | null>(null);
   const drawerRef = useRef<HTMLElement | null>(null);
@@ -405,27 +422,42 @@ function EmployeeWorkDrawer({
 
   useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
   useEffect(() => { activeConfirmationRef.current = confirmation; }, [confirmation]);
+  useEffect(() => {
+    if (!canControl || details?.canControl === false) setConfirmation(null);
+  }, [canControl, details?.canControl]);
 
-  const load = useCallback(async (signal?: AbortSignal) => {
-    setLoading(true);
+  const requestControllerRef = useRef<AbortController | null>(null);
+
+  const load = useCallback(async (silent = false) => {
+    if (silent && requestControllerRef.current) return;
+    requestControllerRef.current?.abort();
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
+    if (!silent) setLoading(true);
     try {
       const [detailResult, workResult] = await Promise.all([
-        officeApi.employee(workspaceId, employee.id, signal),
-        officeApi.employeeWork(workspaceId, employee.id, { limit: 50 }, signal),
+        officeApi.employee(workspaceId, employee.id, controller.signal),
+        officeApi.employeeWork(workspaceId, employee.id, { limit: 50 }, controller.signal),
       ]);
+      if (controller.signal.aborted) return;
       setDetails(detailResult.data);
       setWork(workResult.data.items);
       setError(null);
     } catch (cause) {
-      if (!signal?.aborted) setError(getFriendlyErrorMessage(cause, "This employee's verified work state could not be loaded."));
+      if (!controller.signal.aborted) setError(getFriendlyErrorMessage(cause, "This employee's verified work state could not be loaded."));
     } finally {
-      if (!signal?.aborted) setLoading(false);
+      if (requestControllerRef.current === controller) {
+        setLoading(false);
+        requestControllerRef.current = null;
+      }
     }
   }, [employee.id, workspaceId]);
 
   useEffect(() => {
-    const controller = new AbortController();
-    void load(controller.signal);
+    void load(false);
+    const refreshTimer = window.setInterval(() => {
+      if (document.visibilityState === "visible" && navigator.onLine) void load(true);
+    }, REFRESH_INTERVAL_MS);
     const returnFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const previousOverflow = document.body.style.overflow;
     const backgroundRegions = Array.from(document.querySelectorAll<HTMLElement>("main.lulu-office, [data-lulu-auth-topbar]"));
@@ -457,7 +489,8 @@ function EmployeeWorkDrawer({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
-      controller.abort();
+      requestControllerRef.current?.abort();
+      window.clearInterval(refreshTimer);
       window.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = previousOverflow;
       backgroundRegions.forEach((element, index) => { element.inert = previousInert[index] ?? false; });
@@ -513,10 +546,17 @@ function EmployeeWorkDrawer({
     employeeKey: details.employee.key,
     sourceAgentIds: details.employee.sourceAgentIds,
     capabilityKeys,
-    relatedObjectType: activeWorkspaceContext?.relatedObjectType ?? details.currentWorkItem?.relatedObjectType,
+    relatedObjectType: activeWorkspaceContext
+      ? activeWorkspaceContext.relatedObjectType ?? null
+      : details.currentWorkItem?.relatedObjectType,
+    pageId: activeWorkspaceContext
+      ? activeWorkspaceContext.pageId ?? null
+      : typeof details.currentWorkItem?.context.pageId === "string" ? details.currentWorkItem.context.pageId : null,
     currentUserCapabilities,
   }) : null;
-  const panelRecordId = activeWorkspaceContext?.recordId ?? details?.currentWorkItem?.relatedObjectId;
+  const panelRecordId = activeWorkspaceContext
+    ? activeWorkspaceContext.recordId ?? null
+    : details?.currentWorkItem?.relatedObjectId;
   const panelWorkspaceUrl = panelRoute
     ? buildWorkspaceDeepLink(panelRoute.pageId, { recordId: panelRecordId, surface: "office-panel" })
     : null;
@@ -529,11 +569,14 @@ function EmployeeWorkDrawer({
     setPanelMode(mode);
   };
 
-  const openWorkspacePanel = (item?: Pick<OfficeWorkItem, "relatedObjectType" | "relatedObjectId">) => {
+  const openWorkspacePanel = (item?: Pick<OfficeWorkItem, "relatedObjectType" | "relatedObjectId" | "context">) => {
     setWorkspaceContext({
       employeeId: employee.id,
-      relatedObjectType: item?.relatedObjectType ?? details?.currentWorkItem?.relatedObjectType,
-      recordId: item?.relatedObjectId ?? details?.currentWorkItem?.relatedObjectId,
+      relatedObjectType: item ? item.relatedObjectType : details?.currentWorkItem?.relatedObjectType,
+      recordId: item ? item.relatedObjectId : details?.currentWorkItem?.relatedObjectId,
+      pageId: item && typeof item.context.pageId === "string"
+        ? item.context.pageId
+        : typeof details?.currentWorkItem?.context.pageId === "string" ? details.currentWorkItem.context.pageId : null,
     });
     selectPanelMode("workspace");
   };
@@ -543,11 +586,14 @@ function EmployeeWorkDrawer({
       employeeKey: details?.employee.key ?? employee.key,
       sourceAgentIds: details?.employee.sourceAgentIds ?? employee.sourceAgentIds,
       capabilityKeys,
-      relatedObjectType: item?.relatedObjectType ?? details?.currentWorkItem?.relatedObjectType,
+      relatedObjectType: item ? item.relatedObjectType : details?.currentWorkItem?.relatedObjectType,
+      pageId: item && typeof item.context.pageId === "string"
+        ? item.context.pageId
+        : typeof details?.currentWorkItem?.context.pageId === "string" ? details.currentWorkItem.context.pageId : null,
       currentUserCapabilities,
     });
     if (!route) return;
-    const recordId = item?.relatedObjectId ?? details?.currentWorkItem?.relatedObjectId;
+    const recordId = item ? item.relatedObjectId : details?.currentWorkItem?.relatedObjectId;
     onClose();
     navigate(buildWorkspaceDeepLink(route.pageId, { recordId }));
   };
@@ -645,7 +691,7 @@ function EmployeeWorkDrawer({
         {displayEmployee.description && <p className="lulu-office-drawer__description">{displayEmployee.description}</p>}
 
         {loading && <div className="lulu-office-loading lulu-office-loading--drawer" role="status"><LoaderCircle aria-hidden="true" className="lulu-office-spin" /><span>{t("Loading verified work…")}</span></div>}
-        {error && <div className="lulu-office-error" role="alert"><AlertTriangle aria-hidden="true" size={18} /><div><strong>{t("Work state unavailable")}</strong><p>{error}</p><button type="button" onClick={() => void load()}>{t("Try again")}</button></div></div>}
+        {error && <div className="lulu-office-error" role="alert"><AlertTriangle aria-hidden="true" size={18} /><div><strong>{t("Work state unavailable")}</strong><p>{error}</p><button type="button" onClick={() => void load(false)}>{t("Try again")}</button></div></div>}
 
         {!loading && details && <>
           <section className="lulu-office-drawer__section">
@@ -666,7 +712,7 @@ function EmployeeWorkDrawer({
           <section className="lulu-office-drawer__section">
             <div className="lulu-office-section-heading"><div><span className="lulu-office-eyebrow">{t("Execution")}</span><h3>{t("Current and recent work")}</h3></div><span>{work.length}</span></div>
             <div className="lulu-office-work-list">
-              {work.map((item) => <WorkItemCard key={item.id} item={item} employee={displayEmployee} capabilities={capabilityKeys} currentUserCapabilities={currentUserCapabilities} canControl={canControl} busyAction={busyAction} onControl={requestControl} onOpenWorkspacePanel={openWorkspacePanel} onOpenWorkspace={openWorkspace} />)}
+              {work.map((item) => <WorkItemCard key={item.id} item={item} employee={displayEmployee} capabilities={capabilityKeys} currentUserCapabilities={currentUserCapabilities} canControl={canControl && details.canControl} busyAction={busyAction} onControl={requestControl} onOpenWorkspacePanel={openWorkspacePanel} onOpenWorkspace={openWorkspace} />)}
               {work.length === 0 && <div className="lulu-office-empty lulu-office-empty--compact"><Bot aria-hidden="true" size={20} /><strong>{t("No persisted work items")}</strong><p>{t("This employee is not pretending to be busy. Work appears when the backend assigns a real task.")}</p></div>}
             </div>
           </section>
@@ -712,7 +758,7 @@ function EmployeeWorkDrawer({
         </div>
       </div>
 
-      {canControl && confirmation && <div className="lulu-office-confirm-layer">
+      {canControl && details?.canControl && confirmation && <div className="lulu-office-confirm-layer">
         <div ref={confirmationDialogRef} className="lulu-office-confirm" role="alertdialog" aria-modal="true" aria-labelledby="lulu-office-confirm-title" aria-describedby="lulu-office-confirm-description">
           <strong id="lulu-office-confirm-title">{confirmation.action === "cancel" ? t("Cancel this work item?") : t("Take over this work item?")}</strong>
           <p id="lulu-office-confirm-description">{confirmation.action === "cancel"
@@ -725,10 +771,10 @@ function EmployeeWorkDrawer({
   </div>;
 }
 
-function OverviewMetric({ icon: Icon, label, value, tone }: { icon: LucideIcon; label: string; value: number; tone?: string }) {
+function OverviewMetric({ icon: Icon, label, value, language, tone }: { icon: LucideIcon; label: string; value: number; language: string; tone?: string }) {
   return <article className={`lulu-office-metric${tone ? ` is-${tone}` : ""}`}>
     <span><Icon aria-hidden="true" size={17} /></span>
-    <div><strong>{value.toLocaleString()}</strong><p>{label}</p></div>
+    <div><strong>{value.toLocaleString(language)}</strong><p>{label}</p></div>
   </article>;
 }
 
@@ -779,10 +825,10 @@ export default function VirtualOfficePage() {
       {overview && <>
         {error && <div className="lulu-office-stale" role="status"><AlertTriangle aria-hidden="true" size={15} /><span>{t("Live refresh failed. The last verified state remains visible.")}</span></div>}
         <section className="lulu-office-metrics" aria-label={t("Company operating summary")}>
-          <OverviewMetric icon={Activity} label={t("Active work items")} value={overview.summary.activeWorkItems} />
-          <OverviewMetric icon={UsersRound} label={t("Employees working now")} value={overview.summary.workingEmployees} tone="active" />
-          <OverviewMetric icon={CheckCircle2} label={t("Completed today")} value={overview.summary.completedToday} tone="success" />
-          <OverviewMetric icon={AlertTriangle} label={t("Needs attention")} value={overview.summary.attentionEmployees} tone={overview.summary.attentionEmployees > 0 ? "attention" : undefined} />
+          <OverviewMetric icon={Activity} label={t("Active work items")} value={overview.summary.activeWorkItems} language={language} />
+          <OverviewMetric icon={UsersRound} label={t("Employees working now")} value={overview.summary.workingEmployees} language={language} tone="active" />
+          <OverviewMetric icon={CheckCircle2} label={t("Completed today")} value={overview.summary.completedToday} language={language} tone="success" />
+          <OverviewMetric icon={AlertTriangle} label={t("Needs attention")} value={overview.summary.attentionEmployees} language={language} tone={overview.summary.attentionEmployees > 0 ? "attention" : undefined} />
         </section>
 
         <div className="lulu-office-layout">

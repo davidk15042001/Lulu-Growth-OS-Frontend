@@ -169,5 +169,20 @@
   "No AI knowledge snapshot is available yet.": "No AI knowledge snapshot is available yet.",
   "Watching conversations, agent runs and shared knowledge.": "Watching conversations, agent runs and shared knowledge.",
   "Uses {{0}} connected systems, {{1}} conversations and {{2}} knowledge sections.": "Uses {{0}} connected systems, {{1}} conversations and {{2}} knowledge sections.",
-  "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.": "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections."
+  "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.": "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.",
+  "Active in view": "Active in view",
+  "Loaded records not marked complete": "Loaded records not marked complete",
+  "Records shown": "Records shown",
+  "Most recently updated records": "Most recently updated records",
+  "Tags in view": "Tags in view",
+  "Loading selected record…": "Loading selected record…",
+  "The selected record could not be loaded.": "The selected record could not be loaded.",
+  "Selected record": "Selected record",
+  "Admin view active in user account": "Admin view active in user account",
+  "You are viewing this Workspace as a user.": "You are viewing this Workspace as a user.",
+  "Admin": "Admin",
+  "unknown": "unknown",
+  "Returning to the admin panel failed.": "Returning to the admin panel failed.",
+  "Returning…": "Returning…",
+  "Return to Admin Panel": "Return to Admin Panel"
 }

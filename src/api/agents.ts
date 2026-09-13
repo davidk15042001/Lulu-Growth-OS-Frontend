@@ -223,7 +223,7 @@ export function agentModuleForContract(contract: LuluAgentContract): AgentModule
 
 export const agentApi = {
   list: (workspaceId: string, query?: AgentQuery) => requestApi<{ items: AgentRun[] }>({ path: withAgentQuery(workspaceApiPath(workspaceId, '/agent-runs'), query) }),
-  knowledge: (workspaceId: string, query?: AgentQuery) => requestApi<IntelligenceBundle>({ path: withAgentQuery(intelligencePath(workspaceId), query) }),
+  knowledge: (workspaceId: string, query?: AgentQuery, signal?: AbortSignal) => requestApi<IntelligenceBundle>({ path: withAgentQuery(intelligencePath(workspaceId), query), signal }),
   health: (workspaceId: string, query?: AgentQuery) => requestApi<AgentHealth>({ path: withAgentQuery(workspaceApiPath(workspaceId, '/agent-runs/health'), query) }),
   ecosystem: (workspaceId: string) => requestApi<AgentEcosystem>({ path: workspaceApiPath(workspaceId, '/agent-runs/ecosystem') }),
   create: (workspaceId: string, options?: CreateAgentRunOptions) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, '/agent-runs'), method: 'POST', body: { module: options?.module, page: options?.page, dedupeMinutes: options?.dedupeMinutes } }),

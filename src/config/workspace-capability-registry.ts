@@ -1,4 +1,5 @@
 import { luluDropdownNavigation as generatedNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
+import { RESOURCE_BY_SLUG } from "../api/page-contracts";
 import { isPageAvailable, pagePath } from "../routing";
 
 export type WorkspaceCapability =
@@ -101,6 +102,7 @@ const PAGE_METADATA: Readonly<Record<string, Partial<{
   "richly-forest-5832": { department: "Commerce", employee: "Category Manager", capabilityKey: "commerce.categories", readPermission: "products.read" },
   "mightily-shore-7108": { department: "Commerce", employee: "Order Manager", capabilityKey: "commerce.orders", readPermission: "orders.read" },
   "smart-village-1099": { department: "Commerce", employee: "Inventory Manager", capabilityKey: "commerce.inventory", readPermission: "orders.read" },
+  "purely-dusk-2409": { department: "Commerce", employee: "Fulfillment Manager", capabilityKey: "commerce.fulfillment", readPermission: "orders.read" },
   "breezy-soil-2475": { department: "Finance", employee: "Invoice Manager", capabilityKey: "finance.invoices", readPermission: "invoices.read" },
   "tender-creek-3139": { department: "Sales", employee: "Quote Specialist", capabilityKey: "sales.quotes", readPermission: "quotes.read" },
   "daring-brook-9034": { department: "Online Presence", employee: "Reviews & Reputation Manager", capabilityKey: "online_presence.reviews", readPermission: "website.read" },
@@ -324,7 +326,10 @@ export function getWorkspaceRouteForObjectType(objectType: string | null | undef
   const normalized = objectType.toLowerCase().replace(/[.-]/g, "_");
   const pageId = OBJECT_WORKSPACE_PAGE[normalized]
     ?? OBJECT_WORKSPACE_PAGE[normalized.replace(/^canonical_/, "")]
-    ?? OBJECT_WORKSPACE_PAGE[normalized.replace(/_records?$/, "")];
+    ?? OBJECT_WORKSPACE_PAGE[normalized.replace(/_records?$/, "")]
+    ?? Object.entries(RESOURCE_BY_SLUG).find(([candidatePageId, resourceType]) => (
+      resourceType.toLowerCase() === normalized && isPageAvailable(candidatePageId)
+    ))?.[0];
   return pageId ? getWorkspaceCapabilityRoute(pageId) : null;
 }
 
@@ -355,10 +360,12 @@ export function resolveEmployeeWorkspaceRoute(input: {
   sourceAgentIds?: readonly string[];
   capabilityKeys?: readonly string[];
   relatedObjectType?: string | null;
+  pageId?: string | null;
   currentUserCapabilities?: readonly string[];
 }) {
   const candidates = [
     getWorkspaceRouteForObjectType(input.relatedObjectType),
+    input.pageId ? getWorkspaceCapabilityRoute(input.pageId) : null,
     getWorkspaceRouteForEmployeeIdentity(input.employeeKey, input.sourceAgentIds),
     ...(input.capabilityKeys
       ?.filter((capabilityKey) => capabilityKey !== "workspace.read")

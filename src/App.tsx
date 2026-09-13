@@ -2,7 +2,7 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import { ArrowLeftRight } from "lucide-react";
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { pages } from "./pages-manifest";
-import { GlobalLanguageSwitcher } from "./i18n/GlobalLanguageSwitcher";
+import { GlobalLanguageSwitcher, useTranslation } from "./i18n/GlobalLanguageSwitcher";
 import { LEGACY_SETUP_COMPLETE_PATH, LULU_NAVIGATION_MESSAGE, isLuluNavigationMessage, isOfficePanelSurface, isPageAvailable, pagePath, routes } from "./routing";
 import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from "./api/client";
 import { authApi } from "./api/auth";
@@ -241,6 +241,7 @@ function InvitationAccept() {
 }
 
 export default function App() {
+  const t = useTranslation();
   const { currentUser } = useLuluApp();
   const location = useLocation();
   const navigate = useNavigate();
@@ -279,7 +280,7 @@ export default function App() {
       setAdminSurface("admin");
       window.location.replace(ADMIN_PANEL_PATH);
     } catch (error) {
-      setImpersonationError(getFriendlyErrorMessage(error, "Der Rückwechsel ins Adminpanel hat nicht funktioniert."));
+      setImpersonationError(getFriendlyErrorMessage(error, t("Returning to the admin panel failed.")));
     } finally {
       setRestoringAdmin(false);
     }
@@ -290,9 +291,9 @@ export default function App() {
       {currentUser?.impersonation?.active && !isPublicMeeting && !officePanel ? (
         <div className="fixed bottom-4 right-4 z-[95] flex w-[min(calc(100vw-2rem),540px)] items-center justify-between gap-3 rounded-2xl border border-violet-200 bg-white/95 px-4 py-3 text-sm text-violet-950 shadow-[0_20px_55px_rgba(76,29,149,0.2)] backdrop-blur-xl sm:bottom-5 sm:right-5">
           <div className="min-w-0">
-            <div className="font-semibold">Admin-Ansicht im User-Account aktiv</div>
-            <div className="truncate text-xs text-violet-800">
-              Du schaust gerade als User in den Workspace. Admin: {currentUser.impersonation.adminEmail ?? "unbekannt"}
+            <div className="font-semibold">{t("Admin view active in user account")}</div>
+            <div className="text-xs text-violet-800 [overflow-wrap:anywhere]">
+              {t("You are viewing this Workspace as a user.")} {t("Admin")}: {currentUser.impersonation.adminEmail ?? t("unknown")}
             </div>
             {impersonationError ? <div className="mt-1 text-xs text-rose-700">{impersonationError}</div> : null}
           </div>
@@ -302,7 +303,7 @@ export default function App() {
             disabled={restoringAdmin}
             className="shrink-0 rounded-full border border-violet-300 bg-white px-3 py-2 text-xs font-medium text-violet-900 transition hover:bg-violet-100 disabled:opacity-60"
           >
-            {restoringAdmin ? "Wechsle zurück…" : "Zurück zum Adminpanel"}
+            {restoringAdmin ? t("Returning…") : t("Return to Admin Panel")}
           </button>
         </div>
       ) : null}
