@@ -149,6 +149,45 @@ jobs:
           exit 1
           REMOTE
 
+      # Keep a bounded, redacted diagnostic on the public host when the
+      # privileged backend step fails.  This lets us inspect server-side
+      # service/migration state even when GitHub's job log is unavailable to
+      # the repository owner, without exposing environment values.
+      - name: Produktionsdiagnose bei Backend-Fehler
+        if: ${{ failure() }}
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+        run: |
+          set +e
+          ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
+            "$DEPLOY_USER@$DEPLOY_HOST" "bash -se" <<'REMOTE_DIAGNOSTIC'
+          set +e
+          target=/var/www/lulu-ai.cn/html/deploy-diagnostics.txt
+          {
+            echo "generated_at=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            id
+            echo "backend_dir=$(stat -c '%U:%G %a' /var/www/lulu-growth-os/backend 2>/dev/null)"
+            echo "runtime_secrets=$(stat -c '%U:%G %a' /var/www/lulu-growth-os/backend/.runtime-secrets 2>/dev/null)"
+            echo "node=$(node --version 2>&1)"
+            echo "npm=$(npm --version 2>&1)"
+            echo "dist_run=$(test -r /var/www/lulu-growth-os/backend/dist/database/run.js && echo present || echo missing)"
+            echo "package_lock=$(test -r /var/www/lulu-growth-os/backend/package-lock.json && echo present || echo missing)"
+            sudo -n /usr/bin/systemctl show lulu-growth-backend --no-pager \
+              -p ActiveState -p SubState -p Result -p MainPID -p ExecMainCode -p ExecMainStatus \
+              2>&1 | sed -E 's/(token|secret|password|key)[^= ]*=([^ ]+)/\1=[REDACTED]/Ig'
+            sudo -n /usr/bin/systemctl status lulu-growth-backend --no-pager --full 2>&1 \
+              | tail -n 40 \
+              | sed -E 's/(token|secret|password|key)[^= ]*=([^ ]+)/\1=[REDACTED]/Ig'
+            sudo -n /usr/bin/journalctl -u lulu-growth-backend --no-pager -n 60 2>&1 \
+              | grep -Ei 'error|fatal|exception|failed|migration|listen|database|exit|ready|permission|denied' \
+              | tail -n 40 \
+              | sed -E 's/(token|secret|password|key)[^= ]*=([^ ]+)/\1=[REDACTED]/Ig'
+          } > "$target"
+          chmod 644 "$target"
+          REMOTE_DIAGNOSTIC
+          exit 0
+
       # Activate the browser bundle only after migrations, restart and backend
       # process health succeeded. This prevents a new frontend from calling an old
       # API when the backend half of a release fails.
