@@ -138,7 +138,10 @@ jobs:
           if [ "$(id -u)" -eq 0 ]; then
             /bin/sh /var/www/lulu-growth-os/backend/scripts/deploy-production-backend.sh
           else
-            sudo -n /usr/local/sbin/lulu-growth-backend-restart
+            if ! sudo -n /usr/local/sbin/lulu-growth-backend-restart; then
+              echo 'The privileged restart wrapper failed; retrying with the checked-in production deploy script.' >&2
+              sudo -n /bin/sh /var/www/lulu-growth-os/backend/scripts/deploy-production-backend.sh
+            fi
           fi
 
           for attempt in $(seq 1 30); do
