@@ -18,7 +18,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # Large production migrations (including the Office projection backfill)
+    # can legitimately run for more than 35 minutes on existing workspaces.
+    timeout-minutes: 240
 
     steps:
       - name: Frontend auschecken
@@ -115,7 +117,7 @@ jobs:
           fi
           # Keep the SSH transport alive while an otherwise long-running
           # production migration is executing.
-          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=20 \
+          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=240 \
             "$DEPLOY_USER@$DEPLOY_HOST" "bash -se" <<'REMOTE'
           set -euo pipefail
           cd /var/www/lulu-growth-os/backend
