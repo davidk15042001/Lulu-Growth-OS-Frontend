@@ -21595,5 +21595,14 @@
   "No quality artifacts have been recorded yet.": "尚未记录质量产物。",
   "RELEASED": "已发布",
   "review(s)": "次评审",
-  "hard block(s)": "个硬阻断"
+  "hard block(s)": "个硬阻断",
+  "Inspect quality": "检查质量",
+  "Inspect": "检查",
+  "Quality detail": "质量详情",
+  "Claims": "声明",
+  "Reviews": "评审",
+  "Findings": "问题",
+  "Release decisions": "发布决策",
+  "Close": "关闭",
+  "Loading quality detail…": "正在加载质量详情……"
 }

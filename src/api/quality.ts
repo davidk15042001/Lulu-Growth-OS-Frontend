@@ -30,6 +30,18 @@ export type QualityOverview = {
   recent: QualityArtifact[];
 };
 
+export type QualityArtifactDetail = {
+  artifact: QualityArtifact & { createdBy: string | null; createdAt: string; updatedAt: string };
+  versions: Array<{ id: string; version: number; content: Record<string, unknown>; producerAgentId: string; createdAt: string }>;
+  currentVersionId: string | null;
+  claims: Array<{ id: string; artifactVersionId: string; claimText: string; claimType: string; sourceStatus: string; verdict: string; evidenceIds: string[] }>;
+  reviews: Array<{ id: string; artifactVersionId: string; reviewerAgentId: string; reviewerKind: string; verdict: string; overallScore: number | null; createdAt: string }>;
+  findings: Array<{ id: string; artifactVersionId: string; severity: string; category: string; message: string; resolvedAt: string | null }>;
+  releaseDecisions: Array<{ id: string; artifactVersionId: string; decision: string; reason: string; createdAt: string }>;
+  feedback: unknown[];
+  outcomes: unknown[];
+};
+
 export const qualityApi = {
   overview: (workspaceId: string, signal?: AbortSignal) => requestApi<QualityOverview>({
     path: workspaceApiPath(workspaceId, '/quality/overview'), signal,
@@ -44,4 +56,7 @@ export const qualityApi = {
       path: `${workspaceApiPath(workspaceId, '/quality/artifacts')}${query ? `?${query}` : ''}`, signal,
     });
   },
+  artifact: (workspaceId: string, artifactId: string, signal?: AbortSignal) => requestApi<QualityArtifactDetail>({
+    path: workspaceApiPath(workspaceId, `/quality/artifacts/${artifactId}`), signal,
+  }),
 };

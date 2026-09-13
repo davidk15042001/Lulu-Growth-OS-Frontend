@@ -21595,5 +21595,14 @@
   "No quality artifacts have been recorded yet.": "Es wurden noch keine Qualitätsartefakte erfasst.",
   "RELEASED": "FREIGEGEBEN",
   "review(s)": "Prüfung(en)",
-  "hard block(s)": "harte Blockierung(en)"
+  "hard block(s)": "harte Blockierung(en)",
+  "Inspect quality": "Qualität prüfen",
+  "Inspect": "Prüfen",
+  "Quality detail": "Qualitätsdetails",
+  "Claims": "Aussagen",
+  "Reviews": "Prüfungen",
+  "Findings": "Befunde",
+  "Release decisions": "Freigabeentscheidungen",
+  "Close": "Schließen",
+  "Loading quality detail…": "Qualitätsdetails werden geladen …"
 }
