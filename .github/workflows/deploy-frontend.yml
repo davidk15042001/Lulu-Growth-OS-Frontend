@@ -117,16 +117,6 @@ jobs:
           set -euo pipefail
           cd /var/www/lulu-growth-os/backend
 
-          # Keep the provider encryption key outside the root-owned environment
-          # file and preserve it across rsync --delete deployments.
-          install -d -m 700 .runtime-secrets
-          key_file=.runtime-secrets/provider-credential-key
-          if ! test -f "$key_file"; then
-            umask 077
-            node -e "process.stdout.write(require('node:crypto').randomBytes(32).toString('hex') + '\\n')" > "$key_file"
-          fi
-          grep -Eq '^[0-9a-fA-F]{64}$' "$key_file"
-
           if ! npm ci --omit=dev --ignore-scripts; then
             test -d node_modules || { echo "npm ci failed before node_modules was created" >&2; exit 1; }
             stale_path=".deploy-stale-node_modules-$(date +%Y%m%d%H%M%S)"
