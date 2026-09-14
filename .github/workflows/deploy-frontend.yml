@@ -186,7 +186,9 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --retry 5 --retry-all-errors https://lulu-ai.cn/api/v1/health | grep -q '"status":"ok"'
-          curl --fail --silent --show-error --retry 5 --retry-all-errors https://lulu-ai.cn/api/v1/ready | grep -q '"status":"ready"'
+          readiness="$(curl --silent --show-error --retry 5 --retry-all-errors https://lulu-ai.cn/api/v1/ready)"
+          printf 'Public readiness response: %s\n' "$readiness"
+          printf '%s' "$readiness" | grep -q '"status":"ready"'
           curl --fail --silent --show-error https://lulu-ai.cn/release.json | grep -q '"frontend"'
           curl --fail --silent --show-error https://lulu-ai.cn/robots.txt | grep -q 'Sitemap:'
           curl --fail --silent --show-error https://lulu-ai.cn/.well-known/security.txt | grep -q 'Contact:'
