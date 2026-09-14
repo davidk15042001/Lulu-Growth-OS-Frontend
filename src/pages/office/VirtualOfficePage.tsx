@@ -282,6 +282,20 @@ function formatDateTime(value: string | null | undefined, language: string) {
   return new Intl.DateTimeFormat(language, { dateStyle: "medium", timeStyle: "short" }).format(date);
 }
 
+function simplifyWorkText(value: string | null | undefined, maxLength = 240) {
+  if (!value) return "";
+  const cleaned = value
+    .replace(/\[[^\]]+\]\s*/g, "")
+    .replace(/\b[0-9a-f]{8}-[0-9a-f-]{27,}\b/gi, "")
+    .replace(/\b(?:[A-Za-z][A-Za-z0-9/&-]*\s+){0,4}Agent:\s*/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!cleaned) return "";
+  const firstSentence = cleaned.match(/^.*?[.!?](?:\s|$)/)?.[0]?.trim() ?? cleaned;
+  const readable = firstSentence.length >= 36 ? firstSentence : cleaned;
+  return readable.length > maxLength ? `${readable.slice(0, maxLength - 1).trimEnd()}…` : readable;
+}
+
 function Timeline({
   items,
   language,
@@ -341,6 +355,15 @@ function WorkItemCard({
   onOpenWorkspace: (item: OfficeWorkItem) => void;
 }) {
   const t = useTranslation();
+  const readableTitle = simplifyWorkText(item.title) || t("Work item");
+  const readableObjective = simplifyWorkText(item.objective);
+  const readableDescription = simplifyWorkText(item.description);
+  const readableError = simplifyWorkText(item.errorMessage);
+  const titleKey = readableTitle.toLowerCase();
+  const showObjective = Boolean(readableObjective && readableObjective.toLowerCase() !== titleKey);
+  const showDescription = Boolean(readableDescription
+    && readableDescription.toLowerCase() !== titleKey
+    && readableDescription.toLowerCase() !== readableObjective.toLowerCase());
   const route = resolveEmployeeWorkspaceRoute({
     employeeKey: employee.key,
     sourceAgentIds: employee.sourceAgentIds,
@@ -352,18 +375,13 @@ function WorkItemCard({
   return <article className="lulu-office-work-card">
     <div className="lulu-office-work-card__heading">
       <div>
-        <strong>{item.title}</strong>
-        {item.objective && <p>{item.objective}</p>}
+        <strong>{readableTitle}</strong>
+        {showObjective && <p>{readableObjective}</p>}
       </div>
       <WorkStatus status={item.status} />
     </div>
-    {item.description && <p className="lulu-office-work-card__description">{item.description}</p>}
-    {item.errorMessage && <div className="lulu-office-work-card__error" role="alert"><AlertTriangle aria-hidden="true" size={15} /><span>{item.errorMessage}</span></div>}
-    <div className="lulu-office-work-card__meta">
-      <span>{t("Source")}: {item.sourceType.replaceAll("_", " ")}</span>
-      <span>{t("Attempt")} {item.attemptCount}/{item.maxAttempts}</span>
-      <span>{t("Version")} {item.version}</span>
-    </div>
+    {showDescription && <p className="lulu-office-work-card__description">{readableDescription}</p>}
+    {readableError && <div className="lulu-office-work-card__error" role="alert"><AlertTriangle aria-hidden="true" size={15} /><span>{readableError}</span></div>}
     <div className="lulu-office-work-card__actions">
       {canControl && item.availableControls.map((action) => {
         const Icon = controlIcons[action];
@@ -710,10 +728,10 @@ function EmployeeWorkDrawer({
           </section>
 
           <section className="lulu-office-drawer__section">
-            <div className="lulu-office-section-heading"><div><span className="lulu-office-eyebrow">{t("Execution")}</span><h3>{t("Current and recent work")}</h3></div><span>{work.length}</span></div>
+            <div className="lulu-office-section-heading"><div><span className="lulu-office-eyebrow">{t("Execution")}</span><h3>{t("What this employee is doing")}</h3></div><span>{work.length}</span></div>
             <div className="lulu-office-work-list">
               {work.map((item) => <WorkItemCard key={item.id} item={item} employee={displayEmployee} capabilities={capabilityKeys} currentUserCapabilities={currentUserCapabilities} canControl={canControl && details.canControl} busyAction={busyAction} onControl={requestControl} onOpenWorkspacePanel={openWorkspacePanel} onOpenWorkspace={openWorkspace} />)}
-              {work.length === 0 && <div className="lulu-office-empty lulu-office-empty--compact"><Bot aria-hidden="true" size={20} /><strong>{t("No persisted work items")}</strong><p>{t("This employee is not pretending to be busy. Work appears when the backend assigns a real task.")}</p></div>}
+              {work.length === 0 && <div className="lulu-office-empty lulu-office-empty--compact"><Bot aria-hidden="true" size={20} /><strong>{t("No work yet")}</strong><p>{t("This employee will show work here when Lulu gives it a real task.")}</p></div>}
             </div>
           </section>
 
