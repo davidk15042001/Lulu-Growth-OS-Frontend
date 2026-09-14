@@ -256,6 +256,20 @@ export function ApiWalletPanel() {
             "Payment confirmed. Refresh to verify the current AI wallet state.",
           );
   const paymentResultTone = aiReady ? "text-emerald-700" : "text-amber-700";
+  const wallet = currentOverview?.wallet;
+  const topups = currentOverview?.topups ?? [];
+  const statusLabel = (status: string) => {
+    if (status === "SUCCEEDED") return t("Confirmed");
+    if (["PENDING_PAYMENT", "REQUIRES_CUSTOMER_ACTION"].includes(status)) return t("Pending");
+    if (["FAILED", "CANCELLED", "REVERSED"].includes(status)) return t("Not completed");
+    return status.replaceAll("_", " ");
+  };
+  const methodLabel = (value: ApiPaymentMethod) => methods.find((item) => item.id === value)?.label ?? value;
+  const formatDate = (value: string | null) => {
+    if (!value) return "—";
+    try { return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
+    catch { return value; }
+  };
   return (
     <section className="mb-6 overflow-hidden rounded-3xl border border-violet-500/20 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,.14),transparent_48%),var(--card)] shadow-sm">
       {hasReversalDebt ? (
@@ -290,20 +304,24 @@ export function ApiWalletPanel() {
             AI, agents and premium media execute only against confirmed balance.
             There is no API PAYG invoice.
           </p>
-          <p className="mt-7 text-xs uppercase tracking-[.15em] text-muted-foreground">
-            Available balance
-          </p>
-          <p className="mt-2 text-4xl font-semibold">
-            {displayLoading
-              ? "—"
-              : money.format(currentOverview?.wallet.availableAmount ?? 0)}
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            {displayLoading
-              ? "—"
-              : money.format(currentOverview?.wallet.reservedAmount ?? 0)}{" "}
-            {t("reserved")}
-          </p>
+          <div className="mt-7 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Available now")}</p>
+              <p className="mt-2 text-2xl font-semibold text-emerald-700">{displayLoading ? "—" : money.format(wallet?.availableAmount ?? 0)}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Ready to use for new AI work")}</p>
+            </div>
+            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Reserved")}</p>
+              <p className="mt-2 text-2xl font-semibold text-amber-700">{displayLoading ? "—" : money.format(wallet?.reservedAmount ?? 0)}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Held for work in progress")}</p>
+            </div>
+            <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Actually spent")}</p>
+              <p className="mt-2 text-2xl font-semibold text-violet-700">{displayLoading ? "—" : money.format(wallet?.spentAmount ?? 0)}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Settled provider costs")}</p>
+            </div>
+          </div>
+          <p className="mt-4 text-xs leading-5 text-muted-foreground">{t("Available funds can be used immediately. Reserved funds are held for active AI work. Actually spent is the confirmed provider cost.")}</p>
           <span
             className={`mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${aiReady ? "bg-emerald-500/10 text-emerald-700" : "bg-amber-500/10 text-amber-700"}`}
           >
@@ -399,6 +417,38 @@ export function ApiWalletPanel() {
               "Waiting for confirmed payment…"
             )}
           </p>
+        </div>
+      ) : null}
+      {topups.length ? (
+        <div className="border-t border-border p-6 sm:p-8">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">{t("Payment history")}</p>
+              <h3 className="mt-1 text-lg font-semibold">{t("Airwallex payment receipts")}</h3>
+            </div>
+            <p className="text-xs text-muted-foreground">{t("Use the payment ID to find the transaction in Airwallex.")}</p>
+          </div>
+          <div className="mt-4 space-y-3">
+            {topups.slice(0, 8).map((item) => {
+              const providerId = item.providerPaymentIntentId ?? item.providerInvoiceId ?? item.merchantOrderId ?? null;
+              return (
+                <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-background/50 p-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold">{money.format(item.amount)}</p>
+                      <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${item.status === "SUCCEEDED" ? "bg-emerald-500/10 text-emerald-700" : item.status === "FAILED" || item.status === "REVERSED" ? "bg-red-500/10 text-red-700" : "bg-amber-500/10 text-amber-700"}`}>{statusLabel(item.status)}</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">{methodLabel(item.paymentMethod)} · {formatDate(item.paidAt ?? item.createdAt)}</p>
+                    {providerId ? <p className="mt-2 break-all font-mono text-[11px] text-muted-foreground">{t("Payment ID")}: {providerId}</p> : null}
+                  </div>
+                  <div className="shrink-0 text-left text-xs sm:text-right">
+                    {item.status === "SUCCEEDED" ? <p className="font-semibold text-emerald-700">{t("Confirmed by Airwallex")}</p> : <p className="text-muted-foreground">{t("Waiting for Airwallex confirmation")}</p>}
+                    {item.creditedAt ? <p className="mt-1 text-muted-foreground">{t("Credited")}: {formatDate(item.creditedAt)}</p> : null}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
       ) : null}
     </section>
