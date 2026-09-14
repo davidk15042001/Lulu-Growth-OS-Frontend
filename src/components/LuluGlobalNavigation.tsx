@@ -1,8 +1,8 @@
 import { CalendarDays, Check, ChevronDown, Languages, LogOut, RefreshCw, X } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
-import { requestApi } from "../api/client";
+import { clearAuthSession, requestApi } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
-import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
+import { clearSelectedWorkspaceId, clearStoredUser, getSelectedWorkspaceId } from "../api/session";
 import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
 import { workspaceAppApi } from "../api/workspace-app";
 import { AccountSessions } from "./AccountSessions";
@@ -59,6 +59,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
   const [agentsPaused, setAgentsPaused] = useState(false);
   const [agentsToggleBusy, setAgentsToggleBusy] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const activationPageId = !selectedWorkspace?.onboardingCompletedAt
     ? selectedWorkspace?.onboardingStep === "profile_completion" ? "profile" : selectedWorkspace?.onboardingStep === "knowledge_base" ? "rich-field-1880" : null
     : null;
@@ -127,9 +128,21 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
   }, []);
 
   const signOut = async () => {
+    if (signingOut) return;
+    setSigningOut(true);
     try { await requestApi({ path: "/auth/logout", method: "POST", body: {} }); }
-    finally { window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY); clearSelectedWorkspaceId(); onNavigate?.(); navigateApp(routes.auth.login); }
+    finally {
+      window.localStorage.removeItem(WEBSITE_GENERATION_STORAGE_KEY);
+      clearSelectedWorkspaceId();
+      clearStoredUser();
+      clearAuthSession();
+      // Do not use client-side route navigation here. The provider still has
+      // the old user for one render, which can bounce PublicAuthRoute back to
+      // the workspace. A single document redirect prevents that flash loop.
+      window.location.replace(routes.auth.login);
+    }
   };
+  const signOutButton = <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void signOut()} disabled={signingOut} aria-busy={signingOut}><LogOut aria-hidden="true" size={14} /><span>{t("Sign out")}</span></button>;
   const directLink = (section: NavigationSection, pageId: string, icon?: ReactNode) => {
     const props = pageLinkProps(pageId);
     const active = section.pages.some((page) => page.id === activeSlug);
@@ -163,14 +176,14 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
                 <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setLanguageOpen((value) => !value)} aria-expanded={languageOpen}><Languages aria-hidden="true" size={14} /><span>{t("Language")}</span></button>
                 {languageOpen && <div className="lulu-global-navigation__language-list">{languages.filter((option) => isAvailableLanguageCode(option.code)).map((option) => <button key={option.code} type="button" className={`lulu-global-navigation__language-option${option.code === language ? " is-active" : ""}`} onClick={() => switchLanguage(option.code)}><span lang={option.code} dir={option.direction} data-lulu-no-translate="true" translate="no">{option.nativeName}</span>{option.code === language && <Check aria-hidden="true" size={13} />}</button>)}</div>}
               </>}
-              <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void signOut()}><LogOut aria-hidden="true" size={14} /><span>{t("Sign out")}</span></button>
+              {signOutButton}
             </>}
             {websiteLock && section.label === WEBSITE_AND_COMMERCE_LABEL && <div className={`lulu-global-navigation__website-lock is-${websiteLock.status}`} role="status"><RefreshCw aria-hidden="true" size={13} className={websiteLock.blocking ? "animate-spin" : undefined} /><span>{websiteLockLabel(websiteLock.status, t)} · {t(websiteLock.status)}</span></div>}
           </div>
         </details></Fragment>;
       })}
-      {activationPageId && navigationSections.length === 0 && <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void signOut()}><LogOut aria-hidden="true" size={14} /><span>{t("Sign out")}</span></button>}
-      {!navigationSections.some((section) => section.label === SETTINGS_LABEL) && !activationPageId && <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void signOut()}><LogOut aria-hidden="true" size={14} /><span>{t("Sign out")}</span></button>}
+      {activationPageId && navigationSections.length === 0 && signOutButton}
+      {!navigationSections.some((section) => section.label === SETTINGS_LABEL) && !activationPageId && signOutButton}
     </nav>
   </aside>;
 }

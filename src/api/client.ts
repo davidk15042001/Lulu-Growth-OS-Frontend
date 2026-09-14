@@ -363,6 +363,13 @@ function clearClientSession() {
   }
 }
 
+// Logout must be able to clear the in-memory bearer token even when the
+// server request fails. Otherwise a hard redirect can immediately restore the
+// previous session and make the app appear to flash between routes.
+export function clearAuthSession() {
+  clearClientSession();
+}
+
 let accessToken: string | null = readStoredAccessToken();
 type RefreshOutcome = { ok: true } | { ok: false; terminal: boolean };
 let refreshPromise: Promise<RefreshOutcome> | null = null;
