@@ -28,6 +28,7 @@ export type RecordInvoicePaymentInput = {
 };
 export type QuoteDetail = { quote: Quote; versions: Array<Record<string, unknown>>; lines: Array<Record<string, unknown>>; deliveries: Array<Record<string, unknown>> };
 export type DocumentSellerProfile = {
+  workspaceId?: string;
   companyName: string;
   industry: string | null;
   countryRegion: string | null;
@@ -40,6 +41,7 @@ export type DocumentSellerProfile = {
   bankOpeningBank: string | null;
   bankBranch: string | null;
   bankCode: string | null;
+  logoUrl: string | null;
 };
 export type InvoiceDetail = { invoice: Invoice; sellerProfile: DocumentSellerProfile | null; lines: Array<Record<string, unknown>>; deliveries: Array<Record<string, unknown>>; payments?: InvoicePayment[] };
 const path = (workspaceId: string, suffix: string) => `/workspaces/${encodeURIComponent(workspaceId)}/commercial-documents${suffix}`;

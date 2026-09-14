@@ -21604,5 +21604,18 @@
   "Findings": "问题",
   "Release decisions": "发布决策",
   "Close": "关闭",
-  "Loading quality detail…": "正在加载质量详情……"
+  "Loading quality detail…": "正在加载质量详情……",
+  "Company logo": "公司标志",
+  "Use a PNG, JPEG or WebP image for the company logo.": "请使用 PNG、JPEG 或 WebP 图片作为公司标志。",
+  "The company logo must be 5 MB or smaller.": "公司标志必须小于或等于 5 MB。",
+  "Company logo was uploaded and will appear on new invoices and quotes.": "公司标志已上传，将显示在新的发票和报价单上。",
+  "The company logo could not be uploaded.": "公司标志上传失败。",
+  "Company logo was removed.": "公司标志已移除。",
+  "The company logo could not be removed.": "公司标志移除失败。",
+  "This logo is shown on your invoices and quotes.": "此标志会显示在发票和报价单上。",
+  "Replace logo": "替换标志",
+  "Upload logo": "上传标志",
+  "No logo uploaded": "尚未上传标志",
+  "PNG, JPEG or WebP": "PNG、JPEG 或 WebP",
+  "Maximum 5 MB": "最大 5 MB"
 }

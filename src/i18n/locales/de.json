@@ -21604,5 +21604,18 @@
   "Findings": "Befunde",
   "Release decisions": "Freigabeentscheidungen",
   "Close": "Schließen",
-  "Loading quality detail…": "Qualitätsdetails werden geladen …"
+  "Loading quality detail…": "Qualitätsdetails werden geladen …",
+  "Company logo": "Unternehmenslogo",
+  "Use a PNG, JPEG or WebP image for the company logo.": "Verwende ein PNG-, JPEG- oder WebP-Bild für das Unternehmenslogo.",
+  "The company logo must be 5 MB or smaller.": "Das Unternehmenslogo darf höchstens 5 MB groß sein.",
+  "Company logo was uploaded and will appear on new invoices and quotes.": "Das Unternehmenslogo wurde hochgeladen und erscheint auf neuen Rechnungen und Angeboten.",
+  "The company logo could not be uploaded.": "Das Unternehmenslogo konnte nicht hochgeladen werden.",
+  "Company logo was removed.": "Das Unternehmenslogo wurde entfernt.",
+  "The company logo could not be removed.": "Das Unternehmenslogo konnte nicht entfernt werden.",
+  "This logo is shown on your invoices and quotes.": "Dieses Logo wird auf deinen Rechnungen und Angeboten angezeigt.",
+  "Replace logo": "Logo ersetzen",
+  "Upload logo": "Logo hochladen",
+  "No logo uploaded": "Kein Logo hochgeladen",
+  "PNG, JPEG or WebP": "PNG, JPEG oder WebP",
+  "Maximum 5 MB": "Maximal 5 MB"
 }

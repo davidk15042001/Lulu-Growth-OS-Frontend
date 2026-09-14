@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Building2, CheckCircle2, Eye, EyeOff, LockKeyhole, Save, UserRound } from 'lucide-react';
+import { Building2, CheckCircle2, Eye, EyeOff, ImagePlus, LockKeyhole, Save, Trash2, UserRound } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { getFriendlyErrorMessage } from '../../api/client';
 import { clearStoredUser } from '../../api/session';
@@ -52,6 +52,9 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoFileName, setLogoFileName] = useState<string | null>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
 
   // Company/legal identity is required before billing is active.  Keep this
   // screen available to workspace owners/admins even when the commercial
@@ -79,7 +82,11 @@ export default function ProfilePage() {
         if (!active) return;
         // Keep the response contract strict, but do not blank the complete
         // profile if a rolling deployment returns an incomplete envelope.
-        if (response.data && typeof response.data === 'object') setProfile(profileToForm(response.data));
+        if (response.data && typeof response.data === 'object') {
+          setProfile(profileToForm(response.data));
+          setLogoUrl(response.data.logoUrl ?? null);
+          setLogoFileName(response.data.logoFileName ?? null);
+        }
         else if (selectedWorkspace) setProfile(workspaceToProfileForm(selectedWorkspace));
       })
       .catch((cause) => {
@@ -175,6 +182,35 @@ export default function ProfilePage() {
   };
 
   const updateField = (key: keyof ProfileForm, value: string) => setProfile((current) => ({ ...current, [key]: value }));
+  const uploadLogo = async (file: File | undefined) => {
+    if (!workspaceId || !file) return;
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+      setError(t('Use a PNG, JPEG or WebP image for the company logo.'));
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError(t('The company logo must be 5 MB or smaller.'));
+      return;
+    }
+    setLogoUploading(true); setError(''); setNotice('');
+    try {
+      const response = await workspaceProfileApi.uploadLogo(workspaceId, file);
+      setLogoUrl(response.data.logoUrl); setLogoFileName(response.data.logoFileName);
+      setNotice(t('Company logo was uploaded and will appear on new invoices and quotes.'));
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, t('The company logo could not be uploaded.')));
+    } finally { setLogoUploading(false); }
+  };
+  const removeLogo = async () => {
+    if (!workspaceId || !logoUrl) return;
+    setLogoUploading(true); setError(''); setNotice('');
+    try {
+      await workspaceProfileApi.deleteLogo(workspaceId);
+      setLogoUrl(null); setLogoFileName(null); setNotice(t('Company logo was removed.'));
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, t('The company logo could not be removed.')));
+    } finally { setLogoUploading(false); }
+  };
   const field = (key: keyof ProfileForm, label: string, options: { type?: string; sensitive?: boolean; wide?: boolean } = {}) => (
     <label key={key} className={options.wide ? 'sm:col-span-2' : undefined}>
       <span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{label}</span>
@@ -204,6 +240,22 @@ export default function ProfilePage() {
       {!canManageWorkspaceProfile ? <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{t('Ask a workspace owner or admin to manage these details.')}</div> : <>
         {loading ? <div className="mt-6 rounded-xl bg-[var(--secondary)] p-8 text-center text-sm text-[var(--muted-foreground)]">{t('Loading profile…')}</div> : <>
           <div className="mt-6 grid gap-4 sm:grid-cols-2">{field('companyName', t('Company name'))}{field('industry', t('Industry'))}{!activationMode ? <>{field('countryRegion', t('Country / region'))}{field('taxId', t('Tax ID'))}{field('legalForm', t('Legal form'))}{field('legalRepresentative', t('Legal representative'))}{field('phoneNumber', t('Phone number'))}{field('address', t('Address'), { wide: true })}</> : null}</div>
+          <div className="mt-7 border-t border-[var(--border)] pt-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div><h3 className="font-semibold">{t('Company logo')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('This logo is shown on your invoices and quotes.')}</p></div>
+              <div className="flex items-center gap-3">
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--secondary)]">
+                  <ImagePlus size={16}/>{logoUploading ? t('Uploading…') : logoUrl ? t('Replace logo') : t('Upload logo')}
+                  <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={logoUploading} onChange={(event) => { void uploadLogo(event.target.files?.[0]); event.currentTarget.value = ''; }}/>
+                </label>
+                {logoUrl ? <button type="button" disabled={logoUploading} onClick={() => void removeLogo()} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-medium text-rose-700 hover:bg-rose-50 disabled:opacity-50"><Trash2 size={15}/>{t('Remove')}</button> : null}
+              </div>
+            </div>
+            <div className="mt-4 flex min-h-24 items-center gap-4 rounded-xl border border-dashed border-[var(--border)] bg-[var(--secondary)]/40 p-4">
+              {logoUrl ? <img src={logoUrl} alt={profile.companyName ? `${profile.companyName} logo` : t('Company logo')} className="max-h-20 max-w-48 rounded-lg bg-white object-contain p-2 shadow-sm" /> : <div className="grid h-20 w-32 place-items-center rounded-lg bg-white text-xs text-[var(--muted-foreground)]">{t('No logo uploaded')}</div>}
+              <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('PNG, JPEG or WebP')}</p><p className="mt-1">{t('Maximum 5 MB')}</p></div>
+            </div>
+          </div>
           {!activationMode ? <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', t('Bank account number'))}{field('bankCode', t('Bank code'))}{field('bankOpeningBank', t('Account opening bank'))}{field('bankBranch', t('Branch'))}</div></div> : null}
           <div className="mt-6 flex justify-end"><button type="button" onClick={() => void updateCompanyProfile()} disabled={savingProfile || loading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-50"><Save size={15}/>{savingProfile ? t('Saving…') : t('Save company profile')}</button></div>
         </>}

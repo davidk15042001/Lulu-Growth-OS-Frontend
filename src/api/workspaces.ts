@@ -84,9 +84,12 @@ export type WorkspaceProfile = {
   onboardingStep: string;
   profileCompletedAt: string | null;
   missingRequiredFields: string[];
+  logoUrl: string | null;
+  logoMimeType: string | null;
+  logoFileName: string | null;
 };
 
-export type WorkspaceProfileInput = Partial<Omit<WorkspaceProfile, 'workspaceId' | 'onboardingStep' | 'profileCompletedAt' | 'missingRequiredFields'>>;
+export type WorkspaceProfileInput = Partial<Omit<WorkspaceProfile, 'workspaceId' | 'onboardingStep' | 'profileCompletedAt' | 'missingRequiredFields' | 'logoUrl' | 'logoMimeType' | 'logoFileName'>>;
 
 export const workspaceProfileApi = {
   get: (workspaceId: string, signal?: AbortSignal) => requestApi<WorkspaceProfile>({
@@ -94,5 +97,15 @@ export const workspaceProfileApi = {
   }),
   update: (workspaceId: string, input: WorkspaceProfileInput) => requestApi<WorkspaceProfile>({
     path: workspaceApiPath(workspaceId, '/profile'), method: 'PATCH', body: input,
+  }),
+  uploadLogo: (workspaceId: string, file: File) => {
+    const body = new FormData();
+    body.append('file', file);
+    return requestApi<{ logoUrl: string; logoMimeType: string; logoFileName: string }>({
+      path: workspaceApiPath(workspaceId, '/profile/logo'), method: 'PUT', body,
+    });
+  },
+  deleteLogo: (workspaceId: string) => requestApi<{ logoUrl: null }>({
+    path: workspaceApiPath(workspaceId, '/profile/logo'), method: 'DELETE', body: {},
   }),
 };
