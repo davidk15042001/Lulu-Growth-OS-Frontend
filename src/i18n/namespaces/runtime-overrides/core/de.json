@@ -3177,5 +3177,6 @@
   "Lulu can optimize campaigns autonomously, but it can never spend beyond the prepaid wallet and the customer-authorized campaign limit.": "Lulu kann Kampagnen autonom optimieren, aber niemals über das Prepaid-Wallet oder das vom Kunden autorisierte Kampagnenlimit hinaus ausgeben.",
   "Ad budget credited": "Werbebudget gutgeschrieben",
   "Only workspace owners and administrators can add advertising budget.": "Nur Workspace-Eigentümer und Administratoren können Werbebudget aufladen.",
-  "Advertising budget credited.": "Werbebudget gutgeschrieben."
+  "Advertising budget credited.": "Werbebudget gutgeschrieben.",
+  "Advertising budget payment QR code": "QR-Code für die Werbebudgetzahlung"
 }

@@ -3177,5 +3177,6 @@
   "Lulu can optimize campaigns autonomously, but it can never spend beyond the prepaid wallet and the customer-authorized campaign limit.": "Lulu 可以自主优化广告活动，但绝不会超出预付钱包余额和客户授权的活动限额。",
   "Ad budget credited": "广告预算已入账",
   "Only workspace owners and administrators can add advertising budget.": "只有工作区所有者和管理员可以充值广告预算。",
-  "Advertising budget credited.": "广告预算已入账。"
+  "Advertising budget credited.": "广告预算已入账。",
+  "Advertising budget payment QR code": "广告预算支付二维码"
 }
