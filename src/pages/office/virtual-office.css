@@ -599,6 +599,11 @@
 .lulu-office-commercial-list__heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
 .lulu-office-commercial-list__heading h3 { margin: 3px 0 0; font-size: .98rem; letter-spacing: -.025em; }
 .lulu-office-commercial-list__heading > span { color: var(--office-muted); font-size: .75rem; }
+.lulu-office-commercial-list__heading-actions { display: flex; align-items: center; justify-content: flex-end; gap: 9px; }
+.lulu-office-commercial-list__heading-actions > span { color: var(--office-muted); font-size: .75rem; }
+.lulu-office-commercial-list__heading-actions button { display: inline-flex; min-height: 34px; align-items: center; gap: 6px; border: 1px solid #5e48d7; border-radius: 9px; padding: 6px 9px; background: #5e48d7; color: #fff; font-size: .72rem; font-weight: 700; cursor: pointer; }
+.lulu-office-commercial-list__heading-actions button:hover { background: #4d39c3; }
+.lulu-office-commercial-list__heading-actions button:disabled { cursor: not-allowed; opacity: .45; }
 .lulu-office-commercial-list__search { display: flex; min-height: 40px; align-items: center; gap: 8px; border: 1px solid var(--office-line); border-radius: 11px; padding: 0 11px; background: #fff; color: var(--office-muted); }
 .lulu-office-commercial-list__search:focus-within { border-color: rgba(94, 72, 215, .45); box-shadow: 0 0 0 3px rgba(94, 72, 215, .1); }
 .lulu-office-commercial-list__search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--office-ink); font: inherit; font-size: .78rem; }
@@ -612,6 +617,34 @@
 .lulu-office-commercial-list__item-total { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 7px; color: #5140b8; font-size: .76rem; font-weight: 700; }
 .lulu-office-commercial-list__state { display: flex; min-height: 160px; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; border: 1px dashed rgba(73, 83, 114, .2); border-radius: 13px; padding: 18px; color: var(--office-muted); font-size: .76rem; text-align: center; }
 .lulu-office-commercial-list__hint { margin: 11px 0 0; color: var(--office-muted); font-size: .72rem; line-height: 1.5; }
+
+.lulu-office-commercial-form { min-width: 0; flex: 1; overflow-y: auto; padding: 18px; background: #f6f7fb; }
+.lulu-office-commercial-form--state { display: flex; min-height: 180px; align-items: center; justify-content: center; color: var(--office-muted); font-size: .78rem; }
+.lulu-office-commercial-form__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.lulu-office-commercial-form__header h3 { margin: 3px 0 0; font-size: 1rem; letter-spacing: -.025em; }
+.lulu-office-commercial-form__header p { margin: 5px 0 0; color: var(--office-muted); font-size: .74rem; line-height: 1.5; }
+.lulu-office-commercial-form fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
+.lulu-office-commercial-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.lulu-office-commercial-form label { display: flex; min-width: 0; flex-direction: column; gap: 5px; color: var(--office-muted); font-size: .72rem; font-weight: 650; }
+.lulu-office-commercial-form label > span { color: var(--office-muted); }
+.lulu-office-commercial-form input,
+.lulu-office-commercial-form select { width: 100%; min-height: 37px; min-width: 0; border: 1px solid var(--office-line); border-radius: 9px; padding: 7px 9px; background: #fff; color: var(--office-ink); font: inherit; font-size: .75rem; }
+.lulu-office-commercial-form input:focus,
+.lulu-office-commercial-form select:focus { outline: 0; border-color: rgba(94, 72, 215, .55); box-shadow: 0 0 0 3px rgba(94, 72, 215, .1); }
+.lulu-office-commercial-form__lines-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 17px 0 8px; color: var(--office-ink); font-size: .8rem; }
+.lulu-office-commercial-form__lines-heading button { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--office-line); border-radius: 8px; padding: 6px 8px; background: #fff; color: #5140b8; font-size: .72rem; font-weight: 700; cursor: pointer; }
+.lulu-office-commercial-form__lines { display: grid; gap: 9px; }
+.lulu-office-commercial-form__line { display: grid; grid-template-columns: minmax(150px, 2.2fr) repeat(4, minmax(55px, .8fr)) auto; gap: 7px; align-items: end; border: 1px solid var(--office-line); border-radius: 11px; padding: 9px; background: #fff; }
+.lulu-office-commercial-form__line .is-wide { grid-column: span 1; }
+.lulu-office-commercial-form__line .is-wide input { margin-top: 3px; }
+.lulu-office-commercial-form__remove { display: inline-flex; width: 32px; height: 35px; align-items: center; justify-content: center; border: 1px solid rgba(165, 70, 40, .2); border-radius: 8px; background: #fff7f4; color: #a44423; cursor: pointer; }
+.lulu-office-commercial-form__shipping { max-width: 170px; margin-top: 11px; }
+.lulu-office-commercial-form__total { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 14px; border-top: 1px solid var(--office-line); padding-top: 12px; color: var(--office-muted); font-size: .76rem; }
+.lulu-office-commercial-form__total strong { color: var(--office-ink); font-size: .95rem; }
+.lulu-office-commercial-form__actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 17px; padding-top: 12px; border-top: 1px solid var(--office-line); }
+.lulu-office-commercial-form__actions button { display: inline-flex; min-height: 37px; align-items: center; gap: 6px; border: 1px solid var(--office-line); border-radius: 9px; padding: 7px 11px; background: #fff; color: var(--office-ink); font-size: .75rem; font-weight: 700; cursor: pointer; }
+.lulu-office-commercial-form__actions button.is-primary { border-color: #5e48d7; background: #5e48d7; color: #fff; }
+.lulu-office-commercial-form__actions button:disabled { cursor: not-allowed; opacity: .45; }
 
 .lulu-office-employee-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
 .lulu-office-employee-summary > div { display: flex; min-height: 66px; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 7px; border: 1px solid var(--office-line); border-radius: 12px; padding: 10px; background: #fff; }
@@ -701,4 +734,11 @@
   .lulu-office-drawer__workspace-toolbar { align-items: flex-start; flex-direction: column; padding: 10px 14px; }
   .lulu-office-drawer__workspace-toolbar > button { width: 100%; justify-content: center; }
   .lulu-office-employee-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lulu-office-commercial-list__heading { align-items: flex-start; flex-direction: column; }
+  .lulu-office-commercial-list__heading-actions { width: 100%; justify-content: space-between; }
+  .lulu-office-commercial-list__heading-actions button { flex: 1; justify-content: center; }
+  .lulu-office-commercial-form__grid { grid-template-columns: 1fr; }
+  .lulu-office-commercial-form__line { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lulu-office-commercial-form__line .is-wide { grid-column: 1 / -1; }
+  .lulu-office-commercial-form__remove { width: 100%; }
 }

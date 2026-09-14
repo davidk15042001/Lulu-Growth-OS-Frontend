@@ -117,6 +117,22 @@ function identifier(value: string) {
   return value.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
 }
 
+/**
+ * Employee keys are persisted by the Office service, but older workspaces
+ * (and a few imported rosters) used underscores or display-name casing. Keep
+ * the UI route registry tolerant of those representations so a real employee
+ * never falls back to the generic "Workspace unavailable" state just because
+ * its identifier was serialized differently.
+ */
+function normalizeEmployeeKey(value: string) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 export function navigationPageLabel(page: NavigationPage) {
   return LABEL_OVERRIDES.get(page.id) ?? page.label;
 }
@@ -352,11 +368,17 @@ function getWorkspaceRouteForEmployeeIdentity(
   sourceAgentIds: readonly string[] | null | undefined,
 ) {
   for (const sourceAgentId of sourceAgentIds ?? []) {
-    if (!sourceAgentId.startsWith("page:")) continue;
-    const route = getWorkspaceCapabilityRoute(sourceAgentId.slice("page:".length));
+    const normalizedSource = sourceAgentId.trim();
+    if (!normalizedSource.toLowerCase().startsWith("page:")) continue;
+    const route = getWorkspaceCapabilityRoute(normalizedSource.slice("page:".length));
     if (route) return route;
   }
-  const pageId = employeeKey ? EMPLOYEE_WORKSPACE_PAGE[employeeKey] : undefined;
+  const normalizedKey = employeeKey ? normalizeEmployeeKey(employeeKey) : "";
+  const pageId = employeeKey
+    ? EMPLOYEE_WORKSPACE_PAGE[employeeKey]
+      ?? EMPLOYEE_WORKSPACE_PAGE[normalizedKey]
+      ?? EMPLOYEE_WORKSPACE_PAGE[employeeKey.replaceAll("_", "-")]
+    : undefined;
   return pageId ? getWorkspaceCapabilityRoute(pageId) : null;
 }
 
@@ -367,6 +389,14 @@ export function resolveEmployeeWorkspaceRoute(input: {
   relatedObjectType?: string | null;
   pageId?: string | null;
   currentUserCapabilities?: readonly string[];
+  /**
+   * The Office drawer is a canonical control surface over the same backend
+   * Workspace. A missing/stale bootstrap capability list must not hide a
+   * mapped employee there; the destination still enforces authorization on
+   * every API request. Other navigation affordances keep strict client-side
+   * permission filtering by default.
+   */
+  allowKnownEmployeeRoute?: boolean;
 }) {
   const candidates = [
     getWorkspaceRouteForObjectType(input.relatedObjectType),
@@ -376,7 +406,10 @@ export function resolveEmployeeWorkspaceRoute(input: {
       ?.filter((capabilityKey) => capabilityKey !== "workspace.read")
       .map(getWorkspaceRouteForCapability) ?? []),
   ];
-  return candidates.find((route) => canReadWorkspaceRoute(route, input.currentUserCapabilities)) ?? null;
+  const permitted = candidates.find((route) => canReadWorkspaceRoute(route, input.currentUserCapabilities));
+  if (permitted) return permitted;
+  if (input.allowKnownEmployeeRoute) return candidates.find((route) => Boolean(route)) ?? null;
+  return null;
 }
 
 export function buildWorkspaceDeepLink(

@@ -2,7 +2,7 @@ import {
   Activity, AlertTriangle, ArrowRight, BarChart3, Bot, BriefcaseBusiness, Building2,
   CalendarClock, CheckCircle2, CircleDollarSign, Clock3, CloudOff, ExternalLink,
   FileText, Globe2, Hand, LoaderCircle, Mail, Megaphone, MessageSquare, Package,
-  Pause, Play, RefreshCw, RotateCcw, Search, ShieldCheck, ShoppingBag, Sparkles,
+  Pause, Play, Plus, RefreshCw, RotateCcw, Search, ShieldCheck, ShoppingBag, Sparkles,
   UserRound, UsersRound, WifiOff, X, XCircle,
   type LucideIcon,
 } from "lucide-react";
@@ -28,6 +28,7 @@ import {
   resolveEmployeeWorkspaceRoute,
 } from "../../config/workspace-capability-registry";
 import { AuthenticatedWorkspaceTopBar } from "../../components/AuthenticatedWorkspaceTopBar";
+import ManualCommercialDocumentForm from "./ManualCommercialDocumentForm";
 import "./virtual-office.css";
 
 const REFRESH_INTERVAL_MS = 15_000;
@@ -372,6 +373,7 @@ function WorkItemCard({
     relatedObjectType: item.relatedObjectType,
     pageId: typeof item.context.pageId === "string" ? item.context.pageId : null,
     currentUserCapabilities,
+    allowKnownEmployeeRoute: true,
   });
   return <article className="lulu-office-work-card">
     <div className="lulu-office-work-card__heading">
@@ -398,15 +400,19 @@ function WorkItemCard({
   </article>;
 }
 
-type CommercialDocumentKind = "invoices" | "quotes";
+export type CommercialDocumentKind = "invoices" | "quotes";
 
 function EmbeddedCommercialDocumentList({
   workspaceId,
   kind,
+  canCreate,
+  onManualCreate,
   onSelect,
 }: {
   workspaceId: string;
   kind: CommercialDocumentKind;
+  canCreate: boolean;
+  onManualCreate: () => void;
   onSelect: (recordId: string) => void;
 }) {
   const t = useTranslation();
@@ -458,7 +464,7 @@ function EmbeddedCommercialDocumentList({
   return <section className="lulu-office-commercial-list" aria-label={kind === "invoices" ? t("Past invoices") : t("Past offers and quotes")}>
     <div className="lulu-office-commercial-list__heading">
       <div><span className="lulu-office-eyebrow">{t("Agent-managed documents")}</span><h3>{kind === "invoices" ? t("All invoices") : t("All offers and quotes")}</h3></div>
-      <span>{total.toLocaleString(language)}</span>
+      <div className="lulu-office-commercial-list__heading-actions"><span>{total.toLocaleString(language)}</span><button type="button" onClick={onManualCreate} disabled={!canCreate} title={!canCreate ? t("Manual creation requires the document permission.") : undefined}><Plus aria-hidden="true" size={14} />{kind === "invoices" ? t("Create invoice manually") : t("Create quote manually")}</button></div>
     </div>
     <label className="lulu-office-commercial-list__search">
       <Search aria-hidden="true" size={15} />
@@ -505,10 +511,12 @@ function EmployeeWorkDrawer({
   const [error, setError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<{ item: OfficeWorkItem; action: OfficeControl } | null>(null);
-  const documentEmployee = employee.key === "invoice-manager" || employee.key === "quote-specialist";
+  const normalizedEmployeeKey = employee.key.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const documentEmployee = normalizedEmployeeKey === "invoice-manager" || normalizedEmployeeKey === "quote-specialist";
   const [panelMode, setPanelMode] = useState<"activity" | "workspace">(documentEmployee ? "workspace" : "activity");
   const [workspaceActivated, setWorkspaceActivated] = useState(false);
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
+  const [documentFormOpen, setDocumentFormOpen] = useState(false);
   const [workspaceContext, setWorkspaceContext] = useState<{
     employeeId: string;
     relatedObjectType?: string | null;
@@ -641,6 +649,7 @@ function EmployeeWorkDrawer({
     setWorkspaceActivated(false);
     setWorkspaceContext(null);
     setWorkspaceLoading(false);
+    setDocumentFormOpen(false);
   }, [documentEmployee, employee.id]);
 
   const capabilityKeys = details?.capabilities.map((capability) => capability.key) ?? [];
@@ -656,6 +665,7 @@ function EmployeeWorkDrawer({
       ? activeWorkspaceContext.pageId ?? null
       : typeof details.currentWorkItem?.context.pageId === "string" ? details.currentWorkItem.context.pageId : null,
     currentUserCapabilities,
+    allowKnownEmployeeRoute: true,
   }) : null;
   const panelRecordId = activeWorkspaceContext
     ? activeWorkspaceContext.recordId ?? null
@@ -699,6 +709,7 @@ function EmployeeWorkDrawer({
         ? item.context.pageId
         : typeof details?.currentWorkItem?.context.pageId === "string" ? details.currentWorkItem.context.pageId : null,
       currentUserCapabilities,
+      allowKnownEmployeeRoute: true,
     });
     if (!route) return;
     const recordId = item ? item.relatedObjectId : details?.currentWorkItem?.relatedObjectId;
@@ -854,9 +865,25 @@ function EmployeeWorkDrawer({
           <button type="button" disabled={!panelRoute} onClick={openCurrentWorkspace}><ExternalLink aria-hidden="true" size={14} />{t("Open full Workspace")}</button>
         </div>
         <div className="lulu-office-drawer__workspace-frame" aria-busy={workspaceLoading}>
-          {commercialDocumentKind ? <EmbeddedCommercialDocumentList
+          {commercialDocumentKind ? documentFormOpen ? <ManualCommercialDocumentForm
             workspaceId={workspaceId}
             kind={commercialDocumentKind}
+            canCreate={currentUserCapabilities.includes(commercialDocumentKind === "invoices" ? "invoices.create" : "quotes.create")}
+            onCancel={() => setDocumentFormOpen(false)}
+            onCreated={() => {
+              setDocumentFormOpen(false);
+              setWorkspaceContext(null);
+              void load(true);
+              onChanged();
+            }}
+          /> : <EmbeddedCommercialDocumentList
+            workspaceId={workspaceId}
+            kind={commercialDocumentKind}
+            canCreate={currentUserCapabilities.includes(commercialDocumentKind === "invoices" ? "invoices.create" : "quotes.create")}
+            onManualCreate={() => {
+              setWorkspaceContext(null);
+              setDocumentFormOpen(true);
+            }}
             onSelect={(recordId) => setWorkspaceContext({
               employeeId: employee.id,
               relatedObjectType: commercialDocumentKind === "invoices" ? "invoice" : "quote",
