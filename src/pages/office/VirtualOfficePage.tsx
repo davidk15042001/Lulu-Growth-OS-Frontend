@@ -1003,6 +1003,6 @@ export default function VirtualOfficePage() {
         </div>
       </>}
     </main>
-    {selectedWorkspace && selectedEmployee && <EmployeeWorkDrawer workspaceId={selectedWorkspace.id} employee={selectedEmployee} currentUserCapabilities={permissions.capabilities} canAdminister={permissions.canAdminister} canControl={canControlOffice} onClose={() => setSelectedEmployee(null)} onChanged={() => void reload()} />}
+    {selectedWorkspace && selectedEmployee && <EmployeeWorkDrawer workspaceId={selectedWorkspace.id} employee={selectedEmployee} currentUserCapabilities={permissions.capabilities} canAdminister={permissions.canAdminister || permissions.role === "owner" || permissions.role === "admin"} canControl={canControlOffice} onClose={() => setSelectedEmployee(null)} onChanged={() => void reload()} />}
   </>;
 }
