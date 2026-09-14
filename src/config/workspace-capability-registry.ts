@@ -165,7 +165,11 @@ function createWorkspaceNavigationSections(): { all: NavigationSection[]; visibl
 
   const all = sections.filter((section) => section.pages.length > 0)
     .map((section) => ({ ...section, pages: section.pages.map((page) => ({ ...page })) }));
-  const visible = sections.filter((section) => section.pages.length > 0 && section.label !== STATISTICS_LABEL);
+  // Finance remains a valid internal destination for the Invoice and Quote
+  // employees, but its standalone navigation entry is intentionally hidden.
+  // Customers reach agent-managed documents from the Office or the dedicated
+  // document context links instead of an empty manual Finance landing page.
+  const visible = sections.filter((section) => section.pages.length > 0 && section.label !== STATISTICS_LABEL && section.label !== FINANCE_LABEL);
   const financeIndex = visible.findIndex((section) => section.label === FINANCE_LABEL);
   if (financeIndex >= 0) {
     const [financeSection] = visible.splice(financeIndex, 1);
