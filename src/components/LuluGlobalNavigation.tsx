@@ -4,6 +4,7 @@ import { requestApi } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { clearSelectedWorkspaceId, getSelectedWorkspaceId } from "../api/session";
 import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
+import { workspaceAppApi } from "../api/workspace-app";
 import { AccountSessions } from "./AccountSessions";
 import { switchLanguage, useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { isAvailableLanguageCode, languages } from "../i18n/languages";
@@ -52,10 +53,12 @@ function websiteLockLabel(status: string, t: (key: string) => string) {
 export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigate, onRequestClose }: { activeSlug: string; mobileOpen?: boolean; onNavigate?: () => void; onRequestClose?: () => void }) {
   const t = useTranslation();
   const language = useLanguage();
-  const { selectedWorkspace, permissions } = useLuluApp();
+  const { selectedWorkspace, permissions, can } = useLuluApp();
   const [languageOpen, setLanguageOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
+  const [agentsPaused, setAgentsPaused] = useState(false);
+  const [agentsToggleBusy, setAgentsToggleBusy] = useState(false);
   const activationPageId = !selectedWorkspace?.onboardingCompletedAt
     ? selectedWorkspace?.onboardingStep === "profile_completion" ? "profile" : selectedWorkspace?.onboardingStep === "knowledge_base" ? "rich-field-1880" : null
     : null;
@@ -77,6 +80,25 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
   const [openSection, setOpenSection] = useState<string | null>(() => activeSection);
 
   useEffect(() => setOpenSection(activeSection), [activeSection]);
+  useEffect(() => {
+    if (!selectedWorkspace || !can("administer")) return;
+    let mounted = true;
+    void workspaceAppApi.settings(selectedWorkspace.id).then((response) => {
+      if (mounted) setAgentsPaused(response.data.settings.agents?.paused === true);
+    }).catch(() => undefined);
+    return () => { mounted = false; };
+  }, [selectedWorkspace, can]);
+  const toggleAgents = async () => {
+    if (!selectedWorkspace || !can("administer") || agentsToggleBusy) return;
+    const nextPaused = !agentsPaused;
+    setAgentsToggleBusy(true);
+    try {
+      await workspaceAppApi.updateSettings(selectedWorkspace.id, { agents: { paused: nextPaused } });
+      setAgentsPaused(nextPaused);
+    } finally {
+      setAgentsToggleBusy(false);
+    }
+  };
   useEffect(() => {
     const update = () => setWebsiteLock(readWebsiteGenerationLock());
     let requestRunning = false;
@@ -137,6 +159,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
             })}
             {section.label === SETTINGS_LABEL && <>
               {!activationPageId && <><button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setSessionsOpen(true)}>{t("Active sessions")}</button>{sessionsOpen && <AccountSessions onClose={() => setSessionsOpen(false)} />}
+                {can("administer") && <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void toggleAgents()} disabled={agentsToggleBusy} aria-pressed={!agentsPaused}><span className={`lulu-global-navigation__agent-toggle${agentsPaused ? " is-paused" : " is-active"}`} aria-hidden="true"><span /></span><span>{agentsPaused ? t("Agents paused") : t("Agents active")}</span></button>}
                 <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setLanguageOpen((value) => !value)} aria-expanded={languageOpen}><Languages aria-hidden="true" size={14} /><span>{t("Language")}</span></button>
                 {languageOpen && <div className="lulu-global-navigation__language-list">{languages.filter((option) => isAvailableLanguageCode(option.code)).map((option) => <button key={option.code} type="button" className={`lulu-global-navigation__language-option${option.code === language ? " is-active" : ""}`} onClick={() => switchLanguage(option.code)}><span lang={option.code} dir={option.direction} data-lulu-no-translate="true" translate="no">{option.nativeName}</span>{option.code === language && <Check aria-hidden="true" size={13} />}</button>)}</div>}
               </>}

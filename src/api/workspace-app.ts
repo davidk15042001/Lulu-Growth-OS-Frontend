@@ -44,6 +44,7 @@ export type WorkspaceSettings = {
       salesNotificationsEnabled?: boolean;
       salesActivityTrackingEnabled?: boolean;
     };
+    agents?: { paused?: boolean };
   };
   createdAt: string | null;
   updatedAt: string | null;
@@ -321,7 +322,7 @@ export const workspaceAppApi = {
   settings: (workspaceId: string) => requestApi<WorkspaceSettings>({
     path: workspaceApiPath(workspaceId, "/settings"),
   }),
-  updateSettings: (workspaceId: string, input: Pick<WorkspaceSettings["settings"], "sales">) => requestApi<WorkspaceSettings>({
+  updateSettings: (workspaceId: string, input: Partial<Pick<WorkspaceSettings["settings"], "sales" | "agents">>) => requestApi<WorkspaceSettings>({
     path: workspaceApiPath(workspaceId, "/settings"), method: "PATCH", body: input,
   }),
   billing: (workspaceId: string, query = "") => requestApi<BillingState>({

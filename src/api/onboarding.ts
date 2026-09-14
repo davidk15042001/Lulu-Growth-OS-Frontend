@@ -229,6 +229,7 @@ export const onboardingApi = {
     accountId: string;
     auth: { status?: string; auth_payload?: Record<string, unknown> | null; last_error?: string | null };
     connection: {
+      provider: "unifyport";
       selfServiceAllowed: boolean;
       customerConnection: { address: string; displayName: string; senderStatus: string; status: string; lastError: string | null } | null;
       pendingConnection?: { accountId: string; authStatus: string; runtimeStatus: string; authPayload: Record<string, unknown> | null; lastError: string | null; phone: string | null } | null;

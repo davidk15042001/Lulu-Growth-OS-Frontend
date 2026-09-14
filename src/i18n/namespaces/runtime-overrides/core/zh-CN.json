@@ -9,6 +9,8 @@
   "This session was ended for security reasons. Please sign in again.": "出于安全原因，此会话已结束。请重新登录。",
   "Please wait 60 seconds before requesting another code.": "请等待 60 秒后再申请验证码。",
   "Active sessions": "活跃会话",
+  "Agents active": "智能体运行中",
+  "Agents paused": "智能体已暂停",
   "Revoke a session to end its access. Only a coarse browser label is stored.": "撤销会话即可终止其访问权限。系统仅保存浏览器类别名称。",
   "(current session)": "（当前会话）",
   "Revoke session": "撤销会话",
