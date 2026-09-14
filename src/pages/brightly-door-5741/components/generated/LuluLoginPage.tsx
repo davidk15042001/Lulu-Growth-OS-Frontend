@@ -225,6 +225,16 @@ export const LuluLoginPage = () => {
               <p className="mt-4 max-w-md text-[15px] leading-7 text-[var(--muted-foreground)]">
                 {t('Connect once. Lulu runs the company — autonomously, continuously and inside clear boundaries.')}
               </p>
+              <div className="mt-6 rounded-2xl border border-indigo-200/80 bg-gradient-to-r from-indigo-50/90 via-white/80 to-cyan-50/90 p-3.5 shadow-sm backdrop-blur">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex min-w-0 items-center gap-2.5">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-600 to-sky-500 text-white shadow-md shadow-indigo-500/20"><UsersRound size={16} /></span>
+                    <div className="min-w-0"><p className="truncate text-xs font-bold uppercase tracking-[.14em] text-indigo-700">{t('Virtual Office')}</p><p className="truncate text-[11px] font-medium text-slate-600">{t('One organization. Shared system state.')}</p></div>
+                  </div>
+                  <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-emerald-700"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />{t('Operating')}</span>
+                </div>
+                <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-slate-500"><span className="rounded-full bg-white px-2.5 py-1 shadow-sm">{t('Office')}</span><span className="text-indigo-400">↔</span><span className="rounded-full bg-white px-2.5 py-1 shadow-sm">{t('Workspace')}</span><span className="ml-auto inline-flex items-center gap-1 text-slate-400"><Activity size={11} />{t('Every visible employee represents persisted work, assignments and events — not a decorative animation.')}</span></div>
+              </div>
             </div>
 
             <form id="login-access" onSubmit={submit} className="lulu-login-fade-up lulu-login-d2 mt-8 rounded-3xl bg-gradient-to-br from-indigo-500/20 via-transparent to-emerald-500/20 p-px shadow-2xl shadow-indigo-500/10" aria-label={t('Sign in form')}>
@@ -283,11 +293,12 @@ export const LuluLoginPage = () => {
           </div>
 
           <div className="relative mx-auto w-full max-w-3xl px-12 py-16 2xl:px-16">
+            <div className="lulu-login-fade-up lulu-login-d1 mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3.5 py-1.5 text-xs font-semibold text-cyan-100"><UsersRound size={14} />{t('Virtual Office')} <span className="text-cyan-300/50">·</span> {t('One organization. Shared system state.')}</div>
             <h2 className="lulu-login-fade-up lulu-login-d1 text-5xl font-semibold tracking-[-.05em] leading-[1.02] 2xl:text-6xl">
               {t('Connect once.')} <span className="lulu-login-gradient-text">{t('Lulu runs the company.')}</span>
             </h2>
             <p className="lulu-login-fade-up lulu-login-d2 mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-              {t('Specialized AI agents understand the business, choose the right team, make decisions, execute the work and learn from every verified outcome.')}
+              {t('Specialized AI agents understand the business, choose the right team, make decisions, execute the work and learn from every verified outcome.')} {t('Every visible employee represents persisted work, assignments and events — not a decorative animation.')}
             </p>
 
             <div className="lulu-login-fade-up lulu-login-d3 relative mt-9 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.055] p-6 shadow-2xl shadow-violet-950/50 backdrop-blur-xl">
