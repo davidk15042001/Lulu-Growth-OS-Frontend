@@ -6,6 +6,7 @@ import { useLuluApp } from '../../../../api/LuluAppContext';
 import { workspaceAppApi, type BillingState } from '../../../../api/workspace-app';
 import { LuluGlobalNavigation } from '../../../../components/LuluGlobalNavigation';
 import { ApiWalletPanel } from '../../../../components/ApiWalletPanel';
+import { AdSpendWalletPanel } from '../../../../components/AdSpendWalletPanel';
 
 const tabs = [
   { id: 'payments', label: 'Payments' },
@@ -216,6 +217,7 @@ export function LuluBilling() {
       {error && <div role="alert" className="mb-5 flex gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"><AlertCircle size={18} className="shrink-0" /><span>{error}</span></div>}
       {notice && <div role="status" className="mb-5 flex gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-foreground"><CheckCircle2 size={18} className="shrink-0 text-emerald-700" /><span>{notice}</span></div>}
       <ApiWalletPanel />
+      <AdSpendWalletPanel />
       <nav aria-label="Billing sections" className="mb-6 flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1">{tabs.map((tab) => <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`shrink-0 rounded-lg px-4 py-2.5 text-sm font-medium ${activeTab === tab.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>{tab.label}</button>)}</nav>
       {loading ? (
         <div className="grid min-h-72 place-items-center rounded-2xl border border-border bg-card text-sm text-muted-foreground"><span className="inline-flex items-center gap-2"><LoaderCircle size={17} className="animate-spin" />Loading billing data…</span></div>
