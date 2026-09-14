@@ -399,7 +399,7 @@ function captureSession(path: string, payload: unknown) {
   if (typeof token === "string" && token) storeAccessToken(token);
 }
 
-async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Promise<ApiEnvelope<T>> {
+async function executeRequest<T>(request: ApiRequest, allowRefresh = true, transientRetry = 0): Promise<ApiEnvelope<T>> {
   const path = validatedPath(request.path);
   const headers = new Headers({ accept: "application/json" });
   const isFormData = typeof FormData !== "undefined" && request.body instanceof FormData;
@@ -421,6 +421,11 @@ async function executeRequest<T>(request: ApiRequest, allowRefresh = true): Prom
   }
 
   const payload = await response.json().catch(() => null) as ApiEnvelope<T> | ApiErrorEnvelope | null;
+  const method = request.method ?? "GET";
+  if (method === "GET" && [502, 503, 504].includes(response.status) && transientRetry < 3) {
+    await new Promise((resolve) => window.setTimeout(resolve, 500 * (2 ** transientRetry)));
+    return executeRequest<T>(request, allowRefresh, transientRetry + 1);
+  }
   if (response.status === 401 && allowRefresh && !/^\/auth\/(refresh|login|register|verify-otp|resend-otp|forgot-password|reset-password|logout)$/.test(path)) {
     const refreshed = await refreshSession();
     if (refreshed.ok) return executeRequest<T>(request, false);
