@@ -87,9 +87,10 @@ export type WorkspaceProfile = {
   logoUrl: string | null;
   logoMimeType: string | null;
   logoFileName: string | null;
+  logoUpdatedAt: string | null;
 };
 
-export type WorkspaceProfileInput = Partial<Omit<WorkspaceProfile, 'workspaceId' | 'onboardingStep' | 'profileCompletedAt' | 'missingRequiredFields' | 'logoUrl' | 'logoMimeType' | 'logoFileName'>>;
+export type WorkspaceProfileInput = Partial<Omit<WorkspaceProfile, 'workspaceId' | 'onboardingStep' | 'profileCompletedAt' | 'missingRequiredFields' | 'logoUrl' | 'logoMimeType' | 'logoFileName' | 'logoUpdatedAt'>>;
 
 export const workspaceProfileApi = {
   get: (workspaceId: string, signal?: AbortSignal) => requestApi<WorkspaceProfile>({
