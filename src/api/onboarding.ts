@@ -221,9 +221,21 @@ export const onboardingApi = {
     provider: "unifyport";
     selfServiceAllowed: boolean;
     customerConnection: { address: string; displayName: string; senderStatus: string; status: string; lastError: string | null } | null;
+    pendingConnection?: { accountId: string; authStatus: string; runtimeStatus: string; authPayload: Record<string, unknown> | null; lastError: string | null; phone: string | null } | null;
     adminFallback: { configured: boolean; address: string | null; displayName: string | null; status: string; provider: "unifyport" };
     effectiveMode: "CUSTOMER_OWNED" | "LULU_MANAGED";
   }>({ path: workspaceApiPath(workspaceId, "/onboarding/whatsapp/connection") }),
+  connectWhatsApp: (workspaceId: string, input: { phone: string; displayName?: string }) => requestApi<{
+    accountId: string;
+    auth: { status?: string; auth_payload?: Record<string, unknown> | null; last_error?: string | null };
+    connection: {
+      selfServiceAllowed: boolean;
+      customerConnection: { address: string; displayName: string; senderStatus: string; status: string; lastError: string | null } | null;
+      pendingConnection?: { accountId: string; authStatus: string; runtimeStatus: string; authPayload: Record<string, unknown> | null; lastError: string | null; phone: string | null } | null;
+      adminFallback: { configured: boolean; address: string | null; displayName: string | null; status: string; provider: "unifyport" };
+      effectiveMode: "CUSTOMER_OWNED" | "LULU_MANAGED";
+    };
+  }>({ path: workspaceApiPath(workspaceId, "/onboarding/whatsapp/connect"), method: "POST", body: input }),
   disconnectWhatsApp: (workspaceId: string) => requestApi({
     path: workspaceApiPath(workspaceId, "/onboarding/whatsapp/connection"), method: "DELETE",
   }),

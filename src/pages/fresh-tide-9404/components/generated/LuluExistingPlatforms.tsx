@@ -28,6 +28,7 @@ interface WhatsAppConnectionState {
   provider: "unifyport";
   selfServiceAllowed: boolean;
   customerConnection: { address: string; displayName: string; senderStatus: string; status: string; lastError: string | null } | null;
+  pendingConnection?: { accountId: string; authStatus: string; runtimeStatus: string; authPayload: Record<string, unknown> | null; lastError: string | null; phone: string | null } | null;
   adminFallback: { configured: boolean; address: string | null; displayName: string | null; status: string; provider: "unifyport" };
   effectiveMode: 'CUSTOMER_OWNED' | 'LULU_MANAGED';
 }
@@ -35,7 +36,7 @@ const platformGroups: PlatformGroup[] = [
   { id: 'crm', label: 'CRM & Sales', description: 'Connect customer, pipeline and sales systems that contain your business relationships.', icon: UsersRound, platforms: ['Salesforce', 'HubSpot', 'Pipedrive'], hidden: true },
   { id: 'website', label: 'Website & Publishing', description: 'Connect the website platforms Lulu can use for content, publishing and website intelligence.', icon: Globe, platforms: ['WordPress', 'Webflow'] },
   { id: 'commerce', label: 'Commerce', description: 'Connect commerce platforms to analyze products, orders and customer activity.', icon: Store, platforms: ['Shopify'] },
-  { id: 'social', label: 'Social & Messaging', description: 'WhatsApp is connected through Lulu’s centrally managed UnifyPort transport. Facebook Messenger, Instagram and LinkedIn use their configured providers.', icon: UsersRound, platforms: ['WhatsApp', 'Facebook Messenger', 'Instagram', 'LinkedIn'] },
+  { id: 'social', label: 'Social & Messaging', description: 'WhatsApp uses UnifyPort. If an administrator enables self-service, each workspace can securely pair its own number; otherwise the approved Lulu fallback is used.', icon: UsersRound, platforms: ['WhatsApp', 'Facebook Messenger', 'Instagram', 'LinkedIn'] },
 ];
 const providerKeysByName: Record<string, string> = {
   Salesforce: 'salesforce', Pipedrive: 'pipedrive', HubSpot: 'hubspot',
@@ -49,7 +50,7 @@ const providerKeysByName: Record<string, string> = {
     Webflow: { intro: "Connect a Webflow workspace or site. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/webflow/callback", steps: ["Open Webflow Developers and create a Data Client app.", "Set the callback URL shown above in the app settings.", "Enable the `sites:read` scope and copy the client credentials to the Lulu backend.", "Make sure you are a Webflow workspace administrator.", "Click Connect here and authorize the Webflow app."], links: [{ label: "Open Webflow Developers", url: "https://developers.webflow.com/" }, { label: "Read Webflow OAuth Guide", url: "https://developers.webflow.com/data/reference/oauth-app" }] },
     WordPress: { intro: "Connect a WordPress.com or Jetpack account. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/wordpress/callback", steps: ["Open the WordPress.com Developer Portal and create an OAuth application.", "Add the callback URL shown above and copy the Client ID and Client Secret to the backend.", "Confirm that the account can access the intended WordPress.com or Jetpack site.", "Click Connect here and approve the WordPress authorization."], links: [{ label: "Open WordPress Developer Portal", url: "https://developer.wordpress.com/apps/" }, { label: "Read WordPress OAuth2 Guide", url: "https://developer.wordpress.com/docs/api/oauth2/" }] },
     Shopify: { intro: "Connect a Shopify store using its myshopify.com domain. Callback URL: https://lulu-ai.cn/api/v1/onboarding/oauth/shopify/callback", steps: ["Open the Shopify Dev Dashboard and create or select the app.", "Configure the Admin API scopes `read_products` and `read_content` and add the callback URL shown above.", "Copy your store domain in the exact format `example.myshopify.com`.", "Click Connect here, enter the store domain, and approve the app installation."], links: [{ label: "Open Shopify Dev Dashboard", url: "https://dev.shopify.com/dashboard" }, { label: "Read Shopify OAuth Guide", url: "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/authorization-code-grant" }] },
-    WhatsApp: { intro: "WhatsApp is operated through Lulu’s centrally managed UnifyPort account. The administrator-authorized sender is shared by the workspace and routes into the autonomous OmniChannel workflow.", steps: ["No Meta or Twilio setup is required in this workspace.", "The Lulu administrator connects and authorizes the WhatsApp account in UnifyPort.", "Once UnifyPort reports the account as running, Lulu can receive and send WhatsApp messages.", "If your organization needs a separate WhatsApp account, ask the administrator to provision it through UnifyPort."] },
+    WhatsApp: { intro: "WhatsApp is connected through UnifyPort. Your administrator decides whether this workspace uses the shared Lulu sender or pairs its own WhatsApp number.", steps: ["No Meta or Twilio setup is required in this workspace.", "If self-service is enabled, click Connect and enter the workspace phone number.", "Open WhatsApp → Linked devices → Link with phone number and enter the UnifyPort pairing code.", "After authorization, Lulu registers the customer-owned sender in OmniChannel automatically."] },
     'Facebook Messenger': { intro: "Lulu uses Twilio’s Facebook Messenger channel for the approved Facebook Page.", steps: ["Connect the intended Facebook Page in the Twilio Console.", "Complete any provider review or public-beta access requirements.", "Lulu registers the Messenger sender against this workspace.", "Verify one inbound and outbound message before production traffic is enabled."] },
     Instagram: { intro: "Connect your own Instagram professional account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable Instagram for your workspace.", "Make sure the Instagram professional account is linked to the correct Meta business.", "Click Connect, choose the account and approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
     LinkedIn: { intro: "Connect your own LinkedIn account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable LinkedIn for your workspace.", "Click Connect and sign in with the LinkedIn account that manages the intended organization or campaigns.", "Approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
@@ -65,6 +66,10 @@ export const LuluExistingPlatforms = () => {
   const [guidePlatform, setGuidePlatform] = useState<string | null>(null);
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
   const [whatsappConnection, setWhatsappConnection] = useState<WhatsAppConnectionState | null>(null);
+  const [whatsappSetupOpen, setWhatsappSetupOpen] = useState(false);
+  const [whatsappPhone, setWhatsappPhone] = useState('');
+  const [whatsappDisplayName, setWhatsappDisplayName] = useState('');
+  const [whatsappBusy, setWhatsappBusy] = useState(false);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const oauthError = params.get('oauthError');
@@ -96,11 +101,32 @@ export const LuluExistingPlatforms = () => {
         setTechnicalDetails(getTechnicalErrorDetails(cause));
       });
   }, []);
+  useEffect(() => {
+    if (!whatsappSetupOpen || !whatsappConnection || whatsappConnection.customerConnection) return;
+    const timer = window.setInterval(() => {
+      const workspaceId = getSelectedWorkspaceId();
+      if (workspaceId) void onboardingApi.whatsappConnection(workspaceId).then(response => setWhatsappConnection(response.data)).catch(() => undefined);
+    }, 4_000);
+    return () => window.clearInterval(timer);
+  }, [whatsappSetupOpen, whatsappConnection?.customerConnection]);
   const openWhatsAppGuide = () => setGuidePlatform('WhatsApp');
+  const beginWhatsApp = async () => {
+    if (!canEdit || !whatsappPhone.trim()) return;
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    setWhatsappBusy(true); setError('');
+    try {
+      const response = await onboardingApi.connectWhatsApp(workspaceId, { phone: whatsappPhone.trim(), ...(whatsappDisplayName.trim() ? { displayName: whatsappDisplayName.trim() } : {}) });
+      setWhatsappConnection(response.data.connection);
+      setWhatsappSetupOpen(true);
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, 'The WhatsApp pairing flow could not be started.')); setTechnicalDetails(getTechnicalErrorDetails(cause)); }
+    finally { setWhatsappBusy(false); }
+  };
   const connectPlatform = async (name: string) => {
     if (!canEdit) return;
     if (name === 'WhatsApp') {
-      openWhatsAppGuide();
+      if (whatsappConnection?.selfServiceAllowed) setWhatsappSetupOpen(true);
+      else openWhatsAppGuide();
       return;
     }
     const workspaceId = getSelectedWorkspaceId();
@@ -158,7 +184,7 @@ export const LuluExistingPlatforms = () => {
       setError(getFriendlyErrorMessage(cause, 'We could not remove this platform. Please try again.'));
     }
   };
-  const guideIsManagedMessaging = guidePlatform === 'Facebook Messenger' || guidePlatform === 'WhatsApp';
+  const guideIsManagedMessaging = guidePlatform === 'Facebook Messenger' || (guidePlatform === 'WhatsApp' && !whatsappConnection?.selfServiceAllowed);
   return <main className="min-h-screen bg-[var(--background)] font-['Poppins',sans-serif] text-[var(--foreground)]">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
         <div className="w-full max-w-3xl">
@@ -190,7 +216,9 @@ export const LuluExistingPlatforms = () => {
                     const isWhatsApp = name === 'WhatsApp';
                     const existing = platforms.find(platform => platform.integrationKey === provider || platform.name === name);
                     const connected = !isWhatsApp && existing?.connectionStatus === 'connected' ? existing : undefined;
-                    const luluManagedMessaging = name === 'Facebook Messenger' || isWhatsApp;
+                    const whatsappSelfServiceAllowed = isWhatsApp && whatsappConnection?.selfServiceAllowed === true;
+                    const whatsappCustomerConnected = isWhatsApp && Boolean(whatsappConnection?.customerConnection);
+                    const luluManagedMessaging = name === 'Facebook Messenger' || (isWhatsApp && !whatsappSelfServiceAllowed);
                     const needsAdminApproval = ['whatsapp', 'instagram', 'linkedin'].includes(provider);
                     const blockedByAdmin = needsAdminApproval && name !== 'WhatsApp';
                     const platformComingSoon = comingSoon || group.comingSoonPlatforms?.includes(name) === true;
@@ -200,9 +228,9 @@ export const LuluExistingPlatforms = () => {
                         </span>
                         <span className="min-w-0 flex-1">
                           <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}{platformComingSoon && <span className="ml-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Unavailable</span>}</strong>
-                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : isWhatsApp ? (whatsappConnection?.adminFallback.configured ? "Managed by Lulu via UnifyPort" : "UnifyPort admin sender awaiting activation") : luluManagedMessaging ? "Managed by Lulu" : blockedByAdmin ? "Provider access restricted" : existing?.status ?? "Not connected"}</span>
+                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : whatsappCustomerConnected ? `Connected · ${whatsappConnection?.customerConnection?.displayName ?? 'WhatsApp'}` : isWhatsApp && whatsappSelfServiceAllowed ? (whatsappConnection?.pendingConnection ? "Pairing in progress" : "Ready to connect") : isWhatsApp ? (whatsappConnection?.adminFallback.configured ? "Managed by Lulu via UnifyPort" : "UnifyPort admin sender awaiting activation") : luluManagedMessaging ? "Managed by Lulu" : blockedByAdmin ? "Provider access restricted" : existing?.status ?? "Not connected"}</span>
                         </span>
-                        <div className={`col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3 ${platformComingSoon ? 'pointer-events-none' : ''}`}>{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} disabled={!canEdit} aria-disabled={!canEdit} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-50" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={luluManagedMessaging || platformComingSoon || blockedByAdmin || connectingPlatform === name || !canEdit} aria-disabled={luluManagedMessaging || platformComingSoon || blockedByAdmin || !canEdit} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{isWhatsApp ? "Managed via UnifyPort" : luluManagedMessaging ? "Managed" : platformComingSoon ? "Unavailable" : blockedByAdmin ? "Restricted" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={platformComingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{platformComingSoon ? "Unavailable" : "Guide"}</button></div>
+                        <div className={`col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3 ${platformComingSoon ? 'pointer-events-none' : ''}`}>{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} disabled={!canEdit} aria-disabled={!canEdit} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-50" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={luluManagedMessaging || platformComingSoon || blockedByAdmin || connectingPlatform === name || !canEdit} aria-disabled={luluManagedMessaging || platformComingSoon || blockedByAdmin || !canEdit} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{isWhatsApp && whatsappSelfServiceAllowed ? "Connect" : isWhatsApp ? "Managed via UnifyPort" : luluManagedMessaging ? "Managed" : platformComingSoon ? "Unavailable" : blockedByAdmin ? "Restricted" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={platformComingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{platformComingSoon ? "Unavailable" : "Guide"}</button></div>
                       </article>;
                   })}
                   </div>
@@ -240,5 +268,6 @@ export const LuluExistingPlatforms = () => {
           </div>
         </div>
       </div>}
+      {whatsappSetupOpen && whatsappConnection?.selfServiceAllowed && <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-labelledby="whatsapp-setup-title"><div className="w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">UnifyPort WhatsApp</p><h2 id="whatsapp-setup-title" className="mt-2 text-2xl font-semibold">Connect your number</h2><p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">Lulu never receives your WhatsApp password. UnifyPort gives you a short pairing code.</p></div><button type="button" onClick={() => setWhatsappSetupOpen(false)} className="text-sm text-[var(--muted-foreground)]">Close</button></div>{whatsappConnection.pendingConnection ? <div className="mt-6 space-y-4"><div className="rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Pairing code</p><p className="mt-2 text-3xl font-bold tracking-[.22em]">{typeof whatsappConnection.pendingConnection.authPayload?.verify_code === 'string' ? whatsappConnection.pendingConnection.authPayload.verify_code : 'Waiting…'}</p><p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">WhatsApp → Linked devices → Link with phone number. Enter the code before it expires.</p></div><p className="text-xs text-[var(--muted-foreground)]">Status: {whatsappConnection.pendingConnection.authStatus} · Runtime: {whatsappConnection.pendingConnection.runtimeStatus}</p></div> : whatsappConnection.customerConnection ? <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm">WhatsApp is connected as <strong>{whatsappConnection.customerConnection.displayName}</strong>.</div> : <div className="mt-6 space-y-4"><label className="block text-sm font-medium">WhatsApp phone number<input value={whatsappPhone} onChange={(event) => setWhatsappPhone(event.target.value)} placeholder="+491701234567" className="mt-2 h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3" /></label><label className="block text-sm font-medium">Display name (optional)<input value={whatsappDisplayName} onChange={(event) => setWhatsappDisplayName(event.target.value)} placeholder="Customer Support" className="mt-2 h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3" /></label><button type="button" onClick={() => void beginWhatsApp()} disabled={whatsappBusy || !whatsappPhone.trim()} className="w-full rounded-lg bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-50">{whatsappBusy ? 'Starting secure pairing…' : 'Start pairing'}</button></div>}</div></div>}
     </main>;
 };
