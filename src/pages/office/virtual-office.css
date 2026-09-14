@@ -153,13 +153,12 @@
   min-width: 0;
   width: min(1680px, 100%);
   margin: 0 auto;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
   gap: 18px;
 }
 
-.lulu-office-company,
-.lulu-office-activity {
+.lulu-office-company {
   border: 1px solid var(--office-line);
   border-radius: 22px;
   background: var(--office-panel);
@@ -168,7 +167,6 @@
 }
 
 .lulu-office-company { min-width: 0; padding: 22px; }
-.lulu-office-activity { position: sticky; top: calc(var(--lulu-workspace-topbar-height) + 18px); max-height: calc(100vh - var(--lulu-workspace-topbar-height) - 36px); overflow: hidden; padding: 20px; }
 
 .lulu-office-section-heading {
   display: flex;
@@ -409,9 +407,6 @@
 .lulu-office-status.is-error { background: #fff0e7; color: #aa4c19; }
 .lulu-office-status.is-human-controlled { background: #edf1f7; color: #34425f; }
 .lulu-office-status.is-offline { background: #f1f1f2; color: #5f6775; }
-
-.lulu-office-activity .lulu-office-section-heading { margin-bottom: 14px; }
-.lulu-office-activity .lulu-office-timeline { max-height: calc(100vh - 190px); overflow-y: auto; padding-right: 4px; }
 
 .lulu-office-timeline { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
 .lulu-office-timeline li { position: relative; display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 10px; padding: 11px 0; border-bottom: 1px solid rgba(45, 56, 91, .08); }
@@ -698,8 +693,6 @@
 @media (max-width: 1240px) {
   .lulu-office { padding: 28px 22px; }
   .lulu-office-layout { grid-template-columns: 1fr; }
-  .lulu-office-activity { position: relative; top: auto; max-height: none; }
-  .lulu-office-activity .lulu-office-timeline { max-height: 440px; }
 }
 
 @media (max-width: 860px) {
@@ -718,8 +711,7 @@
   .lulu-office-metric { min-height: 84px; gap: 10px; border-radius: 14px; padding: 12px; }
   .lulu-office-metric > span { width: 34px; height: 34px; flex-basis: 34px; }
   .lulu-office-metric strong { font-size: 1.2rem; }
-  .lulu-office-company,
-  .lulu-office-activity { border-radius: 17px; padding: 14px; }
+  .lulu-office-company { border-radius: 17px; padding: 14px; }
   .lulu-office-section-heading--main { align-items: flex-start; flex-direction: column; }
   .lulu-office-zone__header { grid-template-columns: auto minmax(0, 1fr); }
   .lulu-office-zone__facts { display: none; }

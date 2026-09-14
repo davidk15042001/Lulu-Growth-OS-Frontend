@@ -6,7 +6,7 @@ import {
   UserRound, UsersRound, WifiOff, X, XCircle,
   type LucideIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { useLuluApp } from "../../api/LuluAppContext";
@@ -938,16 +938,6 @@ export default function VirtualOfficePage() {
   const { overview, loading, refreshing, error, reload } = useOfficeOverview(selectedWorkspace?.id ?? null);
   const [selectedEmployee, setSelectedEmployee] = useState<OfficeEmployeeSummary | null>(null);
 
-  const employeesById = useMemo(() => new Map(overview?.departments.flatMap((department) => department.employees).map((employee) => [employee.id, employee]) ?? []), [overview]);
-  const openEmployeeById = (id: string) => {
-    const employee = employeesById.get(id);
-    if (employee) setSelectedEmployee(employee);
-  };
-  const openTimelineRecord = (item: OfficeTimelineItem) => {
-    const route = resolveEmployeeWorkspaceRoute({ relatedObjectType: item.aggregateType, currentUserCapabilities: permissions.capabilities });
-    if (route) navigate(buildWorkspaceDeepLink(route.pageId, { recordId: item.aggregateId }));
-  };
-
   return <>
     <AuthenticatedWorkspaceTopBar navigationOpen={false} onToggleNavigation={() => undefined} onCloseNavigation={() => undefined} showNavigationToggle={false} />
     <main className="lulu-office" aria-labelledby="lulu-office-title">
@@ -992,14 +982,6 @@ export default function VirtualOfficePage() {
               {overview.departments.length === 0 && <div className="lulu-office-empty"><Building2 aria-hidden="true" size={26} /><strong>{t("No digital organization available")}</strong><p>{t("The backend has not provisioned a real office roster for this workspace yet.")}</p></div>}
             </div>
           </section>
-
-          <aside className="lulu-office-activity" aria-labelledby="lulu-office-activity-title">
-            <div className="lulu-office-section-heading">
-              <div><span className="lulu-office-eyebrow">{t("Verified timeline")}</span><h2 id="lulu-office-activity-title">{t("What Lulu did today")}</h2></div>
-              <Activity aria-hidden="true" size={18} />
-            </div>
-            <Timeline items={overview.timeline} language={language} currentUserCapabilities={permissions.capabilities} onOpenEmployee={openEmployeeById} onOpenRecord={openTimelineRecord} />
-          </aside>
         </div>
       </>}
     </main>
