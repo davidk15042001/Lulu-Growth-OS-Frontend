@@ -105,6 +105,8 @@
   "Active sessions": "Aktive Sitzungen",
   "Agents active": "Agenten aktiv",
   "Agents paused": "Agenten pausiert",
+  "Updating agents…": "Agenten werden aktualisiert…",
+  "Could not update agent status. Please try again.": "Der Agentenstatus konnte nicht aktualisiert werden. Bitte versuche es erneut.",
   "Revoke a session to end its access. Only a coarse browser label is stored.": "Widerrufe eine Sitzung, um ihren Zugriff zu beenden. Gespeichert wird nur eine allgemeine Browserbezeichnung.",
   "(current session)": "(aktuelle Sitzung)",
   "Revoke session": "Sitzung widerrufen",

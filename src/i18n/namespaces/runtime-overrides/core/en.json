@@ -6,6 +6,8 @@
   "cancelled": "Cancelled",
   "completed": "Completed",
   "connected": "Connected",
+  "Updating agents…": "Updating agents…",
+  "Could not update agent status. Please try again.": "Could not update agent status. Please try again.",
   "Dateigröße ist zu groß.": "The file is too large.",
   "Daten werden geladen...": "Loading data...",
   "Deine Anmeldung ist noch vorhanden. Die Workspace-Daten konnten gerade nicht geladen werden.": "Your session is still active. The workspace data could not be loaded right now.",
