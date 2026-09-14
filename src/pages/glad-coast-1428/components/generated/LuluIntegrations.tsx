@@ -70,10 +70,29 @@ export function LuluIntegrations() {
   }, [notice]);
 
   useEffect(() => {
-    if (!whatsappSetupOpen || !selectedWorkspace || whatsappConnection?.customerConnection) return;
-    const timer = window.setInterval(() => { void load(); }, 4_000);
-    return () => window.clearInterval(timer);
-  }, [load, selectedWorkspace, whatsappSetupOpen, whatsappConnection?.customerConnection]);
+    if (!selectedWorkspace) return;
+    let active = true;
+    let requestRunning = false;
+    const refresh = async () => {
+      if (requestRunning) return;
+      requestRunning = true;
+      try {
+        const response = await onboardingApi.whatsappConnection(selectedWorkspace.id);
+        if (active) setWhatsappConnection(response.data);
+      } catch {
+        // The initial load owns visible errors; background refreshes stay quiet.
+      } finally {
+        requestRunning = false;
+      }
+    };
+    const timer = window.setInterval(() => { void refresh(); }, 5_000);
+    window.addEventListener('focus', refresh);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener('focus', refresh);
+    };
+  }, [selectedWorkspace]);
 
   const connected = useMemo(() => platforms.filter((platform) => connectedStatuses.has(platform.connectionStatus)).length, [platforms]);
   const needsAttention = useMemo(() => platforms.filter((platform) => platform.connectionStatus === 'error').length, [platforms]);

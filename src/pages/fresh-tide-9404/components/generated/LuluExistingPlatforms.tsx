@@ -102,13 +102,30 @@ export const LuluExistingPlatforms = () => {
       });
   }, []);
   useEffect(() => {
-    if (!whatsappSetupOpen || !whatsappConnection || whatsappConnection.customerConnection) return;
-    const timer = window.setInterval(() => {
-      const workspaceId = getSelectedWorkspaceId();
-      if (workspaceId) void onboardingApi.whatsappConnection(workspaceId).then(response => setWhatsappConnection(response.data)).catch(() => undefined);
-    }, 4_000);
-    return () => window.clearInterval(timer);
-  }, [whatsappSetupOpen, whatsappConnection?.customerConnection]);
+    const workspaceId = getSelectedWorkspaceId();
+    if (!workspaceId) return;
+    let active = true;
+    let requestRunning = false;
+    const refresh = async () => {
+      if (requestRunning) return;
+      requestRunning = true;
+      try {
+        const response = await onboardingApi.whatsappConnection(workspaceId);
+        if (active) setWhatsappConnection(response.data);
+      } catch {
+        // The initial page load owns visible errors; background refreshes stay quiet.
+      } finally {
+        requestRunning = false;
+      }
+    };
+    const timer = window.setInterval(() => { void refresh(); }, 5_000);
+    window.addEventListener('focus', refresh);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+      window.removeEventListener('focus', refresh);
+    };
+  }, []);
   const openWhatsAppGuide = () => setGuidePlatform('WhatsApp');
   const beginWhatsApp = async () => {
     if (!canEdit || !whatsappPhone.trim()) return;
