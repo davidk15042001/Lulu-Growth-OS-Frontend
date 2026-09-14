@@ -505,7 +505,8 @@ function EmployeeWorkDrawer({
   const [error, setError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<{ item: OfficeWorkItem; action: OfficeControl } | null>(null);
-  const [panelMode, setPanelMode] = useState<"activity" | "workspace">("activity");
+  const documentEmployee = employee.key === "invoice-manager" || employee.key === "quote-specialist";
+  const [panelMode, setPanelMode] = useState<"activity" | "workspace">(documentEmployee ? "workspace" : "activity");
   const [workspaceActivated, setWorkspaceActivated] = useState(false);
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
   const [workspaceContext, setWorkspaceContext] = useState<{
@@ -636,11 +637,11 @@ function EmployeeWorkDrawer({
   }, [confirmation]);
 
   useEffect(() => {
-    setPanelMode("activity");
+    setPanelMode(documentEmployee ? "workspace" : "activity");
     setWorkspaceActivated(false);
     setWorkspaceContext(null);
     setWorkspaceLoading(false);
-  }, [employee.id]);
+  }, [documentEmployee, employee.id]);
 
   const capabilityKeys = details?.capabilities.map((capability) => capability.key) ?? [];
   const activeWorkspaceContext = workspaceContext?.employeeId === employee.id ? workspaceContext : null;
