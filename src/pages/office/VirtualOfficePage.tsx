@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type SyntheticEvent 
 import { useNavigate } from "react-router-dom";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { useLuluApp } from "../../api/LuluAppContext";
+import { commercialDocumentsApi, type Invoice, type Quote } from "../../api/commercial-documents";
 import {
   officeApi,
   type OfficeControl,
@@ -397,6 +398,89 @@ function WorkItemCard({
   </article>;
 }
 
+type CommercialDocumentKind = "invoices" | "quotes";
+
+function EmbeddedCommercialDocumentList({
+  workspaceId,
+  kind,
+  onSelect,
+}: {
+  workspaceId: string;
+  kind: CommercialDocumentKind;
+  onSelect: (recordId: string) => void;
+}) {
+  const t = useTranslation();
+  const language = useLanguage();
+  const [query, setQuery] = useState("");
+  const [items, setItems] = useState<Array<Invoice | Quote>>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const controllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    controllerRef.current?.abort();
+    controllerRef.current = controller;
+    const timer = window.setTimeout(async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams({ page: "1", limit: "100" });
+        if (query.trim()) params.set("search", query.trim());
+        const response = kind === "invoices"
+          ? await commercialDocumentsApi.listInvoices(workspaceId, params.toString())
+          : await commercialDocumentsApi.listQuotes(workspaceId, params.toString());
+        if (controller.signal.aborted) return;
+        setItems(response.data.items);
+        setTotal(response.data.pagination.total);
+        setError(null);
+      } catch (cause) {
+        if (!controller.signal.aborted) setError(getFriendlyErrorMessage(cause, t("The document list could not be loaded.")));
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+      }
+    }, 220);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [kind, query, t, workspaceId]);
+
+  const formatMoney = (value: string | undefined, currency: string) => {
+    const amount = Number(value ?? 0);
+    return new Intl.NumberFormat(language, { style: "currency", currency, maximumFractionDigits: 2 }).format(Number.isFinite(amount) ? amount : 0);
+  };
+  const formatCreated = (value: string) => {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? "—" : new Intl.DateTimeFormat(language, { dateStyle: "medium" }).format(date);
+  };
+
+  return <section className="lulu-office-commercial-list" aria-label={kind === "invoices" ? t("Past invoices") : t("Past offers and quotes")}>
+    <div className="lulu-office-commercial-list__heading">
+      <div><span className="lulu-office-eyebrow">{t("Agent-managed documents")}</span><h3>{kind === "invoices" ? t("All invoices") : t("All offers and quotes")}</h3></div>
+      <span>{total.toLocaleString(language)}</span>
+    </div>
+    <label className="lulu-office-commercial-list__search">
+      <Search aria-hidden="true" size={15} />
+      <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("Search by document number or currency…")} />
+    </label>
+    {loading ? <div className="lulu-office-commercial-list__state"><LoaderCircle aria-hidden="true" size={17} className="lulu-office-spin" />{t("Loading documents…")}</div> : error ? <div className="lulu-office-error" role="alert"><AlertTriangle aria-hidden="true" size={16} /><span>{error}</span></div> : items.length === 0 ? <div className="lulu-office-commercial-list__state"><FileText aria-hidden="true" size={19} /><span>{query.trim() ? t("No matching documents found.") : t("No documents have been created yet.")}</span></div> : <div className="lulu-office-commercial-list__items">
+      {items.map((item) => {
+        const invoice = kind === "invoices" ? item as Invoice : null;
+        const quote = kind === "quotes" ? item as Quote : null;
+        const number = invoice?.invoiceNumber ?? quote?.quoteNumber ?? "—";
+        const amount = invoice ? invoice.grandTotal : quote?.grandTotal;
+        const status = invoice?.status ?? quote?.status ?? "—";
+        return <button key={item.id} type="button" className="lulu-office-commercial-list__item" onClick={() => onSelect(item.id)}>
+          <span className="lulu-office-commercial-list__item-main"><strong>{number}</strong><small>{formatCreated(item.createdAt)} · {status}</small></span>
+          <span className="lulu-office-commercial-list__item-total">{formatMoney(amount, item.currency || "CNY")}<ArrowRight aria-hidden="true" size={14} /></span>
+        </button>;
+      })}
+    </div>}
+    {total > items.length && !loading ? <p className="lulu-office-commercial-list__hint">{t("Showing the first 100 documents. Use search to find older records.")}</p> : null}
+  </section>;
+}
+
 function EmployeeWorkDrawer({
   workspaceId,
   employee,
@@ -578,6 +662,11 @@ function EmployeeWorkDrawer({
   const panelWorkspaceUrl = panelRoute
     ? buildWorkspaceDeepLink(panelRoute.pageId, { recordId: panelRecordId, surface: "office-panel" })
     : null;
+  const commercialDocumentKind: CommercialDocumentKind | null = panelRoute?.pageId === "breezy-soil-2475"
+    ? "invoices"
+    : panelRoute?.pageId === "tender-creek-3139"
+      ? "quotes"
+      : null;
 
   const selectPanelMode = (mode: "activity" | "workspace") => {
     if (mode === "workspace") {
@@ -764,7 +853,16 @@ function EmployeeWorkDrawer({
           <button type="button" disabled={!panelRoute} onClick={openCurrentWorkspace}><ExternalLink aria-hidden="true" size={14} />{t("Open full Workspace")}</button>
         </div>
         <div className="lulu-office-drawer__workspace-frame" aria-busy={workspaceLoading}>
-          {workspaceActivated && panelWorkspaceUrl ? <>
+          {commercialDocumentKind ? <EmbeddedCommercialDocumentList
+            workspaceId={workspaceId}
+            kind={commercialDocumentKind}
+            onSelect={(recordId) => setWorkspaceContext({
+              employeeId: employee.id,
+              relatedObjectType: commercialDocumentKind === "invoices" ? "invoice" : "quote",
+              recordId,
+              pageId: panelRoute?.pageId,
+            })}
+          /> : workspaceActivated && panelWorkspaceUrl ? <>
             {workspaceLoading && <div className="lulu-office-drawer__workspace-loading" role="status"><LoaderCircle aria-hidden="true" className="lulu-office-spin" /><span>{t("Loading live Workspace…")}</span></div>}
             <iframe
               src={panelWorkspaceUrl}
