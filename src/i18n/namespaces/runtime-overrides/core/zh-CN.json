@@ -3162,5 +3162,20 @@
   "Loading verified records…": "正在加载已验证的记录…",
   "Verified records unavailable": "已验证的记录不可用",
   "No metrics or success claims are inferred while the backend state is unavailable.": "后端状态不可用时，不推断任何指标或成功结论。",
-  "Status not provided": "未提供状态"
+  "Status not provided": "未提供状态",
+  "Scan a secure QR code": "扫描安全二维码",
+  "The advertising payment QR code could not be rendered.": "无法显示广告支付二维码。",
+  "The advertising budget payment could not be created.": "无法创建广告预算支付。",
+  "Prepaid advertising": "预付广告预算",
+  "Ads budget wallet": "广告预算钱包",
+  "Advertising has its own prepaid balance. It is completely separate from AI/API funds and Cloudflare R2 storage.": "广告拥有独立的预付余额，与 AI/API 资金和 Cloudflare R2 存储完全分开。",
+  "Available budget": "可用预算",
+  "Spent": "已支出",
+  "Funded": "已充值",
+  "Paid execution can run": "付费执行可以运行",
+  "Waiting for confirmed ad funds": "等待已确认的广告资金",
+  "Lulu can optimize campaigns autonomously, but it can never spend beyond the prepaid wallet and the customer-authorized campaign limit.": "Lulu 可以自主优化广告活动，但绝不会超出预付钱包余额和客户授权的活动限额。",
+  "Ad budget credited": "广告预算已入账",
+  "Only workspace owners and administrators can add advertising budget.": "只有工作区所有者和管理员可以充值广告预算。",
+  "Advertising budget credited.": "广告预算已入账。"
 }

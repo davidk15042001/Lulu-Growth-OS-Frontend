@@ -3162,5 +3162,20 @@
   "Loading verified records…": "Verifizierte Datensätze werden geladen…",
   "Verified records unavailable": "Verifizierte Datensätze sind nicht verfügbar",
   "No metrics or success claims are inferred while the backend state is unavailable.": "Solange der Backend-Status nicht verfügbar ist, werden keine Kennzahlen oder Erfolgsaussagen abgeleitet.",
-  "Status not provided": "Kein Status angegeben"
+  "Status not provided": "Kein Status angegeben",
+  "Scan a secure QR code": "Einen sicheren QR-Code scannen",
+  "The advertising payment QR code could not be rendered.": "Der QR-Code für die Werbezahlung konnte nicht dargestellt werden.",
+  "The advertising budget payment could not be created.": "Die Zahlung für das Werbebudget konnte nicht erstellt werden.",
+  "Prepaid advertising": "Vorausbezahlte Werbung",
+  "Ads budget wallet": "Werbebudget-Wallet",
+  "Advertising has its own prepaid balance. It is completely separate from AI/API funds and Cloudflare R2 storage.": "Werbung verfügt über ein eigenes Prepaid-Guthaben. Es ist vollständig von AI-/API-Guthaben und Cloudflare-R2-Speicher getrennt.",
+  "Available budget": "Verfügbares Budget",
+  "Spent": "Ausgegeben",
+  "Funded": "Eingezahlt",
+  "Paid execution can run": "Bezahlte Ausführung kann starten",
+  "Waiting for confirmed ad funds": "Warten auf bestätigtes Werbeguthaben",
+  "Lulu can optimize campaigns autonomously, but it can never spend beyond the prepaid wallet and the customer-authorized campaign limit.": "Lulu kann Kampagnen autonom optimieren, aber niemals über das Prepaid-Wallet oder das vom Kunden autorisierte Kampagnenlimit hinaus ausgeben.",
+  "Ad budget credited": "Werbebudget gutgeschrieben",
+  "Only workspace owners and administrators can add advertising budget.": "Nur Workspace-Eigentümer und Administratoren können Werbebudget aufladen.",
+  "Advertising budget credited.": "Werbebudget gutgeschrieben."
 }
