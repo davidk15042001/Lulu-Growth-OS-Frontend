@@ -334,5 +334,12 @@
   "Open Connections to finish the secure WhatsApp setup.": "Öffne Verbindungen, um die sichere WhatsApp-Einrichtung abzuschließen.",
   "Set up WhatsApp": "WhatsApp einrichten",
   "Available": "Verfügbar",
-  "WhatsApp": "WhatsApp"
+  "WhatsApp": "WhatsApp",
+  "Managed via UnifyPort": "Über UnifyPort verwaltet",
+  "The Lulu administrator-authorized UnifyPort sender is active for this workspace.": "Der vom Lulu-Administrator autorisierte UnifyPort-Absender ist für diesen Workspace aktiv.",
+  "No sender display name has been set yet.": "Es wurde noch kein Anzeigename für den Absender festgelegt.",
+  "Sender: ": "Absender: ",
+  "View connection": "Verbindung anzeigen",
+  "View UnifyPort": "UnifyPort anzeigen",
+  "unifyport · whatsapp": "unifyport · whatsapp"
 }

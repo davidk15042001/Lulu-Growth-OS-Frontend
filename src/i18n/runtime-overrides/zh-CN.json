@@ -5389,5 +5389,20 @@
   "Bookkeeping · Analytics": "记账 · 分析",
   "One organization. Shared system state.": "一个组织，共享同一系统状态。",
   "Every visible employee represents persisted work, assignments and events — not a decorative animation.": "每个可见员工都对应已持久化的工作、分配和事件，而不是装饰性动画。",
-  "The login service is temporarily unavailable. Please try again shortly.": "登录服务暂时不可用，请稍后重试。"
+  "The login service is temporarily unavailable. Please try again shortly.": "登录服务暂时不可用，请稍后重试。",
+  "WhatsApp is connected through Lulu’s centrally managed UnifyPort transport. Facebook Messenger, Instagram and LinkedIn use their configured providers.": "WhatsApp 通过 Lulu 集中管理的 UnifyPort 传输连接。Facebook Messenger、Instagram 和 LinkedIn 使用各自配置的服务商。",
+  "WhatsApp is operated through Lulu’s centrally managed UnifyPort account. The administrator-authorized sender is shared by the workspace and routes into the autonomous OmniChannel workflow.": "WhatsApp 通过 Lulu 集中管理的 UnifyPort 账户运行。管理员授权的发件账户供工作区使用，并将消息路由到自主 OmniChannel 工作流。",
+  "No Meta or Twilio setup is required in this workspace.": "此工作区无需配置 Meta 或 Twilio。",
+  "The Lulu administrator connects and authorizes the WhatsApp account in UnifyPort.": "Lulu 管理员会在 UnifyPort 中连接并授权 WhatsApp 账户。",
+  "Once UnifyPort reports the account as running, Lulu can receive and send WhatsApp messages.": "UnifyPort 报告账户正在运行后，Lulu 即可收发 WhatsApp 消息。",
+  "If your organization needs a separate WhatsApp account, ask the administrator to provision it through UnifyPort.": "如果你的组织需要独立的 WhatsApp 账户，请让管理员通过 UnifyPort 配置。",
+  "Managed by Lulu via UnifyPort": "由 Lulu 通过 UnifyPort 管理",
+  "UnifyPort admin sender awaiting activation": "UnifyPort 管理员发件人正在等待激活",
+  "Managed via UnifyPort": "通过 UnifyPort 管理",
+  "Managed by Lulu": "由 Lulu 管理",
+  "The Lulu administrator-authorized UnifyPort sender is active for this workspace.": "Lulu 管理员授权的 UnifyPort 发件人已在此工作区启用。",
+  "No sender display name has been set yet.": "尚未设置发件人显示名称。",
+  "View connection": "查看连接",
+  "View UnifyPort": "查看 UnifyPort",
+  "unifyport · whatsapp": "unifyport · whatsapp"
 }

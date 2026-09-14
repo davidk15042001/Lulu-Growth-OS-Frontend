@@ -1,4 +1,11 @@
 {
   "error": "Error",
-  "syncing": "Synchronizing"
+  "syncing": "Synchronizing",
+  "Managed via UnifyPort": "Managed via UnifyPort",
+  "The Lulu administrator-authorized UnifyPort sender is active for this workspace.": "The Lulu administrator-authorized UnifyPort sender is active for this workspace.",
+  "No sender display name has been set yet.": "No sender display name has been set yet.",
+  "Sender: ": "Sender: ",
+  "View connection": "View connection",
+  "View UnifyPort": "View UnifyPort",
+  "unifyport · whatsapp": "unifyport · whatsapp"
 }

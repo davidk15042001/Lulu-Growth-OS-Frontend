@@ -334,5 +334,12 @@
   "Open Connections to finish the secure WhatsApp setup.": "打开“连接”以完成安全的 WhatsApp 设置。",
   "Set up WhatsApp": "设置 WhatsApp",
   "Available": "可用",
-  "WhatsApp": "WhatsApp"
+  "WhatsApp": "WhatsApp",
+  "Managed via UnifyPort": "通过 UnifyPort 管理",
+  "The Lulu administrator-authorized UnifyPort sender is active for this workspace.": "Lulu 管理员授权的 UnifyPort 发件人已在此工作区启用。",
+  "No sender display name has been set yet.": "尚未设置发件人显示名称。",
+  "Sender: ": "发件人：",
+  "View connection": "查看连接",
+  "View UnifyPort": "查看 UnifyPort",
+  "unifyport · whatsapp": "unifyport · whatsapp"
 }

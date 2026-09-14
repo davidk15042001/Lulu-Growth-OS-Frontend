@@ -218,20 +218,12 @@ export const onboardingApi = {
     path: workspaceApiPath(workspaceId, "/onboarding/oauth-self-service-permissions"),
   }),
   whatsappConnection: (workspaceId: string) => requestApi<{
+    provider: "unifyport";
     selfServiceAllowed: boolean;
-    embeddedSignupConfigured: boolean;
-    embeddedSignup: { appId: string; configurationId: string; partnerSolutionId: string; graphVersion: string } | null;
     customerConnection: { address: string; displayName: string; senderStatus: string; status: string; lastError: string | null } | null;
-    adminFallback: { configured: boolean; address: string | null; displayName: string | null; status: string };
+    adminFallback: { configured: boolean; address: string | null; displayName: string | null; status: string; provider: "unifyport" };
     effectiveMode: "CUSTOMER_OWNED" | "LULU_MANAGED";
   }>({ path: workspaceApiPath(workspaceId, "/onboarding/whatsapp/connection") }),
-  completeWhatsAppEmbeddedSignup: (workspaceId: string, input: { phoneNumber: string; displayName: string; wabaId: string; phoneNumberId: string }) => requestApi<{
-    selfServiceAllowed: boolean;
-    embeddedSignupConfigured: boolean;
-    customerConnection: { address: string; displayName: string; senderStatus: string; status: string; lastError: string | null } | null;
-    adminFallback: { configured: boolean; address: string | null; displayName: string | null; status: string };
-    effectiveMode: "CUSTOMER_OWNED" | "LULU_MANAGED";
-  }>({ path: workspaceApiPath(workspaceId, "/onboarding/whatsapp/embedded-signup/complete"), method: "POST", body: input }),
   disconnectWhatsApp: (workspaceId: string) => requestApi({
     path: workspaceApiPath(workspaceId, "/onboarding/whatsapp/connection"), method: "DELETE",
   }),

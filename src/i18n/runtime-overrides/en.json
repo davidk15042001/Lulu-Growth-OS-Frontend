@@ -727,5 +727,20 @@
   "Bookkeeping · Analytics": "Bookkeeping · Analytics",
   "One organization. Shared system state.": "One organization. Shared system state.",
   "Every visible employee represents persisted work, assignments and events — not a decorative animation.": "Every visible employee represents persisted work, assignments and events — not a decorative animation.",
-  "The login service is temporarily unavailable. Please try again shortly.": "The login service is temporarily unavailable. Please try again shortly."
+  "The login service is temporarily unavailable. Please try again shortly.": "The login service is temporarily unavailable. Please try again shortly.",
+  "WhatsApp is connected through Lulu’s centrally managed UnifyPort transport. Facebook Messenger, Instagram and LinkedIn use their configured providers.": "WhatsApp is connected through Lulu’s centrally managed UnifyPort transport. Facebook Messenger, Instagram and LinkedIn use their configured providers.",
+  "WhatsApp is operated through Lulu’s centrally managed UnifyPort account. The administrator-authorized sender is shared by the workspace and routes into the autonomous OmniChannel workflow.": "WhatsApp is operated through Lulu’s centrally managed UnifyPort account. The administrator-authorized sender is shared by the workspace and routes into the autonomous OmniChannel workflow.",
+  "No Meta or Twilio setup is required in this workspace.": "No Meta or Twilio setup is required in this workspace.",
+  "The Lulu administrator connects and authorizes the WhatsApp account in UnifyPort.": "The Lulu administrator connects and authorizes the WhatsApp account in UnifyPort.",
+  "Once UnifyPort reports the account as running, Lulu can receive and send WhatsApp messages.": "Once UnifyPort reports the account as running, Lulu can receive and send WhatsApp messages.",
+  "If your organization needs a separate WhatsApp account, ask the administrator to provision it through UnifyPort.": "If your organization needs a separate WhatsApp account, ask the administrator to provision it through UnifyPort.",
+  "Managed by Lulu via UnifyPort": "Managed by Lulu via UnifyPort",
+  "UnifyPort admin sender awaiting activation": "UnifyPort admin sender awaiting activation",
+  "Managed via UnifyPort": "Managed via UnifyPort",
+  "Managed by Lulu": "Managed by Lulu",
+  "The Lulu administrator-authorized UnifyPort sender is active for this workspace.": "The Lulu administrator-authorized UnifyPort sender is active for this workspace.",
+  "No sender display name has been set yet.": "No sender display name has been set yet.",
+  "View connection": "View connection",
+  "View UnifyPort": "View UnifyPort",
+  "unifyport · whatsapp": "unifyport · whatsapp"
 }
