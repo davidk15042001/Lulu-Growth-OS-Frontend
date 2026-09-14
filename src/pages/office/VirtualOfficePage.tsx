@@ -491,6 +491,7 @@ function EmployeeWorkDrawer({
   workspaceId,
   employee,
   currentUserCapabilities,
+  canAdminister,
   canControl,
   onClose,
   onChanged,
@@ -498,6 +499,7 @@ function EmployeeWorkDrawer({
   workspaceId: string;
   employee: OfficeEmployeeSummary;
   currentUserCapabilities: readonly string[];
+  canAdminister: boolean;
   canControl: boolean;
   onClose: () => void;
   onChanged: () => void;
@@ -512,7 +514,10 @@ function EmployeeWorkDrawer({
   const [busyAction, setBusyAction] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<{ item: OfficeWorkItem; action: OfficeControl } | null>(null);
   const normalizedEmployeeKey = employee.key.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-  const documentEmployee = normalizedEmployeeKey === "invoice-manager" || normalizedEmployeeKey === "quote-specialist";
+  const documentEmployee = normalizedEmployeeKey.endsWith("invoice-manager") || normalizedEmployeeKey.endsWith("quote-specialist");
+  const employeeDocumentKind: CommercialDocumentKind | null = normalizedEmployeeKey.endsWith("invoice-manager")
+    ? "invoices"
+    : normalizedEmployeeKey.endsWith("quote-specialist") ? "quotes" : null;
   const [panelMode, setPanelMode] = useState<"activity" | "workspace">(documentEmployee ? "workspace" : "activity");
   const [workspaceActivated, setWorkspaceActivated] = useState(false);
   const [workspaceLoading, setWorkspaceLoading] = useState(false);
@@ -677,7 +682,8 @@ function EmployeeWorkDrawer({
     ? "invoices"
     : panelRoute?.pageId === "tender-creek-3139"
       ? "quotes"
-      : null;
+      : employeeDocumentKind;
+  const canCreateCommercialDocument = canAdminister || currentUserCapabilities.includes(commercialDocumentKind === "invoices" ? "invoices.create" : "quotes.create");
 
   const selectPanelMode = (mode: "activity" | "workspace") => {
     if (mode === "workspace") {
@@ -868,7 +874,7 @@ function EmployeeWorkDrawer({
           {commercialDocumentKind ? documentFormOpen ? <ManualCommercialDocumentForm
             workspaceId={workspaceId}
             kind={commercialDocumentKind}
-            canCreate={currentUserCapabilities.includes(commercialDocumentKind === "invoices" ? "invoices.create" : "quotes.create")}
+            canCreate={canCreateCommercialDocument}
             onCancel={() => setDocumentFormOpen(false)}
             onCreated={() => {
               setDocumentFormOpen(false);
@@ -879,7 +885,7 @@ function EmployeeWorkDrawer({
           /> : <EmbeddedCommercialDocumentList
             workspaceId={workspaceId}
             kind={commercialDocumentKind}
-            canCreate={currentUserCapabilities.includes(commercialDocumentKind === "invoices" ? "invoices.create" : "quotes.create")}
+            canCreate={canCreateCommercialDocument}
             onManualCreate={() => {
               setWorkspaceContext(null);
               setDocumentFormOpen(true);
@@ -997,6 +1003,6 @@ export default function VirtualOfficePage() {
         </div>
       </>}
     </main>
-    {selectedWorkspace && selectedEmployee && <EmployeeWorkDrawer workspaceId={selectedWorkspace.id} employee={selectedEmployee} currentUserCapabilities={permissions.capabilities} canControl={canControlOffice} onClose={() => setSelectedEmployee(null)} onChanged={() => void reload()} />}
+    {selectedWorkspace && selectedEmployee && <EmployeeWorkDrawer workspaceId={selectedWorkspace.id} employee={selectedEmployee} currentUserCapabilities={permissions.capabilities} canAdminister={permissions.canAdminister} canControl={canControlOffice} onClose={() => setSelectedEmployee(null)} onChanged={() => void reload()} />}
   </>;
 }

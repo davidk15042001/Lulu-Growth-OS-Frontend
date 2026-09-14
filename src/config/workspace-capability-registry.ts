@@ -374,11 +374,16 @@ function getWorkspaceRouteForEmployeeIdentity(
     if (route) return route;
   }
   const normalizedKey = employeeKey ? normalizeEmployeeKey(employeeKey) : "";
-  const pageId = employeeKey
-    ? EMPLOYEE_WORKSPACE_PAGE[employeeKey]
-      ?? EMPLOYEE_WORKSPACE_PAGE[normalizedKey]
-      ?? EMPLOYEE_WORKSPACE_PAGE[employeeKey.replaceAll("_", "-")]
-    : undefined;
+  const keyCandidates = employeeKey
+    ? [
+        employeeKey,
+        normalizedKey,
+        employeeKey.replaceAll("_", "-"),
+        ...employeeKey.split(/[.:/\\]/).map(normalizeEmployeeKey),
+      ].filter(Boolean)
+    : [];
+  const pageId = keyCandidates.map((candidate) => EMPLOYEE_WORKSPACE_PAGE[candidate]).find(Boolean)
+    ?? Object.entries(EMPLOYEE_WORKSPACE_PAGE).find(([candidate]) => normalizedKey.endsWith(`-${candidate}`))?.[1];
   return pageId ? getWorkspaceCapabilityRoute(pageId) : null;
 }
 
