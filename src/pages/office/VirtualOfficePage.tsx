@@ -845,7 +845,7 @@ export default function VirtualOfficePage() {
 
           <aside className="lulu-office-activity" aria-labelledby="lulu-office-activity-title">
             <div className="lulu-office-section-heading">
-              <div><span className="lulu-office-eyebrow">{t("Verified timeline")}</span><h2 id="lulu-office-activity-title">{t("Recent activity")}</h2></div>
+              <div><span className="lulu-office-eyebrow">{t("Verified timeline")}</span><h2 id="lulu-office-activity-title">{t("What Lulu did today")}</h2></div>
               <Activity aria-hidden="true" size={18} />
             </div>
             <Timeline items={overview.timeline} language={language} currentUserCapabilities={permissions.capabilities} onOpenEmployee={openEmployeeById} onOpenRecord={openTimelineRecord} />
