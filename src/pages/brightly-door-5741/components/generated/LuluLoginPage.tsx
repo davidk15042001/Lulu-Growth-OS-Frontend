@@ -95,6 +95,13 @@ export const LuluLoginPage = () => {
   const [adminMfaRequired,setAdminMfaRequired]=useState(false);
   const [adminMfaCode,setAdminMfaCode]=useState('');
   const operatingDomains = ['Online Presence', 'CRM', 'Social Media', 'Communication', 'Bookkeeping', 'Paid Ads'];
+  const reloadAuthenticatedRoute = (path: string) => {
+    // The provider owns the authenticated session state. A full document
+    // reload lets it restore the token and workspace before route guards run;
+    // client-only navigation would otherwise see the pre-login null context
+    // and immediately redirect back to the login page.
+    window.location.replace(path);
+  };
   const submit = async (x: React.FormEvent) => {
     x.preventDefault();
     if (loading) return;
@@ -124,7 +131,7 @@ export const LuluLoginPage = () => {
       if (isAdminUser(currentUser)) {
         setS(true);
         setStatusMessage(t('Signed in as admin.'));
-        navigateApp(getAdminLandingPath(routes.app.dashboard), { replace: true });
+        reloadAuthenticatedRoute(getAdminLandingPath(routes.app.dashboard));
         return;
       }
       const pendingInvitation = getPendingInvitation();
@@ -145,14 +152,14 @@ export const LuluLoginPage = () => {
       setStatusMessage(t('Signed in successfully.'));
       if (workspace) {
         setSelectedWorkspaceId(workspace.id);
-        navigateApp(workspace.onboardingCompletedAt ? routes.app.dashboard
+        reloadAuthenticatedRoute(workspace.onboardingCompletedAt ? routes.app.dashboard
           : workspace.onboardingStep === 'company_information' ? routes.onboarding.companyInformation
           : workspace.onboardingStep === 'billing' ? routes.onboarding.billing
           : workspace.onboardingStep === 'profile_completion' ? routes.app.profile
           : routes.app.knowledgeBase);
       } else {
         clearSelectedWorkspaceId();
-        navigateApp(routes.onboarding.companyInformation);
+        reloadAuthenticatedRoute(routes.onboarding.companyInformation);
       }
     } catch (cause) {
       setStatusMessage('');
