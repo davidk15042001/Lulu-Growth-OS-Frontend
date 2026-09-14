@@ -96,8 +96,8 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
     const nextPaused = !agentsPaused;
     setAgentsToggleBusy(true);
     try {
-      await workspaceAppApi.updateSettings(selectedWorkspace.id, { agents: { paused: nextPaused } });
-      setAgentsPaused(nextPaused);
+      const response = await workspaceAppApi.updateSettings(selectedWorkspace.id, { agents: { paused: nextPaused } });
+      setAgentsPaused(response.data.settings.agents?.paused === true);
       setAgentsToggleError(false);
     } catch {
       // Keep the last confirmed state visible and give the user a retryable
@@ -180,7 +180,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
             })}
             {section.label === SETTINGS_LABEL && <>
               {!activationPageId && <><button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setSessionsOpen(true)}>{t("Active sessions")}</button>{sessionsOpen && <AccountSessions onClose={() => setSessionsOpen(false)} />}
-                {canToggleAgents && <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void toggleAgents()} disabled={agentsToggleBusy} aria-pressed={!agentsPaused} aria-busy={agentsToggleBusy} title={agentsToggleError ? t("Could not update agent status. Please try again.") : undefined}><span className={`lulu-global-navigation__agent-toggle${agentsPaused ? " is-paused" : " is-active"}`} aria-hidden="true"><span /></span><span>{agentsToggleBusy ? t("Updating agents…") : agentsPaused ? t("Agents paused") : t("Agents active")}</span></button>}
+                {canToggleAgents && <><button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void toggleAgents()} disabled={agentsToggleBusy} aria-pressed={!agentsPaused} aria-busy={agentsToggleBusy} title={agentsToggleError ? t("Could not update agent status. Please try again.") : undefined}><span className={`lulu-global-navigation__agent-toggle${agentsPaused ? " is-paused" : " is-active"}`} aria-hidden="true"><span /></span><span>{agentsToggleBusy ? t("Updating agents…") : agentsPaused ? t("Agents paused") : t("Agents active")}</span></button>{agentsToggleError && <span className="lulu-global-navigation__agent-toggle-error" role="alert">{t("Could not update agent status. Please try again.")}</span>}</>}
                 <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setLanguageOpen((value) => !value)} aria-expanded={languageOpen}><Languages aria-hidden="true" size={14} /><span>{t("Language")}</span></button>
                 {languageOpen && <div className="lulu-global-navigation__language-list">{languages.filter((option) => isAvailableLanguageCode(option.code)).map((option) => <button key={option.code} type="button" className={`lulu-global-navigation__language-option${option.code === language ? " is-active" : ""}`} onClick={() => switchLanguage(option.code)}><span lang={option.code} dir={option.direction} data-lulu-no-translate="true" translate="no">{option.nativeName}</span>{option.code === language && <Check aria-hidden="true" size={13} />}</button>)}</div>}
               </>}
