@@ -40,7 +40,7 @@ const CrmWorkspacePage=lazy(()=>import("./pages/canonical-crm/CrmWorkspacePage")
 const WorkspaceRecordsPage=lazy(()=>import("./pages/canonical-records/WorkspaceRecordsPage"));
 const ProfilePage=lazy(()=>import("./pages/canonical-profile/ProfilePage"));
 const GrowthPage=lazy(()=>import("./pages/canonical-growth/GrowthPage"));
-const FinancePage=lazy(()=>import("./pages/canonical-finance/FinancePage"));
+const FinancePage=lazy(()=>import("./pages/canonical-finance/FinanceTemplatesPage"));
 const KnowledgePage=lazy(()=>import("./pages/canonical-knowledge/KnowledgePage"));
 const CalendarMeetingPage=lazy(()=>import("./pages/calendar-meeting/CalendarMeetingPage"));
 const EmailWorkspacePage=lazy(()=>import("./pages/lulu-email-portal-9013/App"));

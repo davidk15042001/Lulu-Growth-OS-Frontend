@@ -55,7 +55,6 @@ export const CRM_LANDING_PAGE_ID = "sturdy-month-1562";
 export const OMNICHANNEL_LABEL = "OmniChannel";
 export const DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL]);
 
-const FINANCE_SECTION_KEEP_IDS = new Set(["breezy-soil-2475", "tender-creek-3139"]);
 const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
 const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"]);
 const LEGACY_CRM_COMPANIES_PAGE_ID = "kindly-pool-8785";
@@ -158,8 +157,10 @@ function createWorkspaceNavigationSections(): { all: NavigationSection[]; visibl
 
   const finance = sections.find((section) => section.label === FINANCE_LABEL);
   if (finance && statistics) {
-    statistics.pages = [...statistics.pages, ...finance.pages.filter((page) => !FINANCE_SECTION_KEEP_IDS.has(page.id))];
-    finance.pages = finance.pages.filter((page) => FINANCE_SECTION_KEEP_IDS.has(page.id));
+    // Finance is intentionally a single destination. Invoices and quotes are
+    // produced by Lulu's agents, so they are not exposed as manual nav items.
+    statistics.pages = [...statistics.pages, ...finance.pages.filter((page) => page.id !== "breezy-soil-2475" && page.id !== "tender-creek-3139")];
+    finance.pages = [{ id: "quietly-stone-4158", label: "Finance" }];
   }
 
   const all = sections.filter((section) => section.pages.length > 0)

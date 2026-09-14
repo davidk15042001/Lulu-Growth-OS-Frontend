@@ -162,6 +162,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
     <nav className="lulu-global-navigation__sections">
       {navigationSections.map((section) => {
         if (section.label === CRM_LABEL) return directLink(section, CRM_LANDING_PAGE_ID);
+        if (section.label === "Finance") return directLink(section, "quietly-stone-4158");
         if (section.label === "Calendar") return directLink(section, "lulu-calendar-portal-9014", <CalendarDays aria-hidden="true" size={16} />);
         if (DIRECT_SECTION_LABELS.has(section.label)) return directLink(section, section.pages[0]!.id);
         const active = section.pages.some((page) => page.id === activeSlug);
