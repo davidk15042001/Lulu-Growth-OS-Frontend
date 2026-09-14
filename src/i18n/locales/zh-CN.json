@@ -21617,5 +21617,11 @@
   "Upload logo": "上传标志",
   "No logo uploaded": "尚未上传标志",
   "PNG, JPEG or WebP": "PNG、JPEG 或 WebP",
-  "Maximum 5 MB": "最大 5 MB"
+  "Maximum 5 MB": "最大 5 MB",
+  "Adjust company logo": "调整公司标志",
+  "Drag to position and use the slider to zoom.": "拖动图片调整位置，并使用滑块缩放。",
+  "The logo image could not be read.": "无法读取标志图片。",
+  "The logo image could not be prepared.": "无法准备标志图片。",
+  "Zoom": "缩放",
+  "Crop and upload": "裁剪并上传"
 }

@@ -26,7 +26,7 @@ export type RecordInvoicePaymentInput = {
   idempotencyKey: string;
   metadata?: Record<string, unknown>;
 };
-export type QuoteDetail = { quote: Quote; versions: Array<Record<string, unknown>>; lines: Array<Record<string, unknown>>; deliveries: Array<Record<string, unknown>> };
+export type QuoteDetail = { quote: Quote; sellerProfile: DocumentSellerProfile | null; versions: Array<Record<string, unknown>>; lines: Array<Record<string, unknown>>; deliveries: Array<Record<string, unknown>> };
 export type DocumentSellerProfile = {
   workspaceId?: string;
   companyName: string;

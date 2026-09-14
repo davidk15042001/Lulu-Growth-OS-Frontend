@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { Building2, CheckCircle2, Eye, EyeOff, ImagePlus, LockKeyhole, Save, Trash2, UserRound } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { getFriendlyErrorMessage } from '../../api/client';
@@ -14,6 +14,10 @@ type ProfileField = 'companyName'|'industry'|'countryRegion'|'taxId'|'address'|'
 type ProfileForm = Record<ProfileField,string>;
 type AccountForm = { firstName: string; lastName: string };
 type PasswordForm = { currentPassword: string; newPassword: string; confirmPassword: string };
+type PendingLogo = { file: File; url: string; width: number; height: number; baseScale: number };
+type CropOffset = { x: number; y: number };
+
+const cropViewportSize = 320;
 
 const emptyProfile: ProfileForm = {
   companyName: '', industry: '', countryRegion: '', taxId: '', address: '', legalForm: '',
@@ -38,6 +42,15 @@ function workspaceToProfileForm(workspace: NonNullable<ReturnType<typeof useLulu
   };
 }
 
+function constrainCropOffset(offset: CropOffset, width: number, height: number, scale: number): CropOffset {
+  const maxX = Math.max(0, (width * scale - cropViewportSize) / 2);
+  const maxY = Math.max(0, (height * scale - cropViewportSize) / 2);
+  return {
+    x: Math.min(maxX, Math.max(-maxX, offset.x)),
+    y: Math.min(maxY, Math.max(-maxY, offset.y)),
+  };
+}
+
 export default function ProfilePage() {
   const t = useTranslation();
   const { currentUser, selectedWorkspace, permissions, updateWorkspace, refresh } = useLuluApp();
@@ -55,6 +68,11 @@ export default function ProfilePage() {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoFileName, setLogoFileName] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
+  const [pendingLogo, setPendingLogo] = useState<PendingLogo | null>(null);
+  const [cropZoom, setCropZoom] = useState(1);
+  const [cropOffset, setCropOffset] = useState<CropOffset>({ x: 0, y: 0 });
+  const cropImageRef = useRef<HTMLImageElement | null>(null);
+  const cropDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
 
   // Company/legal identity is required before billing is active.  Keep this
   // screen available to workspace owners/admins even when the commercial
@@ -105,6 +123,10 @@ export default function ProfilePage() {
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [workspaceId, canManageWorkspaceProfile, t]);
+
+  useEffect(() => () => {
+    if (pendingLogo?.url) URL.revokeObjectURL(pendingLogo.url);
+  }, [pendingLogo?.url]);
 
   const updateAccount = async () => {
     if (!account.firstName.trim() || !account.lastName.trim()) {
@@ -182,8 +204,29 @@ export default function ProfilePage() {
   };
 
   const updateField = (key: keyof ProfileForm, value: string) => setProfile((current) => ({ ...current, [key]: value }));
-  const uploadLogo = async (file: File | undefined) => {
-    if (!workspaceId || !file) return;
+  const uploadLogo = async (file: File | undefined): Promise<boolean> => {
+    if (!workspaceId || !file) return false;
+    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+      setError(t('Use a PNG, JPEG or WebP image for the company logo.'));
+      return false;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError(t('The company logo must be 5 MB or smaller.'));
+      return false;
+    }
+    setLogoUploading(true); setError(''); setNotice('');
+    try {
+      const response = await workspaceProfileApi.uploadLogo(workspaceId, file);
+      setLogoUrl(response.data.logoUrl); setLogoFileName(response.data.logoFileName);
+      setNotice(t('Company logo was uploaded and will appear on new invoices and quotes.'));
+      return true;
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, t('The company logo could not be uploaded.')));
+      return false;
+    } finally { setLogoUploading(false); }
+  };
+  const openLogoCropper = (file: File | undefined) => {
+    if (!file) return;
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
       setError(t('Use a PNG, JPEG or WebP image for the company logo.'));
       return;
@@ -192,14 +235,50 @@ export default function ProfilePage() {
       setError(t('The company logo must be 5 MB or smaller.'));
       return;
     }
-    setLogoUploading(true); setError(''); setNotice('');
-    try {
-      const response = await workspaceProfileApi.uploadLogo(workspaceId, file);
-      setLogoUrl(response.data.logoUrl); setLogoFileName(response.data.logoFileName);
-      setNotice(t('Company logo was uploaded and will appear on new invoices and quotes.'));
-    } catch (cause) {
-      setError(getFriendlyErrorMessage(cause, t('The company logo could not be uploaded.')));
-    } finally { setLogoUploading(false); }
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      const baseScale = Math.max(cropViewportSize / image.naturalWidth, cropViewportSize / image.naturalHeight);
+      setPendingLogo({ file, url, width: image.naturalWidth, height: image.naturalHeight, baseScale });
+      setCropZoom(1);
+      setCropOffset({ x: 0, y: 0 });
+      setError(''); setNotice('');
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      setError(t('The logo image could not be read.'));
+    };
+    image.src = url;
+  };
+  const cropScale = pendingLogo ? pendingLogo.baseScale * cropZoom : 1;
+  const moveCrop = (event: PointerEvent<HTMLDivElement>) => {
+    const drag = cropDragRef.current;
+    if (!pendingLogo || !drag) return;
+    setCropOffset(constrainCropOffset({ x: drag.originX + event.clientX - drag.startX, y: drag.originY + event.clientY - drag.startY }, pendingLogo.width, pendingLogo.height, cropScale));
+  };
+  const endCropDrag = (event?: PointerEvent<HTMLDivElement>) => {
+    if (event && event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    cropDragRef.current = null;
+  };
+  const confirmCropAndUpload = async () => {
+    if (!pendingLogo || !cropImageRef.current || logoUploading) return;
+    const image = cropImageRef.current;
+    const imageLeft = (cropViewportSize - pendingLogo.width * cropScale) / 2 + cropOffset.x;
+    const imageTop = (cropViewportSize - pendingLogo.height * cropScale) / 2 + cropOffset.y;
+    const sourceSize = Math.min(pendingLogo.width, pendingLogo.height, cropViewportSize / cropScale);
+    const sourceX = Math.max(0, Math.min(pendingLogo.width - sourceSize, -imageLeft / cropScale));
+    const sourceY = Math.max(0, Math.min(pendingLogo.height - sourceSize, -imageTop / cropScale));
+    const canvas = document.createElement('canvas');
+    canvas.width = 1024; canvas.height = 1024;
+    const context = canvas.getContext('2d');
+    if (!context) { setError(t('The logo image could not be prepared.')); return; }
+    context.imageSmoothingEnabled = true; context.imageSmoothingQuality = 'high';
+    context.drawImage(image, sourceX, sourceY, sourceSize, sourceSize, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
+    if (!blob) { setError(t('The logo image could not be prepared.')); return; }
+    const originalName = pendingLogo.file.name.replace(/\.[^/.]+$/, '') || 'company-logo';
+    const croppedFile = new File([blob], `${originalName}-cropped.png`, { type: 'image/png' });
+    if (await uploadLogo(croppedFile)) setPendingLogo(null);
   };
   const removeLogo = async () => {
     if (!workspaceId || !logoUrl) return;
@@ -246,7 +325,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3">
                 <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--secondary)]">
                   <ImagePlus size={16}/>{logoUploading ? t('Uploading…') : logoUrl ? t('Replace logo') : t('Upload logo')}
-                  <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={logoUploading} onChange={(event) => { void uploadLogo(event.target.files?.[0]); event.currentTarget.value = ''; }}/>
+                  <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={logoUploading} onChange={(event) => { openLogoCropper(event.target.files?.[0]); event.currentTarget.value = ''; }}/>
                 </label>
                 {logoUrl ? <button type="button" disabled={logoUploading} onClick={() => void removeLogo()} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-medium text-rose-700 hover:bg-rose-50 disabled:opacity-50"><Trash2 size={15}/>{t('Remove')}</button> : null}
               </div>
@@ -261,6 +340,17 @@ export default function ProfilePage() {
         </>}
       </>}
     </section>
+    {pendingLogo ? <div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/70 p-4" role="dialog" aria-modal="true" aria-labelledby="company-logo-crop-title">
+      <div className="w-full max-w-lg rounded-3xl border border-white/10 bg-[var(--card)] p-5 shadow-2xl sm:p-6">
+        <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">{t('Company logo')}</p><h2 id="company-logo-crop-title" className="mt-1 text-xl font-semibold">{t('Adjust company logo')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Drag to position and use the slider to zoom.')}</p></div><button type="button" onClick={() => setPendingLogo(null)} disabled={logoUploading} className="rounded-xl border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-50">{t('Cancel')}</button></div>
+        <div className="mx-auto mt-6 w-fit overflow-hidden rounded-2xl bg-slate-950 p-2 shadow-inner"><div className="relative overflow-hidden rounded-xl bg-slate-900" style={{ width: cropViewportSize, height: cropViewportSize, touchAction: 'none' }} onPointerDown={(event) => { if (!logoUploading) { event.currentTarget.setPointerCapture(event.pointerId); cropDragRef.current = { startX: event.clientX, startY: event.clientY, originX: cropOffset.x, originY: cropOffset.y }; } }} onPointerMove={moveCrop} onPointerUp={endCropDrag} onPointerCancel={endCropDrag}>
+          <img ref={cropImageRef} src={pendingLogo.url} alt={t('Company logo')} draggable={false} className="pointer-events-none absolute max-w-none select-none" style={{ width: pendingLogo.width * cropScale, height: pendingLogo.height * cropScale, left: '50%', top: '50%', transform: `translate(-50%, -50%) translate(${cropOffset.x}px, ${cropOffset.y}px)` }} />
+          <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-inset ring-white/90" />
+        </div></div>
+        <label className="mt-6 block text-sm font-medium">{t('Zoom')}<input type="range" min="1" max="3" step="0.01" value={cropZoom} onChange={(event) => { const nextZoom = Number(event.target.value); setCropZoom(nextZoom); if (pendingLogo) setCropOffset((current) => constrainCropOffset(current, pendingLogo.width, pendingLogo.height, pendingLogo.baseScale * nextZoom)); }} className="mt-3 w-full accent-indigo-600" /></label>
+        <div className="mt-6 flex justify-end gap-3"><button type="button" onClick={() => setPendingLogo(null)} disabled={logoUploading} className="rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium disabled:opacity-50">{t('Cancel')}</button><button type="button" onClick={() => void confirmCropAndUpload()} disabled={logoUploading} className="rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-50">{logoUploading ? t('Uploading…') : t('Crop and upload')}</button></div>
+      </div>
+    </div> : null}
   </div></main></WorkspaceSurfaceShell>;
 }
 

@@ -21617,5 +21617,11 @@
   "Upload logo": "Logo hochladen",
   "No logo uploaded": "Kein Logo hochgeladen",
   "PNG, JPEG or WebP": "PNG, JPEG oder WebP",
-  "Maximum 5 MB": "Maximal 5 MB"
+  "Maximum 5 MB": "Maximal 5 MB",
+  "Adjust company logo": "Unternehmenslogo zuschneiden",
+  "Drag to position and use the slider to zoom.": "Ziehe das Bild, um es zu positionieren, und nutze den Regler zum Zoomen.",
+  "The logo image could not be read.": "Das Logo-Bild konnte nicht gelesen werden.",
+  "The logo image could not be prepared.": "Das Logo-Bild konnte nicht vorbereitet werden.",
+  "Zoom": "Zoom",
+  "Crop and upload": "Zuschneiden und hochladen"
 }
