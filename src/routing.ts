@@ -56,7 +56,14 @@ const canonicalPathsBySlug: Readonly<Record<string, string>> = {
   "bravely-path-4713": routes.onboarding.companyInformation,
   "quiet-garden-9477": routes.onboarding.businessDescription,
   "keen-morning-6353": routes.onboarding.productsServices,
-  "lulu-website-portal-9012": routes.app.website,
+  // Managed website surfaces use explicit routes so the navigation can open
+  // the editor, preview, media library and domain setup directly. The old
+  // provider portal remains reachable only through legacy deep links.
+  "lulu-website-portal-9012": "/app/website-editor",
+  "lulu-website-editor-9012": "/app/website-editor",
+  "lulu-website-preview-9012": "/app/website-preview",
+  "lulu-website-media-9017": "/app/website-media",
+  "lulu-website-domains-9018": "/app/website-domains",
   "lulu-email-portal-9013": routes.app.email,
   "lulu-calendar-portal-9014": routes.app.calendar,
   "nicely-ocean-1051": routes.app.products,

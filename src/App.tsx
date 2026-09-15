@@ -45,6 +45,7 @@ const KnowledgePage=lazy(()=>import("./pages/canonical-knowledge/KnowledgePage")
 const CalendarMeetingPage=lazy(()=>import("./pages/calendar-meeting/CalendarMeetingPage"));
 const EmailWorkspacePage=lazy(()=>import("./pages/lulu-email-portal-9013/App"));
 const CalendarWorkspacePage=lazy(()=>import("./pages/lulu-calendar-portal-9014/App"));
+const ManagedWebsitePage=lazy(()=>import("./pages/lulu-website-portal-9012/ManagedStorefrontApp"));
 const VirtualOfficePage=lazy(()=>import("./pages/office/VirtualOfficePage"));
 const SocialPublishingPage=lazy(()=>import("./pages/canonical-social/SocialPublishingPage"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
@@ -337,7 +338,12 @@ export default function App() {
         <Route path={routes.app.office} element={<AdminOnlyAppRoute><VirtualOfficePage /></AdminOnlyAppRoute>} />
         <Route path={routes.app.email} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-email-portal-9013"><EmailWorkspacePage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-calendar-portal-9014"><CalendarWorkspacePage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
-        <Route path="/app/website" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.onlinePresence} /></AdminOnlyAppRoute>} />
+        <Route path="/app/website" element={<AdminOnlyAppRoute><Navigate replace to="/app/website-editor" /></AdminOnlyAppRoute>} />
+        <Route path="/app/online-presence" element={<AdminOnlyAppRoute><Navigate replace to="/app/website-editor" /></AdminOnlyAppRoute>} />
+        <Route path="/app/website-editor" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-website-editor-9012"><ManagedWebsitePage initialPanel="builder" /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
+        <Route path="/app/website-preview" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-website-preview-9012"><ManagedWebsitePage initialPanel="preview" /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
+        <Route path="/app/website-media" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-website-media-9017"><ManagedWebsitePage initialPanel="media" /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
+        <Route path="/app/website-domains" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-website-domains-9018"><ManagedWebsitePage initialPanel="domains" /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path={routes.app.communications} element={<AdminOnlyAppRoute><Navigate replace to={routes.app.omnichannel} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.growth} element={<AdminOnlyAppRoute><GrowthPage /></AdminOnlyAppRoute>} />
         <Route path={routes.app.finance} element={<AdminOnlyAppRoute><FinancePage /></AdminOnlyAppRoute>} />

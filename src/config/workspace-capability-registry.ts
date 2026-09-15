@@ -55,6 +55,25 @@ export const CRM_LANDING_PAGE_ID = "sturdy-month-1562";
 export const OMNICHANNEL_LABEL = "OmniChannel";
 export const DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL]);
 
+// Website work is now owned and executed by Lulu itself. Keep the former
+// provider pages available only for migration-safe deep links; they must not
+// appear in the customer navigation after the managed website rollout.
+const LEGACY_EXTERNAL_WEBSITE_PAGE_IDS = new Set([
+  "website-wordpress-jetpack-9013",
+  "website-webflow-9014",
+  "website-pages-cms-9015",
+  "website-posts-9016",
+  "website-media-assets-9017",
+  "website-domains-9018",
+]);
+
+const MANAGED_WEBSITE_NAVIGATION_PAGES: NavigationPage[] = [
+  { id: "lulu-website-editor-9012", label: "Website" },
+  { id: "lulu-website-preview-9012", label: "Preview" },
+  { id: "lulu-website-media-9017", label: "Media & Assets" },
+  { id: "lulu-website-domains-9018", label: "Domains" },
+];
+
 const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
 const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"]);
 const LEGACY_CRM_COMPANIES_PAGE_ID = "kindly-pool-8785";
@@ -105,6 +124,10 @@ const PAGE_METADATA: Readonly<Record<string, Partial<{
   "breezy-soil-2475": { department: "Finance", employee: "Invoice Manager", capabilityKey: "finance.invoices", readPermission: "invoices.read" },
   "tender-creek-3139": { department: "Sales", employee: "Quote Specialist", capabilityKey: "sales.quotes", readPermission: "quotes.read" },
   "daring-brook-9034": { department: "Online Presence", employee: "Reviews & Reputation Manager", capabilityKey: "online_presence.reviews", readPermission: "website.read" },
+  "lulu-website-editor-9012": { department: "Online Presence", employee: "Website Editor", capabilityKey: "online_presence.editor", readPermission: "website.read" },
+  "lulu-website-preview-9012": { department: "Online Presence", employee: "Website Preview Manager", capabilityKey: "online_presence.preview", readPermission: "website.read" },
+  "lulu-website-media-9017": { department: "Online Presence", employee: "Website Media Manager", capabilityKey: "online_presence.media", readPermission: "website.read" },
+  "lulu-website-domains-9018": { department: "Online Presence", employee: "Domain Manager", capabilityKey: "online_presence.domains", readPermission: "website.read" },
   "lulu-website-portal-9012": { department: "Online Presence", employee: "Website Manager", capabilityKey: "online_presence.website", readPermission: "website.read" },
   "fresh-tide-9404": { department: "Operations", employee: "Integration Manager", capabilityKey: "operations.connections", readPermission: "providers.read" },
   "glad-coast-1428": { department: "Operations", employee: "Integration Manager", capabilityKey: "operations.integrations", readPermission: "providers.read" },
@@ -142,7 +165,7 @@ function createWorkspaceNavigationSections(): { all: NavigationSection[]; visibl
     .map((section) => ({
       label: section.label === DASHBOARD_LABEL ? STATISTICS_LABEL : section.label,
       pages: section.pages
-        .filter((page) => isPageAvailable(page.id) && page.label !== "Revenue" && page.id !== "nicely-land-1864")
+        .filter((page) => isPageAvailable(page.id) && page.label !== "Revenue" && page.id !== "nicely-land-1864" && !LEGACY_EXTERNAL_WEBSITE_PAGE_IDS.has(page.id))
         .map((page) => ({ ...page, label: navigationPageLabel(page) })),
     }))
     .filter((section) => section.label !== "Revenue" && section.pages.length > 0);
@@ -177,6 +200,14 @@ function createWorkspaceNavigationSections(): { all: NavigationSection[]; visibl
     // produced by Lulu's agents, so they are not exposed as manual nav items.
     statistics.pages = [...statistics.pages, ...finance.pages.filter((page) => page.id !== "breezy-soil-2475" && page.id !== "tender-creek-3139")];
     finance.pages = [{ id: "quietly-stone-4158", label: "Finance" }];
+  }
+
+  const website = sections.find((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
+  if (website) {
+    website.pages = [
+      ...MANAGED_WEBSITE_NAVIGATION_PAGES,
+      ...website.pages.filter((page) => page.id !== "lulu-website-portal-9012"),
+    ];
   }
 
   const all = sections.filter((section) => section.pages.length > 0)

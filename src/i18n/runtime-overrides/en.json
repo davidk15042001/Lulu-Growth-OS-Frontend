@@ -850,5 +850,10 @@
   "Der Ausschnitt wird mittig als 14:9-Websitebild gespeichert.": "The crop is saved in the middle as a 14:9 website image.",
   "Hero-Bereich": "Hero area",
   "Zuschnitt speichern": "Save crop",
-  "Gespeicherte Bilder": "Saved images"
+  "Gespeicherte Bilder": "Saved images",
+  "Website bearbeiten": "Edit website",
+  "Vorschau": "Preview",
+  "Website-Vorschau": "Website preview",
+  "So sehen Kunden deine veröffentlichte Website und deine Produkte.": "This is how customers see your published website and products.",
+  "Noch keine öffentlich freigegebenen Produkte. Veröffentliche zuerst die Website im Editor.": "No publicly available products yet. Publish the website from the editor first."
 }

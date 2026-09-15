@@ -3263,5 +3263,9 @@
   "Trust before execution": "Vertrauen vor Ausführung",
   "unknown": "unbekannt",
   "Verified": "Verifiziert",
-  "You are viewing this Workspace as a user.": "Du siehst diesen Workspace gerade als Benutzer."
+  "You are viewing this Workspace as a user.": "Du siehst diesen Workspace gerade als Benutzer.",
+  "Website Editor": "Website-Editor",
+  "Website Preview Manager": "Website-Vorschau-Manager",
+  "Website Media Manager": "Website-Medien-Manager",
+  "Domain Manager": "Domain-Manager"
 }

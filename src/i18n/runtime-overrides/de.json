@@ -5616,5 +5616,14 @@
   "load": "laden",
   "Setup required": "Einrichtung erforderlich",
   "Lulu is waiting for setup": "Lulu wartet auf die Einrichtung",
-  "Connect the required service or add the missing information. Lulu will not retry automatically.": "Verbinden Sie den gewünschten Dienst oder ergänzen Sie die fehlenden Informationen. Lulu wird es nicht automatisch erneut versuchen."
+  "Connect the required service or add the missing information. Lulu will not retry automatically.": "Verbinden Sie den gewünschten Dienst oder ergänzen Sie die fehlenden Informationen. Lulu wird es nicht automatisch erneut versuchen.",
+  "Website bearbeiten": "Website bearbeiten",
+  "Vorschau": "Vorschau",
+  "Website-Vorschau": "Website-Vorschau",
+  "So sehen Kunden deine veröffentlichte Website und deine Produkte.": "So sehen Kunden deine veröffentlichte Website und deine Produkte.",
+  "Noch keine öffentlich freigegebenen Produkte. Veröffentliche zuerst die Website im Editor.": "Noch keine öffentlich freigegebenen Produkte. Veröffentliche zuerst die Website im Editor.",
+  "Website Editor": "Website-Editor",
+  "Website Preview Manager": "Website-Vorschau-Manager",
+  "Website Media Manager": "Website-Medien-Manager",
+  "Domain Manager": "Domain-Manager"
 }
