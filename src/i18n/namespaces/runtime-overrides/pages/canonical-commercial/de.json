@@ -85,5 +85,11 @@
   "refreshing": "wird aktualisiert",
   "Showing the last successfully loaded data.": "Die zuletzt erfolgreich geladenen Daten werden angezeigt.",
   "stale": "veraltet",
-  "Your workspace permissions do not allow this document to be created.": "Ihre Arbeitsbereichsberechtigungen erlauben die Erstellung dieses Dokuments nicht."
+  "Your workspace permissions do not allow this document to be created.": "Ihre Arbeitsbereichsberechtigungen erlauben die Erstellung dieses Dokuments nicht.",
+  "Company logo": "Unternehmenslogo",
+  "Documents are created automatically": "Dokumente werden automatisch erstellt",
+  "Invoices created by Lulu agents.": "Von Lulu-Agenten erstellte Rechnungen.",
+  "Lulu agents create invoices and quotes from your company profile, products, customers and approved policies. Manual creation is not available in the workspace.": "Lulu-Agenten erstellen Rechnungen und Angebote aus deinem Unternehmensprofil, Produkten, Kunden und freigegebenen Richtlinien. Eine manuelle Erstellung ist im Workspace nicht verfügbar.",
+  "Lulu will create the first document automatically when it is needed.": "Lulu erstellt das erste Dokument automatisch, sobald es benötigt wird.",
+  "Offers and quotes created by Lulu agents.": "Von Lulu-Agenten erstellte Angebote und Quotes."
 }

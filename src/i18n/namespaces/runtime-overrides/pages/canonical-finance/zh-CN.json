@@ -146,5 +146,19 @@
   "Showing the last successfully loaded data.": "正在显示上次成功加载的数据。",
   "stale": "数据已过期",
   "Trial balance unavailable": "试算平衡表不可用",
-  "loading": "加载中"
+  "loading": "加载中",
+  "Choose a workspace to continue.": "请选择工作区以继续。",
+  "Document templates": "文档模板",
+  "Finance templates": "财务模板",
+  "Invoice template": "发票模板",
+  "Lulu automatically creates invoices and quotes when they are needed. Choose a template to review the format used for your customer documents.": "Lulu 会在需要时自动创建发票和报价。选择一个模板即可查看客户文档所使用的格式。",
+  "Managed by Lulu agents": "由 Lulu 智能体管理",
+  "No manual invoice or quote creation is required. Lulu generates documents from your company profile, products, customer records and approved policies.": "无需手动创建发票或报价。Lulu 会根据你的公司资料、产品、客户记录和已批准的政策生成文档。",
+  "Offer / quote template": "报价/方案模板",
+  "The standard format Lulu uses for invoices, payment details and outstanding balances.": "Lulu 用于发票、付款信息和未结余额的标准格式。",
+  "The standard format Lulu uses for offers, quotes, product lines and validity dates.": "Lulu 用于报价、方案、产品明细和有效期的标准格式。",
+  "Used automatically": "自动使用",
+  "View invoices": "查看发票",
+  "View offers and quotes": "查看报价和方案",
+  "Your agents use these formats for every generated document.": "你的智能体会为每份生成的文档使用这些格式。"
 }

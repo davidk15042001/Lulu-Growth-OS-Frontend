@@ -85,5 +85,11 @@
   "refreshing": "正在刷新",
   "Showing the last successfully loaded data.": "正在显示上次成功加载的数据。",
   "stale": "数据已过期",
-  "Your workspace permissions do not allow this document to be created.": "您的工作区权限不允许创建此文档。"
+  "Your workspace permissions do not allow this document to be created.": "您的工作区权限不允许创建此文档。",
+  "Company logo": "公司标志",
+  "Documents are created automatically": "文档会自动创建",
+  "Invoices created by Lulu agents.": "由 Lulu 智能体创建的发票。",
+  "Lulu agents create invoices and quotes from your company profile, products, customers and approved policies. Manual creation is not available in the workspace.": "Lulu 智能体会根据你的公司资料、产品、客户和已批准的政策创建发票和报价。工作区不提供手动创建功能。",
+  "Lulu will create the first document automatically when it is needed.": "Lulu 会在需要时自动创建第一份文档。",
+  "Offers and quotes created by Lulu agents.": "由 Lulu 智能体创建的报价和方案。"
 }

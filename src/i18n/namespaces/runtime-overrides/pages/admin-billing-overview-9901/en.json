@@ -133,5 +133,13 @@
   "Workspace / Benutzer": "Workspace / user",
   "Billing konnte nicht übersprungen werden.": "Billing could not be skipped.",
   "Lulu Platform Operations": "Lulu platform operations",
-  "Die zentrale WhatsApp-Nummer konnte nicht gespeichert werden.": "The central WhatsApp number could not be saved."
+  "Die zentrale WhatsApp-Nummer konnte nicht gespeichert werden.": "The central WhatsApp number could not be saved.",
+  "Ads verfügbar / reserviert": "Ads available / reserved",
+  "AI und Ads laufen nach der Freigabe aus dem jeweiligen Wallet. Storage wird als Gutschrift auf die offene PAYG-Periode angewendet.": "AI and ads run from the respective wallet after release. Storage is applied as a credit towards the open PAYG period.",
+  "AI verfügbar / reserviert": "AI available/reserved",
+  "Banküberweisung": "Bank transfer",
+  "Die manuelle Guthabenänderung konnte nicht gespeichert werden.": "The manual balance change could not be saved.",
+  "Freigeben": "Approve",
+  "Für Zahlungen per WeChat, Banküberweisung oder andere Offline-Zahlungen. Diese Änderung wird direkt im jeweiligen Ledger gespeichert und erzeugt ausdrücklich keine Airwallex-Zahlung.": "For payments via WeChat, bank transfer or other offline payments. This change is saved directly in the respective ledger and expressly does not generate an Airwallex payment.",
+  "Korrigieren": "Edit"
 }

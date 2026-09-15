@@ -146,5 +146,19 @@
   "Showing the last successfully loaded data.": "Die zuletzt erfolgreich geladenen Daten werden angezeigt.",
   "stale": "veraltet",
   "Trial balance unavailable": "Summen- und Saldenliste nicht verfügbar",
-  "loading": "wird geladen"
+  "loading": "wird geladen",
+  "Choose a workspace to continue.": "Wähle einen Workspace aus, um fortzufahren.",
+  "Document templates": "Dokumentvorlagen",
+  "Finance templates": "Finanzvorlagen",
+  "Invoice template": "Rechnungsvorlage",
+  "Lulu automatically creates invoices and quotes when they are needed. Choose a template to review the format used for your customer documents.": "Lulu erstellt Rechnungen und Angebote automatisch, sobald sie benötigt werden. Wähle eine Vorlage, um das Format deiner Kundendokumente zu prüfen.",
+  "Managed by Lulu agents": "Von Lulu-Agenten verwaltet",
+  "No manual invoice or quote creation is required. Lulu generates documents from your company profile, products, customer records and approved policies.": "Du musst Rechnungen oder Angebote nicht manuell erstellen. Lulu erstellt Dokumente aus deinem Unternehmensprofil, Produkten, Kundendaten und freigegebenen Richtlinien.",
+  "Offer / quote template": "Angebots-/Quote-Vorlage",
+  "The standard format Lulu uses for invoices, payment details and outstanding balances.": "Das Standardformat, das Lulu für Rechnungen, Zahlungsdetails und offene Beträge verwendet.",
+  "The standard format Lulu uses for offers, quotes, product lines and validity dates.": "Das Standardformat, das Lulu für Angebote, Quotes, Produktpositionen und Gültigkeitsdaten verwendet.",
+  "Used automatically": "Automatisch verwendet",
+  "View invoices": "Rechnungen ansehen",
+  "View offers and quotes": "Angebote und Quotes ansehen",
+  "Your agents use these formats for every generated document.": "Deine Agenten verwenden diese Formate für jedes erstellte Dokument."
 }
