@@ -672,7 +672,12 @@
 .lulu-office-work-status.is-completed { background: #e8f6fc; color: #087da9; }
 .lulu-office-work-status.is-failed,
 .lulu-office-work-status.is-waiting-for-approval { background: #fff0e7; color: #aa4c19; }
+.lulu-office-work-status.is-blocked { background: #fff0e7; color: #9a421e; }
 .lulu-office-work-status.is-human-controlled { background: #edeafa; color: #5c48b8; }
+.lulu-office-work-card__blocked { display: flex; align-items: flex-start; gap: 7px; margin-top: 9px; border: 1px solid rgba(154, 66, 30, .18); border-radius: 9px; padding: 9px; background: #fff8f3; color: #8b3b15; font-size: .75rem; line-height: 1.45; }
+.lulu-office-work-card__blocked strong,
+.lulu-office-work-card__blocked span { display: block; }
+.lulu-office-work-card__blocked span { margin-top: 2px; }
 .lulu-office-work-card__error { display: flex; align-items: flex-start; gap: 7px; margin-top: 9px; border-radius: 9px; padding: 8px; background: #fff2eb; color: #8b3b15; font-size: .75rem; line-height: 1.45; }
 .lulu-office-work-card__meta { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 9px; color: var(--office-muted); font-size: .75rem; }
 .lulu-office-work-card__actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; padding-top: 9px; border-top: 1px solid rgba(50, 61, 94, .08); }

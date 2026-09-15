@@ -214,5 +214,8 @@
   "Uses {{0}} connected systems, {{1}} conversations and {{2}} knowledge sections.": "Uses {{0}} connected systems, {{1}} conversations and {{2}} knowledge sections.",
   "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.": "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.",
   "No live records exist yet.": "No live records exist yet.",
-  "Operational impact is grounded in {{0}} records, {{1}} active items and {{2}} signal tags.": "Operational impact is grounded in {{0}} records, {{1}} active items and {{2}} signal tags."
+  "Operational impact is grounded in {{0}} records, {{1}} active items and {{2}} signal tags.": "Operational impact is grounded in {{0}} records, {{1}} active items and {{2}} signal tags.",
+  "Setup required": "Setup required",
+  "Lulu is waiting for setup": "Lulu is waiting for setup",
+  "Connect the required service or add the missing information. Lulu will not retry automatically.": "Connect the required service or add the missing information. Lulu will not retry automatically."
 }

@@ -893,5 +893,8 @@
   "Uses {{0}} connected systems, {{1}} conversations and {{2}} knowledge sections.": "使用 {{0}} 个已连接系统、{{1}} 个对话和 {{2}} 个知识章节。",
   "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.": "AI 影响力建立在 {{0}} 个对话、{{1}} 个活跃运行和 {{2}} 个知识章节之上。",
   "No live records exist yet.": "暂时还没有实时记录。",
-  "Operational impact is grounded in {{0}} records, {{1}} active items and {{2}} signal tags.": "运营影响力建立在 {{0}} 条记录、{{1}} 个活跃项和 {{2}} 个信号标签之上。"
+  "Operational impact is grounded in {{0}} records, {{1}} active items and {{2}} signal tags.": "运营影响力建立在 {{0}} 条记录、{{1}} 个活跃项和 {{2}} 个信号标签之上。",
+  "Setup required": "需要完成设置",
+  "Lulu is waiting for setup": "Lulu 正在等待完成设置",
+  "Connect the required service or add the missing information. Lulu will not retry automatically.": "请连接所需服务或补充缺失信息。Lulu 不会自动重试。"
 }

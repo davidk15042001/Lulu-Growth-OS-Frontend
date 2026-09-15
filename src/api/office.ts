@@ -34,6 +34,7 @@ export type OfficeWorkItem = {
   result: Record<string, unknown> | null;
   errorCode: string | null;
   errorMessage: string | null;
+  blocked?: boolean;
   humanControllerId?: string | null;
   availableAt?: string;
   pausedAt?: string | null;

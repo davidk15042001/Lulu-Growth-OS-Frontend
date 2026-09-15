@@ -869,5 +869,8 @@
   "Uses {{0}} connected systems, {{1}} conversations and {{2}} knowledge sections.": "Nutzt {{0}} verbundene Systeme, {{1}} Konversationen und {{2}} Wissenssektionen.",
   "AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections.": "Der KI-Impact basiert auf {{0}} Konversationen, {{1}} aktiven Runs und {{2}} Wissenssektionen.",
   "No live records exist yet.": "Es gibt noch keine Live-Records.",
-  "Operational impact is grounded in {{0}} records, {{1}} active items and {{2}} signal tags.": "Der operative Impact basiert auf {{0}} Records, {{1}} aktiven Elementen und {{2}} Signal-Tags."
+  "Operational impact is grounded in {{0}} records, {{1}} active items and {{2}} signal tags.": "Der operative Impact basiert auf {{0}} Records, {{1}} aktiven Elementen und {{2}} Signal-Tags.",
+  "Setup required": "Einrichtung erforderlich",
+  "Lulu is waiting for setup": "Lulu wartet auf die Einrichtung",
+  "Connect the required service or add the missing information. Lulu will not retry automatically.": "Verbinde den benötigten Dienst oder ergänze die fehlenden Informationen. Lulu versucht es nicht automatisch erneut."
 }

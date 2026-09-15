@@ -25,6 +25,7 @@ export type WebsiteDomain = {
   recordName: string;
   expiresAt: string;
   verificationMethod: 'dns_txt' | 'dns_cname';
+  cnameTarget: string | null;
   status: string;
   verifiedAt: string | null;
   lastError: string | null;
@@ -79,6 +80,19 @@ export type WebsiteGenerationJob = {
   updatedAt: string;
 };
 
+export type ManagedWebsiteAsset = {
+  id: string;
+  siteId: string;
+  fileName: string;
+  mimeType: string;
+  sizeBytes: number;
+  altText: string;
+  placement: 'website' | 'hero' | 'product' | 'logo' | 'gallery';
+  crop: Record<string, unknown>;
+  publicUrl: string;
+  createdAt: string;
+};
+
 export const websitesApi = {
   list: (workspaceId: string) => requestApi<{ items: WebsiteSite[] }>({ path: `/workspaces/${workspaceId}/websites` }),
   create: (workspaceId: string, body: { provider: WebsiteProvider; ownershipMode: WebsiteOwnershipMode; name: string; externalSiteId?: string; externalSiteUrl?: string }) => requestApi<WebsiteSite>({ path: `/workspaces/${workspaceId}/websites`, method: 'POST', body }),
@@ -97,4 +111,39 @@ export const websitesApi = {
   wordpressContent: (workspaceId: string, siteId: string) => requestApi<WordPressContent>({ path: `/workspaces/${workspaceId}/websites/${siteId}/wordpress-content` }),
   verifyWordpressSetup: (workspaceId: string, siteId: string) => requestApi<{ site: WebsiteSite; setup: { homepage: Record<string, unknown>; theme: Record<string, unknown> }; job: WebsiteGenerationJob | null }>({ path: `/workspaces/${workspaceId}/websites/${siteId}/wordpress-setup/verify`, method: 'POST', body: {}, timeoutMs: 30_000 }),
   providerContent: (workspaceId: string, siteId: string) => requestApi<WebsiteProviderContent>({ path: `/workspaces/${workspaceId}/websites/${siteId}/provider-content` }),
+  listAssets: (workspaceId: string, siteId: string) => requestApi<{ items: ManagedWebsiteAsset[] }>({ path: `/workspaces/${workspaceId}/websites/${siteId}/assets` }),
+  uploadAsset: (workspaceId: string, siteId: string, form: FormData) => requestApi<ManagedWebsiteAsset>({ path: `/workspaces/${workspaceId}/websites/${siteId}/assets`, method: 'POST', body: form }),
+};
+
+export type StorefrontProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  shortDescription: string | null;
+  longDescription: string | null;
+  currency: string | null;
+  price: string | null;
+  imageUrl: string | null;
+  imageAlt: string | null;
+  category: string | null;
+};
+
+export type Storefront = {
+  id: string;
+  workspaceId: string;
+  name: string;
+  slug: string;
+  status: string;
+  templateKey: string;
+  previewUrl: string;
+  customDomains: Array<{ hostname: string; status: string }>;
+  plan: Record<string, unknown>;
+  products: StorefrontProduct[];
+  assets: Array<{ id: string; publicUrl: string; altText: string; placement: string }>;
+};
+
+/** Public projection used by the managed website preview and storefront. */
+export const storefrontApi = {
+  get: (slug: string) => requestApi<Storefront>({ path: `/public/storefront/${encodeURIComponent(slug)}` }),
+  products: (slug: string) => requestApi<{ items: StorefrontProduct[] }>({ path: `/public/storefront/${encodeURIComponent(slug)}/products` }),
 };

@@ -169,6 +169,16 @@ type WorkspaceDetail = WorkspaceRow & {
     createdByEmail: string | null;
     createdAt: string;
   }>;
+  funding: {
+    ai: { currency: string; availableAmount: number; reservedAmount: number; spentAmount: number; reversalDebtAmount: number; totalFundedAmount: number };
+    adSpend: { currency: string; availableAmount: number; reservedAmount: number; spentAmount: number; reversalDebtAmount: number; totalFundedAmount: number };
+    storage: { currency: string; availableCreditUsd: number; billableUsd: number };
+    adjustments: Array<{
+      id: string; metric: "api" | "server" | "storage"; amountUsd: string; periodStart: string; periodEnd: string;
+      paygPeriodId: string | null; appliedAt: string | null; reason: string; source?: string;
+      paymentReference?: string | null; createdBy: string | null; createdByEmail: string | null; createdAt: string;
+    }>;
+  };
 };
 
 type CrmRow = {
@@ -1064,6 +1074,13 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
   const [usageAmount, setUsageAmount] = useState("");
   const [usageReason, setUsageReason] = useState("");
   const [usageSaving, setUsageSaving] = useState(false);
+  const [fundingWallet, setFundingWallet] = useState<"ai" | "ad_spend" | "storage">("ai");
+  const [fundingDirection, setFundingDirection] = useState<"credit" | "debit">("credit");
+  const [fundingAmount, setFundingAmount] = useState("");
+  const [fundingReason, setFundingReason] = useState("");
+  const [fundingPaymentMethod, setFundingPaymentMethod] = useState<"wechat" | "bank_transfer" | "cash" | "other">("wechat");
+  const [fundingPaymentReference, setFundingPaymentReference] = useState("");
+  const [fundingSaving, setFundingSaving] = useState(false);
   const [subscriptionPrice, setSubscriptionPrice] = useState("");
   const [subscriptionPriceReason, setSubscriptionPriceReason] = useState("");
   const [subscriptionPriceSaving, setSubscriptionPriceSaving] = useState(false);
@@ -1139,6 +1156,46 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
     } catch (e) {
       onError(getFriendlyErrorMessage(e, "Die Nutzungs-Gutschrift konnte nicht gespeichert werden."));
     } finally { setUsageSaving(false); }
+  };
+
+  const addManualFundingAdjustment = async () => {
+    if (!detail) return;
+    const amount = Number(fundingAmount);
+    const reason = fundingReason.trim();
+    if (!Number.isFinite(amount) || amount <= 0) {
+      onError("Bitte einen gültigen positiven Betrag eingeben.");
+      return;
+    }
+    if (fundingWallet === "storage" && fundingDirection === "debit") {
+      onError("Storage kann nur als PAYG-Gutschrift erhöht werden.");
+      return;
+    }
+    if (!reason) {
+      onError("Bitte einen Grund für die manuelle Guthabenänderung angeben.");
+      return;
+    }
+    setFundingSaving(true); onError("");
+    try {
+      const idempotencyKey = `admin-funding-${detail.id}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      await requestApi({
+        path: `/admin/workspaces/${detail.id}/funding`,
+        method: "POST",
+        body: {
+          wallet: fundingWallet,
+          direction: fundingDirection,
+          amount,
+          reason,
+          paymentMethod: fundingPaymentMethod,
+          paymentReference: fundingPaymentReference.trim() || undefined,
+          idempotencyKey,
+        },
+      });
+      const refreshed = await requestApi<WorkspaceDetail>({ path: `/admin/workspaces/${detail.id}` });
+      setDetail(refreshed.data);
+      setFundingAmount(""); setFundingReason(""); setFundingPaymentReference("");
+    } catch (e) {
+      onError(getFriendlyErrorMessage(e, "Die manuelle Guthabenänderung konnte nicht gespeichert werden."));
+    } finally { setFundingSaving(false); }
   };
 
   const saveSubscriptionPrice = async (restoreCatalog = false) => {
@@ -1272,6 +1329,49 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                     {creditSaving ? "Speichere…" : "Hinzufügen"}
                   </button>
                 </div>
+              </div>
+              <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50/50 p-3">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="text-xs font-semibold text-emerald-900">AI-Guthaben, Werbebudget und Storage manuell freigeben</div>
+                    <div className="mt-1 max-w-2xl text-xs leading-5 text-slate-600">
+                      Für Zahlungen per WeChat, Banküberweisung oder andere Offline-Zahlungen. Diese Änderung wird direkt im jeweiligen Ledger gespeichert und erzeugt ausdrücklich keine Airwallex-Zahlung.
+                    </div>
+                  </div>
+                  {detail.funding ? (
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-right text-[11px] text-slate-600 sm:grid-cols-3">
+                      <span>AI verfügbar / reserviert <strong className="ml-1 text-slate-900">¥{detail.funding.ai.availableAmount.toFixed(2)} / ¥{detail.funding.ai.reservedAmount.toFixed(2)}</strong></span>
+                      <span>Ads verfügbar / reserviert <strong className="ml-1 text-slate-900">¥{detail.funding.adSpend.availableAmount.toFixed(2)} / ¥{detail.funding.adSpend.reservedAmount.toFixed(2)}</strong></span>
+                      <span>Storage-Gutschrift <strong className="ml-1 text-slate-900">${detail.funding.storage.availableCreditUsd.toFixed(2)}</strong></span>
+                    </div>
+                  ) : null}
+                </div>
+                <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-[150px_120px_150px_minmax(0,1fr)]">
+                  <select value={fundingWallet} onChange={(e) => { const next = e.target.value as "ai" | "ad_spend" | "storage"; setFundingWallet(next); if (next === "storage") setFundingDirection("credit"); }} disabled={fundingSaving} className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50">
+                    <option value="ai">AI-Guthaben (CNY)</option>
+                    <option value="ad_spend">Werbebudget (CNY)</option>
+                    <option value="storage">Storage-Gutschrift (USD)</option>
+                  </select>
+                  <select value={fundingDirection} onChange={(e) => setFundingDirection(e.target.value as "credit" | "debit")} disabled={fundingSaving || fundingWallet === "storage"} className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50">
+                    <option value="credit">Freigeben</option>
+                    <option value="debit">Korrigieren</option>
+                  </select>
+                  <input value={fundingAmount} onChange={(e) => setFundingAmount(e.target.value)} placeholder={fundingWallet === "storage" ? "Betrag in USD" : "Betrag in CNY"} inputMode="decimal" type="number" min="0.01" step={fundingWallet === "ai" ? "0.000001" : "0.01"} disabled={fundingSaving} className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50" />
+                  <input value={fundingReason} onChange={(e) => setFundingReason(e.target.value)} placeholder="Grund (Pflichtfeld)" maxLength={500} disabled={fundingSaving} className="min-w-0 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50" />
+                </div>
+                <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-[180px_minmax(0,1fr)_auto]">
+                  <select value={fundingPaymentMethod} onChange={(e) => setFundingPaymentMethod(e.target.value as "wechat" | "bank_transfer" | "cash" | "other")} disabled={fundingSaving} className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50">
+                    <option value="wechat">WeChat</option>
+                    <option value="bank_transfer">Banküberweisung</option>
+                    <option value="cash">Bar / sonstig</option>
+                    <option value="other">Andere</option>
+                  </select>
+                  <input value={fundingPaymentReference} onChange={(e) => setFundingPaymentReference(e.target.value)} placeholder="Zahlungsreferenz (optional)" maxLength={240} disabled={fundingSaving} className="min-w-0 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50" />
+                  <button disabled={fundingSaving} onClick={() => void addManualFundingAdjustment()} className="inline-flex items-center justify-center gap-1.5 rounded-md border border-emerald-300 bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">
+                    {fundingSaving ? "Speichere…" : "Guthaben anwenden"}
+                  </button>
+                </div>
+                <div className="mt-2 text-[11px] text-slate-500">AI und Ads laufen nach der Freigabe aus dem jeweiligen Wallet. Storage wird als Gutschrift auf die offene PAYG-Periode angewendet.</div>
               </div>
               <div className="mt-4 rounded-lg border border-violet-100 bg-violet-50/50 p-3">
                 <div className="mb-1 text-xs font-semibold text-violet-900">{t("Customer subscription price")}</div>

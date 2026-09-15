@@ -217,9 +217,9 @@ function EmployeeStatus({ status }: { status: OfficeEmployeeStatus }) {
   </span>;
 }
 
-function WorkStatus({ status }: { status: OfficeWorkStatus }) {
+function WorkStatus({ status, blocked }: { status: OfficeWorkStatus; blocked?: boolean }) {
   const t = useTranslation();
-  return <span className={`lulu-office-work-status is-${status.replaceAll("_", "-")}`}>{t(workStatusLabels[status])}</span>;
+  return <span className={`lulu-office-work-status is-${status.replaceAll("_", "-")}${blocked ? " is-blocked" : ""}`}>{blocked ? t("Setup required") : t(workStatusLabels[status])}</span>;
 }
 
 function EmployeeCard({ employee, onOpen }: { employee: OfficeEmployeeSummary; onOpen: () => void }) {
@@ -381,9 +381,10 @@ function WorkItemCard({
         <strong>{readableTitle}</strong>
         {showObjective && <p>{readableObjective}</p>}
       </div>
-      <WorkStatus status={item.status} />
+      <WorkStatus status={item.status} blocked={item.blocked} />
     </div>
     {showDescription && <p className="lulu-office-work-card__description">{readableDescription}</p>}
+    {item.blocked && <div className="lulu-office-work-card__blocked" role="status"><Pause aria-hidden="true" size={15} /><div><strong>{t("Lulu is waiting for setup")}</strong><span>{t("Connect the required service or add the missing information. Lulu will not retry automatically.")}</span></div></div>}
     {readableError && <div className="lulu-office-work-card__error" role="alert"><AlertTriangle aria-hidden="true" size={15} /><span>{readableError}</span></div>}
     <div className="lulu-office-work-card__actions">
       {canControl && item.availableControls.map((action) => {

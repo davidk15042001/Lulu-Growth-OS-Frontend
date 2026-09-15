@@ -24,6 +24,7 @@ import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { generationActivities, WebsiteGenerationActivityToast, WebsiteGenerationLivePanel, WebsiteGenerationProcessButton, type WebsiteGenerationActivity } from "../../components/WebsiteGenerationLivePanel";
 import { WebsiteGenerationTargetDialog } from "../../components/WebsiteGenerationTargetDialog";
 import { DomainOwnershipPanel } from '../../components/DomainOwnershipPanel';
+import ManagedStorefrontApp from './ManagedStorefrontApp';
 
 type Provider = "wordpress" | "webflow";
 type TrackedGenerationJob = { workspaceId: string; siteId: string; job: WebsiteGenerationJob; provider: Provider };
@@ -265,7 +266,7 @@ const sectionContent: Record<string, { eyebrow: string; title: string; descripti
   "settings-9019": { eyebrow: "Website Settings", title: "Website-Einstellungen", description: "Konfiguriere Website-Standort, Veröffentlichungsregeln und Inhaltspräferenzen.", cards: [{ title: "Veröffentlichungsregeln", text: "Lege fest, wann Lulu Inhalte als Entwurf oder veröffentlicht übertragen darf." }, { title: "Inhaltspräferenzen", text: "Steuere Sprache, Tonalität und die Verwendung verifizierter Workspace-Daten." }, { title: "Sicherheit und Kontrolle", text: "Behalte Provider-Verbindungen, Bestätigungen und Fehlerzustände im Blick." }] },
 };
 
-export default function App() {
+function LegacyProviderApp() {
   const [sectionParam, setSectionParam] = useState(() => new URLSearchParams(window.location.search).get("section") ?? "");
   const sectionLabels: Record<string, string> = {
     "wordpress-jetpack-9013": "WordPress / Jetpack",
@@ -718,5 +719,11 @@ export default function App() {
       </main>
     </div>
   );
+}
+
+// WordPress/Webflow are retained only as a migration-safe legacy implementation.
+// New customer-facing website work is served by the Lulu-owned builder/storefront.
+export default function App() {
+  return <ManagedStorefrontApp />;
 }
 
