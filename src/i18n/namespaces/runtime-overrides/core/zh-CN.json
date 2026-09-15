@@ -34,6 +34,8 @@
   "Revoke session": "撤销会话",
   "Revoke all other sessions": "撤销所有其他会话",
   "Connect a website before adding a domain.": "请先连接网站，再添加域名。",
+  "Lulu Website": "Lulu 网站",
+  "You can connect a domain before creating the website. Lulu will attach it to your managed website draft and keep it ready for the first publication.": "您可以在创建网站之前连接域名。Lulu 会将其关联到托管网站草稿，并为首次发布做好准备。",
   "The required TXT record was not found. Check the value and allow time for DNS propagation.": "未找到所需的 TXT 记录。请检查记录值，并等待 DNS 生效。",
   "This challenge has expired. Renew it and update the TXT record.": "此验证已过期。请重新生成验证信息并更新 TXT 记录。",
   "DNS lookup failed. Please try again later.": "DNS 查询失败。请稍后重试。",

@@ -34,6 +34,8 @@
   "Revoke session": "Sitzung widerrufen",
   "Revoke all other sessions": "Alle anderen Sitzungen widerrufen",
   "Connect a website before adding a domain.": "Verbinde eine Website, bevor du eine Domain hinzufügst.",
+  "Lulu Website": "Lulu-Website",
+  "You can connect a domain before creating the website. Lulu will attach it to your managed website draft and keep it ready for the first publication.": "Du kannst eine Domain bereits vor der Erstellung der Website verbinden. Lulu verknüpft sie mit deinem verwalteten Website-Entwurf und hält sie für die erste Veröffentlichung bereit.",
   "The required TXT record was not found. Check the value and allow time for DNS propagation.": "Der erforderliche TXT-Eintrag wurde nicht gefunden. Prüfe den Wert und warte auf die DNS-Verteilung.",
   "This challenge has expired. Renew it and update the TXT record.": "Dieser Nachweis ist abgelaufen. Erneuere ihn und aktualisiere den TXT-Eintrag.",
   "DNS lookup failed. Please try again later.": "Die DNS-Abfrage ist fehlgeschlagen. Bitte versuche es später erneut.",
