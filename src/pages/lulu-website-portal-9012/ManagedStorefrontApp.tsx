@@ -2,12 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, ExternalLink, Globe2, Image, Loader2, Package, Plus, RefreshCw, ShoppingBag, Sparkles, XCircle } from "lucide-react";
 import { getSelectedWorkspaceId } from "../../api/session";
 import { storefrontApi, websitesApi, type Storefront, type StorefrontProduct, type WebsiteGenerationJob, type WebsiteSite } from "../../api/websites";
-import { onboardingApi } from "../../api/onboarding";
+import { onboardingApi, type Offering } from "../../api/onboarding";
 import { productsApi } from "../../api/products";
+import { workspaceProfileApi } from "../../api/workspaces";
+import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { DomainOwnershipPanel } from "../../components/DomainOwnershipPanel";
 import { WebsiteAssetPanel } from "./WebsiteAssetPanel";
-import { deriveTemplatePalette, LuluIndustrialTemplate, type TemplatePalette } from "./LuluIndustrialTemplate";
+import { deriveTemplatePalette, LuluIndustrialTemplate, type TemplateBranding, type TemplateCatalogItem, type TemplatePalette } from "./LuluIndustrialTemplate";
 
 export type ManagedWebsitePanel = "builder" | "preview" | "media" | "domains";
 
@@ -114,10 +116,14 @@ function placeholderCopy(locale: TemplateLocale): TemplateCopy {
   return { ...base, ...TEMPLATE_UI_PLACEHOLDER } as TemplateCopy;
 }
 
-function EmptyWebsiteTemplate({ hasServices, hasProducts, palette }: { hasServices: boolean; hasProducts: boolean; palette?: TemplatePalette }) {
+function offeringToTemplateItem(offering: Offering): TemplateCatalogItem {
+  return { name: offering.name, description: offering.description, imageUrl: offering.imageUrl, category: offering.category, priceLabel: offering.priceLabel, priceAmount: offering.priceAmount, priceCurrency: offering.priceCurrency, valueProposition: offering.valueProposition, useCases: offering.useCases };
+}
+
+function EmptyWebsiteTemplate({ hasServices, hasProducts, products, services, branding, palette }: { hasServices: boolean; hasProducts: boolean; products?: TemplateCatalogItem[]; services?: TemplateCatalogItem[]; branding?: TemplateBranding; palette?: TemplatePalette }) {
   const [locale, setLocale] = useState<TemplateLocale>("de");
   const copy = placeholderCopy(locale);
-  return <LuluIndustrialTemplate copy={copy} locale={locale} setLocale={setLocale} hasServices={hasServices} hasProducts={hasProducts} palette={palette} />;
+  return <LuluIndustrialTemplate copy={copy} locale={locale} setLocale={setLocale} hasServices={hasServices} hasProducts={hasProducts} products={products} services={services} branding={branding} palette={palette} />;
   const navigation = [copy.home, copy.solutions, ...(hasServices ? [copy.services] : []), ...(hasProducts ? [copy.products] : []), copy.about, copy.contact];
   const starterCopy = copy.starterCopy;
   const solutionCards = [
@@ -174,6 +180,7 @@ function EmptyWebsiteTemplate({ hasServices, hasProducts, palette }: { hasServic
 }
 
 export default function ManagedStorefrontApp({ initialPanel }: { initialPanel?: ManagedWebsitePanel } = {}) {
+  const t = useTranslation();
   const workspaceId = getSelectedWorkspaceId();
   const [sites, setSites] = useState<WebsiteSite[]>([]);
   const [selectedSite, setSelectedSite] = useState<WebsiteSite | null>(null);
@@ -185,16 +192,19 @@ export default function ManagedStorefrontApp({ initialPanel }: { initialPanel?: 
   const [busy, setBusy] = useState<"create" | "generate" | "publish" | "refresh" | null>(null);
   const [error, setError] = useState("");
   const [catalogPresence, setCatalogPresence] = useState({ hasServices: false, hasProducts: false });
+  const [catalogItems, setCatalogItems] = useState<{ products: TemplateCatalogItem[]; services: TemplateCatalogItem[] }>({ products: [], services: [] });
+  const [branding, setBranding] = useState<TemplateBranding>({});
   const [brandSeed, setBrandSeed] = useState(workspaceId ?? "lulu-template");
 
   const load = async () => {
     if (!workspaceId) return;
     setBusy("refresh"); setError("");
     try {
-      const [result, onboardingResult, productsResult] = await Promise.all([
+      const [result, onboardingResult, productsResult, profileResult] = await Promise.all([
         websitesApi.list(workspaceId),
         onboardingApi.snapshot(workspaceId).catch(() => null),
         productsApi.list(workspaceId, "limit=100").catch(() => null),
+        workspaceProfileApi.get(workspaceId).catch(() => null),
       ]);
       const activeOffering = (status: string) => !["archived", "inactive", "deleted"].includes(status.trim().toLowerCase());
       const publicProduct = (product: { status: string; productType?: string; visibility?: unknown }) => product.status.trim().toLowerCase() === "active"
@@ -206,6 +216,20 @@ export default function ManagedStorefrontApp({ initialPanel }: { initialPanel?: 
       const hasProducts = offerings.some((offering) => offering.offeringType === "product" && activeOffering(offering.status))
         || (productsResult?.data.items ?? []).some((product) => publicProduct(product));
       setCatalogPresence({ hasServices, hasProducts });
+      const offeringProducts = offerings.filter((offering) => offering.offeringType === "product" && activeOffering(offering.status)).map(offeringToTemplateItem);
+      const productRecords = (productsResult?.data.items ?? []).filter((product) => publicProduct(product)).map((product) => ({
+        name: product.name,
+        description: product.shortDescription || product.longDescription,
+        imageUrl: typeof product.imageUrl === "string" ? product.imageUrl : null,
+        category: typeof product.category === "string" ? product.category : null,
+        priceAmount: product.defaultPrice,
+        priceCurrency: product.defaultCurrency,
+      }));
+      setCatalogItems({
+        products: offeringProducts.length ? offeringProducts : productRecords,
+        services: offerings.filter((offering) => offering.offeringType === "service" && activeOffering(offering.status)).map(offeringToTemplateItem),
+      });
+      setBranding({ companyName: profileResult?.data.companyName || onboardingResult?.data.workspace.companyName || null, logoUrl: profileResult?.data.logoUrl || null });
       const managed = result.data.items.filter((site) => site.provider === "managed");
       setSites(managed);
       const next = managed.find((site) => site.id === selectedSite?.id) ?? managed[0] ?? null;
@@ -277,13 +301,21 @@ export default function ManagedStorefrontApp({ initialPanel }: { initialPanel?: 
 
   const activePlan = useMemo(() => (job?.plan && typeof job.plan === "object" ? job.plan : storefront?.plan), [job?.plan, storefront?.plan]);
   const publicSlug = storefront?.slug ?? (selectedSite ? `site-${selectedSite.id.slice(0, 8)}` : "");
+  const standalonePreview = new URLSearchParams(window.location.search).get("standalone") === "1";
+  const previewUrl = storefront && publicSlug
+    ? `/api/v1/public/storefront/${encodeURIComponent(publicSlug)}/render`
+    : `${window.location.pathname}?panel=preview&standalone=1#home`;
+
+  if (standalonePreview && !storefront) {
+    return <div className="min-h-screen bg-[var(--background)] p-2 sm:p-6"><EmptyWebsiteTemplate {...catalogPresence} products={catalogItems.products} services={catalogItems.services} branding={branding} palette={deriveTemplatePalette(brandSeed)} /></div>;
+  }
 
   return <main className="min-h-screen bg-[var(--background)] px-5 py-7 text-foreground sm:px-8 sm:py-10"><div className="mx-auto max-w-[1400px] space-y-6">
     <header className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Lulu AI / Online Presence</p><h1 className="mt-2 text-4xl font-semibold tracking-[-.05em]">Website & Shop</h1><p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">Lulu erstellt, veröffentlicht und betreibt deine Website und deinen Online-Shop selbst. WordPress, Webflow und Shopify sind dafür nicht erforderlich.</p></div><button type="button" onClick={() => void load()} disabled={busy === "refresh"} className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-medium hover:bg-secondary disabled:opacity-60"><RefreshCw size={15} className={busy === "refresh" ? "animate-spin" : ""} /> Aktualisieren</button></header>
     {error ? <div role="alert" className="flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800"><XCircle size={17} className="mt-0.5 shrink-0" />{error}</div> : null}
     <nav className="flex flex-wrap gap-2 rounded-2xl border border-border bg-card p-2"><button type="button" onClick={() => setActivePanel("builder")} className={`rounded-xl px-4 py-2 text-sm font-semibold ${panel === "builder" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-secondary"}`}><Sparkles size={15} className="mr-2 inline" />Website bearbeiten</button><button type="button" onClick={() => setActivePanel("preview")} className={`rounded-xl px-4 py-2 text-sm font-semibold ${panel === "preview" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-secondary"}`}><ShoppingBag size={15} className="mr-2 inline" />Vorschau</button><button type="button" onClick={() => setActivePanel("media")} className={`rounded-xl px-4 py-2 text-sm font-semibold ${panel === "media" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-secondary"}`}><Image size={15} className="mr-2 inline" />Medien</button><button type="button" onClick={() => setActivePanel("domains")} className={`rounded-xl px-4 py-2 text-sm font-semibold ${panel === "domains" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-secondary"}`}><Globe2 size={15} className="mr-2 inline" />Domain</button></nav>
     {panel === "builder" ? <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,.75fr)]"><div className="space-y-6"><section className="rounded-2xl border border-border bg-card p-5 sm:p-7"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Lulu Managed Hosting</p><h2 className="mt-2 text-2xl font-semibold">Deine eigene Website</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Ein kontrolliertes Template, verifizierte Unternehmensdaten und echte Veröffentlichungsstatus – keine simulierten Provider-Aktionen.</p></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><Globe2 size={22} /></span></div>{!selectedSite ? <div className="mt-6 space-y-4"><label className="block text-sm font-medium">Name der Website<input value={siteName} onChange={(event) => setSiteName(event.target.value)} className="mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 outline-none focus:border-primary" /></label><button type="button" onClick={() => void createManagedSite()} disabled={busy === "create" || !siteName.trim()} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{busy === "create" ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />} Lulu-Website erstellen</button></div> : <div className="mt-6 grid gap-3 sm:grid-cols-3"><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[.12em] text-muted-foreground">Status</p><p className="mt-2 flex items-center gap-2 font-semibold"><span className={`h-2.5 w-2.5 rounded-full ${selectedSite.status === "published" ? "bg-emerald-500" : "bg-amber-500"}`} />{statusLabel(selectedSite.status)}</p></div><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[.12em] text-muted-foreground">Template</p><p className="mt-2 font-semibold">{String((activePlan as Record<string, unknown> | undefined)?.templateKey ?? "lulu-standard-v1")}</p></div><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[.12em] text-muted-foreground">Shop-Produkte</p><p className="mt-2 flex items-center gap-2 font-semibold"><Package size={16} />{storefront?.products.length ?? "—"}</p></div></div>}</section>{selectedSite ? <section className="rounded-2xl border border-border bg-card p-5 sm:p-7"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">AI Website & Shop Plan</p><h2 className="mt-2 text-xl font-semibold">Inhalte aus deinem Unternehmen</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Lulu nutzt Profil, Knowledge Base und kanonische Produkte. Fehlende Premium-Bilder werden später als Asset-Aufgaben ergänzt.</p></div>{job?.status === "published" ? <CheckCircle2 className="text-emerald-600" /> : null}</div><label className="mt-5 block text-sm font-medium">Anweisung für Lulu<textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} rows={5} className="mt-2 w-full resize-y rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-primary" /></label><div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={() => void generate()} disabled={busy === "generate" || ["queued", "planning", "publishing"].includes(job?.status ?? "")} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{busy === "generate" || ["queued", "planning", "publishing"].includes(job?.status ?? "") ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} Website & Shop generieren</button>{job && ["preview", "generated"].includes(job.status) ? <button type="button" onClick={() => void publish()} disabled={busy === "publish"} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-5 text-sm font-semibold text-emerald-800 disabled:opacity-60">{busy === "publish" ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />} Veröffentlichen</button> : null}{job?.status === "failed" ? <p className="self-center text-sm text-rose-700">Die Generierung wurde angehalten: {job.errorMessage || "Bitte Anforderungen und Knowledge Base prüfen."}</p> : null}</div>{job ? <p className="mt-4 text-xs text-muted-foreground">Letzter Lauf: {statusLabel(job.status)} · {new Date(job.updatedAt).toLocaleString()}</p> : null}</section> : null}</div><aside className="rounded-2xl border border-border bg-card p-5 sm:p-7"><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Ein System</p><h2 className="mt-2 text-xl font-semibold">Was Lulu automatisch übernimmt</h2><div className="mt-5 space-y-4">{["Template mit verifizierten Firmendaten füllen", "Produkte aus dem zentralen Katalog anzeigen", "Fehlende Bildbereiche erkennen", "Website und Shop als eine Marke veröffentlichen", "Domainbesitz prüfen und sichere Aktivierung verlangen"].map((item) => <div key={item} className="flex gap-3 text-sm leading-6"><CheckCircle2 size={17} className="mt-1 shrink-0 text-emerald-600" />{item}</div>)}</div></aside></section> : null}
-    {panel === "preview" ? <section className="space-y-6"><div className="rounded-2xl border border-border bg-card p-5 sm:p-7"><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Lulu Storefront</p><h2 className="mt-2 text-2xl font-semibold">Website-Vorschau</h2><p className="mt-2 text-sm text-muted-foreground">So sehen Kunden deine veröffentlichte Website. Leistungen und Produkte werden nur angezeigt, wenn sie wirklich vorhanden sind.</p></div>{publicSlug && storefront ? <a href={`/api/v1/public/storefront/${encodeURIComponent(publicSlug)}/render`} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold hover:bg-secondary">Öffnen <ExternalLink size={15} /></a> : null}</div>{!selectedSite || !storefront ? <EmptyWebsiteTemplate {...catalogPresence} palette={deriveTemplatePalette(brandSeed)} /> : null}{storefront?.products.length ? <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{storefront.products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : storefront ? <div className="mt-6 rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">Noch keine öffentlich freigegebenen Produkte. Veröffentliche zuerst die Website im Editor.</div> : null}</div></section> : null}
+    {panel === "preview" ? <section className="space-y-6"><div className="rounded-2xl border border-border bg-card p-5 sm:p-7"><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Lulu Storefront</p><h2 className="mt-2 text-2xl font-semibold">Website-Vorschau</h2><p className="mt-2 text-sm text-muted-foreground">So sehen Kunden deine veröffentlichte Website. Leistungen und Produkte werden nur angezeigt, wenn sie wirklich vorhanden sind.</p></div><a href={previewUrl} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold hover:bg-secondary">{t("Open")} <ExternalLink size={15} /></a></div>{!selectedSite || !storefront ? <EmptyWebsiteTemplate {...catalogPresence} products={catalogItems.products} services={catalogItems.services} branding={branding} palette={deriveTemplatePalette(brandSeed)} /> : null}{storefront?.products.length ? <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{storefront.products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : storefront ? <div className="mt-6 rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">Noch keine öffentlich freigegebenen Produkte. Veröffentliche zuerst die Website im Editor.</div> : null}</div></section> : null}
     {panel === "media" ? <section className="space-y-6">{selectedSite ? <WebsiteAssetPanel workspaceId={workspaceId ?? ""} site={selectedSite} /> : <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">Erstelle zuerst deine Lulu-Website.</div>}</section> : null}
     {panel === "domains" ? <section className="space-y-6">{selectedSite ? <DomainOwnershipPanel key={selectedSite.id} site={selectedSite} /> : <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">Erstelle zuerst deine Lulu-Website.</div>}<div className="rounded-2xl border border-border bg-card p-5 text-sm leading-6 text-muted-foreground"><strong className="text-foreground">DNS-Ablauf:</strong> Lulu prüft den Domainbesitz über TXT. Danach zeigt Lulu den CNAME/ALIAS-Eintrag für die Veröffentlichung. DNS wird nicht ohne ausdrückliche Berechtigung des Kunden verändert.</div></section> : null}
   </div></main>;
