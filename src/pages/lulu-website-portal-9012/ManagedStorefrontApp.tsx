@@ -114,10 +114,13 @@ export default function ManagedStorefrontApp({ initialPanel }: { initialPanel?: 
         productsApi.list(workspaceId, "limit=100").catch(() => null),
       ]);
       const activeOffering = (status: string) => !["archived", "inactive", "deleted"].includes(status.trim().toLowerCase());
+      const publicProduct = (product: { status: string; productType?: string; visibility?: unknown }) => product.status.trim().toLowerCase() === "active"
+        && String(product.visibility ?? "public").trim().toLowerCase() === "public"
+        && String(product.productType ?? "").trim().toLowerCase() !== "service";
       const offerings = onboardingResult?.data.offerings ?? [];
       const hasServices = offerings.some((offering) => offering.offeringType === "service" && activeOffering(offering.status));
       const hasProducts = offerings.some((offering) => offering.offeringType === "product" && activeOffering(offering.status))
-        || (productsResult?.data.items ?? []).some((product) => activeOffering(product.status));
+        || (productsResult?.data.items ?? []).some((product) => publicProduct(product));
       setCatalogPresence({ hasServices, hasProducts });
       const managed = result.data.items.filter((site) => site.provider === "managed");
       setSites(managed);
