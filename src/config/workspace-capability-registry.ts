@@ -69,9 +69,6 @@ const LEGACY_EXTERNAL_WEBSITE_PAGE_IDS = new Set([
 
 const MANAGED_WEBSITE_NAVIGATION_PAGES: NavigationPage[] = [
   { id: "lulu-website-editor-9012", label: "Website" },
-  { id: "lulu-website-preview-9012", label: "Preview" },
-  { id: "lulu-website-media-9017", label: "Media & Assets" },
-  { id: "lulu-website-domains-9018", label: "Domains" },
 ];
 
 const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
@@ -206,7 +203,7 @@ function createWorkspaceNavigationSections(): { all: NavigationSection[]; visibl
   if (website) {
     website.pages = [
       ...MANAGED_WEBSITE_NAVIGATION_PAGES,
-      ...website.pages.filter((page) => page.id !== "lulu-website-portal-9012"),
+      ...website.pages.filter((page) => page.id !== "lulu-website-portal-9012" && page.label !== "Overview"),
     ];
   }
 
