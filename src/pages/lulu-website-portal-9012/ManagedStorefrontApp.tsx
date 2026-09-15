@@ -28,35 +28,64 @@ function ProductCard({ product }: { product: StorefrontProduct }) {
   </article>;
 }
 
+function TemplatePlaceholderVisual({ label, className = "" }: { label: string; className?: string }) {
+  return <div className={`grid min-h-52 place-items-center rounded-2xl border border-dashed border-foreground/20 bg-gradient-to-br from-violet-100 via-background to-cyan-100 p-6 text-center ${className}`}>
+    <div><div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-primary/30 bg-card/75 text-2xl font-semibold text-primary">L</div><p className="mt-3 text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">{label}</p></div>
+  </div>;
+}
+
 function EmptyWebsiteTemplate() {
-  return <div className="mt-6 overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
-    <div className="border-b border-border bg-gradient-to-br from-violet-100 via-background to-cyan-100 p-6 sm:p-10">
-      <div className="flex flex-wrap items-start justify-between gap-5">
-        <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">LULU STARTER TEMPLATE</p>
-          <h3 className="mt-3 text-2xl font-semibold tracking-[-.03em] sm:text-3xl">Deine neue Website beginnt hier</h3>
-          <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">Ein leeres, ruhiges Template für deine Markenidentität. Sobald du Inhalte und Produkte freigibst, füllt Lulu diese Bereiche automatisch.</p>
-        </div>
-        <span className="rounded-full border border-border bg-card/80 px-3 py-1.5 text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">LEERES TEMPLATE</span>
-      </div>
-      <div className="mt-8 grid gap-3 sm:grid-cols-[1.35fr_.65fr]">
-        <div className="min-h-44 rounded-2xl border border-white/70 bg-white/70 p-5 shadow-sm backdrop-blur sm:min-h-56 sm:p-7">
-          <div className="h-3 w-24 rounded-full bg-primary/20" />
-          <div className="mt-5 h-7 max-w-md rounded-full bg-foreground/10 sm:h-10" />
-          <div className="mt-3 h-4 max-w-sm rounded-full bg-foreground/10" />
-          <div className="mt-7 h-10 w-32 rounded-xl bg-primary/15" />
-        </div>
-        <div className="min-h-44 rounded-2xl border border-white/70 bg-foreground/[.04] p-5 sm:min-h-56 sm:p-7">
-          <div className="h-full rounded-xl border border-dashed border-foreground/15" />
-        </div>
+  const navigation = ["Startseite", "Lösungen", "Leistungen", "Produkte", "Über uns", "Kontakt"];
+  const solutionCards = [
+    { number: "01", title: "Dein Unternehmen", body: "Ein klarer Einstieg, der Unternehmen, Positionierung und Angebot verständlich vorstellt." },
+    { number: "02", title: "Produkte und Leistungen", body: "Strukturierte Bereiche für Leistungen, Produkte und die wichtigsten nächsten Schritte." },
+    { number: "03", title: "Vertrauen aufbauen", body: "Verifizierte Informationen, klare Abläufe und Inhalte, die Sicherheit geben." },
+    { number: "04", title: "Kontakt aufnehmen", body: "Ein direkter Weg für Interessenten, Fragen zu stellen und eine Anfrage zu senden." },
+  ];
+  const serviceCards = ["Beratung und Lösungen", "Produkte und Services", "Individuelle Unterstützung", "Verlässliche Umsetzung"];
+  const strengthCards = ["Klare Positionierung", "Verifizierte Inhalte", "Ein nachvollziehbarer Prozess"];
+  const processSteps = ["Anforderungen teilen", "Passenden Ansatz prüfen", "Nächsten Schritt starten"];
+  const faqs = ["Was bietet dieses Unternehmen an?", "Für wen ist das Angebot gedacht?", "Wie starten wir ein Gespräch?"];
+  return <div className="mt-6 overflow-hidden rounded-3xl border border-border bg-background shadow-sm">
+    <div className="border-b border-border bg-card px-5 py-4 sm:px-8">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3"><span className="grid h-9 w-9 place-items-center rounded-xl bg-foreground text-sm font-bold text-background">L</span><span className="text-sm font-semibold tracking-wide">DEIN BRAND-PLATZHALTER</span></div>
+        <nav aria-label="Template-Navigation" className="hidden flex-wrap items-center gap-4 text-xs font-semibold text-muted-foreground lg:flex">{navigation.map((item) => <span key={item}>{item}</span>)}</nav>
+        <span className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground">VORSCHAU</span>
       </div>
     </div>
-    <div className="grid gap-3 p-4 sm:grid-cols-3 sm:p-6">
-      {["Über dein Unternehmen", "Produkte und Leistungen", "Kontakt und Vertrauen"].map((label) => <div key={label} className="rounded-xl border border-dashed border-border p-4"><div className="h-3 w-20 rounded-full bg-foreground/10" /><p className="mt-4 text-sm font-medium text-muted-foreground">{label}</p><div className="mt-3 h-3 w-full rounded-full bg-foreground/[.06]" /><div className="mt-2 h-3 w-4/5 rounded-full bg-foreground/[.06]" /></div>)}
-    </div>
-    <div className="border-t border-border px-5 py-4 text-sm text-muted-foreground sm:px-6">
-      <span className="font-semibold text-foreground">Noch keine Website veröffentlicht.</span> Die Vorschau zeigt bewusst ein leeres Template. Erstelle deine Lulu-Website im Editor, sobald du bereit bist.
-    </div>
+
+    <section className="bg-gradient-to-br from-slate-950 via-violet-950 to-cyan-900 px-5 py-12 text-white sm:px-10 sm:py-20">
+      <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.12fr_.88fr]">
+        <div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.2em] text-cyan-200">LULU STARTER TEMPLATE</p><h3 className="mt-4 text-4xl font-semibold tracking-[-.05em] sm:text-6xl">Deine neue Website beginnt hier</h3><p className="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg">Ein vollständiger Startpunkt für deine Marke. Lulu ersetzt diese Platzhalter später durch verifizierte Unternehmensdaten, Inhalte, Bilder und Produkte.</p><div className="mt-8 flex flex-wrap gap-3"><span className="inline-flex h-11 items-center rounded-xl bg-white px-5 text-sm font-semibold text-slate-950">Jetzt sprechen</span><span className="inline-flex h-11 items-center rounded-xl border border-white/35 px-5 text-sm font-semibold text-white">Leistungen ansehen</span></div></div>
+        <TemplatePlaceholderVisual label="Hero-Bild wird ergänzt" className="min-h-64 border-white/25 bg-white/10 text-white sm:min-h-80" />
+      </div>
+    </section>
+
+    <section className="border-b border-border bg-card px-5 py-5 sm:px-10"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-3 text-center text-xs font-semibold uppercase tracking-[.15em] text-muted-foreground"><span>Vertrauensbasis</span><span>Verifizierte Daten</span><span>Klare Abläufe</span><span>Globale Präsenz</span><span>Persönlicher Kontakt</span></div></section>
+
+    <section className="px-5 py-12 sm:px-10 sm:py-16"><div className="mx-auto max-w-6xl"><div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Lösungen</p><h4 className="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Starke Lösungen für echte Anforderungen</h4><p className="mt-3 text-sm leading-6 text-muted-foreground">Dieser Bereich wird automatisch mit den verifizierten Informationen deines Unternehmens gefüllt.</p></div><div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{solutionCards.map((card) => <article key={card.number} className="flex min-h-56 flex-col rounded-2xl border border-border bg-card p-5"><span className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-xs font-bold text-primary-foreground">{card.number}</span><h5 className="mt-5 text-xl font-semibold">{card.title}</h5><p className="mt-2 flex-1 text-sm leading-6 text-muted-foreground">{card.body}</p><span className="mt-5 text-sm font-semibold text-primary">Mehr erfahren →</span></article>)}</div></div></section>
+
+    <section className="bg-secondary/30 px-5 py-12 sm:px-10 sm:py-16"><div className="mx-auto max-w-6xl"><div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Leistungen</p><h4 className="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Alles Wichtige auf einen Blick</h4><p className="mt-3 text-sm leading-6 text-muted-foreground">Leistungsbereiche, Angebote und Produkte werden hier übersichtlich dargestellt.</p></div><div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{serviceCards.map((title) => <article key={title} className="rounded-2xl border border-border bg-background p-5"><p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Leistungsbereich</p><h5 className="mt-3 text-xl font-semibold">{title}</h5><p className="mt-2 text-sm leading-6 text-muted-foreground">Beschreibung und nächster Schritt werden aus deiner Knowledge Base übernommen.</p><span className="mt-5 inline-flex text-sm font-semibold text-primary">Ansehen →</span></article>)}</div></div></section>
+
+    <section className="px-5 py-12 sm:px-10 sm:py-16"><div className="mx-auto max-w-6xl"><div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Produkte</p><h4 className="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Dein Shop-Bereich</h4><p className="mt-3 text-sm leading-6 text-muted-foreground">Produktkarten erscheinen automatisch, sobald Produkte im zentralen Katalog freigegeben sind.</p></div><div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{["Produktplatzhalter 01", "Produktplatzhalter 02", "Produktplatzhalter 03", "Produktplatzhalter 04"].map((title) => <article key={title} className="overflow-hidden rounded-2xl border border-dashed border-border bg-card"><TemplatePlaceholderVisual label="Produktbild wird ergänzt" className="min-h-40 rounded-none border-0 border-b" /><div className="p-4"><p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">Produkt</p><h5 className="mt-2 font-semibold">{title}</h5><p className="mt-2 text-sm text-muted-foreground">Preis auf Anfrage</p></div></article>)}</div></div></section>
+
+    <section className="bg-slate-950 px-5 py-12 text-white sm:px-10 sm:py-16"><div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[.85fr_1.15fr]"><TemplatePlaceholderVisual label="Unternehmensbild wird ergänzt" className="min-h-64 border-white/20 bg-white/5 text-white" /><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-cyan-200">Kernstärken</p><h4 className="mt-3 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Eine Marke, die verständlich und verlässlich wirkt</h4><p className="mt-4 text-sm leading-7 text-white/70">Lulu verbindet deine echten Unternehmensdaten zu einer klaren, konsistenten digitalen Präsenz.</p><div className="mt-6 grid gap-3 sm:grid-cols-3">{strengthCards.map((item) => <div key={item} className="rounded-xl border border-white/15 bg-white/5 p-4 text-sm font-medium">{item}</div>)}</div></div></div></section>
+
+    <section className="px-5 py-12 sm:px-10 sm:py-16"><div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2"><TemplatePlaceholderVisual label="Galeriebild wird ergänzt" className="min-h-72" /><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Über dein Unternehmen</p><h4 className="mt-3 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Von der ersten Information bis zum nächsten Schritt</h4><p className="mt-4 text-sm leading-7 text-muted-foreground">Dieses Modul erklärt später, wofür dein Unternehmen steht, wem du hilfst und wie Besucher mit dir arbeiten können.</p><ul className="mt-6 grid gap-3 sm:grid-cols-2">{["Positionierung", "Zielgruppen", "Angebot", "Ablauf", "Kontakt", "Vertrauen"].map((item) => <li key={item} className="flex items-center gap-2 text-sm font-medium"><span className="h-2 w-2 rounded-full bg-primary" />{item}</li>)}</ul></div></div></section>
+
+    <section className="bg-secondary/30 px-5 py-12 sm:px-10 sm:py-16"><div className="mx-auto max-w-6xl"><div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Klarer Prozess</p><h4 className="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">So funktioniert es</h4><p className="mt-3 text-sm leading-6 text-muted-foreground">Ein klarer Ablauf hält Anforderungen, Entscheidungen und nächste Schritte nachvollziehbar.</p></div><div className="mt-8 grid gap-4 md:grid-cols-3">{processSteps.map((title, index) => <article key={title} className="rounded-2xl border border-border bg-card p-5"><span className="text-xs font-bold text-primary">0{index + 1}</span><h5 className="mt-4 text-xl font-semibold">{title}</h5><p className="mt-2 text-sm leading-6 text-muted-foreground">Ein kurzer, verständlicher Abschnitt mit den verifizierten Details deines Unternehmens.</p></article>)}</div></div></section>
+
+    <section className="px-5 py-12 sm:px-10 sm:py-16"><div className="mx-auto max-w-6xl rounded-3xl bg-primary p-7 text-primary-foreground sm:p-10"><div className="grid gap-8 lg:grid-cols-[1fr_.8fr] lg:items-center"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-primary-foreground/75">Kontakt und Vertrauen</p><h4 className="mt-3 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Bereit für den nächsten Schritt?</h4><p className="mt-4 max-w-xl text-sm leading-7 text-primary-foreground/80">Besucher sehen hier eine klare Einladung, ihre Anforderungen zu teilen und direkt Kontakt aufzunehmen.</p><span className="mt-6 inline-flex h-11 items-center rounded-xl bg-background px-5 text-sm font-semibold text-foreground">Kontakt aufnehmen</span></div><div className="rounded-2xl border border-primary-foreground/25 bg-primary-foreground/10 p-5"><p className="text-sm font-semibold">Hilfreiche Informationen</p><ul className="mt-4 space-y-3 text-sm text-primary-foreground/80">{["Was du brauchst", "Für wen die Anfrage ist", "Gewünschter Zeitrahmen", "Relevante Dateien"].map((item) => <li key={item} className="border-b border-primary-foreground/20 pb-2 last:border-0">{item}</li>)}</ul></div></div></div></section>
+
+    <section className="px-5 py-12 sm:px-10 sm:py-16"><div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-[.8fr_1.2fr]"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-primary">Nachricht senden</p><h4 className="mt-2 text-3xl font-semibold tracking-[-.04em]">Kontaktformular</h4><p className="mt-3 text-sm leading-6 text-muted-foreground">Ein einfacher, sicherer Weg für eine erste Anfrage.</p></div><div className="grid gap-4 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2"><label className="text-sm font-medium">Name<input disabled placeholder="Name" className="mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm" /></label><label className="text-sm font-medium">E-Mail<input disabled placeholder="E-Mail" className="mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm" /></label><label className="text-sm font-medium sm:col-span-2">Nachricht<textarea disabled placeholder="Nachricht" rows={4} className="mt-2 w-full rounded-xl border border-border bg-background p-3 text-sm" /></label><span className="inline-flex h-11 w-fit items-center rounded-xl bg-foreground px-5 text-sm font-semibold text-background">Nachricht senden</span></div></div></section>
+
+    <section className="bg-secondary/30 px-5 py-12 sm:px-10 sm:py-16"><div className="mx-auto max-w-3xl"><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">FAQ</p><h4 className="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Häufige Fragen</h4><div className="mt-6 divide-y divide-border rounded-2xl border border-border bg-card px-5">{faqs.map((question) => <details key={question} className="py-5"><summary className="cursor-pointer font-semibold">{question}</summary><p className="mt-3 text-sm leading-6 text-muted-foreground">Die Antwort wird aus den verifizierten Informationen deines Unternehmens erzeugt und hier angezeigt.</p></details>)}</div></div></section>
+
+    <section className="border-t border-border bg-slate-950 px-5 py-12 text-center text-white sm:px-10 sm:py-16"><h4 className="text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Deine Marke kann hier starten.</h4><p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-white/70">Erstelle die Website im Editor. Lulu füllt dieses Template anschließend mit deinen geprüften Inhalten.</p><span className="mt-6 inline-flex h-11 items-center rounded-xl bg-white px-5 text-sm font-semibold text-slate-950">Website erstellen</span></section>
+    <footer className="flex flex-col gap-4 border-t border-border bg-card px-5 py-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-10"><span className="font-semibold text-foreground">DEIN BRAND-PLATZHALTER</span><span>Datenschutz · Impressum · Kontakt</span><span>Powered by Lulu AI</span></footer>
+
+    <div className="border-t border-border px-5 py-4 text-sm text-muted-foreground sm:px-10"><span className="font-semibold text-foreground">Noch keine Website veröffentlicht.</span> Die Vorschau zeigt bewusst das vollständige Lulu-Standard-Template. Erstelle deine Website im Editor, sobald du bereit bist.</div>
   </div>;
 }
 
