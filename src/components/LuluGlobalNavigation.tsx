@@ -54,7 +54,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
   const t = useTranslation();
   const language = useLanguage();
   const { selectedWorkspace, permissions } = useLuluApp();
-  const canToggleAgents = Boolean(selectedWorkspace && (permissions.canAdminister || selectedWorkspace.role === "owner" || selectedWorkspace.role === "admin"));
+  const canToggleAgents = Boolean(selectedWorkspace && permissions.status === "ready");
   const [languageOpen, setLanguageOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
