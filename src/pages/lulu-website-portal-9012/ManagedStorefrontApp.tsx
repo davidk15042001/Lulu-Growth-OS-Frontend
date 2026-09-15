@@ -331,6 +331,7 @@ export default function ManagedStorefrontApp({ initialPanel }: { initialPanel?: 
           key={next}
           href={WEBSITE_PANEL_ROUTES[next]}
           aria-current={active ? "page" : undefined}
+          style={active ? { color: "#ffffff" } : undefined}
           onClick={(event) => {
             event.preventDefault();
             setActivePanel(next);
