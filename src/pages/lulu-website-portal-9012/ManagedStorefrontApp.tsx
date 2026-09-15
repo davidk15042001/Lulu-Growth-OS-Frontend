@@ -7,6 +7,7 @@ import { productsApi } from "../../api/products";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { DomainOwnershipPanel } from "../../components/DomainOwnershipPanel";
 import { WebsiteAssetPanel } from "./WebsiteAssetPanel";
+import { LuluIndustrialTemplate } from "./LuluIndustrialTemplate";
 
 export type ManagedWebsitePanel = "builder" | "preview" | "media" | "domains";
 
@@ -36,11 +37,11 @@ function TemplatePlaceholderVisual({ label, className = "" }: { label: string; c
   </div>;
 }
 
-type TemplateLocale = "de" | "en" | "zh";
+export type TemplateLocale = "de" | "en" | "zh";
 const TEMPLATE_LOCALE_SHORT_CODE: Record<TemplateLocale, string> = { de: String.fromCharCode(68, 69), en: String.fromCharCode(69, 78), zh: "中文" };
 
-const TEMPLATE_UI: Record<TemplateLocale, {
-  language: string; brand: string; preview: string; home: string; solutions: string; services: string; products: string; about: string; contact: string;
+export const TEMPLATE_UI: Record<TemplateLocale, {
+  language: string; brand: string; preview: string; templateKicker: string; templateMode: string; templateSubline: string; languageDe: string; languageEn: string; languageZh: string; home: string; solutions: string; services: string; products: string; about: string; contact: string;
   heroEyebrow: string; heroTitle: string; starterCopy: string; speak: string; viewServices: string; heroImage: string;
   trust: string[]; solutionsTitle: string; solutionsDescription: string; more: string;
   company: string; companyBody: string; offer: string; offerBody: string; trustTitle: string; trustBody: string; contactTitle: string; contactBody: string;
@@ -55,7 +56,7 @@ const TEMPLATE_UI: Record<TemplateLocale, {
   startTitle: string; startBody: string; create: string; footerBrand: string; legal: string; unpublished: string; unpublishedBody: string;
 }> = {
   de: {
-    language: "Sprache", brand: "DEIN BRAND-PLATZHALTER", preview: "VORSCHAU", home: "Startseite", solutions: "Lösungen", services: "Leistungen", products: "Produkte", about: "Über uns", contact: "Kontakt",
+    language: "Sprache", brand: "DEIN BRAND-PLATZHALTER", preview: "VORSCHAU", templateKicker: "Großhandel · Projektversorgung · OEM · Sonderfertigung", templateMode: "VORSCHAU · LULU", templateSubline: "INDUSTRIEUNTERNEHMEN", languageDe: "DE", languageEn: "EN", languageZh: "中文", home: "Startseite", solutions: "Lösungen", services: "Leistungen", products: "Produkte", about: "Über uns", contact: "Kontakt",
     heroEyebrow: "LULU STARTER TEMPLATE", heroTitle: "Deine neue Website beginnt hier", starterCopy: "Ein vollständiger Startpunkt für deine Marke. Lulu ersetzt diese Platzhalter später durch verifizierte Unternehmensdaten, Inhalte, Bilder und Produkte.", speak: "Jetzt sprechen", viewServices: "Leistungen ansehen", heroImage: "Hero-Bild wird ergänzt",
     trust: ["Vertrauensbasis", "Verifizierte Daten", "Klare Abläufe", "Globale Präsenz", "Persönlicher Kontakt"], solutionsTitle: "Starke Lösungen für echte Anforderungen", solutionsDescription: "Dieser Bereich wird automatisch mit den verifizierten Informationen deines Unternehmens gefüllt.", more: "Mehr erfahren →",
     company: "Dein Unternehmen", companyBody: "Ein klarer Einstieg, der Unternehmen, Positionierung und Angebot verständlich vorstellt.", offer: "Angebot", offerBody: "Ein klarer Überblick über dein Angebot und die wichtigsten nächsten Schritte.", trustTitle: "Vertrauen aufbauen", trustBody: "Verifizierte Informationen, klare Abläufe und Inhalte, die Sicherheit geben.", contactTitle: "Kontakt aufnehmen", contactBody: "Ein direkter Weg für Interessenten, Fragen zu stellen und eine Anfrage zu senden.",
@@ -70,7 +71,7 @@ const TEMPLATE_UI: Record<TemplateLocale, {
     startTitle: "Deine Marke kann hier starten.", startBody: "Erstelle die Website im Editor. Lulu füllt dieses Template anschließend mit deinen geprüften Inhalten.", create: "Website erstellen", footerBrand: "DEIN BRAND-PLATZHALTER", legal: "Datenschutz · Impressum · Kontakt", unpublished: "Noch keine Website veröffentlicht.", unpublishedBody: "Die Vorschau zeigt bewusst das vollständige Lulu-Standard-Template. Erstelle deine Website im Editor, sobald du bereit bist."
   },
   en: {
-    language: "Language", brand: "YOUR BRAND PLACEHOLDER", preview: "PREVIEW", home: "Home", solutions: "Solutions", services: "Services", products: "Products", about: "About", contact: "Contact",
+    language: "Language", brand: "YOUR BRAND PLACEHOLDER", preview: "PREVIEW", templateKicker: "Wholesale · Project Supply · OEM · Custom Manufacturing", templateMode: "PREVIEW · LULU", templateSubline: "INDUSTRIAL COMPANY", languageDe: "DE", languageEn: "EN", languageZh: "中文", home: "Home", solutions: "Solutions", services: "Services", products: "Products", about: "About", contact: "Contact",
     heroEyebrow: "LULU STARTER TEMPLATE", heroTitle: "Your new website starts here", starterCopy: "A complete starting point for your brand. Lulu will replace these placeholders with verified company data, content, images and products.", speak: "Start a conversation", viewServices: "View services", heroImage: "Hero image will be added",
     trust: ["Trusted foundation", "Verified data", "Clear workflows", "Global presence", "Personal contact"], solutionsTitle: "Strong solutions for real needs", solutionsDescription: "This area is filled automatically with your company's verified information.", more: "Learn more →",
     company: "Your company", companyBody: "A clear introduction to your company, positioning and offer.", offer: "Your offer", offerBody: "A clear overview of your offer and the most important next steps.", trustTitle: "Build trust", trustBody: "Verified information, clear workflows and content that creates confidence.", contactTitle: "Get in touch", contactBody: "A direct way for interested visitors to ask questions and send a request.",
@@ -85,7 +86,7 @@ const TEMPLATE_UI: Record<TemplateLocale, {
     startTitle: "Your brand can start here.", startBody: "Create the website in the editor. Lulu will fill this template with your verified content.", create: "Create website", footerBrand: "YOUR BRAND PLACEHOLDER", legal: "Privacy · Legal notice · Contact", unpublished: "No website published yet.", unpublishedBody: "The preview intentionally shows the complete Lulu standard template. Create your website in the editor when you are ready."
   },
   zh: {
-    language: "语言", brand: "你的品牌占位符", preview: "预览", home: "首页", solutions: "解决方案", services: "服务", products: "产品", about: "关于我们", contact: "联系",
+    language: "语言", brand: "你的品牌占位符", preview: "预览", templateKicker: "批发 · 项目供应 · OEM · 定制制造", templateMode: "预览 · LULU", templateSubline: "工业企业模板", languageDe: "德", languageEn: "英", languageZh: "中文", home: "首页", solutions: "解决方案", services: "服务", products: "产品", about: "关于我们", contact: "联系",
     heroEyebrow: "LULU 入门模板", heroTitle: "你的新网站从这里开始", starterCopy: "这是品牌的完整起点。Lulu 将用经过验证的公司信息、内容、图片和产品替换这些占位内容。", speak: "开始沟通", viewServices: "查看服务", heroImage: "即将添加主图",
     trust: ["信任基础", "已验证数据", "清晰流程", "全球形象", "直接联系"], solutionsTitle: "满足真实需求的解决方案", solutionsDescription: "此区域会自动填充你公司的已验证信息。", more: "了解更多 →",
     company: "你的公司", companyBody: "清晰介绍公司、定位和业务内容。", offer: "你的业务", offerBody: "清晰展示业务内容和最重要的下一步。", trustTitle: "建立信任", trustBody: "经过验证的信息、清晰的流程和让客户安心的内容。", contactTitle: "联系我们", contactBody: "让访客提问并发送请求的直接渠道。",
@@ -101,31 +102,12 @@ const TEMPLATE_UI: Record<TemplateLocale, {
   }
 };
 
+export type TemplateCopy = (typeof TEMPLATE_UI)[TemplateLocale];
+
 function EmptyWebsiteTemplate({ hasServices, hasProducts }: { hasServices: boolean; hasProducts: boolean }) {
   const [locale, setLocale] = useState<TemplateLocale>("de");
   const copy = TEMPLATE_UI[locale];
-  useEffect(() => {
-    const emailInput = Array.from(document.querySelectorAll<HTMLInputElement>('input[disabled]')).find((input) => input.placeholder === copy.email);
-    const grid = emailInput?.closest("div.grid");
-    if (!grid) return;
-    grid.querySelectorAll<HTMLElement>("[data-lulu-extra-contact]").forEach((node) => node.remove());
-    const label = (text: string, control: HTMLElement, hint?: string) => {
-      const wrapper = document.createElement("label");
-      wrapper.dataset.luluExtraContact = "true";
-      wrapper.className = "text-sm font-medium";
-      wrapper.textContent = text;
-      control.className = "mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm";
-      control.setAttribute("disabled", "true");
-      wrapper.append(control);
-      if (hint) { const small = document.createElement("span"); small.className = "mt-1 block text-xs text-muted-foreground"; small.textContent = hint; wrapper.append(small); }
-      return wrapper;
-    };
-    grid.append(label(copy.website, document.createElement("input")));
-    grid.append(label(copy.whatsapp, document.createElement("input")));
-    const file = document.createElement("input");
-    file.type = "file";
-    grid.append(label(copy.file, file, copy.fileHint));
-  }, [copy]);
+  return <LuluIndustrialTemplate copy={copy} locale={locale} setLocale={setLocale} hasServices={hasServices} hasProducts={hasProducts} />;
   const navigation = [copy.home, copy.solutions, ...(hasServices ? [copy.services] : []), ...(hasProducts ? [copy.products] : []), copy.about, copy.contact];
   const starterCopy = copy.starterCopy;
   const solutionCards = [
