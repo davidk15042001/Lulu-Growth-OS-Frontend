@@ -107,6 +107,17 @@ function AdminOnlyAppRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function WebsitePreviewRoute() {
+  const location = useLocation();
+  const standalone = new URLSearchParams(location.search).get("standalone") === "1";
+  if (standalone) return <ManagedWebsitePage initialPanel="preview" />;
+  return (
+    <WorkspaceSurfaceShell activeSlug="lulu-website-preview-9012">
+      <ManagedWebsitePage initialPanel="preview" />
+    </WorkspaceSurfaceShell>
+  );
+}
+
 function AdminOmniChannelRoute({ children }: { children?: React.ReactNode }) {
   const { currentUser, loading } = useLuluApp();
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
@@ -151,7 +162,9 @@ function AdminSurfaceSwitcher() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  if (loading || !isAdminUser(currentUser) || isOfficePanelSurface(location.search)) return null;
+  const standaloneWebsitePreview = location.pathname === "/app/website-preview"
+    && new URLSearchParams(location.search).get("standalone") === "1";
+  if (loading || !isAdminUser(currentUser) || isOfficePanelSurface(location.search) || standaloneWebsitePreview) return null;
   if (location.pathname === routes.auth.login || location.pathname.startsWith("/auth/") || location.pathname.startsWith("/calendar/meeting/") || location.pathname === "/not-found") return null;
 
   const onAdminPanel = location.pathname === ADMIN_PANEL_PATH;
@@ -250,6 +263,8 @@ export default function App() {
   const [impersonationError, setImpersonationError] = useState("");
   const isPublicMeeting = location.pathname.startsWith("/calendar/meeting/");
   const officePanel = isOfficePanelSurface(location.search);
+  const standaloneWebsitePreview = location.pathname === "/app/website-preview"
+    && new URLSearchParams(location.search).get("standalone") === "1";
 
   useEffect(() => installApiBroker(), []);
   useEffect(() => {
@@ -289,7 +304,7 @@ export default function App() {
 
   return (
     <>
-      {currentUser?.impersonation?.active && !isPublicMeeting && !officePanel ? (
+      {currentUser?.impersonation?.active && !isPublicMeeting && !officePanel && !standaloneWebsitePreview ? (
         <div className="fixed bottom-4 right-4 z-[95] flex w-[min(calc(100vw-2rem),540px)] items-center justify-between gap-3 rounded-2xl border border-violet-200 bg-white/95 px-4 py-3 text-sm text-violet-950 shadow-[0_20px_55px_rgba(76,29,149,0.2)] backdrop-blur-xl sm:bottom-5 sm:right-5">
           <div className="min-w-0">
             <div className="font-semibold">{t("Admin view active in user account")}</div>
@@ -341,7 +356,7 @@ export default function App() {
         <Route path="/app/website" element={<AdminOnlyAppRoute><Navigate replace to="/app/website-editor" /></AdminOnlyAppRoute>} />
         <Route path="/app/online-presence" element={<AdminOnlyAppRoute><Navigate replace to="/app/website-editor" /></AdminOnlyAppRoute>} />
         <Route path="/app/website-editor" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-website-editor-9012"><ManagedWebsitePage initialPanel="builder" /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
-        <Route path="/app/website-preview" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-website-preview-9012"><ManagedWebsitePage initialPanel="preview" /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
+        <Route path="/app/website-preview" element={<AdminOnlyAppRoute><WebsitePreviewRoute /></AdminOnlyAppRoute>} />
         <Route path="/app/website-media" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-website-media-9017"><ManagedWebsitePage initialPanel="media" /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path="/app/website-domains" element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-website-domains-9018"><ManagedWebsitePage initialPanel="domains" /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path={routes.app.communications} element={<AdminOnlyAppRoute><Navigate replace to={routes.app.omnichannel} /></AdminOnlyAppRoute>} />

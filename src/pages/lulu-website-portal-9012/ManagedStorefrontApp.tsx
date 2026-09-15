@@ -307,7 +307,7 @@ export default function ManagedStorefrontApp({ initialPanel }: { initialPanel?: 
     : `${window.location.pathname}?panel=preview&standalone=1#home`;
 
   if (standalonePreview && !storefront) {
-    return <div className="min-h-screen bg-[var(--background)] p-2 sm:p-6"><EmptyWebsiteTemplate {...catalogPresence} products={catalogItems.products} services={catalogItems.services} branding={branding} palette={deriveTemplatePalette(brandSeed)} /></div>;
+    return <div className="lulu-standalone-preview min-h-screen w-full overflow-x-hidden bg-[var(--background)] p-0"><EmptyWebsiteTemplate {...catalogPresence} products={catalogItems.products} services={catalogItems.services} branding={branding} palette={deriveTemplatePalette(brandSeed)} /></div>;
   }
 
   return <main className="min-h-screen bg-[var(--background)] px-5 py-7 text-foreground sm:px-8 sm:py-10"><div className="mx-auto max-w-[1400px] space-y-6">
