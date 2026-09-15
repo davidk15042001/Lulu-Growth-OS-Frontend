@@ -43,7 +43,7 @@ const KPI_LABELS: Record<string, string> = {
   averageCpc: 'Average CPC',
   internationalLeads: 'International leads',
   qualifiedLeads: 'Qualified leads',
-  buyerRequests: 'Buyer requests / RFQs',
+  buyerRequests: 'Buyer requests / Request Offers',
   leadToQualifiedRate: 'Lead → qualified conversion',
   leadToOfferRate: 'Lead → offer conversion',
   adRoas: 'Advertising ROAS',
