@@ -32,6 +32,15 @@ function enclosingUserFacingCall(node) {
   }
 }
 
+function isLocalizedDataLiteral(node, tree) {
+  let current = node.parent;
+  for (let depth = 0; current && depth < 8; depth += 1, current = current.parent) {
+    if (!ts.isVariableDeclaration(current)) continue;
+    return current.name.getText(tree) === "TEMPLATE_UI";
+  }
+  return false;
+}
+
 export function looksLikeUiText(value) {
   const text = value.replace(/\s+/g, " ").trim();
   const technicalStyleLiteral = /(?:\d+(?:\.\d+)?(?:px|rem|em|%|vh|vw)|rgba?\([^)]*\)|#[0-9a-f]{3,8})/i;
@@ -71,6 +80,10 @@ export function collectI18nSourceCatalog(root = process.cwd()) {
     const visit = (node) => {
       if (ts.isJsxText(node)) add(decodeJsxText(node.getText(tree)));
       if (ts.isStringLiteral(node)) {
+        // TEMPLATE_UI is an explicit three-language data table, not a source
+        // language UI string. Its values are selected by the local website
+        // language switcher and must not be reported as missing translations.
+        if (isLocalizedDataLiteral(node, tree)) return;
         const text = node.text.replace(/\s+/g, " ").trim();
         const parent = node.parent;
         let ancestor = parent;
