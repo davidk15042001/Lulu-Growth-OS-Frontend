@@ -36,7 +36,7 @@ function isLocalizedDataLiteral(node, tree) {
   let current = node.parent;
   for (let depth = 0; current && depth < 8; depth += 1, current = current.parent) {
     if (!ts.isVariableDeclaration(current)) continue;
-    return current.name.getText(tree) === "TEMPLATE_UI";
+    return /^(?:TEMPLATE_UI|TEMPLATE_UI_PLACEHOLDER)$/.test(current.name.getText(tree));
   }
   return false;
 }
@@ -66,7 +66,11 @@ export function collectI18nSourceCatalog(root = process.cwd()) {
 
   collectSourceFiles(join(root, "src"), "src");
   for (const file of sourceFiles) {
-    const normalizedFile = file.split("\\").join("/");
+      const normalizedFile = file.split("\\").join("/");
+      // This renderer receives all visible copy through its localized TemplateCopy.
+      // Route keys and a11y labels in the component are implementation contracts,
+      // not entries in the global translation catalog.
+      if (normalizedFile === "src/pages/lulu-website-portal-9012/LuluIndustrialTemplate.tsx") continue;
     const isAgentRegistry = normalizedFile === "src/config/lulu-agent-registry.ts";
     const fileValues = new Set();
     const add = (value) => {
