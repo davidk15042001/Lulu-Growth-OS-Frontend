@@ -38,6 +38,7 @@ function TemplatePlaceholderVisual({ label, className = "" }: { label: string; c
 
 function EmptyWebsiteTemplate({ hasServices, hasProducts }: { hasServices: boolean; hasProducts: boolean }) {
   const navigation = ["Startseite", "Lösungen", ...(hasServices ? ["Leistungen"] : []), ...(hasProducts ? ["Produkte"] : []), "Über uns", "Kontakt"];
+  const starterCopy = "Ein vollständiger Startpunkt für deine Marke. Lulu ersetzt diese Platzhalter später durch verifizierte Unternehmensdaten, Inhalte, Bilder und Produkte.";
   const solutionCards = [
     { number: "01", title: "Dein Unternehmen", body: "Ein klarer Einstieg, der Unternehmen, Positionierung und Angebot verständlich vorstellt." },
     ...(hasServices || hasProducts ? [{ number: "02", title: hasServices && hasProducts ? "Produkte und Leistungen" : hasServices ? "Leistungen" : "Produkte", body: hasServices && hasProducts ? "Strukturierte Bereiche für Leistungen, Produkte und die wichtigsten nächsten Schritte." : hasServices ? "Ein klarer Überblick über die angebotenen Leistungen und den nächsten Schritt." : "Ein klarer Überblick über die angebotenen Produkte und den nächsten Schritt." }] : []),
@@ -59,7 +60,7 @@ function EmptyWebsiteTemplate({ hasServices, hasProducts }: { hasServices: boole
 
     <section className="bg-gradient-to-br from-slate-950 via-violet-950 to-cyan-900 px-5 py-12 text-white sm:px-10 sm:py-20">
       <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.12fr_.88fr]">
-        <div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.2em] text-cyan-200">LULU STARTER TEMPLATE</p><h3 className="mt-4 text-4xl font-semibold tracking-[-.05em] sm:text-6xl">Deine neue Website beginnt hier</h3><p className="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg">Ein vollständiger Startpunkt für deine Marke. Lulu ersetzt diese Platzhalter später durch verifizierte Unternehmensdaten, Inhalte, Bilder und Produkte.</p><div className="mt-8 flex flex-wrap gap-3"><span className="inline-flex h-11 items-center rounded-xl bg-white px-5 text-sm font-semibold text-slate-950">Jetzt sprechen</span><span className="inline-flex h-11 items-center rounded-xl border border-white/35 px-5 text-sm font-semibold text-white">Leistungen ansehen</span></div></div>
+        <div className="max-w-2xl"><p className="text-xs font-semibold uppercase tracking-[.2em] text-cyan-200">LULU STARTER TEMPLATE</p><h3 className="mt-4 text-4xl font-semibold tracking-[-.05em] sm:text-6xl">Deine neue Website beginnt hier</h3><p className="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg">{hasProducts ? starterCopy : starterCopy.replace(", Bilder und Produkte", " und Bilder")}</p><div className="mt-8 flex flex-wrap gap-3"><span className="inline-flex h-11 items-center rounded-xl bg-white px-5 text-sm font-semibold text-slate-950">Jetzt sprechen</span>{hasServices ? <span className="inline-flex h-11 items-center rounded-xl border border-white/35 px-5 text-sm font-semibold text-white">Leistungen ansehen</span> : null}</div></div>
         <TemplatePlaceholderVisual label="Hero-Bild wird ergänzt" className="min-h-64 border-white/25 bg-white/10 text-white sm:min-h-80" />
       </div>
     </section>
