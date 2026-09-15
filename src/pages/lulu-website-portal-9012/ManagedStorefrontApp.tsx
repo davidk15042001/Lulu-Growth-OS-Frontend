@@ -50,7 +50,7 @@ const TEMPLATE_UI: Record<TemplateLocale, {
   aboutLabel: string; aboutTitle: string; aboutBody: string; aboutItems: string[]; galleryImage: string;
   processLabel: string; processTitle: string; processBody: string; process: string[]; processStepBody: string;
   contactLabel: string; contactPrompt: string; contactDescription: string; helpful: string; helpfulItems: string[];
-  messageLabel: string; formTitle: string; formBody: string; name: string; email: string; message: string; send: string;
+  messageLabel: string; formTitle: string; formBody: string; name: string; email: string; website: string; whatsapp: string; file: string; fileHint: string; message: string; send: string;
   faqLabel: string; faqTitle: string; faqs: string[]; faqBody: string;
   startTitle: string; startBody: string; create: string; footerBrand: string; legal: string; unpublished: string; unpublishedBody: string;
 }> = {
@@ -65,7 +65,7 @@ const TEMPLATE_UI: Record<TemplateLocale, {
     aboutLabel: "Über dein Unternehmen", aboutTitle: "Von der ersten Information bis zum nächsten Schritt", aboutBody: "Dieses Modul erklärt später, wofür dein Unternehmen steht, wem du hilfst und wie Besucher mit dir arbeiten können.", aboutItems: ["Positionierung", "Zielgruppen", "Angebot", "Ablauf", "Kontakt", "Vertrauen"], galleryImage: "Galeriebild wird ergänzt",
     processLabel: "Klarer Prozess", processTitle: "So funktioniert es", processBody: "Ein klarer Ablauf hält Anforderungen, Entscheidungen und nächste Schritte nachvollziehbar.", process: ["Anforderungen teilen", "Passenden Ansatz prüfen", "Nächsten Schritt starten"], processStepBody: "Ein kurzer, verständlicher Abschnitt mit den verifizierten Details deines Unternehmens.",
     contactLabel: "Kontakt und Vertrauen", contactPrompt: "Bereit für den nächsten Schritt?", contactDescription: "Besucher sehen hier eine klare Einladung, ihre Anforderungen zu teilen und direkt Kontakt aufzunehmen.", helpful: "Hilfreiche Informationen", helpfulItems: ["Was du brauchst", "Für wen die Anfrage ist", "Gewünschter Zeitrahmen", "Relevante Dateien"],
-    messageLabel: "Nachricht senden", formTitle: "Kontaktformular", formBody: "Ein einfacher, sicherer Weg für eine erste Anfrage.", name: "Name", email: "E-Mail", message: "Nachricht", send: "Nachricht senden",
+    messageLabel: "Nachricht senden", formTitle: "Kontaktformular", formBody: "Ein einfacher, sicherer Weg für eine erste Anfrage.", name: "Name", email: "E-Mail", website: "Website-Link", whatsapp: "WhatsApp-Nummer", file: "Datei anhängen", fileHint: "Optional, maximal 5 MB", message: "Nachricht", send: "Nachricht senden",
     faqLabel: "FAQ", faqTitle: "Häufige Fragen", faqs: ["Was bietet dieses Unternehmen an?", "Für wen ist das Angebot gedacht?", "Wie starten wir ein Gespräch?"], faqBody: "Die Antwort wird aus den verifizierten Informationen deines Unternehmens erzeugt und hier angezeigt.",
     startTitle: "Deine Marke kann hier starten.", startBody: "Erstelle die Website im Editor. Lulu füllt dieses Template anschließend mit deinen geprüften Inhalten.", create: "Website erstellen", footerBrand: "DEIN BRAND-PLATZHALTER", legal: "Datenschutz · Impressum · Kontakt", unpublished: "Noch keine Website veröffentlicht.", unpublishedBody: "Die Vorschau zeigt bewusst das vollständige Lulu-Standard-Template. Erstelle deine Website im Editor, sobald du bereit bist."
   },
@@ -80,7 +80,7 @@ const TEMPLATE_UI: Record<TemplateLocale, {
     aboutLabel: "About your company", aboutTitle: "From the first detail to the next step", aboutBody: "This module explains what your company stands for, who you help and how visitors can work with you.", aboutItems: ["Positioning", "Audiences", "Offer", "Process", "Contact", "Trust"], galleryImage: "Gallery image will be added",
     processLabel: "Clear process", processTitle: "How it works", processBody: "A clear process keeps requirements, decisions and next steps understandable.", process: ["Share requirements", "Review the right approach", "Start the next step"], processStepBody: "A short, clear section with your company's verified details.",
     contactLabel: "Contact and trust", contactPrompt: "Ready for the next step?", contactDescription: "Visitors see a clear invitation to share their needs and get in touch.", helpful: "Helpful information", helpfulItems: ["What you need", "Who the request is for", "Desired timeline", "Relevant files"],
-    messageLabel: "Send a message", formTitle: "Contact form", formBody: "A simple, secure way to send a first request.", name: "Name", email: "Email", message: "Message", send: "Send message",
+    messageLabel: "Send a message", formTitle: "Contact form", formBody: "A simple, secure way to send a first request.", name: "Name", email: "Email", website: "Website link", whatsapp: "WhatsApp number", file: "Attach a file", fileHint: "Optional, maximum 5 MB", message: "Message", send: "Send message",
     faqLabel: "FAQ", faqTitle: "Frequently asked questions", faqs: ["What does this company offer?", "Who is the offer for?", "How do we start a conversation?"], faqBody: "The answer is generated from your company's verified information and shown here.",
     startTitle: "Your brand can start here.", startBody: "Create the website in the editor. Lulu will fill this template with your verified content.", create: "Create website", footerBrand: "YOUR BRAND PLACEHOLDER", legal: "Privacy · Legal notice · Contact", unpublished: "No website published yet.", unpublishedBody: "The preview intentionally shows the complete Lulu standard template. Create your website in the editor when you are ready."
   },
@@ -95,7 +95,7 @@ const TEMPLATE_UI: Record<TemplateLocale, {
     aboutLabel: "关于你的公司", aboutTitle: "从第一条信息到下一步行动", aboutBody: "这里将说明公司定位、服务对象以及客户如何与你合作。", aboutItems: ["品牌定位", "目标客户", "业务内容", "流程", "联系", "信任"], galleryImage: "即将添加画廊图片",
     processLabel: "清晰流程", processTitle: "使用方式", processBody: "清晰的流程让需求、决策和下一步都易于理解。", process: ["分享需求", "确认合适方案", "开始下一步"], processStepBody: "展示公司已验证信息的简短清晰模块。",
     contactLabel: "联系与信任", contactPrompt: "准备好开始了吗？", contactDescription: "访客可以分享需求并直接与你联系。", helpful: "有用信息", helpfulItems: ["你的需求", "请求对象", "期望时间", "相关文件"],
-    messageLabel: "发送消息", formTitle: "联系表单", formBody: "简单、安全地发送第一条请求。", name: "姓名", email: "电子邮件", message: "消息", send: "发送消息",
+    messageLabel: "发送消息", formTitle: "联系表单", formBody: "简单、安全地发送第一条请求。", name: "姓名", email: "电子邮件", website: "网站链接", whatsapp: "WhatsApp 号码", file: "附加文件", fileHint: "可选，最大 5 MB", message: "消息", send: "发送消息",
     faqLabel: "常见问题", faqTitle: "常见问题", faqs: ["这家公司提供什么？", "业务适合谁？", "如何开始沟通？"], faqBody: "答案将根据公司已验证信息生成并显示在这里。",
     startTitle: "你的品牌可以从这里开始。", startBody: "在编辑器中创建网站。Lulu 会用已验证内容填充此模板。", create: "创建网站", footerBrand: "你的品牌占位符", legal: "隐私 · 法律声明 · 联系", unpublished: "尚未发布网站。", unpublishedBody: "预览会显示完整的 Lulu 标准模板。准备好后在编辑器中创建网站。"
   }
@@ -104,6 +104,28 @@ const TEMPLATE_UI: Record<TemplateLocale, {
 function EmptyWebsiteTemplate({ hasServices, hasProducts }: { hasServices: boolean; hasProducts: boolean }) {
   const [locale, setLocale] = useState<TemplateLocale>("de");
   const copy = TEMPLATE_UI[locale];
+  useEffect(() => {
+    const emailInput = Array.from(document.querySelectorAll<HTMLInputElement>('input[disabled]')).find((input) => input.placeholder === copy.email);
+    const grid = emailInput?.closest("div.grid");
+    if (!grid) return;
+    grid.querySelectorAll<HTMLElement>("[data-lulu-extra-contact]").forEach((node) => node.remove());
+    const label = (text: string, control: HTMLElement, hint?: string) => {
+      const wrapper = document.createElement("label");
+      wrapper.dataset.luluExtraContact = "true";
+      wrapper.className = "text-sm font-medium";
+      wrapper.textContent = text;
+      control.className = "mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 text-sm";
+      control.setAttribute("disabled", "true");
+      wrapper.append(control);
+      if (hint) { const small = document.createElement("span"); small.className = "mt-1 block text-xs text-muted-foreground"; small.textContent = hint; wrapper.append(small); }
+      return wrapper;
+    };
+    grid.append(label(copy.website, document.createElement("input")));
+    grid.append(label(copy.whatsapp, document.createElement("input")));
+    const file = document.createElement("input");
+    file.type = "file";
+    grid.append(label(copy.file, file, copy.fileHint));
+  }, [copy]);
   const navigation = [copy.home, copy.solutions, ...(hasServices ? [copy.services] : []), ...(hasProducts ? [copy.products] : []), copy.about, copy.contact];
   const starterCopy = copy.starterCopy;
   const solutionCards = [
