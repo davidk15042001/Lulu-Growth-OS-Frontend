@@ -3258,6 +3258,7 @@
   "Tags in view": "Tags in der Ansicht",
   "The advertising wallet could not be loaded.": "Das Werbe-Wallet konnte nicht geladen werden.",
   "The Lulu edge hostname is not configured on this server yet. An administrator must set LULU_MANAGED_WEBSITE_HOSTNAME before routing can be activated.": "Der Lulu-Edge-Hostname ist auf diesem Server noch nicht konfiguriert. Ein Administrator muss LULU_MANAGED_WEBSITE_HOSTNAME festlegen, bevor das Routing aktiviert werden kann.",
+  "Once DNS is connected, this domain shows the current Lulu template immediately and updates automatically when your website is published.": "Sobald DNS verbunden ist, zeigt diese Domain sofort das aktuelle Lulu-Template und aktualisiert sich automatisch, sobald Ihre Website veröffentlicht wird.",
   "The selected record could not be loaded.": "Der ausgewählte Datensatz konnte nicht geladen werden.",
   "Total charged": "Gesamtbetrag berechnet",
   "Trust before execution": "Vertrauen vor Ausführung",

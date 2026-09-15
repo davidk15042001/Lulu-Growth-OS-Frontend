@@ -5531,6 +5531,7 @@
   "Connect this domain to Lulu": "将此域连接到 Lulu",
   "Create a CNAME record pointing to": "创建指向以下地址的 CNAME 记录",
   "The Lulu edge hostname is not configured on this server yet. An administrator must set LULU_MANAGED_WEBSITE_HOSTNAME before routing can be activated.": "此服务器上尚未配置 Lulu 边缘主机名。管理员必须先设置 LULU_MANAGED_WEBSITE_HOSTNAME，然后才能激活路由。",
+  "Once DNS is connected, this domain shows the current Lulu template immediately and updates automatically when your website is published.": "连接 DNS 后，该域名会立即显示当前 Lulu 模板，并在网站发布后自动更新。",
   "AI-Guthaben, Werbebudget und Storage manuell freigeben": "手动发放 AI 余额、广告预算和存储额度",
   "AI-Guthaben (CNY)": "AI-古塔本 (CNY)",
   "Werbebudget (CNY)": "韦伯预算 (CNY)",

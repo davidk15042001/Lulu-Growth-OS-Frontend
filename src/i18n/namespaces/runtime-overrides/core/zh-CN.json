@@ -3258,6 +3258,7 @@
   "Tags in view": "视图中的标签",
   "The advertising wallet could not be loaded.": "广告钱包无法加载。",
   "The Lulu edge hostname is not configured on this server yet. An administrator must set LULU_MANAGED_WEBSITE_HOSTNAME before routing can be activated.": "此服务器上尚未配置 Lulu 边缘主机名。管理员必须先设置 LULU_MANAGED_WEBSITE_HOSTNAME，然后才能激活路由。",
+  "Once DNS is connected, this domain shows the current Lulu template immediately and updates automatically when your website is published.": "连接 DNS 后，该域名会立即显示当前 Lulu 模板，并在网站发布后自动更新。",
   "The selected record could not be loaded.": "无法加载所选记录。",
   "Total charged": "总收费",
   "Trust before execution": "执行前建立信任",
