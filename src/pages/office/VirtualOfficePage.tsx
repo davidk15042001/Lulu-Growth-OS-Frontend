@@ -661,7 +661,11 @@ function EmployeeWorkDrawer({
   const capabilityKeys = details?.capabilities.map((capability) => capability.key) ?? [];
   const activeWorkspaceContext = workspaceContext?.employeeId === employee.id ? workspaceContext : null;
   const panelRoute = details ? resolveEmployeeWorkspaceRoute({
-    employeeKey: details.employee.key,
+    // The roster summary is the stable Office identity used by the UI. Some
+    // older backend records expose a provider-specific detail key instead;
+    // resolving from that key could incorrectly hide an otherwise mapped
+    // workspace (notably Invoice Manager and Quote Specialist).
+    employeeKey: employee.key,
     sourceAgentIds: details.employee.sourceAgentIds,
     capabilityKeys,
     relatedObjectType: activeWorkspaceContext
@@ -708,7 +712,7 @@ function EmployeeWorkDrawer({
 
   const openWorkspace = (item?: OfficeWorkItem) => {
     const route = resolveEmployeeWorkspaceRoute({
-      employeeKey: details?.employee.key ?? employee.key,
+      employeeKey: employee.key,
       sourceAgentIds: details?.employee.sourceAgentIds ?? employee.sourceAgentIds,
       capabilityKeys,
       relatedObjectType: item ? item.relatedObjectType : details?.currentWorkItem?.relatedObjectType,
