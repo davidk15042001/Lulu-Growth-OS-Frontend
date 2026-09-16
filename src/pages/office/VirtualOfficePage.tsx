@@ -25,6 +25,7 @@ import {
 import { useLanguage, useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import {
   buildWorkspaceDeepLink,
+  getWorkspaceCapabilityRoute,
   resolveEmployeeWorkspaceRoute,
 } from "../../config/workspace-capability-registry";
 import { AuthenticatedWorkspaceTopBar } from "../../components/AuthenticatedWorkspaceTopBar";
@@ -660,7 +661,7 @@ function EmployeeWorkDrawer({
 
   const capabilityKeys = details?.capabilities.map((capability) => capability.key) ?? [];
   const activeWorkspaceContext = workspaceContext?.employeeId === employee.id ? workspaceContext : null;
-  const panelRoute = details ? resolveEmployeeWorkspaceRoute({
+  const resolvedPanelRoute = details ? resolveEmployeeWorkspaceRoute({
     // The roster summary is the stable Office identity used by the UI. Some
     // older backend records expose a provider-specific detail key instead;
     // resolving from that key could incorrectly hide an otherwise mapped
@@ -677,6 +678,12 @@ function EmployeeWorkDrawer({
     currentUserCapabilities,
     allowKnownEmployeeRoute: true,
   }) : null;
+  // Commercial document employees always own a canonical document workspace.
+  // Keep this explicit fallback so a legacy roster/detail identity can never
+  // make the real Invoice or Quote workspace appear unavailable.
+  const panelRoute = resolvedPanelRoute ?? (employeeDocumentKind === "invoices"
+    ? getWorkspaceCapabilityRoute("breezy-soil-2475")
+    : employeeDocumentKind === "quotes" ? getWorkspaceCapabilityRoute("tender-creek-3139") : null);
   const panelRecordId = activeWorkspaceContext
     ? activeWorkspaceContext.recordId ?? null
     : details?.currentWorkItem?.relatedObjectId;
