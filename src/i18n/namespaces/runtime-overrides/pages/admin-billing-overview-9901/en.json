@@ -141,5 +141,16 @@
   "Die manuelle Guthabenänderung konnte nicht gespeichert werden.": "The manual balance change could not be saved.",
   "Freigeben": "Approve",
   "Für Zahlungen per WeChat, Banküberweisung oder andere Offline-Zahlungen. Diese Änderung wird direkt im jeweiligen Ledger gespeichert und erzeugt ausdrücklich keine Airwallex-Zahlung.": "For payments via WeChat, bank transfer or other offline payments. This change is saved directly in the respective ledger and expressly does not generate an Airwallex payment.",
-  "Korrigieren": "Edit"
+  "Korrigieren": "Edit",
+  "/admin/payments/airwallex?limit=500": "/admin/payments/airwallex?limit=500",
+  "Airwallex-Zahlungen konnten nicht geladen werden.": "Airwallex payments could not be loaded.",
+  "Airwallex-Zahlungen": "Airwallex payments",
+  "Alle Kundenzahlungen mit getrenntem Zahlungs-, Guthaben- und Abrechnungsstatus.": "All customer payments with separate payment, credit and settlement status.",
+  "Datum": "Date",
+  "Zahlung": "Payment",
+  "Guthaben": "Credit",
+  "Abrechnung": "Settlement",
+  "Airwallex ID": "Airwallex ID",
+  "AI verfügbar / Zahlung reserviert / Arbeit reserviert": "AI available / payment reserved / work reserved",
+  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "Ads available / payment reserved / campaign reserved"
 }

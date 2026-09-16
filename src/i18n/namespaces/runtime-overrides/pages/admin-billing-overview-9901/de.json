@@ -458,5 +458,16 @@
   "Storage-Gutschrift (USD)": "Lager-Gutschrift (USD)",
   "WeChat": "WeChat",
   "Werbebudget (CNY)": "Werbebudget (CNY)",
-  "Zahlungsreferenz (optional)": "Zahlungsreferenz (optional)"
+  "Zahlungsreferenz (optional)": "Zahlungsreferenz (optional)",
+  "/admin/payments/airwallex?limit=500": "/admin/payments/airwallex?limit=500",
+  "Airwallex-Zahlungen konnten nicht geladen werden.": "Airwallex-Zahlungen konnten nicht geladen werden.",
+  "Airwallex-Zahlungen": "Airwallex-Zahlungen",
+  "Alle Kundenzahlungen mit getrenntem Zahlungs-, Guthaben- und Abrechnungsstatus.": "Alle Kundenzahlungen mit getrenntem Zahlungs-, Guthaben- und Abrechnungsstatus.",
+  "Datum": "Datum",
+  "Zahlung": "Zahlung",
+  "Guthaben": "Guthaben",
+  "Abrechnung": "Abrechnung",
+  "Airwallex ID": "Airwallex ID",
+  "AI verfügbar / Zahlung reserviert / Arbeit reserviert": "AI verfügbar / Zahlung reserviert / Arbeit reserviert",
+  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert"
 }

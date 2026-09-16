@@ -458,5 +458,16 @@
   "Storage-Gutschrift (USD)": "存储-Gutschrift（美元）",
   "WeChat": "微信",
   "Werbebudget (CNY)": "韦伯预算 (CNY)",
-  "Zahlungsreferenz (optional)": "Zahlungsreferenz（可选）"
+  "Zahlungsreferenz (optional)": "Zahlungsreferenz（可选）",
+  "/admin/payments/airwallex?limit=500": "Airwallex 付款列表（/admin/payments/airwallex?limit=500）",
+  "Airwallex-Zahlungen konnten nicht geladen werden.": "无法加载 Airwallex 付款。",
+  "Airwallex-Zahlungen": "Airwallex 付款",
+  "Alle Kundenzahlungen mit getrenntem Zahlungs-, Guthaben- und Abrechnungsstatus.": "所有客户付款，分别显示付款、余额和结算状态。",
+  "Datum": "日期",
+  "Zahlung": "付款",
+  "Guthaben": "余额",
+  "Abrechnung": "结算",
+  "Airwallex ID": "Airwallex ID",
+  "AI verfügbar / Zahlung reserviert / Arbeit reserviert": "AI 可用 / 付款预留 / 工作预留",
+  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "广告可用 / 付款预留 / 活动预留"
 }

@@ -21651,5 +21651,16 @@
   "Reserved for campaigns": "广告活动预留",
   "AI work": "AI 工作",
   "Campaigns": "广告活动",
-  "Available funds can be used immediately. Payment reserves are not spendable until Airwallex confirms the payment. AI work reserves are held for active work. Actually spent is the confirmed provider cost.": "可用余额可立即使用。付款预留在 Airwallex 确认前不可消费。AI 预留用于进行中的工作。实际消耗是已确认的服务商成本。"
+  "Available funds can be used immediately. Payment reserves are not spendable until Airwallex confirms the payment. AI work reserves are held for active work. Actually spent is the confirmed provider cost.": "可用余额可立即使用。付款预留在 Airwallex 确认前不可消费。AI 预留用于进行中的工作。实际消耗是已确认的服务商成本。",
+  "/admin/payments/airwallex?limit=500": "Airwallex 付款列表（/admin/payments/airwallex?limit=500）",
+  "Airwallex-Zahlungen konnten nicht geladen werden.": "无法加载 Airwallex 付款。",
+  "Airwallex-Zahlungen": "Airwallex 付款",
+  "Alle Kundenzahlungen mit getrenntem Zahlungs-, Guthaben- und Abrechnungsstatus.": "所有客户付款，分别显示付款、余额和结算状态。",
+  "Datum": "日期",
+  "Zahlung": "付款",
+  "Guthaben": "余额",
+  "Abrechnung": "结算",
+  "Airwallex ID": "Airwallex ID",
+  "AI verfügbar / Zahlung reserviert / Arbeit reserviert": "AI 可用 / 付款预留 / 工作预留",
+  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "广告可用 / 付款预留 / 活动预留"
 }

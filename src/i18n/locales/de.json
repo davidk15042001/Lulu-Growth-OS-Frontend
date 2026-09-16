@@ -21651,5 +21651,16 @@
   "Reserved for campaigns": "Für Kampagnen reserviert",
   "AI work": "KI-Arbeit",
   "Campaigns": "Kampagnen",
-  "Available funds can be used immediately. Payment reserves are not spendable until Airwallex confirms the payment. AI work reserves are held for active work. Actually spent is the confirmed provider cost.": "Verfügbare Mittel können sofort genutzt werden. Zahlungsreserven sind erst nach der Bestätigung durch Airwallex nutzbar. KI-Reserven sind für laufende Arbeit gebunden. Tatsächlich verbraucht sind bestätigte Providerkosten."
+  "Available funds can be used immediately. Payment reserves are not spendable until Airwallex confirms the payment. AI work reserves are held for active work. Actually spent is the confirmed provider cost.": "Verfügbare Mittel können sofort genutzt werden. Zahlungsreserven sind erst nach der Bestätigung durch Airwallex nutzbar. KI-Reserven sind für laufende Arbeit gebunden. Tatsächlich verbraucht sind bestätigte Providerkosten.",
+  "/admin/payments/airwallex?limit=500": "/admin/payments/airwallex?limit=500",
+  "Airwallex-Zahlungen konnten nicht geladen werden.": "Airwallex-Zahlungen konnten nicht geladen werden.",
+  "Airwallex-Zahlungen": "Airwallex-Zahlungen",
+  "Alle Kundenzahlungen mit getrenntem Zahlungs-, Guthaben- und Abrechnungsstatus.": "Alle Kundenzahlungen mit getrenntem Zahlungs-, Guthaben- und Abrechnungsstatus.",
+  "Datum": "Datum",
+  "Zahlung": "Zahlung",
+  "Guthaben": "Guthaben",
+  "Abrechnung": "Abrechnung",
+  "Airwallex ID": "Airwallex ID",
+  "AI verfügbar / Zahlung reserviert / Arbeit reserviert": "AI verfügbar / Zahlung reserviert / Arbeit reserviert",
+  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert"
 }
