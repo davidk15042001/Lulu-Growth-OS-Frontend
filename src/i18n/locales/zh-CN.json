@@ -21639,5 +21639,17 @@
   "Ad budget credited": "广告预算已入账",
   "Only workspace owners and administrators can add advertising budget.": "只有工作区所有者和管理员可以充值广告预算。",
   "Advertising budget credited.": "广告预算已入账。",
-  "Advertising budget payment QR code": "广告预算支付二维码"
+  "Advertising budget payment QR code": "广告预算支付二维码",
+  "Download PDF": "下载 PDF",
+  "Preparing PDF…": "正在准备 PDF…",
+  "The invoice PDF could not be downloaded.": "无法下载发票 PDF。",
+  "INVOICE": "发票",
+  "All customer invoices, sorted by invoice number for bookkeeping.": "所有客户发票均按发票编号排序，方便记账。",
+  "Reserved for payment": "支付处理中",
+  "Paid deposits awaiting Airwallex confirmation": "已付款项正在等待 Airwallex 确认",
+  "Reserved for AI work": "AI 工作预留",
+  "Reserved for campaigns": "广告活动预留",
+  "AI work": "AI 工作",
+  "Campaigns": "广告活动",
+  "Available funds can be used immediately. Payment reserves are not spendable until Airwallex confirms the payment. AI work reserves are held for active work. Actually spent is the confirmed provider cost.": "可用余额可立即使用。付款预留在 Airwallex 确认前不可消费。AI 预留用于进行中的工作。实际消耗是已确认的服务商成本。"
 }

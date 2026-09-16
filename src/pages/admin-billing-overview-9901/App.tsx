@@ -82,6 +82,13 @@ type Customer = {
   apiCostUsd: string; serverCostUsd: string;
 };
 type Overview = { month: string; periodStart: string; periodEnd: string; customers: Customer[] };
+type AirwallexPaymentRow = {
+  id: string; walletType: "ai" | "ad_spend"; workspaceId: string; workspaceName: string;
+  amount: string | number; currency: string; paymentMethod: string; status: string;
+  providerStatus: string | null; paymentStatus: string; creditStatus: string; settlementStatus: string;
+  merchantOrderId: string; providerInvoiceId: string | null; providerPaymentIntentId: string | null;
+  paidAt: string | null; confirmedAt: string | null; creditedAt: string | null; cancelledAt: string | null; createdAt: string;
+};
 
 type UserRow = {
   id: string; email: string; firstName: string | null; lastName: string | null;
@@ -170,8 +177,8 @@ type WorkspaceDetail = WorkspaceRow & {
     createdAt: string;
   }>;
   funding: {
-    ai: { currency: string; availableAmount: number; reservedAmount: number; spentAmount: number; reversalDebtAmount: number; totalFundedAmount: number };
-    adSpend: { currency: string; availableAmount: number; reservedAmount: number; spentAmount: number; reversalDebtAmount: number; totalFundedAmount: number };
+    ai: { currency: string; availableAmount: number; reservedAmount: number; paymentReservedAmount: number; spentAmount: number; reversalDebtAmount: number; totalFundedAmount: number };
+    adSpend: { currency: string; availableAmount: number; reservedAmount: number; paymentReservedAmount: number; spentAmount: number; reversalDebtAmount: number; totalFundedAmount: number };
     storage: { currency: string; availableCreditUsd: number; billableUsd: number };
     adjustments: Array<{
       id: string; metric: "api" | "server" | "storage"; amountUsd: string; periodStart: string; periodEnd: string;
@@ -660,6 +667,8 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
   const [month, setMonth] = useState(monthNow());
   const [overview, setOverview] = useState<Overview | null>(null);
   const [loading, setLoading] = useState(true);
+  const [paymentRows, setPaymentRows] = useState<AirwallexPaymentRow[]>([]);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const [savingId, setSavingId] = useState("");
   const [costEditor, setCostEditor] = useState<{ customer: Customer; apiAiCostUsd: string; storageCostUsd: string; reason: string } | null>(null);
 
@@ -668,6 +677,10 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
     try {
       const res = await requestApi<Overview>({ path: `/admin/billing-overview?month=${encodeURIComponent(month)}` });
       setOverview(res.data);
+      setPaymentLoading(true);
+      try { const payments = await requestApi<{ payments: AirwallexPaymentRow[] }>({ path: "/admin/payments/airwallex?limit=500" }); setPaymentRows(payments.data.payments); }
+      catch (cause) { onError(getFriendlyErrorMessage(cause, "Airwallex-Zahlungen konnten nicht geladen werden.")); }
+      finally { setPaymentLoading(false); }
     } catch (cause) { onError(getFriendlyErrorMessage(cause, "Die Admin-Daten konnten nicht geladen werden.")); }
     finally { setLoading(false); }
   };
@@ -786,6 +799,25 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
           { key: "costActions", label: "Kosten", render: (c) => <button type="button" disabled={savingId === `${c.id}:cost`} onClick={() => void openCostEditor(c)} className="rounded-md border border-indigo-200 bg-indigo-50 px-2.5 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50">{savingId === `${c.id}:cost` ? "Lade…" : "Bearbeiten"}</button> },
         ]}
       />
+      <section className="space-y-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div><h3 className="font-semibold text-slate-900">Airwallex-Zahlungen</h3><p className="text-xs text-slate-500">Alle Kundenzahlungen mit getrenntem Zahlungs-, Guthaben- und Abrechnungsstatus.</p></div>
+          <span className="text-xs text-slate-500">{paymentLoading ? "Lade…" : `${paymentRows.length} Zahlungen`}</span>
+        </div>
+        <DataTable<AirwallexPaymentRow>
+          loading={paymentLoading}
+          rows={paymentRows}
+          columns={[
+            { key: "createdAt", label: "Datum", render: (p) => dateOnly(p.createdAt) },
+            { key: "workspaceName", label: "Kunde", render: (p) => <div><div className="font-medium text-slate-900">{p.workspaceName}</div><div className="text-[11px] text-slate-500">{p.walletType === "ai" ? "AI" : "Ads"} · {p.paymentMethod}</div></div> },
+            { key: "amount", label: "Betrag", render: (p) => <span className="font-mono text-xs">¥{Number(p.amount).toFixed(2)}</span> },
+            { key: "paymentStatus", label: "Zahlung", render: (p) => <Pill tone={toneFromStatus(p.paymentStatus)}>{p.paymentStatus}</Pill> },
+            { key: "creditStatus", label: "Guthaben", render: (p) => <Pill tone={toneFromStatus(p.creditStatus)}>{p.creditStatus}</Pill> },
+            { key: "settlementStatus", label: "Abrechnung", render: (p) => <Pill tone={toneFromStatus(p.settlementStatus)}>{p.settlementStatus}</Pill> },
+            { key: "providerPaymentIntentId", label: "Airwallex ID", render: (p) => <span className="max-w-[180px] truncate font-mono text-[11px] text-slate-500" title={p.providerPaymentIntentId ?? p.providerInvoiceId ?? p.merchantOrderId}>{p.providerPaymentIntentId ?? p.providerInvoiceId ?? p.merchantOrderId}</span> },
+          ]}
+        />
+      </section>
     </div>
   );
 }
@@ -1340,8 +1372,8 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                   </div>
                   {detail.funding ? (
                     <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-right text-[11px] text-slate-600 sm:grid-cols-3">
-                      <span>AI verfügbar / reserviert <strong className="ml-1 text-slate-900">¥{detail.funding.ai.availableAmount.toFixed(2)} / ¥{detail.funding.ai.reservedAmount.toFixed(2)}</strong></span>
-                      <span>Ads verfügbar / reserviert <strong className="ml-1 text-slate-900">¥{detail.funding.adSpend.availableAmount.toFixed(2)} / ¥{detail.funding.adSpend.reservedAmount.toFixed(2)}</strong></span>
+                      <span>AI verfügbar / Zahlung reserviert / Arbeit reserviert <strong className="ml-1 text-slate-900">¥{detail.funding.ai.availableAmount.toFixed(2)} / ¥{detail.funding.ai.paymentReservedAmount.toFixed(2)} / ¥{detail.funding.ai.reservedAmount.toFixed(2)}</strong></span>
+                      <span>Ads verfügbar / Zahlung reserviert / Kampagnen reserviert <strong className="ml-1 text-slate-900">¥{detail.funding.adSpend.availableAmount.toFixed(2)} / ¥{detail.funding.adSpend.paymentReservedAmount.toFixed(2)} / ¥{detail.funding.adSpend.reservedAmount.toFixed(2)}</strong></span>
                       <span>Storage-Gutschrift <strong className="ml-1 text-slate-900">${detail.funding.storage.availableCreditUsd.toFixed(2)}</strong></span>
                     </div>
                   ) : null}

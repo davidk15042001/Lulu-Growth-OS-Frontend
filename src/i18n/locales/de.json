@@ -21639,5 +21639,17 @@
   "Ad budget credited": "Werbebudget gutgeschrieben",
   "Only workspace owners and administrators can add advertising budget.": "Nur Workspace-Eigentümer und Administratoren können Werbebudget aufladen.",
   "Advertising budget credited.": "Werbebudget gutgeschrieben.",
-  "Advertising budget payment QR code": "QR-Code für die Werbebudgetzahlung"
+  "Advertising budget payment QR code": "QR-Code für die Werbebudgetzahlung",
+  "Download PDF": "PDF herunterladen",
+  "Preparing PDF…": "PDF wird vorbereitet…",
+  "The invoice PDF could not be downloaded.": "Die Rechnungs-PDF konnte nicht heruntergeladen werden.",
+  "INVOICE": "RECHNUNG",
+  "All customer invoices, sorted by invoice number for bookkeeping.": "Alle Kundenrechnungen, nach Rechnungsnummer für die Buchhaltung sortiert.",
+  "Reserved for payment": "Für Zahlung reserviert",
+  "Paid deposits awaiting Airwallex confirmation": "Bezahlte Einzahlungen warten auf die Bestätigung von Airwallex",
+  "Reserved for AI work": "Für KI-Arbeit reserviert",
+  "Reserved for campaigns": "Für Kampagnen reserviert",
+  "AI work": "KI-Arbeit",
+  "Campaigns": "Kampagnen",
+  "Available funds can be used immediately. Payment reserves are not spendable until Airwallex confirms the payment. AI work reserves are held for active work. Actually spent is the confirmed provider cost.": "Verfügbare Mittel können sofort genutzt werden. Zahlungsreserven sind erst nach der Bestätigung durch Airwallex nutzbar. KI-Reserven sind für laufende Arbeit gebunden. Tatsächlich verbraucht sind bestätigte Providerkosten."
 }

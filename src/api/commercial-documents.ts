@@ -1,4 +1,4 @@
-import { requestApi } from './client';
+import { requestApi, requestApiBlob } from './client';
 
 export type CommercialLine = { productId?: string | null; variantId?: string | null; sku?: string | null; productName: string; description?: string | null; quantity: number; quantityUnit?: string | null; unitPrice: number; discount?: number; tax?: number; priceSource?: string };
 export type Quote = { id: string; workspaceId: string; quoteNumber: string; status: string; currency: string; language: string; customerRecordId: string | null; currentVersionId: string | null; currentVersion?: number; subtotal?: string; discountTotal?: string; shippingTotal?: string; taxTotal?: string; grandTotal?: string; documentStatus?: string; creationMode: string; createdAt: string };
@@ -54,6 +54,7 @@ export const commercialDocumentsApi = {
   listInvoices: (workspaceId: string, query = '') => requestApi<{ items: Invoice[]; pagination: { page: number; limit: number; total: number; pages: number } }>({ path: path(workspaceId, `/invoices${query ? `?${query}` : ''}`) }),
   getDocumentSellerProfile: (workspaceId: string) => requestApi<DocumentSellerProfile>({ path: path(workspaceId, '/seller-profile') }),
   getInvoice: (workspaceId: string, id: string) => requestApi<InvoiceDetail>({ path: path(workspaceId, `/invoices/${id}`) }),
+  downloadInvoicePdf: (workspaceId: string, id: string, signal?: AbortSignal) => requestApiBlob(path(workspaceId, `/invoices/${encodeURIComponent(id)}/pdf`), signal),
   createInvoice: (workspaceId: string, body: Record<string, unknown>) => requestApi<InvoiceDetail>({ path: path(workspaceId, '/invoices'), method: 'POST', body }),
   issueInvoice: (workspaceId: string, id: string) => requestApi<InvoiceDetail>({ path: path(workspaceId, `/invoices/${id}/issue`), method: 'POST', body: {} }),
   sendInvoice: (workspaceId: string, id: string, body: Record<string, unknown>) => requestApi<Record<string, unknown>>({ path: path(workspaceId, `/invoices/${id}/send`), method: 'POST', body }),

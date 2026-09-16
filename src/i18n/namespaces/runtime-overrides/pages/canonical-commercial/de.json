@@ -91,5 +91,9 @@
   "Invoices created by Lulu agents.": "Von Lulu-Agenten erstellte Rechnungen.",
   "Lulu agents create invoices and quotes from your company profile, products, customers and approved policies. Manual creation is not available in the workspace.": "Lulu-Agenten erstellen Rechnungen und Angebote aus deinem Unternehmensprofil, Produkten, Kunden und freigegebenen Richtlinien. Eine manuelle Erstellung ist im Workspace nicht verfügbar.",
   "Lulu will create the first document automatically when it is needed.": "Lulu erstellt das erste Dokument automatisch, sobald es benötigt wird.",
-  "Offers and quotes created by Lulu agents.": "Von Lulu-Agenten erstellte Angebote und Quotes."
+  "Offers and quotes created by Lulu agents.": "Von Lulu-Agenten erstellte Angebote und Quotes.",
+  "Download PDF": "PDF herunterladen",
+  "Preparing PDF…": "PDF wird vorbereitet…",
+  "The invoice PDF could not be downloaded.": "Die Rechnungs-PDF konnte nicht heruntergeladen werden.",
+  "INVOICE": "RECHNUNG"
 }

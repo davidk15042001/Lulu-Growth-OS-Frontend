@@ -188,8 +188,9 @@ export function AdSpendWalletPanel() {
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("Advertising has its own prepaid balance. It is completely separate from AI/API funds and Cloudflare R2 storage.")}</p>
           <p className="mt-7 text-xs uppercase tracking-[.15em] text-muted-foreground">{t("Available budget")}</p>
           <p className="mt-2 text-4xl font-semibold">{loading ? "—" : money.format(wallet?.availableAmount ?? 0)}</p>
-          <div className="mt-4 grid grid-cols-3 gap-2 text-xs">
-            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("reserved")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.reservedAmount ?? 0)}</strong></div>
+          <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+            <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3"><span className="text-muted-foreground">{t("Reserved for payment")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.paymentReservedAmount ?? 0)}</strong></div>
+            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Reserved for campaigns")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.reservedAmount ?? 0)}</strong></div>
             <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Spent")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.spentAmount ?? 0)}</strong></div>
             <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Funded")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.totalFundedAmount ?? 0)}</strong></div>
           </div>

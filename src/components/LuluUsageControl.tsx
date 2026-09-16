@@ -173,14 +173,14 @@ export function LuluUsageControl() {
                   <article className="lulu-usage-metric lulu-usage-metric--api">
                     <div className="lulu-usage-metric__icon"><Bot aria-hidden="true" size={18} /></div>
                     <div><span>{t("AI execution")} · {t("Available now")}</span><strong>{formatMoney(apiWallet?.availableAmount ?? 0, "CNY", language)}</strong></div>
-                    <p>{t("Reserved")}: {formatMoney(apiWallet?.reservedAmount ?? 0, "CNY", language)} · {t("Actually spent")}: {formatMoney(apiWallet?.spentAmount ?? 0, "CNY", language)}</p>
+                    <p>{t("Reserved for payment")}: {formatMoney(apiWallet?.paymentReservedAmount ?? 0, "CNY", language)} · {t("AI work")}: {formatMoney(apiWallet?.reservedAmount ?? 0, "CNY", language)} · {t("Actually spent")}: {formatMoney(apiWallet?.spentAmount ?? 0, "CNY", language)}</p>
                     <small>{apiStatus}</small>
                   </article>
 
                   <article className="lulu-usage-metric">
                     <div className="lulu-usage-metric__icon"><Megaphone aria-hidden="true" size={18} /></div>
                     <div><span>{t("Advertising")} · {t("Available now")}</span><strong>{formatMoney(adWallet?.availableAmount ?? 0, "CNY", language)}</strong></div>
-                    <p>{t("Reserved")}: {formatMoney(adWallet?.reservedAmount ?? 0, "CNY", language)} · {t("Actually spent")}: {formatMoney(adWallet?.spentAmount ?? 0, "CNY", language)}</p>
+                    <p>{t("Reserved for payment")}: {formatMoney(adWallet?.paymentReservedAmount ?? 0, "CNY", language)} · {t("Campaigns")}: {formatMoney(adWallet?.reservedAmount ?? 0, "CNY", language)} · {t("Actually spent")}: {formatMoney(adWallet?.spentAmount ?? 0, "CNY", language)}</p>
                     <small>{advertisingStatus}</small>
                   </article>
 

@@ -15,5 +15,9 @@
   "Quotes": "Quotes",
   "Invoices": "Invoices",
   "Refresh": "Refresh",
-  "Loading…": "Loading…"
+  "Loading…": "Loading…",
+  "The invoice PDF could not be downloaded.": "The invoice PDF could not be downloaded.",
+  "PDF": "PDF",
+  "Download": "Download",
+  "All customer invoices, sorted by invoice number for bookkeeping.": "All customer invoices, sorted by invoice number for bookkeeping."
 }

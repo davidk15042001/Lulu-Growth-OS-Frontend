@@ -91,5 +91,9 @@
   "Invoices created by Lulu agents.": "由 Lulu 智能体创建的发票。",
   "Lulu agents create invoices and quotes from your company profile, products, customers and approved policies. Manual creation is not available in the workspace.": "Lulu 智能体会根据你的公司资料、产品、客户和已批准的政策创建发票和报价。工作区不提供手动创建功能。",
   "Lulu will create the first document automatically when it is needed.": "Lulu 会在需要时自动创建第一份文档。",
-  "Offers and quotes created by Lulu agents.": "由 Lulu 智能体创建的报价和方案。"
+  "Offers and quotes created by Lulu agents.": "由 Lulu 智能体创建的报价和方案。",
+  "Download PDF": "下载 PDF",
+  "Preparing PDF…": "正在准备 PDF…",
+  "The invoice PDF could not be downloaded.": "无法下载发票 PDF。",
+  "INVOICE": "发票"
 }

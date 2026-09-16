@@ -20,5 +20,9 @@
   "The quote was declined.": "The quote was declined.",
   "The decision could not be saved.": "The decision could not be saved.",
   "ACCEPTED": "Accepted",
-  "QUOTE": "Quote"
+  "QUOTE": "Quote",
+  "Download PDF": "Download PDF",
+  "Preparing PDF…": "Preparing PDF…",
+  "The invoice PDF could not be downloaded.": "The invoice PDF could not be downloaded.",
+  "INVOICE": "INVOICE"
 }

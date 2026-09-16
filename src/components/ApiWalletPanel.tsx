@@ -304,14 +304,19 @@ export function ApiWalletPanel() {
             AI, agents and premium media execute only against confirmed balance.
             There is no API PAYG invoice.
           </p>
-          <div className="mt-7 grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Available now")}</p>
               <p className="mt-2 text-2xl font-semibold text-emerald-700">{displayLoading ? "—" : money.format(wallet?.availableAmount ?? 0)}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Ready to use for new AI work")}</p>
             </div>
+            <div className="rounded-2xl border border-sky-500/20 bg-sky-500/5 p-4">
+              <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Reserved for payment")}</p>
+              <p className="mt-2 text-2xl font-semibold text-sky-700">{displayLoading ? "—" : money.format(wallet?.paymentReservedAmount ?? 0)}</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Paid deposits awaiting Airwallex confirmation")}</p>
+            </div>
             <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
-              <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Reserved")}</p>
+              <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Reserved for AI work")}</p>
               <p className="mt-2 text-2xl font-semibold text-amber-700">{displayLoading ? "—" : money.format(wallet?.reservedAmount ?? 0)}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Held for work in progress")}</p>
             </div>
@@ -321,7 +326,7 @@ export function ApiWalletPanel() {
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Settled provider costs")}</p>
             </div>
           </div>
-          <p className="mt-4 text-xs leading-5 text-muted-foreground">{t("Available funds can be used immediately. Reserved funds are held for active AI work. Actually spent is the confirmed provider cost.")}</p>
+          <p className="mt-4 text-xs leading-5 text-muted-foreground">{t("Available funds can be used immediately. Payment reserves are not spendable until Airwallex confirms the payment. AI work reserves are held for active work. Actually spent is the confirmed provider cost.")}</p>
           <span
             className={`mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${aiReady ? "bg-emerald-500/10 text-emerald-700" : "bg-amber-500/10 text-amber-700"}`}
           >

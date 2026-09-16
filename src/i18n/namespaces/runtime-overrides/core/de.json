@@ -3270,5 +3270,9 @@
   "Website Editor": "Website-Editor",
   "Website Preview Manager": "Website-Vorschau-Manager",
   "Website Media Manager": "Website-Medien-Manager",
-  "Domain Manager": "Domain-Manager"
+  "Domain Manager": "Domain-Manager",
+  "Download PDF": "PDF herunterladen",
+  "Preparing PDF…": "PDF wird vorbereitet…",
+  "The invoice PDF could not be downloaded.": "Die Rechnungs-PDF konnte nicht heruntergeladen werden.",
+  "INVOICE": "RECHNUNG"
 }

@@ -3270,5 +3270,9 @@
   "Website Editor": "网站编辑器",
   "Website Preview Manager": "网站预览管理器",
   "Website Media Manager": "网站媒体管理器",
-  "Domain Manager": "域名管理器"
+  "Domain Manager": "域名管理器",
+  "Download PDF": "下载 PDF",
+  "Preparing PDF…": "正在准备 PDF…",
+  "The invoice PDF could not be downloaded.": "无法下载发票 PDF。",
+  "INVOICE": "发票"
 }

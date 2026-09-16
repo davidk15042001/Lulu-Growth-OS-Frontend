@@ -29,5 +29,9 @@
   "Phone number": "Telefonnummer",
   "Seller": "Verkäufer",
   "Tax ID": "Steuer-ID",
-  "Company logo": "Unternehmenslogo"
+  "Company logo": "Unternehmenslogo",
+  "Download PDF": "PDF herunterladen",
+  "Preparing PDF…": "PDF wird vorbereitet…",
+  "The invoice PDF could not be downloaded.": "Die Rechnungs-PDF konnte nicht heruntergeladen werden.",
+  "INVOICE": "RECHNUNG"
 }

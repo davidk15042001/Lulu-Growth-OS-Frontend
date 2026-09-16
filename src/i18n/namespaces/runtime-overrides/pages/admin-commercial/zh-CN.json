@@ -16,5 +16,9 @@
   "Invoices": "发票",
   "Refresh": "刷新",
   "Loading…": "加载中…",
-  "quotes": "报价单"
+  "quotes": "报价单",
+  "The invoice PDF could not be downloaded.": "无法下载发票 PDF。",
+  "PDF": "PDF",
+  "Download": "下载",
+  "All customer invoices, sorted by invoice number for bookkeeping.": "所有客户发票均按发票编号排序，方便记账。"
 }

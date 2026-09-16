@@ -888,5 +888,17 @@
   "Konversation": "Conversation",
   "Nachrichten": "Messages",
   "Keine Nachrichten.": "No messages.",
-  "channels": "channels"
+  "channels": "channels",
+  "Download PDF": "Download PDF",
+  "Preparing PDF…": "Preparing PDF…",
+  "The invoice PDF could not be downloaded.": "The invoice PDF could not be downloaded.",
+  "INVOICE": "INVOICE",
+  "All customer invoices, sorted by invoice number for bookkeeping.": "All customer invoices, sorted by invoice number for bookkeeping.",
+  "Reserved for payment": "Reserved for payment",
+  "Paid deposits awaiting Airwallex confirmation": "Paid deposits awaiting Airwallex confirmation",
+  "Reserved for AI work": "Reserved for AI work",
+  "Reserved for campaigns": "Reserved for campaigns",
+  "AI work": "AI work",
+  "Campaigns": "Campaigns",
+  "Available funds can be used immediately. Payment reserves are not spendable until Airwallex confirms the payment. AI work reserves are held for active work. Actually spent is the confirmed provider cost.": "Available funds can be used immediately. Payment reserves are not spendable until Airwallex confirms the payment. AI work reserves are held for active work. Actually spent is the confirmed provider cost."
 }
