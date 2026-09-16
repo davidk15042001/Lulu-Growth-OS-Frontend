@@ -88,5 +88,11 @@
   "Factory and case-study privacy": "工厂与案例隐私",
   "Factory-level identities are intentionally not exposed on the public login page.": "公共登录页面不会显示工厂级身份信息。",
   "Aggregated public view": "公开汇总视图",
-  "No privacy-safe category breakdown yet.": "暂时没有可公开的隐私安全类别细分数据。"
+  "No privacy-safe category breakdown yet.": "暂时没有可公开的隐私安全类别细分数据。",
+  "Company Brain": "公司大脑",
+  "Open signals": "开放信号",
+  "Active missions": "进行中的任务",
+  "Recorded decisions": "已记录的决策",
+  "Evidence-backed operating memory": "基于证据的运营记忆",
+  "No material signals yet": "暂时没有重要信号"
 }

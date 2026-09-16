@@ -911,5 +911,14 @@
   "Abrechnung": "Settlement",
   "Airwallex ID": "Airwallex ID",
   "AI verfügbar / Zahlung reserviert / Arbeit reserviert": "AI available / payment reserved / work reserved",
-  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "Ads available / payment reserved / campaign reserved"
+  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "Ads available / payment reserved / campaign reserved",
+  "Company Brain": "Company Brain",
+  "Evidence-backed operating memory": "Evidence-backed operating memory",
+  "Open signals": "Open signals",
+  "Active missions": "Active missions",
+  "Recorded decisions": "Recorded decisions",
+  "No material signals yet": "No material signals yet",
+  "Materiality": "materiality",
+  "Status": "status",
+  "tasks": "tasks"
 }

@@ -695,6 +695,17 @@
 .lulu-office-confirm button.is-primary { border-color: #5e48d7; background: #5e48d7; color: #fff; }
 .lulu-office-confirm button.is-danger { border-color: #a44423; background: #a44423; color: #fff; }
 
+.lulu-office-brain { margin: 18px 0; border: 1px solid rgba(89, 72, 214, .16); border-radius: 18px; padding: 18px; background: linear-gradient(135deg, rgba(255,255,255,.96), rgba(246,244,255,.92)); box-shadow: 0 16px 42px rgba(41, 34, 102, .06); }
+.lulu-office-brain .lulu-office-section-heading { margin-bottom: 14px; }
+.lulu-office-brain__metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.lulu-office-brain__metrics .lulu-office-metric { min-height: 78px; box-shadow: none; }
+.lulu-office-brain__signals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.lulu-office-brain__signals article { min-width: 0; border: 1px solid rgba(50, 61, 94, .1); border-radius: 12px; padding: 12px; background: rgba(255,255,255,.82); }
+.lulu-office-brain__signals strong { display: block; overflow: hidden; text-overflow: ellipsis; text-transform: capitalize; white-space: nowrap; font-size: .78rem; }
+.lulu-office-brain__signals span { display: block; margin-top: 4px; color: var(--office-muted); font-size: .7rem; }
+.lulu-office-brain__signals p { margin: 8px 0 0; color: var(--office-muted); font-size: .74rem; line-height: 1.45; }
+.lulu-office-brain__signals > p { grid-column: 1 / -1; margin: 0; color: var(--office-muted); font-size: .8rem; }
+
 @media (max-width: 1240px) {
   .lulu-office { padding: 28px 22px; }
   .lulu-office-layout { grid-template-columns: 1fr; }
@@ -705,6 +716,7 @@
   .lulu-office-blueprint { grid-template-columns: 1fr; }
   .lulu-office-zone[data-department="executive"] { grid-column: auto; }
   .lulu-office-zone[data-department="executive"] .lulu-office-zone__floor { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lulu-office-brain__signals { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {
@@ -716,6 +728,8 @@
   .lulu-office-metric { min-height: 84px; gap: 10px; border-radius: 14px; padding: 12px; }
   .lulu-office-metric > span { width: 34px; height: 34px; flex-basis: 34px; }
   .lulu-office-metric strong { font-size: 1.2rem; }
+  .lulu-office-brain { padding: 14px; }
+  .lulu-office-brain__metrics { grid-template-columns: 1fr; }
   .lulu-office-company { border-radius: 17px; padding: 14px; }
   .lulu-office-section-heading--main { align-items: flex-start; flex-direction: column; }
   .lulu-office-zone__header { grid-template-columns: auto minmax(0, 1fr); }

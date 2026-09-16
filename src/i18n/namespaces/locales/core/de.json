@@ -88,5 +88,11 @@
   "Factory and case-study privacy": "Datenschutz für Fabriken und Case Studies",
   "Factory-level identities are intentionally not exposed on the public login page.": "Fabrikidentitäten werden auf der öffentlichen Loginseite bewusst nicht angezeigt.",
   "Aggregated public view": "Öffentliche aggregierte Ansicht",
-  "No privacy-safe category breakdown yet.": "Noch kein datenschutzsicherer Kategorie-Breakdown verfügbar."
+  "No privacy-safe category breakdown yet.": "Noch kein datenschutzsicherer Kategorie-Breakdown verfügbar.",
+  "Company Brain": "Company Brain",
+  "Open signals": "Offene Signale",
+  "Active missions": "Aktive Missionen",
+  "Recorded decisions": "Dokumentierte Entscheidungen",
+  "Evidence-backed operating memory": "Evidenzbasierter Unternehmenskontext",
+  "No material signals yet": "Noch keine wesentlichen Signale"
 }

@@ -972,6 +972,27 @@ export default function VirtualOfficePage() {
           <OverviewMetric icon={AlertTriangle} label={t("Needs attention")} value={overview.summary.attentionEmployees} language={language} tone={overview.summary.attentionEmployees > 0 ? "attention" : undefined} />
         </section>
 
+        {overview.companyBrain && <section className="lulu-office-brain" aria-labelledby="lulu-office-brain-title">
+          <div className="lulu-office-section-heading">
+            <div><span className="lulu-office-eyebrow">{t("Company Brain")}</span><h2 id="lulu-office-brain-title">{t("Evidence-backed operating memory")}</h2></div>
+            <span>{overview.companyBrain.counts.tasks.toLocaleString(language)} {t("tasks")}</span>
+          </div>
+          <div className="lulu-office-brain__metrics">
+            <OverviewMetric icon={AlertTriangle} label={t("Open signals")} value={overview.companyBrain.counts.openSignals} language={language} tone={overview.companyBrain.counts.openSignals > 0 ? "attention" : undefined} />
+            <OverviewMetric icon={Activity} label={t("Active missions")} value={overview.companyBrain.counts.activeMissions} language={language} />
+            <OverviewMetric icon={CheckCircle2} label={t("Recorded decisions")} value={overview.companyBrain.counts.decisions} language={language} tone="success" />
+          </div>
+          <div className="lulu-office-brain__signals">
+            {overview.companyBrain.signals.length === 0
+              ? <p>{t("No material signals yet")}</p>
+              : overview.companyBrain.signals.slice(0, 3).map((signal) => <article key={signal.id}>
+                <strong>{signal.signalType.replaceAll("_", " ")}</strong>
+                <span>{Math.round(signal.materiality * 100)}% {t("Materiality")} · {t("Status")}: {signal.status}</span>
+                <p>{signal.explanation}</p>
+              </article>)}
+          </div>
+        </section>}
+
         <div className="lulu-office-layout">
           <section className="lulu-office-company" aria-labelledby="lulu-office-company-title">
             <div className="lulu-office-section-heading lulu-office-section-heading--main">

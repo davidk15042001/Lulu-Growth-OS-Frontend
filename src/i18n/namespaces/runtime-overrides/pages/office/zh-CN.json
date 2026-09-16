@@ -195,5 +195,13 @@
   "invoices": "发票",
   "Lulu is waiting for setup": "Lulu 正在等待设置",
   "Setup required": "需要设置",
-  "USD": "USD"
+  "USD": "USD",
+  "Company Brain": "企业大脑",
+  "Evidence-backed operating memory": "基于证据的运营记忆",
+  "Open signals": "待处理信号",
+  "Active missions": "进行中的任务",
+  "Recorded decisions": "已记录的决策",
+  "No material signals yet": "暂无重要信号",
+  "Materiality": "重要性",
+  "Status": "状态"
 }

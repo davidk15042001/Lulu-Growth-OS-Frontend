@@ -112,6 +112,13 @@ export type OfficeOverview = {
     employees: OfficeEmployeeSummary[];
   }>;
   timeline: OfficeTimelineItem[];
+  companyBrain?: {
+    generatedAt: string;
+    counts: { signals: number; openSignals: number; missions: number; activeMissions: number; tasks: number; decisions: number };
+    signals: Array<{ id: string; signalType: string; severity: number; materiality: number; status: string; explanation: string; detectedAt: string }>;
+    missions: Array<{ id: string; title: string; objective: string; status: string; priority: number; updatedAt: string }>;
+    decisions: Array<{ id: string; decisionType: string; decision: string; confidence: number; createdAt: string }>;
+  };
 };
 
 export type OfficeEmployeeDetails = {
