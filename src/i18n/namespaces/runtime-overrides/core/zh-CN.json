@@ -3274,5 +3274,17 @@
   "Download PDF": "下载 PDF",
   "Preparing PDF…": "正在准备 PDF…",
   "The invoice PDF could not be downloaded.": "无法下载发票 PDF。",
-  "INVOICE": "发票"
+  "INVOICE": "发票",
+  "Company Brain Observations": "企业大脑观察",
+  "Persisted observations captured from real company events.": "从真实企业事件中捕获并持久化的观察结果。",
+  "Company Brain Signals": "企业大脑信号",
+  "Material signals classified by the Company Brain.": "由企业大脑分类的重要信号。",
+  "Company Brain Missions": "企业大脑任务",
+  "Durable missions created to resolve material business signals.": "为处理重要企业信号而创建的持久任务。",
+  "Company Brain Tasks": "企业大脑工作项",
+  "Executable task-graph work items owned by digital employees.": "由数字员工负责并可执行的任务图工作项。",
+  "Company Brain Decisions": "企业大脑决策",
+  "Evidence-backed decisions and policy outcomes.": "有证据支持的决策与策略结果。",
+  "Company Brain Learning": "企业大脑学习记录",
+  "Verified outcomes recorded for future decisions and quality improvement.": "记录已验证结果，用于未来决策和质量改进。"
 }

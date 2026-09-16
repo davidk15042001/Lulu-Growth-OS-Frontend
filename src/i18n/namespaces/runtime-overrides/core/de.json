@@ -3274,5 +3274,17 @@
   "Download PDF": "PDF herunterladen",
   "Preparing PDF…": "PDF wird vorbereitet…",
   "The invoice PDF could not be downloaded.": "Die Rechnungs-PDF konnte nicht heruntergeladen werden.",
-  "INVOICE": "RECHNUNG"
+  "INVOICE": "RECHNUNG",
+  "Company Brain Observations": "Beobachtungen des Company Brain",
+  "Persisted observations captured from real company events.": "Gespeicherte Beobachtungen aus echten Unternehmensereignissen.",
+  "Company Brain Signals": "Signale des Company Brain",
+  "Material signals classified by the Company Brain.": "Wesentliche Signale, die vom Company Brain klassifiziert wurden.",
+  "Company Brain Missions": "Missionen des Company Brain",
+  "Durable missions created to resolve material business signals.": "Dauerhafte Missionen zur Bearbeitung wesentlicher Unternehmenssignale.",
+  "Company Brain Tasks": "Aufgaben des Company Brain",
+  "Executable task-graph work items owned by digital employees.": "Ausführbare Aufgaben im Task-Graph, die digitalen Mitarbeitern zugeordnet sind.",
+  "Company Brain Decisions": "Entscheidungen des Company Brain",
+  "Evidence-backed decisions and policy outcomes.": "Evidenzbasierte Entscheidungen und Richtlinienergebnisse.",
+  "Company Brain Learning": "Lernprotokolle des Company Brain",
+  "Verified outcomes recorded for future decisions and quality improvement.": "Verifizierte Ergebnisse für künftige Entscheidungen und Qualitätsverbesserungen."
 }

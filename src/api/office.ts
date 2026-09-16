@@ -118,6 +118,7 @@ export type OfficeOverview = {
     signals: Array<{ id: string; signalType: string; severity: number; materiality: number; status: string; explanation: string; detectedAt: string }>;
     missions: Array<{ id: string; title: string; objective: string; status: string; priority: number; updatedAt: string }>;
     decisions: Array<{ id: string; decisionType: string; decision: string; confidence: number; createdAt: string }>;
+    learning: Array<{ id: string; outcomeType: string; outcome: string; confidence: number; verified: boolean; createdAt: string }>;
   };
 };
 
