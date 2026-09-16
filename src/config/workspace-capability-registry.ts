@@ -229,7 +229,7 @@ export function getWorkspaceNavigationSections(): NavigationSection[] {
   return navigation.visible.map((section) => ({ ...section, pages: section.pages.map((page) => ({ ...page })) }));
 }
 
-export const workspaceCapabilityRoutes: readonly WorkspaceCapabilityRoute[] = navigation.all.flatMap((section) => section.pages.map((page) => {
+const generatedWorkspaceCapabilityRoutes: WorkspaceCapabilityRoute[] = navigation.all.flatMap((section) => section.pages.map((page) => {
   const sectionMetadata = SECTION_METADATA[section.label] ?? SECTION_METADATA.Dashboard!;
   const pageMetadata = PAGE_METADATA[page.id] ?? {};
   const department = pageMetadata.department ?? sectionMetadata.department;
@@ -245,6 +245,78 @@ export const workspaceCapabilityRoutes: readonly WorkspaceCapabilityRoute[] = na
     recordQueryParam: "recordId" as const,
   };
 }));
+
+// Some operational workspaces are intentionally hidden from the sidebar
+// (Finance is agent-managed), but they remain canonical destinations for the
+// corresponding Digital Employee panels. Keep them in the same route registry
+// so Office → employee → Workspace never degrades to a false unavailable state.
+const hiddenEmployeeWorkspaceRoutes: WorkspaceCapabilityRoute[] = [
+  {
+    pageId: "breezy-soil-2475",
+    pageLabel: "Invoices",
+    sectionLabel: FINANCE_LABEL,
+    capabilityKey: "finance.invoices",
+    href: pagePath("breezy-soil-2475"),
+    requiredPermissions: ["invoices.read"],
+    employee: { id: "finance.invoice_manager", name: "Invoice Manager", department: "Finance" },
+    recordQueryParam: "recordId",
+  },
+  {
+    pageId: "tender-creek-3139",
+    pageLabel: "Offers & Quotes",
+    sectionLabel: FINANCE_LABEL,
+    capabilityKey: "sales.quotes",
+    href: pagePath("tender-creek-3139"),
+    requiredPermissions: ["quotes.read"],
+    employee: { id: "sales.quote_specialist", name: "Quote Specialist", department: "Sales" },
+    recordQueryParam: "recordId",
+  },
+  {
+    pageId: "lulu-website-portal-9012",
+    pageLabel: "Website",
+    sectionLabel: WEBSITE_AND_COMMERCE_LABEL,
+    capabilityKey: "online_presence.website",
+    href: pagePath("lulu-website-portal-9012"),
+    requiredPermissions: ["website.read"],
+    employee: { id: "online_presence.website_manager", name: "Website Manager", department: "Online Presence" },
+    recordQueryParam: "recordId",
+  },
+  {
+    pageId: "lulu-website-preview-9012",
+    pageLabel: "Website Preview",
+    sectionLabel: WEBSITE_AND_COMMERCE_LABEL,
+    capabilityKey: "online_presence.preview",
+    href: pagePath("lulu-website-preview-9012"),
+    requiredPermissions: ["website.read"],
+    employee: { id: "online_presence.website_preview_manager", name: "Website Preview Manager", department: "Online Presence" },
+    recordQueryParam: "recordId",
+  },
+  {
+    pageId: "lulu-website-media-9017",
+    pageLabel: "Website Media",
+    sectionLabel: WEBSITE_AND_COMMERCE_LABEL,
+    capabilityKey: "online_presence.media",
+    href: pagePath("lulu-website-media-9017"),
+    requiredPermissions: ["website.read"],
+    employee: { id: "online_presence.website_media_manager", name: "Website Media Manager", department: "Online Presence" },
+    recordQueryParam: "recordId",
+  },
+  {
+    pageId: "lulu-website-domains-9018",
+    pageLabel: "Domains",
+    sectionLabel: WEBSITE_AND_COMMERCE_LABEL,
+    capabilityKey: "online_presence.domains",
+    href: pagePath("lulu-website-domains-9018"),
+    requiredPermissions: ["website.read"],
+    employee: { id: "online_presence.domain_manager", name: "Domain Manager", department: "Online Presence" },
+    recordQueryParam: "recordId",
+  },
+];
+
+export const workspaceCapabilityRoutes: readonly WorkspaceCapabilityRoute[] = [
+  ...generatedWorkspaceCapabilityRoutes,
+  ...hiddenEmployeeWorkspaceRoutes,
+];
 
 const routesByPageId = new Map(workspaceCapabilityRoutes.map((route) => [route.pageId, route]));
 const routesByCapabilityKey = new Map(workspaceCapabilityRoutes.map((route) => [route.capabilityKey, route]));
