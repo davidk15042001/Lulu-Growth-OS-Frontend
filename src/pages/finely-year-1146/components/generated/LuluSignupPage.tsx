@@ -2,14 +2,13 @@ import { useState, type FormEvent } from 'react';
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
-import { clearPendingEmail, clearSelectedWorkspaceId, getPendingEmail, setPendingEmail } from '../../../../api/session';
+import { clearPendingEmail, clearSelectedWorkspaceId } from '../../../../api/session';
 const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 12 characters', test: value => value.length >= 12 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
 
 export function LuluSignupPage() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const pendingEmail = getPendingEmail();
-  const [email, setEmail] = useState(pendingEmail);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [accepted, setAccepted] = useState(false);
@@ -17,7 +16,10 @@ export function LuluSignupPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading'>('idle');
   const [error, setError] = useState('');
-  const [verificationMode, setVerificationMode] = useState(Boolean(pendingEmail));
+  // Email ownership verification is intentionally not part of registration.
+  // Keep the legacy challenge renderer reachable only for old API responses;
+  // the current registration endpoint always returns verificationRequired:false.
+  const [verificationMode, setVerificationMode] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
   const [resendMessage, setResendMessage] = useState('');
   const passwordResults = passwordRules.map(rule => ({ ...rule, passed: rule.test(password) }));
@@ -71,7 +73,6 @@ export function LuluSignupPage() {
         body: { email, password, first_name: firstName, last_name: lastName },
       });
       if (response.data.verificationRequired) {
-        setPendingEmail(email);
         setVerificationMode(true);
         setStatus('idle');
       } else {
