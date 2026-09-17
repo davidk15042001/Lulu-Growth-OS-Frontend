@@ -19519,6 +19519,7 @@
   "AI-assisted content and decisions": "KI-gestützte Inhalte und Entscheidungen",
   "Activating Explorer…": "Explorer wird aktiviert…",
   "Add `oauth` and `crm.objects.contacts.read` to the required scopes.": "Fügen Sie `oauth` und `crm.objects.contacts.read` zu den erforderlichen Scopes hinzu.",
+  "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.": "Fügen Sie `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` und `crm.objects.companies.write` zu den erforderlichen Scopes hinzu, damit Lulu Unternehmensdatensätze synchron halten kann.",
   "Add the Lulu OAuth callback URL provided by the administrator.": "Fügen Sie die von der Administratorin/dem Administrator bereitgestellte Lulu OAuth-Callback-URL hinzu.",
   "Add the Marketing API product and register the callback URL shown above.": "Fügen Sie das Marketing API-Produkt hinzu und registrieren Sie die oben angezeigte Callback-URL.",
   "Add the `api`, `refresh_token` and `offline_access` scopes, then save.": "Fügen Sie die Scopes `api`, `refresh_token` und `offline_access` hinzu und speichern Sie.",

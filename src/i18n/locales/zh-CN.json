@@ -19547,6 +19547,7 @@
   "AI-assisted content and decisions": "AI 辅助的内容与决策",
   "Activating Explorer…": "正在激活 Explorer…",
   "Add `oauth` and `crm.objects.contacts.read` to the required scopes.": "向所需权限中添加 `oauth` 和 `crm.objects.contacts.read`。",
+  "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.": "将 `oauth`、`crm.objects.contacts.read`、`crm.objects.companies.read` 和 `crm.objects.companies.write` 添加到所需权限中，以便 Lulu 保持公司记录同步。",
   "Add the Lulu OAuth callback URL provided by the administrator.": "添加管理员提供的 Lulu OAuth 回调 URL。",
   "Add the Marketing API product and register the callback URL shown above.": "添加 Marketing API 产品并注册上述显示的回调 URL。",
   "Add the `api`, `refresh_token` and `offline_access` scopes, then save.": "添加 `api`、`refresh_token` 和 `offline_access` 范围，然后保存。",

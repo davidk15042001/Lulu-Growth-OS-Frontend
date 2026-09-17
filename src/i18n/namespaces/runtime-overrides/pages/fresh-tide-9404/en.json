@@ -9,5 +9,6 @@
   "UnifyPort admin sender awaiting activation": "UnifyPort admin sender awaiting activation",
   "Managed via UnifyPort": "Managed via UnifyPort",
   "Managed by Lulu": "Managed by Lulu",
-  "Managed": "Managed"
+  "Managed": "Managed",
+  "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.": "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized."
 }
