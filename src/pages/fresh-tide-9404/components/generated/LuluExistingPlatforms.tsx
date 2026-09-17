@@ -5,6 +5,7 @@ import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from '.
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 import { onboardingApi } from '../../../../api/onboarding';
+import { providerControlApi, type ProviderLaunchReadiness } from '../../../../api/providers';
 import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 interface Platform {
   id: string;
@@ -70,6 +71,7 @@ export const LuluExistingPlatforms = () => {
   const [whatsappPhone, setWhatsappPhone] = useState('');
   const [whatsappDisplayName, setWhatsappDisplayName] = useState('');
   const [whatsappBusy, setWhatsappBusy] = useState(false);
+  const [providerReadiness, setProviderReadiness] = useState<ProviderLaunchReadiness | null>(null);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const oauthError = params.get('oauthError');
@@ -84,9 +86,11 @@ export const LuluExistingPlatforms = () => {
     Promise.all([
       requestApi<{ platforms: Array<{ id: string; integrationKey: string | null; name: string; category: string; connectionStatus: string }> }>({ path: `/workspaces/${workspaceId}/onboarding` }),
       onboardingApi.whatsappConnection(workspaceId).catch(() => null),
+      providerControlApi.launchReadiness(workspaceId).catch(() => null),
     ])
-      .then(([response, whatsappResponse]) => {
+      .then(([response, whatsappResponse, readinessResponse]) => {
         setWhatsappConnection(whatsappResponse?.data ?? null);
+        setProviderReadiness(readinessResponse?.data ?? null);
         setPlatforms(response.data.platforms.map(platform => ({
         id: platform.id,
         integrationKey: platform.integrationKey,
@@ -211,6 +215,7 @@ export const LuluExistingPlatforms = () => {
           </p>}
           <form onSubmit={submit} className="mt-8 space-y-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.08)] sm:p-6 lg:p-7">
             {error && <div role="alert" className="space-y-2 rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm leading-6 text-[var(--destructive)]"><p className="font-medium text-[var(--destructive)]">{error}</p>{technicalDetails && <details><summary className="cursor-pointer text-xs font-semibold text-[var(--destructive)]">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--destructive)]">{technicalDetails}</p></details>}</div>}
+            {providerReadiness && <section className="mb-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-4 sm:p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Production readiness</p><h2 className="mt-2 text-base font-semibold">Provider Control Plane</h2><p className="mt-1 max-w-xl text-xs leading-5 text-[var(--muted-foreground)]">Autonomous work is allowed only when every provider gate is ready.</p></div><span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${providerReadiness.overallReady ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{providerReadiness.overallReady ? 'Ready' : `${providerReadiness.readyCount}/${providerReadiness.totalConnections}`}</span></div>{!providerReadiness.overallReady && <div className="mt-4 space-y-2">{providerReadiness.connections.filter(connection => !connection.ready).map(connection => <article key={connection.connectionId} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-3"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="text-sm font-semibold">{connection.displayName}</p><p className="text-[11px] text-[var(--muted-foreground)]">{connection.providerKey}</p></div><span className="rounded-full bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-700">Readiness check</span></div><ul className="mt-2 space-y-1 text-xs leading-5 text-[var(--muted-foreground)]">{connection.blockers.map(blocker => <li key={`${connection.connectionId}-${blocker.code}`}>{blocker.message}</li>)}</ul></article>)}</div>}</section>}
             <div className="space-y-5">
               {platformGroups.filter(group => !group.hidden).map(group => {
               const Icon = group.icon;
