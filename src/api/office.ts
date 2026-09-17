@@ -141,6 +141,7 @@ export type OfficeBrainMissionGraph = {
     confidence: number | null;
     blockedReason: string | null;
     lastError: string | null;
+    context: Record<string, unknown>;
     result: Record<string, unknown> | null;
     errorCode: string | null;
     errorMessage: string | null;

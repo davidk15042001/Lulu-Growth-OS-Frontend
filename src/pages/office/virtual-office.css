@@ -740,6 +740,9 @@
 .lulu-office-brain-dialog__task-top strong { color: var(--office-ink); font-size: .78rem; line-height: 1.35; }
 .lulu-office-brain-dialog__tasks > li > p { margin: 7px 0 0; color: var(--office-muted); font-size: .74rem; line-height: 1.45; }
 .lulu-office-brain-dialog__task-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 9px; color: var(--office-muted); font-size: .68rem; }
+.lulu-office-brain-dialog__open-workspace { display: inline-flex; align-items: center; gap: 4px; border: 0; padding: 0; background: transparent; color: #5743c8; font: inherit; font-weight: 700; cursor: pointer; }
+.lulu-office-brain-dialog__open-workspace:hover,
+.lulu-office-brain-dialog__open-workspace:focus-visible { text-decoration: underline; }
 .lulu-office-brain-dialog__blocked,
 .lulu-office-brain-dialog__dependencies { display: grid; gap: 3px; margin-top: 9px; border-radius: 8px; padding: 8px; background: #fff7f1; color: #8b3b15; font-size: .68rem; line-height: 1.4; }
 .lulu-office-brain-dialog__dependencies { background: #f6f5ff; color: #5743c8; }

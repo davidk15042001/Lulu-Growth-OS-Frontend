@@ -939,6 +939,7 @@ function EmployeeWorkDrawer({
 function MissionGraphDialog({ workspaceId, mission, onClose }: { workspaceId: string; mission: OfficeBrainMission; onClose: () => void }) {
   const t = useTranslation();
   const language = useLanguage();
+  const navigate = useNavigate();
   const [graph, setGraph] = useState<OfficeBrainMissionGraph | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -969,10 +970,17 @@ function MissionGraphDialog({ workspaceId, mission, onClose }: { workspaceId: st
         <section aria-labelledby="lulu-office-brain-dialog-tasks"><h3 id="lulu-office-brain-dialog-tasks">{t("Tasks")}</h3>
           {graph.tasks.length === 0 ? <p className="lulu-office-brain-dialog__empty">{t("No tasks recorded")}</p> : <ul className="lulu-office-brain-dialog__tasks">{graph.tasks.map((task) => {
             const blockers = graph.dependencies.filter((dependency) => dependency.taskId === task.id);
+            const taskPageId = typeof task.context.pageId === "string" ? task.context.pageId : null;
+            const taskRecordId = typeof task.context.recordId === "string"
+              ? task.context.recordId
+              : typeof task.context.relatedObjectId === "string"
+                ? task.context.relatedObjectId
+                : typeof task.context.targetEntityId === "string" ? task.context.targetEntityId : null;
+            const taskRoute = taskPageId ? getWorkspaceCapabilityRoute(taskPageId) : null;
             return <li key={task.id}>
               <div className="lulu-office-brain-dialog__task-top"><strong>{task.title}</strong><span className={`lulu-office-work-status is-${task.status.toLowerCase()}`}>{task.status.replaceAll("_", " ")}</span></div>
               <p>{task.objective}</p>
-              <div className="lulu-office-brain-dialog__task-meta"><span>{t("Priority")} {task.priority}</span><span>{t("Attempts")} {task.attemptCount}/{task.maxAttempts}</span>{task.assignedEmployeeId && <span>{t("Assigned employee")}</span>}</div>
+              <div className="lulu-office-brain-dialog__task-meta"><span>{t("Priority")} {task.priority}</span><span>{t("Attempts")} {task.attemptCount}/{task.maxAttempts}</span>{task.assignedEmployeeId && <span>{t("Assigned employee")}</span>}{taskRoute && <button type="button" className="lulu-office-brain-dialog__open-workspace" onClick={() => navigate(buildWorkspaceDeepLink(taskRoute.pageId, { recordId: taskRecordId, surface: "office-panel" }))}><ExternalLink aria-hidden="true" size={13} />{t("Open in Workspace")}</button>}</div>
               {task.blockedReason && <div className="lulu-office-brain-dialog__blocked"><strong>{t("Blocked")}</strong><span>{task.blockedReason}</span></div>}
               {blockers.length > 0 && <div className="lulu-office-brain-dialog__dependencies"><strong>{t("Dependencies")}</strong>{blockers.map((dependency) => <span key={`${task.id}-${dependency.dependsOnTaskId}`}>{dependency.dependencyType.replaceAll("_", " ")}: {dependency.title}</span>)}</div>}
             </li>;
