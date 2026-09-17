@@ -35,3 +35,5 @@ Airwallex-Timeouts und Netzwerkfehler werden als explizite Provider-Fehler mit 5
 Google Ads wird im Provider-Control-Plane ebenfalls nur schreibgeschützt geprüft: Der Readiness-Check liest ausschließlich den konfigurierten Customer-Account über den kanonischen Google-Ads-API-Pfad. Kampagnenmutationen bleiben bis zu bestätigter OAuth-Verbindung, Developer-Token-, Managed-Payer- und Provider-Freigabe ausdrücklich gesperrt; eine Katalogzeile ist kein Beleg für Live-Ausführbarkeit.
 
 WordPress und Webflow werden im Provider-Control-Plane jetzt ebenfalls über ihre kanonischen Website-Services tenant-gebunden gelesen. Site-, Content-/Media- bzw. Collection-/Domain-Discovery und Sync melden nur echte Provider-Antworten; schreibende Veröffentlichungen bleiben bis zur jeweiligen Provider-Bestätigung und den erforderlichen Berechtigungen konservativ bewertet.
+
+Google Analytics wird im Provider-Control-Plane über einen echten tenant-gebundenen OAuth-Identity-Check verifiziert. Ohne Workspace-OAuth oder bei abgelaufenem Token bleibt Reporting ausdrücklich nicht verfügbar; der Check erzeugt keine künstlichen Property- oder KPI-Daten.
