@@ -382,8 +382,11 @@ const OBJECT_WORKSPACE_PAGE: Readonly<Record<string, string>> = {
   conversation: "omnichannel",
   omnichannel_conversation: "omnichannel",
   website: "lulu-website-portal-9012",
-  page: "website-pages-cms-9015",
-  post: "website-posts-9016",
+  // CMS pages and posts are now owned by the managed Lulu website editor.
+  // Keep their object deep-links pointed at that canonical surface even
+  // though the former standalone provider pages are intentionally hidden.
+  page: "lulu-website-editor-9012",
+  post: "lulu-website-editor-9012",
   review: "daring-brook-9034",
   campaign: "wise-brook-1762",
   social_account: "wondrous-cloud-1355",
