@@ -3295,5 +3295,9 @@
   "Every hour": "每小时",
   "Every 6 hours": "每 6 小时",
   "Twice a day": "每天两次",
-  "Once a day": "每天一次"
+  "Once a day": "每天一次",
+  "The provider contract check could not be completed.": "无法完成集成就绪检查。",
+  "Readiness check: ": "就绪检查：",
+  "Readiness check:": "就绪检查：",
+  "Readiness check": "就绪检查"
 }

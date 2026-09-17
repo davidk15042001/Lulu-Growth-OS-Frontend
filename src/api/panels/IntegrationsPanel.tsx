@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { onboardingApi, type Platform } from "../onboarding";
 import { getFriendlyErrorMessage } from "../client";
 import { workspaceAppApi } from "../workspace-app";
-import { providerControlApi, type ProviderConnection } from "../providers";
+import { providerControlApi, type ProviderConnection, type ProviderContractCheck } from "../providers";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 
 export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [providerConnections, setProviderConnections] = useState<ProviderConnection[]>([]);
+  const [contractChecks, setContractChecks] = useState<Record<string, ProviderContractCheck | undefined>>({});
   const [draft, setDraft] = useState({ name: "", category: "other", integrationKey: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -21,6 +22,11 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
       ]);
       setPlatforms(legacy.data.items);
       setProviderConnections(controlPlane.data.connections);
+      const histories = await Promise.all(controlPlane.data.connections.map(async (connection) => {
+        try { return [connection.id, (await providerControlApi.contractChecks(workspaceId, connection.id, 1)).data.checks[0]] as const; }
+        catch { return [connection.id, undefined] as const; }
+      }));
+      setContractChecks(Object.fromEntries(histories));
     }
     catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load your integrations. Please try again.")); }
     finally { setBusy(false); }
@@ -45,6 +51,15 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
     setBusy(true); setError("");
     try { await providerControlApi.verify(workspaceId, connectionId); await load(); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not verify this provider connection.")); setBusy(false); }
+  }
+
+  async function contractCheck(connectionId: string) {
+    setBusy(true); setError("");
+    try {
+      const result = await providerControlApi.contractCheck(workspaceId, connectionId);
+      setContractChecks((current) => ({ ...current, [connectionId]: result.data }));
+      await load();
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "The provider contract check could not be completed.")); setBusy(false); }
   }
 
   async function updateProviderMode(connection: ProviderConnection, mode: ProviderConnection["mode"]) {
@@ -97,9 +112,11 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
         <small>{connection.mode} · {connection.authorizationState}{connection.externalAccountId ? ` · account ${connection.externalAccountId}` : ""}{connection.healthReason ? ` · ${connection.healthReason}` : ""}</small>
         {connection.capabilities.length > 0 && <div className="lulu-live-message" style={{ marginTop: 8 }}>Capabilities: {connection.capabilities.map((capability) => `${capability.capabilityKey} (${capability.status})`).join(", ")}</div>}
         {connection.accounts.length > 0 && <div className="lulu-live-message" style={{ marginTop: 4 }}>Accounts: {connection.accounts.map((account) => account.name || account.externalAccountId).join(", ")}</div>}
+        {contractChecks[connection.id] ? <div className="lulu-live-message" style={{ marginTop: 8 }}>Readiness check: <strong>{contractChecks[connection.id]?.status}</strong>{contractChecks[connection.id]?.errorMessage ? ` · ${contractChecks[connection.id]?.errorMessage}` : ""}</div> : null}
         <div className="lulu-live-actions" style={{ marginTop: 8 }}>
           <select aria-label={`Mode for ${connection.displayName}`} value={connection.mode} disabled={busy || connection.scopeType !== "WORKSPACE"} onChange={(event) => void updateProviderMode(connection, event.target.value as ProviderConnection["mode"])}><option value="CUSTOMER_OWNED">Customer owned</option><option value="LULU_MANAGED">Lulu managed</option><option value="PARTNER_MANAGED">Partner managed</option><option value="HYBRID">Hybrid</option></select>
           <button className="lulu-live-button" disabled={busy || connection.scopeType !== "WORKSPACE"} onClick={() => void verifyProvider(connection.id)}>Verify</button>
+          <button className="lulu-live-button" disabled={busy || connection.scopeType !== "WORKSPACE"} onClick={() => void contractCheck(connection.id)}>Readiness check</button>
           <button className="lulu-live-button" disabled={busy || connection.scopeType !== "WORKSPACE" || connection.status === "DISCONNECTED"} onClick={() => void syncProvider(connection.id)}>Sync</button>
           <button className="lulu-live-button danger" disabled={busy || connection.scopeType !== "WORKSPACE" || connection.status === "DISCONNECTED"} onClick={() => void disconnectProvider(connection.id, connection.displayName)}>Disconnect</button>
         </div>

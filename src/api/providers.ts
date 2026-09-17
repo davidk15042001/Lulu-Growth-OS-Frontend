@@ -78,11 +78,29 @@ export type ProviderCatalogEntry = {
   capabilities: Array<{ capabilityKey: string; displayName: string; requiredScopes: string[]; defaultStatus: string }>;
 };
 
+export type ProviderContractCheck = {
+  id: string;
+  workspaceId: string;
+  providerConnectionId: string;
+  providerKey: string;
+  status: "PASSED" | "PARTIAL" | "FAILED";
+  phaseResults: Record<string, { status?: string; reason?: string; details?: Record<string, unknown> }>;
+  capabilities: Array<{ capabilityKey?: string; status?: string; reason?: string }>;
+  errorCode: string | null;
+  errorMessage: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+  createdBy: string | null;
+  createdAt: string;
+};
+
 export const providerControlApi = {
   catalog: (workspaceId: string) => requestApi<{ providers: ProviderCatalogEntry[] }>({ path: workspaceApiPath(workspaceId, "/providers/catalog") }),
   connections: (workspaceId: string) => requestApi<{ connections: ProviderConnection[] }>({ path: workspaceApiPath(workspaceId, "/providers") }),
   connection: (workspaceId: string, connectionId: string) => requestApi<ProviderConnection>({ path: workspaceApiPath(workspaceId, `/providers/${encodeURIComponent(connectionId)}`) }),
   verify: (workspaceId: string, connectionId: string) => requestApi<ProviderConnection | null>({ path: workspaceApiPath(workspaceId, `/providers/${encodeURIComponent(connectionId)}/verify`), method: "POST", body: {} }),
+  contractCheck: (workspaceId: string, connectionId: string) => requestApi<ProviderContractCheck>({ path: workspaceApiPath(workspaceId, `/providers/${encodeURIComponent(connectionId)}/contract-check`), method: "POST", body: {} }),
+  contractChecks: (workspaceId: string, connectionId: string, limit = 5) => requestApi<{ checks: ProviderContractCheck[] }>({ path: workspaceApiPath(workspaceId, `/providers/${encodeURIComponent(connectionId)}/contract-checks?limit=${limit}`) }),
   changeMode: (workspaceId: string, connectionId: string, mode: ProviderConnection["mode"]) => requestApi<ProviderConnection>({ path: workspaceApiPath(workspaceId, `/providers/${encodeURIComponent(connectionId)}/mode`), method: "PATCH", body: { mode } }),
   sync: (workspaceId: string, connectionId: string, syncType = "full") => requestApi<{ jobId: string; connectionId: string; providerKey: string; syncType: string; status: string }>({ path: workspaceApiPath(workspaceId, `/providers/${encodeURIComponent(connectionId)}/sync`), method: "POST", body: { syncType } }),
   disconnect: (workspaceId: string, connectionId: string) => requestApi<ProviderConnection | null>({ path: workspaceApiPath(workspaceId, `/providers/${encodeURIComponent(connectionId)}`), method: "DELETE" }),
