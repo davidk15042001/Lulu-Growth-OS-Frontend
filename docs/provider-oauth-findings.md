@@ -36,8 +36,9 @@ nicht automatisch in einem Kunden-Workspace sichtbar gemacht.
 
 Meta Ads wird über denselben Meta-Marketing-OAuth-Kontext read-only verifiziert:
 Ad-Account und Kampagnen werden nur als verbunden angezeigt, wenn die Graph-
-API antwortet. Kampagnen- oder Budgetmutationen bleiben bis zur verifizierten
-Prepaid-Autorisierung serverseitig gesperrt.
+API antwortet. Der Spend-Status wird erst nach einem erfolgreichen Insights-
+Read als verfügbar markiert. Kampagnen- oder Budgetmutationen bleiben bis zur
+verifizierten Prepaid-Autorisierung serverseitig gesperrt.
 
 ## Lulu Managed Website
 Lulu-eigene Websites werden nicht über einen externen OAuth-Provider verbunden. Der Website-Workspace bleibt die kanonische Quelle; der Backend-Provider-Control-Plane-Adapter prüft Site-, Domain- und Publish-Job-Zustand ohne künstliche Verbindungs- oder Erfolgsdaten zu erzeugen.
