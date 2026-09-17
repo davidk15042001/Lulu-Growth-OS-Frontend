@@ -5741,5 +5741,12 @@
   "Company Brain Decisions": "Entscheidungen des Company Brain",
   "Evidence-backed decisions and policy outcomes.": "Evidenzbasierte Entscheidungen und Richtlinienergebnisse.",
   "Company Brain Learning": "Lernprotokolle des Company Brain",
-  "Verified outcomes recorded for future decisions and quality improvement.": "Verifizierte Ergebnisse für künftige Entscheidungen und Qualitätsverbesserungen."
+  "Verified outcomes recorded for future decisions and quality improvement.": "Verifizierte Ergebnisse für künftige Entscheidungen und Qualitätsverbesserungen.",
+  "How often Lulu may run scheduled work": "Wie oft Lulu geplante Arbeit ausführen darf",
+  "Agent schedule": "Agenten-Zeitplan",
+  "Every 15 minutes": "Alle 15 Minuten",
+  "Every hour": "Jede Stunde",
+  "Every 6 hours": "Alle 6 Stunden",
+  "Twice a day": "Zweimal täglich",
+  "Once a day": "Einmal täglich"
 }

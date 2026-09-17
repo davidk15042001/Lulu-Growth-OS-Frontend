@@ -3288,5 +3288,12 @@
   "Company Brain Decisions": "企业大脑决策",
   "Evidence-backed decisions and policy outcomes.": "有证据支持的决策与策略结果。",
   "Company Brain Learning": "企业大脑学习记录",
-  "Verified outcomes recorded for future decisions and quality improvement.": "记录已验证结果，用于未来决策和质量改进。"
+  "Verified outcomes recorded for future decisions and quality improvement.": "记录已验证结果，用于未来决策和质量改进。",
+  "How often Lulu may run scheduled work": "Lulu 运行计划任务的频率",
+  "Agent schedule": "智能体计划",
+  "Every 15 minutes": "每 15 分钟",
+  "Every hour": "每小时",
+  "Every 6 hours": "每 6 小时",
+  "Twice a day": "每天两次",
+  "Once a day": "每天一次"
 }
