@@ -40,6 +40,12 @@ API antwortet. Der Spend-Status wird erst nach einem erfolgreichen Insights-
 Read als verfügbar markiert. Kampagnen- oder Budgetmutationen bleiben bis zur
 verifizierten Prepaid-Autorisierung serverseitig gesperrt.
 
+LinkedIn Ads wird über einen echten tenant-gebundenen read-only-Check der
+LinkedIn Marketing API verifiziert. Lulu entdeckt erreichbare Ad Accounts und
+markiert Spend-Reporting erst nach einem erfolgreichen `adAnalytics`-Read als
+verfügbar. Kampagnen- und Budgetmutationen bleiben bis zu Provider-Review und
+der serverseitigen Prepaid-Budgetautorisierung gesperrt.
+
 ## Lulu Managed Website
 Lulu-eigene Websites werden nicht über einen externen OAuth-Provider verbunden. Der Website-Workspace bleibt die kanonische Quelle; der Backend-Provider-Control-Plane-Adapter prüft Site-, Domain- und Publish-Job-Zustand ohne künstliche Verbindungs- oder Erfolgsdaten zu erzeugen.
 
