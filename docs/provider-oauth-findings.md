@@ -53,7 +53,7 @@ Google Ads wird im Provider-Control-Plane ebenfalls nur schreibgeschützt geprü
 
 WordPress und Webflow werden im Provider-Control-Plane jetzt ebenfalls über ihre kanonischen Website-Services tenant-gebunden gelesen. Site-, Content-/Media- bzw. Collection-/Domain-Discovery und Sync melden nur echte Provider-Antworten; schreibende Veröffentlichungen bleiben bis zur jeweiligen Provider-Bestätigung und den erforderlichen Berechtigungen konservativ bewertet.
 
-Google Analytics wird im Provider-Control-Plane über einen echten tenant-gebundenen OAuth-Identity-Check verifiziert. Ohne Workspace-OAuth oder bei abgelaufenem Token bleibt Reporting ausdrücklich nicht verfügbar; der Check erzeugt keine künstlichen Property- oder KPI-Daten.
+Google Analytics wird im Provider-Control-Plane über einen echten tenant-gebundenen OAuth-Check verifiziert. Lulu entdeckt jetzt die tatsächlich zugänglichen GA4-Properties über die Admin API und liest bei einem Sync einen echten 28-Tage-Report über die Data API. Ohne Workspace-OAuth, bei abgelaufenem Token, fehlender Property-Berechtigung oder ohne zugängliche Property bleibt Reporting ausdrücklich nicht verfügbar; es werden keine künstlichen Property- oder KPI-Daten erzeugt.
 
 Website-Discovery behandelt fehlgeschlagene Seiten-, Medien-, Collection- oder Domain-Reads nicht als leere erfolgreiche Daten. Ein Provider-Fehler bleibt sichtbar und verhindert eine falsche „verbunden“-Darstellung.
 
