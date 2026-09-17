@@ -1,6 +1,8 @@
 {
   "welcome": "欢迎回来",
   "headline": "您的业务背景正在等待您。",
+  "Offers and quotes created by Lulu agents or manually.": "由 Lulu 智能体或您手动创建的报价与方案。",
+  "Invoices created by Lulu agents or manually.": "由 Lulu 智能体或您手动创建的发票。",
   "email": "工作邮箱",
   "password": "密码",
   "signIn": "登录",
