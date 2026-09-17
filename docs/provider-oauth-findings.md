@@ -43,3 +43,5 @@ Website-Discovery behandelt fehlgeschlagene Seiten-, Medien-, Collection- oder D
 Facebook- und Instagram-Publishing werden im Control Plane nur als verbunden bewertet, wenn ein kanonischer Social Account zur Workspace-Verbindung gehört und der Meta Graph die Page-/Instagram-Identität read-only bestätigt. Fehlende Tokens oder Scopes bleiben als Autorisierungs-/Provider-Gate sichtbar.
 
 Shopify wird über das kanonische Workspace-OAuth-/Plattformobjekt und den gespeicherten `myshopify.com`-Shop read-only verifiziert. Produkt-Discovery ist erst nach bestätigtem Shop-Read möglich; Order- und Schreibfähigkeiten bleiben an die tatsächlich aufgezeichneten Shopify-Scopes gebunden.
+
+Salesforce, HubSpot und Pipedrive prüfen im Control Plane jetzt jeweils einen echten tenant-gebundenen Company-/Organization-Read. Schreib-Synchronisation wird nicht aus OAuth-Metadaten abgeleitet, sondern bleibt bis zu einer separaten Provider- und Domain-Service-Bestätigung gesperrt.
