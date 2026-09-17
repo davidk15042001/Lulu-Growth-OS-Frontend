@@ -149,6 +149,7 @@ button, input { font: inherit; }
 .lulu-global-navigation__subitems a.is-locked{background:color-mix(in srgb,var(--secondary) 72%,transparent);color:var(--muted-foreground)}
 .lulu-global-navigation__subitem-action{display:flex;width:100%;min-height:44px;align-items:center;gap:8px;border:0;border-radius:7px;padding:7px 9px;background:transparent;color:var(--muted-foreground);font-size:.78rem;text-align:left;cursor:pointer}
 .lulu-global-navigation__subitem-action:hover{background:var(--secondary);color:var(--foreground)}
+.lulu-global-navigation__subitem-action select{margin-left:auto;max-width:132px;border:1px solid var(--border);border-radius:6px;padding:4px 6px;background:var(--card);color:var(--foreground);font:inherit;font-size:.72rem}
 .lulu-global-navigation__subitem-action:disabled{cursor:wait;opacity:.6}
 .lulu-global-navigation__agent-toggle{display:inline-flex;align-items:center;width:28px;height:16px;border-radius:999px;padding:2px;background:var(--muted-foreground);transition:background .18s ease;flex:0 0 auto}
 .lulu-global-navigation__agent-toggle span{display:block;width:12px;height:12px;border-radius:50%;background:var(--card);transition:transform .18s ease}

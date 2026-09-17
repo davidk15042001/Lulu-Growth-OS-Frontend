@@ -44,7 +44,7 @@ export type WorkspaceSettings = {
       salesNotificationsEnabled?: boolean;
       salesActivityTrackingEnabled?: boolean;
     };
-    agents?: { paused?: boolean };
+    agents?: { paused?: boolean; cadenceMinutes?: number };
   };
   createdAt: string | null;
   updatedAt: string | null;
