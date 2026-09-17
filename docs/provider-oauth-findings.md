@@ -39,3 +39,5 @@ WordPress und Webflow werden im Provider-Control-Plane jetzt ebenfalls über ihr
 Google Analytics wird im Provider-Control-Plane über einen echten tenant-gebundenen OAuth-Identity-Check verifiziert. Ohne Workspace-OAuth oder bei abgelaufenem Token bleibt Reporting ausdrücklich nicht verfügbar; der Check erzeugt keine künstlichen Property- oder KPI-Daten.
 
 Website-Discovery behandelt fehlgeschlagene Seiten-, Medien-, Collection- oder Domain-Reads nicht als leere erfolgreiche Daten. Ein Provider-Fehler bleibt sichtbar und verhindert eine falsche „verbunden“-Darstellung.
+
+Facebook- und Instagram-Publishing werden im Control Plane nur als verbunden bewertet, wenn ein kanonischer Social Account zur Workspace-Verbindung gehört und der Meta Graph die Page-/Instagram-Identität read-only bestätigt. Fehlende Tokens oder Scopes bleiben als Autorisierungs-/Provider-Gate sichtbar.
