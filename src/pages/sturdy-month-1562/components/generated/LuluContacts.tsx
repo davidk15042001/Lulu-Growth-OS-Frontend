@@ -230,7 +230,7 @@ function CompaniesView() {
 
 export function LuluContacts() {
   return <div className="flex min-h-screen bg-[var(--background)] font-sans text-muted-foreground"><Sidebar /><main className="min-w-0 flex-1 overflow-hidden">
-    <header className="border-b border-border px-5 py-4 lg:px-8"><div><p className="text-xs text-muted-foreground">Lulu AI <span className="px-1">/</span> CRM</p><h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">Companies</h1><p className="mt-1 hidden text-sm text-muted-foreground sm:block">Manage the organizations connected to your business.</p></div></header>
+    <header className="border-b border-border px-5 py-4 lg:px-8"><div><p className="text-xs text-muted-foreground">Lulu AI <span className="px-1">/</span> CRM</p><h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">Companies</h1><p className="mt-1 hidden text-sm text-muted-foreground sm:block">Manage the organizations, accounts and business relationships connected to your company.</p></div></header>
     <CompaniesView />
   </main></div>;
 }
