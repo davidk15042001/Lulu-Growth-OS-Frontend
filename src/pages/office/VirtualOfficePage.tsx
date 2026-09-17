@@ -1002,6 +1002,50 @@ export default function VirtualOfficePage() {
                 <p>{signal.explanation}</p>
               </article>)}
           </div>
+          <div className="lulu-office-brain__details">
+            <section className="lulu-office-brain__detail-card" aria-labelledby="lulu-office-missions-title">
+              <div className="lulu-office-brain__detail-heading">
+                <div><span className="lulu-office-eyebrow">{t("Mission control")}</span><h3 id="lulu-office-missions-title">{t("What Lulu is working on")}</h3></div>
+                <span>{overview.companyBrain.missions.length.toLocaleString(language)}</span>
+              </div>
+              {overview.companyBrain.missions.length === 0
+                ? <p className="lulu-office-brain__empty-detail">{t("No active missions yet")}</p>
+                : <ul>
+                    {overview.companyBrain.missions.slice(0, 4).map((mission) => <li key={mission.id}>
+                      <div><strong>{mission.title}</strong><span>{mission.status.replaceAll("_", " ")} · {t("Priority")} {mission.priority}</span></div>
+                      <p>{mission.objective}</p>
+                    </li>)}
+                  </ul>}
+            </section>
+            <section className="lulu-office-brain__detail-card" aria-labelledby="lulu-office-decisions-title">
+              <div className="lulu-office-brain__detail-heading">
+                <div><span className="lulu-office-eyebrow">{t("Decision record")}</span><h3 id="lulu-office-decisions-title">{t("Recent decisions")}</h3></div>
+                <span>{overview.companyBrain.decisions.length.toLocaleString(language)}</span>
+              </div>
+              {overview.companyBrain.decisions.length === 0
+                ? <p className="lulu-office-brain__empty-detail">{t("No decisions recorded yet")}</p>
+                : <ul>
+                    {overview.companyBrain.decisions.slice(0, 4).map((decision) => <li key={decision.id}>
+                      <div><strong>{decision.decision}</strong><span>{decision.decisionType.replaceAll("_", " ")} · {Math.round(decision.confidence * 100)}% {t("confidence")}</span></div>
+                      <p>{formatDateTime(decision.createdAt, language)}</p>
+                    </li>)}
+                  </ul>}
+            </section>
+            <section className="lulu-office-brain__detail-card" aria-labelledby="lulu-office-learning-title">
+              <div className="lulu-office-brain__detail-heading">
+                <div><span className="lulu-office-eyebrow">{t("Verified learning")}</span><h3 id="lulu-office-learning-title">{t("What Lulu learned")}</h3></div>
+                <span>{overview.companyBrain.learning.length.toLocaleString(language)}</span>
+              </div>
+              {overview.companyBrain.learning.length === 0
+                ? <p className="lulu-office-brain__empty-detail">{t("No verified learning yet")}</p>
+                : <ul>
+                    {overview.companyBrain.learning.slice(0, 4).map((learning) => <li key={learning.id}>
+                      <div><strong>{learning.outcome}</strong><span>{learning.outcomeType.replaceAll("_", " ")} · {Math.round(learning.confidence * 100)}% {t("confidence")}</span></div>
+                      <p>{learning.verified ? t("Verified") : t("Pending verification")} · {formatDateTime(learning.createdAt, language)}</p>
+                    </li>)}
+                  </ul>}
+            </section>
+          </div>
         </section>}
 
         <div className="lulu-office-layout">

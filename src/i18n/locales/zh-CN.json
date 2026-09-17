@@ -21675,5 +21675,18 @@
   "Recorded decisions": "已记录的决策",
   "No material signals yet": "暂无重要信号",
   "Materiality": "重要性",
-  "Status": "状态"
+  "Status": "状态",
+  "Mission control": "任务控制",
+  "What Lulu is working on": "Lulu 正在处理的工作",
+  "Priority": "优先级",
+  "No active missions yet": "暂无进行中的任务",
+  "Decision record": "决策记录",
+  "Recent decisions": "最近的决策",
+  "confidence": "置信度",
+  "No decisions recorded yet": "暂无记录的决策",
+  "Verified learning": "已验证的学习",
+  "What Lulu learned": "Lulu 学到的内容",
+  "No verified learning yet": "暂无已验证的学习内容",
+  "Verified": "已验证",
+  "Pending verification": "等待验证"
 }

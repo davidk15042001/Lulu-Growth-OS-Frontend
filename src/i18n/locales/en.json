@@ -925,5 +925,18 @@
   "No material signals yet": "No material signals yet",
   "Materiality": "materiality",
   "Status": "status",
-  "tasks": "tasks"
+  "tasks": "tasks",
+  "Mission control": "Mission control",
+  "What Lulu is working on": "What Lulu is working on",
+  "Priority": "Priority",
+  "No active missions yet": "No active missions yet",
+  "Decision record": "Decision record",
+  "Recent decisions": "Recent decisions",
+  "confidence": "confidence",
+  "No decisions recorded yet": "No decisions recorded yet",
+  "Verified learning": "Verified learning",
+  "What Lulu learned": "What Lulu learned",
+  "No verified learning yet": "No verified learning yet",
+  "Verified": "Verified",
+  "Pending verification": "Pending verification"
 }

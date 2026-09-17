@@ -705,6 +705,18 @@
 .lulu-office-brain__signals span { display: block; margin-top: 4px; color: var(--office-muted); font-size: .7rem; }
 .lulu-office-brain__signals p { margin: 8px 0 0; color: var(--office-muted); font-size: .74rem; line-height: 1.45; }
 .lulu-office-brain__signals > p { grid-column: 1 / -1; margin: 0; color: var(--office-muted); font-size: .8rem; }
+.lulu-office-brain__details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.lulu-office-brain__detail-card { min-width: 0; border: 1px solid rgba(50, 61, 94, .1); border-radius: 12px; padding: 12px; background: rgba(255,255,255,.78); }
+.lulu-office-brain__detail-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.lulu-office-brain__detail-heading h3 { margin: 3px 0 0; font-size: .86rem; line-height: 1.25; }
+.lulu-office-brain__detail-heading > span { flex: none; color: var(--office-muted); font-size: .78rem; font-weight: 700; }
+.lulu-office-brain__detail-card ul { display: grid; gap: 9px; margin: 12px 0 0; padding: 0; list-style: none; }
+.lulu-office-brain__detail-card li { min-width: 0; border-top: 1px solid rgba(50, 61, 94, .08); padding-top: 9px; }
+.lulu-office-brain__detail-card li:first-child { border-top: 0; padding-top: 0; }
+.lulu-office-brain__detail-card li strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .76rem; }
+.lulu-office-brain__detail-card li span { display: block; margin-top: 3px; color: var(--office-muted); font-size: .68rem; }
+.lulu-office-brain__detail-card li p { display: -webkit-box; overflow: hidden; margin: 5px 0 0; color: var(--office-muted); font-size: .71rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.lulu-office-brain__empty-detail { margin: 12px 0 0; color: var(--office-muted); font-size: .76rem; line-height: 1.45; }
 
 @media (max-width: 1240px) {
   .lulu-office { padding: 28px 22px; }
@@ -717,6 +729,7 @@
   .lulu-office-zone[data-department="executive"] { grid-column: auto; }
   .lulu-office-zone[data-department="executive"] .lulu-office-zone__floor { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .lulu-office-brain__signals { grid-template-columns: 1fr; }
+  .lulu-office-brain__details { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 640px) {

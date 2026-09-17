@@ -21675,5 +21675,18 @@
   "Recorded decisions": "Dokumentierte Entscheidungen",
   "No material signals yet": "Noch keine relevanten Signale",
   "Materiality": "Relevanz",
-  "Status": "Status"
+  "Status": "Status",
+  "Mission control": "Missionssteuerung",
+  "What Lulu is working on": "Woran Lulu gerade arbeitet",
+  "Priority": "Priorität",
+  "No active missions yet": "Noch keine aktiven Missionen",
+  "Decision record": "Entscheidungsprotokoll",
+  "Recent decisions": "Letzte Entscheidungen",
+  "confidence": "Konfidenz",
+  "No decisions recorded yet": "Noch keine Entscheidungen aufgezeichnet",
+  "Verified learning": "Verifiziertes Lernen",
+  "What Lulu learned": "Was Lulu gelernt hat",
+  "No verified learning yet": "Noch keine verifizierten Lernergebnisse",
+  "Verified": "Verifiziert",
+  "Pending verification": "Verifizierung ausstehend"
 }
