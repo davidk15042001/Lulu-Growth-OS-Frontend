@@ -22,3 +22,6 @@ LinkedIn verwendet OAuth 2.0 für Member Authorization. Die Marketing-API-Progra
 
 ## Konsequenz für die Implementierung
 Die Backend-Architektur muss providerunabhängige OAuth-Start- und Callback-Routen, CSRF-sichere State-Werte, verschlüsselte Token-Speicherung, Refresh-Token-Unterstützung, Disconnect und Statusprüfung enthalten. Lovable wird vorerst nicht integriert. Provider-Client-IDs, Client-Secrets, Redirect-URIs, Google-Developer-Token und die jeweiligen App-Reviews/Scopes müssen vor produktiven Verbindungen eingerichtet werden.
+
+## Lulu Managed Website
+Lulu-eigene Websites werden nicht über einen externen OAuth-Provider verbunden. Der Website-Workspace bleibt die kanonische Quelle; der Backend-Provider-Control-Plane-Adapter prüft Site-, Domain- und Publish-Job-Zustand ohne künstliche Verbindungs- oder Erfolgsdaten zu erzeugen.
