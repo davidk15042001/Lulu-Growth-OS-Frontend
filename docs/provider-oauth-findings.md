@@ -27,3 +27,5 @@ Die Backend-Architektur muss providerunabhängige OAuth-Start- und Callback-Rout
 Lulu-eigene Websites werden nicht über einen externen OAuth-Provider verbunden. Der Website-Workspace bleibt die kanonische Quelle; der Backend-Provider-Control-Plane-Adapter prüft Site-, Domain- und Publish-Job-Zustand ohne künstliche Verbindungs- oder Erfolgsdaten zu erzeugen.
 
 Für UnifyPort gilt derselbe Grundsatz: Ein aktiver Account ist erst dann verbunden, wenn auch die gemeldete WhatsApp-Runtime läuft; bis dahin bleibt die Nachrichtenfähigkeit ausdrücklich unbestätigt.
+
+Airwallex wird über einen schreibgeschützten Provider-Check verifiziert. Der Check authentifiziert nur den API-Zugang; er erzeugt niemals Checkout-, Invoice-, Payment-Intent- oder Wallet-Daten.
