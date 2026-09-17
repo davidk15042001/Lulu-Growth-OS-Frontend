@@ -3299,5 +3299,9 @@
   "The provider contract check could not be completed.": "Die Integrationsprüfung konnte nicht abgeschlossen werden.",
   "Readiness check: ": "Bereitschaftsprüfung: ",
   "Readiness check:": "Bereitschaftsprüfung:",
-  "Readiness check": "Bereitschaftsprüfung"
+  "Readiness check": "Bereitschaftsprüfung",
+  "Production readiness": "Produktionsbereitschaft",
+  "Autonomous work is allowed only when every provider gate is ready.": "Autonome Arbeit ist erst möglich, wenn jede Provider-Freigabe bereit ist.",
+  "All provider connections are ready for autonomous execution.": "Alle Provider-Verbindungen sind für autonome Ausführung bereit.",
+  "Production gate:": "Produktionsfreigabe:"
 }

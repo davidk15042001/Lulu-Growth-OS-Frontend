@@ -5729,5 +5729,9 @@
   "The provider contract check could not be completed.": "无法完成集成就绪检查。",
   "Readiness check: ": "就绪检查：",
   "Readiness check:": "就绪检查：",
-  "Readiness check": "就绪检查"
+  "Readiness check": "就绪检查",
+  "Production readiness": "生产就绪状态",
+  "Autonomous work is allowed only when every provider gate is ready.": "只有所有提供商检查都通过后，才能运行自主任务。",
+  "All provider connections are ready for autonomous execution.": "所有提供商连接都已准备好，可执行自主任务。",
+  "Production gate:": "生产检查："
 }

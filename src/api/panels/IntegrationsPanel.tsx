@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { onboardingApi, type Platform } from "../onboarding";
 import { getFriendlyErrorMessage } from "../client";
 import { workspaceAppApi } from "../workspace-app";
-import { providerControlApi, type ProviderConnection, type ProviderContractCheck } from "../providers";
+import { providerControlApi, type ProviderConnection, type ProviderContractCheck, type ProviderLaunchReadiness } from "../providers";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 
 export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [providerConnections, setProviderConnections] = useState<ProviderConnection[]>([]);
   const [contractChecks, setContractChecks] = useState<Record<string, ProviderContractCheck | undefined>>({});
+  const [launchReadiness, setLaunchReadiness] = useState<ProviderLaunchReadiness | null>(null);
   const [draft, setDraft] = useState({ name: "", category: "other", integrationKey: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -16,12 +17,14 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
   const load = useCallback(async () => {
     setBusy(true); setError("");
     try {
-      const [legacy, controlPlane] = await Promise.all([
+      const [legacy, controlPlane, readiness] = await Promise.all([
         onboardingApi.platforms(workspaceId),
         providerControlApi.connections(workspaceId),
+        providerControlApi.launchReadiness(workspaceId),
       ]);
       setPlatforms(legacy.data.items);
       setProviderConnections(controlPlane.data.connections);
+      setLaunchReadiness(readiness.data);
       const histories = await Promise.all(controlPlane.data.connections.map(async (connection) => {
         try { return [connection.id, (await providerControlApi.contractChecks(workspaceId, connection.id, 1)).data.checks[0]] as const; }
         catch { return [connection.id, undefined] as const; }
@@ -106,6 +109,13 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
 
   return <LivePanelShell title="Live integrations" subtitle="Connections and synchronization jobs" onClose={onClose}>
     <LiveError message={error} />
+    {launchReadiness && <LiveSection title="Production readiness" action={<span className="lulu-live-message">Autonomous work is allowed only when every provider gate is ready.</span>}>
+      <div className="lulu-live-message">{launchReadiness.overallReady ? "All provider connections are ready for autonomous execution." : `${launchReadiness.readyCount} of ${launchReadiness.totalConnections} provider connections are ready.`}</div>
+      {launchReadiness.connections.filter((connection) => !connection.ready).map((connection) => <article className="lulu-live-row" key={`readiness-${connection.connectionId}`}>
+        <div className="lulu-live-row-top"><div><strong>{connection.displayName}</strong><span>{connection.providerKey}</span></div><span className="lulu-live-badge">{connection.status}</span></div>
+        <small>{connection.blockers.map((blocker) => blocker.message).join(" ")}</small>
+      </article>)}
+    </LiveSection>}
     <LiveSection title="Provider Control Plane" action={<span className="lulu-live-message">Provider state is backend-controlled. Secrets never leave the server.</span>}>
       {providerConnections.length === 0 ? <LiveEmpty>No canonical provider connections are available for this workspace.</LiveEmpty> : providerConnections.map((connection) => <article className="lulu-live-row" key={connection.id}>
         <div className="lulu-live-row-top"><div><strong>{connection.displayName}</strong><span>{connection.providerKey} · {connection.scopeType}</span></div><span className={`lulu-live-badge ${connection.healthStatus === "HEALTHY" ? "good" : ""}`}>{connection.status} · {connection.healthStatus}</span></div>
@@ -113,6 +123,7 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
         {connection.capabilities.length > 0 && <div className="lulu-live-message" style={{ marginTop: 8 }}>Capabilities: {connection.capabilities.map((capability) => `${capability.capabilityKey} (${capability.status})`).join(", ")}</div>}
         {connection.accounts.length > 0 && <div className="lulu-live-message" style={{ marginTop: 4 }}>Accounts: {connection.accounts.map((account) => account.name || account.externalAccountId).join(", ")}</div>}
         {contractChecks[connection.id] ? <div className="lulu-live-message" style={{ marginTop: 8 }}>Readiness check: <strong>{contractChecks[connection.id]?.status}</strong>{contractChecks[connection.id]?.errorMessage ? ` · ${contractChecks[connection.id]?.errorMessage}` : ""}</div> : null}
+        {launchReadiness?.connections.find((item) => item.connectionId === connection.id) && <div className="lulu-live-message" style={{ marginTop: 4 }}>Production gate: <strong>{launchReadiness.connections.find((item) => item.connectionId === connection.id)?.status}</strong></div>}
         <div className="lulu-live-actions" style={{ marginTop: 8 }}>
           <select aria-label={`Mode for ${connection.displayName}`} value={connection.mode} disabled={busy || connection.scopeType !== "WORKSPACE"} onChange={(event) => void updateProviderMode(connection, event.target.value as ProviderConnection["mode"])}><option value="CUSTOMER_OWNED">Customer owned</option><option value="LULU_MANAGED">Lulu managed</option><option value="PARTNER_MANAGED">Partner managed</option><option value="HYBRID">Hybrid</option></select>
           <button className="lulu-live-button" disabled={busy || connection.scopeType !== "WORKSPACE"} onClick={() => void verifyProvider(connection.id)}>Verify</button>

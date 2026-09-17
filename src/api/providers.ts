@@ -94,9 +94,34 @@ export type ProviderContractCheck = {
   createdAt: string;
 };
 
+export type ProviderLaunchReadiness = {
+  checkedAt: string;
+  overallReady: boolean;
+  readyCount: number;
+  totalConnections: number;
+  connections: Array<{
+    connectionId: string;
+    providerKey: string;
+    displayName: string;
+    scopeType: ProviderConnection["scopeType"];
+    status: "READY" | "PENDING" | "BLOCKED" | "UNVERIFIED";
+    ready: boolean;
+    blockers: Array<{ code: string; message: string }>;
+    evidence: {
+      connectionStatus: string;
+      authorizationState: string;
+      healthStatus: string;
+      latestContractCheck: "PASSED" | "PARTIAL" | "FAILED" | "RUNNING" | "NOT_RUN";
+      contractCheckedAt: string | null;
+      sync: Array<{ syncType: string; status: string; lastSuccessAt: string | null; lastAttemptAt: string | null; lastError: string | null }>;
+    };
+  }>;
+};
+
 export const providerControlApi = {
   catalog: (workspaceId: string) => requestApi<{ providers: ProviderCatalogEntry[] }>({ path: workspaceApiPath(workspaceId, "/providers/catalog") }),
   connections: (workspaceId: string) => requestApi<{ connections: ProviderConnection[] }>({ path: workspaceApiPath(workspaceId, "/providers") }),
+  launchReadiness: (workspaceId: string) => requestApi<ProviderLaunchReadiness>({ path: workspaceApiPath(workspaceId, "/providers/launch-readiness") }),
   connection: (workspaceId: string, connectionId: string) => requestApi<ProviderConnection>({ path: workspaceApiPath(workspaceId, `/providers/${encodeURIComponent(connectionId)}`) }),
   verify: (workspaceId: string, connectionId: string) => requestApi<ProviderConnection | null>({ path: workspaceApiPath(workspaceId, `/providers/${encodeURIComponent(connectionId)}/verify`), method: "POST", body: {} }),
   contractCheck: (workspaceId: string, connectionId: string) => requestApi<ProviderContractCheck>({ path: workspaceApiPath(workspaceId, `/providers/${encodeURIComponent(connectionId)}/contract-check`), method: "POST", body: {} }),
