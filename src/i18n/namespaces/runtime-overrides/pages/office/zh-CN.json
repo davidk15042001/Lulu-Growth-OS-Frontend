@@ -140,6 +140,12 @@
   "Workspace": "工作区",
   "Workspace unavailable": "工作区不可用",
   "Your digital organization": "你的数字组织",
+  "Market leadership": "市场领导力",
+  "Verified company scorecard": "已验证的企业评分卡",
+  "measured": "已测量",
+  "Measured": "已测量",
+  "Defined, awaiting data": "已定义，等待数据",
+  "No verified data yet": "暂无已验证数据",
   "Recent activity": "最近活动",
   "Executive": "执行管理",
   "Company-wide coordination, policy, and verified outcomes.": "负责全公司协调、政策与已验证结果。",
@@ -229,5 +235,12 @@
   "Attempts": "尝试次数",
   "Assigned employee": "负责员工",
   "Blocked": "已阻塞",
-  "Open mission graph": "打开任务图"
+  "Open mission graph": "打开任务图",
+  "Customer": "客户",
+  "Product": "产品",
+  "Intelligence": "智能",
+  "Growth": "增长",
+  "Economics": "经济效益",
+  "Trust": "信任",
+  "Innovation": "创新"
 }

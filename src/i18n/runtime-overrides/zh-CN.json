@@ -4968,6 +4968,12 @@
   "Active work items": "进行中的工作项",
   "Employees working now": "当前工作的员工",
   "Your digital organization": "你的数字组织",
+  "Market leadership": "市场领导力",
+  "Verified company scorecard": "已验证的企业评分卡",
+  "measured": "已测量",
+  "Measured": "已测量",
+  "Defined, awaiting data": "已定义，等待数据",
+  "No verified data yet": "暂无已验证数据",
   "Every visible state below is projected from persisted Lulu work.": "下方每个可见状态均来自已保存的 Lulu 工作记录。",
   "digital employees": "名数字员工",
   "departments": "个部门",
@@ -5733,5 +5739,12 @@
   "Production readiness": "生产就绪状态",
   "Autonomous work is allowed only when every provider gate is ready.": "只有所有提供商检查都通过后，才能运行自主任务。",
   "All provider connections are ready for autonomous execution.": "所有提供商连接都已准备好，可执行自主任务。",
-  "Production gate:": "生产检查："
+  "Production gate:": "生产检查：",
+  "Customer": "客户",
+  "Product": "产品",
+  "Intelligence": "智能",
+  "Growth": "增长",
+  "Economics": "经济效益",
+  "Trust": "信任",
+  "Innovation": "创新"
 }

@@ -4991,6 +4991,12 @@
   "Active work items": "Aktive Arbeitselemente",
   "Employees working now": "Jetzt arbeitende Mitarbeiter",
   "Your digital organization": "Deine digitale Organisation",
+  "Market leadership": "Marktführerschaft",
+  "Verified company scorecard": "Verifizierte Unternehmens-Scorecard",
+  "measured": "gemessen",
+  "Measured": "Gemessen",
+  "Defined, awaiting data": "Definiert, Daten fehlen noch",
+  "No verified data yet": "Noch keine verifizierten Daten",
   "Every visible state below is projected from persisted Lulu work.": "Jeder sichtbare Status wird aus gespeicherter Lulu-Arbeit abgeleitet.",
   "digital employees": "digitale Mitarbeiter",
   "departments": "Abteilungen",
@@ -5756,5 +5762,12 @@
   "Production readiness": "Produktionsbereitschaft",
   "Autonomous work is allowed only when every provider gate is ready.": "Autonome Arbeit ist erst möglich, wenn jede Provider-Freigabe bereit ist.",
   "All provider connections are ready for autonomous execution.": "Alle Provider-Verbindungen sind für autonome Ausführung bereit.",
-  "Production gate:": "Produktionsfreigabe:"
+  "Production gate:": "Produktionsfreigabe:",
+  "Customer": "Kunden",
+  "Product": "Produkt",
+  "Intelligence": "Intelligenz",
+  "Growth": "Wachstum",
+  "Economics": "Wirtschaftlichkeit",
+  "Trust": "Vertrauen",
+  "Innovation": "Innovation"
 }

@@ -1064,6 +1064,20 @@ export default function VirtualOfficePage() {
                 <p>{signal.explanation}</p>
               </article>)}
           </div>
+          {overview.companyBrain.scorecard && <section className="lulu-office-scorecard" aria-labelledby="lulu-office-scorecard-title">
+            <div className="lulu-office-section-heading">
+              <div><span className="lulu-office-eyebrow">{t("Market leadership")}</span><h3 id="lulu-office-scorecard-title">{t("Verified company scorecard")}</h3><p>{overview.companyBrain.scorecard.northStar}</p></div>
+              <span>{overview.companyBrain.scorecard.totals.measuredCount}/{overview.companyBrain.scorecard.totals.metricCount} {t("measured")}</span>
+            </div>
+            <p className="lulu-office-scorecard__methodology">{overview.companyBrain.scorecard.methodology}</p>
+            <div className="lulu-office-scorecard__grid">
+              {overview.companyBrain.scorecard.categories.map((category) => <article key={category.key} className={`lulu-office-scorecard__category is-${category.status}`}>
+                <div className="lulu-office-scorecard__category-header"><strong>{t(category.label)}</strong><span>{category.measuredCount}/{category.metricCount}</span></div>
+                <span className="lulu-office-scorecard__status">{t(category.status === "measured" ? "Measured" : category.status === "defined" ? "Defined, awaiting data" : "No verified data yet")}</span>
+                {category.metrics.length > 0 && <ul>{category.metrics.slice(0, 3).map((metric) => <li key={metric.key}><span>{metric.name}</span><strong>{metric.value ?? "—"}</strong></li>)}</ul>}
+              </article>)}
+            </div>
+          </section>}
           <div className="lulu-office-brain__details">
             <section className="lulu-office-brain__detail-card" aria-labelledby="lulu-office-missions-title">
               <div className="lulu-office-brain__detail-heading">

@@ -141,6 +141,12 @@
   "Workspace": "Workspace",
   "Workspace unavailable": "Workspace unavailable",
   "Your digital organization": "Your digital organization",
+  "Market leadership": "Market leadership",
+  "Verified company scorecard": "Verified company scorecard",
+  "measured": "measured",
+  "Measured": "Measured",
+  "Defined, awaiting data": "Defined, awaiting data",
+  "No verified data yet": "No verified data yet",
   "Executive": "Executive",
   "Company-wide coordination, policy, and verified outcomes.": "Company-wide coordination, policy, and verified outcomes.",
   "CRM & Sales": "CRM & Sales",
@@ -222,5 +228,12 @@
   "Attempts": "Attempts",
   "Assigned employee": "Assigned employee",
   "Blocked": "Blocked",
-  "Open mission graph": "Open mission graph"
+  "Open mission graph": "Open mission graph",
+  "Customer": "Customer",
+  "Product": "Product",
+  "Intelligence": "Intelligence",
+  "Growth": "Growth",
+  "Economics": "Economics",
+  "Trust": "Trust",
+  "Innovation": "Innovation"
 }

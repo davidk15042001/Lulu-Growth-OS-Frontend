@@ -140,6 +140,12 @@
   "Workspace": "Workspace",
   "Workspace unavailable": "Arbeitsbereich nicht verfügbar",
   "Your digital organization": "Deine digitale Organisation",
+  "Market leadership": "Marktführerschaft",
+  "Verified company scorecard": "Verifizierte Unternehmens-Scorecard",
+  "measured": "gemessen",
+  "Measured": "Gemessen",
+  "Defined, awaiting data": "Definiert, Daten fehlen noch",
+  "No verified data yet": "Noch keine verifizierten Daten",
   "Recent activity": "Letzte Aktivität",
   "Executive": "Führung",
   "Company-wide coordination, policy, and verified outcomes.": "Unternehmensweite Koordination, Richtlinien und verifizierte Ergebnisse.",
@@ -229,5 +235,12 @@
   "Attempts": "Versuche",
   "Assigned employee": "Zugewiesener Mitarbeiter",
   "Blocked": "Blockiert",
-  "Open mission graph": "Missions-Graph öffnen"
+  "Open mission graph": "Missions-Graph öffnen",
+  "Customer": "Kunden",
+  "Product": "Produkt",
+  "Intelligence": "Intelligenz",
+  "Growth": "Wachstum",
+  "Economics": "Wirtschaftlichkeit",
+  "Trust": "Vertrauen",
+  "Innovation": "Innovation"
 }

@@ -115,6 +115,29 @@ export type OfficeOverview = {
   companyBrain?: {
     generatedAt: string;
     counts: { signals: number; openSignals: number; missions: number; activeMissions: number; tasks: number; decisions: number };
+    scorecard?: {
+      generatedAt: string;
+      northStar: string;
+      methodology: string;
+      totals: { metricCount: number; measuredCount: number; unavailableCount: number };
+      categories: Array<{
+        key: string;
+        label: string;
+        status: 'measured' | 'defined' | 'unavailable';
+        metricCount: number;
+        measuredCount: number;
+        metrics: Array<{
+          key: string;
+          name: string;
+          domain: string;
+          unit: string;
+          value: string | null;
+          recordedAt: string | null;
+          source: string | null;
+          evidenceStatus: 'measured' | 'unavailable';
+        }>;
+      }>;
+    };
     signals: Array<{ id: string; signalType: string; severity: number; materiality: number; status: string; explanation: string; detectedAt: string }>;
     missions: Array<{ id: string; title: string; objective: string; status: string; priority: number; updatedAt: string }>;
     decisions: Array<{ id: string; decisionType: string; decision: string; confidence: number; createdAt: string }>;

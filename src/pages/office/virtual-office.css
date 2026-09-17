@@ -706,6 +706,23 @@
 .lulu-office-brain__signals p { margin: 8px 0 0; color: var(--office-muted); font-size: .74rem; line-height: 1.45; }
 .lulu-office-brain__signals > p { grid-column: 1 / -1; margin: 0; color: var(--office-muted); font-size: .8rem; }
 .lulu-office-brain__details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.lulu-office-scorecard { margin-top: 16px; border: 1px solid rgba(89, 72, 214, .14); border-radius: 14px; padding: 14px; background: rgba(255,255,255,.72); }
+.lulu-office-scorecard .lulu-office-section-heading { margin-bottom: 8px; }
+.lulu-office-scorecard .lulu-office-section-heading h3 { margin: 4px 0 0; font-size: .98rem; }
+.lulu-office-scorecard .lulu-office-section-heading p { max-width: 720px; margin: 6px 0 0; color: var(--office-muted); font-size: .74rem; line-height: 1.45; }
+.lulu-office-scorecard__methodology { margin: 0 0 10px; color: var(--office-muted); font-size: .7rem; line-height: 1.45; }
+.lulu-office-scorecard__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 9px; }
+.lulu-office-scorecard__category { min-width: 0; border: 1px solid rgba(50,61,94,.1); border-radius: 11px; padding: 10px; background: rgba(255,255,255,.78); }
+.lulu-office-scorecard__category.is-measured { border-color: rgba(16,185,129,.26); }
+.lulu-office-scorecard__category.is-defined { border-color: rgba(245,158,11,.24); }
+.lulu-office-scorecard__category-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.lulu-office-scorecard__category-header strong { color: var(--office-ink); font-size: .75rem; }
+.lulu-office-scorecard__category-header span { color: var(--office-muted); font-size: .68rem; font-weight: 700; }
+.lulu-office-scorecard__status { display: block; margin-top: 4px; color: var(--office-muted); font-size: .65rem; }
+.lulu-office-scorecard__category ul { display: grid; gap: 5px; margin: 9px 0 0; padding: 0; list-style: none; }
+.lulu-office-scorecard__category li { display: flex; align-items: baseline; justify-content: space-between; gap: 7px; border-top: 1px solid rgba(50,61,94,.07); padding-top: 5px; }
+.lulu-office-scorecard__category li span { min-width: 0; overflow: hidden; color: var(--office-muted); font-size: .64rem; text-overflow: ellipsis; white-space: nowrap; }
+.lulu-office-scorecard__category li strong { flex: none; color: var(--office-ink); font-size: .68rem; }
 .lulu-office-brain__detail-card { min-width: 0; border: 1px solid rgba(50, 61, 94, .1); border-radius: 12px; padding: 12px; background: rgba(255,255,255,.78); }
 .lulu-office-brain__detail-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
 .lulu-office-brain__detail-heading h3 { margin: 3px 0 0; font-size: .86rem; line-height: 1.25; }
@@ -763,6 +780,7 @@
   .lulu-office-zone[data-department="executive"] .lulu-office-zone__floor { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .lulu-office-brain__signals { grid-template-columns: 1fr; }
   .lulu-office-brain__details { grid-template-columns: 1fr; }
+  .lulu-office-scorecard__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 640px) {
@@ -776,6 +794,7 @@
   .lulu-office-metric strong { font-size: 1.2rem; }
   .lulu-office-brain { padding: 14px; }
   .lulu-office-brain__metrics { grid-template-columns: 1fr; }
+  .lulu-office-scorecard__grid { grid-template-columns: 1fr; }
   .lulu-office-company { border-radius: 17px; padding: 14px; }
   .lulu-office-section-heading--main { align-items: flex-start; flex-direction: column; }
   .lulu-office-zone__header { grid-template-columns: auto minmax(0, 1fr); }
