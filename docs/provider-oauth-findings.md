@@ -33,3 +33,5 @@ Airwallex wird über einen schreibgeschützten Provider-Check verifiziert. Der C
 Airwallex-Timeouts und Netzwerkfehler werden als explizite Provider-Fehler mit 502 behandelt, damit UI und Agenten keinen unklaren Serverfehler als erfolgreiche oder wiederholbare Zahlung interpretieren.
 
 Google Ads wird im Provider-Control-Plane ebenfalls nur schreibgeschützt geprüft: Der Readiness-Check liest ausschließlich den konfigurierten Customer-Account über den kanonischen Google-Ads-API-Pfad. Kampagnenmutationen bleiben bis zu bestätigter OAuth-Verbindung, Developer-Token-, Managed-Payer- und Provider-Freigabe ausdrücklich gesperrt; eine Katalogzeile ist kein Beleg für Live-Ausführbarkeit.
+
+WordPress und Webflow werden im Provider-Control-Plane jetzt ebenfalls über ihre kanonischen Website-Services tenant-gebunden gelesen. Site-, Content-/Media- bzw. Collection-/Domain-Discovery und Sync melden nur echte Provider-Antworten; schreibende Veröffentlichungen bleiben bis zur jeweiligen Provider-Bestätigung und den erforderlichen Berechtigungen konservativ bewertet.
