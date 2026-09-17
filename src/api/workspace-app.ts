@@ -323,7 +323,12 @@ export const workspaceAppApi = {
     path: workspaceApiPath(workspaceId, "/settings"),
   }),
   updateSettings: (workspaceId: string, input: Partial<Pick<WorkspaceSettings["settings"], "sales" | "agents">>) => requestApi<WorkspaceSettings>({
-    path: workspaceApiPath(workspaceId, "/settings"), method: "PATCH", body: input,
+    // Agent pause/resume is deliberately routed through its member-safe
+    // endpoint. This avoids mixing an operational kill switch with settings
+    // mutations and makes the permission contract explicit end to end.
+    path: workspaceApiPath(workspaceId, input.agents && !input.sales ? "/settings/agents" : "/settings"),
+    method: "PATCH",
+    body: input.agents && !input.sales ? input.agents : input,
   }),
   billing: (workspaceId: string, query = "") => requestApi<BillingState>({
     path: workspaceApiPath(workspaceId, `/billing${query ? `?${query}` : ""}`),
