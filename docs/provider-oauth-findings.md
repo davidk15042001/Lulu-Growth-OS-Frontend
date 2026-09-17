@@ -1,6 +1,6 @@
 # Provider OAuth Findings
 
-Stand: 2026-08-16
+Stand: 2026-09-17
 
 ## Salesforce
 Die offizielle OAuth-Seite konnte über die stateless Extraktion nicht zuverlässig gelesen werden. Vor Implementierung muss der konkrete Salesforce-Authorization-Code-Flow und die benötigten API-Scopes aus der offiziellen Salesforce-Developer-Dokumentation verifiziert werden.
