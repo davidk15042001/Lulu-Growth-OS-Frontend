@@ -23,6 +23,14 @@ LinkedIn verwendet OAuth 2.0 für Member Authorization. Die Marketing-API-Progra
 ## Konsequenz für die Implementierung
 Die Backend-Architektur muss providerunabhängige OAuth-Start- und Callback-Routen, CSRF-sichere State-Werte, verschlüsselte Token-Speicherung, Refresh-Token-Unterstützung, Disconnect und Statusprüfung enthalten. Lovable wird vorerst nicht integriert. Provider-Client-IDs, Client-Secrets, Redirect-URIs, Google-Developer-Token und die jeweiligen App-Reviews/Scopes müssen vor produktiven Verbindungen eingerichtet werden.
 
+### Provider-Control-Plane
+
+Facebook Messenger wird über den vorhandenen Twilio-Transport verifiziert. Eine
+Verbindung gilt erst als aktiv, wenn für den Workspace ein aktiver Messenger-
+Sender registriert und der Twilio-Webhook erreichbar ist. Die Oberfläche darf
+bei fehlender Sender-Registrierung nur eine Autorisierung bzw. Einrichtung
+anzeigen; ein Katalogeintrag ist kein Beweis für eine live nutzbare Verbindung.
+
 ## Lulu Managed Website
 Lulu-eigene Websites werden nicht über einen externen OAuth-Provider verbunden. Der Website-Workspace bleibt die kanonische Quelle; der Backend-Provider-Control-Plane-Adapter prüft Site-, Domain- und Publish-Job-Zustand ohne künstliche Verbindungs- oder Erfolgsdaten zu erzeugen.
 
