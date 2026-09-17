@@ -41,3 +41,5 @@ Google Analytics wird im Provider-Control-Plane über einen echten tenant-gebund
 Website-Discovery behandelt fehlgeschlagene Seiten-, Medien-, Collection- oder Domain-Reads nicht als leere erfolgreiche Daten. Ein Provider-Fehler bleibt sichtbar und verhindert eine falsche „verbunden“-Darstellung.
 
 Facebook- und Instagram-Publishing werden im Control Plane nur als verbunden bewertet, wenn ein kanonischer Social Account zur Workspace-Verbindung gehört und der Meta Graph die Page-/Instagram-Identität read-only bestätigt. Fehlende Tokens oder Scopes bleiben als Autorisierungs-/Provider-Gate sichtbar.
+
+Shopify wird über das kanonische Workspace-OAuth-/Plattformobjekt und den gespeicherten `myshopify.com`-Shop read-only verifiziert. Produkt-Discovery ist erst nach bestätigtem Shop-Read möglich; Order- und Schreibfähigkeiten bleiben an die tatsächlich aufgezeichneten Shopify-Scopes gebunden.
