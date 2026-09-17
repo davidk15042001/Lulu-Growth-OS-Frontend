@@ -31,3 +31,5 @@ Für UnifyPort gilt derselbe Grundsatz: Ein aktiver Account ist erst dann verbun
 Airwallex wird über einen schreibgeschützten Provider-Check verifiziert. Der Check authentifiziert nur den API-Zugang; er erzeugt niemals Checkout-, Invoice-, Payment-Intent- oder Wallet-Daten.
 
 Airwallex-Timeouts und Netzwerkfehler werden als explizite Provider-Fehler mit 502 behandelt, damit UI und Agenten keinen unklaren Serverfehler als erfolgreiche oder wiederholbare Zahlung interpretieren.
+
+Google Ads wird im Provider-Control-Plane ebenfalls nur schreibgeschützt geprüft: Der Readiness-Check liest ausschließlich den konfigurierten Customer-Account über den kanonischen Google-Ads-API-Pfad. Kampagnenmutationen bleiben bis zu bestätigter OAuth-Verbindung, Developer-Token-, Managed-Payer- und Provider-Freigabe ausdrücklich gesperrt; eine Katalogzeile ist kein Beleg für Live-Ausführbarkeit.
