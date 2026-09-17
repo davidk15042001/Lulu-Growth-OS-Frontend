@@ -216,5 +216,18 @@
   "What Lulu learned": "Was Lulu gelernt hat",
   "No verified learning yet": "Noch keine verifizierten Lernergebnisse",
   "Verified": "Verifiziert",
-  "Pending verification": "Verifizierung ausstehend"
+  "Pending verification": "Verifizierung ausstehend",
+  "Mission task graph": "Missions-Task-Graph",
+  "Close": "Schließen",
+  "Loading mission graph": "Missions-Graph wird geladen",
+  "Mission graph unavailable": "Missions-Graph nicht verfügbar",
+  "Tasks": "Aufgaben",
+  "Dependencies": "Abhängigkeiten",
+  "Events": "Ereignisse",
+  "No tasks recorded": "Noch keine Aufgaben aufgezeichnet",
+  "No task events recorded": "Noch keine Aufgabenereignisse aufgezeichnet",
+  "Attempts": "Versuche",
+  "Assigned employee": "Zugewiesener Mitarbeiter",
+  "Blocked": "Blockiert",
+  "Open mission graph": "Missions-Graph öffnen"
 }

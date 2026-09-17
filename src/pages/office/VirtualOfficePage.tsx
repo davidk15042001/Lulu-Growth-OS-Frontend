@@ -14,6 +14,7 @@ import { commercialDocumentsApi, type Invoice, type Quote } from "../../api/comm
 import {
   officeApi,
   type OfficeControl,
+  type OfficeBrainMissionGraph,
   type OfficeEmployeeDetails,
   type OfficeEmployeeStatus,
   type OfficeEmployeeSummary,
@@ -117,6 +118,8 @@ const controlIcons: Record<OfficeControl, LucideIcon> = {
   cancel: XCircle,
   takeover: Hand,
 };
+
+type OfficeBrainMission = NonNullable<OfficeOverview["companyBrain"]>["missions"][number];
 
 function idempotencyKey(action: OfficeControl, workItemId: string) {
   const random = typeof crypto !== "undefined" && "randomUUID" in crypto
@@ -933,6 +936,56 @@ function EmployeeWorkDrawer({
   </div>;
 }
 
+function MissionGraphDialog({ workspaceId, mission, onClose }: { workspaceId: string; mission: OfficeBrainMission; onClose: () => void }) {
+  const t = useTranslation();
+  const language = useLanguage();
+  const [graph, setGraph] = useState<OfficeBrainMissionGraph | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    void officeApi.brainMissionGraph(workspaceId, mission.id, controller.signal)
+      .then((result) => setGraph(result.data))
+      .catch((cause) => {
+        if (!controller.signal.aborted) setError(getFriendlyErrorMessage(cause, t("Mission graph unavailable")));
+      })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+    return () => controller.abort();
+  }, [mission.id, t, workspaceId]);
+
+  return <div className="lulu-office-brain-dialog-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <aside className="lulu-office-brain-dialog" role="dialog" aria-modal="true" aria-labelledby="lulu-office-brain-dialog-title">
+      <header className="lulu-office-brain-dialog__header">
+        <div><span className="lulu-office-eyebrow">{t("Mission task graph")}</span><h2 id="lulu-office-brain-dialog-title">{mission.title}</h2><p>{mission.objective}</p></div>
+        <button type="button" onClick={onClose} aria-label={t("Close")}><X aria-hidden="true" size={19} /></button>
+      </header>
+      {loading && <div className="lulu-office-brain-dialog__state" role="status"><LoaderCircle aria-hidden="true" className="lulu-office-spin" /><span>{t("Loading mission graph")}</span></div>}
+      {error && !loading && <div className="lulu-office-brain-dialog__state is-error" role="alert"><AlertTriangle aria-hidden="true" size={18} /><span>{error}</span></div>}
+      {graph && !loading && !error && <div className="lulu-office-brain-dialog__body">
+        <div className="lulu-office-brain-dialog__summary"><span>{graph.tasks.length.toLocaleString(language)} {t("Tasks")}</span><span>{graph.dependencies.length.toLocaleString(language)} {t("Dependencies")}</span><span>{graph.events.length.toLocaleString(language)} {t("Events")}</span></div>
+        <section aria-labelledby="lulu-office-brain-dialog-tasks"><h3 id="lulu-office-brain-dialog-tasks">{t("Tasks")}</h3>
+          {graph.tasks.length === 0 ? <p className="lulu-office-brain-dialog__empty">{t("No tasks recorded")}</p> : <ul className="lulu-office-brain-dialog__tasks">{graph.tasks.map((task) => {
+            const blockers = graph.dependencies.filter((dependency) => dependency.taskId === task.id);
+            return <li key={task.id}>
+              <div className="lulu-office-brain-dialog__task-top"><strong>{task.title}</strong><span className={`lulu-office-work-status is-${task.status.toLowerCase()}`}>{task.status.replaceAll("_", " ")}</span></div>
+              <p>{task.objective}</p>
+              <div className="lulu-office-brain-dialog__task-meta"><span>{t("Priority")} {task.priority}</span><span>{t("Attempts")} {task.attemptCount}/{task.maxAttempts}</span>{task.assignedEmployeeId && <span>{t("Assigned employee")}</span>}</div>
+              {task.blockedReason && <div className="lulu-office-brain-dialog__blocked"><strong>{t("Blocked")}</strong><span>{task.blockedReason}</span></div>}
+              {blockers.length > 0 && <div className="lulu-office-brain-dialog__dependencies"><strong>{t("Dependencies")}</strong>{blockers.map((dependency) => <span key={`${task.id}-${dependency.dependsOnTaskId}`}>{dependency.dependencyType.replaceAll("_", " ")}: {dependency.title}</span>)}</div>}
+            </li>;
+          })}</ul>}
+        </section>
+        <section aria-labelledby="lulu-office-brain-dialog-events"><h3 id="lulu-office-brain-dialog-events">{t("Events")}</h3>
+          {graph.events.length === 0 ? <p className="lulu-office-brain-dialog__empty">{t("No task events recorded")}</p> : <ul className="lulu-office-brain-dialog__events">{graph.events.slice(-12).reverse().map((event) => <li key={event.id}><strong>{event.eventType.replaceAll("_", " ")}</strong><span>{formatDateTime(event.createdAt, language)} · {event.actorType}</span></li>)}</ul>}
+        </section>
+      </div>}
+    </aside>
+  </div>;
+}
+
 function OverviewMetric({ icon: Icon, label, value, language, tone }: { icon: LucideIcon; label: string; value: number; language: string; tone?: string }) {
   return <article className={`lulu-office-metric${tone ? ` is-${tone}` : ""}`}>
     <span><Icon aria-hidden="true" size={17} /></span>
@@ -949,6 +1002,7 @@ export default function VirtualOfficePage() {
   const canControlOffice = permissions.canEdit && permissions.capabilities.includes("agents.manage");
   const { overview, loading, refreshing, error, reload } = useOfficeOverview(selectedWorkspace?.id ?? null);
   const [selectedEmployee, setSelectedEmployee] = useState<OfficeEmployeeSummary | null>(null);
+  const [selectedMission, setSelectedMission] = useState<OfficeBrainMission | null>(null);
 
   return <>
     <AuthenticatedWorkspaceTopBar navigationOpen={false} onToggleNavigation={() => undefined} onCloseNavigation={() => undefined} showNavigationToggle={false} />
@@ -1012,8 +1066,10 @@ export default function VirtualOfficePage() {
                 ? <p className="lulu-office-brain__empty-detail">{t("No active missions yet")}</p>
                 : <ul>
                     {overview.companyBrain.missions.slice(0, 4).map((mission) => <li key={mission.id}>
+                      <button type="button" className="lulu-office-brain__mission-button" onClick={() => setSelectedMission(mission)} aria-label={`${t("Open mission graph")}: ${mission.title}`}>
                       <div><strong>{mission.title}</strong><span>{mission.status.replaceAll("_", " ")} · {t("Priority")} {mission.priority}</span></div>
                       <p>{mission.objective}</p>
+                      </button>
                     </li>)}
                   </ul>}
             </section>
@@ -1062,6 +1118,7 @@ export default function VirtualOfficePage() {
         </div>
       </>}
     </main>
+    {selectedWorkspace && selectedMission && <MissionGraphDialog workspaceId={selectedWorkspace.id} mission={selectedMission} onClose={() => setSelectedMission(null)} />}
     {selectedWorkspace && selectedEmployee && <EmployeeWorkDrawer workspaceId={selectedWorkspace.id} employee={selectedEmployee} currentUserCapabilities={permissions.capabilities} canAdminister={permissions.canAdminister || permissions.role === "owner" || permissions.role === "admin"} canControl={canControlOffice} onClose={() => setSelectedEmployee(null)} onChanged={() => void reload()} />}
   </>;
 }

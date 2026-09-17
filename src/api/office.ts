@@ -122,6 +122,50 @@ export type OfficeOverview = {
   };
 };
 
+export type OfficeBrainMissionGraph = {
+  tasks: Array<{
+    id: string;
+    workspaceId: string;
+    missionId: string;
+    parentTaskId: string | null;
+    assignedEmployeeId: string | null;
+    taskType: string;
+    title: string;
+    objective: string;
+    status: string;
+    priority: number;
+    dependencyCount: number;
+    agentRunId: string | null;
+    attemptCount: number;
+    maxAttempts: number;
+    confidence: number | null;
+    blockedReason: string | null;
+    lastError: string | null;
+    result: Record<string, unknown> | null;
+    errorCode: string | null;
+    errorMessage: string | null;
+    createdAt: string;
+    updatedAt: string;
+  }>;
+  dependencies: Array<{
+    taskId: string;
+    dependsOnTaskId: string;
+    dependencyType: string;
+    title: string;
+    status: string;
+  }>;
+  events: Array<{
+    id: string;
+    workspaceId: string;
+    taskId: string;
+    eventType: string;
+    actorType: string;
+    actorId: string | null;
+    payload: Record<string, unknown>;
+    createdAt: string;
+  }>;
+};
+
 export type OfficeEmployeeDetails = {
   employee: OfficeEmployeeSummary;
   canControl: boolean;
@@ -134,6 +178,9 @@ export type OfficeEmployeeDetails = {
 export const officeApi = {
   overview: (workspaceId: string, signal?: AbortSignal) => requestApi<OfficeOverview>({
     path: workspaceApiPath(workspaceId, '/office/overview?timelineLimit=36'), signal,
+  }),
+  brainMissionGraph: (workspaceId: string, missionId: string, signal?: AbortSignal) => requestApi<OfficeBrainMissionGraph>({
+    path: workspaceApiPath(workspaceId, `/brain/missions/${encodeURIComponent(missionId)}/graph`), signal,
   }),
   employee: (workspaceId: string, employeeId: string, signal?: AbortSignal) => requestApi<OfficeEmployeeDetails>({
     path: workspaceApiPath(workspaceId, `/office/employees/${encodeURIComponent(employeeId)}`), signal,

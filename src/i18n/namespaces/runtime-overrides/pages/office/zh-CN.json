@@ -216,5 +216,18 @@
   "What Lulu learned": "Lulu 学到的内容",
   "No verified learning yet": "暂无已验证的学习内容",
   "Verified": "已验证",
-  "Pending verification": "等待验证"
+  "Pending verification": "等待验证",
+  "Mission task graph": "任务图",
+  "Close": "关闭",
+  "Loading mission graph": "正在加载任务图",
+  "Mission graph unavailable": "任务图不可用",
+  "Tasks": "任务",
+  "Dependencies": "依赖关系",
+  "Events": "事件",
+  "No tasks recorded": "暂无记录的任务",
+  "No task events recorded": "暂无任务事件",
+  "Attempts": "尝试次数",
+  "Assigned employee": "负责员工",
+  "Blocked": "已阻塞",
+  "Open mission graph": "打开任务图"
 }
