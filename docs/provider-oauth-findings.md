@@ -46,6 +46,12 @@ markiert Spend-Reporting erst nach einem erfolgreichen `adAnalytics`-Read als
 verfügbar. Kampagnen- und Budgetmutationen bleiben bis zu Provider-Review und
 der serverseitigen Prepaid-Budgetautorisierung gesperrt.
 
+TikTok Ads wird über die offizielle v1.3 Business API read-only geprüft. Lulu
+entdeckt die Advertiser-Accounts aus dem autorisierten Token und markiert
+Spend-Reporting erst nach einem echten synchronen Consolidated-Report als
+verfügbar. Konto-, Kampagnen- und Budgetmutationen bleiben bis zu Provider-
+Review und der serverseitigen Prepaid-Budgetautorisierung gesperrt.
+
 ## Lulu Managed Website
 Lulu-eigene Websites werden nicht über einen externen OAuth-Provider verbunden. Der Website-Workspace bleibt die kanonische Quelle; der Backend-Provider-Control-Plane-Adapter prüft Site-, Domain- und Publish-Job-Zustand ohne künstliche Verbindungs- oder Erfolgsdaten zu erzeugen.
 
