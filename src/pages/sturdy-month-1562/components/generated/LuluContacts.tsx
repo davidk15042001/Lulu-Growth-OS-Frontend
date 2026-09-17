@@ -229,10 +229,9 @@ function CompaniesView() {
 }
 
 export function LuluContacts() {
-  const [tab, setTab] = useState<'contacts' | 'companies'>('contacts');
   return <div className="flex min-h-screen bg-[var(--background)] font-sans text-muted-foreground"><Sidebar /><main className="min-w-0 flex-1 overflow-hidden">
-    <header className="flex items-center justify-between border-b border-border px-5 py-4 lg:px-8"><div><p className="text-xs text-muted-foreground">Lulu AI <span className="px-1">/</span> CRM</p><h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">Contacts &amp; Companies</h1><p className="mt-1 hidden text-sm text-muted-foreground sm:block">Manage the people and organizations connected to your business.</p></div><div className="flex rounded-lg border border-border p-1"><button onClick={() => setTab('contacts')} className={`rounded-md px-4 py-2 text-sm font-medium transition ${tab === 'contacts' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-secondary'}`}>Contacts</button><button onClick={() => setTab('companies')} className={`rounded-md px-4 py-2 text-sm font-medium transition ${tab === 'companies' ? 'bg-primary text-primary-foreground' : 'text-foreground hover:bg-secondary'}`}>Companies</button></div></header>
-    {tab === 'contacts' ? <ContactsView /> : <CompaniesView />}
+    <header className="border-b border-border px-5 py-4 lg:px-8"><div><p className="text-xs text-muted-foreground">Lulu AI <span className="px-1">/</span> CRM</p><h1 className="mt-2 text-2xl font-semibold tracking-tight text-foreground lg:text-3xl">Companies</h1><p className="mt-1 hidden text-sm text-muted-foreground sm:block">Manage the organizations connected to your business.</p></div></header>
+    <CompaniesView />
   </main></div>;
 }
 
