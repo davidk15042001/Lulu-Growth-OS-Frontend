@@ -25,8 +25,10 @@ import {
   archiveRecord,
   createRecord,
   ingestRecord,
+  listCompanyIntelligenceHistory,
   requestRecordEnrichment,
   updateRecord,
+  type CompanyIntelligenceSnapshot,
   type WorkspaceRecord,
 } from '../../api/records';
 import { transitionSalesRecord } from '../../api/salesPipeline';
@@ -193,6 +195,22 @@ function Metric({ label, value, detail, icon }: { label: string; value: string |
 }
 
 function CompanyDetail({ record, canWrite, busy, onEdit, onArchive, onRetry }: { record: WorkspaceRecord | null; canWrite: boolean; busy: boolean; onEdit: (record: WorkspaceRecord) => void; onArchive: (record: WorkspaceRecord) => void; onRetry: (record: WorkspaceRecord) => void }) {
+  const [history, setHistory] = useState<CompanyIntelligenceSnapshot[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState('');
+  useEffect(() => {
+    let active = true;
+    if (!record) { setHistory([]); setHistoryError(''); setHistoryLoading(false); return () => { active = false; }; }
+    setHistoryLoading(true); setHistoryError('');
+    void listCompanyIntelligenceHistory(record.id).then((response) => {
+      if (active) setHistory(response.data);
+    }).catch(() => {
+      if (active) setHistoryError('');
+    }).finally(() => {
+      if (active) setHistoryLoading(false);
+    });
+    return () => { active = false; };
+  }, [record?.id]);
   if (!record) return <div className="grid min-h-[520px] place-items-center rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] p-8 text-center text-sm text-[var(--muted-foreground)]">Wähle ein Unternehmen aus.</div>;
   const enrichment = companyEnrichment(record);
   const socials = socialProfiles(record);
@@ -235,6 +253,11 @@ function CompanyDetail({ record, canWrite, busy, onEdit, onArchive, onRetry }: {
       </section>}
 
       {(enrichment.sources?.length ?? 0) > 0 && <section><p className="text-[11px] font-semibold uppercase tracking-[.14em] text-[var(--muted-foreground)]">Verifizierte Quellen</p><div className="mt-3 grid gap-2">{enrichment.sources!.slice(0, 6).map((source, index) => source.url.startsWith('http') ? <a key={`${source.url}-${index}`} href={source.url} target="_blank" rel="noreferrer" className="flex min-w-0 items-center justify-between gap-3 rounded-xl border border-[var(--border)] px-3 py-2 text-xs hover:bg-[var(--secondary)]"><span className="truncate">{sourceLabel(source)}</span><ExternalLink size={12} className="shrink-0"/></a> : <div key={`${source.url}-${index}`} className="rounded-xl border border-[var(--border)] px-3 py-2 text-xs">Direkte Kundenangabe</div>)}</div></section>}
+
+      <section>
+        <div className="flex items-center justify-between gap-3"><p className="text-[11px] font-semibold uppercase tracking-[.14em] text-[var(--muted-foreground)]">Intelligence history</p><span className="text-[11px] text-[var(--muted-foreground)]">{historyLoading ? 'Wird geladen …' : history.length}</span></div>
+        {historyError ? <p className="mt-3 text-xs text-[var(--muted-foreground)]">—</p> : history.length === 0 && !historyLoading ? <p className="mt-3 rounded-xl border border-dashed border-[var(--border)] px-3 py-3 text-xs text-[var(--muted-foreground)]">Noch keine verifizierten Intelligence-Ergebnisse.</p> : <div className="mt-3 space-y-2">{history.slice(0, 8).map((snapshot) => <div key={snapshot.id} className="rounded-xl border border-[var(--border)] p-3"><div className="flex flex-wrap items-center justify-between gap-2"><span className="text-xs font-medium">{snapshot.status}</span><time className="text-[11px] text-[var(--muted-foreground)]">{new Date(snapshot.createdAt).toLocaleString()}</time></div><div className="mt-2 flex flex-wrap gap-3 text-[11px] text-[var(--muted-foreground)]"><span>{snapshot.completeness == null ? '—' : `${snapshot.completeness}%`}</span><span>{snapshot.confidence || '—'}</span><span>{snapshot.sourceEvidence.length} Quellen</span></div>{snapshot.errorMessage && <p className="mt-2 text-[11px] text-rose-600">{snapshot.errorMessage}</p>}</div>)}</div>}
+      </section>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-[var(--border)] pt-5"><p className="text-xs text-[var(--muted-foreground)]">{enrichment.researchedAt ? `Zuletzt autonom geprüft: ${new Date(enrichment.researchedAt).toLocaleString()}` : 'Recherche startet automatisch.'}</p>{['failed', 'partial'].includes(status) && <button type="button" onClick={() => onRetry(record)} disabled={!canWrite || busy} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-3 py-2 text-xs font-medium disabled:opacity-40"><RefreshCw size={13}/>Recherche neu starten</button>}</div>
     </div>

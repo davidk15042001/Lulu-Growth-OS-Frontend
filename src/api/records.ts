@@ -25,6 +25,21 @@ export type RecordInput = Partial<Omit<WorkspaceRecord, "id" | "workspaceId" | "
 
 export type ResourceTypeDefinition = { key: string; domain: string; label: string; description: string };
 
+export type CompanyIntelligenceSnapshot = {
+  id: string;
+  companyRecordId: string;
+  inputFingerprint: string;
+  status: 'researching' | 'complete' | 'partial' | 'blocked_funds' | 'failed';
+  completeness: number | null;
+  confidence: 'low' | 'medium' | 'high' | null;
+  missingFields: string[];
+  sourceEvidence: Array<{ url?: string; title?: string; kind?: string }>;
+  outputData: Record<string, unknown>;
+  errorCode: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+};
+
 export function listResourceTypes() {
   return requestApi<{ items: ResourceTypeDefinition[] }>({ path: "/resource-types" });
 }
@@ -89,5 +104,11 @@ export function requestRecordEnrichment(resourceType: string, recordId: string) 
     path: workspacePath(`/records/${resourceType}/${recordId}/enrich`),
     method: "POST",
     body: {},
+  });
+}
+
+export function listCompanyIntelligenceHistory(recordId: string, limit = 20) {
+  return requestApi<CompanyIntelligenceSnapshot[]>({
+    path: workspacePath(`/records/crm_companies/${encodeURIComponent(recordId)}/intelligence-history?limit=${Math.min(100, Math.max(1, Math.trunc(limit)))}`),
   });
 }
