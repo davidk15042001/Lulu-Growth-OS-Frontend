@@ -260,7 +260,7 @@ export function MinimalAgentWorkspacePage({
               </h2>
               <div className="mt-4 space-y-3">
                 <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
-                  {t("Lulu continuously analyzes, decides and executes here. There is no approval queue; only missing funds, expired connections, compliance blocks or technical failures can pause execution.")}
+                  {t("Lulu continuously analyzes and proposes here. Bounded read actions may execute automatically, while external, financial, identity and publishing actions remain blocked until an authorized workspace administrator approves the exact action.")}
                 </p>
               </div>
             </section>

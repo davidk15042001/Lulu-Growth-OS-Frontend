@@ -195,8 +195,8 @@ export function AgentRuntimeControlPanel({
             <h3 className="text-sm font-semibold text-foreground">{t("Autonomy boundary")}</h3>
           </div>
           <div className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-4">
-            <p className="text-sm font-medium text-foreground">{t("No operational approval queue")}</p>
-            <p className="mt-2 text-sm text-muted-foreground">{t("Lulu executes content, communication, finance workflows, online-presence updates and campaign optimization automatically. Only adding new paid-media funds requires an owner or administrator payment.")}</p>
+            <p className="text-sm font-medium text-foreground">{t("Governed execution")}</p>
+            <p className="mt-2 text-sm text-muted-foreground">{t("Read and bounded analysis can run automatically. External, financial, identity and publishing actions are blocked until the exact action is approved in the workspace governance inbox.")}</p>
             <p className="mt-3 text-xs font-medium text-emerald-700 dark:text-emerald-300">{pageLabel} · {t("Autonomous and auditable")}</p>
           </div>
         </section>

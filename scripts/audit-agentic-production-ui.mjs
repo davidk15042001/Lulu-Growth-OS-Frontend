@@ -154,7 +154,7 @@ const forbidden = [
   { pattern: /\(soon\)|coming soon/i, label: 'coming-soon prototype copy' },
   { pattern: /1,284 collections|94% confidence|Today at 10:32/i, label: 'known static sample claim' },
   { pattern: />\s*Approve\s*</i, label: 'operational approval control' },
-  { pattern: /approvalApi|agentApi\.approve|Offene Freigaben|>\s*Freigeben\s*</i, label: 'legacy approval workflow' },
+  { pattern: /(?<!growth)approvalApi|agentApi\.approve|Offene Freigaben|>\s*Freigeben\s*</i, label: 'legacy approval workflow' },
 ];
 
 for (const file of inspectedRoots.flatMap(sourceFiles)) {

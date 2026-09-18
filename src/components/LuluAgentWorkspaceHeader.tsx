@@ -4,6 +4,7 @@ import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import type { LuluAgentContract, LuluAgentUiState } from "../config/lulu-agent-registry";
 import { useLuluAgentRuntime } from "./useLuluAgentRuntime";
+import { GrowthGovernancePanel } from "./GrowthGovernancePanel";
 
 const UI_STATE_PRIORITY: readonly LuluAgentUiState[] = [
   "executing",
@@ -109,6 +110,7 @@ export function LuluAgentWorkspaceHeader({ contract }: { contract: LuluAgentCont
         <p>{currentFocusDetail}</p>
         <p>{connectedSystemsDetail}</p>
       </div>
+      <GrowthGovernancePanel workspaceId={workspaceId} />
     </section>
   );
 }
