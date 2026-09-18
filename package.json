@@ -17,6 +17,7 @@
     "audit:feedback": "node scripts/audit-feedback.mjs",
     "audit:errors": "node scripts/audit-error-scenarios.mjs",
     "audit:agentic-ui": "node scripts/audit-agentic-production-ui.mjs",
+    "smoke:production": "node scripts/smoke-production.mjs",
     "check": "npm run typecheck && npm run audit:routing && npm run audit:api && npm run audit:branding && npm run audit:i18n && npm run audit:feedback && npm run audit:errors && npm run audit:agentic-ui && npm run build"
   },
   "dependencies": {
