@@ -188,6 +188,8 @@ const exactScenarios: Record<string, ErrorScenario> = {
   GOOGLE_BUSINESS_NOT_CONNECTED: { category: "integration", userAction: "connect-platform", retryable: false },
   GOOGLE_BUSINESS_REAUTH_REQUIRED: { category: "integration", userAction: "connect-platform", retryable: false },
   GOOGLE_BUSINESS_API_ERROR: { category: "integration", userAction: "retry", retryable: true },
+  CRM_WRITE_OUTCOME_UNCERTAIN: { category: "integration", userAction: "contact-support", retryable: false },
+  CRM_WRITE_IN_PROGRESS: { category: "integration", userAction: "wait", retryable: true },
 };
 
 export function getErrorScenario(code: string, status = 0): ErrorScenario {
