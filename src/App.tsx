@@ -5,7 +5,6 @@ import { pages } from "./pages-manifest";
 import { GlobalLanguageSwitcher, useTranslation } from "./i18n/GlobalLanguageSwitcher";
 import { LEGACY_SETUP_COMPLETE_PATH, LULU_NAVIGATION_MESSAGE, isLuluNavigationMessage, isOfficePanelSurface, isPageAvailable, pagePath, routes } from "./routing";
 import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from "./api/client";
-import { authApi } from "./api/auth";
 import {
   ADMIN_PANEL_PATH,
   clearPendingInvitation,
@@ -16,7 +15,6 @@ import {
   setPendingInvitation,
   setAdminSurface,
   setSelectedWorkspaceId,
-  setStoredUser,
 } from "./api/session";
 import { useLuluApp } from "./api/LuluAppContext";
 import { BillingOnboarding } from "./components/BillingOnboarding";
@@ -259,8 +257,6 @@ export default function App() {
   const { currentUser } = useLuluApp();
   const location = useLocation();
   const navigate = useNavigate();
-  const [restoringAdmin, setRestoringAdmin] = useState(false);
-  const [impersonationError, setImpersonationError] = useState("");
   const isPublicMeeting = location.pathname.startsWith("/calendar/meeting/");
   const officePanel = isOfficePanelSurface(location.search);
   const standaloneWebsitePreview = location.pathname === "/app/website-preview"
@@ -286,43 +282,8 @@ export default function App() {
     };
   }, [navigate]);
 
-  const stopImpersonation = async () => {
-    if (!currentUser?.impersonation?.active || restoringAdmin) return;
-    setRestoringAdmin(true);
-    setImpersonationError("");
-    try {
-      const response = await authApi.stopImpersonation();
-      setStoredUser(response.data.user);
-      setAdminSurface("admin");
-      window.location.replace(ADMIN_PANEL_PATH);
-    } catch (error) {
-      setImpersonationError(getFriendlyErrorMessage(error, t("Returning to the admin panel failed.")));
-    } finally {
-      setRestoringAdmin(false);
-    }
-  };
-
   return (
     <>
-      {currentUser?.impersonation?.active && !isPublicMeeting && !officePanel && !standaloneWebsitePreview ? (
-        <div className="fixed bottom-4 right-4 z-[95] flex w-[min(calc(100vw-2rem),540px)] items-center justify-between gap-3 rounded-2xl border border-violet-200 bg-white/95 px-4 py-3 text-sm text-violet-950 shadow-[0_20px_55px_rgba(76,29,149,0.2)] backdrop-blur-xl sm:bottom-5 sm:right-5">
-          <div className="min-w-0">
-            <div className="font-semibold">{t("Admin view active in user account")}</div>
-            <div className="text-xs text-violet-800 [overflow-wrap:anywhere]">
-              {t("You are viewing this Workspace as a user.")} {t("Admin")}: {currentUser.impersonation.adminEmail ?? t("unknown")}
-            </div>
-            {impersonationError ? <div className="mt-1 text-xs text-rose-700">{impersonationError}</div> : null}
-          </div>
-          <button
-            type="button"
-            onClick={() => void stopImpersonation()}
-            disabled={restoringAdmin}
-            className="shrink-0 rounded-full border border-violet-300 bg-white px-3 py-2 text-xs font-medium text-violet-900 transition hover:bg-violet-100 disabled:opacity-60"
-          >
-            {restoringAdmin ? t("Returning…") : t("Return to Admin Panel")}
-          </button>
-        </div>
-      ) : null}
       <AdminSurfaceSwitcher />
       <Suspense fallback={<main role="status" className="page-frame grid min-h-screen place-items-center">Loading Lulu AI…</main>}>
       <Routes>
