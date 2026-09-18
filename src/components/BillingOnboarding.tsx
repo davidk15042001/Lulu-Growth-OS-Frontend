@@ -27,6 +27,15 @@ export function BillingOnboarding() {
   const visiblePlans = billingPlans.filter((plan) => plan.id === "ai");
 
   useEffect(() => {
+    document.documentElement.classList.add("lulu-billing-route");
+    document.body.classList.add("lulu-billing-route");
+    return () => {
+      document.documentElement.classList.remove("lulu-billing-route");
+      document.body.classList.remove("lulu-billing-route");
+    };
+  }, []);
+
+  useEffect(() => {
     if (!paymentSucceeded || !selectedWorkspace) return;
     let active = true;
     let attempts = 0;
@@ -159,7 +168,7 @@ export function BillingOnboarding() {
   };
 
   return (
-    <main className="lulu-billing-page min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <main className="lulu-billing-page min-h-screen h-auto max-h-none overflow-visible bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
         <OnboardingHeader step={2} showBrandName={false} />
 
