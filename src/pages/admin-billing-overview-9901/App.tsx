@@ -670,6 +670,8 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
   const [paymentRows, setPaymentRows] = useState<AirwallexPaymentRow[]>([]);
   const [paymentLoading, setPaymentLoading] = useState(false);
   const [savingId, setSavingId] = useState("");
+  const [reconciling, setReconciling] = useState(false);
+  const [reconcileNotice, setReconcileNotice] = useState("");
   const [costEditor, setCostEditor] = useState<{ customer: Customer; apiAiCostUsd: string; storageCostUsd: string; reason: string } | null>(null);
 
   const load = async () => {
@@ -685,6 +687,22 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
     finally { setLoading(false); }
   };
   useEffect(() => { void load(); }, [month]);
+
+  const reconcileInvoices = async () => {
+    setReconciling(true); setReconcileNotice(""); onError("");
+    try {
+      const result = await requestApi<{ checked: number; created: number; failed: number; sellerRepair?: { checked: number; repaired: number; failed: number } }>({
+        path: "/admin/billing/reconcile-paid-invoices",
+        method: "POST",
+        body: { limit: 200 },
+      });
+      const sellerRepair = result.data.sellerRepair;
+      setReconcileNotice(`Geprüft: ${result.data.checked} · neu erstellt: ${result.data.created} · Fehler: ${result.data.failed}${sellerRepair ? ` · Verkäuferdaten repariert: ${sellerRepair.repaired}` : ""}`);
+      await load();
+    } catch (cause) {
+      onError(getFriendlyErrorMessage(cause, "Die Rechnungs-Reconciliation konnte nicht gestartet werden."));
+    } finally { setReconciling(false); }
+  };
 
   const updatePlan = async (customer: Customer, planKey: Plan) => {
     setSavingId(customer.id); onError("");
@@ -749,8 +767,11 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
           <Pill tone="violet">Storage / Infrastruktur: {moneyUsd(totalServerUsd)}</Pill>
           <Pill tone="amber">Bytes: {sizeMB(totalStorageBytes)}</Pill>
           <button type="button" disabled={loading} onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
+          <button type="button" disabled={reconciling} onClick={() => void reconcileInvoices()} className="inline-flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"><RotateCcw size={14} className={reconciling ? "animate-spin" : undefined} /> {reconciling ? "Rechnungen werden geprüft…" : "Erfolgreiche Zahlungen prüfen"}</button>
         </div>
       </div>
+
+      {reconcileNotice ? <div role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{reconcileNotice}</div> : null}
 
       {costEditor ? (
         <section className="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4 shadow-sm" aria-label="API AI und Storage Kosten bearbeiten">
