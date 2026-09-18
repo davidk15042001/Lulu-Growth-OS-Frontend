@@ -747,7 +747,26 @@ function EmployeeWorkDrawer({
   const onWorkspaceFrameLoad = (event: SyntheticEvent<HTMLIFrameElement>) => {
     setWorkspaceLoading(false);
     try {
-      event.currentTarget.contentDocument?.addEventListener("keydown", (keyboardEvent) => {
+      const document = event.currentTarget.contentDocument;
+      if (document) {
+        const existingStyle = document.getElementById("lulu-office-embedded-scroll-reset");
+        if (!existingStyle) {
+          const style = document.createElement("style");
+          style.id = "lulu-office-embedded-scroll-reset";
+          style.textContent = `
+            html { overflow-y: auto !important; overscroll-behavior-y: none !important; }
+            body, #root { height: auto !important; min-height: 100% !important; max-height: none !important; overflow-y: visible !important; }
+            .page-frame,
+            .lulu-global-shell,
+            .lulu-global-shell--office-panel,
+            .lulu-global-content,
+            .lulu-global-content--office-panel,
+            .lulu-native-page { height: auto !important; min-height: 0 !important; max-height: none !important; overflow: visible !important; }
+          `;
+          document.head.appendChild(style);
+        }
+      }
+      document?.addEventListener("keydown", (keyboardEvent) => {
         if (keyboardEvent.key !== "Escape") return;
         keyboardEvent.preventDefault();
         if (activeConfirmationRef.current) setConfirmation(null);
