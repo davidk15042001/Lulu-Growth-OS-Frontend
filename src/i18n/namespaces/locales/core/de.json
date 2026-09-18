@@ -94,5 +94,6 @@
   "Active missions": "Aktive Missionen",
   "Recorded decisions": "Dokumentierte Entscheidungen",
   "Evidence-backed operating memory": "Evidenzbasierter Unternehmenskontext",
-  "No material signals yet": "Noch keine wesentlichen Signale"
+  "No material signals yet": "Noch keine wesentlichen Signale",
+  "Backend push: {{0}}": "Backend-Push: {{0}}"
 }

@@ -100,11 +100,15 @@ jobs:
           TWILIO_PARTNER_SOLUTION_ID: ${{ secrets.TWILIO_PARTNER_SOLUTION_ID }}
         run: |
           set -euo pipefail
+          backend_sha="$(git -C backend-source rev-parse HEAD)"
+          backend_pushed_at="$(git -C backend-source show -s --format=%cI "$backend_sha")"
+          deployed_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
           rsync -rz --links --delete \
             --exclude .env \
             --exclude .git \
             --exclude node_modules \
             --exclude .runtime-secrets \
+            --exclude .runtime-deployment.json \
             --exclude '.deploy-stale-node_modules-*' \
             backend-source/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
@@ -118,7 +122,7 @@ jobs:
           # Keep the SSH transport alive while an otherwise long-running
           # production migration is executing.
           ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=240 \
-            "$DEPLOY_USER@$DEPLOY_HOST" "bash -se" <<'REMOTE'
+            "$DEPLOY_USER@$DEPLOY_HOST" "BACKEND_SHA='$backend_sha' BACKEND_PUSHED_AT='$backend_pushed_at' DEPLOYED_AT='$deployed_at' bash -se" <<'REMOTE'
           set -euo pipefail
           cd /var/www/lulu-growth-os/backend
 
@@ -141,6 +145,9 @@ jobs:
               fi
             fi
           fi
+
+          umask 077
+          printf '{"backend":"%s","pushedAt":"%s","deployedAt":"%s"}\n' "$BACKEND_SHA" "$BACKEND_PUSHED_AT" "$DEPLOYED_AT" > .runtime-deployment.json
 
           for attempt in $(seq 1 30); do
             if curl -fsS http://127.0.0.1:3000/api/v1/health >/tmp/lulu-health.json; then

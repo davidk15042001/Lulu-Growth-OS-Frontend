@@ -94,5 +94,6 @@
   "Active missions": "进行中的任务",
   "Recorded decisions": "已记录的决策",
   "Evidence-backed operating memory": "基于证据的运营记忆",
-  "No material signals yet": "暂时没有重要信号"
+  "No material signals yet": "暂时没有重要信号",
+  "Backend push: {{0}}": "后端推送：{{0}}"
 }

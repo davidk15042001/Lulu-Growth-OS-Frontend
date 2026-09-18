@@ -21733,6 +21733,4 @@
   "Complete the Google Ads connection before resuming.": "Vervollständige die Google-Ads-Verbindung, bevor du fortfährst.",
   "Complete the Google Ads billing setup before launching a campaign.": "Vervollständige die Google-Ads-Abrechnung, bevor du eine Kampagne startest.",
   "Approve the campaign budget before Lulu can launch paid advertising.": "Genehmige das Kampagnenbudget, bevor Lulu bezahlte Werbung starten kann.",
-  "Add advertising funds before Lulu can launch or continue paid advertising.": "Lade Werbeguthaben auf, bevor Lulu bezahlte Werbung starten oder fortsetzen kann.",
-  "Connect the advertising account before Lulu can continue.": "Verbinde das Werbekonto, bevor Lulu fortfahren kann."
-}
+  "Add advertising funds before Lulu can launch or continue paid advertising.": "Lade Werbeguthaben auf, bevor Lulu bezahlte Werbung starten oder fortsetzen kann.","Connect the advertising account before Lulu can continue.":"Verbinde das Werbekonto, bevor Lulu fortfahren kann.","Backend push: {{0}}":"Backend-Push: {{0}}"}

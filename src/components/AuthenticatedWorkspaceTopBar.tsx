@@ -1,7 +1,8 @@
 import { Building2, LayoutDashboard, Menu, X } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useLuluApp } from "../api/LuluAppContext";
+import { releaseApi } from "../api/release";
 import { isOfficePanelSurface, routes } from "../routing";
 import { LuluWorkspaceRefreshButton } from "./LuluWorkspaceTopBar";
 import { LuluUsageControl } from "./LuluUsageControl";
@@ -32,6 +33,7 @@ export function AuthenticatedWorkspaceTopBar({
 }) {
   const { currentUser, selectedWorkspace } = useLuluApp();
   const t = useTranslation();
+  const [backendPushedAt, setBackendPushedAt] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
   const officePanel = isOfficePanelSurface(location.search);
@@ -40,11 +42,24 @@ export function AuthenticatedWorkspaceTopBar({
     && (selectedWorkspace.onboardingStep === 'profile_completion' || selectedWorkspace.onboardingStep === 'knowledge_base'));
 
   useEffect(() => {
+    const controller = new AbortController();
+    void releaseApi.backend(controller.signal).then((response) => {
+      setBackendPushedAt(response.data.pushedAt);
+    }).catch(() => undefined);
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
     if (!location.pathname.startsWith("/app/") || officeMode || officePanel) return;
     window.sessionStorage.setItem(LAST_WORKSPACE_ROUTE_KEY, `${location.pathname}${location.search}${location.hash}`);
   }, [location.hash, location.pathname, location.search, officeMode, officePanel]);
 
   if (!currentUser || !selectedWorkspace || officePanel) return null;
+
+  const backendTimestamp = backendPushedAt ? new Date(backendPushedAt).toLocaleString(undefined, {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }) : null;
 
   return (
     <div className="lulu-auth-search-wrap" data-lulu-auth-topbar="true">
@@ -63,6 +78,10 @@ export function AuthenticatedWorkspaceTopBar({
           <img className="lulu-agentic-logo-image" src="/branding/lulu-agentic-logo.svg" alt="Lulu" draggable={false} />
         </div>
       </div>
+      {backendTimestamp && <span className="lulu-backend-release" title={t("Backend push: {{0}}").replace("{{0}}", backendTimestamp)} aria-label={t("Backend push: {{0}}").replace("{{0}}", backendTimestamp)}>
+        <span className="lulu-backend-release__dot" aria-hidden="true" />
+        <span>{backendTimestamp}</span>
+      </span>}
       {!activationLocked && <nav className="lulu-surface-switch" aria-label={t("Lulu view")}>
         <button type="button" className={officeMode ? "is-active" : undefined} aria-current={officeMode ? "page" : undefined} onClick={() => navigate(routes.app.office)}>
           <Building2 aria-hidden="true" size={15} /><span>{t("Office")}</span>
