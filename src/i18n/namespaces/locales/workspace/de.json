@@ -20198,6 +20198,8 @@
   "Verbinde zuerst": "Verbinde zuerst",
   "Vorschau": "Vorschau",
   "The website provider rejected the request.": "Der Website-Anbieter hat die Anfrage abgelehnt.",
+  "The CRM provider may already have received this company update. Lulu will not send it again automatically. Reconcile the company before retrying.": "Der CRM-Anbieter hat diese Firmenänderung möglicherweise bereits erhalten. Lulu sendet sie nicht automatisch erneut. Gleichen Sie das Unternehmen ab, bevor Sie es erneut versuchen.",
+  "A CRM company update is already in progress. Please wait for the current operation to finish.": "Eine CRM-Firmenänderung läuft bereits. Bitte warten Sie, bis der aktuelle Vorgang abgeschlossen ist.",
   "The saved website connection could not be opened securely.": "Die gespeicherte Website-Verbindung konnte nicht sicher geöffnet werden.",
   "The website provider configuration is incomplete.": "Die Konfiguration des Website-Anbieters ist unvollständig.",
   "The connected website does not have a provider site ID.": "Die verbundene Website besitzt keine Anbieter-Site-ID.",

@@ -140,6 +140,8 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   GOOGLE_BUSINESS_NOT_CONNECTED: "Google Business Profile is not connected for this workspace yet.",
   GOOGLE_BUSINESS_REAUTH_REQUIRED: "The Google Business Profile connection expired. Please reconnect it.",
   GOOGLE_BUSINESS_API_ERROR: "Google Business Profile rejected the request. Please verify account access and try again.",
+  CRM_WRITE_OUTCOME_UNCERTAIN: "The CRM provider may already have received this company update. Lulu will not send it again automatically. Reconcile the company before retrying.",
+  CRM_WRITE_IN_PROGRESS: "A CRM company update is already in progress. Please wait for the current operation to finish.",
   AIRWALLEX_WEBHOOK_SECRET_MISSING: "The Airwallex webhook is not configured on the server.",
   AIRWALLEX_WEBHOOK_HEADERS_MISSING: "Airwallex sent an incomplete webhook request.",
   AIRWALLEX_WEBHOOK_TIMESTAMP_INVALID: "Airwallex sent an invalid webhook timestamp.",

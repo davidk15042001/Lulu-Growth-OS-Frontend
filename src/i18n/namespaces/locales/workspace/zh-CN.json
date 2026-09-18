@@ -20198,6 +20198,8 @@
   "Verbinde zuerst": "请先连接",
   "Vorschau": "预览",
   "The website provider rejected the request.": "网站服务商拒绝了该请求。",
+  "The CRM provider may already have received this company update. Lulu will not send it again automatically. Reconcile the company before retrying.": "CRM 服务商可能已经收到这次公司更新。Lulu 不会自动重复发送。请先核对公司状态，再重试。",
+  "A CRM company update is already in progress. Please wait for the current operation to finish.": "CRM 公司更新正在进行中。请等待当前操作完成。",
   "The saved website connection could not be opened securely.": "无法安全打开已保存的网站连接。",
   "The website provider configuration is incomplete.": "网站服务商配置不完整。",
   "The connected website does not have a provider site ID.": "已连接的网站没有服务商站点 ID。",
