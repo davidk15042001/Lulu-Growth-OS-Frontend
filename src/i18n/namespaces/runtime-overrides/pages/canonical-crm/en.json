@@ -94,5 +94,6 @@
   "Aktualisiere die Seite, um den aktuellen Customer Graph zu verifizieren.": "Refresh the page to verify the current Customer Graph.",
   "Daten sind derzeit nicht verifizierbar.": "Data cannot currently be verified.",
   "error": "Error",
-  "Unternehmensdaten sind nicht verfügbar.": "Company data is unavailable."
+  "Unternehmensdaten sind nicht verfügbar.": "Company data is unavailable.",
+  "Status": "status"
 }

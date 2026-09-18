@@ -161,5 +161,7 @@
   " · seller data repaired: {{0}}": " · seller data repaired: {{0}}",
   "The invoice reconciliation could not be started.": "The invoice reconciliation could not be started.",
   "Checking invoices…": "Checking invoices…",
-  "Check successful payments": "Check successful payments"
+  "Check successful payments": "Check successful payments",
+  "Kunde": "Customer",
+  "Status": "status"
 }

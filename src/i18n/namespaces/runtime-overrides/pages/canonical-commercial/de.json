@@ -18,7 +18,7 @@
   "Create, version and send commercial offers.": "Erstelle, versioniere und versende kommerzielle Angebote.",
   "Currency": "Währung",
   "Custom line": "Freie Position",
-  "Customer": "Kunde",
+  "Customer": "Kunden",
   "Customer and at least one product line are required.": "Kunde und mindestens eine Position sind erforderlich.",
   "Customer record": "Kundendatensatz",
   "Delivery attempts": "Zustellversuche",
@@ -95,5 +95,7 @@
   "Download PDF": "PDF herunterladen",
   "Preparing PDF…": "PDF wird vorbereitet…",
   "The invoice PDF could not be downloaded.": "Die Rechnungs-PDF konnte nicht heruntergeladen werden.",
-  "INVOICE": "RECHNUNG"
+  "INVOICE": "RECHNUNG",
+  "Invoices created by Lulu agents or manually.": "Rechnungen, die Lulu-Agenten oder Sie manuell erstellen.",
+  "Offers and quotes created by Lulu agents or manually.": "Angebote und Kostenvoranschläge, die Lulu-Agenten oder Sie manuell erstellen."
 }

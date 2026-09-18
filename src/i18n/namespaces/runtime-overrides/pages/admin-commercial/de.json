@@ -20,5 +20,6 @@
   "The invoice PDF could not be downloaded.": "Die Rechnungs-PDF konnte nicht heruntergeladen werden.",
   "PDF": "PDF",
   "Download": "Herunterladen",
-  "All customer invoices, sorted by invoice number for bookkeeping.": "Alle Kundenrechnungen, nach Rechnungsnummer für die Buchhaltung sortiert."
+  "All customer invoices, sorted by invoice number for bookkeeping.": "Alle Kundenrechnungen, nach Rechnungsnummer für die Buchhaltung sortiert.",
+  "invoices": "Rechnungen"
 }

@@ -365,5 +365,11 @@
   "WhatsApp is connected as": "WhatsApp ist verbunden als",
   "WhatsApp pairing started. Enter the code in WhatsApp → Linked devices.": "Die WhatsApp-Kopplung wurde gestartet. Gib den Code in WhatsApp → Verknüpfte Geräte ein.",
   "WhatsApp phone number": "WhatsApp-Telefonnummer",
-  "Your administrator enabled self-service. Pair your own WhatsApp number with a secure UnifyPort code.": "Dein Administrator hat die Selbstverbindung aktiviert. Kopple deine eigene WhatsApp-Nummer mit einem sicheren UnifyPort-Code."
+  "Your administrator enabled self-service. Pair your own WhatsApp number with a secure UnifyPort code.": "Dein Administrator hat die Selbstverbindung aktiviert. Kopple deine eigene WhatsApp-Nummer mit einem sicheren UnifyPort-Code.",
+  "Autonomous work is allowed only when every provider gate is ready.": "Autonome Arbeit ist erst möglich, wenn jede Provider-Freigabe bereit ist.",
+  "No integrations configured.": "Keine Integrationen konfiguriert.",
+  "Production readiness": "Produktionsbereitschaft",
+  "Provider Control Plane": "Provider-Steuerung",
+  "Readiness check": "Bereitschaftsprüfung",
+  "Ready": "Bereit"
 }

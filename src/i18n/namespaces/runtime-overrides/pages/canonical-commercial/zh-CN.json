@@ -95,5 +95,7 @@
   "Download PDF": "下载 PDF",
   "Preparing PDF…": "正在准备 PDF…",
   "The invoice PDF could not be downloaded.": "无法下载发票 PDF。",
-  "INVOICE": "发票"
+  "INVOICE": "发票",
+  "Invoices created by Lulu agents or manually.": "由 Lulu 智能体或您手动创建的发票。",
+  "Offers and quotes created by Lulu agents or manually.": "由 Lulu 智能体或您手动创建的报价与方案。"
 }

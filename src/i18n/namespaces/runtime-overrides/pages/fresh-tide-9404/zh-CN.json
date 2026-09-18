@@ -249,5 +249,11 @@
   "WhatsApp is connected as": "WhatsApp 已连接为",
   "WhatsApp is connected through UnifyPort. Your administrator decides whether this workspace uses the shared Lulu sender or pairs its own WhatsApp number.": "WhatsApp 通过 UnifyPort 连接。管理员会决定此工作区使用共享的 Lulu 发件人，还是绑定自己的 WhatsApp 号码。",
   "WhatsApp uses UnifyPort. If an administrator enables self-service, each workspace can securely pair its own number; otherwise the approved Lulu fallback is used.": "WhatsApp 使用 UnifyPort。如果管理员启用自助连接，每个工作区都可以安全绑定自己的号码；否则将使用已批准的 Lulu 备用发件人。",
-  "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.": "将 `oauth`、`crm.objects.contacts.read`、`crm.objects.companies.read` 和 `crm.objects.companies.write` 添加到所需权限中，以便 Lulu 保持公司记录同步。"
+  "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.": "将 `oauth`、`crm.objects.contacts.read`、`crm.objects.companies.read` 和 `crm.objects.companies.write` 添加到所需权限中，以便 Lulu 保持公司记录同步。",
+  "Autonomous work is allowed only when every provider gate is ready.": "只有所有提供商检查都通过后，才能运行自主任务。",
+  "No integrations configured.": "未配置集成。",
+  "Production readiness": "生产就绪状态",
+  "Provider Control Plane": "提供商控制中心",
+  "Readiness check": "就绪检查",
+  "Ready": "已就绪"
 }

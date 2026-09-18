@@ -5,5 +5,6 @@
   "Produkt konnte nicht gespeichert werden.": "Product could not be saved.",
   "Produkte konnten nicht geladen werden.": "Products could not be loaded.",
   "error": "Error",
-  "Zuletzt erfolgreich geladene Produktdaten werden angezeigt. {{0}}": "Showing the last successfully loaded product data. {{0}}"
+  "Zuletzt erfolgreich geladene Produktdaten werden angezeigt. {{0}}": "Showing the last successfully loaded product data. {{0}}",
+  "Status": "status"
 }

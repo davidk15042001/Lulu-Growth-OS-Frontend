@@ -455,7 +455,7 @@
   "Grund (Pflichtfeld)": "Grund (Pflichtfeld)",
   "Guthaben anwenden": "Guthaben anwenden",
   "Korrigieren": "Korrigieren",
-  "Storage-Gutschrift (USD)": "Lager-Gutschrift (USD)",
+  "Storage-Gutschrift (USD)": "Speichergutschrift (USD)",
   "WeChat": "WeChat",
   "Werbebudget (CNY)": "Werbebudget (CNY)",
   "Zahlungsreferenz (optional)": "Zahlungsreferenz (optional)",
@@ -476,5 +476,9 @@
   " · seller data repaired: {{0}}": " · Verkäuferdaten repariert: {{0}}",
   "The invoice reconciliation could not be started.": "Die Rechnungsprüfung konnte nicht gestartet werden.",
   "Checking invoices…": "Rechnungen werden geprüft…",
-  "Check successful payments": "Erfolgreiche Zahlungen prüfen"
+  "Check successful payments": "Erfolgreiche Zahlungen prüfen",
+  "Ads": "Anzeigen",
+  "ai": "KI",
+  "All invoices": "Alle Rechnungen",
+  "Kunde": "Kunde"
 }

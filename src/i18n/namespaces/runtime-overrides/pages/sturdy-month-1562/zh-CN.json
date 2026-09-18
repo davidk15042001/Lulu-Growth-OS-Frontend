@@ -234,7 +234,7 @@
   "Benchmarks": "基准",
   "Billing": "账单",
   "Budgets": "预算",
-  "Campaigns": "营销活动",
+  "Campaigns": "广告活动",
   "Carts": "购物车",
   "Categories": "类别",
   "City": "城市",
@@ -304,5 +304,6 @@
   "Webflow": "Webflow",
   "Website": "网站",
   "Yesterday": "昨天",
-  "Autonomous Publishing Center": "自治出版中心"
+  "Autonomous Publishing Center": "自治出版中心",
+  "Manage the organizations, accounts and business relationships connected to your company.": "管理与您公司关联的组织、账户和业务关系。"
 }

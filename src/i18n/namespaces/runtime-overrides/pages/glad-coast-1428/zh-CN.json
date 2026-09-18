@@ -365,5 +365,11 @@
   "WhatsApp is connected as": "WhatsApp 已连接为",
   "WhatsApp pairing started. Enter the code in WhatsApp → Linked devices.": "WhatsApp 配对已开始。请在 WhatsApp → 已连接的设备中输入代码。",
   "WhatsApp phone number": "WhatsApp 电话号码",
-  "Your administrator enabled self-service. Pair your own WhatsApp number with a secure UnifyPort code.": "管理员已启用自助连接。请使用安全的 UnifyPort 代码绑定自己的 WhatsApp 号码。"
+  "Your administrator enabled self-service. Pair your own WhatsApp number with a secure UnifyPort code.": "管理员已启用自助连接。请使用安全的 UnifyPort 代码绑定自己的 WhatsApp 号码。",
+  "Autonomous work is allowed only when every provider gate is ready.": "只有所有提供商检查都通过后，才能运行自主任务。",
+  "No integrations configured.": "未配置集成。",
+  "Production readiness": "生产就绪状态",
+  "Provider Control Plane": "提供商控制中心",
+  "Readiness check": "就绪检查",
+  "Ready": "已就绪"
 }

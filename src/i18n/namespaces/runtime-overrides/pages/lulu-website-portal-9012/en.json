@@ -172,7 +172,7 @@
   "Template mit verifizierten Firmendaten füllen": "Fill template with verified company data",
   "Veröffentlichen": "Publish",
   "Vorschau bereit": "Preview ready",
-  "Was Lulu automatisch übernimmt": "Which Lulu does automatically",
+  "Was Lulu automatisch übernimmt": "What Lulu handles automatically",
   "Website und Shop als eine Marke veröffentlichen": "Publish website and shop as one brand",
   "Website-Medien": "Website Media",
   "Wird erstellt": "Will be created",
@@ -191,5 +191,9 @@
   "Produkte und Leistungen": "Products and services",
   "Kontakt und Vertrauen": "Contact and trust",
   "Noch keine Website veröffentlicht.": "No website published yet.",
-  "Die Vorschau zeigt bewusst ein leeres Template. Erstelle deine Lulu-Website im Editor, sobald du bereit bist.": "The preview intentionally shows an empty template. Create your Lulu website in the editor when you are ready."
+  "Die Vorschau zeigt bewusst ein leeres Template. Erstelle deine Lulu-Website im Editor, sobald du bereit bist.": "The preview intentionally shows an empty template. Create your Lulu website in the editor when you are ready.",
+  "preview": "Preview",
+  "So sehen Kunden deine veröffentlichte Website. Leistungen und Produkte werden nur angezeigt, wenn sie wirklich vorhanden sind.": "This is how customers see your published website. Services and products appear only when they actually exist.",
+  "Status": "status",
+  "Template-Navigation": "Template navigation"
 }

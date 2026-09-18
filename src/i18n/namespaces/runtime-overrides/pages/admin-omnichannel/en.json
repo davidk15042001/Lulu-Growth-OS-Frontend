@@ -29,5 +29,6 @@
   "Schließen": "Close",
   "Wird geladen…": "Loading…",
   "Workspace konnte nicht deterministisch aufgelöst werden": "The workspace could not be resolved deterministically",
-  "Workspace, Konversation oder Kanal suchen…": "Search workspace, conversation or channel…"
+  "Workspace, Konversation oder Kanal suchen…": "Search workspace, conversation or channel…",
+  "Status": "status"
 }

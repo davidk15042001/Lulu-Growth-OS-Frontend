@@ -249,5 +249,11 @@
   "WhatsApp is connected as": "WhatsApp ist verbunden als",
   "WhatsApp is connected through UnifyPort. Your administrator decides whether this workspace uses the shared Lulu sender or pairs its own WhatsApp number.": "WhatsApp ist über UnifyPort verbunden. Dein Administrator entscheidet, ob dieser Workspace den gemeinsamen Lulu-Absender nutzt oder eine eigene WhatsApp-Nummer koppelt.",
   "WhatsApp uses UnifyPort. If an administrator enables self-service, each workspace can securely pair its own number; otherwise the approved Lulu fallback is used.": "WhatsApp verwendet UnifyPort. Wenn ein Administrator die Selbstverbindung aktiviert, kann jeder Workspace seine eigene Nummer sicher koppeln; andernfalls wird der freigegebene Lulu-Ersatz verwendet.",
-  "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.": "Fügen Sie `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` und `crm.objects.companies.write` zu den erforderlichen Scopes hinzu, damit Lulu Unternehmensdatensätze synchron halten kann."
+  "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.": "Fügen Sie `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` und `crm.objects.companies.write` zu den erforderlichen Scopes hinzu, damit Lulu Unternehmensdatensätze synchron halten kann.",
+  "Autonomous work is allowed only when every provider gate is ready.": "Autonome Arbeit ist erst möglich, wenn jede Provider-Freigabe bereit ist.",
+  "No integrations configured.": "Keine Integrationen konfiguriert.",
+  "Production readiness": "Produktionsbereitschaft",
+  "Provider Control Plane": "Provider-Steuerung",
+  "Readiness check": "Bereitschaftsprüfung",
+  "Ready": "Bereit"
 }

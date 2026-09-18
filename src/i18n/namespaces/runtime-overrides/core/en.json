@@ -155,5 +155,6 @@
   "Download PDF": "Download PDF",
   "Preparing PDF…": "Preparing PDF…",
   "The invoice PDF could not be downloaded.": "The invoice PDF could not be downloaded.",
-  "INVOICE": "INVOICE"
+  "INVOICE": "INVOICE",
+  "Status": "status"
 }

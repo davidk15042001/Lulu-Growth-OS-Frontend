@@ -3,5 +3,6 @@
   "cancelled": "Cancelled",
   "failed": "Failed",
   "pending": "Pending",
-  "succeeded": "Succeeded"
+  "succeeded": "Succeeded",
+  "Status": "status"
 }
