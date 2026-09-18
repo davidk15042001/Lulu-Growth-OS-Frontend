@@ -1,4 +1,6 @@
 {
+  "No WhatsApp sender registered in Twilio": "No WhatsApp account registered in UnifyPort",
+  "Register and approve the Lulu sender in Twilio first. It appears here automatically once Twilio reports it as online.": "Connect and authorize the Lulu WhatsApp account in UnifyPort first. It appears here automatically once UnifyPort reports it as running.",
   "A reason is required for every subscription price change": "A reason is required for every subscription price change",
   "Annual amount in CNY": "Annual amount in CNY",
   "Catalog price": "Catalog price",
