@@ -26,6 +26,7 @@ const UI_STATE_TRANSLATION_KEYS: Record<LuluAgentUiState, string> = {
   executing: "Executing",
   completed: "Completed",
   attention_required: "Attention required",
+  paused: "Agents paused",
 };
 
 function interpolate(template: string, values: Array<string | number>) {

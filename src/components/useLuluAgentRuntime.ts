@@ -41,6 +41,7 @@ type SpecializedLiveData = {
 type AgentRuntimeSnapshot = {
   bootstrap: WorkspaceBootstrap | null;
   platforms: Platform[];
+  agentsPaused: boolean;
   specializedLiveData: SpecializedLiveData | null;
   liveError: string;
   cachedAt: number;
@@ -602,8 +603,10 @@ function resolveRuntimeStatus(
     pendingApprovalCount: number;
     runtimeStatusHint?: LuluAgentUiState;
     latestActivityAt: string | null;
+    agentsPaused: boolean;
   },
 ) {
+  if (signals.agentsPaused) return "paused";
   if ((signals.liveError || signals.hasConnectionIssues) && allowedRuntimeStatus(contract, "attention_required")) {
     return "attention_required";
   }
@@ -747,9 +750,10 @@ async function loadRuntimeSnapshot(
   if (pending) return pending;
 
   const loadPromise = (async () => {
-    const [bootstrapResponse, platformResponse] = await Promise.all([
+      const [bootstrapResponse, platformResponse, settingsResponse] = await Promise.all([
       workspaceApi.bootstrap(workspaceId),
       onboardingApi.platforms(workspaceId),
+      workspaceAppApi.settings(workspaceId),
     ]);
 
     let specializedLiveData: SpecializedLiveData | null = null;
@@ -764,6 +768,7 @@ async function loadRuntimeSnapshot(
     const snapshot: AgentRuntimeSnapshot = {
       bootstrap: bootstrapResponse.data,
       platforms: platformResponse.data.items,
+      agentsPaused: settingsResponse.data.settings.agents?.paused === true,
       specializedLiveData,
       liveError,
       cachedAt: Date.now(),
@@ -791,6 +796,7 @@ export function useLuluAgentRuntime(
     platforms: [],
     specializedLiveData: null,
     liveError: "",
+    agentsPaused: false,
     cachedAt: 0,
   });
   const [liveLoading, setLiveLoading] = useState(false);
@@ -800,6 +806,7 @@ export function useLuluAgentRuntime(
       setSnapshot({
         bootstrap: null,
         platforms: [],
+        agentsPaused: false,
         specializedLiveData: null,
         liveError: "",
         cachedAt: 0,
@@ -821,6 +828,7 @@ export function useLuluAgentRuntime(
         setSnapshot({
           bootstrap: null,
           platforms: [],
+          agentsPaused: false,
           specializedLiveData: null,
           liveError: getFriendlyErrorMessage(error, t("Live workspace data could not be loaded. Please refresh and try again.")),
           cachedAt: 0,
@@ -832,9 +840,17 @@ export function useLuluAgentRuntime(
 
     void load();
     const timer = window.setInterval(() => void load(), 60_000);
+    const onAgentSettingsChanged = (event: Event) => {
+      const workspaceIdFromEvent = (event as CustomEvent<{ workspaceId?: string }>).detail?.workspaceId;
+      if (workspaceIdFromEvent && workspaceIdFromEvent !== workspaceId) return;
+      clearRuntimeSnapshotCache(workspaceId);
+      void load();
+    };
+    window.addEventListener("lulu:agent-settings-changed", onAgentSettingsChanged);
     return () => {
       active = false;
       window.clearInterval(timer);
+      window.removeEventListener("lulu:agent-settings-changed", onAgentSettingsChanged);
     };
   }, [contract, language, t, workspaceId]);
 
@@ -871,6 +887,7 @@ export function useLuluAgentRuntime(
       pendingApprovalCount,
       runtimeStatusHint: snapshot.specializedLiveData?.runtimeStatusHint,
       latestActivityAt,
+      agentsPaused: snapshot.agentsPaused,
     });
     const currentFocusDetail = snapshot.specializedLiveData?.currentFocusDetail
       ?? (snapshot.bootstrap?.recentActivity[0]

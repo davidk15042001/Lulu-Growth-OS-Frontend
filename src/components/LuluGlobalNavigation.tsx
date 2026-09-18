@@ -104,7 +104,8 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
     try {
       const response = await workspaceAppApi.updateSettings(selectedWorkspace.id, { agents: { paused: nextPaused } });
       setAgentsPaused(response.data.settings.agents?.paused === true);
-        setAgentsToggleError(null);
+      window.dispatchEvent(new CustomEvent("lulu:agent-settings-changed", { detail: { workspaceId: selectedWorkspace.id } }));
+      setAgentsToggleError(null);
       } catch (error) {
         // Keep the last confirmed state visible and give the user a retryable
         // signal instead of leaving an unhandled promise behind.

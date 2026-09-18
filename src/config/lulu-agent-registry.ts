@@ -14,7 +14,8 @@ export type LuluAgentUiState =
   | "analyzing"
   | "executing"
   | "completed"
-  | "attention_required";
+  | "attention_required"
+  | "paused";
 
 export type LuluAgentApprovalPolicy = {
   requiresApproval: boolean;
