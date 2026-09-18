@@ -24,10 +24,10 @@ jobs:
 
     steps:
       - name: Frontend auschecken
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Backend auschecken
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           repository: davidk15042001/Lulu-Growth-OS-Backend
           ref: main
