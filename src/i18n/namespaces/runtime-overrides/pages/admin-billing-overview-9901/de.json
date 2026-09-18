@@ -469,5 +469,11 @@
   "Abrechnung": "Abrechnung",
   "Airwallex ID": "Airwallex ID",
   "AI verfügbar / Zahlung reserviert / Arbeit reserviert": "AI verfügbar / Zahlung reserviert / Arbeit reserviert",
-  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert"
+  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert",
+  "Checked: {{0}} · created: {{1}} · failed: {{2}}{{3}}": "Geprüft: {{0}} · erstellt: {{1}} · Fehler: {{2}}{{3}}",
+  "seller data repaired: {{0}}": "Verkäuferdaten repariert: {{0}}",
+  " · seller data repaired: {{0}}": " · Verkäuferdaten repariert: {{0}}",
+  "The invoice reconciliation could not be started.": "Die Rechnungsprüfung konnte nicht gestartet werden.",
+  "Checking invoices…": "Rechnungen werden geprüft…",
+  "Check successful payments": "Erfolgreiche Zahlungen prüfen"
 }

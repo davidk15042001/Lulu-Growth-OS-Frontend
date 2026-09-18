@@ -154,5 +154,11 @@
   "Abrechnung": "Settlement",
   "Airwallex ID": "Airwallex ID",
   "AI verfügbar / Zahlung reserviert / Arbeit reserviert": "AI available / payment reserved / work reserved",
-  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "Ads available / payment reserved / campaign reserved"
+  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "Ads available / payment reserved / campaign reserved",
+  "Checked: {{0}} · created: {{1}} · failed: {{2}}{{3}}": "Checked: {{0}} · created: {{1}} · failed: {{2}}{{3}}",
+  "seller data repaired: {{0}}": "seller data repaired: {{0}}",
+  " · seller data repaired: {{0}}": " · seller data repaired: {{0}}",
+  "The invoice reconciliation could not be started.": "The invoice reconciliation could not be started.",
+  "Checking invoices…": "Checking invoices…",
+  "Check successful payments": "Check successful payments"
 }

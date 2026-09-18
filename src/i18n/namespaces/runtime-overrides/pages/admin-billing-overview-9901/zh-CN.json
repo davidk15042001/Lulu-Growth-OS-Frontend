@@ -469,5 +469,11 @@
   "Abrechnung": "结算",
   "Airwallex ID": "Airwallex ID",
   "AI verfügbar / Zahlung reserviert / Arbeit reserviert": "AI 可用 / 付款预留 / 工作预留",
-  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "广告可用 / 付款预留 / 活动预留"
+  "Ads verfügbar / Zahlung reserviert / Kampagnen reserviert": "广告可用 / 付款预留 / 活动预留",
+  "Checked: {{0}} · created: {{1}} · failed: {{2}}{{3}}": "已检查：{{0}} · 新建：{{1}} · 失败：{{2}}{{3}}",
+  "seller data repaired: {{0}}": "已修复卖方数据：{{0}}",
+  " · seller data repaired: {{0}}": " · 已修复卖方数据：{{0}}",
+  "The invoice reconciliation could not be started.": "无法启动发票核对。",
+  "Checking invoices…": "正在检查发票…",
+  "Check successful payments": "检查成功付款"
 }

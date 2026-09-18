@@ -697,10 +697,16 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
         body: { limit: 200 },
       });
       const sellerRepair = result.data.sellerRepair;
-      setReconcileNotice(`Geprüft: ${result.data.checked} · neu erstellt: ${result.data.created} · Fehler: ${result.data.failed}${sellerRepair ? ` · Verkäuferdaten repariert: ${sellerRepair.repaired}` : ""}`);
+      const summary = t("Checked: {{0}} · created: {{1}} · failed: {{2}}{{3}}");
+      const sellerSummary = sellerRepair ? ` · ${t("seller data repaired: {{0}}").replace("{{0}}", String(sellerRepair.repaired))}` : "";
+      setReconcileNotice(summary
+        .replace("{{0}}", String(result.data.checked))
+        .replace("{{1}}", String(result.data.created))
+        .replace("{{2}}", String(result.data.failed))
+        .replace("{{3}}", sellerSummary));
       await load();
     } catch (cause) {
-      onError(getFriendlyErrorMessage(cause, "Die Rechnungs-Reconciliation konnte nicht gestartet werden."));
+      onError(getFriendlyErrorMessage(cause, t("The invoice reconciliation could not be started.")));
     } finally { setReconciling(false); }
   };
 
@@ -767,7 +773,7 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
           <Pill tone="violet">Storage / Infrastruktur: {moneyUsd(totalServerUsd)}</Pill>
           <Pill tone="amber">Bytes: {sizeMB(totalStorageBytes)}</Pill>
           <button type="button" disabled={loading} onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
-          <button type="button" disabled={reconciling} onClick={() => void reconcileInvoices()} className="inline-flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"><RotateCcw size={14} className={reconciling ? "animate-spin" : undefined} /> {reconciling ? "Rechnungen werden geprüft…" : "Erfolgreiche Zahlungen prüfen"}</button>
+          <button type="button" disabled={reconciling} onClick={() => void reconcileInvoices()} className="inline-flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"><RotateCcw size={14} className={reconciling ? "animate-spin" : undefined} /> {reconciling ? t("Checking invoices…") : t("Check successful payments")}</button>
         </div>
       </div>
 
