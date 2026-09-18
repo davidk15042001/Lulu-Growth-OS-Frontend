@@ -12,7 +12,7 @@ import {
   Plug, KeyRound, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
   Settings as SettingsIcon, Search, ShieldCheck, ChevronRight,
   Lock, Unlock, UserCheck, RotateCcw, Ban, PlayCircle, Save, Filter, Trash2,
-  LayoutGrid, MessageSquare, Menu, X, LogIn, ExternalLink, Unplug, LoaderCircle
+  LayoutGrid, MessageSquare, Menu, X, LogIn, ExternalLink, Unplug, LoaderCircle, FileText
 } from "lucide-react";
 
 type NavSection = { label: string; items: NavItem[] };
@@ -775,6 +775,7 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
           <Pill tone="amber">Bytes: {sizeMB(totalStorageBytes)}</Pill>
           <button type="button" disabled={loading} onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
           <button type="button" disabled={reconciling} onClick={() => void reconcileInvoices()} className="inline-flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"><RotateCcw size={14} className={reconciling ? "animate-spin" : undefined} /> {reconciling ? t("Checking invoices…") : t("Check successful payments")}</button>
+          <a href="/admin/invoices" className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"><FileText size={14} /> {t("All invoices")}</a>
         </div>
       </div>
 
