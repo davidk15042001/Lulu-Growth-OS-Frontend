@@ -968,6 +968,7 @@
   "Leistungsbereiche und Angebote werden hier übersichtlich dargestellt.": "Services and offers are shown here in a clear overview.",
   "So sehen Kunden deine veröffentlichte Website. Leistungen und Produkte werden nur angezeigt, wenn sie wirklich vorhanden sind.": "This is how customers see your published website. Services and products appear only when they actually exist.",
   "Checked: {{0}} · created: {{1}} · failed: {{2}}{{3}}": "Checked: {{0}} · created: {{1}} · failed: {{2}}{{3}}",
+  "PDF links repaired: {{0}}": "PDF links repaired: {{0}}",
   "seller data repaired: {{0}}": "seller data repaired: {{0}}",
   " · seller data repaired: {{0}}": " · seller data repaired: {{0}}",
   "The invoice reconciliation could not be started.": "The invoice reconciliation could not be started.",

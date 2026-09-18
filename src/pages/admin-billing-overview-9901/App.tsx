@@ -691,19 +691,20 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
   const reconcileInvoices = async () => {
     setReconciling(true); setReconcileNotice(""); onError("");
     try {
-      const result = await requestApi<{ checked: number; created: number; failed: number; sellerRepair?: { checked: number; repaired: number; failed: number } }>({
+      const result = await requestApi<{ checked: number; created: number; repaired?: number; failed: number; sellerRepair?: { checked: number; repaired: number; failed: number } }>({
         path: "/admin/billing/reconcile-paid-invoices",
         method: "POST",
         body: { limit: 200 },
       });
       const sellerRepair = result.data.sellerRepair;
       const summary = t("Checked: {{0}} · created: {{1}} · failed: {{2}}{{3}}");
+      const documentRepairSummary = result.data.repaired ? ` · ${t("PDF links repaired: {{0}}").replace("{{0}}", String(result.data.repaired))}` : "";
       const sellerSummary = sellerRepair ? ` · ${t("seller data repaired: {{0}}").replace("{{0}}", String(sellerRepair.repaired))}` : "";
       setReconcileNotice(summary
         .replace("{{0}}", String(result.data.checked))
         .replace("{{1}}", String(result.data.created))
         .replace("{{2}}", String(result.data.failed))
-        .replace("{{3}}", sellerSummary));
+        .replace("{{3}}", `${documentRepairSummary}${sellerSummary}`));
       await load();
     } catch (cause) {
       onError(getFriendlyErrorMessage(cause, t("The invoice reconciliation could not be started.")));

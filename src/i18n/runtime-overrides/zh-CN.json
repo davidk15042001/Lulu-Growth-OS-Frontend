@@ -5748,6 +5748,7 @@
   "Trust": "信任",
   "Innovation": "创新",
   "Checked: {{0}} · created: {{1}} · failed: {{2}}{{3}}": "已检查：{{0}} · 新建：{{1}} · 失败：{{2}}{{3}}",
+  "PDF links repaired: {{0}}": "已修复 PDF 链接：{{0}}",
   "seller data repaired: {{0}}": "已修复卖方数据：{{0}}",
   " · seller data repaired: {{0}}": " · 已修复卖方数据：{{0}}",
   "The invoice reconciliation could not be started.": "无法启动发票核对。",
