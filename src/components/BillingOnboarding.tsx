@@ -159,7 +159,7 @@ export function BillingOnboarding() {
   };
 
   return (
-    <main className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <main className="lulu-billing-page min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <div className="mx-auto w-full max-w-7xl px-5 py-8 sm:px-8 lg:px-12 lg:py-10">
         <OnboardingHeader step={2} showBrandName={false} />
 
