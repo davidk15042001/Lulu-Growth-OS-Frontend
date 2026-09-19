@@ -281,6 +281,16 @@ export const LuluLoginPage = () => {
               <div><b className="block text-sm text-slate-950">24/7</b><span className="text-[10px] uppercase tracking-wide text-slate-500">{t('Execution')}</span></div>
               <div><b className="block text-sm text-slate-950">0</b><span className="text-[10px] uppercase tracking-wide text-slate-500">{t('Routine approvals')}</span></div>
             </div>
+
+            <footer className="lulu-login-fade-up lulu-login-d4 mt-6 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-slate-500">
+              <span data-lulu-no-translate="true" translate="no">© Lulu AI</span>
+              <a href="/privacy.html" className="font-medium text-slate-700 underline-offset-4 transition hover:text-indigo-600 hover:underline">
+                {t('Privacy')}
+              </a>
+              <a href="/terms.html" className="font-medium text-slate-700 underline-offset-4 transition hover:text-indigo-600 hover:underline">
+                {t('Terms')}
+              </a>
+            </footer>
           </div>
         </section>
 
