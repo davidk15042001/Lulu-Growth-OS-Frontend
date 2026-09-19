@@ -7,6 +7,7 @@ import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { routes } from "../../routing";
 import SupportInbox from '../support/SupportPage';
 import AdminOmniChannelPage from '../admin-omnichannel/AdminOmniChannelPage';
+import AdminCommercialDocumentsPage from '../admin-commercial/AdminCommercialDocumentsPage';
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
   Plug, KeyRound, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
@@ -18,7 +19,7 @@ import {
 type NavSection = { label: string; items: NavItem[] };
 type NavItem = { key: PageKey; label: string; icon: React.ReactElement; badge?: string };
 type PageKey =
-  | "dashboard" | "users" | "workspaces" | "crm" | "billing" | "websites"
+  | "dashboard" | "users" | "workspaces" | "crm" | "billing" | "invoices" | "websites"
   | "agents" | "integrations" | "oauth-connections" | "approvals" | "conversations" | "files"
   | "support" | "errors" | "audit" | "jobs" | "settings";
 
@@ -41,6 +42,7 @@ const NAV: NavSection[] = [
     label: "Money",
     items: [
       { key: "billing", label: "Billing & Funds", icon: <CreditCard size={16} /> },
+      { key: "invoices", label: "Invoices", icon: <FileText size={16} /> },
     ],
   },
   {
@@ -477,7 +479,7 @@ export default function App() {
   const capabilities = currentUser?.adminCapabilities ?? [];
   const required: Record<PageKey,string[]> = {
     dashboard:['users.read','workspaces.read','billing.read','providers.read','agents.read','security.read'],
-    users:['users.read'], workspaces:['workspaces.read'], billing:['billing.read'], crm:['workspaces.read'],
+    users:['users.read'], workspaces:['workspaces.read'], billing:['billing.read'], invoices:['billing.read'], crm:['workspaces.read'],
     websites:['providers.read'], agents:['agents.read'], integrations:['providers.read'], approvals:['agents.read'],
     'oauth-connections':['providers.read'],
     conversations:['users.read','workspaces.read'], files:['workspaces.read'], support:['users.read','workspaces.read'],
@@ -575,6 +577,7 @@ export default function App() {
           <main className="lulu-admin-console__main flex-1 overflow-y-auto px-6 py-6 space-y-6">
             {page === "dashboard" ? <DashboardPage onError={setError} /> : null}
             {page === "billing" ? <BillingPage onError={setError} /> : null}
+            {page === "invoices" ? <AdminCommercialDocumentsPage kind="invoices" embedded /> : null}
             {page === "users" ? <UsersPage onError={setError} /> : null}
             {page === "workspaces" ? <WorkspacesPage onError={setError} /> : null}
             {page === "crm" ? <CrmPage onError={setError} /> : null}

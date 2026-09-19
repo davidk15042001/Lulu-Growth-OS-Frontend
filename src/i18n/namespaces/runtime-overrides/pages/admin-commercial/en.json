@@ -19,5 +19,8 @@
   "The invoice PDF could not be downloaded.": "The invoice PDF could not be downloaded.",
   "PDF": "PDF",
   "Download": "Download",
+  "All statuses": "All statuses",
+  "Export": "Export",
+  "CSV": "CSV",
   "All customer invoices, sorted by invoice number for bookkeeping.": "All customer invoices, sorted by invoice number for bookkeeping."
 }

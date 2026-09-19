@@ -20,6 +20,9 @@
   "The invoice PDF could not be downloaded.": "无法下载发票 PDF。",
   "PDF": "PDF",
   "Download": "下载",
+  "All statuses": "所有状态",
+  "Export": "导出",
+  "CSV": "CSV",
   "All customer invoices, sorted by invoice number for bookkeeping.": "所有客户发票均按发票编号排序，方便记账。",
   "invoices": "发票"
 }
