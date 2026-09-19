@@ -59,7 +59,7 @@ jobs:
                 printf '%s audit passed.\n' "$label"
                 return 0
               fi
-              if printf '%s' "$output" | grep -Eqi '503|service unavailable|performing maintenance'; then
+              if printf '%s' "$output" | grep -Eqi '50[234]|service unavailable|performing maintenance|audit endpoint returned an error|fetch failed|ECONNRESET|ETIMEDOUT|EAI_AGAIN'; then
                 printf '%s audit service unavailable (attempt %s/3); retrying.\n' "$label" "$attempt" >&2
                 attempt=$((attempt + 1))
                 sleep 15
@@ -91,7 +91,7 @@ jobs:
                 printf '%s audit passed.\n' "$label"
                 return 0
               fi
-              if printf '%s' "$output" | grep -Eqi '503|service unavailable|performing maintenance'; then
+              if printf '%s' "$output" | grep -Eqi '50[234]|service unavailable|performing maintenance|audit endpoint returned an error|fetch failed|ECONNRESET|ETIMEDOUT|EAI_AGAIN'; then
                 printf '%s audit service unavailable (attempt %s/3); retrying.\n' "$label" "$attempt" >&2
                 attempt=$((attempt + 1))
                 sleep 15
