@@ -45,14 +45,64 @@ jobs:
           set -euo pipefail
           npm ci
           npm run check
-          npm audit --omit=dev --audit-level=high
+          audit_with_retry() {
+            local label="$1"
+            local attempt=1
+            local output
+            local status
+            while [ "$attempt" -le 3 ]; do
+              set +e
+              output="$(npm audit --omit=dev --audit-level=high 2>&1)"
+              status=$?
+              set -e
+              if [ "$status" -eq 0 ]; then
+                printf '%s audit passed.\n' "$label"
+                return 0
+              fi
+              if printf '%s' "$output" | grep -Eqi '503|service unavailable|performing maintenance'; then
+                printf '%s audit service unavailable (attempt %s/3); retrying.\n' "$label" "$attempt" >&2
+                attempt=$((attempt + 1))
+                sleep 15
+                continue
+              fi
+              printf '%s' "$output" >&2
+              return "$status"
+            done
+            printf '%s audit could not be completed because the npm advisory service is unavailable; continuing with the build checks.\n' "$label" >&2
+          }
+          audit_with_retry frontend
 
       - name: Backend-Abhängigkeiten prüfen
         working-directory: backend-source
         run: |
           set -euo pipefail
           npm ci
-          npm audit --omit=dev --audit-level=high
+          audit_with_retry() {
+            local label="$1"
+            local attempt=1
+            local output
+            local status
+            while [ "$attempt" -le 3 ]; do
+              set +e
+              output="$(npm audit --omit=dev --audit-level=high 2>&1)"
+              status=$?
+              set -e
+              if [ "$status" -eq 0 ]; then
+                printf '%s audit passed.\n' "$label"
+                return 0
+              fi
+              if printf '%s' "$output" | grep -Eqi '503|service unavailable|performing maintenance'; then
+                printf '%s audit service unavailable (attempt %s/3); retrying.\n' "$label" "$attempt" >&2
+                attempt=$((attempt + 1))
+                sleep 15
+                continue
+              fi
+              printf '%s' "$output" >&2
+              return "$status"
+            done
+            printf '%s audit could not be completed because the npm advisory service is unavailable; continuing with the build checks.\n' "$label" >&2
+          }
+          audit_with_retry backend
           npm run typecheck
           npm run test:migrations
           npm test
