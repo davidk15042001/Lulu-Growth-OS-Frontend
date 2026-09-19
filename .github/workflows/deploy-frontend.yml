@@ -43,7 +43,7 @@ jobs:
           LULU_BACKEND_PATH: backend-source
         run: |
           set -euo pipefail
-          npm ci
+          npm ci --no-audit
           npm run check
           audit_with_retry() {
             local label="$1"
@@ -76,7 +76,7 @@ jobs:
         working-directory: backend-source
         run: |
           set -euo pipefail
-          npm ci
+          npm ci --no-audit
           audit_with_retry() {
             local label="$1"
             local attempt=1
