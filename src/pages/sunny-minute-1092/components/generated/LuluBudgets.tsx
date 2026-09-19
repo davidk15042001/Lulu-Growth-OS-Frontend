@@ -1,11 +1,11 @@
 import { AlertTriangle, Ban, CalendarClock, CheckCircle2, CreditCard, DollarSign, KeyRound, Loader2, PencilLine, QrCode, RefreshCw, Search, ShieldCheck, Sparkles, WalletCards } from 'lucide-react';
-import QRCode from 'qrcode';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { adSpendApi, type AdBudgetAuthorization, type AdSpendOverview, type AdSpendPaymentMethod, type AdSpendTopup } from '../../../../api/adspend';
 import { getFriendlyErrorMessage } from '../../../../api/client';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
+import { createPaymentQrDataUrl } from '../../../../utils/paymentQr';
 
 function textValue(value: unknown) {
   if (value === null || value === undefined) return '';
@@ -95,7 +95,7 @@ export function LuluBudgets() {
     if (!currentTopup?.qrPayload) { setQrImage(''); return; }
     let active = true;
     const targetWorkspaceId = workspaceId;
-    void QRCode.toDataURL(currentTopup.qrPayload, { width: 260, margin: 1, errorCorrectionLevel: 'M' })
+    void createPaymentQrDataUrl(currentTopup.qrPayload)
       .then((value) => { if (active && workspaceRef.current === targetWorkspaceId) setQrImage(value); })
       .catch(() => { if (active && targetWorkspaceId && workspaceRef.current === targetWorkspaceId) setPaymentErrorState({ workspaceId: targetWorkspaceId, message: 'The payment QR code could not be rendered.' }); });
     return () => { active = false; };
@@ -288,7 +288,7 @@ export function LuluBudgets() {
           </div>
         </section>
 
-        {currentTopup?.qrPayload && <section className="rounded-3xl border border-border bg-card p-6 text-center sm:p-8"><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Secure payment</p><h2 className="mt-2 text-xl font-semibold">Scan with {currentTopup.paymentMethod === 'alipaycn' ? 'Alipay' : 'WeChat Pay'}</h2>{qrImage && <img src={qrImage} alt="Payment QR code" className="mx-auto mt-5 h-[260px] w-[260px] rounded-2xl border border-border bg-white p-3" />}<p className={`mt-4 text-sm ${advertisingReady ? 'text-emerald-600' : 'text-muted-foreground'}`}>{currentTopup.status === 'SUCCEEDED' ? paymentResult : 'Waiting securely for payment confirmation…'}</p>{currentTopup.status === 'SUCCEEDED' && (advertisingReady ? <CheckCircle2 className="mx-auto mt-3 text-emerald-500" size={28} /> : <AlertTriangle className="mx-auto mt-3 text-amber-500" size={28} />)}</section>}
+        {currentTopup?.qrPayload && <section className="rounded-3xl border border-border bg-card p-6 text-center sm:p-8"><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Secure payment</p><h2 className="mt-2 text-xl font-semibold">Scan with {currentTopup.paymentMethod === 'alipaycn' ? 'Alipay' : 'WeChat Pay'}</h2>{qrImage && <div className="mx-auto mt-5 w-fit max-w-full rounded-2xl border border-border bg-white p-4"><img src={qrImage} alt="Payment QR code" className="block h-auto w-[280px] max-w-full" /></div>}<p className={`mt-4 text-sm ${advertisingReady ? 'text-emerald-600' : 'text-muted-foreground'}`}>{currentTopup.status === 'SUCCEEDED' ? paymentResult : 'Waiting securely for payment confirmation…'}</p>{currentTopup.status === 'SUCCEEDED' && (advertisingReady ? <CheckCircle2 className="mx-auto mt-3 text-emerald-500" size={28} /> : <AlertTriangle className="mx-auto mt-3 text-amber-500" size={28} />)}</section>}
 
         <section className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
           <div className="border-b border-border p-6 sm:p-8"><div className="flex items-start gap-3"><KeyRound className="mt-1 shrink-0 text-primary" size={21} /><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Customer budget authority</p><h2 className="mt-2 text-xl font-semibold">Authorize an exact Google Ads campaign</h2><p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">This is the only decision Lulu will not make for you. The authorization is scoped and enforced server-side; a wallet balance alone can never launch or increase a campaign.</p></div></div></div>

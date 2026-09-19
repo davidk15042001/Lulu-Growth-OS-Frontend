@@ -8,7 +8,6 @@ import {
   ShieldCheck,
   WalletCards,
 } from "lucide-react";
-import QRCode from "qrcode";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   adSpendApi,
@@ -19,6 +18,7 @@ import {
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { createPaymentQrDataUrl } from "../utils/paymentQr";
 
 const packages = [1, 10_000, 25_000, 50_000, 90_000];
 const methods: Array<{ id: AdSpendPaymentMethod; label: string; detail: string }> = [
@@ -105,7 +105,7 @@ export function AdSpendWalletPanel() {
     }
     let active = true;
     const targetWorkspaceId = workspaceId;
-    void QRCode.toDataURL(topup.qrPayload, { width: 240, margin: 1, errorCorrectionLevel: "M" })
+    void createPaymentQrDataUrl(topup.qrPayload)
       .then((value) => {
         if (active && workspaceRef.current === targetWorkspaceId) setQr(value);
       })
@@ -208,7 +208,7 @@ export function AdSpendWalletPanel() {
           {!can("administer") && <p className="mt-2 text-xs text-muted-foreground">{t("Only workspace owners and administrators can add advertising budget.")}</p>}
         </div>
       </div>
-      {topup?.qrPayload && <div className="border-t border-border p-6 text-center"><h3 className="font-semibold">Scan with {topup.paymentMethod === "alipaycn" ? "Alipay" : "WeChat Pay"}</h3>{qr && <img src={qr} alt={t("Advertising budget payment QR code")} className="mx-auto mt-4 h-60 w-60 rounded-xl border bg-white p-3" />}<p className="mt-3 text-sm text-muted-foreground">{topup.status === "SUCCEEDED" ? <span className="inline-flex items-center gap-2 text-emerald-700"><CheckCircle2 size={16} />{t("Advertising budget credited.")}</span> : t("Waiting for confirmed payment…")}</p></div>}
+      {topup?.qrPayload && <div className="border-t border-border p-6 text-center"><h3 className="font-semibold">Scan with {topup.paymentMethod === "alipaycn" ? "Alipay" : "WeChat Pay"}</h3>{qr && <div className="mx-auto mt-4 w-fit max-w-full rounded-xl border bg-white p-4"><img src={qr} alt={t("Advertising budget payment QR code")} className="block h-auto w-[280px] max-w-full" /></div>}<p className="mt-3 text-sm text-muted-foreground">{topup.status === "SUCCEEDED" ? <span className="inline-flex items-center gap-2 text-emerald-700"><CheckCircle2 size={16} />{t("Advertising budget credited.")}</span> : t("Waiting for confirmed payment…")}</p></div>}
     </section>
   );
 }

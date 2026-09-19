@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { AlertCircle, CheckCircle2, CreditCard, Database, Landmark, LoaderCircle, QrCode, RefreshCw, ShieldCheck, WalletCards } from 'lucide-react';
-import QRCode from 'qrcode';
 import { getFriendlyErrorMessage } from '../../../../api/client';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { workspaceAppApi, type BillingState } from '../../../../api/workspace-app';
 import { LuluGlobalNavigation } from '../../../../components/LuluGlobalNavigation';
 import { ApiWalletPanel } from '../../../../components/ApiWalletPanel';
 import { AdSpendWalletPanel } from '../../../../components/AdSpendWalletPanel';
+import { createPaymentQrDataUrl } from '../../../../utils/paymentQr';
 
 const tabs = [
   { id: 'payments', label: 'Payments' },
@@ -161,10 +161,7 @@ export function LuluBilling() {
 
   const renderQr = useCallback(async (payment: QrPayment) => {
     if (!payment.qrPayload || payment.status === 'succeeded') { setQrImage(null); return; }
-    setQrImage(await QRCode.toDataURL(payment.qrPayload, {
-      errorCorrectionLevel: 'M', margin: 1, width: 320,
-      color: { dark: '#101828', light: '#ffffff' },
-    }));
+    setQrImage(await createPaymentQrDataUrl(payment.qrPayload));
   }, []);
 
   const prepareQrPayment = useCallback(async (paymentMethod: Exclude<PaygPaymentMethod, 'card'>, periodId: string) => {

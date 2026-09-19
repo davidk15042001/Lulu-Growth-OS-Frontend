@@ -7,7 +7,6 @@ import {
   Sparkles,
   WalletCards,
 } from "lucide-react";
-import QRCode from "qrcode";
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   apiWalletApi,
@@ -18,6 +17,7 @@ import {
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { createPaymentQrDataUrl } from "../utils/paymentQr";
 const packages = [1, 250, 500, 1000, 2500, 5000, 9000];
 const methods: Array<{ id: ApiPaymentMethod; label: string }> = [
   { id: "card", label: "Bank card" },
@@ -134,7 +134,7 @@ export function ApiWalletPanel() {
     }
     let active = true;
     const targetWorkspaceId = workspaceId;
-    void QRCode.toDataURL(currentTopup.qrPayload, { width: 240, margin: 1 })
+    void createPaymentQrDataUrl(currentTopup.qrPayload)
       .then((value) => {
         if (active && workspaceRef.current === targetWorkspaceId) setQr(value);
       })
@@ -400,11 +400,7 @@ export function ApiWalletPanel() {
               : "WeChat Pay"}
           </h3>
           {qr ? (
-            <img
-              src={qr}
-              alt="AI balance payment QR code"
-              className="mx-auto mt-4 h-60 w-60 rounded-xl border bg-white p-3"
-            />
+            <div className="mx-auto mt-4 w-fit max-w-full rounded-xl border bg-white p-4"><img src={qr} alt="AI balance payment QR code" className="block h-auto w-[280px] max-w-full" /></div>
           ) : null}
           <p className="mt-3 text-sm text-muted-foreground">
             {currentTopup.status === "SUCCEEDED" ? (
