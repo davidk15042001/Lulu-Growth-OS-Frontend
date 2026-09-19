@@ -101,5 +101,7 @@
   "Upload and preserve company documents as part of the persistent analysis context.": "上传并保存公司文档，作为持久化分析背景的一部分。",
   "Manage language, account, integrations, billing and workspace preferences.": "管理语言、账户、集成、计费与工作区偏好。",
   "Keep provider credentials and API keys on the server and out of the browser.": "将提供商凭据与 API 密钥保存在服务器上，而非浏览器中。",
-  "Manage subscriptions, plan access, usage and billing status from one protected area.": "在一个受保护的区域中管理订阅、套餐访问、用量与计费状态。"
+  "Manage subscriptions, plan access, usage and billing status from one protected area.": "在一个受保护的区域中管理订阅、套餐访问、用量与计费状态。",
+  "Official integration coverage": "官方集成覆盖范围",
+  "Wir unterstützen: offiziell 50.000+ einzelne Tools/Actions über 1.500+ Integrationen": "官方支持 1,500+ 个集成中的 50,000+ 个工具/操作"
 }

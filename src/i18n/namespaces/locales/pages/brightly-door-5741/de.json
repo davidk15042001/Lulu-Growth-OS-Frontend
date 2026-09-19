@@ -101,5 +101,7 @@
   "Upload and preserve company documents as part of the persistent analysis context.": "Lade Unternehmensdokumente hoch und bewahre sie als Teil des dauerhaften Analysekontexts.",
   "Manage language, account, integrations, billing and workspace preferences.": "Verwalte Sprache, Konto, Integrationen, Abrechnung und Workspace-Einstellungen.",
   "Keep provider credentials and API keys on the server and out of the browser.": "Halte Anbieter-Zugangsdaten und API-Schlüssel auf dem Server – nicht im Browser.",
-  "Manage subscriptions, plan access, usage and billing status from one protected area.": "Verwalte Abonnements, Tarifzugang, Nutzung und Abrechnungsstatus in einem geschützten Bereich."
+  "Manage subscriptions, plan access, usage and billing status from one protected area.": "Verwalte Abonnements, Tarifzugang, Nutzung und Abrechnungsstatus in einem geschützten Bereich.",
+  "Official integration coverage": "Offizieller Integrationsumfang",
+  "Wir unterstützen: offiziell 50.000+ einzelne Tools/Actions über 1.500+ Integrationen": "Wir unterstützen: offiziell 50.000+ einzelne Tools/Actions über 1.500+ Integrationen"
 }

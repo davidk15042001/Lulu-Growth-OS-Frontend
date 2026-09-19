@@ -143,8 +143,15 @@ export const LoginFeaturesLanding = () => {
             </div>
           </div>
 
-          <div className="mt-16 flex flex-col items-start justify-between gap-6 border-y border-slate-200 py-8 sm:flex-row sm:items-center">
-            <div className="flex items-center gap-3"><ShoppingBag size={19} className="text-violet-700" /><p className="text-sm font-semibold">{t('One connection layer for the systems behind the business')}</p></div>
+          <div className="mt-16 grid gap-6 border-y border-slate-200 py-8 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div className="flex items-start gap-3">
+              <ShoppingBag size={19} className="mt-1 shrink-0 text-violet-700" />
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[.18em] text-violet-700">{t('Official integration coverage')}</p>
+                <p className="mt-2 max-w-3xl text-base font-semibold leading-7 text-slate-950 sm:text-lg">{t('Wir unterstützen: offiziell 50.000+ einzelne Tools/Actions über 1.500+ Integrationen')}</p>
+                <p className="mt-1 text-sm text-slate-600">{t('One connection layer for the systems behind the business')}</p>
+              </div>
+            </div>
             <a href="#login-access" className="lulu-login-entry-link inline-flex items-center gap-2 rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-violet-700">{t('Enter Lulu')}<ArrowRight size={15} /></a>
           </div>
         </div>
