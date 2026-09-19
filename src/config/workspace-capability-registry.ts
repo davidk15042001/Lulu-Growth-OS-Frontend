@@ -52,12 +52,12 @@ export const SETTINGS_LABEL = "Settings";
 export const AI_LABEL = "AI";
 export const CRM_LABEL = "CRM";
 export const CRM_LANDING_PAGE_ID = "sturdy-month-1562";
+export const CRM_PARTNERS_PAGE_ID = "partner-operations-9020";
 export const OMNICHANNEL_LABEL = "OmniChannel";
 export const DIRECT_SECTION_LABELS = new Set([AI_LABEL, OMNICHANNEL_LABEL]);
 
-// Website work is now owned and executed by Lulu itself. Keep the former
-// provider pages available only for migration-safe deep links; they must not
-// appear in the customer navigation after the managed website rollout.
+// Website work is owned and executed by Lulu itself. Former provider pages
+// are retired and are not part of customer navigation.
 const LEGACY_EXTERNAL_WEBSITE_PAGE_IDS = new Set([
   "website-wordpress-jetpack-9013",
   "website-webflow-9014",
@@ -109,6 +109,7 @@ const PAGE_METADATA: Readonly<Record<string, Partial<{
   readPermission: WorkspaceCapability;
 }>>> = {
   [CRM_LANDING_PAGE_ID]: { department: "CRM", employee: "Company Intelligence Specialist", capabilityKey: "crm.companies", readPermission: "crm.read" },
+  [CRM_PARTNERS_PAGE_ID]: { department: "CRM", employee: "Partner Operations Manager", capabilityKey: "crm.partners", readPermission: "crm.read" },
   omnichannel: { department: "Communications", employee: "OmniChannel Manager", capabilityKey: "omnichannel.conversations", readPermission: "omnichannel.read" },
   "lulu-email-portal-9013": { department: "Communications", employee: "Email Specialist", capabilityKey: "communications.email", readPermission: "workspace.read" },
   "lulu-calendar-portal-9014": { department: "Operations", employee: "Calendar Coordinator", capabilityKey: "operations.calendar", readPermission: "workspace.read" },
@@ -173,6 +174,7 @@ function createWorkspaceNavigationSections(): { all: NavigationSection[]; visibl
     statistics.pages = [...statistics.pages, ...crm.pages.filter((page) => STATISTICS_PAGE_IDS.has(page.id))];
     crm.pages = crm.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id) && page.id !== LEGACY_CRM_COMPANIES_PAGE_ID);
   }
+  if (crm) crm.pages = [...crm.pages, { id: CRM_PARTNERS_PAGE_ID, label: "Partnernetzwerk" }];
 
   const ai = sections.find((section) => section.label === AI_LABEL);
   let settings = sections.find((section) => section.label === SETTINGS_LABEL);
@@ -361,6 +363,9 @@ const OBJECT_WORKSPACE_PAGE: Readonly<Record<string, string>> = {
   companies: CRM_LANDING_PAGE_ID,
   crm_company: CRM_LANDING_PAGE_ID,
   crm_companies: CRM_LANDING_PAGE_ID,
+  crm_partners: CRM_PARTNERS_PAGE_ID,
+  crm_partner_reviews: CRM_PARTNERS_PAGE_ID,
+  crm_partner_work_orders: CRM_PARTNERS_PAGE_ID,
   customer: CRM_LANDING_PAGE_ID,
   customers: CRM_LANDING_PAGE_ID,
   lead: "softly-autumn-9038",

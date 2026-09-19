@@ -24,7 +24,7 @@ import {
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
 const DISPLAY_STATUSES = new Set(["queued", "planning", "generated", "preview", "publishing", "failed", "cancelled"]);
-type StoredWebsiteGeneration = { workspaceId: string; siteId: string; provider: "wordpress" | "webflow"; job: WebsiteGenerationJob };
+type StoredWebsiteGeneration = { workspaceId: string; siteId: string; provider: "managed"; job: WebsiteGenerationJob };
 
 function isBlockingWebsiteJob(job: Pick<WebsiteGenerationJob, "status" | "autoPublish">) {
   return RUNNING_STATUSES.has(job.status) || (job.autoPublish !== false && ["generated", "preview"].includes(job.status));

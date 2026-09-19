@@ -4,7 +4,7 @@ import { getSelectedWorkspaceId } from "./session";
 export type SearchChannel = "seo" | "geo" | "aeo";
 
 export type SearchConnectedTarget = {
-  provider: "wordpress" | "webflow" | "shopify";
+  provider: "managed";
   id: string;
   label: string;
   url: string | null;
@@ -37,7 +37,7 @@ export type SearchChannelSummary = {
 };
 
 export type AppliedSearchTarget = {
-  provider: "wordpress" | "webflow" | "shopify";
+  provider: "managed";
   targetId: string;
   label: string;
   url: string | null;
@@ -45,7 +45,7 @@ export type AppliedSearchTarget = {
 };
 
 export type FailedSearchTarget = {
-  provider: "wordpress" | "webflow" | "shopify";
+  provider: "managed";
   targetId: string;
   label: string;
   url: string | null;

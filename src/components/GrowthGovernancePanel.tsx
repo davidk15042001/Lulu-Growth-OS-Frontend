@@ -22,7 +22,7 @@ function oauthProviderFor(providerKey: string) {
   const normalized = providerKey.toLowerCase();
   if (normalized.startsWith('google_')) return 'google';
   if (['meta', 'facebook', 'instagram'].includes(normalized)) return 'meta';
-  if (['linkedin', 'tiktok_ads', 'salesforce', 'hubspot', 'pipedrive', 'wordpress', 'webflow', 'shopify'].includes(normalized)) return normalized;
+  if (['linkedin', 'tiktok_ads', 'salesforce', 'hubspot', 'pipedrive'].includes(normalized)) return normalized;
   return null;
 }
 

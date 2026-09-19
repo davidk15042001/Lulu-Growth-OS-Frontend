@@ -529,13 +529,14 @@ export function LuluSectionNavigation({
   activeId: string;
 }) {
   const t = useTranslation();
+  const retiredExternalWebsitePages = new Set(["website-wordpress-jetpack-9013", "website-webflow-9014"]);
   const sections = [
     { label: "OmniChannel", pages: [{ id: "omnichannel", label: "Inbox" }] },
     ...luluDropdownNavigation.filter((section) => section.label !== "Statistiken" && (section.label as string) !== "Revenue"),
   ].map((section) => ({
     ...section,
     pages: [
-      ...section.pages.filter((page) => isPageAvailable(page.id) && page.id !== "nicely-land-1864"),
+      ...section.pages.filter((page) => isPageAvailable(page.id) && page.id !== "nicely-land-1864" && !retiredExternalWebsitePages.has(page.id)),
       ...(section.label === "Settings" ? [{ id: "profile", label: "Profile" }, { id: "support", label: "Support" }] : []),
     ],
   })).filter((section) => section.pages.length > 0);

@@ -628,7 +628,7 @@ function LuluSectionNavigation({
   activeId: string;
 }) {
   return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
-    {luluDropdownNavigation.map(section => {
+    {luluDropdownNavigation.map(section => ({ ...section, pages: section.pages.filter(page => page.id !== "website-wordpress-jetpack-9013" && page.id !== "website-webflow-9014") })).map(section => {
       const isActiveSection = section.pages.some(page => page.id === activeId);
       return <details key={section.label} open={isActiveSection} className="group rounded-lg">
         <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>

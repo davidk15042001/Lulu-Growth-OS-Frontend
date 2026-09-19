@@ -289,7 +289,7 @@ type DashboardStats = {
   workspaces: { total: number; onboarded: number; filesPurged: number; newLast30d: number };
   subscriptions: { total: number; active: number; trialing: number; canceled: number; aiPlan: number; starterPlan: number; explorerPlan: number; testPlan: number };
   crmByType: Array<{ resourceType: string; count: number }>;
-  websites: { total: number; published: number; wordpress: number; shopify: number; webflow: number; woocommerce: number };
+  websites: { total: number; published: number; managed: number; woocommerce: number };
   notifications: { totalLast24h: number; errorsLast24h: number; warningsLast24h: number };
 };
 
@@ -642,7 +642,7 @@ function DashboardPage({ onError }: { onError: (m: string) => void }) {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <KPI label="Websites" value={stats?.websites.total ?? "—"} hint={`${stats?.websites.published ?? 0} published`} accent="sky" />
-        <KPI label="Platform Split" value={`WP ${stats?.websites.wordpress ?? 0} · Shopify ${stats?.websites.shopify ?? 0}`} hint={`WF ${stats?.websites.webflow ?? 0} · WC ${stats?.websites.woocommerce ?? 0}`} accent="violet" />
+        <KPI label="Website runtime" value={`Lulu ${stats?.websites.managed ?? 0}`} hint={`WC ${stats?.websites.woocommerce ?? 0}`} accent="violet" />
         <KPI label="Events last 24h" value={stats?.notifications.totalLast24h ?? 0} hint={`${stats?.notifications.errorsLast24h ?? 0} errors · ${stats?.notifications.warningsLast24h ?? 0} warnings`} accent={stats?.notifications.errorsLast24h ? "rose" : "emerald"} />
       </div>
 

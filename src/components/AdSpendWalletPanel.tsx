@@ -180,15 +180,15 @@ export function AdSpendWalletPanel() {
   }
 
   return (
-    <section className="mb-6 overflow-hidden rounded-3xl border border-sky-500/20 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,.14),transparent_48%),var(--card)] shadow-sm">
-      <div className="grid lg:grid-cols-[.9fr_1.1fr]">
+    <section className="overflow-hidden rounded-3xl border border-sky-500/20 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,.14),transparent_48%),var(--card)] shadow-sm">
+      <div className="grid 2xl:grid-cols-[.9fr_1.1fr]">
         <div className="p-6 sm:p-8">
           <div className="flex items-center gap-2 text-sky-700"><DollarSign size={18} /><p className="text-xs font-semibold uppercase tracking-[.18em]">{t("Prepaid advertising")}</p></div>
           <h2 className="mt-3 text-2xl font-semibold">{t("Ads budget wallet")}</h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("Advertising has its own prepaid balance. It is completely separate from AI/API funds and Cloudflare R2 storage.")}</p>
           <p className="mt-7 text-xs uppercase tracking-[.15em] text-muted-foreground">{t("Available budget")}</p>
           <p className="mt-2 text-4xl font-semibold">{loading ? "—" : money.format(wallet?.availableAmount ?? 0)}</p>
-          <div className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+          <div className="mt-4 grid grid-cols-2 gap-2 text-xs 2xl:grid-cols-4">
             <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3"><span className="text-muted-foreground">{t("Reserved for payment")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.paymentReservedAmount ?? 0)}</strong></div>
             <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Reserved for campaigns")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.reservedAmount ?? 0)}</strong></div>
             <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Spent")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.spentAmount ?? 0)}</strong></div>
@@ -197,7 +197,7 @@ export function AdSpendWalletPanel() {
           <span className={`mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${ready ? "bg-emerald-500/10 text-emerald-700" : "bg-amber-500/10 text-amber-700"}`}><span className={`h-2 w-2 rounded-full ${ready ? "bg-emerald-500" : "bg-amber-500"}`} />{ready ? t("Paid execution can run") : t("Waiting for confirmed ad funds")}</span>
           <div className="mt-5 flex items-start gap-2 rounded-xl bg-secondary p-3 text-xs leading-5 text-muted-foreground"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-foreground" />{t("Lulu can optimize campaigns autonomously, but it can never spend beyond the prepaid wallet and the customer-authorized campaign limit.")}</div>
         </div>
-        <div className="border-t border-border bg-background/40 p-6 sm:p-8 lg:border-l lg:border-t-0">
+        <div className="border-t border-border bg-background/40 p-6 sm:p-8 2xl:border-l 2xl:border-t-0">
           <p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">{t("Add advertising budget")}</p>
           <p className="mt-2 text-sm text-muted-foreground">The selected amount is credited to ads. A 4% Lulu service fee is charged on top.</p>
           <div className="mt-4 grid grid-cols-2 gap-2">{packages.map((value) => <button key={value} type="button" onClick={() => setAmount(value)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${amount === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-secondary"}`}>{money.format(value)}</button>)}</div>

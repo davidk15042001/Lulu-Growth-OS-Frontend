@@ -5,6 +5,7 @@ export type WorkspaceRecord = {
   id: string;
   workspaceId: string;
   resourceType: string;
+  parentId: string | null;
   name: string;
   description: string | null;
   status: string;
@@ -12,6 +13,7 @@ export type WorkspaceRecord = {
   valueAmount: string | null;
   currency: string | null;
   dueAt: string | null;
+  assigneeId: string | null;
   tags: string[];
   data: Record<string, unknown>;
   version: number;
@@ -19,8 +21,9 @@ export type WorkspaceRecord = {
   updatedAt: string;
 };
 
-export type RecordInput = Partial<Omit<WorkspaceRecord, "id" | "workspaceId" | "resourceType" | "version" | "createdAt" | "updatedAt">> & {
+export type RecordInput = Partial<Omit<WorkspaceRecord, "id" | "workspaceId" | "resourceType" | "version" | "createdAt" | "updatedAt" | "valueAmount">> & {
   name: string;
+  valueAmount?: string | number | null;
 };
 
 export type ResourceTypeDefinition = { key: string; domain: string; label: string; description: string };

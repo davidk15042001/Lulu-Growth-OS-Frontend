@@ -27,7 +27,7 @@ type AnalysisForm = Required<AnalyzeSearchInput>;
 const CHANNEL_COPY: Record<SearchChannel, { title: string; subtitle: string; primaryLabel: string; secondaryLabel: string }> = {
   seo: {
     title: "SEO Intelligence",
-    subtitle: "Live Keywords, SERPs und On-Page-Signale aus DataForSEO mit direkter Ausspielung auf WordPress, Webflow und Shopify.",
+    subtitle: "Live Keywords, SERPs und On-Page-Signale aus DataForSEO mit direkter Ausspielung auf deine Lulu-Website.",
     primaryLabel: "Sichtbarkeit",
     secondaryLabel: "Rankings",
   },
@@ -45,11 +45,7 @@ const CHANNEL_COPY: Record<SearchChannel, { title: string; subtitle: string; pri
   },
 };
 
-const PROVIDER_LABELS = {
-  wordpress: "WordPress",
-  webflow: "Webflow",
-  shopify: "Shopify",
-} as const;
+const PROVIDER_LABELS = { managed: "Lulu-Website" } as const;
 
 const DEFAULT_FORM: AnalysisForm = {
   locationCode: 2840,
@@ -205,7 +201,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
                 </span>
                 <span className="inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-emerald-200">
                   <Target className="h-3.5 w-3.5" />
-                  WordPress, Webflow und Shopify direkt
+                  Lulu-Website direkt
                 </span>
               </div>
               <div>
@@ -417,7 +413,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
                 })
               ) : (
                 <div className="rounded-2xl border border-dashed border-white/10 bg-slate-950/40 px-4 py-5 text-sm text-slate-400">
-                  Noch keine verbundenen WordPress-, Webflow- oder Shopify-Ziele vorhanden.
+                Noch keine veröffentlichte Lulu-Website vorhanden.
                 </div>
               )}
             </div>

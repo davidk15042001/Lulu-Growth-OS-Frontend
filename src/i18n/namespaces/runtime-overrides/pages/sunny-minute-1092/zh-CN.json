@@ -101,5 +101,11 @@
   "Payment confirmed. Funds are available and authorized paid execution is active.": "付款已确认。资金可用，已授权的付费执行已启用。",
   "Payment confirmed. Funds are available; paid execution is waiting for a campaign budget authorization.": "付款已确认。资金可用；付费执行正在等待广告系列预算授权。",
   "Payment confirmed. No usable advertising balance remains.": "付款已确认。当前没有可用的广告余额。",
-  "Payment confirmed. Refresh to verify the current advertising wallet state.": "付款已确认。请刷新以核实当前广告钱包状态。"
+  "Payment confirmed. Refresh to verify the current advertising wallet state.": "付款已确认。请刷新以核实当前广告钱包状态。",
+  "A successful payment is not the same as settlement. Funds remain reserved until Airwallex confirms that the money has reached the Wallet.": "支付成功并不等于结算。在 Airwallex 确认资金已到达电子钱包之前，资金将保留。",
+  "Awaiting Airwallex settlement": "等待Airwallex结算",
+  "Payment received. It stays reserved until Airwallex confirms settlement into its Wallet.": "付款已收到。在 Airwallex 确认结算到其电子钱包之前，它会一直保留。",
+  "Reserved for payment": "支付处理中",
+  "Settled into wallet": "已存入钱包",
+  "Settled top-ups": "已结算充值"
 }

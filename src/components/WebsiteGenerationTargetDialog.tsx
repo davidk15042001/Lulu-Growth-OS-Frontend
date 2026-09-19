@@ -4,7 +4,7 @@ import type { WebsiteGenerationTargetMode, WebsiteSite } from "../api/websites";
 type Translate = (key: string) => string;
 
 type Props = {
-  provider: "wordpress" | "webflow";
+  provider: "managed";
   sites: WebsiteSite[];
   selectedSiteId: string;
   mode: WebsiteGenerationTargetMode | null;
@@ -18,8 +18,8 @@ type Props = {
 
 export function WebsiteGenerationTargetDialog({ provider, sites, selectedSiteId, mode, busy, onSelectSite, onSelectMode, onCancel, onContinue, t }: Props) {
   const providerSites = sites.filter((site) => site.provider === provider);
-  const providerLabel = provider === "wordpress" ? "WordPress / Jetpack" : "Webflow";
-  const siteRequired = provider === "wordpress";
+  const providerLabel = "Lulu managed Website";
+  const siteRequired = false;
   const canContinue = Boolean(mode && (!siteRequired || selectedSiteId) && !busy);
 
   return (

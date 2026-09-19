@@ -65,20 +65,20 @@ export function generationActivityMessage(event: WebsiteGenerationActivity, t: T
     page_publishing: 'Page "{{page}}" is being published.',
     page_already_published: 'Page "{{page}}" was already published and was safely skipped.',
     page_published: 'Page "{{page}}" was published successfully.',
-    homepage_configuring: "The WordPress homepage is being configured.",
+    homepage_configuring: "The website homepage is being configured.",
     site_customization_started: "Company identity, navigation, header, footer and cleanup are being configured.",
     gutenberg_layout_published: "{{pages}} pages were published as theme-independent Gutenberg content.",
-    site_identity_configured: 'The WordPress website name was changed to "{{title}}".',
-    global_chrome_configured: "The global WordPress header, navigation and footer were configured.",
-    contact_form_embedded: "The contact form was embedded and connected to WordPress responses.",
+    site_identity_configured: 'The website name was changed to "{{title}}".',
+    global_chrome_configured: "The global website header, navigation and footer were configured.",
+    contact_form_embedded: "The contact form was embedded and connected to your workspace.",
     duplicate_pages_archived: "{{pages}} older Lulu page duplicates were safely archived as drafts.",
-    site_customization_partial: "WordPress restricted part of the global website customization. All confirmed changes remain saved.",
-    homepage_action_required: 'All pages are published. Select "{{page}}" as the static homepage in WordPress.',
-    theme_action_required: 'Install and activate the "{{theme}}" theme to apply the complete generated design.',
+    site_customization_partial: "Some global website customization needs attention. All confirmed changes remain saved.",
+    homepage_action_required: 'All pages are published. Select "{{page}}" as the homepage in Website settings.',
+    theme_action_required: 'The generated design is ready in the Lulu managed Website.',
     website_published: "The website was published successfully.",
-    website_published_setup_required: "All pages were published. Complete the remaining WordPress setup steps.",
-    published_job_reconciled: "The published WordPress pages were verified and the interrupted job was restored safely.",
-    website_published_with_warning: "The website was published, but WordPress reported: {{warning}}",
+    website_published_setup_required: "All pages were published. Complete the remaining Website setup steps.",
+    published_job_reconciled: "The published Website pages were verified and the interrupted job was restored safely.",
+    website_published_with_warning: "The website was published with a warning: {{warning}}",
     job_cancelled: "Generation was paused. All completed checkpoints remain saved.",
     generation_retry_exhausted: "Website generation stopped after {{attempts}} interrupted worker attempts. No background work is still running.",
     generation_failed: "Generation failed: {{message}}",
@@ -250,7 +250,7 @@ export function WebsiteGenerationLivePanel({
             </div>
             <div className="flex items-center gap-2">
               {selectedPage?.content && <button type="button" onClick={() => setPreviewMode("generated")} aria-pressed={!showPublished} className={`rounded-xl px-3 py-2 text-xs font-medium ${!showPublished ? "bg-[#2271b1] text-white" : "bg-white text-[#50575e]"}`}>{t("Generated preview")}</button>}
-              {canShowPublished && <button type="button" onClick={() => setPreviewMode("published")} aria-pressed={showPublished} className={`rounded-xl px-3 py-2 text-xs font-medium ${showPublished ? "bg-[#2271b1] text-white" : "bg-white text-[#50575e]"}`}>{t("WordPress live")}</button>}
+              {canShowPublished && <button type="button" onClick={() => setPreviewMode("published")} aria-pressed={showPublished} className={`rounded-xl px-3 py-2 text-xs font-medium ${showPublished ? "bg-[#2271b1] text-white" : "bg-white text-[#50575e]"}`}>{t("Published live")}</button>}
               {selectedPage?.url && <a href={selectedPage.url} target="_blank" rel="noreferrer" aria-label={t("Open published page in a new tab")} title={t("Open published page in a new tab")} className="grid h-10 w-10 place-items-center rounded-xl bg-white text-[#2271b1]"><ExternalLink aria-hidden="true" size={15} /></a>}
             </div>
           </div>
@@ -265,7 +265,7 @@ export function WebsiteGenerationLivePanel({
               className="h-full min-h-[420px] w-full bg-white"
             /> : stoppedWithoutPreview ? <div className="grid h-full min-h-[420px] place-items-center px-8 text-center"><div><AlertCircle aria-hidden="true" size={30} className="mx-auto text-red-700" /><p className="mt-4 text-sm font-semibold text-[#1d2327]">{t("No preview was created before generation stopped.")}</p><p className="mt-2 text-xs leading-5 text-[#646970]">{t("Generation has stopped. No background work is still running.")}</p></div></div> : <div className="grid h-full min-h-[420px] place-items-center px-8 text-center"><div><RefreshCw aria-hidden="true" size={28} className="mx-auto animate-spin text-[#2271b1]" /><p className="mt-4 text-sm font-semibold text-[#1d2327]">{t("The first page preview is being prepared")}</p><p className="mt-2 text-xs leading-5 text-[#646970]">{t("As soon as a page is generated, it appears here automatically.")}</p></div></div>}
           </div>
-          {showPublished && <p className="mt-2 text-[11px] text-[#646970]">{t("If WordPress blocks embedding, open the published page in a new tab.")}</p>}
+          {showPublished && <p className="mt-2 text-[11px] text-[#646970]">{t("If the browser blocks embedding, open the published page in a new tab.")}</p>}
         </div>
 
         <aside className="min-h-0 overflow-y-auto border-t border-[#dcdcde] bg-white p-4 lg:border-l lg:border-t-0 sm:p-5">
@@ -297,16 +297,16 @@ export function WebsiteGenerationLivePanel({
           </div> : null}
 
           {job.status === "published" && setupActionRequired && <div className="mt-5 rounded-xl border border-amber-300 bg-amber-50 p-3 text-[#1d2327]">
-            <p className="text-xs font-semibold text-amber-900">{t("WordPress setup required")}</p>
-            <p className="mt-1 text-[11px] leading-4 text-amber-900">{customizationActionRequired ? t("All pages are published, but WordPress restricted part of the automatic global customization. Confirmed changes remain saved.") : t("All generated pages are published. Complete the remaining WordPress setup steps below.")}</p>
+            <p className="text-xs font-semibold text-amber-900">{t("Website setup required")}</p>
+            <p className="mt-1 text-[11px] leading-4 text-amber-900">{customizationActionRequired ? t("Some global website customization needs attention. All confirmed changes remain saved.") : t("All generated pages are published. Complete the remaining Website setup steps below.")}</p>
             <div className="mt-3 grid gap-2">
               {homepageActionRequired && homepageAdminUrl && <a href={homepageAdminUrl} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-lg border border-amber-400 bg-white px-3 py-2 text-xs font-semibold text-amber-950 transition hover:bg-amber-100"><ExternalLink aria-hidden="true" size={14} />{t("Set Home as the static homepage")}</a>}
             </div>
           </div>}
 
           {job.status === "published" && providerResult.deliveryMode === "gutenberg" && <div className="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-[#1d2327]">
-            <p className="flex items-center gap-2 text-xs font-semibold text-emerald-800"><CheckCircle2 aria-hidden="true" size={14} />{fixedReferenceTemplate ? t("Fixed Custom Bolt Forge template") : t("Theme-independent WordPress design")}</p>
-            <p className="mt-1 text-[11px] leading-4 text-emerald-800">{fixedReferenceTemplate ? t("The layout follows the reference template. AI only supplies verified copy, colors, SEO and available imagery.") : t("Lulu published the generated design directly as Gutenberg content. No theme download or installation is required.")}</p>
+            <p className="flex items-center gap-2 text-xs font-semibold text-emerald-800"><CheckCircle2 aria-hidden="true" size={14} />{fixedReferenceTemplate ? t("Fixed Lulu template") : t("Managed Lulu website design")}</p>
+            <p className="mt-1 text-[11px] leading-4 text-emerald-800">{fixedReferenceTemplate ? t("The layout follows the reference template. AI only supplies verified copy, colors, SEO and available imagery.") : t("Lulu published the generated design directly to the managed Website runtime.")}</p>
           </div>}
 
           <div className="mt-5 rounded-xl border border-[#dcdcde] bg-white p-3">
@@ -322,7 +322,7 @@ export function WebsiteGenerationLivePanel({
 
           <div className="mt-5 border-t border-[#dcdcde] pt-4">
             {running ? <button type="button" disabled={cancelling} onClick={onCancel} className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-red-300 px-4 py-2.5 text-sm font-semibold text-red-700 transition hover:bg-red-50 disabled:cursor-wait disabled:opacity-60"><CircleStop aria-hidden="true" size={16} />{cancelling ? t("Cancelling…") : t("Cancel generation")}</button> : job.status === "cancelled" ? <div className="grid gap-2"><button type="button" disabled={resuming} onClick={onResume} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-wait disabled:opacity-60">{resuming ? <RefreshCw aria-hidden="true" size={16} className="animate-spin" /> : <Play aria-hidden="true" size={16} />}{resuming ? t("Resuming…") : t("Continue generation")}</button><button type="button" onClick={onClose} className="w-full rounded-lg border border-[#dcdcde] px-4 py-2.5 text-sm font-semibold text-[#1d2327] transition hover:bg-[#f6f7f7]">{t("Close")}</button></div> : ["generated", "preview"].includes(job.status) ? <div className="grid gap-2"><button type="button" disabled={publishing} onClick={onPublish} className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96] disabled:cursor-wait disabled:opacity-60">{publishing ? <RefreshCw aria-hidden="true" size={16} className="animate-spin" /> : <Upload aria-hidden="true" size={16} />}{publishing ? t("Publishing…") : t("Publish website")}</button><button type="button" onClick={onClose} className="w-full rounded-lg border border-[#dcdcde] px-4 py-2.5 text-sm font-semibold text-[#1d2327] transition hover:bg-[#f6f7f7]">{t("Close")}</button></div> : <button type="button" onClick={onClose} className="w-full rounded-lg bg-[#2271b1] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#135e96]">{t("Close")}</button>}
-            <p className="mt-2 text-center text-[11px] leading-4 text-[#646970]">{running ? t("You can close this window. Generation continues in the background.") : job.status === "failed" ? t("Generation has stopped. No background work is still running.") : job.status === "cancelled" ? t("Completed sections and published pages are saved. Continuing starts at the next missing section.") : setupActionRequired ? t("The pages are published. Complete the highlighted WordPress setup steps.") : t("Published intermediate results remain saved in WordPress.")}</p>
+            <p className="mt-2 text-center text-[11px] leading-4 text-[#646970]">{running ? t("You can close this window. Generation continues in the background.") : job.status === "failed" ? t("Generation has stopped. No background work is still running.") : job.status === "cancelled" ? t("Completed sections and published pages are saved. Continuing starts at the next missing section.") : setupActionRequired ? t("The pages are published. Complete the highlighted Website setup steps.") : t("Published intermediate results remain saved in the managed Website.")}</p>
           </div>
         </aside>
       </div>

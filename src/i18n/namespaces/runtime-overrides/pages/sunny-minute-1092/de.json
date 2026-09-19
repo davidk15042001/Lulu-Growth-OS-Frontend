@@ -101,5 +101,11 @@
   "Payment confirmed. Funds are available and authorized paid execution is active.": "Zahlung bestätigt. Guthaben ist verfügbar und die autorisierte bezahlte Ausführung ist aktiv.",
   "Payment confirmed. Funds are available; paid execution is waiting for a campaign budget authorization.": "Zahlung bestätigt. Guthaben ist verfügbar; die bezahlte Ausführung wartet auf eine Kampagnenbudgetfreigabe.",
   "Payment confirmed. No usable advertising balance remains.": "Zahlung bestätigt. Es ist kein nutzbares Werbeguthaben mehr verfügbar.",
-  "Payment confirmed. Refresh to verify the current advertising wallet state.": "Zahlung bestätigt. Aktualisieren Sie die Ansicht, um den aktuellen Werbe-Wallet-Status zu prüfen."
+  "Payment confirmed. Refresh to verify the current advertising wallet state.": "Zahlung bestätigt. Aktualisieren Sie die Ansicht, um den aktuellen Werbe-Wallet-Status zu prüfen.",
+  "A successful payment is not the same as settlement. Funds remain reserved until Airwallex confirms that the money has reached the Wallet.": "Eine erfolgreiche Zahlung ist nicht gleichbedeutend mit einer Abrechnung. Das Geld bleibt reserviert, bis Airwallex bestätigt, dass das Geld das Wallet erreicht hat.",
+  "Awaiting Airwallex settlement": "Warten auf die Abwicklung durch Airwallex",
+  "Payment received. It stays reserved until Airwallex confirms settlement into its Wallet.": "Zahlung erhalten. Es bleibt reserviert, bis Airwallex die Zahlung in seinem Wallet bestätigt.",
+  "Reserved for payment": "Für Zahlung reserviert",
+  "Settled into wallet": "In der Brieftasche untergebracht",
+  "Settled top-ups": "Aufladungen abgerechnet"
 }

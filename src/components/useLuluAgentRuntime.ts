@@ -490,7 +490,7 @@ function buildGoogleBusinessLiveData(
 
 function isWebsiteCommercePlatform(platform: Platform) {
   const text = `${platform.integrationKey ?? ""} ${platform.name} ${platform.category}`.toLowerCase();
-  return ["wordpress", "webflow", "shopify", "woocommerce", "commerce", "website", "store"].some((token) => text.includes(token));
+  return ["managed", "woocommerce", "commerce", "website", "store"].some((token) => text.includes(token));
 }
 
 function buildWebsiteCommerceLiveData(

@@ -18,7 +18,7 @@ import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { createPaymentQrDataUrl } from "../utils/paymentQr";
-const packages = [1, 250, 500, 1000, 2500, 5000, 9000];
+const packages = [1, 250, 500, 1000];
 const methods: Array<{ id: ApiPaymentMethod; label: string }> = [
   { id: "card", label: "Bank card" },
   { id: "alipaycn", label: "Alipay" },
@@ -271,7 +271,7 @@ export function ApiWalletPanel() {
     catch { return value; }
   };
   return (
-    <section className="mb-6 overflow-hidden rounded-3xl border border-violet-500/20 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,.14),transparent_48%),var(--card)] shadow-sm">
+    <section className="overflow-hidden rounded-3xl border border-violet-500/20 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,.14),transparent_48%),var(--card)] shadow-sm">
       {hasReversalDebt ? (
         <div
           className="flex items-start gap-3 border-b border-amber-500/30 bg-amber-500/10 p-4 text-amber-950 dark:text-amber-100"
@@ -291,7 +291,7 @@ export function ApiWalletPanel() {
           </div>
         </div>
       ) : null}
-      <div className="grid lg:grid-cols-[.9fr_1.1fr]">
+      <div className="grid 2xl:grid-cols-[.9fr_1.1fr]">
         <div className="p-6 sm:p-8">
           <div className="flex items-center gap-2 text-violet-700">
             <Sparkles size={18} />
@@ -304,7 +304,7 @@ export function ApiWalletPanel() {
             AI, agents and premium media execute only against confirmed balance.
             There is no API PAYG invoice.
           </p>
-          <div className="mt-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Available now")}</p>
               <p className="mt-2 text-2xl font-semibold text-emerald-700">{displayLoading ? "—" : money.format(wallet?.availableAmount ?? 0)}</p>
@@ -340,7 +340,7 @@ export function ApiWalletPanel() {
                 : "Waiting for AI funds"}
           </span>
         </div>
-        <div className="border-t border-border bg-background/40 p-6 sm:p-8 lg:border-l lg:border-t-0">
+        <div className="border-t border-border bg-background/40 p-6 sm:p-8 2xl:border-l 2xl:border-t-0">
           <p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">
             Add AI balance
           </p>

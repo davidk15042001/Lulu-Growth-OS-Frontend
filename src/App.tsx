@@ -37,6 +37,7 @@ const AdminCommercialDocumentsPage=lazy(()=>import("./pages/admin-commercial/Adm
 const SupportPage=lazy(()=>import("./pages/support/SupportPage"));
 const PublicCommercialDocumentPage=lazy(()=>import("./pages/public-commercial/PublicCommercialDocumentPage"));
 const CrmWorkspacePage=lazy(()=>import("./pages/canonical-crm/CrmWorkspacePage"));
+const PartnerNetworkPage=lazy(()=>import("./pages/canonical-partners/PartnerNetworkPage"));
 const WorkspaceRecordsPage=lazy(()=>import("./pages/canonical-records/WorkspaceRecordsPage"));
 const ProfilePage=lazy(()=>import("./pages/canonical-profile/ProfilePage"));
 const GrowthPage=lazy(()=>import("./pages/canonical-growth/GrowthPage"));
@@ -379,6 +380,7 @@ export default function App() {
         <Route path="/app/smart-village-1099" element={<AdminOnlyAppRoute><Navigate replace to={{ pathname: routes.app.inventory, search: location.search }} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.omnichannel} element={<AdminOnlyAppRoute><OmniChannelPage /></AdminOnlyAppRoute>} />
         <Route path="/app/sturdy-month-1562" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="companies" showEntitySwitcher={false} /></AdminOnlyAppRoute>} />
+        <Route path="/app/partner-operations-9020" element={<AdminOnlyAppRoute><PartnerNetworkPage /></AdminOnlyAppRoute>} />
         <Route path="/app/kindly-pool-8785" element={<AdminOnlyAppRoute><Navigate replace to="/app/sturdy-month-1562" /></AdminOnlyAppRoute>} />
         <Route path="/app/cosmic-pool-1616" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="activities" /></AdminOnlyAppRoute>} />
         <Route path="/app/deeply-noon-9539" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="tasks" /></AdminOnlyAppRoute>} />

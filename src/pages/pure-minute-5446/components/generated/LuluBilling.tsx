@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { AlertCircle, CheckCircle2, CreditCard, Database, Landmark, LoaderCircle, QrCode, RefreshCw, ShieldCheck, WalletCards } from 'lucide-react';
+import { AlertCircle, CheckCircle2, CreditCard, Database, Landmark, LoaderCircle, QrCode, RefreshCw, ShieldCheck, WalletCards, Sparkles, DollarSign, Cloud } from 'lucide-react';
 import { getFriendlyErrorMessage } from '../../../../api/client';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { workspaceAppApi, type BillingState } from '../../../../api/workspace-app';
@@ -209,13 +209,34 @@ export function LuluBilling() {
   </section>;
   return <div className="min-h-screen bg-[var(--background)] text-foreground">
     <aside className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:block lg:w-64 lg:border-r lg:border-border lg:bg-card"><LuluGlobalNavigation activeSlug="pure-minute-5446" /></aside>
-    <main className="mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:ml-64 lg:px-12 lg:py-12">
-      <header className="mb-8 flex flex-col gap-5 border-b border-border pb-7 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Workspace settings</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em]">Billing</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">{topLabel}</p></div><button type="button" onClick={() => void load()} disabled={loading} className="inline-flex w-fit items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-medium disabled:opacity-50"><RefreshCw size={15} className={loading ? 'animate-spin' : ''} />Refresh</button></header>
+    <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:ml-64 lg:px-10 lg:py-10">
+      <header className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+        <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 text-primary"><WalletCards size={18} /><p className="text-xs font-semibold uppercase tracking-[.18em]">Workspace billing</p></div>
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Billing & balances</h1>
+            <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">{topLabel} Keep each balance separate so you always know what is ready, reserved, or already spent.</p>
+          </div>
+          <button type="button" onClick={() => void load()} disabled={loading} className="inline-flex w-fit shrink-0 items-center gap-2 rounded-xl border border-border bg-background px-4 py-2.5 text-sm font-semibold transition hover:bg-secondary disabled:opacity-50"><RefreshCw size={15} className={loading ? 'animate-spin' : ''} />Refresh data</button>
+        </div>
+        <nav aria-label="Billing areas" className="mt-7 grid gap-2 border-t border-border pt-5 sm:grid-cols-4">
+          <a href="#ai-wallet" className="group flex items-center gap-3 rounded-xl border border-border bg-background px-3.5 py-3 transition hover:border-primary/40 hover:bg-secondary"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-violet-500/10 text-violet-700"><Sparkles size={15} /></span><span><strong className="block text-sm">AI wallet</strong><span className="text-xs text-muted-foreground">AI & agents</span></span></a>
+          <a href="#ads-budget" className="group flex items-center gap-3 rounded-xl border border-border bg-background px-3.5 py-3 transition hover:border-primary/40 hover:bg-secondary"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-sky-500/10 text-sky-700"><DollarSign size={15} /></span><span><strong className="block text-sm">Ads budget</strong><span className="text-xs text-muted-foreground">Campaign spend</span></span></a>
+          <a href="#storage-billing" className="group flex items-center gap-3 rounded-xl border border-border bg-background px-3.5 py-3 transition hover:border-primary/40 hover:bg-secondary"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-emerald-500/10 text-emerald-700"><Cloud size={15} /></span><span><strong className="block text-sm">Storage</strong><span className="text-xs text-muted-foreground">PAYG & payment method</span></span></a>
+          <a href="#billing-records" className="group flex items-center gap-3 rounded-xl border border-border bg-background px-3.5 py-3 transition hover:border-primary/40 hover:bg-secondary"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-amber-500/10 text-amber-700"><Database size={15} /></span><span><strong className="block text-sm">Records</strong><span className="text-xs text-muted-foreground">Invoices & subscription</span></span></a>
+        </nav>
+      </header>
       {error && <div role="alert" className="mb-5 flex gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm text-destructive"><AlertCircle size={18} className="shrink-0" /><span>{error}</span></div>}
       {notice && <div role="status" className="mb-5 flex gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-foreground"><CheckCircle2 size={18} className="shrink-0 text-emerald-700" /><span>{notice}</span></div>}
-      <ApiWalletPanel />
-      <AdSpendWalletPanel />
-      <nav aria-label="Billing sections" className="mb-6 flex gap-1 overflow-x-auto rounded-xl border border-border bg-card p-1">{tabs.map((tab) => <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`shrink-0 rounded-lg px-4 py-2.5 text-sm font-medium ${activeTab === tab.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>{tab.label}</button>)}</nav>
+      <section id="prepaid-wallets" className="mt-8 scroll-mt-6">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Prepaid funds</p><h2 className="mt-1 text-2xl font-semibold">Your operating wallets</h2></div><p className="max-w-xl text-sm leading-6 text-muted-foreground sm:text-right">AI/API funds and advertising funds are separate. A payment reserve is not available to spend until Airwallex confirms it.</p></div>
+        <div className="grid items-start gap-6 xl:grid-cols-2"><div id="ai-wallet" className="scroll-mt-6"><ApiWalletPanel /></div><div id="ads-budget" className="scroll-mt-6"><AdSpendWalletPanel /></div></div>
+      </section>
+      <section id="billing-records" className="mt-10 scroll-mt-6">
+        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Account records</p><h2 className="mt-1 text-2xl font-semibold">Storage & billing records</h2></div><p className="max-w-xl text-sm leading-6 text-muted-foreground sm:text-right">Manage the storage payment method, review invoices, and check your current subscription.</p></div>
+        <nav aria-label="Billing records" className="mb-6 flex gap-1 overflow-x-auto rounded-2xl border border-border bg-card p-1">{tabs.map((tab) => <button key={tab.id} type="button" onClick={() => setActiveTab(tab.id)} className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${activeTab === tab.id ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>{tab.id === 'payments' ? 'Storage & payment method' : tab.id === 'invoices' ? 'Storage invoices' : 'Subscription'}</button>)}</nav>
+      </section>
+      <section id="storage-billing" className="scroll-mt-6">
       {loading ? (
         <div className="grid min-h-72 place-items-center rounded-2xl border border-border bg-card text-sm text-muted-foreground"><span className="inline-flex items-center gap-2"><LoaderCircle size={17} className="animate-spin" />Loading billing data…</span></div>
       ) : activeTab === 'payments' ? (
@@ -240,6 +261,7 @@ export function LuluBilling() {
       ) : (
         <section className="rounded-2xl border border-border bg-card p-5 sm:p-6"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">Current subscription</p><h2 className="mt-2 text-3xl font-semibold">{subscription.planKey}</h2><p className="mt-2"><Status>{subscription.status}</Status></p></div><CheckCircle2 size={24} className="text-foreground" /></div><dl className="mt-7 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"><div><dt className="text-xs text-muted-foreground">Seats</dt><dd className="mt-1 text-lg font-semibold">{subscription.seats}</dd></div><div><dt className="text-xs text-muted-foreground">Current period starts</dt><dd className="mt-1 text-sm font-medium">{date(subscription.currentPeriodStartsAt)}</dd></div><div><dt className="text-xs text-muted-foreground">Current period ends</dt><dd className="mt-1 text-sm font-medium">{date(subscription.currentPeriodEndsAt)}</dd></div><div><dt className="text-xs text-muted-foreground">Trial ends</dt><dd className="mt-1 text-sm font-medium">{date(subscription.trialEndsAt)}</dd></div><div><dt className="text-xs text-muted-foreground">Cancellation</dt><dd className="mt-1 text-sm font-medium">{subscription.cancelAtPeriodEnd ? 'Scheduled at period end' : 'Not scheduled'}</dd></div><div><dt className="text-xs text-muted-foreground">Provider</dt><dd className="mt-1 text-sm font-medium">{subscription.provider}</dd></div></dl></section>
       )}
+      </section>
     </main>
   </div>;
 }

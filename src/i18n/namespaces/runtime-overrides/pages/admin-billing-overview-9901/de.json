@@ -480,5 +480,7 @@
   "Ads": "Anzeigen",
   "ai": "KI",
   "All invoices": "Alle Rechnungen",
-  "Kunde": "Kunde"
+  "Kunde": "Kunde",
+  "invoices": "Rechnungen",
+  "Invoices": "Rechnungen"
 }

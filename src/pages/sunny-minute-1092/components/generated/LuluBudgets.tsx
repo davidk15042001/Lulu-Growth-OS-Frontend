@@ -102,7 +102,11 @@ export function LuluBudgets() {
   }, [currentTopup?.qrPayload, workspaceId]);
 
   useEffect(() => {
-    if (!workspaceId || !currentTopup || !['PENDING_PAYMENT', 'REQUIRES_CUSTOMER_ACTION'].includes(currentTopup.status)) return;
+    const waitingForProvider = currentTopup && (
+      ['PENDING_PAYMENT', 'REQUIRES_CUSTOMER_ACTION'].includes(currentTopup.status)
+      || (currentTopup.status === 'SUCCEEDED' && currentTopup.creditStatus !== 'AVAILABLE')
+    );
+    if (!workspaceId || !currentTopup || !waitingForProvider) return;
     let active = true;
     let polling = false;
     const targetWorkspaceId = workspaceId;
@@ -113,7 +117,7 @@ export function LuluBudgets() {
       try {
         const updated = (await adSpendApi.syncTopup(targetWorkspaceId, topupId)).data;
         if (!active || workspaceRef.current !== targetWorkspaceId || updated.workspaceId !== targetWorkspaceId) return;
-        if (updated.status === 'SUCCEEDED') {
+        if (updated.status === 'SUCCEEDED' && updated.creditStatus === 'AVAILABLE') {
           await loadWallet();
           if (!active || workspaceRef.current !== targetWorkspaceId) return;
         }
@@ -122,7 +126,7 @@ export function LuluBudgets() {
       finally { polling = false; }
     }, 3_000);
     return () => { active = false; window.clearInterval(poll); };
-  }, [currentTopup?.id, currentTopup?.status, loadWallet, workspaceId]);
+  }, [currentTopup?.creditStatus, currentTopup?.id, currentTopup?.status, loadWallet, workspaceId]);
 
   const netAmount = Number(amount);
   const normalizedAmount = Number.isFinite(netAmount) && netAmount > 0 ? Math.round(netAmount * 100) / 100 : 0;
@@ -161,7 +165,10 @@ export function LuluBudgets() {
   const reversalDebt = overview?.wallet.reversalDebtAmount ?? 0;
   const hasReversalDebt = reversalDebt > 0;
   const advertisingReady = Boolean(!hasReversalDebt && overview?.wallet.adsEnabled && activeAuthorizations.length > 0);
-  const paymentResult = !overview
+  const paymentAwaitingSettlement = currentTopup?.status === 'SUCCEEDED' && currentTopup.creditStatus !== 'AVAILABLE';
+  const paymentResult = paymentAwaitingSettlement
+    ? t('Payment received. It stays reserved until Airwallex confirms settlement into its Wallet.')
+    : !overview
     ? t('Payment confirmed. Refresh to verify the current advertising wallet state.')
     : hasReversalDebt
       ? t('Payment confirmed and applied to the outstanding balance.')
@@ -267,11 +274,13 @@ export function LuluBudgets() {
           <div className="grid lg:grid-cols-[1.1fr_.9fr]">
             <div className="p-6 sm:p-8">
               <div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Available ad spend</p><p className="mt-3 text-4xl font-bold tracking-tight">{money.format(overview?.wallet.availableAmount ?? 0)}</p></div><span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${advertisingReady ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'}`}><span className={`h-2 w-2 rounded-full ${advertisingReady ? 'bg-emerald-500' : 'bg-amber-500'}`} />{advertisingReady ? 'Authorized execution active' : hasReversalDebt ? 'Payment reversal balance due' : overview?.wallet.adsEnabled ? 'Campaign authority required' : 'Waiting for funds'}</span></div>
-              <div className="mt-8 grid gap-3 sm:grid-cols-3">
-                <article className="rounded-2xl border border-border bg-background/60 p-4"><WalletCards size={18} className="text-muted-foreground" /><p className="mt-3 text-xs text-muted-foreground">Lifetime funded</p><p className="mt-1 font-semibold">{money.format(overview?.wallet.totalFundedAmount ?? 0)}</p></article>
+              <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <article className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4"><WalletCards size={18} className="text-amber-600" /><p className="mt-3 text-xs text-muted-foreground">Reserved for payment</p><p className="mt-1 font-semibold">{money.format(overview?.wallet.paymentReservedAmount ?? 0)}</p><p className="mt-1 text-[11px] leading-4 text-muted-foreground">Awaiting Airwallex settlement</p></article>
+                <article className="rounded-2xl border border-border bg-background/60 p-4"><CheckCircle2 size={18} className="text-emerald-600" /><p className="mt-3 text-xs text-muted-foreground">Settled into wallet</p><p className="mt-1 font-semibold">{money.format(overview?.wallet.totalFundedAmount ?? 0)}</p></article>
                 <article className="rounded-2xl border border-border bg-background/60 p-4"><Sparkles size={18} className="text-muted-foreground" /><p className="mt-3 text-xs text-muted-foreground">Reserved by agents</p><p className="mt-1 font-semibold">{money.format(overview?.wallet.reservedAmount ?? 0)}</p></article>
                 <article className="rounded-2xl border border-border bg-background/60 p-4"><DollarSign size={18} className="text-muted-foreground" /><p className="mt-3 text-xs text-muted-foreground">Media spend</p><p className="mt-1 font-semibold">{money.format(overview?.wallet.spentAmount ?? 0)}</p></article>
               </div>
+              <p className="mt-4 text-xs leading-5 text-muted-foreground">A successful payment is not the same as settlement. Funds remain reserved until Airwallex confirms that the money has reached the Wallet.</p>
               <div className="mt-6 flex items-start gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4"><ShieldCheck size={19} className="mt-0.5 shrink-0 text-emerald-600" /><div><p className="text-sm font-semibold">Budget is the hard control boundary</p><p className="mt-1 text-xs leading-5 text-muted-foreground">Every paid launch must match an active authorization for the exact provider, account, campaign, currency, period and maximum amount. All other routine execution remains hands-off.</p></div></div>
             </div>
 
@@ -314,7 +323,7 @@ export function LuluBudgets() {
         <section className="grid gap-4 sm:grid-cols-3">
           <article className="rounded-2xl border border-border bg-card p-4"><p className="text-xs uppercase tracking-wide text-muted-foreground">Budget records</p><p className="mt-2 text-2xl font-semibold">{items.length}</p></article>
           <article className="rounded-2xl border border-border bg-card p-4"><p className="text-xs uppercase tracking-wide text-muted-foreground">Platforms</p><p className="mt-2 text-2xl font-semibold">{trackedPlatforms}</p></article>
-          <article className="rounded-2xl border border-border bg-card p-4"><p className="text-xs uppercase tracking-wide text-muted-foreground">Successful top-ups</p><p className="mt-2 text-2xl font-semibold">{overview?.topups.filter((topup) => topup.status === 'SUCCEEDED').length ?? 0}</p></article>
+          <article className="rounded-2xl border border-border bg-card p-4"><p className="text-xs uppercase tracking-wide text-muted-foreground">Settled top-ups</p><p className="mt-2 text-2xl font-semibold">{overview?.topups.filter((topup) => topup.status === 'SUCCEEDED' && topup.creditStatus === 'AVAILABLE').length ?? 0}</p></article>
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-border bg-card">
