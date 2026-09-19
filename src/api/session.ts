@@ -8,7 +8,11 @@ export const ADMIN_PANEL_PATH = "/app/admin-billing-overview-9901";
 export type AdminSurface = "admin" | "workspace";
 
 export function isAdminUser(user: { adminCapabilities?: string[]; role?: string | null; impersonation?: { active: boolean } } | null | undefined) {
-  return user?.role === 'admin' && !user.impersonation?.active && Boolean(user.adminCapabilities?.length);
+  // The backend remains the authority for individual admin capabilities.  The
+  // global surface switch must still be available for every genuine admin
+  // session, even while capabilities are loading or a legacy session has not
+  // yet received the capability list.
+  return user?.role === 'admin' && !user.impersonation?.active;
 }
 
 export function getAdminSurface(): AdminSurface {

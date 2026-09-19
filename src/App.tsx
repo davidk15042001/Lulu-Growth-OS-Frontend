@@ -5,6 +5,7 @@ import { pages } from "./pages-manifest";
 import { GlobalLanguageSwitcher, useTranslation } from "./i18n/GlobalLanguageSwitcher";
 import { LEGACY_SETUP_COMPLETE_PATH, LULU_NAVIGATION_MESSAGE, isLuluNavigationMessage, isOfficePanelSurface, isPageAvailable, pagePath, routes } from "./routing";
 import { ApiError, getFriendlyErrorMessage, installApiBroker, requestApi } from "./api/client";
+import { authApi } from "./api/auth";
 import {
   ADMIN_PANEL_PATH,
   clearPendingInvitation,
@@ -15,6 +16,7 @@ import {
   setPendingInvitation,
   setAdminSurface,
   setSelectedWorkspaceId,
+  setStoredUser,
 } from "./api/session";
 import { useLuluApp } from "./api/LuluAppContext";
 import { BillingOnboarding } from "./components/BillingOnboarding";
@@ -192,6 +194,50 @@ function AdminSurfaceSwitcher() {
   );
 }
 
+/**
+ * An impersonated customer session intentionally is no longer an admin user,
+ * so the regular admin/workspace switcher is hidden.  Keep a persistent,
+ * reachable return control on that customer view; otherwise an administrator
+ * can get stranded in the customer account until they clear the session.
+ */
+function AdminImpersonationSwitcher() {
+  const { currentUser, refresh } = useLuluApp();
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  if (!currentUser?.impersonation?.active) return null;
+
+  const returnToAdmin = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await authApi.stopImpersonation();
+      setStoredUser(response.data.user);
+      await refresh();
+      setAdminSurface("admin");
+      navigate(ADMIN_PANEL_PATH, { replace: true });
+    } catch {
+      setError("Returning to the admin panel failed.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <aside className="fixed bottom-4 right-4 z-[90] flex max-w-[calc(100vw-2rem)] items-center gap-3 rounded-2xl border border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_96%,transparent)] px-4 py-3 text-xs shadow-[0_16px_44px_rgba(0,0,0,0.16)] backdrop-blur-md">
+      <div className="min-w-0">
+        <p className="font-semibold text-[var(--foreground)]">Admin view active in user account</p>
+        <p className="truncate text-[var(--muted-foreground)]">You are viewing this Workspace as a user.</p>
+        {error && <p className="mt-1 text-[var(--destructive)]">{error}</p>}
+      </div>
+      <button type="button" disabled={busy} onClick={() => void returnToAdmin()} className="shrink-0 rounded-full border border-[var(--border)] bg-[var(--card)] px-3 py-2 font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] disabled:cursor-wait disabled:opacity-60">
+        {busy ? "Returning…" : "Return to Admin Panel"}
+      </button>
+    </aside>
+  );
+}
+
 function LegacyPageRedirect() {
   const { slug } = useParams();
   const page = availablePages.find((item) => item.slug === slug);
@@ -284,6 +330,7 @@ export default function App() {
 
   return (
     <>
+      <AdminImpersonationSwitcher />
       <AdminSurfaceSwitcher />
       <Suspense fallback={<main role="status" className="page-frame grid min-h-screen place-items-center">Loading Lulu AI…</main>}>
       <Routes>
