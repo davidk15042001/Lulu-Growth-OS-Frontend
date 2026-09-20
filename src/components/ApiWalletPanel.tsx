@@ -326,6 +326,29 @@ export function ApiWalletPanel() {
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Settled provider costs")}</p>
             </div>
           </div>
+          <div className="mt-6 border-t border-border pt-5">
+            <div className="flex flex-wrap items-end justify-between gap-2">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Composio usage")}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{t("0.50 CNY per tool call and per trigger event")}</p>
+              </div>
+              <p className="text-lg font-semibold text-violet-700">{displayLoading ? "—" : money.format(Number(currentOverview?.composioUsage?.chargedAmountCny ?? 0))}</p>
+            </div>
+            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-3">
+                <p className="text-xs text-muted-foreground">{t("Tool calls")}</p>
+                <p className="mt-1 text-xl font-semibold">{displayLoading ? "—" : currentOverview?.composioUsage?.toolCalls ?? 0}</p>
+              </div>
+              <div className="rounded-2xl border border-sky-500/20 bg-sky-500/5 p-3">
+                <p className="text-xs text-muted-foreground">{t("Trigger events")}</p>
+                <p className="mt-1 text-xl font-semibold">{displayLoading ? "—" : currentOverview?.composioUsage?.triggers ?? 0}</p>
+              </div>
+              <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-3">
+                <p className="text-xs text-muted-foreground">{t("Composio charged")}</p>
+                <p className="mt-1 text-xl font-semibold">{displayLoading ? "—" : money.format(Number(currentOverview?.composioUsage?.chargedAmountCny ?? 0))}</p>
+              </div>
+            </div>
+          </div>
           <p className="mt-4 text-xs leading-5 text-muted-foreground">{t("Available funds can be used immediately. Payment reserves are not spendable until Airwallex confirms the payment. AI work reserves are held for active work. Actually spent is the confirmed provider cost.")}</p>
           <span
             className={`mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${aiReady ? "bg-emerald-500/10 text-emerald-700" : "bg-amber-500/10 text-amber-700"}`}
