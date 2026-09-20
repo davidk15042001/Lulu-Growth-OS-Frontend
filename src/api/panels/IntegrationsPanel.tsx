@@ -1,10 +1,18 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
+import { ChevronDown, ChevronUp, Search } from "lucide-react";
+import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { onboardingApi, type Platform } from "../onboarding";
 import { getFriendlyErrorMessage } from "../client";
-import { composioApi, type ComposioToolkit } from "../composio";
+import { composioApi, type ComposioTool, type ComposioToolkit } from "../composio";
 import { workspaceAppApi } from "../workspace-app";
 import { providerControlApi, type ProviderConnection, type ProviderContractCheck, type ProviderLaunchReadiness } from "../providers";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
+
+type ComposioToolState = {
+  items: ComposioTool[];
+  loading: boolean;
+  error: string;
+  truncated: boolean;
+};
 
 export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
@@ -15,6 +23,10 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
   const [composioLoading, setComposioLoading] = useState(false);
   const [composioError, setComposioError] = useState("");
   const [composioSearch, setComposioSearch] = useState("");
+  const [composioToolkitCursor, setComposioToolkitCursor] = useState<string | null>(null);
+  const [composioToolkitHasMore, setComposioToolkitHasMore] = useState(false);
+  const [expandedComposioToolkit, setExpandedComposioToolkit] = useState<string | null>(null);
+  const [composioTools, setComposioTools] = useState<Record<string, ComposioToolState>>({});
   const [composioConnectUrl, setComposioConnectUrl] = useState("");
   const [draft, setDraft] = useState({ name: "", category: "other", integrationKey: "" });
   const [busy, setBusy] = useState(false);
@@ -41,22 +53,58 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
     finally { setBusy(false); }
   }, [workspaceId]);
 
-  const loadComposio = useCallback(async () => {
+  const loadComposio = useCallback(async (search: string, cursor: string | null) => {
     setComposioLoading(true); setComposioError("");
     try {
-      setComposioToolkits((await composioApi.toolkits(workspaceId)).data.items);
+      const response = await composioApi.toolkits(workspaceId, { search, cursor });
+      setComposioToolkits((current) => {
+        if (!cursor) return response.data.items;
+        const known = new Set(current.map((toolkit) => toolkit.slug));
+        return [...current, ...response.data.items.filter((toolkit) => !known.has(toolkit.slug))];
+      });
+      setComposioToolkitCursor(response.data.nextCursor);
+      setComposioToolkitHasMore(Boolean(response.data.nextCursor));
+      if (!cursor) {
+        setExpandedComposioToolkit(null);
+        setComposioTools({});
+      }
     } catch (cause) {
-      setComposioToolkits([]);
+      if (!cursor) setComposioToolkits([]);
       setComposioError(getFriendlyErrorMessage(cause, "Composio apps could not be loaded."));
     } finally { setComposioLoading(false); }
   }, [workspaceId]);
 
-  useEffect(() => { void load(); void loadComposio(); }, [load, loadComposio]);
+  useEffect(() => { void load(); void loadComposio("", null); }, [load, loadComposio]);
 
-  const visibleComposioToolkits = useMemo(() => {
-    const query = composioSearch.trim().toLowerCase();
-    return composioToolkits.filter((toolkit) => !query || `${toolkit.name} ${toolkit.slug}`.toLowerCase().includes(query)).slice(0, 20);
-  }, [composioSearch, composioToolkits]);
+  async function searchComposio(event: FormEvent) {
+    event.preventDefault();
+    await loadComposio(composioSearch.trim(), null);
+  }
+
+  async function toggleComposioToolkit(toolkit: ComposioToolkit) {
+    if (expandedComposioToolkit === toolkit.slug) {
+      setExpandedComposioToolkit(null);
+      return;
+    }
+    setExpandedComposioToolkit(toolkit.slug);
+    if (composioTools[toolkit.slug]) return;
+    setComposioTools((current) => ({
+      ...current,
+      [toolkit.slug]: { items: [], loading: true, error: "", truncated: false },
+    }));
+    try {
+      const response = await composioApi.tools(workspaceId, toolkit.slug);
+      setComposioTools((current) => ({
+        ...current,
+        [toolkit.slug]: { items: response.data.items, loading: false, error: "", truncated: response.data.truncated },
+      }));
+    } catch (cause) {
+      setComposioTools((current) => ({
+        ...current,
+        [toolkit.slug]: { items: [], loading: false, error: getFriendlyErrorMessage(cause, "The tools for this app could not be loaded."), truncated: false },
+      }));
+    }
+  }
 
   async function create(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError("");
@@ -142,18 +190,32 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
 
   return <LivePanelShell title="Live integrations" subtitle="Connections and synchronization jobs" onClose={onClose}>
     <LiveError message={error} />
-    <LiveSection title="Composio apps" action={<span className="lulu-live-message">Connect an app once, then Lulu can use its approved tools for this workspace.</span>}>
-      <p className="lulu-live-message">Composio keeps connected credentials with Composio. Lulu receives only the connection state and the secure link needed to authorize an app.</p>
+    <LiveSection title={`Composio catalog${composioToolkitHasMore ? " · more available" : ""}`} action={<span className="lulu-live-message">Tool calls are deducted automatically from the AI wallet. Platform admins with billing.bypass are exempt.</span>}>
+      <p className="lulu-live-message">Browse every available toolkit and expand an app to see its individual actions. Connected credentials stay with Composio.</p>
       {composioError ? <div className="lulu-live-error">{composioError}</div> : null}
       {composioConnectUrl ? <p className="lulu-live-message">Connection started. <a href={composioConnectUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline", fontWeight: 700 }}>Open the Composio connection page</a>, then refresh this panel.</p> : null}
-      <label className="lulu-live-form"><span>Search Composio apps</span><input value={composioSearch} onChange={(event) => setComposioSearch(event.target.value)} placeholder="Search by app name or toolkit" /></label>
-      {composioLoading ? <LiveEmpty>Loading Composio apps…</LiveEmpty> : visibleComposioToolkits.length === 0 ? <LiveEmpty>No Composio apps match this search.</LiveEmpty> : visibleComposioToolkits.map((toolkit) => <article className="lulu-live-row" key={toolkit.slug}>
-        <div className="lulu-live-row-top"><div><strong>{toolkit.name}</strong><span>{toolkit.slug}</span></div><span className={`lulu-live-badge ${toolkit.connected ? "good" : ""}`}>{toolkit.isNoAuth ? "No sign-in required" : toolkit.connected ? "Connected" : toolkit.connectionStatus ?? "Not connected"}</span></div>
-        <div className="lulu-live-actions" style={{ marginTop: 8 }}>
-          <button className="lulu-live-button primary" disabled={busy || toolkit.isNoAuth || toolkit.connected} onClick={() => void authorizeComposioToolkit(toolkit)}>{toolkit.connected ? "Connected" : toolkit.isNoAuth ? "Available" : "Connect"}</button>
-        </div>
-      </article>)}
-      {composioToolkits.length > visibleComposioToolkits.length ? <small>Showing the first {visibleComposioToolkits.length} matching apps. Search to narrow the list.</small> : null}
+      <form className="lulu-live-form" onSubmit={(event) => void searchComposio(event)}>
+        <label><span>Search Composio apps</span><input value={composioSearch} onChange={(event) => setComposioSearch(event.target.value)} placeholder="Search by app name or toolkit" /></label>
+        <button className="lulu-live-button" type="submit" disabled={composioLoading}><Search size={15} />Search</button>
+      </form>
+      {composioLoading && composioToolkits.length === 0 ? <LiveEmpty>Loading Composio apps…</LiveEmpty> : composioToolkits.length === 0 ? <LiveEmpty>No Composio apps match this search.</LiveEmpty> : composioToolkits.map((toolkit) => {
+        const expanded = expandedComposioToolkit === toolkit.slug;
+        const toolState = composioTools[toolkit.slug];
+        return <article className="lulu-live-row" key={toolkit.slug}>
+          <div className="lulu-live-row-top"><div><strong>{toolkit.name}</strong><span>{toolkit.slug}{toolState ? ` · ${toolState.items.length}${toolState.truncated ? "+" : ""} tools` : " · tools available"}</span></div><span className={`lulu-live-badge ${toolkit.connected ? "good" : ""}`}>{toolkit.isNoAuth ? "No sign-in required" : toolkit.connected ? "Connected" : toolkit.connectionStatus ?? "Not connected"}</span></div>
+          <div className="lulu-live-actions" style={{ marginTop: 8 }}>
+            <button className="lulu-live-button" type="button" aria-expanded={expanded} onClick={() => void toggleComposioToolkit(toolkit)}>{expanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}{expanded ? "Hide tools" : "Show tools"}</button>
+            <button className="lulu-live-button primary" disabled={busy || toolkit.isNoAuth || toolkit.connected} onClick={() => void authorizeComposioToolkit(toolkit)}>{toolkit.connected ? "Connected" : toolkit.isNoAuth ? "Available" : "Connect"}</button>
+          </div>
+          {expanded && <div style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+            {toolState?.loading ? <LiveEmpty>Loading tools…</LiveEmpty> : toolState?.error ? <div className="lulu-live-error">{toolState.error}</div> : toolState?.items.length ? <div style={{ display: "grid", gap: 8 }}>
+              {toolState.items.map((tool) => <div key={tool.slug} className="lulu-live-message" style={{ border: "1px solid var(--border)", padding: "8px 10px" }}><strong>{tool.name}</strong><span style={{ display: "block", fontSize: 11, opacity: .72 }}>{tool.slug}</span>{tool.description ? <span style={{ display: "block", marginTop: 4 }}>{tool.description}</span> : null}</div>)}
+              {toolState.truncated ? <small>The provider returned more tools than this page can display. Search within Composio to narrow the catalog.</small> : null}
+            </div> : <LiveEmpty>No tools are available for this app.</LiveEmpty>}
+          </div>}
+        </article>;
+      })}
+      {composioToolkitHasMore ? <button className="lulu-live-button" type="button" disabled={composioLoading} onClick={() => void loadComposio(composioSearch.trim(), composioToolkitCursor)}>Load more apps</button> : null}
     </LiveSection>
     {launchReadiness && <LiveSection title="Production readiness" action={<span className="lulu-live-message">Autonomous work is allowed only when every provider gate is ready.</span>}>
       <div className="lulu-live-message">{launchReadiness.overallReady ? "All provider connections are ready for autonomous execution." : `${launchReadiness.readyCount} of ${launchReadiness.totalConnections} provider connections are ready.`}</div>
