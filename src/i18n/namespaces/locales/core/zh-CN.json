@@ -114,5 +114,10 @@
   "Connect an approved app for this workspace. Technical tool details and provider credentials stay protected by Lulu.": "连接此工作区已批准的应用。技术工具详情和服务商凭据由 Lulu 安全保护。",
   "Loading available integrations…": "正在加载可用集成…",
   "No approved integrations match this search.": "没有符合搜索条件的已批准集成。",
-  "Secure account connection": "安全账户连接"
+  "Secure account connection": "安全账户连接",
+  "Die Tools konnten nicht geladen werden.": "无法加载工具。",
+  "Tools ausblenden": "隐藏工具",
+  "Tools anzeigen": "显示工具",
+  "Tools werden geladen…": "正在加载工具…",
+  "Keine Tools verfügbar.": "没有可用工具。"
 }

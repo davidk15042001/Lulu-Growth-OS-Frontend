@@ -114,5 +114,10 @@
   "Connect an approved app for this workspace. Technical tool details and provider credentials stay protected by Lulu.": "Verbinde eine für diesen Workspace freigegebene App. Technische Tool-Details und Provider-Zugangsdaten bleiben durch Lulu geschützt.",
   "Loading available integrations…": "Verfügbare Integrationen werden geladen…",
   "No approved integrations match this search.": "Keine freigegebenen Integrationen passen zu dieser Suche.",
-  "Secure account connection": "Sichere Kontoverbindung"
+  "Secure account connection": "Sichere Kontoverbindung",
+  "Die Tools konnten nicht geladen werden.": "Die Tools konnten nicht geladen werden.",
+  "Tools ausblenden": "Tools ausblenden",
+  "Tools anzeigen": "Tools anzeigen",
+  "Tools werden geladen…": "Tools werden geladen…",
+  "Keine Tools verfügbar.": "Keine Tools verfügbar."
 }

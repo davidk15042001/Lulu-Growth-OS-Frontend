@@ -23,6 +23,16 @@ export type AdminComposioToolkit = {
   customerRestricted: boolean;
 };
 
+export type AdminComposioTool = {
+  slug: string;
+  name: string;
+  description: string | null;
+  toolkitSlug: string;
+  toolkitName: string;
+  logo?: string;
+  isNoAuth: boolean;
+};
+
 export type ComposioTool = {
   slug: string;
   name: string;
@@ -67,6 +77,14 @@ export const composioApi = {
     const query = params.toString() ? `?${params.toString()}` : "";
     return requestApi<{ items: AdminComposioToolkit[]; nextCursor: string | null; totalPages: number }>({
       path: `/admin/composio/catalog${query}`,
+    });
+  },
+  adminTools: (toolkit: string, search?: string) => {
+    const params = new URLSearchParams();
+    if (search?.trim()) params.set("search", search.trim());
+    const query = params.toString() ? `?${params.toString()}` : "";
+    return requestApi<{ items: AdminComposioTool[]; total: number; truncated: boolean }>({
+      path: `/admin/composio/catalog/${encodeURIComponent(toolkit)}/tools${query}`,
     });
   },
   setAdminAvailability: (toolkit: AdminComposioToolkit, customerAvailable: boolean) => requestApi<AdminComposioToolkit>({

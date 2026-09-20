@@ -1003,4 +1003,10 @@
   "Loading available integrations…": "Loading available integrations…",
   "No approved integrations match this search.": "No approved integrations match this search.",
   "Secure account connection": "Secure account connection"
+,
+  "Die Tools konnten nicht geladen werden.": "The tools could not be loaded.",
+  "Tools ausblenden": "Hide tools",
+  "Tools anzeigen": "Show tools",
+  "Tools werden geladen…": "Loading tools…",
+  "Keine Tools verfügbar.": "No tools available."
 }
