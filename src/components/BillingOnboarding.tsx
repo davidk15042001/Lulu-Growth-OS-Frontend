@@ -49,7 +49,10 @@ export function BillingOnboarding() {
           if (syncResponse.data.status === "active") {
             window.localStorage.removeItem(`lulu:checkout-id:${selectedWorkspace.id}`);
             await refresh();
-            if (active) navigateApp(postActionTarget, { replace: true });
+            // The route guard can still see the previous workspace snapshot for
+            // one render after refresh(). Reload so it evaluates the server's
+            // profile_completion state instead of redirecting back to billing.
+            if (active) window.location.replace(postActionTarget);
             return;
           }
         }
@@ -57,7 +60,7 @@ export function BillingOnboarding() {
         const subscription = response.data.subscription;
         if (subscription?.status === "active" && subscription.provider === "airwallex") {
           await refresh();
-          if (active) navigateApp(postActionTarget, { replace: true });
+          if (active) window.location.replace(postActionTarget);
           return;
         }
         attempts += 1;
@@ -104,7 +107,7 @@ export function BillingOnboarding() {
       if (!active || subscription?.status !== "active" || !["internal", "airwallex"].includes(subscription.provider)) return;
       try {
         await refresh();
-        if (active) navigateApp(postActionTarget, { replace: true });
+        if (active) window.location.replace(postActionTarget);
       } catch (cause) {
         if (!active) return;
         setError(getFriendlyErrorMessage(cause, "We could not complete onboarding after confirming your billing plan."));
@@ -149,7 +152,7 @@ export function BillingOnboarding() {
       window.localStorage.setItem(`lulu:selected-plan:${selectedWorkspace.id}`, planId);
       if (billingResult.free) {
         await refresh();
-        navigateApp(postActionTarget, { replace: true });
+        window.location.replace(postActionTarget);
         return;
       }
       if (!billingResult.checkoutUrl) throw new Error("Airwallex did not return a checkout URL.");
