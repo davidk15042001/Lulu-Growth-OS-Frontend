@@ -18,7 +18,7 @@ import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { createPaymentQrDataUrl } from "../utils/paymentQr";
-const packages = [1, 250, 500, 1000];
+const packages = [250, 500, 1000];
 const methods: Array<{ id: ApiPaymentMethod; label: string }> = [
   { id: "card", label: "Bank card" },
   { id: "alipaycn", label: "Alipay" },

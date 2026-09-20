@@ -20,7 +20,7 @@ import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { createPaymentQrDataUrl } from "../utils/paymentQr";
 
-const packages = [1, 10_000, 25_000, 50_000, 90_000];
+const packages = [10_000, 25_000, 50_000, 90_000];
 const methods: Array<{ id: AdSpendPaymentMethod; label: string; detail: string }> = [
   { id: "card", label: "Bank card", detail: "Secure hosted checkout" },
   { id: "alipaycn", label: "Alipay", detail: "Scan a secure QR code" },
