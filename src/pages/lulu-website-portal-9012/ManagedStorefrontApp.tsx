@@ -34,13 +34,6 @@ function statusLabel(status: string) {
   return values[status] ?? status;
 }
 
-function ProductCard({ product }: { product: StorefrontProduct }) {
-  return <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-    {product.imageUrl ? <img src={product.imageUrl} alt={product.imageAlt || product.name} className="aspect-[4/3] w-full object-cover" /> : <div className="grid aspect-[4/3] place-items-center bg-secondary text-muted-foreground"><Image size={28} /></div>}
-    <div className="p-4"><p className="text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">{product.category || "Produkt"}</p><h3 className="mt-1 font-semibold text-foreground">{product.name}</h3><p className="mt-2 line-clamp-3 text-sm leading-5 text-muted-foreground">{product.shortDescription || product.longDescription || "Noch keine Produktbeschreibung vorhanden."}</p><div className="mt-4 font-semibold text-foreground">{product.price ? `${product.price} ${product.currency || ""}` : "Preis auf Anfrage"}</div></div>
-  </article>;
-}
-
 function TemplatePlaceholderVisual({ label, className = "" }: { label: string; className?: string }) {
   return <div className={`grid min-h-52 place-items-center rounded-2xl border border-dashed border-foreground/20 bg-gradient-to-br from-violet-100 via-background to-cyan-100 p-6 text-center ${className}`}>
     <div><div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-primary/30 bg-card/75 text-2xl font-semibold text-primary">L</div><p className="mt-3 text-xs font-semibold uppercase tracking-[.14em] text-muted-foreground">{label}</p></div>
@@ -185,6 +178,54 @@ function EmptyWebsiteTemplate({ hasServices, hasProducts, products, services, br
 
     <div className="border-t border-border px-5 py-4 text-sm text-muted-foreground sm:px-10"><span className="font-semibold text-foreground">{copy.unpublished}</span> {copy.unpublishedBody}</div>
   </div>;
+}
+
+function storefrontProductsToTemplateItems(products: StorefrontProduct[]): TemplateCatalogItem[] {
+  return products.map((product) => ({
+    name: product.name,
+    description: product.shortDescription || product.longDescription,
+    imageUrl: product.imageUrl,
+    category: product.category,
+    priceAmount: product.price,
+    priceCurrency: product.currency,
+  }));
+}
+
+function storefrontServicesToTemplateItems(plan: Record<string, unknown>): TemplateCatalogItem[] {
+  const profile = plan.contentProfile && typeof plan.contentProfile === "object" ? plan.contentProfile as Record<string, unknown> : {};
+  const services = profile.services && typeof profile.services === "object" ? profile.services as Record<string, unknown> : {};
+  const items = Array.isArray(services.items) ? services.items : [];
+  return items.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object").map((item) => ({
+    name: String(item.title || item.name || ""),
+    description: typeof item.description === "string" ? item.description : null,
+    category: typeof item.category === "string" ? item.category : null,
+  })).filter((item) => item.name);
+}
+
+function PublishedWebsiteTemplate({ storefront, branding, palette }: { storefront: Storefront; branding?: TemplateBranding; palette?: TemplatePalette }) {
+  const [locale, setLocale] = useState<TemplateLocale>("de");
+  const base = placeholderCopy(locale);
+  const profile = storefront.plan.contentProfile && typeof storefront.plan.contentProfile === "object" ? storefront.plan.contentProfile as Record<string, unknown> : {};
+  const home = profile.home && typeof profile.home === "object" ? profile.home as Record<string, unknown> : {};
+  const services = profile.services && typeof profile.services === "object" ? profile.services as Record<string, unknown> : {};
+  const products = storefrontProductsToTemplateItems(storefront.products);
+  const serviceItems = storefrontServicesToTemplateItems(storefront.plan);
+  const trust = Array.isArray(home.trustItems) ? home.trustItems.map(String).filter(Boolean).slice(0, 5) : base.trust;
+  const copy: TemplateCopy = {
+    ...base,
+    brand: String(profile.siteTitle || storefront.name || base.brand),
+    footerBrand: String(profile.siteTitle || storefront.name || base.footerBrand),
+    heroEyebrow: String(home.eyebrow || base.heroEyebrow),
+    heroTitle: String(home.headline || `${base.preview}: ${storefront.name}`),
+    starterCopy: String(home.introduction || base.starterCopy),
+    trust,
+    servicesTitle: String(services.title || base.servicesTitle),
+    servicesBody: String(services.introduction || base.servicesBody),
+    productsTitle: base.productsTitle,
+    productsBody: String(home.introduction || base.productsBody),
+    strengthsBody: String(home.featureIntroduction || base.strengthsBody),
+  };
+  return <LuluIndustrialTemplate copy={copy} locale={locale} setLocale={setLocale} hasServices={serviceItems.length > 0} hasProducts={products.length > 0} products={products} services={serviceItems} branding={{ ...branding, companyName: branding?.companyName || storefront.name }} palette={palette} />;
 }
 
 export default function ManagedStorefrontApp({ initialPanel }: { initialPanel?: ManagedWebsitePanel } = {}) {
@@ -344,7 +385,7 @@ export default function ManagedStorefrontApp({ initialPanel }: { initialPanel?: 
       })}
     </nav>
     {panel === "builder" ? <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(320px,.75fr)]"><div className="space-y-6"><section className="rounded-2xl border border-border bg-card p-5 sm:p-7"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Lulu Managed Hosting</p><h2 className="mt-2 text-2xl font-semibold">Deine eigene Website</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Ein kontrolliertes Template, verifizierte Unternehmensdaten und echte Veröffentlichungsstatus – keine simulierten Provider-Aktionen.</p></div><span className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary"><Globe2 size={22} /></span></div>{!selectedSite ? <div className="mt-6 space-y-4"><label className="block text-sm font-medium">Name der Website<input value={siteName} onChange={(event) => setSiteName(event.target.value)} className="mt-2 h-11 w-full rounded-xl border border-border bg-background px-3 outline-none focus:border-primary" /></label><button type="button" onClick={() => void createManagedSite()} disabled={busy === "create" || !siteName.trim()} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{busy === "create" ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />} Lulu-Website erstellen</button></div> : <div className="mt-6 grid gap-3 sm:grid-cols-3"><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[.12em] text-muted-foreground">Status</p><p className="mt-2 flex items-center gap-2 font-semibold"><span className={`h-2.5 w-2.5 rounded-full ${selectedSite.status === "published" ? "bg-emerald-500" : "bg-amber-500"}`} />{statusLabel(selectedSite.status)}</p></div><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[.12em] text-muted-foreground">Template</p><p className="mt-2 font-semibold">{String((activePlan as Record<string, unknown> | undefined)?.templateKey ?? "lulu-standard-v1")}</p></div><div className="rounded-xl border border-border bg-background p-4"><p className="text-xs uppercase tracking-[.12em] text-muted-foreground">Shop-Produkte</p><p className="mt-2 flex items-center gap-2 font-semibold"><Package size={16} />{storefront?.products.length ?? "—"}</p></div></div>}</section>{selectedSite ? <section className="rounded-2xl border border-border bg-card p-5 sm:p-7"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">AI Website & Shop Plan</p><h2 className="mt-2 text-xl font-semibold">Inhalte aus deinem Unternehmen</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Lulu nutzt Profil, Knowledge Base und kanonische Produkte. Fehlende Premium-Bilder werden später als Asset-Aufgaben ergänzt.</p></div>{job?.status === "published" ? <CheckCircle2 className="text-emerald-600" /> : null}</div><label className="mt-5 block text-sm font-medium">Anweisung für Lulu<textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} rows={5} className="mt-2 w-full resize-y rounded-xl border border-border bg-background p-3 text-sm outline-none focus:border-primary" /></label><div className="mt-4 flex flex-wrap gap-3"><button type="button" onClick={() => void generate()} disabled={busy === "generate" || ["queued", "planning", "publishing"].includes(job?.status ?? "")} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground disabled:opacity-60">{busy === "generate" || ["queued", "planning", "publishing"].includes(job?.status ?? "") ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />} Website & Shop generieren</button>{job && ["preview", "generated"].includes(job.status) ? <button type="button" onClick={() => void publish()} disabled={busy === "publish"} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-5 text-sm font-semibold text-emerald-800 disabled:opacity-60">{busy === "publish" ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />} Veröffentlichen</button> : null}{job?.status === "failed" ? <p className="self-center text-sm text-rose-700">Die Generierung wurde angehalten: {job.errorMessage || "Bitte Anforderungen und Knowledge Base prüfen."}</p> : null}</div>{job ? <p className="mt-4 text-xs text-muted-foreground">Letzter Lauf: {statusLabel(job.status)} · {new Date(job.updatedAt).toLocaleString()}</p> : null}</section> : null}</div><aside className="rounded-2xl border border-border bg-card p-5 sm:p-7"><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Ein System</p><h2 className="mt-2 text-xl font-semibold">Was Lulu automatisch übernimmt</h2><div className="mt-5 space-y-4">{["Template mit verifizierten Firmendaten füllen", "Produkte aus dem zentralen Katalog anzeigen", "Fehlende Bildbereiche erkennen", "Website und Shop als eine Marke veröffentlichen", "Domainbesitz prüfen und sichere Aktivierung verlangen"].map((item) => <div key={item} className="flex gap-3 text-sm leading-6"><CheckCircle2 size={17} className="mt-1 shrink-0 text-emerald-600" />{item}</div>)}</div></aside></section> : null}
-    {panel === "preview" ? <section className="space-y-6"><div className="rounded-2xl border border-border bg-card p-5 sm:p-7"><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Lulu Storefront</p><h2 className="mt-2 text-2xl font-semibold">Website-Vorschau</h2><p className="mt-2 text-sm text-muted-foreground">So sehen Kunden deine veröffentlichte Website. Leistungen und Produkte werden nur angezeigt, wenn sie wirklich vorhanden sind.</p></div><a href={previewUrl} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold hover:bg-secondary">{t("Open")} <ExternalLink size={15} /></a></div>{!selectedSite || !storefront ? <EmptyWebsiteTemplate {...catalogPresence} products={catalogItems.products} services={catalogItems.services} branding={branding} palette={deriveTemplatePalette(brandSeed)} /> : null}{storefront?.products.length ? <div className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{storefront.products.map((product) => <ProductCard key={product.id} product={product} />)}</div> : storefront ? <div className="mt-6 rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">Noch keine öffentlich freigegebenen Produkte. Veröffentliche zuerst die Website im Editor.</div> : null}</div></section> : null}
+    {panel === "preview" ? <section className="space-y-6"><div className="rounded-2xl border border-border bg-card p-5 sm:p-7"><div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Lulu Storefront</p><h2 className="mt-2 text-2xl font-semibold">Website-Vorschau</h2><p className="mt-2 text-sm text-muted-foreground">So sehen Kunden deine veröffentlichte Website. Leistungen und Produkte werden nur angezeigt, wenn sie wirklich vorhanden sind.</p></div><a href={previewUrl} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-2 rounded-xl border border-border px-4 text-sm font-semibold hover:bg-secondary">{t("Open")} <ExternalLink size={15} /></a></div><div className="mt-6 overflow-hidden rounded-2xl border border-border">{storefront ? <PublishedWebsiteTemplate storefront={storefront} branding={branding} palette={deriveTemplatePalette(brandSeed)} /> : <EmptyWebsiteTemplate {...catalogPresence} products={catalogItems.products} services={catalogItems.services} branding={branding} palette={deriveTemplatePalette(brandSeed)} />}</div></div></section> : null}
     {panel === "media" ? <section className="space-y-6">{selectedSite ? <WebsiteAssetPanel workspaceId={workspaceId ?? ""} site={selectedSite} /> : <div className="rounded-2xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">Erstelle zuerst deine Lulu-Website.</div>}</section> : null}
     {panel === "domains" ? <section className="space-y-6"><DomainOwnershipPanel key={selectedSite?.id ?? "workspace-domain"} site={selectedSite} workspaceId={workspaceId} onSiteCreated={setSelectedSite} /><div className="rounded-2xl border border-border bg-card p-5 text-sm leading-6 text-muted-foreground"><strong className="text-foreground">DNS-Ablauf:</strong> Lulu prüft den Domainbesitz über TXT. Danach zeigt Lulu den CNAME/ALIAS-Eintrag für die Veröffentlichung. DNS wird nicht ohne ausdrückliche Berechtigung des Kunden verändert.</div></section> : null}
   </div></main>;

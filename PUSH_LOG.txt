@@ -137,3 +137,6 @@ Push-Zeitstempel: 2026-09-10 11:38:09 Europe/Berlin
 
 Push-Zeitstempel: 2026-09-10 12:42:29 Europe/Berlin
 Änderungen: Die öffentliche Login-Landingpage wurde vollständig auf Lulu als autonome Execution Layer ausgerichtet: permanenter globaler North Star, mehr als 140 AI Agents, dynamische Team-Orchestrierung, 24/7-Ausführung ohne Routinefreigaben, alle zentralen Unternehmensbereiche sowie der transparente Prepaid-Adspend-Flow inklusive 4%-Gebühr und unterstützten Zahlungsarten. Desktop und Mobile wurden visuell geprüft; Englisch, Deutsch und Chinesisch sind synchronisiert.
+
+Push-Zeitstempel: 2026-09-20 07:55:47 Europe/Berlin
+Änderungen: Das Website-Preview-Template wurde deutlich dynamischer gestaltet: Preview-Panel, neuer Preview-Tab und Live-Zustand nutzen nun ein vollständigeres, modernes Layout mit Hero-Signalen, Branchen-/Use-Case-Routing, Proof, Ressourcen, erweiterten Unterseiten und stärkeren Produktdetails.
