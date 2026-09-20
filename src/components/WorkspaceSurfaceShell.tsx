@@ -9,7 +9,7 @@ import { isOfficePanelSurface } from "../routing";
  * Generated pages get the same chrome from NativePage; keeping this small shell
  * here prevents direct routes (quotes, invoices and CRM) from losing navigation.
  */
-export function WorkspaceSurfaceShell({ activeSlug, children }: { activeSlug: string; children: ReactNode }) {
+export function WorkspaceSurfaceShell({ activeSlug, children, showNavigation = true }: { activeSlug: string; children: ReactNode; showNavigation?: boolean }) {
   const location = useLocation();
   const officePanel = isOfficePanelSurface(location.search);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -94,6 +94,8 @@ export function WorkspaceSurfaceShell({ activeSlug, children }: { activeSlug: st
       else navigation.setAttribute("aria-modal", previousModal);
     };
   }, [close, mobileOpen, officePanel]);
+
+  if (!showNavigation) return <>{children}</>;
 
   if (officePanel) {
     return (

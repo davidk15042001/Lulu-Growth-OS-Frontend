@@ -37,7 +37,7 @@ const emptyProfile: ProfileForm = {
 };
 const emptyPassword: PasswordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
 const inputClass = 'w-full rounded-xl border border-[var(--border)] bg-transparent px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-[var(--ring)]';
-const requiredActivationFields: FieldErrorKey[] = ['firstName', 'lastName', 'companyName', 'industry', 'countryRegion', 'taxId', 'legalForm', 'legalRepresentative', 'address', 'companyLogo', 'bankAccountNumber', 'bankCode', 'bankOpeningBank', 'branch'];
+const requiredActivationFields: FieldErrorKey[] = ['firstName', 'lastName', 'companyName', 'industry', 'countryRegion', 'taxId', 'legalForm', 'legalRepresentative', 'phoneNumber', 'address', 'companyLogo', 'bankAccountNumber', 'bankCode', 'bankOpeningBank', 'bankBranch', 'branch'];
 const countries = ['China', 'Germany', 'United States', 'United Kingdom', 'France', 'Netherlands', 'Austria', 'Switzerland', 'Singapore', 'Hong Kong', 'Other'];
 const industries = ['E-commerce', 'Manufacturing', 'SaaS', 'Professional services', 'Retail', 'Healthcare', 'Education', 'Finance', 'Logistics', 'Hospitality', 'Other'];
 const branches = ['Consumer goods', 'Industrial goods', 'B2B services', 'B2C services', 'Software', 'Marketplace', 'Wholesale', 'Local services', 'Other'];
@@ -117,14 +117,16 @@ export default function ProfilePage() {
   const cropImageRef = useRef<HTMLImageElement | null>(null);
   const cropDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
 
-  // Company/legal identity is required before billing is active.  Keep this
-  // screen available to workspace owners/admins even when the commercial
-  // workspace.write entitlement is disabled; the backend still performs the
-  // authoritative membership/capability check.
-  const canManageWorkspaceProfile = permissions.status === 'ready'
-    && (permissions.role === 'owner' || permissions.role === 'admin');
   const workspaceId = selectedWorkspace?.id;
   const activationMode = selectedWorkspace?.onboardingStep === 'profile_completion' && !selectedWorkspace.onboardingCompletedAt;
+  // During activation the bootstrap endpoint can be unavailable because the
+  // workspace gate intentionally blocks normal app data. The workspace list
+  // still carries the authoritative membership role, so owners/admins must be
+  // able to complete the profile without waiting for bootstrap permissions.
+  const profileRole = selectedWorkspace?.role ?? permissions.role;
+  const canManageWorkspaceProfile = profileRole === 'owner' || profileRole === 'admin'
+    ? activationMode || permissions.status === 'ready'
+    : false;
   const [profileGateActive, setProfileGateActive] = useState(activationMode);
   const requiredProfileMode = activationMode || profileGateActive;
 
@@ -176,7 +178,7 @@ export default function ProfilePage() {
       })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [workspaceId, canManageWorkspaceProfile, t]);
+  }, [workspaceId, canManageWorkspaceProfile, activationMode, t]);
 
   useEffect(() => () => {
     if (pendingLogo?.url) URL.revokeObjectURL(pendingLogo.url);
@@ -386,7 +388,7 @@ export default function ProfilePage() {
 
   if (!selectedWorkspace) return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame p-8"><h1 className="text-2xl font-semibold">{t('Profile')}</h1><p className="mt-2 text-[var(--muted-foreground)]">{t('Choose a workspace to continue.')}</p></main></WorkspaceSurfaceShell>;
 
-  return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame min-h-screen bg-[var(--background)] p-4 sm:p-8">{activationMode?<OnboardingHeader step={3} showBrandName={false}/>:null}<div className="mx-auto max-w-5xl space-y-6">
+  return <WorkspaceSurfaceShell activeSlug="profile" showNavigation={!activationMode}><main className="page-frame min-h-screen bg-[var(--background)] p-4 sm:p-8">{activationMode?<OnboardingHeader step={3} showBrandName={false}/>:null}<div className="mx-auto max-w-5xl space-y-6">
     <header><p className="eyebrow">{activationMode ? '03 / 04 · Company profile' : t('Workspace settings')}</p><h1 className="text-3xl font-semibold tracking-tight">{t('Profile')}</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">{activationMode ? t('Confirm the minimum operating identity.') : requiredProfileMode ? t('Complete the required company and responsible-person profile.') : t('Manage your account and optional company details for this workspace.')}</p></header>
     {error ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</div> : null}
     {notice ? <div role="status" className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"><CheckCircle2 size={16}/>{notice}</div> : null}
@@ -425,6 +427,7 @@ export default function ProfilePage() {
                   {field('legalForm', `${t('Legal form')} *`, { required: true, list: 'profile-legal-form-options' })}
                   {field('taxId', `${t('Tax ID')} *`, { required: true })}
                   {field('legalRepresentative', `${t('Legal representative')} *`, { required: true })}
+                  {field('phoneNumber', `${t('Phone number')} *`, { required: true })}
                   {field('address', `${t('Address')} *`, { required: true, wide: true })}
                 </div>
               </section>
@@ -446,7 +449,7 @@ export default function ProfilePage() {
               <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('Drag and drop, or choose PNG, JPEG or WebP')}</p><p className="mt-1">{t('Maximum 5 MB')}</p>{fieldErrors.companyLogo ? <p className="mt-1 font-medium text-rose-700">{fieldErrors.companyLogo}</p> : null}</div>
             </div>
           </div>
-          <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{requiredProfileMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', requiredProfileMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: requiredProfileMode })}{field('bankCode', requiredProfileMode ? `${t('Bank code')} *` : t('Bank code'), { required: requiredProfileMode })}{field('bankOpeningBank', requiredProfileMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: requiredProfileMode, wide: requiredProfileMode })}{!requiredProfileMode ? field('bankBranch', t('Branch')) : null}</div></div>
+          <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{requiredProfileMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', requiredProfileMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: requiredProfileMode })}{field('bankCode', requiredProfileMode ? `${t('Bank code')} *` : t('Bank code'), { required: requiredProfileMode })}{field('bankOpeningBank', requiredProfileMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: requiredProfileMode, wide: requiredProfileMode })}{field('bankBranch', requiredProfileMode ? `${t('Branch')} *` : t('Branch'), { required: requiredProfileMode, wide: requiredProfileMode })}</div></div>
           {requiredProfileMode ? <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{t('Business Classification')}</h3><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('branch', 'Branche *', { required: true, wide: true, list: 'profile-branch-options' })}</div></div> : null}
           <div className="mt-6 flex justify-end"><button type="button" onClick={() => void updateCompanyProfile()} disabled={requiredProfileMode ? !activationClientComplete : savingProfile || loading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"><Save size={15}/>{savingProfile ? t('Saving…') : activationMode ? t('Save & Continue') : t('Save company profile')}</button></div>
         </>}
