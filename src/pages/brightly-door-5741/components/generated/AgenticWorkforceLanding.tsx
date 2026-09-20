@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   Activity,
   ArrowRight,
@@ -15,14 +14,18 @@ import {
   Zap,
 } from 'lucide-react';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
-import { luluVisibleNavigationAgentSections } from '../../../../config/lulu-agent-registry';
-
-const SYSTEM_AGENT_COUNT = 12;
+const AGENT_COUNTS = {
+  total: 137,
+  executiveOrchestrator: 1,
+  domainLeads: 9,
+  independentAuditors: 2,
+  specialists: 125,
+} as const;
 
 const systemLayers = [
-  { value: '1', title: 'Executive Orchestrator', text: 'Prioritizes opportunities, forms teams, delegates work and resolves conflicts.' },
-  { value: '9', title: 'Domain Leads', text: 'Coordinate intelligence, brand, growth, content, revenue, finance, online presence, paid acquisition and localization.' },
-  { value: '2', title: 'Independent Auditors', text: 'Security and outcome auditors can reject unsafe, unsupported or incomplete execution.' },
+  { value: AGENT_COUNTS.executiveOrchestrator, title: 'Executive Orchestrator', text: 'Prioritizes opportunities, forms teams, delegates work and resolves conflicts.' },
+  { value: AGENT_COUNTS.domainLeads, title: 'Domain Leads', text: 'Coordinate intelligence, brand, growth, content, revenue, finance, online presence, paid acquisition and localization.' },
+  { value: AGENT_COUNTS.independentAuditors, title: 'Independent Auditors', text: 'Security and outcome auditors can reject unsafe, unsupported or incomplete execution.' },
 ] as const;
 
 const routingSignals = [
@@ -36,12 +39,6 @@ const routingSignals = [
 
 export const AgenticWorkforceLanding = () => {
   const t = useTranslation();
-  const totalSpecialists = useMemo(
-    () => luluVisibleNavigationAgentSections.reduce((sum, section) => sum + section.pages.length, 0),
-    [],
-  );
-  const totalAgents = totalSpecialists + SYSTEM_AGENT_COUNT;
-
   return (
     <section className="relative overflow-hidden bg-white text-slate-950" aria-labelledby="lulu-workforce-title">
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
@@ -57,7 +54,7 @@ export const AgenticWorkforceLanding = () => {
               {t('The Lulu agent ecosystem')}
             </div>
             <h2 id="lulu-workforce-title" className="mt-7 max-w-5xl text-5xl font-semibold leading-[.98] tracking-[-.055em] sm:text-6xl lg:text-8xl">
-              <span className="bg-gradient-to-r from-violet-700 via-indigo-600 to-sky-500 bg-clip-text text-transparent">{totalAgents}</span> {t('registered agents. One coordinated company.')}
+              <span className="bg-gradient-to-r from-violet-700 via-indigo-600 to-sky-500 bg-clip-text text-transparent">{AGENT_COUNTS.total}</span> {t('registered agents. One coordinated company.')}
             </h2>
           </div>
           <p className="max-w-xl text-base leading-8 text-slate-600 lg:pb-2">{t('Lulu does not unleash every agent at once. It selects the smallest team capable of creating the strongest verified outcome — then replaces weak paths automatically.')}</p>
@@ -72,7 +69,7 @@ export const AgenticWorkforceLanding = () => {
             </article>
           ))}
           <article className="rounded-3xl border border-violet-200 bg-gradient-to-br from-violet-700 to-indigo-700 p-6 text-white shadow-xl shadow-violet-200/60">
-            <div className="flex items-center justify-between"><span className="text-4xl font-semibold tracking-tight">{totalSpecialists}</span><span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/10 text-cyan-200"><Bot size={19} /></span></div>
+            <div className="flex items-center justify-between"><span className="text-4xl font-semibold tracking-tight">{AGENT_COUNTS.specialists}</span><span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/10 text-cyan-200"><Bot size={19} /></span></div>
             <h3 className="mt-6 text-base font-semibold">{t('Specialists')}</h3>
             <p className="mt-2 text-sm leading-6 text-violet-100">{t('Own focused capabilities across every operational area and execute bounded work in connected systems.')}</p>
           </article>
