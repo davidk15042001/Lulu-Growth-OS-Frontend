@@ -125,6 +125,8 @@ export default function ProfilePage() {
     && (permissions.role === 'owner' || permissions.role === 'admin');
   const workspaceId = selectedWorkspace?.id;
   const activationMode = selectedWorkspace?.onboardingStep === 'profile_completion' && !selectedWorkspace.onboardingCompletedAt;
+  const [profileGateActive, setProfileGateActive] = useState(activationMode);
+  const requiredProfileMode = activationMode || profileGateActive;
 
   useEffect(() => {
     setAccount({ firstName: currentUser?.firstName ?? '', lastName: currentUser?.lastName ?? '' });
@@ -134,8 +136,10 @@ export default function ProfilePage() {
     let active = true;
     if (!workspaceId || !canManageWorkspaceProfile) {
       setProfile(emptyProfile);
+      setProfileGateActive(false);
       return () => { active = false; };
     }
+    setProfileGateActive(activationMode);
     setLoading(true);
     setError('');
     void workspaceProfileApi.get(workspaceId)
@@ -152,6 +156,7 @@ export default function ProfilePage() {
           setLogoUrl(resolveMediaUrl(response.data.logoUrl));
           setLogoFileName(response.data.logoFileName ?? null);
           setLogoLoadError(false);
+          setProfileGateActive(activationMode || (Array.isArray(response.data.missingRequiredFields) && response.data.missingRequiredFields.length > 0));
         }
         else if (selectedWorkspace) setProfile(workspaceToProfileForm(selectedWorkspace));
       })
@@ -163,6 +168,7 @@ export default function ProfilePage() {
         // the whole Profile page unusable.
         if (selectedWorkspace) {
           setProfile(workspaceToProfileForm(selectedWorkspace));
+          setProfileGateActive(activationMode);
           setError('');
           return;
         }
@@ -198,7 +204,7 @@ export default function ProfilePage() {
   const updateCompanyProfile = async () => {
     if (!workspaceId || !canManageWorkspaceProfile) return;
     const nextFieldErrors: Partial<Record<FieldErrorKey,string>> = {};
-    if (activationMode) {
+    if (requiredProfileMode) {
       for (const key of requiredActivationFields) {
         const value = key === 'companyLogo' ? logoUrl : key === 'firstName' || key === 'lastName' ? account[key] : profile[key];
         if (!String(value ?? '').trim()) nextFieldErrors[key] = t('Required');
@@ -216,7 +222,7 @@ export default function ProfilePage() {
     setSavingProfile(true); setError(''); setNotice(''); setFieldErrors({});
     try {
       const payload = Object.fromEntries(entries.map(([key, value]) => [key, typeof value === 'string' && !value.trim() ? null : typeof value === 'string' ? value.trim() : value]));
-      if (activationMode) await authApi.updateMe({ firstName: account.firstName.trim(), lastName: account.lastName.trim() });
+      if (requiredProfileMode) await authApi.updateMe({ firstName: account.firstName.trim(), lastName: account.lastName.trim() });
       const response = await workspaceProfileApi.update(workspaceId, payload);
       // A rolling deployment or proxy may return a successful envelope before
       // the response body is populated. Keep the submitted values in that
@@ -225,6 +231,7 @@ export default function ProfilePage() {
         ? profileToForm(response.data)
         : profile;
       setProfile(savedProfile);
+      setProfileGateActive(activationMode || Boolean(response.data?.missingRequiredFields?.length));
       if (response.data?.missingRequiredFields?.length) {
         setFieldErrors(Object.fromEntries(response.data.missingRequiredFields.map((field) => [field, t('Required')])) as Partial<Record<FieldErrorKey,string>>);
         setError(t('The profile is still incomplete. Review the highlighted fields.'));
@@ -353,7 +360,7 @@ export default function ProfilePage() {
     try {
       await workspaceProfileApi.deleteLogo(workspaceId);
       setLogoUrl(null); setLogoFileName(null); setNotice(t('Company logo was removed.'));
-      if (activationMode) setFieldErrors((current) => ({ ...current, companyLogo: t('Required') }));
+      if (requiredProfileMode) setFieldErrors((current) => ({ ...current, companyLogo: t('Required') }));
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, t('The company logo could not be removed.')));
     } finally { setLogoUploading(false); }
@@ -380,12 +387,12 @@ export default function ProfilePage() {
   if (!selectedWorkspace) return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame p-8"><h1 className="text-2xl font-semibold">{t('Profile')}</h1><p className="mt-2 text-[var(--muted-foreground)]">{t('Choose a workspace to continue.')}</p></main></WorkspaceSurfaceShell>;
 
   return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame min-h-screen bg-[var(--background)] p-4 sm:p-8">{activationMode?<OnboardingHeader step={3} showBrandName={false}/>:null}<div className="mx-auto max-w-5xl space-y-6">
-    <header><p className="eyebrow">{activationMode ? '03 / 04 · Company profile' : t('Workspace settings')}</p><h1 className="text-3xl font-semibold tracking-tight">{t('Profile')}</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">{activationMode ? t('Confirm the minimum operating identity.') : t('Manage your account and optional company details for this workspace.')}</p></header>
+    <header><p className="eyebrow">{activationMode ? '03 / 04 · Company profile' : t('Workspace settings')}</p><h1 className="text-3xl font-semibold tracking-tight">{t('Profile')}</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">{activationMode ? t('Confirm the minimum operating identity.') : requiredProfileMode ? t('Complete the required company and responsible-person profile.') : t('Manage your account and optional company details for this workspace.')}</p></header>
     {error ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</div> : null}
     {notice ? <div role="status" className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"><CheckCircle2 size={16}/>{notice}</div> : null}
     {activationMode?<section className="rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-5"><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Activation gate · 3 of 4</p><h2 className="mt-2 text-xl font-semibold">Confirm the operating identity.</h2><p className="mt-2 text-sm text-[var(--muted-foreground)]">Every required profile field must be valid and saved before Lulu can build the Knowledge Base.</p></section>:null}
 
-    {!activationMode ? <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
+    {!requiredProfileMode ? <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
       <div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><UserRound size={18}/></div><div><h2 className="text-lg font-semibold">{t('Your account')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Update your name or change your password.')}</p></div></div>
       <div className="mt-6 grid gap-4 sm:grid-cols-2"><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Email')}</span><input value={currentUser?.email ?? ''} readOnly className={`${inputClass} cursor-not-allowed bg-[var(--secondary)]`} /></label><div /><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('First name')}</span><input value={account.firstName} onChange={(event) => setAccount({ ...account, firstName: event.target.value })} className={inputClass} autoComplete="given-name" /></label><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Last name')}</span><input value={account.lastName} onChange={(event) => setAccount({ ...account, lastName: event.target.value })} className={inputClass} autoComplete="family-name" /></label></div>
       <div className="mt-4 flex justify-end"><button type="button" onClick={() => void updateAccount()} disabled={savingAccount} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-50"><Save size={15}/>{savingAccount ? t('Saving…') : t('Save account')}</button></div>
@@ -393,10 +400,10 @@ export default function ProfilePage() {
     </section> : null}
 
     <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
-      <div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><Building2 size={18}/></div><div><h2 className="text-lg font-semibold">{t('Company profile')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{canManageWorkspaceProfile ? (activationMode ? t('Complete the required company and responsible-person profile.') : t('Optional legal, contact and banking details support documents and business identity.')) : t('Only workspace owners and admins can view or edit company and banking details.')}</p></div></div>
+      <div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><Building2 size={18}/></div><div><h2 className="text-lg font-semibold">{t('Company profile')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{canManageWorkspaceProfile ? (requiredProfileMode ? t('Complete the required company and responsible-person profile.') : t('Optional legal, contact and banking details support documents and business identity.')) : t('Only workspace owners and admins can view or edit company and banking details.')}</p></div></div>
       {!canManageWorkspaceProfile ? <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{t('Ask a workspace owner or admin to manage these details.')}</div> : <>
         {loading ? <div className="mt-6 rounded-xl bg-[var(--secondary)] p-8 text-center text-sm text-[var(--muted-foreground)]">{t('Loading profile…')}</div> : <>
-          {activationMode ? <>
+          {requiredProfileMode ? <>
             <datalist id="profile-country-options">{countries.map((item) => <option key={item} value={item}/>)}</datalist>
             <datalist id="profile-industry-options">{industries.map((item) => <option key={item} value={item}/>)}</datalist>
             <datalist id="profile-legal-form-options">{legalOptions.map((item) => <option key={item} value={item}/>)}</datalist>
@@ -425,7 +432,7 @@ export default function ProfilePage() {
           </> : <div className="mt-6 grid gap-4 sm:grid-cols-2">{field('companyName', t('Company name'))}{field('industry', t('Industry'))}{field('countryRegion', t('Country / region'))}{field('taxId', t('Tax ID'))}{field('legalForm', t('Legal form'))}{field('legalRepresentative', t('Legal representative'))}{field('phoneNumber', t('Phone number'))}{field('address', t('Address'), { wide: true })}</div>}
           <div className="mt-7 border-t border-[var(--border)] pt-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div><h3 className="font-semibold">{activationMode ? `${t('Company Logo')} *` : t('Company logo')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('This logo is shown on your invoices and quotes.')}</p></div>
+              <div><h3 className="font-semibold">{requiredProfileMode ? `${t('Company Logo')} *` : t('Company logo')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('This logo is shown on your invoices and quotes.')}</p></div>
               <div className="flex items-center gap-3">
                 <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--secondary)]">
                   <ImagePlus size={16}/>{logoUploading ? t('Uploading…') : logoUrl ? t('Replace logo') : t('Upload logo')}
@@ -439,9 +446,9 @@ export default function ProfilePage() {
               <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('Drag and drop, or choose PNG, JPEG or WebP')}</p><p className="mt-1">{t('Maximum 5 MB')}</p>{fieldErrors.companyLogo ? <p className="mt-1 font-medium text-rose-700">{fieldErrors.companyLogo}</p> : null}</div>
             </div>
           </div>
-          <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{activationMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', activationMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: activationMode })}{field('bankCode', activationMode ? `${t('Bank code')} *` : t('Bank code'), { required: activationMode })}{field('bankOpeningBank', activationMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: activationMode, wide: activationMode })}{!activationMode ? field('bankBranch', t('Branch')) : null}</div></div>
-          {activationMode ? <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{t('Business Classification')}</h3><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('branch', 'Branche *', { required: true, wide: true, list: 'profile-branch-options' })}</div></div> : null}
-          <div className="mt-6 flex justify-end"><button type="button" onClick={() => void updateCompanyProfile()} disabled={activationMode ? !activationClientComplete : savingProfile || loading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"><Save size={15}/>{savingProfile ? t('Saving…') : activationMode ? t('Save & Continue') : t('Save company profile')}</button></div>
+          <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{requiredProfileMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', requiredProfileMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: requiredProfileMode })}{field('bankCode', requiredProfileMode ? `${t('Bank code')} *` : t('Bank code'), { required: requiredProfileMode })}{field('bankOpeningBank', requiredProfileMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: requiredProfileMode, wide: requiredProfileMode })}{!requiredProfileMode ? field('bankBranch', t('Branch')) : null}</div></div>
+          {requiredProfileMode ? <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{t('Business Classification')}</h3><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('branch', 'Branche *', { required: true, wide: true, list: 'profile-branch-options' })}</div></div> : null}
+          <div className="mt-6 flex justify-end"><button type="button" onClick={() => void updateCompanyProfile()} disabled={requiredProfileMode ? !activationClientComplete : savingProfile || loading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"><Save size={15}/>{savingProfile ? t('Saving…') : activationMode ? t('Save & Continue') : t('Save company profile')}</button></div>
         </>}
       </>}
     </section>
