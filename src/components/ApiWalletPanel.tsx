@@ -326,11 +326,12 @@ export function ApiWalletPanel() {
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Settled provider costs")}</p>
             </div>
           </div>
-          <div className="mt-6 border-t border-border pt-5">
+          <div id="composio-usage" className="mt-6 scroll-mt-6 border-t border-border pt-5">
             <div className="flex flex-wrap items-end justify-between gap-2">
               <div>
                 <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Composio usage")}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{t("0.50 CNY per tool call and per trigger event")}</p>
+                <p className="mt-1 text-xs font-medium text-emerald-700">{t("Lulu platform admins with billing.bypass use Composio for free.")}</p>
               </div>
               <p className="text-lg font-semibold text-violet-700">{displayLoading ? "—" : money.format(Number(currentOverview?.composioUsage?.chargedAmountCny ?? 0))}</p>
             </div>
