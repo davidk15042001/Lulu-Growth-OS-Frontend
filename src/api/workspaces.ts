@@ -69,6 +69,8 @@ export const workspaceFoundationApi = {
 
 export type WorkspaceProfile = {
   workspaceId: string;
+  firstName: string | null;
+  lastName: string | null;
   companyName: string;
   industry: string | null;
   countryRegion: string | null;
@@ -81,6 +83,7 @@ export type WorkspaceProfile = {
   bankOpeningBank: string | null;
   bankBranch: string | null;
   bankCode: string | null;
+  branch: string | null;
   onboardingStep: string;
   profileCompletedAt: string | null;
   missingRequiredFields: string[];

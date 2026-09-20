@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { Building2, CheckCircle2, Eye, EyeOff, ImagePlus, LockKeyhole, Save, Trash2, UserRound } from 'lucide-react';
 import { authApi } from '../../api/auth';
-import { getFriendlyErrorMessage } from '../../api/client';
+import { ApiError, getFriendlyErrorMessage } from '../../api/client';
 import { clearStoredUser } from '../../api/session';
 import { useLuluApp } from '../../api/LuluAppContext';
 import { workspaceProfileApi, type WorkspaceProfile } from '../../api/workspaces';
@@ -10,12 +10,13 @@ import { OnboardingHeader } from '../../components/OnboardingHeader';
 import { useTranslation } from '../../i18n/GlobalLanguageSwitcher';
 import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
 
-type ProfileField = 'companyName'|'industry'|'countryRegion'|'taxId'|'address'|'legalForm'|'legalRepresentative'|'phoneNumber'|'bankAccountNumber'|'bankOpeningBank'|'bankBranch'|'bankCode';
+type ProfileField = 'companyName'|'industry'|'countryRegion'|'taxId'|'address'|'legalForm'|'legalRepresentative'|'phoneNumber'|'bankAccountNumber'|'bankOpeningBank'|'bankBranch'|'bankCode'|'branch';
 type ProfileForm = Record<ProfileField,string>;
 type AccountForm = { firstName: string; lastName: string };
 type PasswordForm = { currentPassword: string; newPassword: string; confirmPassword: string };
 type PendingLogo = { file: File; url: string; width: number; height: number; baseScale: number };
 type CropOffset = { x: number; y: number };
+type FieldErrorKey = ProfileField | keyof AccountForm | 'companyLogo';
 
 const cropViewportSize = 320;
 
@@ -32,10 +33,27 @@ function resolveMediaUrl(value: string | null | undefined) {
 
 const emptyProfile: ProfileForm = {
   companyName: '', industry: '', countryRegion: '', taxId: '', address: '', legalForm: '',
-  legalRepresentative: '', phoneNumber: '', bankAccountNumber: '', bankOpeningBank: '', bankBranch: '', bankCode: '',
+  legalRepresentative: '', phoneNumber: '', bankAccountNumber: '', bankOpeningBank: '', bankBranch: '', bankCode: '', branch: '',
 };
 const emptyPassword: PasswordForm = { currentPassword: '', newPassword: '', confirmPassword: '' };
 const inputClass = 'w-full rounded-xl border border-[var(--border)] bg-transparent px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-[var(--ring)]';
+const requiredActivationFields: FieldErrorKey[] = ['firstName', 'lastName', 'companyName', 'industry', 'countryRegion', 'taxId', 'legalForm', 'legalRepresentative', 'address', 'companyLogo', 'bankAccountNumber', 'bankCode', 'bankOpeningBank', 'branch'];
+const countries = ['China', 'Germany', 'United States', 'United Kingdom', 'France', 'Netherlands', 'Austria', 'Switzerland', 'Singapore', 'Hong Kong', 'Other'];
+const industries = ['E-commerce', 'Manufacturing', 'SaaS', 'Professional services', 'Retail', 'Healthcare', 'Education', 'Finance', 'Logistics', 'Hospitality', 'Other'];
+const branches = ['Consumer goods', 'Industrial goods', 'B2B services', 'B2C services', 'Software', 'Marketplace', 'Wholesale', 'Local services', 'Other'];
+const legalFormsByCountry: Record<string, string[]> = {
+  China: ['Limited liability company', 'Joint stock company', 'Partnership', 'Sole proprietorship', 'Foreign-invested enterprise', 'Other'],
+  Germany: ['GmbH', 'UG', 'AG', 'e.K.', 'GbR', 'OHG', 'KG', 'Other'],
+  'United States': ['LLC', 'Corporation', 'S Corporation', 'Partnership', 'Sole proprietorship', 'Nonprofit', 'Other'],
+  'United Kingdom': ['Limited company', 'PLC', 'LLP', 'Partnership', 'Sole trader', 'Other'],
+  France: ['SARL', 'SAS', 'SA', 'EURL', 'Entreprise individuelle', 'Other'],
+  Netherlands: ['BV', 'NV', 'VOF', 'Eenmanszaak', 'Stichting', 'Other'],
+  Austria: ['GmbH', 'AG', 'OG', 'KG', 'Einzelunternehmen', 'Other'],
+  Switzerland: ['GmbH', 'AG', 'Kollektivgesellschaft', 'Einzelunternehmen', 'Other'],
+  Singapore: ['Private limited company', 'Public company', 'LLP', 'Sole proprietorship', 'Other'],
+  'Hong Kong': ['Private company limited by shares', 'Public company', 'Partnership', 'Sole proprietorship', 'Other'],
+  Other: ['Limited company', 'Corporation', 'Partnership', 'Sole proprietorship', 'Nonprofit', 'Other'],
+};
 
 function profileToForm(profile: WorkspaceProfile | null | undefined): ProfileForm {
   return Object.fromEntries(Object.keys(emptyProfile).map((key) => [key, profile?.[key as keyof ProfileForm] ?? ''])) as ProfileForm;
@@ -51,6 +69,17 @@ function workspaceToProfileForm(workspace: NonNullable<ReturnType<typeof useLulu
     address: workspace.address ?? '',
     legalForm: workspace.legalForm ?? '',
   };
+}
+
+function legalFormOptions(countryRegion: string) {
+  return legalFormsByCountry[countries.find((country) => country.toLowerCase() === countryRegion.trim().toLowerCase()) ?? 'Other'];
+}
+
+function extractFieldErrors(error: unknown) {
+  if (!(error instanceof ApiError) || !error.details || typeof error.details !== 'object') return {};
+  const fields = (error.details as { fields?: unknown }).fields;
+  if (!fields || typeof fields !== 'object') return {};
+  return Object.fromEntries(Object.entries(fields as Record<string, unknown>).filter(([, value]) => typeof value === 'string')) as Partial<Record<FieldErrorKey,string>>;
 }
 
 function constrainCropOffset(offset: CropOffset, width: number, height: number, scale: number): CropOffset {
@@ -75,6 +104,7 @@ export default function ProfilePage() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [error, setError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldErrorKey,string>>>({});
   const [notice, setNotice] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [logoFileName, setLogoFileName] = useState<string | null>(null);
@@ -115,6 +145,10 @@ export default function ProfilePage() {
         // profile if a rolling deployment returns an incomplete envelope.
         if (response.data && typeof response.data === 'object') {
           setProfile(profileToForm(response.data));
+          setAccount((current) => ({
+            firstName: response.data.firstName ?? current.firstName,
+            lastName: response.data.lastName ?? current.lastName,
+          }));
           setLogoUrl(resolveMediaUrl(response.data.logoUrl));
           setLogoFileName(response.data.logoFileName ?? null);
           setLogoLoadError(false);
@@ -163,19 +197,26 @@ export default function ProfilePage() {
 
   const updateCompanyProfile = async () => {
     if (!workspaceId || !canManageWorkspaceProfile) return;
-    // Every profile field can be saved independently.  The workspace name is
-    // required by the database, so an empty company-name input is simply
-    // omitted and the already persisted name remains unchanged while another
-    // field is updated.
+    const nextFieldErrors: Partial<Record<FieldErrorKey,string>> = {};
     if (activationMode) {
-      const missing = (['companyName', 'industry'] as const).filter((key) => !profile[key].trim());
-      if (missing.length) { setError(t('Company name and industry are required to continue.')); return; }
+      for (const key of requiredActivationFields) {
+        const value = key === 'companyLogo' ? logoUrl : key === 'firstName' || key === 'lastName' ? account[key] : profile[key];
+        if (!String(value ?? '').trim()) nextFieldErrors[key] = t('Required');
+      }
+      if (!countries.some((country) => country.toLowerCase() === profile.countryRegion.trim().toLowerCase())) nextFieldErrors.countryRegion = t('Select a supported country or region.');
+      if (!legalFormOptions(profile.countryRegion).some((legalForm) => legalForm.toLowerCase() === profile.legalForm.trim().toLowerCase())) nextFieldErrors.legalForm = t('Select a legal form for this country.');
+      if (Object.keys(nextFieldErrors).length) {
+        setFieldErrors(nextFieldErrors);
+        setError(t('Complete every required profile field before continuing.'));
+        return;
+      }
     }
     const entries = Object.entries(profile).filter(([key, value]) => key !== 'companyName' || (typeof value === 'string' && value.trim()));
     if (entries.length === 0) { setError(t('Enter at least one profile detail.')); return; }
-    setSavingProfile(true); setError(''); setNotice('');
+    setSavingProfile(true); setError(''); setNotice(''); setFieldErrors({});
     try {
       const payload = Object.fromEntries(entries.map(([key, value]) => [key, typeof value === 'string' && !value.trim() ? null : typeof value === 'string' ? value.trim() : value]));
+      if (activationMode) await authApi.updateMe({ firstName: account.firstName.trim(), lastName: account.lastName.trim() });
       const response = await workspaceProfileApi.update(workspaceId, payload);
       // A rolling deployment or proxy may return a successful envelope before
       // the response body is populated. Keep the submitted values in that
@@ -184,6 +225,11 @@ export default function ProfilePage() {
         ? profileToForm(response.data)
         : profile;
       setProfile(savedProfile);
+      if (response.data?.missingRequiredFields?.length) {
+        setFieldErrors(Object.fromEntries(response.data.missingRequiredFields.map((field) => [field, t('Required')])) as Partial<Record<FieldErrorKey,string>>);
+        setError(t('The profile is still incomplete. Review the highlighted fields.'));
+        return;
+      }
       // Keep the shared workspace header in sync for the next navigation.
       if (selectedWorkspace && response.data && typeof response.data === 'object') updateWorkspace({ ...selectedWorkspace, companyName: response.data.companyName, industry: response.data.industry, countryRegion: response.data.countryRegion, taxId: response.data.taxId, address: response.data.address, legalForm: response.data.legalForm });
       setNotice(t('Company profile was updated.'));
@@ -192,6 +238,8 @@ export default function ProfilePage() {
         navigateApp(routes.app.knowledgeBase, { replace: true });
       }
     } catch (cause) {
+      const apiFieldErrors = extractFieldErrors(cause);
+      if (Object.keys(apiFieldErrors).length) setFieldErrors(apiFieldErrors);
       setError(getFriendlyErrorMessage(cause, t('The company profile could not be saved.')));
     } finally { setSavingProfile(false); }
   };
@@ -217,7 +265,10 @@ export default function ProfilePage() {
     }
   };
 
-  const updateField = (key: keyof ProfileForm, value: string) => setProfile((current) => ({ ...current, [key]: value }));
+  const updateField = (key: keyof ProfileForm, value: string) => {
+    setProfile((current) => ({ ...current, [key]: value }));
+    if (fieldErrors[key]) setFieldErrors((current) => ({ ...current, [key]: undefined }));
+  };
   const uploadLogo = async (file: File | undefined): Promise<boolean> => {
     if (!workspaceId || !file) return false;
     if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
@@ -232,6 +283,7 @@ export default function ProfilePage() {
     try {
       const response = await workspaceProfileApi.uploadLogo(workspaceId, file);
       setLogoUrl(resolveMediaUrl(response.data.logoUrl)); setLogoFileName(response.data.logoFileName); setLogoLoadError(false);
+      if (fieldErrors.companyLogo) setFieldErrors((current) => ({ ...current, companyLogo: undefined }));
       setNotice(t('Company logo was uploaded and will appear on new invoices and quotes.'));
       return true;
     } catch (cause) {
@@ -301,26 +353,37 @@ export default function ProfilePage() {
     try {
       await workspaceProfileApi.deleteLogo(workspaceId);
       setLogoUrl(null); setLogoFileName(null); setNotice(t('Company logo was removed.'));
+      if (activationMode) setFieldErrors((current) => ({ ...current, companyLogo: t('Required') }));
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, t('The company logo could not be removed.')));
     } finally { setLogoUploading(false); }
   };
-  const field = (key: keyof ProfileForm, label: string, options: { type?: string; sensitive?: boolean; wide?: boolean } = {}) => (
+  const setAccountField = (key: keyof AccountForm, value: string) => {
+    setAccount((current) => ({ ...current, [key]: value }));
+    if (fieldErrors[key]) setFieldErrors((current) => ({ ...current, [key]: undefined }));
+  };
+  const field = (key: keyof ProfileForm, label: string, options: { type?: string; sensitive?: boolean; wide?: boolean; list?: string; required?: boolean } = {}) => (
     <label key={key} className={options.wide ? 'sm:col-span-2' : undefined}>
       <span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{label}</span>
       <div className="relative">
-        <input required={activationMode && (key === 'companyName' || key === 'industry')} aria-required={activationMode && (key === 'companyName' || key === 'industry')} type={options.sensitive ? 'password' : options.type ?? 'text'} value={profile[key] ?? ''} onChange={(event) => updateField(key, event.target.value)} className={`${inputClass}${options.sensitive ? ' pr-10' : ''}`} autoComplete="off" />
+        <input required={options.required} aria-required={options.required} list={options.list} type={options.sensitive ? 'password' : options.type ?? 'text'} value={profile[key] ?? ''} onChange={(event) => updateField(key, event.target.value)} className={`${inputClass}${options.sensitive ? ' pr-10' : ''} ${fieldErrors[key] ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="off" />
       </div>
+      {fieldErrors[key] ? <span className="mt-1.5 block text-xs font-medium text-rose-700">{fieldErrors[key]}</span> : null}
     </label>
   );
+  const legalOptions = legalFormOptions(profile.countryRegion);
+  const activationClientComplete = !loading && !savingProfile && !logoUploading && requiredActivationFields.every((key) => {
+    const value = key === 'companyLogo' ? logoUrl : key === 'firstName' || key === 'lastName' ? account[key] : profile[key];
+    return String(value ?? '').trim().length > 0;
+  }) && countries.some((country) => country.toLowerCase() === profile.countryRegion.trim().toLowerCase()) && legalOptions.some((legalForm) => legalForm.toLowerCase() === profile.legalForm.trim().toLowerCase());
 
   if (!selectedWorkspace) return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame p-8"><h1 className="text-2xl font-semibold">{t('Profile')}</h1><p className="mt-2 text-[var(--muted-foreground)]">{t('Choose a workspace to continue.')}</p></main></WorkspaceSurfaceShell>;
 
   return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame min-h-screen bg-[var(--background)] p-4 sm:p-8">{activationMode?<OnboardingHeader step={3} showBrandName={false}/>:null}<div className="mx-auto max-w-5xl space-y-6">
-    <header><p className="eyebrow">{t('Workspace settings')}</p><h1 className="text-3xl font-semibold tracking-tight">{t('Profile')}</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">{activationMode ? t('Confirm the minimum operating identity. Lulu enriches the remaining company information automatically.') : t('Manage your account and optional company details for this workspace.')}</p></header>
+    <header><p className="eyebrow">{activationMode ? '03 / 04 · Company profile' : t('Workspace settings')}</p><h1 className="text-3xl font-semibold tracking-tight">{t('Profile')}</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">{activationMode ? t('Confirm the minimum operating identity.') : t('Manage your account and optional company details for this workspace.')}</p></header>
     {error ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</div> : null}
     {notice ? <div role="status" className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"><CheckCircle2 size={16}/>{notice}</div> : null}
-    {activationMode?<section className="rounded-2xl border border-violet-500/25 bg-violet-500/5 p-5"><p className="text-xs font-semibold uppercase tracking-[.18em] text-violet-700">Activation gate · 3 of 4</p><h2 className="mt-2 text-xl font-semibold">Confirm the operating identity.</h2><p className="mt-2 text-sm text-[var(--muted-foreground)]">Only company name and industry are required. Lulu can research and enrich the remaining profile from connected sources and customer conversations.</p></section>:null}
+    {activationMode?<section className="rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-5"><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Activation gate · 3 of 4</p><h2 className="mt-2 text-xl font-semibold">Confirm the operating identity.</h2><p className="mt-2 text-sm text-[var(--muted-foreground)]">Every required profile field must be valid and saved before Lulu can build the Knowledge Base.</p></section>:null}
 
     {!activationMode ? <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
       <div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><UserRound size={18}/></div><div><h2 className="text-lg font-semibold">{t('Your account')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Update your name or change your password.')}</p></div></div>
@@ -330,13 +393,39 @@ export default function ProfilePage() {
     </section> : null}
 
     <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
-      <div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><Building2 size={18}/></div><div><h2 className="text-lg font-semibold">{t('Company profile')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{canManageWorkspaceProfile ? (activationMode ? t('Give Lulu the minimum context needed to begin enrichment.') : t('Optional legal, contact and banking details support documents and business identity.')) : t('Only workspace owners and admins can view or edit company and banking details.')}</p></div></div>
+      <div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><Building2 size={18}/></div><div><h2 className="text-lg font-semibold">{t('Company profile')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{canManageWorkspaceProfile ? (activationMode ? t('Complete the required company and responsible-person profile.') : t('Optional legal, contact and banking details support documents and business identity.')) : t('Only workspace owners and admins can view or edit company and banking details.')}</p></div></div>
       {!canManageWorkspaceProfile ? <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{t('Ask a workspace owner or admin to manage these details.')}</div> : <>
         {loading ? <div className="mt-6 rounded-xl bg-[var(--secondary)] p-8 text-center text-sm text-[var(--muted-foreground)]">{t('Loading profile…')}</div> : <>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2">{field('companyName', t('Company name'))}{field('industry', t('Industry'))}{!activationMode ? <>{field('countryRegion', t('Country / region'))}{field('taxId', t('Tax ID'))}{field('legalForm', t('Legal form'))}{field('legalRepresentative', t('Legal representative'))}{field('phoneNumber', t('Phone number'))}{field('address', t('Address'), { wide: true })}</> : null}</div>
+          {activationMode ? <>
+            <datalist id="profile-country-options">{countries.map((item) => <option key={item} value={item}/>)}</datalist>
+            <datalist id="profile-industry-options">{industries.map((item) => <option key={item} value={item}/>)}</datalist>
+            <datalist id="profile-legal-form-options">{legalOptions.map((item) => <option key={item} value={item}/>)}</datalist>
+            <datalist id="profile-branch-options">{branches.map((item) => <option key={item} value={item}/>)}</datalist>
+            <div className="mt-7 space-y-8">
+              <section>
+                <h3 className="text-sm font-semibold">{t('Personal Information')}</h3>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('First name')} *</span><input value={account.firstName} onChange={(event) => setAccountField('firstName', event.target.value)} className={`${inputClass} ${fieldErrors.firstName ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="given-name" />{fieldErrors.firstName ? <span className="mt-1.5 block text-xs font-medium text-rose-700">{fieldErrors.firstName}</span> : null}</label>
+                  <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Last name')} *</span><input value={account.lastName} onChange={(event) => setAccountField('lastName', event.target.value)} className={`${inputClass} ${fieldErrors.lastName ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="family-name" />{fieldErrors.lastName ? <span className="mt-1.5 block text-xs font-medium text-rose-700">{fieldErrors.lastName}</span> : null}</label>
+                </div>
+              </section>
+              <section className="border-t border-[var(--border)] pt-6">
+                <h3 className="text-sm font-semibold">{t('Company Information')}</h3>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {field('companyName', `${t('Company name')} *`, { required: true })}
+                  {field('industry', `${t('Industry')} *`, { required: true, list: 'profile-industry-options' })}
+                  {field('countryRegion', `${t('Country / Region')} *`, { required: true, list: 'profile-country-options' })}
+                  {field('legalForm', `${t('Legal form')} *`, { required: true, list: 'profile-legal-form-options' })}
+                  {field('taxId', `${t('Tax ID')} *`, { required: true })}
+                  {field('legalRepresentative', `${t('Legal representative')} *`, { required: true })}
+                  {field('address', `${t('Address')} *`, { required: true, wide: true })}
+                </div>
+              </section>
+            </div>
+          </> : <div className="mt-6 grid gap-4 sm:grid-cols-2">{field('companyName', t('Company name'))}{field('industry', t('Industry'))}{field('countryRegion', t('Country / region'))}{field('taxId', t('Tax ID'))}{field('legalForm', t('Legal form'))}{field('legalRepresentative', t('Legal representative'))}{field('phoneNumber', t('Phone number'))}{field('address', t('Address'), { wide: true })}</div>}
           <div className="mt-7 border-t border-[var(--border)] pt-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
-              <div><h3 className="font-semibold">{t('Company logo')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('This logo is shown on your invoices and quotes.')}</p></div>
+              <div><h3 className="font-semibold">{activationMode ? `${t('Company Logo')} *` : t('Company logo')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('This logo is shown on your invoices and quotes.')}</p></div>
               <div className="flex items-center gap-3">
                 <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--secondary)]">
                   <ImagePlus size={16}/>{logoUploading ? t('Uploading…') : logoUrl ? t('Replace logo') : t('Upload logo')}
@@ -345,13 +434,14 @@ export default function ProfilePage() {
                 {logoUrl ? <button type="button" disabled={logoUploading} onClick={() => void removeLogo()} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-medium text-rose-700 hover:bg-rose-50 disabled:opacity-50"><Trash2 size={15}/>{t('Remove')}</button> : null}
               </div>
             </div>
-            <div className="mt-4 flex min-h-24 items-center gap-4 rounded-xl border border-dashed border-[var(--border)] bg-[var(--secondary)]/40 p-4">
+            <div className={`mt-4 flex min-h-24 items-center gap-4 rounded-xl border border-dashed bg-[var(--secondary)]/40 p-4 ${fieldErrors.companyLogo ? 'border-rose-400' : 'border-[var(--border)]'}`} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); openLogoCropper(event.dataTransfer.files?.[0]); }}>
               {logoUrl && !logoLoadError ? <img src={logoUrl} alt={profile.companyName ? `${profile.companyName} logo` : t('Company logo')} onError={() => setLogoLoadError(true)} className="max-h-20 max-w-48 rounded-lg bg-white object-contain p-2 shadow-sm" /> : <div className="grid h-20 w-32 place-items-center rounded-lg bg-white px-2 text-center text-xs text-[var(--muted-foreground)]">{logoUrl ? t('Logo preview unavailable') : t('No logo uploaded')}</div>}
-              <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('PNG, JPEG or WebP')}</p><p className="mt-1">{t('Maximum 5 MB')}</p></div>
+              <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('Drag and drop, or choose PNG, JPEG or WebP')}</p><p className="mt-1">{t('Maximum 5 MB')}</p>{fieldErrors.companyLogo ? <p className="mt-1 font-medium text-rose-700">{fieldErrors.companyLogo}</p> : null}</div>
             </div>
           </div>
-          {!activationMode ? <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', t('Bank account number'))}{field('bankCode', t('Bank code'))}{field('bankOpeningBank', t('Account opening bank'))}{field('bankBranch', t('Branch'))}</div></div> : null}
-          <div className="mt-6 flex justify-end"><button type="button" onClick={() => void updateCompanyProfile()} disabled={savingProfile || loading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-50"><Save size={15}/>{savingProfile ? t('Saving…') : t('Save company profile')}</button></div>
+          <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{activationMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', activationMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: activationMode })}{field('bankCode', activationMode ? `${t('Bank code')} *` : t('Bank code'), { required: activationMode })}{field('bankOpeningBank', activationMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: activationMode, wide: activationMode })}{!activationMode ? field('bankBranch', t('Branch')) : null}</div></div>
+          {activationMode ? <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{t('Business Classification')}</h3><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('branch', 'Branche *', { required: true, wide: true, list: 'profile-branch-options' })}</div></div> : null}
+          <div className="mt-6 flex justify-end"><button type="button" onClick={() => void updateCompanyProfile()} disabled={activationMode ? !activationClientComplete : savingProfile || loading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"><Save size={15}/>{savingProfile ? t('Saving…') : activationMode ? t('Save & Continue') : t('Save company profile')}</button></div>
         </>}
       </>}
     </section>
