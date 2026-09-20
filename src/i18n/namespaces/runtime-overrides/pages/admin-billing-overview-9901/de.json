@@ -482,5 +482,10 @@
   "All invoices": "Alle Rechnungen",
   "Kunde": "Kunde",
   "invoices": "Rechnungen",
-  "Invoices": "Rechnungen"
+  "Invoices": "Rechnungen",
+  "Companies": "Unternehmen",
+  "Customer directory": "Kundenverzeichnis",
+  "customers": "Kunden",
+  "Manage customer accounts and their company workspaces in one place.": "Kundenkonten und ihre Firmen-Workspaces an einem Ort verwalten.",
+  "Users & Companies": "Benutzer & Unternehmen"
 }

@@ -86,5 +86,12 @@
   "Upload logo": "Logo hochladen",
   "Uploading…": "Hochladen…",
   "Use a PNG, JPEG or WebP image for the company logo.": "Verwende ein PNG-, JPEG- oder WebP-Bild für das Unternehmenslogo.",
-  "Zoom": "Zoom"
+  "Zoom": "Zoom",
+  "Drag the image to position it. Double-click to reset.": "Bild ziehen, um es zu positionieren. Doppelklicken, um zurückzusetzen.",
+  "Logo preview unavailable": "Logo-Vorschau nicht verfügbar",
+  "Preparing image…": "Bild wird vorbereitet…",
+  "Reset position": "Position zurücksetzen",
+  "The logo image could not be loaded.": "Das Firmenlogo konnte nicht geladen werden.",
+  "Zoom in": "Vergrößern",
+  "Zoom out": "Verkleinern"
 }

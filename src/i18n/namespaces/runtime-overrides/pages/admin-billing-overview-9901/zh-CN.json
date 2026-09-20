@@ -482,5 +482,10 @@
   "All invoices": "所有发票",
   "Kunde": "客户",
   "invoices": "发票",
-  "Invoices": "发票"
+  "Invoices": "发票",
+  "Companies": "公司",
+  "Customer directory": "客户目录",
+  "customers": "客户",
+  "Manage customer accounts and their company workspaces in one place.": "在一个位置管理客户账户及其公司工作区。",
+  "Users & Companies": "用户与公司"
 }
