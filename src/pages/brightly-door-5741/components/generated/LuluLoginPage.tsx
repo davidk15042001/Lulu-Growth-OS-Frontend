@@ -180,9 +180,9 @@ export const LuluLoginPage = () => {
       setLoading(false);
     }
   };
-  return <main data-deploy-rev="2026-09-10-agentic-landing-1" className="auth-shell relative min-h-screen overflow-x-hidden bg-[var(--background)] text-[var(--foreground)]">
+  return <main data-deploy-rev="2026-09-20-login-command-1" className="auth-shell relative min-h-screen overflow-x-hidden bg-[#f7f8fd] text-[var(--foreground)]">
       <div className="fixed right-4 top-4 z-30 w-fit" data-lulu-no-translate="true" translate="no">
-        <button type="button" onClick={() => setLangOpen((v) => !v)} aria-haspopup="menu" aria-expanded={langOpen} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur transition hover:bg-white">
+        <button type="button" onClick={() => setLangOpen((v) => !v)} aria-haspopup="menu" aria-expanded={langOpen} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur transition hover:bg-white">
           <Globe2 size={14} />
           <span>{currentLanguage.shortCode}</span>
           <ChevronDown size={13} className={`transition ${langOpen ? 'rotate-180' : ''}`} />
@@ -199,85 +199,78 @@ export const LuluLoginPage = () => {
         )}
       </div>
       <style>{loginStyles}</style>
-      <div className="auth-login-stage grid min-h-screen xl:grid-cols-[minmax(0,560px)_minmax(0,1fr)]">
-        <section className="relative flex items-center justify-center overflow-hidden px-6 py-12 sm:px-8 lg:px-12">
-          <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-            <div className="lulu-login-orb lulu-login-orb--violet -left-24 top-[-6rem] h-96 w-96" />
-            <div className="lulu-login-orb lulu-login-orb--sky right-[-4rem] top-1/3 h-80 w-80" />
-            <div className="lulu-login-orb lulu-login-orb--emerald -bottom-24 left-1/3 h-80 w-80" />
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(15,23,42,.04)_1px,transparent_1px),linear-gradient(90deg,rgba(15,23,42,.04)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_72%)]" />
-          </div>
+      <div className="auth-login-stage grid min-h-screen xl:grid-cols-[minmax(430px,520px)_minmax(0,1fr)]">
+        <section className="relative flex items-center justify-center border-r border-slate-200/80 bg-white px-6 py-10 sm:px-8 lg:px-12">
+          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(79,70,229,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(79,70,229,.035)_1px,transparent_1px)] bg-[size:42px_42px] [mask-image:linear-gradient(to_bottom,black,transparent_88%)]" aria-hidden="true" />
 
-          <div className="relative w-full max-w-md">
-            <div className="lulu-login-fade-up flex items-center gap-2.5" data-lulu-no-translate="true" translate="no">
-              <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-sky-500 font-bold text-white shadow-lg shadow-indigo-500/25">L</span>
-              <b className="text-xl tracking-tight">Lulu AI</b>
+          <div className="relative w-full max-w-[27rem]">
+            <div className="lulu-login-fade-up flex items-center gap-3" data-lulu-no-translate="true" translate="no">
+              <img src="/branding/lulu-agentic-logo.svg" alt="Lulu AI" className="h-12 w-auto" />
             </div>
 
-            <div className="lulu-login-fade-up lulu-login-d1 mt-10">
-              <span className="inline-flex items-center gap-2 rounded-full border border-indigo-200/70 bg-white/70 px-3 py-1.5 text-[11px] font-semibold tracking-wide text-indigo-700 shadow-sm">
-                <Sparkles size={13} />
-                {t('The autonomous operating system')}
+            <div className="lulu-login-fade-up lulu-login-d1 mt-9">
+              <span className="inline-flex items-center gap-2 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[.14em] text-indigo-700">
+                <ShieldCheck size={13} />
+                {t('Server-side by design')}
               </span>
-              <h1 className="mt-4 text-4xl font-semibold tracking-[-.04em] leading-[1.05] text-[var(--foreground)] sm:text-5xl">
-                {t('Your company does not need more software. It needs execution.')}
+              <h1 className="mt-5 text-4xl font-semibold leading-[1.04] text-slate-950 sm:text-5xl">
+                {t('Sign in to Lulu.')}
               </h1>
-              <p className="mt-4 max-w-md text-[15px] leading-7 text-[var(--muted-foreground)]">
+              <p className="mt-4 text-[15px] leading-7 text-slate-600">
                 {t('Connect once. Lulu runs the company — autonomously, continuously and inside clear boundaries.')}
               </p>
-              <div className="mt-6 rounded-2xl border border-indigo-200/80 bg-gradient-to-r from-indigo-50/90 via-white/80 to-cyan-50/90 p-3.5 shadow-sm backdrop-blur">
+              <div className="mt-6 rounded-2xl border border-slate-200 bg-slate-50 p-3.5">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex min-w-0 items-center gap-2.5">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-violet-600 to-sky-500 text-white shadow-md shadow-indigo-500/20"><UsersRound size={16} /></span>
-                    <div className="min-w-0"><p className="truncate text-xs font-bold uppercase tracking-[.14em] text-indigo-700">{t('Virtual Office')}</p><p className="truncate text-[11px] font-medium text-slate-600">{t('One organization. Shared system state.')}</p></div>
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-950 text-white"><Activity size={16} /></span>
+                    <div className="min-w-0"><p className="truncate text-xs font-bold uppercase tracking-[.14em] text-slate-900">{t('Lulu Agentic Runtime')}</p><p className="truncate text-[11px] font-medium text-slate-600">{t('Continuous autonomous operation')}</p></div>
                   </div>
                   <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[.12em] text-emerald-700"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />{t('Operating')}</span>
                 </div>
-                <div className="mt-3 flex flex-wrap items-center gap-2 text-[10px] font-semibold text-slate-500"><span className="rounded-full bg-white px-2.5 py-1 shadow-sm">{t('Office')}</span><span className="text-indigo-400">↔</span><span className="rounded-full bg-white px-2.5 py-1 shadow-sm">{t('Workspace')}</span><span className="ml-auto inline-flex items-center gap-1 text-slate-400"><Activity size={11} />{t('Every visible employee represents persisted work, assignments and events — not a decorative animation.')}</span></div>
               </div>
             </div>
 
-            <form id="login-access" onSubmit={submit} className="lulu-login-fade-up lulu-login-d2 mt-8 rounded-3xl bg-gradient-to-br from-indigo-500/20 via-transparent to-emerald-500/20 p-px shadow-2xl shadow-indigo-500/10" aria-label={t('Sign in form')}>
-              <div className="lulu-login-glass rounded-3xl p-6 sm:p-7">
+            <form id="login-access" onSubmit={submit} className="lulu-login-fade-up lulu-login-d2 mt-8 rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-[0_24px_70px_rgba(15,23,42,.10)] sm:p-7" aria-label={t('Sign in form')}>
+              <div>
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-[var(--foreground)]">{t('signIn')}</p>
-                  <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[var(--muted-foreground)]">
+                  <p className="text-sm font-semibold text-slate-950">{t('signIn')}</p>
+                  <span className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
                     <ShieldCheck size={13} className="text-emerald-600" />
-                    {t('Server-side by design')}
+                    {t('Protected access')}
                   </span>
                 </div>
                 <div className="mt-5 space-y-4">
-                  <Label htmlFor="login-email" className="block text-sm text-[var(--muted-foreground)]">
+                  <Label htmlFor="login-email" className="block text-sm font-medium text-slate-600">
                     {t('email')}
-                    <Input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="mt-1.5 h-12 w-full rounded-xl border-[var(--border)] bg-white/80 px-3.5 text-[15px] text-[var(--foreground)] focus:border-indigo-400 focus:ring-[3px] focus:ring-indigo-500/15" />
+                    <Input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="mt-1.5 h-12 w-full rounded-xl border-slate-200 bg-slate-50 px-3.5 text-[15px] text-slate-950 focus:border-indigo-400 focus:bg-white focus:ring-[3px] focus:ring-indigo-500/15" />
                   </Label>
-                  <Label htmlFor="login-password" className="block text-sm text-[var(--muted-foreground)]">
+                  <Label htmlFor="login-password" className="block text-sm font-medium text-slate-600">
                     {t('password')}
                     <div className="relative">
-                      <Input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="mt-1.5 h-12 w-full rounded-xl border-[var(--border)] bg-white/80 px-3.5 pr-11 text-[15px] text-[var(--foreground)] focus:border-indigo-400 focus:ring-[3px] focus:ring-indigo-500/15" />
-                      <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
+                      <Input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="mt-1.5 h-12 w-full rounded-xl border-slate-200 bg-slate-50 px-3.5 pr-11 text-[15px] text-slate-950 focus:border-indigo-400 focus:bg-white focus:ring-[3px] focus:ring-indigo-500/15" />
+                      <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 transition hover:text-slate-950">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
                     </div>
                   </Label>
-                  {adminMfaRequired?<Label htmlFor="login-admin-mfa" className="block text-sm text-[var(--muted-foreground)]">
+                  {adminMfaRequired?<Label htmlFor="login-admin-mfa" className="block text-sm font-medium text-slate-600">
                     {t('Administrator verification code')}
-                    <Input id="login-admin-mfa" name="adminMfaCode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={adminMfaCode} onChange={event=>setAdminMfaCode(event.target.value.replace(/\D/g,'').slice(0,6))} className="mt-1.5 h-12 w-full rounded-xl border-[var(--border)] bg-white/80 px-3.5 text-center text-lg tracking-[.35em]" />
+                    <Input id="login-admin-mfa" name="adminMfaCode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={adminMfaCode} onChange={event=>setAdminMfaCode(event.target.value.replace(/\D/g,'').slice(0,6))} className="mt-1.5 h-12 w-full rounded-xl border-slate-200 bg-slate-50 px-3.5 text-center text-lg tracking-[.35em]" />
                   </Label>:null}
-                  <Button type="submit" disabled={loading} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 via-indigo-600 to-sky-500 font-semibold text-white shadow-lg shadow-indigo-500/25 transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">
+                  <Button type="submit" disabled={loading} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-slate-950 font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-indigo-700 disabled:cursor-wait disabled:opacity-60">
                     {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t(adminMfaRequired?'Verify administrator':'signIn')} <ArrowRight size={16} /></>}
                   </Button>
-                  {adminMfaRequired?<button type="button" onClick={()=>{setAdminMfaRequired(false);setAdminMfaCode('');setStatusMessage('');setError('');}} className="w-full text-center text-xs text-[var(--muted-foreground)] underline">{t('Back to password sign-in')}</button>:null}
-                  {statusMessage && <p role="status" className="text-sm text-[var(--muted-foreground)]">{statusMessage}</p>}
+                  {adminMfaRequired?<button type="button" onClick={()=>{setAdminMfaRequired(false);setAdminMfaCode('');setStatusMessage('');setError('');}} className="w-full text-center text-xs text-slate-500 underline">{t('Back to password sign-in')}</button>:null}
+                  {statusMessage && <p role="status" className="text-sm text-slate-500">{statusMessage}</p>}
                   {error && <div role="alert" className="space-y-1 text-sm text-[var(--destructive)]"><p>{error}</p>{errorDetails && <p className="break-words text-xs opacity-80">{errorDetails}</p>}</div>}
                   {s && <p className="flex items-center gap-2 text-sm text-[var(--chart-4)]"><Check size={15} /> {t('Signed in successfully.')}</p>}
                 </div>
                 <div className="mt-6 flex items-center justify-between text-sm">
-                  <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)} className="font-medium text-[var(--foreground)] transition hover:opacity-70">{t('forgotPassword')}</button>
+                  <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)} className="font-medium text-slate-700 transition hover:text-indigo-700">{t('forgotPassword')}</button>
                   <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="font-medium text-indigo-600 transition hover:opacity-70">{t('createAccount')}</button>
                 </div>
               </div>
             </form>
 
-            <div className="lulu-login-fade-up lulu-login-d3 mt-6 grid grid-cols-2 divide-x divide-slate-200 rounded-2xl border border-slate-200/80 bg-white/60 py-3 text-center shadow-sm backdrop-blur">
+            <div className="lulu-login-fade-up lulu-login-d3 mt-6 grid grid-cols-2 divide-x divide-slate-200 rounded-2xl border border-slate-200 bg-white py-3 text-center shadow-sm">
               <div><b className="block text-sm text-slate-950">24/7</b><span className="text-[10px] uppercase tracking-wide text-slate-500">{t('Execution')}</span></div>
               <div><b className="block text-sm text-slate-950">0</b><span className="text-[10px] uppercase tracking-wide text-slate-500">{t('Routine approvals')}</span></div>
             </div>
@@ -296,22 +289,20 @@ export const LuluLoginPage = () => {
 
         <aside className="relative hidden overflow-hidden bg-[#070914] text-white xl:flex xl:flex-col xl:justify-center">
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
-            <div className="lulu-login-orb lulu-login-orb--violet -right-20 top-[-6rem] h-[28rem] w-[28rem]" />
-            <div className="lulu-login-orb lulu-login-orb--sky -left-24 bottom-[-8rem] h-[26rem] w-[26rem]" />
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.05)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_78%)]" />
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 via-transparent to-emerald-500/10" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] bg-[size:52px_52px]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(34,211,238,.16),transparent_42%),linear-gradient(135deg,rgba(99,102,241,.16),transparent_48%)]" />
           </div>
 
           <div className="relative mx-auto w-full max-w-3xl px-12 py-16 2xl:px-16">
             <div className="lulu-login-fade-up lulu-login-d1 mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-300/20 bg-cyan-300/10 px-3.5 py-1.5 text-xs font-semibold text-cyan-100"><UsersRound size={14} />{t('Virtual Office')} <span className="text-cyan-300/50">·</span> {t('One organization. Shared system state.')}</div>
-            <h2 className="lulu-login-fade-up lulu-login-d1 text-5xl font-semibold tracking-[-.05em] leading-[1.02] 2xl:text-6xl">
+            <h2 className="lulu-login-fade-up lulu-login-d1 text-5xl font-semibold leading-[1.02] 2xl:text-6xl">
               {t('Connect once.')} <span className="lulu-login-gradient-text">{t('Lulu runs the company.')}</span>
             </h2>
             <p className="lulu-login-fade-up lulu-login-d2 mt-5 max-w-2xl text-lg leading-8 text-slate-300">
               {t('Specialized AI agents understand the business, choose the right team, make decisions, execute the work and learn from every verified outcome.')} {t('Every visible employee represents persisted work, assignments and events — not a decorative animation.')}
             </p>
 
-            <div className="lulu-login-fade-up lulu-login-d3 relative mt-9 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.055] p-6 shadow-2xl shadow-violet-950/50 backdrop-blur-xl">
+            <div className="lulu-login-fade-up lulu-login-d3 relative mt-9 overflow-hidden rounded-[2rem] border border-white/10 bg-white/[.06] p-6 shadow-2xl shadow-black/40 backdrop-blur-xl">
               <div className="lulu-runtime-scan pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-transparent via-cyan-300/[.08] to-transparent" aria-hidden="true" />
               <div className="relative flex items-center justify-between gap-4 border-b border-white/10 pb-5">
                 <div className="flex items-center gap-3">
@@ -321,7 +312,7 @@ export const LuluLoginPage = () => {
                 <span className="inline-flex items-center gap-2 rounded-full border border-emerald-300/20 bg-emerald-300/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.16em] text-emerald-200"><Activity size={12} />{t('Operating')}</span>
               </div>
 
-              <div className="relative mt-5 rounded-2xl border border-violet-300/15 bg-gradient-to-br from-violet-400/10 via-white/[.035] to-cyan-300/[.08] p-5">
+              <div className="relative mt-5 rounded-2xl border border-cyan-300/15 bg-slate-950/30 p-5">
                 <div className="flex items-start gap-3"><Target size={18} className="mt-0.5 shrink-0 text-cyan-300" /><div><p className="text-[10px] font-semibold uppercase tracking-[.18em] text-slate-400">{t('Permanent North Star')}</p><p className="mt-2 text-sm font-medium leading-6 text-white">{t('Build a trusted global brand at maximum sustainable speed — and become the number-one choice worldwide.')}</p></div></div>
               </div>
 
