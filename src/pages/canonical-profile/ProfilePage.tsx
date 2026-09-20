@@ -16,7 +16,7 @@ type AccountForm = { firstName: string; lastName: string };
 type PasswordForm = { currentPassword: string; newPassword: string; confirmPassword: string };
 type PendingLogo = { file: File; url: string; width: number; height: number; baseScale: number };
 type CropOffset = { x: number; y: number };
-type FieldErrorKey = ProfileField | keyof AccountForm | 'companyLogo';
+type FieldErrorKey = ProfileField | keyof AccountForm | 'companyLogo' | keyof PasswordForm;
 
 const cropViewportSize = 320;
 
@@ -73,6 +73,72 @@ function workspaceToProfileForm(workspace: NonNullable<ReturnType<typeof useLulu
 
 function legalFormOptions(countryRegion: string) {
   return legalFormsByCountry[countries.find((country) => country.toLowerCase() === countryRegion.trim().toLowerCase()) ?? 'Other'];
+}
+
+function normalizedCountry(value: string) {
+  return countries.find((country) => country.toLowerCase() === value.trim().toLowerCase()) ?? null;
+}
+
+function validateProfileField(key: ProfileField, value: string, required: boolean, currentProfile: ProfileForm): string | undefined {
+  const text = value.trim();
+  if (required && !text) return 'Required';
+  if (!text) return undefined;
+  const maximums: Partial<Record<ProfileField, number>> = {
+    companyName: 200, industry: 200, countryRegion: 200, taxId: 100, address: 500,
+    legalForm: 120, legalRepresentative: 200, phoneNumber: 60, bankAccountNumber: 100,
+    bankOpeningBank: 200, bankBranch: 200, bankCode: 100, branch: 200,
+  };
+  const maximum = maximums[key];
+  if (maximum && text.length > maximum) return `Maximum ${maximum} characters`;
+  const country = normalizedCountry(key === 'countryRegion' ? text : currentProfile.countryRegion);
+  if (key === 'countryRegion' && !country) return 'Select a supported country or region';
+  if (key === 'legalForm' && !legalFormOptions(currentProfile.countryRegion).some((item) => item.toLowerCase() === text.toLowerCase())) return 'Select a legal form for the selected country';
+  if (key === 'phoneNumber' && required && text.replace(/[^0-9]/g, '').length < 8) return 'Enter at least 8 digits';
+  if (key === 'taxId' && country) {
+    const valid = country === 'United States' ? /^\d{2}-?\d{7}$/.test(text)
+      : country === 'Germany' ? /^(?:DE)?\d{9,13}$/.test(text)
+      : country === 'China' ? /^[0-9A-Z]{15,20}$/.test(text)
+      : country === 'United Kingdom' ? /^[0-9A-Z]{8,12}$/.test(text)
+      : text.length >= 4 && text.length <= 40;
+    if (!valid) return 'Use the tax ID format for the selected country';
+  }
+  if (key === 'bankAccountNumber' && country) {
+    const account = text.replace(/\s+/g, '');
+    const valid = country === 'Germany' ? /^DE\d{20}$/i.test(account) || /^\d{6,18}$/.test(account)
+      : country === 'United States' ? /^\d{4,17}$/.test(account)
+      : country === 'China' ? /^\d{8,30}$/.test(account)
+      : /^[A-Z0-9-]{4,34}$/i.test(account);
+    if (!valid) return 'Enter a valid account number for the selected country';
+  }
+  if (key === 'bankCode' && country) {
+    const code = text.replace(/\s+/g, '');
+    const valid = country === 'United States' ? /^\d{9}$/.test(code)
+      : country === 'Germany' ? /^\d{8}$/.test(code) || /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/i.test(code)
+      : country === 'China' ? /^\d{12}$/.test(code) || /^[A-Z]{4}CN[A-Z0-9]{2}([A-Z0-9]{3})?$/i.test(code)
+      : /^[A-Z0-9]{4,12}$/i.test(code);
+    if (!valid) return 'Enter a valid bank code for the selected country';
+  }
+  return undefined;
+}
+
+function profileFieldRule(key: ProfileField, required: boolean) {
+  const prefix = required ? 'Required' : 'Optional';
+  const rules: Record<ProfileField, string> = {
+    companyName: `${prefix} · max 200 characters`,
+    industry: `${prefix} · max 200 characters`,
+    countryRegion: `${prefix} · choose a supported country or region`,
+    taxId: `${prefix} · country-specific format · max 100 characters`,
+    address: `${prefix} · max 500 characters`,
+    legalForm: `${prefix} · choose a form for the selected country`,
+    legalRepresentative: `${prefix} · max 200 characters`,
+    phoneNumber: `${prefix} · 8-60 digits/characters`,
+    bankAccountNumber: `${prefix} · country-specific account format`,
+    bankOpeningBank: `${prefix} · max 200 characters`,
+    bankBranch: `${prefix} · max 200 characters`,
+    bankCode: `${prefix} · country-specific bank code format`,
+    branch: `${prefix} · max 200 characters`,
+  };
+  return rules[key];
 }
 
 function extractFieldErrors(error: unknown) {
@@ -186,7 +252,13 @@ export default function ProfilePage() {
   }, [pendingLogo?.url]);
 
   const updateAccount = async () => {
-    if (!account.firstName.trim() || !account.lastName.trim()) {
+    const accountErrors: Partial<Record<keyof AccountForm, string>> = {};
+    for (const key of ['firstName', 'lastName'] as const) {
+      const message = validateAccountField(key);
+      if (message) accountErrors[key] = message;
+    }
+    if (Object.keys(accountErrors).length) {
+      setFieldErrors((current) => ({ ...current, ...accountErrors }));
       setError(t('First and last name are required.'));
       return;
     }
@@ -207,18 +279,20 @@ export default function ProfilePage() {
   const updateCompanyProfile = async () => {
     if (!workspaceId || !canManageWorkspaceProfile) return;
     const nextFieldErrors: Partial<Record<FieldErrorKey,string>> = {};
+    for (const key of Object.keys(profile) as ProfileField[]) {
+      const message = validateProfileField(key, profile[key], requiredProfileMode && requiredActivationFields.includes(key), profile);
+      if (message) nextFieldErrors[key] = t(message);
+    }
     if (requiredProfileMode) {
-      for (const key of requiredActivationFields) {
-        const value = key === 'companyLogo' ? logoUrl : key === 'firstName' || key === 'lastName' ? account[key] : profile[key];
-        if (!String(value ?? '').trim()) nextFieldErrors[key] = t('Required');
+      for (const key of ['firstName', 'lastName'] as const) {
+        if (!account[key].trim()) nextFieldErrors[key] = t('Required');
       }
-      if (!countries.some((country) => country.toLowerCase() === profile.countryRegion.trim().toLowerCase())) nextFieldErrors.countryRegion = t('Select a supported country or region.');
-      if (!legalFormOptions(profile.countryRegion).some((legalForm) => legalForm.toLowerCase() === profile.legalForm.trim().toLowerCase())) nextFieldErrors.legalForm = t('Select a legal form for this country.');
-      if (Object.keys(nextFieldErrors).length) {
-        setFieldErrors(nextFieldErrors);
-        setError(t('Complete every required profile field before continuing.'));
-        return;
-      }
+      if (!logoUrl) nextFieldErrors.companyLogo = t('Required');
+    }
+    if (Object.keys(nextFieldErrors).length) {
+      setFieldErrors(nextFieldErrors);
+      setError(t(requiredProfileMode ? 'Complete every required profile field before continuing.' : 'Review the highlighted profile fields before saving.'));
+      return;
     }
     const entries = Object.entries(profile).filter(([key, value]) => key !== 'companyName' || (typeof value === 'string' && value.trim()));
     if (entries.length === 0) { setError(t('Enter at least one profile detail.')); return; }
@@ -269,10 +343,23 @@ export default function ProfilePage() {
     && /[0-9]/.test(password.newPassword)
     && /[^A-Za-z0-9]/.test(password.newPassword), [password.newPassword]);
 
+  const setPasswordField = (key: keyof PasswordForm, value: string) => {
+    setPassword((current) => ({ ...current, [key]: value }));
+    if (fieldErrors[key]) setFieldErrors((current) => ({ ...current, [key]: undefined }));
+  };
+
   const changePassword = async () => {
-    if (!password.currentPassword || !password.newPassword) { setError(t('Enter your current and new password.')); return; }
-    if (!passwordRequirements) { setError(t('The new password must be at least 12 characters and include upper case, lower case, a number and a special character.')); return; }
-    if (password.newPassword !== password.confirmPassword) { setError(t('The new passwords do not match.')); return; }
+    const nextPasswordErrors: Partial<Record<keyof PasswordForm, string>> = {};
+    if (!password.currentPassword) nextPasswordErrors.currentPassword = t('Required');
+    if (!password.newPassword) nextPasswordErrors.newPassword = t('Required');
+    else if (!passwordRequirements) nextPasswordErrors.newPassword = t('Use 12+ characters with upper case, lower case, a number and a special character.');
+    if (!password.confirmPassword) nextPasswordErrors.confirmPassword = t('Required');
+    else if (password.newPassword !== password.confirmPassword) nextPasswordErrors.confirmPassword = t('Must match the new password.');
+    if (Object.keys(nextPasswordErrors).length) {
+      setFieldErrors((current) => ({ ...current, ...nextPasswordErrors }));
+      setError(t('Review the highlighted password fields before saving.'));
+      return;
+    }
     setChangingPassword(true); setError(''); setNotice('');
     try {
       await authApi.changePassword({ currentPassword: password.currentPassword, newPassword: password.newPassword });
@@ -381,21 +468,31 @@ export default function ProfilePage() {
     setAccount((current) => ({ ...current, [key]: value }));
     if (fieldErrors[key]) setFieldErrors((current) => ({ ...current, [key]: undefined }));
   };
+  const validateAndSetProfileField = (key: ProfileField, value = profile[key]) => {
+    const message = validateProfileField(key, value, requiredProfileMode, profile);
+    setFieldErrors((current) => ({ ...current, [key]: message }));
+    return message;
+  };
+  const validateAccountField = (key: keyof AccountForm, value = account[key]) => {
+    const message = value.trim() ? value.trim().length > 100 ? t('Maximum 100 characters') : undefined : requiredProfileMode ? t('Required') : t('Enter your name before saving');
+    setFieldErrors((current) => ({ ...current, [key]: message }));
+    return message;
+  };
+  const passwordFieldHint = (key: keyof PasswordForm) => {
+    if (key === 'currentPassword') return t('Required when changing your password.');
+    if (key === 'newPassword') return t('Required · 12+ characters, upper case, lower case, number and special character.');
+    return t('Must exactly match the new password.');
+  };
   const field = (key: keyof ProfileForm, label: string, options: { type?: string; sensitive?: boolean; wide?: boolean; list?: string; required?: boolean } = {}) => (
     <label key={key} className={options.wide ? 'sm:col-span-2' : undefined}>
       <span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{label}</span>
       <div className="relative">
-        <input required={options.required} aria-required={options.required} list={options.list} type={options.sensitive ? 'password' : options.type ?? 'text'} value={profile[key] ?? ''} onChange={(event) => updateField(key, event.target.value)} className={`${inputClass}${options.sensitive ? ' pr-10' : ''} ${fieldErrors[key] ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="off" />
+        <input id={`profile-${key}`} required={options.required} aria-required={options.required} aria-invalid={Boolean(fieldErrors[key])} aria-describedby={`profile-${key}-rule`} list={options.list} type={options.sensitive ? 'password' : options.type ?? 'text'} value={profile[key] ?? ''} onChange={(event) => updateField(key, event.target.value)} onBlur={() => { void validateAndSetProfileField(key); }} className={`${inputClass}${options.sensitive ? ' pr-10' : ''} ${fieldErrors[key] ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="off" />
       </div>
-      {fieldErrors[key] ? <span className="mt-1.5 block text-xs font-medium text-rose-700">{fieldErrors[key]}</span> : null}
+      <span id={`profile-${key}-rule`} className={`mt-1.5 block text-[11px] ${fieldErrors[key] ? 'text-rose-700' : 'text-[var(--muted-foreground)]'}`}>{fieldErrors[key] ? fieldErrors[key] : profileFieldRule(key, Boolean(options.required))}</span>
     </label>
   );
   const legalOptions = legalFormOptions(profile.countryRegion);
-  const activationClientComplete = !loading && !savingProfile && !logoUploading && requiredActivationFields.every((key) => {
-    const value = key === 'companyLogo' ? logoUrl : key === 'firstName' || key === 'lastName' ? account[key] : profile[key];
-    return String(value ?? '').trim().length > 0;
-  }) && countries.some((country) => country.toLowerCase() === profile.countryRegion.trim().toLowerCase());
-
   if (!selectedWorkspace) return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame p-8"><h1 className="text-2xl font-semibold">{t('Profile')}</h1><p className="mt-2 text-[var(--muted-foreground)]">{t('Choose a workspace to continue.')}</p></main></WorkspaceSurfaceShell>;
 
   return <WorkspaceSurfaceShell activeSlug="profile" showNavigation={!activationMode}><main className={`profile-page page-frame ${activationMode ? 'profile-page--activation' : 'profile-page--settings'}`}>
@@ -408,9 +505,12 @@ export default function ProfilePage() {
 
     {!requiredProfileMode ? <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
       <div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><UserRound size={18}/></div><div><h2 className="text-lg font-semibold">{t('Your account')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Update your name or change your password.')}</p></div></div>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2"><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Email')}</span><input value={currentUser?.email ?? ''} readOnly className={`${inputClass} cursor-not-allowed bg-[var(--secondary)]`} /></label><div /><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('First name')}</span><input value={account.firstName} onChange={(event) => setAccount({ ...account, firstName: event.target.value })} className={inputClass} autoComplete="given-name" /></label><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Last name')}</span><input value={account.lastName} onChange={(event) => setAccount({ ...account, lastName: event.target.value })} className={inputClass} autoComplete="family-name" /></label></div>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Email')}</span><input id="account-email" value={currentUser?.email ?? ''} readOnly aria-describedby="account-email-rule" className={`${inputClass} cursor-not-allowed bg-[var(--secondary)]`} /><span id="account-email-rule" className="mt-1.5 block text-[11px] text-[var(--muted-foreground)]">{t('Read-only · managed by your account.')}</span></label><div />
+        {(['firstName', 'lastName'] as const).map((key) => <label key={key}><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t(key === 'firstName' ? 'First name' : 'Last name')}</span><input id={`account-${key}`} value={account[key]} onChange={(event) => setAccountField(key, event.target.value)} onBlur={() => { void validateAccountField(key); }} aria-invalid={Boolean(fieldErrors[key])} aria-describedby={`account-${key}-rule`} className={`${inputClass} ${fieldErrors[key] ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete={key === 'firstName' ? 'given-name' : 'family-name'} /><span id={`account-${key}-rule`} className={`mt-1.5 block text-[11px] ${fieldErrors[key] ? 'text-rose-700' : 'text-[var(--muted-foreground)]'}`}>{fieldErrors[key] ?? t('Required · max 100 characters')}</span></label>)}
+      </div>
       <div className="mt-4 flex justify-end"><button type="button" onClick={() => void updateAccount()} disabled={savingAccount} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-50"><Save size={15}/>{savingAccount ? t('Saving…') : t('Save account')}</button></div>
-      <div className="mt-7 border-t border-[var(--border)] pt-6"><div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><LockKeyhole size={18}/></div><div><h3 className="font-semibold">{t('Change password')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('For your security, all active sessions will be signed out after a successful change.')}</p></div></div><div className="mt-4 grid gap-4 sm:grid-cols-3"><PasswordInput label={t('Current password')} value={password.currentPassword} onChange={(value) => setPassword({ ...password, currentPassword: value })} visible={showCurrentPassword} onToggle={() => setShowCurrentPassword((value) => !value)} autoComplete="current-password"/><PasswordInput label={t('New password')} value={password.newPassword} onChange={(value) => setPassword({ ...password, newPassword: value })} visible={showNewPassword} onToggle={() => setShowNewPassword((value) => !value)} autoComplete="new-password"/><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Confirm new password')}</span><input type="password" value={password.confirmPassword} onChange={(event) => setPassword({ ...password, confirmPassword: event.target.value })} className={inputClass} autoComplete="new-password" /></label></div><p className={`mt-3 text-xs ${password.newPassword && !passwordRequirements ? 'text-amber-700' : 'text-[var(--muted-foreground)]'}`}>{t('At least 12 characters with upper case, lower case, a number and a special character.')}</p><div className="mt-4 flex justify-end"><button type="button" onClick={() => void changePassword()} disabled={changingPassword} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium disabled:opacity-50"><LockKeyhole size={15}/>{changingPassword ? t('Changing…') : t('Change password')}</button></div></div>
+      <div className="mt-7 border-t border-[var(--border)] pt-6"><div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><LockKeyhole size={18}/></div><div><h3 className="font-semibold">{t('Change password')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('For your security, all active sessions will be signed out after a successful change.')}</p></div></div><div className="mt-4 grid gap-4 sm:grid-cols-3"><PasswordInput label={t('Current password')} value={password.currentPassword} onChange={(value) => setPasswordField('currentPassword', value)} visible={showCurrentPassword} onToggle={() => setShowCurrentPassword((value) => !value)} autoComplete="current-password" hint={passwordFieldHint('currentPassword')} error={fieldErrors.currentPassword}/><PasswordInput label={t('New password')} value={password.newPassword} onChange={(value) => setPasswordField('newPassword', value)} visible={showNewPassword} onToggle={() => setShowNewPassword((value) => !value)} autoComplete="new-password" hint={passwordFieldHint('newPassword')} error={fieldErrors.newPassword}/><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Confirm new password')}</span><input id="confirm-new-password" type="password" value={password.confirmPassword} onChange={(event) => setPasswordField('confirmPassword', event.target.value)} aria-invalid={Boolean(fieldErrors.confirmPassword)} aria-describedby="confirm-new-password-rule" className={`${inputClass} ${fieldErrors.confirmPassword ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="new-password" /><span id="confirm-new-password-rule" className={`mt-1.5 block text-[11px] ${fieldErrors.confirmPassword ? 'text-rose-700' : 'text-[var(--muted-foreground)]'}`}>{fieldErrors.confirmPassword ?? passwordFieldHint('confirmPassword')}</span></label></div><div className="mt-3 flex items-start gap-2 text-xs"><span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${passwordRequirements ? 'bg-emerald-500' : 'bg-[var(--border)]'}`} aria-hidden="true"/><span className={passwordRequirements ? 'text-emerald-700' : 'text-[var(--muted-foreground)]'}>{t('At least 12 characters with upper case, lower case, a number and a special character.')}</span></div><div className="mt-4 flex justify-end"><button type="button" onClick={() => void changePassword()} disabled={changingPassword} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium disabled:opacity-50"><LockKeyhole size={15}/>{changingPassword ? t('Changing…') : t('Change password')}</button></div></div>
     </section> : null}
 
     <section className="profile-page__panel rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
@@ -426,8 +526,7 @@ export default function ProfilePage() {
               <section>
                 <h3 className="text-sm font-semibold">{t('Personal Information')}</h3>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('First name')} *</span><input value={account.firstName} onChange={(event) => setAccountField('firstName', event.target.value)} className={`${inputClass} ${fieldErrors.firstName ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="given-name" />{fieldErrors.firstName ? <span className="mt-1.5 block text-xs font-medium text-rose-700">{fieldErrors.firstName}</span> : null}</label>
-                  <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Last name')} *</span><input value={account.lastName} onChange={(event) => setAccountField('lastName', event.target.value)} className={`${inputClass} ${fieldErrors.lastName ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="family-name" />{fieldErrors.lastName ? <span className="mt-1.5 block text-xs font-medium text-rose-700">{fieldErrors.lastName}</span> : null}</label>
+                  {(['firstName', 'lastName'] as const).map((key) => <label key={key}><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t(key === 'firstName' ? 'First name' : 'Last name')} *</span><input id={`activation-${key}`} value={account[key]} onChange={(event) => setAccountField(key, event.target.value)} onBlur={() => { void validateAccountField(key); }} aria-invalid={Boolean(fieldErrors[key])} aria-describedby={`activation-${key}-rule`} className={`${inputClass} ${fieldErrors[key] ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete={key === 'firstName' ? 'given-name' : 'family-name'} /><span id={`activation-${key}-rule`} className={`mt-1.5 block text-[11px] ${fieldErrors[key] ? 'text-rose-700' : 'text-[var(--muted-foreground)]'}`}>{fieldErrors[key] ?? t('Required · max 100 characters')}</span></label>)}
                 </div>
               </section>
               <section className="border-t border-[var(--border)] pt-6">
@@ -463,7 +562,7 @@ export default function ProfilePage() {
           </div>
           <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{requiredProfileMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', requiredProfileMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: requiredProfileMode })}{field('bankCode', requiredProfileMode ? `${t('Bank code')} *` : t('Bank code'), { required: requiredProfileMode })}{field('bankOpeningBank', requiredProfileMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: requiredProfileMode, wide: requiredProfileMode })}{field('bankBranch', requiredProfileMode ? `${t('Branch')} *` : t('Branch'), { required: requiredProfileMode, wide: requiredProfileMode })}</div></div>
           {requiredProfileMode ? <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{t('Business Classification')}</h3><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('branch', 'Branche *', { required: true, wide: true, list: 'profile-branch-options' })}</div></div> : null}
-          <div className="mt-6 flex justify-end"><button type="button" onClick={() => void updateCompanyProfile()} disabled={requiredProfileMode ? !activationClientComplete : savingProfile || loading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"><Save size={15}/>{savingProfile ? t('Saving…') : activationMode ? t('Save & Continue') : t('Save company profile')}</button></div>
+          <div className="mt-6 flex justify-end"><button type="button" onClick={() => void updateCompanyProfile()} disabled={savingProfile || loading || logoUploading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"><Save size={15}/>{savingProfile ? t('Saving…') : activationMode ? t('Save & Continue') : t('Save company profile')}</button></div>
         </>}
       </>}
     </section>
@@ -483,6 +582,7 @@ export default function ProfilePage() {
   </div></main></WorkspaceSurfaceShell>;
 }
 
-function PasswordInput({ label, value, onChange, visible, onToggle, autoComplete }: { label: string; value: string; onChange: (value: string) => void; visible: boolean; onToggle: () => void; autoComplete: string }) {
-  return <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{label}</span><div className="relative"><input type={visible ? 'text' : 'password'} value={value} onChange={(event) => onChange(event.target.value)} className={`${inputClass} pr-10`} autoComplete={autoComplete}/><button type="button" onClick={onToggle} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1 text-[var(--muted-foreground)] hover:bg-[var(--secondary)]" aria-label={visible ? 'Hide password' : 'Show password'}>{visible ? <EyeOff size={15}/> : <Eye size={15}/>}</button></div></label>;
+function PasswordInput({ label, value, onChange, visible, onToggle, autoComplete, hint, error }: { label: string; value: string; onChange: (value: string) => void; visible: boolean; onToggle: () => void; autoComplete: string; hint: string; error?: string }) {
+  const inputId = autoComplete;
+  return <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{label}</span><div className="relative"><input id={inputId} type={visible ? 'text' : 'password'} value={value} onChange={(event) => onChange(event.target.value)} aria-invalid={Boolean(error)} aria-describedby={`${inputId}-rule`} className={`${inputClass} pr-10 ${error ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete={autoComplete}/><button type="button" onClick={onToggle} className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1 text-[var(--muted-foreground)] hover:bg-[var(--secondary)]" aria-label={visible ? 'Hide password' : 'Show password'}>{visible ? <EyeOff size={15}/> : <Eye size={15}/>}</button></div><span id={`${inputId}-rule`} className={`mt-1.5 block text-[11px] ${error ? 'text-rose-700' : 'text-[var(--muted-foreground)]'}`}>{error ?? hint}</span></label>;
 }
