@@ -130,6 +130,7 @@ button, input { font: inherit; }
 
 /* Shared navigation shell for all authenticated native pages */
 .lulu-global-shell{--lulu-workspace-navigation-width:248px;display:grid;width:100%;max-width:100%;grid-template-columns:var(--lulu-workspace-navigation-width) minmax(0,1fr);min-height:calc(100vh - var(--lulu-workspace-topbar-height));background:var(--background)}
+.lulu-global-shell--without-navigation{grid-template-columns:minmax(0,1fr)}
 .lulu-global-navigation{position:sticky;top:var(--lulu-workspace-topbar-height);z-index:40;display:flex;height:calc(100dvh - var(--lulu-workspace-topbar-height));min-width:0;align-self:start;flex-direction:column;overflow:hidden;border-right:1px solid var(--border);background:var(--sidebar,var(--card));padding:18px 12px 12px;color:var(--foreground)}
 .lulu-global-navigation__backdrop{display:none}
 .lulu-global-navigation__workspace-label{display:none}
@@ -194,6 +195,10 @@ button, input { font: inherit; }
 
   .lulu-global-content {
     grid-column: 2;
+  }
+
+  .lulu-global-shell--without-navigation .lulu-global-content {
+    grid-column: 1;
   }
 }
 .lulu-agent-workspace-header{position:sticky;top:0;z-index:35;isolation:isolate;display:flex;flex-direction:column;gap:12px;padding:14px clamp(16px,2.4vw,28px) 12px;border-bottom:1px solid var(--border);background:color-mix(in srgb,var(--background) 96%,transparent);backdrop-filter:blur(14px)}

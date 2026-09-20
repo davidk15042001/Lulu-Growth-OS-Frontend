@@ -9,7 +9,17 @@ import { isOfficePanelSurface } from "../routing";
  * Generated pages get the same chrome from NativePage; keeping this small shell
  * here prevents direct routes (quotes, invoices and CRM) from losing navigation.
  */
-export function WorkspaceSurfaceShell({ activeSlug, children, showNavigation = true }: { activeSlug: string; children: ReactNode; showNavigation?: boolean }) {
+export function WorkspaceSurfaceShell({
+  activeSlug,
+  children,
+  showNavigation = true,
+  showGlobalNavigation = true,
+}: {
+  activeSlug: string;
+  children: ReactNode;
+  showNavigation?: boolean;
+  showGlobalNavigation?: boolean;
+}) {
   const location = useLocation();
   const officePanel = isOfficePanelSurface(location.search);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -38,7 +48,7 @@ export function WorkspaceSurfaceShell({ activeSlug, children, showNavigation = t
   }, [mobileOpen, officePanel]);
 
   useEffect(() => {
-    if (officePanel || !mobileOpen || !window.matchMedia("(max-width: 900px)").matches) return;
+    if (officePanel || !showGlobalNavigation || !mobileOpen || !window.matchMedia("(max-width: 900px)").matches) return;
     const navigation = document.getElementById("lulu-global-navigation");
     if (!navigation) return;
     const topbar = document.querySelector<HTMLElement>("[data-lulu-auth-topbar]");
@@ -93,7 +103,7 @@ export function WorkspaceSurfaceShell({ activeSlug, children, showNavigation = t
       if (previousModal == null) navigation.removeAttribute("aria-modal");
       else navigation.setAttribute("aria-modal", previousModal);
     };
-  }, [close, mobileOpen, officePanel]);
+  }, [close, mobileOpen, officePanel, showGlobalNavigation]);
 
   if (!showNavigation) return <>{children}</>;
 
@@ -113,11 +123,12 @@ export function WorkspaceSurfaceShell({ activeSlug, children, showNavigation = t
         navigationOpen={mobileOpen}
         onToggleNavigation={toggleNavigation}
         onCloseNavigation={close}
+        showNavigationToggle={showGlobalNavigation}
       />
-      <div className={`lulu-global-shell${mobileOpen ? " lulu-global-shell--nav-open" : ""}`}>
-        <div className="lulu-global-navigation__backdrop" aria-hidden="true" onClick={close} />
-        <LuluGlobalNavigation activeSlug={activeSlug} mobileOpen={mobileOpen} onNavigate={close} onRequestClose={close} />
-        <div className="lulu-global-content" inert={mobileOpen ? true : undefined} aria-hidden={mobileOpen ? true : undefined}>
+      <div className={`lulu-global-shell${mobileOpen ? " lulu-global-shell--nav-open" : ""}${showGlobalNavigation ? "" : " lulu-global-shell--without-navigation"}`}>
+        {showGlobalNavigation && <div className="lulu-global-navigation__backdrop" aria-hidden="true" onClick={close} />}
+        {showGlobalNavigation && <LuluGlobalNavigation activeSlug={activeSlug} mobileOpen={mobileOpen} onNavigate={close} onRequestClose={close} />}
+        <div className="lulu-global-content" inert={showGlobalNavigation && mobileOpen ? true : undefined} aria-hidden={showGlobalNavigation && mobileOpen ? true : undefined}>
           <div className="lulu-native-page lulu-native-page--surface-shell lulu-native-page--without-secondary-navigation">
             {children}
           </div>

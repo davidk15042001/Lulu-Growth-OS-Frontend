@@ -8,7 +8,7 @@ export default function KnowledgePage() {
   const activationMode = selectedWorkspace?.onboardingStep === "knowledge_base" && !selectedWorkspace.onboardingCompletedAt;
 
   return (
-    <WorkspaceSurfaceShell activeSlug="rich-field-1880">
+    <WorkspaceSurfaceShell activeSlug="rich-field-1880" showGlobalNavigation={false}>
       <main className="page-frame min-h-screen bg-[var(--background)] px-4 py-6 sm:px-8">
         {activationMode ? <KnowledgeActivationGate /> : <KnowledgeBaseWorkspace />}
       </main>
