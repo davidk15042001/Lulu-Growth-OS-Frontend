@@ -1,4 +1,4 @@
-import { requestApi } from './client';
+import { requestApi, requestApiBlob } from './client';
 
 export type WebsiteProvider = 'managed';
 export type WebsiteOwnershipMode = 'managed';
@@ -60,6 +60,23 @@ export type ManagedWebsiteAsset = {
   publicUrl: string;
   createdAt: string;
 };
+export type WebsiteAssetEdit = {
+  id: string;
+  workspaceId: string;
+  siteId: string;
+  sourceAssetId: string;
+  resultAssetId: string | null;
+  prompt: string;
+  model: string;
+  status: "QUEUED" | "SUBMITTING" | "SUBMITTED" | "PROCESSING" | "COMPLETED" | "FAILED" | "CANCELLED";
+  providerTaskId: string | null;
+  creditsConsumed: number | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+  createdAt: string;
+  updatedAt: string;
+  completedAt: string | null;
+};
 
 export const websitesApi = {
   list: (workspaceId: string) => requestApi<{ items: WebsiteSite[] }>({ path: `/workspaces/${workspaceId}/websites` }),
@@ -75,6 +92,9 @@ export const websitesApi = {
   publishGenerationJob: (workspaceId: string, siteId: string, jobId: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/${jobId}/publish`, method: 'POST', body: {} }),
   listAssets: (workspaceId: string, siteId: string) => requestApi<{ items: ManagedWebsiteAsset[] }>({ path: `/workspaces/${workspaceId}/websites/${siteId}/assets` }),
   uploadAsset: (workspaceId: string, siteId: string, form: FormData) => requestApi<ManagedWebsiteAsset>({ path: `/workspaces/${workspaceId}/websites/${siteId}/assets`, method: 'POST', body: form }),
+  getAssetBlob: (workspaceId: string, siteId: string, assetId: string) => requestApiBlob(`/workspaces/${workspaceId}/websites/${siteId}/assets/${assetId}`),
+  editAsset: (workspaceId: string, siteId: string, assetId: string, prompt: string) => requestApi<WebsiteAssetEdit>({ path: `/workspaces/${workspaceId}/websites/${siteId}/assets/${assetId}/edit`, method: 'POST', body: { prompt }, timeoutMs: 180_000 }),
+  getAssetEdit: (workspaceId: string, siteId: string, editId: string) => requestApi<WebsiteAssetEdit>({ path: `/workspaces/${workspaceId}/websites/${siteId}/asset-edits/${editId}` }),
 };
 
 export type StorefrontProduct = {
