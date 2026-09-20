@@ -9,7 +9,8 @@ import { LuluGlobalNavigation } from '../../../../components/LuluGlobalNavigatio
 import { ComposioCatalog } from '../../../../components/ComposioCatalog';
 import { navigateApp, routes } from '../../../../routing';
 
-const oauthProviders = new Set(['salesforce', 'pipedrive', 'hubspot', 'webflow', 'wordpress', 'shopify', 'whatsapp']);
+const oauthProviders = new Set(['salesforce', 'pipedrive', 'hubspot', 'webflow', 'wordpress', 'shopify']);
+const customerRestrictedProviders = new Set(['google-ads', 'meta', 'whatsapp', 'linkedin']);
 const connectedStatuses = new Set(['connected', 'syncing']);
 
 type WhatsAppConnectionSummary = {
@@ -60,7 +61,7 @@ export function LuluIntegrations() {
         onboardingApi.whatsappConnection(selectedWorkspace.id).catch(() => null),
         providerControlApi.launchReadiness(selectedWorkspace.id).catch(() => null),
       ]);
-      setPlatforms(platformResponse.data.items);
+      setPlatforms(platformResponse.data.items.filter((platform) => !customerRestrictedProviders.has(platform.integrationKey?.trim().toLowerCase() ?? '')));
       setWhatsappConnection(whatsappResponse?.data ?? null);
       setProviderReadiness(readinessResponse?.data ?? null);
     }
@@ -105,8 +106,7 @@ export function LuluIntegrations() {
   const whatsappPlatform = useMemo(() => platforms.find((platform) => platform.integrationKey?.toLowerCase() === 'whatsapp'), [platforms]);
   const whatsappCustomerConnected = Boolean(whatsappConnection?.customerConnection);
   const whatsappSelfServiceReady = whatsappConnection?.selfServiceAllowed === true;
-  const showManagedWhatsApp = Boolean(whatsappConnection?.adminFallback.configured) && !whatsappPlatform && !whatsappSelfServiceReady;
-  const showWhatsAppCard = !whatsappPlatform && Boolean(whatsappConnection) && (whatsappSelfServiceReady || showManagedWhatsApp);
+  const showWhatsAppCard = false;
   const configuredCount = platforms.length + (showWhatsAppCard ? 1 : 0);
 
   const beginOAuth = async (platform: Platform) => {
