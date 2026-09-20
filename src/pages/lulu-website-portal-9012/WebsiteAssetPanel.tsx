@@ -54,6 +54,7 @@ export function WebsiteAssetPanel({ workspaceId, site }: { workspaceId: string; 
   const [placement, setPlacement] = useState<ManagedWebsiteAsset["placement"]>("website");
   const [zoom, setZoom] = useState(1);
   const [cropPosition, setCropPosition] = useState<CropPosition>({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
   const dragRef = useRef<{ startX: number; startY: number; position: CropPosition } | null>(null);
   const [busy, setBusy] = useState<"load" | "upload" | null>(null);
   const [error, setError] = useState("");
@@ -112,18 +113,20 @@ export function WebsiteAssetPanel({ workspaceId, site }: { workspaceId: string; 
   const choose = (next: File | null) => {
     if (!next && inputRef.current) inputRef.current.value = "";
     if (previewUrl) URL.revokeObjectURL(previewUrl);
-    if (!next) { setFile(null); setPreviewUrl(""); setCropPosition({ x: 0, y: 0 }); setZoom(1); return; }
+    if (!next) { setFile(null); setPreviewUrl(""); setCropPosition({ x: 0, y: 0 }); setZoom(1); setIsDragging(false); dragRef.current = null; return; }
     setFile(next);
     setPreviewUrl(URL.createObjectURL(next));
     setAltText(next.name.replace(/\.[^.]+$/, ""));
     setCropPosition({ x: 0, y: 0 });
     setZoom(1);
+    setIsDragging(false);
     setError("");
   };
 
   const startCropDrag = (event: PointerEvent<HTMLDivElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
     dragRef.current = { startX: event.clientX, startY: event.clientY, position: cropPosition };
+    setIsDragging(true);
   };
 
   const moveCropDrag = (event: PointerEvent<HTMLDivElement>) => {
@@ -138,7 +141,7 @@ export function WebsiteAssetPanel({ workspaceId, site }: { workspaceId: string; 
     setCropPosition(next);
   };
 
-  const endCropDrag = () => { dragRef.current = null; };
+  const endCropDrag = () => { dragRef.current = null; setIsDragging(false); };
 
   const upload = async () => {
     if (!file) return;
@@ -199,7 +202,7 @@ export function WebsiteAssetPanel({ workspaceId, site }: { workspaceId: string; 
       <input ref={inputRef} type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={(event) => choose(event.target.files?.[0] ?? null)} />
     </div>
     {error ? <div role="alert" className="mt-4 flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800"><XCircle size={16} className="mt-0.5 shrink-0" />{error}</div> : null}
-    {file ? <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]"><div className="overflow-hidden rounded-2xl border border-border bg-secondary p-3"><div className="relative aspect-[14/9] touch-none overflow-hidden rounded-xl bg-slate-950" onPointerDown={startCropDrag} onPointerMove={moveCropDrag} onPointerUp={endCropDrag} onPointerCancel={endCropDrag} onDoubleClick={() => { setCropPosition({ x: 0, y: 0 }); setZoom(1); }}><img src={previewUrl} alt={t("Crop preview")} className="h-full w-full select-none object-cover" draggable={false} style={{ transform: `translate(${cropPosition.x * 12}%, ${cropPosition.y * 12}%) scale(${zoom})`, cursor: dragRef.current ? "grabbing" : "grab" }} /><span className="pointer-events-none absolute inset-x-3 bottom-3 rounded-lg bg-slate-950/65 px-3 py-2 text-center text-xs font-medium text-white">{t("Drag to position · double-click to reset")}</span></div><label className="mt-4 block text-sm font-medium">{t("Zoom")} <input type="range" min="1" max="3" step="0.05" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} className="mt-2 w-full" /></label><p className="mt-2 text-xs text-muted-foreground">{t("The crop is saved as a centered 14:9 website image.")}</p></div><div className="space-y-4"><label className="block text-sm font-medium">{t("Alt text")}<input value={altText} onChange={(event) => setAltText(event.target.value)} className="mt-2 h-10 w-full rounded-xl border border-border bg-background px-3" /></label><label className="block text-sm font-medium">{t("Placement")}<select value={placement} onChange={(event) => setPlacement(event.target.value as ManagedWebsiteAsset["placement"])} className="mt-2 h-10 w-full rounded-xl border border-border bg-background px-3"><option value="website">{t("Website")}</option><option value="hero">{t("Hero section")}</option><option value="gallery">{t("Gallery")}</option><option value="product">{t("Product")}</option><option value="logo">{t("Logo")}</option></select></label><div className="flex gap-2"><button type="button" onClick={() => void upload()} disabled={busy === "upload"} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60">{busy === "upload" ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />} {t("Save crop")}</button><button type="button" onClick={() => choose(null)} className="rounded-xl border border-border px-3 text-sm">{t("Cancel")}</button></div></div></div> : null}
+    {file ? <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]"><div className="overflow-hidden rounded-2xl border border-border bg-secondary p-3"><div className="relative aspect-[14/9] touch-none overflow-hidden rounded-xl bg-slate-950" onPointerDown={startCropDrag} onPointerMove={moveCropDrag} onPointerUp={endCropDrag} onPointerCancel={endCropDrag} onDoubleClick={() => { setCropPosition({ x: 0, y: 0 }); setZoom(1); }}><img src={previewUrl} alt={t("Crop preview")} className="h-full w-full select-none object-cover" draggable={false} style={{ transform: `translate(${cropPosition.x * 12}%, ${cropPosition.y * 12}%) scale(${zoom})`, cursor: isDragging ? "grabbing" : "grab" }} /><span className="pointer-events-none absolute inset-x-3 bottom-3 rounded-lg bg-slate-950/65 px-3 py-2 text-center text-xs font-medium text-white">{t("Drag to position · double-click to reset")}</span></div><label className="mt-4 block text-sm font-medium">{t("Zoom")} <input type="range" min="1" max="3" step="0.05" value={zoom} onChange={(event) => setZoom(Number(event.target.value))} className="mt-2 w-full" /></label><p className="mt-2 text-xs text-muted-foreground">{t("The crop is saved as a centered 14:9 website image.")}</p></div><div className="space-y-4"><label className="block text-sm font-medium">{t("Alt text")}<input value={altText} onChange={(event) => setAltText(event.target.value)} className="mt-2 h-10 w-full rounded-xl border border-border bg-background px-3" /></label><label className="block text-sm font-medium">{t("Placement")}<select value={placement} onChange={(event) => setPlacement(event.target.value as ManagedWebsiteAsset["placement"])} className="mt-2 h-10 w-full rounded-xl border border-border bg-background px-3"><option value="website">{t("Website")}</option><option value="hero">{t("Hero section")}</option><option value="gallery">{t("Gallery")}</option><option value="product">{t("Product")}</option><option value="logo">{t("Logo")}</option></select></label><div className="flex gap-2"><button type="button" onClick={() => void upload()} disabled={busy === "upload"} className="inline-flex h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground disabled:opacity-60">{busy === "upload" ? <Loader2 size={15} className="animate-spin" /> : <Upload size={15} />} {t("Save crop")}</button><button type="button" onClick={() => choose(null)} className="rounded-xl border border-border px-3 text-sm">{t("Cancel")}</button></div></div></div> : null}
     <div className="mt-7">
       <div className="flex items-center justify-between"><h3 className="font-semibold">{t("Saved images")}</h3>{busy === "load" ? <Loader2 size={16} className="animate-spin text-muted-foreground" /> : null}</div>
       {assets.length ? <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{assets.map((asset) => <article key={asset.id} className="overflow-hidden rounded-xl border border-border bg-background"><button type="button" onClick={() => openEditor(asset)} className="group block w-full text-left" aria-label={t("Edit image {{0}}").replace("{{0}}", asset.altText || asset.fileName)}><div className="relative aspect-[14/9] overflow-hidden bg-secondary">{assetUrls[asset.id] ? <img src={assetUrls[asset.id]} alt={asset.altText || asset.fileName} className="h-full w-full object-cover transition duration-200 group-hover:scale-[1.03]" /> : <div className="flex h-full items-center justify-center text-xs text-muted-foreground">{t("Loading image …")}</div>}<span className="absolute inset-x-2 bottom-2 inline-flex items-center justify-center gap-2 rounded-lg bg-slate-950/80 px-2 py-1.5 text-xs font-semibold text-white opacity-0 transition group-hover:opacity-100"><Sparkles size={13} /> {t("Edit with prompt")}</span></div><div className="p-3 text-xs"><p className="font-semibold">{asset.altText || asset.fileName}</p><p className="mt-1 text-muted-foreground">{t(asset.placement)} · {Math.round(asset.sizeBytes / 1024)} KB</p></div></button></article>)}</div> : <div className="mt-3 rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground"><Image size={22} className="mx-auto mb-2" />{t("No website images saved yet.")}</div>}
