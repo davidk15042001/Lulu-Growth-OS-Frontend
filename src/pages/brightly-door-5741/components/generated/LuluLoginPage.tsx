@@ -180,7 +180,7 @@ export const LuluLoginPage = () => {
       setLoading(false);
     }
   };
-  return <main data-deploy-rev="2026-09-20-login-command-1" className="auth-shell relative min-h-screen overflow-x-hidden bg-[#f7f8fd] text-[var(--foreground)]">
+  return <main data-deploy-rev="2026-09-20-ui-pass-1" className="auth-shell relative min-h-screen overflow-x-hidden bg-[#f7f8fd] text-[var(--foreground)]">
       <div className="fixed right-4 top-4 z-30 w-fit" data-lulu-no-translate="true" translate="no">
         <button type="button" onClick={() => setLangOpen((v) => !v)} aria-haspopup="menu" aria-expanded={langOpen} className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/90 px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm backdrop-blur transition hover:bg-white">
           <Globe2 size={14} />
@@ -200,7 +200,7 @@ export const LuluLoginPage = () => {
       </div>
       <style>{loginStyles}</style>
       <div className="auth-login-stage grid min-h-screen lg:grid-cols-[minmax(430px,520px)_minmax(0,1fr)]">
-        <section className="relative flex items-center justify-center border-r border-slate-200/80 bg-white px-6 py-10 sm:px-8 lg:px-12">
+        <section className="relative flex items-center justify-center border-r border-slate-200/80 bg-white px-6 py-10 sm:px-8 lg:items-start lg:px-12 lg:pt-12 lg:pb-14">
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(79,70,229,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(79,70,229,.035)_1px,transparent_1px)] bg-[size:42px_42px] [mask-image:linear-gradient(to_bottom,black,transparent_88%)]" aria-hidden="true" />
 
           <div className="relative w-full max-w-[27rem]">

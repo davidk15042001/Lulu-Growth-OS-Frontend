@@ -13,7 +13,7 @@ function isLegacyAppTopbar(element: HTMLElement) {
 }
 
 function isLegacyAppSidebar(element: HTMLElement) {
-  if (element.closest(".lulu-global-navigation")) return false;
+  if (element.closest(".lulu-global-navigation, .auth-shell, .auth-card-shell")) return false;
 
   const className = String(element.className ?? "").toLowerCase();
   const ariaLabel = (element.getAttribute("aria-label") ?? "").toLowerCase();

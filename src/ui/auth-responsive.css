@@ -112,15 +112,23 @@ body:has(.auth-shell) {
     overflow: visible !important;
   }
 
+  .auth-login-stage {
+    grid-template-columns: minmax(430px, 520px) minmax(0, 1fr) !important;
+  }
+
   .auth-shell > section,
   .auth-login-stage > section {
     height: auto !important;
     min-height: 100vh;
     overflow: visible !important;
+    align-items: flex-start !important;
   }
 
   .auth-shell > aside,
   .auth-login-stage > aside {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: center;
     align-self: stretch;
     min-height: 100vh;
   }

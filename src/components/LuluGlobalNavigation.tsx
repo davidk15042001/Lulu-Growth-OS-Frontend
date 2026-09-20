@@ -181,7 +181,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
 
   return <aside id="lulu-global-navigation" className={`lulu-global-navigation${mobileOpen ? " is-mobile-open" : ""}`} data-lulu-global-navigation="true">
     <div className="lulu-global-navigation__workspace-label"><span>{t(activationPageId ? "Complete activation" : "Workspace")}</span><button type="button" className="lulu-global-navigation__close" aria-label={t("Close navigation")} onClick={onRequestClose}><X aria-hidden="true" size={16} /></button></div>
-    <nav className="lulu-global-navigation__sections">
+    <nav className="lulu-global-navigation__sections" aria-label={t("Workspace")}>
       {navigationSections.map((section) => {
         if (section.label === CRM_LABEL) return directLink(section, CRM_LANDING_PAGE_ID);
         if (section.label === "Finance") return directLink(section, "quietly-stone-4158");
