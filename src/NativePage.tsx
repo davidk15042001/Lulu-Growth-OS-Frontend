@@ -124,6 +124,26 @@ function pageSlugFromPath(pathname: string) {
   return segments[0] ?? "";
 }
 
+function isRecoverableModuleLoadError(error: unknown) {
+  const message = String(error);
+  return /dynamically imported module|importing a module script failed|loading chunk|chunkloaderror/i.test(message);
+}
+
+function retryModuleLoadOnce(pathname: string) {
+  const key = `lulu:module-load-retry:${pathname}`;
+  try {
+    if (window.sessionStorage.getItem(key)) {
+      window.sessionStorage.removeItem(key);
+      return false;
+    }
+    window.sessionStorage.setItem(key, "1");
+  } catch {
+    return false;
+  }
+  window.location.reload();
+  return true;
+}
+
 export function NativePage({
   slug,
   mobileNavigationOpen = false,
@@ -208,6 +228,7 @@ export function NativePage({
     let visualSystemStyleElement: HTMLStyleElement | null = null;
     void Promise.all([appLoader(), styleLoader?.()]).then(([module, css]) => {
       if (!active) return;
+      try { window.sessionStorage.removeItem(`lulu:module-load-retry:${window.location.pathname}`); } catch { /* Storage may be unavailable. */ }
       if (css) {
         styleElement = document.createElement("style");
         styleElement.dataset.luluPageStyle = slug;
@@ -234,7 +255,9 @@ export function NativePage({
       setApp(() => module.default);
       window.setTimeout(() => { if (active) resetScrollPositions(); }, 0);
     }).catch((loadError) => {
-      if (active) setError(loadError);
+      if (!active) return;
+      if (isRecoverableModuleLoadError(loadError) && retryModuleLoadOnce(window.location.pathname)) return;
+      setError(loadError);
     });
 
     return () => {
