@@ -696,6 +696,14 @@ body.lulu-mobile-nav-open{overflow:hidden}
     grid-template-columns: 220px minmax(0, 1fr);
   }
 
+  .lulu-global-shell--without-navigation {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lulu-global-shell--without-navigation .lulu-global-content {
+    grid-column: 1 / -1;
+  }
+
   .lulu-auth-search-wrap {
     padding-inline: 16px;
   }
