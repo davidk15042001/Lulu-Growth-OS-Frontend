@@ -12,6 +12,17 @@ const removedBlock = routingSource.match(/const REMOVED_PAGE_SLUGS = new Set\(\[
 const removedSlugs = new Set(
   [...removedBlock.matchAll(/"([a-z]+(?:-[a-z]+)+-\d{4})"/g)].map((match) => match[1]),
 );
+// These IDs remain in persisted agent history and backend page context so
+// old runs can still be inspected. They are not navigation or live Workspace
+// routes; active website work is owned by Lulu's managed website surface.
+const legacyAgentPageIds = new Set([
+  "website-wordpress-jetpack-9013",
+  "website-webflow-9014",
+  "website-pages-cms-9015",
+  "website-posts-9016",
+  "website-media-assets-9017",
+  "website-domains-9018",
+]);
 const manifestSlugs = new Set(manifest.map((page) => page.slug).filter((slug) => !removedSlugs.has(slug)));
 const contractsSource = readFileSync(resolve(root, "src/api/page-contracts.ts"), "utf8");
 const contractedSlugs = new Set(
@@ -21,6 +32,7 @@ const resourceTypes = [...contractsSource.matchAll(/:\s*["']([a-z][a-z0-9_]*)["'
   .map((match) => match[1]);
 const uniqueResourceTypes = new Set(resourceTypes);
 const issues = [];
+const warnings = [];
 function sourceFiles(directory) {
   return readdirSync(directory,{withFileTypes:true}).flatMap(entry => {
     const path=resolve(directory,entry.name);
@@ -84,7 +96,11 @@ if (existsSync(catalogPath)) {
   }
   const agentRegistry=readFileSync(resolve(backendRoot,'src/modules/agents/agent.registry.generated.ts'),'utf8');
   for(const match of agentRegistry.matchAll(/"pageId":\s*"([^"]+)"/g)) {
-    if(removedSlugs.has(match[1])) issues.push(`Backend agent registry references a removed page: ${match[1]}`);
+    if(removedSlugs.has(match[1]) && !legacyAgentPageIds.has(match[1])) {
+      issues.push(`Backend agent registry references an unknown removed page: ${match[1]}`);
+    } else if (legacyAgentPageIds.has(match[1])) {
+      warnings.push(`Legacy agent context retained for historical runs: ${match[1]}`);
+    }
   }
 } else {
   issues.push('Backend resource catalog is required. Set LULU_BACKEND_PATH to the paired backend checkout.');
@@ -97,6 +113,7 @@ console.log(JSON.stringify({
   referencedResourceTypes: uniqueResourceTypes.size,
   backendResourceTypes: backendResourceTypes?.size ?? "not checked (backend repository unavailable)",
   typedApiClients: Object.keys(clientContracts).length,
+  warnings,
   issues,
 }, null, 2));
 

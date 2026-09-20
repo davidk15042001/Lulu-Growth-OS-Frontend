@@ -3406,5 +3406,17 @@
   "The website name was changed to \"{{title}}\".": "Der Name der Website wurde in „{{title}}“ geändert.",
   "The website was published with a warning: {{warning}}": "Die Website wurde mit einer Warnung veröffentlicht: {{warning}}",
   "Website setup required": "Website-Einrichtung erforderlich",
-  "Work orders and LV line items assigned to partner companies.": "Arbeitsaufträge und LV-Positionen, die Partnerunternehmen zugewiesen sind."
+  "Work orders and LV line items assigned to partner companies.": "Arbeitsaufträge und LV-Positionen, die Partnerunternehmen zugewiesen sind.",
+  "Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, the top 10 audience segments, and the full comparison against the top 10 competitors.": "Verwenden Sie die Schaltfläche „Aktualisieren“ in der Navigationsleiste, um den Entwurf mit Positionierung, ICP, USP, Markenbeschreibung, Herausforderungen, Sprachen, den Top-10-Zielgruppensegmenten und dem vollständigen Vergleich mit den Top-10-Wettbewerbern zu erstellen.",
+  "Apply Top 10 AI Segments": "Top-10-KI-Segmente anwenden",
+  "AI Top 10": "KI-Top 10",
+  "These top 10 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 10 at once.": "Diese Top-10-Segmente wurden von der KI nach strategischer Eignung, Umsatzpotenzial und Wettbewerbslücken bewertet. Sie können eines im Editor öffnen oder alle 10 auf einmal als aktuelle Segmentliste übernehmen.",
+  "Users & Companies": "Benutzer & Unternehmen",
+  "Manage customer accounts and their company workspaces in one place.": "Kundenkonten und ihre Firmen-Workspaces an einem Ort verwalten.",
+  "Customer directory": "Kundenverzeichnis",
+  "Logo preview unavailable": "Logo-Vorschau nicht verfügbar",
+  "The logo image could not be loaded.": "Das Firmenlogo konnte nicht geladen werden.",
+  "Preparing image…": "Bild wird vorbereitet…",
+  "Reset position": "Position zurücksetzen",
+  "Drag the image to position it. Double-click to reset.": "Bild ziehen, um es zu positionieren. Doppelklicken, um zurückzusetzen."
 }

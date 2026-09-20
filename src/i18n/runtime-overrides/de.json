@@ -5980,5 +5980,17 @@
   "Assets:": "Vermögenswerte:",
   "No capability result has been recorded yet.": "Es wurde noch kein Fähigkeitsergebnis erfasst.",
   "Meta campaign creation, budget changes and publishing stay blocked unless the control plane returns the capability as available.": "Die Erstellung von Metakampagnen, Budgetänderungen und Veröffentlichungen bleiben blockiert, es sei denn, die Steuerungsebene gibt die Funktion als verfügbar zurück.",
-  "Workspace permissions are still loading or unavailable. Mutating actions stay disabled until permissions are known.": "Arbeitsbereichsberechtigungen werden noch geladen oder sind nicht verfügbar. Mutierende Aktionen bleiben deaktiviert, bis die Berechtigungen bekannt sind."
+  "Workspace permissions are still loading or unavailable. Mutating actions stay disabled until permissions are known.": "Arbeitsbereichsberechtigungen werden noch geladen oder sind nicht verfügbar. Mutierende Aktionen bleiben deaktiviert, bis die Berechtigungen bekannt sind.",
+  "Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, the top 10 audience segments, and the full comparison against the top 10 competitors.": "Verwenden Sie die Schaltfläche „Aktualisieren“ in der Navigationsleiste, um den Entwurf mit Positionierung, ICP, USP, Markenbeschreibung, Herausforderungen, Sprachen, den Top-10-Zielgruppensegmenten und dem vollständigen Vergleich mit den Top-10-Wettbewerbern zu erstellen.",
+  "Apply Top 10 AI Segments": "Top-10-KI-Segmente anwenden",
+  "AI Top 10": "KI-Top 10",
+  "These top 10 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 10 at once.": "Diese Top-10-Segmente wurden von der KI nach strategischer Eignung, Umsatzpotenzial und Wettbewerbslücken bewertet. Sie können eines im Editor öffnen oder alle 10 auf einmal als aktuelle Segmentliste übernehmen.",
+  "Users & Companies": "Benutzer & Unternehmen",
+  "Manage customer accounts and their company workspaces in one place.": "Kundenkonten und ihre Firmen-Workspaces an einem Ort verwalten.",
+  "Customer directory": "Kundenverzeichnis",
+  "Logo preview unavailable": "Logo-Vorschau nicht verfügbar",
+  "The logo image could not be loaded.": "Das Firmenlogo konnte nicht geladen werden.",
+  "Preparing image…": "Bild wird vorbereitet…",
+  "Reset position": "Position zurücksetzen",
+  "Drag the image to position it. Double-click to reset.": "Bild ziehen, um es zu positionieren. Doppelklicken, um zurückzusetzen."
 }

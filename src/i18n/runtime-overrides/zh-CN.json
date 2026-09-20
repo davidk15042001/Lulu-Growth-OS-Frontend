@@ -5957,5 +5957,17 @@
   "Assets:": "资产：",
   "No capability result has been recorded yet.": "尚未记录任何能力结果。",
   "Meta campaign creation, budget changes and publishing stay blocked unless the control plane returns the capability as available.": "除非控制平面返回可用的功能，否则元营销活动创建、预算更改和发布将保持受阻。",
-  "Workspace permissions are still loading or unavailable. Mutating actions stay disabled until permissions are known.": "工作区权限仍在加载或不可用。在获知权限之前，变异操作将保持禁用状态。"
+  "Workspace permissions are still loading or unavailable. Mutating actions stay disabled until permissions are known.": "工作区权限仍在加载或不可用。在获知权限之前，变异操作将保持禁用状态。",
+  "Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, the top 10 audience segments, and the full comparison against the top 10 competitors.": "使用导航栏中的“更新”按钮生成包含定位、ICP、USP、品牌描述、挑战、语言、前 10 个受众细分以及与前 10 个竞争对手完整比较的草稿。",
+  "Apply Top 10 AI Segments": "应用前 10 个 AI 细分",
+  "AI Top 10": "AI 前 10",
+  "These top 10 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 10 at once.": "这些前 10 个细分由 AI 按战略匹配度、收入潜力和竞争空白排序。你可以在编辑器中打开其中一个，或一次性将全部 10 个替换为当前细分列表。",
+  "Users & Companies": "用户与公司",
+  "Manage customer accounts and their company workspaces in one place.": "在一个位置管理客户账户及其公司工作区。",
+  "Customer directory": "客户目录",
+  "Logo preview unavailable": "Logo 预览不可用",
+  "The logo image could not be loaded.": "无法加载公司 Logo。",
+  "Preparing image…": "正在准备图片…",
+  "Reset position": "重置位置",
+  "Drag the image to position it. Double-click to reset.": "拖动图片调整位置。双击可重置。"
 }

@@ -3406,5 +3406,17 @@
   "The website name was changed to \"{{title}}\".": "网站名称已更改为“{{title}}”。",
   "The website was published with a warning: {{warning}}": "该网站发布时带有警告：{{warning}}",
   "Website setup required": "需要网站设置",
-  "Work orders and LV line items assigned to partner companies.": "分配给合作伙伴公司的工单和 LV 明细项。"
+  "Work orders and LV line items assigned to partner companies.": "分配给合作伙伴公司的工单和 LV 明细项。",
+  "Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, the top 10 audience segments, and the full comparison against the top 10 competitors.": "使用导航栏中的“更新”按钮生成包含定位、ICP、USP、品牌描述、挑战、语言、前 10 个受众细分以及与前 10 个竞争对手完整比较的草稿。",
+  "Apply Top 10 AI Segments": "应用前 10 个 AI 细分",
+  "AI Top 10": "AI 前 10",
+  "These top 10 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 10 at once.": "这些前 10 个细分由 AI 按战略匹配度、收入潜力和竞争空白排序。你可以在编辑器中打开其中一个，或一次性将全部 10 个替换为当前细分列表。",
+  "Users & Companies": "用户与公司",
+  "Manage customer accounts and their company workspaces in one place.": "在一个位置管理客户账户及其公司工作区。",
+  "Customer directory": "客户目录",
+  "Logo preview unavailable": "Logo 预览不可用",
+  "The logo image could not be loaded.": "无法加载公司 Logo。",
+  "Preparing image…": "正在准备图片…",
+  "Reset position": "重置位置",
+  "Drag the image to position it. Double-click to reset.": "拖动图片调整位置。双击可重置。"
 }
