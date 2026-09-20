@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState, type FormEvent } from "react";
 import { onboardingApi, type Platform } from "../onboarding";
 import { getFriendlyErrorMessage } from "../client";
+import { composioApi, type ComposioToolkit } from "../composio";
 import { workspaceAppApi } from "../workspace-app";
 import { providerControlApi, type ProviderConnection, type ProviderContractCheck, type ProviderLaunchReadiness } from "../providers";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
@@ -10,6 +11,11 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
   const [providerConnections, setProviderConnections] = useState<ProviderConnection[]>([]);
   const [contractChecks, setContractChecks] = useState<Record<string, ProviderContractCheck | undefined>>({});
   const [launchReadiness, setLaunchReadiness] = useState<ProviderLaunchReadiness | null>(null);
+  const [composioToolkits, setComposioToolkits] = useState<ComposioToolkit[]>([]);
+  const [composioLoading, setComposioLoading] = useState(false);
+  const [composioError, setComposioError] = useState("");
+  const [composioSearch, setComposioSearch] = useState("");
+  const [composioConnectUrl, setComposioConnectUrl] = useState("");
   const [draft, setDraft] = useState({ name: "", category: "other", integrationKey: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -34,7 +40,23 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
     catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not load your integrations. Please try again.")); }
     finally { setBusy(false); }
   }, [workspaceId]);
-  useEffect(() => { void load(); }, [load]);
+
+  const loadComposio = useCallback(async () => {
+    setComposioLoading(true); setComposioError("");
+    try {
+      setComposioToolkits((await composioApi.toolkits(workspaceId)).data.items);
+    } catch (cause) {
+      setComposioToolkits([]);
+      setComposioError(getFriendlyErrorMessage(cause, "Composio apps could not be loaded."));
+    } finally { setComposioLoading(false); }
+  }, [workspaceId]);
+
+  useEffect(() => { void load(); void loadComposio(); }, [load, loadComposio]);
+
+  const visibleComposioToolkits = useMemo(() => {
+    const query = composioSearch.trim().toLowerCase();
+    return composioToolkits.filter((toolkit) => !query || `${toolkit.name} ${toolkit.slug}`.toLowerCase().includes(query)).slice(0, 20);
+  }, [composioSearch, composioToolkits]);
 
   async function create(event: FormEvent) {
     event.preventDefault(); setBusy(true); setError("");
@@ -95,6 +117,17 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
     } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not start the provider connection. Check the integration key and provider configuration.")); setBusy(false); }
   }
 
+  async function authorizeComposioToolkit(toolkit: ComposioToolkit) {
+    setBusy(true); setError(""); setComposioConnectUrl("");
+    try {
+      const response = await composioApi.authorize(workspaceId, toolkit.slug);
+      setComposioConnectUrl(response.data.redirectUrl);
+      const opened = window.open(response.data.redirectUrl, "_blank", "noopener,noreferrer");
+      if (!opened) setError("The connection page was blocked by the browser. Use the link shown below to continue.");
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not start this Composio connection.")); }
+    finally { setBusy(false); }
+  }
+
   async function disconnect(platform: Platform) {
     if (!window.confirm(`Disconnect ${platform.name}? Existing records will remain available, but synchronization will stop.`)) return;
     await updateStatus(platform, "disconnected");
@@ -109,6 +142,19 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
 
   return <LivePanelShell title="Live integrations" subtitle="Connections and synchronization jobs" onClose={onClose}>
     <LiveError message={error} />
+    <LiveSection title="Composio apps" action={<span className="lulu-live-message">Connect an app once, then Lulu can use its approved tools for this workspace.</span>}>
+      <p className="lulu-live-message">Composio keeps connected credentials with Composio. Lulu receives only the connection state and the secure link needed to authorize an app.</p>
+      {composioError ? <div className="lulu-live-error">{composioError}</div> : null}
+      {composioConnectUrl ? <p className="lulu-live-message">Connection started. <a href={composioConnectUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline", fontWeight: 700 }}>Open the Composio connection page</a>, then refresh this panel.</p> : null}
+      <label className="lulu-live-form"><span>Search Composio apps</span><input value={composioSearch} onChange={(event) => setComposioSearch(event.target.value)} placeholder="Search by app name or toolkit" /></label>
+      {composioLoading ? <LiveEmpty>Loading Composio apps…</LiveEmpty> : visibleComposioToolkits.length === 0 ? <LiveEmpty>No Composio apps match this search.</LiveEmpty> : visibleComposioToolkits.map((toolkit) => <article className="lulu-live-row" key={toolkit.slug}>
+        <div className="lulu-live-row-top"><div><strong>{toolkit.name}</strong><span>{toolkit.slug}</span></div><span className={`lulu-live-badge ${toolkit.connected ? "good" : ""}`}>{toolkit.isNoAuth ? "No sign-in required" : toolkit.connected ? "Connected" : toolkit.connectionStatus ?? "Not connected"}</span></div>
+        <div className="lulu-live-actions" style={{ marginTop: 8 }}>
+          <button className="lulu-live-button primary" disabled={busy || toolkit.isNoAuth || toolkit.connected} onClick={() => void authorizeComposioToolkit(toolkit)}>{toolkit.connected ? "Connected" : toolkit.isNoAuth ? "Available" : "Connect"}</button>
+        </div>
+      </article>)}
+      {composioToolkits.length > visibleComposioToolkits.length ? <small>Showing the first {visibleComposioToolkits.length} matching apps. Search to narrow the list.</small> : null}
+    </LiveSection>
     {launchReadiness && <LiveSection title="Production readiness" action={<span className="lulu-live-message">Autonomous work is allowed only when every provider gate is ready.</span>}>
       <div className="lulu-live-message">{launchReadiness.overallReady ? "All provider connections are ready for autonomous execution." : `${launchReadiness.readyCount} of ${launchReadiness.totalConnections} provider connections are ready.`}</div>
       {launchReadiness.connections.filter((connection) => !connection.ready).map((connection) => <article className="lulu-live-row" key={`readiness-${connection.connectionId}`}>
