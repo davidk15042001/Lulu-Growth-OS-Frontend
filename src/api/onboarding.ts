@@ -180,7 +180,7 @@ export const onboardingApi = {
   deleteDocument:(workspaceId:string,documentId:string)=>requestApi<null>({path:workspaceApiPath(workspaceId,`/onboarding/documents/${documentId}`),method:'DELETE'}),
   activateKnowledge:(workspaceId:string,input:{text:string;documentIds:string[]})=>requestApi<{completed:true;activationId:string;productIds:string[];classification:Record<string,unknown>;premiumJobs:Array<{productId:string;status:string}>}>({path:workspaceApiPath(workspaceId,"/onboarding/knowledge-activation"),method:'POST',body:input,timeoutMs:240_000}),
   saveCompanyInformation: (workspaceId: string, input: {
-    fullName?:string;password?:string;repeatPassword?:string;
+    fullName?:string;
     companyName: string; industry: string | null; countryRegion: string | null; taxId: string | null; address: string | null;
   }) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/company-information"), method: "PATCH", body: input }),
   saveBusinessDescription: (workspaceId: string, input: {
