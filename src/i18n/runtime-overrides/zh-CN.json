@@ -6002,5 +6002,9 @@
   "Describe the change": "描述变化",
   "Lulu creates a new version. The original stays unchanged.": "Lulu 创建了一个新版本。原来的保持不变。",
   "Close image editor": "关闭图像编辑器",
-  "Drag to position · double-click to reset": "拖至指定位置·双击重置"
+  "Drag to position · double-click to reset": "拖至指定位置·双击重置",
+  "Delete image {{0}}? This removes it from the website and cannot be undone.": "删除图像{{0}}？这会将其从网站中删除并且无法撤消。",
+  "The image could not be deleted.": "该图像无法删除。",
+  "Delete image {{0}}": "删除图像 {{0}}",
+  "Delete image": "删除图像"
 }

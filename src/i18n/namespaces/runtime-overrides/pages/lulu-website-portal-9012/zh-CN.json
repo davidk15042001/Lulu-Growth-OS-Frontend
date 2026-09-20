@@ -365,5 +365,9 @@
   "Upload and crop images": "上传和裁剪图像",
   "Website media": "网站媒体",
   "What should change?": "应该改变什么？",
-  "Drag to position · double-click to reset": "拖至指定位置·双击重置"
+  "Drag to position · double-click to reset": "拖至指定位置·双击重置",
+  "Delete image": "删除图像",
+  "Delete image {{0}}": "删除图像 {{0}}",
+  "Delete image {{0}}? This removes it from the website and cannot be undone.": "删除图像{{0}}？这会将其从网站中删除并且无法撤消。",
+  "The image could not be deleted.": "该图像无法删除。"
 }

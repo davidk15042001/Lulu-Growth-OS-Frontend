@@ -6025,5 +6025,9 @@
   "Describe the change": "Beschreiben Sie die Änderung",
   "Lulu creates a new version. The original stays unchanged.": "Lulu erstellt eine neue Version. Das Original bleibt unverändert.",
   "Close image editor": "Bildeditor schließen",
-  "Drag to position · double-click to reset": "Zur Position ziehen · Zum Zurücksetzen doppelklicken"
+  "Drag to position · double-click to reset": "Zur Position ziehen · Zum Zurücksetzen doppelklicken",
+  "Delete image {{0}}? This removes it from the website and cannot be undone.": "Bild {{0}} löschen? Dadurch wird es von der Website entfernt und kann nicht rückgängig gemacht werden.",
+  "The image could not be deleted.": "Das Bild konnte nicht gelöscht werden.",
+  "Delete image {{0}}": "Bild löschen {{0}}",
+  "Delete image": "Bild löschen"
 }

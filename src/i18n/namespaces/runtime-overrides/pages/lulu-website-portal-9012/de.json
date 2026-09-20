@@ -365,5 +365,9 @@
   "Upload and crop images": "Bilder hochladen und zuschneiden",
   "Website media": "Website-Medien",
   "What should change?": "Was soll sich ändern?",
-  "Drag to position · double-click to reset": "Zur Position ziehen · Zum Zurücksetzen doppelklicken"
+  "Drag to position · double-click to reset": "Zur Position ziehen · Zum Zurücksetzen doppelklicken",
+  "Delete image": "Bild löschen",
+  "Delete image {{0}}": "Bild löschen {{0}}",
+  "Delete image {{0}}? This removes it from the website and cannot be undone.": "Bild {{0}} löschen? Dadurch wird es von der Website entfernt und kann nicht rückgängig gemacht werden.",
+  "The image could not be deleted.": "Das Bild konnte nicht gelöscht werden."
 }

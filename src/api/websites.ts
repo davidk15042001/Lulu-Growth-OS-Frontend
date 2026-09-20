@@ -93,6 +93,7 @@ export const websitesApi = {
   listAssets: (workspaceId: string, siteId: string) => requestApi<{ items: ManagedWebsiteAsset[] }>({ path: `/workspaces/${workspaceId}/websites/${siteId}/assets` }),
   uploadAsset: (workspaceId: string, siteId: string, form: FormData) => requestApi<ManagedWebsiteAsset>({ path: `/workspaces/${workspaceId}/websites/${siteId}/assets`, method: 'POST', body: form }),
   getAssetBlob: (workspaceId: string, siteId: string, assetId: string) => requestApiBlob(`/workspaces/${workspaceId}/websites/${siteId}/assets/${assetId}`),
+  deleteAsset: (workspaceId: string, siteId: string, assetId: string) => requestApi<{ id: string }>({ path: `/workspaces/${workspaceId}/websites/${siteId}/assets/${assetId}`, method: 'DELETE', body: {} }),
   editAsset: (workspaceId: string, siteId: string, assetId: string, prompt: string) => requestApi<WebsiteAssetEdit>({ path: `/workspaces/${workspaceId}/websites/${siteId}/assets/${assetId}/edit`, method: 'POST', body: { prompt }, timeoutMs: 180_000 }),
   getAssetEdit: (workspaceId: string, siteId: string, editId: string) => requestApi<WebsiteAssetEdit>({ path: `/workspaces/${workspaceId}/websites/${siteId}/asset-edits/${editId}` }),
 };
