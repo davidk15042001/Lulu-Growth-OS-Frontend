@@ -385,7 +385,7 @@ export default function ProfilePage() {
   const activationClientComplete = !loading && !savingProfile && !logoUploading && requiredActivationFields.every((key) => {
     const value = key === 'companyLogo' ? logoUrl : key === 'firstName' || key === 'lastName' ? account[key] : profile[key];
     return String(value ?? '').trim().length > 0;
-  }) && countries.some((country) => country.toLowerCase() === profile.countryRegion.trim().toLowerCase()) && legalOptions.some((legalForm) => legalForm.toLowerCase() === profile.legalForm.trim().toLowerCase());
+  }) && countries.some((country) => country.toLowerCase() === profile.countryRegion.trim().toLowerCase());
 
   if (!selectedWorkspace) return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame p-8"><h1 className="text-2xl font-semibold">{t('Profile')}</h1><p className="mt-2 text-[var(--muted-foreground)]">{t('Choose a workspace to continue.')}</p></main></WorkspaceSurfaceShell>;
 
