@@ -6,11 +6,18 @@ import {
   UserRound, UsersRound, WifiOff, X, XCircle,
   type LucideIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState, type SyntheticEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent, type SyntheticEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { useLuluApp } from "../../api/LuluAppContext";
 import { commercialDocumentsApi, type Invoice, type Quote } from "../../api/commercial-documents";
+import { agentApi, type AgentCollaboration } from "../../api/agents";
+import {
+  executiveApi,
+  type ExecutiveMetricForecast,
+  type ExecutiveOverview,
+  type ExecutiveProposal,
+} from "../../api/executive";
 import {
   officeApi,
   type OfficeControl,
@@ -349,6 +356,7 @@ function WorkItemCard({
   onControl,
   onOpenWorkspacePanel,
   onOpenWorkspace,
+  onOpenCollaboration,
 }: {
   item: OfficeWorkItem;
   employee: Pick<OfficeEmployeeSummary, "key" | "sourceAgentIds">;
@@ -359,6 +367,7 @@ function WorkItemCard({
   onControl: (item: OfficeWorkItem, action: OfficeControl) => void;
   onOpenWorkspacePanel: (item: OfficeWorkItem) => void;
   onOpenWorkspace: (item: OfficeWorkItem) => void;
+  onOpenCollaboration: (runId: string) => void;
 }) {
   const t = useTranslation();
   const readableTitle = simplifyWorkText(item.title) || t("Work item");
@@ -379,6 +388,7 @@ function WorkItemCard({
     currentUserCapabilities,
     allowKnownEmployeeRoute: true,
   });
+  const collaborationRunId = item.sourceAgentRunId ?? (item.sourceType === "agent_run" ? item.sourceId ?? null : null);
   return <article className="lulu-office-work-card">
     <div className="lulu-office-work-card__heading">
       <div>
@@ -401,8 +411,148 @@ function WorkItemCard({
       })}
       {route && <button type="button" onClick={() => onOpenWorkspacePanel(item)}><BriefcaseBusiness aria-hidden="true" size={14} />{t("Work here")}</button>}
       {route && <button type="button" onClick={() => onOpenWorkspace(item)}><ExternalLink aria-hidden="true" size={14} />{t("Open full Workspace")}</button>}
+      {collaborationRunId && currentUserCapabilities.includes("agents.read") && <button type="button" onClick={() => onOpenCollaboration(collaborationRunId)}><MessageSquare aria-hidden="true" size={14} />{t("Conversation")}</button>}
     </div>
   </article>;
+}
+
+function useExecutiveOverview(workspaceId: string | null) {
+  const [snapshot, setSnapshot] = useState<{ workspaceId: string; overview: ExecutiveOverview } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [failure, setFailure] = useState<{ workspaceId: string; message: string } | null>(null);
+  const controllerRef = useRef<AbortController | null>(null);
+  const overview = snapshot?.workspaceId === workspaceId ? snapshot.overview : null;
+  const error = failure?.workspaceId === workspaceId ? failure.message : null;
+
+  const load = useCallback(async (silent = false) => {
+    if (silent && controllerRef.current) return;
+    if (!workspaceId) {
+      setSnapshot(null);
+      setFailure(null);
+      setLoading(false);
+      setRefreshing(false);
+      return;
+    }
+    controllerRef.current?.abort();
+    const controller = new AbortController();
+    controllerRef.current = controller;
+    if (silent) setRefreshing(true);
+    else setLoading(true);
+    try {
+      const response = await executiveApi.overview(workspaceId, controller.signal);
+      if (controller.signal.aborted) return;
+      setSnapshot({ workspaceId, overview: response.data });
+      setFailure(null);
+    } catch (cause) {
+      if (controller.signal.aborted) return;
+      setFailure({
+        workspaceId,
+        message: getFriendlyErrorMessage(cause, "Executive view unavailable"),
+      });
+    } finally {
+      if (controllerRef.current === controller) {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    }
+  }, [workspaceId]);
+
+  useEffect(() => {
+    void load(false);
+    const timer = window.setInterval(() => {
+      if (document.visibilityState === "visible" && navigator.onLine) void load(true);
+    }, REFRESH_INTERVAL_MS);
+    const refreshVisible = () => {
+      if (document.visibilityState === "visible" && navigator.onLine) void load(true);
+    };
+    window.addEventListener("focus", refreshVisible);
+    window.addEventListener("online", refreshVisible);
+    document.addEventListener("visibilitychange", refreshVisible);
+    return () => {
+      controllerRef.current?.abort();
+      window.clearInterval(timer);
+      window.removeEventListener("focus", refreshVisible);
+      window.removeEventListener("online", refreshVisible);
+      document.removeEventListener("visibilitychange", refreshVisible);
+    };
+  }, [load]);
+
+  return {
+    overview,
+    loading: loading || Boolean(workspaceId && !overview && !error),
+    refreshing,
+    error,
+    reload: () => load(Boolean(overview)),
+  };
+}
+
+function AgentCollaborationFeed({ workspaceId, runId, onClose }: { workspaceId: string; runId: string; onClose: () => void }) {
+  const t = useTranslation();
+  const language = useLanguage();
+  const [collaboration, setCollaboration] = useState<AgentCollaboration | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await agentApi.collaboration(workspaceId, runId, { limit: 80 });
+      setCollaboration(response.data);
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, t("The agent conversation could not be loaded.")));
+    } finally {
+      setLoading(false);
+    }
+  }, [runId, t, workspaceId]);
+
+  useEffect(() => { void load(); }, [load]);
+
+  const loadOlder = async () => {
+    if (!collaboration?.nextBeforeMessageId || loadingOlder) return;
+    setLoadingOlder(true);
+    try {
+      const response = await agentApi.collaboration(workspaceId, runId, {
+        limit: 80,
+        beforeMessageId: collaboration.nextBeforeMessageId,
+      });
+      setCollaboration((current) => current ? {
+        ...response.data,
+        thread: response.data.thread ?? current.thread,
+        items: [...response.data.items, ...current.items],
+      } : response.data);
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, t("Older messages could not be loaded.")));
+    } finally {
+      setLoadingOlder(false);
+    }
+  };
+
+  return <section className="lulu-office-collaboration" aria-labelledby={`lulu-office-collaboration-${runId}`}>
+    <div className="lulu-office-section-heading">
+      <div><span className="lulu-office-eyebrow">{t("Coordination")}</span><h3 id={`lulu-office-collaboration-${runId}`}>{t("Agent conversation")}</h3></div>
+      <div className="lulu-office-collaboration__actions">
+        <button type="button" onClick={() => void load()} disabled={loading} aria-label={t("Refresh conversation")} title={t("Refresh conversation")}><RefreshCw aria-hidden="true" size={14} className={loading ? "lulu-office-spin" : undefined} /></button>
+        <button type="button" onClick={onClose} aria-label={t("Close conversation")} title={t("Close conversation")}><X aria-hidden="true" size={14} /></button>
+      </div>
+    </div>
+    {loading && <div className="lulu-office-collaboration__state" role="status"><LoaderCircle aria-hidden="true" size={17} className="lulu-office-spin" /><span>{t("Loading conversation…")}</span></div>}
+    {error && !loading && <div className="lulu-office-error" role="alert"><AlertTriangle aria-hidden="true" size={16} /><div><strong>{t("Conversation unavailable")}</strong><p>{error}</p><button type="button" onClick={() => void load()}>{t("Try again")}</button></div></div>}
+    {!loading && !error && collaboration?.thread === null && <div className="lulu-office-collaboration__state"><MessageSquare aria-hidden="true" size={18} /><span>{t("No coordination has been recorded for this run yet.")}</span></div>}
+    {!loading && !error && collaboration?.thread && <>
+      {collaboration.nextBeforeMessageId && <button type="button" className="lulu-office-collaboration__older" onClick={() => void loadOlder()} disabled={loadingOlder}>{loadingOlder ? <LoaderCircle aria-hidden="true" size={14} className="lulu-office-spin" /> : <Clock3 aria-hidden="true" size={14} />}{t("Load earlier messages")}</button>}
+      <ol className="lulu-office-collaboration__messages">
+        {collaboration.items.map((message) => <li key={message.id} className={`is-${message.messageType}`}>
+          <div className="lulu-office-collaboration__message-meta"><span>{t(message.messageType.replaceAll("_", " "))}</span><strong>{message.senderAgentId?.replace(/^system:/, "") ?? t(message.senderType)}</strong><time dateTime={message.createdAt}>{formatDateTime(message.createdAt, language)}</time></div>
+          <p>{message.content}</p>
+          {(message.evidenceRefs.length > 0 || message.confidence !== null) && <div className="lulu-office-collaboration__message-evidence">{message.confidence !== null && <span>{Math.round(message.confidence * 100)}% {t("confidence")}</span>}{message.evidenceRefs.slice(0, 3).map((reference) => <code key={reference}>{reference}</code>)}</div>}
+        </li>)}
+      </ol>
+      {collaboration.items.length === 0 && <div className="lulu-office-collaboration__state"><MessageSquare aria-hidden="true" size={18} /><span>{t("No messages have been recorded yet.")}</span></div>}
+    </>}
+  </section>;
 }
 
 export type CommercialDocumentKind = "invoices" | "quotes";
@@ -517,6 +667,7 @@ function EmployeeWorkDrawer({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyAction, setBusyAction] = useState<string | null>(null);
+  const [collaborationRunId, setCollaborationRunId] = useState<string | null>(null);
   const [confirmation, setConfirmation] = useState<{ item: OfficeWorkItem; action: OfficeControl } | null>(null);
   const normalizedEmployeeKey = employee.key.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   const documentEmployee = normalizedEmployeeKey.endsWith("invoice-manager") || normalizedEmployeeKey.endsWith("quote-specialist");
@@ -660,6 +811,7 @@ function EmployeeWorkDrawer({
     setWorkspaceContext(null);
     setWorkspaceLoading(false);
     setDocumentFormOpen(false);
+    setCollaborationRunId(null);
   }, [documentEmployee, employee.id]);
 
   const capabilityKeys = details?.capabilities.map((capability) => capability.key) ?? [];
@@ -871,10 +1023,12 @@ function EmployeeWorkDrawer({
           <section className="lulu-office-drawer__section">
             <div className="lulu-office-section-heading"><div><span className="lulu-office-eyebrow">{t("Execution")}</span><h3>{t("What this employee is doing")}</h3></div><span>{work.length}</span></div>
             <div className="lulu-office-work-list">
-              {work.map((item) => <WorkItemCard key={item.id} item={item} employee={displayEmployee} capabilities={capabilityKeys} currentUserCapabilities={currentUserCapabilities} canControl={canControl && details.canControl} busyAction={busyAction} onControl={requestControl} onOpenWorkspacePanel={openWorkspacePanel} onOpenWorkspace={openWorkspace} />)}
+              {work.map((item) => <WorkItemCard key={item.id} item={item} employee={displayEmployee} capabilities={capabilityKeys} currentUserCapabilities={currentUserCapabilities} canControl={canControl && details.canControl} busyAction={busyAction} onControl={requestControl} onOpenWorkspacePanel={openWorkspacePanel} onOpenWorkspace={openWorkspace} onOpenCollaboration={setCollaborationRunId} />)}
               {work.length === 0 && <div className="lulu-office-empty lulu-office-empty--compact"><Bot aria-hidden="true" size={20} /><strong>{t("No work yet")}</strong><p>{t("This employee will show work here when Lulu gives it a real task.")}</p></div>}
             </div>
           </section>
+
+          {collaborationRunId && currentUserCapabilities.includes("agents.read") && <AgentCollaborationFeed workspaceId={workspaceId} runId={collaborationRunId} onClose={() => setCollaborationRunId(null)} />}
 
           <section className="lulu-office-drawer__section">
             <div className="lulu-office-section-heading"><div><span className="lulu-office-eyebrow">{t("Evidence")}</span><h3>{t("Employee timeline")}</h3></div></div>
@@ -1020,6 +1174,198 @@ function OverviewMetric({ icon: Icon, label, value, language, tone }: { icon: Lu
   </article>;
 }
 
+function formatExecutiveValue(value: string, language: string) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return value;
+  return new Intl.NumberFormat(language, { maximumFractionDigits: 2 }).format(numeric);
+}
+
+function proposalStatusLabel(proposal: ExecutiveProposal, t: ReturnType<typeof useTranslation>) {
+  if (proposal.status === "proposed") return t("Awaiting approval");
+  if (proposal.status === "dispatched") return t("Dispatched for planning");
+  return proposal.status.replaceAll("_", " ");
+}
+
+function ExecutiveOperatingPanel({
+  workspaceId,
+  overview,
+  loading,
+  refreshing,
+  error,
+  online,
+  canManage,
+  onChanged,
+}: {
+  workspaceId: string;
+  overview: ExecutiveOverview | null;
+  loading: boolean;
+  refreshing: boolean;
+  error: string | null;
+  online: boolean;
+  canManage: boolean;
+  onChanged: () => Promise<void> | void;
+}) {
+  const t = useTranslation();
+  const language = useLanguage();
+  const [runningCycleType, setRunningCycleType] = useState<"daily" | "weekly" | null>(null);
+  const [busyProposalAction, setBusyProposalAction] = useState<string | null>(null);
+  const [scenarioName, setScenarioName] = useState("");
+  const [scenarioForecastId, setScenarioForecastId] = useState("");
+  const [scenarioAdjustment, setScenarioAdjustment] = useState("10");
+  const [creatingScenario, setCreatingScenario] = useState(false);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const daily = overview?.latestCycles.daily ?? null;
+  const weekly = overview?.latestCycles.weekly ?? null;
+  const findings = overview?.findings.filter((finding) => finding.status === "open").slice(0, 4) ?? [];
+  const forecasts = overview?.forecasts.filter((forecast) => forecast.status !== "superseded").slice(0, 3) ?? [];
+  const proposed = overview?.proposals.filter((proposal) => proposal.status === "proposed").slice(0, 4) ?? [];
+  const dataGapCount = (daily?.dataGaps.length ?? 0) + (weekly?.dataGaps.length ?? 0);
+  const selectedScenarioForecast = forecasts.find((forecast) => forecast.id === scenarioForecastId) ?? forecasts[0] ?? null;
+
+  const runCycle = async (cycleType: "daily" | "weekly") => {
+    if (!canManage || !online) return;
+    setRunningCycleType(cycleType);
+    setActionError(null);
+    try {
+      await executiveApi.runCycle(workspaceId, cycleType);
+      await onChanged();
+    } catch (cause) {
+      setActionError(getFriendlyErrorMessage(cause, t("Executive review could not be started.")));
+    } finally {
+      setRunningCycleType(null);
+    }
+  };
+
+  const decideProposal = async (proposal: ExecutiveProposal, decision: "approve" | "reject") => {
+    if (!canManage || !online) return;
+    setBusyProposalAction(`${proposal.id}:${decision}`);
+    setActionError(null);
+    try {
+      await executiveApi.decideProposal(workspaceId, proposal.id, {
+        expectedVersion: proposal.version,
+        decision,
+      });
+      await onChanged();
+    } catch (cause) {
+      setActionError(getFriendlyErrorMessage(cause, t("Proposal action could not be recorded.")));
+    } finally {
+      setBusyProposalAction(null);
+    }
+  };
+
+  const createScenario = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!canManage || !online || !selectedScenarioForecast) return;
+    const adjustmentPercent = Number(scenarioAdjustment);
+    if (!Number.isFinite(adjustmentPercent) || adjustmentPercent < -100 || adjustmentPercent > 10_000) {
+      setActionError(t("Enter a valid scenario adjustment."));
+      return;
+    }
+    setCreatingScenario(true);
+    setActionError(null);
+    try {
+      const name = scenarioName.trim() || `${selectedScenarioForecast.metricName} ${adjustmentPercent >= 0 ? "+" : ""}${adjustmentPercent}%`;
+      await executiveApi.createScenario(workspaceId, {
+        cycleId: selectedScenarioForecast.cycleId,
+        name,
+        description: `Explicit ${adjustmentPercent}% sensitivity applied to ${selectedScenarioForecast.metricName}.`,
+        assumptions: [`The scenario applies an explicit ${adjustmentPercent}% adjustment to the stored base forecast.`],
+        projections: [{ forecastId: selectedScenarioForecast.id, adjustmentPercent }],
+      });
+      setScenarioName("");
+      await onChanged();
+    } catch (cause) {
+      setActionError(getFriendlyErrorMessage(cause, t("Scenario could not be created.")));
+    } finally {
+      setCreatingScenario(false);
+    }
+  };
+
+  return <section className="lulu-office-executive" aria-labelledby="lulu-office-executive-title">
+    <div className="lulu-office-section-heading lulu-office-executive__heading">
+      <div><span className="lulu-office-eyebrow">{t("Executive operating system")}</span><h2 id="lulu-office-executive-title">{t("Daily company position")}</h2></div>
+      {canManage && <div className="lulu-office-executive__commands">
+        <button type="button" onClick={() => void runCycle("daily")} disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || refreshing || !online}>
+          {runningCycleType === "daily" ? <LoaderCircle aria-hidden="true" size={15} className="lulu-office-spin" /> : <Play aria-hidden="true" size={15} />}
+          {runningCycleType === "daily" ? t("Running daily review...") : t("Run daily review")}
+        </button>
+        <button type="button" className="is-secondary" onClick={() => void runCycle("weekly")} disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || refreshing || !online}>
+          {runningCycleType === "weekly" ? <LoaderCircle aria-hidden="true" size={15} className="lulu-office-spin" /> : <CalendarClock aria-hidden="true" size={15} />}
+          {runningCycleType === "weekly" ? t("Running weekly strategy...") : t("Run weekly strategy")}
+        </button>
+      </div>}
+    </div>
+
+    {loading && !overview && <div className="lulu-office-executive__state" role="status"><LoaderCircle aria-hidden="true" className="lulu-office-spin" /><span>{t("Loading executive state...")}</span></div>}
+    {error && !overview && <div className="lulu-office-executive__state is-error" role="alert"><AlertTriangle aria-hidden="true" size={18} /><span>{error}</span></div>}
+    {actionError && <div className="lulu-office-executive__state is-error" role="alert"><AlertTriangle aria-hidden="true" size={18} /><span>{actionError}</span></div>}
+
+    {overview && <>
+      {error && <div className="lulu-office-executive__state is-error" role="status"><AlertTriangle aria-hidden="true" size={16} /><span>{t("Executive view unavailable")}: {error}</span></div>}
+      <div className="lulu-office-executive__cycles">
+        {([
+          ["daily", t("Daily review"), daily],
+          ["weekly", t("Weekly strategy"), weekly],
+        ] as const).map(([key, label, cycle]) => <article key={key} className={`is-${cycle?.status ?? "empty"}`}>
+          <span>{label}</span>
+          <strong>{cycle ? (cycle.status === "completed" ? t("Review complete") : cycle.status.replaceAll("_", " ")) : t("No completed review yet")}</strong>
+          <small>{cycle ? formatDateTime(cycle.completedAt ?? cycle.updatedAt, language) : "-"}</small>
+        </article>)}
+        <article className={dataGapCount > 0 ? "is-attention" : "is-ready"}>
+          <span>{t("Data gaps")}</span>
+          <strong>{dataGapCount.toLocaleString(language)}</strong>
+          <small>{overview.summary.learningRecordCount.toLocaleString(language)} {t("Learning calibration")}</small>
+        </article>
+      </div>
+
+      <div className="lulu-office-executive__grid">
+        <section className="lulu-office-executive__column" aria-labelledby="lulu-office-executive-findings-title">
+          <div className="lulu-office-executive__column-heading"><AlertTriangle aria-hidden="true" size={16} /><h3 id="lulu-office-executive-findings-title">{t("Risks and bottlenecks")}</h3></div>
+          {findings.length === 0 ? <p className="lulu-office-executive__empty">{t("No open executive findings")}</p> : <ul className="lulu-office-executive__findings">
+            {findings.map((finding) => <li key={finding.id}>
+              <div><strong>{finding.title}</strong><span>{finding.findingType.replaceAll("_", " ")} · {Math.round(finding.materiality * 100)}% {t("Materiality")}</span></div>
+              <p>{finding.description}</p>
+            </li>)}
+          </ul>}
+        </section>
+
+        <section className="lulu-office-executive__column" aria-labelledby="lulu-office-executive-forecasts-title">
+          <div className="lulu-office-executive__column-heading"><BarChart3 aria-hidden="true" size={16} /><h3 id="lulu-office-executive-forecasts-title">{t("Transparent forecasts")}</h3></div>
+          {forecasts.length === 0 ? <p className="lulu-office-executive__empty">{t("No forecast can be produced yet")}</p> : <ul className="lulu-office-executive__forecasts">
+            {forecasts.map((forecast: ExecutiveMetricForecast) => <li key={forecast.id}>
+              <div className="lulu-office-executive__forecast-heading"><strong>{forecast.metricName}</strong><span>{forecast.metricUnit}</span></div>
+              <small>{t("Two-point trend")} · {Math.round(forecast.confidence * 100)}% {t("confidence")} · {t("Forecast for")} {formatDateTime(forecast.forecastedFor, language)}</small>
+              <dl><div><dt>{t("Low")}</dt><dd>{formatExecutiveValue(forecast.projectedLow, language)}</dd></div><div><dt>{t("Base")}</dt><dd>{formatExecutiveValue(forecast.projectedBase, language)}</dd></div><div><dt>{t("High")}</dt><dd>{formatExecutiveValue(forecast.projectedHigh, language)}</dd></div></dl>
+            </li>)}
+          </ul>}
+          {overview.scenarios.length > 0 && <div className="lulu-office-executive__scenarios"><span>{t("Scenarios")}</span>{overview.scenarios.slice(0, 2).map((scenario) => <strong key={scenario.id}>{scenario.name}</strong>)}</div>}
+          {canManage && selectedScenarioForecast && <form className="lulu-office-executive__scenario-form" onSubmit={(event) => void createScenario(event)}>
+            <label><span>{t("Scenario name")}</span><input value={scenarioName} maxLength={200} onChange={(event) => setScenarioName(event.target.value)} /></label>
+            <label><span>{t("Metric")}</span><select value={selectedScenarioForecast.id} onChange={(event) => setScenarioForecastId(event.target.value)}>{forecasts.map((forecast) => <option key={forecast.id} value={forecast.id}>{forecast.metricName}</option>)}</select></label>
+            <label><span>{t("Adjustment percent")}</span><input type="number" inputMode="decimal" min={-100} max={10_000} step="0.01" value={scenarioAdjustment} onChange={(event) => setScenarioAdjustment(event.target.value)} /></label>
+            <button type="submit" disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || !online}>{creatingScenario ? <LoaderCircle aria-hidden="true" size={14} className="lulu-office-spin" /> : <BarChart3 aria-hidden="true" size={14} />}{creatingScenario ? t("Creating scenario...") : t("Create scenario")}</button>
+          </form>}
+        </section>
+
+        <section className="lulu-office-executive__column" aria-labelledby="lulu-office-executive-proposals-title">
+          <div className="lulu-office-executive__column-heading"><CheckCircle2 aria-hidden="true" size={16} /><h3 id="lulu-office-executive-proposals-title">{t("Plan proposals")}</h3></div>
+          {proposed.length === 0 ? <p className="lulu-office-executive__empty">{t("No plan proposals await review")}</p> : <ul className="lulu-office-executive__proposals">
+            {proposed.map((proposal) => <li key={proposal.id}>
+              <div className="lulu-office-executive__proposal-heading"><strong>{proposal.title}</strong><span>{proposalStatusLabel(proposal, t)}</span></div>
+              <p>{proposal.objective}</p>
+              <small>{proposal.proposalType.replaceAll("_", " ")} · {proposal.executionMode.replaceAll("_", " ")} · {Math.round(proposal.confidence * 100)}% {t("confidence")}</small>
+              {canManage && <div className="lulu-office-executive__proposal-actions">
+                <button type="button" className="is-approve" disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || !online} onClick={() => void decideProposal(proposal, "approve")}><CheckCircle2 aria-hidden="true" size={14} />{t("Approve plan")}</button>
+                <button type="button" className="is-reject" disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || !online} onClick={() => void decideProposal(proposal, "reject")}><XCircle aria-hidden="true" size={14} />{t("Reject plan")}</button>
+              </div>}
+            </li>)}
+          </ul>}
+        </section>
+      </div>
+    </>}
+  </section>;
+}
+
 export default function VirtualOfficePage() {
   const t = useTranslation();
   const language = useLanguage();
@@ -1028,8 +1374,18 @@ export default function VirtualOfficePage() {
   const { selectedWorkspace, permissions } = useLuluApp();
   const canControlOffice = permissions.canEdit && permissions.capabilities.includes("agents.manage");
   const { overview, loading, refreshing, error, reload } = useOfficeOverview(selectedWorkspace?.id ?? null);
+  const {
+    overview: executiveOverview,
+    loading: executiveLoading,
+    refreshing: executiveRefreshing,
+    error: executiveError,
+    reload: reloadExecutive,
+  } = useExecutiveOverview(selectedWorkspace?.id ?? null);
   const [selectedEmployee, setSelectedEmployee] = useState<OfficeEmployeeSummary | null>(null);
   const [selectedMission, setSelectedMission] = useState<OfficeBrainMission | null>(null);
+  const reloadAll = useCallback(async () => {
+    await Promise.all([reload(), reloadExecutive()]);
+  }, [reload, reloadExecutive]);
 
   return <>
     <AuthenticatedWorkspaceTopBar navigationOpen={false} onToggleNavigation={() => undefined} onCloseNavigation={() => undefined} showNavigationToggle={false} />
@@ -1044,7 +1400,7 @@ export default function VirtualOfficePage() {
         <div className="lulu-office-hero__status">
           {!online && <span className="is-offline"><WifiOff aria-hidden="true" size={15} />{t("Offline — showing last verified state")}</span>}
           {online && overview && <span><ShieldCheck aria-hidden="true" size={15} />{t("Verified backend state")} · {formatDateTime(overview.generatedAt, language)}</span>}
-          <button type="button" onClick={() => void reload()} disabled={refreshing || !online}><RefreshCw aria-hidden="true" size={15} className={refreshing ? "lulu-office-spin" : undefined} />{t("Refresh")}</button>
+          <button type="button" onClick={() => void reloadAll()} disabled={refreshing || executiveRefreshing || !online}><RefreshCw aria-hidden="true" size={15} className={refreshing || executiveRefreshing ? "lulu-office-spin" : undefined} />{t("Refresh")}</button>
         </div>
       </header>
 
@@ -1145,6 +1501,17 @@ export default function VirtualOfficePage() {
           </div>
         </section>}
 
+        {selectedWorkspace && <ExecutiveOperatingPanel
+          workspaceId={selectedWorkspace.id}
+          overview={executiveOverview}
+          loading={executiveLoading}
+          refreshing={executiveRefreshing}
+          error={executiveError}
+          online={online}
+          canManage={canControlOffice}
+          onChanged={reloadAll}
+        />}
+
         <div className="lulu-office-layout">
           <section className="lulu-office-company" aria-labelledby="lulu-office-company-title">
             <div className="lulu-office-section-heading lulu-office-section-heading--main">
@@ -1160,6 +1527,6 @@ export default function VirtualOfficePage() {
       </>}
     </main>
     {selectedWorkspace && selectedMission && <MissionGraphDialog workspaceId={selectedWorkspace.id} mission={selectedMission} onClose={() => setSelectedMission(null)} />}
-    {selectedWorkspace && selectedEmployee && <EmployeeWorkDrawer workspaceId={selectedWorkspace.id} employee={selectedEmployee} currentUserCapabilities={permissions.capabilities} canAdminister={permissions.canAdminister || permissions.role === "owner" || permissions.role === "admin"} canControl={canControlOffice} onClose={() => setSelectedEmployee(null)} onChanged={() => void reload()} />}
+    {selectedWorkspace && selectedEmployee && <EmployeeWorkDrawer workspaceId={selectedWorkspace.id} employee={selectedEmployee} currentUserCapabilities={permissions.capabilities} canAdminister={permissions.canAdminister || permissions.role === "owner" || permissions.role === "admin"} canControl={canControlOffice} onClose={() => setSelectedEmployee(null)} onChanged={() => void reloadAll()} />}
   </>;
 }

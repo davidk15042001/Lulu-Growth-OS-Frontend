@@ -14,6 +14,37 @@ export function isBudgetProtectedAgentInput(input: Record<string, unknown> | nul
 }
 export type AgentRun = { id: string; workspaceId: string; goal: string; status: AgentRunStatus; plan: Record<string, unknown>; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; createdAt: string; updatedAt: string; };
 export type AgentRunDetails = { run: AgentRun; steps: AgentStep[]; events: Array<{ id: string; eventType: string; agentRole: string | null; payload: Record<string, unknown>; createdAt: string }> };
+export type AgentCollaborationThread = {
+  id: string;
+  workspaceId: string;
+  runId: string;
+  companyBrainTaskId: string | null;
+  topic: string;
+  status: 'active' | 'completed' | 'failed' | 'cancelled';
+  createdAt: string;
+  updatedAt: string;
+};
+export type AgentCollaborationMessage = {
+  id: string;
+  workspaceId: string;
+  threadId: string;
+  runId: string;
+  stepId: string | null;
+  senderType: 'agent' | 'system' | 'human';
+  senderAgentId: string | null;
+  recipientAgentId: string | null;
+  messageType: 'plan' | 'status' | 'evidence' | 'handoff' | 'proposal' | 'challenge' | 'decision' | 'action' | 'verification' | 'error';
+  content: string;
+  structuredContent: Record<string, unknown>;
+  evidenceRefs: string[];
+  confidence: number | null;
+  createdAt: string;
+};
+export type AgentCollaboration = {
+  thread: AgentCollaborationThread | null;
+  items: AgentCollaborationMessage[];
+  nextBeforeMessageId: string | null;
+};
 export type AgentHealthItem = {
   pageId: string;
   pageLabel: string;
@@ -228,5 +259,12 @@ export const agentApi = {
   ecosystem: (workspaceId: string) => requestApi<AgentEcosystem>({ path: workspaceApiPath(workspaceId, '/agent-runs/ecosystem') }),
   create: (workspaceId: string, options?: CreateAgentRunOptions) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, '/agent-runs'), method: 'POST', body: { module: options?.module, page: options?.page, dedupeMinutes: options?.dedupeMinutes } }),
   detail: (workspaceId: string, runId: string) => requestApi<AgentRunDetails>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}`) }),
+  collaboration: (workspaceId: string, runId: string, options: { limit?: number; beforeMessageId?: string } = {}) => {
+    const search = new URLSearchParams();
+    if (options.limit) search.set('limit', String(options.limit));
+    if (options.beforeMessageId) search.set('beforeMessageId', options.beforeMessageId);
+    const serialized = search.toString();
+    return requestApi<AgentCollaboration>({ path: `${workspaceApiPath(workspaceId, `/agent-runs/${runId}/collaboration`)}${serialized ? `?${serialized}` : ''}` });
+  },
   cancel: (workspaceId: string, runId: string) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/cancel`), method: 'POST', body: {} }),
 };
