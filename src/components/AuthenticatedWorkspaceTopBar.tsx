@@ -39,7 +39,7 @@ export function AuthenticatedWorkspaceTopBar({
   const officePanel = isOfficePanelSurface(location.search);
   const officeMode = location.pathname === routes.app.office;
   const activationLocked = Boolean(selectedWorkspace && !selectedWorkspace.onboardingCompletedAt
-    && (selectedWorkspace.onboardingStep === 'profile_completion' || selectedWorkspace.onboardingStep === 'knowledge_base'));
+    && ['company_information', 'billing', 'profile_completion', 'knowledge_base'].includes(selectedWorkspace.onboardingStep));
 
   useEffect(() => {
     const controller = new AbortController();
@@ -54,7 +54,7 @@ export function AuthenticatedWorkspaceTopBar({
     window.sessionStorage.setItem(LAST_WORKSPACE_ROUTE_KEY, `${location.pathname}${location.search}${location.hash}`);
   }, [location.hash, location.pathname, location.search, officeMode, officePanel]);
 
-  if (!currentUser || !selectedWorkspace || officePanel) return null;
+  if (!currentUser || !selectedWorkspace || officePanel || activationLocked) return null;
 
   const backendTimestamp = backendPushedAt ? new Date(backendPushedAt).toLocaleString(undefined, {
     dateStyle: "medium",

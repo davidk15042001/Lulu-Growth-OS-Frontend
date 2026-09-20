@@ -124,9 +124,10 @@ export default function ProfilePage() {
   // still carries the authoritative membership role, so owners/admins must be
   // able to complete the profile without waiting for bootstrap permissions.
   const profileRole = selectedWorkspace?.role ?? permissions.role;
-  const canManageWorkspaceProfile = profileRole === 'owner' || profileRole === 'admin'
-    ? activationMode || permissions.status === 'ready'
-    : false;
+  const isOnboardingCreator = Boolean(activationMode && currentUser?.id && selectedWorkspace?.createdBy === currentUser.id);
+  const canManageWorkspaceProfile = activationMode
+    ? profileRole === 'owner' || profileRole === 'admin' || isOnboardingCreator
+    : (profileRole === 'owner' || profileRole === 'admin') && permissions.status === 'ready';
   const [profileGateActive, setProfileGateActive] = useState(activationMode);
   const requiredProfileMode = activationMode || profileGateActive;
 

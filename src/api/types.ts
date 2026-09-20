@@ -9,6 +9,7 @@ export type WorkspaceRole = "owner" | "admin" | "sales_manager" | "sales_user" |
 
 export type Workspace = {
   id: string;
+  createdBy: string;
   organizationId: string | null;
   factoryId: string | null;
   companyName: string;
