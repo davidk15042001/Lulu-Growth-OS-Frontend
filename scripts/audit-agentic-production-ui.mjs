@@ -120,8 +120,14 @@ if (!capabilityRegistry.includes('workspaceCapabilityRoutes') || !capabilityRegi
   failures.push('Navigation and future Office deep links do not share the typed capability registry.');
 }
 
-if (!profilePage.includes("(['companyName', 'industry'] as const)") || profilePage.includes('Complete every company, legal, contact and banking field')) {
-  failures.push('Profile activation is not limited to the minimum operating identity.');
+if (
+  !profilePage.includes('requiredActivationFields')
+  || !profilePage.includes("'companyLogo'")
+  || !profilePage.includes("'bankAccountNumber'")
+  || !profilePage.includes("'branch'")
+  || !profilePage.includes('Every required profile field must be valid and saved before Lulu can build the Knowledge Base.')
+) {
+  failures.push('Profile activation does not enforce the complete required profile gate.');
 }
 
 if (!appRouter.includes('path={routes.app.omnichannel}') || !appRouter.includes('path={routes.app.growth}') || !appRouter.includes('path={routes.app.finance}')) {
