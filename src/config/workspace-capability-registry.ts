@@ -71,7 +71,6 @@ const MANAGED_WEBSITE_NAVIGATION_PAGES: NavigationPage[] = [
   { id: "lulu-website-editor-9012", label: "Website" },
 ];
 
-const STATISTICS_PAGE_IDS = new Set(["cosmic-pool-1616", "deeply-noon-9539"]);
 const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"]);
 const LEGACY_CRM_COMPANIES_PAGE_ID = "kindly-pool-8785";
 const LABEL_OVERRIDES = new Map([
@@ -169,11 +168,7 @@ function createWorkspaceNavigationSections(): { all: NavigationSection[]; visibl
     .filter((section) => section.label !== "Revenue" && section.pages.length > 0);
 
   const crm = sections.find((section) => section.label === CRM_LABEL);
-  const statistics = sections.find((section) => section.label === STATISTICS_LABEL);
-  if (crm && statistics) {
-    statistics.pages = [...statistics.pages, ...crm.pages.filter((page) => STATISTICS_PAGE_IDS.has(page.id))];
-    crm.pages = crm.pages.filter((page) => !STATISTICS_PAGE_IDS.has(page.id) && page.id !== LEGACY_CRM_COMPANIES_PAGE_ID);
-  }
+  if (crm) crm.pages = crm.pages.filter((page) => page.id !== LEGACY_CRM_COMPANIES_PAGE_ID);
   if (crm) crm.pages = [...crm.pages, { id: CRM_PARTNERS_PAGE_ID, label: "Partnernetzwerk" }];
 
   const ai = sections.find((section) => section.label === AI_LABEL);
@@ -194,28 +189,21 @@ function createWorkspaceNavigationSections(): { all: NavigationSection[]; visibl
   }
 
   const finance = sections.find((section) => section.label === FINANCE_LABEL);
-  if (finance && statistics) {
-    // Finance is intentionally a single destination. Invoices and quotes are
-    // produced by Lulu's agents, so they are not exposed as manual nav items.
-    statistics.pages = [...statistics.pages, ...finance.pages.filter((page) => page.id !== "breezy-soil-2475" && page.id !== "tender-creek-3139")];
-    finance.pages = [{ id: "quietly-stone-4158", label: "Finance" }];
+  if (finance && !finance.pages.some((page) => page.id === "quietly-stone-4158")) {
+    finance.pages = [{ id: "quietly-stone-4158", label: "Finance" }, ...finance.pages];
   }
 
   const website = sections.find((section) => section.label === WEBSITE_AND_COMMERCE_LABEL);
   if (website) {
     website.pages = [
       ...MANAGED_WEBSITE_NAVIGATION_PAGES,
-      ...website.pages.filter((page) => page.id !== "lulu-website-portal-9012" && page.label !== "Overview"),
+      ...website.pages.filter((page) => page.id !== "lulu-website-portal-9012"),
     ];
   }
 
   const all = sections.filter((section) => section.pages.length > 0)
     .map((section) => ({ ...section, pages: section.pages.map((page) => ({ ...page })) }));
-  // Finance remains a valid internal destination for the Invoice and Quote
-  // employees, but its standalone navigation entry is intentionally hidden.
-  // Customers reach agent-managed documents from the Office or the dedicated
-  // document context links instead of an empty manual Finance landing page.
-  const visible = sections.filter((section) => section.pages.length > 0 && section.label !== STATISTICS_LABEL && section.label !== FINANCE_LABEL);
+  const visible = sections.filter((section) => section.pages.length > 0 && section.label !== STATISTICS_LABEL);
   const financeIndex = visible.findIndex((section) => section.label === FINANCE_LABEL);
   if (financeIndex >= 0) {
     const [financeSection] = visible.splice(financeIndex, 1);
@@ -253,26 +241,6 @@ const generatedWorkspaceCapabilityRoutes: WorkspaceCapabilityRoute[] = navigatio
 // corresponding Digital Employee panels. Keep them in the same route registry
 // so Office → employee → Workspace never degrades to a false unavailable state.
 const hiddenEmployeeWorkspaceRoutes: WorkspaceCapabilityRoute[] = [
-  {
-    pageId: "breezy-soil-2475",
-    pageLabel: "Invoices",
-    sectionLabel: FINANCE_LABEL,
-    capabilityKey: "finance.invoices",
-    href: pagePath("breezy-soil-2475"),
-    requiredPermissions: ["invoices.read"],
-    employee: { id: "finance.invoice_manager", name: "Invoice Manager", department: "Finance" },
-    recordQueryParam: "recordId",
-  },
-  {
-    pageId: "tender-creek-3139",
-    pageLabel: "Offers & Quotes",
-    sectionLabel: FINANCE_LABEL,
-    capabilityKey: "sales.quotes",
-    href: pagePath("tender-creek-3139"),
-    requiredPermissions: ["quotes.read"],
-    employee: { id: "sales.quote_specialist", name: "Quote Specialist", department: "Sales" },
-    recordQueryParam: "recordId",
-  },
   {
     pageId: "lulu-website-portal-9012",
     pageLabel: "Website",
