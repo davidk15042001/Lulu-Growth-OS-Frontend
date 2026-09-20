@@ -93,7 +93,7 @@ function constrainCropOffset(offset: CropOffset, width: number, height: number, 
 
 export default function ProfilePage() {
   const t = useTranslation();
-  const { currentUser, selectedWorkspace, permissions, updateWorkspace, refresh } = useLuluApp();
+  const { currentUser, selectedWorkspace, permissions, updateWorkspace } = useLuluApp();
   const [account, setAccount] = useState<AccountForm>({ firstName: currentUser?.firstName ?? '', lastName: currentUser?.lastName ?? '' });
   const [profile, setProfile] = useState<ProfileForm>(emptyProfile);
   const [loading, setLoading] = useState(false);
@@ -241,10 +241,19 @@ export default function ProfilePage() {
         return;
       }
       // Keep the shared workspace header in sync for the next navigation.
-      if (selectedWorkspace && response.data && typeof response.data === 'object') updateWorkspace({ ...selectedWorkspace, companyName: response.data.companyName, industry: response.data.industry, countryRegion: response.data.countryRegion, taxId: response.data.taxId, address: response.data.address, legalForm: response.data.legalForm });
+      if (selectedWorkspace && response.data && typeof response.data === 'object') updateWorkspace({
+        ...selectedWorkspace,
+        companyName: response.data.companyName,
+        industry: response.data.industry,
+        countryRegion: response.data.countryRegion,
+        taxId: response.data.taxId,
+        address: response.data.address,
+        legalForm: response.data.legalForm,
+        onboardingStep: response.data.onboardingStep,
+        profileCompletedAt: response.data.profileCompletedAt,
+      });
       setNotice(t('Company profile was updated.'));
       if (activationMode && response.data?.onboardingStep === 'knowledge_base') {
-        await refresh();
         navigateApp(routes.app.knowledgeBase, { replace: true });
       }
     } catch (cause) {
@@ -389,8 +398,10 @@ export default function ProfilePage() {
 
   if (!selectedWorkspace) return <WorkspaceSurfaceShell activeSlug="profile"><main className="page-frame p-8"><h1 className="text-2xl font-semibold">{t('Profile')}</h1><p className="mt-2 text-[var(--muted-foreground)]">{t('Choose a workspace to continue.')}</p></main></WorkspaceSurfaceShell>;
 
-  return <WorkspaceSurfaceShell activeSlug="profile" showNavigation={!activationMode}><main className="page-frame min-h-screen bg-[var(--background)] p-4 sm:p-8">{activationMode?<OnboardingHeader step={3} showBrandName={false}/>:null}<div className="mx-auto max-w-5xl space-y-6">
-    <header><p className="eyebrow">{activationMode ? '03 / 04 · Company profile' : t('Workspace settings')}</p><h1 className="text-3xl font-semibold tracking-tight">{t('Profile')}</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">{activationMode ? t('Confirm the minimum operating identity.') : requiredProfileMode ? t('Complete the required company and responsible-person profile.') : t('Manage your account and optional company details for this workspace.')}</p></header>
+  return <WorkspaceSurfaceShell activeSlug="profile" showNavigation={!activationMode}><main className={`profile-page page-frame ${activationMode ? 'profile-page--activation' : 'profile-page--settings'}`}>
+    {activationMode ? <div className="profile-page__onboarding-header"><OnboardingHeader step={3} showBrandName={false}/></div> : null}
+    <div className="profile-page__content mx-auto w-full max-w-5xl space-y-6">
+    <header className="profile-page__heading"><p className="eyebrow">{activationMode ? '03 / 04 · Company profile' : t('Workspace settings')}</p><h1 className="text-3xl font-semibold tracking-tight">{t('Profile')}</h1><p className="mt-2 max-w-2xl text-sm text-[var(--muted-foreground)]">{activationMode ? t('Confirm the minimum operating identity.') : requiredProfileMode ? t('Complete the required company and responsible-person profile.') : t('Manage your account and optional company details for this workspace.')}</p></header>
     {error ? <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error}</div> : null}
     {notice ? <div role="status" className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"><CheckCircle2 size={16}/>{notice}</div> : null}
     {activationMode?<section className="rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-5"><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Activation gate · 3 of 4</p><h2 className="mt-2 text-xl font-semibold">Confirm the operating identity.</h2><p className="mt-2 text-sm text-[var(--muted-foreground)]">Every required profile field must be valid and saved before Lulu can build the Knowledge Base.</p></section>:null}
@@ -402,7 +413,7 @@ export default function ProfilePage() {
       <div className="mt-7 border-t border-[var(--border)] pt-6"><div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><LockKeyhole size={18}/></div><div><h3 className="font-semibold">{t('Change password')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('For your security, all active sessions will be signed out after a successful change.')}</p></div></div><div className="mt-4 grid gap-4 sm:grid-cols-3"><PasswordInput label={t('Current password')} value={password.currentPassword} onChange={(value) => setPassword({ ...password, currentPassword: value })} visible={showCurrentPassword} onToggle={() => setShowCurrentPassword((value) => !value)} autoComplete="current-password"/><PasswordInput label={t('New password')} value={password.newPassword} onChange={(value) => setPassword({ ...password, newPassword: value })} visible={showNewPassword} onToggle={() => setShowNewPassword((value) => !value)} autoComplete="new-password"/><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Confirm new password')}</span><input type="password" value={password.confirmPassword} onChange={(event) => setPassword({ ...password, confirmPassword: event.target.value })} className={inputClass} autoComplete="new-password" /></label></div><p className={`mt-3 text-xs ${password.newPassword && !passwordRequirements ? 'text-amber-700' : 'text-[var(--muted-foreground)]'}`}>{t('At least 12 characters with upper case, lower case, a number and a special character.')}</p><div className="mt-4 flex justify-end"><button type="button" onClick={() => void changePassword()} disabled={changingPassword} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium disabled:opacity-50"><LockKeyhole size={15}/>{changingPassword ? t('Changing…') : t('Change password')}</button></div></div>
     </section> : null}
 
-    <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
+    <section className="profile-page__panel rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
       <div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><Building2 size={18}/></div><div><h2 className="text-lg font-semibold">{t('Company profile')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{canManageWorkspaceProfile ? (requiredProfileMode ? t('Complete the required company and responsible-person profile.') : t('Optional legal, contact and banking details support documents and business identity.')) : t('Only workspace owners and admins can view or edit company and banking details.')}</p></div></div>
       {!canManageWorkspaceProfile ? <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{t('Ask a workspace owner or admin to manage these details.')}</div> : <>
         {loading ? <div className="mt-6 rounded-xl bg-[var(--secondary)] p-8 text-center text-sm text-[var(--muted-foreground)]">{t('Loading profile…')}</div> : <>
