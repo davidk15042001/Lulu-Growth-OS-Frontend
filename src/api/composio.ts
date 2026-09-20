@@ -9,6 +9,18 @@ export type ComposioToolkit = {
   connected: boolean;
   connectionStatus: string | null;
   connectedAccountId: string | null;
+  customerAvailable?: boolean;
+};
+
+export type AdminComposioToolkit = {
+  slug: string;
+  name: string;
+  isNoAuth: boolean;
+  logo?: string;
+  customerAvailable: boolean;
+  certificationStatus: string;
+  publishedAt: string | null;
+  customerRestricted: boolean;
 };
 
 export type ComposioTool = {
@@ -47,5 +59,23 @@ export const composioApi = {
     path: workspaceApiPath(workspaceId, "/composio/authorize"),
     method: "POST",
     body: { toolkit },
+  }),
+  adminCatalog: (options: { search?: string; cursor?: string | null } = {}) => {
+    const params = new URLSearchParams();
+    if (options.search?.trim()) params.set("search", options.search.trim());
+    if (options.cursor) params.set("cursor", options.cursor);
+    const query = params.toString() ? `?${params.toString()}` : "";
+    return requestApi<{ items: AdminComposioToolkit[]; nextCursor: string | null; totalPages: number }>({
+      path: `/admin/composio/catalog${query}`,
+    });
+  },
+  setAdminAvailability: (toolkit: AdminComposioToolkit, customerAvailable: boolean) => requestApi<AdminComposioToolkit>({
+    path: `/admin/composio/catalog/${encodeURIComponent(toolkit.slug)}`,
+    method: "PUT",
+    body: {
+      displayName: toolkit.name,
+      logoUrl: toolkit.logo ?? null,
+      customerAvailable,
+    },
   }),
 };

@@ -8,6 +8,7 @@ import { routes } from "../../routing";
 import SupportInbox from '../support/SupportPage';
 import AdminOmniChannelPage from '../admin-omnichannel/AdminOmniChannelPage';
 import AdminCommercialDocumentsPage from '../admin-commercial/AdminCommercialDocumentsPage';
+import { AdminComposioCatalog } from '../../components/AdminComposioCatalog';
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
   Plug, KeyRound, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
@@ -1882,9 +1883,11 @@ function IntegrationsPage({ onError }: { onError: (m: string) => void }) {
   };
   useEffect(() => { void load(); }, []);
   return (
-    <DataTable<IntegrationRow>
-      loading={loading} rows={rows}
-      columns={[
+    <div className="space-y-4">
+      <AdminComposioCatalog />
+      <DataTable<IntegrationRow>
+        loading={loading} rows={rows}
+        columns={[
         { key: "workspaceName", label: "Workspace", render: (r) => r.workspaceName ?? "—" },
         { key: "provider", label: "Provider", render: (r) => <div className="font-medium capitalize">{r.provider}</div> },
         { key: "status", label: "Status", render: (r) => <Pill tone={toneFromStatus(r.status)}>{r.status}</Pill> },
@@ -1894,8 +1897,9 @@ function IntegrationsPage({ onError }: { onError: (m: string) => void }) {
         { key: "syncCount", label: "Syncs", render: (r) => r.syncCount },
         { key: "expiresAt", label: "Expires", render: (r) => dateOnly(r.expiresAt) },
         { key: "lastError", label: "Last Error", render: (r) => r.lastError ? <Pill tone="rose">Error</Pill> : "—" },
-      ]}
-    />
+        ]}
+      />
+    </div>
   );
 }
 
