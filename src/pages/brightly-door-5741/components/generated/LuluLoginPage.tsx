@@ -199,7 +199,7 @@ export const LuluLoginPage = () => {
         )}
       </div>
       <style>{loginStyles}</style>
-      <div className="auth-login-stage grid min-h-screen xl:grid-cols-[minmax(430px,520px)_minmax(0,1fr)]">
+      <div className="auth-login-stage grid min-h-screen lg:grid-cols-[minmax(430px,520px)_minmax(0,1fr)]">
         <section className="relative flex items-center justify-center border-r border-slate-200/80 bg-white px-6 py-10 sm:px-8 lg:px-12">
           <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(79,70,229,.035)_1px,transparent_1px),linear-gradient(90deg,rgba(79,70,229,.035)_1px,transparent_1px)] bg-[size:42px_42px] [mask-image:linear-gradient(to_bottom,black,transparent_88%)]" aria-hidden="true" />
 
@@ -287,7 +287,7 @@ export const LuluLoginPage = () => {
           </div>
         </section>
 
-        <aside className="relative hidden overflow-hidden bg-[#070914] text-white xl:flex xl:flex-col xl:justify-center">
+        <aside className="relative hidden overflow-hidden bg-[#070914] text-white lg:flex lg:flex-col lg:justify-center">
           <div className="pointer-events-none absolute inset-0" aria-hidden="true">
             <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.055)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.055)_1px,transparent_1px)] bg-[size:52px_52px]" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(34,211,238,.16),transparent_42%),linear-gradient(135deg,rgba(99,102,241,.16),transparent_48%)]" />

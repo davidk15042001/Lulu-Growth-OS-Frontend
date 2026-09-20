@@ -53,7 +53,7 @@ body:has(.auth-shell) {
   outline-offset: 2px;
 }
 
-@media (max-width: 1023px) {
+@media (max-width: 899px) {
   .auth-shell {
     display: block !important;
     height: auto !important;
@@ -105,7 +105,7 @@ body:has(.auth-shell) {
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 900px) {
   .auth-shell {
     height: auto !important;
     min-height: 100vh;
