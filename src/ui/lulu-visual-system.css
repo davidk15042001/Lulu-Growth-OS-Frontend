@@ -47,15 +47,69 @@
   color: var(--foreground);
 }
 
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content {
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   min-height: calc(100vh - 66px);
   padding: 0;
+  overflow-x: clip;
   background: transparent !important;
   color-scheme: light;
 }
 
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > * {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
 /* Generated screens previously reserved space for their own sidebars. The
    product shell now owns navigation, so those layout offsets must not survive. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.app-shell, .lulu-shell, .actions-shell, .rr-shell, .store-shell) {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: auto !important;
+  min-height: calc(100vh - 66px);
+  overflow: visible !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > aside,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.app-shell, .lulu-shell, .actions-shell, .rr-shell, .store-shell) > :is(aside, .sidebar, .lulu-sidebar, .actions-sidebar, .activity-sidebar, .rr-sidebar, .rail),
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page aside.lulu-sidebar,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page aside.sidebar,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page aside.actions-sidebar,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page aside.activity-sidebar,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page aside.rail,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page aside[class*="fixed"]:not([class*="right-0"]) {
+  display: none !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.main, .content, .lulu-main, .actions-main, .rr-main, .actions-content),
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page main[class*="lg:ml-"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page main[class*="md:ml-"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="lg:ml-"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="md:ml-"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="ml-[220px]"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="ml-[232px]"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="ml-[238px]"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="ml-[244px]"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="ml-[246px]"],
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="ml-[260px]"] {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  margin-left: 0 !important;
+}
+
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > div[class*="min-h-screen"] > [class*="lg:ml-"],
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > div[class*="min-h-screen"] > [class*="md:ml-"],
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > div[class*="min-h-screen"][class*="lg:ml-"],
@@ -604,6 +658,17 @@
     radial-gradient(circle at 16% 5%, rgba(139, 92, 246, .13), transparent 28rem),
     radial-gradient(circle at 92% 8%, rgba(19, 183, 233, .12), transparent 34rem),
     linear-gradient(180deg, #f8f9ff 0%, #f3f5fc 100%);
+}
+
+.lulu-global-shell--without-navigation:not(.lulu-global-shell--navigation-free) {
+  --lulu-workspace-navigation-width: 0px;
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+.lulu-global-shell--without-navigation:not(.lulu-global-shell--navigation-free) .lulu-global-content {
+  grid-column: 1 / -1 !important;
+  width: 100%;
+  max-width: 100%;
 }
 
 .lulu-global-shell:not(.lulu-global-shell--navigation-free)::before {
