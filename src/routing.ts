@@ -144,6 +144,15 @@ const REMOVED_PAGE_SLUGS = new Set([
   "brave-stream-5322",
   "boldly-field-4971",
   "website-settings-9019",
+  // Retired third-party website surfaces. Website ownership is now handled by
+  // Lulu's managed website editor; keeping these slugs available would leave
+  // stale navigation entries and can break the agent registry at startup.
+  "website-wordpress-jetpack-9013",
+  "website-webflow-9014",
+  "website-pages-cms-9015",
+  "website-posts-9016",
+  "website-media-assets-9017",
+  "website-domains-9018",
   LEGACY_ADVERTISING_AUDIENCES_SLUG,
   "swift-hour-7844",
   "calmly-cloud-9988",

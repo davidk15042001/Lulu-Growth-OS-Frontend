@@ -19,6 +19,17 @@ type CropOffset = { x: number; y: number };
 
 const cropViewportSize = 320;
 
+function resolveMediaUrl(value: string | null | undefined) {
+  const url = String(value ?? '').trim();
+  if (!url) return null;
+  if (/^(blob:|data:|https?:\/\/)/i.test(url)) return url;
+  try {
+    return new URL(url, window.location.origin).toString();
+  } catch {
+    return url;
+  }
+}
+
 const emptyProfile: ProfileForm = {
   companyName: '', industry: '', countryRegion: '', taxId: '', address: '', legalForm: '',
   legalRepresentative: '', phoneNumber: '', bankAccountNumber: '', bankOpeningBank: '', bankBranch: '', bankCode: '',
@@ -71,6 +82,8 @@ export default function ProfilePage() {
   const [pendingLogo, setPendingLogo] = useState<PendingLogo | null>(null);
   const [cropZoom, setCropZoom] = useState(1);
   const [cropOffset, setCropOffset] = useState<CropOffset>({ x: 0, y: 0 });
+  const [cropImageLoaded, setCropImageLoaded] = useState(false);
+  const [logoLoadError, setLogoLoadError] = useState(false);
   const cropImageRef = useRef<HTMLImageElement | null>(null);
   const cropDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
 
@@ -102,8 +115,9 @@ export default function ProfilePage() {
         // profile if a rolling deployment returns an incomplete envelope.
         if (response.data && typeof response.data === 'object') {
           setProfile(profileToForm(response.data));
-          setLogoUrl(response.data.logoUrl ?? null);
+          setLogoUrl(resolveMediaUrl(response.data.logoUrl));
           setLogoFileName(response.data.logoFileName ?? null);
+          setLogoLoadError(false);
         }
         else if (selectedWorkspace) setProfile(workspaceToProfileForm(selectedWorkspace));
       })
@@ -217,7 +231,7 @@ export default function ProfilePage() {
     setLogoUploading(true); setError(''); setNotice('');
     try {
       const response = await workspaceProfileApi.uploadLogo(workspaceId, file);
-      setLogoUrl(response.data.logoUrl); setLogoFileName(response.data.logoFileName);
+      setLogoUrl(resolveMediaUrl(response.data.logoUrl)); setLogoFileName(response.data.logoFileName); setLogoLoadError(false);
       setNotice(t('Company logo was uploaded and will appear on new invoices and quotes.'));
       return true;
     } catch (cause) {
@@ -242,6 +256,7 @@ export default function ProfilePage() {
       setPendingLogo({ file, url, width: image.naturalWidth, height: image.naturalHeight, baseScale });
       setCropZoom(1);
       setCropOffset({ x: 0, y: 0 });
+      setCropImageLoaded(false);
       setError(''); setNotice('');
     };
     image.onerror = () => {
@@ -261,7 +276,7 @@ export default function ProfilePage() {
     cropDragRef.current = null;
   };
   const confirmCropAndUpload = async () => {
-    if (!pendingLogo || !cropImageRef.current || logoUploading) return;
+    if (!pendingLogo || !cropImageRef.current || !cropImageLoaded || logoUploading) return;
     const image = cropImageRef.current;
     const imageLeft = (cropViewportSize - pendingLogo.width * cropScale) / 2 + cropOffset.x;
     const imageTop = (cropViewportSize - pendingLogo.height * cropScale) / 2 + cropOffset.y;
@@ -331,7 +346,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="mt-4 flex min-h-24 items-center gap-4 rounded-xl border border-dashed border-[var(--border)] bg-[var(--secondary)]/40 p-4">
-              {logoUrl ? <img src={logoUrl} alt={profile.companyName ? `${profile.companyName} logo` : t('Company logo')} className="max-h-20 max-w-48 rounded-lg bg-white object-contain p-2 shadow-sm" /> : <div className="grid h-20 w-32 place-items-center rounded-lg bg-white text-xs text-[var(--muted-foreground)]">{t('No logo uploaded')}</div>}
+              {logoUrl && !logoLoadError ? <img src={logoUrl} alt={profile.companyName ? `${profile.companyName} logo` : t('Company logo')} onError={() => setLogoLoadError(true)} className="max-h-20 max-w-48 rounded-lg bg-white object-contain p-2 shadow-sm" /> : <div className="grid h-20 w-32 place-items-center rounded-lg bg-white px-2 text-center text-xs text-[var(--muted-foreground)]">{logoUrl ? t('Logo preview unavailable') : t('No logo uploaded')}</div>}
               <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('PNG, JPEG or WebP')}</p><p className="mt-1">{t('Maximum 5 MB')}</p></div>
             </div>
           </div>
@@ -343,12 +358,14 @@ export default function ProfilePage() {
     {pendingLogo ? <div className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain bg-slate-950/70 p-3 sm:grid sm:place-items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="company-logo-crop-title">
       <div className="mx-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-white/10 bg-[var(--card)] shadow-2xl sm:max-h-[calc(100dvh-2rem)]">
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--border)] p-5 sm:p-6"><div><p className="eyebrow">{t('Company logo')}</p><h2 id="company-logo-crop-title" className="mt-1 text-xl font-semibold">{t('Adjust company logo')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Drag to position and use the slider to zoom.')}</p></div><button type="button" onClick={() => setPendingLogo(null)} disabled={logoUploading} className="shrink-0 rounded-xl border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-50">{t('Cancel')}</button></header>
-        <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6"><div className="mx-auto w-fit max-w-full overflow-hidden rounded-2xl bg-slate-950 p-2 shadow-inner"><div className="relative overflow-hidden rounded-xl bg-slate-900" style={{ width: cropViewportSize, height: cropViewportSize, touchAction: 'none' }} onPointerDown={(event) => { if (!logoUploading) { event.currentTarget.setPointerCapture(event.pointerId); cropDragRef.current = { startX: event.clientX, startY: event.clientY, originX: cropOffset.x, originY: cropOffset.y }; } }} onPointerMove={moveCrop} onPointerUp={endCropDrag} onPointerCancel={endCropDrag}>
-          <img ref={cropImageRef} src={pendingLogo.url} alt={t('Company logo')} draggable={false} className="pointer-events-none absolute max-w-none select-none" style={{ width: pendingLogo.width * cropScale, height: pendingLogo.height * cropScale, left: '50%', top: '50%', transform: `translate(-50%, -50%) translate(${cropOffset.x}px, ${cropOffset.y}px)` }} />
+        <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6"><div className="mx-auto w-fit max-w-full overflow-hidden rounded-2xl bg-slate-950 p-2 shadow-inner"><div className="relative overflow-hidden rounded-xl bg-[conic-gradient(#263248_25%,#111827_0_50%,#263248_0_75%,#111827_0)] bg-[length:24px_24px] cursor-grab active:cursor-grabbing" style={{ width: cropViewportSize, height: cropViewportSize, touchAction: 'none' }} onDoubleClick={() => { setCropZoom(1); setCropOffset({ x: 0, y: 0 }); }} onPointerDown={(event) => { if (!logoUploading) { event.currentTarget.setPointerCapture(event.pointerId); cropDragRef.current = { startX: event.clientX, startY: event.clientY, originX: cropOffset.x, originY: cropOffset.y }; } }} onPointerMove={moveCrop} onPointerUp={endCropDrag} onPointerCancel={endCropDrag}>
+          <img ref={cropImageRef} src={pendingLogo.url} alt={t('Company logo')} onLoad={() => setCropImageLoaded(true)} onError={() => { setCropImageLoaded(false); setError(t('The logo image could not be loaded.')); }} draggable={false} className="pointer-events-none absolute max-w-none select-none" style={{ width: pendingLogo.width * cropScale, height: pendingLogo.height * cropScale, left: '50%', top: '50%', transform: `translate(-50%, -50%) translate(${cropOffset.x}px, ${cropOffset.y}px)` }} />
           <div className="pointer-events-none absolute inset-0 rounded-xl ring-2 ring-inset ring-white/90" />
+          <div className="pointer-events-none absolute inset-0 opacity-35"><span className="absolute left-1/3 top-0 h-full border-l border-white/70" /><span className="absolute left-2/3 top-0 h-full border-l border-white/70" /><span className="absolute left-0 top-1/3 w-full border-t border-white/70" /><span className="absolute left-0 top-2/3 w-full border-t border-white/70" /></div>
+          {!cropImageLoaded ? <div className="pointer-events-none absolute inset-0 grid place-items-center bg-slate-950/45 px-6 text-center text-xs font-medium text-white">{t('Preparing image…')}</div> : null}
         </div></div>
-        <label className="mt-6 block text-sm font-medium">{t('Zoom')}<input type="range" min="1" max="3" step="0.01" value={cropZoom} onChange={(event) => { const nextZoom = Number(event.target.value); setCropZoom(nextZoom); if (pendingLogo) setCropOffset((current) => constrainCropOffset(current, pendingLogo.width, pendingLogo.height, pendingLogo.baseScale * nextZoom)); }} className="mt-3 w-full accent-indigo-600" /></label></div>
-        <footer className="flex shrink-0 justify-end gap-3 border-t border-[var(--border)] p-5 sm:p-6"><button type="button" onClick={() => setPendingLogo(null)} disabled={logoUploading} className="rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium disabled:opacity-50">{t('Cancel')}</button><button type="button" onClick={() => void confirmCropAndUpload()} disabled={logoUploading} className="rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-50">{logoUploading ? t('Uploading…') : t('Crop and upload')}</button></footer>
+        <div className="mx-auto mt-5 flex max-w-md items-center justify-between gap-3"><button type="button" onClick={() => { const nextZoom = Math.max(1, Number((cropZoom - 0.1).toFixed(2))); setCropZoom(nextZoom); if (pendingLogo) setCropOffset((current) => constrainCropOffset(current, pendingLogo.width, pendingLogo.height, pendingLogo.baseScale * nextZoom)); }} disabled={logoUploading || cropZoom <= 1} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-40" aria-label={t('Zoom out')}>−</button><label className="min-w-0 flex-1 text-sm font-medium">{t('Zoom')}<input type="range" min="1" max="4" step="0.01" value={cropZoom} onChange={(event) => { const nextZoom = Number(event.target.value); setCropZoom(nextZoom); if (pendingLogo) setCropOffset((current) => constrainCropOffset(current, pendingLogo.width, pendingLogo.height, pendingLogo.baseScale * nextZoom)); }} className="mt-3 w-full accent-indigo-600" aria-label={t('Zoom')} /></label><button type="button" onClick={() => { const nextZoom = Math.min(4, Number((cropZoom + 0.1).toFixed(2))); setCropZoom(nextZoom); if (pendingLogo) setCropOffset((current) => constrainCropOffset(current, pendingLogo.width, pendingLogo.height, pendingLogo.baseScale * nextZoom)); }} disabled={logoUploading || cropZoom >= 4} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-40" aria-label={t('Zoom in')}>+</button></div><button type="button" onClick={() => { setCropZoom(1); setCropOffset({ x: 0, y: 0 }); }} disabled={logoUploading} className="mx-auto mt-3 block text-xs font-medium text-[var(--muted-foreground)] underline underline-offset-4 disabled:opacity-50">{t('Reset position')}</button><p className="mt-3 text-center text-xs text-[var(--muted-foreground)]">{t('Drag the image to position it. Double-click to reset.')}</p></div>
+        <footer className="flex shrink-0 justify-end gap-3 border-t border-[var(--border)] p-5 sm:p-6"><button type="button" onClick={() => setPendingLogo(null)} disabled={logoUploading} className="rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium disabled:opacity-50">{t('Cancel')}</button><button type="button" onClick={() => void confirmCropAndUpload()} disabled={logoUploading || !cropImageLoaded} className="rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-50">{logoUploading ? t('Uploading…') : t('Crop and upload')}</button></footer>
       </div>
     </div> : null}
   </div></main></WorkspaceSurfaceShell>;

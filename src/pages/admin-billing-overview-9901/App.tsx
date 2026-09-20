@@ -19,7 +19,7 @@ import {
 type NavSection = { label: string; items: NavItem[] };
 type NavItem = { key: PageKey; label: string; icon: React.ReactElement; badge?: string };
 type PageKey =
-  | "dashboard" | "users" | "workspaces" | "crm" | "billing" | "invoices" | "websites"
+  | "dashboard" | "customers" | "users" | "workspaces" | "crm" | "billing" | "invoices" | "websites"
   | "agents" | "integrations" | "oauth-connections" | "approvals" | "conversations" | "files"
   | "support" | "errors" | "audit" | "jobs" | "settings";
 
@@ -33,8 +33,7 @@ const NAV: NavSection[] = [
   {
     label: "Customers",
     items: [
-      { key: "users", label: "Users", icon: <Users size={16} /> },
-      { key: "workspaces", label: "Workspaces / Companies", icon: <Building2 size={16} /> },
+      { key: "customers", label: "Users & Companies", icon: <Users size={16} /> },
       { key: "crm", label: "CRM Records", icon: <Contact2 size={16} /> },
     ],
   },
@@ -479,6 +478,7 @@ export default function App() {
   const capabilities = currentUser?.adminCapabilities ?? [];
   const required: Record<PageKey,string[]> = {
     dashboard:['users.read','workspaces.read','billing.read','providers.read','agents.read','security.read'],
+    customers:['users.read','workspaces.read'],
     users:['users.read'], workspaces:['workspaces.read'], billing:['billing.read'], invoices:['billing.read'], crm:['workspaces.read'],
     websites:['providers.read'], agents:['agents.read'], integrations:['providers.read'], approvals:['agents.read'],
     'oauth-connections':['providers.read'],
@@ -488,7 +488,8 @@ export default function App() {
   const visibleNav = NAV.map(section => ({...section,items:section.items.filter(item => required[item.key].every(capability => capabilities.includes(capability)))})).filter(section => section.items.length);
   const [selectedPage, setPage] = useState<PageKey>(() => {
     const requested = new URLSearchParams(window.location.search).get('page');
-    return requested && NAV.some((section) => section.items.some((item) => item.key === requested)) ? requested as PageKey : 'dashboard';
+    const normalized = requested === 'users' || requested === 'workspaces' ? 'customers' : requested;
+    return normalized && NAV.some((section) => section.items.some((item) => item.key === normalized)) ? normalized as PageKey : 'dashboard';
   });
   const page = required[selectedPage].every(capability => capabilities.includes(capability)) ? selectedPage : visibleNav[0]?.items[0]?.key;
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -578,6 +579,7 @@ export default function App() {
             {page === "dashboard" ? <DashboardPage onError={setError} /> : null}
             {page === "billing" ? <BillingPage onError={setError} /> : null}
             {page === "invoices" ? <AdminCommercialDocumentsPage kind="invoices" embedded /> : null}
+            {page === "customers" ? <CustomersPage onError={setError} /> : null}
             {page === "users" ? <UsersPage onError={setError} /> : null}
             {page === "workspaces" ? <WorkspacesPage onError={setError} /> : null}
             {page === "crm" ? <CrmPage onError={setError} /> : null}
@@ -850,6 +852,47 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
           ]}
         />
       </section>
+    </div>
+  );
+}
+
+function CustomersPage({ onError }: { onError: (m: string) => void }) {
+  const [view, setView] = useState<"users" | "companies">(() => {
+    const requested = new URLSearchParams(window.location.search).get("page");
+    return requested === "workspaces" ? "companies" : "users";
+  });
+
+  return (
+    <div className="space-y-5">
+      <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="text-lg font-semibold text-slate-900">Users & Companies</div>
+            <p className="mt-1 text-sm text-slate-500">Manage customer accounts and their company workspaces in one place.</p>
+          </div>
+          <div className="inline-flex rounded-lg border border-slate-200 bg-slate-50 p-1" role="tablist" aria-label="Customer directory">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={view === "users"}
+              onClick={() => setView("users")}
+              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition ${view === "users" ? "bg-white text-indigo-700 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}
+            >
+              <Users size={15} /> Users
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={view === "companies"}
+              onClick={() => setView("companies")}
+              className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition ${view === "companies" ? "bg-white text-indigo-700 shadow-sm" : "text-slate-600 hover:text-slate-900"}`}
+            >
+              <Building2 size={15} /> Companies
+            </button>
+          </div>
+        </div>
+      </section>
+      {view === "users" ? <UsersPage onError={onError} /> : <WorkspacesPage onError={onError} />}
     </div>
   );
 }

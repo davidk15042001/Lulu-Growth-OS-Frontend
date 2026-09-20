@@ -591,7 +591,7 @@ export function KnowledgeBaseWorkspace() {
               <Sparkles className="mx-auto text-muted-foreground" size={32} />
               <h3 className="mt-4 text-lg font-semibold text-foreground">No AI business profile generated yet</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, the top 20 customer segments, and the full comparison against the top 10 competitors.
+                Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, the top 10 audience segments, and the full comparison against the top 10 competitors.
               </p>
             </div>
           )}
@@ -767,7 +767,7 @@ export function KnowledgeBaseWorkspace() {
                   className={actionClass}
                 >
                   <Sparkles size={15} />
-                  Apply Top 20 AI Segments
+                  Apply Top 10 AI Segments
                 </button>
               ) : null}
               <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom())} className={actionClass}><Plus size={15} />New</button>
@@ -779,10 +779,10 @@ export function KnowledgeBaseWorkspace() {
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0">
-                      <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">AI Top 20</p>
+                      <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">AI Top 10</p>
                       <h3 className="mt-1 text-sm font-semibold text-foreground">Best-ranked customer segments for this workspace</h3>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        These 20 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 20 at once.
+                        These top 10 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 10 at once.
                       </p>
                     </div>
                     <div className="rounded-full border border-primary/20 bg-background/80 px-3 py-1 text-xs text-foreground">

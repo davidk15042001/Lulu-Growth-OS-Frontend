@@ -257,7 +257,14 @@ const baseNavigationSections = (luluDropdownNavigation as unknown as readonly { 
   .map((section) => ({
     ...section,
     label: section.label === DASHBOARD_LABEL ? STATISTICS_LABEL : section.label,
-    pages: [...section.pages].filter((page) => isPageAvailable(page.id) && !GOOGLE_BUSINESS_PAGE_IDS.has(page.id)),
+    pages: [...section.pages].filter(
+      (page) =>
+        isPageAvailable(page.id) &&
+        !GOOGLE_BUSINESS_PAGE_IDS.has(page.id) &&
+        // A stale/generated navigation entry must not be able to white-screen
+        // the whole app when its employee contract was retired separately.
+        Boolean(registryDetails[page.id]),
+    ),
   }))
   .filter((section) => section.pages.length > 0);
 
