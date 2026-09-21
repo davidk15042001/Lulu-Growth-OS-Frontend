@@ -246,9 +246,11 @@ export function OfficeCommandCenter() {
   const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
   const recognitionRef = useRef<SpeechRecognizer | null>(null);
   const voiceBaseInputRef = useRef("");
+  const voiceTranscriptRef = useRef("");
   const dictationStoppedByUserRef = useRef(false);
   const [coreState, setCoreState] = useState<CoreState>("idle");
   const [input, setInput] = useState("");
+  const [voiceTranscript, setVoiceTranscript] = useState("");
   const [referenceUrl, setReferenceUrl] = useState("");
   const [showReferenceUrl, setShowReferenceUrl] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
@@ -279,7 +281,10 @@ export function OfficeCommandCenter() {
     void loadConversations();
   }, [loadConversations]);
 
-  useEffect(() => () => recognitionRef.current?.stop(), []);
+  useEffect(() => () => {
+    dictationStoppedByUserRef.current = true;
+    recognitionRef.current?.stop();
+  }, []);
 
   const selectConversation = async (conversationId: string) => {
     if (!workspaceId || processing) return;
@@ -303,6 +308,11 @@ export function OfficeCommandCenter() {
 
   const startNewIntent = () => {
     if (processing) return;
+    if (recognitionRef.current) {
+      dictationStoppedByUserRef.current = true;
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
     setHistoryOpen(false);
     setActiveConversationId(null);
     setMessages([]);
@@ -312,6 +322,8 @@ export function OfficeCommandCenter() {
     setShowReferenceUrl(false);
     setPendingFiles([]);
     setError("");
+    voiceTranscriptRef.current = "";
+    setVoiceTranscript("");
     setCoreState("idle");
     requestAnimationFrame(() => composerInputRef.current?.focus());
   };
@@ -336,14 +348,25 @@ export function OfficeCommandCenter() {
     recognition.lang = navigator.language || "en-US";
     dictationStoppedByUserRef.current = false;
     voiceBaseInputRef.current = input.trim();
+    voiceTranscriptRef.current = "";
+    setVoiceTranscript("");
     setError("");
     recognition.onresult = (event) => {
-      const transcript = Array.from(event.results)
+      const results = Array.from(event.results);
+      const finalTranscript = results
         .filter((result) => result[0]?.isFinal)
         .map((result) => result[0]?.transcript ?? "")
         .join(" ")
         .trim();
-      if (transcript) setInput(`${voiceBaseInputRef.current}${voiceBaseInputRef.current ? " " : ""}${transcript}`.trim());
+      const interimTranscript = results
+        .filter((result) => !result[0]?.isFinal)
+        .map((result) => result[0]?.transcript ?? "")
+        .join(" ")
+        .trim();
+      const transcript = [finalTranscript, interimTranscript].filter(Boolean).join(" ").trim();
+      voiceTranscriptRef.current = transcript;
+      setVoiceTranscript(transcript);
+      if (finalTranscript) setInput(`${voiceBaseInputRef.current}${voiceBaseInputRef.current ? " " : ""}${finalTranscript}`.trim());
     };
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       if (dictationStoppedByUserRef.current || event.error === "aborted") return;
@@ -360,8 +383,18 @@ export function OfficeCommandCenter() {
       setCoreState(event.error === "no-speech" ? "idle" : "attention");
     };
     recognition.onend = () => {
+      const transcript = voiceTranscriptRef.current.trim();
+      if (transcript) {
+        setInput((current) => {
+          const base = voiceBaseInputRef.current.trim();
+          const next = [base, transcript].filter(Boolean).join(" ");
+          return current.trim() === next ? current : next;
+        });
+      }
       recognitionRef.current = null;
       dictationStoppedByUserRef.current = false;
+      voiceTranscriptRef.current = "";
+      setVoiceTranscript("");
       setCoreState((current) => current === "listening" ? "idle" : current);
     };
     recognitionRef.current = recognition;
@@ -370,6 +403,8 @@ export function OfficeCommandCenter() {
       recognition.start();
     } catch {
       recognitionRef.current = null;
+      voiceTranscriptRef.current = "";
+      setVoiceTranscript("");
       setError(t("Voice dictation could not start. Try again or type your request."));
       setCoreState("attention");
     }
@@ -509,6 +544,7 @@ export function OfficeCommandCenter() {
     <footer className="lulu-office-command__composer-shell"><form className="lulu-office-command__composer" onSubmit={(event) => { event.preventDefault(); void send(); }}>
       {showReferenceUrl && <label className="lulu-office-command__reference-input"><Link aria-hidden="true" size={15} /><input autoFocus type="url" value={referenceUrl} onChange={(event) => setReferenceUrl(event.target.value)} placeholder={t("https:// reference for this conversation")} /><button type="button" aria-label={t("Remove reference link")} onClick={() => { setReferenceUrl(""); setShowReferenceUrl(false); }}><X aria-hidden="true" size={15} /></button></label>}
       {pendingFiles.length > 0 && <div className="lulu-office-command__pending-files">{pendingFiles.map((file) => <span key={`${file.name}-${file.lastModified}`}><FileText aria-hidden="true" size={13} />{file.name}<button type="button" aria-label={`${t("Remove")} ${file.name}`} onClick={() => setPendingFiles((current) => current.filter((item) => item !== file))}><X aria-hidden="true" size={13} /></button></span>)}</div>}
+      {coreState === "listening" && <div className="lulu-office-command__voice-panel" role="status" aria-live="polite"><div className="lulu-office-command__voice-panel-main"><span className="lulu-office-command__voice-badge"><Mic aria-hidden="true" size={15} /></span><div className="lulu-office-command__voice-panel-copy"><strong>{t("Listening")}</strong><span>{voiceTranscript || t("Listening")}</span></div><button type="button" className="lulu-office-command__voice-stop" aria-label={t("Stop voice dictation")} title={t("Stop voice dictation")} onClick={beginListening}><Square aria-hidden="true" size={13} />{t("Stop voice dictation")}</button></div><div className="lulu-office-command__voice-wave" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <span key={index} style={{ animationDelay: `${index * 55}ms` }} />)}</div></div>}
       <div className="lulu-office-command__composer-main"><input ref={fileInputRef} className="sr-only" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.txt,.md,.png,.jpg,.jpeg,.webp" onChange={(event) => { const files = Array.from(event.target.files ?? []); setPendingFiles((current) => [...current, ...files]); event.target.value = ""; }} /><div className="lulu-office-command__composer-tools"><button type="button" aria-label={t("Attach files to Company Brain")} title={t("Attach files to Company Brain")} onClick={() => fileInputRef.current?.click()} disabled={processing}><Paperclip aria-hidden="true" size={17} /></button><button type="button" aria-label={t("Attach image or screenshot")} title={t("Attach image or screenshot")} onClick={() => fileInputRef.current?.click()} disabled={processing}><Image aria-hidden="true" size={17} /></button><button type="button" className={showReferenceUrl ? "is-active" : ""} aria-label={t("Attach reference link")} title={t("Attach reference link")} onClick={() => setShowReferenceUrl((current) => !current)} disabled={processing}><Link aria-hidden="true" size={17} /></button></div><textarea ref={composerInputRef} value={input} rows={1} disabled={processing} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void send(); } }} placeholder={t("Describe the outcome you want Lulu to create, investigate or operate.")} /><div className="lulu-office-command__composer-tools lulu-office-command__composer-tools--end"><button type="button" className={coreState === "listening" ? "is-listening" : ""} aria-label={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} title={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} onClick={beginListening} disabled={processing}>{coreState === "listening" ? <Square aria-hidden="true" size={14} /> : <Mic aria-hidden="true" size={17} />}</button><button type="submit" className="lulu-office-command__send" disabled={processing || (!input.trim() && pendingFiles.length === 0 && !referenceUrl.trim())} aria-label={t("Send intent")}>{processing ? <LoaderCircle aria-hidden="true" size={17} className="lulu-office-spin" /> : <Send aria-hidden="true" size={17} />}</button></div></div>
       <div className="lulu-office-command__composer-status"><span><ShieldCheck aria-hidden="true" size={13} />{t("Workspace-scoped context and governed actions")}</span><span><Clock3 aria-hidden="true" size={13} />{t("Enter to send, Shift+Enter for a new line")}</span></div>
     </form></footer>

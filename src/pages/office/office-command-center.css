@@ -226,6 +226,18 @@
 .lulu-office-command__pending-files { display: flex; flex-wrap: wrap; gap: 5px; border-bottom: 1px solid #2c3353; padding: 7px 9px; }
 .lulu-office-command__pending-files span { display: inline-flex; max-width: 100%; align-items: center; gap: 5px; border: 1px solid #3d6a59; border-radius: 4px; padding: 4px 5px; color: #cce5da; font-size: .66rem; overflow-wrap: anywhere; }
 .lulu-office-command__pending-files button { display: grid; width: 15px; height: 15px; place-items: center; border: 0; background: transparent; color: var(--command-muted); cursor: pointer; }
+.lulu-office-command__voice-panel { display: grid; gap: 8px; border-bottom: 1px solid #2c3353; padding: 9px 11px 10px; background: #151a31; }
+.lulu-office-command__voice-panel-main { display: flex; min-width: 0; align-items: center; gap: 9px; }
+.lulu-office-command__voice-badge { display: grid; width: 30px; height: 30px; flex: 0 0 auto; place-items: center; border: 1px solid #00cfe8; border-radius: 50%; background: #143647; color: #b4f4f7; animation: lulu-office-voice-pulse 1.8s ease-in-out infinite; }
+.lulu-office-command__voice-panel-copy { display: grid; min-width: 0; flex: 1; gap: 2px; }
+.lulu-office-command__voice-panel-copy strong { color: #ecfffb; font-size: .72rem; font-weight: 700; }
+.lulu-office-command__voice-panel-copy span { overflow: hidden; color: #9fc4bc; font-size: .68rem; text-overflow: ellipsis; white-space: nowrap; }
+.lulu-office-command__voice-stop { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; border: 1px solid #4a5985; border-radius: 5px; padding: 6px 8px; background: #1a2140; color: #d8e8ff; cursor: pointer; font: inherit; font-size: .66rem; }
+.lulu-office-command__voice-stop:hover { border-color: #00cfe8; background: #203452; color: #f1ffff; }
+.lulu-office-command__voice-wave { display: flex; height: 15px; align-items: center; gap: 3px; padding-left: 39px; overflow: hidden; }
+.lulu-office-command__voice-wave span { width: 3px; height: 5px; border-radius: 2px; background: #61dce8; animation: lulu-office-voice-wave 850ms ease-in-out infinite alternate; }
+.lulu-office-command__voice-wave span:nth-child(3n) { height: 11px; }
+.lulu-office-command__voice-wave span:nth-child(4n) { height: 15px; }
 .lulu-office-command__composer-main { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 7px; padding: 9px; }
 .lulu-office-command__composer-tools { display: flex; align-items: center; gap: 2px; }
 .lulu-office-command__composer-tools button { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid transparent; border-radius: 5px; background: transparent; color: var(--command-muted); cursor: pointer; }
@@ -240,6 +252,8 @@
 .lulu-office-command__composer-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px 12px; border-top: 1px solid #2c3353; padding: 6px 9px; color: var(--command-muted); font-size: .61rem; }
 .lulu-office-command__composer-status span { display: inline-flex; align-items: center; gap: 5px; }
 .lulu-office-command__composer-status svg { color: #7779ea; }
+@keyframes lulu-office-voice-pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 207, 232, .18); } 50% { box-shadow: 0 0 0 6px rgba(0, 207, 232, 0); } }
+@keyframes lulu-office-voice-wave { from { transform: scaleY(.45); opacity: .55; } to { transform: scaleY(1); opacity: 1; } }
 
 @media (max-width: 720px) {
   .lulu-office-command { grid-template-rows: 52px minmax(0, 1fr); }
@@ -270,10 +284,15 @@
   .lulu-office-command__composer-tools button { width: 29px; height: 31px; }
   .lulu-office-command__composer-main { gap: 3px; padding: 7px; }
   .lulu-office-command__composer textarea { font-size: .79rem; }
+  .lulu-office-command__voice-stop { padding: 6px; }
+  .lulu-office-command__voice-stop svg { display: none; }
+  .lulu-office-command__voice-wave { padding-left: 39px; }
   .lulu-office-command__error { bottom: 165px; width: calc(100vw - 20px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .lulu-office-command__core-ring { animation: none !important; }
+  .lulu-office-command__voice-badge,
+  .lulu-office-command__voice-wave span { animation: none !important; }
   .lulu-office-command__history { transition: none; }
 }
