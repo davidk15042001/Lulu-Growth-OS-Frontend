@@ -225,7 +225,6 @@ function OfficeSettingsMenu({ workspaceName }: { workspaceName: string }) {
       </div>
       <div className="lulu-office-command__settings-links">
         <button type="button" onClick={() => navigateTo(pagePath("profile"))}><UserRound aria-hidden="true" size={15} />{t("Workspace settings")}</button>
-        <button type="button" onClick={() => navigateTo(pagePath("glad-coast-1428"))}><Link aria-hidden="true" size={15} />{t("Integrations")}</button>
         <button type="button" onClick={() => navigateTo(routes.app.funds)}><ShieldCheck aria-hidden="true" size={15} />{t("Billing")}</button>
       </div>
       <div className="lulu-office-command__settings-divider" />

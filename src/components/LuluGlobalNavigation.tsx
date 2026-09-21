@@ -24,9 +24,12 @@ import {
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
 const DISPLAY_STATUSES = new Set(["queued", "planning", "generated", "preview", "publishing", "failed", "cancelled"]);
-// This route remains a valid internal destination, but the user asked to keep
-// the legacy assistant landing page out of the Workspace navigation.
-const HIDDEN_WORKSPACE_NAVIGATION_PAGE_IDS = new Set(["fresh-moon-5374"]);
+// These routes remain valid internal destinations, but do not belong in the
+// customer-facing Workspace navigation.
+const HIDDEN_WORKSPACE_NAVIGATION_PAGE_IDS = new Set([
+  "fresh-moon-5374",
+  "glad-coast-1428",
+]);
 type StoredWebsiteGeneration = { workspaceId: string; siteId: string; provider: "managed"; job: WebsiteGenerationJob };
 
 function isBlockingWebsiteJob(job: Pick<WebsiteGenerationJob, "status" | "autoPublish">) {
