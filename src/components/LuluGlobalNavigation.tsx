@@ -24,6 +24,9 @@ import {
 const WEBSITE_GENERATION_STORAGE_KEY = "lulu.website.active-generation";
 const RUNNING_STATUSES = new Set(["queued", "planning", "publishing"]);
 const DISPLAY_STATUSES = new Set(["queued", "planning", "generated", "preview", "publishing", "failed", "cancelled"]);
+// This route remains a valid internal destination, but the user asked to keep
+// the legacy assistant landing page out of the Workspace navigation.
+const HIDDEN_WORKSPACE_NAVIGATION_PAGE_IDS = new Set(["fresh-moon-5374"]);
 type StoredWebsiteGeneration = { workspaceId: string; siteId: string; provider: "managed"; job: WebsiteGenerationJob };
 
 function isBlockingWebsiteJob(job: Pick<WebsiteGenerationJob, "status" | "autoPublish">) {
@@ -71,6 +74,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
     .map((section) => ({
       ...section,
       pages: section.pages.filter((page) => {
+        if (HIDDEN_WORKSPACE_NAVIGATION_PAGE_IDS.has(page.id)) return false;
         if (!isPageAvailable(page.id) && page.id !== activeSlug) return false;
         if (activationPageId) return page.id === activationPageId;
         // During a rolling deploy or a workspace switch, retain only the current
