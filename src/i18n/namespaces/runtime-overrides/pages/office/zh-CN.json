@@ -320,5 +320,11 @@
   "Lulu is checking your company context and selecting verified tools.": "Lulu 正在检查您的公司上下文，并选择经过验证的工具。",
   "Lulu is preparing work across your connected systems.": "Lulu 正在跨已连接系统准备工作。",
   "Ready for your next instruction": "准备接收您的下一项指令",
-  "The outcome and its evidence are now available in this conversation.": "结果及其证据现已在此对话中提供。"
+  "The outcome and its evidence are now available in this conversation.": "结果及其证据现已在此对话中提供。",
+  "Open workspace": "打开工作区",
+  "Microphone access is blocked. Allow microphone access for this site and try again.": "麦克风访问已被阻止。请允许此网站访问麦克风后重试。",
+  "No microphone was detected. Connect one and try again.": "未检测到麦克风。请连接麦克风后重试。",
+  "No speech was detected. Try again or type your request.": "未检测到语音。请重试或直接输入你的请求。",
+  "Voice dictation could not reach the speech service. Check your connection and try again.": "语音输入无法连接到语音识别服务。请检查网络连接后重试。",
+  "Voice dictation could not start. Try again or type your request.": "语音输入无法启动。请重试或直接输入你的请求。"
 }

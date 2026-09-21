@@ -50,6 +50,7 @@ type CommandMessage = {
   attachments?: Attachment[];
 };
 type SpeechResultEvent = Event & { results: ArrayLike<ArrayLike<{ transcript: string }>> };
+type SpeechRecognitionErrorEvent = Event & { error?: string };
 type SpeechRecognizer = {
   continuous: boolean;
   interimResults: boolean;
@@ -57,7 +58,7 @@ type SpeechRecognizer = {
   start: () => void;
   stop: () => void;
   onresult: ((event: SpeechResultEvent) => void) | null;
-  onerror: ((event: Event) => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
   onend: (() => void) | null;
 };
 type SpeechRecognizerConstructor = new () => SpeechRecognizer;
@@ -243,6 +244,7 @@ export function OfficeCommandCenter() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
   const recognitionRef = useRef<SpeechRecognizer | null>(null);
+  const dictationStoppedByUserRef = useRef(false);
   const [coreState, setCoreState] = useState<CoreState>("idle");
   const [mode, setMode] = useState<ComposeMode>("Chat");
   const [input, setInput] = useState("");
@@ -316,6 +318,7 @@ export function OfficeCommandCenter() {
   const beginListening = () => {
     if (processing) return;
     if (recognitionRef.current) {
+      dictationStoppedByUserRef.current = true;
       recognitionRef.current.stop();
       return;
     }
@@ -330,21 +333,40 @@ export function OfficeCommandCenter() {
     recognition.continuous = false;
     recognition.interimResults = false;
     recognition.lang = navigator.language || "en-US";
+    dictationStoppedByUserRef.current = false;
+    setError("");
     recognition.onresult = (event) => {
       const transcript = Array.from(event.results).map((result) => result[0]?.transcript ?? "").join(" ").trim();
       if (transcript) setInput((current) => `${current}${current ? " " : ""}${transcript}`);
     };
-    recognition.onerror = () => {
-      setError(t("Voice dictation ended before Lulu received a transcript."));
-      setCoreState("attention");
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
+      if (dictationStoppedByUserRef.current || event.error === "aborted") return;
+      const message = event.error === "not-allowed" || event.error === "service-not-allowed"
+        ? "Microphone access is blocked. Allow microphone access for this site and try again."
+        : event.error === "audio-capture"
+          ? "No microphone was detected. Connect one and try again."
+          : event.error === "no-speech"
+            ? "No speech was detected. Try again or type your request."
+            : event.error === "network"
+              ? "Voice dictation could not reach the speech service. Check your connection and try again."
+              : "Voice dictation could not start. Try again or type your request.";
+      setError(t(message));
+      setCoreState(event.error === "no-speech" ? "idle" : "attention");
     };
     recognition.onend = () => {
       recognitionRef.current = null;
+      dictationStoppedByUserRef.current = false;
       setCoreState((current) => current === "listening" ? "idle" : current);
     };
     recognitionRef.current = recognition;
     setCoreState("listening");
-    recognition.start();
+    try {
+      recognition.start();
+    } catch {
+      recognitionRef.current = null;
+      setError(t("Voice dictation could not start. Try again or type your request."));
+      setCoreState("attention");
+    }
   };
 
   const uploadFiles = async (): Promise<Attachment[]> => {
