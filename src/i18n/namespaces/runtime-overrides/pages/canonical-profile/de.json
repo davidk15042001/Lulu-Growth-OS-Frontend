@@ -181,5 +181,6 @@
   "Required · max 60 characters": "Erforderlich · maximal 60 Zeichen",
   "Optional · max 60 characters": "Optional · maximal 60 Zeichen",
   "Required · country-specific bank code format": "Erforderlich · länderspezifisches Bankcodeformat",
-  "Optional · country-specific bank code format": "Optional · länderspezifisches Bankcodeformat"
+  "Optional · country-specific bank code format": "Optional · länderspezifisches Bankcodeformat",
+  "Business classification": "Unternehmenskategorie"
 }

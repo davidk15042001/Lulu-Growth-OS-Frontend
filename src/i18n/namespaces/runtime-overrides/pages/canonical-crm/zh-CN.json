@@ -115,5 +115,12 @@
   "loading": "加载中",
   "ready": "就绪",
   "stale": "数据已过期",
-  "Unternehmensdaten sind nicht verfügbar.": "公司数据不可用。"
+  "Unternehmensdaten sind nicht verfügbar.": "公司数据不可用。",
+  "Datenabdeckung": "数据覆盖范围",
+  "über alle Profile": "覆盖所有资料",
+  "Live-Recherche": "实时研究",
+  "Stand nicht verifiziert": "状态尚未验证",
+  "läuft autonom": "正在自主运行",
+  "alles verarbeitet": "全部已处理",
+  "im Customer Graph": "在客户图谱中"
 }

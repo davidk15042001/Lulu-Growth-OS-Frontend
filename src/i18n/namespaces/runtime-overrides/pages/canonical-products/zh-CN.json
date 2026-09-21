@@ -70,5 +70,8 @@
   "Refresh to verify the current workspace state.": "请刷新以验证当前工作区状态。",
   "refreshing": "正在刷新",
   "stale": "数据已过期",
+  "Total products": "产品总数",
+  "Active": "已激活",
+  "Ready to publish": "准备发布",
   "Zuletzt erfolgreich geladene Produktdaten werden angezeigt. {{0}}": "正在显示上次成功加载的产品数据。{{0}}"
 }

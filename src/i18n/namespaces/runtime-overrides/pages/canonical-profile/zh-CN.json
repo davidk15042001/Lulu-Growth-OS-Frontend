@@ -181,5 +181,6 @@
   "Required · max 60 characters": "必填 · 最多 60 个字符",
   "Optional · max 60 characters": "可选 · 最多 60 个字符",
   "Required · country-specific bank code format": "必填 · 使用国家或地区对应的银行代码格式",
-  "Optional · country-specific bank code format": "可选 · 使用国家或地区对应的银行代码格式"
+  "Optional · country-specific bank code format": "可选 · 使用国家或地区对应的银行代码格式",
+  "Business classification": "企业分类"
 }

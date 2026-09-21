@@ -291,6 +291,17 @@ function pageNamespacesForPortalSection(pathname: string, search: string) {
   return [] as string[];
 }
 
+const canonicalWorkspaceNamespacesByPath: Record<string, string> = {
+  [routes.app.crmCompanies]: "canonical-crm",
+  [routes.app.products]: "canonical-products",
+  [routes.app.orders]: "canonical-commerce",
+  [routes.app.inventory]: "canonical-commerce",
+  [routes.app.omnichannel]: "canonical-omnichannel",
+  [routes.app.finance]: "canonical-finance",
+  [routes.app.growth]: "canonical-growth",
+  [routes.app.profile]: "canonical-profile",
+};
+
 function requiredNamespaces(pathname: string, search: string): TranslationNamespace[] {
   // Page namespaces are intentionally small, but application chrome, shared
   // registries and API-fed labels can appear on every route. Load the complete
@@ -301,6 +312,8 @@ function requiredNamespaces(pathname: string, search: string): TranslationNamesp
   const usesWorkspaceShell = pathname.startsWith("/app/") || pathname === routes.onboarding.billing || pathname === routes.onboarding.billings;
   if (usesWorkspaceShell) namespaces.add("workspace-shell");
   if (slug) namespaces.add(`page:${slug}`);
+  const canonicalNamespace = canonicalWorkspaceNamespacesByPath[pathname];
+  if (canonicalNamespace) namespaces.add(`page:${canonicalNamespace}`);
   for (const pageSlug of pageNamespacesForPortalSection(pathname, search)) {
     namespaces.add(`page:${pageSlug}`);
   }
