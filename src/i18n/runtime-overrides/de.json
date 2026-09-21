@@ -6329,6 +6329,7 @@
   "Voice dictation could not reach the speech service. Check your connection and try again.": "Die Spracheingabe konnte den Spracherkennungsdienst nicht erreichen. Pruefe deine Verbindung und versuche es erneut.",
   "Voice dictation could not start. Try again or type your request.": "Die Spracheingabe konnte nicht gestartet werden. Versuche es erneut oder tippe deine Anfrage ein.",
   "Voice dictation could not continue. Check your connection and try again.": "Die Spracheingabe konnte nicht fortgesetzt werden. Pruefe deine Verbindung und versuche es erneut.",
+  "Voice input lost its connection after several retries. Check microphone permission or use Chrome or Edge.": "Die Spracheingabe konnte nach mehreren Versuchen keine Verbindung halten. Pruefe die Mikrofonfreigabe oder nutze Chrome bzw. Edge.",
   "Voice conversation is not available in this browser. Try Chrome or Edge.": "Die Sprachunterhaltung ist in diesem Browser nicht verfuegbar. Versuche es mit Chrome oder Edge.",
   "Open workspace": "Arbeitsbereich oeffnen",
   "Lulu could not complete this request. No unverified action was assumed.": "Lulu konnte diese Anfrage nicht abschliessen. Es wurde keine unbestaetigte Aktion angenommen.",

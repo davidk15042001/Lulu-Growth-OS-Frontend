@@ -6306,6 +6306,7 @@
   "Voice dictation could not reach the speech service. Check your connection and try again.": "语音输入无法连接到语音识别服务。请检查网络连接后重试。",
   "Voice dictation could not start. Try again or type your request.": "语音输入无法启动。请重试或直接输入你的请求。",
   "Voice dictation could not continue. Check your connection and try again.": "语音输入无法继续。请检查网络连接后重试。",
+  "Voice input lost its connection after several retries. Check microphone permission or use Chrome or Edge.": "语音输入多次重试后仍无法保持连接。请检查麦克风权限，或使用 Chrome / Edge。",
   "Voice conversation is not available in this browser. Try Chrome or Edge.": "此浏览器不支持语音对话。请尝试使用 Chrome 或 Edge。",
   "Open workspace": "打开工作区",
   "Lulu could not complete this request. No unverified action was assumed.": "Lulu 无法完成此请求。未假定执行任何未经验证的行动。",

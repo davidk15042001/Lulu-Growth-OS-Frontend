@@ -259,6 +259,8 @@ export function OfficeCommandCenter() {
   const voiceStopRequestedRef = useRef(false);
   const voiceRestartTimerRef = useRef<number | null>(null);
   const voiceFinalizedRef = useRef(false);
+  const voiceNetworkRetryRef = useRef(0);
+  const voiceRetryPendingRef = useRef(false);
   const [coreState, setCoreState] = useState<CoreState>("idle");
   const [input, setInput] = useState("");
   const [voiceTranscript, setVoiceTranscript] = useState("");
@@ -301,6 +303,9 @@ export function OfficeCommandCenter() {
     voiceRecognitionRef.current?.stop();
     window.speechSynthesis?.cancel();
     if (voiceRestartTimerRef.current !== null) window.clearTimeout(voiceRestartTimerRef.current);
+    voiceRestartTimerRef.current = null;
+    voiceNetworkRetryRef.current = 0;
+    voiceRetryPendingRef.current = false;
   }, []);
 
   useEffect(() => {
@@ -449,6 +454,8 @@ export function OfficeCommandCenter() {
     window.speechSynthesis?.cancel();
     if (voiceRestartTimerRef.current !== null) window.clearTimeout(voiceRestartTimerRef.current);
     voiceRestartTimerRef.current = null;
+    voiceNetworkRetryRef.current = 0;
+    voiceRetryPendingRef.current = false;
     voiceTranscriptRef.current = "";
     setVoiceTranscript("");
     setVoiceMode("off");
@@ -487,6 +494,7 @@ export function OfficeCommandCenter() {
         .join(" ")
         .trim();
       const transcript = finalTranscript || interimTranscript;
+      if (transcript) voiceNetworkRetryRef.current = 0;
       voiceTranscriptRef.current = transcript;
       setVoiceTranscript(transcript);
       if (finalTranscript && !voiceFinalizedRef.current) {
@@ -501,6 +509,16 @@ export function OfficeCommandCenter() {
         setError(t("Microphone access is blocked. Allow microphone access for this site and try again."));
         stopVoiceConversation();
         setCoreState("attention");
+      } else if (event.error === "network") {
+        if (voiceNetworkRetryRef.current < 3) {
+          voiceNetworkRetryRef.current += 1;
+          voiceRetryPendingRef.current = true;
+          recognition.stop();
+          return;
+        }
+        setError(t("Voice input lost its connection after several retries. Check microphone permission or use Chrome or Edge."));
+        stopVoiceConversation();
+        setCoreState("attention");
       } else if (event.error !== "no-speech") {
         setError(t("Voice dictation could not continue. Check your connection and try again."));
         stopVoiceConversation();
@@ -510,10 +528,12 @@ export function OfficeCommandCenter() {
     recognition.onend = () => {
       if (voiceRecognitionRef.current === recognition) voiceRecognitionRef.current = null;
       if (voiceSessionRef.current && !voiceProcessingRef.current && !voiceSpeakingRef.current && !voiceStopRequestedRef.current) {
+        const retryDelay = voiceRetryPendingRef.current ? Math.min(1800, 320 * 2 ** Math.max(0, voiceNetworkRetryRef.current - 1)) : 180;
+        voiceRetryPendingRef.current = false;
         voiceRestartTimerRef.current = window.setTimeout(() => {
           voiceRestartTimerRef.current = null;
           startVoiceRecognition();
-        }, 180);
+        }, retryDelay);
       }
     };
     voiceRecognitionRef.current = recognition;
@@ -539,6 +559,8 @@ export function OfficeCommandCenter() {
     voiceStopRequestedRef.current = false;
     voiceProcessingRef.current = false;
     voiceSpeakingRef.current = false;
+    voiceNetworkRetryRef.current = 0;
+    voiceRetryPendingRef.current = false;
     setError("");
     setVoiceMode("listening");
     startVoiceRecognition();
