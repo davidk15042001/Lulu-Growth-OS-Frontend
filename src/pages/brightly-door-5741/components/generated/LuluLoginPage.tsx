@@ -1,9 +1,8 @@
-import { useState } from 'react';
-import { Activity, ArrowRight, BarChart3, BriefcaseBusiness, Check, ChevronDown, Eye, EyeOff, Globe2, LoaderCircle, Network, ShieldCheck, Sparkles, Target, UsersRound } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Activity, ArrowRight, BarChart3, BriefcaseBusiness, Check, Eye, EyeOff, LoaderCircle, Network, ShieldCheck, Sparkles, Target, UsersRound } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
 import { switchLanguage, useLanguage, useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
-import { getLanguage, isAvailableLanguageCode, languages } from '../../../../i18n/languages';
 import { Button } from '../../../../components/ui/button';
 import { Input } from '../../../../components/ui/input';
 import { Label } from '../../../../components/ui/label';
@@ -94,8 +93,7 @@ const governancePillars = [
 export const LuluLoginPage = () => {
   const t = useTranslation();
   const language = useLanguage();
-  const [langOpen, setLangOpen] = useState(false);
-  const currentLanguage = getLanguage(language);
+  const isLandingLanguage = language === 'en' || language === 'zh-CN';
   const [e, setE] = useState('');
   const [p, setP] = useState('');
   const [s, setS] = useState(false);
@@ -106,6 +104,10 @@ export const LuluLoginPage = () => {
   const [statusMessage, setStatusMessage] = useState('');
   const [adminMfaRequired, setAdminMfaRequired] = useState(false);
   const [adminMfaCode, setAdminMfaCode] = useState('');
+
+  useEffect(() => {
+    if (!isLandingLanguage) switchLanguage('en');
+  }, [isLandingLanguage]);
 
   const reloadAuthenticatedRoute = (path: string) => {
     // The provider owns the authenticated session state. A full document
@@ -201,8 +203,10 @@ export const LuluLoginPage = () => {
     }
   };
 
+  if (!isLandingLanguage) return <main className="auth-shell lulu-executive-landing" aria-busy="true" />;
+
   return (
-    <main data-deploy-rev="2026-09-21-executive-os-landing" className="auth-shell lulu-executive-landing">
+    <main data-deploy-rev="2026-09-21-executive-os-language-switch" className="auth-shell lulu-executive-landing">
       <header className="lulu-exec-nav">
         <a href="#top" className="lulu-exec-brand" aria-label="Lulu home" data-lulu-no-translate="true" translate="no">
           <img src="/branding/lulu-agentic-mark.svg" alt="" />
@@ -214,22 +218,9 @@ export const LuluLoginPage = () => {
           <a href="#governance">{t('Governance')}</a>
         </nav>
         <div className="lulu-exec-nav-actions">
-          <div className="lulu-exec-language-wrap" data-lulu-no-translate="true" translate="no">
-            <button type="button" onClick={() => setLangOpen((v) => !v)} aria-haspopup="menu" aria-expanded={langOpen} className="lulu-exec-language">
-              <Globe2 size={14} />
-              <span>{currentLanguage.shortCode}</span>
-              <ChevronDown size={13} className={langOpen ? 'rotate-180' : ''} />
-            </button>
-            {langOpen && (
-              <div role="menu" className="lulu-exec-language-menu">
-                {languages.filter((option) => isAvailableLanguageCode(option.code)).map((option) => (
-                  <button key={option.code} type="button" role="menuitemradio" aria-checked={option.code === language} onClick={() => { switchLanguage(option.code); setLangOpen(false); }}>
-                    <span>{option.nativeName}</span>
-                    {option.code === language && <Check size={14} />}
-                  </button>
-                ))}
-              </div>
-            )}
+          <div className="lulu-exec-language-switch" data-lulu-no-translate="true" translate="no">
+            <button type="button" onClick={() => switchLanguage('en')} aria-pressed={language === 'en'} className={language === 'en' ? 'is-active' : ''}>EN</button>
+            <button type="button" onClick={() => switchLanguage('zh-CN')} aria-pressed={language === 'zh-CN'} className={language === 'zh-CN' ? 'is-active' : ''}>中文</button>
           </div>
           <button type="button" onClick={scrollToAccess} className="lulu-exec-nav-login">{t('Enter Lulu')}</button>
         </div>
