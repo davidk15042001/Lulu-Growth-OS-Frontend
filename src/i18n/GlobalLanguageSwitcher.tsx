@@ -349,13 +349,13 @@ async function loadNamespace(language: LanguageCode, namespace: TranslationNames
   const cached = loadedNamespaceTables[language]?.[namespace];
   if (cached) return cached;
   const localeUrl = namespaceAssetUrl(localeStaticNamespaceAssetUrls, pageLocaleAssetUrls, language, namespace);
-  if (!localeUrl) return {};
   const cacheKey = `${language}:${namespace}`;
   const existingLoad = loadingNamespaceTables.get(cacheKey);
   if (existingLoad) return existingLoad;
   const runtimeOverrideUrl = namespaceAssetUrl(runtimeOverrideStaticNamespaceAssetUrls, pageRuntimeOverrideAssetUrls, language, namespace);
+  if (!localeUrl && !runtimeOverrideUrl) return {};
   const loadPromise = Promise.all([
-    loadJsonTable(localeUrl),
+    localeUrl ? loadJsonTable(localeUrl) : Promise.resolve({}),
     runtimeOverrideUrl
       ? loadJsonTable(runtimeOverrideUrl)
       : Promise.resolve({}),
