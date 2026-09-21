@@ -1,5 +1,5 @@
 import { Theme } from './settings/types';
-import { LuluAIAssistant } from './components/generated/LuluAIAssistant';
+import { AiNativeWorkspace } from '../../components/AiNativeWorkspace';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +15,7 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluAIAssistant />; // %EXPORT_STATEMENT%
+  return <AiNativeWorkspace />; // %EXPORT_STATEMENT%
 }
 
 export default App;
