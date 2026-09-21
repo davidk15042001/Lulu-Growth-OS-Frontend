@@ -8,7 +8,6 @@ import "./index.css";
 import "./ui/auth-responsive.css";
 import "./ui/lulu-visual-system.css";
 import "./ui/executive-workspace.css";
-import "./ui/ai-native-workspace.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

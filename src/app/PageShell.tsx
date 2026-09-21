@@ -5,7 +5,7 @@ import { useLuluApp } from "../api/LuluAppContext";
 import { AuthenticatedWorkspaceTopBar } from "../components/AuthenticatedWorkspaceTopBar";
 import { subscribeWorkspaceRefresh } from "../components/workspace-refresh-events";
 import { useLocation } from "react-router-dom";
-import { HOME_PAGE_SLUG, isOfficePanelSurface } from "../routing";
+import { isOfficePanelSurface } from "../routing";
 
 export function PageFrame({
   page,
@@ -17,7 +17,6 @@ export function PageFrame({
   const { selectedWorkspace } = useLuluApp();
   const location = useLocation();
   const officePanel = isOfficePanelSurface(location.search);
-  const aiNativeWorkspace = page.slug === HOME_PAGE_SLUG && !isStandalone && !officePanel;
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [mobileNavigationOpen, setMobileNavigationOpen] = useState(false);
   const navigationTriggerRef = useRef<HTMLElement | null>(null);
@@ -126,7 +125,7 @@ export function PageFrame({
           navigationOpen={mobileNavigationOpen}
           onToggleNavigation={toggleMobileNavigation}
           onCloseNavigation={closeMobileNavigation}
-          showNavigationToggle={!aiNativeWorkspace}
+          showNavigationToggle
         />
       )}
       <main
