@@ -409,13 +409,17 @@ export function useTranslation() {
 export async function switchLanguage(next: LanguageCode) {
   const request = ++languageSwitchRequest;
   try {
+    // Persist before loading the catalog so a route change or reload during
+    // the fetch cannot silently restore the previous language.
+    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
+    document.cookie = `${LANGUAGE_STORAGE_KEY}=${encodeURIComponent(next)}; Max-Age=31536000; Path=/; SameSite=Lax`;
+  } catch { /* Browser storage may be unavailable. */ }
+  try {
     // Keep the current language intact until every table needed by the visible
     // route is ready. This prevents a partial English/German/Chinese render
     // while a newly selected catalog is still downloading.
     await ensureNamespaces(next, requiredNamespaces(window.location.pathname, window.location.search));
     if (request !== languageSwitchRequest) return;
-    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, next);
-    document.cookie = `${LANGUAGE_STORAGE_KEY}=${encodeURIComponent(next)}; Max-Age=31536000; Path=/; SameSite=Lax`;
     window.dispatchEvent(new CustomEvent(LANGUAGE_EVENT, { detail: { language: next } }));
     window.dispatchEvent(new Event(LANGUAGE_LOADED_EVENT));
   } catch (error) {

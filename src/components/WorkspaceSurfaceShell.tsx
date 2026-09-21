@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 import { LuluGlobalNavigation } from "./LuluGlobalNavigation";
 import { AuthenticatedWorkspaceTopBar } from "./AuthenticatedWorkspaceTopBar";
 import { isOfficePanelSurface } from "../routing";
+import { GlobalLanguageSwitcher } from "../i18n/GlobalLanguageSwitcher";
 
 /**
  * Shared chrome for the canonical pages that are mounted directly from App.tsx.
@@ -119,6 +120,7 @@ export function WorkspaceSurfaceShell({
 
   return (
     <>
+      <GlobalLanguageSwitcher showButton={false} />
       <AuthenticatedWorkspaceTopBar
         navigationOpen={mobileOpen}
         onToggleNavigation={toggleNavigation}
