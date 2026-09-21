@@ -28,6 +28,7 @@ const DISPLAY_STATUSES = new Set(["queued", "planning", "generated", "preview", 
 // customer-facing Workspace navigation.
 const HIDDEN_WORKSPACE_NAVIGATION_PAGE_IDS = new Set([
   "fresh-moon-5374",
+  "fresh-tide-9404",
   "glad-coast-1428",
 ]);
 type StoredWebsiteGeneration = { workspaceId: string; siteId: string; provider: "managed"; job: WebsiteGenerationJob };
