@@ -450,15 +450,19 @@ details[open] > :not(summary) {
   position: absolute;
   z-index: 10;
   top: 0;
-  left: 50%;
+  right: 0;
+  left: 0;
   display: flex;
   width: min(1440px, 100%);
   min-height: 80px;
   align-items: center;
   justify-content: space-between;
   padding: 0 5vw;
+  margin: 0 auto;
+  border-bottom: 1px solid rgba(255,255,255,.14);
+  background: rgba(4,11,15,.74);
   color: #f6fbf9;
-  transform: translateX(-50%);
+  transform: none !important;
 }
 
 .lulu-exec-brand,
