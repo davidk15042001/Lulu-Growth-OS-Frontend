@@ -219,9 +219,6 @@
 
 .lulu-office-command__composer-shell { position: fixed; z-index: 50; right: 50%; bottom: max(18px, env(safe-area-inset-bottom)); width: min(880px, calc(100vw - 32px)); margin: 0; transform: translateX(50%); }
 .lulu-office-command__composer { border: 1px solid #414a74; border-radius: 8px; background: #111426; box-shadow: 0 20px 46px rgba(0, 0, 0, .38); }
-.lulu-office-command__composer-modes { display: flex; gap: 3px; border-bottom: 1px solid #2c3353; padding: 6px 7px; }
-.lulu-office-command__composer-modes button { min-height: 25px; border: 1px solid transparent; border-radius: 3px; background: transparent; color: var(--command-muted); padding: 0 8px; cursor: pointer; font-size: .64rem; font-weight: 700; }
-.lulu-office-command__composer-modes button.is-active { border-color: #6257c5; background: #251d4b; color: #d9d1ff; }
 .lulu-office-command__reference-input { display: flex; align-items: center; gap: 7px; border-bottom: 1px solid #2c3353; padding: 7px 10px; color: #73dcea; }
 .lulu-office-command__reference-input input { min-width: 0; flex: 1; border: 0; background: transparent; color: #e2f8f0; outline: 0; font: inherit; font-size: .74rem; }
 .lulu-office-command__reference-input input::placeholder { color: #75988b; }

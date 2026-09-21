@@ -38,7 +38,6 @@ import { navigateApp, pagePath, routes } from "../../routing";
 import "./office-command-center.css";
 
 type CoreState = "idle" | "listening" | "thinking" | "working" | "completed" | "needs-confirmation" | "attention";
-type ComposeMode = "Chat" | "Analysis" | "Action" | "Automation";
 type Attachment = { id: string; name: string; resourceType: string; uploadedAt: string };
 type CommandMessage = {
   id: string;
@@ -62,8 +61,6 @@ type SpeechRecognizer = {
   onend: (() => void) | null;
 };
 type SpeechRecognizerConstructor = new () => SpeechRecognizer;
-
-const modes: ComposeMode[] = ["Chat", "Analysis", "Action", "Automation"];
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
@@ -246,7 +243,6 @@ export function OfficeCommandCenter() {
   const recognitionRef = useRef<SpeechRecognizer | null>(null);
   const dictationStoppedByUserRef = useRef(false);
   const [coreState, setCoreState] = useState<CoreState>("idle");
-  const [mode, setMode] = useState<ComposeMode>("Chat");
   const [input, setInput] = useState("");
   const [referenceUrl, setReferenceUrl] = useState("");
   const [showReferenceUrl, setShowReferenceUrl] = useState(false);
@@ -397,7 +393,6 @@ export function OfficeCommandCenter() {
     try {
       const attachments = pendingFiles.length ? await uploadFiles() : [];
       const promptSections = [visibleContent];
-      if (mode !== "Chat") promptSections.unshift(`${t("Operating mode")}: ${mode}.`);
       if (attachments.length) promptSections.push(`${t("Imported workspace knowledge for this request")}: ${attachments.map((attachment) => attachment.name).join(", ")}.`);
       if (cleanReferenceUrl) promptSections.push(`${t("Reference link supplied by the user")}: ${cleanReferenceUrl}`);
       const content = promptSections.join("\n\n");
@@ -416,7 +411,6 @@ export function OfficeCommandCenter() {
 
       const response = await aiApi.respond(workspaceId, conversationId, content, {
         origin: "office_command_center",
-        mode,
         attachments,
         referenceUrl: cleanReferenceUrl || undefined,
       });
@@ -503,7 +497,6 @@ export function OfficeCommandCenter() {
     {error && <div className="lulu-office-command__error" role="alert"><CircleAlert aria-hidden="true" size={16} /><span>{error}</span><button type="button" aria-label={t("Dismiss error")} onClick={() => { setError(""); setCoreState("idle"); }}><X aria-hidden="true" size={15} /></button></div>}
 
     <footer className="lulu-office-command__composer-shell"><form className="lulu-office-command__composer" onSubmit={(event) => { event.preventDefault(); void send(); }}>
-      <div className="lulu-office-command__composer-modes" aria-label={t("Intent mode")}>{modes.map((item) => <button key={item} type="button" className={mode === item ? "is-active" : ""} onClick={() => setMode(item)}>{t(item)}</button>)}</div>
       {showReferenceUrl && <label className="lulu-office-command__reference-input"><Link aria-hidden="true" size={15} /><input autoFocus type="url" value={referenceUrl} onChange={(event) => setReferenceUrl(event.target.value)} placeholder={t("https:// reference for this conversation")} /><button type="button" aria-label={t("Remove reference link")} onClick={() => { setReferenceUrl(""); setShowReferenceUrl(false); }}><X aria-hidden="true" size={15} /></button></label>}
       {pendingFiles.length > 0 && <div className="lulu-office-command__pending-files">{pendingFiles.map((file) => <span key={`${file.name}-${file.lastModified}`}><FileText aria-hidden="true" size={13} />{file.name}<button type="button" aria-label={`${t("Remove")} ${file.name}`} onClick={() => setPendingFiles((current) => current.filter((item) => item !== file))}><X aria-hidden="true" size={13} /></button></span>)}</div>}
       <div className="lulu-office-command__composer-main"><input ref={fileInputRef} className="sr-only" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.txt,.md,.png,.jpg,.jpeg,.webp" onChange={(event) => { const files = Array.from(event.target.files ?? []); setPendingFiles((current) => [...current, ...files]); event.target.value = ""; }} /><div className="lulu-office-command__composer-tools"><button type="button" aria-label={t("Attach files to Company Brain")} title={t("Attach files to Company Brain")} onClick={() => fileInputRef.current?.click()} disabled={processing}><Paperclip aria-hidden="true" size={17} /></button><button type="button" aria-label={t("Attach image or screenshot")} title={t("Attach image or screenshot")} onClick={() => fileInputRef.current?.click()} disabled={processing}><Image aria-hidden="true" size={17} /></button><button type="button" className={showReferenceUrl ? "is-active" : ""} aria-label={t("Attach reference link")} title={t("Attach reference link")} onClick={() => setShowReferenceUrl((current) => !current)} disabled={processing}><Link aria-hidden="true" size={17} /></button></div><textarea ref={composerInputRef} value={input} rows={1} disabled={processing} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void send(); } }} placeholder={t("Describe the outcome you want Lulu to create, investigate or operate.")} /><div className="lulu-office-command__composer-tools lulu-office-command__composer-tools--end"><button type="button" className={coreState === "listening" ? "is-listening" : ""} aria-label={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} title={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} onClick={beginListening} disabled={processing}>{coreState === "listening" ? <Square aria-hidden="true" size={14} /> : <Mic aria-hidden="true" size={17} />}</button><button type="submit" className="lulu-office-command__send" disabled={processing || (!input.trim() && pendingFiles.length === 0 && !referenceUrl.trim())} aria-label={t("Send intent")}>{processing ? <LoaderCircle aria-hidden="true" size={17} className="lulu-office-spin" /> : <Send aria-hidden="true" size={17} />}</button></div></div>
