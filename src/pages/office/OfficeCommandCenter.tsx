@@ -32,11 +32,13 @@ import {
   type AssistantToolCall,
   type Conversation,
 } from "../../api/ai";
+import { voiceApi, type VoiceSettings } from "../../api/voice";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { ingestRecord, type WorkspaceRecord } from "../../api/records";
 import { useLuluApp } from "../../api/LuluAppContext";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { navigateApp, pagePath, routes } from "../../routing";
+import { VoiceActivityMonitor, VoiceRealtimeRuntime } from "../../voice/voice-runtime";
 import "./office-command-center.css";
 
 type CoreState = "idle" | "listening" | "thinking" | "working" | "completed" | "needs-confirmation" | "attention";
@@ -64,6 +66,28 @@ type SpeechRecognizer = {
   onend: (() => void) | null;
 };
 type SpeechRecognizerConstructor = new () => SpeechRecognizer;
+
+const VOICE_SETTINGS_STORAGE_KEY = "lulu.office.voice.settings";
+const DEFAULT_VOICE_SETTINGS: VoiceSettings = {
+  language: "en-US",
+  voice: "marin",
+  speed: 1,
+  mode: "conversation",
+};
+
+function loadVoiceSettings(): VoiceSettings {
+  try {
+    const stored = JSON.parse(window.localStorage.getItem(VOICE_SETTINGS_STORAGE_KEY) ?? "null") as Partial<VoiceSettings> | null;
+    return {
+      language: typeof stored?.language === "string" ? stored.language : DEFAULT_VOICE_SETTINGS.language,
+      voice: typeof stored?.voice === "string" ? stored.voice : DEFAULT_VOICE_SETTINGS.voice,
+      speed: typeof stored?.speed === "number" && Number.isFinite(stored.speed) ? Math.min(1.5, Math.max(0.25, stored.speed)) : DEFAULT_VOICE_SETTINGS.speed,
+      mode: stored?.mode === "dictation" ? "dictation" : "conversation",
+    };
+  } catch {
+    return DEFAULT_VOICE_SETTINGS;
+  }
+}
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
@@ -249,7 +273,13 @@ export function OfficeCommandCenter() {
   const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
   const recognitionRef = useRef<SpeechRecognizer | null>(null);
   const voiceRecognitionRef = useRef<SpeechRecognizer | null>(null);
+  const voiceRuntimeRef = useRef<VoiceRealtimeRuntime | null>(null);
+  const voiceInterruptMonitorRef = useRef<VoiceActivityMonitor | null>(null);
+  const voiceAudioRef = useRef<HTMLAudioElement | null>(null);
   const activeConversationIdRef = useRef<string | null>(null);
+  const voiceSessionIdRef = useRef<string | null>(null);
+  const voiceSequenceRef = useRef(0);
+  const voiceConfirmationActionRef = useRef<AssistantPendingAction | null>(null);
   const voiceBaseInputRef = useRef("");
   const voiceTranscriptRef = useRef("");
   const dictationStoppedByUserRef = useRef(false);
@@ -265,6 +295,10 @@ export function OfficeCommandCenter() {
   const [input, setInput] = useState("");
   const [voiceTranscript, setVoiceTranscript] = useState("");
   const [voiceMode, setVoiceMode] = useState<VoiceMode>("off");
+  const [voiceTransport, setVoiceTransport] = useState<"webrtc" | "browser_fallback">("browser_fallback");
+  const [voiceSettings, setVoiceSettings] = useState<VoiceSettings>(() => loadVoiceSettings());
+  const [voiceSettingsOpen, setVoiceSettingsOpen] = useState(false);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const [referenceUrl, setReferenceUrl] = useState("");
   const [showReferenceUrl, setShowReferenceUrl] = useState(false);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
@@ -276,6 +310,21 @@ export function OfficeCommandCenter() {
   const [processing, setProcessing] = useState(false);
   const [executingActionId, setExecutingActionId] = useState<string | null>(null);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    window.localStorage.setItem(VOICE_SETTINGS_STORAGE_KEY, JSON.stringify(voiceSettings));
+  }, [voiceSettings]);
+
+  useEffect(() => {
+    const synthesis = window.speechSynthesis;
+    const refreshVoices = () => setAvailableVoices(synthesis?.getVoices?.() ?? []);
+    refreshVoices();
+    const previousHandler = synthesis.onvoiceschanged;
+    synthesis.onvoiceschanged = refreshVoices;
+    return () => {
+      if (synthesis.onvoiceschanged === refreshVoices) synthesis.onvoiceschanged = previousHandler;
+    };
+  }, []);
 
   const loadConversations = useCallback(async () => {
     if (!workspaceId) return;
@@ -301,11 +350,19 @@ export function OfficeCommandCenter() {
     recognitionRef.current?.stop();
     voiceSessionRef.current = false;
     voiceRecognitionRef.current?.stop();
+    void voiceRuntimeRef.current?.stop();
+    voiceRuntimeRef.current = null;
+    void voiceInterruptMonitorRef.current?.stop();
+    voiceInterruptMonitorRef.current = null;
+    voiceAudioRef.current?.pause();
+    voiceAudioRef.current = null;
     window.speechSynthesis?.cancel();
     if (voiceRestartTimerRef.current !== null) window.clearTimeout(voiceRestartTimerRef.current);
     voiceRestartTimerRef.current = null;
     voiceNetworkRetryRef.current = 0;
     voiceRetryPendingRef.current = false;
+    voiceSessionIdRef.current = null;
+    voiceConfirmationActionRef.current = null;
   }, []);
 
   useEffect(() => {
@@ -343,6 +400,12 @@ export function OfficeCommandCenter() {
     voiceSessionRef.current = false;
     voiceStopRequestedRef.current = true;
     voiceRecognitionRef.current?.stop();
+    void voiceRuntimeRef.current?.stop();
+    voiceRuntimeRef.current = null;
+    void voiceInterruptMonitorRef.current?.stop();
+    voiceInterruptMonitorRef.current = null;
+    voiceAudioRef.current?.pause();
+    voiceAudioRef.current = null;
     window.speechSynthesis?.cancel();
     if (voiceRestartTimerRef.current !== null) window.clearTimeout(voiceRestartTimerRef.current);
     setVoiceMode("off");
@@ -358,6 +421,11 @@ export function OfficeCommandCenter() {
     setError("");
     voiceTranscriptRef.current = "";
     setVoiceTranscript("");
+    voiceSessionIdRef.current = null;
+    voiceSequenceRef.current = 0;
+    voiceConfirmationActionRef.current = null;
+    setVoiceTransport("browser_fallback");
+    setVoiceSettingsOpen(false);
     setCoreState("idle");
     requestAnimationFrame(() => composerInputRef.current?.focus());
   };
@@ -379,7 +447,7 @@ export function OfficeCommandCenter() {
     const recognition = new Recognition();
     recognition.continuous = true;
     recognition.interimResults = true;
-    recognition.lang = navigator.language || "en-US";
+    recognition.lang = voiceSettings.language || navigator.language || "en-US";
     dictationStoppedByUserRef.current = false;
     voiceBaseInputRef.current = input.trim();
     voiceTranscriptRef.current = "";
@@ -445,11 +513,23 @@ export function OfficeCommandCenter() {
   };
 
   const stopVoiceConversation = () => {
+    const runtime = voiceRuntimeRef.current;
+    const runtimeSessionId = runtime?.id;
+    const fallbackSessionId = voiceSessionIdRef.current;
     voiceSessionRef.current = false;
     voiceStopRequestedRef.current = true;
     voiceProcessingRef.current = false;
     voiceSpeakingRef.current = false;
     voiceRecognitionRef.current?.stop();
+    void runtime?.stop();
+    voiceRuntimeRef.current = null;
+    void voiceInterruptMonitorRef.current?.stop();
+    voiceInterruptMonitorRef.current = null;
+    if (fallbackSessionId && fallbackSessionId !== runtimeSessionId) {
+      void voiceApi.closeSession(workspaceId ?? "", fallbackSessionId, { status: "completed" }).catch(() => undefined);
+    }
+    voiceAudioRef.current?.pause();
+    voiceAudioRef.current = null;
     voiceRecognitionRef.current = null;
     window.speechSynthesis?.cancel();
     if (voiceRestartTimerRef.current !== null) window.clearTimeout(voiceRestartTimerRef.current);
@@ -458,12 +538,74 @@ export function OfficeCommandCenter() {
     voiceRetryPendingRef.current = false;
     voiceTranscriptRef.current = "";
     setVoiceTranscript("");
+    voiceSessionIdRef.current = null;
+    voiceSequenceRef.current = 0;
+    voiceConfirmationActionRef.current = null;
+    setVoiceTransport("browser_fallback");
     setVoiceMode("off");
     setCoreState((current) => ["listening", "thinking"].includes(current) ? "idle" : current);
   };
 
+  const ensureVoiceConversation = async () => {
+    if (!workspaceId) return null;
+    const existing = activeConversationIdRef.current ?? activeConversationId;
+    if (existing) return existing;
+    const conversation = await aiApi.createConversation(workspaceId, {
+      title: t("Voice conversation"),
+      metadata: { origin: "office_command_center", voice: true, voiceSettings },
+    });
+    activeConversationIdRef.current = conversation.data.id;
+    setActiveConversationId(conversation.data.id);
+    return conversation.data.id;
+  };
+
+  const persistVoiceTranscript = (content: string, direction: "input" | "output", source: "realtime" | "browser_fallback" | "server_tts" | "browser_tts", metadata: Record<string, unknown> = {}) => {
+    if (!workspaceId || !voiceSessionIdRef.current || !content.trim()) return;
+    const sequenceNumber = voiceSequenceRef.current++;
+    void voiceApi.addTranscript(workspaceId, voiceSessionIdRef.current, {
+      direction,
+      content: content.trim(),
+      sequenceNumber,
+      isFinal: true,
+      source,
+      startedAt: new Date().toISOString(),
+      endedAt: new Date().toISOString(),
+      metadata: {
+        language: voiceSettings.language,
+        voice: voiceSettings.voice,
+        speed: voiceSettings.speed,
+        transport: voiceTransport,
+        ...metadata,
+      },
+    }).catch(() => undefined);
+  };
+
+  const startBrowserFallbackSession = async (conversationId: string | null) => {
+    if (!workspaceId) return;
+    const response = await voiceApi.createSession(workspaceId, {
+      ...voiceSettings,
+      conversationId,
+      metadata: { source: "office_voice", fallbackReason: "realtime_unavailable" },
+    });
+    voiceSessionIdRef.current = response.data.session?.id ?? null;
+    voiceSequenceRef.current = 0;
+    setVoiceTransport("browser_fallback");
+  };
+
+  const fallbackFromRealtime = () => {
+    if (!voiceSessionRef.current) return;
+    const runtime = voiceRuntimeRef.current;
+    const runtimeSessionId = runtime?.id;
+    voiceRuntimeRef.current = null;
+    void runtime?.stop(false);
+    if (runtimeSessionId) void voiceApi.closeSession(workspaceId ?? "", runtimeSessionId, { status: "failed", metadata: { fallback: true } }).catch(() => undefined);
+    setVoiceTransport("browser_fallback");
+    setError(t("Realtime voice lost its connection. Lulu switched to browser fallback."));
+    startVoiceRecognition();
+  };
+
   const startVoiceRecognition = () => {
-    if (!voiceSessionRef.current || voiceRecognitionRef.current || voiceProcessingRef.current || voiceSpeakingRef.current) return;
+    if (!voiceSessionRef.current || voiceRuntimeRef.current || voiceRecognitionRef.current || voiceProcessingRef.current || voiceSpeakingRef.current) return;
     const voiceWindow = window as Window & { SpeechRecognition?: SpeechRecognizerConstructor; webkitSpeechRecognition?: SpeechRecognizerConstructor };
     const Recognition = voiceWindow.SpeechRecognition ?? voiceWindow.webkitSpeechRecognition;
     if (!Recognition) {
@@ -547,7 +689,7 @@ export function OfficeCommandCenter() {
     }
   };
 
-  const startVoiceConversation = () => {
+  const startVoiceConversation = async () => {
     if (processing || voiceSessionRef.current) return;
     const voiceWindow = window as Window & { SpeechRecognition?: SpeechRecognizerConstructor; webkitSpeechRecognition?: SpeechRecognizerConstructor };
     if (!(voiceWindow.SpeechRecognition ?? voiceWindow.webkitSpeechRecognition) || !("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined") {
@@ -563,23 +705,126 @@ export function OfficeCommandCenter() {
     voiceRetryPendingRef.current = false;
     setError("");
     setVoiceMode("listening");
-    startVoiceRecognition();
+    try {
+      const conversationId = await ensureVoiceConversation();
+      const runtime = new VoiceRealtimeRuntime({
+        workspaceId: workspaceId ?? "",
+        conversationId,
+        settings: voiceSettings,
+        onTranscript: ({ text, isFinal }) => {
+          if (!voiceSessionRef.current || !text.trim()) return;
+          setVoiceTranscript((current) => isFinal ? text : `${current}${text}`.trim());
+          if (isFinal) void handleVoiceTurn(text, "realtime");
+        },
+        onSpeechStart: () => {
+          if (voiceSpeakingRef.current) interruptVoiceResponse();
+          if (voiceSessionRef.current && !voiceProcessingRef.current) {
+            setVoiceMode("listening");
+            setCoreState("listening");
+          }
+        },
+        onSpeechStop: () => {
+          if (voiceSessionRef.current && !voiceProcessingRef.current && !voiceSpeakingRef.current) setVoiceMode("thinking");
+        },
+        onError: fallbackFromRealtime,
+      });
+      const connected = await runtime.start();
+      if (connected) {
+        voiceRuntimeRef.current = runtime;
+        voiceSessionIdRef.current = runtime.id;
+        voiceSequenceRef.current = 0;
+        setVoiceTransport("webrtc");
+        return;
+      }
+      await startBrowserFallbackSession(conversationId);
+      startVoiceRecognition();
+    } catch {
+      await startBrowserFallbackSession(activeConversationIdRef.current ?? activeConversationId).catch(() => undefined);
+      startVoiceRecognition();
+    }
   };
 
   const interruptVoiceResponse = () => {
     if (!voiceSessionRef.current) return;
     voiceSpeakingRef.current = false;
+    voiceAudioRef.current?.pause();
+    voiceAudioRef.current = null;
     window.speechSynthesis?.cancel();
     setVoiceMode("listening");
     setCoreState("listening");
-    startVoiceRecognition();
+    void voiceInterruptMonitorRef.current?.stop();
+    voiceInterruptMonitorRef.current = null;
+    if (!voiceRuntimeRef.current) startVoiceRecognition();
   };
 
-  const speakVoiceResponse = (content: string) => {
+  const speakVoiceResponse = async (content: string) => {
     if (!voiceSessionRef.current || !content.trim()) return;
+    const pendingVoiceAction = voiceConfirmationActionRef.current;
+    const spokenContent = pendingVoiceAction?.requiresApproval
+      ? `${content.trim()} ${t("Say confirm to approve this critical action, or say cancel.")}`
+      : content.trim();
+    const startFallbackInterruptMonitor = async () => {
+      if (voiceRuntimeRef.current || voiceInterruptMonitorRef.current) return;
+      const monitor = new VoiceActivityMonitor({ onSpeechStart: () => {
+        if (voiceSpeakingRef.current) interruptVoiceResponse();
+      } });
+      if (await monitor.start()) voiceInterruptMonitorRef.current = monitor;
+    };
+    const stopFallbackInterruptMonitor = () => {
+      void voiceInterruptMonitorRef.current?.stop();
+      voiceInterruptMonitorRef.current = null;
+    };
+    const playServerAudio = async () => {
+      if (!workspaceId || !voiceSessionIdRef.current) return false;
+      try {
+        const response = await voiceApi.speech(workspaceId, {
+          sessionId: voiceSessionIdRef.current,
+          text: spokenContent,
+          language: voiceSettings.language,
+          voice: voiceSettings.voice,
+          speed: voiceSettings.speed,
+        });
+        const audio = new Audio(`data:${response.data.contentType};base64,${response.data.audioBase64}`);
+        voiceAudioRef.current = audio;
+        audio.onplay = () => {
+          if (!voiceSessionRef.current) { audio.pause(); return; }
+          voiceSpeakingRef.current = true;
+          setVoiceMode("speaking");
+          setCoreState("completed");
+          void startFallbackInterruptMonitor();
+        };
+        audio.onended = () => {
+          stopFallbackInterruptMonitor();
+          voiceSpeakingRef.current = false;
+          voiceAudioRef.current = null;
+          if (voiceSessionRef.current) {
+            setVoiceMode("listening");
+            setCoreState("listening");
+            if (!voiceRuntimeRef.current) startVoiceRecognition();
+          }
+        };
+        audio.onerror = () => {
+          stopFallbackInterruptMonitor();
+          voiceAudioRef.current = null;
+          voiceSpeakingRef.current = false;
+          if (voiceSessionRef.current && !voiceRuntimeRef.current) startVoiceRecognition();
+        };
+        await audio.play();
+        persistVoiceTranscript(spokenContent, "output", "server_tts", { criticalActionId: pendingVoiceAction?.id ?? null });
+        return true;
+      } catch {
+        stopFallbackInterruptMonitor();
+        return false;
+      }
+    };
+    if (await playServerAudio()) return;
     const synthesis = window.speechSynthesis;
-    const utterance = new SpeechSynthesisUtterance(content.trim());
-    utterance.lang = navigator.language || "en-US";
+    const utterance = new SpeechSynthesisUtterance(spokenContent);
+    utterance.lang = voiceSettings.language || navigator.language || "en-US";
+    utterance.rate = voiceSettings.speed;
+    const matchingVoice = availableVoices.find((voice) => voice.name === voiceSettings.voice)
+      ?? availableVoices.find((voice) => voice.lang.toLowerCase().startsWith(voiceSettings.language.toLowerCase().split("-")[0] ?? ""));
+    if (matchingVoice) utterance.voice = matchingVoice;
     utterance.onstart = () => {
       if (!voiceSessionRef.current) {
         synthesis.cancel();
@@ -588,20 +833,24 @@ export function OfficeCommandCenter() {
       voiceSpeakingRef.current = true;
       setVoiceMode("speaking");
       setCoreState("completed");
+      void startFallbackInterruptMonitor();
     };
     utterance.onend = () => {
+      stopFallbackInterruptMonitor();
       voiceSpeakingRef.current = false;
       if (voiceSessionRef.current) {
         setVoiceMode("listening");
         setCoreState("listening");
-        startVoiceRecognition();
+        if (!voiceRuntimeRef.current) startVoiceRecognition();
       }
     };
     utterance.onerror = () => {
+      stopFallbackInterruptMonitor();
       voiceSpeakingRef.current = false;
-      if (voiceSessionRef.current) startVoiceRecognition();
+      if (voiceSessionRef.current && !voiceRuntimeRef.current) startVoiceRecognition();
     };
     synthesis.cancel();
+    persistVoiceTranscript(spokenContent, "output", "browser_tts", { criticalActionId: pendingVoiceAction?.id ?? null });
     synthesis.speak(utterance);
   };
 
@@ -660,10 +909,20 @@ export function OfficeCommandCenter() {
       const response = await aiApi.respond(workspaceId, conversationId, content, {
         origin: "office_command_center",
         voice: voiceRequest,
+        ...(voiceRequest ? {
+          voiceSessionId: voiceSessionIdRef.current,
+          voiceTransport,
+          voiceLanguage: voiceSettings.language,
+          voiceName: voiceSettings.voice,
+          voiceSpeed: voiceSettings.speed,
+        } : {}),
         attachments,
         referenceUrl: cleanReferenceUrl || undefined,
       });
       const nextActions = response.data.pendingActions ?? [];
+      voiceConfirmationActionRef.current = voiceRequest
+        ? nextActions.find((action) => action.requiresApproval && action.status === "ready") ?? null
+        : null;
       setMessages((current) => [...current, {
         id: response.data.assistantMessage.id,
         role: "assistant",
@@ -690,8 +949,29 @@ export function OfficeCommandCenter() {
     }
   };
 
-  const handleVoiceTurn = async (transcript: string) => {
+  const handleVoiceTurn = async (transcript: string, source: "realtime" | "browser_fallback" = "browser_fallback") => {
     if (!voiceSessionRef.current || voiceProcessingRef.current || !transcript.trim()) return;
+    const normalized = transcript.trim().toLowerCase();
+    const pendingVoiceAction = voiceConfirmationActionRef.current;
+    if (pendingVoiceAction && /^(yes|yeah|confirm|approve|approved|do it|go ahead|ja|bestätigen|bestaetigen|freigeben|ausführen|ausfuehren)\b/.test(normalized)) {
+      voiceProcessingRef.current = true;
+      setVoiceTranscript(transcript);
+      setVoiceMode("thinking");
+      setCoreState("thinking");
+      const result = await executeAction(pendingVoiceAction);
+      voiceConfirmationActionRef.current = null;
+      voiceProcessingRef.current = false;
+      if (result && voiceSessionRef.current) speakVoiceResponse(result.status === "succeeded" ? t("The critical action was completed and verified.") : t("The critical action is waiting at its governed approval boundary."));
+      else if (voiceSessionRef.current) speakVoiceResponse(t("The critical action could not be completed."));
+      return;
+    }
+    if (pendingVoiceAction && /^(no|cancel|stop|nein|abbrechen|stopp)\b/.test(normalized)) {
+      voiceConfirmationActionRef.current = null;
+      voiceProcessingRef.current = false;
+      if (voiceSessionRef.current) speakVoiceResponse(t("The critical action was cancelled and nothing was sent."));
+      return;
+    }
+    persistVoiceTranscript(transcript, "input", source);
     voiceProcessingRef.current = true;
     setVoiceMode("thinking");
     setCoreState("thinking");
@@ -705,8 +985,8 @@ export function OfficeCommandCenter() {
     void sendContent();
   };
 
-  const executeAction = async (action: AssistantPendingAction) => {
-    if (!workspaceId || !activeConversationId || action.status !== "ready") return;
+  const executeAction = async (action: AssistantPendingAction): Promise<AssistantPendingAction | null> => {
+    if (!workspaceId || !activeConversationId || action.status !== "ready") return null;
     setExecutingActionId(action.id);
     setError("");
     setCoreState("working");
@@ -714,9 +994,11 @@ export function OfficeCommandCenter() {
       const response = await aiApi.executeAction(workspaceId, activeConversationId, action.id);
       setActions((current) => current.map((item) => item.id === action.id ? response.data : item));
       setCoreState(response.data.status === "succeeded" ? "completed" : response.data.status === "pending_approval" ? "needs-confirmation" : "attention");
+      return response.data;
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, t("The action could not be executed. Its current workspace state was preserved.")));
       setCoreState("attention");
+      return null;
     } finally {
       setExecutingActionId(null);
     }
@@ -765,7 +1047,7 @@ export function OfficeCommandCenter() {
     <footer className="lulu-office-command__composer-shell"><form className="lulu-office-command__composer" onSubmit={(event) => { event.preventDefault(); void send(); }}>
       {showReferenceUrl && <label className="lulu-office-command__reference-input"><Link aria-hidden="true" size={15} /><input autoFocus type="url" value={referenceUrl} onChange={(event) => setReferenceUrl(event.target.value)} placeholder={t("https:// reference for this conversation")} /><button type="button" aria-label={t("Remove reference link")} onClick={() => { setReferenceUrl(""); setShowReferenceUrl(false); }}><X aria-hidden="true" size={15} /></button></label>}
       {pendingFiles.length > 0 && <div className="lulu-office-command__pending-files">{pendingFiles.map((file) => <span key={`${file.name}-${file.lastModified}`}><FileText aria-hidden="true" size={13} />{file.name}<button type="button" aria-label={`${t("Remove")} ${file.name}`} onClick={() => setPendingFiles((current) => current.filter((item) => item !== file))}><X aria-hidden="true" size={13} /></button></span>)}</div>}
-      {voiceMode !== "off" && <div className={`lulu-office-command__voice-conversation lulu-office-command__voice-conversation--${voiceMode}`} role="status" aria-live="polite"><div className="lulu-office-command__voice-conversation-main"><span className="lulu-office-command__voice-badge">{voiceMode === "speaking" ? <Volume2 aria-hidden="true" size={15} /> : <Mic aria-hidden="true" size={15} />}</span><div className="lulu-office-command__voice-panel-copy"><strong>{t(voiceMode === "listening" ? "Lulu is listening" : voiceMode === "thinking" ? "Lulu is thinking" : "Lulu is speaking")}</strong><span>{voiceTranscript || t("Voice conversation")}</span></div><div className="lulu-office-command__voice-actions">{voiceMode === "speaking" && <button type="button" className="lulu-office-command__voice-action" aria-label={t("Interrupt")} title={t("Interrupt")} onClick={interruptVoiceResponse}><Mic aria-hidden="true" size={13} />{t("Interrupt")}</button>}<button type="button" className="lulu-office-command__voice-action lulu-office-command__voice-action--end" aria-label={t("End voice conversation")} title={t("End voice conversation")} onClick={stopVoiceConversation}><PhoneOff aria-hidden="true" size={13} />{t("End voice conversation")}</button></div></div><div className="lulu-office-command__voice-wave" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <span key={index} style={{ animationDelay: `${index * 55}ms` }} />)}</div></div>}
+      {voiceMode !== "off" && <div className={`lulu-office-command__voice-conversation lulu-office-command__voice-conversation--${voiceMode}`} role="status" aria-live="polite"><div className="lulu-office-command__voice-conversation-main"><span className="lulu-office-command__voice-badge">{voiceMode === "speaking" ? <Volume2 aria-hidden="true" size={15} /> : <Mic aria-hidden="true" size={15} />}</span><div className="lulu-office-command__voice-panel-copy"><strong>{t(voiceMode === "listening" ? "Lulu is listening" : voiceMode === "thinking" ? "Lulu is thinking" : "Lulu is speaking")}</strong><span>{voiceTranscript || t("Voice conversation")}</span></div><div className="lulu-office-command__voice-actions">{voiceMode === "speaking" && <button type="button" className="lulu-office-command__voice-action" aria-label={t("Interrupt")} title={t("Interrupt")} onClick={interruptVoiceResponse}><Mic aria-hidden="true" size={13} />{t("Interrupt")}</button>}<button type="button" className="lulu-office-command__voice-action" aria-label={t("Voice settings")} title={t("Voice settings")} onClick={() => setVoiceSettingsOpen((current) => !current)}><Settings2 aria-hidden="true" size={13} />{t("Voice settings")}</button><button type="button" className="lulu-office-command__voice-action lulu-office-command__voice-action--end" aria-label={t("End voice conversation")} title={t("End voice conversation")} onClick={stopVoiceConversation}><PhoneOff aria-hidden="true" size={13} />{t("End voice conversation")}</button></div></div>{voiceSettingsOpen && <div className="lulu-office-command__voice-settings"><label><span>{t("Language")}</span><select value={voiceSettings.language} onChange={(event) => setVoiceSettings((current) => ({ ...current, language: event.target.value }))}><option value="en-US">English</option><option value="de-DE">Deutsch</option><option value="zh-CN">中文</option></select></label><label><span>{t("Voice")}</span><select value={voiceSettings.voice} onChange={(event) => setVoiceSettings((current) => ({ ...current, voice: event.target.value }))}>{["marin", "cedar", "alloy", "ash", "ballad", "coral", "echo", "sage", "shimmer", "verse", ...availableVoices.map((voice) => voice.name)].filter((voice, index, values) => values.indexOf(voice) === index).map((voice) => <option key={voice} value={voice}>{voice}</option>)}</select></label><label><span>{t("Speaking speed")}</span><input type="range" min="0.25" max="1.5" step="0.05" value={voiceSettings.speed} onChange={(event) => setVoiceSettings((current) => ({ ...current, speed: Number(event.target.value) }))} /></label><label><span>{t("Conversation mode")}</span><select value={voiceSettings.mode} onChange={(event) => setVoiceSettings((current) => ({ ...current, mode: event.target.value as VoiceSettings["mode"] }))}><option value="conversation">{t("Conversation")}</option><option value="dictation">{t("Dictation")}</option></select></label><small>{voiceTransport === "webrtc" ? t("Realtime transport active") : t("Browser fallback active")}</small></div>}<div className="lulu-office-command__voice-wave" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <span key={index} style={{ animationDelay: `${index * 55}ms` }} />)}</div></div>}
       {coreState === "listening" && voiceMode === "off" && <div className="lulu-office-command__voice-panel" role="status" aria-live="polite"><div className="lulu-office-command__voice-panel-main"><span className="lulu-office-command__voice-badge"><Mic aria-hidden="true" size={15} /></span><div className="lulu-office-command__voice-panel-copy"><strong>{t("Listening")}</strong><span>{voiceTranscript || t("Listening")}</span></div><button type="button" className="lulu-office-command__voice-stop" aria-label={t("Stop voice dictation")} title={t("Stop voice dictation")} onClick={beginListening}><Square aria-hidden="true" size={13} />{t("Stop voice dictation")}</button></div><div className="lulu-office-command__voice-wave" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <span key={index} style={{ animationDelay: `${index * 55}ms` }} />)}</div></div>}
       <div className="lulu-office-command__composer-main"><input ref={fileInputRef} className="sr-only" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.txt,.md,.png,.jpg,.jpeg,.webp" onChange={(event) => { const files = Array.from(event.target.files ?? []); setPendingFiles((current) => [...current, ...files]); event.target.value = ""; }} /><div className="lulu-office-command__composer-tools"><button type="button" aria-label={t("Attach files to Company Brain")} title={t("Attach files to Company Brain")} onClick={() => fileInputRef.current?.click()} disabled={processing || voiceMode !== "off"}><Paperclip aria-hidden="true" size={17} /></button><button type="button" aria-label={t("Attach image or screenshot")} title={t("Attach image or screenshot")} onClick={() => fileInputRef.current?.click()} disabled={processing || voiceMode !== "off"}><Image aria-hidden="true" size={17} /></button><button type="button" className={showReferenceUrl ? "is-active" : ""} aria-label={t("Attach reference link")} title={t("Attach reference link")} onClick={() => setShowReferenceUrl((current) => !current)} disabled={processing || voiceMode !== "off"}><Link aria-hidden="true" size={17} /></button></div><textarea ref={composerInputRef} value={input} rows={1} disabled={processing || voiceMode !== "off"} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void send(); } }} placeholder={t("Describe the outcome you want Lulu to create, investigate or operate.")} /><div className="lulu-office-command__composer-tools lulu-office-command__composer-tools--end"><button type="button" className={coreState === "listening" ? "is-listening" : ""} aria-label={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} title={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} onClick={beginListening} disabled={processing || voiceMode !== "off"}>{coreState === "listening" ? <Square aria-hidden="true" size={14} /> : <Mic aria-hidden="true" size={17} />}</button><button type="button" className={voiceMode !== "off" ? "is-voice-active" : ""} aria-label={t(voiceMode !== "off" ? "End voice conversation" : "Start voice conversation")} title={t(voiceMode !== "off" ? "End voice conversation" : "Start voice conversation")} onClick={toggleVoiceConversation} disabled={processing && voiceMode === "off"}>{voiceMode !== "off" ? <PhoneOff aria-hidden="true" size={16} /> : <Volume2 aria-hidden="true" size={17} />}</button><button type="submit" className="lulu-office-command__send" disabled={processing || voiceMode !== "off" || (!input.trim() && pendingFiles.length === 0 && !referenceUrl.trim())} aria-label={t("Send intent")}>{processing ? <LoaderCircle aria-hidden="true" size={17} className="lulu-office-spin" /> : <Send aria-hidden="true" size={17} />}</button></div></div>
       <div className="lulu-office-command__composer-status"><span><ShieldCheck aria-hidden="true" size={13} />{t("Workspace-scoped context and governed actions")}</span><span><Clock3 aria-hidden="true" size={13} />{t("Enter to send, Shift+Enter for a new line")}</span></div>

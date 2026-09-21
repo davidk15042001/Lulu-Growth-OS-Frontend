@@ -6383,5 +6383,21 @@
   "Lulu is checking your company context and selecting verified tools.": "Lulu 正在检查您的公司上下文，并选择经过验证的工具。",
   "Lulu is preparing work across your connected systems.": "Lulu 正在跨已连接系统准备工作。",
   "Ready for your next instruction": "准备接收您的下一项指令",
-  "The outcome and its evidence are now available in this conversation.": "结果及其证据现已在此对话中提供。"
+  "The outcome and its evidence are now available in this conversation.": "结果及其证据现已在此对话中提供。",
+  "Browser fallback active": "浏览器备用模式已启用",
+  "Realtime transport active": "实时传输已启用",
+  "Realtime voice lost its connection. Lulu switched to browser fallback.": "实时语音连接已中断。Lulu 已切换到浏览器备用模式。",
+  "Voice settings": "语音设置",
+  "Language": "语言",
+  "Voice": "声音",
+  "Speaking speed": "语速",
+  "Conversation mode": "对话模式",
+  "Conversation": "对话",
+  "Dictation": "听写",
+  "Say confirm to approve this critical action, or say cancel.": "请说“确认”批准此关键操作，或说“取消”。",
+  "The critical action was completed and verified.": "关键操作已完成并通过验证。",
+  "The critical action is waiting at its governed approval boundary.": "关键操作正在等待受治理的审批边界。",
+  "The critical action was cancelled and nothing was sent.": "关键操作已取消，未发送任何内容。",
+  "The critical action could not be completed.": "关键操作无法完成。",
+  "webrtc": "WebRTC"
 }

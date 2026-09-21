@@ -1037,5 +1037,20 @@
   "Auftrag auswählen …": "Select order...",
   "Was lief gut, was sollte verbessert werden?": "What went well, what should be improved?",
   "Bewertung speichern": "Save review",
-  "Lulu erstellt, veröffentlicht und betreibt deine Website und deinen Online-Shop als eigenes, verwaltetes System.": "Lulu creates, publishes and operates your website and online shop as its own managed system."
+  "Lulu erstellt, veröffentlicht und betreibt deine Website und deinen Online-Shop als eigenes, verwaltetes System.": "Lulu creates, publishes and operates your website and online shop as its own managed system.",
+  "Browser fallback active": "Browser fallback active",
+  "Realtime transport active": "Realtime transport active",
+  "Realtime voice lost its connection. Lulu switched to browser fallback.": "Realtime voice lost its connection. Lulu switched to browser fallback.",
+  "Voice settings": "Voice settings",
+  "Language": "Language",
+  "Voice": "Voice",
+  "Speaking speed": "Speaking speed",
+  "Conversation mode": "Conversation mode",
+  "Conversation": "Conversation",
+  "Dictation": "Dictation",
+  "Say confirm to approve this critical action, or say cancel.": "Say confirm to approve this critical action, or say cancel.",
+  "The critical action was completed and verified.": "The critical action was completed and verified.",
+  "The critical action is waiting at its governed approval boundary.": "The critical action is waiting at its governed approval boundary.",
+  "The critical action was cancelled and nothing was sent.": "The critical action was cancelled and nothing was sent.",
+  "The critical action could not be completed.": "The critical action could not be completed."
 }

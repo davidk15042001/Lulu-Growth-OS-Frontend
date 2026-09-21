@@ -6406,5 +6406,21 @@
   "Lulu is checking your company context and selecting verified tools.": "Lulu prüft Ihren Unternehmenskontext und wählt verifizierte Werkzeuge aus.",
   "Lulu is preparing work across your connected systems.": "Lulu bereitet Arbeit über Ihre verbundenen Systeme hinweg vor.",
   "Ready for your next instruction": "Bereit für Ihre nächste Anweisung",
-  "The outcome and its evidence are now available in this conversation.": "Ergebnis und Nachweise sind jetzt in dieser Unterhaltung verfügbar."
+  "The outcome and its evidence are now available in this conversation.": "Ergebnis und Nachweise sind jetzt in dieser Unterhaltung verfügbar.",
+  "Browser fallback active": "Browser-Fallback aktiv",
+  "Realtime transport active": "Echtzeitübertragung aktiv",
+  "Realtime voice lost its connection. Lulu switched to browser fallback.": "Die Echtzeit-Sprachverbindung wurde unterbrochen. Lulu ist auf den Browser-Fallback gewechselt.",
+  "Voice settings": "Spracheinstellungen",
+  "Language": "Sprache",
+  "Voice": "Stimme",
+  "Speaking speed": "Sprechtempo",
+  "Conversation mode": "Gesprächsmodus",
+  "Conversation": "Gespräch",
+  "Dictation": "Diktat",
+  "Say confirm to approve this critical action, or say cancel.": "Sage ‚bestätigen‘, um diese kritische Aktion freizugeben, oder ‚abbrechen‘.",
+  "The critical action was completed and verified.": "Die kritische Aktion wurde abgeschlossen und verifiziert.",
+  "The critical action is waiting at its governed approval boundary.": "Die kritische Aktion wartet an ihrer geregelten Freigabegrenze.",
+  "The critical action was cancelled and nothing was sent.": "Die kritische Aktion wurde abgebrochen. Es wurde nichts gesendet.",
+  "The critical action could not be completed.": "Die kritische Aktion konnte nicht abgeschlossen werden.",
+  "webrtc": "WebRTC"
 }
