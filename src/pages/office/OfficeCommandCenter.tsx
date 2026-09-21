@@ -2,23 +2,25 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import {
   ArrowUpRight,
   Bot,
-  BrainCircuit,
-  Check,
+  ChevronDown,
   CircleAlert,
   Clock3,
   Database,
   FileText,
   History,
   Image,
+  LayoutDashboard,
   Link,
   LoaderCircle,
   Mic,
   Paperclip,
   PanelTopOpen,
   Send,
+  Settings2,
   ShieldCheck,
   Sparkles,
   Square,
+  UserRound,
   X,
 } from "lucide-react";
 import {
@@ -32,6 +34,7 @@ import { getFriendlyErrorMessage } from "../../api/client";
 import { ingestRecord, type WorkspaceRecord } from "../../api/records";
 import { useLuluApp } from "../../api/LuluAppContext";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { navigateApp, pagePath, routes } from "../../routing";
 import "./office-command-center.css";
 
 type CoreState = "idle" | "listening" | "thinking" | "working" | "completed" | "needs-confirmation" | "attention";
@@ -205,6 +208,32 @@ function ActionSurface({ action, executing, onExecute }: { action: AssistantPend
     <div className="lulu-office-command__action-meta"><span>{t(action.type.replaceAll("_", " "))}</span>{action.requiresApproval && <span>{t("Confirmation required")}</span>}{action.errorMessage && <span>{action.errorMessage}</span>}</div>
     {canRun && <button type="button" className="lulu-office-command__execute-action" disabled={executing} onClick={() => onExecute(action)}>{executing ? <LoaderCircle aria-hidden="true" size={15} className="lulu-office-spin" /> : <ArrowUpRight aria-hidden="true" size={15} />}{t("Run checked action")}</button>}
   </section>;
+}
+
+function OfficeSettingsMenu({ workspaceName }: { workspaceName: string }) {
+  const t = useTranslation();
+  const navigateTo = (target: string) => navigateApp(target);
+
+  return <details className="lulu-office-command__settings-menu">
+    <summary aria-label={t("Settings")} title={t("Settings")}>
+      <Settings2 aria-hidden="true" size={16} />
+      <span>{t("Settings")}</span>
+      <ChevronDown aria-hidden="true" size={14} />
+    </summary>
+    <div className="lulu-office-command__settings-popover">
+      <div className="lulu-office-command__settings-heading">
+        <span>{t("Workspace")}</span>
+        <strong title={workspaceName}>{workspaceName}</strong>
+      </div>
+      <div className="lulu-office-command__settings-links">
+        <button type="button" onClick={() => navigateTo(pagePath("profile"))}><UserRound aria-hidden="true" size={15} />{t("Workspace settings")}</button>
+        <button type="button" onClick={() => navigateTo(pagePath("glad-coast-1428"))}><Link aria-hidden="true" size={15} />{t("Integrations")}</button>
+        <button type="button" onClick={() => navigateTo(routes.app.funds)}><ShieldCheck aria-hidden="true" size={15} />{t("Billing")}</button>
+      </div>
+      <div className="lulu-office-command__settings-divider" />
+      <button type="button" className="lulu-office-command__settings-workspace" onClick={() => navigateTo(routes.app.dashboard)}><LayoutDashboard aria-hidden="true" size={15} />{t("Open workspace")}</button>
+    </div>
+  </details>;
 }
 
 export function OfficeCommandCenter() {
@@ -427,9 +456,8 @@ export function OfficeCommandCenter() {
 
   return <section className={`lulu-office-command lulu-office-command--${coreState}${hasConversation ? " has-conversation" : ""}`} aria-label={t("Lulu Core")}>
     <header className="lulu-office-command__header">
-      <button type="button" className="lulu-office-command__history-toggle" aria-expanded={historyOpen} onClick={() => setHistoryOpen((current) => !current)}><History aria-hidden="true" size={16} /><span>{t("History")}</span>{conversations.length > 0 && <small>{conversations.length}</small>}</button>
-      <div className="lulu-office-command__identity" data-lulu-no-translate="true" translate="no"><BrainCircuit aria-hidden="true" size={17} /><strong>Lulu</strong></div>
-      <div className="lulu-office-command__header-actions"><button type="button" className="lulu-office-command__new-intent" onClick={startNewIntent}><Sparkles aria-hidden="true" size={15} /><span>{t("New intent")}</span></button></div>
+      <OfficeSettingsMenu workspaceName={selectedWorkspace?.companyName ?? t("Lulu workspace")} />
+      <div className="lulu-office-command__header-actions"><button type="button" className="lulu-office-command__history-toggle" aria-expanded={historyOpen} onClick={() => setHistoryOpen((current) => !current)}><History aria-hidden="true" size={16} /><span>{t("History")}</span>{conversations.length > 0 && <small>{conversations.length}</small>}</button><button type="button" className="lulu-office-command__new-intent" onClick={startNewIntent}><Sparkles aria-hidden="true" size={15} /><span>{t("New intent")}</span></button></div>
     </header>
 
     <aside className={`lulu-office-command__history ${historyOpen ? "is-open" : ""}`} aria-label={t("Conversation history")}>
@@ -441,7 +469,7 @@ export function OfficeCommandCenter() {
 
     <div className="lulu-office-command__body">
       <section className="lulu-office-command__core-stage" aria-live="polite">
-        <div className="lulu-office-command__core" aria-hidden="true"><span className="lulu-office-command__core-ring lulu-office-command__core-ring--outer" /><span className="lulu-office-command__core-ring lulu-office-command__core-ring--inner" /><span className="lulu-office-command__core-center">{coreState === "completed" ? <Check size={24} /> : coreState === "attention" ? <CircleAlert size={24} /> : coreState === "needs-confirmation" ? <ShieldCheck size={24} /> : coreState === "listening" ? <Mic size={23} /> : processing ? <LoaderCircle size={24} className="lulu-office-spin" /> : <Sparkles size={24} />}</span></div>
+        <div className="lulu-office-command__core" aria-hidden="true"><span className="lulu-office-command__core-ring lulu-office-command__core-ring--outer" /><span className="lulu-office-command__core-ring lulu-office-command__core-ring--inner" /><span className="lulu-office-command__core-center"><img src="/branding/lulu-agentic-mark.svg" alt="" draggable={false} /></span></div>
         <div className="lulu-office-command__core-copy"><p>{selectedWorkspace?.companyName ?? t("Company operating system")}</p><h2>{t(stateCopy[coreState].title)}</h2><span>{t(stateCopy[coreState].detail)}</span></div>
       </section>
 

@@ -2,15 +2,15 @@
   height: 100dvh;
   min-height: 100dvh;
   overflow: hidden;
-  background: #08110e;
-  color: #eff8f3;
+  background: #090a12;
+  color: #f4f3ff;
 }
 
 .lulu-office--ai-native::before {
   position: fixed;
   z-index: 0;
   inset: 0;
-  background-image: linear-gradient(rgba(148, 206, 183, .035) 1px, transparent 1px), linear-gradient(90deg, rgba(148, 206, 183, .035) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(0, 207, 232, .032) 1px, transparent 1px), linear-gradient(90deg, rgba(109, 40, 255, .032) 1px, transparent 1px);
   background-size: 56px 56px;
   content: "";
   pointer-events: none;

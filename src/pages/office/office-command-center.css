@@ -1,8 +1,8 @@
 .lulu-office-command {
-  --command-ink: #eef8f3;
-  --command-muted: #94aaa0;
-  --command-line: #263c33;
-  --command-panel: #0e1a15;
+  --command-ink: #f4f3ff;
+  --command-muted: #99a0b6;
+  --command-line: #2a2f45;
+  --command-panel: #10121f;
   display: grid;
   height: 100dvh;
   min-height: 0;
@@ -14,15 +14,17 @@
 .lulu-office-command button { font: inherit; }
 .lulu-office-command button:focus-visible,
 .lulu-office-command textarea:focus-visible,
-.lulu-office-command input:focus-visible { outline: 2px solid #87d9bf; outline-offset: 3px; }
+.lulu-office-command input:focus-visible { outline: 2px solid #00cfe8; outline-offset: 3px; }
 
 .lulu-office-command__header {
   display: grid;
   min-height: 58px;
-  grid-template-columns: 1fr auto 1fr;
+  grid-template-columns: 1fr auto;
   align-items: center;
   padding: 0 clamp(16px, 3vw, 42px);
   grid-row: 1;
+  position: relative;
+  z-index: 80;
 }
 
 .lulu-office-command__history-toggle,
@@ -41,15 +43,31 @@
   font-weight: 680;
 }
 
-.lulu-office-command__history-toggle { justify-self: start; padding: 0 8px; }
+.lulu-office-command__history-toggle { padding: 0 8px; }
 .lulu-office-command__history-toggle:hover,
-.lulu-office-command__new-intent:hover { border-color: #395b4e; background: #102219; color: #e8f7ef; }
-.lulu-office-command__history-toggle small { display: grid; width: 17px; height: 17px; place-items: center; border-radius: 50%; background: #234c3d; color: #cef5e4; font-size: .6rem; }
-.lulu-office-command__identity { display: inline-flex; align-items: center; gap: 7px; color: #dff2e9; font-size: .76rem; }
-.lulu-office-command__identity svg { color: #84ddc0; }
-.lulu-office-command__identity strong { letter-spacing: 0; }
-.lulu-office-command__header-actions { display: flex; justify-content: flex-end; }
+.lulu-office-command__new-intent:hover { border-color: #434c76; background: #151a31; color: #f4f3ff; }
+.lulu-office-command__history-toggle small { display: grid; width: 17px; height: 17px; place-items: center; border-radius: 50%; background: #302567; color: #d8d0ff; font-size: .6rem; }
+.lulu-office-command__header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
 .lulu-office-command__new-intent { padding: 0 8px; }
+
+.lulu-office-command__settings-menu { position: relative; justify-self: start; }
+.lulu-office-command__settings-menu > summary { display: inline-flex; min-height: 32px; align-items: center; gap: 7px; border: 1px solid transparent; border-radius: 4px; padding: 0 8px; color: var(--command-muted); cursor: pointer; font-size: .72rem; font-weight: 680; list-style: none; }
+.lulu-office-command__settings-menu > summary::-webkit-details-marker { display: none; }
+.lulu-office-command__settings-menu > summary:hover,
+.lulu-office-command__settings-menu[open] > summary { border-color: #434c76; background: #151a31; color: #f4f3ff; }
+.lulu-office-command__settings-menu[open] > summary > svg:last-child { transform: rotate(180deg); }
+.lulu-office-command__settings-popover { position: absolute; top: calc(100% + 8px); left: 0; width: min(272px, calc(100vw - 32px)); overflow: hidden; border: 1px solid #353d60; border-radius: 6px; background: #10121f; box-shadow: 0 18px 44px rgba(0, 0, 0, .38); }
+.lulu-office-command__settings-heading { display: grid; gap: 4px; border-bottom: 1px solid var(--command-line); padding: 12px; }
+.lulu-office-command__settings-heading span { color: #9aa4cc; font-size: .62rem; font-weight: 700; text-transform: uppercase; }
+.lulu-office-command__settings-heading strong { overflow: hidden; color: #f4f3ff; font-size: .75rem; text-overflow: ellipsis; white-space: nowrap; }
+.lulu-office-command__settings-links { display: grid; gap: 2px; padding: 5px; }
+.lulu-office-command__settings-links button,
+.lulu-office-command__settings-workspace { display: flex; width: 100%; min-height: 34px; align-items: center; gap: 8px; border: 0; border-radius: 4px; padding: 0 8px; background: transparent; color: #c4c9de; cursor: pointer; font-size: .7rem; text-align: left; }
+.lulu-office-command__settings-links button svg { color: #7f7deb; }
+.lulu-office-command__settings-links button:hover,
+.lulu-office-command__settings-workspace:hover { background: #1a203b; color: #fff; }
+.lulu-office-command__settings-divider { height: 1px; margin: 2px 5px; background: var(--command-line); }
+.lulu-office-command__settings-workspace { margin: 5px; width: calc(100% - 10px); color: #9ddfeb; }
 
 .lulu-office-command__body {
   width: min(940px, 100%);
@@ -81,50 +99,50 @@
 .lulu-office-command__core::before,
 .lulu-office-command__core::after {
   position: absolute;
-  border: 1px solid #1c382e;
+  border: 1px solid #272d45;
   border-radius: 50%;
   content: "";
 }
 
 .lulu-office-command__core::before { inset: -18px; }
 .lulu-office-command__core::after { inset: -38px; opacity: .58; }
-.lulu-office-command__core-ring { position: absolute; border: 1px solid #3e7763; border-radius: 50%; }
+.lulu-office-command__core-ring { position: absolute; border: 1px solid rgba(109, 40, 255, .68); border-radius: 50%; }
 .lulu-office-command__core-ring--outer { inset: 0; }
-.lulu-office-command__core-ring--inner { inset: 25px; border-color: #8cddc0; }
+.lulu-office-command__core-ring--inner { inset: 25px; border-color: rgba(0, 207, 232, .78); }
 .lulu-office-command__core-center {
   position: absolute;
-  inset: 54px;
+  inset: 38px;
   display: grid;
   place-items: center;
-  border: 1px solid #97e5c9;
+  border: 1px solid #00cfe8;
   border-radius: 50%;
-  background: #17382d;
-  box-shadow: 0 0 36px rgba(71, 173, 137, .12);
-  color: #c4fae3;
+  background: #11152a;
+  box-shadow: 0 0 34px rgba(0, 207, 232, .13), 0 0 56px rgba(109, 40, 255, .12);
 }
+.lulu-office-command__core-center img { display: block; width: 70%; height: 70%; object-fit: contain; filter: drop-shadow(0 0 10px rgba(0, 207, 232, .16)); }
 
 .lulu-office-command--thinking .lulu-office-command__core-ring--outer,
 .lulu-office-command--working .lulu-office-command__core-ring--outer { animation: lulu-office-command-rotate 4s linear infinite; }
-.lulu-office-command--listening .lulu-office-command__core-center { border-color: #72cbd9; background: #173c40; color: #c4f4f7; }
-.lulu-office-command--completed .lulu-office-command__core-center { border-color: #83d7a0; background: #1a442f; color: #cefae0; }
-.lulu-office-command--needs-confirmation .lulu-office-command__core-center { border-color: #e2be70; background: #49391b; color: #ffe3a9; }
-.lulu-office-command--attention .lulu-office-command__core-center { border-color: #e18d73; background: #48291f; color: #ffd6ca; }
+.lulu-office-command--listening .lulu-office-command__core-center { border-color: #00cfe8; }
+.lulu-office-command--completed .lulu-office-command__core-center { border-color: #7f7deb; }
+.lulu-office-command--needs-confirmation .lulu-office-command__core-center { border-color: #e2be70; }
+.lulu-office-command--attention .lulu-office-command__core-center { border-color: #e18d73; }
 
 @keyframes lulu-office-command-rotate { to { transform: rotate(360deg); } }
 
 .lulu-office-command__core-copy { max-width: 510px; }
-.lulu-office-command__core-copy p { margin: 0; color: #82dcbf; font-size: .69rem; font-weight: 700; }
+.lulu-office-command__core-copy p { margin: 0; color: #56d7e9; font-size: .69rem; font-weight: 700; }
 .lulu-office-command__core-copy h2 { margin: 8px 0 7px; color: #fff; font-size: clamp(1.38rem, 2.5vw, 1.82rem); font-weight: 700; letter-spacing: 0; line-height: 1.15; }
 .lulu-office-command__core-copy span { display: block; color: var(--command-muted); font-size: .8rem; line-height: 1.55; }
 
-.lulu-office-command.has-conversation .lulu-office-command__body { overflow-y: auto; overscroll-behavior: contain; padding-top: 36px; scrollbar-color: #416a5a transparent; scrollbar-width: thin; }
+.lulu-office-command.has-conversation .lulu-office-command__body { overflow-y: auto; overscroll-behavior: contain; padding-top: 36px; scrollbar-color: #4d5783 transparent; scrollbar-width: thin; }
 .lulu-office-command.has-conversation .lulu-office-command__core-stage { min-height: 0; height: auto; grid-template-columns: 70px minmax(0, 1fr); justify-items: start; gap: 15px; padding: 0 0 28px; text-align: left; }
 .lulu-office-command.has-conversation .lulu-office-command__core { width: 62px; height: 62px; margin: 0 0 0 5px; }
 .lulu-office-command.has-conversation .lulu-office-command__core::before { inset: -9px; }
 .lulu-office-command.has-conversation .lulu-office-command__core::after { display: none; }
 .lulu-office-command.has-conversation .lulu-office-command__core-ring--inner { inset: 9px; }
-.lulu-office-command.has-conversation .lulu-office-command__core-center { inset: 20px; }
-.lulu-office-command.has-conversation .lulu-office-command__core-center svg { width: 16px; height: 16px; }
+.lulu-office-command.has-conversation .lulu-office-command__core-center { inset: 14px; }
+.lulu-office-command.has-conversation .lulu-office-command__core-center img { width: 68%; height: 68%; }
 .lulu-office-command.has-conversation .lulu-office-command__core-copy { max-width: 560px; padding-top: 2px; }
 .lulu-office-command.has-conversation .lulu-office-command__core-copy h2 { margin: 3px 0 4px; font-size: 1rem; }
 .lulu-office-command.has-conversation .lulu-office-command__core-copy span { font-size: .73rem; }
@@ -200,37 +218,40 @@
 .lulu-office-command__error button { display: grid; width: 22px; height: 22px; flex: 0 0 auto; place-items: center; margin-left: auto; border: 0; background: transparent; color: inherit; cursor: pointer; }
 
 .lulu-office-command__composer-shell { position: fixed; z-index: 50; right: 50%; bottom: max(18px, env(safe-area-inset-bottom)); width: min(880px, calc(100vw - 32px)); margin: 0; transform: translateX(50%); }
-.lulu-office-command__composer { border: 1px solid #426b5b; border-radius: 8px; background: #11251d; box-shadow: 0 20px 46px rgba(0, 0, 0, .34); }
-.lulu-office-command__composer-modes { display: flex; gap: 3px; border-bottom: 1px solid #2d4c40; padding: 6px 7px; }
+.lulu-office-command__composer { border: 1px solid #414a74; border-radius: 8px; background: #111426; box-shadow: 0 20px 46px rgba(0, 0, 0, .38); }
+.lulu-office-command__composer-modes { display: flex; gap: 3px; border-bottom: 1px solid #2c3353; padding: 6px 7px; }
 .lulu-office-command__composer-modes button { min-height: 25px; border: 1px solid transparent; border-radius: 3px; background: transparent; color: var(--command-muted); padding: 0 8px; cursor: pointer; font-size: .64rem; font-weight: 700; }
-.lulu-office-command__composer-modes button.is-active { border-color: #598e7d; background: #21483b; color: #b3f0dc; }
-.lulu-office-command__reference-input { display: flex; align-items: center; gap: 7px; border-bottom: 1px solid #2d4c40; padding: 7px 10px; color: #86d7e3; }
+.lulu-office-command__composer-modes button.is-active { border-color: #6257c5; background: #251d4b; color: #d9d1ff; }
+.lulu-office-command__reference-input { display: flex; align-items: center; gap: 7px; border-bottom: 1px solid #2c3353; padding: 7px 10px; color: #73dcea; }
 .lulu-office-command__reference-input input { min-width: 0; flex: 1; border: 0; background: transparent; color: #e2f8f0; outline: 0; font: inherit; font-size: .74rem; }
 .lulu-office-command__reference-input input::placeholder { color: #75988b; }
 .lulu-office-command__reference-input button { display: grid; width: 22px; height: 22px; place-items: center; border: 0; background: transparent; color: var(--command-muted); cursor: pointer; }
-.lulu-office-command__pending-files { display: flex; flex-wrap: wrap; gap: 5px; border-bottom: 1px solid #2d4c40; padding: 7px 9px; }
+.lulu-office-command__pending-files { display: flex; flex-wrap: wrap; gap: 5px; border-bottom: 1px solid #2c3353; padding: 7px 9px; }
 .lulu-office-command__pending-files span { display: inline-flex; max-width: 100%; align-items: center; gap: 5px; border: 1px solid #3d6a59; border-radius: 4px; padding: 4px 5px; color: #cce5da; font-size: .66rem; overflow-wrap: anywhere; }
 .lulu-office-command__pending-files button { display: grid; width: 15px; height: 15px; place-items: center; border: 0; background: transparent; color: var(--command-muted); cursor: pointer; }
 .lulu-office-command__composer-main { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: end; gap: 7px; padding: 9px; }
 .lulu-office-command__composer-tools { display: flex; align-items: center; gap: 2px; }
 .lulu-office-command__composer-tools button { display: grid; width: 32px; height: 32px; place-items: center; border: 1px solid transparent; border-radius: 5px; background: transparent; color: var(--command-muted); cursor: pointer; }
 .lulu-office-command__composer-tools button:hover,
-.lulu-office-command__composer-tools button.is-active { border-color: #426d5e; background: #193c30; color: #a7edda; }
-.lulu-office-command__composer-tools button.is-listening { border-color: #4e99a4; background: #1b3e43; color: #b4f4f7; }
+.lulu-office-command__composer-tools button.is-active { border-color: #495784; background: #192040; color: #92e8f4; }
+.lulu-office-command__composer-tools button.is-listening { border-color: #00cfe8; background: #143647; color: #b4f4f7; }
 .lulu-office-command__composer-tools button:disabled { cursor: default; opacity: .45; }
 .lulu-office-command__composer textarea { width: 100%; min-height: 38px; max-height: 128px; resize: none; border: 0; background: transparent; color: #f1faf5; padding: 8px 3px; outline: 0; font: inherit; font-size: .84rem; line-height: 1.42; }
 .lulu-office-command__composer textarea::placeholder { color: #90aa9f; }
-.lulu-office-command__send { border-color: #7ed1b8 !important; background: #9ae6ce !important; color: #10261e !important; }
-.lulu-office-command__send:hover { background: #b1f1dd !important; }
-.lulu-office-command__composer-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px 12px; border-top: 1px solid #2d4c40; padding: 6px 9px; color: var(--command-muted); font-size: .61rem; }
+.lulu-office-command__send { border-color: #00cfe8 !important; background: #00cfe8 !important; color: #071018 !important; }
+.lulu-office-command__send:hover { background: #53ddea !important; }
+.lulu-office-command__composer-status { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 5px 12px; border-top: 1px solid #2c3353; padding: 6px 9px; color: var(--command-muted); font-size: .61rem; }
 .lulu-office-command__composer-status span { display: inline-flex; align-items: center; gap: 5px; }
-.lulu-office-command__composer-status svg { color: #7bdabd; }
+.lulu-office-command__composer-status svg { color: #7779ea; }
 
 @media (max-width: 720px) {
   .lulu-office-command { grid-template-rows: 52px minmax(0, 1fr); }
   .lulu-office-command__header { min-height: 52px; padding: 0 12px; }
+  .lulu-office-command__settings-menu > summary span,
   .lulu-office-command__history-toggle span,
   .lulu-office-command__new-intent span { display: none; }
+  .lulu-office-command__settings-menu > summary { width: 32px; justify-content: center; padding: 0; }
+  .lulu-office-command__settings-menu > summary > svg:last-child { display: none; }
   .lulu-office-command__history-toggle,
   .lulu-office-command__new-intent { width: 32px; padding: 0; }
   .lulu-office-command__body { padding: 12px 18px 204px; }
