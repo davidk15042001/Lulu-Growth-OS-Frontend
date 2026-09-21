@@ -221,7 +221,7 @@ function CompanyDetail({ record, canWrite, busy, onEdit, onArchive, onRetry }: {
   const status = enrichmentStatus(record);
 
   return <article className="min-w-0 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-[0_18px_70px_rgba(34,24,76,.06)]">
-    <div className="border-b border-[var(--border)] bg-[radial-gradient(circle_at_top_right,rgba(34,211,238,.13),transparent_36%),radial-gradient(circle_at_top_left,rgba(139,92,246,.14),transparent_38%)] p-5 sm:p-7">
+    <div className="lulu-company-intelligence-detail-header border-b border-[var(--border)] p-5 sm:p-7">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-4"><span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-violet-600 to-cyan-400 text-base font-semibold text-white shadow-lg shadow-violet-500/15">{initials(record.name)}</span><div className="min-w-0"><EnrichmentBadge record={record}/><h2 className="mt-2 truncate text-2xl font-semibold">{record.name}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{value(record, 'industry') || 'Branche wird autonom ermittelt'}</p></div></div>
         <div className="flex gap-1"><button type="button" onClick={() => onEdit(record)} disabled={!canWrite || busy} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-2.5 disabled:opacity-40" aria-label="Korrigieren"><Pencil size={15}/></button><button type="button" onClick={() => onArchive(record)} disabled={!canWrite || busy} className="rounded-xl border border-rose-200 bg-rose-50 p-2.5 text-rose-600 disabled:opacity-40" aria-label="Archivieren"><Archive size={15}/></button></div>

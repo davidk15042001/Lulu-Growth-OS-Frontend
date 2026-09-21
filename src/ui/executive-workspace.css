@@ -443,6 +443,22 @@
   box-shadow: none !important;
 }
 
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > main > div[class*="mx-auto"] > header:first-child::after {
+  display: none !important;
+}
+
+.lulu-company-intelligence-detail-header { background: #141a2d !important; }
+
+.lulu-admin-surface-switcher {
+  border-color: #353d60 !important;
+  border-radius: 6px !important;
+  background: #151a31 !important;
+  color: var(--lulu-exec-ink) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, .28) !important;
+}
+
+.lulu-admin-surface-switcher:hover { border-color: #44517d !important; background: #1a203b !important; }
+
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea) {
   border-color: #353d60 !important;
   background: #0c1020 !important;
