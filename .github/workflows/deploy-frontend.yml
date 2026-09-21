@@ -154,14 +154,21 @@ jobs:
           backend_sha="$(git -C backend-source rev-parse HEAD)"
           backend_pushed_at="$(git -C backend-source show -s --format=%cI "$backend_sha")"
           deployed_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          # Older server releases contain root-owned code directories. Stage
+          # the checked-in repair script first, then let the restricted root
+          # wrapper fix only code ownership before the complete sync.
+          rsync -rz --links \
+            backend-source/scripts/deploy-production-backend.sh \
+            "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/scripts/"
+          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=20 \
+            "$DEPLOY_USER@$DEPLOY_HOST" \
+            'sudo -n /bin/sh /var/www/lulu-growth-os/backend/scripts/deploy-production-backend.sh --repair-permissions'
           rsync -rz --links --delete \
             --exclude .env \
             --exclude .git \
             --exclude node_modules \
             --exclude .runtime-secrets \
             --exclude .runtime-deployment.json \
-            --exclude tests \
-            --exclude src/utils \
             --exclude '.deploy-stale-node_modules-*' \
             backend-source/ \
             "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
