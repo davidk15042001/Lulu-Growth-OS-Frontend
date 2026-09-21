@@ -1213,14 +1213,22 @@ function ExecutiveOperatingPanel({
   const [scenarioForecastId, setScenarioForecastId] = useState("");
   const [scenarioAdjustment, setScenarioAdjustment] = useState("10");
   const [creatingScenario, setCreatingScenario] = useState(false);
+  const [outcomeProposalId, setOutcomeProposalId] = useState("");
+  const [outcomeText, setOutcomeText] = useState("");
+  const [outcomeEvidence, setOutcomeEvidence] = useState("");
+  const [outcomeConfidence, setOutcomeConfidence] = useState("0.8");
+  const [verifyingOutcome, setVerifyingOutcome] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
   const daily = overview?.latestCycles.daily ?? null;
   const weekly = overview?.latestCycles.weekly ?? null;
   const findings = overview?.findings.filter((finding) => finding.status === "open").slice(0, 4) ?? [];
   const forecasts = overview?.forecasts.filter((forecast) => forecast.status !== "superseded").slice(0, 3) ?? [];
   const proposed = overview?.proposals.filter((proposal) => proposal.status === "proposed").slice(0, 4) ?? [];
+  const activePlans = overview?.proposals.filter((proposal) => proposal.status === "dispatched").slice(0, 4) ?? [];
+  const verifiedLearning = overview?.learning.filter((record) => record.learningType === "proposal_outcome_review" && record.verified).slice(0, 2) ?? [];
   const dataGapCount = (daily?.dataGaps.length ?? 0) + (weekly?.dataGaps.length ?? 0);
   const selectedScenarioForecast = forecasts.find((forecast) => forecast.id === scenarioForecastId) ?? forecasts[0] ?? null;
+  const selectedOutcomeProposal = activePlans.find((proposal) => proposal.id === outcomeProposalId) ?? activePlans[0] ?? null;
 
   const runCycle = async (cycleType: "daily" | "weekly") => {
     if (!canManage || !online) return;
@@ -1281,15 +1289,46 @@ function ExecutiveOperatingPanel({
     }
   };
 
+  const verifyPlanOutcome = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!canManage || !online || !selectedOutcomeProposal) return;
+    const confidence = Number(outcomeConfidence);
+    if (!outcomeText.trim() || !outcomeEvidence.trim()) {
+      setActionError(t("Enter an outcome and evidence reference."));
+      return;
+    }
+    if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) {
+      setActionError(t("Enter a valid review confidence."));
+      return;
+    }
+    setVerifyingOutcome(true);
+    setActionError(null);
+    try {
+      await executiveApi.verifyProposalOutcome(workspaceId, selectedOutcomeProposal.id, {
+        expectedVersion: selectedOutcomeProposal.version,
+        outcome: outcomeText.trim(),
+        evidence: { reference: outcomeEvidence.trim(), executionMode: "plan_only" },
+        confidence,
+      });
+      setOutcomeText("");
+      setOutcomeEvidence("");
+      await onChanged();
+    } catch (cause) {
+      setActionError(getFriendlyErrorMessage(cause, t("Plan outcome could not be verified.")));
+    } finally {
+      setVerifyingOutcome(false);
+    }
+  };
+
   return <section className="lulu-office-executive" aria-labelledby="lulu-office-executive-title">
     <div className="lulu-office-section-heading lulu-office-executive__heading">
       <div><span className="lulu-office-eyebrow">{t("Executive operating system")}</span><h2 id="lulu-office-executive-title">{t("Daily company position")}</h2></div>
       {canManage && <div className="lulu-office-executive__commands">
-        <button type="button" onClick={() => void runCycle("daily")} disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || refreshing || !online}>
+        <button type="button" onClick={() => void runCycle("daily")} disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || verifyingOutcome || refreshing || !online}>
           {runningCycleType === "daily" ? <LoaderCircle aria-hidden="true" size={15} className="lulu-office-spin" /> : <Play aria-hidden="true" size={15} />}
           {runningCycleType === "daily" ? t("Running daily review...") : t("Run daily review")}
         </button>
-        <button type="button" className="is-secondary" onClick={() => void runCycle("weekly")} disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || refreshing || !online}>
+        <button type="button" className="is-secondary" onClick={() => void runCycle("weekly")} disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || verifyingOutcome || refreshing || !online}>
           {runningCycleType === "weekly" ? <LoaderCircle aria-hidden="true" size={15} className="lulu-office-spin" /> : <CalendarClock aria-hidden="true" size={15} />}
           {runningCycleType === "weekly" ? t("Running weekly strategy...") : t("Run weekly strategy")}
         </button>
@@ -1343,7 +1382,7 @@ function ExecutiveOperatingPanel({
             <label><span>{t("Scenario name")}</span><input value={scenarioName} maxLength={200} onChange={(event) => setScenarioName(event.target.value)} /></label>
             <label><span>{t("Metric")}</span><select value={selectedScenarioForecast.id} onChange={(event) => setScenarioForecastId(event.target.value)}>{forecasts.map((forecast) => <option key={forecast.id} value={forecast.id}>{forecast.metricName}</option>)}</select></label>
             <label><span>{t("Adjustment percent")}</span><input type="number" inputMode="decimal" min={-100} max={10_000} step="0.01" value={scenarioAdjustment} onChange={(event) => setScenarioAdjustment(event.target.value)} /></label>
-            <button type="submit" disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || !online}>{creatingScenario ? <LoaderCircle aria-hidden="true" size={14} className="lulu-office-spin" /> : <BarChart3 aria-hidden="true" size={14} />}{creatingScenario ? t("Creating scenario...") : t("Create scenario")}</button>
+            <button type="submit" disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || verifyingOutcome || !online}>{creatingScenario ? <LoaderCircle aria-hidden="true" size={14} className="lulu-office-spin" /> : <BarChart3 aria-hidden="true" size={14} />}{creatingScenario ? t("Creating scenario...") : t("Create scenario")}</button>
           </form>}
         </section>
 
@@ -1355,11 +1394,28 @@ function ExecutiveOperatingPanel({
               <p>{proposal.objective}</p>
               <small>{proposal.proposalType.replaceAll("_", " ")} · {proposal.executionMode.replaceAll("_", " ")} · {Math.round(proposal.confidence * 100)}% {t("confidence")}</small>
               {canManage && <div className="lulu-office-executive__proposal-actions">
-                <button type="button" className="is-approve" disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || !online} onClick={() => void decideProposal(proposal, "approve")}><CheckCircle2 aria-hidden="true" size={14} />{t("Approve plan")}</button>
-                <button type="button" className="is-reject" disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || !online} onClick={() => void decideProposal(proposal, "reject")}><XCircle aria-hidden="true" size={14} />{t("Reject plan")}</button>
+                <button type="button" className="is-approve" disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || verifyingOutcome || !online} onClick={() => void decideProposal(proposal, "approve")}><CheckCircle2 aria-hidden="true" size={14} />{t("Approve plan")}</button>
+                <button type="button" className="is-reject" disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || verifyingOutcome || !online} onClick={() => void decideProposal(proposal, "reject")}><XCircle aria-hidden="true" size={14} />{t("Reject plan")}</button>
               </div>}
             </li>)}
           </ul>}
+          {activePlans.length > 0 && <>
+            <h4 className="lulu-office-executive__subheading">{t("Plans in preparation")}</h4>
+            <ul className="lulu-office-executive__proposals">
+              {activePlans.map((proposal) => <li key={proposal.id}>
+                <div className="lulu-office-executive__proposal-heading"><strong>{proposal.title}</strong><span>{proposalStatusLabel(proposal, t)}</span></div>
+                <small>{proposal.proposalType.replaceAll("_", " ")} · {t("Company Brain mission")}</small>
+              </li>)}
+            </ul>
+            {canManage && selectedOutcomeProposal && <form className="lulu-office-executive__outcome-form" onSubmit={(event) => void verifyPlanOutcome(event)}>
+              <label><span>{t("Plan")}</span><select value={selectedOutcomeProposal.id} onChange={(event) => setOutcomeProposalId(event.target.value)}>{activePlans.map((proposal) => <option key={proposal.id} value={proposal.id}>{proposal.title}</option>)}</select></label>
+              <label><span>{t("Outcome")}</span><textarea value={outcomeText} maxLength={4000} rows={2} onChange={(event) => setOutcomeText(event.target.value)} /></label>
+              <label><span>{t("Evidence reference")}</span><input value={outcomeEvidence} maxLength={600} onChange={(event) => setOutcomeEvidence(event.target.value)} /></label>
+              <label><span>{t("Review confidence")}</span><input type="number" inputMode="decimal" min={0} max={1} step="0.05" value={outcomeConfidence} onChange={(event) => setOutcomeConfidence(event.target.value)} /></label>
+              <button type="submit" disabled={Boolean(runningCycleType) || Boolean(busyProposalAction) || creatingScenario || verifyingOutcome || !online}>{verifyingOutcome ? <LoaderCircle aria-hidden="true" size={14} className="lulu-office-spin" /> : <CheckCircle2 aria-hidden="true" size={14} />}{verifyingOutcome ? t("Verifying outcome...") : t("Verify plan outcome")}</button>
+            </form>}
+          </>}
+          {verifiedLearning.length > 0 && <div className="lulu-office-executive__learning"><span>{t("Verified learning")}</span>{verifiedLearning.map((record) => <p key={record.id}>{record.outcome}</p>)}</div>}
         </section>
       </div>
     </>}

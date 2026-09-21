@@ -292,5 +292,17 @@
   "Run weekly strategy": "运行每周战略",
   "Running weekly strategy...": "正在运行每周战略...",
   "daily": "每日",
-  "weekly": "每周"
+  "weekly": "每周",
+  "Plans in preparation": "准备中的计划",
+  "Company Brain mission": "公司大脑任务",
+  "Plan": "计划",
+  "Outcome": "结果",
+  "Evidence reference": "证据引用",
+  "Review confidence": "审核置信度",
+  "Verify plan outcome": "验证计划结果",
+  "Verifying outcome...": "正在验证结果...",
+  "Verified learning": "已验证学习",
+  "Enter an outcome and evidence reference.": "请输入结果和证据引用。",
+  "Enter a valid review confidence.": "请输入有效的审核置信度。",
+  "Plan outcome could not be verified.": "无法验证计划结果。"
 }

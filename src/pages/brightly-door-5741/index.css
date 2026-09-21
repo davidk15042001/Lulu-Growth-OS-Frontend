@@ -416,3 +416,440 @@ details[open] > :not(summary) {
   }
 }
 /* LULU_MODERN_SYSTEM_V1_END */
+
+/* Executive OS landing page */
+.lulu-executive-landing {
+  --exec-ink: #071014;
+  --exec-carbon: #101b20;
+  --exec-paper: #f1f4f2;
+  --exec-line: #c8d0cd;
+  --exec-mist: #aebcbb;
+  --exec-cyan: #85e9df;
+  --exec-amber: #e9bd79;
+  --exec-green: #9dcda8;
+  min-height: 100vh;
+  overflow: clip;
+  background: var(--exec-paper);
+  color: var(--exec-ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
+.lulu-executive-landing *,
+.lulu-executive-landing *::before,
+.lulu-executive-landing *::after { box-sizing: border-box; }
+
+.lulu-executive-landing a { color: inherit; text-decoration: none; }
+.lulu-executive-landing button,
+.lulu-executive-landing input { font: inherit; }
+.lulu-executive-landing button { cursor: pointer; }
+.lulu-executive-landing > section { min-height: 0 !important; }
+.lulu-executive-landing > .lulu-exec-hero { min-height: 680px !important; }
+
+.lulu-exec-nav {
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  left: 50%;
+  display: flex;
+  width: min(1440px, 100%);
+  min-height: 80px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5vw;
+  color: #f6fbf9;
+  transform: translateX(-50%);
+}
+
+.lulu-exec-brand,
+.lulu-exec-nav-actions,
+.lulu-exec-nav-links,
+.lulu-exec-language,
+.lulu-exec-hero-actions,
+.lulu-exec-eyebrow,
+.lulu-exec-scroll-cue,
+.lulu-exec-layer-head,
+.lulu-exec-system-footnote,
+.lulu-exec-text-button,
+.lulu-exec-submit,
+.lulu-exec-success { display: flex; align-items: center; }
+
+.lulu-exec-brand { gap: 9px; }
+.lulu-exec-brand img { width: 28px; height: 28px; object-fit: contain; }
+.lulu-exec-brand span { color: #fff; font-size: 18px; font-weight: 800; letter-spacing: .13em; }
+.lulu-exec-brand small { border-left: 1px solid rgba(255,255,255,.38); padding-left: 9px; color: #b5c3c1; font-size: 9px; font-weight: 700; letter-spacing: .15em; }
+.lulu-exec-nav-links { gap: 28px; margin-left: auto; margin-right: 28px; }
+.lulu-exec-nav-links a,
+.lulu-exec-nav-login { color: #d4dfdd; font-size: 12px; font-weight: 700; letter-spacing: .05em; }
+.lulu-exec-nav-links a:hover,
+.lulu-exec-nav-login:hover { color: var(--exec-cyan); }
+.lulu-exec-nav-actions { gap: 12px; }
+.lulu-exec-language-wrap { position: relative; }
+.lulu-exec-language,
+.lulu-exec-nav-login {
+  min-height: 34px;
+  border: 1px solid rgba(255,255,255,.26);
+  border-radius: 4px;
+  background: rgba(7,16,20,.5);
+}
+.lulu-exec-language { gap: 7px; padding: 0 9px; color: #dfe9e7; }
+.lulu-exec-language svg { transition: transform 180ms ease; }
+.lulu-exec-nav-login { padding: 0 13px; }
+.lulu-exec-language-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  width: 172px;
+  overflow: hidden;
+  border: 1px solid #34484a;
+  border-radius: 6px;
+  background: #111f23;
+  box-shadow: 0 18px 42px rgba(0,0,0,.34);
+}
+.lulu-exec-language-menu button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 0;
+  background: transparent;
+  color: #dce8e6;
+  font-size: 13px;
+  text-align: left;
+}
+.lulu-exec-language-menu button:hover { background: #1d3033; }
+
+.lulu-exec-hero {
+  position: relative;
+  display: flex;
+  min-height: 680px;
+  align-items: center;
+  overflow: hidden;
+  background: var(--exec-ink);
+  color: #fff;
+}
+.lulu-exec-hero-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.lulu-exec-hero-overlay { position: absolute; inset: 0; background: rgba(4,11,15,.46); }
+.lulu-exec-hero-content {
+  position: relative;
+  z-index: 1;
+  width: min(720px, 100%);
+  margin-left: max(5vw, calc((100vw - 1340px) / 2));
+  padding: 112px 0 62px;
+}
+.lulu-exec-eyebrow {
+  gap: 8px;
+  margin: 0;
+  color: var(--exec-cyan);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+.lulu-exec-hero h1,
+.lulu-exec-section-intro h2,
+.lulu-exec-system-intro h2,
+.lulu-exec-access h2 {
+  margin: 18px 0 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.lulu-exec-hero h1 { max-width: 720px; font-size: 72px; line-height: .96; white-space: nowrap; }
+.lulu-exec-hero-statement { margin: 24px 0 0; color: var(--exec-amber); font-size: 24px; font-weight: 650; line-height: 1.25; }
+.lulu-exec-hero-copy { max-width: 570px; margin: 18px 0 0; color: #d0dcda; font-size: 17px; line-height: 1.72; }
+.lulu-exec-hero-actions { flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+.lulu-exec-primary-button,
+.lulu-exec-secondary-button {
+  display: inline-flex;
+  min-height: 48px;
+  align-items: center;
+  gap: 10px;
+  border-radius: 4px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: .025em;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+.lulu-exec-primary-button { border: 1px solid var(--exec-cyan); background: var(--exec-cyan); color: #082125; }
+.lulu-exec-primary-button:hover { background: #b0f5ed; transform: translateY(-1px); }
+.lulu-exec-secondary-button { border: 1px solid rgba(255,255,255,.35); background: rgba(4,11,15,.4); color: #fff; }
+.lulu-exec-secondary-button:hover { border-color: #fff; background: rgba(255,255,255,.1); }
+.lulu-exec-hero-proof {
+  display: grid;
+  max-width: 650px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 58px;
+  border-top: 1px solid rgba(255,255,255,.26);
+  border-bottom: 1px solid rgba(255,255,255,.14);
+}
+.lulu-exec-hero-proof span {
+  min-height: 58px;
+  padding: 14px 17px 12px 0;
+  color: #d4dfdd;
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+.lulu-exec-hero-proof span + span { border-left: 1px solid rgba(255,255,255,.17); padding-left: 17px; }
+.lulu-exec-scroll-cue {
+  position: absolute;
+  z-index: 1;
+  right: max(5vw, calc((100vw - 1340px) / 2));
+  bottom: 34px;
+  gap: 8px;
+  color: #c9d5d3;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.lulu-exec-scroll-cue svg { transform: rotate(90deg); }
+.lulu-exec-scroll-cue:hover { color: var(--exec-cyan); }
+
+.lulu-exec-mission,
+.lulu-exec-system,
+.lulu-exec-governance,
+.lulu-exec-access {
+  padding-left: max(5vw, calc((100vw - 1340px) / 2));
+  padding-right: max(5vw, calc((100vw - 1340px) / 2));
+}
+.lulu-exec-mission {
+  display: grid;
+  grid-template-columns: minmax(300px, .88fr) minmax(0, 1.12fr);
+  gap: 90px;
+  padding-top: 124px;
+  padding-bottom: 124px;
+  background: var(--exec-paper);
+}
+.lulu-exec-kicker { margin: 0; color: #286d72; font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+.lulu-exec-section-intro h2,
+.lulu-exec-system-intro h2,
+.lulu-exec-access h2 { max-width: 630px; font-size: 54px; line-height: 1.02; }
+.lulu-exec-section-intro > p:last-child,
+.lulu-exec-system-intro > p:last-child {
+  max-width: 520px;
+  margin: 23px 0 0;
+  color: #546663;
+  font-size: 17px;
+  line-height: 1.7;
+}
+.lulu-exec-mission-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-self: end; gap: 22px; }
+.lulu-exec-mission-pillar { min-width: 0; border-top: 2px solid #8ba8a6; padding: 16px 4px 0; }
+.lulu-exec-mission-pillar:nth-child(2) { border-top-color: var(--exec-amber); }
+.lulu-exec-mission-pillar:nth-child(3) { border-top-color: #75b08c; }
+.lulu-exec-mission-pillar .lulu-exec-index { display: block; color: #70817e; font-size: 11px; font-weight: 800; letter-spacing: .1em; }
+.lulu-exec-mission-pillar svg { margin-top: 28px; color: #225e63; }
+.lulu-exec-mission-pillar h3,
+.lulu-exec-layer h3,
+.lulu-exec-governance-pillar h3 { margin: 16px 0 0; font-size: 18px; font-weight: 800; letter-spacing: 0; line-height: 1.25; }
+.lulu-exec-mission-pillar p,
+.lulu-exec-layer p,
+.lulu-exec-governance-pillar p { margin: 10px 0 0; font-size: 14px; line-height: 1.62; }
+.lulu-exec-mission-pillar p { color: #5b6c69; }
+
+.lulu-exec-system {
+  padding-top: 122px;
+  padding-bottom: 96px;
+  background: var(--exec-carbon);
+  color: #f2f7f5;
+}
+.lulu-exec-system .lulu-exec-kicker { color: var(--exec-cyan); }
+.lulu-exec-system-intro { display: grid; grid-template-columns: minmax(300px, .88fr) minmax(0, 1.12fr); gap: 90px; align-items: end; }
+.lulu-exec-system-intro > p:last-child { color: #b3c2c0; }
+.lulu-exec-layer-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-top: 70px;
+  border-top: 1px solid rgba(255,255,255,.24);
+  border-left: 1px solid rgba(255,255,255,.18);
+}
+.lulu-exec-layer { min-width: 0; min-height: 250px; border-right: 1px solid rgba(255,255,255,.18); border-bottom: 1px solid rgba(255,255,255,.18); padding: 24px; }
+.lulu-exec-layer-head { justify-content: space-between; color: var(--exec-cyan); }
+.lulu-exec-layer-head span { color: #849391; font-size: 11px; font-weight: 800; letter-spacing: .12em; }
+.lulu-exec-layer h3 { color: #fff; }
+.lulu-exec-layer p { color: #b5c4c1; }
+.lulu-exec-system-footnote { gap: 9px; margin: 25px 0 0; color: #91d7ae; font-size: 12px; font-weight: 650; line-height: 1.5; }
+
+.lulu-exec-governance {
+  display: grid;
+  grid-template-columns: minmax(300px, .88fr) minmax(0, 1.12fr);
+  gap: 90px;
+  padding-top: 124px;
+  padding-bottom: 124px;
+  background: #e5ebe7;
+}
+.lulu-exec-governance-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-self: end; gap: 24px; }
+.lulu-exec-governance-pillar { min-width: 0; border-top: 1px solid #8ea4a0; padding: 20px 3px 0; }
+.lulu-exec-governance-pillar svg { color: #2c6d65; }
+.lulu-exec-governance-pillar p { color: #596b67; }
+
+.lulu-exec-access {
+  display: grid;
+  grid-template-columns: minmax(300px, 1fr) minmax(340px, 460px);
+  gap: 110px;
+  align-items: center;
+  padding-top: 124px;
+  padding-bottom: 124px;
+  background: var(--exec-ink);
+  color: #f3f7f5;
+}
+.lulu-exec-access h2 { max-width: 520px; font-size: 60px; }
+.lulu-exec-access-copy > p:not(.lulu-exec-eyebrow) { max-width: 440px; margin: 21px 0 0; color: #b7c4c1; font-size: 17px; line-height: 1.7; }
+.lulu-exec-text-button { gap: 9px; margin-top: 30px; border: 0; background: none; color: var(--exec-cyan); font-size: 13px; font-weight: 800; letter-spacing: .02em; }
+.lulu-exec-text-button:hover { color: #e7fffb; }
+.lulu-exec-login-card {
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 8px;
+  background: #f6f8f6;
+  padding: 30px;
+  color: var(--exec-ink);
+  box-shadow: 0 26px 56px rgba(0,0,0,.28);
+}
+.lulu-exec-login-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding-bottom: 22px; border-bottom: 1px solid #d4dcda; }
+.lulu-exec-login-heading p { margin: 0; font-size: 18px; font-weight: 850; }
+.lulu-exec-login-heading span { display: block; margin-top: 5px; color: #55716d; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.lulu-exec-login-heading img { width: 32px; height: 32px; object-fit: contain; }
+.lulu-exec-fields { display: grid; gap: 17px; margin-top: 23px; }
+.lulu-exec-label { display: grid; gap: 7px; color: #37504d; font-size: 12px; font-weight: 800; }
+.lulu-executive-landing .lulu-exec-input {
+  width: 100%;
+  height: 46px;
+  border: 1px solid #b8c7c4;
+  border-radius: 4px;
+  background: #fff;
+  color: var(--exec-ink);
+  font-size: 16px;
+  font-weight: 500;
+  box-shadow: none;
+}
+.lulu-executive-landing .lulu-exec-input:focus { border-color: #277a79; box-shadow: 0 0 0 3px rgba(133,233,223,.34); }
+.lulu-exec-password-field { position: relative; display: block; }
+.lulu-executive-landing .lulu-exec-password-field .lulu-exec-input { padding-right: 46px; }
+.lulu-exec-password-toggle { position: absolute; top: 0; right: 0; display: grid; width: 46px; height: 46px; place-items: center; border: 0; background: transparent; color: #5b6d6a; }
+.lulu-exec-password-toggle:hover { color: var(--exec-ink); }
+.lulu-executive-landing .lulu-exec-mfa-input { text-align: center; letter-spacing: .28em; }
+.lulu-executive-landing .lulu-exec-submit {
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 47px;
+  border: 1px solid #143d3e;
+  border-radius: 4px;
+  background: #143d3e;
+  color: #f5fffd;
+  font-size: 13px;
+  font-weight: 800;
+}
+.lulu-executive-landing .lulu-exec-submit:hover { background: #205d5c; }
+.lulu-executive-landing .lulu-exec-submit:disabled { cursor: wait; opacity: .65; }
+.lulu-exec-back-button { border: 0; background: none; color: #45615d; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
+.lulu-exec-status { margin: 0; color: #4c605d; font-size: 13px; line-height: 1.5; }
+.lulu-exec-error { color: #a52222; font-size: 13px; line-height: 1.45; }
+.lulu-exec-error p { margin: 0; overflow-wrap: anywhere; }
+.lulu-exec-error p + p { margin-top: 4px; color: #8a4141; font-size: 11px; }
+.lulu-exec-success { gap: 7px; margin: 0; color: #25713b; font-size: 13px; }
+.lulu-exec-login-links { display: flex; justify-content: space-between; gap: 14px; margin-top: 25px; padding-top: 19px; border-top: 1px solid #d4dcda; }
+.lulu-exec-login-links button { border: 0; background: none; color: #285f60; font-size: 12px; font-weight: 800; text-decoration: underline; text-underline-offset: 3px; }
+.lulu-exec-login-links button:hover { color: #102f30; }
+
+.lulu-exec-footer {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0 max(5vw, calc((100vw - 1340px) / 2));
+  background: #050b0e;
+  border-top: 1px solid rgba(255,255,255,.13);
+  color: #95a5a2;
+  font-size: 11px;
+}
+.lulu-exec-footer div { display: flex; gap: 20px; }
+.lulu-exec-footer a:hover { color: var(--exec-cyan); }
+
+@media (max-width: 1100px) {
+  .lulu-exec-mission,
+  .lulu-exec-system-intro,
+  .lulu-exec-governance { gap: 56px; }
+  .lulu-exec-mission-grid,
+  .lulu-exec-governance-grid { gap: 16px; }
+  .lulu-exec-layer { padding: 20px; }
+  .lulu-exec-access { gap: 64px; }
+}
+
+@media (max-width: 820px) {
+  .lulu-executive-landing > .lulu-exec-hero { min-height: 660px !important; align-items: flex-end !important; padding: 0 !important; }
+  .lulu-executive-landing > .lulu-exec-mission,
+  .lulu-executive-landing > .lulu-exec-governance { padding: 82px 22px !important; }
+  .lulu-executive-landing > .lulu-exec-system { padding: 82px 22px 68px !important; }
+  .lulu-executive-landing > .lulu-exec-access { padding: 82px 22px !important; }
+  .lulu-exec-nav { min-height: 64px; padding: 0 20px; }
+  .lulu-exec-brand small,
+  .lulu-exec-nav-links { display: none; }
+  .lulu-exec-nav-login { padding: 0 10px; }
+  .lulu-exec-hero { min-height: 660px; align-items: flex-end; }
+  .lulu-exec-hero-image { object-position: 66% center; }
+  .lulu-exec-hero-overlay { background: rgba(4,11,15,.57); }
+  .lulu-exec-hero-content { margin-left: 0; padding: 94px 22px 70px; }
+  .lulu-exec-hero h1 { font-size: 54px; white-space: normal; }
+  .lulu-exec-hero-statement { font-size: 20px; }
+  .lulu-exec-hero-copy { font-size: 16px; }
+  .lulu-exec-hero-proof { margin-top: 38px; }
+  .lulu-exec-scroll-cue { right: 22px; bottom: 26px; }
+  .lulu-exec-mission,
+  .lulu-exec-system,
+  .lulu-exec-governance,
+  .lulu-exec-access { padding-left: 22px; padding-right: 22px; }
+  .lulu-exec-mission,
+  .lulu-exec-system-intro,
+  .lulu-exec-governance,
+  .lulu-exec-access { grid-template-columns: 1fr; }
+  .lulu-exec-mission,
+  .lulu-exec-governance { gap: 54px; padding-top: 82px; padding-bottom: 82px; }
+  .lulu-exec-system { padding-top: 82px; padding-bottom: 68px; }
+  .lulu-exec-system-intro { gap: 0; }
+  .lulu-exec-access { gap: 46px; padding-top: 82px; padding-bottom: 82px; }
+  .lulu-exec-section-intro h2,
+  .lulu-exec-system-intro h2,
+  .lulu-exec-access h2 { font-size: 44px; }
+  .lulu-exec-layer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 46px; }
+  .lulu-exec-layer { min-height: 224px; }
+  .lulu-exec-login-card { max-width: 520px; }
+  .lulu-exec-footer { padding-left: 22px; padding-right: 22px; }
+}
+
+@media (max-width: 560px) {
+  .lulu-executive-landing > .lulu-exec-hero { min-height: 680px !important; }
+  .lulu-exec-nav-actions { gap: 8px; }
+  .lulu-exec-language { width: 34px; justify-content: center; padding: 0; }
+  .lulu-exec-language span,
+  .lulu-exec-language svg:last-child { display: none; }
+  .lulu-exec-nav-login { min-height: 34px; font-size: 11px; }
+  .lulu-exec-hero { min-height: 680px; }
+  .lulu-exec-hero-content { padding-bottom: 70px; }
+  .lulu-exec-hero h1 { font-size: 44px; }
+  .lulu-exec-hero-statement { margin-top: 18px; font-size: 19px; }
+  .lulu-exec-hero-copy { line-height: 1.58; }
+  .lulu-exec-hero-actions { margin-top: 26px; }
+  .lulu-exec-primary-button,
+  .lulu-exec-secondary-button { width: 100%; justify-content: center; }
+  .lulu-exec-hero-proof { grid-template-columns: 1fr; margin-top: 28px; }
+  .lulu-exec-hero-proof span { min-height: 0; padding: 10px 0; }
+  .lulu-exec-hero-proof span + span { border-top: 1px solid rgba(255,255,255,.17); border-left: 0; padding-left: 0; }
+  .lulu-exec-scroll-cue { display: none; }
+  .lulu-exec-mission-grid,
+  .lulu-exec-governance-grid,
+  .lulu-exec-layer-grid { grid-template-columns: 1fr; }
+  .lulu-exec-mission-pillar { padding-top: 13px; }
+  .lulu-exec-mission-pillar svg { margin-top: 18px; }
+  .lulu-exec-layer { min-height: 0; padding: 21px; }
+  .lulu-exec-access h2,
+  .lulu-exec-section-intro h2,
+  .lulu-exec-system-intro h2 { font-size: 39px; }
+  .lulu-exec-login-card { padding: 22px; }
+  .lulu-exec-footer { align-items: flex-start; flex-direction: column; justify-content: center; gap: 8px; padding-top: 15px; padding-bottom: 15px; }
+}

@@ -118,6 +118,12 @@ export type ExecutiveLearningRecord = {
   createdAt: string;
 };
 
+export type ExecutiveProposalOutcome = {
+  proposal: ExecutiveProposal;
+  learning: ExecutiveLearningRecord | null;
+  replayed: boolean;
+};
+
 export type ExecutiveOperatingSchedule = {
   id: string;
   cycleType: ExecutiveCycleType;
@@ -181,6 +187,15 @@ export const executiveApi = {
     input: { expectedVersion: number; decision: "approve" | "reject"; reason?: string | null },
   ) => requestApi<ExecutiveProposal>({
     path: workspaceApiPath(workspaceId, `/executive/proposals/${encodeURIComponent(proposalId)}/decision`),
+    method: "POST",
+    body: input,
+  }),
+  verifyProposalOutcome: (
+    workspaceId: string,
+    proposalId: string,
+    input: { expectedVersion: number; outcome: string; evidence: Record<string, unknown>; confidence: number; idempotencyKey?: string | null },
+  ) => requestApi<ExecutiveProposalOutcome>({
+    path: workspaceApiPath(workspaceId, `/executive/proposals/${encodeURIComponent(proposalId)}/outcome`),
     method: "POST",
     body: input,
   }),

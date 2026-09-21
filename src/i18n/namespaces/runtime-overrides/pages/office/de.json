@@ -292,5 +292,17 @@
   "Run weekly strategy": "Wochenstrategie starten",
   "Running weekly strategy...": "Wochenstrategie laeuft...",
   "daily": "taeglich",
-  "weekly": "woechentlich"
+  "weekly": "woechentlich",
+  "Plans in preparation": "Plaene in Vorbereitung",
+  "Company Brain mission": "Company-Brain-Mission",
+  "Plan": "Plan",
+  "Outcome": "Ergebnis",
+  "Evidence reference": "Evidenzreferenz",
+  "Review confidence": "Pruefkonfidenz",
+  "Verify plan outcome": "Planergebnis pruefen",
+  "Verifying outcome...": "Ergebnis wird geprueft...",
+  "Verified learning": "Verifiziertes Lernen",
+  "Enter an outcome and evidence reference.": "Geben Sie ein Ergebnis und eine Evidenzreferenz ein.",
+  "Enter a valid review confidence.": "Geben Sie eine gueltige Pruefkonfidenz ein.",
+  "Plan outcome could not be verified.": "Das Planergebnis konnte nicht geprueft werden."
 }

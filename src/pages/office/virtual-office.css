@@ -857,6 +857,21 @@
 .lulu-office-executive__proposal-actions .is-approve { border-color: rgba(8, 121, 111, .26); background: #effbf8; color: #08796f; }
 .lulu-office-executive__proposal-actions .is-reject { border-color: rgba(175, 79, 32, .22); background: #fff7f1; color: #a04a22; }
 .lulu-office-executive__proposal-actions button:disabled { cursor: default; opacity: .48; }
+.lulu-office-executive__subheading { margin: 14px 0 0; border-top: 1px solid rgba(48, 62, 91, .09); padding-top: 10px; color: var(--office-ink); font-size: .71rem; line-height: 1.35; }
+.lulu-office-executive__outcome-form { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 6px; margin-top: 10px; border-top: 1px solid rgba(48, 62, 91, .09); padding-top: 10px; }
+.lulu-office-executive__outcome-form label { min-width: 0; }
+.lulu-office-executive__outcome-form label > span { display: block; margin-bottom: 3px; color: var(--office-muted); font-size: .61rem; font-weight: 700; }
+.lulu-office-executive__outcome-form input,
+.lulu-office-executive__outcome-form select,
+.lulu-office-executive__outcome-form textarea { width: 100%; min-width: 0; border: 1px solid rgba(48, 62, 91, .16); border-radius: 6px; padding: 5px 6px; background: #fff; color: var(--office-ink); font: inherit; font-size: .68rem; }
+.lulu-office-executive__outcome-form input,
+.lulu-office-executive__outcome-form select { min-height: 31px; }
+.lulu-office-executive__outcome-form textarea { min-height: 49px; resize: vertical; }
+.lulu-office-executive__outcome-form button { display: inline-flex; min-height: 31px; align-items: center; justify-content: center; gap: 4px; border: 1px solid rgba(8, 121, 111, .26); border-radius: 7px; padding: 5px 7px; background: #effbf8; color: #08796f; font-size: .66rem; font-weight: 700; cursor: pointer; }
+.lulu-office-executive__outcome-form button:disabled { cursor: default; opacity: .48; }
+.lulu-office-executive__learning { display: grid; gap: 5px; margin-top: 11px; border-top: 1px solid rgba(48, 62, 91, .09); padding-top: 9px; }
+.lulu-office-executive__learning > span { color: #08796f; font-size: .66rem; font-weight: 700; }
+.lulu-office-executive__learning p { display: -webkit-box; overflow: hidden; margin: 0; color: #4b5770; font-size: .69rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
 
 @media (max-width: 1240px) {
   .lulu-office { padding: 28px 22px; }
@@ -893,6 +908,7 @@
   .lulu-office-executive__cycles { grid-template-columns: 1fr; }
   .lulu-office-executive__scenario-form { grid-template-columns: 1fr 1fr; }
   .lulu-office-executive__scenario-form button { grid-column: 1 / -1; }
+  .lulu-office-executive__outcome-form { grid-template-columns: 1fr; }
   .lulu-office-company { border-radius: 17px; padding: 14px; }
   .lulu-office-section-heading--main { align-items: flex-start; flex-direction: column; }
   .lulu-office-zone__header { grid-template-columns: auto minmax(0, 1fr); }

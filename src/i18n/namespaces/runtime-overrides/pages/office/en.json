@@ -284,5 +284,17 @@
   "Run weekly strategy": "Run weekly strategy",
   "Running weekly strategy...": "Running weekly strategy...",
   "daily": "daily",
-  "weekly": "weekly"
+  "weekly": "weekly",
+  "Plans in preparation": "Plans in preparation",
+  "Company Brain mission": "Company Brain mission",
+  "Plan": "Plan",
+  "Outcome": "Outcome",
+  "Evidence reference": "Evidence reference",
+  "Review confidence": "Review confidence",
+  "Verify plan outcome": "Verify plan outcome",
+  "Verifying outcome...": "Verifying outcome...",
+  "Verified learning": "Verified learning",
+  "Enter an outcome and evidence reference.": "Enter an outcome and evidence reference.",
+  "Enter a valid review confidence.": "Enter a valid review confidence.",
+  "Plan outcome could not be verified.": "Plan outcome could not be verified."
 }
