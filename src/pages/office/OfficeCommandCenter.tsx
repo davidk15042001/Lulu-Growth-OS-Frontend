@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
-  Activity,
   ArrowUpRight,
   Bot,
   BrainCircuit,
@@ -16,7 +15,6 @@ import {
   Mic,
   Paperclip,
   PanelTopOpen,
-  RefreshCw,
   Send,
   ShieldCheck,
   Sparkles,
@@ -48,12 +46,6 @@ type CommandMessage = {
   pendingActions?: AssistantPendingAction[];
   attachments?: Attachment[];
 };
-type CommandSignals = {
-  activeWorkItems: number;
-  workingEmployees: number;
-  attentionEmployees: number;
-  openSignals: number;
-};
 type SpeechResultEvent = Event & { results: ArrayLike<ArrayLike<{ transcript: string }>> };
 type SpeechRecognizer = {
   continuous: boolean;
@@ -68,11 +60,6 @@ type SpeechRecognizer = {
 type SpeechRecognizerConstructor = new () => SpeechRecognizer;
 
 const modes: ComposeMode[] = ["Chat", "Analysis", "Action", "Automation"];
-const starterIntents = [
-  "Build the highest-leverage growth plan for this week.",
-  "Show the operating risks that need attention now.",
-  "Review the company memory and identify what is missing.",
-] as const;
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
@@ -220,11 +207,12 @@ function ActionSurface({ action, executing, onExecute }: { action: AssistantPend
   </section>;
 }
 
-export function OfficeCommandCenter({ signals, onOfficeChanged }: { signals: CommandSignals; onOfficeChanged: () => Promise<void> }) {
-  const { selectedWorkspace, permissions } = useLuluApp();
+export function OfficeCommandCenter() {
+  const { selectedWorkspace } = useLuluApp();
   const t = useTranslation();
   const workspaceId = selectedWorkspace?.id ?? null;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
   const recognitionRef = useRef<SpeechRecognizer | null>(null);
   const [coreState, setCoreState] = useState<CoreState>("idle");
   const [mode, setMode] = useState<ComposeMode>("Chat");
@@ -283,6 +271,7 @@ export function OfficeCommandCenter({ signals, onOfficeChanged }: { signals: Com
 
   const startNewIntent = () => {
     if (processing) return;
+    setHistoryOpen(false);
     setActiveConversationId(null);
     setMessages([]);
     setActions([]);
@@ -292,6 +281,7 @@ export function OfficeCommandCenter({ signals, onOfficeChanged }: { signals: Com
     setPendingFiles([]);
     setError("");
     setCoreState("idle");
+    requestAnimationFrame(() => composerInputRef.current?.focus());
   };
 
   const beginListening = () => {
@@ -395,7 +385,6 @@ export function OfficeCommandCenter({ signals, onOfficeChanged }: { signals: Com
       });
       setCoreState(nextActions.some((action) => action.requiresApproval || action.status === "pending_approval") ? "needs-confirmation" : "completed");
       void loadConversations();
-      void onOfficeChanged();
     } catch (cause) {
       setMessages((current) => current.filter((message) => message.id !== localId));
       setError(getFriendlyErrorMessage(cause, t("Lulu could not complete this request. No unverified action was assumed.")));
@@ -414,7 +403,6 @@ export function OfficeCommandCenter({ signals, onOfficeChanged }: { signals: Com
       const response = await aiApi.executeAction(workspaceId, activeConversationId, action.id);
       setActions((current) => current.map((item) => item.id === action.id ? response.data : item));
       setCoreState(response.data.status === "succeeded" ? "completed" : response.data.status === "pending_approval" ? "needs-confirmation" : "attention");
-      await onOfficeChanged();
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, t("The action could not be executed. Its current workspace state was preserved.")));
       setCoreState("attention");
@@ -426,20 +414,22 @@ export function OfficeCommandCenter({ signals, onOfficeChanged }: { signals: Com
   const latestSurfaces = useMemo(() => messages.slice().reverse().find((message) => message.role === "assistant" && ((message.toolCalls?.length ?? 0) > 0 || (message.pendingActions?.length ?? 0) > 0)), [messages]);
   const activeConversation = conversations.find((conversation) => conversation.id === activeConversationId) ?? null;
   const stateCopy: Record<CoreState, { title: string; detail: string }> = {
-    idle: { title: "Ready for intent", detail: "Company memory, workspace records and governed actions are available." },
-    listening: { title: "Listening", detail: "Lulu is turning your voice into a draft before anything is sent." },
-    thinking: { title: "Reasoning with context", detail: "Lulu is retrieving scoped context and selecting the right tools." },
-    working: { title: "Working through verified systems", detail: "Lulu is importing context or completing an allowed workspace operation." },
-    completed: { title: "Outcome recorded", detail: "The response, evidence and any action packages are now part of the conversation." },
+    idle: { title: "At your command", detail: "Tell Lulu what to investigate, create, decide or run." },
+    listening: { title: "Listening", detail: "Lulu is drafting from your voice. Nothing is sent until you do." },
+    thinking: { title: "Thinking", detail: "Lulu is checking your company context and selecting verified tools." },
+    working: { title: "Working", detail: "Lulu is preparing work across your connected systems." },
+    completed: { title: "Ready for your next instruction", detail: "The outcome and its evidence are now available in this conversation." },
     "needs-confirmation": { title: "Confirmation required", detail: "A governed action is waiting for its workspace approval." },
     attention: { title: "Needs attention", detail: "Lulu stopped at a safe boundary. Review the message below before continuing." },
   };
 
-  return <section className={`lulu-office-command lulu-office-command--${coreState}`} aria-label={t("Lulu Core")}>
+  const hasConversation = messages.length > 0;
+
+  return <section className={`lulu-office-command lulu-office-command--${coreState}${hasConversation ? " has-conversation" : ""}`} aria-label={t("Lulu Core")}>
     <header className="lulu-office-command__header">
       <button type="button" className="lulu-office-command__history-toggle" aria-expanded={historyOpen} onClick={() => setHistoryOpen((current) => !current)}><History aria-hidden="true" size={16} /><span>{t("History")}</span>{conversations.length > 0 && <small>{conversations.length}</small>}</button>
-      <div className="lulu-office-command__identity" data-lulu-no-translate="true" translate="no"><BrainCircuit aria-hidden="true" size={17} /><strong>Lulu</strong><span>{t("Office command")}</span></div>
-      <div className="lulu-office-command__header-actions"><button type="button" aria-label={t("Refresh verified workspace state")} title={t("Refresh verified workspace state")} onClick={() => void onOfficeChanged()}><RefreshCw aria-hidden="true" size={16} /></button><button type="button" className="lulu-office-command__new-intent" onClick={startNewIntent}><Sparkles aria-hidden="true" size={15} /><span>{t("New intent")}</span></button></div>
+      <div className="lulu-office-command__identity" data-lulu-no-translate="true" translate="no"><BrainCircuit aria-hidden="true" size={17} /><strong>Lulu</strong></div>
+      <div className="lulu-office-command__header-actions"><button type="button" className="lulu-office-command__new-intent" onClick={startNewIntent}><Sparkles aria-hidden="true" size={15} /><span>{t("New intent")}</span></button></div>
     </header>
 
     <aside className={`lulu-office-command__history ${historyOpen ? "is-open" : ""}`} aria-label={t("Conversation history")}>
@@ -453,11 +443,9 @@ export function OfficeCommandCenter({ signals, onOfficeChanged }: { signals: Com
       <section className="lulu-office-command__core-stage" aria-live="polite">
         <div className="lulu-office-command__core" aria-hidden="true"><span className="lulu-office-command__core-ring lulu-office-command__core-ring--outer" /><span className="lulu-office-command__core-ring lulu-office-command__core-ring--inner" /><span className="lulu-office-command__core-center">{coreState === "completed" ? <Check size={24} /> : coreState === "attention" ? <CircleAlert size={24} /> : coreState === "needs-confirmation" ? <ShieldCheck size={24} /> : coreState === "listening" ? <Mic size={23} /> : processing ? <LoaderCircle size={24} className="lulu-office-spin" /> : <Sparkles size={24} />}</span></div>
         <div className="lulu-office-command__core-copy"><p>{selectedWorkspace?.companyName ?? t("Company operating system")}</p><h2>{t(stateCopy[coreState].title)}</h2><span>{t(stateCopy[coreState].detail)}</span></div>
-        <div className="lulu-office-command__signals" aria-label={t("Verified workspace signals")}><span><Activity aria-hidden="true" size={14} /><strong>{signals.activeWorkItems}</strong>{t("active")}</span><span><Bot aria-hidden="true" size={14} /><strong>{signals.workingEmployees}</strong>{t("working")}</span><span><CircleAlert aria-hidden="true" size={14} /><strong>{signals.attentionEmployees + signals.openSignals}</strong>{t("attention")}</span><span><ShieldCheck aria-hidden="true" size={14} /><strong>{permissions.capabilities.length}</strong>{t("permissions")}</span></div>
       </section>
 
-      {messages.length === 0 ? <section className="lulu-office-command__starters" aria-label={t("Suggested intents")}><p>{t("Start from an outcome, a question, a file or a live business signal.")}</p><div>{starterIntents.map((intent) => <button key={intent} type="button" onClick={() => setInput(t(intent))}><span>{t(intent)}</span><ArrowUpRight aria-hidden="true" size={15} /></button>)}</div></section>
-        : <section className="lulu-office-command__timeline" aria-label={activeConversation?.title ?? t("Active conversation")}>{messages.map((message) => <article key={message.id} className={`lulu-office-command__message lulu-office-command__message--${message.role}`}><div className="lulu-office-command__message-meta"><span>{message.role === "assistant" ? <Bot aria-hidden="true" size={14} /> : <Sparkles aria-hidden="true" size={14} />}</span><strong>{message.role === "assistant" ? "Lulu" : t("You")}</strong><time>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time></div><div className="lulu-office-command__message-content">{responseContent(message.content)}</div>{message.attachments && message.attachments.length > 0 && <div className="lulu-office-command__attachments">{message.attachments.map((attachment) => <span key={attachment.id}><FileText aria-hidden="true" size={13} />{attachment.name}</span>)}</div>}</article>)}{processing && <div className="lulu-office-command__processing"><LoaderCircle aria-hidden="true" size={16} className="lulu-office-spin" />{t("Lulu is preparing a verified response.")}</div>}</section>}
+      {hasConversation && <section className="lulu-office-command__timeline" aria-label={activeConversation?.title ?? t("Active conversation")}>{messages.map((message) => <article key={message.id} className={`lulu-office-command__message lulu-office-command__message--${message.role}`}><div className="lulu-office-command__message-meta"><span>{message.role === "assistant" ? <Bot aria-hidden="true" size={14} /> : <Sparkles aria-hidden="true" size={14} />}</span><strong>{message.role === "assistant" ? "Lulu" : t("You")}</strong><time>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time></div><div className="lulu-office-command__message-content">{responseContent(message.content)}</div>{message.attachments && message.attachments.length > 0 && <div className="lulu-office-command__attachments">{message.attachments.map((attachment) => <span key={attachment.id}><FileText aria-hidden="true" size={13} />{attachment.name}</span>)}</div>}</article>)}{processing && <div className="lulu-office-command__processing"><LoaderCircle aria-hidden="true" size={16} className="lulu-office-spin" />{t("Lulu is preparing a verified response.")}</div>}</section>}
 
       {(latestSurfaces || actions.length > 0) && <section className="lulu-office-command__workbench" aria-label={t("Live work surfaces")}><div className="lulu-office-command__section-title"><div><p>{t("Dynamic workspace")}</p><h2>{t("Evidence, outputs and action state")}</h2></div><PanelTopOpen aria-hidden="true" size={18} /></div><div className="lulu-office-command__workbench-grid">{latestSurfaces?.toolCalls?.map((call, index) => <ToolSurface key={`${call.name}-${index}`} call={call} />)}{actions.map((action) => <ActionSurface key={action.id} action={action} executing={executingActionId === action.id} onExecute={executeAction} />)}</div></section>}
     </div>
@@ -468,7 +456,7 @@ export function OfficeCommandCenter({ signals, onOfficeChanged }: { signals: Com
       <div className="lulu-office-command__composer-modes" aria-label={t("Intent mode")}>{modes.map((item) => <button key={item} type="button" className={mode === item ? "is-active" : ""} onClick={() => setMode(item)}>{t(item)}</button>)}</div>
       {showReferenceUrl && <label className="lulu-office-command__reference-input"><Link aria-hidden="true" size={15} /><input autoFocus type="url" value={referenceUrl} onChange={(event) => setReferenceUrl(event.target.value)} placeholder={t("https:// reference for this conversation")} /><button type="button" aria-label={t("Remove reference link")} onClick={() => { setReferenceUrl(""); setShowReferenceUrl(false); }}><X aria-hidden="true" size={15} /></button></label>}
       {pendingFiles.length > 0 && <div className="lulu-office-command__pending-files">{pendingFiles.map((file) => <span key={`${file.name}-${file.lastModified}`}><FileText aria-hidden="true" size={13} />{file.name}<button type="button" aria-label={`${t("Remove")} ${file.name}`} onClick={() => setPendingFiles((current) => current.filter((item) => item !== file))}><X aria-hidden="true" size={13} /></button></span>)}</div>}
-      <div className="lulu-office-command__composer-main"><input ref={fileInputRef} className="sr-only" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.txt,.md,.png,.jpg,.jpeg,.webp" onChange={(event) => { const files = Array.from(event.target.files ?? []); setPendingFiles((current) => [...current, ...files]); event.target.value = ""; }} /><div className="lulu-office-command__composer-tools"><button type="button" aria-label={t("Attach files to Company Brain")} title={t("Attach files to Company Brain")} onClick={() => fileInputRef.current?.click()} disabled={processing}><Paperclip aria-hidden="true" size={17} /></button><button type="button" aria-label={t("Attach image or screenshot")} title={t("Attach image or screenshot")} onClick={() => fileInputRef.current?.click()} disabled={processing}><Image aria-hidden="true" size={17} /></button><button type="button" className={showReferenceUrl ? "is-active" : ""} aria-label={t("Attach reference link")} title={t("Attach reference link")} onClick={() => setShowReferenceUrl((current) => !current)} disabled={processing}><Link aria-hidden="true" size={17} /></button></div><textarea value={input} rows={1} disabled={processing} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void send(); } }} placeholder={t("Describe the outcome you want Lulu to create, investigate or operate.")} /><div className="lulu-office-command__composer-tools lulu-office-command__composer-tools--end"><button type="button" className={coreState === "listening" ? "is-listening" : ""} aria-label={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} title={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} onClick={beginListening} disabled={processing}>{coreState === "listening" ? <Square aria-hidden="true" size={14} /> : <Mic aria-hidden="true" size={17} />}</button><button type="submit" className="lulu-office-command__send" disabled={processing || (!input.trim() && pendingFiles.length === 0 && !referenceUrl.trim())} aria-label={t("Send intent")}>{processing ? <LoaderCircle aria-hidden="true" size={17} className="lulu-office-spin" /> : <Send aria-hidden="true" size={17} />}</button></div></div>
+      <div className="lulu-office-command__composer-main"><input ref={fileInputRef} className="sr-only" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.txt,.md,.png,.jpg,.jpeg,.webp" onChange={(event) => { const files = Array.from(event.target.files ?? []); setPendingFiles((current) => [...current, ...files]); event.target.value = ""; }} /><div className="lulu-office-command__composer-tools"><button type="button" aria-label={t("Attach files to Company Brain")} title={t("Attach files to Company Brain")} onClick={() => fileInputRef.current?.click()} disabled={processing}><Paperclip aria-hidden="true" size={17} /></button><button type="button" aria-label={t("Attach image or screenshot")} title={t("Attach image or screenshot")} onClick={() => fileInputRef.current?.click()} disabled={processing}><Image aria-hidden="true" size={17} /></button><button type="button" className={showReferenceUrl ? "is-active" : ""} aria-label={t("Attach reference link")} title={t("Attach reference link")} onClick={() => setShowReferenceUrl((current) => !current)} disabled={processing}><Link aria-hidden="true" size={17} /></button></div><textarea ref={composerInputRef} value={input} rows={1} disabled={processing} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void send(); } }} placeholder={t("Describe the outcome you want Lulu to create, investigate or operate.")} /><div className="lulu-office-command__composer-tools lulu-office-command__composer-tools--end"><button type="button" className={coreState === "listening" ? "is-listening" : ""} aria-label={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} title={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} onClick={beginListening} disabled={processing}>{coreState === "listening" ? <Square aria-hidden="true" size={14} /> : <Mic aria-hidden="true" size={17} />}</button><button type="submit" className="lulu-office-command__send" disabled={processing || (!input.trim() && pendingFiles.length === 0 && !referenceUrl.trim())} aria-label={t("Send intent")}>{processing ? <LoaderCircle aria-hidden="true" size={17} className="lulu-office-spin" /> : <Send aria-hidden="true" size={17} />}</button></div></div>
       <div className="lulu-office-command__composer-status"><span><ShieldCheck aria-hidden="true" size={13} />{t("Workspace-scoped context and governed actions")}</span><span><Clock3 aria-hidden="true" size={13} />{t("Enter to send, Shift+Enter for a new line")}</span></div>
     </form></footer>
   </section>;

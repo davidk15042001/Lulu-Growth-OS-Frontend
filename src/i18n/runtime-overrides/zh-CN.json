@@ -6358,5 +6358,13 @@
   "Operating mode": "运行模式",
   "Imported workspace knowledge for this request": "为此请求导入的工作区知识",
   "Reference link supplied by the user": "用户提供的参考链接",
-  "working": "工作中"
+  "working": "工作中",
+  "At your command": "随时听候您的指令",
+  "Tell Lulu what to investigate, create, decide or run.": "告诉 Lulu 您希望她调查、创建、决策或执行什么。",
+  "Lulu is drafting from your voice. Nothing is sent until you do.": "Lulu 正在根据您的语音起草内容。在您确认前，任何内容都不会发送。",
+  "Thinking": "正在思考",
+  "Lulu is checking your company context and selecting verified tools.": "Lulu 正在检查您的公司上下文，并选择经过验证的工具。",
+  "Lulu is preparing work across your connected systems.": "Lulu 正在跨已连接系统准备工作。",
+  "Ready for your next instruction": "准备接收您的下一项指令",
+  "The outcome and its evidence are now available in this conversation.": "结果及其证据现已在此对话中提供。"
 }

@@ -6381,5 +6381,13 @@
   "Operating mode": "Betriebsmodus",
   "Imported workspace knowledge for this request": "Importiertes Workspace-Wissen fuer diese Anfrage",
   "Reference link supplied by the user": "Vom Nutzer bereitgestellter Referenzlink",
-  "working": "arbeitet"
+  "working": "arbeitet",
+  "At your command": "Bereit für Ihre Anweisung",
+  "Tell Lulu what to investigate, create, decide or run.": "Sagen Sie Lulu, was sie untersuchen, erstellen, entscheiden oder ausführen soll.",
+  "Lulu is drafting from your voice. Nothing is sent until you do.": "Lulu erstellt aus Ihrer Sprache einen Entwurf. Erst wenn Sie es auslösen, wird etwas gesendet.",
+  "Thinking": "Denkt nach",
+  "Lulu is checking your company context and selecting verified tools.": "Lulu prüft Ihren Unternehmenskontext und wählt verifizierte Werkzeuge aus.",
+  "Lulu is preparing work across your connected systems.": "Lulu bereitet Arbeit über Ihre verbundenen Systeme hinweg vor.",
+  "Ready for your next instruction": "Bereit für Ihre nächste Anweisung",
+  "The outcome and its evidence are now available in this conversation.": "Ergebnis und Nachweise sind jetzt in dieser Unterhaltung verfügbar."
 }
