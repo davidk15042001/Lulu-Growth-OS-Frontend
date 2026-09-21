@@ -173,12 +173,56 @@ export type OnboardingSnapshot = {
 
 export type OnboardingDocument={id:string;workspaceId:string;fileName:string;mimeType:string;sizeBytes:number;createdAt:string};
 
+export type CatalogImportVariant = {
+  name: string;
+  sku: string | null;
+  description?: string | null;
+  price?: number | null;
+  currency?: string | null;
+  barcode?: string | null;
+  weight?: number | null;
+  weightUnit?: string | null;
+  dimensionLength?: number | null;
+  dimensionWidth?: number | null;
+  dimensionHeight?: number | null;
+  dimensionUnit?: string | null;
+  moqQuantity?: number | null;
+  moqUnit?: string | null;
+  leadTimeMinDays?: number | null;
+  leadTimeMaxDays?: number | null;
+  attributes: Array<{ name: string; value: string; unit: string | null }>;
+  imageEvidenceIds?: string[];
+};
+export type CatalogImportItem = {
+  name: string;
+  kind: 'product' | 'service' | 'other';
+  productType?: string | null;
+  description: string | null;
+  category?: string | null;
+  price?: number | null;
+  currency?: string | null;
+  sku?: string | null;
+  countryOfOrigin?: string | null;
+  hsCode?: string | null;
+  variants: CatalogImportVariant[];
+  imageEvidenceIds?: string[];
+};
+export type CatalogImport = {
+  id: string;
+  status: 'PROCESSING' | 'REVIEW_REQUIRED' | 'COMPLETED' | 'FAILED';
+  classification: { summary?: string; items?: CatalogImportItem[]; catalogImport?: { evidence?: Array<{ assetId: string; kind: string; pageNumber: number | null; eligibleImageReference: boolean }> } };
+  errorCode: string | null;
+  errorMessage: string | null;
+};
+
 export const onboardingApi = {
   snapshot: (workspaceId: string) => requestApi<OnboardingSnapshot>({ path: workspaceApiPath(workspaceId, "/onboarding") }),
   documents:(workspaceId:string)=>requestApi<{items:OnboardingDocument[]}>({path:workspaceApiPath(workspaceId,"/onboarding/documents")}),
   uploadDocument:(workspaceId:string,file:File)=>{const body=new FormData();body.append('file',file,file.name);return requestApi<OnboardingDocument>({path:workspaceApiPath(workspaceId,"/onboarding/documents"),method:'POST',body});},
   deleteDocument:(workspaceId:string,documentId:string)=>requestApi<null>({path:workspaceApiPath(workspaceId,`/onboarding/documents/${documentId}`),method:'DELETE'}),
-  activateKnowledge:(workspaceId:string,input:{text:string;documentIds:string[]})=>requestApi<{completed:true;activationId:string;productIds:string[];classification:Record<string,unknown>;premiumJobs:Array<{productId:string;status:string}>}>({path:workspaceApiPath(workspaceId,"/onboarding/knowledge-activation"),method:'POST',body:input,timeoutMs:240_000}),
+  activateKnowledge:(workspaceId:string,input:{text:string;documentIds:string[];referenceDocumentIds?:string[]})=>requestApi<{completed:boolean;activationId?:string;status?:'PROCESSING';productIds?:string[]}>({path:workspaceApiPath(workspaceId,"/onboarding/knowledge-activation"),method:'POST',body:input}),
+  catalogImport:(workspaceId:string,activationId:string)=>requestApi<CatalogImport>({path:workspaceApiPath(workspaceId,`/onboarding/knowledge-activation/${activationId}`)}),
+  confirmCatalogImport:(workspaceId:string,activationId:string)=>requestApi<{completed:true;activationId:string;productIds:string[];classification:Record<string,unknown>;premiumJobs:Array<{productId:string;variantId?:string;status:string}>}>({path:workspaceApiPath(workspaceId,`/onboarding/knowledge-activation/${activationId}/confirm`),method:'POST',body:{},timeoutMs:120_000}),
   saveCompanyInformation: (workspaceId: string, input: {
     fullName?:string;
     companyName: string; industry: string | null; countryRegion: string | null; taxId: string | null; address: string | null;
