@@ -30,18 +30,18 @@ async function requestWithTimeout<T>(request: ApiRequest, timeoutMs = 15000) {
 const missionPillars = [
   {
     icon: Target,
-    title: 'See the real company',
-    text: 'Unify customer, financial, operating and knowledge signals into one company state.',
+    title: 'Website that converts',
+    text: 'Create, test and improve pages, funnels and conversion paths from live company context.',
   },
   {
     icon: BarChart3,
-    title: 'Decide from evidence',
-    text: 'Executive cycles surface risks, forecasts, scenarios and plan proposals with their sources and assumptions.',
+    title: 'Organic traffic that compounds',
+    text: 'Discover search demand, build authority and turn lasting relevance into compounding traffic.',
   },
   {
     icon: Sparkles,
-    title: 'Move work forward',
-    text: 'Specialized Digital Employees work through persisted tasks, domain services and auditable events.',
+    title: 'Content, paid ads and scale',
+    text: 'Generate high-volume content, launch paid ads, optimize spend and scale what proves it can win.',
   },
 ] as const;
 
@@ -49,8 +49,8 @@ const operatingLayers = [
   {
     index: '01',
     icon: Activity,
-    title: 'Executive loop',
-    text: "Daily and weekly cycles turn the company's current state into accountable priorities, forecasts and proposed decisions.",
+    title: 'Growth command center',
+    text: "Daily and weekly cycles turn the company's current state into accountable priorities, forecasts and growth decisions.",
   },
   {
     index: '02',
@@ -61,14 +61,14 @@ const operatingLayers = [
   {
     index: '03',
     icon: UsersRound,
-    title: 'Digital workforce',
-    text: 'Digital Employees coordinate only through durable work, domain records and recorded outcomes.',
+    title: '150+ autonomous AI Agents',
+    text: 'A specialized workforce orchestrates website, organic, content and paid growth through durable work and recorded outcomes.',
   },
   {
     index: '04',
     icon: BriefcaseBusiness,
-    title: 'Controlled execution',
-    text: 'Finance, CRM and provider actions follow permissions, policy, funding and compliance checks.',
+    title: 'Controlled scale',
+    text: 'Every campaign, customer and provider action respects permissions, policy, funding and compliance checks.',
   },
 ] as const;
 
@@ -206,7 +206,7 @@ export const LuluLoginPage = () => {
   if (!isLandingLanguage) return <main className="auth-shell lulu-executive-landing" aria-busy="true" />;
 
   return (
-    <main data-deploy-rev="2026-09-21-executive-os-language-switch" className="auth-shell lulu-executive-landing">
+    <main data-deploy-rev="2026-09-21-growth-engine" className="auth-shell lulu-executive-landing">
       <header className="lulu-exec-nav">
         <a href="#top" className="lulu-exec-brand" aria-label="Lulu home" data-lulu-no-translate="true" translate="no">
           <img src="/branding/lulu-agentic-mark.svg" alt="" />
@@ -214,7 +214,7 @@ export const LuluLoginPage = () => {
           <small>EXECUTIVE OS</small>
         </a>
         <nav className="lulu-exec-nav-links" aria-label={t('Primary navigation')}>
-          <a href="#operating-system">{t('The system')}</a>
+          <a href="#operating-system">{t('Growth engine')}</a>
           <a href="#governance">{t('Governance')}</a>
         </nav>
         <div className="lulu-exec-nav-actions">
@@ -230,10 +230,10 @@ export const LuluLoginPage = () => {
         <img className="lulu-exec-hero-image" src="/landing/lulu-executive-constellation-v1.png" alt="" aria-hidden="true" />
         <div className="lulu-exec-hero-overlay" aria-hidden="true" />
         <div className="lulu-exec-hero-content">
-          <p className="lulu-exec-eyebrow"><Activity size={14} /> {t('Autonomous company operating system')}</p>
+          <p className="lulu-exec-eyebrow"><Activity size={14} /> {t('150+ autonomous AI Agents. One growth operating system.')}</p>
           <h1 id="lulu-exec-title">{t('Lulu Executive OS')}</h1>
-          <p className="lulu-exec-hero-statement">{t('A company that sees, decides and moves.')}</p>
-          <p className="lulu-exec-hero-copy">{t('Lulu turns your verified business state into daily decisions, coordinated work and a memory that becomes more useful with every confirmed outcome.')}</p>
+          <p className="lulu-exec-hero-statement">{t('From first visit to global scale, growth never stops moving.')}</p>
+          <p className="lulu-exec-hero-copy">{t('Lulu coordinates your website, organic traffic, content generation, paid ads and every growth experiment through one shared company memory. More than 150 autonomous AI Agents plan, create, execute and learn together.')}</p>
           <div className="lulu-exec-hero-actions">
             <button type="button" className="lulu-exec-primary-button" onClick={() => navigateApp(routes.auth.signUp)}>
               {t('Build your operating system')} <ArrowRight size={17} />
@@ -243,9 +243,9 @@ export const LuluLoginPage = () => {
             </button>
           </div>
           <div className="lulu-exec-hero-proof" aria-label={t('Lulu operating principles')}>
-            <span>{t('Daily and weekly executive loops')}</span>
-            <span>{t('One company memory, not scattered chats')}</span>
-            <span>{t('Work through real records and controls')}</span>
+            <span>{t('150+ autonomous AI Agents')}</span>
+            <span>{t('Website, organic, content and paid ads')}</span>
+            <span>{t('Scale every winning signal')}</span>
           </div>
         </div>
         <a className="lulu-exec-scroll-cue" href="#mission">{t('The mission')} <ArrowRight size={15} /></a>
@@ -254,8 +254,8 @@ export const LuluLoginPage = () => {
       <section id="mission" className="lulu-exec-mission" aria-labelledby="lulu-mission-title">
         <div className="lulu-exec-section-intro">
           <p className="lulu-exec-kicker">{t('Mission')}</p>
-          <h2 id="lulu-mission-title">{t("Build the world's most trusted autonomous company.")}</h2>
-          <p>{t('Not another chat window. A company that can observe, reason, coordinate and improve with its people still in control.')}</p>
+          <h2 id="lulu-mission-title">{t('Turn every growth signal into momentum.')}</h2>
+          <p>{t('From the first page a customer sees to the next market you enter, Lulu turns strategy into coordinated growth work that compounds.')}</p>
         </div>
         <div className="lulu-exec-mission-grid">
           {missionPillars.map(({ icon: Icon, title, text }, index) => (
@@ -272,8 +272,8 @@ export const LuluLoginPage = () => {
       <section id="operating-system" className="lulu-exec-system" aria-labelledby="lulu-system-title">
         <div className="lulu-exec-system-intro">
           <p className="lulu-exec-kicker">{t('The system')}</p>
-          <h2 id="lulu-system-title">{t('One operational state. Every team.')}</h2>
-          <p>{t('Lulu connects the context, decisions and work that usually disappear between tools, meetings and handoffs.')}</p>
+          <h2 id="lulu-system-title">{t('One operating state. Every growth move.')}</h2>
+          <p>{t('Lulu connects the context, decisions and work that otherwise vanish between your website, content calendar, campaigns, sales conversations and scale plans.')}</p>
         </div>
         <div className="lulu-exec-layer-grid">
           {operatingLayers.map(({ index, icon: Icon, title, text }) => (
