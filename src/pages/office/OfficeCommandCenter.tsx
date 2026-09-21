@@ -48,7 +48,7 @@ type CommandMessage = {
   pendingActions?: AssistantPendingAction[];
   attachments?: Attachment[];
 };
-type SpeechResultEvent = Event & { results: ArrayLike<ArrayLike<{ transcript: string }>> };
+type SpeechResultEvent = Event & { results: ArrayLike<ArrayLike<{ transcript: string; isFinal?: boolean }>> };
 type SpeechRecognitionErrorEvent = Event & { error?: string };
 type SpeechRecognizer = {
   continuous: boolean;
@@ -199,12 +199,17 @@ function ToolSurface({ call }: { call: AssistantToolCall }) {
 
 function ActionSurface({ action, executing, onExecute }: { action: AssistantPendingAction; executing: boolean; onExecute: (action: AssistantPendingAction) => void }) {
   const t = useTranslation();
-  const canRun = action.status === "ready" && !action.requiresApproval;
+  const canRun = action.status === "ready";
+  const payloadAmount = action.payload.amount ?? action.payload.total ?? action.payload.value;
+  const payloadRecipient = action.payload.recipientEmail ?? action.payload.recipientSearch ?? action.payload.recipient;
+  const actionDetail = payloadAmount != null || payloadRecipient != null
+    ? [payloadAmount != null ? `${String(payloadAmount)} ${String(action.payload.currency ?? "")}`.trim() : null, payloadRecipient != null ? String(payloadRecipient) : null].filter(Boolean).join(" · ")
+    : null;
   return <section className={`lulu-office-command__action-surface is-${action.status}`} aria-label={action.summary}>
     <div className="lulu-office-command__surface-heading"><span><ShieldCheck aria-hidden="true" size={14} />{t("Action package")}</span><small>{t(action.status.replaceAll("_", " "))}</small></div>
     <h3>{action.summary}</h3>
-    <div className="lulu-office-command__action-meta"><span>{t(action.type.replaceAll("_", " "))}</span>{action.requiresApproval && <span>{t("Confirmation required")}</span>}{action.errorMessage && <span>{action.errorMessage}</span>}</div>
-    {canRun && <button type="button" className="lulu-office-command__execute-action" disabled={executing} onClick={() => onExecute(action)}>{executing ? <LoaderCircle aria-hidden="true" size={15} className="lulu-office-spin" /> : <ArrowUpRight aria-hidden="true" size={15} />}{t("Run checked action")}</button>}
+    <div className="lulu-office-command__action-meta"><span>{t(action.type.replaceAll("_", " "))}</span>{actionDetail && <span>{actionDetail}</span>}{action.requiresApproval && <span>{t("Confirmation required")}</span>}{action.errorMessage && <span>{action.errorMessage}</span>}</div>
+    {canRun && <button type="button" className="lulu-office-command__execute-action" disabled={executing} onClick={() => onExecute(action)}>{executing ? <LoaderCircle aria-hidden="true" size={15} className="lulu-office-spin" /> : <ArrowUpRight aria-hidden="true" size={15} />}{t(action.requiresApproval ? "Confirm and execute" : "Run checked action")}</button>}
   </section>;
 }
 
@@ -240,6 +245,7 @@ export function OfficeCommandCenter() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
   const recognitionRef = useRef<SpeechRecognizer | null>(null);
+  const voiceBaseInputRef = useRef("");
   const dictationStoppedByUserRef = useRef(false);
   const [coreState, setCoreState] = useState<CoreState>("idle");
   const [input, setInput] = useState("");
@@ -325,14 +331,19 @@ export function OfficeCommandCenter() {
       return;
     }
     const recognition = new Recognition();
-    recognition.continuous = false;
-    recognition.interimResults = false;
+    recognition.continuous = true;
+    recognition.interimResults = true;
     recognition.lang = navigator.language || "en-US";
     dictationStoppedByUserRef.current = false;
+    voiceBaseInputRef.current = input.trim();
     setError("");
     recognition.onresult = (event) => {
-      const transcript = Array.from(event.results).map((result) => result[0]?.transcript ?? "").join(" ").trim();
-      if (transcript) setInput((current) => `${current}${current ? " " : ""}${transcript}`);
+      const transcript = Array.from(event.results)
+        .filter((result) => result[0]?.isFinal)
+        .map((result) => result[0]?.transcript ?? "")
+        .join(" ")
+        .trim();
+      if (transcript) setInput(`${voiceBaseInputRef.current}${voiceBaseInputRef.current ? " " : ""}${transcript}`.trim());
     };
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       if (dictationStoppedByUserRef.current || event.error === "aborted") return;
@@ -439,7 +450,7 @@ export function OfficeCommandCenter() {
   };
 
   const executeAction = async (action: AssistantPendingAction) => {
-    if (!workspaceId || !activeConversationId || action.requiresApproval || action.status !== "ready") return;
+    if (!workspaceId || !activeConversationId || action.status !== "ready") return;
     setExecutingActionId(action.id);
     setError("");
     setCoreState("working");
