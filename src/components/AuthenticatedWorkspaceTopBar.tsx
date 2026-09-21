@@ -78,9 +78,13 @@ export function AuthenticatedWorkspaceTopBar({
           <img className="lulu-agentic-logo-image" src="/branding/lulu-agentic-logo.svg" alt="Lulu" draggable={false} />
         </div>
       </div>
+      <div className="lulu-auth-workspace-context">
+        <span>{selectedWorkspace.companyName}</span>
+        <small>{t("Workspace")}</small>
+      </div>
       {backendTimestamp && <span className="lulu-backend-release" title={t("Backend push: {{0}}").replace("{{0}}", backendTimestamp)} aria-label={t("Backend push: {{0}}").replace("{{0}}", backendTimestamp)}>
         <span className="lulu-backend-release__dot" aria-hidden="true" />
-        <span>{backendTimestamp}</span>
+        <span>{t("System synchronized")}</span>
       </span>}
       {!activationLocked && <nav className="lulu-surface-switch" aria-label={t("Lulu view")}>
         <button type="button" className={officeMode ? "is-active" : undefined} aria-current={officeMode ? "page" : undefined} onClick={() => navigate(routes.app.office)}>

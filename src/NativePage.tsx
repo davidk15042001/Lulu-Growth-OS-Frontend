@@ -12,6 +12,7 @@ import type { PageContract } from "./api/page-contracts";
 import { getLuluAgentContract } from "./config/lulu-agent-registry";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
 import luluVisualSystemCss from "./ui/lulu-visual-system.css?inline";
+import executiveWorkspaceCss from "./ui/executive-workspace.css?inline";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -226,6 +227,7 @@ export function NativePage({
     let styleElement: HTMLStyleElement | null = null;
     let mobileStyleElement: HTMLStyleElement | null = null;
     let visualSystemStyleElement: HTMLStyleElement | null = null;
+    let executiveWorkspaceStyleElement: HTMLStyleElement | null = null;
     void Promise.all([appLoader(), styleLoader?.()]).then(([module, css]) => {
       if (!active) return;
       try { window.sessionStorage.removeItem(`lulu:module-load-retry:${window.location.pathname}`); } catch { /* Storage may be unavailable. */ }
@@ -245,6 +247,10 @@ export function NativePage({
         visualSystemStyleElement.textContent = luluVisualSystemCss;
         document.head.appendChild(visualSystemStyleElement);
       }
+      executiveWorkspaceStyleElement = document.createElement("style");
+      executiveWorkspaceStyleElement.dataset.luluExecutiveWorkspace = slug;
+      executiveWorkspaceStyleElement.textContent = executiveWorkspaceCss;
+      document.head.appendChild(executiveWorkspaceStyleElement);
       if (isAuthPage) {
         const livePageFrame = document.querySelector<HTMLElement>(".page-frame");
         livePageFrame?.classList.add("page-frame--auth");
@@ -265,6 +271,7 @@ export function NativePage({
       styleElement?.remove();
       mobileStyleElement?.remove();
       visualSystemStyleElement?.remove();
+      executiveWorkspaceStyleElement?.remove();
       if (pageFrame && isAuthPage) {
         if (previousPageFrameStyle == null) pageFrame.removeAttribute("style");
         else pageFrame.setAttribute("style", previousPageFrameStyle);

@@ -7,6 +7,7 @@ import "./app.css";
 import "./index.css";
 import "./ui/auth-responsive.css";
 import "./ui/lulu-visual-system.css";
+import "./ui/executive-workspace.css";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

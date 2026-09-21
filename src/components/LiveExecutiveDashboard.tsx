@@ -1,69 +1,237 @@
-import { useCallback, useEffect, useState } from "react";
-import { Activity, ArrowRight, BarChart3, Check, ChevronDown, GitBranch, Gauge, Menu, RefreshCw, Sparkles, Target, Users } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  Activity,
+  ArrowUpRight,
+  BrainCircuit,
+  Building2,
+  CircleAlert,
+  CircleCheck,
+  Database,
+  Gauge,
+  Globe2,
+  Landmark,
+  Megaphone,
+  Network,
+  RefreshCw,
+  Target,
+  UsersRound,
+} from "lucide-react";
 import { workspaceApi } from "../api/workspaces";
-import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import type { WorkspaceBootstrap } from "../api/types";
 import { useLuluApp } from "../api/LuluAppContext";
-import { LuluSectionNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
+import { listLuluAgentContracts } from "../config/lulu-agent-registry";
+import { navigateApp, pagePath, routes } from "../routing";
 import { QualityOverviewPanel } from "./QualityOverviewPanel";
 
-type Props = { onMenuToggle?: () => void };
-const ranges = ["Today", "Yesterday", "Last 7 Days", "Last 30 Days", "Last 90 Days", "Year to Date", "Previous Year", "Custom Range"];
-const n = (value: number | null | undefined) => value == null ? "—" : new Intl.NumberFormat().format(value);
-const pct = (value: number | null | undefined) => value == null ? "—" : `${value}%`;
-const labelize = (value: string) => value.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const number = (value: number | null | undefined) => value == null ? "-" : new Intl.NumberFormat().format(value);
+const labelize = (value: string) => value.replace(/[_-]+/g, " ").replace(/\b\w/g, (character) => character.toUpperCase());
 
-function Empty({ children = "No live data has been recorded yet." }: { children?: string }) {
-  return <div className="rounded-lg border border-dashed border-border bg-[var(--secondary)]/30 px-4 py-6 text-center text-sm text-muted-foreground">{children}</div>;
+function timeAgo(value: string) {
+  const elapsed = Date.now() - new Date(value).getTime();
+  if (!Number.isFinite(elapsed) || elapsed < 0) return "Recently";
+  const minutes = Math.floor(elapsed / 60_000);
+  if (minutes < 1) return "Just now";
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
-export function LiveExecutiveDashboard({ onMenuToggle }: Props) {
+function EmptyState({ children }: { children: string }) {
+  return <div className="lulu-command-empty">{children}</div>;
+}
+
+type WorkstreamProps = {
+  eyebrow: string;
+  title: string;
+  detail: string;
+  icon: typeof Globe2;
+  onOpen: () => void;
+};
+
+function Workstream({ eyebrow, title, detail, icon: Icon, onOpen }: WorkstreamProps) {
+  return <button type="button" className="lulu-command-workstream" onClick={onOpen}>
+    <span className="lulu-command-workstream__icon"><Icon aria-hidden="true" size={18} /></span>
+    <span className="lulu-command-workstream__copy">
+      <span className="lulu-command-eyebrow">{eyebrow}</span>
+      <strong>{title}</strong>
+      <small>{detail}</small>
+    </span>
+    <ArrowUpRight aria-hidden="true" size={18} />
+  </button>;
+}
+
+export function LiveExecutiveDashboard() {
   const { selectedWorkspace, currentUser, loading: contextLoading } = useLuluApp();
-  const t = useTranslation();
   const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [dateRange, setDateRange] = useState("Last 30 Days");
-  const [rangeOpen, setRangeOpen] = useState(false);
-  const [mobileNav, setMobileNav] = useState(false);
 
   const load = useCallback(async () => {
-    if (!selectedWorkspace) { setBootstrap(null); setLoading(false); return; }
-    setLoading(true); setError("");
-    try { setBootstrap((await workspaceApi.bootstrap(selectedWorkspace.id)).data); }
-    catch { setError("Live workspace data could not be loaded. Please refresh and try again."); }
-    finally { setLoading(false); }
+    if (!selectedWorkspace) {
+      setBootstrap(null);
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    try {
+      setBootstrap((await workspaceApi.bootstrap(selectedWorkspace.id)).data);
+    } catch {
+      setError("Live workspace data could not be loaded. Refresh the workspace to try again.");
+    } finally {
+      setLoading(false);
+    }
   }, [selectedWorkspace]);
-  useEffect(() => { void load(); }, [load]);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const recordCount = bootstrap?.records.total ?? 0;
   const metricCount = bootstrap?.metrics.length ?? 0;
   const integrationCount = Object.values(bootstrap?.integrations ?? {}).reduce((sum, value) => sum + value, 0);
   const recent = bootstrap?.recentActivity ?? [];
-  const healthMetrics = (bootstrap?.metrics ?? []).slice(0, 6);
-  const domainEntries = Object.entries(bootstrap?.records.byDomain ?? {});
-  const userName = currentUser?.firstName || currentUser?.email?.split("@")[0] || "Workspace user";
+  const healthMetrics = (bootstrap?.metrics ?? []).slice(0, 4);
+  const domainEntries = Object.entries(bootstrap?.records.byDomain ?? {}).sort(([, left], [, right]) => right - left);
+  const agentCount = useMemo(() => listLuluAgentContracts().length, []);
+  const userName = currentUser?.firstName || currentUser?.email?.split("@")[0] || "there";
+  const isLoading = contextLoading || loading;
+  const status = isLoading ? "Synchronizing" : error ? "Needs attention" : "Live workspace";
+  const leadActivity = recent[0];
+  const operatingBrief = error
+    ? "The latest workspace snapshot could not be verified. Review connections before acting on the operating picture."
+    : recordCount === 0 && metricCount === 0
+      ? "Connect a source or add your first business record to give Lulu a verified operating picture."
+      : leadActivity
+        ? `The most recent confirmed activity is ${labelize(leadActivity.action)} in ${labelize(leadActivity.entityType)}.`
+        : `Lulu has ${number(recordCount)} verified records and ${number(metricCount)} tracked metrics ready for review.`;
 
-  return <div className="lulu-executive-dashboard min-h-screen bg-[var(--background)] text-foreground">
-    <aside className={`${mobileNav ? "flex" : "hidden"} fixed inset-y-0 left-0 z-20 flex h-dvh min-h-0 w-60 max-w-[calc(100vw-1rem)] flex-col overflow-hidden border-r border-border bg-[var(--sidebar)] p-5 lg:flex`}>
-      <div className="mb-10 flex items-center gap-3"><span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-lg font-bold text-primary-foreground shadow-lg shadow-black/20">L</span><span className="text-lg font-semibold tracking-tight text-foreground">Lulu AI</span></div>
-      <LuluSectionNavigation activeId="fancily-leaf-1766" />
-      <div className="mt-auto shrink-0 space-y-3 border-t border-border pt-4"><div className="flex items-center gap-3"><div className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-xs font-semibold text-foreground">{userName.slice(0, 1).toUpperCase()}</div><div><p className="text-sm font-medium text-foreground">{userName}</p><p className="text-xs text-muted-foreground">{t("Workspace")}: {selectedWorkspace?.companyName ?? t("Workspace account")}</p></div></div><div className="flex items-center gap-2 rounded-lg border border-chart-4/20 bg-chart-4/5 px-3 py-2 text-xs text-chart-4"><span className="h-2 w-2 rounded-full bg-chart-4" /> Live data <span className="ml-auto text-muted-foreground">{loading ? "Loading" : "Ready"}</span></div></div>
-    </aside>
-    {mobileNav && <button aria-label="Close navigation" className="fixed inset-0 z-10 bg-primary/50 lg:hidden" onClick={() => setMobileNav(false)} />}
-    <main className="min-h-screen min-w-0 overflow-x-hidden lg:ml-60"><div className="mx-auto max-w-[1400px] px-5 py-6 sm:px-8 sm:py-8">
-      <header className="mb-6 flex flex-col justify-between gap-5 xl:flex-row xl:items-end"><div><button className="mb-5 lg:hidden" aria-label="Open navigation" onClick={() => { setMobileNav(true); onMenuToggle?.(); }}><Menu /></button><p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-foreground">Lulu AI / Overview</p><h1 className="text-3xl font-semibold tracking-[-0.04em] text-foreground sm:text-4xl">Executive Dashboard</h1><p className="mt-2 max-w-2xl text-sm text-muted-foreground">Your live overview of workspace health, connected data and current operational activity.</p></div><div className="flex flex-wrap items-center gap-2"><div className="relative"><button onClick={() => setRangeOpen(!rangeOpen)} className="flex h-10 items-center gap-2 rounded-lg border border-border bg-[var(--primary)] px-3 text-sm text-primary-foreground">{dateRange}<ChevronDown size={15} /></button>{rangeOpen && <div className="absolute right-0 z-10 mt-2 w-48 rounded-lg border border-border bg-[var(--secondary)] p-1 shadow-2xl">{ranges.map((range) => <button key={range} className="block w-full rounded-md px-3 py-2 text-left text-sm text-foreground hover:bg-secondary/15" onClick={() => { setDateRange(range); setRangeOpen(false); }}>{range}</button>)}</div>}</div></div></header>
-      {error && <div className="mb-5 rounded-xl border border-chart-5/30 bg-chart-5/5 px-4 py-3 text-sm text-chart-5" role="alert">{error}</div>}
-      <section className="mb-5 flex flex-col justify-between gap-3 rounded-xl border border-border bg-[var(--card)] px-4 py-3 text-sm sm:flex-row sm:items-center"><div className="flex items-center gap-2"><span className={`h-2.5 w-2.5 rounded-full ${contextLoading || loading ? "bg-chart-1" : "bg-chart-4"}`} /><strong className="font-medium text-foreground">Business Status: {contextLoading || loading ? "Loading" : error ? "Needs attention" : "Live"}</strong><span className="hidden text-muted-foreground sm:inline">— based on current backend workspace data</span></div><div className="flex items-center gap-3 text-xs text-muted-foreground"><span>{bootstrap ? "Updated just now" : "No live update yet"}</span></div></section>
-      {selectedWorkspace && <QualityOverviewPanel workspaceId={selectedWorkspace.id} />}
-      <section className="mb-7 rounded-xl border border-border border-l-2 border-l-border bg-secondary/[0.05] p-5"><div className="flex flex-col gap-4 sm:flex-row"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-secondary/15 text-xs font-bold text-foreground">AI</div><div><div className="mb-1 flex items-center gap-2"><h2 className="text-base font-semibold text-foreground">Lulu AI Executive Insight</h2><Sparkles size={15} className="text-foreground" /></div><p className="max-w-4xl text-sm leading-6 text-foreground">{recordCount || metricCount ? `The workspace currently contains ${n(recordCount)} live records and ${n(metricCount)} configured metrics. Use the connected modules to review and act on your data.` : "Lulu AI has not generated an insight yet because this workspace has no recorded business data."}</p><div className="mt-3 flex gap-3 text-xs text-muted-foreground"><span>{bootstrap ? "Based on live workspace data" : "Waiting for live data"}</span></div></div></div></section>
-      <section className="mb-7"><div className="mb-3 flex items-center justify-between"><div><p className="text-xs font-medium uppercase tracking-[0.12em] text-muted-foreground">Focus now</p><h2 className="mt-1 text-lg font-semibold tracking-tight text-foreground">Today&apos;s Priorities</h2></div></div>{recent.length === 0 ? <Empty>No live priorities or recent actions have been recorded.</Empty> : <div className="grid gap-2 md:grid-cols-3">{recent.slice(0, 3).map((item) => <article key={item.id} className="flex items-center gap-3 rounded-lg border border-border bg-[var(--card)] px-4 py-3"><span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-secondary text-xs text-muted-foreground"><Activity size={13} /></span><p className="flex-1 text-sm text-foreground">{labelize(item.action)} · {labelize(item.entityType)}</p><span className="text-xs text-muted-foreground">Live</span></article>)}</div>}</section>
-      <div className="grid gap-5 xl:grid-cols-2"><section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="flex items-start justify-between"><div><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Executive metric</p><h2 className="mt-1 text-lg font-semibold text-foreground">Business Health</h2></div><Gauge className="text-foreground" size={20} /></div>{healthMetrics.length === 0 ? <div className="mt-5"><Empty>No live health metrics are configured.</Empty></div> : <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3">{healthMetrics.map((metric) => <div key={metric.id}><p className="text-xs text-muted-foreground">{metric.name}</p><p className="mt-1 font-semibold text-foreground">{metric.value ?? "—"} <span className="text-muted-foreground">{metric.unit}</span></p><p className="mt-1 text-xs text-muted-foreground">{metric.domain}</p></div>)}</div>}</section>
-      <section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="flex items-start justify-between"><div><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Momentum</p><h2 className="mt-1 text-lg font-semibold text-foreground">Growth Score</h2></div><ArrowRight className="text-muted-foreground" size={20} /></div><div className="mt-5 grid grid-cols-2 gap-4"><div><p className="text-xs text-muted-foreground">Live records</p><p className="mt-1 text-4xl font-bold tracking-[-0.05em] text-foreground">{n(recordCount)}</p></div><div><p className="text-xs text-muted-foreground">Connected platforms</p><p className="mt-1 text-4xl font-bold tracking-[-0.05em] text-foreground">{n(integrationCount)}</p></div></div>{domainEntries.length === 0 ? <div className="mt-6"><Empty>No live domain data available.</Empty></div> : <div className="mt-6 space-y-3">{domainEntries.slice(0, 5).map(([domain, count]) => <div key={domain} className="flex items-center gap-3"><span className="w-36 text-xs text-muted-foreground">{labelize(domain)}</span><span className="h-1.5 flex-1 rounded-full bg-secondary"><span className="block h-full rounded-full bg-primary" style={{ width: `${recordCount ? Math.min(100, (count / recordCount) * 100) : 0}%` }} /></span><span className="w-7 text-right text-xs text-foreground">{n(count)}</span></div>)}</div>}</section></div>
-      <section className="mt-5 rounded-xl border border-border bg-[var(--card)] p-5"><div className="flex items-start justify-between"><div><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Workspace data</p><h2 className="mt-1 text-lg font-semibold text-foreground">Live Overview</h2></div><BarChart3 className="text-muted-foreground" size={20} /></div><div className="mt-5 grid gap-4 border-y border-border py-4 sm:grid-cols-4"><div><p className="text-xs text-muted-foreground">Records</p><p className="mt-1 font-semibold text-foreground">{n(recordCount)}</p></div><div><p className="text-xs text-muted-foreground">Members</p><p className="mt-1 font-semibold text-foreground">{n(bootstrap?.members.total)}</p></div><div><p className="text-xs text-muted-foreground">Unread</p><p className="mt-1 font-semibold text-foreground">{n(bootstrap?.notifications.unread)}</p></div><div><p className="text-xs text-muted-foreground">Execution mode</p><p className="mt-1 font-semibold text-foreground">Autonomous</p></div></div>{!bootstrap ? <div className="mt-5"><Empty>Connect the workspace to show live performance data.</Empty></div> : <div className="mt-5 rounded-lg border border-dashed border-border bg-secondary/20 px-4 py-8 text-center text-sm text-muted-foreground">No time-series revenue or performance points have been recorded for this workspace.</div>}</section>
-      <div className="mt-5 grid gap-5 xl:grid-cols-2"><section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="flex items-start justify-between"><div><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Relationship health</p><h2 className="mt-1 text-lg font-semibold text-foreground">Customer Overview</h2></div><Users className="text-foreground" size={20} /></div><div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-3"><div><p className="text-xs text-muted-foreground">Workspace members</p><p className="mt-1 font-semibold text-foreground">{n(bootstrap?.members.total)}</p></div><div><p className="text-xs text-muted-foreground">Customer records</p><p className="mt-1 font-semibold text-foreground">{n(bootstrap?.records.byType.customers)}</p></div><div><p className="text-xs text-muted-foreground">Customer domain</p><p className="mt-1 font-semibold text-foreground">{n(bootstrap?.records.byDomain.customer)}</p></div></div><div className="mt-5"><Empty>No customer movement data is available yet.</Empty></div></section>
-      <section className="rounded-xl border border-border bg-[var(--card)] p-5"><div className="flex items-start justify-between"><div><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Connections</p><h2 className="mt-1 text-lg font-semibold text-foreground">Integration Health</h2></div><GitBranch className="text-foreground" size={20} /></div>{integrationCount === 0 ? <div className="mt-5"><Empty>No connected platforms reported by the backend.</Empty></div> : <div className="mt-5 space-y-2">{Object.entries(bootstrap?.integrations ?? {}).map(([name, count]) => <div key={name} className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-sm"><span>{labelize(name)}</span><span className="text-muted-foreground">{n(count)} connected</span></div>)}</div>}</section></div>
-      <section className="mt-5 rounded-xl border border-border bg-[var(--card)] p-5"><div className="flex items-start justify-between"><div><p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Activity</p><h2 className="mt-1 text-lg font-semibold text-foreground">Recent Activity</h2></div><Check className="text-muted-foreground" size={20} /></div>{recent.length === 0 ? <div className="mt-5"><Empty>No recent activity has been recorded.</Empty></div> : <div className="mt-4 space-y-2">{recent.slice(0, 8).map((item) => <div key={item.id} className="flex items-center justify-between border-t border-border py-3 text-sm"><span>{labelize(item.action)} · {labelize(item.entityType)}</span><span className="text-xs text-muted-foreground">{new Date(item.createdAt).toLocaleString()}</span></div>)}</div>}</section>
-    </div></main>
-  </div>;
+  return (
+    <main className="lulu-command-center">
+      <div className="lulu-command-center__frame">
+        <header className="lulu-command-hero">
+          <div>
+            <p className="lulu-command-eyebrow">Executive control layer</p>
+            <h1>Run the company from one operating picture.</h1>
+            <p className="lulu-command-hero__description">
+              Welcome back, {userName}. Lulu connects verified signals, specialist agents, approvals and growth work without hiding the evidence behind a chat window.
+            </p>
+          </div>
+          <div className="lulu-command-hero__actions">
+            <button type="button" className="lulu-command-button lulu-command-button--primary" onClick={() => navigateApp(routes.app.growth)}>
+              <Target aria-hidden="true" size={17} /> Open growth engine
+            </button>
+            <button type="button" className="lulu-command-button" onClick={() => navigateApp(pagePath("calmly-park-3313"))}>
+              <UsersRound aria-hidden="true" size={17} /> Agent workforce
+            </button>
+          </div>
+        </header>
+
+        <section className={`lulu-command-status is-${error ? "attention" : isLoading ? "loading" : "live"}`} aria-live="polite">
+          <span className="lulu-command-status__signal" aria-hidden="true" />
+          <div>
+            <strong>{status}</strong>
+            <span>{isLoading ? "Loading the latest workspace state." : error || "All visible figures are derived from the current workspace snapshot."}</span>
+          </div>
+          <button type="button" className="lulu-command-icon-button" title="Refresh workspace data" aria-label="Refresh workspace data" onClick={() => void load()} disabled={loading}>
+            <RefreshCw aria-hidden="true" size={17} className={loading ? "animate-spin" : undefined} />
+          </button>
+        </section>
+
+        {selectedWorkspace && <QualityOverviewPanel workspaceId={selectedWorkspace.id} />}
+
+        <section className="lulu-command-overview" aria-label="Company operating overview">
+          <article className="lulu-command-brief">
+            <div className="lulu-command-panel-heading">
+              <span className="lulu-command-panel-icon"><BrainCircuit aria-hidden="true" size={20} /></span>
+              <div>
+                <p className="lulu-command-eyebrow">Company brief</p>
+                <h2>What needs an operator&apos;s attention</h2>
+              </div>
+            </div>
+            <p className="lulu-command-brief__copy">{operatingBrief}</p>
+            <div className="lulu-command-brief__footer">
+              <span><CircleCheck aria-hidden="true" size={15} /> Evidence-backed workspace state</span>
+              {leadActivity && <span>{timeAgo(leadActivity.createdAt)}</span>}
+            </div>
+          </article>
+
+          <article className="lulu-command-workforce">
+            <div className="lulu-command-panel-heading">
+              <span className="lulu-command-panel-icon"><Network aria-hidden="true" size={20} /></span>
+              <div>
+                <p className="lulu-command-eyebrow">Digital workforce</p>
+                <h2>Specialist agent roster</h2>
+              </div>
+            </div>
+            <strong className="lulu-command-workforce__count">{number(agentCount)}</strong>
+            <p>Registered specialist agents across marketing, CRM, revenue, finance, web and operations.</p>
+            <button type="button" className="lulu-command-text-button" onClick={() => navigateApp(pagePath("calmly-park-3313"))}>Inspect workforce <ArrowUpRight aria-hidden="true" size={16} /></button>
+          </article>
+        </section>
+
+        <section className="lulu-command-metrics" aria-label="Verified workspace signals">
+          <article><Database aria-hidden="true" size={18} /><span>Verified records</span><strong>{number(recordCount)}</strong></article>
+          <article><Gauge aria-hidden="true" size={18} /><span>Tracked metrics</span><strong>{number(metricCount)}</strong></article>
+          <article><Network aria-hidden="true" size={18} /><span>Connected systems</span><strong>{number(integrationCount)}</strong></article>
+          <article><UsersRound aria-hidden="true" size={18} /><span>Workspace members</span><strong>{number(bootstrap?.members.total)}</strong></article>
+        </section>
+
+        <section className="lulu-command-section">
+          <div className="lulu-command-section__heading">
+            <div><p className="lulu-command-eyebrow">Operating domains</p><h2>Move from signal to work</h2></div>
+            <p>Every area opens its existing, permission-scoped workspace.</p>
+          </div>
+          <div className="lulu-command-workstreams">
+            <Workstream eyebrow="Acquire" title="Growth engine" detail="Campaigns, content, organic growth and paid acquisition." icon={Megaphone} onOpen={() => navigateApp(routes.app.growth)} />
+            <Workstream eyebrow="Own" title="Website and commerce" detail="Site, SEO, storefront and conversion surface." icon={Globe2} onOpen={() => navigateApp(routes.app.onlinePresence)} />
+            <Workstream eyebrow="Remember" title="Company Brain" detail="Shared knowledge, decisions and operating context." icon={BrainCircuit} onOpen={() => navigateApp(routes.app.knowledgeBase)} />
+            <Workstream eyebrow="Control" title="Finance and risk" detail="Cash, approvals, financial records and controls." icon={Landmark} onOpen={() => navigateApp(routes.app.finance)} />
+          </div>
+        </section>
+
+        <div className="lulu-command-data-grid">
+          <section className="lulu-command-section lulu-command-section--data">
+            <div className="lulu-command-section__heading">
+              <div><p className="lulu-command-eyebrow">Live measurement</p><h2>Business health</h2></div>
+              <Gauge aria-hidden="true" size={20} />
+            </div>
+            {healthMetrics.length === 0 ? <EmptyState>No verified health metrics are configured yet.</EmptyState> : (
+              <div className="lulu-command-health-grid">
+                {healthMetrics.map((metric) => <article key={metric.id}><span>{metric.name}</span><strong>{metric.value ?? "-"}<small>{metric.unit}</small></strong><em>{labelize(metric.domain)}</em></article>)}
+              </div>
+            )}
+          </section>
+
+          <section className="lulu-command-section lulu-command-section--data">
+            <div className="lulu-command-section__heading">
+              <div><p className="lulu-command-eyebrow">Data coverage</p><h2>Operating footprint</h2></div>
+              <Building2 aria-hidden="true" size={20} />
+            </div>
+            {domainEntries.length === 0 ? <EmptyState>No business domains have reported records yet.</EmptyState> : (
+              <div className="lulu-command-domain-list">
+                {domainEntries.slice(0, 5).map(([domain, count]) => <div key={domain}><span>{labelize(domain)}</span><span className="lulu-command-domain-list__bar"><i style={{ width: `${recordCount > 0 ? Math.min(100, (count / recordCount) * 100) : 0}%` }} /></span><strong>{number(count)}</strong></div>)}
+              </div>
+            )}
+          </section>
+        </div>
+
+        <section className="lulu-command-section lulu-command-section--activity">
+          <div className="lulu-command-section__heading">
+            <div><p className="lulu-command-eyebrow">Evidence trail</p><h2>Recent workspace activity</h2></div>
+            <Activity aria-hidden="true" size={20} />
+          </div>
+          {recent.length === 0 ? <EmptyState>No recent workspace activity has been recorded.</EmptyState> : (
+            <div className="lulu-command-activity-list">
+              {recent.slice(0, 6).map((item) => <div key={item.id}><span className="lulu-command-activity-list__icon"><Activity aria-hidden="true" size={15} /></span><p><strong>{labelize(item.action)}</strong><span>{labelize(item.entityType)}</span></p><time dateTime={item.createdAt}>{timeAgo(item.createdAt)}</time></div>)}
+            </div>
+          )}
+        </section>
+
+        {error && <div className="lulu-command-error" role="alert"><CircleAlert aria-hidden="true" size={18} /> {error}</div>}
+      </div>
+    </main>
+  );
 }
