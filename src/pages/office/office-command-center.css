@@ -226,6 +226,15 @@
 .lulu-office-command__pending-files { display: flex; flex-wrap: wrap; gap: 5px; border-bottom: 1px solid #2c3353; padding: 7px 9px; }
 .lulu-office-command__pending-files span { display: inline-flex; max-width: 100%; align-items: center; gap: 5px; border: 1px solid #3d6a59; border-radius: 4px; padding: 4px 5px; color: #cce5da; font-size: .66rem; overflow-wrap: anywhere; }
 .lulu-office-command__pending-files button { display: grid; width: 15px; height: 15px; place-items: center; border: 0; background: transparent; color: var(--command-muted); cursor: pointer; }
+.lulu-office-command__voice-conversation { display: grid; gap: 8px; border-bottom: 1px solid #2c3353; padding: 10px 11px 11px; background: #17142c; }
+.lulu-office-command__voice-conversation-main { display: flex; min-width: 0; align-items: center; gap: 9px; }
+.lulu-office-command__voice-conversation--thinking .lulu-office-command__voice-badge { border-color: #a79aff; background: #2c2552; color: #e6e1ff; animation-duration: 2.2s; }
+.lulu-office-command__voice-conversation--speaking .lulu-office-command__voice-badge { border-color: #f0b86c; background: #3c2a1e; color: #ffe5bd; }
+.lulu-office-command__voice-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 5px; }
+.lulu-office-command__voice-action { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #4a5985; border-radius: 5px; padding: 6px 8px; background: #1a2140; color: #d8e8ff; cursor: pointer; font: inherit; font-size: .66rem; }
+.lulu-office-command__voice-action:hover { border-color: #00cfe8; background: #203452; color: #f1ffff; }
+.lulu-office-command__voice-action--end { border-color: #765064; background: #281e38; color: #ffd4e2; }
+.lulu-office-command__voice-action--end:hover { border-color: #ef8fb0; background: #3b2338; color: #ffeaf1; }
 .lulu-office-command__voice-panel { display: grid; gap: 8px; border-bottom: 1px solid #2c3353; padding: 9px 11px 10px; background: #151a31; }
 .lulu-office-command__voice-panel-main { display: flex; min-width: 0; align-items: center; gap: 9px; }
 .lulu-office-command__voice-badge { display: grid; width: 30px; height: 30px; flex: 0 0 auto; place-items: center; border: 1px solid #00cfe8; border-radius: 50%; background: #143647; color: #b4f4f7; animation: lulu-office-voice-pulse 1.8s ease-in-out infinite; }
@@ -244,6 +253,7 @@
 .lulu-office-command__composer-tools button:hover,
 .lulu-office-command__composer-tools button.is-active { border-color: #495784; background: #192040; color: #92e8f4; }
 .lulu-office-command__composer-tools button.is-listening { border-color: #00cfe8; background: #143647; color: #b4f4f7; }
+.lulu-office-command__composer-tools button.is-voice-active { border-color: #a79aff; background: #2c2552; color: #e6e1ff; }
 .lulu-office-command__composer-tools button:disabled { cursor: default; opacity: .45; }
 .lulu-office-command__composer textarea { width: 100%; min-height: 38px; max-height: 128px; resize: none; border: 0; background: transparent; color: #f1faf5; padding: 8px 3px; outline: 0; font: inherit; font-size: .84rem; line-height: 1.42; }
 .lulu-office-command__composer textarea::placeholder { color: #90aa9f; }
@@ -287,6 +297,10 @@
   .lulu-office-command__voice-stop { padding: 6px; }
   .lulu-office-command__voice-stop svg { display: none; }
   .lulu-office-command__voice-wave { padding-left: 39px; }
+  .lulu-office-command__voice-action { padding: 6px; }
+  .lulu-office-command__voice-action svg { display: none; }
+  .lulu-office-command__voice-conversation-main { align-items: flex-start; }
+  .lulu-office-command__voice-actions { margin-left: auto; }
   .lulu-office-command__error { bottom: 165px; width: calc(100vw - 20px); }
 }
 
