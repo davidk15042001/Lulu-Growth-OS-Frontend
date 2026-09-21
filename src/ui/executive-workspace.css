@@ -5,15 +5,16 @@
  * surfaces and canonical React workspaces share one sober operating language.
  */
 :root {
-  --lulu-exec-ink: #10221e;
-  --lulu-exec-ink-soft: #49615a;
-  --lulu-exec-surface: #ffffff;
-  --lulu-exec-canvas: #edf2ee;
-  --lulu-exec-line: #d5dfd8;
-  --lulu-exec-mint: #73dfce;
-  --lulu-exec-mint-deep: #1d675a;
-  --lulu-exec-amber: #d99d42;
-  --lulu-exec-danger: #b64c4c;
+  --lulu-exec-ink: #f4f3ff;
+  --lulu-exec-ink-soft: #99a0b6;
+  --lulu-exec-surface: #10121f;
+  --lulu-exec-canvas: #080d1c;
+  --lulu-exec-line: #2a2f45;
+  --lulu-exec-mint: #00cfe8;
+  --lulu-exec-mint-deep: #00cfe8;
+  --lulu-exec-violet: #7f7deb;
+  --lulu-exec-amber: #f0b35a;
+  --lulu-exec-danger: #ff7a90;
 }
 
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) {
@@ -22,10 +23,27 @@
   --background: var(--lulu-exec-canvas);
   --foreground: var(--lulu-exec-ink);
   --card: var(--lulu-exec-surface);
+  --card-foreground: var(--lulu-exec-ink);
+  --popover: #13182a;
+  --popover-foreground: var(--lulu-exec-ink);
   --border: var(--lulu-exec-line);
-  --primary: var(--lulu-exec-mint-deep);
-  --primary-foreground: #ffffff;
+  --input: #353b57;
+  --ring: var(--lulu-exec-violet);
+  --primary: var(--lulu-exec-mint);
+  --primary-foreground: #071018;
+  --secondary: #171c31;
+  --secondary-foreground: var(--lulu-exec-ink);
+  --muted: #121629;
   --muted-foreground: var(--lulu-exec-ink-soft);
+  --accent: #1a203b;
+  --accent-foreground: var(--lulu-exec-ink);
+  --sidebar: #0b0e1a;
+  --sidebar-foreground: var(--lulu-exec-ink);
+  --lulu-page-gradient: var(--lulu-exec-canvas);
+  --lulu-surface: var(--lulu-exec-surface);
+  --lulu-surface-strong: #141a2d;
+  --lulu-surface-border: var(--lulu-exec-line);
+  color-scheme: dark;
   background: var(--lulu-exec-canvas) !important;
 }
 
@@ -332,4 +350,218 @@
 @media (prefers-reduced-motion: reduce) {
   .lulu-command-button,
   .lulu-command-workstream { transition: none; }
+}
+
+/* Workspace parity with the Office command surface. This sits last so legacy
+   generated pages inherit the operating-system palette without page rewrites. */
+.lulu-auth-search-wrap {
+  border-bottom-color: var(--lulu-exec-line) !important;
+  background: #080d1c !important;
+  color: var(--lulu-exec-ink) !important;
+}
+
+.lulu-auth-brand::after,
+.lulu-auth-workspace-context small,
+.lulu-backend-release { color: var(--lulu-exec-ink-soft) !important; }
+.lulu-auth-brand::after,
+.lulu-auth-workspace-context { border-color: var(--lulu-exec-line) !important; }
+.lulu-auth-workspace-context span { color: var(--lulu-exec-ink) !important; }
+.lulu-auth-nav-toggle,
+.lulu-auth-usage,
+.lulu-surface-switch { border-color: var(--lulu-exec-line) !important; }
+.lulu-auth-nav-toggle:hover,
+.lulu-auth-usage:hover { border-color: #44517d !important; background: #151a31 !important; }
+.lulu-surface-switch button { color: var(--lulu-exec-ink-soft) !important; }
+.lulu-surface-switch button.is-active { background: #1a203b !important; color: var(--lulu-exec-ink) !important; }
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-navigation {
+  border-right-color: var(--lulu-exec-line) !important;
+  background: #0b0e1a !important;
+}
+
+.lulu-global-navigation__workspace-label { color: var(--lulu-exec-ink-soft) !important; }
+.lulu-global-navigation__workspace-label::before { background: var(--lulu-exec-mint) !important; }
+.lulu-global-navigation__close { border-color: var(--lulu-exec-line) !important; color: var(--lulu-exec-ink) !important; }
+.lulu-global-navigation__primary-link,
+.lulu-global-navigation__sections summary { color: #b8bfda !important; }
+.lulu-global-navigation__section-label::before,
+.lulu-global-navigation__sections details:nth-of-type(3n + 2) .lulu-global-navigation__section-label::before,
+.lulu-global-navigation__sections details:nth-of-type(3n) .lulu-global-navigation__section-label::before { background: #5d668f !important; }
+.lulu-global-navigation__primary-link:hover,
+.lulu-global-navigation__sections summary:hover,
+.lulu-global-navigation__sections summary.is-active,
+.lulu-global-navigation__subitems a:hover,
+.lulu-global-navigation__subitem-action:hover { background: #151a31 !important; color: var(--lulu-exec-ink) !important; }
+.lulu-global-navigation__primary-link.is-active,
+.lulu-global-navigation__subitems a.is-active {
+  border-left-color: var(--lulu-exec-mint) !important;
+  background: #192040 !important;
+  color: var(--lulu-exec-ink) !important;
+}
+.lulu-global-navigation__subitems { border-left-color: #303856 !important; }
+.lulu-global-navigation__subitems a,
+.lulu-global-navigation__subitem-action { color: #a9b2d0 !important; }
+.lulu-global-navigation__agent-toggle.is-active { background: var(--lulu-exec-mint) !important; }
+.lulu-global-navigation__language-list,
+.lulu-global-navigation__website-lock { border-color: #353d60 !important; background: #10121f !important; }
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .page-frame {
+  background: var(--lulu-exec-canvas) !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
+  color: var(--lulu-exec-ink) !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(h1, h2, h3, h4) {
+  color: var(--lulu-exec-ink) !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  .card, .panel, .content-card, .metric-card, .kpi-card, .summary-card, .stat-card,
+  [class*="rounded-xl"], [class*="rounded-2xl"], [class*="rounded-3xl"]
+) {
+  border-color: var(--lulu-exec-line) !important;
+  background: var(--lulu-exec-surface) !important;
+  box-shadow: none !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  .page-header, .lulu-minimal-agent-page__header, .lulu-agent-workspace-header
+) {
+  border-bottom: 1px solid var(--lulu-exec-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > main > div[class*="mx-auto"] > header:first-child {
+  border-bottom: 1px solid var(--lulu-exec-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea) {
+  border-color: #353d60 !important;
+  background: #0c1020 !important;
+  color: var(--lulu-exec-ink) !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea)::placeholder {
+  color: #7882a3 !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea):focus-visible,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page button:focus-visible,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page a:focus-visible {
+  outline: 2px solid var(--lulu-exec-mint) !important;
+  outline-offset: 3px;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.empty-state, .empty, .no-data, [class*="border-dashed"]) {
+  border-color: #3a4262 !important;
+  background: #0c1020 !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  [class*="bg-white"], [class*="bg-slate-50"], [class*="bg-slate-100"]
+) { background: #141a2d !important; }
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  [class*="bg-rose-50"], [class*="bg-red-50"]
+) { border-color: #693248 !important; background: #311927 !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  [class*="bg-emerald-50"], [class*="bg-green-50"]
+) { border-color: #285f58 !important; background: #102a2b !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  [class*="bg-amber-50"], [class*="bg-yellow-50"]
+) { border-color: #71562f !important; background: #2d2517 !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="bg-violet-50"] {
+  border-color: #4b437e !important;
+  background: #201b3d !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  [class*="text-rose-"], [class*="text-red-"]
+) { color: #ff9bad !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(
+  [class*="text-emerald-"], [class*="text-green-"]
+) { color: #73e0d0 !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="text-amber-"] { color: #f5c66e !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="text-violet-"] { color: #aaa9ff !important; }
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a).lulu-workspace-primary-action,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a)[class*="bg-primary"] {
+  border-color: var(--lulu-exec-mint) !important;
+  background: var(--lulu-exec-mint) !important;
+  color: #071018 !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a).lulu-workspace-primary-action:hover,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a)[class*="bg-primary"]:hover {
+  border-color: #6de4ef !important;
+  background: #6de4ef !important;
+}
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(th, td) { border-color: var(--lulu-exec-line) !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page thead { background: #0c1020 !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page tbody tr:hover { background: #151a31 !important; }
+
+.lulu-workspace-intelligence-panel,
+.lulu-agent-runtime-panel,
+.lulu-agent-kpi,
+.lulu-agent-runtime-panel > div:nth-of-type(n + 2) article,
+.lulu-executive-dashboard > main > div > section,
+.lulu-executive-dashboard > main > div > div > section {
+  border-color: var(--lulu-exec-line) !important;
+  border-radius: 8px !important;
+  background: var(--lulu-exec-surface) !important;
+  box-shadow: none !important;
+}
+
+.lulu-workspace-intelligence-panel::before,
+.lulu-agent-runtime-panel::before { height: 2px; background: var(--lulu-exec-mint) !important; }
+.lulu-agent-kpi::after { display: none !important; }
+.lulu-agent-kpi > p:nth-child(2) { background: none !important; color: var(--lulu-exec-ink) !important; letter-spacing: 0 !important; }
+
+.lulu-command-center { background: var(--lulu-exec-canvas); color: var(--lulu-exec-ink); }
+.lulu-command-button,
+.lulu-command-status,
+.lulu-command-icon-button,
+.lulu-command-brief,
+.lulu-command-section,
+.lulu-command-metrics,
+.lulu-command-workstream { border-color: var(--lulu-exec-line); background: var(--lulu-exec-surface); color: var(--lulu-exec-ink); }
+.lulu-command-button:hover,
+.lulu-command-icon-button:hover:not(:disabled),
+.lulu-command-workstream:hover { border-color: #44517d; background: #151a31; }
+.lulu-command-button--primary { border-color: var(--lulu-exec-mint); background: var(--lulu-exec-mint); color: #071018; }
+.lulu-command-workforce { border-color: #3b3a6e; background: #151a31; color: var(--lulu-exec-ink); }
+.lulu-command-workforce > p,
+.lulu-command-brief__footer,
+.lulu-command-metrics span,
+.lulu-command-section__heading > p,
+.lulu-command-workstream__copy small,
+.lulu-command-workstream > svg,
+.lulu-command-health-grid span,
+.lulu-command-health-grid em,
+.lulu-command-health-grid small,
+.lulu-command-domain-list > div > span:first-child,
+.lulu-command-activity-list p span,
+.lulu-command-activity-list time { color: var(--lulu-exec-ink-soft); }
+.lulu-command-panel-icon,
+.lulu-command-workstream__icon,
+.lulu-command-activity-list__icon { border-color: #353d60; background: #192040; color: var(--lulu-exec-mint); }
+.lulu-command-domain-list__bar { background: #2a2f45; }
+.lulu-command-domain-list__bar i { background: var(--lulu-exec-mint); }
+.lulu-command-empty { border-color: #3a4262; background: #0c1020; color: var(--lulu-exec-ink-soft); }
+.lulu-command-error { border-color: #693248; background: #311927; color: #ff9bad; }
+
+@media (max-width: 640px) {
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page .page-frame { padding: 12px !important; }
+  .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page > main > div[class*="mx-auto"] > header:first-child { padding-bottom: 16px; }
+  .lulu-command-center { padding: 12px; }
+  .lulu-command-button { min-height: 40px; }
 }
