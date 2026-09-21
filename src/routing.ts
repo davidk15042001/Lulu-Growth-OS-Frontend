@@ -1,4 +1,4 @@
-export const HOME_PAGE_SLUG = "fresh-moon-5374";
+export const HOME_PAGE_SLUG = "sturdy-month-1562";
 
 export const routes = {
   auth: {

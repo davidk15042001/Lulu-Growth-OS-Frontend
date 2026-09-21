@@ -8,19 +8,6 @@ import { LuluWorkspaceRefreshButton } from "./LuluWorkspaceTopBar";
 import { LuluUsageControl } from "./LuluUsageControl";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 
-const LAST_WORKSPACE_ROUTE_KEY = "lulu.workspace.last-route";
-
-function storedWorkspaceRoute(value: string | null) {
-  if (!value?.startsWith("/app/") || value.startsWith(routes.app.office)) return null;
-  try {
-    const url = new URL(value, window.location.origin);
-    if (url.origin !== window.location.origin || isOfficePanelSurface(url.search)) return null;
-    return `${url.pathname}${url.search}${url.hash}`;
-  } catch {
-    return null;
-  }
-}
-
 export function AuthenticatedWorkspaceTopBar({
   navigationOpen,
   onToggleNavigation,
@@ -48,11 +35,6 @@ export function AuthenticatedWorkspaceTopBar({
     }).catch(() => undefined);
     return () => controller.abort();
   }, []);
-
-  useEffect(() => {
-    if (!location.pathname.startsWith("/app/") || officeMode || officePanel) return;
-    window.sessionStorage.setItem(LAST_WORKSPACE_ROUTE_KEY, `${location.pathname}${location.search}${location.hash}`);
-  }, [location.hash, location.pathname, location.search, officeMode, officePanel]);
 
   if (!currentUser || !selectedWorkspace || officePanel || activationLocked) return null;
 
@@ -91,7 +73,7 @@ export function AuthenticatedWorkspaceTopBar({
           <Building2 aria-hidden="true" size={15} /><span>{t("Office")}</span>
         </button>
         <button type="button" className={!officeMode ? "is-active" : undefined} aria-current={!officeMode ? "page" : undefined} onClick={() => {
-          navigate(storedWorkspaceRoute(window.sessionStorage.getItem(LAST_WORKSPACE_ROUTE_KEY)) ?? routes.app.dashboard);
+          navigate(routes.app.dashboard);
         }}>
           <LayoutDashboard aria-hidden="true" size={15} /><span>{t("Workspace")}</span>
         </button>
