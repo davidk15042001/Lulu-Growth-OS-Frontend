@@ -304,5 +304,13 @@
   "Verified learning": "Verifiziertes Lernen",
   "Enter an outcome and evidence reference.": "Geben Sie ein Ergebnis und eine Evidenzreferenz ein.",
   "Enter a valid review confidence.": "Geben Sie eine gueltige Pruefkonfidenz ein.",
-  "Plan outcome could not be verified.": "Das Planergebnis konnte nicht geprueft werden."
+  "Plan outcome could not be verified.": "Das Planergebnis konnte nicht geprueft werden.",
+  "Office command": "Office-Steuerung",
+  "Lulu workspace": "Lulu-Arbeitsbereich",
+  "Review the files I added to the Company Brain.": "Pruefe die Dateien, die ich zum Unternehmensgedaechtnis hinzugefuegt habe.",
+  "Review this reference:": "Pruefe diese Referenz:",
+  "Operating mode": "Betriebsmodus",
+  "Imported workspace knowledge for this request": "Importiertes Workspace-Wissen fuer diese Anfrage",
+  "Reference link supplied by the user": "Vom Nutzer bereitgestellter Referenzlink",
+  "working": "arbeitet"
 }

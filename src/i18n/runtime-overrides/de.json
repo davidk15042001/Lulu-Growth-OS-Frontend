@@ -6373,5 +6373,13 @@
   "Start voice dictation": "Spracheingabe starten",
   "Send intent": "Anliegen senden",
   "Workspace-scoped context and governed actions": "Workspace-begrenzter Kontext und gesteuerte Aktionen",
-  "Enter to send, Shift+Enter for a new line": "Enter zum Senden, Umschalt+Enter fuer eine neue Zeile"
+  "Enter to send, Shift+Enter for a new line": "Enter zum Senden, Umschalt+Enter fuer eine neue Zeile",
+  "Office command": "Office-Steuerung",
+  "Lulu workspace": "Lulu-Arbeitsbereich",
+  "Review the files I added to the Company Brain.": "Pruefe die Dateien, die ich zum Unternehmensgedaechtnis hinzugefuegt habe.",
+  "Review this reference:": "Pruefe diese Referenz:",
+  "Operating mode": "Betriebsmodus",
+  "Imported workspace knowledge for this request": "Importiertes Workspace-Wissen fuer diese Anfrage",
+  "Reference link supplied by the user": "Vom Nutzer bereitgestellter Referenzlink",
+  "working": "arbeitet"
 }

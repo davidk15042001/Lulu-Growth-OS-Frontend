@@ -304,5 +304,13 @@
   "Verified learning": "已验证学习",
   "Enter an outcome and evidence reference.": "请输入结果和证据引用。",
   "Enter a valid review confidence.": "请输入有效的审核置信度。",
-  "Plan outcome could not be verified.": "无法验证计划结果。"
+  "Plan outcome could not be verified.": "无法验证计划结果。",
+  "Office command": "Office 指挥中心",
+  "Lulu workspace": "Lulu 工作区",
+  "Review the files I added to the Company Brain.": "审阅我添加到公司大脑的文件。",
+  "Review this reference:": "审阅此参考内容：",
+  "Operating mode": "运行模式",
+  "Imported workspace knowledge for this request": "为此请求导入的工作区知识",
+  "Reference link supplied by the user": "用户提供的参考链接",
+  "working": "工作中"
 }

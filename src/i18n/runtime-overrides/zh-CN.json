@@ -6350,5 +6350,13 @@
   "Start voice dictation": "开始语音输入",
   "Send intent": "发送意图",
   "Workspace-scoped context and governed actions": "工作区范围内的上下文和受治理的行动",
-  "Enter to send, Shift+Enter for a new line": "按 Enter 发送，按 Shift+Enter 换行"
+  "Enter to send, Shift+Enter for a new line": "按 Enter 发送，按 Shift+Enter 换行",
+  "Office command": "Office 指挥中心",
+  "Lulu workspace": "Lulu 工作区",
+  "Review the files I added to the Company Brain.": "审阅我添加到公司大脑的文件。",
+  "Review this reference:": "审阅此参考内容：",
+  "Operating mode": "运行模式",
+  "Imported workspace knowledge for this request": "为此请求导入的工作区知识",
+  "Reference link supplied by the user": "用户提供的参考链接",
+  "working": "工作中"
 }

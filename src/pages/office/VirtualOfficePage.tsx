@@ -38,6 +38,7 @@ import {
 } from "../../config/workspace-capability-registry";
 import { AuthenticatedWorkspaceTopBar } from "../../components/AuthenticatedWorkspaceTopBar";
 import ManualCommercialDocumentForm from "./ManualCommercialDocumentForm";
+import { OfficeCommandCenter } from "./OfficeCommandCenter";
 import "./virtual-office.css";
 
 const REFRESH_INTERVAL_MS = 15_000;
@@ -1469,6 +1470,15 @@ export default function VirtualOfficePage() {
 
       {overview && <>
         {error && <div className="lulu-office-stale" role="status"><AlertTriangle aria-hidden="true" size={15} /><span>{t("Live refresh failed. The last verified state remains visible.")}</span></div>}
+        <OfficeCommandCenter
+          signals={{
+            activeWorkItems: overview.summary.activeWorkItems,
+            workingEmployees: overview.summary.workingEmployees,
+            attentionEmployees: overview.summary.attentionEmployees,
+            openSignals: overview.companyBrain?.counts.openSignals ?? 0,
+          }}
+          onOfficeChanged={reloadAll}
+        />
         <section className="lulu-office-metrics" aria-label={t("Company operating summary")}>
           <OverviewMetric icon={Activity} label={t("Active work items")} value={overview.summary.activeWorkItems} language={language} />
           <OverviewMetric icon={UsersRound} label={t("Employees working now")} value={overview.summary.workingEmployees} language={language} tone="active" />

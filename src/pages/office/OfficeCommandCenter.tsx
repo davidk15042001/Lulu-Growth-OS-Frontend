@@ -1,0 +1,475 @@
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  Activity,
+  ArrowUpRight,
+  Bot,
+  BrainCircuit,
+  Check,
+  CircleAlert,
+  Clock3,
+  Database,
+  FileText,
+  History,
+  Image,
+  Link,
+  LoaderCircle,
+  Mic,
+  Paperclip,
+  PanelTopOpen,
+  RefreshCw,
+  Send,
+  ShieldCheck,
+  Sparkles,
+  Square,
+  X,
+} from "lucide-react";
+import {
+  aiApi,
+  type AiMessage,
+  type AssistantPendingAction,
+  type AssistantToolCall,
+  type Conversation,
+} from "../../api/ai";
+import { getFriendlyErrorMessage } from "../../api/client";
+import { ingestRecord, type WorkspaceRecord } from "../../api/records";
+import { useLuluApp } from "../../api/LuluAppContext";
+import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import "./office-command-center.css";
+
+type CoreState = "idle" | "listening" | "thinking" | "working" | "completed" | "needs-confirmation" | "attention";
+type ComposeMode = "Chat" | "Analysis" | "Action" | "Automation";
+type Attachment = { id: string; name: string; resourceType: string; uploadedAt: string };
+type CommandMessage = {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  createdAt: string;
+  toolCalls?: AssistantToolCall[];
+  pendingActions?: AssistantPendingAction[];
+  attachments?: Attachment[];
+};
+type CommandSignals = {
+  activeWorkItems: number;
+  workingEmployees: number;
+  attentionEmployees: number;
+  openSignals: number;
+};
+type SpeechResultEvent = Event & { results: ArrayLike<ArrayLike<{ transcript: string }>> };
+type SpeechRecognizer = {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  onresult: ((event: SpeechResultEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onend: (() => void) | null;
+};
+type SpeechRecognizerConstructor = new () => SpeechRecognizer;
+
+const modes: ComposeMode[] = ["Chat", "Analysis", "Action", "Automation"];
+const starterIntents = [
+  "Build the highest-leverage growth plan for this week.",
+  "Show the operating risks that need attention now.",
+  "Review the company memory and identify what is missing.",
+] as const;
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+function toolCallsFromMetadata(metadata: Record<string, unknown>): AssistantToolCall[] {
+  const calls = metadata.toolCalls;
+  if (!Array.isArray(calls)) return [];
+  return calls.flatMap((entry) => {
+    const item = asRecord(entry);
+    return item && typeof item.name === "string" && asRecord(item.args)
+      ? [{ name: item.name, args: item.args as Record<string, unknown>, result: item.result }]
+      : [];
+  });
+}
+
+function pendingActionsFromMetadata(metadata: Record<string, unknown>): AssistantPendingAction[] {
+  const actions = metadata.pendingActions;
+  if (!Array.isArray(actions)) return [];
+  return actions.flatMap((entry) => {
+    const item = asRecord(entry);
+    return item && typeof item.id === "string" && typeof item.type === "string" && typeof item.summary === "string"
+      && typeof item.status === "string" && typeof item.requiresApproval === "boolean"
+      ? [{
+          id: item.id,
+          conversationId: typeof item.conversationId === "string" ? item.conversationId : "",
+          type: item.type,
+          summary: item.summary,
+          payload: asRecord(item.payload) ?? {},
+          status: item.status as AssistantPendingAction["status"],
+          approvalId: typeof item.approvalId === "string" ? item.approvalId : null,
+          requiresApproval: item.requiresApproval,
+          result: asRecord(item.result),
+          errorCode: typeof item.errorCode === "string" ? item.errorCode : null,
+          errorMessage: typeof item.errorMessage === "string" ? item.errorMessage : null,
+          expiresAt: typeof item.expiresAt === "string" ? item.expiresAt : null,
+        }]
+      : [];
+  });
+}
+
+function attachmentsFromMetadata(metadata: Record<string, unknown>): Attachment[] {
+  const attachments = metadata.attachments;
+  if (!Array.isArray(attachments)) return [];
+  return attachments.flatMap((entry) => {
+    const item = asRecord(entry);
+    return item && typeof item.id === "string" && typeof item.name === "string" && typeof item.resourceType === "string" && typeof item.uploadedAt === "string"
+      ? [{ id: item.id, name: item.name, resourceType: item.resourceType, uploadedAt: item.uploadedAt }]
+      : [];
+  });
+}
+
+function historyToMessages(items: AiMessage[]): CommandMessage[] {
+  return items
+    .filter((message) => message.role === "user" || message.role === "assistant")
+    .map((message) => ({
+      id: message.id,
+      role: message.role as "user" | "assistant",
+      content: message.content,
+      createdAt: message.createdAt,
+      toolCalls: toolCallsFromMetadata(message.metadata),
+      pendingActions: pendingActionsFromMetadata(message.metadata),
+      attachments: attachmentsFromMetadata(message.metadata),
+    }));
+}
+
+function titleForTool(name: string) {
+  if (name === "list_records") return "Live records";
+  if (name === "get_knowledge") return "Company memory";
+  if (name === "get_agent_health") return "Digital employee health";
+  if (name === "request_action") return "Action package";
+  return name.replaceAll("_", " ");
+}
+
+function shortValue(value: unknown) {
+  if (value == null) return "-";
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return String(value);
+  if (Array.isArray(value)) return `${value.length} items`;
+  return "Available";
+}
+
+function responseContent(content: string): ReactNode[] {
+  const lines = content.split("\n");
+  const blocks: ReactNode[] = [];
+  let lineIndex = 0;
+  let key = 0;
+
+  while (lineIndex < lines.length) {
+    const line = lines[lineIndex] ?? "";
+    const heading = line.match(/^(#{1,3})\s+(.*)$/);
+    if (heading) {
+      blocks.push(<h3 key={key++}>{heading[2]}</h3>);
+      lineIndex += 1;
+      continue;
+    }
+    if (/^\s*[-*]\s+/.test(line)) {
+      const items: string[] = [];
+      while (lineIndex < lines.length && /^\s*[-*]\s+/.test(lines[lineIndex] ?? "")) {
+        items.push((lines[lineIndex] ?? "").replace(/^\s*[-*]\s+/, ""));
+        lineIndex += 1;
+      }
+      blocks.push(<ul key={key++}>{items.map((item, index) => <li key={index}>{item.replace(/\*\*/g, "")}</li>)}</ul>);
+      continue;
+    }
+    if (line.trim() === "") {
+      lineIndex += 1;
+      continue;
+    }
+    const paragraph: string[] = [];
+    while (lineIndex < lines.length && (lines[lineIndex] ?? "").trim() !== "" && !/^(#{1,3})\s+/.test(lines[lineIndex] ?? "") && !/^\s*[-*]\s+/.test(lines[lineIndex] ?? "")) {
+      paragraph.push(lines[lineIndex] ?? "");
+      lineIndex += 1;
+    }
+    blocks.push(<p key={key++}>{paragraph.join(" ").replace(/\*\*/g, "")}</p>);
+  }
+  return blocks;
+}
+
+function ToolSurface({ call }: { call: AssistantToolCall }) {
+  const t = useTranslation();
+  const result = asRecord(call.result);
+  const items = Array.isArray(result?.items) ? result.items.map(asRecord).filter((item): item is Record<string, unknown> => Boolean(item)) : [];
+  const visibleItems = items.slice(0, 5);
+  const columns = visibleItems.length
+    ? Object.keys(visibleItems[0] ?? {}).filter((key) => ["name", "status", "stage", "valueAmount", "updatedAt", "createdAt", "id"].includes(key)).slice(0, 4)
+    : [];
+  const summaryEntries = result ? Object.entries(result).filter(([key]) => key !== "items").slice(0, 4) : [];
+
+  return <section className="lulu-office-command__tool-surface" aria-label={t(titleForTool(call.name))}>
+    <div className="lulu-office-command__surface-heading"><span><Database aria-hidden="true" size={14} />{t(titleForTool(call.name))}</span><small>{t("Verified tool output")}</small></div>
+    {visibleItems.length > 0 && columns.length > 0 ? <div className="lulu-office-command__table-scroll"><table><thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{visibleItems.map((item, index) => <tr key={String(item.id ?? index)}>{columns.map((column) => <td key={column}>{shortValue(item[column])}</td>)}</tr>)}</tbody></table></div>
+      : summaryEntries.length > 0 ? <dl className="lulu-office-command__tool-summary">{summaryEntries.map(([key, value]) => <div key={key}><dt>{key.replaceAll("_", " ")}</dt><dd>{shortValue(value)}</dd></div>)}</dl>
+        : <p className="lulu-office-command__empty-surface">{t("The tool returned no displayable records.")}</p>}
+  </section>;
+}
+
+function ActionSurface({ action, executing, onExecute }: { action: AssistantPendingAction; executing: boolean; onExecute: (action: AssistantPendingAction) => void }) {
+  const t = useTranslation();
+  const canRun = action.status === "ready" && !action.requiresApproval;
+  return <section className={`lulu-office-command__action-surface is-${action.status}`} aria-label={action.summary}>
+    <div className="lulu-office-command__surface-heading"><span><ShieldCheck aria-hidden="true" size={14} />{t("Action package")}</span><small>{t(action.status.replaceAll("_", " "))}</small></div>
+    <h3>{action.summary}</h3>
+    <div className="lulu-office-command__action-meta"><span>{t(action.type.replaceAll("_", " "))}</span>{action.requiresApproval && <span>{t("Confirmation required")}</span>}{action.errorMessage && <span>{action.errorMessage}</span>}</div>
+    {canRun && <button type="button" className="lulu-office-command__execute-action" disabled={executing} onClick={() => onExecute(action)}>{executing ? <LoaderCircle aria-hidden="true" size={15} className="lulu-office-spin" /> : <ArrowUpRight aria-hidden="true" size={15} />}{t("Run checked action")}</button>}
+  </section>;
+}
+
+export function OfficeCommandCenter({ signals, onOfficeChanged }: { signals: CommandSignals; onOfficeChanged: () => Promise<void> }) {
+  const { selectedWorkspace, permissions } = useLuluApp();
+  const t = useTranslation();
+  const workspaceId = selectedWorkspace?.id ?? null;
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const recognitionRef = useRef<SpeechRecognizer | null>(null);
+  const [coreState, setCoreState] = useState<CoreState>("idle");
+  const [mode, setMode] = useState<ComposeMode>("Chat");
+  const [input, setInput] = useState("");
+  const [referenceUrl, setReferenceUrl] = useState("");
+  const [showReferenceUrl, setShowReferenceUrl] = useState(false);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<CommandMessage[]>([]);
+  const [actions, setActions] = useState<AssistantPendingAction[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [executingActionId, setExecutingActionId] = useState<string | null>(null);
+  const [error, setError] = useState("");
+
+  const loadConversations = useCallback(async () => {
+    if (!workspaceId) return;
+    try {
+      const response = await aiApi.conversations(workspaceId, "limit=30&archived=false");
+      setConversations(response.data.items);
+    } catch {
+      // The new intent flow remains usable when history cannot be loaded.
+    }
+  }, [workspaceId]);
+
+  useEffect(() => {
+    setActiveConversationId(null);
+    setMessages([]);
+    setActions([]);
+    setError("");
+    void loadConversations();
+  }, [loadConversations]);
+
+  useEffect(() => () => recognitionRef.current?.stop(), []);
+
+  const selectConversation = async (conversationId: string) => {
+    if (!workspaceId || processing) return;
+    setError("");
+    setCoreState("working");
+    try {
+      const [messagesResult, actionsResult] = await Promise.all([
+        aiApi.messages(workspaceId, conversationId),
+        aiApi.actions(workspaceId, conversationId),
+      ]);
+      setActiveConversationId(conversationId);
+      setMessages(historyToMessages(messagesResult.data.items));
+      setActions(actionsResult.data);
+      setHistoryOpen(false);
+      setCoreState(actionsResult.data.some((action) => action.requiresApproval || action.status === "pending_approval") ? "needs-confirmation" : "idle");
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, t("The selected conversation could not be loaded.")));
+      setCoreState("attention");
+    }
+  };
+
+  const startNewIntent = () => {
+    if (processing) return;
+    setActiveConversationId(null);
+    setMessages([]);
+    setActions([]);
+    setInput("");
+    setReferenceUrl("");
+    setShowReferenceUrl(false);
+    setPendingFiles([]);
+    setError("");
+    setCoreState("idle");
+  };
+
+  const beginListening = () => {
+    if (processing) return;
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      return;
+    }
+    const voiceWindow = window as Window & { SpeechRecognition?: SpeechRecognizerConstructor; webkitSpeechRecognition?: SpeechRecognizerConstructor };
+    const Recognition = voiceWindow.SpeechRecognition ?? voiceWindow.webkitSpeechRecognition;
+    if (!Recognition) {
+      setError(t("Voice dictation is not available in this browser. You can still type or attach context."));
+      setCoreState("attention");
+      return;
+    }
+    const recognition = new Recognition();
+    recognition.continuous = false;
+    recognition.interimResults = false;
+    recognition.lang = navigator.language || "en-US";
+    recognition.onresult = (event) => {
+      const transcript = Array.from(event.results).map((result) => result[0]?.transcript ?? "").join(" ").trim();
+      if (transcript) setInput((current) => `${current}${current ? " " : ""}${transcript}`);
+    };
+    recognition.onerror = () => {
+      setError(t("Voice dictation ended before Lulu received a transcript."));
+      setCoreState("attention");
+    };
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      setCoreState((current) => current === "listening" ? "idle" : current);
+    };
+    recognitionRef.current = recognition;
+    setCoreState("listening");
+    recognition.start();
+  };
+
+  const uploadFiles = async (): Promise<Attachment[]> => {
+    const imported: Attachment[] = [];
+    for (const file of pendingFiles) {
+      const form = new FormData();
+      form.append("name", file.name);
+      form.append("text", "");
+      form.append("files", file, file.name);
+      const response = await ingestRecord("ai_knowledge", form);
+      const record: WorkspaceRecord = response.data;
+      imported.push({ id: record.id, name: record.name, resourceType: record.resourceType, uploadedAt: record.createdAt });
+    }
+    return imported;
+  };
+
+  const send = async () => {
+    const trimmed = input.trim();
+    const cleanReferenceUrl = referenceUrl.trim();
+    if ((!trimmed && pendingFiles.length === 0 && !cleanReferenceUrl) || !workspaceId || processing) return;
+
+    setError("");
+    setProcessing(true);
+    setCoreState(pendingFiles.length ? "working" : "thinking");
+    const localId = `office-intent-${Date.now()}`;
+    const visibleContent = trimmed || (pendingFiles.length ? t("Review the files I added to the Company Brain.") : `${t("Review this reference:")} ${cleanReferenceUrl}`);
+
+    try {
+      const attachments = pendingFiles.length ? await uploadFiles() : [];
+      const promptSections = [visibleContent];
+      if (mode !== "Chat") promptSections.unshift(`${t("Operating mode")}: ${mode}.`);
+      if (attachments.length) promptSections.push(`${t("Imported workspace knowledge for this request")}: ${attachments.map((attachment) => attachment.name).join(", ")}.`);
+      if (cleanReferenceUrl) promptSections.push(`${t("Reference link supplied by the user")}: ${cleanReferenceUrl}`);
+      const content = promptSections.join("\n\n");
+      setMessages((current) => [...current, { id: localId, role: "user", content: visibleContent, createdAt: new Date().toISOString(), attachments }]);
+      setInput("");
+      setReferenceUrl("");
+      setShowReferenceUrl(false);
+      setPendingFiles([]);
+
+      let conversationId = activeConversationId;
+      if (!conversationId) {
+        const conversation = await aiApi.createConversation(workspaceId, { title: visibleContent.slice(0, 80), metadata: { origin: "office_command_center" } });
+        conversationId = conversation.data.id;
+        setActiveConversationId(conversationId);
+      }
+
+      const response = await aiApi.respond(workspaceId, conversationId, content, {
+        origin: "office_command_center",
+        mode,
+        attachments,
+        referenceUrl: cleanReferenceUrl || undefined,
+      });
+      const nextActions = response.data.pendingActions ?? [];
+      setMessages((current) => [...current, {
+        id: response.data.assistantMessage.id,
+        role: "assistant",
+        content: response.data.assistantMessage.content,
+        createdAt: response.data.assistantMessage.createdAt,
+        toolCalls: response.data.toolCalls,
+        pendingActions: nextActions,
+      }]);
+      setActions((current) => {
+        const known = new Map(current.map((action) => [action.id, action]));
+        nextActions.forEach((action) => known.set(action.id, action));
+        return [...known.values()];
+      });
+      setCoreState(nextActions.some((action) => action.requiresApproval || action.status === "pending_approval") ? "needs-confirmation" : "completed");
+      void loadConversations();
+      void onOfficeChanged();
+    } catch (cause) {
+      setMessages((current) => current.filter((message) => message.id !== localId));
+      setError(getFriendlyErrorMessage(cause, t("Lulu could not complete this request. No unverified action was assumed.")));
+      setCoreState("attention");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const executeAction = async (action: AssistantPendingAction) => {
+    if (!workspaceId || !activeConversationId || action.requiresApproval || action.status !== "ready") return;
+    setExecutingActionId(action.id);
+    setError("");
+    setCoreState("working");
+    try {
+      const response = await aiApi.executeAction(workspaceId, activeConversationId, action.id);
+      setActions((current) => current.map((item) => item.id === action.id ? response.data : item));
+      setCoreState(response.data.status === "succeeded" ? "completed" : response.data.status === "pending_approval" ? "needs-confirmation" : "attention");
+      await onOfficeChanged();
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, t("The action could not be executed. Its current workspace state was preserved.")));
+      setCoreState("attention");
+    } finally {
+      setExecutingActionId(null);
+    }
+  };
+
+  const latestSurfaces = useMemo(() => messages.slice().reverse().find((message) => message.role === "assistant" && ((message.toolCalls?.length ?? 0) > 0 || (message.pendingActions?.length ?? 0) > 0)), [messages]);
+  const activeConversation = conversations.find((conversation) => conversation.id === activeConversationId) ?? null;
+  const stateCopy: Record<CoreState, { title: string; detail: string }> = {
+    idle: { title: "Ready for intent", detail: "Company memory, workspace records and governed actions are available." },
+    listening: { title: "Listening", detail: "Lulu is turning your voice into a draft before anything is sent." },
+    thinking: { title: "Reasoning with context", detail: "Lulu is retrieving scoped context and selecting the right tools." },
+    working: { title: "Working through verified systems", detail: "Lulu is importing context or completing an allowed workspace operation." },
+    completed: { title: "Outcome recorded", detail: "The response, evidence and any action packages are now part of the conversation." },
+    "needs-confirmation": { title: "Confirmation required", detail: "A governed action is waiting for its workspace approval." },
+    attention: { title: "Needs attention", detail: "Lulu stopped at a safe boundary. Review the message below before continuing." },
+  };
+
+  return <section className={`lulu-office-command lulu-office-command--${coreState}`} aria-label={t("Lulu Core")}>
+    <header className="lulu-office-command__header">
+      <button type="button" className="lulu-office-command__history-toggle" aria-expanded={historyOpen} onClick={() => setHistoryOpen((current) => !current)}><History aria-hidden="true" size={16} /><span>{t("History")}</span>{conversations.length > 0 && <small>{conversations.length}</small>}</button>
+      <div className="lulu-office-command__identity" data-lulu-no-translate="true" translate="no"><BrainCircuit aria-hidden="true" size={17} /><strong>Lulu</strong><span>{t("Office command")}</span></div>
+      <div className="lulu-office-command__header-actions"><button type="button" aria-label={t("Refresh verified workspace state")} title={t("Refresh verified workspace state")} onClick={() => void onOfficeChanged()}><RefreshCw aria-hidden="true" size={16} /></button><button type="button" className="lulu-office-command__new-intent" onClick={startNewIntent}><Sparkles aria-hidden="true" size={15} /><span>{t("New intent")}</span></button></div>
+    </header>
+
+    <aside className={`lulu-office-command__history ${historyOpen ? "is-open" : ""}`} aria-label={t("Conversation history")}>
+      <div className="lulu-office-command__history-heading"><div><p>{t("Company conversations")}</p><strong>{selectedWorkspace?.companyName ?? t("Lulu workspace")}</strong></div><button type="button" aria-label={t("Close conversation history")} onClick={() => setHistoryOpen(false)}><X aria-hidden="true" size={16} /></button></div>
+      <button type="button" className="lulu-office-command__start-history" onClick={startNewIntent}><Sparkles aria-hidden="true" size={15} />{t("Start a new intent")}</button>
+      <div className="lulu-office-command__conversation-list">{conversations.length === 0 ? <p>{t("No saved conversations yet.")}</p> : conversations.map((conversation) => <button key={conversation.id} type="button" className={conversation.id === activeConversationId ? "is-active" : ""} onClick={() => void selectConversation(conversation.id)}><strong>{conversation.title || t("Untitled conversation")}</strong><small>{conversation.lastMessageAt ? new Date(conversation.lastMessageAt).toLocaleDateString() : t("No messages yet")}</small></button>)}</div>
+    </aside>
+    {historyOpen && <button type="button" className="lulu-office-command__history-backdrop" aria-label={t("Close conversation history")} onClick={() => setHistoryOpen(false)} />}
+
+    <div className="lulu-office-command__body">
+      <section className="lulu-office-command__core-stage" aria-live="polite">
+        <div className="lulu-office-command__core" aria-hidden="true"><span className="lulu-office-command__core-ring lulu-office-command__core-ring--outer" /><span className="lulu-office-command__core-ring lulu-office-command__core-ring--inner" /><span className="lulu-office-command__core-center">{coreState === "completed" ? <Check size={24} /> : coreState === "attention" ? <CircleAlert size={24} /> : coreState === "needs-confirmation" ? <ShieldCheck size={24} /> : coreState === "listening" ? <Mic size={23} /> : processing ? <LoaderCircle size={24} className="lulu-office-spin" /> : <Sparkles size={24} />}</span></div>
+        <div className="lulu-office-command__core-copy"><p>{selectedWorkspace?.companyName ?? t("Company operating system")}</p><h2>{t(stateCopy[coreState].title)}</h2><span>{t(stateCopy[coreState].detail)}</span></div>
+        <div className="lulu-office-command__signals" aria-label={t("Verified workspace signals")}><span><Activity aria-hidden="true" size={14} /><strong>{signals.activeWorkItems}</strong>{t("active")}</span><span><Bot aria-hidden="true" size={14} /><strong>{signals.workingEmployees}</strong>{t("working")}</span><span><CircleAlert aria-hidden="true" size={14} /><strong>{signals.attentionEmployees + signals.openSignals}</strong>{t("attention")}</span><span><ShieldCheck aria-hidden="true" size={14} /><strong>{permissions.capabilities.length}</strong>{t("permissions")}</span></div>
+      </section>
+
+      {messages.length === 0 ? <section className="lulu-office-command__starters" aria-label={t("Suggested intents")}><p>{t("Start from an outcome, a question, a file or a live business signal.")}</p><div>{starterIntents.map((intent) => <button key={intent} type="button" onClick={() => setInput(t(intent))}><span>{t(intent)}</span><ArrowUpRight aria-hidden="true" size={15} /></button>)}</div></section>
+        : <section className="lulu-office-command__timeline" aria-label={activeConversation?.title ?? t("Active conversation")}>{messages.map((message) => <article key={message.id} className={`lulu-office-command__message lulu-office-command__message--${message.role}`}><div className="lulu-office-command__message-meta"><span>{message.role === "assistant" ? <Bot aria-hidden="true" size={14} /> : <Sparkles aria-hidden="true" size={14} />}</span><strong>{message.role === "assistant" ? "Lulu" : t("You")}</strong><time>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time></div><div className="lulu-office-command__message-content">{responseContent(message.content)}</div>{message.attachments && message.attachments.length > 0 && <div className="lulu-office-command__attachments">{message.attachments.map((attachment) => <span key={attachment.id}><FileText aria-hidden="true" size={13} />{attachment.name}</span>)}</div>}</article>)}{processing && <div className="lulu-office-command__processing"><LoaderCircle aria-hidden="true" size={16} className="lulu-office-spin" />{t("Lulu is preparing a verified response.")}</div>}</section>}
+
+      {(latestSurfaces || actions.length > 0) && <section className="lulu-office-command__workbench" aria-label={t("Live work surfaces")}><div className="lulu-office-command__section-title"><div><p>{t("Dynamic workspace")}</p><h2>{t("Evidence, outputs and action state")}</h2></div><PanelTopOpen aria-hidden="true" size={18} /></div><div className="lulu-office-command__workbench-grid">{latestSurfaces?.toolCalls?.map((call, index) => <ToolSurface key={`${call.name}-${index}`} call={call} />)}{actions.map((action) => <ActionSurface key={action.id} action={action} executing={executingActionId === action.id} onExecute={executeAction} />)}</div></section>}
+    </div>
+
+    {error && <div className="lulu-office-command__error" role="alert"><CircleAlert aria-hidden="true" size={16} /><span>{error}</span><button type="button" aria-label={t("Dismiss error")} onClick={() => { setError(""); setCoreState("idle"); }}><X aria-hidden="true" size={15} /></button></div>}
+
+    <footer className="lulu-office-command__composer-shell"><form className="lulu-office-command__composer" onSubmit={(event) => { event.preventDefault(); void send(); }}>
+      <div className="lulu-office-command__composer-modes" aria-label={t("Intent mode")}>{modes.map((item) => <button key={item} type="button" className={mode === item ? "is-active" : ""} onClick={() => setMode(item)}>{t(item)}</button>)}</div>
+      {showReferenceUrl && <label className="lulu-office-command__reference-input"><Link aria-hidden="true" size={15} /><input autoFocus type="url" value={referenceUrl} onChange={(event) => setReferenceUrl(event.target.value)} placeholder={t("https:// reference for this conversation")} /><button type="button" aria-label={t("Remove reference link")} onClick={() => { setReferenceUrl(""); setShowReferenceUrl(false); }}><X aria-hidden="true" size={15} /></button></label>}
+      {pendingFiles.length > 0 && <div className="lulu-office-command__pending-files">{pendingFiles.map((file) => <span key={`${file.name}-${file.lastModified}`}><FileText aria-hidden="true" size={13} />{file.name}<button type="button" aria-label={`${t("Remove")} ${file.name}`} onClick={() => setPendingFiles((current) => current.filter((item) => item !== file))}><X aria-hidden="true" size={13} /></button></span>)}</div>}
+      <div className="lulu-office-command__composer-main"><input ref={fileInputRef} className="sr-only" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.txt,.md,.png,.jpg,.jpeg,.webp" onChange={(event) => { const files = Array.from(event.target.files ?? []); setPendingFiles((current) => [...current, ...files]); event.target.value = ""; }} /><div className="lulu-office-command__composer-tools"><button type="button" aria-label={t("Attach files to Company Brain")} title={t("Attach files to Company Brain")} onClick={() => fileInputRef.current?.click()} disabled={processing}><Paperclip aria-hidden="true" size={17} /></button><button type="button" aria-label={t("Attach image or screenshot")} title={t("Attach image or screenshot")} onClick={() => fileInputRef.current?.click()} disabled={processing}><Image aria-hidden="true" size={17} /></button><button type="button" className={showReferenceUrl ? "is-active" : ""} aria-label={t("Attach reference link")} title={t("Attach reference link")} onClick={() => setShowReferenceUrl((current) => !current)} disabled={processing}><Link aria-hidden="true" size={17} /></button></div><textarea value={input} rows={1} disabled={processing} onChange={(event) => setInput(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); void send(); } }} placeholder={t("Describe the outcome you want Lulu to create, investigate or operate.")} /><div className="lulu-office-command__composer-tools lulu-office-command__composer-tools--end"><button type="button" className={coreState === "listening" ? "is-listening" : ""} aria-label={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} title={t(coreState === "listening" ? "Stop voice dictation" : "Start voice dictation")} onClick={beginListening} disabled={processing}>{coreState === "listening" ? <Square aria-hidden="true" size={14} /> : <Mic aria-hidden="true" size={17} />}</button><button type="submit" className="lulu-office-command__send" disabled={processing || (!input.trim() && pendingFiles.length === 0 && !referenceUrl.trim())} aria-label={t("Send intent")}>{processing ? <LoaderCircle aria-hidden="true" size={17} className="lulu-office-spin" /> : <Send aria-hidden="true" size={17} />}</button></div></div>
+      <div className="lulu-office-command__composer-status"><span><ShieldCheck aria-hidden="true" size={13} />{t("Workspace-scoped context and governed actions")}</span><span><Clock3 aria-hidden="true" size={13} />{t("Enter to send, Shift+Enter for a new line")}</span></div>
+    </form></footer>
+  </section>;
+}
