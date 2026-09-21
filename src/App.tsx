@@ -165,7 +165,7 @@ function AdminSurfaceSwitcher() {
 
   const standaloneWebsitePreview = location.pathname === "/app/website-preview"
     && new URLSearchParams(location.search).get("standalone") === "1";
-  if (loading || !isAdminUser(currentUser) || isOfficePanelSurface(location.search) || standaloneWebsitePreview) return null;
+  if (loading || !isAdminUser(currentUser) || location.pathname === routes.app.office || isOfficePanelSurface(location.search) || standaloneWebsitePreview) return null;
   if (location.pathname === routes.auth.login || location.pathname.startsWith("/auth/") || location.pathname.startsWith("/calendar/meeting/") || location.pathname === "/not-found") return null;
 
   const onAdminPanel = location.pathname === ADMIN_PANEL_PATH;
