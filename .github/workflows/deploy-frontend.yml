@@ -27,13 +27,6 @@ jobs:
       - name: Frontend auschecken
         uses: actions/checkout@v4
 
-      - name: Backend-Katalog auschecken
-        uses: actions/checkout@v4
-        with:
-          repository: luluaicn/Business-Backend
-          ref: main
-          path: backend-source
-
       - name: Node.js einrichten
         uses: actions/setup-node@v4
         with:
@@ -49,7 +42,7 @@ jobs:
       - name: Frontend installieren, prüfen und bauen
         env:
           VITE_API_URL: ${{ env.API_BASE_URL }}
-          LULU_BACKEND_PATH: backend-source
+          LULU_ALLOW_MISSING_BACKEND: 'true'
         run: |
           set -euo pipefail
           npm ci --no-audit

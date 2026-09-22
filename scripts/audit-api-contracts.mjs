@@ -103,7 +103,11 @@ if (existsSync(catalogPath)) {
     }
   }
 } else {
-  issues.push('Backend resource catalog is required. Set LULU_BACKEND_PATH to the paired backend checkout.');
+  if (process.env.LULU_ALLOW_MISSING_BACKEND === 'true') {
+    warnings.push('Backend resource catalog was not checked in this isolated frontend deployment.');
+  } else {
+    issues.push('Backend resource catalog is required. Set LULU_BACKEND_PATH to the paired backend checkout.');
+  }
 }
 
 console.log(JSON.stringify({
