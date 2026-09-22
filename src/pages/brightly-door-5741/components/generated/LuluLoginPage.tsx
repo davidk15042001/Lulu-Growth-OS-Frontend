@@ -104,6 +104,9 @@ export const LuluLoginPage = () => {
   const [statusMessage, setStatusMessage] = useState('');
   const [adminMfaRequired, setAdminMfaRequired] = useState(false);
   const [adminMfaCode, setAdminMfaCode] = useState('');
+  const [userMfaRequired, setUserMfaRequired] = useState(false);
+  const [userMfaChallengeId, setUserMfaChallengeId] = useState('');
+  const [userMfaCode, setUserMfaCode] = useState('');
 
   useEffect(() => {
     if (!isLandingLanguage) switchLanguage('en');
@@ -134,10 +137,18 @@ export const LuluLoginPage = () => {
     try {
       const loginResponse = adminMfaRequired
         ? await requestWithTimeout<{ token: string; user: unknown }>({ path: '/auth/admin-mfa', method: 'POST', body: { email: e, code: adminMfaCode } })
-        : await requestWithTimeout<{ token?: string; mfaRequired?: boolean; email?: string }>({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
-      if (!adminMfaRequired && 'mfaRequired' in loginResponse.data && loginResponse.data.mfaRequired) {
-        setAdminMfaRequired(true);
-        setStatusMessage(t('Enter the six-digit code sent to your administrator email.'));
+        : userMfaRequired
+          ? await requestWithTimeout<{ token: string; user: unknown }>({ path: '/auth/mfa/verify', method: 'POST', body: { challengeId: userMfaChallengeId, code: userMfaCode } })
+          : await requestWithTimeout<{ token?: string; mfaRequired?: boolean; email?: string; challengeId?: string; method?: string }>({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
+      if (!adminMfaRequired && !userMfaRequired && 'mfaRequired' in loginResponse.data && loginResponse.data.mfaRequired) {
+        if (loginResponse.data.method === 'totp' && loginResponse.data.challengeId) {
+          setUserMfaRequired(true);
+          setUserMfaChallengeId(loginResponse.data.challengeId);
+          setStatusMessage(t('Enter your authenticator code or a recovery code.'));
+        } else {
+          setAdminMfaRequired(true);
+          setStatusMessage(t('Enter the six-digit code sent to your administrator email.'));
+        }
         setLoading(false);
         return;
       }
@@ -343,10 +354,16 @@ export const LuluLoginPage = () => {
                 <Input id="login-admin-mfa" name="adminMfaCode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={adminMfaCode} onChange={event => setAdminMfaCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="lulu-exec-input lulu-exec-mfa-input" />
               </Label>
             ) : null}
+            {userMfaRequired ? (
+              <Label htmlFor="login-user-mfa" className="lulu-exec-label">
+                {t('Authenticator or recovery code')}
+                <Input id="login-user-mfa" name="userMfaCode" inputMode="text" autoComplete="one-time-code" maxLength={20} value={userMfaCode} onChange={event => setUserMfaCode(event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20))} className="lulu-exec-input lulu-exec-mfa-input" />
+              </Label>
+            ) : null}
             <Button type="submit" disabled={loading} className="lulu-exec-submit">
-              {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t(adminMfaRequired ? 'Verify administrator' : 'signIn')} <ArrowRight size={16} /></>}
+              {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t(adminMfaRequired ? 'Verify administrator' : userMfaRequired ? 'Verify authenticator' : 'signIn')} <ArrowRight size={16} /></>}
             </Button>
-            {adminMfaRequired ? <button type="button" onClick={() => { setAdminMfaRequired(false); setAdminMfaCode(''); setStatusMessage(''); setError(''); }} className="lulu-exec-back-button">{t('Back to password sign-in')}</button> : null}
+            {adminMfaRequired || userMfaRequired ? <button type="button" onClick={() => { setAdminMfaRequired(false); setAdminMfaCode(''); setUserMfaRequired(false); setUserMfaChallengeId(''); setUserMfaCode(''); setStatusMessage(''); setError(''); }} className="lulu-exec-back-button">{t('Back to password sign-in')}</button> : null}
             {statusMessage && <p role="status" className="lulu-exec-status">{statusMessage}</p>}
             {error && <div role="alert" className="lulu-exec-error"><p>{error}</p>{errorDetails && <p>{errorDetails}</p>}</div>}
             {s && <p className="lulu-exec-success"><Check size={15} /> {t('Signed in successfully.')}</p>}

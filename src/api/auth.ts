@@ -18,9 +18,14 @@ export const authApi = {
     path: "/auth/register", method: "POST", body: input,
   }),
   verifyOtp: (email: string, code: string) => requestApi<null>({ path: "/auth/verify-otp", method: "POST", body: { email, code } }),
-  login: (email: string, password: string) => requestApi<{ token: string; user: CurrentUser }>({
+  login: (email: string, password: string) => requestApi<{ token?: string; user?: CurrentUser; mfaRequired?: boolean; challengeId?: string; method?: string }>({
     path: "/auth/login", method: "POST", body: { email, password },
   }),
+  verifyMfa: (challengeId: string, code: string) => requestApi<{ token: string; user: CurrentUser }>({ path: '/auth/mfa/verify', method: 'POST', body: { challengeId, code } }),
+  mfaStatus: () => requestApi<{ enabled: boolean; setupAvailable: boolean; pendingSetup: boolean }>({ path: '/auth/mfa/status' }),
+  mfaSetup: () => requestApi<{ secret: string; otpauthUri: string; expiresAt: string }>({ path: '/auth/mfa/setup', method: 'POST', body: {} }),
+  mfaConfirm: (code: string) => requestApi<{ enabled: boolean; recoveryCodes: string[] }>({ path: '/auth/mfa/confirm', method: 'POST', body: { code } }),
+  mfaDisable: (password: string, code: string) => requestApi<{ enabled: boolean; requiresReauthentication: boolean }>({ path: '/auth/mfa/disable', method: 'POST', body: { password, code } }),
   refresh: () => requestApi<{ token: string; user: CurrentUser }>({ path: "/auth/refresh", method: "POST", body: {} }),
   logout: () => requestApi<null>({ path: "/auth/logout", method: "POST", body: {} }),
   logoutAll: () => requestApi<null>({ path: "/auth/logout-all", method: "POST", body: {} }),

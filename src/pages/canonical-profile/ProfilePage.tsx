@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
-import { Building2, CheckCircle2, Eye, EyeOff, ImagePlus, LockKeyhole, Save, Trash2, UserRound } from 'lucide-react';
+import { Building2, CheckCircle2, Eye, EyeOff, ImagePlus, LockKeyhole, Save, ShieldCheck, Trash2, UserRound } from 'lucide-react';
 import { authApi } from '../../api/auth';
 import { ApiError, getFriendlyErrorMessage } from '../../api/client';
 import { clearStoredUser } from '../../api/session';
@@ -167,6 +167,11 @@ export default function ProfilePage() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
   const [password, setPassword] = useState<PasswordForm>(emptyPassword);
+  const [mfaStatus, setMfaStatus] = useState<{ enabled: boolean; setupAvailable: boolean; pendingSetup: boolean } | null>(null);
+  const [mfaSetup, setMfaSetup] = useState<{ secret: string; otpauthUri: string; expiresAt: string } | null>(null);
+  const [mfaCode, setMfaCode] = useState('');
+  const [mfaRecoveryCodes, setMfaRecoveryCodes] = useState<string[]>([]);
+  const [mfaBusy, setMfaBusy] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [error, setError] = useState('');
@@ -200,6 +205,13 @@ export default function ProfilePage() {
   useEffect(() => {
     setAccount({ firstName: currentUser?.firstName ?? '', lastName: currentUser?.lastName ?? '' });
   }, [currentUser?.firstName, currentUser?.lastName]);
+
+  useEffect(() => {
+    if (!currentUser || activationMode) return;
+    let active = true;
+    void authApi.mfaStatus().then((response) => { if (active) setMfaStatus(response.data); }).catch(() => undefined);
+    return () => { active = false; };
+  }, [currentUser, activationMode]);
 
   useEffect(() => {
     let active = true;
@@ -483,6 +495,36 @@ export default function ProfilePage() {
     if (key === 'newPassword') return t('Required · 12+ characters, upper case, lower case, number and special character.');
     return t('Must exactly match the new password.');
   };
+  const startMfa = async () => {
+    setMfaBusy(true); setError(''); setNotice('');
+    try {
+      const response = await authApi.mfaSetup();
+      setMfaSetup(response.data); setMfaCode('');
+      setNotice(t('Scan the authenticator setup code, then enter the six-digit code to confirm.'));
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, t('MFA setup could not be started.'))); }
+    finally { setMfaBusy(false); }
+  };
+  const confirmMfa = async () => {
+    if (!/^\d{6}$/.test(mfaCode)) { setError(t('Enter a six-digit authenticator code.')); return; }
+    setMfaBusy(true); setError(''); setNotice('');
+    try {
+      const response = await authApi.mfaConfirm(mfaCode);
+      setMfaRecoveryCodes(response.data.recoveryCodes); setMfaSetup(null); setMfaCode('');
+      setMfaStatus({ enabled: true, setupAvailable: true, pendingSetup: false });
+      setNotice(t('MFA is enabled. Save your recovery codes in a secure place.'));
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, t('The authenticator code could not be verified.'))); }
+    finally { setMfaBusy(false); }
+  };
+  const disableMfa = async () => {
+    if (!password.currentPassword || !mfaCode) { setError(t('Enter your password and an authenticator or recovery code.')); return; }
+    setMfaBusy(true); setError(''); setNotice('');
+    try {
+      await authApi.mfaDisable(password.currentPassword, mfaCode);
+      setMfaStatus({ enabled: false, setupAvailable: true, pendingSetup: false }); setMfaCode(''); setMfaRecoveryCodes([]);
+      setNotice(t('MFA is disabled. Please sign in again.')); setTimeout(() => window.location.replace(routes.auth.login), 900);
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, t('MFA could not be disabled.'))); }
+    finally { setMfaBusy(false); }
+  };
   const field = (key: keyof ProfileForm, label: string, options: { type?: string; sensitive?: boolean; wide?: boolean; list?: string; required?: boolean } = {}) => (
     <label key={key} className={options.wide ? 'sm:col-span-2' : undefined}>
       <span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{label}</span>
@@ -511,6 +553,12 @@ export default function ProfilePage() {
       </div>
       <div className="mt-4 flex justify-end"><button type="button" onClick={() => void updateAccount()} disabled={savingAccount} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-50"><Save size={15}/>{savingAccount ? t('Saving…') : t('Save account')}</button></div>
       <div className="mt-7 border-t border-[var(--border)] pt-6"><div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><LockKeyhole size={18}/></div><div><h3 className="font-semibold">{t('Change password')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('For your security, all active sessions will be signed out after a successful change.')}</p></div></div><div className="mt-4 grid gap-4 sm:grid-cols-3"><PasswordInput label={t('Current password')} value={password.currentPassword} onChange={(value) => setPasswordField('currentPassword', value)} visible={showCurrentPassword} onToggle={() => setShowCurrentPassword((value) => !value)} autoComplete="current-password" hint={passwordFieldHint('currentPassword')} error={fieldErrors.currentPassword}/><PasswordInput label={t('New password')} value={password.newPassword} onChange={(value) => setPasswordField('newPassword', value)} visible={showNewPassword} onToggle={() => setShowNewPassword((value) => !value)} autoComplete="new-password" hint={passwordFieldHint('newPassword')} error={fieldErrors.newPassword}/><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Confirm new password')}</span><input id="confirm-new-password" type="password" value={password.confirmPassword} onChange={(event) => setPasswordField('confirmPassword', event.target.value)} aria-invalid={Boolean(fieldErrors.confirmPassword)} aria-describedby="confirm-new-password-rule" className={`${inputClass} ${fieldErrors.confirmPassword ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="new-password" /><span id="confirm-new-password-rule" className={`mt-1.5 block text-[11px] ${fieldErrors.confirmPassword ? 'text-rose-700' : 'text-[var(--muted-foreground)]'}`}>{fieldErrors.confirmPassword ?? passwordFieldHint('confirmPassword')}</span></label></div><div className="mt-3 flex items-start gap-2 text-xs"><span className={`mt-0.5 h-2 w-2 shrink-0 rounded-full ${passwordRequirements ? 'bg-emerald-500' : 'bg-[var(--border)]'}`} aria-hidden="true"/><span className={passwordRequirements ? 'text-emerald-700' : 'text-[var(--muted-foreground)]'}>{t('At least 12 characters with upper case, lower case, a number and a special character.')}</span></div><div className="mt-4 flex justify-end"><button type="button" onClick={() => void changePassword()} disabled={changingPassword} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium disabled:opacity-50"><LockKeyhole size={15}/>{changingPassword ? t('Changing…') : t('Change password')}</button></div></div>
+    </section> : null}
+
+    {!requiredProfileMode && mfaStatus ? <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
+      <div className="flex items-start gap-3"><div className="rounded-xl bg-[var(--secondary)] p-2.5"><ShieldCheck size={18}/></div><div><h2 className="text-lg font-semibold">{t('Two-factor authentication')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Protect account sign-in with an authenticator app and one-time recovery codes.')}</p></div></div>
+      {!mfaStatus.setupAvailable ? <p className="mt-5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">{t('MFA is not configured on this server yet.')}</p> : mfaStatus.enabled ? <div className="mt-5 space-y-4"><p className="text-sm font-medium text-emerald-700">{t('MFA is enabled for this account.')}</p><label className="block max-w-sm"><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t('Authenticator or recovery code')}</span><input value={mfaCode} onChange={(event) => setMfaCode(event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20))} inputMode="text" autoComplete="one-time-code" className={inputClass}/></label><div className="flex flex-wrap gap-3"><button type="button" onClick={() => void disableMfa()} disabled={mfaBusy} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-medium text-rose-700 disabled:opacity-50"><ShieldCheck size={15}/>{mfaBusy ? t('Working…') : t('Disable MFA')}</button><span className="self-center text-xs text-[var(--muted-foreground)]">{t('Your current password is used as an additional safeguard.')}</span></div></div> : <div className="mt-5 space-y-4"><button type="button" onClick={() => void startMfa()} disabled={mfaBusy || Boolean(mfaSetup)} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:opacity-50"><ShieldCheck size={15}/>{mfaBusy ? t('Working…') : t('Set up MFA')}</button>{mfaSetup ? <div className="rounded-xl border border-[var(--border)] bg-[var(--secondary)]/40 p-4 text-sm"><p className="font-semibold">{t('Add this account to your authenticator app.')}</p><p className="mt-2 break-all font-mono text-xs text-[var(--muted-foreground)]">{mfaSetup.secret}</p><p className="mt-2 text-xs text-[var(--muted-foreground)]">{t('Use the otpauth link with your QR-code app, or enter the secret manually.')}</p><a href={mfaSetup.otpauthUri} className="mt-2 block break-all text-xs underline">{t('Open authenticator link')}</a><div className="mt-4 flex flex-wrap items-end gap-3"><label className="block max-w-xs"><span className="mb-1.5 block text-xs font-medium">{t('Six-digit confirmation code')}</span><input value={mfaCode} onChange={(event) => setMfaCode(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" className={inputClass}/></label><button type="button" onClick={() => void confirmMfa()} disabled={mfaBusy} className="rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium disabled:opacity-50">{t('Confirm MFA')}</button></div></div> : null}</div>}
+      {mfaRecoveryCodes.length > 0 ? <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4"><p className="text-sm font-semibold text-amber-900">{t('Save these recovery codes now. They are shown only once.')}</p><div className="mt-3 grid gap-2 font-mono text-xs sm:grid-cols-2">{mfaRecoveryCodes.map((code) => <span key={code} className="rounded bg-white px-3 py-2 text-amber-950">{code}</span>)}</div></div> : null}
     </section> : null}
 
     <section className="profile-page__panel rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm sm:p-6">
