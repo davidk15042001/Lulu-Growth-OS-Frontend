@@ -111,6 +111,7 @@ export class VoiceRealtimeRuntime {
   private speechBelowSince = 0;
   private sessionId: string | null = null;
   private stopped = false;
+  private readonly clientSessionId = typeof globalThis.crypto?.randomUUID === "function" ? globalThis.crypto.randomUUID() : null;
 
   constructor(options: VoiceRuntimeOptions) {
     this.options = options;
@@ -147,6 +148,7 @@ export class VoiceRealtimeRuntime {
       const response = await voiceApi.createSession(this.options.workspaceId, {
         ...this.options.settings,
         conversationId: this.options.conversationId,
+        clientSessionId: this.clientSessionId,
         sdp: offer.sdp ?? null,
         metadata: { source: "office_voice", localVad: true, echoCancellation: true },
       });

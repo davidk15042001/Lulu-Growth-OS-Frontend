@@ -563,6 +563,7 @@ export function OfficeCommandCenter() {
     if (!workspaceId || !voiceSessionIdRef.current || !content.trim()) return;
     const sequenceNumber = voiceSequenceRef.current++;
     void voiceApi.addTranscript(workspaceId, voiceSessionIdRef.current, {
+      clientEventId: typeof crypto.randomUUID === "function" ? crypto.randomUUID() : null,
       direction,
       content: content.trim(),
       sequenceNumber,
@@ -585,6 +586,7 @@ export function OfficeCommandCenter() {
     const response = await voiceApi.createSession(workspaceId, {
       ...voiceSettings,
       conversationId,
+      clientSessionId: typeof crypto.randomUUID === "function" ? crypto.randomUUID() : null,
       metadata: { source: "office_voice", fallbackReason: "realtime_unavailable" },
     });
     voiceSessionIdRef.current = response.data.session?.id ?? null;
@@ -617,7 +619,7 @@ export function OfficeCommandCenter() {
     const recognition = new Recognition();
     recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.lang = navigator.language || "en-US";
+    recognition.lang = voiceSettings.language || navigator.language || "en-US";
     voiceFinalizedRef.current = false;
     voiceTranscriptRef.current = "";
     setVoiceTranscript("");
@@ -779,6 +781,7 @@ export function OfficeCommandCenter() {
       try {
         const response = await voiceApi.speech(workspaceId, {
           sessionId: voiceSessionIdRef.current,
+          requestId: typeof crypto.randomUUID === "function" ? crypto.randomUUID() : null,
           text: spokenContent,
           language: voiceSettings.language,
           voice: voiceSettings.voice,

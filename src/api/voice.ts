@@ -24,12 +24,13 @@ export type VoiceSessionResponse = {
 };
 
 export const voiceApi = {
-  createSession: (workspaceId: string, input: VoiceSettings & { conversationId?: string | null; sdp?: string | null; metadata?: Record<string, unknown> }) => requestApi<VoiceSessionResponse>({
+  createSession: (workspaceId: string, input: VoiceSettings & { conversationId?: string | null; sdp?: string | null; clientSessionId?: string | null; metadata?: Record<string, unknown> }) => requestApi<VoiceSessionResponse>({
     path: workspaceApiPath(workspaceId, "/ai/voice/sessions"),
     method: "POST",
     body: input,
   }),
   addTranscript: (workspaceId: string, sessionId: string, input: {
+    clientEventId?: string | null;
     direction: "input" | "output";
     content: string;
     sequenceNumber: number;
@@ -48,7 +49,7 @@ export const voiceApi = {
     method: "POST",
     body: input,
   }),
-  speech: (workspaceId: string, input: { sessionId?: string | null; text: string; language: string; voice: string; speed: number }) => requestApi<{
+  speech: (workspaceId: string, input: { sessionId?: string | null; requestId?: string | null; text: string; language: string; voice: string; speed: number }) => requestApi<{
     responseId: string;
     contentType: string;
     audioBase64: string;
@@ -57,5 +58,13 @@ export const voiceApi = {
     path: workspaceApiPath(workspaceId, "/ai/voice/speech"),
     method: "POST",
     body: input,
+  }),
+  getSession: (workspaceId: string, sessionId: string) => requestApi<{ session: Record<string, unknown> }>({
+    path: workspaceApiPath(workspaceId, `/ai/voice/sessions/${encodeURIComponent(sessionId)}`),
+    method: "GET",
+  }),
+  deleteSession: (workspaceId: string, sessionId: string) => requestApi<{ id: string; deleted: boolean }>({
+    path: workspaceApiPath(workspaceId, `/ai/voice/sessions/${encodeURIComponent(sessionId)}`),
+    method: "DELETE",
   }),
 };
