@@ -3,6 +3,7 @@ import { requestApi, requestApiBlob } from './client';
 export type WebsiteProvider = 'managed';
 export type WebsiteOwnershipMode = 'managed';
 export type WebsiteGenerationTargetMode = 'existing' | 'new';
+export type WebsiteTemplateChoice = 'auto' | 'standard' | 'one-product';
 export type WebsiteSite = {
   id: string;
   workspaceId: string;
@@ -84,7 +85,7 @@ export const websitesApi = {
   addDomain: (workspaceId: string, siteId: string, hostname: string) => requestApi<WebsiteDomain>({ path: `/workspaces/${workspaceId}/websites/${siteId}/domains`, method: 'POST', body: { hostname } }),
   verifyDomain: (workspaceId: string, siteId: string, domainId: string) => requestApi<WebsiteSite>({ path: `/workspaces/${workspaceId}/websites/${siteId}/domains/${domainId}/verify`, method: 'POST', body: {} }),
   renewDomain: (workspaceId: string, siteId: string, domainId: string) => requestApi<WebsiteSite>({ path: `/workspaces/${workspaceId}/websites/${siteId}/domains/${domainId}/renew`, method: 'POST', body: {} }),
-  createGenerationJob: (workspaceId: string, siteId: string, prompt: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs`, method: 'POST', body: { prompt }, timeoutMs: 180_000 }),
+  createGenerationJob: (workspaceId: string, siteId: string, prompt: string, template: WebsiteTemplateChoice = 'auto') => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs`, method: 'POST', body: { prompt, template }, timeoutMs: 180_000 }),
   getActiveGenerationJob: (workspaceId: string, siteId: string) => requestApi<WebsiteGenerationJob | null>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/active` }),
   getGenerationJob: (workspaceId: string, siteId: string, jobId: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/${jobId}` }),
   cancelGenerationJob: (workspaceId: string, siteId: string, jobId: string) => requestApi<WebsiteGenerationJob>({ path: `/workspaces/${workspaceId}/websites/${siteId}/generation-jobs/${jobId}/cancel`, method: 'POST', body: {} }),

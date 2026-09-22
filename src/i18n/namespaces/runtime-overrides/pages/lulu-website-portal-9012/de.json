@@ -369,5 +369,14 @@
   "Delete image": "Bild löschen",
   "Delete image {{0}}": "Bild löschen {{0}}",
   "Delete image {{0}}? This removes it from the website and cannot be undone.": "Bild {{0}} löschen? Dadurch wird es von der Website entfernt und kann nicht rückgängig gemacht werden.",
-  "The image could not be deleted.": "Das Bild konnte nicht gelöscht werden."
+  "The image could not be deleted.": "Das Bild konnte nicht gelöscht werden.",
+  "Add one public product first": "Fügen Sie zuerst ein öffentliches Produkt hinzu",
+  "Business website": "Unternehmenswebsite",
+  "Choose a focused one-product landing page, the broader website template, or let Lulu decide from your verified catalog.": "Wählen Sie eine auf ein Produkt fokussierte Zielseite, die umfassendere Website-Vorlage oder lassen Sie Lulu aus Ihrem verifizierten Katalog entscheiden.",
+  "For a single product store": "Für ein Einzelproduktgeschäft",
+  "For multiple products or services": "Für mehrere Produkte oder Dienstleistungen",
+  "Landing page template": "Landingpage-Vorlage",
+  "Let Lulu choose": "Lass Lulu wählen",
+  "One-product landing page": "Zielseite für ein Produkt",
+  "Recommended for most businesses": "Empfohlen für die meisten Unternehmen"
 }

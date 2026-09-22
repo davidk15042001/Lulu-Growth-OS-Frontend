@@ -6426,5 +6426,14 @@
   "Cancel this assistant action?": "Diese Assistentenaktion abbrechen?",
   "The assistant action could not be cancelled.": "Die Assistenzaktion konnte nicht abgebrochen werden.",
   "Confirmation required before this action can run.": "Bevor diese Aktion ausgeführt werden kann, ist eine Bestätigung erforderlich.",
-  "AI automation starts with confirmed AI funds; Paid Ads and campaigns stay paused until separate advertising funds are available": "Die KI-Automatisierung beginnt mit bestätigten KI-Mitteln. Bezahlte Anzeigen und Kampagnen bleiben pausiert, bis separate Werbemittel verfügbar sind"
+  "AI automation starts with confirmed AI funds; Paid Ads and campaigns stay paused until separate advertising funds are available": "Die KI-Automatisierung beginnt mit bestätigten KI-Mitteln. Bezahlte Anzeigen und Kampagnen bleiben pausiert, bis separate Werbemittel verfügbar sind",
+  "Landing page template": "Landingpage-Vorlage",
+  "Choose a focused one-product landing page, the broader website template, or let Lulu decide from your verified catalog.": "Wählen Sie eine auf ein Produkt fokussierte Zielseite, die umfassendere Website-Vorlage oder lassen Sie Lulu aus Ihrem verifizierten Katalog entscheiden.",
+  "Let Lulu choose": "Lass Lulu wählen",
+  "Recommended for most businesses": "Empfohlen für die meisten Unternehmen",
+  "Business website": "Unternehmenswebsite",
+  "For multiple products or services": "Für mehrere Produkte oder Dienstleistungen",
+  "One-product landing page": "Zielseite für ein Produkt",
+  "For a single product store": "Für ein Einzelproduktgeschäft",
+  "Add one public product first": "Fügen Sie zuerst ein öffentliches Produkt hinzu"
 }
