@@ -6425,5 +6425,6 @@
   "We could not export this conversation.": "Wir konnten diese Konversation nicht exportieren.",
   "Cancel this assistant action?": "Diese Assistentenaktion abbrechen?",
   "The assistant action could not be cancelled.": "Die Assistenzaktion konnte nicht abgebrochen werden.",
-  "Confirmation required before this action can run.": "Bevor diese Aktion ausgeführt werden kann, ist eine Bestätigung erforderlich."
+  "Confirmation required before this action can run.": "Bevor diese Aktion ausgeführt werden kann, ist eine Bestätigung erforderlich.",
+  "AI automation starts with confirmed AI funds; Paid Ads and campaigns stay paused until separate advertising funds are available": "Die KI-Automatisierung beginnt mit bestätigten KI-Mitteln. Bezahlte Anzeigen und Kampagnen bleiben pausiert, bis separate Werbemittel verfügbar sind"
 }
