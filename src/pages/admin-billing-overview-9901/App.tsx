@@ -14,7 +14,8 @@ import {
   Plug, KeyRound, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
   Settings as SettingsIcon, Search, ShieldCheck, ChevronRight,
   Lock, Unlock, UserCheck, RotateCcw, Ban, PlayCircle, Save, Filter, Trash2,
-  LayoutGrid, MessageSquare, Menu, X, LogIn, ExternalLink, Unplug, LoaderCircle, FileText
+  LayoutGrid, MessageSquare, Menu, X, LogIn, ExternalLink, Unplug, LoaderCircle, FileText,
+  Gift, Megaphone, Sparkles
 } from "lucide-react";
 
 type NavSection = { label: string; items: NavItem[] };
@@ -1182,11 +1183,9 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
   const [usageAmount, setUsageAmount] = useState("");
   const [usageReason, setUsageReason] = useState("");
   const [usageSaving, setUsageSaving] = useState(false);
-  const [fundingWallet, setFundingWallet] = useState<"ai" | "ad_spend" | "storage">("ai");
-  const [fundingDirection, setFundingDirection] = useState<"credit" | "debit">("credit");
+  const [fundingWallet, setFundingWallet] = useState<"ai" | "ad_spend">("ai");
   const [fundingAmount, setFundingAmount] = useState("");
   const [fundingReason, setFundingReason] = useState("");
-  const [fundingPaymentMethod, setFundingPaymentMethod] = useState<"wechat" | "bank_transfer" | "cash" | "other">("wechat");
   const [fundingPaymentReference, setFundingPaymentReference] = useState("");
   const [fundingSaving, setFundingSaving] = useState(false);
   const [subscriptionPrice, setSubscriptionPrice] = useState("");
@@ -1269,17 +1268,11 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
   const addManualFundingAdjustment = async () => {
     if (!detail) return;
     const amount = Number(fundingAmount);
-    const reason = fundingReason.trim();
+    const typedReason = fundingReason.trim();
+    const walletLabel = fundingWallet === "ai" ? "AI-Credits" : "Adspend";
+    const reason = typedReason || `${walletLabel} als Admin-Gutschrift geschenkt`;
     if (!Number.isFinite(amount) || amount <= 0) {
       onError("Bitte einen gültigen positiven Betrag eingeben.");
-      return;
-    }
-    if (fundingWallet === "storage" && fundingDirection === "debit") {
-      onError("Storage kann nur als PAYG-Gutschrift erhöht werden.");
-      return;
-    }
-    if (!reason) {
-      onError("Bitte einen Grund für die manuelle Guthabenänderung angeben.");
       return;
     }
     setFundingSaving(true); onError("");
@@ -1290,10 +1283,10 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
         method: "POST",
         body: {
           wallet: fundingWallet,
-          direction: fundingDirection,
+          direction: "credit",
           amount,
           reason,
-          paymentMethod: fundingPaymentMethod,
+          paymentMethod: "other",
           paymentReference: fundingPaymentReference.trim() || undefined,
           idempotencyKey,
         },
@@ -1302,7 +1295,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
       setDetail(refreshed.data);
       setFundingAmount(""); setFundingReason(""); setFundingPaymentReference("");
     } catch (e) {
-      onError(getFriendlyErrorMessage(e, "Die manuelle Guthabenänderung konnte nicht gespeichert werden."));
+      onError(getFriendlyErrorMessage(e, "Das Kundenguthaben konnte nicht zugewiesen werden."));
     } finally { setFundingSaving(false); }
   };
 
@@ -1413,73 +1406,88 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                 <div className="flex justify-between"><dt className="text-slate-500">Sales model</dt><dd>{detail.salesModel ?? "—"}</dd></div>
                 <div className="flex justify-between"><dt className="text-slate-500">Sales cycle</dt><dd>{detail.salesCycleDays ? `${detail.salesCycleDays} days` : "—"}</dd></div>
               </dl>
-              <div className="mt-4 rounded-lg border border-indigo-100 bg-indigo-50/50 p-3">
-                <div className="mb-2 text-xs font-semibold text-indigo-800">Credits zuweisen</div>
-                <div className="flex items-center gap-2">
-                  <input
-                    value={creditAmount}
-                    onChange={(e) => setCreditAmount(e.target.value)}
-                    placeholder="Anzahl"
-                    inputMode="decimal"
-                    className="w-24 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-indigo-400"
-                  />
-                  <input
-                    value={creditNote}
-                    onChange={(e) => setCreditNote(e.target.value)}
-                    placeholder="Notiz (optional)"
-                    className="min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-indigo-400"
-                  />
-                  <button
-                    disabled={creditSaving}
-                    onClick={() => void addCredits()}
-                    className="inline-flex shrink-0 items-center gap-1 rounded-md border border-indigo-200 bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-                  >
-                    {creditSaving ? "Speichere…" : "Hinzufügen"}
-                  </button>
-                </div>
-              </div>
-              <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50/50 p-3">
-                <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50/60 p-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
-                    <div className="text-xs font-semibold text-emerald-900">AI-Guthaben, Werbebudget und Storage manuell freigeben</div>
-                    <div className="mt-1 max-w-2xl text-xs leading-5 text-slate-600">
-                      Für Zahlungen per WeChat, Banküberweisung oder andere Offline-Zahlungen. Diese Änderung wird direkt im jeweiligen Ledger gespeichert und erzeugt ausdrücklich keine Airwallex-Zahlung.
-                    </div>
+                    <div className="inline-flex items-center gap-2 text-sm font-semibold text-emerald-950"><Gift size={16} /> Kunden-Guthaben schenken</div>
+                    <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-600">
+                      Wähle einfach aus, ob der Kunde AI-Credits oder Adspend bekommen soll. Es wird direkt dem richtigen Wallet gutgeschrieben und im Audit-Log gespeichert.
+                    </p>
                   </div>
                   {detail.funding ? (
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-right text-[11px] text-slate-600 sm:grid-cols-3">
-                      <span>AI verfügbar / Zahlung reserviert / Arbeit reserviert <strong className="ml-1 text-slate-900">¥{detail.funding.ai.availableAmount.toFixed(2)} / ¥{detail.funding.ai.paymentReservedAmount.toFixed(2)} / ¥{detail.funding.ai.reservedAmount.toFixed(2)}</strong></span>
-                      <span>Ads verfügbar / Zahlung reserviert / Kampagnen reserviert <strong className="ml-1 text-slate-900">¥{detail.funding.adSpend.availableAmount.toFixed(2)} / ¥{detail.funding.adSpend.paymentReservedAmount.toFixed(2)} / ¥{detail.funding.adSpend.reservedAmount.toFixed(2)}</strong></span>
-                      <span>Storage-Gutschrift <strong className="ml-1 text-slate-900">${detail.funding.storage.availableCreditUsd.toFixed(2)}</strong></span>
+                    <div className="grid min-w-[260px] grid-cols-2 gap-2 text-xs">
+                      <div className="rounded-md border border-white/70 bg-white/80 p-2">
+                        <div className="flex items-center gap-1.5 text-slate-500"><Sparkles size={13} /> AI-Credits</div>
+                        <div className="mt-1 font-semibold text-slate-950">¥{detail.funding.ai.availableAmount.toFixed(2)}</div>
+                      </div>
+                      <div className="rounded-md border border-white/70 bg-white/80 p-2">
+                        <div className="flex items-center gap-1.5 text-slate-500"><Megaphone size={13} /> Adspend</div>
+                        <div className="mt-1 font-semibold text-slate-950">¥{detail.funding.adSpend.availableAmount.toFixed(2)}</div>
+                      </div>
                     </div>
                   ) : null}
                 </div>
-                <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-[150px_120px_150px_minmax(0,1fr)]">
-                  <select value={fundingWallet} onChange={(e) => { const next = e.target.value as "ai" | "ad_spend" | "storage"; setFundingWallet(next); if (next === "storage") setFundingDirection("credit"); }} disabled={fundingSaving} className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50">
-                    <option value="ai">AI-Guthaben (CNY)</option>
-                    <option value="ad_spend">Werbebudget (CNY)</option>
-                    <option value="storage">Storage-Gutschrift (USD)</option>
-                  </select>
-                  <select value={fundingDirection} onChange={(e) => setFundingDirection(e.target.value as "credit" | "debit")} disabled={fundingSaving || fundingWallet === "storage"} className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50">
-                    <option value="credit">Freigeben</option>
-                    <option value="debit">Korrigieren</option>
-                  </select>
-                  <input value={fundingAmount} onChange={(e) => setFundingAmount(e.target.value)} placeholder={fundingWallet === "storage" ? "Betrag in USD" : "Betrag in CNY"} inputMode="decimal" type="number" min="0.01" step={fundingWallet === "ai" ? "0.000001" : "0.01"} disabled={fundingSaving} className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50" />
-                  <input value={fundingReason} onChange={(e) => setFundingReason(e.target.value)} placeholder="Grund (Pflichtfeld)" maxLength={500} disabled={fundingSaving} className="min-w-0 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50" />
-                </div>
-                <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-[180px_minmax(0,1fr)_auto]">
-                  <select value={fundingPaymentMethod} onChange={(e) => setFundingPaymentMethod(e.target.value as "wechat" | "bank_transfer" | "cash" | "other")} disabled={fundingSaving} className="rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50">
-                    <option value="wechat">WeChat</option>
-                    <option value="bank_transfer">Banküberweisung</option>
-                    <option value="cash">Bar / sonstig</option>
-                    <option value="other">Andere</option>
-                  </select>
-                  <input value={fundingPaymentReference} onChange={(e) => setFundingPaymentReference(e.target.value)} placeholder="Zahlungsreferenz (optional)" maxLength={240} disabled={fundingSaving} className="min-w-0 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50" />
-                  <button disabled={fundingSaving} onClick={() => void addManualFundingAdjustment()} className="inline-flex items-center justify-center gap-1.5 rounded-md border border-emerald-300 bg-emerald-600 px-3 py-2 text-xs font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">
-                    {fundingSaving ? "Speichere…" : "Guthaben anwenden"}
+
+                <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    disabled={fundingSaving}
+                    onClick={() => setFundingWallet("ai")}
+                    className={`flex items-start gap-3 rounded-md border p-3 text-left transition disabled:opacity-50 ${fundingWallet === "ai" ? "border-emerald-500 bg-white shadow-sm" : "border-emerald-100 bg-white/60 hover:bg-white"}`}
+                  >
+                    <Sparkles size={18} className="mt-0.5 text-emerald-700" />
+                    <span>
+                      <span className="block text-sm font-semibold text-slate-950">AI-Credits schenken</span>
+                      <span className="mt-1 block text-xs leading-5 text-slate-600">Für Agenten, KI-Ausführung, Tools und Premium-Media-Arbeit.</span>
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={fundingSaving}
+                    onClick={() => setFundingWallet("ad_spend")}
+                    className={`flex items-start gap-3 rounded-md border p-3 text-left transition disabled:opacity-50 ${fundingWallet === "ad_spend" ? "border-emerald-500 bg-white shadow-sm" : "border-emerald-100 bg-white/60 hover:bg-white"}`}
+                  >
+                    <Megaphone size={18} className="mt-0.5 text-emerald-700" />
+                    <span>
+                      <span className="block text-sm font-semibold text-slate-950">Adspend schenken</span>
+                      <span className="mt-1 block text-xs leading-5 text-slate-600">Für Werbekampagnen. Lulu kann nicht mehr ausgeben als dieses Budget.</span>
+                    </span>
                   </button>
                 </div>
-                <div className="mt-2 text-[11px] text-slate-500">AI und Ads laufen nach der Freigabe aus dem jeweiligen Wallet. Storage wird als Gutschrift auf die offene PAYG-Periode angewendet.</div>
+
+                <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-[160px_minmax(0,1fr)]">
+                  <label className="block">
+                    <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-500">Betrag in CNY</span>
+                    <input value={fundingAmount} onChange={(e) => setFundingAmount(e.target.value)} placeholder="z. B. 500" inputMode="decimal" type="number" min="0.01" step={fundingWallet === "ai" ? "0.000001" : "0.01"} disabled={fundingSaving} className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50" />
+                  </label>
+                  <label className="block">
+                    <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-slate-500">Notiz für dich</span>
+                    <input value={fundingReason} onChange={(e) => setFundingReason(e.target.value)} placeholder={fundingWallet === "ai" ? "Optional: z. B. Kulanz, Testguthaben, Demo" : "Optional: z. B. Kampagnenbudget geschenkt"} maxLength={500} disabled={fundingSaving} className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50" />
+                  </label>
+                </div>
+                <div className="mt-2 grid grid-cols-1 gap-2 md:grid-cols-[minmax(0,1fr)_auto]">
+                  <input value={fundingPaymentReference} onChange={(e) => setFundingPaymentReference(e.target.value)} placeholder="Interne Referenz optional" maxLength={240} disabled={fundingSaving} className="min-w-0 rounded-md border border-slate-200 bg-white px-2.5 py-2 text-sm outline-none focus:border-emerald-400 disabled:opacity-50" />
+                  <button disabled={fundingSaving} onClick={() => void addManualFundingAdjustment()} className="inline-flex items-center justify-center gap-1.5 rounded-md border border-emerald-300 bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50">
+                    <Gift size={16} /> {fundingSaving ? "Speichere…" : fundingWallet === "ai" ? "AI-Credits schenken" : "Adspend schenken"}
+                  </button>
+                </div>
+                <div className="mt-3 rounded-md border border-emerald-100 bg-white/70 p-2 text-[11px] leading-5 text-slate-600">
+                  Das ist keine automatische Zahlung und startet keinen Airwallex-Checkout. Es ist eine Admin-Gutschrift, die sofort beim Kunden verfügbar ist.
+                </div>
+
+                <details className="mt-3 text-xs text-slate-600">
+                  <summary className="cursor-pointer font-semibold text-slate-700">Legacy-Credits anzeigen</summary>
+                  <div className="mt-2 rounded-md border border-indigo-100 bg-white/80 p-3">
+                    <div className="mb-2 text-xs leading-5 text-slate-600">Separater alter Credit-Zähler. Für normale AI-Credits und Adspend bitte die einfache Schenk-Aktion oben verwenden.</div>
+                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                      <input value={creditAmount} onChange={(e) => setCreditAmount(e.target.value)} placeholder="Anzahl" inputMode="decimal" className="w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-indigo-400 sm:w-24" />
+                      <input value={creditNote} onChange={(e) => setCreditNote(e.target.value)} placeholder="Notiz optional" className="min-w-0 flex-1 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-indigo-400" />
+                      <button disabled={creditSaving} onClick={() => void addCredits()} className="inline-flex shrink-0 items-center justify-center gap-1 rounded-md border border-indigo-200 bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700 disabled:opacity-50">
+                        {creditSaving ? "Speichere…" : "Legacy-Credits hinzufügen"}
+                      </button>
+                    </div>
+                  </div>
+                </details>
               </div>
               <div className="mt-4 rounded-lg border border-violet-100 bg-violet-50/50 p-3">
                 <div className="mb-1 text-xs font-semibold text-violet-900">{t("Customer subscription price")}</div>
