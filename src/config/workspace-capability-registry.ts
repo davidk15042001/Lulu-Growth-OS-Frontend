@@ -75,7 +75,7 @@ const SETTINGS_PAGE_IDS = new Set(["rich-field-1880"]);
 const LEGACY_CRM_COMPANIES_PAGE_ID = "kindly-pool-8785";
 const LABEL_OVERRIDES = new Map([
   ["glad-coast-1428", "Integrations"],
-  ["fresh-tide-9404", "Verbindungen"],
+  ["fresh-tide-9404", "Integrations"],
   [CRM_LANDING_PAGE_ID, "Companies"],
 ]);
 
@@ -108,6 +108,7 @@ const PAGE_METADATA: Readonly<Record<string, Partial<{
   readPermission: WorkspaceCapability;
 }>>> = {
   [CRM_LANDING_PAGE_ID]: { department: "CRM", employee: "Company Intelligence Specialist", capabilityKey: "crm.companies", readPermission: "crm.read" },
+  "lulu-connected-apps-9011": { department: "Operations", employee: "Integration Manager", capabilityKey: "operations.connections", readPermission: "providers.read" },
   [CRM_PARTNERS_PAGE_ID]: { department: "CRM", employee: "Partner Operations Manager", capabilityKey: "crm.partners", readPermission: "crm.read" },
   omnichannel: { department: "Communications", employee: "OmniChannel Manager", capabilityKey: "omnichannel.conversations", readPermission: "omnichannel.read" },
   "lulu-email-portal-9013": { department: "Communications", employee: "Email Specialist", capabilityKey: "communications.email", readPermission: "workspace.read" },
@@ -181,7 +182,7 @@ function createWorkspaceNavigationSections(): { all: NavigationSection[]; visibl
     settings.pages = [...settings.pages, ...ai.pages.filter((page) => SETTINGS_PAGE_IDS.has(page.id))];
     ai.pages = ai.pages.filter((page) => !SETTINGS_PAGE_IDS.has(page.id));
   }
-  settings.pages = [...settings.pages, { id: "profile", label: "Profile" }, { id: "support", label: "Support" }];
+  settings.pages = [...settings.pages, { id: "lulu-connected-apps-9011", label: "Integrations" }, { id: "profile", label: "Profile" }, { id: "support", label: "Support" }];
 
   if (!sections.some((section) => section.label === OMNICHANNEL_LABEL)) {
     const emailIndex = sections.findIndex((section) => section.label === "Email");

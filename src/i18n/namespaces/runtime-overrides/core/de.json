@@ -3543,5 +3543,7 @@
   "Weitere Apps laden": "Weitere Apps laden",
   "zugeordnete Produktbilder": "zugeordnete Produktbilder",
   "Confirmation required before this action can run.": "Bevor diese Aktion ausgeführt werden kann, ist eine Bestätigung erforderlich.",
-  "AI automation starts with confirmed AI funds; Paid Ads and campaigns stay paused until separate advertising funds are available": "Die KI-Automatisierung beginnt mit bestätigten KI-Mitteln. Bezahlte Anzeigen und Kampagnen bleiben pausiert, bis separate Werbemittel verfügbar sind"
+  "AI automation starts with confirmed AI funds; Paid Ads and campaigns stay paused until separate advertising funds are available": "Die KI-Automatisierung beginnt mit bestätigten KI-Mitteln. Bezahlte Anzeigen und Kampagnen bleiben pausiert, bis separate Werbemittel verfügbar sind",
+  "View only": "Nur ansehen",
+  "You can view available apps, but your workspace role does not allow new connections.": "Sie können verfügbare Apps anzeigen, aber Ihre Workspace-Rolle lässt keine neuen Verbindungen zu."
 }

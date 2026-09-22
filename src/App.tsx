@@ -47,6 +47,7 @@ const CalendarMeetingPage=lazy(()=>import("./pages/calendar-meeting/CalendarMeet
 const EmailWorkspacePage=lazy(()=>import("./pages/lulu-email-portal-9013/App"));
 const CalendarWorkspacePage=lazy(()=>import("./pages/lulu-calendar-portal-9014/App"));
 const ManagedWebsitePage=lazy(()=>import("./pages/lulu-website-portal-9012/ManagedStorefrontApp"));
+const ComposioWorkspacePage=lazy(()=>import("./pages/canonical-composio/ComposioWorkspacePage"));
 const VirtualOfficePage=lazy(()=>import("./pages/office/VirtualOfficePage"));
 const SocialPublishingPage=lazy(()=>import("./pages/canonical-social/SocialPublishingPage"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
@@ -356,6 +357,7 @@ export default function App() {
         <Route path="/admin/support" element={<AdminOmniChannelRoute><SupportPage admin /></AdminOmniChannelRoute>} />
         <Route path="/app/support" element={<AdminOnlyAppRoute><SupportPage /></AdminOnlyAppRoute>} />
         <Route path="/app/profile" element={<AdminOnlyAppRoute><ProfilePage /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.connections} element={<AdminOnlyAppRoute><ComposioWorkspacePage /></AdminOnlyAppRoute>} />
         <Route path="/admin/quotes" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="quotes" /></AdminOmniChannelRoute>} />
         <Route path="/admin/invoices" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="invoices" /></AdminOmniChannelRoute>} />
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />

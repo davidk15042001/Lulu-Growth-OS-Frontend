@@ -1,0 +1,13 @@
+{
+  "Choose a workspace to continue.": "请选择工作区以继续。",
+  "Choose from the catalog published by Lulu administrators.": "从 Lulu 管理员发布的目录中进行选择。",
+  "Connect approved apps": "连接批准的应用程序",
+  "Connect the business apps Lulu is allowed to use for this workspace. Lulu-managed channels remain protected and are not exposed here.": "连接允许 Lulu 用于此工作区的业务应用程序。 Lulu 管理的通道仍然受到保护，不会在此处公开。",
+  "Connected accounts are scoped to this workspace and user.": "连接的帐户的范围仅限于此工作区和用户。",
+  "Credentials stay protected": "凭证受到保护",
+  "Integrations": "集成",
+  "Protected execution": "受保护的执行",
+  "See connection status": "查看连接状态",
+  "Tool calls are authorized and metered by Lulu before execution.": "工具调用在执行前由 Lulu 授权和计量。",
+  "Workspace settings": "工作区设置"
+}

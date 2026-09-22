@@ -6435,5 +6435,15 @@
   "For multiple products or services": "Für mehrere Produkte oder Dienstleistungen",
   "One-product landing page": "Zielseite für ein Produkt",
   "For a single product store": "Für ein Einzelproduktgeschäft",
-  "Add one public product first": "Fügen Sie zuerst ein öffentliches Produkt hinzu"
+  "Add one public product first": "Fügen Sie zuerst ein öffentliches Produkt hinzu",
+  "You can view available apps, but your workspace role does not allow new connections.": "Sie können verfügbare Apps anzeigen, aber Ihre Workspace-Rolle lässt keine neuen Verbindungen zu.",
+  "View only": "Nur ansehen",
+  "Connect the business apps Lulu is allowed to use for this workspace. Lulu-managed channels remain protected and are not exposed here.": "Verbinden Sie die Business-Apps, die Lulu für diesen Arbeitsbereich verwenden darf. Von Lulu verwaltete Kanäle bleiben geschützt und werden hier nicht offengelegt.",
+  "Credentials stay protected": "Anmeldedaten bleiben geschützt",
+  "Connect approved apps": "Verbinden Sie genehmigte Apps",
+  "Choose from the catalog published by Lulu administrators.": "Wählen Sie aus dem von Lulu-Administratoren veröffentlichten Katalog.",
+  "See connection status": "Siehe Verbindungsstatus",
+  "Connected accounts are scoped to this workspace and user.": "Verbundene Konten sind auf diesen Arbeitsbereich und Benutzer beschränkt.",
+  "Protected execution": "Geschützte Ausführung",
+  "Tool calls are authorized and metered by Lulu before execution.": "Werkzeugaufrufe werden von Lulu vor der Ausführung autorisiert und gemessen."
 }

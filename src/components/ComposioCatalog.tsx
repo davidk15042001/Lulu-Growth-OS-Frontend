@@ -4,7 +4,7 @@ import { getFriendlyErrorMessage } from "../api/client";
 import { composioApi, type ComposioToolkit } from "../api/composio";
 import { LiveEmpty, LiveSection } from "../api/live-panel-ui";
 
-export function ComposioCatalog({ workspaceId }: { workspaceId: string }) {
+export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceId: string; canConnect?: boolean }) {
   const [toolkits, setToolkits] = useState<ComposioToolkit[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -52,6 +52,7 @@ export function ComposioCatalog({ workspaceId }: { workspaceId: string }) {
 
   return <LiveSection title={`Available integrations${hasMore ? " · more available" : ""}`} action={<span className="lulu-live-message">Tool calls are deducted automatically from the AI wallet. Platform admins with billing.bypass are exempt.</span>}>
     <p className="lulu-live-message">Connect an approved app for this workspace. Technical tool details and provider credentials stay protected by Lulu.</p>
+    {!canConnect ? <p className="lulu-live-message">You can view available apps, but your workspace role does not allow new connections.</p> : null}
     {error ? <div className="lulu-live-error">{error}</div> : null}
     {connectUrl ? <p className="lulu-live-message">Connection started. <a href={connectUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline", fontWeight: 700 }}>Open the Composio connection page</a>, then refresh this panel.</p> : null}
     <form className="lulu-live-form" onSubmit={(event) => void submitSearch(event)}>
@@ -60,7 +61,7 @@ export function ComposioCatalog({ workspaceId }: { workspaceId: string }) {
     </form>
     {loading && toolkits.length === 0 ? <LiveEmpty>Loading available integrations…</LiveEmpty> : toolkits.length === 0 ? <LiveEmpty>No approved integrations match this search.</LiveEmpty> : toolkits.map((toolkit) => <article className="lulu-live-row" key={toolkit.slug}>
       <div className="lulu-live-row-top"><div><strong>{toolkit.name}</strong><span>{toolkit.isNoAuth ? "No sign-in required" : "Secure account connection"}</span></div><span className={`lulu-live-badge ${toolkit.connected ? "good" : ""}`}>{toolkit.isNoAuth ? "Available" : toolkit.connected ? "Connected" : toolkit.connectionStatus ?? "Not connected"}</span></div>
-      <div className="lulu-live-actions" style={{ marginTop: 8 }}><button className="lulu-live-button primary" disabled={busyToolkit !== null || toolkit.isNoAuth || toolkit.connected} onClick={() => void connect(toolkit)}><Link2 size={15} />{toolkit.connected ? "Connected" : toolkit.isNoAuth ? "Available" : "Connect"}</button></div>
+      <div className="lulu-live-actions" style={{ marginTop: 8 }}><button className="lulu-live-button primary" disabled={!canConnect || busyToolkit !== null || toolkit.isNoAuth || toolkit.connected} onClick={() => void connect(toolkit)}><Link2 size={15} />{toolkit.connected ? "Connected" : toolkit.isNoAuth ? "Available" : !canConnect ? "View only" : "Connect"}</button></div>
     </article>)}
     {hasMore ? <button className="lulu-live-button" type="button" disabled={loading} onClick={() => void loadToolkits(search.trim(), cursor)}>Load more apps</button> : null}
   </LiveSection>;

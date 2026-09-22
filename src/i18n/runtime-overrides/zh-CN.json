@@ -6412,5 +6412,15 @@
   "For multiple products or services": "对于多种产品或服务",
   "One-product landing page": "单一产品登陆页面",
   "For a single product store": "对于单一产品商店",
-  "Add one public product first": "先添加一个公共产品"
+  "Add one public product first": "先添加一个公共产品",
+  "You can view available apps, but your workspace role does not allow new connections.": "您可以查看可用的应用程序，但您的工作区角色不允许新连接。",
+  "View only": "仅供查看",
+  "Connect the business apps Lulu is allowed to use for this workspace. Lulu-managed channels remain protected and are not exposed here.": "连接允许 Lulu 用于此工作区的业务应用程序。 Lulu 管理的通道仍然受到保护，不会在此处公开。",
+  "Credentials stay protected": "凭证受到保护",
+  "Connect approved apps": "连接批准的应用程序",
+  "Choose from the catalog published by Lulu administrators.": "从 Lulu 管理员发布的目录中进行选择。",
+  "See connection status": "查看连接状态",
+  "Connected accounts are scoped to this workspace and user.": "连接的帐户的范围仅限于此工作区和用户。",
+  "Protected execution": "受保护的执行",
+  "Tool calls are authorized and metered by Lulu before execution.": "工具调用在执行前由 Lulu 授权和计量。"
 }

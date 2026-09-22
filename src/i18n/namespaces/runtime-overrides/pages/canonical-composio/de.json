@@ -1,0 +1,13 @@
+{
+  "Choose a workspace to continue.": "Wähle einen Workspace aus, um fortzufahren.",
+  "Choose from the catalog published by Lulu administrators.": "Wählen Sie aus dem von Lulu-Administratoren veröffentlichten Katalog.",
+  "Connect approved apps": "Verbinden Sie genehmigte Apps",
+  "Connect the business apps Lulu is allowed to use for this workspace. Lulu-managed channels remain protected and are not exposed here.": "Verbinden Sie die Business-Apps, die Lulu für diesen Arbeitsbereich verwenden darf. Von Lulu verwaltete Kanäle bleiben geschützt und werden hier nicht offengelegt.",
+  "Connected accounts are scoped to this workspace and user.": "Verbundene Konten sind auf diesen Arbeitsbereich und Benutzer beschränkt.",
+  "Credentials stay protected": "Anmeldedaten bleiben geschützt",
+  "Integrations": "Integrationen",
+  "Protected execution": "Geschützte Ausführung",
+  "See connection status": "Siehe Verbindungsstatus",
+  "Tool calls are authorized and metered by Lulu before execution.": "Werkzeugaufrufe werden von Lulu vor der Ausführung autorisiert und gemessen.",
+  "Workspace settings": "Workspace-Einstellungen"
+}
