@@ -104,8 +104,10 @@ export default function PayoutsPage() {
         {error ? <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-700"><XCircle size={17} className="mt-0.5 shrink-0" />{error}</div> : null}
         {notice ? <div role="status" className="flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-700"><CheckCircle2 size={17} className="mt-0.5 shrink-0" />{notice}</div> : null}
         {loading ? <div className="flex items-center gap-2 rounded-xl border border-dashed border-[var(--border)] p-8 text-sm text-[var(--muted-foreground)]"><LoaderCircle size={16} className="animate-spin" />{t("Loading payouts…")}</div> : <>
-          <section className="grid gap-4 md:grid-cols-3">
+          <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <Metric icon={<Banknote size={18} />} label={t("Paid storefront revenue")} value={selectedBalance ? money(selectedBalance.grossCollected, selectedBalance.currency) : "—"} detail={currency} />
+            <Metric icon={<XCircle size={18} />} label={t("Refunds and disputes")} value={selectedBalance ? money(selectedBalance.reversed, selectedBalance.currency) : "—"} detail={t("Held back from payout")} />
+            <Metric icon={<ShieldCheck size={18} />} label={t("Net eligible revenue")} value={selectedBalance ? money(selectedBalance.netCollected, selectedBalance.currency) : "—"} detail={t("After payment adjustments")} />
             <Metric icon={<Clock3 size={18} />} label={t("Reserved for payouts")} value={selectedBalance ? money(selectedBalance.reserved, selectedBalance.currency) : "—"} detail={currency} />
             <Metric icon={<ArrowUpRight size={18} />} label={t("Available to pay out")} value={selectedBalance ? money(selectedBalance.available, selectedBalance.currency) : "—"} detail={currency} accent />
           </section>

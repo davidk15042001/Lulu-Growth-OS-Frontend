@@ -92,6 +92,8 @@ export type Payout = {
 export type PayoutBalance = {
   currency: string;
   grossCollected: string;
+  reversed: string;
+  netCollected: string;
   reserved: string;
   paidOut: string;
   available: string;
