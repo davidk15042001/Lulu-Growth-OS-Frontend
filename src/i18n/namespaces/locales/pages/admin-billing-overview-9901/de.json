@@ -1,1 +1,22 @@
-{}
+{
+  "Das Kundenguthaben konnte nicht zugewiesen werden.": "Das Kundenguthaben konnte nicht zugewiesen werden.",
+  "Kunden-Guthaben schenken": "Kunden-Guthaben schenken",
+  "Wähle einfach aus, ob der Kunde AI-Credits oder Adspend bekommen soll. Es wird direkt dem richtigen Wallet gutgeschrieben und im Audit-Log gespeichert.": "Wähle einfach aus, ob der Kunde AI-Credits oder Adspend bekommen soll. Es wird direkt dem richtigen Wallet gutgeschrieben und im Audit-Log gespeichert.",
+  "AI-Credits": "AI-Credits",
+  "Adspend": "Adspend",
+  "AI-Credits schenken": "AI-Credits schenken",
+  "Für Agenten, KI-Ausführung, Tools und Premium-Media-Arbeit.": "Für Agenten, KI-Ausführung, Tools und Premium-Media-Arbeit.",
+  "Adspend schenken": "Adspend schenken",
+  "Für Werbekampagnen. Lulu kann nicht mehr ausgeben als dieses Budget.": "Für Werbekampagnen. Lulu kann nicht mehr ausgeben als dieses Budget.",
+  "Betrag in CNY": "Betrag in CNY",
+  "z. B. 500": "z. B. 500",
+  "Notiz für dich": "Notiz für dich",
+  "Optional: z. B. Kulanz, Testguthaben, Demo": "Optional: z. B. Kulanz, Testguthaben, Demo",
+  "Optional: z. B. Kampagnenbudget geschenkt": "Optional: z. B. Kampagnenbudget geschenkt",
+  "Interne Referenz optional": "Interne Referenz optional",
+  "Das ist keine automatische Zahlung und startet keinen Airwallex-Checkout. Es ist eine Admin-Gutschrift, die sofort beim Kunden verfügbar ist.": "Das ist keine automatische Zahlung und startet keinen Airwallex-Checkout. Es ist eine Admin-Gutschrift, die sofort beim Kunden verfügbar ist.",
+  "Legacy-Credits anzeigen": "Legacy-Credits anzeigen",
+  "Separater alter Credit-Zähler. Für normale AI-Credits und Adspend bitte die einfache Schenk-Aktion oben verwenden.": "Separater alter Credit-Zähler. Für normale AI-Credits und Adspend bitte die einfache Schenk-Aktion oben verwenden.",
+  "Notiz optional": "Notiz optional",
+  "Legacy-Credits hinzufügen": "Legacy-Credits hinzufügen"
+}

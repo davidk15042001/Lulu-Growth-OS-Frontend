@@ -1,1 +1,22 @@
-{}
+{
+  "Das Kundenguthaben konnte nicht zugewiesen werden.": "无法分配客户余额。",
+  "Kunden-Guthaben schenken": "赠送客户余额",
+  "Wähle einfach aus, ob der Kunde AI-Credits oder Adspend bekommen soll. Es wird direkt dem richtigen Wallet gutgeschrieben und im Audit-Log gespeichert.": "选择客户应获得 AI 点数还是广告预算。金额会直接记入对应钱包，并写入审计日志。",
+  "AI-Credits": "AI 点数",
+  "Adspend": "广告预算",
+  "AI-Credits schenken": "赠送 AI 点数",
+  "Für Agenten, KI-Ausführung, Tools und Premium-Media-Arbeit.": "用于智能体、AI 执行、工具和高级媒体工作。",
+  "Adspend schenken": "赠送广告预算",
+  "Für Werbekampagnen. Lulu kann nicht mehr ausgeben als dieses Budget.": "用于广告活动。Lulu 的支出不会超过该预算。",
+  "Betrag in CNY": "金额（CNY）",
+  "z. B. 500": "例如 500",
+  "Notiz für dich": "给自己的备注",
+  "Optional: z. B. Kulanz, Testguthaben, Demo": "可选：例如补偿、测试余额、演示",
+  "Optional: z. B. Kampagnenbudget geschenkt": "可选：例如赠送广告活动预算",
+  "Interne Referenz optional": "内部参考（可选）",
+  "Das ist keine automatische Zahlung und startet keinen Airwallex-Checkout. Es ist eine Admin-Gutschrift, die sofort beim Kunden verfügbar ist.": "这不是自动付款，也不会启动 Airwallex 结账。这是一笔管理员赠送余额，客户可立即使用。",
+  "Legacy-Credits anzeigen": "显示旧版点数",
+  "Separater alter Credit-Zähler. Für normale AI-Credits und Adspend bitte die einfache Schenk-Aktion oben verwenden.": "独立的旧版点数计数器。普通 AI 点数和广告预算请使用上方的简单赠送操作。",
+  "Notiz optional": "备注可选",
+  "Legacy-Credits hinzufügen": "添加旧版点数"
+}
