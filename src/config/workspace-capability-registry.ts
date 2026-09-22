@@ -108,7 +108,7 @@ const PAGE_METADATA: Readonly<Record<string, Partial<{
   readPermission: WorkspaceCapability;
 }>>> = {
   [CRM_LANDING_PAGE_ID]: { department: "CRM", employee: "Company Intelligence Specialist", capabilityKey: "crm.companies", readPermission: "crm.read" },
-  "lulu-connected-apps-9011": { department: "Operations", employee: "Integration Manager", capabilityKey: "operations.connections", readPermission: "providers.read" },
+  "lulu-connected-apps-9011": { department: "Operations", employee: "Integration Manager", capabilityKey: "operations.connections", readPermission: "workspace.read" },
   [CRM_PARTNERS_PAGE_ID]: { department: "CRM", employee: "Partner Operations Manager", capabilityKey: "crm.partners", readPermission: "crm.read" },
   omnichannel: { department: "Communications", employee: "OmniChannel Manager", capabilityKey: "omnichannel.conversations", readPermission: "omnichannel.read" },
   "lulu-email-portal-9013": { department: "Communications", employee: "Email Specialist", capabilityKey: "communications.email", readPermission: "workspace.read" },
