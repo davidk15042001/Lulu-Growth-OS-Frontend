@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Activity, ArrowRight, BarChart3, BriefcaseBusiness, Check, Eye, EyeOff, LoaderCircle, Network, ShieldCheck, Sparkles, Target, UsersRound } from 'lucide-react';
+import { ArrowRight, BarChart3, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, Network, ShieldCheck, Sparkles, Target, UsersRound } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
 import { switchLanguage, useLanguage, useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
@@ -30,64 +30,51 @@ async function requestWithTimeout<T>(request: ApiRequest, timeoutMs = 15000) {
 const missionPillars = [
   {
     icon: Target,
-    title: 'Website that converts',
-    text: 'Create, test and improve pages, funnels and conversion paths from live company context.',
+    title: 'One company memory.',
+    text: 'Website, CRM, commerce, finance and conversations come together as one operating context.',
   },
   {
     icon: BarChart3,
-    title: 'Organic traffic that compounds',
-    text: 'Discover search demand, build authority and turn lasting relevance into compounding traffic.',
+    title: 'Signals become work.',
+    text: 'Lulu reads the next commercial signal and turns it into a page, campaign, record or action.',
   },
   {
     icon: Sparkles,
-    title: 'Content, paid ads and scale',
-    text: 'Generate high-volume content, launch paid ads, optimize spend and scale what proves it can win.',
+    title: 'Agents move together.',
+    text: 'Specialists plan, execute and verify outcomes without losing the audit trail.',
   },
 ] as const;
 
 const operatingLayers = [
   {
-    index: '01',
-    icon: Activity,
-    title: 'Growth command center',
-    text: "Daily and weekly cycles turn the company's current state into accountable priorities, forecasts and growth decisions.",
-  },
-  {
-    index: '02',
     icon: Network,
-    title: 'Shared company memory',
-    text: 'Zep carries conversations, relevant context and organization knowledge across the work that follows.',
+    title: 'Connected workspace',
+    text: 'Website, CRM, commerce, finance and communications share one company memory.',
   },
   {
-    index: '03',
     icon: UsersRound,
-    title: '150+ autonomous AI Agents',
-    text: 'A specialized workforce orchestrates website, organic, content and paid growth through durable work and recorded outcomes.',
+    title: 'Agent workforce',
+    text: 'Specialists plan, create, execute and verify work without fragmenting the operating state.',
   },
   {
-    index: '04',
-    icon: BriefcaseBusiness,
-    title: 'Controlled scale',
-    text: 'Every campaign, customer and provider action respects permissions, policy, funding and compliance checks.',
+    icon: ShieldCheck,
+    title: 'Guarded execution',
+    text: 'Money, provider actions and customer data stay inside permissions, funding and audit boundaries.',
   },
 ] as const;
 
-const governancePillars = [
-  {
-    icon: ShieldCheck,
-    title: 'Plan before impact',
-    text: 'Executive proposals remain plans until an authorized decision turns them into action.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Evidence before claims',
-    text: 'Forecasts and recommendations expose their assumptions, sources and confidence.',
-  },
-  {
-    icon: BriefcaseBusiness,
-    title: 'Business truth before automation',
-    text: 'Money, customer data and provider activity stay inside their canonical services and audit trail.',
-  },
+const promptSuggestions = [
+  'Company memory',
+  'Growth agents',
+  'Guarded execution',
+] as const;
+
+const productColorways = [
+  { name: 'Midnight', label: 'Operations', text: 'Keep every workspace action connected to the company record.' },
+  { name: 'Starlight', label: 'Knowledge', text: 'Turn policies, files and context into usable operating memory.' },
+  { name: 'Blue', label: 'Signals', text: 'Read revenue, search, customer and channel data in one place.' },
+  { name: 'Violet', label: 'Agents', text: 'Assemble the smallest team needed for the strongest outcome.' },
+  { name: 'Coral', label: 'Growth', text: 'Publish pages, campaigns and experiments with evidence attached.' },
 ] as const;
 
 export const LuluLoginPage = () => {
@@ -217,56 +204,105 @@ export const LuluLoginPage = () => {
   if (!isLandingLanguage) return <main className="auth-shell lulu-executive-landing" aria-busy="true" />;
 
   return (
-    <main data-deploy-rev="2026-09-21-growth-engine" className="auth-shell lulu-executive-landing">
+    <main data-deploy-rev="2026-09-22-airpods-inspired-lulu-login" className="auth-shell lulu-executive-landing">
       <header className="lulu-exec-nav">
         <a href="#top" className="lulu-exec-brand" aria-label="Lulu home" data-lulu-no-translate="true" translate="no">
           <img src="/branding/lulu-agentic-mark.svg" alt="" />
           <span>LULU</span>
-          <small>EXECUTIVE OS</small>
+          <small>Growth OS</small>
         </a>
         <nav className="lulu-exec-nav-links" aria-label={t('Primary navigation')}>
-          <a href="#operating-system">{t('Growth engine')}</a>
-          <a href="#governance">{t('Governance')}</a>
+          <a href="#mission">{t('Capabilities')}</a>
+          <a href="#operating-system">{t('How it works')}</a>
         </nav>
         <div className="lulu-exec-nav-actions">
           <div className="lulu-exec-language-switch" data-lulu-no-translate="true" translate="no">
             <button type="button" onClick={() => switchLanguage('en')} aria-pressed={language === 'en'} className={language === 'en' ? 'is-active' : ''}>EN</button>
             <button type="button" onClick={() => switchLanguage('zh-CN')} aria-pressed={language === 'zh-CN'} className={language === 'zh-CN' ? 'is-active' : ''}>中文</button>
           </div>
-          <button type="button" onClick={scrollToAccess} className="lulu-exec-nav-login">{t('Enter Lulu')}</button>
+          <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="lulu-exec-nav-login">{t('Sign up for free')}</button>
         </div>
       </header>
 
       <section id="top" className="lulu-exec-hero" aria-labelledby="lulu-exec-title">
-        <img className="lulu-exec-hero-image" src="/landing/lulu-executive-constellation-v1.png" alt="" aria-hidden="true" />
         <div className="lulu-exec-hero-overlay" aria-hidden="true" />
         <div className="lulu-exec-hero-content">
-          <p className="lulu-exec-eyebrow"><Activity size={14} /> {t('150+ autonomous AI Agents. One growth operating system.')}</p>
-          <h1 id="lulu-exec-title">{t('Lulu Executive OS')}</h1>
-          <p className="lulu-exec-hero-statement">{t('From first visit to global scale, growth never stops moving.')}</p>
-          <p className="lulu-exec-hero-copy">{t('Lulu coordinates your website, organic traffic, content generation, paid ads and every growth experiment through one shared company memory. More than 150 autonomous AI Agents plan, create, execute and learn together.')}</p>
-          <div className="lulu-exec-hero-actions">
-            <button type="button" className="lulu-exec-primary-button" onClick={() => navigateApp(routes.auth.signUp)}>
-              {t('Build your operating system')} <ArrowRight size={17} />
-            </button>
-            <button type="button" className="lulu-exec-secondary-button" onClick={scrollToAccess}>
-              {t('Enter Lulu')} <ArrowRight size={17} />
-            </button>
-          </div>
-          <div className="lulu-exec-hero-proof" aria-label={t('Lulu operating principles')}>
-            <span>{t('150+ autonomous AI Agents')}</span>
-            <span>{t('Website, organic, content and paid ads')}</span>
-            <span>{t('Scale every winning signal')}</span>
+          <p className="lulu-exec-product-name" data-lulu-no-translate="true" translate="no">Lulu AI</p>
+          <h1 id="lulu-exec-title">{t('Growth. Remastered.')}</h1>
+          <p className="lulu-exec-hero-copy">{t('A complete operating system for company memory, growth agents and guarded execution.')}</p>
+          <picture>
+            <source
+              type="image/webp"
+              srcSet="/landing/lulu-growth-os-product-lineup-v1-900.webp 900w, /landing/lulu-growth-os-product-lineup-v1-1400.webp 1400w"
+              sizes="(max-width: 560px) 112vw, min(1160px, 116vw)"
+            />
+            <img
+              className="lulu-exec-hero-image"
+              src="/landing/lulu-growth-os-product-lineup-v1.png"
+              alt={t('Lulu AI product lineup')}
+              decoding="async"
+              loading="eager"
+            />
+          </picture>
+
+          <form onSubmit={submit} className="lulu-exec-login-card" aria-label={t('Sign in form')}>
+            <div className="lulu-exec-login-heading">
+              <div>
+                <p>{t('Sign in to Lulu')}</p>
+                <span><LockKeyhole size={13} aria-hidden="true" /> {t('Protected workspace')}</span>
+              </div>
+              <img src="/branding/lulu-agentic-mark.svg" alt="" aria-hidden="true" />
+            </div>
+            <div className="lulu-exec-fields">
+              <Label htmlFor="login-email" className="lulu-exec-label">
+                {t('email')}
+                <Input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="lulu-exec-input" />
+              </Label>
+              <Label htmlFor="login-password" className="lulu-exec-label">
+                {t('password')}
+                <span className="lulu-exec-password-field">
+                  <Input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="lulu-exec-input" />
+                  <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="lulu-exec-password-toggle">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
+                </span>
+              </Label>
+              {adminMfaRequired ? (
+                <Label htmlFor="login-admin-mfa" className="lulu-exec-label">
+                  {t('Administrator verification code')}
+                  <Input id="login-admin-mfa" name="adminMfaCode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={adminMfaCode} onChange={event => setAdminMfaCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="lulu-exec-input lulu-exec-mfa-input" />
+                </Label>
+              ) : null}
+              {userMfaRequired ? (
+                <Label htmlFor="login-user-mfa" className="lulu-exec-label">
+                  {t('Authenticator or recovery code')}
+                  <Input id="login-user-mfa" name="userMfaCode" inputMode="text" autoComplete="one-time-code" maxLength={20} value={userMfaCode} onChange={event => setUserMfaCode(event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20))} className="lulu-exec-input lulu-exec-mfa-input" />
+                </Label>
+              ) : null}
+              <Button type="submit" disabled={loading} className="lulu-exec-submit">
+                {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t(adminMfaRequired ? 'Verify administrator' : userMfaRequired ? 'Verify authenticator' : 'signIn')} <ArrowRight size={16} /></>}
+              </Button>
+              {adminMfaRequired || userMfaRequired ? <button type="button" onClick={() => { setAdminMfaRequired(false); setAdminMfaCode(''); setUserMfaRequired(false); setUserMfaChallengeId(''); setUserMfaCode(''); setStatusMessage(''); setError(''); }} className="lulu-exec-back-button">{t('Back to password sign-in')}</button> : null}
+              {statusMessage && <p role="status" className="lulu-exec-status">{statusMessage}</p>}
+              {error && <div role="alert" className="lulu-exec-error"><p>{error}</p>{errorDetails && <p>{errorDetails}</p>}</div>}
+              {s && <p className="lulu-exec-success"><Check size={15} /> {t('Signed in successfully.')}</p>}
+            </div>
+            <div className="lulu-exec-login-links">
+              <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)}>{t('forgotPassword')}</button>
+              <button type="button" onClick={() => navigateApp(routes.auth.signUp)}>{t('Sign up for free')}</button>
+            </div>
+          </form>
+
+          <div className="lulu-exec-prompt-strip" aria-label={t('Example starts')}>
+            {promptSuggestions.map(item => <button key={item} type="button" onClick={scrollToAccess}>{t(item)}</button>)}
           </div>
         </div>
-        <a className="lulu-exec-scroll-cue" href="#mission">{t('The mission')} <ArrowRight size={15} /></a>
+        <a className="lulu-exec-scroll-cue" href="#mission">{t('See what Lulu can do')} <ArrowRight size={15} /></a>
       </section>
 
       <section id="mission" className="lulu-exec-mission" aria-labelledby="lulu-mission-title">
         <div className="lulu-exec-section-intro">
-          <p className="lulu-exec-kicker">{t('Mission')}</p>
-          <h2 id="lulu-mission-title">{t('Turn every growth signal into momentum.')}</h2>
-          <p>{t('From the first page a customer sees to the next market you enter, Lulu turns strategy into coordinated growth work that compounds.')}</p>
+          <p className="lulu-exec-kicker">{t('The highlights.')}</p>
+          <h2 id="lulu-mission-title">{t('A new way to run growth.')}</h2>
+          <p>{t('Lulu turns commercial intent into coordinated work across records, agents and connected systems.')}</p>
         </div>
         <div className="lulu-exec-mission-grid">
           {missionPillars.map(({ icon: Icon, title, text }, index) => (
@@ -282,15 +318,25 @@ export const LuluLoginPage = () => {
 
       <section id="operating-system" className="lulu-exec-system" aria-labelledby="lulu-system-title">
         <div className="lulu-exec-system-intro">
-          <p className="lulu-exec-kicker">{t('The system')}</p>
-          <h2 id="lulu-system-title">{t('One operating state. Every growth move.')}</h2>
-          <p>{t('Lulu connects the context, decisions and work that otherwise vanish between your website, content calendar, campaigns, sales conversations and scale plans.')}</p>
+          <p className="lulu-exec-kicker">{t('Take a closer look.')}</p>
+          <h2 id="lulu-system-title">{t('Five surfaces. One operating system.')}</h2>
+          <p>{t('Each surface reflects a core Lulu capability, tuned to the way modern companies move from context to execution.')}</p>
+        </div>
+        <div className="lulu-exec-colorways" aria-label={t('Lulu AI surfaces')}>
+          {productColorways.map(item => (
+            <article key={item.name} className="lulu-exec-colorway">
+              <span className={`lulu-exec-swatch ${item.name.toLowerCase()}`} aria-hidden="true" />
+              <p>{t(item.name)}</p>
+              <h3>{t(item.label)}</h3>
+              <span>{t(item.text)}</span>
+            </article>
+          ))}
         </div>
         <div className="lulu-exec-layer-grid">
-          {operatingLayers.map(({ index, icon: Icon, title, text }) => (
+          {operatingLayers.map(({ icon: Icon, title, text }, index) => (
             <article key={title} className="lulu-exec-layer">
               <div className="lulu-exec-layer-head">
-                <span>{index}</span>
+                <span>0{index + 1}</span>
                 <Icon size={20} aria-hidden="true" />
               </div>
               <h3>{t(title)}</h3>
@@ -301,78 +347,20 @@ export const LuluLoginPage = () => {
         <p className="lulu-exec-system-footnote"><ShieldCheck size={16} /> {t('Every meaningful step is grounded in a workspace, a record, a permission and an audit trail.')}</p>
       </section>
 
-      <section id="governance" className="lulu-exec-governance" aria-labelledby="lulu-governance-title">
-        <div className="lulu-exec-section-intro">
-          <p className="lulu-exec-kicker">{t('Governance')}</p>
-          <h2 id="lulu-governance-title">{t('Built for momentum. Governed for trust.')}</h2>
-          <p>{t('The highest-leverage work moves quickly. The consequential work stays legible, attributable and under the right authority.')}</p>
-        </div>
-        <div className="lulu-exec-governance-grid">
-          {governancePillars.map(({ icon: Icon, title, text }) => (
-            <article key={title} className="lulu-exec-governance-pillar">
-              <Icon size={20} aria-hidden="true" />
-              <h3>{t(title)}</h3>
-              <p>{t(text)}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
       <section id="login-access" className="lulu-exec-access" aria-labelledby="lulu-access-title">
         <div className="lulu-exec-access-copy">
-          <p className="lulu-exec-eyebrow"><ShieldCheck size={14} /> {t('Protected workspace access')}</p>
-          <h2 id="lulu-access-title">{t('Enter the operating system.')}</h2>
-          <p>{t('Your first step is secure. The work that follows is connected.')}</p>
+          <p className="lulu-exec-eyebrow"><ShieldCheck size={14} /> {t('New workspace')}</p>
+          <h2 id="lulu-access-title">{t('Made for your company.')}</h2>
+          <p>{t('Create a workspace, connect the first source of truth and let Lulu begin with a concrete growth request.')}</p>
           <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="lulu-exec-text-button">
-            {t('Start with Lulu')} <ArrowRight size={16} />
+            {t('Sign up for free')} <ArrowRight size={16} />
           </button>
         </div>
-
-        <form onSubmit={submit} className="lulu-exec-login-card" aria-label={t('Sign in form')}>
-          <div className="lulu-exec-login-heading">
-            <div>
-              <p>{t('Access the system')}</p>
-              <span>{t('Protected access')}</span>
-            </div>
-            <img src="/branding/lulu-agentic-mark.svg" alt="" aria-hidden="true" />
-          </div>
-          <div className="lulu-exec-fields">
-            <Label htmlFor="login-email" className="lulu-exec-label">
-              {t('email')}
-              <Input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="lulu-exec-input" />
-            </Label>
-            <Label htmlFor="login-password" className="lulu-exec-label">
-              {t('password')}
-              <span className="lulu-exec-password-field">
-                <Input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="lulu-exec-input" />
-                <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="lulu-exec-password-toggle">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
-              </span>
-            </Label>
-            {adminMfaRequired ? (
-              <Label htmlFor="login-admin-mfa" className="lulu-exec-label">
-                {t('Administrator verification code')}
-                <Input id="login-admin-mfa" name="adminMfaCode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={adminMfaCode} onChange={event => setAdminMfaCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="lulu-exec-input lulu-exec-mfa-input" />
-              </Label>
-            ) : null}
-            {userMfaRequired ? (
-              <Label htmlFor="login-user-mfa" className="lulu-exec-label">
-                {t('Authenticator or recovery code')}
-                <Input id="login-user-mfa" name="userMfaCode" inputMode="text" autoComplete="one-time-code" maxLength={20} value={userMfaCode} onChange={event => setUserMfaCode(event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20))} className="lulu-exec-input lulu-exec-mfa-input" />
-              </Label>
-            ) : null}
-            <Button type="submit" disabled={loading} className="lulu-exec-submit">
-              {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t(adminMfaRequired ? 'Verify administrator' : userMfaRequired ? 'Verify authenticator' : 'signIn')} <ArrowRight size={16} /></>}
-            </Button>
-            {adminMfaRequired || userMfaRequired ? <button type="button" onClick={() => { setAdminMfaRequired(false); setAdminMfaCode(''); setUserMfaRequired(false); setUserMfaChallengeId(''); setUserMfaCode(''); setStatusMessage(''); setError(''); }} className="lulu-exec-back-button">{t('Back to password sign-in')}</button> : null}
-            {statusMessage && <p role="status" className="lulu-exec-status">{statusMessage}</p>}
-            {error && <div role="alert" className="lulu-exec-error"><p>{error}</p>{errorDetails && <p>{errorDetails}</p>}</div>}
-            {s && <p className="lulu-exec-success"><Check size={15} /> {t('Signed in successfully.')}</p>}
-          </div>
-          <div className="lulu-exec-login-links">
-            <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)}>{t('forgotPassword')}</button>
-            <button type="button" onClick={() => navigateApp(routes.auth.signUp)}>{t('createAccount')}</button>
-          </div>
-        </form>
+        <div className="lulu-exec-access-panel" aria-label={t('Workspace entry summary')}>
+          <span>{t('Saved chats')}</span>
+          <span>{t('Connected data')}</span>
+          <span>{t('Autonomous work')}</span>
+        </div>
       </section>
 
       <footer className="lulu-exec-footer">

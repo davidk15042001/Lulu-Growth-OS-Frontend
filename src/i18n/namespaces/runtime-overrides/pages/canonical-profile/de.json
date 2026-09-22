@@ -9,7 +9,7 @@
   "Branch": "Filiale",
   "Change password": "Passwort ändern",
   "Changing…": "Wird geändert …",
-  "Choose a workspace to continue.": "Wähle einen Workspace aus, um fortzufahren.",
+  "Choose a workspace to continue.": "Wähle einen Workspace, um fortzufahren.",
   "Company name": "Unternehmensname",
   "Company name is required.": "Der Firmenname ist erforderlich.",
   "Enter at least one profile detail.": "Geben Sie mindestens ein Profildetail ein.",
@@ -219,5 +219,7 @@
   "Open authenticator link": "Authenticator-Link öffnen",
   "Six-digit confirmation code": "Sechsstelliger Bestätigungscode",
   "Confirm MFA": "MFA bestätigen",
-  "Save these recovery codes now. They are shown only once.": "Speichern Sie diese Wiederherstellungscodes jetzt. Sie werden nur einmal angezeigt."
+  "Save these recovery codes now. They are shown only once.": "Speichern Sie diese Wiederherstellungscodes jetzt. Sie werden nur einmal angezeigt.",
+  "Authenticator or recovery code": "Authenticator- oder Wiederherstellungscode",
+  "Working…": "Wird verarbeitet …"
 }

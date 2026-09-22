@@ -219,5 +219,7 @@
   "Open authenticator link": "打开身份验证器链接",
   "Six-digit confirmation code": "六位确认代码",
   "Confirm MFA": "确认 MFA",
-  "Save these recovery codes now. They are shown only once.": "请立即保存这些恢复代码。它们只会显示一次。"
+  "Save these recovery codes now. They are shown only once.": "请立即保存这些恢复代码。它们只会显示一次。",
+  "Authenticator or recovery code": "身份验证器代码或恢复代码",
+  "Working…": "处理中…"
 }
