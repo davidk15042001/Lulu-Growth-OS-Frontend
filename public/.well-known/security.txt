@@ -1,5 +1,5 @@
-Contact: mailto:security@lulu-ai.cn
+Contact: mailto:security@lulu-ai.tech
 Preferred-Languages: en, de
-Canonical: https://lulu-ai.cn/.well-known/security.txt
-Policy: https://lulu-ai.cn/terms.html
+Canonical: https://lulu-ai.tech/.well-known/security.txt
+Policy: https://lulu-ai.tech/terms.html
 Expires: 2027-09-12T00:00:00.000Z

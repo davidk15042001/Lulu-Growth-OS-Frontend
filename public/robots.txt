@@ -3,4 +3,4 @@ Allow: /
 Disallow: /app/
 Disallow: /onboarding/
 Disallow: /auth/
-Sitemap: https://lulu-ai.cn/sitemap.xml
+Sitemap: https://lulu-ai.tech/sitemap.xml

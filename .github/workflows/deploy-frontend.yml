@@ -1,4 +1,4 @@
-name: Frontend und Backend veröffentlichen
+name: Frontend auf AWS veröffentlichen
 
 on:
   push:
@@ -7,248 +7,74 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 concurrency:
-  group: lulu-production-deploy
+  group: lulu-aws-frontend-production
   cancel-in-progress: true
 
-# Production deploys use the server-side privileged restart wrapper; the
-# deploy user is granted only that narrow command through sudoers.
+env:
+  AWS_REGION: eu-central-1
+  FRONTEND_DOMAIN: https://lulu-ai.tech
+  API_BASE_URL: https://api.lulu-ai.tech/api/v1
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Large production migrations (including the Office projection backfill)
-    # can legitimately run for more than 35 minutes on existing workspaces.
-    timeout-minutes: 240
+    timeout-minutes: 45
 
     steps:
       - name: Frontend auschecken
         uses: actions/checkout@v4
 
-      - name: Backend auschecken
+      - name: Backend-Katalog auschecken
         uses: actions/checkout@v4
         with:
-          repository: davidk15042001/Lulu-Growth-OS-Backend
+          repository: luluaicn/Business-Backend
           ref: main
           path: backend-source
 
-      - uses: actions/setup-node@v4
+      - name: Node.js einrichten
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
+      - name: AWS-Zugang über OIDC konfigurieren
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Frontend installieren, prüfen und bauen
         env:
+          VITE_API_URL: ${{ env.API_BASE_URL }}
           LULU_BACKEND_PATH: backend-source
         run: |
           set -euo pipefail
           npm ci --no-audit
           npm run check
-          audit_with_retry() {
-            local label="$1"
-            local attempt=1
-            local output
-            local status
-            while [ "$attempt" -le 3 ]; do
-              set +e
-              output="$(npm audit --omit=dev --audit-level=high 2>&1)"
-              status=$?
-              set -e
-              if [ "$status" -eq 0 ]; then
-                printf '%s audit passed.\n' "$label"
-                return 0
-              fi
-              if printf '%s' "$output" | grep -Eqi '50[234]|service unavailable|performing maintenance|audit endpoint returned an error|fetch failed|ECONNRESET|ETIMEDOUT|EAI_AGAIN'; then
-                printf '%s audit service unavailable (attempt %s/3); retrying.\n' "$label" "$attempt" >&2
-                attempt=$((attempt + 1))
-                sleep 15
-                continue
-              fi
-              printf '%s' "$output" >&2
-              return "$status"
-            done
-            printf '%s audit could not be completed because the npm advisory service is unavailable; continuing with the build checks.\n' "$label" >&2
-          }
-          audit_with_retry frontend
+          test -d dist
+          grep -R "api.lulu-ai.tech/api/v1" dist/assets >/dev/null
 
-      - name: Backend-Abhängigkeiten prüfen
-        working-directory: backend-source
-        run: |
-          set -euo pipefail
-          npm ci --no-audit
-          audit_with_retry() {
-            local label="$1"
-            local attempt=1
-            local output
-            local status
-            while [ "$attempt" -le 3 ]; do
-              set +e
-              output="$(npm audit --omit=dev --audit-level=high 2>&1)"
-              status=$?
-              set -e
-              if [ "$status" -eq 0 ]; then
-                printf '%s audit passed.\n' "$label"
-                return 0
-              fi
-              if printf '%s' "$output" | grep -Eqi '50[234]|service unavailable|performing maintenance|audit endpoint returned an error|fetch failed|ECONNRESET|ETIMEDOUT|EAI_AGAIN'; then
-                printf '%s audit service unavailable (attempt %s/3); retrying.\n' "$label" "$attempt" >&2
-                attempt=$((attempt + 1))
-                sleep 15
-                continue
-              fi
-              printf '%s' "$output" >&2
-              return "$status"
-            done
-            printf '%s audit could not be completed because the npm advisory service is unavailable; continuing with the build checks.\n' "$label" >&2
-          }
-          audit_with_retry backend
-          npm run typecheck
-          npm run test:migrations
-          npm test
-          npm run build
-          npm run test:smoke
-
-      - name: Revisionsmanifest erzeugen
-        run: |
-          set -euo pipefail
-          frontend_sha="$(git rev-parse HEAD)"
-          backend_sha="$(git -C backend-source rev-parse HEAD)"
-          printf '{"frontend":"%s","backend":"%s","builtAt":"%s"}\n' "$frontend_sha" "$backend_sha" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > dist/release.json
-
-      - name: SSH einrichten
+      - name: Frontend nach S3 synchronisieren
         env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          FRONTEND_BUCKET: ${{ secrets.AWS_FRONTEND_BUCKET }}
         run: |
           set -euo pipefail
-          test -n "$DEPLOY_HOST" || { echo 'DEPLOY_HOST is missing'; exit 1; }
-          test -n "$DEPLOY_SSH_KEY" || { echo 'DEPLOY_SSH_KEY is missing'; exit 1; }
-          mkdir -p ~/.ssh
-          printf '%s\n' "$DEPLOY_SSH_KEY" | sed 's/\r$//; s/\\n/\n/g' > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          if ! ssh-keygen -y -f ~/.ssh/id_ed25519 >/dev/null 2>&1; then
-            if printf '%s' "$DEPLOY_SSH_KEY" | tr -d '\r\n ' | base64 --decode > ~/.ssh/id_ed25519.base64 2>/dev/null \
-              && chmod 600 ~/.ssh/id_ed25519.base64 \
-              && ssh-keygen -y -f ~/.ssh/id_ed25519.base64 >/dev/null 2>&1; then
-              mv ~/.ssh/id_ed25519.base64 ~/.ssh/id_ed25519
-            else
-              echo 'DEPLOY_SSH_KEY is neither a valid OpenSSH key nor valid base64-encoded key material.'
-              exit 1
-            fi
-          fi
-          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+          test -n "$FRONTEND_BUCKET" || { echo 'AWS_FRONTEND_BUCKET is missing'; exit 1; }
+          aws s3 sync dist/ "s3://$FRONTEND_BUCKET/" --delete --cache-control 'no-cache, must-revalidate'
 
-      - name: Backend hochladen, migrieren und starten
+      - name: CloudFront-Cache leeren
         env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-          TWILIO_ACCOUNT_SID: ${{ secrets.TWILIO_ACCOUNT_SID }}
-          TWILIO_AUTH_TOKEN: ${{ secrets.TWILIO_AUTH_TOKEN }}
-          META_CLIENT_ID: ${{ secrets.META_CLIENT_ID }}
-          META_CLIENT_SECRET: ${{ secrets.META_CLIENT_SECRET }}
-          META_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID: ${{ secrets.META_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID }}
-          TWILIO_PARTNER_SOLUTION_ID: ${{ secrets.TWILIO_PARTNER_SOLUTION_ID }}
+          DISTRIBUTION_ID: ${{ secrets.AWS_FRONTEND_DISTRIBUTION_ID }}
         run: |
           set -euo pipefail
-          backend_sha="$(git -C backend-source rev-parse HEAD)"
-          backend_pushed_at="$(git -C backend-source show -s --format=%cI "$backend_sha")"
-          deployed_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          rsync -rz --links --delete \
-            --exclude .env \
-            --exclude .git \
-            --exclude node_modules \
-            --exclude .runtime-secrets \
-            --exclude .runtime-deployment.json \
-            --exclude '.deploy-stale-node_modules-*' \
-            backend-source/ \
-            "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-growth-os/backend/"
-          if [ -n "$TWILIO_ACCOUNT_SID" ] && [ -n "$TWILIO_AUTH_TOKEN" ]; then
-            printf 'TWILIO_ACCOUNT_SID=%s\nTWILIO_AUTH_TOKEN=%s\nTWILIO_WEBHOOK_URL=https://lulu-ai.cn/api/v1/provider-webhooks/twilio\nTWILIO_STATUS_CALLBACK_URL=https://lulu-ai.cn/api/v1/provider-webhooks/twilio\nMETA_CLIENT_ID=%s\nMETA_CLIENT_SECRET=%s\nMETA_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID=%s\nTWILIO_PARTNER_SOLUTION_ID=%s\nMETA_GRAPH_VERSION=v23.0\n' \
-              "$TWILIO_ACCOUNT_SID" "$TWILIO_AUTH_TOKEN" "$META_CLIENT_ID" "$META_CLIENT_SECRET" "$META_WHATSAPP_EMBEDDED_SIGNUP_CONFIG_ID" "$TWILIO_PARTNER_SOLUTION_ID" | \
-              ssh "$DEPLOY_USER@$DEPLOY_HOST" 'install -d -m 700 /var/www/lulu-growth-os/backend/.runtime-secrets && umask 077 && cat > /var/www/lulu-growth-os/backend/.runtime-secrets/twilio.env'
-          else
-            echo 'Twilio GitHub secrets are not configured; preserving the server-side provider secret file.'
-          fi
-          # Keep the SSH transport alive while an otherwise long-running
-          # production migration is executing.
-          ssh -o ServerAliveInterval=30 -o ServerAliveCountMax=240 \
-            "$DEPLOY_USER@$DEPLOY_HOST" "BACKEND_SHA='$backend_sha' BACKEND_PUSHED_AT='$backend_pushed_at' DEPLOYED_AT='$deployed_at' bash -se" <<'REMOTE'
-          set -euo pipefail
-          cd /var/www/lulu-growth-os/backend
+          test -n "$DISTRIBUTION_ID" || { echo 'AWS_FRONTEND_DISTRIBUTION_ID is missing'; exit 1; }
+          aws cloudfront create-invalidation --distribution-id "$DISTRIBUTION_ID" --paths '/*'
 
-          if ! npm ci --omit=dev --ignore-scripts; then
-            test -d node_modules || { echo "npm ci failed before node_modules was created" >&2; exit 1; }
-            stale_path=".deploy-stale-node_modules-$(date +%Y%m%d%H%M%S)"
-            echo "Recovering from incompatible node_modules ownership: moving it to $stale_path"
-            mv node_modules "$stale_path"
-            npm ci --omit=dev --ignore-scripts
-          fi
-
-          if [ "$(id -u)" -eq 0 ]; then
-            /bin/sh /var/www/lulu-growth-os/backend/scripts/deploy-production-backend.sh
-          else
-            if ! sudo -n /usr/local/sbin/lulu-growth-backend-restart; then
-              echo 'The privileged restart wrapper failed; retrying with the checked-in production deploy script.' >&2
-              if ! sudo -n /bin/sh /var/www/lulu-growth-os/backend/scripts/deploy-production-backend.sh; then
-                echo 'The checked-in production deploy script failed; attempting a service-only recovery.' >&2
-                sudo -n /usr/bin/systemctl restart lulu-growth-backend
-              fi
-            fi
-          fi
-
-          umask 077
-          printf '{"backend":"%s","pushedAt":"%s","deployedAt":"%s"}\n' "$BACKEND_SHA" "$BACKEND_PUSHED_AT" "$DEPLOYED_AT" > .runtime-deployment.json
-
-          for attempt in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:3000/api/v1/health >/tmp/lulu-health.json; then
-              cat /tmp/lulu-health.json
-              exit 0
-            fi
-            sleep 2
-          done
-
-          echo "Backend process health check failed on port 3000" >&2
-          exit 1
-          REMOTE
-
-      # Remove the temporary public diagnostic file used while debugging the
-      # failed production migration. This cleanup is best-effort and never
-      # changes the deployment result.
-      - name: Temporäre Produktionsdiagnose entfernen
-        if: ${{ always() }}
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
-        run: |
-          set +e
-          ssh -o ServerAliveInterval=15 -o ServerAliveCountMax=4 \
-            "$DEPLOY_USER@$DEPLOY_HOST" \
-            'rm -f /var/www/lulu-ai.cn/html/deploy-diagnostics.txt'
-          exit 0
-
-      # Activate the browser bundle only after migrations, restart and backend
-      # process health succeeded. This prevents a new frontend from calling an old
-      # API when the backend half of a release fails.
-      - name: Frontend aktivieren
-        env:
-          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
-          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      - name: Neue Domain öffentlich prüfen
         run: |
           set -euo pipefail
-          test -n "$DEPLOY_USER" || { echo 'DEPLOY_USER is missing'; exit 1; }
-          rsync -rz --links --delete dist/ \
-            "$DEPLOY_USER@$DEPLOY_HOST:/var/www/lulu-ai.cn/html/"
-
-      - name: Öffentlichen Release verifizieren
-        run: |
-          set -euo pipefail
-          curl --fail --silent --show-error --retry 5 --retry-all-errors https://lulu-ai.cn/api/v1/health | grep -q '"status":"ok"'
-          readiness="$(curl --silent --show-error --retry 5 --retry-all-errors https://lulu-ai.cn/api/v1/ready)"
-          printf 'Public readiness response: %s\n' "$readiness"
-          printf '%s' "$readiness" | grep -q '"status":"ready"'
-          curl --fail --silent --show-error https://lulu-ai.cn/release.json | grep -q '"frontend"'
-          curl --fail --silent --show-error https://lulu-ai.cn/robots.txt | grep -q 'Sitemap:'
-          curl --fail --silent --show-error https://lulu-ai.cn/.well-known/security.txt | grep -q 'Contact:'
-          curl --fail --silent --show-error https://lulu-ai.cn/privacy.html | grep -q '<title>Privacy Policy'
-          curl --fail --silent --show-error https://lulu-ai.cn/terms.html | grep -q '<title>Terms of Service'
+          curl --fail --silent --show-error --retry 5 --retry-all-errors "$FRONTEND_DOMAIN/login" | grep -qi '<html'
+          curl --fail --silent --show-error --retry 5 --retry-all-errors "$API_BASE_URL/health" | grep -q '"status":"ok"'

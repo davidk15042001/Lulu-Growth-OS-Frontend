@@ -18,7 +18,7 @@ Open the URL printed by Vite. The application starts at `/auth/login` and uses t
 
 Legacy `/pages/<generatedName>` URLs redirect to their canonical routes.
 
-The frontend reads its environment from the sibling backend file `../Lulu-Growth-OS-Backend/.env`, so `VITE_API_URL` now lives in that single shared file. When frontend and backend share a domain through a reverse proxy, the default `/api/v1` works without additional configuration.
+The frontend reads its environment from the sibling backend file `../Lulu-Growth-OS-Backend/.env`, so `VITE_API_URL` now lives in that single shared file. Local development can use the default `/api/v1`; production is built by the AWS workflow with `https://api.lulu-ai.tech/api/v1` and is served at `https://lulu-ai.tech`.
 
 ## Live backend integration
 

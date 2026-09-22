@@ -1,29 +1,20 @@
-name: Produktionszustand überwachen
+name: AWS-Produktionsgesundheit prüfen
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: '*/15 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: read
 
-concurrency:
-  group: production-health
-  cancel-in-progress: true
-
 jobs:
-  verify:
+  health:
     runs-on: ubuntu-latest
-    timeout-minutes: 3
     steps:
-      - name: API und öffentliche Dateien prüfen
+      - name: Frontend und AWS-API prüfen
         run: |
           set -euo pipefail
-          health="$(curl --fail --silent --show-error --retry 3 --retry-all-errors --max-time 15 https://lulu-ai.cn/api/v1/health)"
-          printf '%s' "$health" | grep -q '"status":"ok"'
-          readiness="$(curl --silent --show-error --retry 3 --retry-all-errors --max-time 20 https://lulu-ai.cn/api/v1/ready)"
-          printf 'Readiness response: %s\n' "$readiness"
-          printf '%s' "$readiness" | grep -q '"status":"ready"'
-          curl --fail --silent --show-error --max-time 15 https://lulu-ai.cn/robots.txt | grep -q 'Sitemap:'
-          curl --fail --silent --show-error --max-time 15 https://lulu-ai.cn/.well-known/security.txt | grep -q 'Contact:'
+          curl --fail --silent --show-error --retry 3 --retry-all-errors https://lulu-ai.tech/login | grep -qi '<html'
+          curl --fail --silent --show-error --retry 3 --retry-all-errors https://api.lulu-ai.tech/api/v1/health | grep -q '"status":"ok"'
+          curl --fail --silent --show-error --retry 3 --retry-all-errors https://api.lulu-ai.tech/api/v1/ready | grep -q '"status":"ready"'

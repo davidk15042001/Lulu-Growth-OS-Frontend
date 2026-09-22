@@ -7,7 +7,8 @@
  * mutates a workspace, sends a provider message, or creates a payment.
  */
 
-const baseUrl = (process.env.LULU_PRODUCTION_BASE_URL ?? "https://lulu-ai.cn").replace(/\/+$/, "");
+const baseUrl = (process.env.LULU_PRODUCTION_BASE_URL ?? "https://lulu-ai.tech").replace(/\/+$/, "");
+const apiBaseUrl = (process.env.LULU_PRODUCTION_API_BASE_URL ?? "https://api.lulu-ai.tech/api/v1").replace(/\/+$/, "");
 const timeoutMs = Number.parseInt(process.env.LULU_SMOKE_TIMEOUT_MS ?? "15000", 10);
 
 if (!Number.isFinite(timeoutMs) || timeoutMs < 1000) {
@@ -22,14 +23,14 @@ const checks = [
   { name: "registration route", path: "/register", kind: "html" },
   { name: "office route shell", path: "/app/office", kind: "html" },
   { name: "website preview shell", path: "/app/website-preview", kind: "html" },
-  { name: "API health", path: "/api/v1/health", kind: "health" },
-  { name: "API readiness", path: "/api/v1/ready", kind: "ready" },
+  { name: "API health", url: `${apiBaseUrl}/health`, kind: "health" },
+  { name: "API readiness", url: `${apiBaseUrl}/ready`, kind: "ready" },
 ];
 
 const results = [];
 
 async function request(check) {
-  const url = `${baseUrl}${check.path}`;
+  const url = check.url ?? `${baseUrl}${check.path}`;
   const startedAt = Date.now();
 
   try {

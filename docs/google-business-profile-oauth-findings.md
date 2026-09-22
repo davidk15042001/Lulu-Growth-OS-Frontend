@@ -10,7 +10,7 @@
 
 Google Business Profile APIs require OAuth 2.0 authorization for protected business data. The official documentation identifies `https://www.googleapis.com/auth/business.manage` as the current OAuth scope. Before API calls work, the Google Cloud project must have the Business Profile APIs enabled and the project may need approval/access through Google's request process. The official setup documentation lists the associated APIs, including Account Management and Business Information APIs, and notes that there is no sandbox environment.
 
-The customer-facing flow should remain central-app OAuth: Lulu owns the Google OAuth client ID and secret in the backend; customers authorize their own Google account and do not enter client credentials. The callback URL for this project should be `https://lulu-ai.cn/api/v1/onboarding/oauth/google-business/callback`.
+The customer-facing flow should remain central-app OAuth: Lulu owns the Google OAuth client ID and secret in the backend; customers authorize their own Google account and do not enter client credentials. The callback URL for this project should be `https://api.lulu-ai.tech/api/v1/onboarding/oauth/google-business/callback`.
 
 ## Implementation implication
 
