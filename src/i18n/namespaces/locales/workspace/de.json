@@ -21343,5 +21343,19 @@
   "Publishing failed: {{message}}": "Veröffentlichung fehlgeschlagen: {{message}}",
   "The website was published, but WordPress reported: {{warning}}": "Die Website wurde veröffentlicht, aber WordPress meldet: {{warning}}",
   "Verified company data and connected sources were loaded.": "Bestätigte Unternehmensdaten und verbundene Quellen wurden geladen.",
-  "Website copy and SEO data were completed and saved.": "Website-Texte und SEO-Daten wurden fertiggestellt und gespeichert."
+  "Website copy and SEO data were completed and saved.": "Website-Texte und SEO-Daten wurden fertiggestellt und gespeichert.",
+  "Payment returned — confirming your access…": "Zahlung zurueckgekehrt - Zugriff wird bestaetigt...",
+  "Checkout returned — confirming your access…": "Checkout zurueckgekehrt - Zugriff wird bestaetigt...",
+  "Storage usage is invoiced by checkout link for explicit payment.": "Storage-Nutzung wird per Checkout-Link zur ausdruecklichen Zahlung berechnet.",
+  "Cloudflare R2 · weekly invoice": "Cloudflare R2 · woechentliche Rechnung",
+  "Storage PAYG payment preference": "Storage-PAYG-Zahlungspraeferenz",
+  "Storage invoices are paid manually by checkout link or one-time QR code. AI and advertising remain separate prepaid wallets.": "Storage-Rechnungen werden manuell per Checkout-Link oder einmaligem QR-Code bezahlt. AI und Werbung bleiben getrennte Prepaid-Wallets.",
+  "Complete the secure Airwallex page, then return here. Lulu will still require explicit checkout or QR confirmation for each storage invoice.": "Schliesse die sichere Airwallex-Seite ab und kehre dann hierher zurueck. Lulu verlangt weiterhin eine ausdrueckliche Checkout- oder QR-Bestaetigung fuer jede Storage-Rechnung.",
+  "Bank card payments remain available on each storage invoice through the secure Airwallex checkout link. PAYG usage requires an explicit checkout or QR payment.": "Kartenzahlungen bleiben fuer jede Storage-Rechnung ueber den sicheren Airwallex-Checkout-Link verfuegbar. PAYG-Nutzung erfordert eine ausdrueckliche Checkout- oder QR-Zahlung.",
+  "The payment preference is still pending. Complete the secure Airwallex page, then check again.": "Die Zahlungspraeferenz steht noch aus. Schliesse die sichere Airwallex-Seite ab und pruefe anschliessend erneut.",
+  "Confirming checkout…": "Checkout wird bestaetigt...",
+  "Manual checkout": "Manueller Checkout",
+  "{{0}} creates a new, short-lived QR code for each manual payment. Lulu never stores your wallet credentials.": "{{0}} erstellt fuer jede manuelle Zahlung einen neuen, kurzlebigen QR-Code. Lulu speichert niemals deine Wallet-Zugangsdaten.",
+  "Your payment preference is ready for manual storage invoice payment.": "Deine Zahlungspraeferenz ist fuer manuelle Storage-Rechnungszahlungen bereit.",
+  "Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.": "Storage-Rechnungen werden ueber den sicheren Airwallex-Checkout-Link bezahlt. Einmalige QR-Zahlung kann spaeter vom Lulu-Support aktiviert werden."
 }

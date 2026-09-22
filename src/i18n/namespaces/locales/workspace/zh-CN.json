@@ -21343,5 +21343,19 @@
   "Publishing failed: {{message}}": "发布失败：{{message}}",
   "The website was published, but WordPress reported: {{warning}}": "网站已发布，但 WordPress 报告：{{warning}}",
   "Verified company data and connected sources were loaded.": "已加载已验证的企业数据和连接的数据源。",
-  "Website copy and SEO data were completed and saved.": "网站文案和 SEO 数据已完成并保存。"
+  "Website copy and SEO data were completed and saved.": "网站文案和 SEO 数据已完成并保存。",
+  "Payment returned — confirming your access…": "付款已返回，正在确认访问权限…",
+  "Checkout returned — confirming your access…": "结账已返回，正在确认访问权限…",
+  "Storage usage is invoiced by checkout link for explicit payment.": "存储用量将通过结账链接开具发票，并需要明确付款。",
+  "Cloudflare R2 · weekly invoice": "Cloudflare R2 · 每周发票",
+  "Storage PAYG payment preference": "存储 PAYG 付款偏好",
+  "Storage invoices are paid manually by checkout link or one-time QR code. AI and advertising remain separate prepaid wallets.": "存储发票通过结账链接或一次性二维码手动支付。AI 和广告仍使用独立的预付费钱包。",
+  "Complete the secure Airwallex page, then return here. Lulu will still require explicit checkout or QR confirmation for each storage invoice.": "完成安全的 Airwallex 页面后返回此处。每张存储发票仍需要明确的结账或二维码确认。",
+  "Bank card payments remain available on each storage invoice through the secure Airwallex checkout link. PAYG usage requires an explicit checkout or QR payment.": "每张存储发票仍可通过安全的 Airwallex 结账链接使用银行卡支付。PAYG 用量需要明确的结账或二维码付款。",
+  "The payment preference is still pending. Complete the secure Airwallex page, then check again.": "付款偏好仍待完成。请完成安全的 Airwallex 页面后再次检查。",
+  "Confirming checkout…": "正在确认结账…",
+  "Manual checkout": "手动结账",
+  "{{0}} creates a new, short-lived QR code for each manual payment. Lulu never stores your wallet credentials.": "{{0}} 会为每次手动付款创建新的短期二维码。Lulu 绝不会存储你的钱包凭据。",
+  "Your payment preference is ready for manual storage invoice payment.": "你的付款偏好已可用于手动支付存储发票。",
+  "Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.": "存储发票通过安全的 Airwallex 结账链接支付。一次性二维码付款可稍后由 Lulu 支持启用。"
 }

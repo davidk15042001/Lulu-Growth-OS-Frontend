@@ -121,7 +121,7 @@ export type BillingState = {
     periodStart: string;
     periodEnd: string;
     nextInvoiceAt: string;
-    collectionMethod: "AUTO_CHARGE" | "CHARGE_ON_CHECKOUT";
+    collectionMethod: "CHARGE_ON_CHECKOUT";
     preferredPaymentMethod: "card" | "alipaycn" | "wechatpay" | null;
     aiAccessBlocked: boolean;
     blockedAt: string | null;
@@ -371,8 +371,7 @@ export const workspaceAppApi = {
     successUrl?: string;
     backUrl?: string;
   }) => requestApi<
-    | { mode: "card_setup"; paymentMethod: "card"; setupId: string; checkoutUrl: string }
-    | { mode: "manual_invoice"; paymentMethod: "alipaycn" | "wechatpay"; collectionMethod: "CHARGE_ON_CHECKOUT" }
+    { mode: "manual_invoice"; paymentMethod: "card" | "alipaycn" | "wechatpay"; collectionMethod: "CHARGE_ON_CHECKOUT" }
   >({
     path: workspaceApiPath(workspaceId, "/billing/payg/payment-method"),
     method: "POST",

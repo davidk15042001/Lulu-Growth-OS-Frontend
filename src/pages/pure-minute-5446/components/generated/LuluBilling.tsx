@@ -18,7 +18,7 @@ type BillingTab = typeof tabs[number]['id'];
 type PaygPaymentMethod = 'card' | 'wechatpay' | 'alipaycn';
 
 const paymentMethodDetails: Record<PaygPaymentMethod, { label: string; detail: string; icon: typeof CreditCard; automatic: boolean }> = {
-  card: { label: 'Bank card', detail: 'Save a card securely with Airwallex for automatic weekly storage collection.', icon: CreditCard, automatic: true },
+  card: { label: 'Bank card', detail: 'Pay each storage invoice through its secure Airwallex checkout link.', icon: CreditCard, automatic: false },
   wechatpay: { label: 'WeChat Pay', detail: 'Pay a storage invoice with a one-time QR code.', icon: QrCode, automatic: false },
   alipaycn: { label: 'Alipay', detail: 'Pay a storage invoice with a one-time QR code.', icon: Landmark, automatic: false },
 };
@@ -64,30 +64,30 @@ function PaygPaymentMethodSetup({
   onConfigure: (method: PaygPaymentMethod) => void;
   onSync: (setupId: string) => void;
 }) {
-  const methods = (['card', 'wechatpay', 'alipaycn'] as const).filter((method) => configuration.availablePaymentMethods.includes(method));
+  const methods = (['wechatpay', 'alipaycn'] as const).filter((method) => configuration.availablePaymentMethods.includes(method));
   const selected = configuration.selectedPaymentMethod;
   const pendingSetup = configuration.latestSetup?.status === 'PENDING' ? configuration.latestSetup : null;
   const selectedDetail = selected ? paymentMethodDetails[selected] : null;
   return <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
     <div className="flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-start sm:justify-between">
-      <div><div className="flex items-center gap-2"><WalletCards size={19} /><h2 className="text-lg font-semibold">Storage PAYG payment method</h2></div><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Choose how Lulu settles weekly storage usage. AI and advertising remain separate prepaid wallets.</p></div>
-      {configuration.status === 'active' && selectedDetail && <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700"><CheckCircle2 size={14} />{selectedDetail.automatic ? `${selectedDetail.label} configured` : `${selectedDetail.label} selected`}</span>}
-      {configuration.status === 'pending' && <span className="inline-flex w-fit items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-700"><LoaderCircle size={14} className="animate-spin" />Card setup pending</span>}
+      <div><div className="flex items-center gap-2"><WalletCards size={19} /><h2 className="text-lg font-semibold">Storage PAYG payment preference</h2></div><p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">Storage invoices are paid manually by checkout link or one-time QR code. AI and advertising remain separate prepaid wallets.</p></div>
+      {configuration.status === 'active' && selectedDetail && <span className="inline-flex w-fit items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-700"><CheckCircle2 size={14} />{selectedDetail.label} selected</span>}
+      {configuration.status === 'pending' && <span className="inline-flex w-fit items-center gap-2 rounded-full bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-700"><LoaderCircle size={14} className="animate-spin" />Payment preference pending</span>}
     </div>
-    {methods.length === 0 ? <p className="py-6 text-sm text-muted-foreground">No PAYG payment method is enabled for this billing account. Please contact Lulu support.</p> : <div className="mt-5 grid gap-3 lg:grid-cols-3">{methods.map((method) => {
+    {methods.length === 0 ? <p className="py-6 text-sm text-muted-foreground">Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.</p> : <div className="mt-5 grid gap-3 lg:grid-cols-3">{methods.map((method) => {
       const option = paymentMethodDetails[method];
       const Icon = option.icon;
       const isSelected = selected === method;
-      const hasPendingCardSetup = method === 'card' && pendingSetup;
-      const label = hasPendingCardSetup ? 'Check card setup' : isSelected && configuration.status === 'active' ? option.automatic ? 'Configured' : 'Selected' : method === 'card' ? 'Set up bank card' : `Use ${option.label}`;
+      const label = isSelected && configuration.status === 'active' ? 'Selected' : `Use ${option.label}`;
       return <article key={method} className={`rounded-xl border p-4 ${isSelected ? 'border-primary bg-primary/5' : 'border-border'}`}>
         <Icon size={19} /><h3 className="mt-4 font-semibold">{option.label}</h3><p className="mt-1 min-h-10 text-sm leading-5 text-muted-foreground">{option.detail}</p>
-        <p className="mt-3 text-xs font-medium text-muted-foreground">{option.automatic ? 'Automatic weekly collection' : 'Manual QR payment'}</p>
-        {canAdminister ? <button type="button" disabled={busy || (isSelected && configuration.status === 'active')} onClick={() => hasPendingCardSetup ? onSync(pendingSetup.id) : onConfigure(method)} className="mt-4 w-full rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">{busy ? 'Saving…' : label}</button> : <p className="mt-4 text-xs text-muted-foreground">A workspace administrator can configure payment.</p>}
+        <p className="mt-3 text-xs font-medium text-muted-foreground">Manual QR payment</p>
+        {canAdminister ? <button type="button" disabled={busy || (isSelected && configuration.status === 'active')} onClick={() => onConfigure(method)} className="mt-4 w-full rounded-lg bg-primary px-3 py-2.5 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">{busy ? 'Saving…' : label}</button> : <p className="mt-4 text-xs text-muted-foreground">A workspace administrator can configure payment.</p>}
       </article>;
     })}</div>}
-    {configuration.status === 'pending' && pendingSetup && <p className="mt-5 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-foreground">Complete the secure Airwallex card setup, then return here. Lulu verifies the saved payment source before automatic collection is enabled.</p>}
-    {configuration.status === 'active' && selectedDetail && <p className="mt-5 flex items-start gap-2 rounded-lg bg-secondary p-3 text-sm text-muted-foreground"><ShieldCheck size={17} className="mt-0.5 shrink-0 text-foreground" />{configuration.automaticCollection ? 'Your card is tokenized by Airwallex and used only for weekly Lulu usage invoices.' : `${selectedDetail.label} creates a new, short-lived QR code for each manual payment. Lulu never stores your wallet credentials.`}</p>}
+    {configuration.status === 'pending' && pendingSetup && <p className="mt-5 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-foreground">Complete the secure Airwallex page, then return here. Lulu will still require explicit checkout or QR confirmation for each storage invoice.</p>}
+    {configuration.status === 'active' && selectedDetail && <p className="mt-5 flex items-start gap-2 rounded-lg bg-secondary p-3 text-sm text-muted-foreground"><ShieldCheck size={17} className="mt-0.5 shrink-0 text-foreground" />{`${selectedDetail.label} creates a new, short-lived QR code for each manual payment. Lulu never stores your wallet credentials.`}</p>}
+    <p className="mt-5 rounded-lg bg-secondary p-3 text-sm text-muted-foreground">Bank card payments remain available on each storage invoice through the secure Airwallex checkout link. PAYG usage requires an explicit checkout or QR payment.</p>
   </section>;
 }
 
@@ -132,8 +132,8 @@ export function LuluBilling() {
     setConfiguring(true); setError('');
     try {
       const result = await workspaceAppApi.syncPaygPaymentMethodSetup(selectedWorkspace.id, setupId);
-      if (result.data.status === 'active') setNotice('Your bank card is configured for automatic weekly usage billing.');
-      else if (!automatic) setNotice('The card setup is still pending. Complete the secure Airwallex page, then check again.');
+      if (result.data.status === 'active') setNotice('Your payment preference is ready for manual storage invoice payment.');
+      else if (!automatic) setNotice('The payment preference is still pending. Complete the secure Airwallex page, then check again.');
       await load();
     } catch (cause) { setError(getFriendlyErrorMessage(cause, 'Card payment setup could not be verified.')); }
     finally { setConfiguring(false); }
@@ -152,7 +152,6 @@ export function LuluBilling() {
       const response = await workspaceAppApi.configurePaygPaymentMethod(selectedWorkspace.id, paymentMethod === 'card'
         ? { paymentMethod, successUrl: returnUrl, backUrl: returnUrl }
         : { paymentMethod });
-      if (response.data.mode === 'card_setup') { window.location.assign(response.data.checkoutUrl); return; }
       setNotice(`${paymentMethodDetails[paymentMethod].label} is ready for the next Cloudflare R2 storage invoice.`);
       await load();
     } catch (cause) { setError(getFriendlyErrorMessage(cause, 'Payment method could not be configured.')); }

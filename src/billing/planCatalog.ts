@@ -25,7 +25,7 @@ export const billingPlans: BillingPlan[] = [
       "AI insights and recommendations",
       "AI-assisted content and decisions",
       "Full automation of supported workflows",
-      "API and AWS usage collected automatically every Monday",
+      "Cloudflare R2 storage invoiced by manual checkout link",
       "5% commission on each Lulu-attributed sale",
     ],
     limitations: "Fully autonomous execution with prepaid ad spend as the only customer authorization boundary",
