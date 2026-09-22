@@ -111,6 +111,8 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   ASSISTANT_ACTION_REJECTED: "This assistant action was rejected and was not executed.",
   ASSISTANT_ACTION_EXECUTION_FAILED: "The assistant action could not be completed. Please try again.",
   ASSISTANT_ACTION_STATE_UNCERTAIN: "The server restarted while this action was running. Please review its result before trying again.",
+  ASSISTANT_ACTION_EXECUTING: "This action has already started and cannot be cancelled automatically. Lulu will reconcile its provider result.",
+  ASSISTANT_ACTION_CANCELLED: "This assistant action was cancelled before it was executed.",
   OFFICE_WORK_ITEM_VERSION_CONFLICT: "This work item changed while you were viewing it. Reload the employee before applying another control.",
   OFFICE_CONTROL_NOT_AVAILABLE: "This control is no longer available for the work item's current state.",
   VERSION_CONFLICT: "This record changed while you were viewing it. Reload the latest version and try again.",

@@ -182,5 +182,21 @@
   "Optional · max 60 characters": "可选 · 最多 60 个字符",
   "Required · country-specific bank code format": "必填 · 使用国家或地区对应的银行代码格式",
   "Optional · country-specific bank code format": "可选 · 使用国家或地区对应的银行代码格式",
-  "Business classification": "企业分类"
+  "Business classification": "企业分类",
+  "03 / 04 · Company profile": "03 / 04 · 公司简介",
+  "Austria": "奥地利",
+  "Company Information": "公司信息",
+  "Country / Region": "国家/地区",
+  "Finance": "财务",
+  "France": "法国",
+  "Germany": "德国",
+  "Must exactly match the new password.": "必须与新密码完全一致。",
+  "Netherlands": "荷兰",
+  "Other": "其他",
+  "Required · 12+ characters, upper case, lower case, number and special character.": "必填 · 至少 12 个字符，并包含大写字母、小写字母、数字和特殊字符。",
+  "Required when changing your password.": "更改密码时必填。",
+  "Software": "软件",
+  "Switzerland": "瑞士",
+  "United Kingdom": "英国",
+  "United States": "美国"
 }

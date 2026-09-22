@@ -182,5 +182,21 @@
   "Optional · max 60 characters": "Optional · maximal 60 Zeichen",
   "Required · country-specific bank code format": "Erforderlich · länderspezifisches Bankcodeformat",
   "Optional · country-specific bank code format": "Optional · länderspezifisches Bankcodeformat",
-  "Business classification": "Unternehmenskategorie"
+  "Business classification": "Unternehmenskategorie",
+  "03 / 04 · Company profile": "03 / 04 · Unternehmensprofil",
+  "Austria": "Österreich",
+  "Company Information": "Unternehmensinformationen",
+  "Country / Region": "Land / Region",
+  "Finance": "Finanzen",
+  "France": "Frankreich",
+  "Germany": "Deutschland",
+  "Must exactly match the new password.": "Muss exakt mit dem neuen Passwort übereinstimmen.",
+  "Netherlands": "Niederlande",
+  "Other": "Andere",
+  "Required · 12+ characters, upper case, lower case, number and special character.": "Erforderlich · mindestens 12 Zeichen, Großbuchstaben, Kleinbuchstaben, Zahl und Sonderzeichen.",
+  "Required when changing your password.": "Beim Ändern des Passworts erforderlich.",
+  "Software": "Software",
+  "Switzerland": "Schweiz",
+  "United Kingdom": "Vereinigtes Königreich",
+  "United States": "Vereinigte Staaten"
 }

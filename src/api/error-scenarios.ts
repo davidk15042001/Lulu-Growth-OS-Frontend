@@ -14,7 +14,7 @@ export type ErrorScenarioCategory =
 
 export type ErrorScenario = {
   category: ErrorScenarioCategory;
-  userAction: "retry" | "sign-in" | "check-input" | "contact-admin" | "connect-platform" | "wait" | "contact-support";
+  userAction: "retry" | "sign-in" | "check-input" | "contact-admin" | "connect-platform" | "wait" | "contact-support" | "dismiss";
   retryable: boolean;
 };
 
@@ -73,6 +73,8 @@ const exactScenarios: Record<string, ErrorScenario> = {
   ASSISTANT_ACTION_REJECTED: { category: "authorization", userAction: "contact-admin", retryable: false },
   ASSISTANT_ACTION_EXECUTION_FAILED: { category: "ai", userAction: "retry", retryable: true },
   ASSISTANT_ACTION_STATE_UNCERTAIN: { category: "server", userAction: "contact-support", retryable: false },
+  ASSISTANT_ACTION_EXECUTING: { category: "server", userAction: "contact-support", retryable: false },
+  ASSISTANT_ACTION_CANCELLED: { category: "resource", userAction: "dismiss", retryable: false },
   OFFICE_WORK_ITEM_VERSION_CONFLICT: { category: "resource", userAction: "retry", retryable: true },
   OFFICE_CONTROL_NOT_AVAILABLE: { category: "resource", userAction: "retry", retryable: true },
   VERSION_CONFLICT: { category: "resource", userAction: "retry", retryable: true },

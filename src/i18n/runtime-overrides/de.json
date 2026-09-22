@@ -6169,9 +6169,7 @@
   "Two-point trend": "Zwei-Punkt-Trend",
   "Forecast for": "Prognose fuer",
   "Low": "Niedrig",
-  "Base": "Basis",
   "High": "Hoch",
-  "Scenarios": "Szenarien",
   "Plan proposals": "Planvorschlaege",
   "No plan proposals await review": "Keine Planvorschlaege warten auf Pruefung",
   "Awaiting approval": "Freigabe ausstehend",
@@ -6192,7 +6190,6 @@
   "Plans in preparation": "Plaene in Vorbereitung",
   "Company Brain mission": "Company-Brain-Mission",
   "Plan": "Plan",
-  "Outcome": "Ergebnis",
   "Evidence reference": "Evidenzreferenz",
   "Review confidence": "Pruefkonfidenz",
   "Verify plan outcome": "Planergebnis pruefen",
@@ -6422,5 +6419,11 @@
   "The critical action is waiting at its governed approval boundary.": "Die kritische Aktion wartet an ihrer geregelten Freigabegrenze.",
   "The critical action was cancelled and nothing was sent.": "Die kritische Aktion wurde abgebrochen. Es wurde nichts gesendet.",
   "The critical action could not be completed.": "Die kritische Aktion konnte nicht abgeschlossen werden.",
-  "webrtc": "WebRTC"
+  "webrtc": "WebRTC",
+  "This action has already started and cannot be cancelled automatically. Lulu will reconcile its provider result.": "Diese Aktion wurde bereits gestartet und kann nicht automatisch abgebrochen werden. Lulu wird sein Anbieterergebnis abgleichen.",
+  "This assistant action was cancelled before it was executed.": "Diese Assistenzaktion wurde vor ihrer Ausführung abgebrochen.",
+  "We could not export this conversation.": "Wir konnten diese Konversation nicht exportieren.",
+  "Cancel this assistant action?": "Diese Assistentenaktion abbrechen?",
+  "The assistant action could not be cancelled.": "Die Assistenzaktion konnte nicht abgebrochen werden.",
+  "Confirmation required before this action can run.": "Bevor diese Aktion ausgeführt werden kann, ist eine Bestätigung erforderlich."
 }

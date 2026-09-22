@@ -3,8 +3,10 @@ import { aiApi, type AiMessage, type AssistantPendingAction, type Conversation }
 import { agentApi, type AgentRunDetails } from "../agents";
 import { getFriendlyErrorMessage } from "../client";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
+import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 
 export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
+  const t = useTranslation();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [messages, setMessages] = useState<AiMessage[]>([]);
@@ -77,7 +79,7 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
 
   return <LivePanelShell title="Live AI assistant" subtitle="Backend conversation and OpenAI integration" onClose={onClose}>
     <LiveError message={error} />
-    <LiveSection title="Conversations" action={<button className="lulu-live-button" onClick={() => void newConversation()} disabled={busy}>New</button>}>
+    <LiveSection title="Conversations" action={<div className="lulu-live-actions"><button className="lulu-live-button" onClick={() => void newConversation()} disabled={busy}>New</button>{selectedId && <button className="lulu-live-button" onClick={async () => { setBusy(true); setError(""); try { const response = await aiApi.exportConversation(workspaceId, selectedId); const blob = new Blob([JSON.stringify(response.data, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = `lulu-conversation-${selectedId}.json`; anchor.click(); URL.revokeObjectURL(url); } catch (cause) { setError(getFriendlyErrorMessage(cause, t("We could not export this conversation."))); } finally { setBusy(false); } }}>{t("Export")}</button>}</div>}>
       {conversations.length === 0 ? <LiveEmpty>No conversations yet.</LiveEmpty> : <div className="lulu-live-form"><label>Conversation<select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>{conversations.map((conversation) => <option key={conversation.id} value={conversation.id}>{conversation.title}</option>)}</select></label></div>}
       {selectedId && <button className="lulu-live-button danger" style={{ marginTop: 10 }} onClick={async () => { if (!window.confirm("Archive this conversation?")) return; await aiApi.archiveConversation(workspaceId, selectedId); setSelectedId(""); await loadConversations(); }}>Archive</button>}
     </LiveSection>
@@ -94,6 +96,7 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
       {actions.length === 0 ? <LiveEmpty>No assistant actions for this conversation.</LiveEmpty> : actions.map((action) => <article className="lulu-live-row" key={action.id}>
         <div className="lulu-live-row-top"><div><strong>{action.summary}</strong><span>{action.type}</span></div><span className={`lulu-live-badge ${action.status === "succeeded" ? "good" : ""}`}>{action.status.replaceAll("_", " ")}</span></div>
         {action.status === "pending_approval" && <small>This legacy action is being migrated to autonomous execution.</small>}
+        {action.requiresApproval && ["ready", "pending_approval"].includes(action.status) && <small>{t("Confirmation required before this action can run.")}</small>}
         {action.errorMessage && <span>{action.errorMessage}</span>}
         {action.result && <small>{JSON.stringify(action.result)}</small>}
         {["ready", "executing"].includes(action.status) && <button className="lulu-live-button" style={{ marginTop: 8 }} onClick={async () => {
@@ -102,6 +105,13 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
           catch (cause) { setError(getFriendlyErrorMessage(cause, "The assistant action could not be refreshed or executed.")); }
           finally { setBusy(false); }
         }}>Refresh status</button>}
+        {["ready", "pending_approval"].includes(action.status) && <button className="lulu-live-button danger" style={{ marginTop: 8, marginLeft: 8 }} onClick={async () => {
+          if (!window.confirm(t("Cancel this assistant action?"))) return;
+          setBusy(true); setError("");
+          try { await aiApi.cancelAction(workspaceId, action.conversationId, action.id); await loadActions(); }
+          catch (cause) { setError(getFriendlyErrorMessage(cause, t("The assistant action could not be cancelled."))); }
+          finally { setBusy(false); }
+        }}>{t("Cancel")}</button>}
       </article>)}
     </LiveSection>
   </LivePanelShell>;

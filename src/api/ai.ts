@@ -71,6 +71,9 @@ export const aiApi = {
   messages: (workspaceId: string, conversationId: string, query = "limit=200") => requestApi<{
     items: AiMessage[]; pagination: Pagination;
   }>({ path: workspaceApiPath(workspaceId, `/ai/conversations/${conversationId}/messages?${query}`) }),
+  exportConversation: (workspaceId: string, conversationId: string) => requestApi<Record<string, unknown>>({
+    path: workspaceApiPath(workspaceId, `/ai/conversations/${conversationId}/export`),
+  }),
   addMessage: (workspaceId: string, conversationId: string, content: string, metadata?: Record<string, unknown>) => requestApi<AiMessage>({
     path: workspaceApiPath(workspaceId, `/ai/conversations/${conversationId}/messages`),
     method: "POST",
@@ -88,5 +91,10 @@ export const aiApi = {
     path: workspaceApiPath(workspaceId, `/ai/conversations/${conversationId}/actions`),
     method: "POST",
     body: { actionId },
+  }),
+  cancelAction: (workspaceId: string, conversationId: string, actionId: string) => requestApi<AssistantPendingAction>({
+    path: workspaceApiPath(workspaceId, `/ai/conversations/${conversationId}/actions/${encodeURIComponent(actionId)}/cancel`),
+    method: "POST",
+    body: {},
   }),
 };
