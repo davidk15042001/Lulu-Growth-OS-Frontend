@@ -71,3 +71,8 @@ jobs:
           set -euo pipefail
           curl --fail --silent --show-error --retry 5 --retry-all-errors "$FRONTEND_DOMAIN/login" | grep -qi '<html'
           curl --fail --silent --show-error --retry 5 --retry-all-errors "$API_BASE_URL/health" | grep -q '"status":"ok"'
+          cors_headers="$(curl --fail --silent --show-error --retry 5 --retry-all-errors -D - -o /dev/null -X OPTIONS "$API_BASE_URL/auth/register" \
+            -H 'Origin: https://lulu-ai.tech' \
+            -H 'Access-Control-Request-Method: POST' \
+            -H 'Access-Control-Request-Headers: content-type')"
+          printf '%s\n' "$cors_headers" | grep -qi '^access-control-allow-origin: https://lulu-ai.tech'
