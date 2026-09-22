@@ -42,6 +42,7 @@ const WorkspaceRecordsPage=lazy(()=>import("./pages/canonical-records/WorkspaceR
 const ProfilePage=lazy(()=>import("./pages/canonical-profile/ProfilePage"));
 const GrowthPage=lazy(()=>import("./pages/canonical-growth/GrowthPage"));
 const FinancePage=lazy(()=>import("./pages/canonical-finance/FinanceTemplatesPage"));
+const PayoutsPage=lazy(()=>import("./pages/canonical-finance/PayoutsPage"));
 const KnowledgePage=lazy(()=>import("./pages/canonical-knowledge/KnowledgePage"));
 const CalendarMeetingPage=lazy(()=>import("./pages/calendar-meeting/CalendarMeetingPage"));
 const EmailWorkspacePage=lazy(()=>import("./pages/lulu-email-portal-9013/App"));
@@ -64,7 +65,6 @@ const FINANCE_RECORD_ROUTES = [
   ["sharp-morning-7310", "finance_plans", "Financial Planning"],
   ["sparklingly-city-3338", "finance_reconciliations", "Reconciliation"],
   ["radiant-hour-5376", "finance_recurring_revenue", "Recurring Revenue"],
-  ["lucky-park-8649", "finance_payouts", "Payouts"],
   ["vibrantly-second-9428", "finance_automations", "Financial Automation"],
   ["sturdy-week-3372", "finance_taxes", "Taxes"],
   ["boldly-field-4971", "finance_settings", "Finance Settings"],
@@ -390,6 +390,7 @@ export default function App() {
         <Route path="/app/tender-creek-3139" element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" /></AdminOnlyAppRoute>} />
         <Route path="/app/wondrous-cloud-1355" element={<AdminOnlyAppRoute><SocialPublishingPage /></AdminOnlyAppRoute>} />
         <Route path="/app/quietly-stone-4158" element={<AdminOnlyAppRoute><FinancePage /></AdminOnlyAppRoute>} />
+        <Route path="/app/lucky-park-8649" element={<AdminOnlyAppRoute><PayoutsPage /></AdminOnlyAppRoute>} />
         {FINANCE_RECORD_ROUTES.map(([slug, resourceType, title]) => <Route key={slug} path={`/app/${slug}`} element={<AdminOnlyAppRoute><WorkspaceRecordsPage activeSlug={slug} resourceType={resourceType} title={title} /></AdminOnlyAppRoute>} />)}
         <Route path={routes.app.quotesNew} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" create /></AdminOnlyAppRoute>} />
         <Route path={routes.app.quotes} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" /></AdminOnlyAppRoute>} />
@@ -401,6 +402,7 @@ export default function App() {
           if (page.slug === "keen-morning-6353") return null;
           if (page.slug === "nicely-ocean-1051") return null;
           if (page.slug === "mightily-shore-7108") return null;
+          if (page.slug === "lucky-park-8649") return null;
           if (page.slug === "smart-village-1099") return null;
           if (page.slug === "nicely-land-1864") return null;
           if (page.slug === "rich-field-1880") return null;

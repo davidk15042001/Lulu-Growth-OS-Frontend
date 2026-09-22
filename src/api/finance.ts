@@ -59,6 +59,50 @@ export type FinancialTrialBalance = {
   balanced: boolean;
 };
 
+export type PayoutAccount = {
+  id: string;
+  workspaceId: string;
+  provider: string;
+  providerBeneficiaryId: string;
+  label: string;
+  currency: string;
+  status: string;
+  createdAt: string;
+};
+
+export type Payout = {
+  id: string;
+  workspaceId: string;
+  payoutAccountId: string;
+  provider: string;
+  providerTransferId: string | null;
+  amount: string;
+  currency: string;
+  reference: string;
+  status: string;
+  providerStatus: string | null;
+  failureCode: string | null;
+  requestedAt: string;
+  submittedAt: string | null;
+  completedAt: string | null;
+  payoutAccountLabel: string;
+  createdAt: string;
+};
+
+export type PayoutBalance = {
+  currency: string;
+  grossCollected: string;
+  reserved: string;
+  paidOut: string;
+  available: string;
+};
+
+export type PayoutsData = {
+  accounts: PayoutAccount[];
+  items: Payout[];
+  summary: PayoutBalance[];
+};
+
 export type JournalFilters = {
   page?: number;
   limit?: number;
@@ -115,5 +159,20 @@ export const financeApi = {
       path: path(workspaceId, `/trial-balance${queryString({ currency, asOf })}`),
       signal,
     });
+  },
+  listPayouts(workspaceId: string, limit = 50, signal?: AbortSignal) {
+    return requestApi<PayoutsData>({
+      path: path(workspaceId, `/payouts${queryString({ limit })}`),
+      signal,
+    });
+  },
+  createPayoutAccount(workspaceId: string, body: { providerBeneficiaryId: string; label: string; currency: string }) {
+    return requestApi<PayoutAccount>({ path: path(workspaceId, "/payout-accounts"), method: "POST", body });
+  },
+  requestPayout(workspaceId: string, body: { payoutAccountId: string; amount: string; currency: string; reference: string; idempotencyKey: string }) {
+    return requestApi<Payout>({ path: path(workspaceId, "/payouts"), method: "POST", body });
+  },
+  submitPayout(workspaceId: string, payoutId: string) {
+    return requestApi<Payout>({ path: path(workspaceId, `/payouts/${encodeURIComponent(payoutId)}/submit`), method: "POST" });
   },
 };
