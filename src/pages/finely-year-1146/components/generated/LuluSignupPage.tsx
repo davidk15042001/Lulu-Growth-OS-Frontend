@@ -3,6 +3,7 @@ import { AlertCircle, Check, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { clearPendingEmail, clearSelectedWorkspaceId } from '../../../../api/session';
+const LEGAL_ENTITY_NAME = 'Hong Kong Lulu Development Limited';
 const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 12 characters', test: value => value.length >= 12 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
 
 export function LuluSignupPage() {
@@ -164,6 +165,7 @@ export function LuluSignupPage() {
             <a href="/terms.html" className="transition hover:text-[var(--foreground)]">Terms</a>
             <a href="/.well-known/security.txt" className="transition hover:text-[var(--foreground)]">Security</a>
           </nav>
+          <p className="mt-4 text-center text-[11px] text-[var(--muted-foreground)]">{LEGAL_ENTITY_NAME}</p>
         </div>
       </section>
 
