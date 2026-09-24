@@ -69,6 +69,8 @@ const promptSuggestions = [
   'Guarded execution',
 ] as const;
 
+const LEGAL_ENTITY_NAME = 'Hong Kong Lulu Development Limited';
+
 const productColorways = [
   { name: 'Midnight', label: 'Operations', text: 'Keep every workspace action connected to the company record.' },
   { name: 'Starlight', label: 'Knowledge', text: 'Turn policies, files and context into usable operating memory.' },
@@ -365,6 +367,7 @@ export const LuluLoginPage = () => {
 
       <footer className="lulu-exec-footer">
         <span data-lulu-no-translate="true" translate="no">© Lulu AI</span>
+        <small>{LEGAL_ENTITY_NAME}</small>
         <div>
           <a href="/privacy.html">{t('Privacy')}</a>
           <a href="/terms.html">{t('Terms')}</a>
