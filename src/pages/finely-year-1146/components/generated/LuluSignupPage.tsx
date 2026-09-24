@@ -164,6 +164,7 @@ export function LuluSignupPage() {
             <a href="/terms.html" className="transition hover:text-[var(--foreground)]">Terms</a>
             <a href="/.well-known/security.txt" className="transition hover:text-[var(--foreground)]">Security</a>
           </nav>
+          <p className="mt-4 text-center text-[11px] text-[var(--muted-foreground)]">Hong Kong Lulu Development Limited</p>
         </div>
       </section>
 

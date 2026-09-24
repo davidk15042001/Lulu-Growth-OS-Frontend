@@ -365,6 +365,7 @@ export const LuluLoginPage = () => {
 
       <footer className="lulu-exec-footer">
         <span data-lulu-no-translate="true" translate="no">© Lulu AI</span>
+        <small>Hong Kong Lulu Development Limited</small>
         <div>
           <a href="/privacy.html">{t('Privacy')}</a>
           <a href="/terms.html">{t('Terms')}</a>
