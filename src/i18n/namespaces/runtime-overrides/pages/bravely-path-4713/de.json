@@ -19,10 +19,15 @@
   "01 / 02 · Company profile": "01 / 02 · Firmenprofil",
   "01 / 04 · Secure account & company": "01 / 04 · Sicheres Konto und Unternehmen",
   "Confirm the account owner and the business Lulu will operate for.": "Bestätigen Sie den Kontoinhaber und das Unternehmen, für das Lulu tätig sein wird.",
+  "Do you already have a website?": "Haben Sie bereits eine Website?",
   "Full name": "Vollständiger Name",
   "Hide password": "Passwort ausblenden",
+  "Lulu can show website growth surfaces.": "Lulu kann Website-Wachstumsbereiche anzeigen.",
+  "No website yet": "Noch keine Website",
   "Password": "Passwort",
   "Passwords do not match.": "Die Passwörter stimmen nicht überein.",
   "Repeat password": "Passwort wiederholen",
-  "Show password": "Passwort anzeigen"
+  "Show password": "Passwort anzeigen",
+  "Website, SEO, GEO and AEO agents stay hidden.": "Website-, SEO-, GEO- und AEO-Agenten bleiben ausgeblendet.",
+  "Yes, we have one": "Ja, wir haben eine"
 }

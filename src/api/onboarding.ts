@@ -161,12 +161,19 @@ export type AiBusinessProfile = {
   };
 };
 
+export type AiPreferences = {
+  detectionSettings: Record<string, boolean>;
+  searchPriorities: Record<string, "low" | "medium" | "high">;
+  approvalPreferences: Record<string, "always_ask" | "ask_high_impact" | "auto">;
+};
+
 export type OnboardingSnapshot = {
   workspace: Workspace;
   offerings: Offering[];
   customerSegments: CustomerSegment[];
   competitors: Competitor[];
   platforms: Platform[];
+  aiPreferences: AiPreferences | null;
   completion: Record<string, unknown>;
   aiBusinessProfile: AiBusinessProfile | null;
 };
@@ -224,7 +231,7 @@ export const onboardingApi = {
   catalogImport:(workspaceId:string,activationId:string)=>requestApi<CatalogImport>({path:workspaceApiPath(workspaceId,`/onboarding/knowledge-activation/${activationId}`)}),
   confirmCatalogImport:(workspaceId:string,activationId:string)=>requestApi<{completed:true;activationId:string;productIds:string[];classification:Record<string,unknown>;premiumJobs:Array<{productId:string;variantId?:string;status:string}>}>({path:workspaceApiPath(workspaceId,`/onboarding/knowledge-activation/${activationId}/confirm`),method:'POST',body:{},timeoutMs:120_000}),
   saveCompanyInformation: (workspaceId: string, input: {
-    fullName?:string;
+    fullName?:string; hasWebsite?: boolean;
     companyName: string; industry: string | null; countryRegion: string | null; taxId: string | null; address: string | null;
   }) => requestApi<Workspace>({ path: workspaceApiPath(workspaceId, "/onboarding/company-information"), method: "PATCH", body: input }),
   saveBusinessDescription: (workspaceId: string, input: {
