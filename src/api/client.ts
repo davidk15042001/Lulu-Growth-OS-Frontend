@@ -371,7 +371,13 @@ export function resolveApiMediaUrl(value: string | null | undefined) {
   const url = String(value ?? "").trim();
   if (!url) return null;
   if (/^(blob:|data:|https?:\/\/)/i.test(url)) return url;
-  const base = /^https?:\/\//i.test(API_BASE_URL) ? API_BASE_URL : window.location.origin;
+  // Production media is served by the API hostname; the frontend hostname returns the SPA shell.
+  const isProductionFrontend = ["lulu-ai.tech", "www.lulu-ai.tech"].includes(window.location.hostname);
+  const base = /^https?:\/\//i.test(API_BASE_URL)
+    ? API_BASE_URL
+    : isProductionFrontend
+      ? "https://api.lulu-ai.tech/api/v1"
+      : window.location.origin;
   try {
     return new URL(url, base).toString();
   } catch {
