@@ -370,9 +370,20 @@ const ACCESS_TOKEN_STORAGE_KEY = "lulu_access_token";
 export function resolveApiMediaUrl(value: string | null | undefined) {
   const url = String(value ?? "").trim();
   if (!url) return null;
-  if (/^(blob:|data:|https?:\/\/)/i.test(url)) return url;
+  if (/^(blob:|data:)/i.test(url)) return url;
   // Production media is served by the API hostname; the frontend hostname returns the SPA shell.
   const isProductionFrontend = ["lulu-ai.tech", "www.lulu-ai.tech"].includes(window.location.hostname);
+  if (/^https?:\/\//i.test(url)) {
+    try {
+      const parsed = new URL(url);
+      if (isProductionFrontend && ["lulu-ai.tech", "www.lulu-ai.tech"].includes(parsed.hostname) && parsed.pathname.startsWith("/api/v1/")) {
+        return new URL(`${parsed.pathname}${parsed.search}${parsed.hash}`, "https://api.lulu-ai.tech").toString();
+      }
+    } catch {
+      return url;
+    }
+    return url;
+  }
   const base = /^https?:\/\//i.test(API_BASE_URL)
     ? API_BASE_URL
     : isProductionFrontend

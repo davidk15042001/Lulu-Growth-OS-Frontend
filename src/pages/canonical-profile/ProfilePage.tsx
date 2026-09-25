@@ -176,6 +176,7 @@ export default function ProfilePage() {
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldErrorKey,string>>>({});
   const [notice, setNotice] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [logoFileName, setLogoFileName] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
   const [pendingLogo, setPendingLogo] = useState<PendingLogo | null>(null);
@@ -185,6 +186,10 @@ export default function ProfilePage() {
   const [logoLoadError, setLogoLoadError] = useState(false);
   const cropImageRef = useRef<HTMLImageElement | null>(null);
   const cropDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
+
+  useEffect(() => () => {
+    if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
+  }, [logoPreviewUrl]);
 
   const workspaceId = selectedWorkspace?.id;
   const activationMode = selectedWorkspace?.onboardingStep === 'profile_completion' && !selectedWorkspace.onboardingCompletedAt;
@@ -233,6 +238,7 @@ export default function ProfilePage() {
             lastName: response.data.lastName ?? current.lastName,
           }));
           setLogoUrl(resolveApiMediaUrl(response.data.logoUrl));
+          setLogoPreviewUrl(null);
           setLogoFileName(response.data.logoFileName ?? null);
           setLogoLoadError(false);
           setProfileGateActive(activationMode || (Array.isArray(response.data.missingRequiredFields) && response.data.missingRequiredFields.length > 0));
@@ -398,7 +404,9 @@ export default function ProfilePage() {
     setLogoUploading(true); setError(''); setNotice('');
     try {
       const response = await workspaceProfileApi.uploadLogo(workspaceId, file);
-      setLogoUrl(resolveApiMediaUrl(response.data.logoUrl)); setLogoFileName(response.data.logoFileName); setLogoLoadError(false);
+      setLogoUrl(resolveApiMediaUrl(response.data.logoUrl));
+      setLogoPreviewUrl(URL.createObjectURL(file));
+      setLogoFileName(response.data.logoFileName); setLogoLoadError(false);
       if (fieldErrors.companyLogo) setFieldErrors((current) => ({ ...current, companyLogo: undefined }));
       setNotice(t('Company logo was uploaded and will appear on new invoices and quotes.'));
       return true;
@@ -468,7 +476,7 @@ export default function ProfilePage() {
     setLogoUploading(true); setError(''); setNotice('');
     try {
       await workspaceProfileApi.deleteLogo(workspaceId);
-      setLogoUrl(null); setLogoFileName(null); setNotice(t('Company logo was removed.'));
+      setLogoUrl(null); setLogoPreviewUrl(null); setLogoFileName(null); setNotice(t('Company logo was removed.'));
       if (requiredProfileMode) setFieldErrors((current) => ({ ...current, companyLogo: t('Required') }));
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, t('The company logo could not be removed.')));
@@ -602,7 +610,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className={`mt-4 flex min-h-24 items-center gap-4 rounded-xl border border-dashed bg-[var(--secondary)]/40 p-4 ${fieldErrors.companyLogo ? 'border-rose-400' : 'border-[var(--border)]'}`} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); openLogoCropper(event.dataTransfer.files?.[0]); }}>
-              {logoUrl && !logoLoadError ? <img src={logoUrl} alt={profile.companyName ? `${profile.companyName} logo` : t('Company logo')} onError={() => setLogoLoadError(true)} className="max-h-20 max-w-48 rounded-lg bg-white object-contain p-2 shadow-sm" /> : <div className="grid h-20 w-32 place-items-center rounded-lg bg-white px-2 text-center text-xs text-[var(--muted-foreground)]">{logoUrl ? t('Logo preview unavailable') : t('No logo uploaded')}</div>}
+              {logoUrl && !logoLoadError ? <img src={logoPreviewUrl ?? logoUrl} alt={profile.companyName ? `${profile.companyName} logo` : t('Company logo')} onError={() => { if (logoPreviewUrl) setLogoPreviewUrl(null); else setLogoLoadError(true); }} className="max-h-20 max-w-48 rounded-lg bg-white object-contain p-2 shadow-sm" /> : <div className="grid h-20 w-32 place-items-center rounded-lg bg-white px-2 text-center text-xs text-[var(--muted-foreground)]">{logoUrl ? t('Logo preview unavailable') : t('No logo uploaded')}</div>}
               <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('Drag and drop, or choose PNG, JPG, JPEG, WebP or GIF')}</p><p className="mt-1">{t('Maximum 5 MB')}</p>{fieldErrors.companyLogo ? <p className="mt-1 font-medium text-rose-700">{fieldErrors.companyLogo}</p> : null}</div>
             </div>
           </div>
