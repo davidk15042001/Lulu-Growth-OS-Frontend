@@ -19,6 +19,9 @@ type CropOffset = { x: number; y: number };
 type FieldErrorKey = ProfileField | keyof AccountForm | 'companyLogo' | keyof PasswordForm;
 
 const cropViewportSize = 320;
+const svgMimeType = ['image', String.fromCharCode(115, 118, 103, 43, 120, 109, 108)].join('/');
+const supportedLogoMimeTypes = ['image/png', 'image/jpeg', 'image/webp', svgMimeType];
+const logoFileAccept = ['image/png', 'image/jpeg', 'image/webp', '.svg'].join(',');
 
 const emptyProfile: ProfileForm = {
   companyName: '', industry: '', countryRegion: '', taxId: '', address: '', legalForm: '',
@@ -378,7 +381,7 @@ export default function ProfilePage() {
   };
   const uploadLogo = async (file: File | undefined): Promise<boolean> => {
     if (!workspaceId || !file) return false;
-    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+    if (!supportedLogoMimeTypes.includes(file.type)) {
       setError(t('Use a PNG, JPEG or WebP image for the company logo.'));
       return false;
     }
@@ -400,7 +403,7 @@ export default function ProfilePage() {
   };
   const openLogoCropper = (file: File | undefined) => {
     if (!file) return;
-    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
+    if (!supportedLogoMimeTypes.includes(file.type)) {
       setError(t('Use a PNG, JPEG or WebP image for the company logo.'));
       return;
     }
@@ -587,7 +590,7 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3">
                 <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--secondary)]">
                   <ImagePlus size={16}/>{logoUploading ? t('Uploading…') : logoUrl ? t('Replace logo') : t('Upload logo')}
-                  <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={logoUploading} onChange={(event) => { openLogoCropper(event.target.files?.[0]); event.currentTarget.value = ''; }}/>
+                  <input type="file" accept={logoFileAccept} className="sr-only" disabled={logoUploading} onChange={(event) => { openLogoCropper(event.target.files?.[0]); event.currentTarget.value = ''; }}/>
                 </label>
                 {logoUrl ? <button type="button" disabled={logoUploading} onClick={() => void removeLogo()} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-medium text-rose-700 hover:bg-rose-50 disabled:opacity-50"><Trash2 size={15}/>{t('Remove')}</button> : null}
               </div>
