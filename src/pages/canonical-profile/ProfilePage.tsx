@@ -23,6 +23,10 @@ const svgMimeType = ['image', String.fromCharCode(115, 118, 103, 43, 120, 109, 1
 const supportedLogoMimeTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', svgMimeType];
 const logoFileAccept = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'].join(',');
 
+const workspaceLogoPreviewUrl = (workspaceId: string, version?: string | null) => resolveApiMediaUrl(
+  `/api/v1/public/workspaces/${encodeURIComponent(workspaceId)}/logo?v=${encodeURIComponent(version ?? String(Date.now()))}`,
+);
+
 function isSupportedLogoFile(file: File) {
   if (supportedLogoMimeTypes.includes(file.type.toLowerCase())) return true;
   const extension = file.name.split('.').pop()?.toLowerCase();
@@ -237,7 +241,7 @@ export default function ProfilePage() {
             firstName: response.data.firstName ?? current.firstName,
             lastName: response.data.lastName ?? current.lastName,
           }));
-          setLogoUrl(resolveApiMediaUrl(response.data.logoUrl));
+          setLogoUrl(response.data.logoUrl ? workspaceLogoPreviewUrl(workspaceId, response.data.logoUpdatedAt) : null);
           setLogoPreviewUrl(null);
           setLogoFileName(response.data.logoFileName ?? null);
           setLogoLoadError(false);
@@ -404,7 +408,7 @@ export default function ProfilePage() {
     setLogoUploading(true); setError(''); setNotice('');
     try {
       const response = await workspaceProfileApi.uploadLogo(workspaceId, file);
-      setLogoUrl(resolveApiMediaUrl(response.data.logoUrl));
+      setLogoUrl(workspaceLogoPreviewUrl(workspaceId));
       setLogoPreviewUrl(URL.createObjectURL(file));
       setLogoFileName(response.data.logoFileName); setLogoLoadError(false);
       if (fieldErrors.companyLogo) setFieldErrors((current) => ({ ...current, companyLogo: undefined }));
