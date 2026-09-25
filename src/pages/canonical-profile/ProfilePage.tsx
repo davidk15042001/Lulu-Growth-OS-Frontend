@@ -30,7 +30,7 @@ const workspaceLogoPreviewUrl = (workspaceId: string, version?: string | null) =
 const fetchWorkspaceLogoPreview = async (workspaceId: string) => {
   const url = workspaceLogoPreviewUrl(workspaceId);
   if (!url) return null;
-  const response = await fetch(url, { headers: { Accept: 'image/*' } });
+  const response = await fetch(url);
   if (!response.ok) throw new Error(`Logo preview request failed with ${response.status}`);
   return URL.createObjectURL(await response.blob());
 };
