@@ -21593,7 +21593,7 @@
   "Loading quality detail…": "正在加载质量详情……",
   "Company logo": "公司标志",
   "Please choose a logo before uploading.": "请先选择要上传的标志。",
-  "Use a PNG, JPEG or WebP image for the company logo.": "请使用 PNG、JPEG 或 WebP 图片作为公司标志。",
+  "Use a PNG, JPG, JPEG, WebP or GIF image for the company logo.": "请使用 PNG、JPG、JPEG、WebP 或 GIF 图片作为公司标志。",
   "The company logo must be 5 MB or smaller.": "公司标志必须小于或等于 5 MB。",
   "Company logo was uploaded and will appear on new invoices and quotes.": "公司标志已上传，将显示在新的发票和报价单上。",
   "The company logo could not be uploaded.": "公司标志上传失败。",

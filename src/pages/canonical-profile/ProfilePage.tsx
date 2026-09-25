@@ -20,8 +20,14 @@ type FieldErrorKey = ProfileField | keyof AccountForm | 'companyLogo' | keyof Pa
 
 const cropViewportSize = 320;
 const svgMimeType = ['image', String.fromCharCode(115, 118, 103, 43, 120, 109, 108)].join('/');
-const supportedLogoMimeTypes = ['image/png', 'image/jpeg', 'image/webp', svgMimeType];
-const logoFileAccept = ['image/png', 'image/jpeg', 'image/webp', '.svg'].join(',');
+const supportedLogoMimeTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', svgMimeType];
+const logoFileAccept = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'].join(',');
+
+function isSupportedLogoFile(file: File) {
+  if (supportedLogoMimeTypes.includes(file.type.toLowerCase())) return true;
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  return Boolean(extension && ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'].includes(extension));
+}
 
 const emptyProfile: ProfileForm = {
   companyName: '', industry: '', countryRegion: '', taxId: '', address: '', legalForm: '',
@@ -381,8 +387,8 @@ export default function ProfilePage() {
   };
   const uploadLogo = async (file: File | undefined): Promise<boolean> => {
     if (!workspaceId || !file) return false;
-    if (!supportedLogoMimeTypes.includes(file.type)) {
-      setError(t('Use a PNG, JPEG or WebP image for the company logo.'));
+    if (!isSupportedLogoFile(file)) {
+      setError(t('Use a PNG, JPG, JPEG, WebP or GIF image for the company logo.'));
       return false;
     }
     if (file.size > 5 * 1024 * 1024) {
@@ -403,8 +409,8 @@ export default function ProfilePage() {
   };
   const openLogoCropper = (file: File | undefined) => {
     if (!file) return;
-    if (!supportedLogoMimeTypes.includes(file.type)) {
-      setError(t('Use a PNG, JPEG or WebP image for the company logo.'));
+    if (!isSupportedLogoFile(file)) {
+      setError(t('Use a PNG, JPG, JPEG, WebP or GIF image for the company logo.'));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
@@ -597,7 +603,7 @@ export default function ProfilePage() {
             </div>
             <div className={`mt-4 flex min-h-24 items-center gap-4 rounded-xl border border-dashed bg-[var(--secondary)]/40 p-4 ${fieldErrors.companyLogo ? 'border-rose-400' : 'border-[var(--border)]'}`} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); openLogoCropper(event.dataTransfer.files?.[0]); }}>
               {logoUrl && !logoLoadError ? <img src={logoUrl} alt={profile.companyName ? `${profile.companyName} logo` : t('Company logo')} onError={() => setLogoLoadError(true)} className="max-h-20 max-w-48 rounded-lg bg-white object-contain p-2 shadow-sm" /> : <div className="grid h-20 w-32 place-items-center rounded-lg bg-white px-2 text-center text-xs text-[var(--muted-foreground)]">{logoUrl ? t('Logo preview unavailable') : t('No logo uploaded')}</div>}
-              <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('Drag and drop, or choose PNG, JPEG or WebP')}</p><p className="mt-1">{t('Maximum 5 MB')}</p>{fieldErrors.companyLogo ? <p className="mt-1 font-medium text-rose-700">{fieldErrors.companyLogo}</p> : null}</div>
+              <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('Drag and drop, or choose PNG, JPG, JPEG, WebP or GIF')}</p><p className="mt-1">{t('Maximum 5 MB')}</p>{fieldErrors.companyLogo ? <p className="mt-1 font-medium text-rose-700">{fieldErrors.companyLogo}</p> : null}</div>
             </div>
           </div>
           <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{requiredProfileMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', requiredProfileMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: requiredProfileMode })}{field('bankCode', requiredProfileMode ? `${t('Bank code')} *` : t('Bank code'), { required: requiredProfileMode })}{field('bankOpeningBank', requiredProfileMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: requiredProfileMode, wide: requiredProfileMode })}{field('bankBranch', requiredProfileMode ? `${t('Branch')} *` : t('Branch'), { required: requiredProfileMode, wide: requiredProfileMode })}</div></div>

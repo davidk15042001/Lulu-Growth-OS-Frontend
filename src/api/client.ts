@@ -135,7 +135,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   S3_DOWNLOAD_FAILED: "Amazon S3 could not load the document preview.",
   S3_DELETE_FAILED: "Amazon S3 could not delete the document.",
   WORKSPACE_LOGO_EMPTY: "Please choose a logo before uploading.",
-  WORKSPACE_LOGO_TYPE_UNSUPPORTED: "Use a PNG, JPEG or WebP image for the company logo.",
+  WORKSPACE_LOGO_TYPE_UNSUPPORTED: "Use a PNG, JPG, JPEG, WebP or GIF image for the company logo.",
   WORKSPACE_LOGO_TOO_LARGE: "The company logo must be 5 MB or smaller.",
   WORKSPACE_LOGO_NOT_FOUND: "The company logo could not be found.",
   DATABASE_MIGRATION_MISSING: "Document storage is not enabled on the server yet.",
