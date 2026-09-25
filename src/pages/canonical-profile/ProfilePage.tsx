@@ -27,6 +27,14 @@ const workspaceLogoPreviewUrl = (workspaceId: string, version?: string | null) =
   `/api/v1/public/workspaces/${encodeURIComponent(workspaceId)}/logo${version ? `?v=${encodeURIComponent(version)}` : ''}`,
 );
 
+const fetchWorkspaceLogoPreview = async (workspaceId: string) => {
+  const url = workspaceLogoPreviewUrl(workspaceId);
+  if (!url) return null;
+  const response = await fetch(url, { headers: { Accept: 'image/*' } });
+  if (!response.ok) throw new Error(`Logo preview request failed with ${response.status}`);
+  return URL.createObjectURL(await response.blob());
+};
+
 function isSupportedLogoFile(file: File) {
   if (supportedLogoMimeTypes.includes(file.type.toLowerCase())) return true;
   const extension = file.name.split('.').pop()?.toLowerCase();
@@ -245,6 +253,15 @@ export default function ProfilePage() {
           setLogoPreviewUrl(null);
           setLogoFileName(response.data.logoFileName ?? null);
           setLogoLoadError(false);
+          if (response.data.logoUrl) {
+            void fetchWorkspaceLogoPreview(workspaceId).then((previewUrl) => {
+              if (!previewUrl) return;
+              if (!active) URL.revokeObjectURL(previewUrl);
+              else setLogoPreviewUrl(previewUrl);
+            }).catch(() => {
+              // Keep the direct image URL as a fallback when the blob request is unavailable.
+            });
+          }
           setProfileGateActive(activationMode || (Array.isArray(response.data.missingRequiredFields) && response.data.missingRequiredFields.length > 0));
         }
         else if (selectedWorkspace) setProfile(workspaceToProfileForm(selectedWorkspace));
