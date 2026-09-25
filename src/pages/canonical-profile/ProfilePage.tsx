@@ -24,7 +24,7 @@ const supportedLogoMimeTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/w
 const logoFileAccept = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'].join(',');
 
 const workspaceLogoPreviewUrl = (workspaceId: string, version?: string | null) => resolveApiMediaUrl(
-  `/api/v1/public/workspaces/${encodeURIComponent(workspaceId)}/logo?v=${encodeURIComponent(version ?? String(Date.now()))}`,
+  `/api/v1/public/workspaces/${encodeURIComponent(workspaceId)}/logo${version ? `?v=${encodeURIComponent(version)}` : ''}`,
 );
 
 function isSupportedLogoFile(file: File) {
@@ -241,7 +241,7 @@ export default function ProfilePage() {
             firstName: response.data.firstName ?? current.firstName,
             lastName: response.data.lastName ?? current.lastName,
           }));
-          setLogoUrl(response.data.logoUrl ? workspaceLogoPreviewUrl(workspaceId, response.data.logoUpdatedAt) : null);
+          setLogoUrl(response.data.logoUrl ? workspaceLogoPreviewUrl(workspaceId) : null);
           setLogoPreviewUrl(null);
           setLogoFileName(response.data.logoFileName ?? null);
           setLogoLoadError(false);
