@@ -122,7 +122,8 @@ function validateProfileField(key: ProfileField, value: string, required: boolea
   }
   if (key === 'bankCode' && country) {
     const code = text.replace(/\s+/g, '');
-    const valid = country === 'United States' ? /^\d{9}$/.test(code)
+    const valid = country === 'Hong Kong' ? /^\d{3}$/.test(code)
+      : country === 'United States' ? /^\d{9}$/.test(code)
       : country === 'Germany' ? /^\d{8}$/.test(code) || /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/i.test(code)
       : country === 'China' ? /^\d{12}$/.test(code) || /^[A-Z]{4}CN[A-Z0-9]{2}([A-Z0-9]{3})?$/i.test(code)
       : /^[A-Z0-9]{4,12}$/i.test(code);
@@ -552,11 +553,11 @@ export default function ProfilePage() {
     } catch (cause) { setError(getFriendlyErrorMessage(cause, t('MFA could not be disabled.'))); }
     finally { setMfaBusy(false); }
   };
-  const field = (key: keyof ProfileForm, label: string, options: { type?: string; sensitive?: boolean; wide?: boolean; list?: string; required?: boolean } = {}) => (
+  const field = (key: keyof ProfileForm, label: string, options: { type?: string; inputMode?: 'text'|'numeric'|'decimal'|'tel'|'search'|'email'|'url'; maxLength?: number; sensitive?: boolean; wide?: boolean; list?: string; required?: boolean } = {}) => (
     <label key={key} className={options.wide ? 'sm:col-span-2' : undefined}>
       <span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{label}</span>
       <div className="relative">
-        <input id={`profile-${key}`} required={options.required} aria-required={options.required} aria-invalid={Boolean(fieldErrors[key])} aria-describedby={`profile-${key}-rule`} list={options.list} type={options.sensitive ? 'password' : options.type ?? 'text'} value={profile[key] ?? ''} onChange={(event) => updateField(key, event.target.value)} onBlur={() => { void validateAndSetProfileField(key); }} className={`${inputClass}${options.sensitive ? ' pr-10' : ''} ${fieldErrors[key] ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="off" />
+        <input id={`profile-${key}`} required={options.required} aria-required={options.required} aria-invalid={Boolean(fieldErrors[key])} aria-describedby={`profile-${key}-rule`} list={options.list} type={options.sensitive ? 'password' : options.type ?? 'text'} inputMode={options.inputMode} maxLength={options.maxLength} value={profile[key] ?? ''} onChange={(event) => updateField(key, event.target.value)} onBlur={() => { void validateAndSetProfileField(key); }} className={`${inputClass}${options.sensitive ? ' pr-10' : ''} ${fieldErrors[key] ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="off" />
       </div>
       <span id={`profile-${key}-rule`} className={`mt-1.5 block text-[11px] ${fieldErrors[key] ? 'text-rose-700' : 'text-[var(--muted-foreground)]'}`}>{fieldErrors[key] ? fieldErrors[key] : profileFieldRule(key, Boolean(options.required))}</span>
     </label>
@@ -635,7 +636,7 @@ export default function ProfilePage() {
               <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('Drag and drop, or choose PNG, JPG, JPEG, WebP or GIF')}</p><p className="mt-1">{t('Maximum 5 MB')}</p>{fieldErrors.companyLogo ? <p className="mt-1 font-medium text-rose-700">{fieldErrors.companyLogo}</p> : null}</div>
             </div>
           </div>
-          <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{requiredProfileMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', requiredProfileMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: requiredProfileMode })}{field('bankCode', requiredProfileMode ? `${t('Bank code')} *` : t('Bank code'), { required: requiredProfileMode })}{field('bankOpeningBank', requiredProfileMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: requiredProfileMode, wide: requiredProfileMode })}{field('bankBranch', requiredProfileMode ? `${t('Branch')} *` : t('Branch'), { required: requiredProfileMode, wide: requiredProfileMode })}</div></div>
+          <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{requiredProfileMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', requiredProfileMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: requiredProfileMode })}{field('bankCode', requiredProfileMode ? `${t('Bank code')} *` : t('Bank code'), { required: requiredProfileMode, inputMode: profile.countryRegion.trim().toLowerCase() === 'hong kong' ? 'numeric' : undefined, maxLength: profile.countryRegion.trim().toLowerCase() === 'hong kong' ? 3 : undefined })}{field('bankOpeningBank', requiredProfileMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: requiredProfileMode, wide: requiredProfileMode })}{field('bankBranch', requiredProfileMode ? `${t('Branch')} *` : t('Branch'), { required: requiredProfileMode, wide: requiredProfileMode })}</div></div>
           {requiredProfileMode ? <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{t('Business Classification')}</h3><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('branch', `${t('Business classification')} *`, { required: true, wide: true, list: 'profile-branch-options' })}</div></div> : null}
           <div className="mt-6 flex justify-end"><button type="button" onClick={() => void updateCompanyProfile()} disabled={savingProfile || loading || logoUploading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"><Save size={15}/>{savingProfile ? t('Saving…') : activationMode ? t('Save & Continue') : t('Save company profile')}</button></div>
         </>}
