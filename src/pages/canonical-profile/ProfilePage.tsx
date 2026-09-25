@@ -132,6 +132,20 @@ function validateProfileField(key: ProfileField, value: string, required: boolea
   return undefined;
 }
 
+function collectRequiredProfileErrors(profile: ProfileForm, account: AccountForm, hasLogo: boolean) {
+  const errors: Partial<Record<FieldErrorKey, string>> = {};
+  for (const key of requiredActivationFields) {
+    if (key === 'companyLogo') continue;
+    const message = validateProfileField(key as ProfileField, profile[key as ProfileField], true, profile);
+    if (message) errors[key] = message;
+  }
+  for (const key of ['firstName', 'lastName'] as const) {
+    if (!account[key].trim()) errors[key] = 'Required';
+  }
+  if (!hasLogo) errors.companyLogo = 'Required';
+  return errors;
+}
+
 function profileFieldRule(key: ProfileField, required: boolean) {
   const prefix = required ? 'Required' : 'Optional';
   const rules: Record<ProfileField, string> = {
@@ -245,7 +259,8 @@ export default function ProfilePage() {
         // Keep the response contract strict, but do not blank the complete
         // profile if a rolling deployment returns an incomplete envelope.
         if (response.data && typeof response.data === 'object') {
-          setProfile(profileToForm(response.data));
+          const nextProfile = profileToForm(response.data);
+          setProfile(nextProfile);
           setAccount((current) => ({
             firstName: response.data.firstName ?? current.firstName,
             lastName: response.data.lastName ?? current.lastName,
@@ -263,6 +278,9 @@ export default function ProfilePage() {
               // Keep the direct image URL as a fallback when the blob request is unavailable.
             });
           }
+          setFieldErrors(activationMode
+            ? Object.fromEntries(Object.entries(collectRequiredProfileErrors(nextProfile, account, Boolean(response.data.logoUrl))).map(([key, message]) => [key, t(message!)])) as Partial<Record<FieldErrorKey, string>>
+            : {});
           setProfileGateActive(activationMode || (Array.isArray(response.data.missingRequiredFields) && response.data.missingRequiredFields.length > 0));
         }
         else if (selectedWorkspace) setProfile(workspaceToProfileForm(selectedWorkspace));
