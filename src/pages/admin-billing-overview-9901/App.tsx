@@ -8,6 +8,7 @@ import { routes } from "../../routing";
 import SupportInbox from '../support/SupportPage';
 import AdminOmniChannelPage from '../admin-omnichannel/AdminOmniChannelPage';
 import AdminCommercialDocumentsPage from '../admin-commercial/AdminCommercialDocumentsPage';
+import AdminAdCampaignsPage from './AdminAdCampaignsPage';
 import { AdminComposioCatalog } from '../../components/AdminComposioCatalog';
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
@@ -23,7 +24,7 @@ type NavItem = { key: PageKey; label: string; icon: React.ReactElement; badge?: 
 type PageKey =
   | "dashboard" | "customers" | "users" | "workspaces" | "crm" | "billing" | "invoices" | "websites"
   | "agents" | "integrations" | "oauth-connections" | "approvals" | "conversations" | "files"
-  | "support" | "errors" | "audit" | "jobs" | "settings";
+  | "ad-campaigns" | "support" | "errors" | "audit" | "jobs" | "settings";
 
 const NAV: NavSection[] = [
   {
@@ -52,6 +53,7 @@ const NAV: NavSection[] = [
       { key: "agents", label: "AI Agents", icon: <Bot size={16} /> },
       { key: "integrations", label: "Integrations", icon: <Plug size={16} /> },
       { key: "oauth-connections", label: "OAuth Connections", icon: <KeyRound size={16} /> },
+      { key: "ad-campaigns", label: "Ad Campaigns", icon: <Megaphone size={16} /> },
       { key: "websites", label: "Websites & Shops", icon: <Globe size={16} /> },
       { key: "approvals", label: "Exceptions & Policy Events", icon: <CheckSquare2 size={16} /> },
     ],
@@ -484,6 +486,7 @@ export default function App() {
     users:['users.read'], workspaces:['workspaces.read'], billing:['billing.read'], invoices:['billing.read'], crm:['workspaces.read'],
     websites:['providers.read'], agents:['agents.read'], integrations:['providers.read'], approvals:['agents.read'],
     'oauth-connections':['providers.read'],
+    'ad-campaigns':['providers.read'],
     conversations:['users.read','workspaces.read'], files:['workspaces.read'], support:['users.read','workspaces.read'],
     errors:['security.read'],audit:['audit.read'],jobs:['agents.read','providers.read'],settings:['security.read'],
   };
@@ -589,6 +592,7 @@ export default function App() {
             {page === "agents" ? <AgentsPage onError={setError} /> : null}
             {page === "integrations" ? <IntegrationsPage onError={setError} /> : null}
             {page === "oauth-connections" ? <OAuthConnectionsPage onError={setError} /> : null}
+            {page === "ad-campaigns" ? <AdminAdCampaignsPage onError={setError} /> : null}
             {page === "approvals" ? <ApprovalsPage onError={setError} /> : null}
             {page === "conversations" ? <AdminOmniChannelPage /> : null}
             {page === "files" ? <FilesPage onError={setError} /> : null}
