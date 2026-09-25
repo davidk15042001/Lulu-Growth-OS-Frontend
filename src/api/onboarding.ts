@@ -216,10 +216,21 @@ export type CatalogImportItem = {
 };
 export type CatalogImport = {
   id: string;
+  createdAt: string;
+  updatedAt: string;
   status: 'PROCESSING' | 'REVIEW_REQUIRED' | 'COMPLETED' | 'FAILED';
   classification: { summary?: string; items?: CatalogImportItem[]; catalogImport?: { evidence?: Array<{ assetId: string; kind: string; pageNumber: number | null; eligibleImageReference: boolean }> } };
   errorCode: string | null;
   errorMessage: string | null;
+  progress: CatalogImportProgress;
+};
+
+export type CatalogImportProgress = {
+  phase: 'QUEUED' | 'READING_SOURCES' | 'COLLECTING_EVIDENCE' | 'CLASSIFYING' | 'REVIEW_READY' | 'FAILED';
+  documentsTotal: number;
+  documentsProcessed: number;
+  evidenceCount: number;
+  itemCount?: number;
 };
 
 export const onboardingApi = {
