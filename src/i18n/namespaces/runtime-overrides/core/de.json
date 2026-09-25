@@ -526,6 +526,8 @@
   "Document storage is not configured on the server yet.": "Dokumentspeicher ist auf dem Server noch nicht konfiguriert.",
   "Document storage is not enabled on the server yet.": "Dokumentspeicher ist auf dem Server noch nicht aktiviert.",
   "Document storage is not ready yet. Please try again shortly.": "Der Dokumentenspeicher ist noch nicht bereit. Bitte versuche es gleich erneut.",
+  "Please choose a logo before uploading.": "Bitte wähle vor dem Hochladen ein Logo aus.",
+  "The company logo could not be found.": "Das Unternehmenslogo konnte nicht gefunden werden.",
   "Domain": "Domain",
   "Domain data (JSON)": "Domaindaten (JSON)",
   "domain issue resolution": "Lösung von Domainproblemen",

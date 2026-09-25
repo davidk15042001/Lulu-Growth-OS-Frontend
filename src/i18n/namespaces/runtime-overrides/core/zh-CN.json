@@ -526,6 +526,8 @@
   "Document storage is not configured on the server yet.": "服务器尚未配置文档存储。",
   "Document storage is not enabled on the server yet.": "服务器尚未启用文档存储。",
   "Document storage is not ready yet. Please try again shortly.": "文档存储服务尚未就绪，请稍后重试。",
+  "Please choose a logo before uploading.": "请先选择要上传的标志。",
+  "The company logo could not be found.": "找不到公司标志。",
   "Domain": "域名",
   "Domain data (JSON)": "域名数据 (JSON)",
   "domain issue resolution": "域问题解决",
