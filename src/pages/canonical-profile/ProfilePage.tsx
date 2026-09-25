@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { Building2, CheckCircle2, Eye, EyeOff, ImagePlus, LockKeyhole, Save, ShieldCheck, Trash2, UserRound } from 'lucide-react';
 import { authApi } from '../../api/auth';
-import { ApiError, getFriendlyErrorMessage } from '../../api/client';
+import { ApiError, getFriendlyErrorMessage, resolveApiMediaUrl } from '../../api/client';
 import { clearStoredUser } from '../../api/session';
 import { useLuluApp } from '../../api/LuluAppContext';
 import { workspaceProfileApi, type WorkspaceProfile } from '../../api/workspaces';
@@ -19,17 +19,6 @@ type CropOffset = { x: number; y: number };
 type FieldErrorKey = ProfileField | keyof AccountForm | 'companyLogo' | keyof PasswordForm;
 
 const cropViewportSize = 320;
-
-function resolveMediaUrl(value: string | null | undefined) {
-  const url = String(value ?? '').trim();
-  if (!url) return null;
-  if (/^(blob:|data:|https?:\/\/)/i.test(url)) return url;
-  try {
-    return new URL(url, window.location.origin).toString();
-  } catch {
-    return url;
-  }
-}
 
 const emptyProfile: ProfileForm = {
   companyName: '', industry: '', countryRegion: '', taxId: '', address: '', legalForm: '',
@@ -234,7 +223,7 @@ export default function ProfilePage() {
             firstName: response.data.firstName ?? current.firstName,
             lastName: response.data.lastName ?? current.lastName,
           }));
-          setLogoUrl(resolveMediaUrl(response.data.logoUrl));
+          setLogoUrl(resolveApiMediaUrl(response.data.logoUrl));
           setLogoFileName(response.data.logoFileName ?? null);
           setLogoLoadError(false);
           setProfileGateActive(activationMode || (Array.isArray(response.data.missingRequiredFields) && response.data.missingRequiredFields.length > 0));
@@ -400,7 +389,7 @@ export default function ProfilePage() {
     setLogoUploading(true); setError(''); setNotice('');
     try {
       const response = await workspaceProfileApi.uploadLogo(workspaceId, file);
-      setLogoUrl(resolveMediaUrl(response.data.logoUrl)); setLogoFileName(response.data.logoFileName); setLogoLoadError(false);
+      setLogoUrl(resolveApiMediaUrl(response.data.logoUrl)); setLogoFileName(response.data.logoFileName); setLogoLoadError(false);
       if (fieldErrors.companyLogo) setFieldErrors((current) => ({ ...current, companyLogo: undefined }));
       setNotice(t('Company logo was uploaded and will appear on new invoices and quotes.'));
       return true;

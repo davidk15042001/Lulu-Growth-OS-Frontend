@@ -367,6 +367,18 @@ const API_REQUEST_MESSAGE = "lulu:api-request";
 const API_RESPONSE_MESSAGE = "lulu:api-response";
 const ACCESS_TOKEN_STORAGE_KEY = "lulu_access_token";
 
+export function resolveApiMediaUrl(value: string | null | undefined) {
+  const url = String(value ?? "").trim();
+  if (!url) return null;
+  if (/^(blob:|data:|https?:\/\/)/i.test(url)) return url;
+  const base = /^https?:\/\//i.test(API_BASE_URL) ? API_BASE_URL : window.location.origin;
+  try {
+    return new URL(url, base).toString();
+  } catch {
+    return url;
+  }
+}
+
 function readStoredAccessToken() {
   try {
     window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
