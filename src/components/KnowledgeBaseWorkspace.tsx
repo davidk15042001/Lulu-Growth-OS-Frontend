@@ -399,7 +399,7 @@ export function KnowledgeBaseWorkspace() {
                 </div>
               </div>
               <p className="mt-4 max-w-4xl text-sm text-muted-foreground">
-                Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.
+                Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 5 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.
               </p>
               {aiBusinessProfile?.generatedAt ? (
                 <p className="mt-3 text-xs text-muted-foreground">
@@ -622,7 +622,7 @@ export function KnowledgeBaseWorkspace() {
               <Sparkles className="mx-auto text-muted-foreground" size={32} />
               <h3 className="mt-4 text-lg font-semibold text-foreground">No AI business profile generated yet</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, the top 10 audience segments, and the full comparison against the top 10 competitors.
+                Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, and 5 ranked audience segments. When no manual segments exist, the 5 best AI segments are saved automatically.
               </p>
             </div>
           )}
@@ -801,7 +801,7 @@ export function KnowledgeBaseWorkspace() {
                   className={actionClass}
                 >
                   <Sparkles size={15} />
-                  Apply Top 10 AI Segments
+                  Apply 5 AI Segments
                 </button>
               ) : null}
               <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom())} className={actionClass}><Plus size={15} />Add segment</button>
@@ -813,18 +813,18 @@ export function KnowledgeBaseWorkspace() {
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0">
-                      <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">AI Top 10</p>
+                      <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">AI Top 5</p>
                       <h3 className="mt-1 text-sm font-semibold text-foreground">Best-ranked customer segments for this workspace</h3>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        These top 10 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 10 at once.
+                        These top 5 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 5 at once.
                       </p>
                     </div>
                     <div className="rounded-full border border-primary/20 bg-background/80 px-3 py-1 text-xs text-foreground">
-                      {aiBusinessProfile.payload.customerSegments.length} generated
+                      {Math.min(aiBusinessProfile.payload.customerSegments.length, 5)} generated
                     </div>
                   </div>
                   <div className="mt-4 grid gap-3">
-                    {aiBusinessProfile.payload.customerSegments.map((item, index) => (
+                    {aiBusinessProfile.payload.customerSegments.slice(0, 5).map((item, index) => (
                       <div key={`${item.name}-${index}`} className="rounded-lg border border-border bg-card p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
