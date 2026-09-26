@@ -136,12 +136,21 @@ export type AiBusinessProfile = {
   updatedAt: string;
   payload: {
     summary: string;
+    quality?: {
+      status: "ready" | "needs_context";
+      confidence: "high" | "medium" | "low";
+      gaps: string[];
+    };
     recommendedProfile: {
       valueProposition: string;
       vision: string;
       targetMarket: string;
+      targetMarkets?: string[];
+      targetCountries?: string[];
       primaryIcp: string;
+      primaryIcps?: string[];
       usp: string;
+      usps?: string[];
       shortBrandDescription: string;
       primaryChallenges: string[];
       languages: string[];
@@ -150,6 +159,7 @@ export type AiBusinessProfile = {
       valuePropositions: AiBusinessProfileSuggestion[];
       visions: AiBusinessProfileSuggestion[];
       targetMarkets: AiBusinessProfileSuggestion[];
+      targetCountries?: AiBusinessProfileSuggestion[];
       primaryIcps: AiBusinessProfileSuggestion[];
       usps: AiBusinessProfileSuggestion[];
       shortBrandDescriptions: AiBusinessProfileSuggestion[];

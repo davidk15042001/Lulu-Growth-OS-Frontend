@@ -2,6 +2,7 @@ import { BookOpen, Pencil, Plus, Save, Sparkles, Trash2, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react";
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
+import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import {
   onboardingApi,
   type AiBusinessProfileSuggestion,
@@ -203,6 +204,7 @@ function SuggestionFieldCard({ title, description, suggestions, onUse, disabled,
 
 export function KnowledgeBaseWorkspace() {
   const { selectedWorkspace, can } = useLuluApp();
+  const t = useTranslation();
   const workspaceId = selectedWorkspace?.id ?? null;
   const canEdit = can("edit");
   const [snapshot, setSnapshot] = useState<OnboardingSnapshot | null>(null);
@@ -288,6 +290,17 @@ export function KnowledgeBaseWorkspace() {
   }), [snapshot]);
   const aiBusinessProfile = snapshot?.aiBusinessProfile ?? null;
   const recommendedAiProfile = aiBusinessProfile?.payload.recommendedProfile ?? null;
+  const recommendedTargetMarkets = recommendedAiProfile?.targetMarkets?.length
+    ? recommendedAiProfile.targetMarkets
+    : recommendedAiProfile ? [recommendedAiProfile.targetMarket] : [];
+  const recommendedTargetCountries = recommendedAiProfile?.targetCountries ?? [];
+  const recommendedPrimaryIcps = recommendedAiProfile?.primaryIcps?.length
+    ? recommendedAiProfile.primaryIcps
+    : recommendedAiProfile ? [recommendedAiProfile.primaryIcp] : [];
+  const recommendedUsps = recommendedAiProfile?.usps?.length
+    ? recommendedAiProfile.usps
+    : recommendedAiProfile ? [recommendedAiProfile.usp] : [];
+  const profileNeedsContext = aiBusinessProfile?.payload.quality?.status === "needs_context";
 
   async function runAction(key: string, successMessage: string, action: () => Promise<void>) {
     setBusyKey(key);
@@ -398,19 +411,20 @@ export function KnowledgeBaseWorkspace() {
               {recommendedAiProfile ? (
                 <button
                   type="button"
-                  disabled={!canEdit || busyKey === "apply-ai-profile"}
                   onClick={() => void runAction("apply-ai-profile", "Recommended AI profile applied.", async () => {
                     await saveBusinessProfileDraft({
                       valueProposition: recommendedAiProfile.valueProposition,
                       vision: recommendedAiProfile.vision,
-                      targetMarket: recommendedAiProfile.targetMarket,
+                      targetMarket: recommendedTargetMarkets.join(", "),
                       shortBrandDescription: recommendedAiProfile.shortBrandDescription,
-                      primaryIcp: recommendedAiProfile.primaryIcp,
-                      usp: recommendedAiProfile.usp,
+                      primaryIcp: recommendedPrimaryIcps.join("; "),
+                      usp: recommendedUsps.join("; "),
                       primaryChallenges: recommendedAiProfile.primaryChallenges,
                       languages: recommendedAiProfile.languages,
                     });
                   })}
+                  aria-disabled={profileNeedsContext}
+                  disabled={!canEdit || profileNeedsContext || busyKey === "apply-ai-profile"}
                   className={actionClass}
                 >
                   <Save size={15} />
@@ -427,6 +441,14 @@ export function KnowledgeBaseWorkspace() {
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{aiBusinessProfile.payload.summary}</p>
               </div>
 
+              {profileNeedsContext ? (
+                <div className="rounded-xl border border-amber-300/50 bg-amber-500/10 p-4">
+                  <h3 className="text-sm font-semibold text-foreground">{t("AI profile needs better source context")}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("The recommendations are kept as hypotheses and were not applied to the workspace because the source data is too generic.")}</p>
+                  {aiBusinessProfile.payload.quality?.gaps.length ? <ul className="mt-3 grid gap-1 text-sm text-muted-foreground">{aiBusinessProfile.payload.quality.gaps.map((gap) => <li key={gap}>• {gap}</li>)}</ul> : null}
+                </div>
+              ) : null}
+
               {recommendedAiProfile ? (
                 <div className="grid gap-4 xl:grid-cols-2">
                   <div className="rounded-xl border border-border bg-background/40 p-4">
@@ -441,16 +463,17 @@ export function KnowledgeBaseWorkspace() {
                         <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.vision}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Target Market</p>
-                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.targetMarket}</p>
+                        <p className="text-xs text-muted-foreground">Target Markets</p>
+                        <div className="mt-2 flex flex-wrap gap-2">{recommendedTargetMarkets.map((item) => <span key={item} className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">{item}</span>)}</div>
+                      </div>
+                      {recommendedTargetCountries.length ? <div><p className="text-xs text-muted-foreground">{t("Target Countries")}</p><div className="mt-2 flex flex-wrap gap-2">{recommendedTargetCountries.map((item) => <span key={item} className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">{item}</span>)}</div></div> : null}
+                      <div>
+                        <p className="text-xs text-muted-foreground">{t("Primary ICPs")}</p>
+                        <div className="mt-2 grid gap-2">{recommendedPrimaryIcps.map((item) => <p key={item} className="text-sm font-medium text-foreground">{item}</p>)}</div>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Primary ICP</p>
-                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.primaryIcp}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">USP</p>
-                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.usp}</p>
+                        <p className="text-xs text-muted-foreground">{t("USPs")}</p>
+                        <div className="mt-2 grid gap-2">{recommendedUsps.map((item) => <p key={item} className="text-sm font-medium text-foreground">{item}</p>)}</div>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Short Brand Description</p>
@@ -497,10 +520,18 @@ export function KnowledgeBaseWorkspace() {
                 />
                 <SuggestionFieldCard
                   title="Target Market"
-                  description="Five AI-ranked market opportunities with clearer competitive whitespace."
+                  description="Five to eight AI-ranked market opportunities with named countries and clearer competitive whitespace."
                   suggestions={aiBusinessProfile.payload.suggestions.targetMarkets}
                   disabled={!canEdit}
                   onUse={(value) => setBusinessForm((current) => ({ ...current, targetMarket: value }))}
+                />
+                <SuggestionFieldCard
+                  title="Target Countries"
+                  description="Countries selected to match the recommended markets and language coverage."
+                  suggestions={aiBusinessProfile.payload.suggestions.targetCountries ?? []}
+                  disabled={!canEdit}
+                  actionLabel="Add to list"
+                  onUse={(value) => setBusinessForm((current) => ({ ...current, targetMarket: appendCsvItem(current.targetMarket, value) }))}
                 />
                 <SuggestionFieldCard
                   title="Primary ICP"

@@ -21897,5 +21897,10 @@
   "Customer workspace": "客户工作区",
   "No campaigns found. Synchronize a provider to load existing campaigns.": "未找到广告活动。请同步提供商以加载现有广告活动。",
   "Unassign campaign": "取消广告活动分配",
-  "ad-campaigns": "广告活动"
+  "ad-campaigns": "广告活动",
+  "AI profile needs better source context": "要生成高质量的 AI 档案，还需要更具体的企业资料",
+  "The recommendations are kept as hypotheses and were not applied to the workspace because the source data is too generic.": "这些建议会保留为假设，不会应用到工作区，因为当前来源数据过于笼统。",
+  "Target Countries": "目标国家",
+  "Primary ICPs": "主要 ICP",
+  "USPs": "独特销售主张"
 }

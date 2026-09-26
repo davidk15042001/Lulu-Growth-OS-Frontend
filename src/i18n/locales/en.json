@@ -1088,5 +1088,10 @@
   "Legacy-Credits anzeigen": "Show legacy credits",
   "Separater alter Credit-Zähler. Für normale AI-Credits und Adspend bitte die einfache Schenk-Aktion oben verwenden.": "Separate old credit counter. For normal AI credits and ad spend, use the simple gift action above.",
   "Notiz optional": "Note optional",
-  "Legacy-Credits hinzufügen": "Add legacy credits"
+  "Legacy-Credits hinzufügen": "Add legacy credits",
+  "AI profile needs better source context": "AI profile needs better source context",
+  "The recommendations are kept as hypotheses and were not applied to the workspace because the source data is too generic.": "The recommendations are kept as hypotheses and were not applied to the workspace because the source data is too generic.",
+  "Target Countries": "Target Countries",
+  "Primary ICPs": "Primary ICPs",
+  "USPs": "USPs"
 }

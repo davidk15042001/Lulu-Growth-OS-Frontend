@@ -21897,5 +21897,10 @@
   "Customer workspace": "Kunden-Workspace",
   "No campaigns found. Synchronize a provider to load existing campaigns.": "Keine Kampagnen gefunden. Synchronisiere einen Provider, um bestehende Kampagnen zu laden.",
   "Unassign campaign": "Kampagnenzuweisung aufheben",
-  "ad-campaigns": "Werbekampagnen"
+  "ad-campaigns": "Werbekampagnen",
+  "AI profile needs better source context": "Für ein hochwertiges KI-Profil werden noch bessere Unternehmensdaten benötigt",
+  "The recommendations are kept as hypotheses and were not applied to the workspace because the source data is too generic.": "Die Empfehlungen bleiben Hypothesen und wurden nicht in den Workspace übernommen, weil die Quelldaten zu allgemein sind.",
+  "Target Countries": "Ziel-Länder",
+  "Primary ICPs": "Primäre ICPs",
+  "USPs": "USPs"
 }
