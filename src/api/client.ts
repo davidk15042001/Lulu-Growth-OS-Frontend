@@ -65,6 +65,8 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   TOO_MANY_REQUESTS: "Too many requests. Please wait briefly and try again.",
   AI_NOT_CONFIGURED: "The AI assistant is temporarily unavailable. Please try again later.",
   AI_PROVIDER_NOT_CONFIGURED: "Lulu is waiting for an AI provider to be connected.",
+  AI_PROVIDER_CIRCUITS_OPEN: "The AI assistant is temporarily unavailable. Please try again later.",
+  AI_PROVIDERS_UNAVAILABLE: "The AI assistant is temporarily unavailable. Please try again later.",
   AI_FUNDS_REQUIRED: "Add AI funds before Lulu can continue this work.",
   AI_FUNDS_EXHAUSTED: "Lulu is waiting for more AI funds before continuing this work.",
   AI_REVERSAL_DEBT: "Lulu is waiting for a billing adjustment before continuing AI work.",
