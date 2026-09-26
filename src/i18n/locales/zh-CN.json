@@ -1,4 +1,13 @@
 {
+  "A customer segment is a specific group of customers with similar needs, buying roles, pain points, and use cases. These segments help the AI agents target the right audience and tailor campaigns, sales work, and recommendations.": "客户细分是指需求、购买角色、痛点和使用场景相似的一组客户。这些细分帮助 AI 员工定位正确受众，并据此调整营销活动、销售工作和建议。",
+  "Edit customer segment {{0}}": "编辑客户细分 {{0}}",
+  "Remove customer segment {{0}}": "移除客户细分 {{0}}",
+  "Add, edit, or remove competitors yourself. The saved records are used as market context for analysis and positioning.": "你可以自行添加、编辑或移除竞争对手。保存的记录会作为市场分析和定位的背景信息。",
+  "Edit competitor {{0}}": "编辑竞争对手 {{0}}",
+  "Remove competitor {{0}}": "移除竞争对手 {{0}}",
+  "Manage the platforms and connected sources that belong to this workspace. Remove entries that are no longer relevant.": "管理属于此工作区的平台和已连接来源。移除不再相关的条目。",
+  "Edit platform {{0}}": "编辑平台 {{0}}",
+  "Remove platform {{0}}": "移除平台 {{0}}",
   "Quellen geladen": "已加载来源",
   "Dokumente und Tabellen gelesen": "已读取文档和表格",
   "Quellenbelege gespeichert": "已保存来源证据",

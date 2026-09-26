@@ -1,4 +1,13 @@
 {
+  "A customer segment is a specific group of customers with similar needs, buying roles, pain points, and use cases. These segments help the AI agents target the right audience and tailor campaigns, sales work, and recommendations.": "A customer segment is a specific group of customers with similar needs, buying roles, pain points, and use cases. These segments help the AI agents target the right audience and tailor campaigns, sales work, and recommendations.",
+  "Edit customer segment {{0}}": "Edit customer segment {{0}}",
+  "Remove customer segment {{0}}": "Remove customer segment {{0}}",
+  "Add, edit, or remove competitors yourself. The saved records are used as market context for analysis and positioning.": "Add, edit, or remove competitors yourself. The saved records are used as market context for analysis and positioning.",
+  "Edit competitor {{0}}": "Edit competitor {{0}}",
+  "Remove competitor {{0}}": "Remove competitor {{0}}",
+  "Manage the platforms and connected sources that belong to this workspace. Remove entries that are no longer relevant.": "Manage the platforms and connected sources that belong to this workspace. Remove entries that are no longer relevant.",
+  "Edit platform {{0}}": "Edit platform {{0}}",
+  "Remove platform {{0}}": "Remove platform {{0}}",
   "Quellen geladen": "Sources loaded",
   "Dokumente und Tabellen gelesen": "Documents and tables read",
   "Quellenbelege gespeichert": "Source evidence saved",

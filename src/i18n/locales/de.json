@@ -1,4 +1,13 @@
 {
+  "A customer segment is a specific group of customers with similar needs, buying roles, pain points, and use cases. These segments help the AI agents target the right audience and tailor campaigns, sales work, and recommendations.": "Ein Kundensegment ist eine bestimmte Kundengruppe mit ähnlichen Bedürfnissen, Rollen im Kaufprozess, Problemen und Anwendungsfällen. Diese Segmente helfen den KI-Agenten, die richtige Zielgruppe anzusprechen und Kampagnen, Vertriebsarbeit und Empfehlungen passend auszurichten.",
+  "Edit customer segment {{0}}": "Kundensegment {{0}} bearbeiten",
+  "Remove customer segment {{0}}": "Kundensegment {{0}} entfernen",
+  "Add, edit, or remove competitors yourself. The saved records are used as market context for analysis and positioning.": "Wettbewerber selbst hinzufügen, bearbeiten oder entfernen. Die gespeicherten Einträge dienen als Marktkontext für Analysen und Positionierung.",
+  "Edit competitor {{0}}": "Wettbewerber {{0}} bearbeiten",
+  "Remove competitor {{0}}": "Wettbewerber {{0}} entfernen",
+  "Manage the platforms and connected sources that belong to this workspace. Remove entries that are no longer relevant.": "Verwalte die Plattformen und verbundenen Quellen dieses Workspace. Entferne Einträge, die nicht mehr relevant sind.",
+  "Edit platform {{0}}": "Plattform {{0}} bearbeiten",
+  "Remove platform {{0}}": "Plattform {{0}} entfernen",
   "Quellen geladen": "Quellen geladen",
   "Dokumente und Tabellen gelesen": "Dokumente und Tabellen gelesen",
   "Quellenbelege gespeichert": "Quellenbelege gespeichert",

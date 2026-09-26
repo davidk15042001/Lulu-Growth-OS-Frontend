@@ -786,6 +786,9 @@ export function KnowledgeBaseWorkspace() {
             <div>
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Customer Intelligence</p>
               <h2 className="mt-1 text-lg font-semibold text-foreground">Customer Segments</h2>
+              <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+                A customer segment is a specific group of customers with similar needs, buying roles, pain points, and use cases. These segments help the AI agents target the right audience and tailor campaigns, sales work, and recommendations.
+              </p>
             </div>
             <div className="flex flex-wrap gap-2">
               {aiBusinessProfile?.payload.customerSegments?.length ? (
@@ -801,7 +804,7 @@ export function KnowledgeBaseWorkspace() {
                   Apply Top 10 AI Segments
                 </button>
               ) : null}
-              <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom())} className={actionClass}><Plus size={15} />New</button>
+              <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom())} className={actionClass}><Plus size={15} />Add segment</button>
             </div>
           </div>
           <div className="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
@@ -878,8 +881,8 @@ export function KnowledgeBaseWorkspace() {
                       <div className="mt-2 text-xs text-muted-foreground">{item.region || "No region"} · {item.primarySegment ? "Primary segment" : "Secondary segment"}</div>
                     </div>
                     <div className="flex gap-2">
-                      <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
-                      <button type="button" disabled={!canEdit || busyKey === `delete-segment-${item.id}`} onClick={() => void runAction(`delete-segment-${item.id}`, "Segment removed.", async () => { await onboardingApi.deleteCustomerSegment(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
+                      <button type="button" aria-label={`Edit customer segment ${item.name}`} title={`Edit customer segment ${item.name}`} disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
+                      <button type="button" aria-label={`Remove customer segment ${item.name}`} title={`Remove customer segment ${item.name}`} disabled={!canEdit || busyKey === `delete-segment-${item.id}`} onClick={() => void runAction(`delete-segment-${item.id}`, "Segment removed.", async () => { await onboardingApi.deleteCustomerSegment(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
                     </div>
                   </div>
                 </div>
@@ -932,8 +935,9 @@ export function KnowledgeBaseWorkspace() {
             <div>
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Market View</p>
               <h2 className="mt-1 text-lg font-semibold text-foreground">Competitors</h2>
+              <p className="mt-2 max-w-3xl text-sm text-muted-foreground">Add, edit, or remove competitors yourself. The saved records are used as market context for analysis and positioning.</p>
             </div>
-            <button type="button" disabled={!canEdit} onClick={() => setCompetitorDraft(competitorDraftFrom())} className={actionClass}><Plus size={15} />New</button>
+            <button type="button" disabled={!canEdit} onClick={() => setCompetitorDraft(competitorDraftFrom())} className={actionClass}><Plus size={15} />Add competitor</button>
           </div>
           <div className="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
             <div className="grid gap-3">
@@ -946,8 +950,8 @@ export function KnowledgeBaseWorkspace() {
                       <div className="mt-2 text-xs text-muted-foreground">{item.competitorType} · {item.market || "No market"} · {item.websiteUrl || "No URL"}</div>
                     </div>
                     <div className="flex gap-2">
-                      <button type="button" disabled={!canEdit} onClick={() => setCompetitorDraft(competitorDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
-                      <button type="button" disabled={!canEdit || busyKey === `delete-competitor-${item.id}`} onClick={() => void runAction(`delete-competitor-${item.id}`, "Competitor removed.", async () => { await onboardingApi.deleteCompetitor(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
+                      <button type="button" aria-label={`Edit competitor ${item.name}`} title={`Edit competitor ${item.name}`} disabled={!canEdit} onClick={() => setCompetitorDraft(competitorDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
+                      <button type="button" aria-label={`Remove competitor ${item.name}`} title={`Remove competitor ${item.name}`} disabled={!canEdit || busyKey === `delete-competitor-${item.id}`} onClick={() => void runAction(`delete-competitor-${item.id}`, "Competitor removed.", async () => { await onboardingApi.deleteCompetitor(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
                     </div>
                   </div>
                 </div>
@@ -1004,8 +1008,9 @@ export function KnowledgeBaseWorkspace() {
             <div>
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Connected Sources</p>
               <h2 className="mt-1 text-lg font-semibold text-foreground">Platforms</h2>
+              <p className="mt-2 max-w-3xl text-sm text-muted-foreground">Manage the platforms and connected sources that belong to this workspace. Remove entries that are no longer relevant.</p>
             </div>
-            <button type="button" disabled={!canEdit} onClick={() => setPlatformDraft(platformDraftFrom())} className={actionClass}><Plus size={15} />New</button>
+            <button type="button" disabled={!canEdit} onClick={() => setPlatformDraft(platformDraftFrom())} className={actionClass}><Plus size={15} />Add platform</button>
           </div>
           <div className="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
             <div className="grid gap-3">
@@ -1018,8 +1023,8 @@ export function KnowledgeBaseWorkspace() {
                       <div className="mt-2 text-xs text-muted-foreground">{item.integrationKey || "No integration key"} · {item.lastSyncedAt || "Never synced"}</div>
                     </div>
                     <div className="flex gap-2">
-                      <button type="button" disabled={!canEdit} onClick={() => setPlatformDraft(platformDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
-                      <button type="button" disabled={!canEdit || busyKey === `delete-platform-${item.id}`} onClick={() => void runAction(`delete-platform-${item.id}`, "Platform removed.", async () => { await onboardingApi.deletePlatform(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
+                      <button type="button" aria-label={`Edit platform ${item.name}`} title={`Edit platform ${item.name}`} disabled={!canEdit} onClick={() => setPlatformDraft(platformDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
+                      <button type="button" aria-label={`Remove platform ${item.name}`} title={`Remove platform ${item.name}`} disabled={!canEdit || busyKey === `delete-platform-${item.id}`} onClick={() => void runAction(`delete-platform-${item.id}`, "Platform removed.", async () => { await onboardingApi.deletePlatform(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
                     </div>
                   </div>
                 </div>
