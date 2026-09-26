@@ -203,6 +203,7 @@ export function KnowledgeActivationGate() {
   const isLocked = Boolean(activationId && !importFailed);
   const items = catalogImport?.classification.items ?? [];
   const products = items.filter((item) => item.kind === 'product');
+  const generalKnowledge = catalogImport?.classification.generalKnowledge ?? [];
   const evidenceCount = catalogImport?.classification.catalogImport?.evidence?.length ?? 0;
   const progress = catalogImport?.progress ?? {
     phase: processing ? 'QUEUED' as const : 'FAILED' as const,
@@ -226,13 +227,23 @@ export function KnowledgeActivationGate() {
     },
     {
       label: 'Quellenbelege gespeichert',
-      detail: `${progress.evidenceCount} Quellenbelege gesichert`,
+      detail: progress.evidenceCount > 0
+        ? `${progress.evidenceCount} Quellenbelege gesichert`
+        : progress.phase === 'REVIEW_READY'
+          ? 'Keine separaten Quellenbelege aus den Dateien extrahiert'
+          : 'Noch keine Quellenbelege gesichert',
       done: phaseRank >= 3,
       active: progress.phase === 'COLLECTING_EVIDENCE',
     },
     {
       label: 'Unternehmenswissen klassifiziert',
-      detail: progress.itemCount ? `${progress.itemCount} Einträge erkannt` : progress.phase === 'CLASSIFYING' ? 'KI prüft Inhalte und Varianten' : 'Noch nicht abgeschlossen',
+      detail: progress.phase === 'CLASSIFYING'
+        ? 'KI prüft Inhalte und Varianten'
+        : progress.phase === 'REVIEW_READY'
+          ? progress.itemCount
+            ? `${progress.itemCount} Einträge erkannt`
+            : 'Unternehmenswissen klassifiziert; keine kaufbaren Einträge erkannt'
+          : 'Noch nicht abgeschlossen',
       done: phaseRank >= 4,
       active: progress.phase === 'CLASSIFYING',
     },
@@ -257,7 +268,7 @@ export function KnowledgeActivationGate() {
 
     {catalogImport?.status === 'REVIEW_REQUIRED' ? <section className="mt-5 border border-emerald-500/25 bg-emerald-500/5 p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4"><div className="flex gap-3"><ClipboardCheck className="mt-0.5 shrink-0 text-emerald-600" size={22} /><div><h2 className="font-semibold">{t('Katalog zur Prüfung bereit')}</h2><p className="mt-1 max-w-2xl text-sm text-muted-foreground">{catalogImport.classification.summary || t('Lulu hat einen Katalogentwurf aus deinen Quellen erstellt.')}</p></div></div><span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700"><FileSearch size={14} /> {evidenceCount} {t('Quellenbelege')}</span></div>
-      <div className="mt-5 grid gap-3 lg:grid-cols-2">{products.length === 0 ? <p className="border border-border bg-background p-4 text-sm text-muted-foreground">Keine bestätigbaren Produkte erkannt. Du kannst die Informationen ergänzen und den Import erneut starten.</p> : products.map((product) => <article key={`${product.kind}:${product.name}`} className="border border-border bg-background p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-medium">{product.name}</h3>{product.description ? <p className="mt-1 text-sm text-muted-foreground">{product.description}</p> : null}</div><span className="shrink-0 text-xs text-muted-foreground">{product.variants.length} Varianten</span></div>{product.variants.length ? <ul className="mt-3 space-y-2 border-t border-border pt-3">{product.variants.slice(0, 12).map((variant) => <li key={`${variant.sku ?? ''}:${variant.name}`} className="text-sm"><div className="flex flex-wrap justify-between gap-x-3 gap-y-1"><span>{variant.name}</span>{variant.sku ? <span className="font-mono text-xs text-muted-foreground">{variant.sku}</span> : null}</div>{variant.attributes.length ? <p className="mt-1 text-xs text-muted-foreground">{variant.attributes.map((attribute) => `${attribute.name}: ${attribute.value}${attribute.unit ? ` ${attribute.unit}` : ''}`).join(' · ')}</p> : null}{variantFacts(variant).length ? <p className="mt-1 text-xs text-muted-foreground">{variantFacts(variant).join(' · ')}</p> : null}{variant.description ? <p className="mt-1 text-xs text-muted-foreground">{variant.description}</p> : null}</li>)}</ul> : null}{product.imageEvidenceIds?.length ? <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground"><ImageIcon size={13} /> {product.imageEvidenceIds.length} zugeordnete Produktbilder</p> : null}</article>)}</div>
+      <div className="mt-5 grid gap-3 lg:grid-cols-2">{products.length === 0 ? <div className="border border-border bg-background p-4 text-sm text-muted-foreground"><p>{t('Keine bestätigbaren Produkte erkannt.')}</p>{generalKnowledge.length > 0 ? <p className="mt-2">{t('Das allgemeine Unternehmenswissen wurde trotzdem klassifiziert')} ({generalKnowledge.length} {t('Einträge')}).</p> : null}<p className="mt-2">{t('Du kannst die Informationen ergänzen und den Import erneut starten.')}</p></div> : products.map((product) => <article key={`${product.kind}:${product.name}`} className="border border-border bg-background p-4"><div className="flex items-start justify-between gap-3"><div><h3 className="font-medium">{product.name}</h3>{product.description ? <p className="mt-1 text-sm text-muted-foreground">{product.description}</p> : null}</div><span className="shrink-0 text-xs text-muted-foreground">{product.variants.length} Varianten</span></div>{product.variants.length ? <ul className="mt-3 space-y-2 border-t border-border pt-3">{product.variants.slice(0, 12).map((variant) => <li key={`${variant.sku ?? ''}:${variant.name}`} className="text-sm"><div className="flex flex-wrap justify-between gap-x-3 gap-y-1"><span>{variant.name}</span>{variant.sku ? <span className="font-mono text-xs text-muted-foreground">{variant.sku}</span> : null}</div>{variant.attributes.length ? <p className="mt-1 text-xs text-muted-foreground">{variant.attributes.map((attribute) => `${attribute.name}: ${attribute.value}${attribute.unit ? ` ${attribute.unit}` : ''}`).join(' · ')}</p> : null}{variantFacts(variant).length ? <p className="mt-1 text-xs text-muted-foreground">{variantFacts(variant).join(' · ')}</p> : null}{variant.description ? <p className="mt-1 text-xs text-muted-foreground">{variant.description}</p> : null}</li>)}</ul> : null}{product.imageEvidenceIds?.length ? <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground"><ImageIcon size={13} /> {product.imageEvidenceIds.length} zugeordnete Produktbilder</p> : null}</article>)}</div>
       <div className="mt-5 flex flex-col gap-3 border-t border-emerald-500/20 pt-5 sm:flex-row sm:items-center sm:justify-between"><p className="text-sm text-muted-foreground">{t('Beim Bestätigen erstellt Lulu ausschließlich DRAFT-Produkte und -Varianten. Veröffentlichungen bleiben separat kontrolliert.')}</p><button type="button" onClick={() => void confirmCatalog()} disabled={confirming} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40">{confirming ? <LoaderCircle className="animate-spin" size={17} /> : <CheckCircle2 size={17} />}{confirming ? t('Aktiviere Katalog...') : t('Katalog bestätigen')}</button></div>
     </section> : null}
 

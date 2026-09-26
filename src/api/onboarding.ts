@@ -219,7 +219,12 @@ export type CatalogImport = {
   createdAt: string;
   updatedAt: string;
   status: 'PROCESSING' | 'REVIEW_REQUIRED' | 'COMPLETED' | 'FAILED';
-  classification: { summary?: string; items?: CatalogImportItem[]; catalogImport?: { evidence?: Array<{ assetId: string; kind: string; pageNumber: number | null; eligibleImageReference: boolean }> } };
+  classification: {
+    summary?: string;
+    items?: CatalogImportItem[];
+    generalKnowledge?: Array<{ title: string; content: string }>;
+    catalogImport?: { evidence?: Array<{ assetId: string; kind: string; pageNumber: number | null; eligibleImageReference: boolean }> };
+  };
   errorCode: string | null;
   errorMessage: string | null;
   progress: CatalogImportProgress;
