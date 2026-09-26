@@ -57,6 +57,7 @@ export function KnowledgeActivationGate() {
   const [progressOpen, setProgressOpen] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const [error, setError] = useState('');
+  const [statusLoadFailed, setStatusLoadFailed] = useState(false);
 
   useEffect(() => {
     if (!workspaceId) {
@@ -64,6 +65,8 @@ export function KnowledgeActivationGate() {
       return;
     }
     setActivationId(sessionStorage.getItem(catalogImportStorageKey(workspaceId)));
+    setCatalogImport(null);
+    setStatusLoadFailed(false);
     void onboardingApi.documents(workspaceId)
       .then((result) => setDocuments(result.data.items))
       .catch((cause) => setError(getFriendlyErrorMessage(cause, t('Dokumente konnten nicht geladen werden.'))))
@@ -79,16 +82,23 @@ export function KnowledgeActivationGate() {
         const response = await onboardingApi.catalogImport(workspaceId, activationId);
         if (cancelled) return;
         setCatalogImport(response.data);
+        setStatusLoadFailed(false);
         setProcessing(response.data.status === 'PROCESSING');
         if (response.data.status === 'FAILED') {
           setError(response.data.errorMessage || t('Der Katalogimport konnte nicht abgeschlossen werden.'));
+          setProcessing(false);
           if (interval !== undefined) window.clearInterval(interval);
         }
         if (response.data.status === 'REVIEW_REQUIRED' || response.data.status === 'COMPLETED') {
           if (interval !== undefined) window.clearInterval(interval);
         }
       } catch (cause) {
-        if (!cancelled) setError(getFriendlyErrorMessage(cause, t('Der Status des Katalogimports konnte nicht geladen werden.')));
+        if (!cancelled) {
+          setStatusLoadFailed(true);
+          setProcessing(false);
+          setError(getFriendlyErrorMessage(cause, t('Der Status des Katalogimports konnte nicht geladen werden.')));
+          if (interval !== undefined) window.clearInterval(interval);
+        }
       }
     };
     void load();
@@ -185,10 +195,12 @@ export function KnowledgeActivationGate() {
     setActivationId(null);
     setCatalogImport(null);
     setProcessing(false);
+    setStatusLoadFailed(false);
     setError('');
   }
 
-  const isLocked = Boolean(activationId && catalogImport?.status !== 'FAILED');
+  const importFailed = catalogImport?.status === 'FAILED' || statusLoadFailed;
+  const isLocked = Boolean(activationId && !importFailed);
   const items = catalogImport?.classification.items ?? [];
   const products = items.filter((item) => item.kind === 'product');
   const evidenceCount = catalogImport?.classification.catalogImport?.evidence?.length ?? 0;
@@ -241,7 +253,7 @@ export function KnowledgeActivationGate() {
     <section className="lulu-knowledge-activation__hero"><p>{t('Activation gate · final step')}</p><h1>{t('Lulu mit Unternehmenswissen aktivieren')}</h1><span>{t('Produktkataloge, PDFs und Bilder werden erst quellenbasiert analysiert. Du prüfst die erkannten Produkte und Varianten, bevor Lulu sie als Entwürfe anlegt.')}</span></section>
     {error ? <div role="alert" className="rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">{error}</div> : null}
 
-    {catalogImport?.status === 'FAILED' ? <section className="mt-5 flex flex-col gap-4 border border-destructive/25 bg-destructive/5 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-semibold">{t('Katalogimport fehlgeschlagen')}</h2><p className="mt-1 text-sm text-muted-foreground">{catalogImport.errorMessage || t('Der Katalogimport konnte nicht abgeschlossen werden.')}</p></div><button type="button" onClick={restartFailedImport} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-semibold hover:bg-secondary">{t('Import neu starten')}</button></section> : null}
+    {importFailed ? <section className="mt-5 flex flex-col gap-4 border border-destructive/25 bg-destructive/5 p-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="font-semibold">{t('Katalogimport fehlgeschlagen')}</h2><p className="mt-1 text-sm text-muted-foreground">{statusLoadFailed ? error || t('Der Status des Katalogimports konnte nicht geladen werden.') : catalogImport?.errorMessage || t('Der Katalogimport konnte nicht abgeschlossen werden.')}</p></div><button type="button" onClick={restartFailedImport} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-semibold hover:bg-secondary">{t('Import neu starten')}</button></section> : null}
 
     {catalogImport?.status === 'REVIEW_REQUIRED' ? <section className="mt-5 border border-emerald-500/25 bg-emerald-500/5 p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4"><div className="flex gap-3"><ClipboardCheck className="mt-0.5 shrink-0 text-emerald-600" size={22} /><div><h2 className="font-semibold">{t('Katalog zur Prüfung bereit')}</h2><p className="mt-1 max-w-2xl text-sm text-muted-foreground">{catalogImport.classification.summary || t('Lulu hat einen Katalogentwurf aus deinen Quellen erstellt.')}</p></div></div><span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700"><FileSearch size={14} /> {evidenceCount} {t('Quellenbelege')}</span></div>
@@ -260,10 +272,10 @@ export function KnowledgeActivationGate() {
           <div><p className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">Company setup · Step 4</p><h2 id="knowledge-progress-title" className="mt-2 text-2xl font-semibold">Aktivierung des Unternehmenswissens</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Jeder Schritt zeigt nur Arbeit, die der Server tatsächlich gemeldet hat.</p></div>
           <button type="button" onClick={() => setProgressOpen(false)} className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label="Fortschritt schließen"><X size={18} /></button>
         </header>
-        <div className="mt-5 flex items-center justify-between gap-3 rounded-xl border border-border bg-secondary/40 px-4 py-3 text-sm"><span className="font-medium">{catalogImport?.status === 'FAILED' ? 'Analyse fehlgeschlagen' : catalogImport?.status === 'REVIEW_REQUIRED' ? 'Prüfung ist bereit' : 'Analyse läuft'}</span><span className="text-muted-foreground">{elapsedLabel(catalogImport?.createdAt, now)}</span></div>
+         <div className="mt-5 flex items-center justify-between gap-3 rounded-xl border border-border bg-secondary/40 px-4 py-3 text-sm"><span className="font-medium">{importFailed ? 'Analyse fehlgeschlagen' : catalogImport?.status === 'REVIEW_REQUIRED' ? 'Prüfung ist bereit' : 'Analyse läuft'}</span><span className="text-muted-foreground">{elapsedLabel(catalogImport?.createdAt, now)}</span></div>
         <ol className="mt-5 space-y-3" aria-label="Kataloganalyse-Fortschritt">{checklist.map((step) => <li key={step.label} className={`flex items-start gap-3 rounded-xl border px-4 py-3 ${step.done ? 'border-emerald-500/25 bg-emerald-500/5' : step.active ? 'border-primary/30 bg-primary/5' : 'border-border bg-background'}`}><span className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-semibold ${step.done ? 'bg-emerald-600 text-white' : step.active ? 'border-2 border-primary text-primary' : 'border border-border text-muted-foreground'}`}>{step.done ? <CheckCircle2 size={15} /> : step.active ? <LoaderCircle size={15} className="animate-spin" /> : '·'}</span><span className="min-w-0"><strong className="block text-sm">{step.label}</strong><span className="mt-0.5 block text-xs leading-5 text-muted-foreground">{step.detail}</span></span></li>)}</ol>
-        {catalogImport?.status === 'FAILED' ? <div className="mt-5 rounded-xl border border-destructive/25 bg-destructive/5 p-4 text-sm text-destructive"><strong className="block">{catalogImport.errorCode || 'IMPORT_FAILED'}</strong><span className="mt-1 block">{catalogImport.errorMessage || 'Der Katalogimport konnte nicht abgeschlossen werden.'}</span></div> : catalogImport?.status === 'REVIEW_REQUIRED' ? <div className="mt-5 rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-4 text-sm"><strong className="block">{progress.itemCount ?? products.length} Einträge erkannt</strong><span className="mt-1 block text-muted-foreground">Der Entwurf wartet auf deine Prüfung. Noch nichts wird veröffentlicht.</span></div> : <p className="mt-5 text-xs leading-5 text-muted-foreground">Die Analyse läuft im Hintergrund weiter. Du kannst dieses Fenster schließen; der Status wird weiterhin automatisch aktualisiert.</p>}
-        {catalogImport?.status === 'FAILED' ? <footer className="mt-5 flex justify-end gap-2"><button type="button" onClick={restartFailedImport} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"><ArrowRight size={16} />Import neu starten</button></footer> : null}
+         {importFailed ? <div className="mt-5 rounded-xl border border-destructive/25 bg-destructive/5 p-4 text-sm text-destructive"><strong className="block">{statusLoadFailed ? t('Katalogimport fehlgeschlagen') : catalogImport?.errorCode || 'IMPORT_FAILED'}</strong><span className="mt-1 block">{statusLoadFailed ? error || 'Der Status des Katalogimports konnte nicht geladen werden.' : catalogImport?.errorMessage || 'Der Katalogimport konnte nicht abgeschlossen werden.'}</span></div> : catalogImport?.status === 'REVIEW_REQUIRED' ? <div className="mt-5 rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-4 text-sm"><strong className="block">{progress.itemCount ?? products.length} Einträge erkannt</strong><span className="mt-1 block text-muted-foreground">Der Entwurf wartet auf deine Prüfung. Noch nichts wird veröffentlicht.</span></div> : <p className="mt-5 text-xs leading-5 text-muted-foreground">Die Analyse läuft im Hintergrund weiter. Du kannst dieses Fenster schließen; der Status wird weiterhin automatisch aktualisiert.</p>}
+         {importFailed ? <footer className="mt-5 flex justify-end gap-2"><button type="button" onClick={restartFailedImport} className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground"><ArrowRight size={16} />Import neu starten</button></footer> : null}
       </section>
     </div> : null}
   </div>;
