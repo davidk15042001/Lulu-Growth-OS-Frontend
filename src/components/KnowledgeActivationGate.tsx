@@ -111,6 +111,12 @@ export function KnowledgeActivationGate() {
   }, [activationId, catalogImport]);
 
   useEffect(() => {
+    if (catalogImport?.status === 'REVIEW_REQUIRED' || catalogImport?.status === 'COMPLETED') {
+      setProgressOpen(false);
+    }
+  }, [catalogImport?.status]);
+
+  useEffect(() => {
     if (!processing) return;
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
