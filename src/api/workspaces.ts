@@ -16,6 +16,7 @@ export type UpdateWorkspaceInput = Partial<CreateWorkspaceInput> & {
   businessDescription?: string | null;
   valueProposition?: string | null;
   targetMarket?: string | null;
+  targetMarkets?: string[];
   shortBrandDescription?: string | null;
   positioningTags?: string[];
   legalForm?: string | null;
@@ -111,5 +112,24 @@ export const workspaceProfileApi = {
   },
   deleteLogo: (workspaceId: string) => requestApi<{ logoUrl: null }>({
     path: workspaceApiPath(workspaceId, '/profile/logo'), method: 'DELETE', body: {},
+  }),
+};
+
+export type TargetMarketOption = { code: string; label: string };
+export type PostOnboardingReadiness = {
+  onboardingCompleted: boolean;
+  targetMarkets: string[];
+  suggestedTargetMarkets: TargetMarketOption[];
+  targetAudience: string | null;
+  missingFields: string[];
+  readyForAgents: boolean;
+};
+
+export const postOnboardingReadinessApi = {
+  get: (workspaceId: string, signal?: AbortSignal) => requestApi<PostOnboardingReadiness>({
+    path: workspaceApiPath(workspaceId, '/post-onboarding-readiness'), signal,
+  }),
+  save: (workspaceId: string, input: { targetMarkets: string[]; targetAudience: string | null }) => requestApi<PostOnboardingReadiness>({
+    path: workspaceApiPath(workspaceId, '/post-onboarding-readiness'), method: 'PATCH', body: input,
   }),
 };

@@ -16,5 +16,19 @@ jobs:
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --retry 3 --retry-all-errors https://lulu-ai.tech/login | grep -qi '<html'
+          release_headers="$(mktemp)"
+          release_body="$(mktemp)"
+          trap 'rm -f "$release_headers" "$release_body"' EXIT
+          curl --fail --silent --show-error --retry 3 --retry-all-errors \
+            -D "$release_headers" -o "$release_body" https://lulu-ai.tech/release.json
+          grep -Eiq '^content-type: application/json([;[:space:]]|$)' "$release_headers"
+          jq -e '
+            .version == 1
+            and (.generatedAt | type == "string")
+            and (.frontend.sha | type == "string" and test("^[a-fA-F0-9]{7,64}$"))
+            and (.backend.sha | type == "string" and test("^[a-fA-F0-9]{7,64}$"))
+          ' "$release_body" >/dev/null
           curl --fail --silent --show-error --retry 3 --retry-all-errors https://api.lulu-ai.tech/api/v1/health | grep -q '"status":"ok"'
-          curl --fail --silent --show-error --retry 3 --retry-all-errors https://api.lulu-ai.tech/api/v1/ready | grep -q '"status":"ready"'
+          curl --fail --silent --show-error --retry 3 --retry-all-errors https://api.lulu-ai.tech/api/v1/version \
+            | jq -e '.success == true and (.data.commitSha | type == "string" and test("^[a-fA-F0-9]{7,64}$"))' >/dev/null
+          curl --fail --silent --show-error --retry 3 --retry-all-errors https://api.lulu-ai.tech/api/v1/ready | grep -q '"ready":true'

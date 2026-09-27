@@ -1,4 +1,11 @@
 {
+  "Agent prerequisite": "Agent prerequisite",
+  "Agent paused": "Agent paused",
+  "Needed": "Needed",
+  "Resume requested. Lulu will continue when the worker picks it up.": "Resume requested. Lulu will continue when the worker picks it up.",
+  "Resume agent": "Resume agent",
+  "Complete the requirement, then resume this work from the Office work item.": "Complete the requirement, then resume this work from the Office work item.",
+  "The agent could not be resumed. Complete the requirement and try again.": "The agent could not be resumed. Complete the requirement and try again.",
   "Manual creation": "Manual creation",
   "Manual invoice": "Manual invoice",
   "Manual quote": "Manual quote",

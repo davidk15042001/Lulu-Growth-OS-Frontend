@@ -33,6 +33,7 @@ import {
   type Conversation,
 } from "../../api/ai";
 import { voiceApi, type VoiceSettings } from "../../api/voice";
+import { officeApi } from "../../api/office";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { ingestRecord, type WorkspaceRecord } from "../../api/records";
 import { useLuluApp } from "../../api/LuluAppContext";
@@ -52,6 +53,13 @@ type CommandMessage = {
   toolCalls?: AssistantToolCall[];
   pendingActions?: AssistantPendingAction[];
   attachments?: Attachment[];
+  agentBlocker?: AgentBlockerNotice;
+};
+type AgentBlockerNotice = {
+  runId: string;
+  originalCode: string;
+  requirement: { label: string; action: string };
+  resume: { workItemId: string; expectedVersion: number; action: "resume" } | null;
 };
 type SpeechResultEvent = Event & { results: ArrayLike<ArrayLike<{ transcript: string; isFinal?: boolean }>> };
 type SpeechRecognitionErrorEvent = Event & { error?: string };
@@ -140,6 +148,21 @@ function attachmentsFromMetadata(metadata: Record<string, unknown>): Attachment[
   });
 }
 
+function agentBlockerFromMetadata(metadata: Record<string, unknown>): AgentBlockerNotice | undefined {
+  if (metadata.notificationType !== "agent_prerequisite_required" || typeof metadata.agentRunId !== "string") return undefined;
+  const requirement = asRecord(metadata.requirement);
+  if (!requirement || typeof requirement.label !== "string" || typeof requirement.action !== "string") return undefined;
+  const resume = asRecord(metadata.resume);
+  return {
+    runId: metadata.agentRunId,
+    originalCode: typeof metadata.originalCode === "string" ? metadata.originalCode : "AGENT_PREREQUISITE_REQUIRED",
+    requirement: { label: requirement.label, action: requirement.action },
+    resume: resume && typeof resume.workItemId === "string" && Number.isFinite(Number(resume.expectedVersion))
+      ? { workItemId: resume.workItemId, expectedVersion: Number(resume.expectedVersion), action: "resume" }
+      : null,
+  };
+}
+
 function historyToMessages(items: AiMessage[]): CommandMessage[] {
   return items
     .filter((message) => message.role === "user" || message.role === "assistant")
@@ -151,6 +174,7 @@ function historyToMessages(items: AiMessage[]): CommandMessage[] {
       toolCalls: toolCallsFromMetadata(message.metadata),
       pendingActions: pendingActionsFromMetadata(message.metadata),
       attachments: attachmentsFromMetadata(message.metadata),
+      agentBlocker: agentBlockerFromMetadata(message.metadata),
     }));
 }
 
@@ -240,6 +264,18 @@ function ActionSurface({ action, executing, onExecute }: { action: AssistantPend
   </section>;
 }
 
+function AgentBlockerSurface({ notice, resumed, resuming, onResume }: { notice: AgentBlockerNotice; resumed: boolean; resuming: boolean; onResume: () => void }) {
+  const t = useTranslation();
+  return <section className="lulu-office-command__agent-blocker" role="status" aria-label={t("Agent prerequisite")}>
+    <div className="lulu-office-command__surface-heading"><span><CircleAlert aria-hidden="true" size={14} />{t("Agent paused")}</span><small>{notice.originalCode}</small></div>
+    <p><strong>{t("Needed")}: </strong>{notice.requirement.label}</p>
+    <p>{notice.requirement.action}</p>
+    {resumed ? <p className="lulu-office-command__agent-blocker-success">{t("Resume requested. Lulu will continue when the worker picks it up.")}</p>
+      : notice.resume ? <button type="button" className="lulu-office-command__execute-action" disabled={resuming} onClick={onResume}>{resuming ? <LoaderCircle aria-hidden="true" size={15} className="lulu-office-spin" /> : <ArrowUpRight aria-hidden="true" size={15} />}{t("Resume agent")}</button>
+        : <p className="lulu-office-command__agent-blocker-muted">{t("Complete the requirement, then resume this work from the Office work item.")}</p>}
+  </section>;
+}
+
 function OfficeSettingsMenu({ workspaceName }: { workspaceName: string }) {
   const t = useTranslation();
   const navigateTo = (target: string) => navigateApp(target);
@@ -310,6 +346,8 @@ export function OfficeCommandCenter() {
   const [processing, setProcessing] = useState(false);
   const [executingActionId, setExecutingActionId] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [resumingWorkItemId, setResumingWorkItemId] = useState<string | null>(null);
+  const [resumedBlockers, setResumedBlockers] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
     window.localStorage.setItem(VOICE_SETTINGS_STORAGE_KEY, JSON.stringify(voiceSettings));
@@ -369,6 +407,12 @@ export function OfficeCommandCenter() {
     activeConversationIdRef.current = activeConversationId;
   }, [activeConversationId]);
 
+  useEffect(() => {
+    if (!workspaceId) return;
+    const interval = window.setInterval(() => { void loadConversations(); }, 10000);
+    return () => window.clearInterval(interval);
+  }, [loadConversations, workspaceId]);
+
   const selectConversation = async (conversationId: string) => {
     if (!workspaceId || processing) return;
     setError("");
@@ -389,6 +433,27 @@ export function OfficeCommandCenter() {
       setCoreState("attention");
     }
   };
+
+  useEffect(() => {
+    if (!workspaceId || !activeConversationId) return;
+    let disposed = false;
+    const refresh = async () => {
+      if (processing) return;
+      try {
+        const [messagesResult, actionsResult] = await Promise.all([
+          aiApi.messages(workspaceId, activeConversationId),
+          aiApi.actions(workspaceId, activeConversationId),
+        ]);
+        if (disposed || activeConversationIdRef.current !== activeConversationId) return;
+        setMessages(historyToMessages(messagesResult.data.items));
+        setActions(actionsResult.data);
+      } catch {
+        // Live polling is best effort; the current conversation remains usable.
+      }
+    };
+    const interval = window.setInterval(() => { void refresh(); }, 5000);
+    return () => { disposed = true; window.clearInterval(interval); };
+  }, [activeConversationId, processing, workspaceId]);
 
   const startNewIntent = () => {
     if (processing) return;
@@ -1007,6 +1072,26 @@ export function OfficeCommandCenter() {
     }
   };
 
+  const resumeAgent = async (notice: AgentBlockerNotice) => {
+    if (!workspaceId || !notice.resume || resumingWorkItemId) return;
+    setResumingWorkItemId(notice.resume.workItemId);
+    setError("");
+    setCoreState("working");
+    try {
+      await officeApi.control(workspaceId, notice.resume.workItemId, "resume", {
+        expectedVersion: notice.resume.expectedVersion,
+        idempotencyKey: `office-chat-resume:${notice.runId}:${notice.resume.expectedVersion}`,
+        reason: "agent_prerequisite_completed",
+      });
+      setResumedBlockers((current) => new Set(current).add(notice.runId));
+    } catch (cause) {
+      setError(getFriendlyErrorMessage(cause, t("The agent could not be resumed. Complete the requirement and try again.")));
+      setCoreState("attention");
+    } finally {
+      setResumingWorkItemId(null);
+    }
+  };
+
   const latestSurfaces = useMemo(() => messages.slice().reverse().find((message) => message.role === "assistant" && ((message.toolCalls?.length ?? 0) > 0 || (message.pendingActions?.length ?? 0) > 0)), [messages]);
   const activeConversation = conversations.find((conversation) => conversation.id === activeConversationId) ?? null;
   const stateCopy: Record<CoreState, { title: string; detail: string }> = {
@@ -1040,7 +1125,7 @@ export function OfficeCommandCenter() {
         <div className="lulu-office-command__core-copy"><p>{selectedWorkspace?.companyName ?? t("Company operating system")}</p><h2>{t(stateCopy[coreState].title)}</h2><span>{t(stateCopy[coreState].detail)}</span></div>
       </section>
 
-      {hasConversation && <section className="lulu-office-command__timeline" aria-label={activeConversation?.title ?? t("Active conversation")}>{messages.map((message) => <article key={message.id} className={`lulu-office-command__message lulu-office-command__message--${message.role}`}><div className="lulu-office-command__message-meta"><span>{message.role === "assistant" ? <Bot aria-hidden="true" size={14} /> : <Sparkles aria-hidden="true" size={14} />}</span><strong>{message.role === "assistant" ? "Lulu" : t("You")}</strong><time>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time></div><div className="lulu-office-command__message-content">{responseContent(message.content)}</div>{message.attachments && message.attachments.length > 0 && <div className="lulu-office-command__attachments">{message.attachments.map((attachment) => <span key={attachment.id}><FileText aria-hidden="true" size={13} />{attachment.name}</span>)}</div>}</article>)}{processing && <div className="lulu-office-command__processing"><LoaderCircle aria-hidden="true" size={16} className="lulu-office-spin" />{t("Lulu is preparing a verified response.")}</div>}</section>}
+      {hasConversation && <section className="lulu-office-command__timeline" aria-label={activeConversation?.title ?? t("Active conversation")}>{messages.map((message) => <article key={message.id} className={`lulu-office-command__message lulu-office-command__message--${message.role}`}><div className="lulu-office-command__message-meta"><span>{message.role === "assistant" ? <Bot aria-hidden="true" size={14} /> : <Sparkles aria-hidden="true" size={14} />}</span><strong>{message.role === "assistant" ? "Lulu" : t("You")}</strong><time>{new Date(message.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</time></div><div className="lulu-office-command__message-content">{responseContent(message.content)}</div>{message.agentBlocker ? <AgentBlockerSurface notice={message.agentBlocker} resumed={resumedBlockers.has(message.agentBlocker.runId)} resuming={resumingWorkItemId === message.agentBlocker.resume?.workItemId} onResume={() => void resumeAgent(message.agentBlocker!)} /> : null}{message.attachments && message.attachments.length > 0 && <div className="lulu-office-command__attachments">{message.attachments.map((attachment) => <span key={attachment.id}><FileText aria-hidden="true" size={13} />{attachment.name}</span>)}</div>}</article>)}{processing && <div className="lulu-office-command__processing"><LoaderCircle aria-hidden="true" size={16} className="lulu-office-spin" />{t("Lulu is preparing a verified response.")}</div>}</section>}
 
       {(latestSurfaces || actions.length > 0) && <section className="lulu-office-command__workbench" aria-label={t("Live work surfaces")}><div className="lulu-office-command__section-title"><div><p>{t("Dynamic workspace")}</p><h2>{t("Evidence, outputs and action state")}</h2></div><PanelTopOpen aria-hidden="true" size={18} /></div><div className="lulu-office-command__workbench-grid">{latestSurfaces?.toolCalls?.map((call, index) => <ToolSurface key={`${call.name}-${index}`} call={call} />)}{actions.map((action) => <ActionSurface key={action.id} action={action} executing={executingActionId === action.id} onExecute={executeAction} />)}</div></section>}
     </div>

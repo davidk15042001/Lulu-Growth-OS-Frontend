@@ -1,4 +1,11 @@
 {
+  "Agent prerequisite": "Agent prerequisite",
+  "Agent paused": "Agent paused",
+  "Needed": "Needed",
+  "Resume requested. Lulu will continue when the worker picks it up.": "Resume requested. Lulu will continue when the worker picks it up.",
+  "Resume agent": "Resume agent",
+  "Complete the requirement, then resume this work from the Office work item.": "Complete the requirement, then resume this work from the Office work item.",
+  "The agent could not be resumed. Complete the requirement and try again.": "The agent could not be resumed. Complete the requirement and try again.",
   "Quellen geladen": "Sources loaded",
   "Dokumente und Tabellen gelesen": "Documents and tables read",
   "Quellenbelege gespeichert": "Source evidence saved",
@@ -16,6 +23,10 @@
   "Einträge erkannt": "entries detected",
   "Der Entwurf wartet auf deine Prüfung. Noch nichts wird veröffentlicht.": "The draft is waiting for your review. Nothing has been published.",
   "Die Analyse läuft im Hintergrund weiter. Du kannst dieses Fenster schließen; der Status wird weiterhin automatisch aktualisiert.": "The analysis continues in the background. You can close this window; the status will keep updating automatically.",
+  "Keine bestätigbaren Produkte erkannt.": "No confirmable products were detected.",
+  "Das allgemeine Unternehmenswissen wurde trotzdem klassifiziert": "General company knowledge was still classified",
+  "Einträge": "entries",
+  "Du kannst die Informationen ergänzen und den Import erneut starten.": "You can add more information and restart the import.",
   "welcome": "WELCOME BACK",
   "headline": "Your business context is waiting.",
   "Offers and quotes created by Lulu agents or manually.": "Offers and quotes created by Lulu agents or manually.",
@@ -1084,5 +1095,14 @@
   "Legacy-Credits anzeigen": "Show legacy credits",
   "Separater alter Credit-Zähler. Für normale AI-Credits und Adspend bitte die einfache Schenk-Aktion oben verwenden.": "Separate old credit counter. For normal AI credits and ad spend, use the simple gift action above.",
   "Notiz optional": "Note optional",
-  "Legacy-Credits hinzufügen": "Add legacy credits"
+  "Legacy-Credits hinzufügen": "Add legacy credits",
+  "Budget confirmed — Lulu is getting to work": "Budget confirmed — Lulu is getting to work",
+  "Activating Lulu…": "Activating Lulu…",
+  "Your Knowledge Base, initial business analysis and the required operating data are now being generated in the background. The rest of the platform is unlocked.": "Your Knowledge Base, initial business analysis and the required operating data are now being generated in the background. The rest of the platform is unlocked.",
+  "Stay on billing": "Stay on billing",
+  "Open platform": "Open platform",
+  "Workspace access is temporarily unavailable.": "Workspace access is temporarily unavailable.",
+  "We could not verify your workspace permissions.": "We could not verify your workspace permissions.",
+  "Checking workspace access…": "Checking workspace access…",
+  "No workspace is available for this account.": "No workspace is available for this account."
 }

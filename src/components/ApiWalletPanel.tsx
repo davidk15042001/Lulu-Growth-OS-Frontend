@@ -1,7 +1,6 @@
 import {
   AlertTriangle,
   CheckCircle2,
-  CreditCard,
   LoaderCircle,
   QrCode,
   Sparkles,
@@ -18,9 +17,9 @@ import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { createPaymentQrDataUrl } from "../utils/paymentQr";
-const packages = [250, 500, 1000];
+import { navigateApp, routes } from "../routing";
+const packages = [500, 1000];
 const methods: Array<{ id: ApiPaymentMethod; label: string }> = [
-  { id: "card", label: "Bank card" },
   { id: "alipaycn", label: "Alipay" },
   { id: "wechatpay", label: "WeChat Pay" },
 ];
@@ -30,27 +29,20 @@ const money = new Intl.NumberFormat("en", {
   currencyDisplay: "narrowSymbol",
   maximumFractionDigits: 2,
 });
-function secureCheckoutUrl(value: string | null) {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === "https:" ? url.toString() : null;
-  } catch {
-    return null;
-  }
-}
 export function ApiWalletPanel() {
-  const { selectedWorkspace, can } = useLuluApp();
+  const { selectedWorkspace, can, refresh } = useLuluApp();
   const t = useTranslation();
   const workspaceId = selectedWorkspace?.id ?? null;
   const [overview, setOverview] = useState<ApiWalletOverview | null>(null);
   const [amount, setAmount] = useState(1000);
-  const [method, setMethod] = useState<ApiPaymentMethod>("card");
+  const [method, setMethod] = useState<ApiPaymentMethod>("alipaycn");
   const [topup, setTopup] = useState<ApiTopup | null>(null);
   const [topupWorkspaceId, setTopupWorkspaceId] = useState<string | null>(null);
   const [qr, setQr] = useState("");
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(false);
+  const [generationOpening, setGenerationOpening] = useState(false);
+  const [generationOpen, setGenerationOpen] = useState(false);
   const [errorState, setErrorState] = useState<{
     workspaceId: string;
     message: string;
@@ -62,6 +54,7 @@ export function ApiWalletPanel() {
   const currentOverview =
     overview?.wallet.workspaceId === workspaceId ? overview : null;
   const currentTopup = topupWorkspaceId === workspaceId ? topup : null;
+  const generationStorageKey = workspaceId ? `lulu.ai-generation-popup.${workspaceId}` : null;
   const error =
     errorState?.workspaceId === workspaceId ? errorState.message : "";
   const reversalDebt = currentOverview?.wallet.reversalDebtAmount ?? 0;
@@ -115,18 +108,40 @@ export function ApiWalletPanel() {
         setLoading(false);
     }
   }, [workspaceId]);
+  const showGenerationStarted = useCallback(async () => {
+    if (!workspaceId) return;
+    setGenerationOpening(true);
+    try {
+      // Refresh the authoritative workspace capability before exposing the
+      // platform button. Otherwise a fast click can race the route guard and
+      // send the newly funded customer back to the funding page once more.
+      await refresh();
+      if (workspaceRef.current !== workspaceId) return;
+      if (generationStorageKey) window.sessionStorage.removeItem(generationStorageKey);
+      setGenerationOpen(true);
+    } finally {
+      if (workspaceRef.current === workspaceId) setGenerationOpening(false);
+    }
+  }, [generationStorageKey, refresh, workspaceId]);
   useEffect(() => {
     paymentRequest.current += 1;
     setTopup(null);
     setTopupWorkspaceId(null);
     setQr("");
     setPaying(false);
+    setGenerationOpening(false);
+    setGenerationOpen(false);
     void load();
     return () => {
       loadRequest.current += 1;
       paymentRequest.current += 1;
     };
   }, [load]);
+  useEffect(() => {
+    if (!currentOverview?.wallet.aiEnabled || !generationStorageKey) return;
+    if (window.sessionStorage.getItem(generationStorageKey) !== "pending") return;
+    void showGenerationStarted();
+  }, [currentOverview?.wallet.aiEnabled, generationStorageKey, showGenerationStarted]);
   useEffect(() => {
     if (!currentTopup?.qrPayload) {
       setQr("");
@@ -177,6 +192,7 @@ export function ApiWalletPanel() {
         if (current.status === "SUCCEEDED") {
           await load();
           if (!active || workspaceRef.current !== targetWorkspaceId) return;
+          await showGenerationStarted();
         }
         setTopup(current);
         setTopupWorkspaceId(targetWorkspaceId);
@@ -190,7 +206,7 @@ export function ApiWalletPanel() {
       active = false;
       window.clearInterval(timer);
     };
-  }, [currentTopup?.id, currentTopup?.status, load, workspaceId]);
+  }, [currentTopup?.id, currentTopup?.status, load, showGenerationStarted, workspaceId]);
   async function pay() {
     if (!workspaceId || paying) return;
     const request = ++paymentRequest.current;
@@ -218,14 +234,10 @@ export function ApiWalletPanel() {
           workspaceRef.current !== targetWorkspaceId
         )
           return;
+        await showGenerationStarted();
       }
       setTopup(result);
       setTopupWorkspaceId(targetWorkspaceId);
-      if (targetMethod === "card") {
-        const checkout = secureCheckoutUrl(result.checkoutUrl);
-        if (!checkout) throw new Error("The secure checkout URL is missing.");
-        window.location.assign(checkout);
-      }
     } catch (cause) {
       if (
         request === paymentRequest.current &&
@@ -364,11 +376,7 @@ export function ApiWalletPanel() {
                 onClick={() => setMethod(item.id)}
                 className={`rounded-xl border p-3 text-left text-sm ${method === item.id ? "border-primary bg-primary/5" : "border-border bg-card"}`}
               >
-                {item.id === "card" ? (
-                  <CreditCard size={15} />
-                ) : (
-                  <QrCode size={15} />
-                )}
+                <QrCode size={15} />
                 <span className="mt-1 block font-semibold">{item.label}</span>
               </button>
             ))}
@@ -379,15 +387,15 @@ export function ApiWalletPanel() {
           <button
             type="button"
             onClick={() => void pay()}
-            disabled={!can("administer") || paying}
+            disabled={!can("administer") || paying || generationOpening}
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40"
           >
-            {paying ? (
+            {paying || generationOpening ? (
               <LoaderCircle className="animate-spin" size={16} />
             ) : (
               <WalletCards size={16} />
             )}
-            Pay {money.format(amount)}
+            {generationOpening ? t("Activating Lulu…") : `Pay ${money.format(amount)}`}
           </button>
         </div>
       </div>
@@ -418,6 +426,19 @@ export function ApiWalletPanel() {
               "Waiting for confirmed payment…"
             )}
           </p>
+        </div>
+      ) : null}
+      {generationOpen ? (
+        <div className="fixed inset-0 z-[130] grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm" role="presentation">
+          <section role="dialog" aria-modal="true" aria-labelledby="ai-generation-started-title" className="w-full max-w-lg rounded-2xl border border-border bg-card p-7 text-foreground shadow-2xl">
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-violet-500/10 text-violet-700"><Sparkles size={23} /></div>
+            <h2 id="ai-generation-started-title" className="mt-5 text-2xl font-semibold">{t("Budget confirmed — Lulu is getting to work")}</h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("Your Knowledge Base, initial business analysis and the required operating data are now being generated in the background. The rest of the platform is unlocked.")}</p>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <button type="button" onClick={() => setGenerationOpen(false)} className="rounded-xl border border-border px-4 py-3 text-sm font-semibold hover:bg-secondary">{t("Stay on billing")}</button>
+              <button type="button" onClick={() => navigateApp(routes.app.dashboard, { replace: true })} className="rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground">{t("Open platform")}</button>
+            </div>
+          </section>
         </div>
       ) : null}
       {topups.length ? (

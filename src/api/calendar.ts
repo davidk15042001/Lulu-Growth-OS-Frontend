@@ -1,6 +1,6 @@
 import { requestApi } from './client';
 
-export type CalendarProvider = 'google' | 'microsoft' | 'calendly' | 'calcom';
+export type CalendarProvider = 'google' | 'microsoft';
 export type CalendarAttendee = { name?: string | null; email?: string | null; status?: string | null };
 export type CalendarAccount = {
   id: string;
@@ -114,7 +114,6 @@ export const calendarApi = {
   createGuestAgoraToken: (token: string, guestName?: string) => requestApi<Omit<AgoraToken, 'userAccount'> & { userAccount: string; workspaceName?: string }>({ path: `/public/calendar/meetings/${encodeURIComponent(token)}/agora-token`, method: 'POST', body: guestName ? { guestName } : {} }),
   accounts: (workspaceId: string) => requestApi<{ items: CalendarAccount[] }>({ path: `/workspaces/${workspaceId}/calendar/accounts` }),
   startOAuth: (workspaceId: string, provider: 'google' | 'microsoft', returnTo = '/app/calendar?section=settings') => requestApi<{ provider: string; authorizationUrl: string }>({ path: `/workspaces/${workspaceId}/calendar/accounts/oauth/start`, method: 'POST', body: { provider, returnTo } }),
-  connectToken: (workspaceId: string, body: { provider: 'calendly' | 'calcom'; apiKey: string; displayName?: string; baseUrl?: string }) => requestApi<CalendarAccount>({ path: `/workspaces/${workspaceId}/calendar/accounts/token`, method: 'POST', body }),
   disconnect: (workspaceId: string, accountId: string) => requestApi<void>({ path: `/workspaces/${workspaceId}/calendar/accounts/${accountId}`, method: 'DELETE' }),
   startSync: (workspaceId: string, accountId: string) => requestApi<CalendarSyncJob>({ path: `/workspaces/${workspaceId}/calendar/accounts/${accountId}/sync`, method: 'POST', body: {} }),
   syncJob: (workspaceId: string, accountId: string, jobId: string) => requestApi<CalendarSyncJob>({ path: `/workspaces/${workspaceId}/calendar/accounts/${accountId}/sync/${jobId}` }),

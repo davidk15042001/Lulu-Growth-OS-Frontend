@@ -136,5 +136,14 @@
   "Tools ausblenden": "隐藏工具",
   "Tools anzeigen": "显示工具",
   "Tools werden geladen…": "正在加载工具…",
-  "Keine Tools verfügbar.": "没有可用工具。"
+  "Keine Tools verfügbar.": "没有可用工具。",
+  "Budget confirmed — Lulu is getting to work": "预算已确认——Lulu 开始工作",
+  "Activating Lulu…": "正在激活 Lulu…",
+  "Your Knowledge Base, initial business analysis and the required operating data are now being generated in the background. The rest of the platform is unlocked.": "你的知识库、初始业务分析和所需运营数据正在后台生成。平台的其余功能已解锁。",
+  "Stay on billing": "留在账单页面",
+  "Open platform": "打开平台",
+  "Workspace access is temporarily unavailable.": "工作区访问暂时不可用。",
+  "We could not verify your workspace permissions.": "无法验证你的工作区权限。",
+  "Checking workspace access…": "正在检查工作区访问权限…",
+  "No workspace is available for this account.": "此账户没有可用的工作区。"
 }
