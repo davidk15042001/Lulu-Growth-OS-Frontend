@@ -31,7 +31,19 @@ const HIDDEN_WORKSPACE_NAVIGATION_PAGE_IDS = new Set([
   "fresh-tide-9404",
   "glad-coast-1428",
 ]);
+const EXISTING_WEBSITE_NAVIGATION_PAGE_IDS = new Set([
+  "lulu-website-portal-9012",
+  "lulu-website-editor-9012",
+  "lulu-website-preview-9012",
+  "lulu-website-media-9017",
+  "lulu-website-domains-9018",
+  "website-posts-9016",
+  "sparklingly-moon-5114",
+  "zealously-path-4224",
+  "sunny-house-9595",
+]);
 type StoredWebsiteGeneration = { workspaceId: string; siteId: string; provider: "managed"; job: WebsiteGenerationJob };
+type NavigationAiPreferences = { detectionSettings?: Record<string, boolean> };
 
 function isBlockingWebsiteJob(job: Pick<WebsiteGenerationJob, "status" | "autoPublish">) {
   return RUNNING_STATUSES.has(job.status) || (job.autoPublish !== false && ["generated", "preview"].includes(job.status));
@@ -70,6 +82,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
   const [agentsToggleBusy, setAgentsToggleBusy] = useState(false);
   const [agentCadenceBusy, setAgentCadenceBusy] = useState(false);
   const [agentsToggleError, setAgentsToggleError] = useState<string | null>(null);
+  const [hideWebsiteAutomation, setHideWebsiteAutomation] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const activationPageId = !selectedWorkspace?.onboardingCompletedAt
     ? selectedWorkspace?.onboardingStep === "profile_completion" ? "profile" : selectedWorkspace?.onboardingStep === "knowledge_base" ? "rich-field-1880" : null
@@ -79,6 +92,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
       ...section,
       pages: section.pages.filter((page) => {
         if (HIDDEN_WORKSPACE_NAVIGATION_PAGE_IDS.has(page.id)) return false;
+        if (hideWebsiteAutomation && EXISTING_WEBSITE_NAVIGATION_PAGE_IDS.has(page.id)) return false;
         if (!isPageAvailable(page.id) && page.id !== activeSlug) return false;
         if (activationPageId) return page.id === activationPageId;
         // During a rolling deploy or a workspace switch, retain only the current
@@ -88,11 +102,26 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
         return !route || route.requiredPermissions.every((capability) => permissions.capabilities.includes(capability));
       }),
     }))
-    .filter((section) => section.pages.length > 0), [activeSlug, activationPageId, permissions]);
+    .filter((section) => section.pages.length > 0), [activeSlug, activationPageId, hideWebsiteAutomation, permissions]);
   const activeSection = navigationSections.find((section) => section.pages.some((page) => page.id === activeSlug))?.label ?? null;
   const [openSection, setOpenSection] = useState<string | null>(() => activeSection);
 
   useEffect(() => setOpenSection(activeSection), [activeSection]);
+  useEffect(() => {
+    if (!selectedWorkspace) {
+      setHideWebsiteAutomation(false);
+      return;
+    }
+    let mounted = true;
+    void requestApi<NavigationAiPreferences | null>({ path: `/workspaces/${selectedWorkspace.id}/onboarding/ai-preferences` })
+      .then((response) => {
+        if (mounted) setHideWebsiteAutomation(response.data?.detectionSettings?.hasExistingWebsite === true);
+      })
+      .catch(() => {
+        if (mounted) setHideWebsiteAutomation(false);
+      });
+    return () => { mounted = false; };
+  }, [selectedWorkspace?.id]);
   useEffect(() => {
     if (!selectedWorkspace || !canToggleAgents) return;
     let mounted = true;

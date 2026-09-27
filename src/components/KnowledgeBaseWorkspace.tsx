@@ -2,6 +2,7 @@ import { BookOpen, Pencil, Plus, Save, Sparkles, Trash2, X } from "lucide-react"
 import { useEffect, useMemo, useState } from "react";
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
+import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import {
   onboardingApi,
   type AiBusinessProfileSuggestion,
@@ -203,6 +204,7 @@ function SuggestionFieldCard({ title, description, suggestions, onUse, disabled,
 
 export function KnowledgeBaseWorkspace() {
   const { selectedWorkspace, can } = useLuluApp();
+  const t = useTranslation();
   const workspaceId = selectedWorkspace?.id ?? null;
   const canEdit = can("edit");
   const [snapshot, setSnapshot] = useState<OnboardingSnapshot | null>(null);
@@ -288,6 +290,17 @@ export function KnowledgeBaseWorkspace() {
   }), [snapshot]);
   const aiBusinessProfile = snapshot?.aiBusinessProfile ?? null;
   const recommendedAiProfile = aiBusinessProfile?.payload.recommendedProfile ?? null;
+  const recommendedTargetMarkets = recommendedAiProfile?.targetMarkets?.length
+    ? recommendedAiProfile.targetMarkets
+    : recommendedAiProfile ? [recommendedAiProfile.targetMarket] : [];
+  const recommendedTargetCountries = recommendedAiProfile?.targetCountries ?? [];
+  const recommendedPrimaryIcps = recommendedAiProfile?.primaryIcps?.length
+    ? recommendedAiProfile.primaryIcps
+    : recommendedAiProfile ? [recommendedAiProfile.primaryIcp] : [];
+  const recommendedUsps = recommendedAiProfile?.usps?.length
+    ? recommendedAiProfile.usps
+    : recommendedAiProfile ? [recommendedAiProfile.usp] : [];
+  const profileNeedsContext = aiBusinessProfile?.payload.quality?.status === "needs_context";
 
   async function runAction(key: string, successMessage: string, action: () => Promise<void>) {
     setBusyKey(key);
@@ -386,7 +399,7 @@ export function KnowledgeBaseWorkspace() {
                 </div>
               </div>
               <p className="mt-4 max-w-4xl text-sm text-muted-foreground">
-                Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 20 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.
+                Generate one high-quality value proposition, one durable vision and five ranked target markets, plus the best 5 AI-ranked customer segments. The draft uses your current onboarding data and compares it against the top 10 competitors used for this workspace.
               </p>
               {aiBusinessProfile?.generatedAt ? (
                 <p className="mt-3 text-xs text-muted-foreground">
@@ -398,19 +411,20 @@ export function KnowledgeBaseWorkspace() {
               {recommendedAiProfile ? (
                 <button
                   type="button"
-                  disabled={!canEdit || busyKey === "apply-ai-profile"}
                   onClick={() => void runAction("apply-ai-profile", "Recommended AI profile applied.", async () => {
                     await saveBusinessProfileDraft({
                       valueProposition: recommendedAiProfile.valueProposition,
                       vision: recommendedAiProfile.vision,
-                      targetMarket: recommendedAiProfile.targetMarket,
+                      targetMarket: recommendedTargetMarkets.join(", "),
                       shortBrandDescription: recommendedAiProfile.shortBrandDescription,
-                      primaryIcp: recommendedAiProfile.primaryIcp,
-                      usp: recommendedAiProfile.usp,
+                      primaryIcp: recommendedPrimaryIcps.join("; "),
+                      usp: recommendedUsps.join("; "),
                       primaryChallenges: recommendedAiProfile.primaryChallenges,
                       languages: recommendedAiProfile.languages,
                     });
                   })}
+                  aria-disabled={profileNeedsContext}
+                  disabled={!canEdit || profileNeedsContext || busyKey === "apply-ai-profile"}
                   className={actionClass}
                 >
                   <Save size={15} />
@@ -427,6 +441,14 @@ export function KnowledgeBaseWorkspace() {
                 <p className="mt-2 text-sm leading-6 text-muted-foreground">{aiBusinessProfile.payload.summary}</p>
               </div>
 
+              {profileNeedsContext ? (
+                <div className="rounded-xl border border-amber-300/50 bg-amber-500/10 p-4">
+                  <h3 className="text-sm font-semibold text-foreground">{t("AI profile needs better source context")}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("The recommendations are kept as hypotheses and were not applied to the workspace because the source data is too generic.")}</p>
+                  {aiBusinessProfile.payload.quality?.gaps.length ? <ul className="mt-3 grid gap-1 text-sm text-muted-foreground">{aiBusinessProfile.payload.quality.gaps.map((gap) => <li key={gap}>• {gap}</li>)}</ul> : null}
+                </div>
+              ) : null}
+
               {recommendedAiProfile ? (
                 <div className="grid gap-4 xl:grid-cols-2">
                   <div className="rounded-xl border border-border bg-background/40 p-4">
@@ -441,16 +463,17 @@ export function KnowledgeBaseWorkspace() {
                         <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.vision}</p>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Target Market</p>
-                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.targetMarket}</p>
+                        <p className="text-xs text-muted-foreground">Target Markets</p>
+                        <div className="mt-2 flex flex-wrap gap-2">{recommendedTargetMarkets.map((item) => <span key={item} className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">{item}</span>)}</div>
+                      </div>
+                      {recommendedTargetCountries.length ? <div><p className="text-xs text-muted-foreground">{t("Target Countries")}</p><div className="mt-2 flex flex-wrap gap-2">{recommendedTargetCountries.map((item) => <span key={item} className="rounded-full border border-border bg-card px-3 py-1 text-xs text-foreground">{item}</span>)}</div></div> : null}
+                      <div>
+                        <p className="text-xs text-muted-foreground">{t("Primary ICPs")}</p>
+                        <div className="mt-2 grid gap-2">{recommendedPrimaryIcps.map((item) => <p key={item} className="text-sm font-medium text-foreground">{item}</p>)}</div>
                       </div>
                       <div>
-                        <p className="text-xs text-muted-foreground">Primary ICP</p>
-                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.primaryIcp}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground">USP</p>
-                        <p className="mt-1 text-sm font-medium text-foreground">{recommendedAiProfile.usp}</p>
+                        <p className="text-xs text-muted-foreground">{t("USPs")}</p>
+                        <div className="mt-2 grid gap-2">{recommendedUsps.map((item) => <p key={item} className="text-sm font-medium text-foreground">{item}</p>)}</div>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Short Brand Description</p>
@@ -497,10 +520,18 @@ export function KnowledgeBaseWorkspace() {
                 />
                 <SuggestionFieldCard
                   title="Target Market"
-                  description="Five AI-ranked market opportunities with clearer competitive whitespace."
+                  description="Five to eight AI-ranked market opportunities with named countries and clearer competitive whitespace."
                   suggestions={aiBusinessProfile.payload.suggestions.targetMarkets}
                   disabled={!canEdit}
                   onUse={(value) => setBusinessForm((current) => ({ ...current, targetMarket: value }))}
+                />
+                <SuggestionFieldCard
+                  title="Target Countries"
+                  description="Countries selected to match the recommended markets and language coverage."
+                  suggestions={aiBusinessProfile.payload.suggestions.targetCountries ?? []}
+                  disabled={!canEdit}
+                  actionLabel="Add to list"
+                  onUse={(value) => setBusinessForm((current) => ({ ...current, targetMarket: appendCsvItem(current.targetMarket, value) }))}
                 />
                 <SuggestionFieldCard
                   title="Primary ICP"
@@ -591,7 +622,7 @@ export function KnowledgeBaseWorkspace() {
               <Sparkles className="mx-auto text-muted-foreground" size={32} />
               <h3 className="mt-4 text-lg font-semibold text-foreground">No AI business profile generated yet</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, the top 10 audience segments, and the full comparison against the top 10 competitors.
+                Use the Update button in the navigation bar to generate the draft with positioning, ICP, USP, brand description, challenges, languages, and 5 ranked audience segments. When no manual segments exist, the 5 best AI segments are saved automatically.
               </p>
             </div>
           )}
@@ -755,6 +786,9 @@ export function KnowledgeBaseWorkspace() {
             <div>
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Customer Intelligence</p>
               <h2 className="mt-1 text-lg font-semibold text-foreground">Customer Segments</h2>
+              <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+                A customer segment is a specific group of customers with similar needs, buying roles, pain points, and use cases. These segments help the AI agents target the right audience and tailor campaigns, sales work, and recommendations.
+              </p>
             </div>
             <div className="flex flex-wrap gap-2">
               {aiBusinessProfile?.payload.customerSegments?.length ? (
@@ -767,10 +801,10 @@ export function KnowledgeBaseWorkspace() {
                   className={actionClass}
                 >
                   <Sparkles size={15} />
-                  Apply Top 10 AI Segments
+                  Apply 5 AI Segments
                 </button>
               ) : null}
-              <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom())} className={actionClass}><Plus size={15} />New</button>
+              <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom())} className={actionClass}><Plus size={15} />Add segment</button>
             </div>
           </div>
           <div className="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
@@ -779,18 +813,18 @@ export function KnowledgeBaseWorkspace() {
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0">
-                      <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">AI Top 10</p>
+                      <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">AI Top 5</p>
                       <h3 className="mt-1 text-sm font-semibold text-foreground">Best-ranked customer segments for this workspace</h3>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        These top 10 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 10 at once.
+                        These top 5 segments are AI-ranked by strategic fit, revenue potential, and competitor whitespace. You can open one in the editor or replace the current segment list with all 5 at once.
                       </p>
                     </div>
                     <div className="rounded-full border border-primary/20 bg-background/80 px-3 py-1 text-xs text-foreground">
-                      {aiBusinessProfile.payload.customerSegments.length} generated
+                      {Math.min(aiBusinessProfile.payload.customerSegments.length, 5)} generated
                     </div>
                   </div>
                   <div className="mt-4 grid gap-3">
-                    {aiBusinessProfile.payload.customerSegments.map((item, index) => (
+                    {aiBusinessProfile.payload.customerSegments.slice(0, 5).map((item, index) => (
                       <div key={`${item.name}-${index}`} className="rounded-lg border border-border bg-card p-4">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 flex-1">
@@ -847,8 +881,8 @@ export function KnowledgeBaseWorkspace() {
                       <div className="mt-2 text-xs text-muted-foreground">{item.region || "No region"} · {item.primarySegment ? "Primary segment" : "Secondary segment"}</div>
                     </div>
                     <div className="flex gap-2">
-                      <button type="button" disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
-                      <button type="button" disabled={!canEdit || busyKey === `delete-segment-${item.id}`} onClick={() => void runAction(`delete-segment-${item.id}`, "Segment removed.", async () => { await onboardingApi.deleteCustomerSegment(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
+                      <button type="button" aria-label={`Edit customer segment ${item.name}`} title={`Edit customer segment ${item.name}`} disabled={!canEdit} onClick={() => setSegmentDraft(segmentDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
+                      <button type="button" aria-label={`Remove customer segment ${item.name}`} title={`Remove customer segment ${item.name}`} disabled={!canEdit || busyKey === `delete-segment-${item.id}`} onClick={() => void runAction(`delete-segment-${item.id}`, "Segment removed.", async () => { await onboardingApi.deleteCustomerSegment(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
                     </div>
                   </div>
                 </div>
@@ -901,8 +935,9 @@ export function KnowledgeBaseWorkspace() {
             <div>
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Market View</p>
               <h2 className="mt-1 text-lg font-semibold text-foreground">Competitors</h2>
+              <p className="mt-2 max-w-3xl text-sm text-muted-foreground">Add, edit, or remove competitors yourself. The saved records are used as market context for analysis and positioning.</p>
             </div>
-            <button type="button" disabled={!canEdit} onClick={() => setCompetitorDraft(competitorDraftFrom())} className={actionClass}><Plus size={15} />New</button>
+            <button type="button" disabled={!canEdit} onClick={() => setCompetitorDraft(competitorDraftFrom())} className={actionClass}><Plus size={15} />Add competitor</button>
           </div>
           <div className="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
             <div className="grid gap-3">
@@ -915,8 +950,8 @@ export function KnowledgeBaseWorkspace() {
                       <div className="mt-2 text-xs text-muted-foreground">{item.competitorType} · {item.market || "No market"} · {item.websiteUrl || "No URL"}</div>
                     </div>
                     <div className="flex gap-2">
-                      <button type="button" disabled={!canEdit} onClick={() => setCompetitorDraft(competitorDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
-                      <button type="button" disabled={!canEdit || busyKey === `delete-competitor-${item.id}`} onClick={() => void runAction(`delete-competitor-${item.id}`, "Competitor removed.", async () => { await onboardingApi.deleteCompetitor(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
+                      <button type="button" aria-label={`Edit competitor ${item.name}`} title={`Edit competitor ${item.name}`} disabled={!canEdit} onClick={() => setCompetitorDraft(competitorDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
+                      <button type="button" aria-label={`Remove competitor ${item.name}`} title={`Remove competitor ${item.name}`} disabled={!canEdit || busyKey === `delete-competitor-${item.id}`} onClick={() => void runAction(`delete-competitor-${item.id}`, "Competitor removed.", async () => { await onboardingApi.deleteCompetitor(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
                     </div>
                   </div>
                 </div>
@@ -973,8 +1008,9 @@ export function KnowledgeBaseWorkspace() {
             <div>
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">Connected Sources</p>
               <h2 className="mt-1 text-lg font-semibold text-foreground">Platforms</h2>
+              <p className="mt-2 max-w-3xl text-sm text-muted-foreground">Manage the platforms and connected sources that belong to this workspace. Remove entries that are no longer relevant.</p>
             </div>
-            <button type="button" disabled={!canEdit} onClick={() => setPlatformDraft(platformDraftFrom())} className={actionClass}><Plus size={15} />New</button>
+            <button type="button" disabled={!canEdit} onClick={() => setPlatformDraft(platformDraftFrom())} className={actionClass}><Plus size={15} />Add platform</button>
           </div>
           <div className="mt-4 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)]">
             <div className="grid gap-3">
@@ -987,8 +1023,8 @@ export function KnowledgeBaseWorkspace() {
                       <div className="mt-2 text-xs text-muted-foreground">{item.integrationKey || "No integration key"} · {item.lastSyncedAt || "Never synced"}</div>
                     </div>
                     <div className="flex gap-2">
-                      <button type="button" disabled={!canEdit} onClick={() => setPlatformDraft(platformDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
-                      <button type="button" disabled={!canEdit || busyKey === `delete-platform-${item.id}`} onClick={() => void runAction(`delete-platform-${item.id}`, "Platform removed.", async () => { await onboardingApi.deletePlatform(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
+                      <button type="button" aria-label={`Edit platform ${item.name}`} title={`Edit platform ${item.name}`} disabled={!canEdit} onClick={() => setPlatformDraft(platformDraftFrom(item))} className={actionClass}><Pencil size={14} /></button>
+                      <button type="button" aria-label={`Remove platform ${item.name}`} title={`Remove platform ${item.name}`} disabled={!canEdit || busyKey === `delete-platform-${item.id}`} onClick={() => void runAction(`delete-platform-${item.id}`, "Platform removed.", async () => { await onboardingApi.deletePlatform(workspaceId, item.id); })} className={actionClass}><Trash2 size={14} /></button>
                     </div>
                   </div>
                 </div>

@@ -14,7 +14,7 @@ import { onboardingApi, type Offering } from "../../api/onboarding";
 import { productsApi } from "../../api/products";
 import { workspaceProfileApi } from "../../api/workspaces";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
-import { getFriendlyErrorMessage } from "../../api/client";
+import { getFriendlyErrorMessage, resolveApiMediaUrl } from "../../api/client";
 import { DomainOwnershipPanel } from "../../components/DomainOwnershipPanel";
 import { WebsiteAssetPanel } from "./WebsiteAssetPanel";
 import { deriveTemplatePalette, LuluIndustrialTemplate, type TemplateBranding, type TemplateCatalogItem, type TemplatePalette } from "./LuluIndustrialTemplate";
@@ -327,7 +327,7 @@ export default function ManagedStorefrontApp({ initialPanel }: { initialPanel?: 
         products: offeringProducts.length ? offeringProducts : productRecords,
         services: offerings.filter((offering) => offering.offeringType === "service" && activeOffering(offering.status)).map(offeringToTemplateItem),
       });
-      setBranding({ companyName: profileResult?.data.companyName || onboardingResult?.data.workspace.companyName || null, logoUrl: profileResult?.data.logoUrl || null });
+      setBranding({ companyName: profileResult?.data.companyName || onboardingResult?.data.workspace.companyName || null, logoUrl: resolveApiMediaUrl(profileResult?.data.logoUrl) });
       const managed = result.data.items.filter((site) => site.provider === "managed");
       setSites(managed);
       const next = managed.find((site) => site.id === selectedSite?.id) ?? managed[0] ?? null;

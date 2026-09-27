@@ -65,6 +65,8 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   TOO_MANY_REQUESTS: "Too many requests. Please wait briefly and try again.",
   AI_NOT_CONFIGURED: "The AI assistant is temporarily unavailable. Please try again later.",
   AI_PROVIDER_NOT_CONFIGURED: "Lulu is waiting for an AI provider to be connected.",
+  AI_PROVIDER_CIRCUITS_OPEN: "The AI assistant is temporarily unavailable. Please try again later.",
+  AI_PROVIDERS_UNAVAILABLE: "The AI assistant is temporarily unavailable. Please try again later.",
   AI_FUNDS_REQUIRED: "Add AI funds before Lulu can continue this work.",
   AI_FUNDS_EXHAUSTED: "Lulu is waiting for more AI funds before continuing this work.",
   AI_REVERSAL_DEBT: "Lulu is waiting for a billing adjustment before continuing AI work.",
@@ -134,6 +136,10 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   S3_UPLOAD_FAILED: "Amazon S3 could not save the document. Please try again.",
   S3_DOWNLOAD_FAILED: "Amazon S3 could not load the document preview.",
   S3_DELETE_FAILED: "Amazon S3 could not delete the document.",
+  WORKSPACE_LOGO_EMPTY: "Please choose a logo before uploading.",
+  WORKSPACE_LOGO_TYPE_UNSUPPORTED: "Use a PNG, JPG, JPEG, WebP or GIF image for the company logo.",
+  WORKSPACE_LOGO_TOO_LARGE: "The company logo must be 5 MB or smaller.",
+  WORKSPACE_LOGO_NOT_FOUND: "The company logo could not be found.",
   DATABASE_MIGRATION_MISSING: "Document storage is not enabled on the server yet.",
   INTERNAL_ERROR: "A server error occurred. Please send the technical details to support.",
   API_ERROR: "The API returned an unexpected error. Please send the technical details to support.",
@@ -362,6 +368,35 @@ const API_BASE_URL = (import.meta.env.VITE_API_URL?.trim() || "/api/v1").replace
 const API_REQUEST_MESSAGE = "lulu:api-request";
 const API_RESPONSE_MESSAGE = "lulu:api-response";
 const ACCESS_TOKEN_STORAGE_KEY = "lulu_access_token";
+
+export function resolveApiMediaUrl(value: string | null | undefined) {
+  const url = String(value ?? "").trim();
+  if (!url) return null;
+  if (/^(blob:|data:)/i.test(url)) return url;
+  // Production media is served by the API hostname; the frontend hostname returns the SPA shell.
+  const isProductionFrontend = ["lulu-ai.tech", "www.lulu-ai.tech"].includes(window.location.hostname);
+  if (/^https?:\/\//i.test(url)) {
+    try {
+      const parsed = new URL(url);
+      if (isProductionFrontend && ["lulu-ai.tech", "www.lulu-ai.tech"].includes(parsed.hostname) && parsed.pathname.startsWith("/api/v1/")) {
+        return new URL(`${parsed.pathname}${parsed.search}${parsed.hash}`, "https://api.lulu-ai.tech").toString();
+      }
+    } catch {
+      return url;
+    }
+    return url;
+  }
+  const base = /^https?:\/\//i.test(API_BASE_URL)
+    ? API_BASE_URL
+    : isProductionFrontend
+      ? "https://api.lulu-ai.tech/api/v1"
+      : window.location.origin;
+  try {
+    return new URL(url, base).toString();
+  } catch {
+    return url;
+  }
+}
 
 function readStoredAccessToken() {
   try {

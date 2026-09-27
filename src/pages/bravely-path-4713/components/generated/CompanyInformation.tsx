@@ -5,6 +5,7 @@ import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/c
 import { clearSelectedWorkspaceId, clearStoredUser, getSelectedWorkspaceId, setSelectedWorkspaceId } from '../../../../api/session';
 import { OnboardingHeader } from '../../../../components/OnboardingHeader';
 import { useLuluApp } from '../../../../api/LuluAppContext';
+type HasWebsiteChoice = "" | "yes" | "no";
 type CompanyForm = {
   fullName: string;
   companyName: string;
@@ -12,6 +13,11 @@ type CompanyForm = {
   countryRegion: string;
   taxId: string;
   address: string;
+  hasWebsite: HasWebsiteChoice;
+};
+type CompanyInformationSnapshot = {
+  workspace: Partial<CompanyForm>;
+  aiPreferences: { detectionSettings?: Record<string, boolean> } | null;
 };
 export const CompanyInformation = () => {
   const { currentUser } = useLuluApp();
@@ -24,23 +30,28 @@ export const CompanyInformation = () => {
     industry: "",
     countryRegion: "",
     taxId: "",
-    address: ""
+    address: "",
+    hasWebsite: ""
   });
   useEffect(() => {
     const workspaceId = getSelectedWorkspaceId();
     if (!workspaceId) return;
-    requestApi<{ workspace: CompanyForm }>({ path: `/workspaces/${workspaceId}/onboarding` })
-      .then(response => setForm({
-        fullName: [currentUser?.firstName,currentUser?.lastName].filter(Boolean).join(' '),
-        companyName: response.data.workspace.companyName,
-        industry: response.data.workspace.industry ?? '',
-        countryRegion: response.data.workspace.countryRegion ?? '',
-        taxId: response.data.workspace.taxId ?? '',
-        address: response.data.workspace.address ?? '',
-      }))
+    requestApi<CompanyInformationSnapshot>({ path: `/workspaces/${workspaceId}/onboarding` })
+      .then(response => {
+        const hasExistingWebsite = response.data.aiPreferences?.detectionSettings?.hasExistingWebsite;
+        setForm({
+          fullName: [currentUser?.firstName,currentUser?.lastName].filter(Boolean).join(' '),
+          companyName: response.data.workspace.companyName ?? '',
+          industry: response.data.workspace.industry ?? '',
+          countryRegion: response.data.workspace.countryRegion ?? '',
+          taxId: response.data.workspace.taxId ?? '',
+          address: response.data.workspace.address ?? '',
+          hasWebsite: hasExistingWebsite === true ? "yes" : hasExistingWebsite === false ? "no" : "",
+        });
+      })
       .catch(() => undefined);
   }, [currentUser?.firstName,currentUser?.lastName]);
-  const update = (key: keyof CompanyForm, value: string) => {
+  const update = <K extends keyof CompanyForm>(key: K, value: CompanyForm[K]) => {
     setForm({
       ...form,
       [key]: value
@@ -49,7 +60,7 @@ export const CompanyInformation = () => {
   };
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!form.fullName.trim() || !form.companyName.trim() || !form.industry.trim() || loading) return;
+    if (!form.fullName.trim() || !form.companyName.trim() || !form.industry.trim() || !form.hasWebsite || loading) return;
     setLoading(true);
     setError('');
     try {
@@ -77,6 +88,7 @@ export const CompanyInformation = () => {
         countryRegion: form.countryRegion || null,
         taxId: form.taxId || null,
         address: form.address || null,
+        hasWebsite: form.hasWebsite === "yes",
       } });
       setSaved(true);
       window.location.assign(routes.onboarding.billing);
@@ -128,7 +140,23 @@ export const CompanyInformation = () => {
               
             </label>
 
-            <button type="submit" disabled={loading || !form.fullName.trim() || !form.companyName.trim() || !form.industry.trim()} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[var(--border)] focus:ring-offset-2 focus:ring-offset-[var(--border)]">
+            <fieldset className="space-y-3">
+              <legend className="text-sm font-medium text-[var(--muted-foreground)]">Do you already have a website?</legend>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className={`cursor-pointer rounded-md border p-3 transition ${form.hasWebsite === "yes" ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--foreground)]" : "border-[var(--border)] bg-[var(--secondary)] text-[var(--muted-foreground)]"}`}>
+                  <input className="sr-only" required type="radio" name="hasWebsite" value="yes" checked={form.hasWebsite === "yes"} onChange={event => update("hasWebsite", event.target.value as HasWebsiteChoice)} />
+                  <span className="block text-sm font-semibold text-[var(--foreground)]">Yes, we have one</span>
+                  <span className="mt-1 block text-xs leading-5">Website, SEO, GEO and AEO agents stay hidden.</span>
+                </label>
+                <label className={`cursor-pointer rounded-md border p-3 transition ${form.hasWebsite === "no" ? "border-[var(--primary)] bg-[var(--primary)]/10 text-[var(--foreground)]" : "border-[var(--border)] bg-[var(--secondary)] text-[var(--muted-foreground)]"}`}>
+                  <input className="sr-only" required type="radio" name="hasWebsite" value="no" checked={form.hasWebsite === "no"} onChange={event => update("hasWebsite", event.target.value as HasWebsiteChoice)} />
+                  <span className="block text-sm font-semibold text-[var(--foreground)]">No website yet</span>
+                  <span className="mt-1 block text-xs leading-5">Lulu can show website growth surfaces.</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <button type="submit" disabled={loading || !form.fullName.trim() || !form.companyName.trim() || !form.industry.trim() || !form.hasWebsite} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[var(--border)] focus:ring-offset-2 focus:ring-offset-[var(--border)]">
               
               <span>{loading ? "Saving…" : saved ? "Saved" : "Save changes"}</span>
               {saved ? <Check size={16} aria-hidden="true" /> : <ArrowRight size={16} aria-hidden="true" />}

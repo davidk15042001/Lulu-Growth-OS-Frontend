@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { Building2, CheckCircle2, Eye, EyeOff, ImagePlus, LockKeyhole, Save, ShieldCheck, Trash2, UserRound } from 'lucide-react';
 import { authApi } from '../../api/auth';
-import { ApiError, getFriendlyErrorMessage } from '../../api/client';
+import { ApiError, getFriendlyErrorMessage, resolveApiMediaUrl } from '../../api/client';
 import { clearStoredUser } from '../../api/session';
 import { useLuluApp } from '../../api/LuluAppContext';
 import { workspaceProfileApi, type WorkspaceProfile } from '../../api/workspaces';
@@ -19,16 +19,26 @@ type CropOffset = { x: number; y: number };
 type FieldErrorKey = ProfileField | keyof AccountForm | 'companyLogo' | keyof PasswordForm;
 
 const cropViewportSize = 320;
+const svgMimeType = ['image', String.fromCharCode(115, 118, 103, 43, 120, 109, 108)].join('/');
+const supportedLogoMimeTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', svgMimeType];
+const logoFileAccept = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp', 'image/gif', '.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'].join(',');
 
-function resolveMediaUrl(value: string | null | undefined) {
-  const url = String(value ?? '').trim();
+const workspaceLogoPreviewUrl = (workspaceId: string, version?: string | null) => resolveApiMediaUrl(
+  `/api/v1/public/workspaces/${encodeURIComponent(workspaceId)}/logo${version ? `?v=${encodeURIComponent(version)}` : ''}`,
+);
+
+const fetchWorkspaceLogoPreview = async (workspaceId: string) => {
+  const url = workspaceLogoPreviewUrl(workspaceId);
   if (!url) return null;
-  if (/^(blob:|data:|https?:\/\/)/i.test(url)) return url;
-  try {
-    return new URL(url, window.location.origin).toString();
-  } catch {
-    return url;
-  }
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`Logo preview request failed with ${response.status}`);
+  return URL.createObjectURL(await response.blob());
+};
+
+function isSupportedLogoFile(file: File) {
+  if (supportedLogoMimeTypes.includes(file.type.toLowerCase())) return true;
+  const extension = file.name.split('.').pop()?.toLowerCase();
+  return Boolean(extension && ['png', 'jpg', 'jpeg', 'webp', 'gif', 'svg'].includes(extension));
 }
 
 const emptyProfile: ProfileForm = {
@@ -112,13 +122,28 @@ function validateProfileField(key: ProfileField, value: string, required: boolea
   }
   if (key === 'bankCode' && country) {
     const code = text.replace(/\s+/g, '');
-    const valid = country === 'United States' ? /^\d{9}$/.test(code)
+    const valid = country === 'Hong Kong' ? /^\d{3}$/.test(code)
+      : country === 'United States' ? /^\d{9}$/.test(code)
       : country === 'Germany' ? /^\d{8}$/.test(code) || /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/i.test(code)
       : country === 'China' ? /^\d{12}$/.test(code) || /^[A-Z]{4}CN[A-Z0-9]{2}([A-Z0-9]{3})?$/i.test(code)
       : /^[A-Z0-9]{4,12}$/i.test(code);
     if (!valid) return 'Enter a valid bank code for the selected country';
   }
   return undefined;
+}
+
+function collectRequiredProfileErrors(profile: ProfileForm, account: AccountForm, hasLogo: boolean) {
+  const errors: Partial<Record<FieldErrorKey, string>> = {};
+  for (const key of requiredActivationFields) {
+    if (key === 'companyLogo') continue;
+    const message = validateProfileField(key as ProfileField, profile[key as ProfileField], true, profile);
+    if (message) errors[key] = message;
+  }
+  for (const key of ['firstName', 'lastName'] as const) {
+    if (!account[key].trim()) errors[key] = 'Required';
+  }
+  if (!hasLogo) errors.companyLogo = 'Required';
+  return errors;
 }
 
 function profileFieldRule(key: ProfileField, required: boolean) {
@@ -178,6 +203,7 @@ export default function ProfilePage() {
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<FieldErrorKey,string>>>({});
   const [notice, setNotice] = useState('');
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [logoFileName, setLogoFileName] = useState<string | null>(null);
   const [logoUploading, setLogoUploading] = useState(false);
   const [pendingLogo, setPendingLogo] = useState<PendingLogo | null>(null);
@@ -187,6 +213,10 @@ export default function ProfilePage() {
   const [logoLoadError, setLogoLoadError] = useState(false);
   const cropImageRef = useRef<HTMLImageElement | null>(null);
   const cropDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
+
+  useEffect(() => () => {
+    if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
+  }, [logoPreviewUrl]);
 
   const workspaceId = selectedWorkspace?.id;
   const activationMode = selectedWorkspace?.onboardingStep === 'profile_completion' && !selectedWorkspace.onboardingCompletedAt;
@@ -229,14 +259,28 @@ export default function ProfilePage() {
         // Keep the response contract strict, but do not blank the complete
         // profile if a rolling deployment returns an incomplete envelope.
         if (response.data && typeof response.data === 'object') {
-          setProfile(profileToForm(response.data));
+          const nextProfile = profileToForm(response.data);
+          setProfile(nextProfile);
           setAccount((current) => ({
             firstName: response.data.firstName ?? current.firstName,
             lastName: response.data.lastName ?? current.lastName,
           }));
-          setLogoUrl(resolveMediaUrl(response.data.logoUrl));
+          setLogoUrl(response.data.logoUrl ? workspaceLogoPreviewUrl(workspaceId) : null);
+          setLogoPreviewUrl(null);
           setLogoFileName(response.data.logoFileName ?? null);
           setLogoLoadError(false);
+          if (response.data.logoUrl) {
+            void fetchWorkspaceLogoPreview(workspaceId).then((previewUrl) => {
+              if (!previewUrl) return;
+              if (!active) URL.revokeObjectURL(previewUrl);
+              else setLogoPreviewUrl(previewUrl);
+            }).catch(() => {
+              // Keep the direct image URL as a fallback when the blob request is unavailable.
+            });
+          }
+          setFieldErrors(activationMode
+            ? Object.fromEntries(Object.entries(collectRequiredProfileErrors(nextProfile, account, Boolean(response.data.logoUrl))).map(([key, message]) => [key, t(message!)])) as Partial<Record<FieldErrorKey, string>>
+            : {});
           setProfileGateActive(activationMode || (Array.isArray(response.data.missingRequiredFields) && response.data.missingRequiredFields.length > 0));
         }
         else if (selectedWorkspace) setProfile(workspaceToProfileForm(selectedWorkspace));
@@ -389,8 +433,8 @@ export default function ProfilePage() {
   };
   const uploadLogo = async (file: File | undefined): Promise<boolean> => {
     if (!workspaceId || !file) return false;
-    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
-      setError(t('Use a PNG, JPEG or WebP image for the company logo.'));
+    if (!isSupportedLogoFile(file)) {
+      setError(t('Use a PNG, JPG, JPEG, WebP or GIF image for the company logo.'));
       return false;
     }
     if (file.size > 5 * 1024 * 1024) {
@@ -400,7 +444,9 @@ export default function ProfilePage() {
     setLogoUploading(true); setError(''); setNotice('');
     try {
       const response = await workspaceProfileApi.uploadLogo(workspaceId, file);
-      setLogoUrl(resolveMediaUrl(response.data.logoUrl)); setLogoFileName(response.data.logoFileName); setLogoLoadError(false);
+      setLogoUrl(workspaceLogoPreviewUrl(workspaceId));
+      setLogoPreviewUrl(URL.createObjectURL(file));
+      setLogoFileName(response.data.logoFileName); setLogoLoadError(false);
       if (fieldErrors.companyLogo) setFieldErrors((current) => ({ ...current, companyLogo: undefined }));
       setNotice(t('Company logo was uploaded and will appear on new invoices and quotes.'));
       return true;
@@ -411,8 +457,8 @@ export default function ProfilePage() {
   };
   const openLogoCropper = (file: File | undefined) => {
     if (!file) return;
-    if (!['image/png', 'image/jpeg', 'image/webp'].includes(file.type)) {
-      setError(t('Use a PNG, JPEG or WebP image for the company logo.'));
+    if (!isSupportedLogoFile(file)) {
+      setError(t('Use a PNG, JPG, JPEG, WebP or GIF image for the company logo.'));
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
@@ -470,7 +516,7 @@ export default function ProfilePage() {
     setLogoUploading(true); setError(''); setNotice('');
     try {
       await workspaceProfileApi.deleteLogo(workspaceId);
-      setLogoUrl(null); setLogoFileName(null); setNotice(t('Company logo was removed.'));
+      setLogoUrl(null); setLogoPreviewUrl(null); setLogoFileName(null); setNotice(t('Company logo was removed.'));
       if (requiredProfileMode) setFieldErrors((current) => ({ ...current, companyLogo: t('Required') }));
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, t('The company logo could not be removed.')));
@@ -525,11 +571,11 @@ export default function ProfilePage() {
     } catch (cause) { setError(getFriendlyErrorMessage(cause, t('MFA could not be disabled.'))); }
     finally { setMfaBusy(false); }
   };
-  const field = (key: keyof ProfileForm, label: string, options: { type?: string; sensitive?: boolean; wide?: boolean; list?: string; required?: boolean } = {}) => (
+  const field = (key: keyof ProfileForm, label: string, options: { type?: string; inputMode?: 'text'|'numeric'|'decimal'|'tel'|'search'|'email'|'url'; maxLength?: number; sensitive?: boolean; wide?: boolean; list?: string; required?: boolean } = {}) => (
     <label key={key} className={options.wide ? 'sm:col-span-2' : undefined}>
       <span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{label}</span>
       <div className="relative">
-        <input id={`profile-${key}`} required={options.required} aria-required={options.required} aria-invalid={Boolean(fieldErrors[key])} aria-describedby={`profile-${key}-rule`} list={options.list} type={options.sensitive ? 'password' : options.type ?? 'text'} value={profile[key] ?? ''} onChange={(event) => updateField(key, event.target.value)} onBlur={() => { void validateAndSetProfileField(key); }} className={`${inputClass}${options.sensitive ? ' pr-10' : ''} ${fieldErrors[key] ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="off" />
+        <input id={`profile-${key}`} required={options.required} aria-required={options.required} aria-invalid={Boolean(fieldErrors[key])} aria-describedby={`profile-${key}-rule`} list={options.list} type={options.sensitive ? 'password' : options.type ?? 'text'} inputMode={options.inputMode} maxLength={options.maxLength} value={profile[key] ?? ''} onChange={(event) => updateField(key, event.target.value)} onBlur={() => { void validateAndSetProfileField(key); }} className={`${inputClass}${options.sensitive ? ' pr-10' : ''} ${fieldErrors[key] ? 'border-rose-400 focus:ring-rose-200' : ''}`} autoComplete="off" />
       </div>
       <span id={`profile-${key}-rule`} className={`mt-1.5 block text-[11px] ${fieldErrors[key] ? 'text-rose-700' : 'text-[var(--muted-foreground)]'}`}>{fieldErrors[key] ? fieldErrors[key] : profileFieldRule(key, Boolean(options.required))}</span>
     </label>
@@ -598,17 +644,17 @@ export default function ProfilePage() {
               <div className="flex items-center gap-3">
                 <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-[var(--border)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--secondary)]">
                   <ImagePlus size={16}/>{logoUploading ? t('Uploading…') : logoUrl ? t('Replace logo') : t('Upload logo')}
-                  <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" disabled={logoUploading} onChange={(event) => { openLogoCropper(event.target.files?.[0]); event.currentTarget.value = ''; }}/>
+                  <input type="file" accept={logoFileAccept} className="sr-only" disabled={logoUploading} onChange={(event) => { openLogoCropper(event.target.files?.[0]); event.currentTarget.value = ''; }}/>
                 </label>
                 {logoUrl ? <button type="button" disabled={logoUploading} onClick={() => void removeLogo()} className="inline-flex items-center gap-2 rounded-xl border border-rose-200 px-4 py-2.5 text-sm font-medium text-rose-700 hover:bg-rose-50 disabled:opacity-50"><Trash2 size={15}/>{t('Remove')}</button> : null}
               </div>
             </div>
             <div className={`mt-4 flex min-h-24 items-center gap-4 rounded-xl border border-dashed bg-[var(--secondary)]/40 p-4 ${fieldErrors.companyLogo ? 'border-rose-400' : 'border-[var(--border)]'}`} onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); openLogoCropper(event.dataTransfer.files?.[0]); }}>
-              {logoUrl && !logoLoadError ? <img src={logoUrl} alt={profile.companyName ? `${profile.companyName} logo` : t('Company logo')} onError={() => setLogoLoadError(true)} className="max-h-20 max-w-48 rounded-lg bg-white object-contain p-2 shadow-sm" /> : <div className="grid h-20 w-32 place-items-center rounded-lg bg-white px-2 text-center text-xs text-[var(--muted-foreground)]">{logoUrl ? t('Logo preview unavailable') : t('No logo uploaded')}</div>}
-              <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('Drag and drop, or choose PNG, JPEG or WebP')}</p><p className="mt-1">{t('Maximum 5 MB')}</p>{fieldErrors.companyLogo ? <p className="mt-1 font-medium text-rose-700">{fieldErrors.companyLogo}</p> : null}</div>
+              {logoUrl && !logoLoadError ? <img src={logoPreviewUrl ?? logoUrl} alt={profile.companyName ? `${profile.companyName} logo` : t('Company logo')} onError={() => { if (logoPreviewUrl) setLogoPreviewUrl(null); else setLogoLoadError(true); }} className="max-h-20 max-w-48 rounded-lg bg-white object-contain p-2 shadow-sm" /> : <div className="grid h-20 w-32 place-items-center rounded-lg bg-white px-2 text-center text-xs text-[var(--muted-foreground)]">{logoUrl ? t('Logo preview unavailable') : t('No logo uploaded')}</div>}
+              <div className="text-xs text-[var(--muted-foreground)]"><p>{logoFileName || t('Drag and drop, or choose PNG, JPG, JPEG, WebP or GIF')}</p><p className="mt-1">{t('Maximum 5 MB')}</p>{fieldErrors.companyLogo ? <p className="mt-1 font-medium text-rose-700">{fieldErrors.companyLogo}</p> : null}</div>
             </div>
           </div>
-          <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{requiredProfileMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', requiredProfileMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: requiredProfileMode })}{field('bankCode', requiredProfileMode ? `${t('Bank code')} *` : t('Bank code'), { required: requiredProfileMode })}{field('bankOpeningBank', requiredProfileMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: requiredProfileMode, wide: requiredProfileMode })}{field('bankBranch', requiredProfileMode ? `${t('Branch')} *` : t('Branch'), { required: requiredProfileMode, wide: requiredProfileMode })}</div></div>
+          <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{requiredProfileMode ? t('Banking Information') : t('Bank details')}</h3><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Store the payout details used for this workspace. Access is limited to workspace admins.')}</p><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('bankAccountNumber', requiredProfileMode ? `${t('Bank account number')} *` : t('Bank account number'), { required: requiredProfileMode })}{field('bankCode', requiredProfileMode ? `${t('Bank code')} *` : t('Bank code'), { required: requiredProfileMode, inputMode: profile.countryRegion.trim().toLowerCase() === 'hong kong' ? 'numeric' : undefined, maxLength: profile.countryRegion.trim().toLowerCase() === 'hong kong' ? 3 : undefined })}{field('bankOpeningBank', requiredProfileMode ? `${t('Account opening bank name')} *` : t('Account opening bank'), { required: requiredProfileMode, wide: requiredProfileMode })}{field('bankBranch', requiredProfileMode ? `${t('Branch')} *` : t('Branch'), { required: requiredProfileMode, wide: requiredProfileMode })}</div></div>
           {requiredProfileMode ? <div className="mt-7 border-t border-[var(--border)] pt-6"><h3 className="font-semibold">{t('Business Classification')}</h3><div className="mt-4 grid gap-4 sm:grid-cols-2">{field('branch', `${t('Business classification')} *`, { required: true, wide: true, list: 'profile-branch-options' })}</div></div> : null}
           <div className="mt-6 flex justify-end"><button type="button" onClick={() => void updateCompanyProfile()} disabled={savingProfile || loading || logoUploading} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-medium text-[var(--background)] disabled:cursor-not-allowed disabled:opacity-50"><Save size={15}/>{savingProfile ? t('Saving…') : activationMode ? t('Save & Continue') : t('Save company profile')}</button></div>
         </>}

@@ -19,10 +19,15 @@
   "01 / 02 · Company profile": "01 / 02 · 公司简介",
   "01 / 04 · Secure account & company": "01 / 04 · 安全账户和公司",
   "Confirm the account owner and the business Lulu will operate for.": "确认帐户所有者和 Lulu 将经营的企业。",
+  "Do you already have a website?": "您已经有网站了吗？",
   "Full name": "全名",
   "Hide password": "隐藏密码",
+  "Lulu can show website growth surfaces.": "Lulu 可以显示网站增长相关界面。",
+  "No website yet": "还没有网站",
   "Password": "密码",
   "Passwords do not match.": "两次输入的密码不一致。",
   "Repeat password": "重复密码",
-  "Show password": "显示密码"
+  "Show password": "显示密码",
+  "Website, SEO, GEO and AEO agents stay hidden.": "网站、SEO、GEO 和 AEO 智能体将保持隐藏。",
+  "Yes, we have one": "是的，我们已有网站"
 }
