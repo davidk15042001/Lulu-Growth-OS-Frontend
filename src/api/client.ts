@@ -321,12 +321,37 @@ export class ApiError extends Error {
   }
 }
 
+export type ValidationFieldError = { path: string; message: string };
+
+export function getValidationFieldErrors(error: unknown): ValidationFieldError[] {
+  if (!(error instanceof ApiError) || error.code !== "VALIDATION_ERROR" || !Array.isArray(error.details)) return [];
+  return error.details.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const value = item as Record<string, unknown>;
+    return typeof value.path === "string" && typeof value.message === "string"
+      ? [{ path: value.path || "form", message: value.message }]
+      : [];
+  });
+}
+
+function formatValidationDetails(details: unknown) {
+  const issues = Array.isArray(details) ? details.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const value = item as Record<string, unknown>;
+    if (typeof value.message !== "string") return [];
+    const path = typeof value.path === "string" && value.path ? value.path.replaceAll(".", " → ") : "Formular";
+    return [`${path}: ${value.message}`];
+  }) : [];
+  return issues.length ? ` ${issues.join(" · ")}` : "";
+}
+
 export function getFriendlyErrorMessage(
   error: unknown,
   fallback = "Something went wrong. Please try again.",
 ) {
   if (!(error instanceof ApiError)) return fallback;
   const message = fallback && isGenericServerErrorMessage(error) ? fallback : error.message;
+  if (error.code === "VALIDATION_ERROR") return `${message}${formatValidationDetails(error.details)}`;
   // Server-side failures used to be reduced to a generic sentence by each
   // individual page. Keep the friendly text, but attach the same safe,
   // actionable request diagnostics everywhere so support can identify the

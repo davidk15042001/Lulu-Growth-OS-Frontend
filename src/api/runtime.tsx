@@ -5,6 +5,7 @@ import { LegacyChromeCleanup } from "../branding/LegacyChromeCleanup";
 import { GlobalLanguageSwitcher } from "../i18n/GlobalLanguageSwitcher";
 import { GlobalUploadFeedback } from "../uploads/GlobalUploadFeedback";
 import { PostAnalysisCreationPrompt } from "../components/PostAnalysisCreationPrompt";
+import { PostOnboardingReadinessPrompt } from "../components/PostOnboardingReadinessPrompt";
 import { ApiError } from "./client";
 import { getPageContract } from "./page-contracts";
 import {
@@ -111,5 +112,6 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     />
     <GlobalUploadFeedback />
     {state === "ready" && workspaceId && contract.kind !== "public" && slug === HOME_PAGE_SLUG && <PostAnalysisCreationPrompt workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} />}
+    {state === "ready" && workspaceId && contract.kind !== "public" && contract.kind !== "onboarding" && <PostOnboardingReadinessPrompt workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} />}
   </>;
 }

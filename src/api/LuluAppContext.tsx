@@ -7,7 +7,8 @@ import type { Workspace, WorkspaceRole } from "./types";
 
 type PermissionStatus = "unknown" | "loading" | "ready" | "unavailable";
 type Permissions = { role: WorkspaceRole | null; canEdit: boolean; canAdminister: boolean; capabilities: string[]; status: PermissionStatus };
-type AppValue = { currentUser: CurrentUser | null; workspaces: Workspace[]; selectedWorkspace: Workspace | null; permissions: Permissions; capabilities: { aiGeneration: boolean; transactionalEmail: boolean }; entitlements: Record<string, EffectiveEntitlement>; loading: boolean; error: string | null; refresh: () => Promise<void>; selectWorkspace: (id: string) => void; updateWorkspace: (workspace: Workspace) => void; can: (permission: "edit" | "administer") => boolean; hasCapability: (capability: string) => boolean };
+type AppCapabilities = { aiGeneration: boolean; aiBudgetRequired: boolean; aiBudgetFunded: boolean; transactionalEmail: boolean };
+type AppValue = { currentUser: CurrentUser | null; workspaces: Workspace[]; selectedWorkspace: Workspace | null; permissions: Permissions; capabilities: AppCapabilities; entitlements: Record<string, EffectiveEntitlement>; loading: boolean; error: string | null; refresh: () => Promise<void>; selectWorkspace: (id: string) => void; updateWorkspace: (workspace: Workspace) => void; can: (permission: "edit" | "administer") => boolean; hasCapability: (capability: string) => boolean };
 const emptyPermissions = (role: WorkspaceRole | null = null, status: PermissionStatus = "unknown"): Permissions => ({ role, canEdit: false, canAdminister: false, capabilities: [], status });
 const empty = emptyPermissions();
 const Context = createContext<AppValue | null>(null);
@@ -27,7 +28,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
   const requestGenerationRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
   const [permissions, setPermissions] = useState<Permissions>(empty);
-  const [capabilities, setCapabilities] = useState({ aiGeneration: false, transactionalEmail: false });
+  const [capabilities, setCapabilities] = useState<AppCapabilities>({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
   const [entitlements, setEntitlements] = useState<Record<string, EffectiveEntitlement>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -38,7 +39,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
     activeRequestRef.current = controller;
     setLoading(true); setError(null);
     setEntitlements({});
-    setCapabilities({ aiGeneration: false, transactionalEmail: false });
+    setCapabilities({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
     setPermissions((current) => emptyPermissions(current.role, "loading"));
     try {
       // Restore the authenticated user first. Requesting workspaces in parallel with
@@ -76,8 +77,8 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
           setEntitlements(effective);
           setPermissions(bootstrapResult ? permissionsFromBootstrap(bootstrapResult.data.permissions) : emptyPermissions(null, "ready"));
           setCapabilities(bootstrapResult
-            ? { aiGeneration: bootstrapResult.data.capabilities.aiGeneration, transactionalEmail: bootstrapResult.data.capabilities.transactionalEmail }
-            : { aiGeneration: false, transactionalEmail: false });
+            ? { aiGeneration: bootstrapResult.data.capabilities.aiGeneration, aiBudgetRequired: bootstrapResult.data.capabilities.aiBudgetRequired, aiBudgetFunded: bootstrapResult.data.capabilities.aiBudgetFunded, transactionalEmail: bootstrapResult.data.capabilities.transactionalEmail }
+            : { aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
         } catch {
           if (requestGeneration !== requestGenerationRef.current) return;
           // The workspace remains usable during a rolling deployment; backend
@@ -85,12 +86,12 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
           // Mutation controls stay disabled until permissions are known.
           setEntitlements({});
           setPermissions(emptyPermissions(selected?.role ?? null, "unavailable"));
-          setCapabilities({ aiGeneration: false, transactionalEmail: false });
+          setCapabilities({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
         }
       } catch (workspaceCause) {
         if (workspaceCause instanceof ApiError && workspaceCause.status === 401) {
           // The user session is valid; do not turn a workspace/API problem into a logout loop.
-          setWorkspaces([]); setPermissions(emptyPermissions()); setEntitlements({}); setCapabilities({ aiGeneration: false, transactionalEmail: false });
+          setWorkspaces([]); setPermissions(emptyPermissions()); setEntitlements({}); setCapabilities({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
           setError("Your session is valid, but workspace data could not be loaded. Please try again.");
         } else {
           setError("Your session is valid, but workspace data could not be loaded. Please try again.");
@@ -98,7 +99,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
       }
     } catch (cause) {
       if (requestGeneration !== requestGenerationRef.current) return;
-      if (cause instanceof ApiError && (cause.status === 401 || cause.code === 'SESSION_REFRESH_UNAVAILABLE' || cause.code === 'ACCOUNT_UNVERIFIED' || cause.code === 'ACCOUNT_DELETED')) { clearStoredUser(); clearSelectedWorkspaceId(); selectedIdRef.current = null; setSelectedId(null); setCurrentUser(null); setWorkspaces([]); setPermissions(emptyPermissions()); setEntitlements({}); setCapabilities({ aiGeneration: false, transactionalEmail: false }); setError(null); }
+      if (cause instanceof ApiError && (cause.status === 401 || cause.code === 'SESSION_REFRESH_UNAVAILABLE' || cause.code === 'ACCOUNT_UNVERIFIED' || cause.code === 'ACCOUNT_DELETED')) { clearStoredUser(); clearSelectedWorkspaceId(); selectedIdRef.current = null; setSelectedId(null); setCurrentUser(null); setWorkspaces([]); setPermissions(emptyPermissions()); setEntitlements({}); setCapabilities({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false }); setError(null); }
       else setError("Your session could not be restored. Please sign in again.");
     } finally {
       if (requestGeneration === requestGenerationRef.current) {
@@ -124,13 +125,13 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
     selectedIdRef.current = id;
     setSelectedId(id);
     setEntitlements({});
-    setCapabilities({ aiGeneration: false, transactionalEmail: false });
+    setCapabilities({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
     setPermissions(emptyPermissions(workspace.role, "loading"));
     void workspaceApi.bootstrap(id, controller.signal).then((result) => {
       if (requestGeneration !== requestGenerationRef.current || selectedIdRef.current !== id) return;
       setEntitlements(result.data.entitlements);
       setPermissions(permissionsFromBootstrap(result.data.permissions));
-      setCapabilities({ aiGeneration: result.data.capabilities.aiGeneration, transactionalEmail: result.data.capabilities.transactionalEmail });
+      setCapabilities({ aiGeneration: result.data.capabilities.aiGeneration, aiBudgetRequired: result.data.capabilities.aiBudgetRequired, aiBudgetFunded: result.data.capabilities.aiBudgetFunded, transactionalEmail: result.data.capabilities.transactionalEmail });
     }).catch(() => {
       if (requestGeneration !== requestGenerationRef.current || selectedIdRef.current !== id) return;
       setPermissions(emptyPermissions(workspace.role, "unavailable"));

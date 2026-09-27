@@ -41,7 +41,7 @@ function elapsedLabel(createdAt: string | undefined, now: number) {
 }
 
 export function KnowledgeActivationGate() {
-  const { selectedWorkspace, refresh } = useLuluApp();
+  const { selectedWorkspace, refresh, updateWorkspace } = useLuluApp();
   const t = useTranslation();
   const workspaceId = selectedWorkspace?.id ?? null;
   const [text, setText] = useState('');
@@ -172,6 +172,15 @@ export function KnowledgeActivationGate() {
       const nextActivationId = response.data.activationId;
       if (!nextActivationId) throw new Error('The catalog import did not return an activation ID.');
       sessionStorage.setItem(catalogImportStorageKey(workspaceId), nextActivationId);
+      if (response.data.status === 'SUBMITTED') {
+        await refresh();
+        // The submit transaction already committed the onboarding transition.
+        // Keep the local workspace authoritative even when the refresh above
+        // was served by a temporarily unavailable/rolling backend instance.
+        if (response.data.workspace) updateWorkspace(response.data.workspace);
+        navigateApp(routes.app.funds, { replace: true });
+        return;
+      }
       setActivationId(nextActivationId);
       setProgressOpen(true);
     } catch (cause) {

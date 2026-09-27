@@ -70,9 +70,13 @@ async function request(check) {
     }
 
     if (check.kind === "release") {
-      const valid = typeof payload.frontend === "string"
-        && typeof payload.backend === "string"
-        && typeof payload.builtAt === "string";
+      const valid = payload?.version === 1
+        && typeof payload.frontend?.sha === "string"
+        && /^[a-f0-9]{7,64}$/i.test(payload.frontend.sha)
+        && typeof payload.backend?.sha === "string"
+        && /^[a-f0-9]{7,64}$/i.test(payload.backend.sha)
+        && typeof payload.generatedAt === "string"
+        && Number.isFinite(Date.parse(payload.generatedAt));
       return valid ? result : { ...result, ok: false, error: "release manifest is incomplete" };
     }
 

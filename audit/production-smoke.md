@@ -13,3 +13,14 @@ The test verifies:
 
 Use `LULU_PRODUCTION_BASE_URL` to target another environment and
 `LULU_SMOKE_TIMEOUT_MS` to adjust the per-request timeout.
+
+The canonical manifest shape is:
+
+```json
+{
+  "version": 1,
+  "generatedAt": "2026-09-26T19:00:00.000Z",
+  "frontend": { "sha": "..." },
+  "backend": { "sha": "..." }
+}
+```

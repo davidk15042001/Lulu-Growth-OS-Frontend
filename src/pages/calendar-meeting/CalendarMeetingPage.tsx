@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import AgoraRTC, { type IAgoraRTCClient, type ICameraVideoTrack, type IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng';
+import type { IAgoraRTCClient, ICameraVideoTrack, IMicrophoneAudioTrack } from 'agora-rtc-sdk-ng';
 import { Camera, CameraOff, LoaderCircle, Mic, MicOff, PhoneOff, Video } from 'lucide-react';
 import { useParams } from 'react-router-dom';
 import { calendarApi } from '../../api/calendar';
@@ -30,6 +30,7 @@ export default function CalendarMeetingPage() {
     setLoading(true); setError(null);
     try {
       const result = await calendarApi.createGuestAgoraToken(token, name.trim());
+      const { default: AgoraRTC } = await import('agora-rtc-sdk-ng');
       setTitle(result.data.event.title);
       const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
       clientRef.current = client;

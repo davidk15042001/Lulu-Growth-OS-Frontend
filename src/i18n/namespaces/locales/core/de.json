@@ -136,5 +136,14 @@
   "Tools ausblenden": "Tools ausblenden",
   "Tools anzeigen": "Tools anzeigen",
   "Tools werden geladen…": "Tools werden geladen…",
-  "Keine Tools verfügbar.": "Keine Tools verfügbar."
+  "Keine Tools verfügbar.": "Keine Tools verfügbar.",
+  "Budget confirmed — Lulu is getting to work": "Budget bestätigt — Lulu legt jetzt los",
+  "Activating Lulu…": "Lulu wird aktiviert…",
+  "Your Knowledge Base, initial business analysis and the required operating data are now being generated in the background. The rest of the platform is unlocked.": "Deine Knowledge Base, die erste Unternehmensanalyse und die benötigten Betriebsdaten werden jetzt im Hintergrund erstellt. Die restliche Plattform ist freigeschaltet.",
+  "Stay on billing": "Auf der Billing-Seite bleiben",
+  "Open platform": "Plattform öffnen",
+  "Workspace access is temporarily unavailable.": "Der Workspace-Zugriff ist vorübergehend nicht verfügbar.",
+  "We could not verify your workspace permissions.": "Die Workspace-Berechtigungen konnten nicht verifiziert werden.",
+  "Checking workspace access…": "Workspace-Zugriff wird geprüft…",
+  "No workspace is available for this account.": "Für dieses Konto ist kein Workspace verfügbar."
 }

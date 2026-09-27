@@ -1,4 +1,11 @@
 {
+  "Agent prerequisite": "智能体前置条件",
+  "Agent paused": "智能体已暂停",
+  "Needed": "需要",
+  "Resume requested. Lulu will continue when the worker picks it up.": "已请求继续运行。工作进程接手后，Lulu 将继续执行。",
+  "Resume agent": "继续运行智能体",
+  "Complete the requirement, then resume this work from the Office work item.": "完成前置条件后，请从 Office 工作项继续此任务。",
+  "The agent could not be resumed. Complete the requirement and try again.": "无法继续运行智能体。请完成前置条件后重试。",
   "Manual creation": "手动创建",
   "Manual invoice": "手动创建发票",
   "Manual quote": "手动创建报价单",

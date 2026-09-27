@@ -191,6 +191,11 @@
 .lulu-office-command__action-surface h3 { margin: 12px 10px 0; color: #fff; font-size: .82rem; line-height: 1.4; }
 .lulu-office-command__action-surface.is-pending_approval { border-color: #826e3e; }
 .lulu-office-command__action-surface.is-failed { border-color: #7e4c43; }
+.lulu-office-command__agent-blocker { display: grid; gap: 7px; margin-top: 12px; border: 1px solid #826e3e; border-radius: 5px; padding: 10px; background: #2a2418; color: #f4e6b7; font-size: .72rem; line-height: 1.45; }
+.lulu-office-command__agent-blocker p { margin: 0; }
+.lulu-office-command__agent-blocker .lulu-office-command__surface-heading { margin: -10px -10px 1px; }
+.lulu-office-command__agent-blocker-success { color: #9fe6bd; }
+.lulu-office-command__agent-blocker-muted { color: var(--command-muted); }
 .lulu-office-command__action-meta { display: flex; flex-wrap: wrap; gap: 5px; margin: 10px; }
 .lulu-office-command__action-meta span { border: 1px solid #385d4e; border-radius: 4px; padding: 3px 5px; color: #b8d5c9; font-size: .62rem; }
 .lulu-office-command__execute-action { display: inline-flex; min-height: 32px; align-items: center; gap: 6px; margin: 0 10px 10px; border: 1px solid #4eab90; border-radius: 4px; padding: 6px 8px; background: #1d5948; color: #dcfff2; cursor: pointer; font-size: .68rem; font-weight: 700; }

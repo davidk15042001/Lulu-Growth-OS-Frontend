@@ -1,4 +1,11 @@
 {
+  "Agent prerequisite": "Voraussetzung für den Agenten",
+  "Agent paused": "Agent pausiert",
+  "Needed": "Benötigt",
+  "Resume requested. Lulu will continue when the worker picks it up.": "Fortsetzung angefordert. Lulu macht weiter, sobald der Worker den Lauf übernimmt.",
+  "Resume agent": "Agent fortsetzen",
+  "Complete the requirement, then resume this work from the Office work item.": "Erfülle die Voraussetzung und setze die Arbeit anschließend über das Office-Work-Item fort.",
+  "The agent could not be resumed. Complete the requirement and try again.": "Der Agent konnte nicht fortgesetzt werden. Erfülle die Voraussetzung und versuche es erneut.",
   "Manual creation": "Manuell erstellen",
   "Manual invoice": "Rechnung manuell erstellen",
   "Manual quote": "Angebot manuell erstellen",

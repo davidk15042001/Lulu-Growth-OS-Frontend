@@ -1,6 +1,17 @@
 # Lulu AI — Complete MagicPath React Export
 
-This project contains all **141 components** from MagicPath project `437844461893066814` as a fully routed React application.
+This project contains the **141 source components** from MagicPath project
+`437844461893066814`. The current production route manifest exposes 137 of
+those pages through the canonical React shell; the remaining generated source
+components are retained as compatibility assets and are not automatically
+treated as production-complete workflows.
+
+The cross-repository implementation guide is maintained in the backend
+repository: `../Lulu-Growth-OS-Backend/docs/DEVELOPER_PROJECT_GUIDE.md`.
+The audit findings and release-gate evidence are in
+`../Lulu-Growth-OS-Backend/docs/ENGINEERING_AUDIT.md`.
+The deployment, rollback and recovery procedure is in
+`../Lulu-Growth-OS-Backend/docs/RELEASE_RUNBOOK.md`.
 
 ## Run locally
 
@@ -43,7 +54,13 @@ Run the complete frontend verification before deployment:
 npm run check
 ```
 
-This validates TypeScript, all 141 routes, the page-to-API contracts and the production build. If the backend repository is available beside this repository, the API audit also verifies every frontend resource type against the backend catalog.
+The production deployment also writes `dist/release.json` before syncing to
+S3. It records the frontend commit, the currently deployed backend commit
+from `/api/v1/version`, and an ISO build timestamp. The deploy fails closed if
+the backend does not expose a valid revision, so the public release manifest
+cannot silently describe an unpaired frontend/backend deployment.
+
+This validates TypeScript, the 137-page route manifest, the page-to-API contracts, the AI-wallet package/payment-method contract and the production build. If the backend repository is available beside this repository, the API audit also verifies every frontend resource type against the backend catalog.
 
 The shared Lulu Intelligence logo is stored at `public/branding/lulu-intelligence-logo.png`. `GlobalBranding` replaces the former page-specific marks at runtime so authentication, onboarding and application pages always use the same asset.
 
@@ -51,7 +68,7 @@ The shared Lulu Intelligence logo is stored at `public/branding/lulu-intelligenc
 
 - `src/pages/<generatedName>/` — exact source snapshot for one MagicPath component
 - `entries/<generatedName>/index.html` — isolated build entry for that component
-- `src/pages-manifest.ts` — source metadata for all 141 pages
+- `src/pages-manifest.ts` — source metadata for the 137 production-routed pages
 - `src/routing.ts` — canonical route registry and embedded-page navigation bridge
 - `src/App.tsx` — application router, route directory and native page host
 - `src/api/client.ts` — shared authenticated API client and legacy embedded-page token broker

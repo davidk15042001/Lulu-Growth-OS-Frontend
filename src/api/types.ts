@@ -22,6 +22,7 @@ export type Workspace = {
   businessDescription: string | null;
   valueProposition: string | null;
   targetMarket: string | null;
+  targetMarkets: string[];
   shortBrandDescription: string | null;
   positioningTags: string[];
   legalForm: string | null;
@@ -55,7 +56,7 @@ export type Workspace = {
 export type WorkspaceBootstrap = {
   workspace: Workspace;
   permissions: { role: WorkspaceRole; canEdit: boolean; canAdminister: boolean; capabilities: string[] };
-  capabilities: { aiGeneration: boolean; transactionalEmail: boolean };
+  capabilities: { aiGeneration: boolean; aiBudgetRequired: boolean; aiBudgetFunded: boolean; transactionalEmail: boolean };
   entitlements: Record<string, { key: string; enabled: boolean; limit: string | null; source: string; reason: string }>;
   records: {
     total: number;

@@ -93,18 +93,70 @@ function activationTarget(step: string) {
 }
 
 function AdminOnlyAppRoute({ children }: { children: React.ReactNode }) {
-  const { currentUser, selectedWorkspace, loading } = useLuluApp();
+  const { currentUser, selectedWorkspace, capabilities, permissions, loading, refresh } = useLuluApp();
+  const t = useTranslation();
   const location = useLocation();
   const isPublicAuthPath = location.pathname === routes.auth.login || location.pathname.startsWith("/auth/");
   if (isPublicAuthPath) return <>{children}</>;
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
   if (!currentUser) return <Navigate replace to={routes.auth.login} />;
   if (isAdminUser(currentUser) && !prefersWorkspaceSurface(currentUser)) return <Navigate replace to={ADMIN_PANEL_PATH} />;
+  // A valid session is not enough to render a workspace surface. If the
+  // workspace list is empty or still unavailable, fail closed instead of
+  // mounting pages that may issue requests against an unknown tenant.
+  if (!selectedWorkspace) {
+    if (permissions.status === "unavailable") {
+      return (
+        <main role="alert" className="page-frame grid min-h-screen place-items-center px-6 text-center">
+          <div>
+            <h1 className="text-lg font-semibold">{t("Workspace access is temporarily unavailable.")}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t("We could not verify your workspace permissions.")}</p>
+            <button type="button" onClick={() => void refresh()} className="mt-5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+              {t("Try again")}
+            </button>
+          </div>
+        </main>
+      );
+    }
+    return <main role="status" className="page-frame grid min-h-screen place-items-center px-6 text-center">{t("No workspace is available for this account.")}</main>;
+  }
   if (selectedWorkspace && !selectedWorkspace.onboardingCompletedAt) {
     const target = activationTarget(selectedWorkspace.onboardingStep);
     const onRequiredPage = location.pathname === target
       || (selectedWorkspace.onboardingStep === "billing" && location.pathname === routes.onboarding.billings);
     if (!onRequiredPage) return <Navigate replace to={target} />;
+  }
+  const isAiFundingPage = location.pathname === routes.app.funds
+    || location.pathname === routes.onboarding.billing
+    || location.pathname === routes.onboarding.billings;
+  // Bootstrap capabilities are reset while a workspace is switching and are
+  // intentionally fail-closed when the request is unavailable. Do not render
+  // an AI-capable surface from those default values; the backend gate remains
+  // authoritative, but hiding the page avoids a misleading partially loaded UI
+  // and prevents a stale workspace switch from exposing the wrong surface.
+  if (selectedWorkspace?.onboardingCompletedAt
+    && !isAiFundingPage
+    && permissions.status !== "ready") {
+    if (permissions.status === "unavailable") {
+      return (
+        <main role="alert" className="page-frame grid min-h-screen place-items-center px-6 text-center">
+          <div>
+            <h1 className="text-lg font-semibold">{t("Workspace access is temporarily unavailable.")}</h1>
+            <p className="mt-2 text-sm text-muted-foreground">{t("We could not verify your workspace permissions.")}</p>
+            <button type="button" onClick={() => void refresh()} className="mt-5 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+              {t("Try again")}
+            </button>
+          </div>
+        </main>
+      );
+    }
+    return <main role="status" className="page-frame grid min-h-screen place-items-center">{t("Checking workspace access…")}</main>;
+  }
+  if (selectedWorkspace?.onboardingCompletedAt
+    && !isAiFundingPage
+    && capabilities.aiBudgetRequired
+    && !capabilities.aiBudgetFunded) {
+    return <Navigate replace to={routes.app.funds} state={{ reason: "AI_FUNDS_REQUIRED" }} />;
   }
   return <>{children}</>;
 }

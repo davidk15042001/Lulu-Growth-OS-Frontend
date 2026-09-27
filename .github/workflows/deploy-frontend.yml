@@ -50,6 +50,24 @@ jobs:
           test -d dist
           grep -R "api.lulu-ai.tech/api/v1" dist/assets >/dev/null
 
+      - name: Öffentliches Release-Manifest erzeugen
+        run: |
+          set -euo pipefail
+          backend_version="$(curl --fail --silent --show-error --retry 10 --retry-delay 3 --retry-all-errors "$API_BASE_URL/version")"
+          backend_sha="$(printf '%s' "$backend_version" | jq -r '.data.commitSha // empty')"
+          printf '%s' "$backend_sha" | grep -Eq '^[a-fA-F0-9]{7,64}$' || {
+            echo 'The deployed backend did not expose a valid commit SHA at /version' >&2
+            exit 1
+          }
+          generated_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          jq -n \
+            --arg frontend "$GITHUB_SHA" \
+            --arg backend "$backend_sha" \
+            --arg generated "$generated_at" \
+            '{version:1,generatedAt:$generated,frontend:{sha:$frontend},backend:{sha:$backend}}' \
+            > dist/release.json
+          jq -e '.version == 1 and (.frontend.sha | type == "string") and (.backend.sha | type == "string") and (.generatedAt | type == "string")' dist/release.json >/dev/null
+
       - name: Frontend nach S3 synchronisieren
         env:
           FRONTEND_BUCKET: ${{ secrets.AWS_FRONTEND_BUCKET }}
@@ -57,6 +75,16 @@ jobs:
           set -euo pipefail
           test -n "$FRONTEND_BUCKET" || { echo 'AWS_FRONTEND_BUCKET is missing'; exit 1; }
           aws s3 sync dist/ "s3://$FRONTEND_BUCKET/" --delete --cache-control 'no-cache, must-revalidate'
+          # Pin the manifest metadata and verify the object exists before
+          # invalidating the CDN; a missing object otherwise falls through to
+          # the SPA error document and looks like a successful HTML response.
+          aws s3 cp dist/release.json "s3://$FRONTEND_BUCKET/release.json" \
+            --content-type 'application/json; charset=utf-8' \
+            --cache-control 'no-cache, must-revalidate'
+          aws s3api head-object --bucket "$FRONTEND_BUCKET" --key release.json \
+            --query '{ContentType:ContentType,ContentLength:ContentLength}' --output json | tee release-object.json
+          jq -e '.ContentType | startswith("application/json") and . != ""' release-object.json >/dev/null
+          jq -e '.ContentLength > 0' release-object.json >/dev/null
 
       - name: CloudFront-Cache leeren
         env:
@@ -76,3 +104,6 @@ jobs:
             -H 'Access-Control-Request-Method: POST' \
             -H 'Access-Control-Request-Headers: content-type')"
           printf '%s\n' "$cors_headers" | grep -qi '^access-control-allow-origin: https://lulu-ai.tech'
+
+      - name: Vollständigen öffentlichen Read-only-Smoke ausführen
+        run: npm run smoke:production
