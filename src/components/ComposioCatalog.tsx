@@ -1,11 +1,14 @@
 import { Link2, Search } from "lucide-react";
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { getFriendlyErrorMessage } from "../api/client";
-import { composioApi, type ComposioToolkit } from "../api/composio";
+import { composioApi, type ComposioIntegrationTeam, type ComposioToolkit } from "../api/composio";
 import { LiveEmpty, LiveSection } from "../api/live-panel-ui";
+import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 
 export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceId: string; canConnect?: boolean }) {
+  const t = useTranslation();
   const [toolkits, setToolkits] = useState<ComposioToolkit[]>([]);
+  const [teams, setTeams] = useState<ComposioIntegrationTeam[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
@@ -13,6 +16,11 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
   const [hasMore, setHasMore] = useState(false);
   const [connectUrl, setConnectUrl] = useState("");
   const [busyToolkit, setBusyToolkit] = useState<string | null>(null);
+
+  const loadTeams = useCallback(async () => {
+    try { setTeams((await composioApi.teams(workspaceId, { limit: 100 })).data.items); }
+    catch { setTeams([]); }
+  }, [workspaceId]);
 
   const loadToolkits = useCallback(async (query: string, pageCursor: string | null) => {
     setLoading(true); setError("");
@@ -32,6 +40,7 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
   }, [workspaceId]);
 
   useEffect(() => { void loadToolkits("", null); }, [loadToolkits]);
+  useEffect(() => { void loadTeams(); }, [loadTeams]);
 
   async function submitSearch(event: FormEvent) {
     event.preventDefault();
@@ -45,12 +54,23 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
       setConnectUrl(response.data.redirectUrl);
       const opened = window.open(response.data.redirectUrl, "_blank", "noopener,noreferrer");
       if (!opened) setError("The connection page was blocked by the browser. Use the link shown below to continue.");
+      await loadTeams();
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "We could not start this Composio connection."));
     } finally { setBusyToolkit(null); }
   }
 
-  return <LiveSection title={`Available integrations${hasMore ? " · more available" : ""}`} action={<span className="lulu-live-message">Tool calls are deducted automatically from the AI wallet. Platform admins with billing.bypass are exempt.</span>}>
+  return <>
+    {teams.length > 0 && <LiveSection title={t("Integration teams")} action={<span className="lulu-live-message">{t("Every team is workspace-scoped and can be paused before external tool execution.")}</span>}>
+      {teams.map((team) => <article className="lulu-live-row" key={team.id}>
+        <div className="lulu-live-row-top"><div><strong>{team.teamName}</strong><span>{team.composioToolkit} · {team.mission}</span></div><span className={`lulu-live-badge ${team.status === "ACTIVE" ? "good" : ""}`}>{t(team.status)}</span></div>
+        <small>{team.allowedCapabilities.join(", ") || t("No capabilities assigned")}{team.lastProviderStatus ? ` · provider ${team.lastProviderStatus}` : ""}</small>
+        <div className="lulu-live-actions" style={{ marginTop: 8 }}>
+          {team.status === "SUSPENDED" ? <button className="lulu-live-button" onClick={async () => { await composioApi.resumeTeam(workspaceId, team.id); await loadTeams(); }}>{t("Resume")}</button> : <button className="lulu-live-button danger" onClick={async () => { await composioApi.suspendTeam(workspaceId, team.id); await loadTeams(); }}>{t("Suspend")}</button>}
+        </div>
+      </article>)}
+    </LiveSection>}
+    <LiveSection title={`Available integrations${hasMore ? " · more available" : ""}`} action={<span className="lulu-live-message">Tool calls are deducted automatically from the AI wallet. Platform admins with billing.bypass are exempt.</span>}>
     <p className="lulu-live-message">Connect an approved app for this workspace. Technical tool details and provider credentials stay protected by Lulu.</p>
     {!canConnect ? <p className="lulu-live-message">You can view available apps, but your workspace role does not allow new connections.</p> : null}
     {error ? <div className="lulu-live-error">{error}</div> : null}
@@ -64,5 +84,6 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
       <div className="lulu-live-actions" style={{ marginTop: 8 }}><button className="lulu-live-button primary" disabled={!canConnect || busyToolkit !== null || toolkit.isNoAuth || toolkit.connected} onClick={() => void connect(toolkit)}><Link2 size={15} />{toolkit.connected ? "Connected" : toolkit.isNoAuth ? "Available" : !canConnect ? "View only" : "Connect"}</button></div>
     </article>)}
     {hasMore ? <button className="lulu-live-button" type="button" disabled={loading} onClick={() => void loadToolkits(search.trim(), cursor)}>Load more apps</button> : null}
-  </LiveSection>;
+    </LiveSection>
+  </>;
 }

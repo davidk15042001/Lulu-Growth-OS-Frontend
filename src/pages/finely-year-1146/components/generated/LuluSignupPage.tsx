@@ -2,11 +2,13 @@ import { useState, type FormEvent } from 'react';
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
-import { clearPendingEmail, clearSelectedWorkspaceId } from '../../../../api/session';
+import { clearPendingEmail, clearSelectedWorkspaceId, setPendingEmail } from '../../../../api/session';
+import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 const LEGAL_ENTITY_NAME = 'Hong Kong Lulu Development Limited';
 const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 12 characters', test: value => value.length >= 12 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
 
 export function LuluSignupPage() {
+  const t = useTranslation();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
@@ -16,12 +18,45 @@ export function LuluSignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading'>('idle');
+  const [verificationStep, setVerificationStep] = useState(false);
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationStatus, setVerificationStatus] = useState<'idle' | 'loading' | 'resending'>('idle');
+  const [verificationMessage, setVerificationMessage] = useState('');
   const [error, setError] = useState('');
   const passwordResults = passwordRules.map(rule => ({ ...rule, passed: rule.test(password) }));
   const passedRules = passwordResults.filter(rule => rule.passed).length;
   const strengthSegments = password ? Math.max(1, Math.ceil((passedRules / passwordRules.length) * 4)) : 0;
   const strengthLabel = passedRules <= 1 ? 'Weak' : passedRules <= 3 ? 'Fair' : passedRules === 4 ? 'Good' : 'Strong';
   const passwordsMatch = Boolean(confirmPassword) && password === confirmPassword;
+  async function verifyEmail() {
+    if (verificationStatus !== 'idle' || !/^\d{6}$/.test(verificationCode)) {
+      if (!/^\d{6}$/.test(verificationCode)) setVerificationMessage(t('Enter the six-digit code from your email.'));
+      return;
+    }
+    setVerificationStatus('loading');
+    setVerificationMessage('');
+    try {
+      await requestApi({ path: '/auth/verify-otp', method: 'POST', body: { email: email.trim(), code: verificationCode } });
+      clearPendingEmail();
+      navigateApp(routes.auth.login, { replace: true });
+    } catch (cause) {
+      setVerificationMessage(getFriendlyErrorMessage(cause, t('We could not verify your email. Please try again.')));
+      setVerificationStatus('idle');
+    }
+  }
+  async function resendVerificationCode() {
+    if (verificationStatus !== 'idle') return;
+    setVerificationStatus('resending');
+    setVerificationMessage('');
+    try {
+      await requestApi({ path: '/auth/resend-otp', method: 'POST', body: { email: email.trim(), purpose: 'verify' } });
+      setVerificationMessage('A new verification code was sent.');
+    } catch (cause) {
+      setVerificationMessage(getFriendlyErrorMessage(cause, t('We could not send a new code yet.')));
+    } finally {
+      setVerificationStatus('idle');
+    }
+  }
   function validationErrorMessage(cause: ApiError) {
     const details = Array.isArray(cause.details) ? cause.details : [];
     const messages = details
@@ -62,11 +97,18 @@ export function LuluSignupPage() {
     setError('');
     clearSelectedWorkspaceId();
     try {
-      await requestApi<{ verificationRequired: false }>({
+      const response = await requestApi<{ verificationRequired: boolean }>({
         path: '/auth/register',
         method: 'POST',
         body: { email, password, first_name: firstName, last_name: lastName },
       });
+      if (response.data.verificationRequired) {
+        setPendingEmail(email.trim());
+        setVerificationStep(true);
+        setVerificationMessage('We sent a six-digit verification code to your email.');
+        setStatus('idle');
+        return;
+      }
       clearPendingEmail();
       navigateApp(routes.auth.login, { replace: true });
     } catch (cause) {
@@ -92,7 +134,17 @@ export function LuluSignupPage() {
             <h1 id="signup-title" className="text-3xl font-semibold tracking-[-0.03em]">Create your Lulu AI account</h1>
           </header>
 
-          <form className="mt-8" onSubmit={handleSubmit} noValidate>
+          {verificationStep && <section className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-5" aria-labelledby="verify-signup-title">
+            <h2 id="verify-signup-title" className="text-lg font-semibold">{t('Confirm your email')}</h2>
+            <p className="mt-2 text-sm text-[var(--muted-foreground)]">{t('Enter the six-digit code sent to')} <strong>{email}</strong>.</p>
+            <label htmlFor="signup-verification-code" className="mt-5 block text-[13px] font-medium">Verification code</label>
+            <input id="signup-verification-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={verificationCode} onChange={event => setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-center text-lg tracking-[0.35em] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
+            <button type="button" onClick={() => void verifyEmail()} disabled={verificationStatus !== 'idle'} className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] disabled:cursor-not-allowed disabled:opacity-50">{verificationStatus === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}Verify email</button>
+            <button type="button" onClick={() => void resendVerificationCode()} disabled={verificationStatus !== 'idle'} className="mt-3 w-full text-sm font-medium underline disabled:opacity-50">{verificationStatus === 'resending' ? 'Sending…' : 'Send a new code'}</button>
+            {verificationMessage && <p role="status" className="mt-3 text-sm text-[var(--muted-foreground)]">{verificationMessage}</p>}
+          </section>}
+
+          {!verificationStep && <form className="mt-8" onSubmit={handleSubmit} noValidate>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor="signup-first-name" className="mb-1 block text-[13px] font-medium">First name</label>
@@ -156,7 +208,7 @@ export function LuluSignupPage() {
               <span>{status === 'loading' ? 'Creating account...' : 'Create Account'}</span>
             </button>
             {error && <p role="alert" className="mt-3 flex items-start gap-2 text-[13px] text-[var(--destructive)]"><AlertCircle size={16} className="mt-0.5 shrink-0" />{error}</p>}
-          </form>
+          </form>}
 
           <p className="mt-5 text-center text-[13px] text-[var(--muted-foreground)]">Already have a Lulu AI account? <a {...pageLinkProps('brightly-door-5741')} className="font-medium text-[var(--foreground)] hover:underline">Sign in</a></p>
 

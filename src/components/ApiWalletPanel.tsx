@@ -53,6 +53,7 @@ export function ApiWalletPanel() {
   workspaceRef.current = workspaceId;
   const currentOverview =
     overview?.wallet.workspaceId === workspaceId ? overview : null;
+  const availablePackages = currentOverview?.packages?.length ? currentOverview.packages : packages;
   const currentTopup = topupWorkspaceId === workspaceId ? topup : null;
   const generationStorageKey = workspaceId ? `lulu.ai-generation-popup.${workspaceId}` : null;
   const error =
@@ -142,6 +143,11 @@ export function ApiWalletPanel() {
     if (window.sessionStorage.getItem(generationStorageKey) !== "pending") return;
     void showGenerationStarted();
   }, [currentOverview?.wallet.aiEnabled, generationStorageKey, showGenerationStarted]);
+  useEffect(() => {
+    if (availablePackages.includes(amount)) return;
+    const nextAmount = availablePackages[availablePackages.length - 1];
+    if (typeof nextAmount === "number") setAmount(nextAmount);
+  }, [amount, availablePackages]);
   useEffect(() => {
     if (!currentTopup?.qrPayload) {
       setQr("");
@@ -276,7 +282,7 @@ export function ApiWalletPanel() {
     if (["FAILED", "CANCELLED", "REVERSED"].includes(status)) return t("Not completed");
     return status.replaceAll("_", " ");
   };
-  const methodLabel = (value: ApiPaymentMethod) => methods.find((item) => item.id === value)?.label ?? value;
+  const methodLabel = (value: ApiTopup["paymentMethod"]) => value === "legacy" ? t("Legacy payment") : methods.find((item) => item.id === value)?.label ?? value;
   const formatDate = (value: string | null) => {
     if (!value) return "—";
     try { return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
@@ -357,7 +363,7 @@ export function ApiWalletPanel() {
             Add AI balance
           </p>
           <div className="mt-4 grid grid-cols-2 gap-2">
-            {packages.map((value) => (
+            {availablePackages.map((value) => (
               <button
                 key={value}
                 type="button"

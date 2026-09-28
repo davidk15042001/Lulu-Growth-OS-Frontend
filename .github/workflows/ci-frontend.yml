@@ -1,0 +1,31 @@
+name: Frontend prüfen
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --no-audit
+      - run: npm run typecheck
+      - run: npm run audit:routing
+      - run: npm run audit:api
+      - run: npm run audit:branding
+      - run: npm run audit:ai-wallet
+      - run: npm run audit:i18n
+      - run: npm run audit:feedback
+      - run: npm run audit:errors
+      - run: npm run audit:agentic-ui
+      - run: npm run build
+      - run: npm run audit:bundle

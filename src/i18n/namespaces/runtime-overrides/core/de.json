@@ -9,6 +9,7 @@
   "Confirmed": "Bestätigt",
   "Not completed": "Nicht abgeschlossen",
   "Payment history": "Zahlungshistorie",
+  "Legacy payment": "Historische Zahlung",
   "Airwallex payment receipts": "Airwallex-Zahlungsbelege",
   "Use the payment ID to find the transaction in Airwallex.": "Nutze die Zahlungs-ID, um die Transaktion in Airwallex zu finden.",
   "Payment ID": "Zahlungs-ID",
@@ -3596,5 +3597,15 @@
   "The payment preference is still pending. Complete the secure Airwallex page, then check again.": "Die Zahlungspraeferenz steht noch aus. Schliesse die sichere Airwallex-Seite ab und pruefe anschliessend erneut.",
   "{{0}} creates a new, short-lived QR code for each manual payment. Lulu never stores your wallet credentials.": "{{0}} erstellt fuer jede manuelle Zahlung einen neuen, kurzlebigen QR-Code. Lulu speichert niemals deine Wallet-Zugangsdaten.",
   "Your payment preference is ready for manual storage invoice payment.": "Deine Zahlungspraeferenz ist fuer manuelle Storage-Rechnungszahlungen bereit.",
-  "Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.": "Storage-Rechnungen werden ueber den sicheren Airwallex-Checkout-Link bezahlt. Einmalige QR-Zahlung kann spaeter vom Lulu-Support aktiviert werden."
+  "Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.": "Storage-Rechnungen werden ueber den sicheren Airwallex-Checkout-Link bezahlt. Einmalige QR-Zahlung kann spaeter vom Lulu-Support aktiviert werden.",
+  "Integration teams": "Integrationsteams",
+  "Every team is workspace-scoped and can be paused before external tool execution.": "Jedes Team ist auf den Workspace begrenzt und kann vor der Ausführung externer Tools pausiert werden.",
+  "No capabilities assigned": "Keine Fähigkeiten zugewiesen",
+  "SUSPENDED": "PAUSIERT",
+  "Suspend": "Pausieren",
+  "We could not verify your email. Please try again.": "Deine E-Mail-Adresse konnte nicht bestätigt werden. Bitte versuche es erneut.",
+  "We could not send a new code yet.": "Ein neuer Code konnte noch nicht gesendet werden.",
+  "Confirm your email": "Bestätige deine E-Mail-Adresse",
+  "Enter the six-digit code sent to": "Gib den sechsstelligen Code ein, der gesendet wurde an",
+  "resending": "wird erneut gesendet"
 }
