@@ -9,6 +9,7 @@
   "Confirmed": "已确认",
   "Not completed": "未完成",
   "Payment history": "支付记录",
+  "Legacy payment": "历史支付",
   "Airwallex payment receipts": "Airwallex 支付凭证",
   "Use the payment ID to find the transaction in Airwallex.": "使用支付 ID 在 Airwallex 中查找交易。",
   "Payment ID": "支付 ID",
@@ -3596,5 +3597,15 @@
   "The payment preference is still pending. Complete the secure Airwallex page, then check again.": "付款偏好仍待完成。请完成安全的 Airwallex 页面后再次检查。",
   "{{0}} creates a new, short-lived QR code for each manual payment. Lulu never stores your wallet credentials.": "{{0}} 会为每次手动付款创建新的短期二维码。Lulu 绝不会存储你的钱包凭据。",
   "Your payment preference is ready for manual storage invoice payment.": "你的付款偏好已可用于手动支付存储发票。",
-  "Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.": "存储发票通过安全的 Airwallex 结账链接支付。一次性二维码付款可稍后由 Lulu 支持启用。"
+  "Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.": "存储发票通过安全的 Airwallex 结账链接支付。一次性二维码付款可稍后由 Lulu 支持启用。",
+  "Integration teams": "集成团队",
+  "Every team is workspace-scoped and can be paused before external tool execution.": "每个团队都限定在当前工作区内，并可在执行外部工具前暂停。",
+  "No capabilities assigned": "未分配能力",
+  "SUSPENDED": "已暂停",
+  "Suspend": "暂停",
+  "We could not verify your email. Please try again.": "无法验证你的电子邮件地址。请重试。",
+  "We could not send a new code yet.": "暂时无法发送新的验证码。",
+  "Confirm your email": "确认你的电子邮件地址",
+  "Enter the six-digit code sent to": "请输入发送至以下地址的六位验证码：",
+  "resending": "正在重新发送"
 }

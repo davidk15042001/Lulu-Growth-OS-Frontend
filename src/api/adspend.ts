@@ -46,6 +46,33 @@ export type AdBudgetAuthorization = {
   updatedAt: string;
 };
 
+export type GoogleAdsCampaignCreateInput = {
+  customerId: string;
+  name: string;
+  dailyBudgetCny: number;
+  adGroupName: string;
+  headlines: string[];
+  descriptions: string[];
+  finalUrls: string[];
+  idempotencyKey: string;
+  loginCustomerId?: string;
+  compliance?: Record<string, unknown>;
+};
+
+export type GoogleAdsCampaignCreateResult = {
+  operationId: string;
+  status: 'PAUSED' | 'CREATING' | 'PROVIDER_APPLIED' | 'SUCCEEDED' | 'FAILED' | 'UNKNOWN';
+  idempotent: boolean;
+  customerId: string;
+  campaignId: string | null;
+  campaignResourceName: string | null;
+  campaignBudgetResourceName: string | null;
+  adGroupResourceName: string | null;
+  adGroupAdResourceName: string | null;
+  recordId: string | null;
+  providerRequestId?: string | null;
+};
+
 export const adSpendApi = {
   overview: (workspaceId: string) => requestApi<AdSpendOverview>({ path: workspaceApiPath(workspaceId, '/adspend') }),
   createTopup: (workspaceId: string, input: { amount: number; paymentMethod: AdSpendPaymentMethod; returnUrl: string }) =>
@@ -75,5 +102,23 @@ export const adSpendApi = {
     path: workspaceApiPath(workspaceId, `/adspend/budget-authorizations/${encodeURIComponent(authorizationId)}/revoke`),
     method: 'POST',
     body: reason ? { reason } : {},
+  }),
+  createGoogleAdsCampaign: (workspaceId: string, input: GoogleAdsCampaignCreateInput) => requestApi<GoogleAdsCampaignCreateResult>({
+    path: workspaceApiPath(workspaceId, '/adspend/google-ads/campaigns'), method: 'POST', body: input,
+  }),
+  launchGoogleAdsCampaign: (workspaceId: string, campaignId: string, input: {
+    customerId: string;
+    campaignBudgetId?: string;
+    accountCurrency: 'CNY';
+    budgetAmountCny: number;
+    authorizationId: string;
+    operationKey: string;
+    loginCustomerId?: string;
+    compliance?: Record<string, unknown>;
+  }) => requestApi<unknown>({
+    path: workspaceApiPath(workspaceId, `/adspend/google-ads/campaigns/${encodeURIComponent(campaignId)}/launch`), method: 'POST', body: input,
+  }),
+  pauseGoogleAdsCampaign: (workspaceId: string, campaignId: string, input: { customerId: string; loginCustomerId?: string }) => requestApi<unknown>({
+    path: workspaceApiPath(workspaceId, `/adspend/google-ads/campaigns/${encodeURIComponent(campaignId)}/pause`), method: 'POST', body: input,
   }),
 };

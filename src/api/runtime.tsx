@@ -7,6 +7,7 @@ import { GlobalUploadFeedback } from "../uploads/GlobalUploadFeedback";
 import { PostAnalysisCreationPrompt } from "../components/PostAnalysisCreationPrompt";
 import { PostOnboardingReadinessPrompt } from "../components/PostOnboardingReadinessPrompt";
 import { ApiError } from "./client";
+import { LiveApiPanel } from "./LiveApiPanel";
 import { getPageContract } from "./page-contracts";
 import {
   clearSelectedWorkspaceId,
@@ -105,6 +106,9 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
     {state === "checking" && <div role="status" style={{ position: "fixed", zIndex: 9999, left: "50%", top: 12, transform: "translateX(-50%)", maxWidth: "calc(100% - 24px)", border: "1px solid #d5d5d0", borderRadius: 8, background: "#fff", color: "#686864", padding: "10px 14px", boxShadow: "0 10px 30px rgba(0,0,0,.08)", pointerEvents: "none" }}>Loading workspace…</div>}
     {state === "offline" && <div role="alert" style={{ position: "fixed", zIndex: 9999, left: "50%", top: 12, transform: "translateX(-50%)", maxWidth: "calc(100% - 24px)", border: "1px solid #d5d5d0", borderRadius: 8, background: "#fff", color: "#171717", padding: "10px 14px", boxShadow: "0 10px 30px rgba(0,0,0,.12)" }}>Live data is temporarily unavailable. Your layout remains accessible.</div>}
     {children}
+    {state === "ready" && workspaceId && contract.kind !== "public" && contract.kind !== "onboarding" && (
+      <LiveApiPanel workspaceId={appContext.selectedWorkspace?.id ?? workspaceId} contract={contract} />
+    )}
     <GlobalBranding contractKind={contract.kind} />
     <LegacyChromeCleanup />
     <GlobalLanguageSwitcher

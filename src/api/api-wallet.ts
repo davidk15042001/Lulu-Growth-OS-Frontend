@@ -1,7 +1,7 @@
 import { requestApi } from './client';
 import { workspaceApiPath } from './types';
-export type ApiPaymentMethod='card'|'alipaycn'|'wechatpay';
-export type ApiTopup={id:string;amount:number;currency:'CNY';paymentMethod:ApiPaymentMethod;provider?:'airwallex'|string;status:string;providerStatus?:string|null;paymentStatus?:string;creditStatus?:string;settlementStatus?:string;confirmedAt?:string|null;cancelledAt?:string|null;settledAt?:string|null;merchantOrderId?:string|null;providerInvoiceId?:string|null;providerPaymentIntentId?:string|null;checkoutUrl:string|null;qrPayload:string|null;expiresAt:string|null;paidAt:string|null;creditedAt:string|null;createdAt:string};
+export type ApiPaymentMethod='alipaycn'|'wechatpay';
+export type ApiTopup={id:string;amount:number;currency:'CNY';paymentMethod:ApiPaymentMethod|'legacy';provider?:'airwallex'|string;status:string;providerStatus?:string|null;paymentStatus?:string;creditStatus?:string;settlementStatus?:string;confirmedAt?:string|null;cancelledAt?:string|null;settledAt?:string|null;merchantOrderId?:string|null;providerInvoiceId?:string|null;providerPaymentIntentId?:string|null;checkoutUrl:string|null;qrPayload:string|null;expiresAt:string|null;paidAt:string|null;creditedAt:string|null;createdAt:string};
 export type ComposioUsageSummary={toolCalls:number;triggers:number;chargedAmountCny:string;toolCallPriceCny:string;triggerPriceCny:string};
 export type ApiWalletOverview={wallet:{workspaceId:string;currency:'CNY';availableAmount:number;reservedAmount:number;paymentReservedAmount:number;spentAmount:number;reversalDebtAmount:number;totalFundedAmount:number;aiEnabled:boolean;version:number;updatedAt:string};topups:ApiTopup[];composioUsage:ComposioUsageSummary;packages:number[];currency:'CNY'};
 export const apiWalletApi={

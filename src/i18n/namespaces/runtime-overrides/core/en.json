@@ -9,6 +9,7 @@
   "Confirmed": "Confirmed",
   "Not completed": "Not completed",
   "Payment history": "Payment history",
+  "Legacy payment": "Historical payment",
   "Airwallex payment receipts": "Airwallex payment receipts",
   "Use the payment ID to find the transaction in Airwallex.": "Use the payment ID to find the transaction in Airwallex.",
   "Payment ID": "Payment ID",

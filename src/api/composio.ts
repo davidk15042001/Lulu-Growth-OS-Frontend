@@ -12,6 +12,20 @@ export type ComposioToolkit = {
   customerAvailable?: boolean;
 };
 
+export type ComposioIntegrationTeam = {
+  id: string;
+  composioToolkit: string;
+  composioConnectionId: string;
+  teamName: string;
+  mission: string;
+  status: string;
+  allowedCapabilities: string[];
+  lastProviderStatus: string | null;
+  lastHealthAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type AdminComposioToolkit = {
   slug: string;
   name: string;
@@ -44,6 +58,20 @@ export type ComposioTool = {
 };
 
 export const composioApi = {
+  teams: (workspaceId: string, options: { limit?: number } = {}) => {
+    const params = new URLSearchParams();
+    if (options.limit) params.set("limit", String(options.limit));
+    const query = params.toString() ? `?${params.toString()}` : "";
+    return requestApi<{ items: ComposioIntegrationTeam[]; nextCursor: { beforeCreatedAt: string | null; beforeId: string | null } | null }>({
+      path: workspaceApiPath(workspaceId, `/composio/teams${query}`),
+    });
+  },
+  suspendTeam: (workspaceId: string, teamId: string) => requestApi<ComposioIntegrationTeam>({
+    path: workspaceApiPath(workspaceId, `/composio/teams/${encodeURIComponent(teamId)}/suspend`), method: "POST", body: {},
+  }),
+  resumeTeam: (workspaceId: string, teamId: string) => requestApi<ComposioIntegrationTeam>({
+    path: workspaceApiPath(workspaceId, `/composio/teams/${encodeURIComponent(teamId)}/resume`), method: "POST", body: {},
+  }),
   toolkits: (workspaceId: string, options: { search?: string; cursor?: string | null } = {}) => {
     const params = new URLSearchParams();
     if (options.search?.trim()) params.set("search", options.search.trim());

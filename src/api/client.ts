@@ -392,7 +392,6 @@ export function getTechnicalErrorDetails(error: unknown) {
 const API_BASE_URL = (import.meta.env.VITE_API_URL?.trim() || "/api/v1").replace(/\/$/, "");
 const API_REQUEST_MESSAGE = "lulu:api-request";
 const API_RESPONSE_MESSAGE = "lulu:api-response";
-const ACCESS_TOKEN_STORAGE_KEY = "lulu_access_token";
 
 export function resolveApiMediaUrl(value: string | null | undefined) {
   const url = String(value ?? "").trim();
@@ -424,29 +423,29 @@ export function resolveApiMediaUrl(value: string | null | undefined) {
 }
 
 function readStoredAccessToken() {
+  // Bearer tokens must never survive in browser storage: any XSS can read
+  // localStorage/sessionStorage. The HttpOnly refresh cookie restores the
+  // short-lived access token after a page reload.
   try {
-    window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-    return window.sessionStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+    // Remove tokens written by older releases during the migration to
+    // memory-only access tokens.
+    window.localStorage.removeItem("lulu_access_token");
+    window.sessionStorage.removeItem("lulu_access_token");
   } catch {
-    // Private browsing/storage restrictions must not break authentication.
-    return null;
+    // Storage restrictions must not break authentication.
   }
+  return null;
 }
 
 function storeAccessToken(token: string | null) {
   accessToken = token;
-  try {
-    window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-    if (token) window.sessionStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
-    else window.sessionStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
-  } catch {
-    // Private browsing/storage restrictions must not break authentication.
-  }
 }
 
 function clearClientSession() {
   storeAccessToken(null);
   try {
+    window.localStorage.removeItem("lulu_access_token");
+    window.sessionStorage.removeItem("lulu_access_token");
     window.localStorage.removeItem("lulu.current-user");
     window.sessionStorage.removeItem("lulu.current-user");
   } catch {
