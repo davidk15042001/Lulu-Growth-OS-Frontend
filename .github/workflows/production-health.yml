@@ -10,7 +10,8 @@ permissions:
 
 jobs:
   health:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Frontend und AWS-API prüfen
         run: |
@@ -22,6 +23,12 @@ jobs:
           curl --fail --silent --show-error --retry 3 --retry-all-errors \
             -D "$release_headers" -o "$release_body" https://lulu-ai.tech/release.json
           grep -Eiq '^content-type: application/json([;[:space:]]|$)' "$release_headers"
+          manifest_backend_sha="$(jq -r '.backend.sha' "$release_body")"
+          api_version="$(curl --fail --silent --show-error --retry 3 --retry-all-errors https://api.lulu-ai.tech/api/v1/version)"
+          api_backend_sha="$(printf '%s' "$api_version" | jq -r '.data.commitSha // empty')"
+          test -n "$manifest_backend_sha" -a "$manifest_backend_sha" != null
+          test -n "$api_backend_sha" -a "$api_backend_sha" != null
+          test "$manifest_backend_sha" = "$api_backend_sha"
           jq -e '
             .version == 1
             and (.generatedAt | type == "string")
@@ -29,6 +36,6 @@ jobs:
             and (.backend.sha | type == "string" and test("^[a-fA-F0-9]{7,64}$"))
           ' "$release_body" >/dev/null
           curl --fail --silent --show-error --retry 3 --retry-all-errors https://api.lulu-ai.tech/api/v1/health | grep -q '"status":"ok"'
-          curl --fail --silent --show-error --retry 3 --retry-all-errors https://api.lulu-ai.tech/api/v1/version \
+          printf '%s' "$api_version" \
             | jq -e '.success == true and (.data.commitSha | type == "string" and test("^[a-fA-F0-9]{7,64}$"))' >/dev/null
           curl --fail --silent --show-error --retry 3 --retry-all-errors https://api.lulu-ai.tech/api/v1/ready | grep -q '"ready":true'
