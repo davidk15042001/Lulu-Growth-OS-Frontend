@@ -6,15 +6,9 @@ import { GlobalLanguageSwitcher } from "../i18n/GlobalLanguageSwitcher";
 import { GlobalUploadFeedback } from "../uploads/GlobalUploadFeedback";
 import { PostAnalysisCreationPrompt } from "../components/PostAnalysisCreationPrompt";
 import { PostOnboardingReadinessPrompt } from "../components/PostOnboardingReadinessPrompt";
-import { ApiError } from "./client";
 import { LiveApiPanel } from "./LiveApiPanel";
 import { getPageContract } from "./page-contracts";
-import {
-  clearSelectedWorkspaceId,
-  getSelectedWorkspaceId,
-  setSelectedWorkspaceId,
-} from "./session";
-import { workspaceApi } from "./workspaces";
+import { clearSelectedWorkspaceId } from "./session";
 import { useLuluApp } from "./LuluAppContext";
 
 const STATIC_RESOURCE_PAGE_SLUGS = new Set([
@@ -42,61 +36,50 @@ export function LuluRuntime({ slug, children }: { slug: string; children: ReactN
   const [workspaceId, setWorkspaceId] = useState("");
 
   useEffect(() => {
-    if (!contract || contract.kind === "public") return;
-    let disposed = false;
+    if (!contract || contract.kind === "public") {
+      setState("ready");
+      setWorkspaceId("");
+      return;
+    }
+    if (appContext.loading) {
+      setState("checking");
+      return;
+    }
 
-    async function load() {
-      try {
-        const response = await workspaceApi.list();
-        if (disposed) return;
-        const workspaces = response.data.items;
-        let workspace = workspaces.find((item) => item.id === getSelectedWorkspaceId()) ?? workspaces[0];
-        if (!workspace) {
-          if (disposed) return;
-          clearSelectedWorkspaceId();
-          if (contract?.kind === "onboarding") {
-            if (slug !== "bravely-path-4713") {
-              navigateApp(routes.onboarding.companyInformation, { replace: true });
-              return;
-            }
-            setState("ready");
-            return;
-          }
+    const workspace = appContext.selectedWorkspace ?? appContext.workspaces[0];
+    if (!workspace) {
+      if (appContext.error) {
+        setState("offline");
+        return;
+      }
+      clearSelectedWorkspaceId();
+      if (contract.kind === "onboarding") {
+        if (slug !== "bravely-path-4713") {
           navigateApp(routes.onboarding.companyInformation, { replace: true });
           return;
         }
-        setSelectedWorkspaceId(workspace.id);
-        setWorkspaceId(workspace.id);
-        if (
-          workspace.onboardingFileReuploadRequired
-          && contract?.kind === "onboarding"
-          && slug !== "quiet-garden-9477"
-        ) {
-          navigateApp(routes.onboarding.businessDescription, { replace: true });
-          return;
-        }
-        // Activation pages deliberately cannot read the normal workspace
-        // bootstrap. Avoid turning that server-side security boundary into a
-        // misleading offline banner while Profile or Knowledge Base is open.
-        if (contract?.kind !== "onboarding" && workspace.onboardingCompletedAt) {
-          await workspaceApi.bootstrap(workspace.id);
-          if (disposed) return;
-        }
         setState("ready");
-      } catch (error) {
-        if (disposed) return;
-        if (error instanceof ApiError && error.status === 401) {
-          clearSelectedWorkspaceId();
-          navigateApp(routes.auth.login, { replace: true });
-          return;
-        }
-        setState("offline");
+        return;
       }
+      navigateApp(routes.onboarding.companyInformation, { replace: true });
+      return;
     }
 
-    void load();
-    return () => { disposed = true; };
-  }, [contract, slug]);
+    setWorkspaceId(workspace.id);
+    if (
+      workspace.onboardingFileReuploadRequired
+      && contract.kind === "onboarding"
+      && slug !== "quiet-garden-9477"
+    ) {
+      navigateApp(routes.onboarding.businessDescription, { replace: true });
+      return;
+    }
+    if (contract.kind !== "onboarding" && appContext.permissions.status === "unavailable") {
+      setState("offline");
+      return;
+    }
+    setState("ready");
+  }, [appContext.error, appContext.loading, appContext.permissions.status, appContext.selectedWorkspace, appContext.workspaces, contract, slug]);
 
   if (!contract) {
     return <main style={{ padding: 24 }}>This page has no API contract.</main>;
