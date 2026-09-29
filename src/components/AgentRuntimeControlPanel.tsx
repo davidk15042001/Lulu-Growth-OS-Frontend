@@ -1,4 +1,4 @@
-import { Clock3, ShieldCheck, XCircle } from "lucide-react";
+import { BrainCircuit, Clock3, Coins, Eye, ShieldCheck, XCircle } from "lucide-react";
 import { formatLiveDate } from "../api/live-panel-ui";
 import type { AgentRunStatus, AgentStep } from "../api/agents";
 import type { WorkspaceRecord } from "../api/records";
@@ -51,6 +51,14 @@ function payloadPreview(value: Record<string, unknown> | null | undefined) {
   }
 }
 
+function tokenCount(value: number | undefined) {
+  return typeof value === "number" ? value.toLocaleString() : "0";
+}
+
+function costValue(value: number | undefined) {
+  return typeof value === "number" ? `$${value.toFixed(4)}` : "$0.0000";
+}
+
 export function AgentRuntimeControlPanel({
   runtime,
   pageLabel,
@@ -66,6 +74,30 @@ export function AgentRuntimeControlPanel({
   const executedPacketCount = runtime.executionPackets.filter((entry) => packetExecutionStatus(entry.packet) === "executed").length;
   const artifactCount = runtime.executionArtifacts.length;
   const currentHealth = runtime.currentHealth;
+  const runUsage = currentRun?.usage;
+  const activity = [
+    ...(runtime.details?.events ?? []).map((event) => ({
+      id: `event:${event.id}`,
+      type: event.eventType,
+      summary: textValue(event.payload.summary)
+        || textValue(event.payload.executionSummary)
+        || textValue(event.payload.message)
+        || textValue(event.payload.noActionReason)
+        || event.eventType,
+      role: event.agentRole,
+      createdAt: event.createdAt,
+    })),
+    ...(runtime.details?.collaboration?.items ?? []).map((message) => ({
+      id: `message:${message.id}`,
+      type: message.messageType,
+      summary: message.content,
+      role: message.senderAgentId ?? message.senderType,
+      createdAt: message.createdAt,
+    })),
+  ].sort((left, right) => Date.parse(right.createdAt) - Date.parse(left.createdAt)).slice(0, 24);
+  const plannedSteps = Array.isArray(currentRun?.plan?.steps)
+    ? currentRun.plan.steps.filter((step): step is Record<string, unknown> => Boolean(step && typeof step === "object"))
+    : [];
 
   return (
     <section className="lulu-agent-runtime-panel rounded-xl border border-border bg-card p-5">
@@ -129,6 +161,23 @@ export function AgentRuntimeControlPanel({
         </article>
       </div>
 
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+        <article className="rounded-lg border border-border bg-background/60 p-4 xl:col-span-2">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground"><Coins size={15} /> {t("AI token usage")}</div>
+          <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-foreground">
+            <span>{t("Input")}: <strong>{tokenCount(runUsage?.inputTokens)}</strong></span>
+            <span>{t("Output")}: <strong>{tokenCount(runUsage?.outputTokens)}</strong></span>
+            <span>{t("Total")}: <strong>{tokenCount(runUsage?.totalTokens)}</strong></span>
+          </div>
+          <p className="mt-2 text-xs text-muted-foreground">{runUsage?.model || t("No metered AI call yet")} · {costValue(runUsage?.customerCostUsd)} {t("customer cost")}</p>
+        </article>
+        <article className="rounded-lg border border-border bg-background/60 p-4 md:col-span-2 xl:col-span-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground"><Eye size={15} /> {t("Transparent activity")}</div>
+          <p className="mt-2 text-sm text-foreground">{t("You can follow the durable plan, actions, tool results, approvals and verification in this timeline.")}</p>
+          <p className="mt-2 text-xs text-muted-foreground">{t("Internal hidden chain-of-thought is not exposed; users receive safe rationale summaries and evidence references instead.")}</p>
+        </article>
+      </div>
+
       {currentHealth ? (
         <div className="mt-5 grid gap-3 md:grid-cols-3 xl:grid-cols-6">
           <article className="rounded-lg border border-border bg-background/60 p-4">
@@ -173,7 +222,22 @@ export function AgentRuntimeControlPanel({
                     <div className="mt-1 text-xs uppercase tracking-[0.12em] text-muted-foreground">
                       {step.agentRole} {step.toolName ? `· ${step.toolName}` : ""}
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">{step.instruction}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {step.status === "completed"
+                        ? t("Completed and recorded a verifiable result.")
+                        : step.status === "failed"
+                          ? t("The step stopped with a recorded error.")
+                          : step.status === "running"
+                            ? t("The agent is executing this bounded step now.")
+                            : t("This step is queued in the durable execution plan.")}
+                    </p>
+                    {step.usage ? (
+                      <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
+                        <span>{t("Tokens")}: {tokenCount(step.usage.totalTokens)}</span>
+                        <span>{t("Input")}: {tokenCount(step.usage.inputTokens)}</span>
+                        <span>{t("Output")}: {tokenCount(step.usage.outputTokens)}</span>
+                      </div>
+                    ) : null}
                     {step.errorMessage ? <p className="mt-2 text-sm text-destructive">{step.errorMessage}</p> : null}
                   </div>
                   <div className={`rounded-full border px-2.5 py-1 text-xs font-medium ${statusTone(step.status)}`}>
@@ -201,6 +265,45 @@ export function AgentRuntimeControlPanel({
           </div>
         </section>
       </div>
+
+      <section className="mt-5 rounded-lg border border-border bg-background/40 p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2"><BrainCircuit size={16} className="text-primary" /><h3 className="text-sm font-semibold text-foreground">{t("AI activity timeline")}</h3></div>
+            <p className="mt-1 text-xs text-muted-foreground">{t("Every persisted planning and execution signal for the selected run, including safe rationale summaries.")}</p>
+          </div>
+          <div className="text-xs text-muted-foreground">{activity.length} {t("updates")}</div>
+        </div>
+        {plannedSteps.length > 0 ? (
+          <div className="mt-4 rounded-lg border border-primary/20 bg-primary/5 px-4 py-3">
+            <div className="text-xs font-medium uppercase tracking-[0.12em] text-primary">{t("Execution plan")}</div>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {plannedSteps.map((step, index) => (
+                <span key={String(step.id ?? index)} className="rounded-full border border-border bg-background/70 px-2.5 py-1 text-xs text-foreground">
+                  {index + 1}. {textValue(step.title) || textValue(step.role) || t("planned step")}
+                </span>
+              ))}
+            </div>
+          </div>
+        ) : null}
+        <div className="mt-4 space-y-2">
+          {activity.length > 0 ? activity.map((item) => (
+            <article key={item.id} className="flex gap-3 rounded-lg border border-border bg-background/70 px-3 py-3">
+              <div className="mt-1 h-2 w-2 shrink-0 rounded-full bg-primary" />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-sm font-medium text-foreground">{item.type}</span>
+                  <span className="text-xs text-muted-foreground">{formatLiveDate(item.createdAt)}</span>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">{item.summary}</p>
+                <p className="mt-1 text-xs uppercase tracking-[0.1em] text-muted-foreground">{item.role ?? t("system")}</p>
+              </div>
+            </article>
+          )) : (
+            <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">{t("No AI activity has been recorded for this run yet.")}</p>
+          )}
+        </div>
+      </section>
 
       <div className="mt-5 grid gap-5 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <section className="rounded-lg border border-border bg-background/40 p-4">

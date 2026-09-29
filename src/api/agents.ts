@@ -3,7 +3,8 @@ import { workspaceApiPath } from './types';
 import type { LuluAgentContract } from '../config/lulu-agent-registry';
 
 export type AgentRunStatus = 'queued' | 'planning' | 'running' | 'waiting_approval' | 'completed' | 'failed' | 'cancelled';
-export type AgentStep = { id: string; runId: string; sequenceNo: number; agentRole: string; title: string; instruction: string; status: string; toolName: string | null; toolInput: Record<string, unknown> | null; approvalId: string | null; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; };
+export type AgentUsage = { inputTokens: number; outputTokens: number; totalTokens: number; providerCostUsd: number; customerCostUsd: number; provider: string | null; model: string | null };
+export type AgentStep = { id: string; runId: string; sequenceNo: number; agentRole: string; title: string; instruction: string; status: string; toolName: string | null; toolInput: Record<string, unknown> | null; approvalId: string | null; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; usage?: AgentUsage; };
 
 /** Only a structured request for new customer funds is an authorization boundary. */
 export function isBudgetProtectedAgentInput(input: Record<string, unknown> | null | undefined): boolean {
@@ -12,8 +13,8 @@ export function isBudgetProtectedAgentInput(input: Record<string, unknown> | nul
   const commands = Array.isArray(input.commands) ? input.commands : [];
   return commands.some((command) => command && typeof command === "object" && isBudgetProtectedAgentInput(command as Record<string, unknown>));
 }
-export type AgentRun = { id: string; workspaceId: string; goal: string; status: AgentRunStatus; plan: Record<string, unknown>; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; createdAt: string; updatedAt: string; };
-export type AgentRunDetails = { run: AgentRun; steps: AgentStep[]; events: Array<{ id: string; eventType: string; agentRole: string | null; payload: Record<string, unknown>; createdAt: string }> };
+export type AgentRun = { id: string; workspaceId: string; goal: string; status: AgentRunStatus; plan: Record<string, unknown>; result: Record<string, unknown> | null; errorCode: string | null; errorMessage: string | null; createdAt: string; updatedAt: string; usage?: AgentUsage; };
+export type AgentRunDetails = { run: AgentRun; steps: AgentStep[]; events: Array<{ id: string; eventType: string; agentRole: string | null; payload: Record<string, unknown>; createdAt: string }>; collaboration?: AgentCollaboration; };
 export type AgentCollaborationThread = {
   id: string;
   workspaceId: string;

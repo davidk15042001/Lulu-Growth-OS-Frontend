@@ -8,6 +8,7 @@ import {
   type AgentRunDetails,
 } from "../api/agents";
 import { getFriendlyErrorMessage } from "../api/client";
+import { subscribeWorkspaceEvents } from "../api/agent-stream";
 import { getRecord, type WorkspaceRecord } from "../api/records";
 import type { LuluAgentContract } from "../config/lulu-agent-registry";
 
@@ -156,8 +157,10 @@ export function usePageAgentRun(
         setError("");
         return;
       }
-      if (preserveDetails && details?.run.id === activeRunId) {
-        await refreshExecution(details);
+      if (preserveDetails && activeRunId) {
+        const detailResponse = await agentApi.detail(workspaceId, activeRunId);
+        setDetails(detailResponse.data);
+        await refreshExecution(detailResponse.data);
         setError("");
         return;
       }
@@ -178,6 +181,24 @@ export function usePageAgentRun(
     const timer = window.setInterval(() => void load(true), 30_000);
     return () => window.clearInterval(timer);
   }, [load, workspaceId]);
+
+  useEffect(() => {
+    if (!workspaceId) return;
+    let refreshTimer: number | null = null;
+    const unsubscribe = subscribeWorkspaceEvents(workspaceId, (event) => {
+      if (!event.runId || (selectedRunId && event.runId !== selectedRunId)) return;
+      if (!event.type.startsWith("run.")) return;
+      if (refreshTimer !== null) window.clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => {
+        refreshTimer = null;
+        void load(true);
+      }, 120);
+    });
+    return () => {
+      if (refreshTimer !== null) window.clearTimeout(refreshTimer);
+      unsubscribe();
+    };
+  }, [load, selectedRunId, workspaceId]);
 
   const start = useCallback(async () => {
     if (!workspaceId) return;

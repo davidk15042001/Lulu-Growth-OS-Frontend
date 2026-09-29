@@ -4,7 +4,7 @@ export type WorkspaceLiveEvent = {
   id?: string;
   sequence?: string;
   workspaceId: string;
-  type: "record.created" | "run.completed" | "run.failed" | "connected" | (string & {});
+  type: "record.created" | "run.completed" | "run.failed" | "run.activity" | "run.step.started" | "run.step.completed" | "run.step.failed" | "connected" | (string & {});
   version?: number;
   aggregateType?: string;
   aggregateId?: string | null;
