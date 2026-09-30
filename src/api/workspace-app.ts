@@ -87,6 +87,13 @@ export type BillingState = {
     provider: string;
     planKey: string;
     status: string;
+    billingRegion: "cn" | "eu" | "us";
+    billingCurrency: "CNY" | "EUR" | "USD";
+    billingAmountMinor: string | null;
+    billingMonthlyEquivalentMinor: string | null;
+    billingInterval: "year";
+    billingCollectionMethod: "automatic";
+    latestProviderInvoiceId: string | null;
     seats: number;
     trialEndsAt: string | null;
     currentPeriodStartsAt: string | null;
@@ -332,6 +339,9 @@ export const workspaceAppApi = {
   }),
   billing: (workspaceId: string, query = "") => requestApi<BillingState>({
     path: workspaceApiPath(workspaceId, `/billing${query ? `?${query}` : ""}`),
+  }),
+  repaySubscription: (workspaceId: string) => requestApi<{ invoiceId: string; paymentUrl: string }>({
+    path: workspaceApiPath(workspaceId, "/billing/repay"), method: "POST", body: {},
   }),
   createPaygQrPayment: (workspaceId: string, input: {
     paymentMethod: "alipaycn" | "wechatpay";

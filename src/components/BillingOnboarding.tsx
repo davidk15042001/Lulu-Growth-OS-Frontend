@@ -3,9 +3,10 @@ import { ArrowLeft, ArrowRight, Check, Lock, ShieldCheck, Sparkles, WandSparkles
 import { navigateApp, routes } from "../routing";
 import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
+import { useLanguage } from "../i18n/GlobalLanguageSwitcher";
 import { onboardingApi } from "../api/onboarding";
 import { workspaceAppApi } from "../api/workspace-app";
-import { billingPlans, type BillingPlanId } from "../billing/planCatalog";
+import { billingPlans, billingPricing, billingRegions, type BillingPlanId, type BillingRegion } from "../billing/planCatalog";
 import { OnboardingHeader } from "./OnboardingHeader";
 
 const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string }> = {
@@ -14,6 +15,8 @@ const planPresentation: Record<BillingPlanId, { icon: typeof Zap; accent: string
 
 export function BillingOnboarding() {
   const { currentUser, selectedWorkspace, loading, refresh } = useLuluApp();
+  const language = useLanguage();
+  const [billingRegion, setBillingRegion] = useState<BillingRegion>(language === "zh-CN" ? "cn" : language === "de" ? "eu" : "us");
   const [selectedPlan, setSelectedPlan] = useState<BillingPlanId | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -145,6 +148,7 @@ export function BillingOnboarding() {
     try {
       const billingResponse = await onboardingApi.createBillingCheckout(selectedWorkspace.id, {
         planKey: planId,
+        billingRegion,
         successUrl: `${window.location.origin}${routes.onboarding.billing}?payment=success`,
         backUrl: `${window.location.origin}${routes.onboarding.billing}?payment=cancelled`,
       });
@@ -181,13 +185,21 @@ export function BillingOnboarding() {
           </div>
           <p className="mt-6 text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">Lulu AI package</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Activate Lulu AI for your workspace.</h1>
-          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">The Lulu AI package is billed annually at ¥17,888 CNY, plus a 5% commission on each Lulu-attributed sale.</p>
+          <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-[var(--muted-foreground)] sm:text-lg sm:leading-8">The Lulu AI package is billed annually in your selected currency. The annual subscription includes automatic invoices and automatic renewal; Lulu charges no sales commission.</p>
           <p className="mx-auto mt-3 max-w-2xl text-sm font-medium text-[var(--foreground)]">Activate the package to open the secure payment process immediately.</p>
         </section>
 
         {(submitting || paymentStatus !== "idle" || error) && <section className={`mb-6 rounded-2xl border px-5 py-4 text-sm ${error || paymentStatus === "error" ? "border-[var(--destructive)]/30 bg-[var(--destructive)]/10 text-[var(--destructive)]" : "border-[var(--border)] bg-[var(--secondary)] text-[var(--foreground)]"}`} role={error || paymentStatus === "error" ? "alert" : "status"}>
           <div className="flex items-start gap-3"><ShieldCheck size={18} className="mt-0.5 shrink-0" aria-hidden="true" /><div><p className="font-semibold">{paymentStatus === "waiting" ? "Payment returned — confirming your access…" : submitting ? "Opening secure checkout…" : paymentStatus === "error" ? "Payment confirmation is taking longer than expected." : error}</p>{paymentStatus === "waiting" && <p className="mt-1 text-[var(--muted-foreground)]">We are waiting for Airwallex to confirm the checkout. This page will continue automatically.</p>}{paymentStatus === "error" && <p className="mt-1">Please wait a moment and refresh this page.</p>}{error && paymentStatus !== "error" && <p className="mt-1">Select the package again to retry.</p>}{technicalError && <details className="mt-3 rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 text-left"><summary className="cursor-pointer text-xs font-semibold">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--muted-foreground)]">{technicalError}</p></details>}</div></div>
         </section>}
+
+        <section aria-label="Billing region" className="mx-auto mb-5 max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 text-left">
+          <label className="text-sm font-semibold" htmlFor="billing-region">Billing currency</label>
+          <select id="billing-region" value={billingRegion} onChange={(event) => setBillingRegion(event.target.value as BillingRegion)} className="mt-3 h-11 w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 text-sm">
+            {billingRegions.map((region) => <option key={region.id} value={region.id}>{region.label}</option>)}
+          </select>
+          <p className="mt-2 text-xs leading-5 text-[var(--muted-foreground)]">The monthly figure for Europe and the United States is a comparison value; the selected plan is charged once per year.</p>
+        </section>
 
         <section aria-label="Available plans" className="mx-auto grid max-w-md gap-5">
           {visiblePlans.map((plan) => {
@@ -198,7 +210,7 @@ export function BillingOnboarding() {
                 <div className={`grid h-10 w-10 place-items-center rounded-xl ${accent}`}><Icon size={19} aria-hidden="true" /></div>
                 <p className="mt-6 text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">{plan.eyebrow}</p>
                 <h2 className="mt-2 text-3xl font-semibold tracking-[-0.04em]">{plan.name}</h2>
-                <div className="mt-4 flex items-baseline gap-2"><span className="text-2xl font-semibold tracking-[-0.04em]">{plan.price}</span><span className="text-xs text-[var(--muted-foreground)]">{plan.pricePeriod}</span></div>
+                <div className="mt-4 flex flex-col gap-1"><span className="text-2xl font-semibold tracking-[-0.04em]">{billingPricing[billingRegion].annualLabel}</span><span className="text-xs text-[var(--muted-foreground)]">{billingPricing[billingRegion].monthlyLabel} · annual automatic payment</span></div>
                 <p className="mt-3 min-h-20 text-sm leading-6 text-[var(--muted-foreground)]">{plan.description}</p>
                 <div className="my-6 h-px bg-[var(--border)]" />
                 <ul className="space-y-3 text-sm leading-6">
