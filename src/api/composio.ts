@@ -98,6 +98,15 @@ export const composioApi = {
     method: "POST",
     body: { toolkit },
   }),
+  cancelAuthorization: (workspaceId: string, toolkit: string, connectedAccountId: string) => requestApi<{
+    status: string;
+    canceled: boolean;
+    teamId: string | null;
+  }>({
+    path: workspaceApiPath(workspaceId, "/composio/authorize/cancel"),
+    method: "POST",
+    body: { toolkit, connectedAccountId },
+  }),
   adminCatalog: (options: { search?: string; cursor?: string | null } = {}) => {
     const params = new URLSearchParams();
     if (options.search?.trim()) params.set("search", options.search.trim());
