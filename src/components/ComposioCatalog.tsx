@@ -5,6 +5,38 @@ import { composioApi, type ComposioIntegrationTeam, type ComposioToolkit } from 
 import { LiveEmpty, LiveSection } from "../api/live-panel-ui";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 
+type PendingConnection = { toolkit: string; connectionId: string; startedAt: string };
+
+function teamStatusLabel(status: string, t: (key: string) => string) {
+  const labels: Record<string, string> = {
+    CONNECTING: "Connection in progress",
+    PROVISIONING: "Finalizing connection",
+    ACTIVE: "Ready to use",
+    CONNECTED: "Connected, verification pending",
+    REAUTH_REQUIRED: "Reconnect required",
+    DEGRADED: "Needs attention",
+    DISCONNECTED: "Disconnected",
+    SUSPENDED: "Paused",
+    ARCHIVED: "Archived",
+    NOT_CONNECTED: "Not connected",
+  };
+  return t(labels[status] ?? status);
+}
+
+function teamStatusDescription(status: string, t: (key: string) => string) {
+  const descriptions: Record<string, string> = {
+    CONNECTING: "The provider authorization window is still open.",
+    PROVISIONING: "Lulu is checking the provider result before enabling this integration.",
+    ACTIVE: "This workspace-scoped integration is ready for bounded work.",
+    CONNECTED: "The account is connected, but final readiness has not been confirmed yet.",
+    REAUTH_REQUIRED: "The provider needs a fresh authorization before work can continue.",
+    DEGRADED: "The integration is connected but needs attention before reliable use.",
+    DISCONNECTED: "No active workspace connection is available. You can reconnect it.",
+    SUSPENDED: "External tool execution is paused until you resume this team.",
+  };
+  return t(descriptions[status] ?? "The integration status is being reconciled.");
+}
+
 export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceId: string; canConnect?: boolean }) {
   const t = useTranslation();
   const [toolkits, setToolkits] = useState<ComposioToolkit[]>([]);
@@ -16,15 +48,18 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
   const [hasMore, setHasMore] = useState(false);
   const [connectUrl, setConnectUrl] = useState("");
   const [notice, setNotice] = useState("");
-  const [pendingConnection, setPendingConnection] = useState<{ toolkit: string; connectionId: string } | null>(null);
+  const [pendingConnection, setPendingConnection] = useState<PendingConnection | null>(null);
   const [busyToolkit, setBusyToolkit] = useState<string | null>(null);
-  const pendingPopupRef = useRef<{ toolkit: string; connectionId: string; popup: Window; timer: number } | null>(null);
+  const pendingPopupRef = useRef<{ pending: PendingConnection; popup: Window | null; closeTimer: number; pollTimer: number; timeoutTimer: number } | null>(null);
+  const settlingConnectionRef = useRef<string | null>(null);
 
   function toolkitStatus(toolkit: ComposioToolkit) {
     if (toolkit.isNoAuth) return "Available";
     if (toolkit.connected) return "Connected";
-    if (["INITIATED", "INITIALIZING", "FAILED", "INACTIVE", "EXPIRED", "REVOKED"].includes((toolkit.connectionStatus ?? "").toUpperCase())) return "Not connected";
-    return toolkit.connectionStatus ?? "Not connected";
+    const status = (toolkit.connectionStatus ?? "").toUpperCase();
+    if (["INITIATED", "INITIALIZING", "CONNECTING", "PENDING", "PROVISIONING"].includes(status)) return "Connection in progress";
+    if (["FAILED", "INACTIVE", "EXPIRED", "REVOKED", "CANCELED", "CANCELLED"].includes(status)) return "Ready to retry";
+    return "Not connected";
   }
 
   const loadTeams = useCallback(async () => {
@@ -64,27 +99,41 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
       setConnectUrl(response.data.redirectUrl);
       const opened = window.open(response.data.redirectUrl, "_blank", "noopener,noreferrer");
       if (!opened) setError("The connection page was blocked by the browser. Use the link shown below to continue.");
-      if (opened) {
-        const pending = { toolkit: toolkit.slug, connectionId: response.data.connectedAccountId };
-        const timer = window.setInterval(() => {
-          if (!opened.closed) return;
-          window.clearInterval(timer);
-          pendingPopupRef.current = null;
-          void settleAuthorization(pending, true);
-        }, 700);
-        pendingPopupRef.current = { ...pending, popup: opened, timer };
-        setPendingConnection(pending);
-      }
+      const pending: PendingConnection = { toolkit: toolkit.slug, connectionId: response.data.connectedAccountId, startedAt: new Date().toISOString() };
+      const closeTimer = window.setInterval(() => {
+        if (!opened?.closed) return;
+        void settleAuthorization(pending, true);
+      }, 700);
+      const pollTimer = window.setInterval(async () => {
+        try {
+          const [toolkitResponse, teamsResponse] = await Promise.all([
+            composioApi.toolkits(workspaceId, { search: toolkit.slug }),
+            composioApi.teams(workspaceId, { limit: 100 }),
+          ]);
+          const currentToolkit = toolkitResponse.data.items.find((item) => item.slug === toolkit.slug);
+          const currentTeam = teamsResponse.data.items.find((item) => item.composioToolkit === toolkit.slug && item.composioConnectionId === pending.connectionId);
+          if (currentToolkit?.connected || currentTeam?.status === "ACTIVE") void settleAuthorization(pending, false);
+        } catch {
+          // The popup remains the source of truth while the provider is working.
+        }
+      }, 2_000);
+      const timeoutTimer = window.setTimeout(() => void settleAuthorization(pending, true), 10 * 60 * 1_000);
+      pendingPopupRef.current = { pending, popup: opened, closeTimer, pollTimer, timeoutTimer };
+      setPendingConnection(pending);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "We could not start this Composio connection."));
     } finally { setBusyToolkit(null); }
   }
 
-  const settleAuthorization = useCallback(async (pending: { toolkit: string; connectionId: string }, closed: boolean) => {
+  const settleAuthorization = useCallback(async (pending: PendingConnection, closed: boolean) => {
+    if (settlingConnectionRef.current === pending.connectionId) return;
+    settlingConnectionRef.current = pending.connectionId;
     const active = pendingPopupRef.current;
-    if (active && active.connectionId === pending.connectionId) {
-      window.clearInterval(active.timer);
-      if (!active.popup.closed) active.popup.close();
+    if (active && active.pending.connectionId === pending.connectionId) {
+      window.clearInterval(active.closeTimer);
+      window.clearInterval(active.pollTimer);
+      window.clearTimeout(active.timeoutTimer);
+      if (active.popup && !active.popup.closed) active.popup.close();
       pendingPopupRef.current = null;
     }
     setPendingConnection(null);
@@ -95,23 +144,29 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
       if (result.data.status === "ACTIVE") {
         setNotice("Connection completed and is ready for use.");
       } else if (closed || result.data.canceled) {
-        setNotice("Connection canceled. No active workspace connection was created.");
+        setNotice("Connection canceled and cleaned up. No active workspace connection was created.");
       }
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "The connection could not be closed cleanly. Refresh the integrations list to reconcile its status."));
+    } finally {
+      settlingConnectionRef.current = null;
     }
   }, [loadTeams, loadToolkits, search, workspaceId]);
 
   useEffect(() => () => {
     const pending = pendingPopupRef.current;
-    if (pending) window.clearInterval(pending.timer);
+    if (pending) {
+      window.clearInterval(pending.closeTimer);
+      window.clearInterval(pending.pollTimer);
+      window.clearTimeout(pending.timeoutTimer);
+    }
   }, []);
 
   return <div className="lulu-composio-catalog">
     {teams.length > 0 && <LiveSection title={t("Integration teams")} action={<span className="lulu-live-message">{t("Every team is workspace-scoped and can be paused before external tool execution.")}</span>}>
       {teams.map((team) => <article className="lulu-live-row" key={team.id}>
-        <div className="lulu-live-row-top"><div><strong>{team.teamName}</strong><span>{team.composioToolkit} · {team.mission}</span></div><span className={`lulu-live-badge ${team.status === "ACTIVE" ? "good" : ""}`}>{t(team.status)}</span></div>
-        <small>{team.allowedCapabilities.join(", ") || t("No capabilities assigned")}{team.lastProviderStatus ? ` · provider ${team.lastProviderStatus}` : ""}</small>
+        <div className="lulu-live-row-top"><div><strong>{team.teamName}</strong><span>{team.composioToolkit} · {team.mission}</span></div><span className={`lulu-live-badge ${team.status === "ACTIVE" ? "good" : ""}`}>{teamStatusLabel(team.status, t)}</span></div>
+        <small>{teamStatusDescription(team.status, t)}{team.lastProviderStatus ? ` · provider ${team.lastProviderStatus}` : ""}</small>
         <div className="lulu-live-actions" style={{ marginTop: 8 }}>
           {team.status === "SUSPENDED" ? <button className="lulu-live-button" onClick={async () => { await composioApi.resumeTeam(workspaceId, team.id); await loadTeams(); }}>{t("Resume")}</button> : <button className="lulu-live-button danger" onClick={async () => { await composioApi.suspendTeam(workspaceId, team.id); await loadTeams(); }}>{t("Suspend")}</button>}
         </div>
@@ -122,7 +177,7 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
     {!canConnect ? <p className="lulu-live-message">You can view available apps, but your workspace role does not allow new connections.</p> : null}
     {error ? <div className="lulu-live-error">{error}</div> : null}
     {notice ? <p className="lulu-live-message lulu-live-message--success">{notice}</p> : null}
-    {connectUrl ? <p className="lulu-live-message">Connection started. <a href={connectUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline", fontWeight: 700 }}>Open the Composio connection page</a>, then finish or cancel it there.{pendingConnection ? <button className="lulu-live-button" type="button" onClick={() => void settleAuthorization(pendingConnection, false)} style={{ marginLeft: 8 }}>Cancel connection</button> : null}</p> : null}
+    {connectUrl ? <p className="lulu-live-message">Connection in progress. <a href={connectUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline", fontWeight: 700 }}>Open the Composio connection page</a>, then finish or cancel it there.{pendingConnection ? <button className="lulu-live-button" type="button" onClick={() => void settleAuthorization(pendingConnection, false)} style={{ marginLeft: 8 }}>Cancel and clean up</button> : null}</p> : null}
     <form className="lulu-live-form lulu-live-search-form" onSubmit={(event) => void submitSearch(event)}>
       <label><span>Search Composio apps</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by app name or toolkit" /></label>
       <button className="lulu-live-button" type="submit" disabled={loading}><Search size={15} />Search</button>

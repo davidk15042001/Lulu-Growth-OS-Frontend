@@ -239,6 +239,26 @@ export function usePageAgentRun(
     }
   }, [details, latestRun, load, t, workspaceId]);
 
+  const retry = useCallback(async () => {
+    const runId = details?.run.id ?? latestRun?.id;
+    if (!workspaceId || !runId) return start();
+    setActing(true);
+    try {
+      const response = await agentApi.retry(workspaceId, runId);
+      const detailResponse = await agentApi.detail(workspaceId, response.data.id);
+      setRuns((current) => [response.data, ...current.filter((run) => run.id !== response.data.id)].sort(newestFirst));
+      setLatestRun(response.data);
+      setSelectedRunId(response.data.id);
+      setDetails(detailResponse.data);
+      await refreshExecution(detailResponse.data);
+      setError("");
+    } catch (nextError) {
+      setError(getFriendlyErrorMessage(nextError, t("The failed page-agent run could not be retried safely.")));
+    } finally {
+      setActing(false);
+    }
+  }, [details, latestRun, refreshExecution, start, t, workspaceId]);
+
   const recentSteps = useMemo(
     () => (details?.steps ?? []).slice().sort((left, right) => right.sequenceNo - left.sequenceNo).slice(0, 6),
     [details],
@@ -294,7 +314,7 @@ export function usePageAgentRun(
     executionError,
     refresh: () => load(),
     start,
-    retry: start,
+    retry,
     cancel,
     selectRun,
   };

@@ -268,4 +268,5 @@ export const agentApi = {
     return requestApi<AgentCollaboration>({ path: `${workspaceApiPath(workspaceId, `/agent-runs/${runId}/collaboration`)}${serialized ? `?${serialized}` : ''}` });
   },
   cancel: (workspaceId: string, runId: string) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/cancel`), method: 'POST', body: {} }),
+  retry: (workspaceId: string, runId: string) => requestApi<AgentRun>({ path: workspaceApiPath(workspaceId, `/agent-runs/${runId}/retry`), method: 'POST', body: {} }),
 };

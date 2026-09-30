@@ -1,4 +1,4 @@
-import { BrainCircuit, Clock3, Coins, Eye, ShieldCheck, XCircle } from "lucide-react";
+import { BrainCircuit, Clock3, Coins, Eye, RotateCcw, ShieldCheck, XCircle } from "lucide-react";
 import { formatLiveDate } from "../api/live-panel-ui";
 import type { AgentRunStatus, AgentStep } from "../api/agents";
 import type { WorkspaceRecord } from "../api/records";
@@ -14,6 +14,34 @@ function statusTone(status: AgentRunStatus | string) {
   return "border-border bg-background/60 text-foreground";
 }
 
+function statusLabel(status: AgentRunStatus | string, t: (key: string) => string) {
+  const labels: Record<string, string> = {
+    idle: "Not started",
+    queued: "Queued",
+    planning: "Planning",
+    running: "Working",
+    waiting_approval: "Waiting for approval",
+    completed: "Completed",
+    failed: "Failed",
+    cancelled: "Cancelled",
+    pending: "Waiting for provider",
+  };
+  return t(labels[status] ?? status);
+}
+
+function statusDescription(status: AgentRunStatus | string, t: (key: string) => string) {
+  const descriptions: Record<string, string> = {
+    queued: "The run is waiting for its turn.",
+    planning: "The coordinator is framing the objective and evidence requirements.",
+    running: "Specialists are working through the bounded execution plan.",
+    waiting_approval: "The run is paused until the required approval is available.",
+    completed: "The result was recorded and passed the available checks.",
+    failed: "The run stopped with a recorded failure and will not replay external work automatically.",
+    cancelled: "The run was cancelled before completion.",
+  };
+  return t(descriptions[status] ?? "The run state is recorded by the backend.");
+}
+
 function stepTone(step: AgentStep) {
   if (step.status === "completed") return "text-emerald-600 dark:text-emerald-300";
   if (step.status === "waiting_approval") return "text-amber-600 dark:text-amber-300";
@@ -23,6 +51,10 @@ function stepTone(step: AgentStep) {
 
 function textValue(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function stringList(value: unknown) {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string" && item.trim().length > 0) : [];
 }
 
 function packetExecutionStatus(packet: WorkspaceRecord) {
@@ -71,6 +103,7 @@ export function AgentRuntimeControlPanel({
   const status = currentRun?.status ?? "idle";
   const stepCount = runtime.details?.steps.length ?? 0;
   const isRunning = status === "queued" || status === "planning" || status === "running";
+  const canRetry = status === "failed" || status === "cancelled";
   const executedPacketCount = runtime.executionPackets.filter((entry) => packetExecutionStatus(entry.packet) === "executed").length;
   const artifactCount = runtime.executionArtifacts.length;
   const currentHealth = runtime.currentHealth;
@@ -98,6 +131,8 @@ export function AgentRuntimeControlPanel({
   const plannedSteps = Array.isArray(currentRun?.plan?.steps)
     ? currentRun.plan.steps.filter((step): step is Record<string, unknown> => Boolean(step && typeof step === "object"))
     : [];
+  const teamPlan = currentRun?.plan?.team && typeof currentRun.plan.team === "object" ? currentRun.plan.team as Record<string, unknown> : null;
+  const selectionReasons = stringList(teamPlan?.selectionReason);
 
   return (
     <section className="lulu-agent-runtime-panel rounded-xl border border-border bg-card p-5">
@@ -121,6 +156,18 @@ export function AgentRuntimeControlPanel({
               {t("Cancel run")}
             </button>
           ) : null}
+          {canRetry ? (
+            <button
+              type="button"
+              onClick={() => void runtime.retry()}
+              disabled={runtime.acting}
+              className="inline-flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-3 py-2 text-sm text-primary hover:bg-primary/10 disabled:cursor-not-allowed disabled:opacity-60"
+              title={t("Starts a new bounded run; external work is not replayed automatically.")}
+            >
+              <RotateCcw size={15} />
+              {t("Start a safe retry")}
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -134,8 +181,9 @@ export function AgentRuntimeControlPanel({
         <article className="rounded-lg border border-border bg-background/60 p-4">
           <p className="text-xs text-muted-foreground">{t("Run status")}</p>
           <div className={`mt-2 inline-flex rounded-full border px-2.5 py-1 text-xs font-medium ${statusTone(status)}`}>
-            {status}
+            {statusLabel(status, t)}
           </div>
+          <p className="mt-2 text-xs text-muted-foreground">{statusDescription(status, t)}</p>
         </article>
         <article className="rounded-lg border border-border bg-background/60 p-4">
           <p className="text-xs text-muted-foreground">{t("Latest run")}</p>
@@ -175,6 +223,8 @@ export function AgentRuntimeControlPanel({
           <div className="flex items-center gap-2 text-xs text-muted-foreground"><Eye size={15} /> {t("Transparent activity")}</div>
           <p className="mt-2 text-sm text-foreground">{t("You can follow the durable plan, actions, tool results, approvals and verification in this timeline.")}</p>
           <p className="mt-2 text-xs text-muted-foreground">{t("Internal hidden chain-of-thought is not exposed; users receive safe rationale summaries and evidence references instead.")}</p>
+          {selectionReasons.length > 0 ? <div className="mt-3"><p className="text-xs font-medium uppercase tracking-[0.12em] text-primary">{t("Why this team was selected")}</p><div className="mt-2 flex flex-wrap gap-2">{selectionReasons.map((reason) => <span key={reason} className="rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs text-foreground">{reason}</span>)}</div></div> : null}
+          {currentRun?.errorMessage ? <div className="mt-3 rounded-lg border border-destructive/20 bg-destructive/5 px-3 py-2 text-xs text-destructive"><strong>{currentRun.errorCode ?? t("Run stopped")}</strong><span className="ml-1">{currentRun.errorMessage}</span></div> : null}
         </article>
       </div>
 
@@ -241,7 +291,7 @@ export function AgentRuntimeControlPanel({
                     {step.errorMessage ? <p className="mt-2 text-sm text-destructive">{step.errorMessage}</p> : null}
                   </div>
                   <div className={`rounded-full border px-2.5 py-1 text-xs font-medium ${statusTone(step.status)}`}>
-                    {step.status}
+                    {statusLabel(step.status, t)}
                   </div>
                 </div>
               </article>
@@ -412,6 +462,18 @@ export function AgentRuntimeControlPanel({
                   <span>{t("Outputs")}: {results.length || resultCount(packet)}</span>
                   <span>{t("Updated")}: {formatLiveDate(packet.updatedAt)}</span>
                 </div>
+                {(textValue(packet.data.targetEntityType) || textValue(packet.data.targetEntityId) || textValue(packet.data.provider) || textValue(packet.data.riskLevel) || textValue(packet.data.approvalPolicy) || stringList(packet.data.evidenceRefs).length > 0) ? (
+                  <div className="mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-3">
+                    <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary">{t("Action preview")}</p>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-foreground">
+                      {textValue(packet.data.targetEntityType) ? <span>{t("Target")}: {textValue(packet.data.targetEntityType)}{textValue(packet.data.targetEntityId) ? ` · ${textValue(packet.data.targetEntityId)}` : ""}</span> : null}
+                      {textValue(packet.data.provider) ? <span>{t("Provider")}: {textValue(packet.data.provider)}</span> : null}
+                      {textValue(packet.data.riskLevel) ? <span>{t("Risk")}: {textValue(packet.data.riskLevel)}</span> : null}
+                      {textValue(packet.data.approvalPolicy) ? <span>{t("Approval")}: {textValue(packet.data.approvalPolicy)}</span> : null}
+                    </div>
+                    {stringList(packet.data.evidenceRefs).length > 0 ? <p className="mt-2 text-xs text-muted-foreground">{t("Evidence")}: {stringList(packet.data.evidenceRefs).slice(0, 4).join(" · ")}</p> : null}
+                  </div>
+                ) : null}
                 {textValue(packet.data.requiresHumanReviewReason) ? (
                   <p className="mt-3 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground">
                     {textValue(packet.data.requiresHumanReviewReason)}
