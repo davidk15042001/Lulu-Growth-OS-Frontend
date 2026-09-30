@@ -32,8 +32,6 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   API_TIMEOUT: "This is taking longer than expected. Please try again.",
   EMAIL_IN_USE: "An account already exists with this email. Please sign in or use another email.",
   INVALID_CREDENTIALS: "The email or password is not correct. Please check both and try again.",
-  ADMIN_MFA_INVALID: "The administrator verification code is invalid or expired.",
-  ADMIN_MFA_SETUP_REQUIRED: "MFA setup could not be started.",
   ACCOUNT_UNVERIFIED: "Please confirm your email before signing in.",
   ACCOUNT_NOT_FOUND: "We could not find an account with this email.",
   INVALID_OTP: "This confirmation code is not correct. Please check it and try again.",

@@ -723,7 +723,6 @@ details[open] > :not(summary) {
 .lulu-executive-landing .lulu-exec-password-field .lulu-exec-input { padding-right: 46px; }
 .lulu-exec-password-toggle { position: absolute; top: 0; right: 0; display: grid; width: 46px; height: 46px; place-items: center; border: 0; background: transparent; color: #5b6d6a; }
 .lulu-exec-password-toggle:hover { color: var(--exec-ink); }
-.lulu-executive-landing .lulu-exec-mfa-input { text-align: center; letter-spacing: .28em; }
 .lulu-executive-landing .lulu-exec-submit {
   justify-content: center;
   gap: 9px;
@@ -1048,7 +1047,6 @@ details[open] > :not(summary) {
   margin-top: 14px;
 }
 
-.lulu-exec-fields .lulu-exec-label:has(.lulu-exec-mfa-input),
 .lulu-exec-status,
 .lulu-exec-error,
 .lulu-exec-success,
@@ -2029,7 +2027,6 @@ details[open] > :not(summary) {
     align-items: end;
   }
 
-  .lulu-exec-fields .lulu-exec-label:has(.lulu-exec-mfa-input),
   .lulu-executive-landing .lulu-exec-submit,
   .lulu-exec-back-button,
   .lulu-exec-status,
@@ -2539,7 +2536,6 @@ details[open] > :not(summary) {
     align-items: end;
   }
 
-  .lulu-exec-fields .lulu-exec-label:has(.lulu-exec-mfa-input),
   .lulu-exec-back-button,
   .lulu-exec-status,
   .lulu-exec-error,

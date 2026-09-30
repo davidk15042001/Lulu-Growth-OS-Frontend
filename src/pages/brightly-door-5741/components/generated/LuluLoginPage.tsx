@@ -91,11 +91,6 @@ export const LuluLoginPage = () => {
   const [error, setError] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
-  const [adminMfaRequired, setAdminMfaRequired] = useState(false);
-  const [adminMfaCode, setAdminMfaCode] = useState('');
-  const [userMfaRequired, setUserMfaRequired] = useState(false);
-  const [userMfaChallengeId, setUserMfaChallengeId] = useState('');
-  const [userMfaCode, setUserMfaCode] = useState('');
 
   useEffect(() => {
     if (!isLandingLanguage) switchLanguage('en');
@@ -124,23 +119,7 @@ export const LuluLoginPage = () => {
     setStatusMessage(t('Checking your account…'));
     setS(false);
     try {
-      const loginResponse = adminMfaRequired
-        ? await requestWithTimeout<{ token: string; user: unknown }>({ path: '/auth/admin-mfa', method: 'POST', body: { email: e, code: adminMfaCode } })
-        : userMfaRequired
-          ? await requestWithTimeout<{ token: string; user: unknown }>({ path: '/auth/mfa/verify', method: 'POST', body: { challengeId: userMfaChallengeId, code: userMfaCode } })
-          : await requestWithTimeout<{ token?: string; mfaRequired?: boolean; email?: string; challengeId?: string; method?: string }>({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
-      if (!adminMfaRequired && !userMfaRequired && 'mfaRequired' in loginResponse.data && loginResponse.data.mfaRequired) {
-        if (loginResponse.data.method === 'totp' && loginResponse.data.challengeId) {
-          setUserMfaRequired(true);
-          setUserMfaChallengeId(loginResponse.data.challengeId);
-          setStatusMessage(t('Enter your authenticator code or a recovery code.'));
-        } else {
-          setAdminMfaRequired(true);
-          setStatusMessage(t('Enter the six-digit code sent to your administrator email.'));
-        }
-        setLoading(false);
-        return;
-      }
+      const loginResponse = await requestWithTimeout<{ token?: string; user?: unknown }>({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
       setStatusMessage(t('Loading your profile…'));
       const meResp = await requestWithTimeout<{ id: string; email: string; firstName: string | null; lastName: string | null; role: string }>({ path: '/auth/me' });
       const currentUser = meResp.data;
@@ -186,8 +165,6 @@ export const LuluLoginPage = () => {
       } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
         setPendingEmail(e);
         navigateApp(routes.auth.signUp);
-      } else if (cause instanceof ApiError && cause.code === 'ADMIN_MFA_SETUP_REQUIRED') {
-        setError(t('MFA setup could not be started.'));
       } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') {
         setError(t('accountNotFound'));
       } else if (cause instanceof ApiError && cause.code === 'INVALID_CREDENTIALS') {
@@ -269,22 +246,9 @@ export const LuluLoginPage = () => {
                   <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="lulu-exec-password-toggle">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
                 </span>
               </Label>
-              {adminMfaRequired ? (
-                <Label htmlFor="login-admin-mfa" className="lulu-exec-label">
-                  {t('Administrator verification code')}
-                  <Input id="login-admin-mfa" name="adminMfaCode" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={adminMfaCode} onChange={event => setAdminMfaCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="lulu-exec-input lulu-exec-mfa-input" />
-                </Label>
-              ) : null}
-              {userMfaRequired ? (
-                <Label htmlFor="login-user-mfa" className="lulu-exec-label">
-                  {t('Authenticator or recovery code')}
-                  <Input id="login-user-mfa" name="userMfaCode" inputMode="text" autoComplete="one-time-code" maxLength={20} value={userMfaCode} onChange={event => setUserMfaCode(event.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 20))} className="lulu-exec-input lulu-exec-mfa-input" />
-                </Label>
-              ) : null}
               <Button type="submit" disabled={loading} className="lulu-exec-submit">
-                {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t(adminMfaRequired ? 'Verify administrator' : userMfaRequired ? 'Verify authenticator' : 'signIn')} <ArrowRight size={16} /></>}
+                {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}
               </Button>
-              {adminMfaRequired || userMfaRequired ? <button type="button" onClick={() => { setAdminMfaRequired(false); setAdminMfaCode(''); setUserMfaRequired(false); setUserMfaChallengeId(''); setUserMfaCode(''); setStatusMessage(''); setError(''); }} className="lulu-exec-back-button">{t('Back to password sign-in')}</button> : null}
               {statusMessage && <p role="status" className="lulu-exec-status">{statusMessage}</p>}
               {error && <div role="alert" className="lulu-exec-error"><p>{error}</p>{errorDetails && <p>{errorDetails}</p>}</div>}
               {s && <p className="lulu-exec-success"><Check size={15} /> {t('Signed in successfully.')}</p>}
