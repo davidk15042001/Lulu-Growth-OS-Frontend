@@ -14,9 +14,9 @@ function newest(records: WorkspaceRecord[]) {
 export default function GrowthPage() {
   const { selectedWorkspace } = useLuluApp();
   const campaigns = useLiveRecords("marketing_campaigns", "limit=20");
-  const content = useLiveRecords("marketing_content", "limit=20");
+  const content = useLiveRecords("marketing_content", "limit=20", { includeTotal: true });
   const ads = useLiveRecords("ad_campaigns", "limit=20");
-  const attribution = useLiveRecords("ad_attributions", "limit=20");
+  const attribution = useLiveRecords("ad_attributions", "limit=20", { includeTotal: true });
   const [adSpend, setAdSpend] = useState<AdSpendOverview | null>(null);
 
   useEffect(() => {

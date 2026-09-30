@@ -14,7 +14,7 @@ export type LiveRecordsState = {
   refresh: () => Promise<void>;
 };
 
-export function useLiveRecords(resourceType: string | null, query = ""): LiveRecordsState {
+export function useLiveRecords(resourceType: string | null, query = "", options: { includeTotal?: boolean } = {}): LiveRecordsState {
   const [items, setItems] = useState<WorkspaceRecord[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(Boolean(resourceType));
@@ -25,6 +25,7 @@ export function useLiveRecords(resourceType: string | null, query = ""): LiveRec
   const requestRef = useRef(0);
   const workspaceId = getSelectedWorkspaceId();
   const requestKey = workspaceId && resourceType ? `${workspaceId}:${resourceType}:${query}` : null;
+  const includeTotal = options.includeTotal ?? false;
 
   const refresh = useCallback(async () => {
     if (!resourceType || !requestKey) {
@@ -43,10 +44,10 @@ export function useLiveRecords(resourceType: string | null, query = ""): LiveRec
     setStatus(hasVerifiedData ? "refreshing" : "loading");
     setError(null);
     try {
-      const response = await listRecords(resourceType, query);
+      const response = await listRecords(resourceType, query, { includeTotal });
       if (request !== requestRef.current || getSelectedWorkspaceId() !== workspaceId) return;
       setItems(response.data.items);
-      setTotal(response.data.pagination.total);
+      setTotal(response.data.pagination.total ?? response.data.items.length);
       dataKeyRef.current = requestKey;
       setDataKey(requestKey);
       setStatus("ready");
@@ -58,7 +59,7 @@ export function useLiveRecords(resourceType: string | null, query = ""): LiveRec
     } finally {
       if (request === requestRef.current) setLoading(false);
     }
-  }, [query, requestKey, resourceType, workspaceId]);
+  }, [includeTotal, query, requestKey, resourceType, workspaceId]);
 
   useEffect(() => { void refresh(); return () => { requestRef.current += 1; }; }, [refresh]);
   const hasCurrentData = dataKey === requestKey;

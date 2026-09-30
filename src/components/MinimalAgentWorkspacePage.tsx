@@ -45,7 +45,7 @@ export function MinimalAgentWorkspacePage({
   const { selectedWorkspace } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? null;
   const resourceType = resolveResourceType(slug, contract);
-  const records = useLiveRecords(resourceType, "limit=25");
+  const records = useLiveRecords(resourceType, "limit=25", { includeTotal: true });
   const [searchParams] = useSearchParams();
   const linkedRecordId = searchParams.get("recordId");
   const linkedKey = workspaceId && resourceType && linkedRecordId

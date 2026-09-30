@@ -3,12 +3,12 @@ import { authApi, type CurrentUser } from "./auth";
 import { ApiError } from "./client";
 import { clearSelectedWorkspaceId, clearStoredUser, getSelectedWorkspaceId, getStoredUser, setSelectedWorkspaceId, setStoredUser } from "./session";
 import { workspaceApi, type EffectiveEntitlement } from "./workspaces";
-import type { Workspace, WorkspaceRole } from "./types";
+import type { Workspace, WorkspaceBootstrap, WorkspaceRole } from "./types";
 
 type PermissionStatus = "unknown" | "loading" | "ready" | "unavailable";
 type Permissions = { role: WorkspaceRole | null; canEdit: boolean; canAdminister: boolean; capabilities: string[]; status: PermissionStatus };
 type AppCapabilities = { aiGeneration: boolean; aiBudgetRequired: boolean; aiBudgetFunded: boolean; transactionalEmail: boolean };
-type AppValue = { currentUser: CurrentUser | null; workspaces: Workspace[]; selectedWorkspace: Workspace | null; permissions: Permissions; capabilities: AppCapabilities; entitlements: Record<string, EffectiveEntitlement>; loading: boolean; error: string | null; refresh: () => Promise<void>; selectWorkspace: (id: string) => void; updateWorkspace: (workspace: Workspace) => void; can: (permission: "edit" | "administer") => boolean; hasCapability: (capability: string) => boolean };
+type AppValue = { currentUser: CurrentUser | null; workspaces: Workspace[]; selectedWorkspace: Workspace | null; bootstrap: WorkspaceBootstrap | null; permissions: Permissions; capabilities: AppCapabilities; entitlements: Record<string, EffectiveEntitlement>; loading: boolean; error: string | null; refresh: () => Promise<void>; selectWorkspace: (id: string) => void; updateWorkspace: (workspace: Workspace) => void; can: (permission: "edit" | "administer") => boolean; hasCapability: (capability: string) => boolean };
 const emptyPermissions = (role: WorkspaceRole | null = null, status: PermissionStatus = "unknown"): Permissions => ({ role, canEdit: false, canAdminister: false, capabilities: [], status });
 const empty = emptyPermissions();
 const Context = createContext<AppValue | null>(null);
@@ -28,6 +28,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
   const requestGenerationRef = useRef(0);
   const activeRequestRef = useRef<AbortController | null>(null);
   const [permissions, setPermissions] = useState<Permissions>(empty);
+  const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null);
   const [capabilities, setCapabilities] = useState<AppCapabilities>({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
   const [entitlements, setEntitlements] = useState<Record<string, EffectiveEntitlement>>({});
   const [loading, setLoading] = useState(true);
@@ -39,6 +40,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
     activeRequestRef.current = controller;
     setLoading(true); setError(null);
     setEntitlements({});
+    setBootstrap(null);
     setCapabilities({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
     setPermissions((current) => emptyPermissions(current.role, "loading"));
     try {
@@ -74,6 +76,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
           const bootstrapResult = id ? await workspaceApi.bootstrap(id, controller.signal) : null;
           if (requestGeneration !== requestGenerationRef.current) return;
           const effective = bootstrapResult?.data.entitlements ?? {};
+          setBootstrap(bootstrapResult?.data ?? null);
           setEntitlements(effective);
           setPermissions(bootstrapResult ? permissionsFromBootstrap(bootstrapResult.data.permissions) : emptyPermissions(null, "ready"));
           setCapabilities(bootstrapResult
@@ -85,13 +88,14 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
           // authorization remains authoritative when the endpoint is unavailable.
           // Mutation controls stay disabled until permissions are known.
           setEntitlements({});
+          setBootstrap(null);
           setPermissions(emptyPermissions(selected?.role ?? null, "unavailable"));
           setCapabilities({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
         }
       } catch (workspaceCause) {
         if (workspaceCause instanceof ApiError && workspaceCause.status === 401) {
           // The user session is valid; do not turn a workspace/API problem into a logout loop.
-          setWorkspaces([]); setPermissions(emptyPermissions()); setEntitlements({}); setCapabilities({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
+          setWorkspaces([]); setPermissions(emptyPermissions()); setEntitlements({}); setBootstrap(null); setCapabilities({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
           setError("Your session is valid, but workspace data could not be loaded. Please try again.");
         } else {
           setError("Your session is valid, but workspace data could not be loaded. Please try again.");
@@ -125,10 +129,12 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
     selectedIdRef.current = id;
     setSelectedId(id);
     setEntitlements({});
+    setBootstrap(null);
     setCapabilities({ aiGeneration: false, aiBudgetRequired: false, aiBudgetFunded: false, transactionalEmail: false });
     setPermissions(emptyPermissions(workspace.role, "loading"));
     void workspaceApi.bootstrap(id, controller.signal).then((result) => {
       if (requestGeneration !== requestGenerationRef.current || selectedIdRef.current !== id) return;
+      setBootstrap(result.data);
       setEntitlements(result.data.entitlements);
       setPermissions(permissionsFromBootstrap(result.data.permissions));
       setCapabilities({ aiGeneration: result.data.capabilities.aiGeneration, aiBudgetRequired: result.data.capabilities.aiBudgetRequired, aiBudgetFunded: result.data.capabilities.aiBudgetFunded, transactionalEmail: result.data.capabilities.transactionalEmail });
@@ -143,7 +149,7 @@ export function LuluAppProvider({ children }: { children: ReactNode }) {
     setWorkspaces((current) => current.map((item) => item.id === workspace.id ? workspace : item));
     if (selectedIdRef.current === workspace.id) setPermissions((current) => ({ ...current, role: workspace.role }));
   }, []);
-  const value = useMemo<AppValue>(() => ({ currentUser, workspaces, selectedWorkspace, permissions, capabilities, entitlements, loading, error, refresh, selectWorkspace, updateWorkspace, can: (permission) => permission === "edit" ? permissions.canEdit : permissions.canAdminister, hasCapability: (capability) => permissions.capabilities.includes(capability) }), [currentUser, workspaces, selectedWorkspace, permissions, capabilities, entitlements, loading, error, refresh, selectWorkspace, updateWorkspace]);
+  const value = useMemo<AppValue>(() => ({ currentUser, workspaces, selectedWorkspace, bootstrap, permissions, capabilities, entitlements, loading, error, refresh, selectWorkspace, updateWorkspace, can: (permission) => permission === "edit" ? permissions.canEdit : permissions.canAdminister, hasCapability: (capability) => permissions.capabilities.includes(capability) }), [currentUser, workspaces, selectedWorkspace, bootstrap, permissions, capabilities, entitlements, loading, error, refresh, selectWorkspace, updateWorkspace]);
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 export function useLuluApp() { const value = useContext(Context); if (!value) throw new Error("useLuluApp must be used within LuluAppProvider"); return value; }

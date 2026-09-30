@@ -53,9 +53,16 @@ function workspacePath(path: string) {
   return `/workspaces/${workspaceId}${path}`;
 }
 
-export function listRecords(resourceType: string, query = "") {
-  return requestApi<{ items: WorkspaceRecord[]; pagination: { page: number; limit: number; total: number; pages: number } }>({
-    path: workspacePath(`/records/${resourceType}${query ? `?${query}` : ""}`),
+export type RecordListOptions = { includeTotal?: boolean };
+
+export function listRecords(resourceType: string, query = "", options: RecordListOptions = {}) {
+  const params = new URLSearchParams(query);
+  if (options.includeTotal !== undefined && !params.has("includeTotal")) {
+    params.set("includeTotal", String(options.includeTotal));
+  }
+  const serializedQuery = params.toString();
+  return requestApi<{ items: WorkspaceRecord[]; pagination: { page: number; limit: number; total: number | null; pages: number | null; hasMore: boolean } }>({
+    path: workspacePath(`/records/${resourceType}${serializedQuery ? `?${serializedQuery}` : ""}`),
   });
 }
 

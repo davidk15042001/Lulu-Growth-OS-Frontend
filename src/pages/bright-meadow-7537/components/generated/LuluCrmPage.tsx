@@ -50,8 +50,8 @@ function toCrmRows(resourceType: string, items: WorkspaceRecord[]): CrmRow[] {
 export function LuluCrmPage() {
   const { selectedWorkspace } = useLuluApp();
   const [query, setQuery] = useState('');
-  const contacts = useLiveRecords('crm_contacts');
-  const leads = useLiveRecords('crm_leads');
+  const contacts = useLiveRecords('crm_contacts', '', { includeTotal: true });
+  const leads = useLiveRecords('crm_leads', '', { includeTotal: true });
   const deals = useLiveRecords('crm_deals');
   const tasks = useLiveRecords('crm_tasks');
 

@@ -16,9 +16,9 @@ import {
   Target,
   UsersRound,
 } from "lucide-react";
-import { workspaceApi } from "../api/workspaces";
 import type { WorkspaceBootstrap } from "../api/types";
 import { useLuluApp } from "../api/LuluAppContext";
+import { workspaceApi } from "../api/workspaces";
 import { listLuluAgentContracts } from "../config/lulu-agent-registry";
 import { navigateApp, pagePath, routes } from "../routing";
 import { QualityOverviewPanel } from "./QualityOverviewPanel";
@@ -62,7 +62,7 @@ function Workstream({ eyebrow, title, detail, icon: Icon, onOpen }: WorkstreamPr
 }
 
 export function LiveExecutiveDashboard() {
-  const { selectedWorkspace, currentUser, loading: contextLoading } = useLuluApp();
+  const { selectedWorkspace, currentUser, bootstrap: appBootstrap, loading: contextLoading } = useLuluApp();
   const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -74,16 +74,19 @@ export function LiveExecutiveDashboard() {
       return;
     }
 
+    if (contextLoading) return;
     setLoading(true);
     setError("");
     try {
-      setBootstrap((await workspaceApi.bootstrap(selectedWorkspace.id)).data);
+      setBootstrap(appBootstrap?.workspace.id === selectedWorkspace.id
+        ? appBootstrap
+        : (await workspaceApi.bootstrap(selectedWorkspace.id)).data);
     } catch {
       setError("Live workspace data could not be loaded. Refresh the workspace to try again.");
     } finally {
       setLoading(false);
     }
-  }, [selectedWorkspace]);
+  }, [appBootstrap, contextLoading, selectedWorkspace]);
 
   useEffect(() => {
     void load();

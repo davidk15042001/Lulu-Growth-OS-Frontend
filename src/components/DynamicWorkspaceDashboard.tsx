@@ -23,7 +23,7 @@ function EmptyState({ children }: { children: string }) {
 }
 
 export function DynamicWorkspaceDashboard() {
-  const { currentUser, selectedWorkspace } = useLuluApp();
+  const { currentUser, selectedWorkspace, bootstrap: appBootstrap, loading: contextLoading } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? "";
   const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null);
   const [billing, setBilling] = useState<BillingState | null>(null);
@@ -32,11 +32,12 @@ export function DynamicWorkspaceDashboard() {
 
   const load = useCallback(async () => {
     if (!workspaceId) return;
+    if (contextLoading) return;
     setLoading(true);
     setError("");
     try {
       const [bootstrapResponse, billingResponse] = await Promise.all([
-        workspaceApi.bootstrap(workspaceId),
+        appBootstrap?.workspace.id === workspaceId ? Promise.resolve({ data: appBootstrap }) : workspaceApi.bootstrap(workspaceId),
         workspaceAppApi.billing(workspaceId),
       ]);
       setBootstrap(bootstrapResponse.data);
@@ -46,7 +47,7 @@ export function DynamicWorkspaceDashboard() {
     } finally {
       setLoading(false);
     }
-  }, [workspaceId]);
+  }, [appBootstrap, contextLoading, workspaceId]);
 
   useEffect(() => { void load(); }, [load]);
 

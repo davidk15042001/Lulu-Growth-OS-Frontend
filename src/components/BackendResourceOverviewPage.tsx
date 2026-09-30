@@ -38,7 +38,7 @@ export function BackendResourceOverviewPage({
   const language = useLanguage();
   const [searchParams] = useSearchParams();
   const selectedRecordId = searchParams.get("recordId");
-  const records = useLiveRecords(resourceType, "limit=100");
+  const records = useLiveRecords(resourceType, "limit=100", { includeTotal: true });
 
   return <main className="min-h-screen min-w-0 bg-[var(--background)] p-5 text-foreground sm:p-8 lg:p-10" aria-busy={records.loading}>
     <div className="mx-auto max-w-6xl">
