@@ -186,6 +186,8 @@ export const LuluLoginPage = () => {
       } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
         setPendingEmail(e);
         navigateApp(routes.auth.signUp);
+      } else if (cause instanceof ApiError && cause.code === 'ADMIN_MFA_SETUP_REQUIRED') {
+        setError(t('Administrator MFA setup is required before sign-in. Ask an existing administrator to help or use an active admin session to enable an authenticator app.'));
       } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') {
         setError(t('accountNotFound'));
       } else if (cause instanceof ApiError && cause.code === 'INVALID_CREDENTIALS') {
