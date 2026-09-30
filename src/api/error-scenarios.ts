@@ -83,6 +83,7 @@ const exactScenarios: Record<string, ErrorScenario> = {
   EMAIL_IN_USE: { category: "authentication", userAction: "sign-in", retryable: false },
   INVALID_CREDENTIALS: { category: "authentication", userAction: "sign-in", retryable: false },
   ADMIN_MFA_INVALID: { category: "authentication", userAction: "check-input", retryable: false },
+  ADMIN_MFA_SETUP_REQUIRED: { category: "authentication", userAction: "contact-admin", retryable: false },
   ACCOUNT_UNVERIFIED: { category: "authentication", userAction: "sign-in", retryable: false },
   ACCOUNT_NOT_FOUND: { category: "authentication", userAction: "sign-in", retryable: false },
   OTP_RESEND_RATE_LIMITED: { category: "rate-limit", userAction: "wait", retryable: true },
