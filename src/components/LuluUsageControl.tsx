@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { adSpendApi, type AdBudgetAuthorization, type AdSpendOverview } from "../api/adspend";
 import { useLuluApp } from "../api/LuluAppContext";
 import { getFriendlyErrorMessage } from "../api/client";
+import { usageApi, type UsageHistoryCursor, type UsageHistoryItem } from "../api/usage";
 import { workspaceAppApi, type BillingState } from "../api/workspace-app";
 import { useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { navigateApp, routes } from "../routing";
@@ -17,6 +18,11 @@ function formatInteger(value: number, language: string) {
   return new Intl.NumberFormat(locale).format(value);
 }
 
+function formatDateTime(value: string, language: string) {
+  const locale = language === "de" ? "de-DE" : language === "zh-CN" ? "zh-CN" : "en-US";
+  return new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
 export function LuluUsageControl() {
   const { selectedWorkspace } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? null;
@@ -26,6 +32,10 @@ export function LuluUsageControl() {
   const [billing, setBilling] = useState<BillingState | null>(null);
   const [advertising, setAdvertising] = useState<AdSpendOverview | null>(null);
   const [authorizations, setAuthorizations] = useState<AdBudgetAuthorization[]>([]);
+  const [usageHistory, setUsageHistory] = useState<UsageHistoryItem[]>([]);
+  const [usageCursor, setUsageCursor] = useState<UsageHistoryCursor | null>(null);
+  const [usageLoading, setUsageLoading] = useState(false);
+  const [usageError, setUsageError] = useState<string | null>(null);
   const [loadedWorkspaceId, setLoadedWorkspaceId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorState, setErrorState] = useState<{ workspaceId: string; message: string } | null>(null);
@@ -40,6 +50,9 @@ export function LuluUsageControl() {
     setBilling(null);
     setAdvertising(null);
     setAuthorizations([]);
+    setUsageHistory([]);
+    setUsageCursor(null);
+    setUsageError(null);
     setLoadedWorkspaceId(null);
     setErrorState(null);
     if (!targetWorkspaceId) { setLoading(false); return; }
@@ -60,11 +73,24 @@ export function LuluUsageControl() {
       setAdvertising(advertisingResult.value.data);
       setAuthorizations(authorizationResult.value.data);
       setLoadedWorkspaceId(targetWorkspaceId);
+      try {
+        const history = await usageApi.history(targetWorkspaceId);
+        if (request !== loadRequest.current || workspaceRef.current !== targetWorkspaceId) return;
+        setUsageHistory(history.data.items);
+        setUsageCursor(history.data.nextCursor);
+      } catch (cause) {
+        if (request === loadRequest.current && workspaceRef.current === targetWorkspaceId) {
+          setUsageError(getFriendlyErrorMessage(cause, t("Could not load funds.")));
+        }
+      }
     } catch (cause) {
       if (request === loadRequest.current && workspaceRef.current === targetWorkspaceId) {
         setBilling(null);
         setAdvertising(null);
         setAuthorizations([]);
+        setUsageHistory([]);
+        setUsageCursor(null);
+        setUsageError(null);
         setLoadedWorkspaceId(null);
         setErrorState({ workspaceId: targetWorkspaceId, message: getFriendlyErrorMessage(cause, t("Could not load funds.")) });
       }
@@ -79,6 +105,9 @@ export function LuluUsageControl() {
       setBilling(null);
       setAdvertising(null);
       setAuthorizations([]);
+      setUsageHistory([]);
+      setUsageCursor(null);
+      setUsageError(null);
       setLoadedWorkspaceId(null);
       setErrorState(null);
       setLoading(false);
@@ -87,6 +116,22 @@ export function LuluUsageControl() {
     void load();
     return () => { loadRequest.current += 1; };
   }, [load, open]);
+
+  const loadMoreUsage = useCallback(async () => {
+    if (!workspaceId || !usageCursor || usageLoading) return;
+    const targetWorkspaceId = workspaceId;
+    setUsageLoading(true);
+    try {
+      const history = await usageApi.history(targetWorkspaceId, usageCursor);
+      if (workspaceRef.current !== targetWorkspaceId) return;
+      setUsageHistory((current) => [...current, ...history.data.items]);
+      setUsageCursor(history.data.nextCursor);
+    } catch (cause) {
+      if (workspaceRef.current === targetWorkspaceId) setUsageError(getFriendlyErrorMessage(cause, t("Could not load funds.")));
+    } finally {
+      if (workspaceRef.current === targetWorkspaceId) setUsageLoading(false);
+    }
+  }, [t, usageCursor, usageLoading, workspaceId]);
 
   if (!selectedWorkspace) return null;
 
@@ -191,6 +236,45 @@ export function LuluUsageControl() {
                     <small>{t("Storage remains pay as you go and is collected separately.")}</small>
                   </article>
                 </div>
+
+                <section className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-semibold">{t("AI Usage")}</h3>
+                      <p className="mt-1 text-xs text-[var(--muted-foreground)]">{t("Action")} · {t("Date")} · {t("Tokens")} · {t("Cost")}</p>
+                    </div>
+                    {usageHistory.length > 0 ? <span className="text-xs text-[var(--muted-foreground)]">{formatInteger(usageHistory.length, language)}</span> : null}
+                  </div>
+                  {usageError ? (
+                    <p className="mt-3 text-sm text-destructive" role="alert">{usageError}</p>
+                  ) : usageHistory.length === 0 ? (
+                    <p className="mt-3 text-sm text-[var(--muted-foreground)]">{t("No usage has been recorded.")}</p>
+                  ) : (
+                    <div className="mt-3 space-y-2">
+                      {usageHistory.map((entry) => (
+                        <article key={entry.id} className="rounded-lg border border-[var(--border)] px-3 py-2.5">
+                          <div className="flex flex-wrap items-start justify-between gap-2">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">{entry.action}</p>
+                              <p className="mt-1 text-xs text-[var(--muted-foreground)]">{formatDateTime(entry.createdAt, language)} · {entry.provider} · {entry.model}</p>
+                            </div>
+                            <span className="text-sm font-semibold">{formatMoney(entry.customerCostUsd, "USD", language)}</span>
+                          </div>
+                          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
+                            <span>{t("Total")}: {formatInteger(entry.totalTokens, language)}</span>
+                            <span>{t("Input")}: {formatInteger(entry.inputTokens, language)}</span>
+                            <span>{t("Output")}: {formatInteger(entry.outputTokens, language)}</span>
+                          </div>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+                  {usageCursor && !usageError ? (
+                    <button type="button" className="mt-3 w-full rounded-lg border border-[var(--border)] px-3 py-2 text-sm font-medium" onClick={() => void loadMoreUsage()} disabled={usageLoading}>
+                      {usageLoading ? t("Loading funds…") : t("Load more")}
+                    </button>
+                  ) : null}
+                </section>
 
                 <div className="lulu-usage-payment">
                   <div>
