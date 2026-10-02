@@ -326,8 +326,9 @@ export const workspaceAppApi = {
   audit: (workspaceId: string, query = "limit=100") => requestApi<{ items: AuditEntry[]; pagination: Pagination }>({
     path: workspaceApiPath(workspaceId, `/audit?${query}`),
   }),
-  settings: (workspaceId: string) => requestApi<WorkspaceSettings>({
+  settings: (workspaceId: string, signal?: AbortSignal) => requestApi<WorkspaceSettings>({
     path: workspaceApiPath(workspaceId, "/settings"),
+    signal,
   }),
   updateSettings: (workspaceId: string, input: Partial<Pick<WorkspaceSettings["settings"], "sales" | "agents">>) => requestApi<WorkspaceSettings>({
     // Agent pause/resume is deliberately routed through its member-safe
@@ -337,8 +338,9 @@ export const workspaceAppApi = {
     method: "PATCH",
     body: input.agents && !input.sales ? input.agents : input,
   }),
-  billing: (workspaceId: string, query = "") => requestApi<BillingState>({
+  billing: (workspaceId: string, query = "", signal?: AbortSignal) => requestApi<BillingState>({
     path: workspaceApiPath(workspaceId, `/billing${query ? `?${query}` : ""}`),
+    signal,
   }),
   repaySubscription: (workspaceId: string) => requestApi<{ invoiceId: string; paymentUrl: string }>({
     path: workspaceApiPath(workspaceId, "/billing/repay"), method: "POST", body: {},
@@ -397,16 +399,18 @@ export const workspaceAppApi = {
     method: "POST",
     body: {},
   }),
-  googleReviews: (workspaceId: string, filters?: { locationId?: string; limit?: number }) => {
+  googleReviews: (workspaceId: string, filters?: { locationId?: string; limit?: number }, signal?: AbortSignal) => {
     const query = new URLSearchParams();
     if (filters?.locationId) query.set("locationId", filters.locationId);
     if (filters?.limit) query.set("limit", String(filters.limit));
     return requestApi<GoogleReviewsManagerState>({
       path: workspaceApiPath(workspaceId, `/google-reviews${query.size ? `?${query.toString()}` : ""}`),
+      signal,
     });
   },
-  googleBusiness: (workspaceId: string) => requestApi<GoogleBusinessState>({
+  googleBusiness: (workspaceId: string, signal?: AbortSignal) => requestApi<GoogleBusinessState>({
     path: workspaceApiPath(workspaceId, "/google-business"),
+    signal,
   }),
   connectGoogleBusiness: (workspaceId: string, input?: { returnTo?: string }) => requestApi<{
     provider: string;

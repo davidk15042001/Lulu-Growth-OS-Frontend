@@ -53,7 +53,7 @@ function workspacePath(path: string) {
   return `/workspaces/${workspaceId}${path}`;
 }
 
-export type RecordListOptions = { includeTotal?: boolean };
+export type RecordListOptions = { includeTotal?: boolean; signal?: AbortSignal };
 
 export function listRecords(resourceType: string, query = "", options: RecordListOptions = {}) {
   const params = new URLSearchParams(query);
@@ -63,6 +63,7 @@ export function listRecords(resourceType: string, query = "", options: RecordLis
   const serializedQuery = params.toString();
   return requestApi<{ items: WorkspaceRecord[]; pagination: { page: number; limit: number; total: number | null; pages: number | null; hasMore: boolean } }>({
     path: workspacePath(`/records/${resourceType}${serializedQuery ? `?${serializedQuery}` : ""}`),
+    signal: options.signal,
   });
 }
 

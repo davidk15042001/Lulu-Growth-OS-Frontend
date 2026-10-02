@@ -100,12 +100,12 @@ function queryString(values: Record<string, string | number | boolean | undefine
 }
 
 export const calendarApi = {
-  overview: (workspaceId: string, values: { accountId?: string; q?: string; from?: string; to?: string; limit?: number } = {}) => requestApi<{
+  overview: (workspaceId: string, values: { accountId?: string; q?: string; from?: string; to?: string; limit?: number } = {}, signal?: AbortSignal) => requestApi<{
     accounts: CalendarAccount[];
     events: CalendarEvent[];
     summary: { connectedAccounts: number; syncedAccounts: number; upcomingEvents: number; providers: CalendarProvider[] };
     nativeEvents: NativeCalendarEvent[];
-  }>({ path: `/workspaces/${workspaceId}/calendar/overview${queryString(values)}` }),
+  }>({ path: `/workspaces/${workspaceId}/calendar/overview${queryString(values)}`, signal }),
   nativeEvents: (workspaceId: string, values: { q?: string; from?: string; to?: string; limit?: number } = {}) => requestApi<{ items: NativeCalendarEvent[] }>({ path: `/workspaces/${workspaceId}/calendar/events${queryString(values)}` }),
   createNativeEvent: (workspaceId: string, body: { title: string; description?: string; startAt: string; endAt: string; timezone?: string; location?: string; customerId?: string }) => requestApi<NativeCalendarEvent & { guestToken: string; guestJoinPath: string }>({ path: `/workspaces/${workspaceId}/calendar/events`, method: 'POST', body }),
   deleteNativeEvent: (workspaceId: string, eventId: string) => requestApi<void>({ path: `/workspaces/${workspaceId}/calendar/events/${eventId}`, method: 'DELETE' }),

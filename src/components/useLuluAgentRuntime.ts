@@ -15,7 +15,7 @@ import { getPageContract } from "../api/page-contracts";
 import { listRecords, type WorkspaceRecord } from "../api/records";
 import type { WorkspaceBootstrap } from "../api/types";
 import { workspaceApi } from "../api/workspaces";
-import { workspaceAppApi, type BillingState, type GoogleBusinessState, type GoogleReviewsManagerState } from "../api/workspace-app";
+import { workspaceAppApi, type BillingState, type GoogleBusinessState, type GoogleReviewsManagerState, type WorkspaceSettings } from "../api/workspace-app";
 import { websitesApi, type WebsiteGenerationJob, type WebsiteSite } from "../api/websites";
 import type { LuluAgentContract, LuluAgentUiState } from "../config/lulu-agent-registry";
 import { useLanguage } from "../i18n/GlobalLanguageSwitcher";
@@ -73,11 +73,21 @@ const CACHE_TTL_MS = 30_000;
 
 const runtimeCache = new Map<string, AgentRuntimeSnapshot>();
 const inflightRuntimeLoads = new Map<string, Promise<AgentRuntimeSnapshot>>();
+type RuntimeBaseSnapshot = {
+  bootstrap: WorkspaceBootstrap;
+  platforms: Platform[];
+  settings: WorkspaceSettings;
+  cachedAt: number;
+};
+const runtimeBaseCache = new Map<string, RuntimeBaseSnapshot>();
+const inflightRuntimeBaseLoads = new Map<string, Promise<RuntimeBaseSnapshot>>();
 
 export function clearRuntimeSnapshotCache(workspaceId?: string) {
   if (!workspaceId) {
     runtimeCache.clear();
     inflightRuntimeLoads.clear();
+    runtimeBaseCache.clear();
+    inflightRuntimeBaseLoads.clear();
     return;
   }
   const prefix = `${workspaceId}:`;
@@ -86,6 +96,12 @@ export function clearRuntimeSnapshotCache(workspaceId?: string) {
   }
   for (const key of [...inflightRuntimeLoads.keys()]) {
     if (key.startsWith(prefix)) inflightRuntimeLoads.delete(key);
+  }
+  for (const key of [...runtimeBaseCache.keys()]) {
+    if (key.startsWith(prefix)) runtimeBaseCache.delete(key);
+  }
+  for (const key of [...inflightRuntimeBaseLoads.keys()]) {
+    if (key.startsWith(prefix)) inflightRuntimeBaseLoads.delete(key);
   }
 }
 
@@ -636,30 +652,31 @@ async function loadSpecializedLiveData(
   contract: LuluAgentContract,
   platforms: Platform[],
   t: (key: string) => string,
+  signal?: AbortSignal,
 ) {
   if (isAudienceAgent(contract)) {
     const [snapshotResponse, recordsResponse] = await Promise.all([
-      onboardingApi.snapshot(workspaceId),
-      listRecords("marketing_audiences", "limit=25"),
+      onboardingApi.snapshot(workspaceId, signal),
+      listRecords("marketing_audiences", "limit=25", { signal }),
     ]);
     return buildAudienceLiveData(t, contract.integrations.length, snapshotResponse.data, recordsResponse.data.items);
   }
 
   if (isGoogleBusinessAgent(contract)) {
     const [reviewsResponse, businessResponse] = await Promise.all([
-      workspaceAppApi.googleReviews(workspaceId, { limit: 25 }),
-      workspaceAppApi.googleBusiness(workspaceId),
+      workspaceAppApi.googleReviews(workspaceId, { limit: 25 }, signal),
+      workspaceAppApi.googleBusiness(workspaceId, signal),
     ]);
     return buildGoogleBusinessLiveData(t, contract.integrations.length, reviewsResponse.data, businessResponse.data);
   }
 
   if (isWebsiteCommerceAgent(contract)) {
-    const sitesResponse = await websitesApi.list(workspaceId);
+    const sitesResponse = await websitesApi.list(workspaceId, signal);
     const siteItems = sitesResponse.data.items;
     const activeJobResponses = await Promise.all(
       siteItems.slice(0, 3).map(async (site) => {
         try {
-          return (await websitesApi.getActiveGenerationJob(workspaceId, site.id)).data;
+          return (await websitesApi.getActiveGenerationJob(workspaceId, site.id, signal)).data;
         } catch {
           return null;
         }
@@ -671,36 +688,36 @@ async function loadSpecializedLiveData(
   if (isFinanceAgent(contract)) {
     const resourceType = resourceTypeForPage(contract) ?? "finance_invoices";
     const [billingResponse, recordsResponse] = await Promise.all([
-      workspaceAppApi.billing(workspaceId),
-      listRecords(resourceType, "limit=25"),
+      workspaceAppApi.billing(workspaceId, "", signal),
+      listRecords(resourceType, "limit=25", { signal }),
     ]);
     return buildFinanceLiveData(t, contract.integrations.length, billingResponse.data, recordsResponse.data.items, resourceType, contract.pageLabel);
   }
 
   if (isCrmAgent(contract)) {
     const resourceType = resourceTypeForPage(contract) ?? "crm_contacts";
-    const recordsResponse = await listRecords(resourceType, "limit=25");
+    const recordsResponse = await listRecords(resourceType, "limit=25", { signal });
     return buildRecordsLiveData(t, contract.integrations.length, contract.pageLabel, resourceType, recordsResponse.data.items, "No CRM records exist yet.", "CRM impact is grounded in {{0}} records, {{1}} active items and {{2}} signal tags.");
   }
 
   if (isSalesAgent(contract)) {
     const resourceType = resourceTypeForPage(contract) ?? "sales_deals";
-    const recordsResponse = await listRecords(resourceType, "limit=25");
+    const recordsResponse = await listRecords(resourceType, "limit=25", { signal });
     return buildRecordsLiveData(t, contract.integrations.length, contract.pageLabel, resourceType, recordsResponse.data.items, "No sales records exist yet.", "Sales impact is grounded in {{0}} records, {{1}} active items and {{2}} signal tags.");
   }
 
   if (isEmailAgent(contract)) {
     const [accountsResponse, threadsResponse, draftsResponse, automationsResponse] = await Promise.all([
-      emailApi.accounts(workspaceId),
-      emailApi.threads(workspaceId, { limit: 25 }),
-      emailApi.drafts(workspaceId),
-      emailApi.automations(workspaceId),
+      emailApi.accounts(workspaceId, signal),
+      emailApi.threads(workspaceId, { limit: 25 }, signal),
+      emailApi.drafts(workspaceId, signal),
+      emailApi.automations(workspaceId, signal),
     ]);
     return buildEmailLiveData(t, contract.integrations.length, accountsResponse.data.items, threadsResponse.data.items, draftsResponse.data.items, automationsResponse.data.items);
   }
 
   if (isCalendarAgent(contract)) {
-    const overviewResponse = await calendarApi.overview(workspaceId, { limit: 25 });
+    const overviewResponse = await calendarApi.overview(workspaceId, { limit: 25 }, signal);
     return buildCalendarLiveData(t, contract.integrations.length, overviewResponse.data.accounts, overviewResponse.data.events);
   }
 
@@ -725,11 +742,40 @@ async function loadSpecializedLiveData(
   if (isMarketingAgent(contract) || getPageContract(contract.pageId)?.kind === "resource") {
     const resourceType = resourceTypeForPage(contract);
     if (!resourceType) return null;
-    const recordsResponse = await listRecords(resourceType, "limit=25");
+    const recordsResponse = await listRecords(resourceType, "limit=25", { signal });
     return buildGenericResourceSectionLiveData(t, contract.integrations.length, contract, resourceType, recordsResponse.data.items);
   }
 
   return null;
+}
+
+async function loadRuntimeBase(workspaceId: string) {
+  const cacheKey = `${workspaceId}:base`;
+  const cached = runtimeBaseCache.get(cacheKey);
+  if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) return cached;
+
+  const pending = inflightRuntimeBaseLoads.get(cacheKey);
+  if (pending) return pending;
+
+  const loadPromise = Promise.all([
+    workspaceApi.bootstrap(workspaceId),
+    onboardingApi.platforms(workspaceId),
+    workspaceAppApi.settings(workspaceId),
+  ]).then(([bootstrapResponse, platformResponse, settingsResponse]) => {
+    const snapshot: RuntimeBaseSnapshot = {
+      bootstrap: bootstrapResponse.data,
+      platforms: platformResponse.data.items,
+      settings: settingsResponse.data,
+      cachedAt: Date.now(),
+    };
+    runtimeBaseCache.set(cacheKey, snapshot);
+    return snapshot;
+  }).finally(() => {
+    inflightRuntimeBaseLoads.delete(cacheKey);
+  });
+
+  inflightRuntimeBaseLoads.set(cacheKey, loadPromise);
+  return loadPromise;
 }
 
 function getRuntimeCacheKey(workspaceId: string, pageId: string, language: string) {
@@ -741,6 +787,7 @@ async function loadRuntimeSnapshot(
   contract: LuluAgentContract,
   language: string,
   t: (key: string) => string,
+  signal?: AbortSignal,
 ) {
   const cacheKey = getRuntimeCacheKey(workspaceId, contract.pageId, language);
   const cached = runtimeCache.get(cacheKey);
@@ -750,30 +797,28 @@ async function loadRuntimeSnapshot(
   if (pending) return pending;
 
   const loadPromise = (async () => {
-      const [bootstrapResponse, platformResponse, settingsResponse] = await Promise.all([
-      workspaceApi.bootstrap(workspaceId),
-      onboardingApi.platforms(workspaceId),
-      workspaceAppApi.settings(workspaceId),
-    ]);
+    const base = await loadRuntimeBase(workspaceId);
 
     let specializedLiveData: SpecializedLiveData | null = null;
     let liveError = "";
 
     try {
-      specializedLiveData = await loadSpecializedLiveData(workspaceId, contract, platformResponse.data.items, t);
+      specializedLiveData = await loadSpecializedLiveData(workspaceId, contract, base.platforms, t, signal);
     } catch (specializedError) {
       liveError = getFriendlyErrorMessage(specializedError, t("Page-specific live signals could not be loaded. Generic workspace signals remain available."));
     }
 
     const snapshot: AgentRuntimeSnapshot = {
-      bootstrap: bootstrapResponse.data,
-      platforms: platformResponse.data.items,
-      agentsPaused: settingsResponse.data.settings.agents?.paused === true,
+      bootstrap: base.bootstrap,
+      platforms: base.platforms,
+      agentsPaused: base.settings.settings.agents?.paused === true,
       specializedLiveData,
       liveError,
       cachedAt: Date.now(),
     };
-    runtimeCache.set(cacheKey, snapshot);
+    // Do not preserve a transient page-specific failure as the page's normal
+    // state. A later visit must be able to recover without waiting for the TTL.
+    if (!liveError && !signal?.aborted) runtimeCache.set(cacheKey, snapshot);
     inflightRuntimeLoads.delete(cacheKey);
     return snapshot;
   })().catch((error) => {
@@ -816,15 +861,19 @@ export function useLuluAgentRuntime(
     }
 
     let active = true;
+    let loadController: AbortController | null = null;
 
     const load = async () => {
+      loadController?.abort();
+      const controller = new AbortController();
+      loadController = controller;
       setLiveLoading(true);
       try {
-        const next = await loadRuntimeSnapshot(workspaceId, contract, language, t);
-        if (!active) return;
+        const next = await loadRuntimeSnapshot(workspaceId, contract, language, t, controller.signal);
+        if (!active || controller.signal.aborted) return;
         setSnapshot(next);
       } catch (error) {
-        if (!active) return;
+        if (!active || controller.signal.aborted) return;
         setSnapshot({
           bootstrap: null,
           platforms: [],
@@ -834,7 +883,10 @@ export function useLuluAgentRuntime(
           cachedAt: 0,
         });
       } finally {
-        if (active) setLiveLoading(false);
+        if (active && loadController === controller) {
+          loadController = null;
+          setLiveLoading(false);
+        }
       }
     };
 
@@ -849,6 +901,8 @@ export function useLuluAgentRuntime(
     window.addEventListener("lulu:agent-settings-changed", onAgentSettingsChanged);
     return () => {
       active = false;
+      loadController?.abort();
+      loadController = null;
       window.clearInterval(timer);
       window.removeEventListener("lulu:agent-settings-changed", onAgentSettingsChanged);
     };

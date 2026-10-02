@@ -249,7 +249,7 @@ export type CatalogImportProgress = {
 };
 
 export const onboardingApi = {
-  snapshot: (workspaceId: string) => requestApi<OnboardingSnapshot>({ path: workspaceApiPath(workspaceId, "/onboarding") }),
+  snapshot: (workspaceId: string, signal?: AbortSignal) => requestApi<OnboardingSnapshot>({ path: workspaceApiPath(workspaceId, "/onboarding"), signal }),
   documents:(workspaceId:string)=>requestApi<{items:OnboardingDocument[]}>({path:workspaceApiPath(workspaceId,"/onboarding/documents")}),
   uploadDocument:(workspaceId:string,file:File)=>{const body=new FormData();body.append('file',file,file.name);return requestApi<OnboardingDocument>({path:workspaceApiPath(workspaceId,"/onboarding/documents"),method:'POST',body});},
   deleteDocument:(workspaceId:string,documentId:string)=>requestApi<null>({path:workspaceApiPath(workspaceId,`/onboarding/documents/${documentId}`),method:'DELETE'}),
@@ -287,7 +287,7 @@ export const onboardingApi = {
   deleteCustomerSegment: (workspaceId: string, customerSegmentId: string) => requestApi<null>({
     path: workspaceApiPath(workspaceId, `/onboarding/customer-segments/${customerSegmentId}`), method: "DELETE",
   }),
-  platforms: (workspaceId: string) => requestApi<{ items: Platform[] }>({ path: workspaceApiPath(workspaceId, "/onboarding/platforms") }),
+  platforms: (workspaceId: string, signal?: AbortSignal) => requestApi<{ items: Platform[] }>({ path: workspaceApiPath(workspaceId, "/onboarding/platforms"), signal }),
   startOAuth: (workspaceId: string, provider: string, shop?: string, returnTo?: string) => requestApi<{ provider: string; authorizationUrl: string }>({
     path: workspaceApiPath(workspaceId, `/onboarding/platforms/${encodeURIComponent(provider)}/connect?${new URLSearchParams({ ...(shop ? { shop } : {}), ...(returnTo ? { returnTo } : {}) }).toString()}`),
   }),

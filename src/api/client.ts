@@ -463,6 +463,22 @@ let accessToken: string | null = readStoredAccessToken();
 type RefreshOutcome = { ok: true } | { ok: false; terminal: boolean };
 let refreshPromise: Promise<RefreshOutcome> | null = null;
 
+const TRANSIENT_GET_STATUSES = new Set([429, 502, 503, 504]);
+const MAX_TRANSIENT_RETRIES = 2;
+
+function retryDelayMs(response: Response, attempt: number) {
+  const retryAfter = response.headers.get("retry-after")?.trim();
+  if (retryAfter) {
+    const seconds = Number(retryAfter);
+    if (Number.isFinite(seconds)) return Math.min(10_000, Math.max(0, seconds * 1000));
+    const retryAt = Date.parse(retryAfter);
+    if (Number.isFinite(retryAt)) return Math.min(10_000, Math.max(0, retryAt - Date.now()));
+  }
+  // Keep retries bounded and add a small deterministic spread so a group of
+  // pages that failed together does not immediately retry as one burst.
+  return Math.min(4_000, 500 * (2 ** attempt) + attempt * 137);
+}
+
 function createMessageId() {
   const cryptoApi = globalThis.crypto;
   if (typeof cryptoApi?.randomUUID === "function") return cryptoApi.randomUUID();
@@ -518,8 +534,8 @@ async function executeRequest<T>(request: ApiRequest, allowRefresh = true, trans
 
   const payload = await response.json().catch(() => null) as ApiEnvelope<T> | ApiErrorEnvelope | null;
   const method = request.method ?? "GET";
-  if (method === "GET" && [502, 503, 504].includes(response.status) && transientRetry < 3) {
-    await new Promise((resolve) => window.setTimeout(resolve, 500 * (2 ** transientRetry)));
+  if (method === "GET" && TRANSIENT_GET_STATUSES.has(response.status) && transientRetry < MAX_TRANSIENT_RETRIES) {
+    await new Promise((resolve) => window.setTimeout(resolve, retryDelayMs(response, transientRetry)));
     return executeRequest<T>(request, allowRefresh, transientRetry + 1);
   }
   if (response.status === 401 && allowRefresh && !/^\/auth\/(refresh|login|register|verify-otp|resend-otp|forgot-password|reset-password|logout)$/.test(path)) {
