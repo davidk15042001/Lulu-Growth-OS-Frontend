@@ -27,6 +27,10 @@ type ParsedFrame = {
 };
 
 const streams = new Map<string, StreamHandle>();
+// The production API runs on Lambda with a small account concurrency quota.
+// Persistent SSE connections consume an invocation, so live updates stay opt-in
+// there; normal page reads remain the source of truth.
+const ENABLE_LIVE_STREAM = import.meta.env.DEV || import.meta.env.VITE_ENABLE_LIVE_STREAM === "true";
 
 function parseFrame(frame: string): ParsedFrame {
   let id: string | null = null;
@@ -119,6 +123,7 @@ export function subscribeWorkspaceEvents(
   workspaceId: string,
   onEvent: (event: WorkspaceLiveEvent) => void,
 ): () => void {
+  if (!ENABLE_LIVE_STREAM) return () => {};
   let handle = streams.get(workspaceId);
   if (!handle) {
     handle = createStream(workspaceId);
