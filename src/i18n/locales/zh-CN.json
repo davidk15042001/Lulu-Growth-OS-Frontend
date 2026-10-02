@@ -22023,5 +22023,22 @@
   "Idle rooms are quiet. Waiting rooms are explicit. Errors stop at a visible boundary.": "空闲房间保持安静。等待状态会明确显示。错误会在可见边界处停止。",
   "Workspace-scoped": "工作区范围内",
   "Bounded timeline": "有界时间线",
-  "Quality-aware": "质量感知"
+  "Quality-aware": "质量感知",
+  "Close employee workspace": "关闭员工工作区",
+  "Opening verified employee workspace…": "正在打开已验证的员工工作区…",
+  "Loading the employee state and recent evidence.": "正在加载员工状态和最新证据。",
+  "DIGITAL EMPLOYEE WORKSPACE": "数字员工工作区",
+  "VERIFIED VIEW": "已验证视图",
+  "RUN": "运行",
+  "IDLE": "空闲",
+  "This scene is a visual projection of persisted state. It does not create work.": "此场景只是已持久化状态的视觉投影，不会创建工作。",
+  "CURRENT WORK": "当前工作",
+  "This employee has no active work item in the verified office projection.": "该员工在已验证的办公室投影中没有活动工作项。",
+  "No active work": "没有活动工作",
+  "completed today": "今日完成",
+  "RECENT EVIDENCE": "最近证据",
+  "No recent employee events are available.": "没有可用的最近员工事件。",
+  "CAPABILITIES": "能力",
+  "Workspace-scoped verified state": "工作区范围内的已验证状态",
+  "Open control center": "打开控制中心"
 }

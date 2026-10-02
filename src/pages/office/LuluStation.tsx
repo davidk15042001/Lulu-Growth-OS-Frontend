@@ -30,15 +30,15 @@ type RoomLayout = {
 };
 
 const ROOM_LAYOUTS: RoomLayout[] = [
-  { id: "room-a", x: 36, y: 72, width: 432, height: 254, color: "teal", prop: "brain" },
-  { id: "room-b", x: 504, y: 72, width: 432, height: 254, color: "violet", prop: "terminal" },
-  { id: "room-c", x: 972, y: 72, width: 432, height: 254, color: "blue", prop: "calendar" },
-  { id: "room-d", x: 36, y: 366, width: 432, height: 254, color: "gold", prop: "desk" },
-  { id: "room-e", x: 504, y: 366, width: 432, height: 254, color: "coral", prop: "review" },
-  { id: "room-f", x: 972, y: 366, width: 432, height: 254, color: "green", prop: "commerce" },
-  { id: "room-g", x: 36, y: 660, width: 432, height: 254, color: "indigo", prop: "finance" },
-  { id: "room-h", x: 504, y: 660, width: 432, height: 254, color: "rose", prop: "archive" },
-  { id: "room-i", x: 972, y: 660, width: 432, height: 254, color: "cyan", prop: "terminal" },
+  { id: "room-a", x: 36, y: 72, width: 432, height: 390, color: "teal", prop: "brain" },
+  { id: "room-b", x: 504, y: 72, width: 432, height: 390, color: "violet", prop: "terminal" },
+  { id: "room-c", x: 972, y: 72, width: 432, height: 390, color: "blue", prop: "calendar" },
+  { id: "room-d", x: 36, y: 497, width: 432, height: 390, color: "gold", prop: "desk" },
+  { id: "room-e", x: 504, y: 497, width: 432, height: 390, color: "coral", prop: "review" },
+  { id: "room-f", x: 972, y: 497, width: 432, height: 390, color: "green", prop: "commerce" },
+  { id: "room-g", x: 36, y: 922, width: 432, height: 390, color: "indigo", prop: "finance" },
+  { id: "room-h", x: 504, y: 922, width: 432, height: 390, color: "rose", prop: "archive" },
+  { id: "room-i", x: 972, y: 922, width: 432, height: 390, color: "cyan", prop: "terminal" },
 ];
 
 type RoomAssignment = {
@@ -71,7 +71,7 @@ function initials(name: string) {
 function roomEmployees(overview: OfficeOverview | null): RoomAssignment[] {
   return (overview?.departments ?? []).flatMap((department, index) => {
     const room = ROOM_LAYOUTS[index];
-    return room ? [{ room, department, employees: department.employees.slice(0, 4) }] : [];
+    return room ? [{ room, department, employees: department.employees }] : [];
   });
 }
 
@@ -180,6 +180,16 @@ function propTitle(prop: RoomLayout["prop"]) {
   return "Work desk";
 }
 
+function workspaceMode(employee: OfficeEmployeeSummary, workItem: OfficeEmployeeDetails["currentWorkItem"]) {
+  if (employee.status === "ERROR" || workItem?.status === "failed") return "Recovery desk";
+  if (employee.status === "WAITING_FOR_APPROVAL" || workItem?.status === "waiting_for_approval") return "Approval gate";
+  if (employee.status === "WAITING" || workItem?.status === "waiting" || workItem?.status === "paused") return "Waiting bay";
+  if (employee.status === "OFFLINE") return "Offline bay";
+  if (employee.status === "MONITORING") return "Monitoring desk";
+  if (employee.status === "COLLABORATING") return "Handoff table";
+  return "Active workbench";
+}
+
 export function LuluStation() {
   const t = useTranslation();
   const { selectedWorkspace } = useLuluApp();
@@ -187,6 +197,7 @@ export function LuluStation() {
   const [overview, setOverview] = useState<OfficeOverview | null>(null);
   const [employeeDetail, setEmployeeDetail] = useState<OfficeEmployeeDetails | null>(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
+  const [employeeLoading, setEmployeeLoading] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedProp, setSelectedProp] = useState<RoomLayout["prop"] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -235,6 +246,7 @@ export function LuluStation() {
   const selectEmployee = useCallback(async (employee: OfficeEmployeeSummary) => {
     if (!workspaceId) return;
     setSelectedEmployeeId(employee.id);
+    setEmployeeLoading(true);
     setSelectedRoomId(null);
     setSelectedProp(null);
     try {
@@ -242,8 +254,25 @@ export function LuluStation() {
       setError(null);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause));
+    } finally {
+      setEmployeeLoading(false);
     }
   }, [workspaceId]);
+
+  const closeEmployeePopup = useCallback(() => {
+    setSelectedEmployeeId(null);
+    setEmployeeDetail(null);
+    setEmployeeLoading(false);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedEmployeeId) return undefined;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeEmployeePopup();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [closeEmployeePopup, selectedEmployeeId]);
 
   const rooms = useMemo(() => roomEmployees(overview), [overview]);
   const selectedRoom = rooms.find(({ room }) => room.id === selectedRoomId) ?? null;
@@ -283,18 +312,18 @@ export function LuluStation() {
         <div className="lulu-station__world-shell">
           <div className="lulu-station__world-toolbar"><span><i className="lulu-station__toolbar-dot" />Station map</span><small>{overview.summary.departmentCount} departments · {formatTime(overview.generatedAt)} snapshot</small></div>
           <div className="lulu-station__world" role="img" aria-label="Lulu Station map with departments and digital employees">
-            <svg viewBox="0 0 1440 980" role="presentation">
+            <svg viewBox="0 0 1440 1360" role="presentation">
               <defs>
                 <linearGradient id="station-shell" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#182a3c" /><stop offset="1" stopColor="#0b1524" /></linearGradient>
                 <linearGradient id="station-core" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#47e4d0" stopOpacity=".34" /><stop offset="1" stopColor="#7568ff" stopOpacity=".12" /></linearGradient>
                 <pattern id="station-grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#6ba5c3" strokeOpacity=".09" /></pattern>
                 <filter id="station-glow"><feGaussianBlur stdDeviation="9" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
               </defs>
-              <rect x="0" y="0" width="1440" height="980" rx="24" fill="url(#station-shell)" />
-              <rect x="0" y="0" width="1440" height="980" rx="24" fill="url(#station-grid)" />
-              <path className="lulu-station__spine" d="M720 50V930M252 50V930M1188 50V930M36 344H1404M36 638H1404" />
-              <path className="lulu-station__corridor" d="M720 50V930M252 50V930M1188 50V930M36 344H1404M36 638H1404" />
-              <path className="lulu-station__corridor-glow" d="M720 50V930M252 50V930M1188 50V930M36 344H1404M36 638H1404" />
+              <rect x="0" y="0" width="1440" height="1360" rx="24" fill="url(#station-shell)" />
+              <rect x="0" y="0" width="1440" height="1360" rx="24" fill="url(#station-grid)" />
+              <path className="lulu-station__spine" d="M720 50V1320M252 50V1320M1188 50V1320M36 480H1404M36 905H1404" />
+              <path className="lulu-station__corridor" d="M720 50V1320M252 50V1320M1188 50V1320M36 480H1404M36 905H1404" />
+              <path className="lulu-station__corridor-glow" d="M720 50V1320M252 50V1320M1188 50V1320M36 480H1404M36 905H1404" />
               <g className="lulu-station__core" transform="translate(720 28)" aria-hidden="true">
                 <circle className="lulu-station__core-halo" r="54" filter="url(#station-glow)" />
                 <circle className="lulu-station__core-orbit" r="39" />
@@ -315,11 +344,11 @@ export function LuluStation() {
                   <text className="lulu-station__room-count" x={room.x + room.width - 22} y={room.y + 32} textAnchor="end">{department.employees.length} CREW</text>
                   {roomHasFlow ? <path className="lulu-station__handoff-active" d={`M${room.x + room.width / 2 - 32} ${room.y + room.height - 15}h64`} /> : null}
                   <StationProp room={room} active={department.employees.some((employee) => toneForStatus(employee.status) === "working")} onSelect={() => { setSelectedProp(room.prop); setSelectedRoomId(room.id); setSelectedEmployeeId(null); setEmployeeDetail(null); }} />
-                  {employees.map((employee, index) => <StationCharacter key={employee.id} employee={employee} x={room.x + 100 + (index % 2) * 150} y={room.y + 128 + Math.floor(index / 2) * 82} selected={employee.id === selectedEmployeeId} onSelect={(selected) => void selectEmployee(selected)} />)}
+                  {employees.map((employee, index) => <StationCharacter key={employee.id} employee={employee} x={room.x + 82 + (index % 3) * 100} y={room.y + 126 + Math.floor(index / 3) * 68} selected={employee.id === selectedEmployeeId} onSelect={(selected) => void selectEmployee(selected)} />)}
                   {employees.length === 0 && <text className="lulu-station__room-empty" x={room.x + room.width / 2} y={room.y + room.height / 2} textAnchor="middle">No crew assigned to this room</text>}
                 </g>;
               })}
-              {rooms.length === 0 && <g><rect className="lulu-station__empty-world" x="120" y="300" width="1200" height="340" rx="24" /><text x="720" y="460" textAnchor="middle">No department roster is available for this workspace.</text><text x="720" y="490" textAnchor="middle">The station is waiting for verified workspace setup.</text></g>}
+              {rooms.length === 0 && <g><rect className="lulu-station__empty-world" x="120" y="500" width="1200" height="340" rx="24" /><text x="720" y="660" textAnchor="middle">No department roster is available for this workspace.</text><text x="720" y="690" textAnchor="middle">The station is waiting for verified workspace setup.</text></g>}
             </svg>
           </div>
           <div className="lulu-station__legend" aria-label="Station status legend">
@@ -329,7 +358,7 @@ export function LuluStation() {
 
         <aside className="lulu-station__inspector" aria-label="Station inspector">
           {employeeDetail ? <>
-            <div className="lulu-station__inspector-kicker"><span className="lulu-station__avatar-badge">{initials(employeeDetail.employee.name)}</span><span>Digital Employee</span><button type="button" onClick={() => { setEmployeeDetail(null); setSelectedEmployeeId(null); }} aria-label="Close employee inspector">×</button></div>
+            <div className="lulu-station__inspector-kicker"><span className="lulu-station__avatar-badge">{initials(employeeDetail.employee.name)}</span><span>Digital Employee</span><button type="button" onClick={closeEmployeePopup} aria-label="Close employee inspector">×</button></div>
             <h2>{employeeDetail.employee.name}</h2>
             <p className="lulu-station__inspector-role">{employeeDetail.employee.title} · {employeeDetail.employee.department?.name}</p>
             <div className={`lulu-station__inspector-status lulu-station__inspector-status--${toneForStatus(employeeDetail.employee.status)}`}><i />{statusLabel(employeeDetail.employee.status)}</div>
@@ -359,6 +388,38 @@ export function LuluStation() {
           {error && <div className="lulu-station__inspector-error" role="alert">{error}</div>}
         </aside>
       </div>
+
+      {selectedEmployeeId ? <div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEmployeePopup(); }}>
+        <section className="lulu-station__employee-modal" role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title">
+          <button type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label="Close employee workspace">×</button>
+          {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>Opening verified employee workspace…</strong><span>Loading the employee state and recent evidence.</span></div> : <>
+            <header className="lulu-station__modal-header">
+              <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(employeeDetail.employee.status)}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
+              <div><span className="lulu-station__modal-kicker">DIGITAL EMPLOYEE WORKSPACE</span><h2 id="lulu-station-employee-title">{employeeDetail.employee.name}</h2><p>{employeeDetail.employee.title} · {employeeDetail.employee.department?.name ?? "Lulu Station"}</p></div>
+              <div className={`lulu-station__modal-status lulu-station__modal-status--${toneForStatus(employeeDetail.employee.status)}`}><i />{statusLabel(employeeDetail.employee.status)}</div>
+            </header>
+            <div className="lulu-station__modal-body">
+              <div className={`lulu-station__workspace-preview lulu-station__workspace-preview--${toneForStatus(employeeDetail.employee.status)}`}>
+                <div className="lulu-station__workspace-preview-top"><span>{workspaceMode(employeeDetail.employee, employeeDetail.currentWorkItem)}</span><small>VERIFIED VIEW</small></div>
+                <div className="lulu-station__workspace-desk">
+                  <div className="lulu-station__workspace-monitor"><span /><span /><span /></div>
+                  <div className="lulu-station__workspace-keyboard" />
+                  <div className="lulu-station__workspace-orb"><b>{employeeDetail.currentWorkItem ? "RUN" : "IDLE"}</b></div>
+                  <div className="lulu-station__workspace-chair" />
+                </div>
+                <div className="lulu-station__workspace-caption">This scene is a visual projection of persisted state. It does not create work.</div>
+              </div>
+              <div className="lulu-station__modal-details">
+                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">CURRENT WORK</span><strong>{employeeDetail.currentWorkItem?.title ?? "No current work item"}</strong><p>{employeeDetail.currentWorkItem?.objective ?? "This employee has no active work item in the verified office projection."}</p><small>{employeeDetail.currentWorkItem?.status ?? "No active work"}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${employeeDetail.currentWorkItem.relatedObjectType}` : ""}</small></div>
+                <div className="lulu-station__modal-stats"><div><strong>{employeeDetail.workSummary.active}</strong><span>active</span></div><div><strong>{employeeDetail.workSummary.completedToday}</strong><span>completed today</span></div><div><strong>{employeeDetail.workSummary.failed}</strong><span>failed</span></div></div>
+                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">RECENT EVIDENCE</span><div className="lulu-station__modal-timeline">{employeeDetail.recentTimeline.slice(0, 4).map((item) => <div key={item.id}><i /><span><strong>{item.title}</strong><small>{item.type} · {formatTime(item.occurredAt)}</small></span></div>)}{employeeDetail.recentTimeline.length === 0 ? <p>No recent employee events are available.</p> : null}</div></div>
+                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">CAPABILITIES</span><div className="lulu-station__modal-chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
+              </div>
+            </div>
+            <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />Workspace-scoped verified state</span><button type="button" className="lulu-station__inspector-link" onClick={() => { closeEmployeePopup(); document.querySelector<HTMLElement>(".lulu-office-control")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Open control center <ArrowUpRight size={14} /></button></footer>
+          </>}
+        </section>
+      </div> : null}
     </section>
   );
 }

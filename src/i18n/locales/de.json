@@ -22023,5 +22023,22 @@
   "Idle rooms are quiet. Waiting rooms are explicit. Errors stop at a visible boundary.": "Inaktive Räume bleiben ruhig. Wartende Räume werden ausdrücklich angezeigt. Fehler stoppen an einer sichtbaren Grenze.",
   "Workspace-scoped": "Workspace-gebunden",
   "Bounded timeline": "Begrenzte Zeitleiste",
-  "Quality-aware": "Qualitätsbewusst"
+  "Quality-aware": "Qualitätsbewusst",
+  "Close employee workspace": "Mitarbeiter-Workspace schließen",
+  "Opening verified employee workspace…": "Verifizierten Mitarbeiter-Workspace wird geöffnet…",
+  "Loading the employee state and recent evidence.": "Mitarbeiterstatus und aktuelle Nachweise werden geladen.",
+  "DIGITAL EMPLOYEE WORKSPACE": "DIGITALER EMPLOYEE-WORKSPACE",
+  "VERIFIED VIEW": "VERIFIZIERTE ANSICHT",
+  "RUN": "LAUF",
+  "IDLE": "INAKTIV",
+  "This scene is a visual projection of persisted state. It does not create work.": "Diese Szene bildet den persistierten Status visuell ab. Sie erzeugt keine Arbeit.",
+  "CURRENT WORK": "AKTUELLE ARBEIT",
+  "This employee has no active work item in the verified office projection.": "Dieser Employee hat in der verifizierten Office-Projektion kein aktives Arbeitselement.",
+  "No active work": "Keine aktive Arbeit",
+  "completed today": "heute abgeschlossen",
+  "RECENT EVIDENCE": "AKTUELLE NACHWEISE",
+  "No recent employee events are available.": "Keine aktuellen Employee-Ereignisse verfügbar.",
+  "CAPABILITIES": "FÄHIGKEITEN",
+  "Workspace-scoped verified state": "Verifizierter Workspace-Status",
+  "Open control center": "Steuerzentrale öffnen"
 }
