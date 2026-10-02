@@ -422,22 +422,31 @@ export function resolveApiMediaUrl(value: string | null | undefined) {
 }
 
 function readStoredAccessToken() {
-  // Bearer tokens must never survive in browser storage: any XSS can read
-  // localStorage/sessionStorage. The HttpOnly refresh cookie restores the
-  // short-lived access token after a page reload.
+  // Keep a short-lived bearer token only in sessionStorage as a browser
+  // compatibility fallback. The refresh cookie remains the durable session
+  // mechanism, while sessionStorage keeps the current tab usable when an
+  // embedded browser refuses to persist cross-origin HttpOnly cookies.
   try {
+    const token = window.sessionStorage.getItem("lulu_tab_access_token");
     // Remove tokens written by older releases during the migration to
     // memory-only access tokens.
     window.localStorage.removeItem("lulu_access_token");
     window.sessionStorage.removeItem("lulu_access_token");
+    return token || null;
   } catch {
     // Storage restrictions must not break authentication.
+    return null;
   }
-  return null;
 }
 
 function storeAccessToken(token: string | null) {
   accessToken = token;
+  try {
+    if (token) window.sessionStorage.setItem("lulu_tab_access_token", token);
+    else window.sessionStorage.removeItem("lulu_tab_access_token");
+  } catch {
+    // Storage restrictions must not break authentication.
+  }
 }
 
 function clearClientSession() {
@@ -445,6 +454,7 @@ function clearClientSession() {
   try {
     window.localStorage.removeItem("lulu_access_token");
     window.sessionStorage.removeItem("lulu_access_token");
+    window.sessionStorage.removeItem("lulu_tab_access_token");
     window.localStorage.removeItem("lulu.current-user");
     window.sessionStorage.removeItem("lulu.current-user");
   } catch {
