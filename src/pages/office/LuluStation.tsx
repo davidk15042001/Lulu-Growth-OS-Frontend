@@ -26,15 +26,26 @@ type RoomLayout = {
   width: number;
   height: number;
   color: string;
-  prop: "desk" | "terminal" | "archive" | "brain";
+  prop: "desk" | "terminal" | "archive" | "brain" | "review" | "commerce" | "calendar" | "finance";
 };
 
 const ROOM_LAYOUTS: RoomLayout[] = [
-  { id: "room-a", x: 42, y: 82, width: 510, height: 244, color: "teal", prop: "desk" },
-  { id: "room-b", x: 650, y: 82, width: 510, height: 244, color: "violet", prop: "terminal" },
-  { id: "room-c", x: 42, y: 382, width: 510, height: 244, color: "gold", prop: "archive" },
-  { id: "room-d", x: 650, y: 382, width: 510, height: 244, color: "blue", prop: "brain" },
+  { id: "room-a", x: 36, y: 72, width: 432, height: 254, color: "teal", prop: "brain" },
+  { id: "room-b", x: 504, y: 72, width: 432, height: 254, color: "violet", prop: "terminal" },
+  { id: "room-c", x: 972, y: 72, width: 432, height: 254, color: "blue", prop: "calendar" },
+  { id: "room-d", x: 36, y: 366, width: 432, height: 254, color: "gold", prop: "desk" },
+  { id: "room-e", x: 504, y: 366, width: 432, height: 254, color: "coral", prop: "review" },
+  { id: "room-f", x: 972, y: 366, width: 432, height: 254, color: "green", prop: "commerce" },
+  { id: "room-g", x: 36, y: 660, width: 432, height: 254, color: "indigo", prop: "finance" },
+  { id: "room-h", x: 504, y: 660, width: 432, height: 254, color: "rose", prop: "archive" },
+  { id: "room-i", x: 972, y: 660, width: 432, height: 254, color: "cyan", prop: "terminal" },
 ];
+
+type RoomAssignment = {
+  room: RoomLayout;
+  department: OfficeOverview["departments"][number];
+  employees: OfficeEmployeeSummary[];
+};
 
 function toneForStatus(status: OfficeEmployeeStatus): StatusTone {
   if (status === "OFFLINE") return "offline";
@@ -57,12 +68,11 @@ function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "LU";
 }
 
-function roomEmployees(overview: OfficeOverview | null) {
-  return (overview?.departments ?? []).slice(0, ROOM_LAYOUTS.length).map((department, index) => ({
-    room: ROOM_LAYOUTS[index]!,
-    department,
-    employees: department.employees.slice(0, 4),
-  }));
+function roomEmployees(overview: OfficeOverview | null): RoomAssignment[] {
+  return (overview?.departments ?? []).flatMap((department, index) => {
+    const room = ROOM_LAYOUTS[index];
+    return room ? [{ room, department, employees: department.employees.slice(0, 4) }] : [];
+  });
 }
 
 function StationCharacter({
@@ -79,6 +89,7 @@ function StationCharacter({
   onSelect: (employee: OfficeEmployeeSummary) => void;
 }) {
   const tone = toneForStatus(employee.status);
+  const avatarVariant = Math.abs(Array.from(employee.key).reduce((sum, character) => sum + character.charCodeAt(0), 0)) % 4;
   const handleKeyDown = (event: React.KeyboardEvent<SVGGElement>) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -87,7 +98,7 @@ function StationCharacter({
   };
   return (
     <g
-      className={`lulu-station__character lulu-station__character--${tone}${selected ? " is-selected" : ""}`}
+      className={`lulu-station__character lulu-station__character--${tone} lulu-station__character--avatar-${avatarVariant}${selected ? " is-selected" : ""}`}
       transform={`translate(${x} ${y})`}
       role="button"
       tabIndex={0}
@@ -95,19 +106,23 @@ function StationCharacter({
       onClick={(event) => { event.stopPropagation(); onSelect(employee); }}
       onKeyDown={handleKeyDown}
     >
-      <ellipse className="lulu-station__character-shadow" cx="0" cy="28" rx="28" ry="8" />
-      <rect className="lulu-station__character-body" x="-16" y="-1" width="32" height="29" rx="10" />
-      <circle className="lulu-station__character-head" cx="0" cy="-15" r="14" />
-      <path className="lulu-station__character-hair" d="M-13-14c1-12 24-17 27-1-3-3-7-4-11-2-4-3-10-1-16 3Z" />
-      <circle className="lulu-station__character-status" cx="16" cy="-25" r="4" />
-      <text className="lulu-station__character-initials" x="0" y="17" textAnchor="middle">{initials(employee.name)}</text>
-      <text className="lulu-station__character-name" x="0" y="48" textAnchor="middle">{employee.name.split(" ")[0]}</text>
+      <ellipse className="lulu-station__character-shadow" cx="0" cy="34" rx="32" ry="9" />
+      <path className="lulu-station__character-legs" d="M-11 21v12M11 21v12" />
+      <rect className="lulu-station__character-body" x="-20" y="-1" width="40" height="32" rx="12" />
+      <path className="lulu-station__character-arm lulu-station__character-arm--left" d="M-18 7l-13 12" />
+      <path className="lulu-station__character-arm lulu-station__character-arm--right" d="M18 7l13 12" />
+      <circle className="lulu-station__character-head" cx="0" cy="-18" r="16" />
+      <path className="lulu-station__character-hair" d="M-15-17c1-14 27-19 32-1-4-4-8-5-13-3-5-3-12-1-19 4Z" />
+      <path className="lulu-station__character-visor" d="M-9-18h18" />
+      <circle className="lulu-station__character-status" cx="19" cy="-30" r="5" />
+      <text className="lulu-station__character-initials" x="0" y="18" textAnchor="middle">{initials(employee.name)}</text>
+      <text className="lulu-station__character-name" x="0" y="52" textAnchor="middle">{employee.name.split(" ")[0]}</text>
     </g>
   );
 }
 
 function StationProp({ room, active, onSelect }: { room: RoomLayout; active: boolean; onSelect: () => void }) {
-  const propName = room.prop === "desk" ? "Work desk" : room.prop === "terminal" ? "Integration terminal" : room.prop === "archive" ? "Deliverables archive" : "Company Brain core";
+  const propName = room.prop === "desk" ? "Work desk" : room.prop === "terminal" ? "Integration terminal" : room.prop === "archive" ? "Deliverables archive" : room.prop === "brain" ? "Company Brain core" : room.prop === "review" ? "Quality review station" : room.prop === "commerce" ? "Commerce inventory station" : room.prop === "calendar" ? "Communication calendar station" : "Finance billing terminal";
   return (
     <g
       className={`lulu-station__prop lulu-station__prop--${room.prop}${active ? " is-active" : ""}`}
@@ -123,17 +138,46 @@ function StationProp({ room, active, onSelect }: { room: RoomLayout; active: boo
       {room.prop === "archive" ? <><rect className="lulu-station__prop-box" x="11" y="-25" width="22" height="25" rx="3" /><rect className="lulu-station__prop-box" x="39" y="-18" width="24" height="18" rx="3" /></> : null}
       {room.prop === "brain" ? <><circle className="lulu-station__prop-core" cx="40" cy="-20" r="18" /><circle className="lulu-station__prop-core-dot" cx="40" cy="-20" r="5" /></> : null}
       {room.prop === "terminal" ? <><rect className="lulu-station__prop-screen" x="18" y="-31" width="44" height="28" rx="3" /><path className="lulu-station__prop-screen-line" d="M25-20h29M25-13h19" /></> : null}
-      {room.prop === "desk" ? <><rect className="lulu-station__prop-screen" x="22" y="-28" width="34" height="23" rx="3" /><path className="lulu-station__prop-screen-line" d="M28-17h21" /></> : null}
-      <text className="lulu-station__prop-label" x="40" y="58" textAnchor="middle">{room.prop === "archive" ? "OUTBOX" : room.prop === "brain" ? "BRAIN" : room.prop === "terminal" ? "SYNC" : "WORK"}</text>
+      {room.prop === "desk" || room.prop === "review" || room.prop === "finance" || room.prop === "calendar" ? <><rect className="lulu-station__prop-screen" x="22" y="-28" width="34" height="23" rx="3" /><path className="lulu-station__prop-screen-line" d="M28-17h21" /></> : null}
+      {room.prop === "commerce" ? <><path className="lulu-station__prop-crate" d="M15-24h50v24H15zM15-16h50M31-24v24M49-24v24" /><circle className="lulu-station__prop-core-dot" cx="74" cy="-19" r="4" /></> : null}
+      <text className="lulu-station__prop-label" x="40" y="58" textAnchor="middle">{room.prop === "archive" ? "OUTBOX" : room.prop === "brain" ? "BRAIN" : room.prop === "terminal" ? "SYNC" : room.prop === "review" ? "REVIEW" : room.prop === "commerce" ? "STOCK" : room.prop === "calendar" ? "COMMS" : room.prop === "finance" ? "LEDGER" : "WORK"}</text>
     </g>
   );
+}
+
+function RoomFixtures({ room }: { room: RoomLayout }) {
+  return <g className="lulu-station__fixtures" aria-hidden="true">
+    <rect className="lulu-station__ceiling-light" x={room.x + room.width / 2 - 46} y={room.y + 17} width="92" height="4" rx="2" />
+    <rect className="lulu-station__window" x={room.x + room.width - 112} y={room.y + 22} width="68" height="23" rx="5" />
+    <path className="lulu-station__window-line" d={`M${room.x + room.width - 78} ${room.y + 22}v23M${room.x + room.width - 112} ${room.y + 34}h68`} />
+    <g className={`lulu-station__decor lulu-station__decor--${room.prop}`} transform={`translate(${room.x + 38} ${room.y + room.height - 42})`}>
+      <path className="lulu-station__plant-pot" d="M0 0h22l-3 19H3z" />
+      <path className="lulu-station__plant-leaf" d="M11 0C-5-18 2-28 11-13 13-31 25-27 18-9 34-22 38-10 20 3" />
+    </g>
+    <path className="lulu-station__floor-mark" d={`M${room.x + 22} ${room.y + room.height - 22}h${room.width - 44}`} />
+  </g>;
 }
 
 function roomDescription(prop: RoomLayout["prop"]) {
   if (prop === "terminal") return "Provider connections and synchronized systems.";
   if (prop === "archive") return "Verified outputs, quality artifacts and attachments.";
   if (prop === "brain") return "Signals, missions, decisions and operating cycles.";
+  if (prop === "review") return "Quality gates, verification evidence and recovery.";
+  if (prop === "commerce") return "Catalog, inventory and customer-facing commerce operations.";
+  if (prop === "calendar") return "Messages, meetings, schedules and coordinated follow-up.";
+  if (prop === "finance") return "Billing, ledger state and guarded financial operations.";
   return "Active work items and specialist execution.";
+}
+
+function propTitle(prop: RoomLayout["prop"]) {
+  if (prop === "archive") return "OUTBOX / Deliverables";
+  if (prop === "brain") return "Company Brain core";
+  if (prop === "terminal") return "Provider integration terminal";
+  if (prop === "review") return "Quality review station";
+  if (prop === "commerce") return "Commerce inventory station";
+  if (prop === "calendar") return "Communication calendar station";
+  if (prop === "finance") return "Finance ledger terminal";
+  return "Work desk";
 }
 
 export function LuluStation() {
@@ -239,38 +283,43 @@ export function LuluStation() {
         <div className="lulu-station__world-shell">
           <div className="lulu-station__world-toolbar"><span><i className="lulu-station__toolbar-dot" />Station map</span><small>{overview.summary.departmentCount} departments · {formatTime(overview.generatedAt)} snapshot</small></div>
           <div className="lulu-station__world" role="img" aria-label="Lulu Station map with departments and digital employees">
-            <svg viewBox="0 0 1200 680" role="presentation">
+            <svg viewBox="0 0 1440 980" role="presentation">
               <defs>
                 <linearGradient id="station-shell" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#182a3c" /><stop offset="1" stopColor="#0b1524" /></linearGradient>
                 <linearGradient id="station-core" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#47e4d0" stopOpacity=".34" /><stop offset="1" stopColor="#7568ff" stopOpacity=".12" /></linearGradient>
-                <pattern id="station-grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" fill="none" stroke="#6ba5c3" strokeOpacity=".09" /></pattern>
+                <pattern id="station-grid" width="36" height="36" patternUnits="userSpaceOnUse"><path d="M36 0H0V36" fill="none" stroke="#6ba5c3" strokeOpacity=".09" /></pattern>
                 <filter id="station-glow"><feGaussianBlur stdDeviation="9" result="blur" /><feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
               </defs>
-              <rect x="0" y="0" width="1200" height="680" rx="24" fill="url(#station-shell)" />
-              <rect x="0" y="0" width="1200" height="680" rx="24" fill="url(#station-grid)" />
-              <path className="lulu-station__corridor" d="M552 204H650M552 504H650M298 326V382M902 326V382" />
-              <path className="lulu-station__corridor-glow" d="M552 204H650M552 504H650M298 326V382M902 326V382" />
-              <g className="lulu-station__core" transform="translate(600 354)" aria-hidden="true">
+              <rect x="0" y="0" width="1440" height="980" rx="24" fill="url(#station-shell)" />
+              <rect x="0" y="0" width="1440" height="980" rx="24" fill="url(#station-grid)" />
+              <path className="lulu-station__spine" d="M720 50V930M252 50V930M1188 50V930M36 344H1404M36 638H1404" />
+              <path className="lulu-station__corridor" d="M720 50V930M252 50V930M1188 50V930M36 344H1404M36 638H1404" />
+              <path className="lulu-station__corridor-glow" d="M720 50V930M252 50V930M1188 50V930M36 344H1404M36 638H1404" />
+              <g className="lulu-station__core" transform="translate(720 28)" aria-hidden="true">
                 <circle className="lulu-station__core-halo" r="54" filter="url(#station-glow)" />
                 <circle className="lulu-station__core-orbit" r="39" />
                 <circle className="lulu-station__core-center" r="22" fill="url(#station-core)" />
                 <path d="M-7 0h14M0-7v14" />
-                <text x="0" y="78" textAnchor="middle">LULU CORE</text>
+                <text x="0" y="58" textAnchor="middle">LULU CORE</text>
               </g>
               {rooms.map(({ room, department, employees }) => {
                 const roomSelected = room.id === selectedRoomId;
-                return <g key={room.id} className={`lulu-station__room lulu-station__room--${room.color}${roomSelected ? " is-selected" : ""}`} onClick={() => { setSelectedRoomId(room.id); setSelectedEmployeeId(null); setSelectedProp(null); setEmployeeDetail(null); }}>
+                const roomHasFlow = employees.some((employee) => employee.status === "COLLABORATING");
+                return <g key={room.id} className={`lulu-station__room lulu-station__room--${room.color}${roomSelected ? " is-selected" : ""}`} role="button" tabIndex={0} aria-label={`${department.name} department room`} onClick={() => { setSelectedRoomId(room.id); setSelectedEmployeeId(null); setSelectedProp(null); setEmployeeDetail(null); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); setSelectedRoomId(room.id); setSelectedEmployeeId(null); setSelectedProp(null); setEmployeeDetail(null); } }}>
                   <rect className="lulu-station__room-floor" x={room.x} y={room.y} width={room.width} height={room.height} rx="18" />
+                  <path className="lulu-station__room-inner-floor" d={`M${room.x + 15} ${room.y + 72}h${room.width - 30}v${room.height - 88}H${room.x + 15}z`} />
+                  <RoomFixtures room={room} />
                   <path className="lulu-station__room-border" d={`M${room.x + 18} ${room.y}H${room.x + room.width - 18}Q${room.x + room.width} ${room.y} ${room.x + room.width} ${room.y + 18}V${room.y + room.height - 18}Q${room.x + room.width} ${room.y + room.height} ${room.x + room.width - 18} ${room.y + room.height}H${room.x + 18}Q${room.x} ${room.y + room.height} ${room.x} ${room.y + room.height - 18}V${room.y + 18}Q${room.x} ${room.y} ${room.x + 18} ${room.y}Z`} />
                   <text className="lulu-station__room-kicker" x={room.x + 22} y={room.y + 31}>{department.name.toUpperCase()}</text>
                   <text className="lulu-station__room-caption" x={room.x + 22} y={room.y + 52}>{department.description}</text>
                   <text className="lulu-station__room-count" x={room.x + room.width - 22} y={room.y + 32} textAnchor="end">{department.employees.length} CREW</text>
+                  {roomHasFlow ? <path className="lulu-station__handoff-active" d={`M${room.x + room.width / 2 - 32} ${room.y + room.height - 15}h64`} /> : null}
                   <StationProp room={room} active={department.employees.some((employee) => toneForStatus(employee.status) === "working")} onSelect={() => { setSelectedProp(room.prop); setSelectedRoomId(room.id); setSelectedEmployeeId(null); setEmployeeDetail(null); }} />
-                  {employees.map((employee, index) => <StationCharacter key={employee.id} employee={employee} x={room.x + 90 + (index % 2) * 150} y={room.y + 114 + Math.floor(index / 2) * 82} selected={employee.id === selectedEmployeeId} onSelect={(selected) => void selectEmployee(selected)} />)}
+                  {employees.map((employee, index) => <StationCharacter key={employee.id} employee={employee} x={room.x + 100 + (index % 2) * 150} y={room.y + 128 + Math.floor(index / 2) * 82} selected={employee.id === selectedEmployeeId} onSelect={(selected) => void selectEmployee(selected)} />)}
                   {employees.length === 0 && <text className="lulu-station__room-empty" x={room.x + room.width / 2} y={room.y + room.height / 2} textAnchor="middle">No crew assigned to this room</text>}
                 </g>;
               })}
-              {rooms.length === 0 && <g><rect className="lulu-station__empty-world" x="120" y="180" width="960" height="340" rx="24" /><text x="600" y="340" textAnchor="middle">No department roster is available for this workspace.</text><text x="600" y="370" textAnchor="middle">The station is waiting for verified workspace setup.</text></g>}
+              {rooms.length === 0 && <g><rect className="lulu-station__empty-world" x="120" y="300" width="1200" height="340" rx="24" /><text x="720" y="460" textAnchor="middle">No department roster is available for this workspace.</text><text x="720" y="490" textAnchor="middle">The station is waiting for verified workspace setup.</text></g>}
             </svg>
           </div>
           <div className="lulu-station__legend" aria-label="Station status legend">
@@ -296,7 +345,7 @@ export function LuluStation() {
             <div className="lulu-station__crew-list">{selectedRoom.employees.map((employee) => <button type="button" key={employee.id} onClick={() => void selectEmployee(employee)}><span className={`lulu-station__mini-dot lulu-station__mini-dot--${toneForStatus(employee.status)}`} /><span><strong>{employee.name}</strong><small>{statusLabel(employee.status)}</small></span><ArrowUpRight size={13} /></button>)}</div>
           </> : selectedProp ? <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__room-badge"><Zap size={16} /></span><span>Functional object</span></div>
-            <h2>{selectedProp === "archive" ? "OUTBOX" : selectedProp === "brain" ? "Company Brain" : selectedProp === "terminal" ? "Integration terminal" : "Work desk"}</h2>
+            <h2>{propTitle(selectedProp)}</h2>
             <p className="lulu-station__inspector-role">This object is a visual entry point into an existing Lulu capability.</p>
             <div className="lulu-station__inspector-block"><span>Truth boundary</span><strong>No state is invented here.</strong><small>Open the relevant canonical workspace surface to inspect evidence or take an allowed action.</small></div>
           </> : <>
