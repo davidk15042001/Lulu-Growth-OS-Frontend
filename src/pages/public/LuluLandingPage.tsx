@@ -83,7 +83,7 @@ export default function LuluLandingPage() {
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
 
   return (
-    <main className="lulu-landing" aria-label={t("Lulu Growth OS public website")}>
+    <main className="lulu-landing lulu-nova-landing" aria-label={t("Lulu Growth OS public website")}>
       <div className="lulu-landing__noise" aria-hidden="true" />
       <header className="lulu-landing__nav">
         <button className="lulu-landing__brand" type="button" onClick={() => scrollTo("vision")} aria-label={t("Back to Lulu Growth OS home")}>

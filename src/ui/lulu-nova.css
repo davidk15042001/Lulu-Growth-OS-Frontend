@@ -1,0 +1,345 @@
+/*
+ * Lulu Nova — the shared product presentation layer.
+ * It deliberately sits after legacy/generated page styles so all canonical
+ * surfaces share one calm visual language without duplicating business UI.
+ */
+:root {
+  --lulu-nova-canvas: #07101f;
+  --lulu-nova-canvas-deep: #030914;
+  --lulu-nova-panel: rgba(16, 28, 49, .82);
+  --lulu-nova-panel-strong: #111f36;
+  --lulu-nova-line: rgba(165, 191, 229, .14);
+  --lulu-nova-line-strong: rgba(135, 169, 225, .26);
+  --lulu-nova-ink: #f3f7ff;
+  --lulu-nova-muted: #91a3c3;
+  --lulu-nova-cyan: #75e9e2;
+  --lulu-nova-violet: #9d8cff;
+  --lulu-nova-blue: #6aa9ff;
+  --lulu-nova-shadow: 0 22px 70px rgba(0, 0, 0, .24);
+  --lulu-nova-radius: 20px;
+}
+
+/* Global authenticated product shell */
+.lulu-auth-search-wrap {
+  min-height: 72px !important;
+  gap: 12px !important;
+  padding: 0 clamp(14px, 2.1vw, 34px) !important;
+  border-bottom: 1px solid var(--lulu-nova-line) !important;
+  background:
+    linear-gradient(90deg, rgba(6, 14, 29, .96), rgba(13, 25, 47, .92)) !important;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .16);
+  backdrop-filter: blur(20px);
+}
+
+.lulu-auth-brand { padding-right: 13px; border-right: 1px solid var(--lulu-nova-line); }
+.lulu-auth-logo { display: grid; width: 96px; place-items: center; }
+.lulu-auth-logo img { max-height: 30px; filter: drop-shadow(0 6px 18px rgba(126, 149, 255, .22)); }
+.lulu-auth-workspace-context { min-width: 0; gap: 1px; }
+.lulu-auth-workspace-context span { max-width: 210px; overflow: hidden; color: var(--lulu-nova-ink) !important; font-size: .78rem; font-weight: 750; text-overflow: ellipsis; white-space: nowrap; }
+.lulu-auth-workspace-context small { color: var(--lulu-nova-muted) !important; font-size: .61rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.lulu-auth-nav-toggle,
+.lulu-auth-usage,
+.lulu-surface-switch {
+  border-color: var(--lulu-nova-line) !important;
+  background: rgba(255, 255, 255, .035) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .035);
+}
+.lulu-auth-nav-toggle { border-radius: 11px !important; color: var(--lulu-nova-ink) !important; }
+.lulu-auth-nav-toggle:hover,
+.lulu-auth-usage:hover { border-color: rgba(117, 233, 226, .4) !important; background: rgba(117, 233, 226, .08) !important; }
+.lulu-backend-release { border: 1px solid rgba(117, 233, 226, .18); border-radius: 999px; padding: 6px 9px; background: rgba(69, 217, 191, .06); color: #b8f6ef !important; font-size: .62rem !important; }
+.lulu-backend-release__dot { background: var(--lulu-nova-cyan) !important; box-shadow: 0 0 12px var(--lulu-nova-cyan); }
+.lulu-surface-switch { border-radius: 12px !important; padding: 3px !important; }
+.lulu-surface-switch button { min-height: 34px !important; border-radius: 8px !important; color: var(--lulu-nova-muted) !important; font-size: .68rem !important; font-weight: 750 !important; }
+.lulu-surface-switch button.is-active { background: linear-gradient(115deg, rgba(141, 126, 255, .3), rgba(92, 160, 255, .18)) !important; color: #fff !important; box-shadow: inset 0 1px rgba(255, 255, 255, .14), 0 5px 14px rgba(0, 0, 0, .18); }
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free),
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content {
+  background:
+    radial-gradient(circle at 82% -8%, rgba(104, 128, 255, .13), transparent 28rem),
+    radial-gradient(circle at 12% 82%, rgba(54, 211, 207, .07), transparent 31rem),
+    var(--lulu-nova-canvas) !important;
+}
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-navigation {
+  border-right-color: var(--lulu-nova-line) !important;
+  background:
+    linear-gradient(180deg, rgba(10, 19, 36, .99), rgba(5, 11, 23, .98)) !important;
+  box-shadow: 18px 0 42px rgba(0, 0, 0, .12);
+}
+.lulu-global-navigation__workspace-label { color: #7389ae !important; font-weight: 800 !important; letter-spacing: .13em !important; }
+.lulu-global-navigation__primary-link,
+.lulu-global-navigation__sections summary,
+.lulu-global-navigation__subitems a,
+.lulu-global-navigation__subitem-action { border-radius: 10px !important; color: #b8c7e0 !important; }
+.lulu-global-navigation__primary-link:hover,
+.lulu-global-navigation__sections summary:hover,
+.lulu-global-navigation__sections summary.is-active,
+.lulu-global-navigation__subitems a:hover,
+.lulu-global-navigation__subitem-action:hover { background: rgba(136, 151, 255, .1) !important; color: #fff !important; }
+.lulu-global-navigation__primary-link.is-active,
+.lulu-global-navigation__subitems a.is-active {
+  border-left-color: var(--lulu-nova-cyan) !important;
+  background: linear-gradient(90deg, rgba(118, 233, 226, .16), rgba(139, 126, 255, .1)) !important;
+  color: #fff !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.05);
+}
+.lulu-global-navigation__section-label::before { background: #68779b !important; }
+.lulu-global-navigation__workspace-label::before { background: var(--lulu-nova-cyan) !important; box-shadow: 0 0 12px rgba(117, 233, 226, .55); }
+
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
+  color: var(--lulu-nova-ink) !important;
+  font-family: var(--font-sans, Poppins, ui-sans-serif, system-ui, sans-serif);
+}
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(h1, h2, h3, h4) { color: #f7faff !important; letter-spacing: -.04em; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(p, small, label) { color: inherit; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.card, .panel, .content-card, .metric-card, .kpi-card, .summary-card, .stat-card, [class*="rounded-xl"], [class*="rounded-2xl"], [class*="rounded-3xl"]) {
+  border-color: var(--lulu-nova-line) !important;
+  background: linear-gradient(145deg, rgba(23, 39, 66, .9), rgba(11, 23, 43, .92)) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.04), var(--lulu-nova-shadow) !important;
+}
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea) {
+  border-color: var(--lulu-nova-line-strong) !important;
+  border-radius: 12px !important;
+  background: rgba(3, 10, 23, .62) !important;
+  color: #f3f7ff !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.025) !important;
+}
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea):focus {
+  border-color: rgba(117, 233, 226, .62) !important;
+  box-shadow: 0 0 0 4px rgba(117, 233, 226, .1) !important;
+}
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a).lulu-workspace-primary-action,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a)[class*="bg-primary"] {
+  border-color: transparent !important;
+  background: linear-gradient(110deg, #8e7dff, #587df5 52%, #5bded4) !important;
+  color: #061019 !important;
+  box-shadow: 0 12px 26px rgba(92, 125, 245, .22) !important;
+}
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(table, .table-wrap, .recent-table) { border-color: var(--lulu-nova-line) !important; background: rgba(5, 13, 28, .45) !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page thead { background: rgba(140, 153, 255, .09) !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page tbody tr:hover { background: rgba(117, 233, 226, .06) !important; }
+
+/* Station and native agent popups */
+.lulu-station {
+  --station-bg: #060d1a;
+  --station-panel: #0d1930;
+  --station-panel-strong: #13213c;
+  --station-line: rgba(151, 183, 229, .15);
+  --station-muted: #91a5c5;
+  --station-ink: #f4f8ff;
+  --station-teal: #72e6da;
+  --station-violet: #a997ff;
+  background:
+    radial-gradient(circle at 72% 5%, rgba(112, 121, 255, .18), transparent 31rem),
+    radial-gradient(circle at 4% 60%, rgba(74, 224, 211, .1), transparent 29rem),
+    var(--station-bg) !important;
+}
+.lulu-station__metrics > div,
+.lulu-station__inspector,
+.lulu-station__world,
+.lulu-station__employee-modal {
+  border-color: var(--station-line) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.035), 0 24px 72px rgba(0,0,0,.2) !important;
+}
+.lulu-station__metrics > div { border-radius: 16px !important; background: linear-gradient(145deg, rgba(19, 35, 61, .92), rgba(9, 19, 35, .94)) !important; }
+.lulu-station__world { background: linear-gradient(155deg, rgba(15, 31, 56, .96), rgba(6, 15, 29, .98)) !important; }
+.lulu-station__employee-modal { border-radius: 24px !important; background: linear-gradient(155deg, #111f38, #081425 76%) !important; }
+.lulu-native-agent { border-color: rgba(137, 170, 225, .2) !important; border-radius: 18px !important; background: linear-gradient(145deg, rgba(19, 35, 62, .96), rgba(8, 17, 32, .99)) !important; box-shadow: inset 0 1px rgba(255,255,255,.045), 0 24px 60px rgba(0,0,0,.2) !important; }
+.lulu-native-agent__header-icon { border-color: rgba(117, 233, 226, .28) !important; background: linear-gradient(145deg, rgba(117, 233, 226, .18), rgba(137, 126, 255, .12)) !important; color: var(--lulu-nova-cyan) !important; }
+.lulu-native-agent__metric,
+.lulu-native-agent__list,
+.lulu-native-agent__split-list > section,
+.lulu-native-agent__conversation,
+.lulu-native-agent__evidence-grid > div { border-color: rgba(151, 183, 229, .16) !important; background: rgba(4, 13, 27, .42) !important; }
+.lulu-native-agent__metric { border-radius: 14px !important; background: linear-gradient(145deg, rgba(24, 43, 71, .72), rgba(11, 25, 45, .62)) !important; }
+.lulu-native-agent__status.is-positive { border-color: rgba(117, 233, 226, .32) !important; background: rgba(117, 233, 226, .12) !important; color: #b3fff5 !important; }
+
+/* Public landing — editorial, product-led and light on decoration */
+.lulu-nova-landing {
+  --landing-ink: #050a15;
+  --landing-surface: #0b1528;
+  --landing-text: #f5f8ff;
+  --landing-muted: #a4b2ca;
+  --landing-hairline: rgba(176, 201, 241, .16);
+  background:
+    radial-gradient(circle at 74% 7%, rgba(121, 121, 255, .2), transparent 35rem),
+    radial-gradient(circle at 8% 57%, rgba(89, 228, 216, .09), transparent 31rem),
+    #050a15 !important;
+}
+.lulu-nova-landing .lulu-landing__nav {
+  grid-template-columns: 1fr auto 1fr;
+  min-height: 76px;
+  padding: 0 clamp(20px, 5vw, 88px);
+  border-bottom-color: rgba(179, 203, 240, .12);
+  background: rgba(5, 10, 21, .72);
+}
+.lulu-nova-landing .lulu-landing__brand { font-size: .76rem; letter-spacing: .12em; }
+.lulu-nova-landing .lulu-landing__brand-mark { width: 31px; height: 31px; border: 0; border-radius: 10px; background: linear-gradient(135deg, #a696ff, #72e7dc); color: #07101f; box-shadow: 0 12px 26px rgba(113, 181, 255, .25); }
+.lulu-nova-landing .lulu-landing__nav nav { gap: clamp(16px, 2.6vw, 34px); }
+.lulu-nova-landing .lulu-landing__nav nav button { font-size: .73rem; font-weight: 650; }
+.lulu-nova-landing .lulu-landing__nav-cta,
+.lulu-nova-landing .lulu-landing__primary-cta { border: 0; background: linear-gradient(112deg, #a08dff, #658cfa 57%, #64dfd4); box-shadow: 0 14px 32px rgba(89, 128, 244, .24); color: #061019; font-weight: 800; }
+.lulu-nova-landing .lulu-landing__nav-cta { border-radius: 11px; padding: 10px 14px; }
+.lulu-nova-landing .lulu-landing__primary-cta { border-radius: 12px; padding: 15px 19px; }
+.lulu-nova-landing .lulu-landing__hero { grid-template-columns: minmax(0, .93fr) minmax(450px, 1.07fr); gap: clamp(22px, 5vw, 92px); min-height: 870px; padding: 158px clamp(22px, 8vw, 152px) 106px; }
+.lulu-nova-landing .lulu-landing__eyebrow { color: #8eece2; font-size: .65rem; font-weight: 800; letter-spacing: .17em; }
+.lulu-nova-landing h1,
+.lulu-nova-landing h2,
+.lulu-nova-landing h3 { font-family: Poppins, ui-sans-serif, system-ui, sans-serif; font-weight: 700; font-style: normal; letter-spacing: -.065em; }
+.lulu-nova-landing .lulu-landing__hero h1 { max-width: 680px; font-size: clamp(3.7rem, 7vw, 7.7rem); line-height: .9; }
+.lulu-nova-landing .lulu-landing__hero h1 em,
+.lulu-nova-landing .lulu-landing__operation h2 em { display: inline-block; color: #a99aff; font-style: normal; }
+.lulu-nova-landing .lulu-landing__hero-lede { max-width: 480px; color: #a7b6cf; font-size: 1.03rem; line-height: 1.7; }
+.lulu-nova-landing .lulu-landing__hero-art { min-height: 590px; margin-right: 0; border-color: rgba(178, 208, 251, .18); border-radius: 28px; background: linear-gradient(145deg, rgba(28, 47, 82, .84), rgba(5, 13, 28, .88)); box-shadow: inset 0 1px rgba(255,255,255,.075), 0 38px 100px rgba(0,0,0,.34); }
+.lulu-nova-landing .lulu-landing__hero-art::after { position: absolute; inset: 14px; border: 1px solid rgba(255,255,255,.06); border-radius: 19px; content: ""; pointer-events: none; }
+.lulu-nova-landing .lulu-landing__hero-art img { opacity: .92; mix-blend-mode: screen; }
+.lulu-nova-landing .lulu-landing__hero-orbit { border-color: rgba(129, 236, 225, .26); }
+.lulu-nova-landing .lulu-landing__hero-status { right: 22px; bottom: 22px; border-color: rgba(142, 236, 224, .22); border-radius: 10px; background: rgba(4, 13, 28, .78); color: #d5f8f4; }
+.lulu-nova-landing .lulu-landing__system,
+.lulu-nova-landing .lulu-landing__operation { padding: clamp(88px, 11vw, 156px) clamp(22px, 8vw, 152px); }
+.lulu-nova-landing .lulu-landing__system { background: linear-gradient(180deg, transparent, rgba(22, 39, 69, .38) 45%, transparent); }
+.lulu-nova-landing .lulu-landing__section-intro h2,
+.lulu-nova-landing .lulu-landing__operation h2 { font-size: clamp(2.7rem, 5.5vw, 5.8rem); line-height: .96; }
+.lulu-nova-landing .lulu-landing__section-intro > p:last-child,
+.lulu-nova-landing .lulu-landing__operation-copy > p { color: var(--landing-muted); }
+.lulu-nova-landing .lulu-landing__system-visual,
+.lulu-nova-landing .lulu-landing__operation-board { border-color: rgba(171, 202, 246, .18); border-radius: 24px; background: linear-gradient(145deg, rgba(19, 36, 63, .8), rgba(6, 15, 30, .82)); box-shadow: inset 0 1px rgba(255,255,255,.055), 0 30px 72px rgba(0,0,0,.18); }
+.lulu-nova-landing .lulu-landing__pillars { gap: 8px; }
+.lulu-nova-landing .lulu-landing__pillar { border-color: rgba(171, 202, 246, .13); border-radius: 12px; background: rgba(17, 34, 60, .54); color: #dce7fb; }
+.lulu-nova-landing .lulu-landing__pillar.is-selected { border-color: rgba(126, 231, 219, .46); background: linear-gradient(100deg, rgba(113, 229, 218, .16), rgba(157, 140, 255, .16)); color: #fff; }
+.lulu-nova-landing .lulu-landing__pillar-detail { border-radius: 20px; box-shadow: inset 0 1px rgba(255,255,255,.06), 0 20px 50px rgba(0,0,0,.16); }
+.lulu-nova-landing .lulu-landing__step { border-color: rgba(171, 202, 246, .14); border-radius: 16px; background: rgba(17, 34, 60, .56); }
+.lulu-nova-landing .lulu-landing__closing { min-height: 620px; background: linear-gradient(145deg, #101a35, #060b17 72%); }
+.lulu-nova-landing .lulu-landing__closing-copy h2 { font-size: clamp(3rem, 6vw, 6rem); }
+
+/* Login landing — now an actual product entry surface, not a marketing collage. */
+.lulu-nova-auth {
+  --exec-ink: #f4f8ff;
+  --exec-paper: #07101f;
+  --exec-soft: #0d1a31;
+  --exec-muted: #9aacca;
+  --exec-line: rgba(174, 203, 244, .16);
+  --exec-cyan: #79e8df;
+  background: var(--exec-paper) !important;
+  color: var(--exec-ink) !important;
+}
+.lulu-nova-auth .lulu-exec-nav {
+  min-height: 70px;
+  border-bottom-color: var(--exec-line) !important;
+  background: rgba(7, 16, 31, .84) !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.12);
+  backdrop-filter: blur(22px);
+}
+.lulu-nova-auth .lulu-exec-brand span { color: #fff !important; letter-spacing: .06em; }
+.lulu-nova-auth .lulu-exec-brand small,
+.lulu-nova-auth .lulu-exec-nav-links a { color: #9aacca !important; }
+.lulu-nova-auth .lulu-exec-nav-links a:hover { color: #fff !important; }
+.lulu-nova-auth .lulu-exec-language-switch { border-color: var(--exec-line) !important; background: rgba(255,255,255,.04) !important; }
+.lulu-nova-auth .lulu-exec-language-switch button { color: #aebddb !important; }
+.lulu-nova-auth .lulu-exec-language-switch button.is-active { background: rgba(126, 147, 255, .3) !important; color: #fff !important; }
+.lulu-nova-auth .lulu-exec-nav-login { border: 0; border-radius: 10px; background: linear-gradient(110deg, #a08dff, #668dfa 56%, #67dfd5) !important; color: #061019 !important; font-weight: 800; }
+.lulu-nova-auth > .lulu-exec-hero,
+.lulu-nova-auth .lulu-exec-hero {
+  min-height: min(960px, calc(100svh - 70px)) !important;
+  padding: clamp(56px, 7vw, 110px) clamp(18px, 5vw, 88px) clamp(60px, 8vw, 108px) !important;
+  background:
+    radial-gradient(circle at 79% 18%, rgba(119, 116, 255, .26), transparent 29rem),
+    radial-gradient(circle at 15% 76%, rgba(80, 221, 210, .1), transparent 24rem),
+    linear-gradient(145deg, #060d1a, #081426 58%, #0d1933) !important;
+}
+.lulu-nova-auth .lulu-exec-hero-content {
+  grid-template-columns: minmax(0, .9fr) minmax(380px, 1.1fr) !important;
+  grid-template-areas: "product media" "title media" "copy media" "card media" "prompts media" !important;
+  width: min(1280px, 100%) !important;
+  column-gap: clamp(36px, 6vw, 94px) !important;
+}
+.lulu-nova-auth .lulu-exec-product-name { color: #8eece3 !important; font-size: .7rem !important; font-weight: 800 !important; letter-spacing: .18em; text-transform: uppercase; }
+.lulu-nova-auth .lulu-exec-hero h1 { max-width: 610px !important; color: #f6f8ff !important; font-size: clamp(3.7rem, 6.4vw, 6.4rem) !important; font-weight: 760 !important; line-height: .92 !important; letter-spacing: -.07em; }
+.lulu-nova-auth .lulu-exec-hero-copy { max-width: 510px !important; color: #a8b8d3 !important; font-size: clamp(1.03rem, 1.7vw, 1.34rem) !important; font-weight: 480; line-height: 1.55 !important; }
+.lulu-nova-auth .lulu-exec-hero-content picture {
+  position: relative;
+  min-height: 540px;
+  overflow: hidden;
+  border: 1px solid rgba(177, 205, 249, .18);
+  border-radius: 26px;
+  background: linear-gradient(145deg, rgba(31, 52, 91, .78), rgba(7, 17, 33, .92));
+  box-shadow: inset 0 1px rgba(255,255,255,.08), 0 36px 100px rgba(0,0,0,.3);
+}
+.lulu-nova-auth .lulu-exec-hero-content picture::before { position: absolute; z-index: 1; inset: 16px; border: 1px solid rgba(255,255,255,.07); border-radius: 17px; content: ""; pointer-events: none; }
+.lulu-nova-auth .lulu-exec-hero-image { width: min(700px, 58vw) !important; max-width: 112% !important; margin: 0 auto !important; filter: saturate(1.08) contrast(1.04) !important; transform: translateY(18px) scale(1.07) !important; }
+.lulu-nova-auth .lulu-exec-login-card { border-color: rgba(171, 204, 250, .21) !important; border-radius: 20px !important; background: rgba(11, 25, 47, .74) !important; box-shadow: inset 0 1px rgba(255,255,255,.055), 0 24px 64px rgba(0,0,0,.2) !important; backdrop-filter: blur(20px); }
+.lulu-nova-auth .lulu-exec-login-heading { border-bottom-color: var(--exec-line) !important; }
+.lulu-nova-auth .lulu-exec-login-heading p { color: #fff; font-size: 1rem !important; }
+.lulu-nova-auth .lulu-exec-login-heading span { color: #95a9c8 !important; }
+.lulu-nova-auth .lulu-exec-label { color: #b8c8e1 !important; }
+.lulu-nova-auth .lulu-exec-input { border-color: rgba(172, 203, 247, .18) !important; border-radius: 12px !important; background: rgba(3, 10, 23, .62) !important; color: #fff !important; }
+.lulu-nova-auth .lulu-exec-input:focus { border-color: rgba(117, 233, 226, .62) !important; box-shadow: 0 0 0 4px rgba(117, 233, 226, .1) !important; }
+.lulu-nova-auth .lulu-exec-password-toggle { color: #aebddb !important; }
+.lulu-nova-auth .lulu-exec-submit { border: 0 !important; border-radius: 12px !important; background: linear-gradient(110deg, #9d8aff, #678df8 56%, #66dfd4) !important; color: #061019 !important; box-shadow: 0 10px 24px rgba(91, 126, 244, .25) !important; }
+.lulu-nova-auth .lulu-exec-login-links { border-top-color: var(--exec-line) !important; }
+.lulu-nova-auth .lulu-exec-login-links button { color: #91eee5 !important; }
+.lulu-nova-auth .lulu-exec-prompt-strip button { border-color: rgba(173, 204, 246, .15) !important; border-radius: 999px !important; background: rgba(255,255,255,.04) !important; color: #aebfda !important; }
+.lulu-nova-auth .lulu-exec-prompt-strip button:hover { border-color: rgba(117, 233, 226, .38) !important; background: rgba(117, 233, 226, .1) !important; color: #fff !important; }
+.lulu-nova-auth .lulu-exec-scroll-cue { color: #86a1c7 !important; }
+.lulu-nova-auth .lulu-exec-mission { background: linear-gradient(180deg, #0d1930, #081326) !important; }
+.lulu-nova-auth .lulu-exec-system { background: #07101f !important; color: #fff !important; }
+.lulu-nova-auth .lulu-exec-access { background: linear-gradient(145deg, #111d39, #091326) !important; color: #fff !important; }
+.lulu-nova-auth .lulu-exec-kicker { color: #8fece3 !important; font-size: .68rem !important; font-weight: 800 !important; letter-spacing: .17em; text-transform: uppercase; }
+.lulu-nova-auth :is(.lulu-exec-section-intro, .lulu-exec-system-intro) h2,
+.lulu-nova-auth .lulu-exec-access h2 { color: #f6f8ff !important; font-size: clamp(2.6rem, 5vw, 5.5rem) !important; }
+.lulu-nova-auth :is(.lulu-exec-section-intro, .lulu-exec-system-intro) > p:last-child,
+.lulu-nova-auth .lulu-exec-access-copy > p { color: #a4b6d2 !important; }
+.lulu-nova-auth .lulu-exec-mission-pillar { min-height: 310px !important; border: 1px solid var(--exec-line) !important; border-radius: 20px !important; background: linear-gradient(145deg, rgba(29, 48, 82, .92), rgba(12, 26, 48, .95)) !important; box-shadow: inset 0 1px rgba(255,255,255,.05), 0 18px 48px rgba(0,0,0,.13) !important; }
+.lulu-nova-auth .lulu-exec-mission-pillar:first-child,
+.lulu-nova-auth .lulu-exec-mission-pillar:nth-child(2),
+.lulu-nova-auth .lulu-exec-mission-pillar:nth-child(3) { background: linear-gradient(145deg, rgba(29, 48, 82, .92), rgba(12, 26, 48, .95)) !important; }
+.lulu-nova-auth .lulu-exec-mission-pillar svg { margin-top: clamp(36px, 5vw, 82px) !important; color: #8eece2 !important; }
+.lulu-nova-auth :is(.lulu-exec-mission-pillar, .lulu-exec-layer) h3 { color: #fff !important; }
+.lulu-nova-auth :is(.lulu-exec-mission-pillar, .lulu-exec-layer) p { color: #9eafca !important; }
+.lulu-nova-auth .lulu-exec-colorway { border: 1px solid var(--exec-line); border-radius: 18px; background: rgba(20, 37, 65, .72); }
+.lulu-nova-auth .lulu-exec-colorway h3 { color: #fff; }
+.lulu-nova-auth .lulu-exec-colorway p,
+.lulu-nova-auth .lulu-exec-colorway > span:not(.lulu-exec-swatch) { color: #9eafca; }
+.lulu-nova-auth .lulu-exec-layer { border: 1px solid rgba(155, 145, 255, .22); border-radius: 20px; background: linear-gradient(145deg, #17254a, #0b172c) !important; }
+.lulu-nova-auth .lulu-exec-access-panel { border: 1px solid var(--exec-line); border-radius: 22px; background: rgba(5, 14, 28, .4) !important; }
+.lulu-nova-auth .lulu-exec-access-panel span { border-color: var(--exec-line) !important; color: #dbe7fb !important; }
+.lulu-nova-auth .lulu-exec-footer { border-top-color: var(--exec-line) !important; background: #050b16; color: #90a3c2 !important; }
+
+@media (max-width: 1080px) {
+  .lulu-nova-landing .lulu-landing__hero { grid-template-columns: 1fr; min-height: auto; padding-top: 138px; }
+  .lulu-nova-landing .lulu-landing__hero-art { min-height: 470px; max-width: 760px; width: 100%; }
+  .lulu-nova-auth .lulu-exec-hero-content { display: block !important; max-width: 690px !important; text-align: center !important; }
+  .lulu-nova-auth .lulu-exec-hero h1,
+  .lulu-nova-auth .lulu-exec-hero-copy,
+  .lulu-nova-auth .lulu-exec-login-card { margin-left: auto !important; margin-right: auto !important; }
+  .lulu-nova-auth .lulu-exec-hero-content picture { min-height: 420px; margin-top: 30px; }
+  .lulu-nova-auth .lulu-exec-prompt-strip { justify-content: center !important; }
+}
+
+@media (max-width: 760px) {
+  .lulu-auth-search-wrap { min-height: 62px !important; grid-template-columns: auto auto minmax(0, 1fr) auto !important; }
+  .lulu-auth-logo { width: 62px; }
+  .lulu-auth-workspace-context span { max-width: 120px; }
+  .lulu-backend-release,
+  .lulu-surface-switch button span { display: none; }
+  .lulu-nova-landing .lulu-landing__nav { grid-template-columns: 1fr auto; min-height: 66px; }
+  .lulu-nova-landing .lulu-landing__nav nav,
+  .lulu-nova-landing .lulu-landing__text-link { display: none; }
+  .lulu-nova-landing .lulu-landing__hero { padding-bottom: 70px; }
+  .lulu-nova-landing .lulu-landing__hero h1 { font-size: clamp(3.1rem, 14vw, 4.4rem); }
+  .lulu-nova-landing .lulu-landing__hero-art { min-height: 360px; }
+  .lulu-nova-landing .lulu-landing__system,
+  .lulu-nova-landing .lulu-landing__operation { padding-inline: 20px; }
+  .lulu-nova-auth .lulu-exec-nav { min-height: 60px; }
+  .lulu-nova-auth > .lulu-exec-hero,
+  .lulu-nova-auth .lulu-exec-hero { min-height: auto !important; padding: 46px 17px 58px !important; }
+  .lulu-nova-auth .lulu-exec-hero h1 { font-size: clamp(3rem, 13vw, 4.25rem) !important; }
+  .lulu-nova-auth .lulu-exec-hero-content picture { min-height: 300px; margin-top: 23px; border-radius: 20px; }
+  .lulu-nova-auth .lulu-exec-hero-image { width: 115% !important; max-width: none !important; }
+  .lulu-nova-auth .lulu-exec-login-card { padding: 16px !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lulu-nova-landing *,
+  .lulu-nova-auth * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

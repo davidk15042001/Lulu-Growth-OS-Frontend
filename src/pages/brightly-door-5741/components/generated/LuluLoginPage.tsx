@@ -185,7 +185,7 @@ export const LuluLoginPage = () => {
   if (!isLandingLanguage) return <main className="auth-shell lulu-executive-landing" aria-busy="true" />;
 
   return (
-    <main data-deploy-rev="2026-09-22-airpods-inspired-lulu-login" className="auth-shell lulu-executive-landing">
+    <main data-deploy-rev="2026-10-03-lulu-nova-product-redesign" className="auth-shell lulu-executive-landing lulu-nova-auth">
       <header className="lulu-exec-nav">
         <a href="#top" className="lulu-exec-brand" aria-label="Lulu home" data-lulu-no-translate="true" translate="no">
           <img src="/branding/lulu-agentic-mark.svg" alt="" />
