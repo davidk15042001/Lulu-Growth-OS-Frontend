@@ -1,7 +1,7 @@
 .lulu-office--ai-native {
-  height: 100dvh;
   min-height: 100dvh;
-  overflow: hidden;
+  height: auto;
+  overflow: auto;
   background: #090a12;
   color: #f4f3ff;
 }
