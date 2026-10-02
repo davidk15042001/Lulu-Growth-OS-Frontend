@@ -13,11 +13,10 @@ import {
 } from "lucide-react";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { officeApi, type OfficeEmployeeDetails, type OfficeEmployeeStatus, type OfficeEmployeeSummary, type OfficeOverview } from "../../api/office";
-import { agentApi, type AgentEcosystem } from "../../api/agents";
 import { subscribeWorkspaceEvents, type WorkspaceLiveEvent } from "../../api/agent-stream";
 import { useLuluApp } from "../../api/LuluAppContext";
-import { resolveEmployeeWorkspaceRoute } from "../../config/workspace-capability-registry";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { AgentNativeWorkspace } from "./AgentNativeWorkspace";
 import "./lulu-station.css";
 
 type StatusTone = "idle" | "working" | "waiting" | "attention" | "offline";
@@ -241,22 +240,11 @@ function propTitle(prop: RoomLayout["prop"]) {
   return "Work desk";
 }
 
-function workspaceMode(employee: OfficeEmployeeSummary, workItem: OfficeEmployeeDetails["currentWorkItem"]) {
-  if (employee.status === "ERROR" || workItem?.status === "failed") return "Recovery desk";
-  if (employee.status === "WAITING_FOR_APPROVAL" || workItem?.status === "waiting_for_approval") return "Approval gate";
-  if (employee.status === "WAITING" || workItem?.status === "waiting" || workItem?.status === "paused") return "Waiting bay";
-  if (employee.status === "OFFLINE") return "Offline bay";
-  if (employee.status === "MONITORING") return "Monitoring desk";
-  if (employee.status === "COLLABORATING") return "Handoff table";
-  return "Active workbench";
-}
-
 export function LuluStation() {
   const t = useTranslation();
   const { selectedWorkspace } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? null;
   const [overview, setOverview] = useState<OfficeOverview | null>(null);
-  const [ecosystem, setEcosystem] = useState<AgentEcosystem | null>(null);
   const [employeeDetail, setEmployeeDetail] = useState<OfficeEmployeeDetails | null>(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [employeeLoading, setEmployeeLoading] = useState(false);
@@ -290,16 +278,6 @@ export function LuluStation() {
     const interval = window.setInterval(() => void loadOverview(true), 30_000);
     return () => window.clearInterval(interval);
   }, [loadOverview, workspaceId]);
-
-  useEffect(() => {
-    if (!workspaceId) return undefined;
-    let mounted = true;
-    void agentApi.ecosystem(workspaceId)
-      .then((response) => {
-        if (mounted) setEcosystem(response.data);
-      });
-    return () => { mounted = false; };
-  }, [workspaceId]);
 
   useEffect(() => {
     if (!workspaceId) return undefined;
@@ -370,21 +348,6 @@ export function LuluStation() {
   }, [departmentQuery, rooms]);
   const openSignals = overview?.companyBrain?.signals.filter((signal) => signal.status === "OPEN").length ?? 0;
   const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals;
-  const employeeWorkspaceRoute = useMemo(() => {
-    if (!employeeDetail) return null;
-    const sourceAgentIds = employeeDetail.employee.sourceAgentIds;
-    const agent = ecosystem?.definitions.find((definition) => sourceAgentIds.includes(definition.id) && definition.pageId);
-    return resolveEmployeeWorkspaceRoute({
-      employeeKey: employeeDetail.employee.key,
-      sourceAgentIds,
-      capabilityKeys: employeeDetail.capabilities.map((capability) => capability.key),
-      relatedObjectType: employeeDetail.currentWorkItem?.relatedObjectType ?? null,
-      pageId: agent?.pageId,
-      allowKnownEmployeeRoute: true,
-    });
-  }, [ecosystem, employeeDetail]);
-  const employeeWorkspacePagePath = employeeWorkspaceRoute?.href ?? null;
-
   if (!workspaceId) return null;
   if (loading && !overview) {
     return <section className="lulu-station lulu-station--state" aria-label="Lulu Station"><RefreshCw className="lulu-station__spin" size={20} /><span>{t("Loading verified office state…")}</span></section>;
@@ -509,7 +472,7 @@ export function LuluStation() {
       </div>
 
       {selectedEmployeeId ? <div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEmployeePopup(); }}>
-        <section className={`lulu-station__employee-modal${employeeWorkspacePagePath ? " lulu-station__employee-modal--workspace" : ""}`} role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title">
+        <section className="lulu-station__employee-modal lulu-station__employee-modal--workspace" role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title">
           <button type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label="Close employee workspace">×</button>
           {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>Opening verified employee workspace…</strong><span>Loading the employee state and recent evidence.</span></div> : <>
             <header className="lulu-station__modal-header">
@@ -518,20 +481,7 @@ export function LuluStation() {
               <div className={`lulu-station__modal-status lulu-station__modal-status--${toneForStatus(employeeDetail.employee.status)}`}><i />{statusLabel(employeeDetail.employee.status)}</div>
             </header>
             <div className="lulu-station__modal-body">
-              {employeeWorkspacePagePath ? <div className="lulu-station__workspace-embed">
-                <div className="lulu-station__workspace-embed-bar"><span><i />LIVE WORKSPACE</span><small>{employeeWorkspaceRoute?.pageLabel ?? employeeDetail.employee.name}</small></div>
-                <iframe src={employeeWorkspacePagePath} title={`${employeeDetail.employee.name} workspace`} loading="lazy" />
-                <div className="lulu-station__workspace-embed-caption">The real workspace surface is shown here. Actions remain subject to the same workspace permissions.</div>
-              </div> : <div className={`lulu-station__workspace-preview lulu-station__workspace-preview--${toneForStatus(employeeDetail.employee.status)}`}>
-                <div className="lulu-station__workspace-preview-top"><span>{workspaceMode(employeeDetail.employee, employeeDetail.currentWorkItem)}</span><small>VERIFIED VIEW</small></div>
-                <div className="lulu-station__workspace-desk">
-                  <div className="lulu-station__workspace-monitor"><span /><span /><span /></div>
-                  <div className="lulu-station__workspace-keyboard" />
-                  <div className="lulu-station__workspace-orb"><b>{employeeDetail.currentWorkItem ? "RUN" : "IDLE"}</b></div>
-                  <div className="lulu-station__workspace-chair" />
-                </div>
-                <div className="lulu-station__workspace-caption">This scene is a visual projection of persisted state. It does not create work.</div>
-              </div>}
+              <AgentNativeWorkspace workspaceId={workspaceId} employeeDetail={employeeDetail} />
               <div className="lulu-station__modal-details">
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">CURRENT WORK</span><strong>{employeeDetail.currentWorkItem?.title ?? "No current work item"}</strong><p>{employeeDetail.currentWorkItem?.objective ?? "This employee has no active work item in the verified office projection."}</p><small>{employeeDetail.currentWorkItem?.status ?? "No active work"}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${employeeDetail.currentWorkItem.relatedObjectType}` : ""}</small></div>
                 <div className="lulu-station__modal-stats"><div><strong>{employeeDetail.workSummary.active}</strong><span>active</span></div><div><strong>{employeeDetail.workSummary.completedToday}</strong><span>completed today</span></div><div><strong>{employeeDetail.workSummary.failed}</strong><span>failed</span></div></div>
