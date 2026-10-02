@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowUpRight,
-  Bot,
   CheckCircle2,
   Clock3,
   Layers3,
   RefreshCw,
-  Search,
   ShieldCheck,
   Sparkles,
   Target,
@@ -204,11 +202,6 @@ export function LuluStation() {
   const workspaceId = selectedWorkspace?.id ?? null;
   const [overview, setOverview] = useState<OfficeOverview | null>(null);
   const [ecosystem, setEcosystem] = useState<AgentEcosystem | null>(null);
-  const [registryOpen, setRegistryOpen] = useState(false);
-  const [registryQuery, setRegistryQuery] = useState("");
-  const [registryLoading, setRegistryLoading] = useState(true);
-  const [registryError, setRegistryError] = useState<string | null>(null);
-  const [selectedRegistryAgent, setSelectedRegistryAgent] = useState<AgentEcosystemDefinition | null>(null);
   const [employeeDetail, setEmployeeDetail] = useState<OfficeEmployeeDetails | null>(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [employeeLoading, setEmployeeLoading] = useState(false);
@@ -244,18 +237,9 @@ export function LuluStation() {
   useEffect(() => {
     if (!workspaceId) return undefined;
     let mounted = true;
-    setRegistryLoading(true);
     void agentApi.ecosystem(workspaceId)
       .then((response) => {
-        if (!mounted) return;
-        setEcosystem(response.data);
-        setRegistryError(null);
-      })
-      .catch((cause) => {
-        if (mounted) setRegistryError(getFriendlyErrorMessage(cause));
-      })
-      .finally(() => {
-        if (mounted) setRegistryLoading(false);
+        if (mounted) setEcosystem(response.data);
       });
     return () => { mounted = false; };
   }, [workspaceId]);
@@ -298,39 +282,24 @@ export function LuluStation() {
     setEmployeeLoading(false);
   }, []);
 
-  const closeRegistryPopup = useCallback(() => {
-    setSelectedRegistryAgent(null);
-  }, []);
-
   useEffect(() => {
-    if (!selectedEmployeeId && !selectedRegistryAgent) return undefined;
+    if (!selectedEmployeeId) return undefined;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        if (selectedEmployeeId) closeEmployeePopup();
-        else closeRegistryPopup();
-      }
+      if (event.key === "Escape") closeEmployeePopup();
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [closeEmployeePopup, closeRegistryPopup, selectedEmployeeId, selectedRegistryAgent]);
+  }, [closeEmployeePopup, selectedEmployeeId]);
 
   const rooms = useMemo(() => roomEmployees(overview), [overview]);
   const selectedRoom = rooms.find(({ room }) => room.id === selectedRoomId) ?? null;
   const openSignals = overview?.companyBrain?.signals.filter((signal) => signal.status === "OPEN").length ?? 0;
   const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals;
-  const activeRegistryIds = useMemo(() => new Set(ecosystem?.activeTeam.map((agent) => agent.id) ?? []), [ecosystem]);
   const employeeWorkspacePagePath = useMemo(() => {
     const sourceAgentIds = employeeDetail?.employee.sourceAgentIds ?? [];
     const agent = ecosystem?.definitions.find((definition) => sourceAgentIds.includes(definition.id) && definition.pageId);
     return workspacePathForAgent(agent);
   }, [ecosystem, employeeDetail]);
-  const registryWorkspacePagePath = workspacePathForAgent(selectedRegistryAgent);
-  const filteredRegistryDefinitions = useMemo(() => {
-    const needle = registryQuery.trim().toLowerCase();
-    const definitions = ecosystem?.definitions ?? [];
-    if (!needle) return definitions;
-    return definitions.filter((agent) => `${agent.name} ${agent.domain} ${agent.module} ${agent.purpose} ${agent.capabilities.join(" ")}`.toLowerCase().includes(needle));
-  }, [ecosystem, registryQuery]);
 
   if (!workspaceId) return null;
   if (loading && !overview) {
@@ -359,31 +328,6 @@ export function LuluStation() {
         <div className={attentionCount > 0 ? "is-attention" : ""}><span><Target size={14} />Needs attention</span><strong>{attentionCount}</strong><small>{openSignals} open Company Brain signals</small></div>
         <div><span><CheckCircle2 size={14} />Verified outcomes</span><strong>{overview.summary.completedToday}</strong><small>recently completed work items</small></div>
       </div>
-
-      <section className="lulu-station__registry" aria-label="Agent registry">
-        <div className="lulu-station__registry-header">
-          <div>
-            <div className="lulu-station__registry-kicker"><Bot size={14} />AGENT REGISTRY / CAPABILITY CATALOG</div>
-            <h2>{registryLoading ? "Loading agent registry…" : `${ecosystem?.summary.registeredAgents ?? "—"} registered agents`}</h2>
-            <p>{overview.summary.employeeCount} are instantiated in this workspace as Digital Employees. The remaining registered specialists are available on demand and are not shown as active people until the backend selects or instantiates them.</p>
-          </div>
-          <div className="lulu-station__registry-actions">
-            <span>{ecosystem ? `${ecosystem.summary.pageSpecialists} specialists · ${ecosystem.summary.systemAgents} system agents` : "Verified backend catalog"}</span>
-            <button type="button" className="lulu-station__registry-toggle" onClick={() => setRegistryOpen((open) => !open)} disabled={registryLoading || Boolean(registryError)}>{registryOpen ? "Hide catalog" : "Open full catalog"}</button>
-          </div>
-        </div>
-        {registryOpen ? <div className="lulu-station__registry-body">
-          {registryError ? <div className="lulu-station__registry-error" role="alert">{registryError}</div> : <>
-            <label className="lulu-station__registry-search"><Search size={15} /><input value={registryQuery} onChange={(event) => setRegistryQuery(event.target.value)} placeholder="Search all registered agents…" aria-label="Search all registered agents" /></label>
-            <div className="lulu-station__registry-meta"><span>{filteredRegistryDefinitions.length} definitions shown</span><span>● selected for current team · ○ available on demand</span></div>
-            <div className="lulu-station__registry-list">{filteredRegistryDefinitions.map((agent) => <button type="button" key={agent.id} className="lulu-station__registry-card" onClick={() => { setSelectedEmployeeId(null); setEmployeeDetail(null); setSelectedRegistryAgent(agent); }}>
-              <span className={`lulu-station__registry-dot${activeRegistryIds.has(agent.id) ? " is-active" : ""}`} />
-              <span className="lulu-station__registry-card-copy"><strong>{agent.name}</strong><small>{agent.tier.replaceAll("_", " ")} · {agent.domain}</small><em>{agent.purpose}</em></span>
-              <ArrowUpRight size={14} />
-            </button>)}</div>
-          </>}
-        </div> : null}
-      </section>
 
       <div className="lulu-station__workspace">
         <div className="lulu-station__world-shell">
@@ -499,34 +443,6 @@ export function LuluStation() {
             </div>
             <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />Workspace-scoped verified state</span><button type="button" className="lulu-station__inspector-link" onClick={() => { closeEmployeePopup(); document.querySelector<HTMLElement>(".lulu-office-control")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Open control center <ArrowUpRight size={14} /></button></footer>
           </>}
-        </section>
-      </div> : null}
-      {selectedRegistryAgent ? <div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeRegistryPopup(); }}>
-        <section className={`lulu-station__employee-modal${registryWorkspacePagePath ? " lulu-station__employee-modal--workspace" : ""}`} role="dialog" aria-modal="true" aria-labelledby="lulu-station-registry-title">
-          <button type="button" className="lulu-station__modal-close" onClick={closeRegistryPopup} aria-label="Close agent definition">×</button>
-          <header className="lulu-station__modal-header">
-            <div className="lulu-station__modal-avatar"><span>{initials(selectedRegistryAgent.name)}</span><i /></div>
-            <div><span className="lulu-station__modal-kicker">AGENT REGISTRY DEFINITION</span><h2 id="lulu-station-registry-title">{selectedRegistryAgent.name}</h2><p>{selectedRegistryAgent.tier.replaceAll("_", " ")} · {selectedRegistryAgent.domain}</p></div>
-            <div className="lulu-station__modal-status"><i />{activeRegistryIds.has(selectedRegistryAgent.id) ? "selected for current team" : "available on demand"}</div>
-          </header>
-          <div className="lulu-station__modal-body">
-            {registryWorkspacePagePath ? <div className="lulu-station__workspace-embed">
-              <div className="lulu-station__workspace-embed-bar"><span><i />LIVE WORKSPACE</span><small>{selectedRegistryAgent.domain}</small></div>
-              <iframe src={registryWorkspacePagePath} title={`${selectedRegistryAgent.name} workspace`} loading="lazy" />
-              <div className="lulu-station__workspace-embed-caption">This is the canonical workspace page for this agent. The office view remains unchanged behind this popup.</div>
-            </div> : <div className="lulu-station__workspace-preview">
-              <div className="lulu-station__workspace-preview-top"><span>Capability blueprint</span><small>REGISTRY VIEW</small></div>
-              <div className="lulu-station__workspace-desk"><div className="lulu-station__workspace-monitor"><span /><span /><span /></div><div className="lulu-station__workspace-keyboard" /><div className="lulu-station__workspace-orb"><b>READY</b></div><div className="lulu-station__workspace-chair" /></div>
-              <div className="lulu-station__workspace-caption">This is a registered capability definition. No current workspace activity is inferred from the catalog entry.</div>
-            </div>}
-            <div className="lulu-station__modal-details">
-              <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">PURPOSE</span><strong>{selectedRegistryAgent.purpose}</strong><small>{selectedRegistryAgent.module} module · confidence {selectedRegistryAgent.confidenceRequirement}</small></div>
-              <div className="lulu-station__modal-stats"><div><strong>{selectedRegistryAgent.capabilities.length}</strong><span>capabilities</span></div><div><strong>{selectedRegistryAgent.requiredTools.length}</strong><span>required tools</span></div><div><strong>{selectedRegistryAgent.kpis.length}</strong><span>success KPIs</span></div></div>
-              <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">CAPABILITIES</span><div className="lulu-station__modal-chips">{selectedRegistryAgent.capabilities.slice(0, 12).map((capability) => <span key={capability}>{capability.replaceAll("_", " ")}</span>)}</div></div>
-              <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">ACTIVATION & PERMISSIONS</span><p>{selectedRegistryAgent.activationTriggers.slice(0, 4).join(" · ") || "Selected by the canonical agent ecosystem when its domain is relevant."}</p><small>{selectedRegistryAgent.permissions.slice(0, 4).join(" · ") || "Workspace-scoped permissions are evaluated at runtime."}</small></div>
-            </div>
-          </div>
-          <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />Canonical registry · workspace-safe</span><button type="button" className="lulu-station__inspector-link" onClick={closeRegistryPopup}>Close definition <ArrowUpRight size={14} /></button></footer>
         </section>
       </div> : null}
     </section>
