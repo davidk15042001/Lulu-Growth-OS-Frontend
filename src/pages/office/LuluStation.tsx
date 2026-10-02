@@ -335,7 +335,6 @@ export function LuluStation() {
         <div>
           <div className="lulu-station__eyebrow"><Sparkles size={13} aria-hidden="true" />LULU STATION / VERIFIED OPERATING WORLD</div>
           <h1>Where the company works.</h1>
-          <p>Every room, person and signal is a visual projection of this workspace&apos;s verified operational state.</p>
         </div>
         <div className="lulu-station__header-actions">
           <span className={`lulu-station__connection${liveConnected ? " is-live" : ""}`}><i />{liveConnected ? "Live events" : "Verified snapshot"}</span>
