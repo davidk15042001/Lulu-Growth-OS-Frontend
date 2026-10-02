@@ -5,6 +5,7 @@ import {
   Clock3,
   Layers3,
   RefreshCw,
+  Search,
   ShieldCheck,
   Sparkles,
   Target,
@@ -265,6 +266,8 @@ export function LuluStation() {
   const [employeeLoading, setEmployeeLoading] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedProp, setSelectedProp] = useState<RoomLayout["prop"] | null>(null);
+  const [departmentMenuOpen, setDepartmentMenuOpen] = useState(false);
+  const [departmentQuery, setDepartmentQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -345,6 +348,8 @@ export function LuluStation() {
     setSelectedProp(prop);
     setSelectedEmployeeId(null);
     setEmployeeDetail(null);
+    setDepartmentMenuOpen(false);
+    setDepartmentQuery("");
     window.requestAnimationFrame(() => {
       document.getElementById(`lulu-station-room-${roomId}`)?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     });
@@ -362,6 +367,11 @@ export function LuluStation() {
   const stationWorld = useMemo(() => roomEmployees(overview), [overview]);
   const rooms = stationWorld.rooms;
   const selectedRoom = rooms.find(({ room }) => room.id === selectedRoomId) ?? null;
+  const filteredRooms = useMemo(() => {
+    const query = departmentQuery.trim().toLocaleLowerCase();
+    if (!query) return rooms;
+    return rooms.filter(({ department }) => `${department.name} ${department.description}`.toLocaleLowerCase().includes(query));
+  }, [departmentQuery, rooms]);
   const openSignals = overview?.companyBrain?.signals.filter((signal) => signal.status === "OPEN").length ?? 0;
   const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals;
   const employeeWorkspacePagePath = useMemo(() => {
@@ -401,10 +411,15 @@ export function LuluStation() {
         <div className="lulu-station__world-shell">
           <div className="lulu-station__world-toolbar"><span><i className="lulu-station__toolbar-dot" />Station map</span><small>{overview.summary.departmentCount} departments · {formatTime(overview.generatedAt)} snapshot</small></div>
           {rooms.length > 0 ? <div className="lulu-station__department-nav">
-            <select aria-label="Station map" value={selectedRoomId ?? ""} onChange={(event) => selectRoom(event.target.value)}>
-              <option value="" disabled>Station map</option>
-              {rooms.map(({ room, department, employees }) => <option key={room.id} value={room.id}>{department.name} · {employees.length} CREW</option>)}
-            </select>
+            <div className="lulu-station__department-picker">
+              <button type="button" className="lulu-station__department-trigger" aria-haspopup="listbox" aria-expanded={departmentMenuOpen} aria-controls="lulu-station-department-list" onClick={() => setDepartmentMenuOpen((open) => !open)}><span>{selectedRoom?.department.name ?? "Station map"}</span><i /></button>
+              {departmentMenuOpen ? <div className="lulu-station__department-menu">
+                <div className="lulu-station__department-search"><Search size={14} aria-hidden="true" /><input autoFocus aria-label="Station map" placeholder="Station map" value={departmentQuery} onChange={(event) => setDepartmentQuery(event.target.value)} /></div>
+                <div id="lulu-station-department-list" className="lulu-station__department-options" role="listbox" aria-label="Station map">
+                  {filteredRooms.map(({ room, department, employees }) => <button key={room.id} type="button" role="option" aria-selected={room.id === selectedRoomId} onClick={() => selectRoom(room.id)}><span>{department.name}</span><small>{employees.length} CREW</small></button>)}
+                </div>
+              </div> : null}
+            </div>
             <span>{rooms.length} departments</span>
           </div> : null}
           <div className="lulu-station__world" role="region" aria-label="Lulu Station map with departments and digital employees">

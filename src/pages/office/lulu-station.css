@@ -97,8 +97,24 @@
 .lulu-station__world-toolbar small { color: var(--station-muted); font-size: .63rem; }
 .lulu-station__toolbar-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--station-teal); box-shadow: 0 0 14px rgba(86, 225, 208, .75); }
 .lulu-station__department-nav { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--station-line); padding: 9px 12px; }
-.lulu-station__department-nav select { min-width: min(100%, 350px); max-width: 100%; min-height: 32px; border: 1px solid rgba(86, 225, 208, .32); border-radius: 8px; padding: 0 30px 0 10px; background: rgba(86, 225, 208, .07); color: #dffbf8; cursor: pointer; font: inherit; font-size: .64rem; font-weight: 750; }
-.lulu-station__department-nav select:focus-visible { outline: 2px solid var(--station-teal); outline-offset: 2px; }
+.lulu-station__department-picker { position: relative; min-width: 0; width: min(100%, 350px); }
+.lulu-station__department-trigger { display: flex; width: 100%; min-height: 32px; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid rgba(86, 225, 208, .32); border-radius: 8px; padding: 0 10px; background: rgba(86, 225, 208, .07); color: #dffbf8; cursor: pointer; font: inherit; font-size: .64rem; font-weight: 750; text-align: left; }
+.lulu-station__department-trigger:hover,
+.lulu-station__department-trigger[aria-expanded="true"] { border-color: rgba(86, 225, 208, .66); background: rgba(86, 225, 208, .12); }
+.lulu-station__department-trigger > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lulu-station__department-trigger i { width: 0; height: 0; flex: 0 0 auto; border-right: 4px solid transparent; border-bottom: 0; border-left: 4px solid transparent; border-top: 5px solid #8ce6db; transition: transform .16s ease; }
+.lulu-station__department-trigger[aria-expanded="true"] i { transform: rotate(180deg); }
+.lulu-station__department-trigger:focus-visible { outline: 2px solid var(--station-teal); outline-offset: 2px; }
+.lulu-station__department-menu { position: absolute; z-index: 6; top: calc(100% + 7px); left: 0; width: min(420px, calc(100vw - 54px)); overflow: hidden; border: 1px solid rgba(86, 225, 208, .42); border-radius: 10px; background: #0b1725; box-shadow: 0 20px 42px rgba(0, 0, 0, .44); }
+.lulu-station__department-search { display: flex; align-items: center; gap: 7px; border-bottom: 1px solid rgba(142, 203, 222, .14); padding: 9px 10px; color: #78d8cf; background: rgba(86, 225, 208, .06); }
+.lulu-station__department-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: #eaffff; font: inherit; font-size: .68rem; }
+.lulu-station__department-search input::placeholder { color: #76959f; }
+.lulu-station__department-options { display: grid; max-height: min(300px, calc(70dvh - 140px)); overflow: auto; padding: 5px; scrollbar-color: rgba(86, 225, 208, .45) transparent; scrollbar-width: thin; }
+.lulu-station__department-options button { display: flex; min-width: 0; min-height: 36px; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid transparent; border-radius: 7px; padding: 0 8px; background: transparent; color: #c3d9df; cursor: pointer; font: inherit; font-size: .65rem; text-align: left; }
+.lulu-station__department-options button:hover,
+.lulu-station__department-options button[aria-selected="true"] { border-color: rgba(86, 225, 208, .3); background: rgba(86, 225, 208, .11); color: #f0ffff; }
+.lulu-station__department-options button > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lulu-station__department-options button small { flex: 0 0 auto; color: #7bd8d0; font-size: .54rem; font-weight: 850; }
 .lulu-station__department-nav > span { flex: 0 0 auto; color: #78949f; font-size: .6rem; font-weight: 700; }
 .lulu-station__world { max-height: min(76dvh, 920px); overflow: auto; overscroll-behavior: contain; padding: 10px; background: radial-gradient(circle at 50% 52%, rgba(86, 225, 208, .06), transparent 36%); scrollbar-color: rgba(86, 225, 208, .42) transparent; scrollbar-width: thin; }
 .lulu-station__world svg { display: block; width: 100%; min-width: 960px; height: auto; min-height: 620px; overflow: visible; }
