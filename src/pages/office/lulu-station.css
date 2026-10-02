@@ -91,13 +91,17 @@
 .lulu-station__registry-error { border: 1px solid rgba(233, 196, 122, .3); border-radius: 9px; padding: 12px; color: #ffe6ac; font-size: .68rem; }
 
 .lulu-station__workspace { display: grid; min-height: 0; grid-template-columns: minmax(0, 1fr) 290px; gap: 13px; align-items: stretch; }
-.lulu-station__world-shell { min-width: 0; overflow: hidden; border: 1px solid rgba(138, 202, 223, .18); border-radius: 18px; background: rgba(7, 17, 29, .72); box-shadow: 0 25px 80px rgba(0, 0, 0, .22); }
+.lulu-station__world-shell { display: grid; min-width: 0; overflow: hidden; border: 1px solid rgba(138, 202, 223, .18); border-radius: 18px; background: rgba(7, 17, 29, .72); box-shadow: 0 25px 80px rgba(0, 0, 0, .22); }
 .lulu-station__world-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid var(--station-line); padding: 0 15px; }
 .lulu-station__world-toolbar span { display: flex; align-items: center; gap: 7px; color: #eafaff; font-size: .72rem; font-weight: 750; }
 .lulu-station__world-toolbar small { color: var(--station-muted); font-size: .63rem; }
 .lulu-station__toolbar-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--station-teal); box-shadow: 0 0 14px rgba(86, 225, 208, .75); }
-.lulu-station__world { overflow: auto; padding: 10px; background: radial-gradient(circle at 50% 52%, rgba(86, 225, 208, .06), transparent 36%); }
-.lulu-station__world svg { display: block; width: 100%; height: auto; min-height: 660px; overflow: visible; }
+.lulu-station__department-nav { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--station-line); padding: 9px 12px; }
+.lulu-station__department-nav select { min-width: min(100%, 350px); max-width: 100%; min-height: 32px; border: 1px solid rgba(86, 225, 208, .32); border-radius: 8px; padding: 0 30px 0 10px; background: rgba(86, 225, 208, .07); color: #dffbf8; cursor: pointer; font: inherit; font-size: .64rem; font-weight: 750; }
+.lulu-station__department-nav select:focus-visible { outline: 2px solid var(--station-teal); outline-offset: 2px; }
+.lulu-station__department-nav > span { flex: 0 0 auto; color: #78949f; font-size: .6rem; font-weight: 700; }
+.lulu-station__world { max-height: min(76dvh, 920px); overflow: auto; overscroll-behavior: contain; padding: 10px; background: radial-gradient(circle at 50% 52%, rgba(86, 225, 208, .06), transparent 36%); scrollbar-color: rgba(86, 225, 208, .42) transparent; scrollbar-width: thin; }
+.lulu-station__world svg { display: block; width: 100%; min-width: 960px; height: auto; min-height: 620px; overflow: visible; }
 .lulu-station__spine { fill: none; stroke: rgba(107, 160, 182, .1); stroke-width: 13; stroke-linecap: round; }
 .lulu-station__corridor { fill: none; stroke: #83b8ca; stroke-opacity: .16; stroke-width: 5; stroke-linecap: round; }
 .lulu-station__corridor-glow { fill: none; stroke: var(--station-teal); stroke-dasharray: 4 24; stroke-linecap: round; stroke-opacity: .72; stroke-width: 2; animation: lulu-station-flow 4s linear infinite; }
@@ -274,6 +278,7 @@
   .lulu-station__registry-actions > span { text-align: left; }
   .lulu-station__registry-list { grid-template-columns: 1fr; }
   .lulu-station__registry-meta { flex-direction: column; gap: 4px; }
+  .lulu-station__world { max-height: 70dvh; padding: 6px; }
   .lulu-station__world svg { min-height: 0; }
   .lulu-station__world-toolbar { align-items: start; flex-direction: column; justify-content: center; gap: 3px; padding: 9px 12px; }
   .lulu-station__world-toolbar small { font-size: .58rem; }
