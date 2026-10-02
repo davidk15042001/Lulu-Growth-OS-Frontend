@@ -25,6 +25,7 @@ import { PageRoute } from "./app/PageRoute";
 import { availablePages } from "./app/page-registry";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { WorkspaceSurfaceShell } from "./components/WorkspaceSurfaceShell";
+import LuluLandingPage from "./pages/public/LuluLandingPage";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
 const ProductsPage=lazy(()=>import("./pages/canonical-products/ProductsPage"));
@@ -208,7 +209,8 @@ function HomeOrAdminRoute() {
   const { currentUser, loading } = useLuluApp();
   if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
   if (currentUser && isAdminUser(currentUser)) return <Navigate replace to={getAdminLandingPath(routes.app.dashboard)} />;
-  return <Navigate replace to={routes.auth.login} />;
+  if (currentUser) return <Navigate replace to={routes.app.dashboard} />;
+  return <LuluLandingPage />;
 }
 
 function AdminSurfaceSwitcher() {
