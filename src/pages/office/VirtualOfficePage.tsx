@@ -1,6 +1,4 @@
 import { OfficeCommandCenter } from "./OfficeCommandCenter";
-import { VirtualOfficeControlCenter } from "./VirtualOfficeControlCenter";
-import { WorkforceControlCenterCompletion } from "./WorkforceControlCenterCompletion";
 import { LuluStation } from "./LuluStation";
 import "./virtual-office.css";
 
@@ -11,8 +9,6 @@ export type CommercialDocumentKind = "invoices" | "quotes";
 export default function VirtualOfficePage() {
   return <main className="lulu-office lulu-office--ai-native" aria-label="Lulu">
     <LuluStation />
-    <VirtualOfficeControlCenter />
-    <WorkforceControlCenterCompletion />
     <OfficeCommandCenter />
   </main>;
 }
