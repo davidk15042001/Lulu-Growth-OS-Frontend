@@ -13,11 +13,11 @@ import {
 } from "lucide-react";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { officeApi, type OfficeEmployeeDetails, type OfficeEmployeeStatus, type OfficeEmployeeSummary, type OfficeOverview } from "../../api/office";
-import { agentApi, type AgentEcosystem, type AgentEcosystemDefinition } from "../../api/agents";
+import { agentApi, type AgentEcosystem } from "../../api/agents";
 import { subscribeWorkspaceEvents, type WorkspaceLiveEvent } from "../../api/agent-stream";
 import { useLuluApp } from "../../api/LuluAppContext";
+import { resolveEmployeeWorkspaceRoute } from "../../config/workspace-capability-registry";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
-import { pagePath } from "../../routing";
 import "./lulu-station.css";
 
 type StatusTone = "idle" | "working" | "waiting" | "attention" | "offline";
@@ -251,10 +251,6 @@ function workspaceMode(employee: OfficeEmployeeSummary, workItem: OfficeEmployee
   return "Active workbench";
 }
 
-function workspacePathForAgent(agent: AgentEcosystemDefinition | null | undefined) {
-  return agent?.pageId ? pagePath(agent.pageId) : null;
-}
-
 export function LuluStation() {
   const t = useTranslation();
   const { selectedWorkspace } = useLuluApp();
@@ -374,11 +370,20 @@ export function LuluStation() {
   }, [departmentQuery, rooms]);
   const openSignals = overview?.companyBrain?.signals.filter((signal) => signal.status === "OPEN").length ?? 0;
   const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals;
-  const employeeWorkspacePagePath = useMemo(() => {
-    const sourceAgentIds = employeeDetail?.employee.sourceAgentIds ?? [];
+  const employeeWorkspaceRoute = useMemo(() => {
+    if (!employeeDetail) return null;
+    const sourceAgentIds = employeeDetail.employee.sourceAgentIds;
     const agent = ecosystem?.definitions.find((definition) => sourceAgentIds.includes(definition.id) && definition.pageId);
-    return workspacePathForAgent(agent);
+    return resolveEmployeeWorkspaceRoute({
+      employeeKey: employeeDetail.employee.key,
+      sourceAgentIds,
+      capabilityKeys: employeeDetail.capabilities.map((capability) => capability.key),
+      relatedObjectType: employeeDetail.currentWorkItem?.relatedObjectType ?? null,
+      pageId: agent?.pageId,
+      allowKnownEmployeeRoute: true,
+    });
   }, [ecosystem, employeeDetail]);
+  const employeeWorkspacePagePath = employeeWorkspaceRoute?.href ?? null;
 
   if (!workspaceId) return null;
   if (loading && !overview) {
@@ -514,7 +519,7 @@ export function LuluStation() {
             </header>
             <div className="lulu-station__modal-body">
               {employeeWorkspacePagePath ? <div className="lulu-station__workspace-embed">
-                <div className="lulu-station__workspace-embed-bar"><span><i />LIVE WORKSPACE</span><small>{employeeDetail.employee.name}</small></div>
+                <div className="lulu-station__workspace-embed-bar"><span><i />LIVE WORKSPACE</span><small>{employeeWorkspaceRoute?.pageLabel ?? employeeDetail.employee.name}</small></div>
                 <iframe src={employeeWorkspacePagePath} title={`${employeeDetail.employee.name} workspace`} loading="lazy" />
                 <div className="lulu-station__workspace-embed-caption">The real workspace surface is shown here. Actions remain subject to the same workspace permissions.</div>
               </div> : <div className={`lulu-station__workspace-preview lulu-station__workspace-preview--${toneForStatus(employeeDetail.employee.status)}`}>
