@@ -63,10 +63,11 @@ jobs:
           jq -n \
             --arg frontend "$GITHUB_SHA" \
             --arg backend "$backend_sha" \
+            --arg backendVersionUrl "$API_BASE_URL/version" \
             --arg generated "$generated_at" \
-            '{version:1,generatedAt:$generated,frontend:{sha:$frontend},backend:{sha:$backend}}' \
+            '{version:1,generatedAt:$generated,frontend:{sha:$frontend},backend:{sha:$backend,source:"api-version",versionUrl:$backendVersionUrl}}' \
             > dist/release.json
-          jq -e '.version == 1 and (.frontend.sha | type == "string") and (.backend.sha | type == "string") and (.generatedAt | type == "string")' dist/release.json >/dev/null
+          jq -e '.version == 1 and (.frontend.sha | type == "string") and (.backend.sha | type == "string") and (.backend.versionUrl | type == "string") and (.generatedAt | type == "string")' dist/release.json >/dev/null
 
       - name: Frontend nach S3 synchronisieren
         env:
