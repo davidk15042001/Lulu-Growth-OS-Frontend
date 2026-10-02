@@ -210,6 +210,7 @@
 
 .lulu-station__modal-layer { position: fixed; z-index: 30; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(2, 8, 16, .72); backdrop-filter: blur(12px); }
 .lulu-station__employee-modal { position: relative; width: min(940px, 100%); max-height: min(820px, calc(100dvh - 48px)); overflow: auto; border: 1px solid rgba(142, 229, 225, .3); border-radius: 24px; background: linear-gradient(145deg, rgba(17, 35, 52, .98), rgba(7, 15, 27, .98)); box-shadow: 0 32px 120px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .04) inset; color: var(--station-ink); }
+.lulu-station__employee-modal--workspace { width: min(1280px, 100%); }
 .lulu-station__modal-close { position: absolute; z-index: 2; top: 18px; right: 18px; display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid var(--station-line); border-radius: 10px; background: rgba(255, 255, 255, .05); color: #d7f7f7; cursor: pointer; font-size: 1.35rem; line-height: 1; }
 .lulu-station__modal-close:hover { border-color: rgba(86, 225, 208, .5); background: rgba(86, 225, 208, .1); }
 .lulu-station__modal-header { display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--station-line); padding: 28px 68px 22px 28px; }
@@ -222,6 +223,13 @@
 .lulu-station__modal-status { display: inline-flex; align-items: center; gap: 7px; margin-left: auto; border: 1px solid rgba(86, 225, 208, .3); border-radius: 999px; padding: 7px 10px; color: #c8fff6; font-size: .65rem; font-weight: 850; text-transform: capitalize; }
 .lulu-station__modal-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--station-teal); }.lulu-station__modal-status--waiting { border-color: rgba(156, 140, 255, .4); color: #e5deff; }.lulu-station__modal-status--waiting i { background: var(--station-violet); }.lulu-station__modal-status--attention { border-color: rgba(233, 196, 122, .45); color: #ffe7ae; }.lulu-station__modal-status--attention i { background: var(--station-gold); }.lulu-station__modal-status--offline { color: #a8bbc2; }.lulu-station__modal-status--offline i { background: #718b96; }
 .lulu-station__modal-body { display: grid; grid-template-columns: minmax(280px, .9fr) minmax(0, 1.1fr); gap: 20px; padding: 22px 28px; }
+.lulu-station__employee-modal--workspace .lulu-station__modal-body { grid-template-columns: minmax(0, 1.65fr) minmax(260px, .7fr); }
+.lulu-station__workspace-embed { display: grid; min-width: 0; min-height: 520px; grid-template-rows: auto minmax(0, 1fr) auto; overflow: hidden; border: 1px solid rgba(116, 216, 215, .24); border-radius: 17px; background: #07121e; box-shadow: 0 20px 50px rgba(0, 0, 0, .2); }
+.lulu-station__workspace-embed-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; border-bottom: 1px solid rgba(174, 234, 232, .14); padding: 12px 14px; color: #e5ffff; font-size: .69rem; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.lulu-station__workspace-embed-bar span { display: inline-flex; align-items: center; gap: 7px; }.lulu-station__workspace-embed-bar i { width: 7px; height: 7px; border-radius: 50%; background: var(--station-teal); box-shadow: 0 0 0 5px rgba(86, 225, 208, .08); }
+.lulu-station__workspace-embed-bar small { overflow: hidden; color: #83bbb9; font-size: .56rem; letter-spacing: .1em; text-overflow: ellipsis; white-space: nowrap; }
+.lulu-station__workspace-embed iframe { display: block; width: 100%; min-height: 0; height: 520px; border: 0; background: #fff; }
+.lulu-station__workspace-embed-caption { border-top: 1px solid rgba(174, 234, 232, .12); padding: 10px 14px; color: #82a9b0; font-size: .62rem; line-height: 1.45; }
 .lulu-station__workspace-preview { display: grid; min-height: 330px; grid-template-rows: auto 1fr auto; overflow: hidden; border: 1px solid rgba(116, 216, 215, .18); border-radius: 17px; background: radial-gradient(circle at 50% 28%, rgba(85, 224, 208, .14), transparent 36%), linear-gradient(145deg, #132b3b, #091522); }
 .lulu-station__workspace-preview--waiting { background: radial-gradient(circle at 50% 28%, rgba(156, 140, 255, .16), transparent 36%), linear-gradient(145deg, #1c2040, #0b1222); }.lulu-station__workspace-preview--attention { background: radial-gradient(circle at 50% 28%, rgba(233, 196, 122, .15), transparent 36%), linear-gradient(145deg, #372b25, #171521); }.lulu-station__workspace-preview--offline { filter: grayscale(.55); opacity: .8; }
 .lulu-station__workspace-preview-top { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(174, 234, 232, .12); padding: 12px 14px; color: #e5ffff; font-size: .72rem; font-weight: 850; }.lulu-station__workspace-preview-top small { color: #83bbb9; font-size: .55rem; letter-spacing: .12em; }
@@ -273,6 +281,9 @@
   .lulu-station__modal-header { align-items: flex-start; flex-wrap: wrap; padding: 22px 54px 18px 18px; }
   .lulu-station__modal-status { margin-left: 0; }
   .lulu-station__modal-body { grid-template-columns: 1fr; padding: 16px 18px; }
+  .lulu-station__employee-modal--workspace .lulu-station__modal-body { grid-template-columns: 1fr; }
+  .lulu-station__workspace-embed { min-height: 420px; }
+  .lulu-station__workspace-embed iframe { height: 420px; }
   .lulu-station__modal-footer { align-items: flex-start; flex-direction: column; padding: 14px 18px 18px; }
 }
 

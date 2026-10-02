@@ -18,6 +18,7 @@ import { agentApi, type AgentEcosystem, type AgentEcosystemDefinition } from "..
 import { subscribeWorkspaceEvents, type WorkspaceLiveEvent } from "../../api/agent-stream";
 import { useLuluApp } from "../../api/LuluAppContext";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { pagePath } from "../../routing";
 import "./lulu-station.css";
 
 type StatusTone = "idle" | "working" | "waiting" | "attention" | "offline";
@@ -193,6 +194,10 @@ function workspaceMode(employee: OfficeEmployeeSummary, workItem: OfficeEmployee
   return "Active workbench";
 }
 
+function workspacePathForAgent(agent: AgentEcosystemDefinition | null | undefined) {
+  return agent?.pageId ? pagePath(agent.pageId) : null;
+}
+
 export function LuluStation() {
   const t = useTranslation();
   const { selectedWorkspace } = useLuluApp();
@@ -314,6 +319,12 @@ export function LuluStation() {
   const openSignals = overview?.companyBrain?.signals.filter((signal) => signal.status === "OPEN").length ?? 0;
   const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals;
   const activeRegistryIds = useMemo(() => new Set(ecosystem?.activeTeam.map((agent) => agent.id) ?? []), [ecosystem]);
+  const employeeWorkspacePagePath = useMemo(() => {
+    const sourceAgentIds = employeeDetail?.employee.sourceAgentIds ?? [];
+    const agent = ecosystem?.definitions.find((definition) => sourceAgentIds.includes(definition.id) && definition.pageId);
+    return workspacePathForAgent(agent);
+  }, [ecosystem, employeeDetail]);
+  const registryWorkspacePagePath = workspacePathForAgent(selectedRegistryAgent);
   const filteredRegistryDefinitions = useMemo(() => {
     const needle = registryQuery.trim().toLowerCase();
     const definitions = ecosystem?.definitions ?? [];
@@ -456,7 +467,7 @@ export function LuluStation() {
       </div>
 
       {selectedEmployeeId ? <div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEmployeePopup(); }}>
-        <section className="lulu-station__employee-modal" role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title">
+        <section className={`lulu-station__employee-modal${employeeWorkspacePagePath ? " lulu-station__employee-modal--workspace" : ""}`} role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title">
           <button type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label="Close employee workspace">×</button>
           {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>Opening verified employee workspace…</strong><span>Loading the employee state and recent evidence.</span></div> : <>
             <header className="lulu-station__modal-header">
@@ -465,7 +476,11 @@ export function LuluStation() {
               <div className={`lulu-station__modal-status lulu-station__modal-status--${toneForStatus(employeeDetail.employee.status)}`}><i />{statusLabel(employeeDetail.employee.status)}</div>
             </header>
             <div className="lulu-station__modal-body">
-              <div className={`lulu-station__workspace-preview lulu-station__workspace-preview--${toneForStatus(employeeDetail.employee.status)}`}>
+              {employeeWorkspacePagePath ? <div className="lulu-station__workspace-embed">
+                <div className="lulu-station__workspace-embed-bar"><span><i />LIVE WORKSPACE</span><small>{employeeDetail.employee.name}</small></div>
+                <iframe src={employeeWorkspacePagePath} title={`${employeeDetail.employee.name} workspace`} loading="lazy" />
+                <div className="lulu-station__workspace-embed-caption">The real workspace surface is shown here. Actions remain subject to the same workspace permissions.</div>
+              </div> : <div className={`lulu-station__workspace-preview lulu-station__workspace-preview--${toneForStatus(employeeDetail.employee.status)}`}>
                 <div className="lulu-station__workspace-preview-top"><span>{workspaceMode(employeeDetail.employee, employeeDetail.currentWorkItem)}</span><small>VERIFIED VIEW</small></div>
                 <div className="lulu-station__workspace-desk">
                   <div className="lulu-station__workspace-monitor"><span /><span /><span /></div>
@@ -474,7 +489,7 @@ export function LuluStation() {
                   <div className="lulu-station__workspace-chair" />
                 </div>
                 <div className="lulu-station__workspace-caption">This scene is a visual projection of persisted state. It does not create work.</div>
-              </div>
+              </div>}
               <div className="lulu-station__modal-details">
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">CURRENT WORK</span><strong>{employeeDetail.currentWorkItem?.title ?? "No current work item"}</strong><p>{employeeDetail.currentWorkItem?.objective ?? "This employee has no active work item in the verified office projection."}</p><small>{employeeDetail.currentWorkItem?.status ?? "No active work"}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${employeeDetail.currentWorkItem.relatedObjectType}` : ""}</small></div>
                 <div className="lulu-station__modal-stats"><div><strong>{employeeDetail.workSummary.active}</strong><span>active</span></div><div><strong>{employeeDetail.workSummary.completedToday}</strong><span>completed today</span></div><div><strong>{employeeDetail.workSummary.failed}</strong><span>failed</span></div></div>
@@ -487,7 +502,7 @@ export function LuluStation() {
         </section>
       </div> : null}
       {selectedRegistryAgent ? <div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeRegistryPopup(); }}>
-        <section className="lulu-station__employee-modal" role="dialog" aria-modal="true" aria-labelledby="lulu-station-registry-title">
+        <section className={`lulu-station__employee-modal${registryWorkspacePagePath ? " lulu-station__employee-modal--workspace" : ""}`} role="dialog" aria-modal="true" aria-labelledby="lulu-station-registry-title">
           <button type="button" className="lulu-station__modal-close" onClick={closeRegistryPopup} aria-label="Close agent definition">×</button>
           <header className="lulu-station__modal-header">
             <div className="lulu-station__modal-avatar"><span>{initials(selectedRegistryAgent.name)}</span><i /></div>
@@ -495,11 +510,15 @@ export function LuluStation() {
             <div className="lulu-station__modal-status"><i />{activeRegistryIds.has(selectedRegistryAgent.id) ? "selected for current team" : "available on demand"}</div>
           </header>
           <div className="lulu-station__modal-body">
-            <div className="lulu-station__workspace-preview">
+            {registryWorkspacePagePath ? <div className="lulu-station__workspace-embed">
+              <div className="lulu-station__workspace-embed-bar"><span><i />LIVE WORKSPACE</span><small>{selectedRegistryAgent.domain}</small></div>
+              <iframe src={registryWorkspacePagePath} title={`${selectedRegistryAgent.name} workspace`} loading="lazy" />
+              <div className="lulu-station__workspace-embed-caption">This is the canonical workspace page for this agent. The office view remains unchanged behind this popup.</div>
+            </div> : <div className="lulu-station__workspace-preview">
               <div className="lulu-station__workspace-preview-top"><span>Capability blueprint</span><small>REGISTRY VIEW</small></div>
               <div className="lulu-station__workspace-desk"><div className="lulu-station__workspace-monitor"><span /><span /><span /></div><div className="lulu-station__workspace-keyboard" /><div className="lulu-station__workspace-orb"><b>READY</b></div><div className="lulu-station__workspace-chair" /></div>
               <div className="lulu-station__workspace-caption">This is a registered capability definition. No current workspace activity is inferred from the catalog entry.</div>
-            </div>
+            </div>}
             <div className="lulu-station__modal-details">
               <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">PURPOSE</span><strong>{selectedRegistryAgent.purpose}</strong><small>{selectedRegistryAgent.module} module · confidence {selectedRegistryAgent.confidenceRequirement}</small></div>
               <div className="lulu-station__modal-stats"><div><strong>{selectedRegistryAgent.capabilities.length}</strong><span>capabilities</span></div><div><strong>{selectedRegistryAgent.requiredTools.length}</strong><span>required tools</span></div><div><strong>{selectedRegistryAgent.kpis.length}</strong><span>success KPIs</span></div></div>
