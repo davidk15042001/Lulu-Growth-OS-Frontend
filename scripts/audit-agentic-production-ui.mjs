@@ -10,6 +10,7 @@ const authenticatedTopBar = fs.readFileSync(path.join(root, 'src', 'components',
 const globalNavigation = fs.readFileSync(path.join(root, 'src', 'components', 'LuluGlobalNavigation.tsx'), 'utf8');
 const adminBillingPage = fs.readFileSync(path.join(root, 'src', 'pages', 'admin-billing-overview-9901', 'App.tsx'), 'utf8');
 const loginPage = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door-5741', 'components', 'generated', 'LuluLoginPage.tsx'), 'utf8');
+const loginCss = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door-5741', 'index.css'), 'utf8');
 const signupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'finely-year-1146', 'components', 'generated', 'LuluSignupPage.tsx'), 'utf8');
 const signupCss = fs.readFileSync(path.join(root, 'src', 'pages', 'finely-year-1146', 'signup.css'), 'utf8');
 const connectionSetupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fresh-tide-9404', 'components', 'generated', 'LuluExistingPlatforms.tsx'), 'utf8');
@@ -144,6 +145,10 @@ if (
   || !appRouter.includes('<PublicAuthRoute><PageRoute page={page} /></PublicAuthRoute>')
 ) {
   failures.push('The public /login route is no longer guaranteed to render the redesigned Lulu login experience.');
+}
+
+if (!loginCss.includes('grid-template-areas: "product" "title" "copy" "card" "visual" "prompts"')) {
+  failures.push('The responsive login page places its decorative product image ahead of account access.');
 }
 
 if (
