@@ -13,6 +13,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { createPortal } from "react-dom";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { officeApi, type OfficeEmployeeDetails, type OfficeEmployeeStatus, type OfficeEmployeeSummary, type OfficeOverview } from "../../api/office";
 import { subscribeWorkspaceEvents, type WorkspaceLiveEvent } from "../../api/agent-stream";
@@ -617,7 +618,7 @@ export function LuluStation() {
         </aside>
       </div>
 
-      {selectedEmployeeId ? <div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEmployeePopup(); }}>
+      {selectedEmployeeId ? createPortal(<div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEmployeePopup(); }}>
         <section className="lulu-station__employee-modal lulu-station__employee-modal--workspace" role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title" onKeyDown={trapEmployeeModalFocus}>
           <button ref={closeModalRef} type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label="Close employee workspace">×</button>
           {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>Opening verified employee workspace…</strong><span>Loading the employee state and recent evidence.</span></div> : <>
@@ -638,7 +639,7 @@ export function LuluStation() {
             <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />Workspace-scoped verified state</span><button type="button" className="lulu-station__inspector-link" onClick={openWorkspace}><LayoutDashboard size={14} />{t("Open workspace")}</button></footer>
           </>}
         </section>
-      </div> : null}
+      </div>, document.body) : null}
     </section>
   );
 }

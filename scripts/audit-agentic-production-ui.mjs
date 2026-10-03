@@ -261,6 +261,8 @@ if (
   || !luluStationCss.includes('.lulu-station__modal-details { display: grid; min-width: 0;')
   || !luluStationCss.includes('overflow-wrap: anywhere;')
   || !luluStationCss.includes('.lulu-station__modal-layer { position: fixed; z-index: 100;')
+  || !luluStation.includes('createPortal(<div className="lulu-station__modal-layer"')
+  || !luluStation.includes('>, document.body) : null}')
 ) {
   failures.push('Office employee workspaces can overflow or be obscured by the persistent command surface.');
 }
