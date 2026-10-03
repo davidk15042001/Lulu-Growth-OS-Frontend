@@ -213,6 +213,14 @@ type AgentRow = {
   modelProvider: string | null; modelName: string | null;
   createdAt: string; updatedAt: string; runCount: number;
 };
+type AgentPolicyMode = "DISABLED" | "ANALYSIS_ONLY" | "RECOMMEND_ONLY" | "AUTONOMOUS_WITHIN_POLICY";
+type AgentPolicyDefinition = { key: string; label: string; category: string; description: string };
+type AgentPolicyState = {
+  policies: Record<string, AgentPolicyMode>;
+  definitions: AgentPolicyDefinition[];
+  modes: AgentPolicyMode[];
+  updatedAt: string | null;
+};
 type IntegrationRow = {
   id: string; workspaceId: string; workspaceName: string | null;
   provider: string; status: string; scopes: string[] | null;
@@ -1831,21 +1839,64 @@ function WebsitesPage({ onError }: { onError: (m: string) => void }) {
 }
 
 function AgentsPage({ onError }: { onError: (m: string) => void }) {
+  const { currentUser } = useLuluApp();
+  const t = useTranslation();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<AgentRow[]>([]);
   const [selected, setSelected] = useState<AgentRow | null>(null);
+  const [policy, setPolicy] = useState<AgentPolicyState | null>(null);
+  const [draftPolicies, setDraftPolicies] = useState<Record<string, AgentPolicyMode>>({});
+  const [savingPolicy, setSavingPolicy] = useState(false);
+  const canManagePolicy = currentUser?.adminCapabilities?.includes("agents.manage") ?? false;
   const load = async () => {
     setLoading(true); onError("");
     try {
-      const res = await requestApi<{ agents: AgentRow[] }>({ path: "/admin/agents?limit=200" });
-      setRows(res.data.agents);
-      setSelected((current) => res.data.agents.find((row) => row.id === current?.id) ?? res.data.agents[0] ?? null);
-    } catch (e) { onError(getFriendlyErrorMessage(e, "Agents konnten nicht geladen werden.")); }
+      const [agentsRes, policyRes] = await Promise.all([
+        requestApi<{ agents: AgentRow[] }>({ path: "/admin/agents?limit=200" }),
+        requestApi<AgentPolicyState>({ path: "/admin/agent-policy" }),
+      ]);
+      setRows(agentsRes.data.agents);
+      setSelected((current) => agentsRes.data.agents.find((row) => row.id === current?.id) ?? agentsRes.data.agents[0] ?? null);
+      setPolicy(policyRes.data);
+      setDraftPolicies(policyRes.data.policies);
+    } catch (e) { onError(getFriendlyErrorMessage(e, t("Agents konnten nicht geladen werden."))); }
     finally { setLoading(false); }
   };
   useEffect(() => { void load(); }, []);
+  const savePolicy = async () => {
+    setSavingPolicy(true); onError("");
+    try {
+      const response = await requestApi<AgentPolicyState>({ path: "/admin/agent-policy", method: "PATCH", body: { policies: draftPolicies } });
+      setPolicy(response.data);
+      setDraftPolicies(response.data.policies);
+    } catch (e) { onError(getFriendlyErrorMessage(e, t("Die Agentenrichtlinie konnte nicht gespeichert werden."))); }
+    finally { setSavingPolicy(false); }
+  };
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+    <div className="space-y-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-base font-semibold text-slate-900"><ShieldCheck size={18} className="text-indigo-600" /> {t("Agent execution policy")}</div>
+            <p className="mt-1 max-w-3xl text-sm text-slate-500">{t("Diese plattformweite Richtlinie steuert alle Agentenfunktionen. Workspace-Nutzer können sie nicht ändern. Provider-Verbindungen bleiben bestehen; die Nutzung durch Agenten wird hier separat freigegeben.")}</p>
+          </div>
+          <button type="button" onClick={() => void savePolicy()} disabled={!canManagePolicy || savingPolicy || !policy} className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50"><Save size={15} />{savingPolicy ? t("Saving…") : t("Save policy")}</button>
+        </div>
+        {policy ? <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {policy.definitions.map((definition) => {
+            const mode = draftPolicies[definition.key] ?? "DISABLED";
+            return <label key={definition.key} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+              <div className="flex items-start justify-between gap-3"><span className="font-medium text-slate-800">{definition.label}</span><Pill tone={mode === "AUTONOMOUS_WITHIN_POLICY" ? "emerald" : mode === "DISABLED" ? "rose" : "amber"}>{mode.replaceAll("_", " ")}</Pill></div>
+              <div className="mt-1 text-xs text-slate-500">{definition.category} · {definition.description}</div>
+              <select value={mode} disabled={!canManagePolicy || savingPolicy} onChange={(event) => setDraftPolicies((current) => ({ ...current, [definition.key]: event.target.value as AgentPolicyMode }))} className="mt-3 w-full rounded-md border border-slate-200 bg-white px-2 py-1.5 text-sm text-slate-700">
+                {policy.modes.map((option) => <option key={option} value={option}>{option.replaceAll("_", " ")}</option>)}
+              </select>
+            </label>;
+          })}
+        </div> : <div className="mt-5 text-sm text-slate-500">{t("Loading execution policy…")}</div>}
+        {policy?.updatedAt ? <div className="mt-4 text-xs text-slate-400">{t("Last changed:")} {date(policy.updatedAt)}</div> : null}
+      </div>
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
       <DataTable<AgentRow>
         loading={loading} rows={rows}
         getRowKey={(row) => row.id}
@@ -1878,6 +1929,7 @@ function AgentsPage({ onError }: { onError: (m: string) => void }) {
           raw={selected}
         />
       ) : <EmptyPanel title="Kein Agent ausgewählt" hint="Wähle links einen Agenten aus." />}
+      </div>
     </div>
   );
 }

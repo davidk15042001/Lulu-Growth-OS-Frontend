@@ -1055,5 +1055,12 @@
   "The critical action could not be completed.": "The critical action could not be completed.",
   "Google Business ist für die sichere Selbstverbindung in diesem Workspace nicht aktiviert.": "Google Business is not enabled for secure self-connection in this workspace.",
   "Nicht aktiviert": "Not activated",
-  "Google Business ist für die sichere Selbstverbindung dieses Workspace nicht aktiviert.": "Google Business is not enabled for secure self-connection for this workspace."
+  "Google Business ist für die sichere Selbstverbindung dieses Workspace nicht aktiviert.": "Google Business is not enabled for secure self-connection for this workspace.",
+  "Die Agentenrichtlinie konnte nicht gespeichert werden.": "The agent policy could not be saved.",
+  "Agent execution policy": "Agent execution policy",
+  "Diese plattformweite Richtlinie steuert alle Agentenfunktionen. Workspace-Nutzer können sie nicht ändern. Provider-Verbindungen bleiben bestehen; die Nutzung durch Agenten wird hier separat freigegeben.": "This platform-wide policy governs every agent capability. Workspace users cannot change it. Provider connections stay in place; agent use is authorized separately here.",
+  "Save policy": "Save policy",
+  "Loading execution policy…": "Loading execution policy…",
+  "Saving…": "Saving…",
+  "Last changed:": "Last changed:"
 }

@@ -532,5 +532,11 @@
   "Campaign": "Kampagne",
   "campaigns": "Kampagnen",
   "meta": "Meta",
-  "Unassigned": "Nicht zugewiesen"
+  "Unassigned": "Nicht zugewiesen",
+  "Die Agentenrichtlinie konnte nicht gespeichert werden.": "Die Agentenrichtlinie konnte nicht gespeichert werden.",
+  "Agent execution policy": "Ausführungsrichtlinie für Agenten",
+  "Diese plattformweite Richtlinie steuert alle Agentenfunktionen. Workspace-Nutzer können sie nicht ändern. Provider-Verbindungen bleiben bestehen; die Nutzung durch Agenten wird hier separat freigegeben.": "Diese plattformweite Richtlinie steuert alle Agentenfunktionen. Workspace-Nutzer können sie nicht ändern. Provider-Verbindungen bleiben bestehen; die Nutzung durch Agenten wird hier separat freigegeben.",
+  "Save policy": "Richtlinie speichern",
+  "Loading execution policy…": "Ausführungsrichtlinie wird geladen…",
+  "Last changed:": "Zuletzt geändert:"
 }

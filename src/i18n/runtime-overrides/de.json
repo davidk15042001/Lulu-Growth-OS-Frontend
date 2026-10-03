@@ -7001,5 +7001,12 @@
   "{{event.timezone}}": "{{event.timezone}}",
   "{{event.location}}": "{{event.location}}",
   "{{externalEvent.id}}": "{{externalEvent.id}}",
-  "Map the appointment title, start, end, and external event ID before saving this calendar destination.": "Ordnen Sie vor dem Speichern dieses Kalenderziels den Termintitel, Beginn, Ende und die externe Event-ID zu."
+  "Map the appointment title, start, end, and external event ID before saving this calendar destination.": "Ordnen Sie vor dem Speichern dieses Kalenderziels den Termintitel, Beginn, Ende und die externe Event-ID zu.",
+  "Die Agentenrichtlinie konnte nicht gespeichert werden.": "Die Agentenrichtlinie konnte nicht gespeichert werden.",
+  "Agent execution policy": "Ausführungsrichtlinie für Agenten",
+  "Diese plattformweite Richtlinie steuert alle Agentenfunktionen. Workspace-Nutzer können sie nicht ändern. Provider-Verbindungen bleiben bestehen; die Nutzung durch Agenten wird hier separat freigegeben.": "Diese plattformweite Richtlinie steuert alle Agentenfunktionen. Workspace-Nutzer können sie nicht ändern. Provider-Verbindungen bleiben bestehen; die Nutzung durch Agenten wird hier separat freigegeben.",
+  "Save policy": "Richtlinie speichern",
+  "Loading execution policy…": "Ausführungsrichtlinie wird geladen…",
+  "Saving…": "Wird gespeichert…",
+  "Last changed:": "Zuletzt geändert:"
 }

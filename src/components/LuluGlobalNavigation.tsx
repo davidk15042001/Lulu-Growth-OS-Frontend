@@ -1,10 +1,9 @@
 import { CalendarDays, Check, ChevronDown, Languages, LogOut, RefreshCw, X } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
-import { clearAuthSession, getTechnicalErrorDetails, requestApi } from "../api/client";
+import { clearAuthSession, requestApi } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { clearSelectedWorkspaceId, clearStoredUser, getSelectedWorkspaceId } from "../api/session";
 import { websitesApi, type WebsiteGenerationJob } from "../api/websites";
-import { workspaceAppApi } from "../api/workspace-app";
 import { AccountSessions } from "./AccountSessions";
 import { switchLanguage, useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { isAvailableLanguageCode, languages } from "../i18n/languages";
@@ -73,15 +72,9 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
   const t = useTranslation();
   const language = useLanguage();
   const { selectedWorkspace, permissions } = useLuluApp();
-  const canToggleAgents = Boolean(selectedWorkspace && permissions.status === "ready");
   const [languageOpen, setLanguageOpen] = useState(false);
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
-  const [agentsPaused, setAgentsPaused] = useState(false);
-  const [agentCadenceMinutes, setAgentCadenceMinutes] = useState(360);
-  const [agentsToggleBusy, setAgentsToggleBusy] = useState(false);
-  const [agentCadenceBusy, setAgentCadenceBusy] = useState(false);
-  const [agentsToggleError, setAgentsToggleError] = useState<string | null>(null);
   const [hideWebsiteAutomation, setHideWebsiteAutomation] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const activationPageId = !selectedWorkspace?.onboardingCompletedAt
@@ -122,49 +115,6 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
       });
     return () => { mounted = false; };
   }, [selectedWorkspace?.id]);
-  useEffect(() => {
-    if (!selectedWorkspace || !canToggleAgents) return;
-    let mounted = true;
-    void workspaceAppApi.settings(selectedWorkspace.id).then((response) => {
-      if (mounted) {
-        setAgentsPaused(response.data.settings.agents?.paused === true);
-        const cadence = response.data.settings.agents?.cadenceMinutes;
-        if (typeof cadence === "number" && Number.isFinite(cadence)) setAgentCadenceMinutes(cadence);
-      }
-    }).catch(() => undefined);
-    return () => { mounted = false; };
-  }, [selectedWorkspace, canToggleAgents]);
-  const toggleAgents = async () => {
-    if (!selectedWorkspace || !canToggleAgents || agentsToggleBusy) return;
-    const nextPaused = !agentsPaused;
-    setAgentsToggleBusy(true);
-    try {
-      const response = await workspaceAppApi.updateSettings(selectedWorkspace.id, { agents: { paused: nextPaused } });
-      setAgentsPaused(response.data.settings.agents?.paused === true);
-      window.dispatchEvent(new CustomEvent("lulu:agent-settings-changed", { detail: { workspaceId: selectedWorkspace.id } }));
-      setAgentsToggleError(null);
-      } catch (error) {
-        // Keep the last confirmed state visible and give the user a retryable
-        // signal instead of leaving an unhandled promise behind.
-        setAgentsToggleError(getTechnicalErrorDetails(error));
-    } finally {
-      setAgentsToggleBusy(false);
-    }
-  };
-  const updateAgentCadence = async (value: string) => {
-    if (!selectedWorkspace || !canToggleAgents || agentCadenceBusy) return;
-    const cadenceMinutes = Number(value);
-    if (!Number.isInteger(cadenceMinutes)) return;
-    setAgentCadenceBusy(true);
-    try {
-      const response = await workspaceAppApi.updateSettings(selectedWorkspace.id, { agents: { cadenceMinutes } });
-      const next = response.data.settings.agents?.cadenceMinutes;
-      if (typeof next === "number") setAgentCadenceMinutes(next);
-      setAgentsToggleError(null);
-    } catch (error) {
-      setAgentsToggleError(getTechnicalErrorDetails(error));
-    } finally { setAgentCadenceBusy(false); }
-  };
   useEffect(() => {
     const update = () => setWebsiteLock(readWebsiteGenerationLock());
     let requestRunning = false;
@@ -238,7 +188,6 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
             })}
             {section.label === SETTINGS_LABEL && <>
               {!activationPageId && <><button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setSessionsOpen(true)}>{t("Active sessions")}</button>{sessionsOpen && <AccountSessions onClose={() => setSessionsOpen(false)} />}
-                {canToggleAgents && <><button type="button" className="lulu-global-navigation__subitem-action" onClick={() => void toggleAgents()} disabled={agentsToggleBusy} aria-pressed={!agentsPaused} aria-busy={agentsToggleBusy} title={agentsToggleError ?? undefined}><span className={`lulu-global-navigation__agent-toggle${agentsPaused ? " is-paused" : " is-active"}`} aria-hidden="true"><span /></span><span>{agentsToggleBusy ? t("Updating agents…") : agentsPaused ? t("Agents paused") : t("Agents active")}</span></button><label className="lulu-global-navigation__subitem-action" title={t("How often Lulu may run scheduled work")}>{t("Agent schedule")}<select value={agentCadenceMinutes} onChange={(event) => void updateAgentCadence(event.target.value)} disabled={agentCadenceBusy} aria-label={t("Agent schedule")}><option value={15}>{t("Every 15 minutes")}</option><option value={60}>{t("Every hour")}</option><option value={360}>{t("Every 6 hours")}</option><option value={720}>{t("Twice a day")}</option><option value={1440}>{t("Once a day")}</option></select></label>{agentsToggleError && <span className="lulu-global-navigation__agent-toggle-error" role="alert">{t("Could not update agent status. Please try again.")} <small>{agentsToggleError}</small></span>}</>}
                 <button type="button" className="lulu-global-navigation__subitem-action" onClick={() => setLanguageOpen((value) => !value)} aria-expanded={languageOpen}><Languages aria-hidden="true" size={14} /><span>{t("Language")}</span></button>
                 {languageOpen && <div className="lulu-global-navigation__language-list">{languages.filter((option) => isAvailableLanguageCode(option.code)).map((option) => <button key={option.code} type="button" className={`lulu-global-navigation__language-option${option.code === language ? " is-active" : ""}`} onClick={() => switchLanguage(option.code)}><span lang={option.code} dir={option.direction} data-lulu-no-translate="true" translate="no">{option.nativeName}</span>{option.code === language && <Check aria-hidden="true" size={13} />}</button>)}</div>}
               </>}

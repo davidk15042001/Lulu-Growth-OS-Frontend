@@ -532,5 +532,11 @@
   "Campaign": "营销活动",
   "campaigns": "营销活动",
   "meta": "元数据",
-  "Unassigned": "未分配"
+  "Unassigned": "未分配",
+  "Die Agentenrichtlinie konnte nicht gespeichert werden.": "无法保存智能体策略。",
+  "Agent execution policy": "智能体执行策略",
+  "Diese plattformweite Richtlinie steuert alle Agentenfunktionen. Workspace-Nutzer können sie nicht ändern. Provider-Verbindungen bleiben bestehen; die Nutzung durch Agenten wird hier separat freigegeben.": "此平台级策略控制所有智能体功能。工作区用户无法更改它。服务商连接将保持不变；智能体的使用在此单独授权。",
+  "Save policy": "保存策略",
+  "Loading execution policy…": "正在加载执行策略…",
+  "Last changed:": "上次更改时间："
 }

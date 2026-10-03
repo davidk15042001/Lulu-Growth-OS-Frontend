@@ -183,5 +183,11 @@
   "Legacy-Credits anzeigen": "Show legacy credits",
   "Separater alter Credit-Zähler. Für normale AI-Credits und Adspend bitte die einfache Schenk-Aktion oben verwenden.": "Separate old credit counter. For normal AI credits and ad spend, use the simple gift action above.",
   "Notiz optional": "Note optional",
-  "Legacy-Credits hinzufügen": "Add legacy credits"
+  "Legacy-Credits hinzufügen": "Add legacy credits",
+  "Die Agentenrichtlinie konnte nicht gespeichert werden.": "The agent policy could not be saved.",
+  "Agent execution policy": "Agent execution policy",
+  "Diese plattformweite Richtlinie steuert alle Agentenfunktionen. Workspace-Nutzer können sie nicht ändern. Provider-Verbindungen bleiben bestehen; die Nutzung durch Agenten wird hier separat freigegeben.": "This platform-wide policy governs every agent capability. Workspace users cannot change it. Provider connections stay in place; agent use is authorized separately here.",
+  "Save policy": "Save policy",
+  "Loading execution policy…": "Loading execution policy…",
+  "Last changed:": "Last changed:"
 }
