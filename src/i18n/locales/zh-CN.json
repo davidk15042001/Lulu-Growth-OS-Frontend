@@ -1,5 +1,6 @@
 {
   "A customer segment is a specific group of customers with similar needs, buying roles, pain points, and use cases. These segments help the AI agents target the right audience and tailor campaigns, sales work, and recommendations.": "客户细分是指需求、购买角色、痛点和使用场景相似的一组客户。这些细分帮助 AI 员工定位正确受众，并据此调整营销活动、销售工作和建议。",
+  "No department rooms match this search.": "没有与此搜索匹配的部门房间。",
   "Edit customer segment {{0}}": "编辑客户细分 {{0}}",
   "Remove customer segment {{0}}": "移除客户细分 {{0}}",
   "Add, edit, or remove competitors yourself. The saved records are used as market context for analysis and positioning.": "你可以自行添加、编辑或移除竞争对手。保存的记录会作为市场分析和定位的背景信息。",

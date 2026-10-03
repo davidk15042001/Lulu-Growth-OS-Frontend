@@ -531,7 +531,9 @@ export function LuluStation() {
               {departmentMenuOpen ? <div className="lulu-station__department-menu">
                 <div className="lulu-station__department-search"><Search size={14} aria-hidden="true" /><input autoFocus aria-label="Station map" placeholder="Station map" value={departmentQuery} onChange={(event) => setDepartmentQuery(event.target.value)} /></div>
                 <div id="lulu-station-department-list" className="lulu-station__department-options" role="listbox" aria-label="Station map">
-                  {filteredRooms.map((assignment) => <button key={assignment.room.id} type="button" role="option" aria-selected={assignment.room.id === selectedRoomId} onClick={() => selectRoom(assignment.room.id)}><span>{roomName(assignment)}</span><small>{assignment.employees.length} CREW</small></button>)}
+                  {filteredRooms.length > 0
+                    ? filteredRooms.map((assignment) => <button key={assignment.room.id} type="button" role="option" aria-selected={assignment.room.id === selectedRoomId} onClick={() => selectRoom(assignment.room.id)}><span>{roomName(assignment)}</span><small>{assignment.employees.length} CREW</small></button>)
+                    : <p className="lulu-station__department-empty">No department rooms match this search.</p>}
                 </div>
               </div> : null}
             </div>
@@ -596,17 +598,17 @@ export function LuluStation() {
             <div className="lulu-station__inspector-block"><span>Current work</span><strong title={employeeDetail.currentWorkItem?.title}>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? "Execution is paused until AI credit is available" : conciseOfficeCopy(employeeDetail.currentWorkItem?.title, "No current work item", 120)}</strong><small>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? aiExecutionMessage : employeeDetail.currentWorkItem ? displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem.status) : "The employee is not running a visible work item."}</small></div>
             <div className="lulu-station__inspector-stats"><div><strong>{formatCount(employeeDetail.workSummary.active)}</strong><span>open</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday)}</strong><span>completed</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed)}</strong><span>failed</span></div></div>
             <div className="lulu-station__inspector-block"><span>Capabilities</span><div className="lulu-station__chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
+          </> : selectedProp ? <>
+            <div className="lulu-station__inspector-kicker"><span className="lulu-station__room-badge"><Zap size={16} /></span><span>Functional object</span></div>
+            <h2>{propTitle(selectedProp)}</h2>
+            <p className="lulu-station__inspector-role">This object is a visual entry point into an existing Lulu capability.</p>
+            <div className="lulu-station__inspector-block"><span>Truth boundary</span><strong>No state is invented here.</strong><small>Open the relevant canonical workspace surface to inspect evidence or take an allowed action.</small></div>
           </> : selectedRoom ? <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__room-badge"><Layers3 size={16} /></span><span>Department room</span></div>
             <h2>{roomName(selectedRoom)}</h2>
             <p className="lulu-station__inspector-role">{selectedRoom.department.description}</p>
             <div className="lulu-station__inspector-block"><span>Room function</span><strong>{roomDescription(selectedRoom.room.prop)}</strong><small>{selectedRoom.employees.length} employees at dedicated stations{selectedRoom.zoneCount > 1 ? ` · Room ${selectedRoom.zoneIndex + 1} of ${selectedRoom.zoneCount}` : ""}.</small></div>
             <div className="lulu-station__crew-list">{selectedRoom.employees.map((employee) => <button type="button" key={employee.id} onClick={() => void selectEmployee(employee)}><span className={`lulu-station__mini-dot lulu-station__mini-dot--${toneForStatus(effectiveStatus(employee.status, aiExecutionAvailable))}`} /><span><strong>{employee.name}</strong><small>{statusLabel(effectiveStatus(employee.status, aiExecutionAvailable))}</small></span><ArrowUpRight size={13} /></button>)}</div>
-          </> : selectedProp ? <>
-            <div className="lulu-station__inspector-kicker"><span className="lulu-station__room-badge"><Zap size={16} /></span><span>Functional object</span></div>
-            <h2>{propTitle(selectedProp)}</h2>
-            <p className="lulu-station__inspector-role">This object is a visual entry point into an existing Lulu capability.</p>
-            <div className="lulu-station__inspector-block"><span>Truth boundary</span><strong>No state is invented here.</strong><small>Open the relevant canonical workspace surface to inspect evidence or take an allowed action.</small></div>
           </> : <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__avatar-badge"><Sparkles size={15} /></span><span>Station briefing</span></div>
             <h2>The company is present.</h2>

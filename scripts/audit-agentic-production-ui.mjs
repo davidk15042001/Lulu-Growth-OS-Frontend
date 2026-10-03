@@ -330,6 +330,25 @@ if (!luluStation.includes('routes.app.dashboard') || !luluStation.includes('Open
   failures.push('The Office does not provide a direct route back to the workspace dashboard.');
 }
 
+const functionalObjectInspectorIndex = luluStation.indexOf('</> : selectedProp ? <>');
+const departmentRoomInspectorIndex = luluStation.indexOf('</> : selectedRoom ? <>');
+if (
+  functionalObjectInspectorIndex === -1
+  || departmentRoomInspectorIndex === -1
+  || functionalObjectInspectorIndex > departmentRoomInspectorIndex
+) {
+  failures.push('A Station functional object can be selected without its dedicated inspector taking priority over the enclosing room.');
+}
+
+if (
+  !luluStation.includes('filteredRooms.length > 0')
+  || !luluStation.includes('No department rooms match this search.')
+  || !luluStationCss.includes('color-scheme: dark;')
+  || !luluStationCss.includes('isolation: isolate;')
+) {
+  failures.push('The Station map cannot safely scale through a dark, isolated, searchable department menu.');
+}
+
 if (
   (luluStation.match(/Open workspace/g) ?? []).length < 2
   || !luluStation.includes('const ROOM_ZONE_CAPACITY = 8')
