@@ -53,5 +53,13 @@
   "Verify your email": "E-Mail-Adresse bestätigen",
   "We could not send a new code. Please try again.": "Es konnte kein neuer Code gesendet werden. Bitte versuche es erneut.",
   "We could not verify this code. Request a new code and try again.": "Dieser Code konnte nicht bestätigt werden. Fordere einen neuen Code an und versuche es erneut.",
-  "We sent a six-digit verification code to": "Wir haben einen sechsstelligen Bestätigungscode gesendet an"
+  "We sent a six-digit verification code to": "Wir haben einen sechsstelligen Bestätigungscode gesendet an",
+  "Confirm your email": "Bestätige deine E-Mail-Adresse",
+  "Enter the six-digit code sent to": "Gib den sechsstelligen Code ein, der gesendet wurde an",
+  "resending": "wird erneut gesendet",
+  "Sending…": "Sende…",
+  "Verify email": "E-Mail bestätigen",
+  "We could not send a new code yet.": "Ein neuer Code konnte noch nicht gesendet werden.",
+  "We could not verify your email. Please try again.": "Deine E-Mail-Adresse konnte nicht bestätigt werden. Bitte versuche es erneut.",
+  "We sent a six-digit verification code to your email.": "Wir haben einen sechsstelligen Bestätigungscode an Ihre E-Mail gesendet."
 }

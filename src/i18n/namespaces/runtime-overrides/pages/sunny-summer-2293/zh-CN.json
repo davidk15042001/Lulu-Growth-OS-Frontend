@@ -389,5 +389,7 @@
   "Select a workspace before managing advertising connections.": "在管理广告连接之前选择一个工作区。",
   "TikTok campaign visibility when the workspace grants the required advertiser permissions.": "当工作区授予所需的广告商权限时，TikTok 活动可见性。",
   "Verify": "验证",
-  "Workspace permissions are still loading or unavailable. Mutating actions stay disabled until permissions are known.": "工作区权限仍在加载或不可用。在获知权限之前，变异操作将保持禁用状态。"
+  "Workspace permissions are still loading or unavailable. Mutating actions stay disabled until permissions are known.": "工作区权限仍在加载或不可用。在获知权限之前，变异操作将保持禁用状态。",
+  "{{0}} is not enabled for secure self-service connection in this workspace.": "此工作区中未启用 {{0}} 来实现安全自助服务连接。",
+  "Not enabled": "未启用"
 }

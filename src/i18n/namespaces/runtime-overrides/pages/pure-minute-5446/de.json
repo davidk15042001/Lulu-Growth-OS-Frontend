@@ -541,5 +541,6 @@
   "Manual checkout": "Manueller Checkout",
   "{{0}} creates a new, short-lived QR code for each manual payment. Lulu never stores your wallet credentials.": "{{0}} erstellt fuer jede manuelle Zahlung einen neuen, kurzlebigen QR-Code. Lulu speichert niemals deine Wallet-Zugangsdaten.",
   "Your payment preference is ready for manual storage invoice payment.": "Deine Zahlungspraeferenz ist fuer manuelle Storage-Rechnungszahlungen bereit.",
-  "Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.": "Storage-Rechnungen werden ueber den sicheren Airwallex-Checkout-Link bezahlt. Einmalige QR-Zahlung kann spaeter vom Lulu-Support aktiviert werden."
+  "Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.": "Storage-Rechnungen werden ueber den sicheren Airwallex-Checkout-Link bezahlt. Einmalige QR-Zahlung kann spaeter vom Lulu-Support aktiviert werden.",
+  "selected": "ausgewählt"
 }

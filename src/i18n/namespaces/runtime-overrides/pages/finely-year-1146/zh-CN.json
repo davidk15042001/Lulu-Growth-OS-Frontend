@@ -53,5 +53,13 @@
   "Verify your email": "验证您的电子邮件",
   "We could not send a new code. Please try again.": "无法发送新验证码。请重试。",
   "We could not verify this code. Request a new code and try again.": "无法验证此代码。请申请新代码后重试。",
-  "We sent a six-digit verification code to": "我们已将六位验证码发送至"
+  "We sent a six-digit verification code to": "我们已将六位验证码发送至",
+  "Confirm your email": "确认你的电子邮件地址",
+  "Enter the six-digit code sent to": "请输入发送至以下地址的六位验证码：",
+  "resending": "正在重新发送",
+  "Sending…": "发送中…",
+  "Verify email": "验证电子邮箱",
+  "We could not send a new code yet.": "暂时无法发送新的验证码。",
+  "We could not verify your email. Please try again.": "无法验证你的电子邮件地址。请重试。",
+  "We sent a six-digit verification code to your email.": "我们已向您的邮箱发送了六位数验证码。"
 }

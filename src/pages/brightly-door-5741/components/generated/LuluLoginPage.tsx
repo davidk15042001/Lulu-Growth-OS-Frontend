@@ -208,7 +208,7 @@ export const LuluLoginPage = () => {
       <section id="top" className="lulu-exec-hero" aria-labelledby="lulu-exec-title">
         <div className="lulu-exec-hero-overlay" aria-hidden="true" />
         <div className="lulu-exec-hero-content">
-          <p className="lulu-exec-product-name" data-lulu-no-translate="true" translate="no">Lulu AI</p>
+          <p className="lulu-exec-product-name" data-lulu-local-brand="true" data-lulu-no-translate="true" translate="no">Lulu AI</p>
           <h1 id="lulu-exec-title">{t('Growth. Remastered.')}</h1>
           <p className="lulu-exec-hero-copy">{t('A complete operating system for company memory, growth agents and guarded execution.')}</p>
           <picture>

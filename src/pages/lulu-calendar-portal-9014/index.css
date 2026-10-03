@@ -619,6 +619,47 @@
 .calendar-form-grid textarea { min-height: 86px; padding-top: 11px; resize: vertical; }
 .calendar-form-grid input:focus, .calendar-form-grid select:focus, .calendar-form-grid textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 13%, transparent); }
 .calendar-dialog--modern footer { padding-top: 4px; }
+.calendar-delivery-settings {
+  margin: 0 0 20px;
+  padding: 24px;
+  border: 1px solid color-mix(in srgb, var(--primary) 27%, var(--border));
+  border-radius: 21px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 7%, var(--card)), var(--card) 48%);
+  box-shadow: 0 12px 32px color-mix(in srgb, var(--primary) 8%, transparent);
+}
+.calendar-delivery-settings__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+.calendar-delivery-settings__header h2 { margin: 4px 0 0; font-size: 20px; letter-spacing: -.03em; }
+.calendar-delivery-settings__header p:last-child { max-width: 690px; margin: 8px 0 0; color: var(--muted-foreground); font-size: 13px; line-height: 1.6; }
+.calendar-delivery-settings__actions { display: flex; flex-wrap: wrap; gap: 9px; flex: 0 0 auto; }
+.calendar-delivery-settings__empty { display: flex; align-items: center; gap: 14px; min-height: 96px; margin-top: 22px; padding: 18px; border: 1px dashed color-mix(in srgb, var(--primary) 32%, var(--border)); border-radius: 15px; color: var(--muted-foreground); background: color-mix(in srgb, var(--card) 75%, transparent); }
+.calendar-delivery-settings__empty svg { flex: 0 0 auto; color: var(--primary); }
+.calendar-delivery-settings__empty strong { display: block; color: var(--foreground); font-size: 14px; }
+.calendar-delivery-settings__empty p { max-width: 620px; margin: 4px 0 0; font-size: 12px; line-height: 1.55; }
+.calendar-delivery-target-list { display: grid; gap: 10px; margin-top: 22px; }
+.calendar-delivery-target { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 16px; border: 1px solid var(--border); border-radius: 15px; background: color-mix(in srgb, var(--card) 94%, transparent); }
+.calendar-delivery-target__icon { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 12px; background: color-mix(in srgb, var(--primary) 12%, var(--card)); color: var(--primary); }
+.calendar-delivery-target__copy { min-width: 0; }
+.calendar-delivery-target__copy > div { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.calendar-delivery-target__copy strong { font-size: 14px; letter-spacing: -.015em; }
+.calendar-delivery-target__copy p { margin: 5px 0 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.45; }
+.calendar-delivery-target__copy small { display: block; overflow: hidden; margin-top: 7px; color: var(--muted-foreground); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+.calendar-delivery-status { display: inline-flex; align-items: center; min-height: 21px; padding: 0 8px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted-foreground); font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.calendar-delivery-status.is-active { border-color: color-mix(in srgb, #22c55e 42%, var(--border)); background: color-mix(in srgb, #22c55e 10%, var(--card)); color: #15803d; }
+.calendar-delivery-target__edit { min-height: 35px; padding: 0 11px; }
+.calendar-delivery-dialog { width: min(760px, calc(100vw - 28px)); max-height: min(860px, calc(100vh - 28px)); overflow-y: auto; }
+.calendar-delivery-dialog__form { margin-bottom: 16px; }
+.calendar-delivery-dialog__form small { display: block; margin-top: 6px; color: var(--muted-foreground); font-size: 11px; line-height: 1.45; }
+.calendar-delivery-dialog__hint { margin: -4px 0 2px; padding: 11px 13px; border: 1px solid color-mix(in srgb, #f59e0b 34%, var(--border)); border-radius: 11px; background: color-mix(in srgb, #f59e0b 9%, var(--card)); color: var(--muted-foreground); font-size: 12px; line-height: 1.5; }
+.calendar-delivery-dialog__mapping-guide { padding: 14px; border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--border)); border-radius: 13px; background: color-mix(in srgb, var(--primary) 6%, var(--card)); }
+.calendar-delivery-dialog__mapping-guide strong { font-size: 13px; }
+.calendar-delivery-dialog__mapping-guide p { margin: 5px 0 9px; color: var(--muted-foreground); font-size: 12px; line-height: 1.5; }
+.calendar-delivery-dialog__mapping-guide code { display: block; overflow-x: auto; padding: 9px 10px; border-radius: 9px; background: color-mix(in srgb, var(--foreground) 7%, var(--card)); color: color-mix(in srgb, var(--foreground) 78%, var(--primary)); font-size: 10px; line-height: 1.55; white-space: nowrap; }
+.calendar-delivery-dialog textarea { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5; }
+.calendar-delivery-dialog__toggle { display: flex; align-items: flex-start; gap: 10px; padding: 13px 14px; border: 1px solid var(--border); border-radius: 12px; background: color-mix(in srgb, var(--card) 90%, transparent); cursor: pointer; }
+.calendar-delivery-dialog__toggle input { width: 17px; min-height: 17px; margin: 2px 0 0; accent-color: var(--primary); }
+.calendar-delivery-dialog__toggle span { display: grid; gap: 3px; }
+.calendar-delivery-dialog__toggle strong { font-size: 13px; }
+.calendar-delivery-dialog__toggle small { color: var(--muted-foreground); font-size: 11px; line-height: 1.45; }
 @media (max-width: 1080px) {
   .calendar-header--modern { align-items: stretch; }
   .calendar-header__actions { justify-content: flex-start; }
@@ -642,4 +683,8 @@
   .calendar-share-card { padding: 18px; }
   .calendar-share-card__link { padding-right: 9px; font-size: 11px; }
   .calendar-dialog { padding: 19px; }
+  .calendar-delivery-settings { padding: 19px; }
+  .calendar-delivery-settings__header { display: grid; gap: 17px; }
+  .calendar-delivery-target { grid-template-columns: auto minmax(0, 1fr); }
+  .calendar-delivery-target__edit { grid-column: 2; justify-self: start; }
 }

@@ -4,11 +4,17 @@ import path from 'node:path';
 const root = process.cwd();
 const nativePage = fs.readFileSync(path.join(root, 'src', 'NativePage.tsx'), 'utf8');
 const appCss = fs.readFileSync(path.join(root, 'src', 'app.css'), 'utf8');
+const routing = fs.readFileSync(path.join(root, 'src', 'routing.ts'), 'utf8');
+const globalBranding = fs.readFileSync(path.join(root, 'src', 'branding', 'GlobalBranding.tsx'), 'utf8');
 const authenticatedTopBar = fs.readFileSync(path.join(root, 'src', 'components', 'AuthenticatedWorkspaceTopBar.tsx'), 'utf8');
 const globalNavigation = fs.readFileSync(path.join(root, 'src', 'components', 'LuluGlobalNavigation.tsx'), 'utf8');
 const adminBillingPage = fs.readFileSync(path.join(root, 'src', 'pages', 'admin-billing-overview-9901', 'App.tsx'), 'utf8');
 const loginPage = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door-5741', 'components', 'generated', 'LuluLoginPage.tsx'), 'utf8');
 const connectionSetupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fresh-tide-9404', 'components', 'generated', 'LuluExistingPlatforms.tsx'), 'utf8');
+const budgetsPage = fs.readFileSync(path.join(root, 'src', 'pages', 'sunny-minute-1092', 'components', 'generated', 'LuluBudgets.tsx'), 'utf8');
+const advertisingConnectionsPage = fs.readFileSync(path.join(root, 'src', 'pages', 'sunny-summer-2293', 'components', 'generated', 'AdAccountsWorkspace.tsx'), 'utf8');
+const googleReviewsPage = fs.readFileSync(path.join(root, 'src', 'pages', 'daring-brook-9034', 'components', 'generated', 'LuluReviewsPage.tsx'), 'utf8');
+const knowledgePage = fs.readFileSync(path.join(root, 'src', 'pages', 'rich-field-1880', 'components', 'generated', 'LuluAIKnowledge.tsx'), 'utf8');
 const appRouter = fs.readFileSync(path.join(root, 'src', 'App.tsx'), 'utf8');
 const crmWorkspacePage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-crm', 'CrmWorkspacePage.tsx'), 'utf8');
 const assistantPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fresh-moon-5374', 'components', 'generated', 'LuluAIAssistant.tsx'), 'utf8');
@@ -18,10 +24,62 @@ const communicationsPage = fs.readFileSync(path.join(root, 'src', 'pages', 'cano
 const profilePage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-profile', 'ProfilePage.tsx'), 'utf8');
 const capabilityRegistry = fs.readFileSync(path.join(root, 'src', 'config', 'workspace-capability-registry.ts'), 'utf8');
 const observedAgentRuntime = fs.readFileSync(path.join(root, 'src', 'components', 'useLuluAgentRuntime.ts'), 'utf8');
+const virtualOfficePage = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'VirtualOfficePage.tsx'), 'utf8');
+const officeCommandCenter = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'OfficeCommandCenter.tsx'), 'utf8');
+const luluStation = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'LuluStation.tsx'), 'utf8');
+const nativeAgentWorkspace = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'AgentNativeWorkspace.tsx'), 'utf8');
+const calendarPortal = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-calendar-portal-9014', 'components', 'generated', 'LuluCalendarPortal.tsx'), 'utf8');
+const calendarApi = fs.readFileSync(path.join(root, 'src', 'api', 'calendar.ts'), 'utf8');
+const luluStationCss = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'lulu-station.css'), 'utf8');
+const executivePage = fs.readFileSync(path.join(root, 'src', 'pages', 'tender-water-4095', 'App.tsx'), 'utf8');
+const executiveWorkspace = fs.readFileSync(path.join(root, 'src', 'components', 'ExecutiveOverviewWorkspace.tsx'), 'utf8');
+const removedOfficeControlSurfaces = [
+  path.join(root, 'src', 'pages', 'office', 'VirtualOfficeControlCenter.tsx'),
+  path.join(root, 'src', 'pages', 'office', 'WorkforceControlCenterCompletion.tsx'),
+];
 const failures = [];
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
   failures.push('Resource pages are not protected by the live production-interface gate.');
+}
+
+if (!nativePage.includes('const useLiveResourceFallback') || !nativePage.includes('<LiveResourceRoute resourceType={contract.resourceType} />')) {
+  failures.push('A resource page without a dedicated agent could fall back to a static generated interface.');
+}
+
+const expectedVerifiedResourceInterfaces = [
+  'sunny-minute-1092',
+  'sunny-summer-2293',
+  'daring-brook-9034',
+  'rich-field-1880',
+];
+const verifiedResourceInterfaceBlock = nativePage.match(/const VERIFIED_RESOURCE_INTERFACES = new Set\(\[([\s\S]*?)\]\);/);
+const verifiedResourceInterfaces = verifiedResourceInterfaceBlock
+  ? [...verifiedResourceInterfaceBlock[1].matchAll(/"([^"]+)"/g)].map((match) => match[1])
+  : [];
+
+if (
+  verifiedResourceInterfaces.length !== expectedVerifiedResourceInterfaces.length
+  || !expectedVerifiedResourceInterfaces.every((slug) => verifiedResourceInterfaces.includes(slug))
+) {
+  failures.push('The live-resource exception list has changed without an explicit production-interface review.');
+}
+
+if (
+  !budgetsPage.includes("useLiveRecords('ad_budgets')")
+  || !budgetsPage.includes('adSpendApi.overview(targetWorkspaceId)')
+  || !budgetsPage.includes('adSpendApi.listBudgetAuthorizations(targetWorkspaceId)')
+  || !budgetsPage.includes('adSpendApi.createBudgetAuthorization(targetWorkspaceId')
+  || !advertisingConnectionsPage.includes('providerControlApi.catalog(workspaceId)')
+  || !advertisingConnectionsPage.includes('providerControlApi.connections(workspaceId)')
+  || !advertisingConnectionsPage.includes('providerControlApi.launchReadiness(workspaceId)')
+  || !advertisingConnectionsPage.includes('providerControlApi.verify(workspaceId, connection.id)')
+  || !googleReviewsPage.includes('workspaceAppApi.googleReviews(workspaceId')
+  || !googleReviewsPage.includes('workspaceAppApi.updateGoogleReviewReply(workspaceId, review.id')
+  || !knowledgePage.includes("useLiveRecords('ai_knowledge')")
+  || !knowledgePage.includes("ingestRecord('ai_knowledge', form)")
+) {
+  failures.push('A custom resource interface is no longer fully backed by its canonical live Workspace API.');
 }
 
 if (!appCss.includes('body { display: block !important; height: auto !important;')) {
@@ -44,6 +102,10 @@ if (appCss.includes('position: fixed;\n    top: var(--lulu-workspace-topbar-heig
   failures.push('The desktop navigation can receive the top-bar offset twice.');
 }
 
+if (appCss.includes('a[data-lulu-soon="true"]') || appCss.includes('[data-lulu-section-soon="true"]')) {
+  failures.push('The application still visually disables Workspace navigation as “soon”.');
+}
+
 if (authenticatedTopBar.includes('role="search"') || authenticatedTopBar.includes('Search Lulu AI')) {
   failures.push('The authenticated navigation still exposes the removed global search bar.');
 }
@@ -56,12 +118,42 @@ if ([authenticatedTopBar, globalNavigation, adminBillingPage, loginPage].some((s
   failures.push('A removed 140+ AI agents promotional claim is still visible in the application shell.');
 }
 
+if (
+  !loginPage.includes('data-lulu-local-brand="true"')
+  || !globalBranding.includes('LOCAL_BRAND_SELECTOR')
+  || !globalBranding.includes('!node.parentElement.closest(LOCAL_BRAND_SELECTOR)')
+) {
+  failures.push('The login hero can be replaced by the global-branding logo injection instead of its intended compact product label.');
+}
+
+if (
+  !routing.includes('"brightly-door-5741": routes.auth.login')
+  || !appRouter.includes('const isAuthPage = resolvedPath === routes.auth.login')
+  || !appRouter.includes('<PublicAuthRoute><PageRoute page={page} /></PublicAuthRoute>')
+) {
+  failures.push('The public /login route is no longer guaranteed to render the redesigned Lulu login experience.');
+}
+
 if (authenticatedTopBar.includes('lulu-auth-runtime') || globalNavigation.includes('lulu-global-navigation__system') || adminBillingPage.includes('lulu-admin-console__runtime')) {
   failures.push('A removed autonomous-execution navigation badge is still rendered.');
 }
 
 if (!connectionSetupPage.includes("id: 'crm'") || !connectionSetupPage.includes("hidden: true") || !connectionSetupPage.includes('platformGroups.filter(group => !group.hidden)')) {
   failures.push('The CRM & Sales connection block is not hidden from the connection setup page.');
+}
+
+if (
+  !connectionSetupPage.includes('oauthSelfServicePermissions(workspaceId)')
+  || !connectionSetupPage.includes('Secure connection is not enabled for this workspace')
+  || !connectionSetupPage.includes("guidePlatform === 'WhatsApp'")
+  || connectionSetupPage.includes('Client ID and Client Secret')
+  || connectionSetupPage.includes('Callback URL: https://api.lulu-ai.tech')
+  || !advertisingConnectionsPage.includes('connectionAvailable')
+  || !advertisingConnectionsPage.includes('is not enabled for secure self-service connection in this workspace')
+  || !googleReviewsPage.includes("providers.includes('google-business')")
+  || !googleReviewsPage.includes('disabled={busyConnect || !googleOauthEnabled}')
+) {
+  failures.push('Provider connection screens can expose setup secrets or start OAuth when server-side self-service is not enabled.');
 }
 
 if (!appRouter.includes('<CrmWorkspacePage kind="companies" showEntitySwitcher={false} />')) {
@@ -100,6 +192,15 @@ if (minimalAgentPage.includes('AgentRuntimeControlPanel') || minimalAgentPage.in
   failures.push('A customer-facing page still exposes agent runtime controls or a generic approval-like attention queue.');
 }
 
+if (
+  minimalAgentPage.includes('Only new paid-media funds need customer authorization')
+  || minimalAgentPage.includes('until an authorized workspace administrator approves the exact action')
+  || !minimalAgentPage.includes('the server rechecks authorization, funding, provider readiness and verification')
+  || !minimalAgentPage.includes('canonical execution policy permits the workspace, capability, provider state, funding and verification route')
+) {
+  failures.push('The agent workspace presents an autonomy boundary that does not match the server-side policy gates.');
+}
+
 if (!fundsControl.includes('adSpendApi.overview') || !fundsControl.includes('routes.app.adSpend') || !fundsControl.includes('routes.app.funds')) {
   failures.push('Funds does not combine AI and advertising wallets.');
 }
@@ -136,6 +237,133 @@ if (!appRouter.includes('path={routes.app.omnichannel}') || !appRouter.includes(
 
 if (!appRouter.includes('<EmailWorkspacePage />') || !appRouter.includes('<CalendarWorkspacePage />')) {
   failures.push('The canonical email and calendar routes do not render their real workspaces.');
+}
+
+if (!calendarPortal.includes('CalendarDeliverySettings')
+  || !calendarPortal.includes('CalendarDeliveryTargetDialog')
+  || !calendarPortal.includes('composioApi.teams(workspaceId')
+  || !calendarPortal.includes('calendarApi.deliveryTargetCandidates(workspaceId, teamId)')
+  || !calendarPortal.includes('calendarApi.createDeliveryTarget(workspaceId, body)')
+  || !calendarPortal.includes('calendarApi.updateDeliveryTarget(workspaceId, target.id, body)')
+  || !calendarApi.includes('deliveryTargets:')
+  || !calendarApi.includes('deliveryTargetCandidates:')
+  || !calendarApi.includes('createDeliveryTarget:')
+  || !calendarApi.includes('updateDeliveryTarget:')) {
+  failures.push('The calendar workspace must expose the existing tenant-scoped Composio delivery targets and their safe lifecycle configuration.');
+}
+
+if (luluStation.includes('<iframe') || nativeAgentWorkspace.includes('<iframe')) {
+  failures.push('Office employee dialogs must render native workspace surfaces, not iframes.');
+}
+
+if (
+  !nativeAgentWorkspace.includes('function EmailSurface')
+  || !nativeAgentWorkspace.includes('function CalendarSurface')
+  || !nativeAgentWorkspace.includes('function ReviewSurface')
+  || !nativeAgentWorkspace.includes('function CommunicationsSurface')
+  || !nativeAgentWorkspace.includes('function CommerceSurface')
+  || !nativeAgentWorkspace.includes('function FinanceSurface')
+  || !nativeAgentWorkspace.includes('function MarketingSurface')
+  || !nativeAgentWorkspace.includes('function WebsiteSurface')
+  || !nativeAgentWorkspace.includes('function OperationsSurface')
+  || !nativeAgentWorkspace.includes('function IntelligenceSurface')
+  || !nativeAgentWorkspace.includes('if (/calendar/.test(key)) return "calendar";')
+  || !nativeAgentWorkspace.includes('if (/email|inbox|mail/.test(key)) return "email";')
+  || !nativeAgentWorkspace.includes('if (/reputation|review/.test(key)) return "reputation";')
+  || !nativeAgentWorkspace.includes('if (has("omnichannel.") || /support|communication/.test(key)) return "communications";')
+  || !nativeAgentWorkspace.includes('omnichannelApi.conversations(workspaceId, "limit=16")')
+  || !nativeAgentWorkspace.includes('omnichannelApi.conversation(workspaceId, first.id)')
+  || !nativeAgentWorkspace.includes('const messageRequestRef = useRef(0);')
+  || !nativeAgentWorkspace.includes('requestId === messageRequestRef.current')
+  || nativeAgentWorkspace.includes('omnichannelApi.analytics(workspaceId)')
+  || !nativeAgentWorkspace.includes('commerceApi.listOrders(workspaceId, { limit: 8 })')
+  || !nativeAgentWorkspace.includes('commercialDocumentsApi.listInvoices(workspaceId, "limit=8")')
+  || !nativeAgentWorkspace.includes('socialPublishingApi.listPublications(workspaceId)')
+  || !nativeAgentWorkspace.includes('websitesApi.list(workspaceId)')
+  || !nativeAgentWorkspace.includes('providerControlApi.launchReadiness(workspaceId)')
+  || !nativeAgentWorkspace.includes('executiveApi.overview(workspaceId)')
+  || !nativeAgentWorkspace.includes('workspaceAppApi.googleReviews(workspaceId, { limit: 12 })')
+  || !nativeAgentWorkspace.includes('GOOGLE_BUSINESS_NOT_CONNECTED')
+  || !nativeAgentWorkspace.includes('GOOGLE_BUSINESS_REAUTH_REQUIRED')
+  || !nativeAgentWorkspace.includes('setManager(null);')
+) {
+  failures.push('Dedicated communication, scheduling and reputation employees do not resolve to their native live workspace surfaces.');
+}
+
+if (!luluStation.includes('routes.app.dashboard') || !luluStation.includes('Open workspace')) {
+  failures.push('The Office does not provide a direct route back to the workspace dashboard.');
+}
+
+if (
+  (luluStation.match(/Open workspace/g) ?? []).length < 2
+  || !luluStation.includes('const ROOM_ZONE_CAPACITY = 8')
+  || !luluStation.includes('employees: department.employees.slice(zoneIndex * ROOM_ZONE_CAPACITY, (zoneIndex + 1) * ROOM_ZONE_CAPACITY)')
+  || !luluStation.includes('>{employees.length} CREW</text>')
+) {
+  failures.push('The Office does not keep every visible room crew bounded, accurately counted and reachable from a workspace entry point.');
+}
+
+if (!luluStation.includes('overview.summary.runningWorkItems') || !luluStation.includes('queuedOrWaitingWork')) {
+  failures.push('Office work summary does not distinguish running work from queued or human-gated items.');
+}
+
+if (
+  !luluStation.includes('overviewSnapshot?.workspaceId === workspaceId')
+  || !luluStation.includes('employeeDetailSnapshot?.workspaceId === workspaceId && employeeDetailSnapshot.employeeId === selectedEmployeeId')
+  || !luluStation.includes('const overviewRequestRef = useRef(0);')
+  || !luluStation.includes('const employeeRequestRef = useRef(0);')
+  || !luluStation.includes('setOverviewSnapshot({ workspaceId, data: response.data });')
+  || !luluStation.includes('setEmployeeDetailSnapshot({ workspaceId, employeeId: employee.id, data: response.data });')
+  || !luluStation.includes('employeeRequestRef.current += 1;')
+) {
+  failures.push('The Office can render a stale overview or employee detail after a workspace or agent selection changes.');
+}
+
+if (
+  !luluStation.includes('is-working" />working')
+  || !luluStation.includes('is-monitoring" />monitoring')
+  || !luluStation.includes('is-waiting" />waiting / human control')
+  || !luluStation.includes('is-attention" />approval / error')
+  || !luluStation.includes('is-blocked" />AI credit required')
+  || !luluStation.includes('is-idle" />idle')
+  || !luluStation.includes('is-offline" />offline')
+  || !luluStationCss.includes('.lulu-station__character--offline .lulu-station__character-status { fill: #526a74; }')
+) {
+  failures.push('The Office status legend does not fully and truthfully match the visible employee status colors.');
+}
+
+if (luluStation.includes('Open control center') || luluStation.includes('Open operational control center')) {
+  failures.push('The Office still exposes a control-center link whose legacy surface is not rendered.');
+}
+
+if (!virtualOfficePage.includes('<LuluStation />') || !virtualOfficePage.includes('<OfficeCommandCenter />')) {
+  failures.push('The Office route no longer composes the station and its governed Lulu command surface.');
+}
+
+const removedOfficeCopy = [
+  'AI workforce control center',
+  'Operational cockpit',
+  'Where the company works',
+  'AGENT REGISTRY / CAPABILITY CATALOG',
+];
+if ([virtualOfficePage, officeCommandCenter, luluStation].some((source) => removedOfficeCopy.some((copy) => source.includes(copy)))) {
+  failures.push('The Office still renders a heading that was explicitly removed from the customer experience.');
+}
+
+if (removedOfficeControlSurfaces.some((surface) => fs.existsSync(surface))) {
+  failures.push('A removed legacy Office control-center surface is still present in the production source tree.');
+}
+
+if (
+  !executivePage.includes('ExecutiveOverviewWorkspace')
+  || executivePage.includes('LuluExecutiveOverview')
+  || !executiveWorkspace.includes('executiveApi.overview')
+  || executiveWorkspace.includes('Business Status: Strong')
+  || executiveWorkspace.includes('Your business is performing strongly overall')
+  || executiveWorkspace.includes('createdAt) - Date.parse(left!.createdAt)')
+  || !executiveWorkspace.includes('right.completedAt ?? right.updatedAt')
+) {
+  failures.push('The Executive Overview can still render a static management-health claim instead of canonical executive evidence.');
 }
 
 const inspectedRoots = [

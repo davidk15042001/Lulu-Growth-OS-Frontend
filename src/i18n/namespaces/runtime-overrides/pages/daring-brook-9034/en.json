@@ -28,5 +28,8 @@
   "Autonom priorisierte Review-Lage aus Google Business Profile.": "Autonomously prioritized review location from Google Business Profile.",
   "Standortweite Review-Abdeckung und Negativquote aus Google Business Profile.": "Site-wide review coverage and negative rate from Google Business Profile.",
   "Google verbunden": "Google connected",
-  "Verbinde...": "Connect..."
+  "Verbinde...": "Connect...",
+  "Google Business ist für die sichere Selbstverbindung dieses Workspace nicht aktiviert.": "Google Business is not enabled for secure self-connection for this workspace.",
+  "Google Business ist für die sichere Selbstverbindung in diesem Workspace nicht aktiviert.": "Google Business is not enabled for secure self-connection in this workspace.",
+  "Nicht aktiviert": "Not activated"
 }

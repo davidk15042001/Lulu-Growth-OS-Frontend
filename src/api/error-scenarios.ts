@@ -197,6 +197,7 @@ const exactScenarios: Record<string, ErrorScenario> = {
   EMAIL_DRAFT_CREATE_FAILED: { category: "storage", userAction: "retry", retryable: true },
   EMAIL_DRAFT_STATE_INVALID: { category: "validation", userAction: "check-input", retryable: false },
   CALENDAR_PROVIDER_NOT_CONFIGURED: { category: "integration", userAction: "contact-admin", retryable: false },
+  CALENDAR_DELIVERY_TEMPLATE_INCOMPLETE: { category: "validation", userAction: "check-input", retryable: false },
   COMPOSIO_NOT_CONFIGURED: { category: "integration", userAction: "contact-admin", retryable: false },
   COMPOSIO_TOOLKIT_INVALID: { category: "validation", userAction: "check-input", retryable: false },
   COMPOSIO_CONNECT_LINK_MISSING: { category: "integration", userAction: "retry", retryable: true },

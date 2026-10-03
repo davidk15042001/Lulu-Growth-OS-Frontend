@@ -44,13 +44,13 @@ const providerKeysByName: Record<string, string> = {
   Webflow: 'webflow', WordPress: 'wordpress', Shopify: 'shopify',
   WhatsApp: 'whatsapp', 'Facebook Messenger': 'twilio', Instagram: 'instagram', LinkedIn: 'linkedin',
 };
-  const guideContent: Record<string, { intro: string; steps: string[]; links?: Array<{ label: string; url: string }> }> = {
-    Salesforce: { intro: "Connect a Salesforce organization through a Connected App. Callback URL: https://api.lulu-ai.tech/api/v1/onboarding/oauth/salesforce/callback", steps: ["Open Salesforce Setup → App Manager → New Connected App.", "Enable OAuth Settings and add the callback URL shown above.", "Add the `api`, `refresh_token` and `offline_access` scopes, then save.", "Wait for Salesforce to activate the app, return here and click Connect.", "Approve Lulu in Salesforce and choose the organization you want to connect."], links: [{ label: "Open Salesforce Developer Portal", url: "https://developer.salesforce.com/" }] },
-    Pipedrive: { intro: "Connect the Pipedrive account that contains your sales pipeline. Callback URL: https://api.lulu-ai.tech/api/v1/onboarding/oauth/pipedrive/callback", steps: ["Open the Pipedrive Developer Hub and create an OAuth app.", "Enter the callback URL shown above as the app redirect URL.", "Copy the Client ID and Client Secret to the backend environment; never put them in the browser.", "Click Connect here and approve the requested `base` access in Pipedrive."], links: [{ label: "Open Pipedrive Developer Hub", url: "https://developers.pipedrive.com/" }] },
-    HubSpot: { intro: "Connect one HubSpot portal with OAuth. Callback URL: https://api.lulu-ai.tech/api/v1/onboarding/oauth/hubspot/callback", steps: ["Open your HubSpot developer account and create a public app.", "In Auth settings, add the callback URL shown above.", "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.", "Have a HubSpot Super Admin install the app, then click Connect here.", "Select the portal and approve the requested permissions."], links: [{ label: "Open HubSpot Developer Account", url: "https://developers.hubspot.com/" }] },
-    Webflow: { intro: "Connect a Webflow workspace or site. Callback URL: https://api.lulu-ai.tech/api/v1/onboarding/oauth/webflow/callback", steps: ["Open Webflow Developers and create a Data Client app.", "Set the callback URL shown above in the app settings.", "Enable the `sites:read` scope and copy the client credentials to the Lulu backend.", "Make sure you are a Webflow workspace administrator.", "Click Connect here and authorize the Webflow app."], links: [{ label: "Open Webflow Developers", url: "https://developers.webflow.com/" }, { label: "Read Webflow OAuth Guide", url: "https://developers.webflow.com/data/reference/oauth-app" }] },
-    WordPress: { intro: "Connect a WordPress.com or Jetpack account. Callback URL: https://api.lulu-ai.tech/api/v1/onboarding/oauth/wordpress/callback", steps: ["Open the WordPress.com Developer Portal and create an OAuth application.", "Add the callback URL shown above and copy the Client ID and Client Secret to the backend.", "Confirm that the account can access the intended WordPress.com or Jetpack site.", "Click Connect here and approve the WordPress authorization."], links: [{ label: "Open WordPress Developer Portal", url: "https://developer.wordpress.com/apps/" }, { label: "Read WordPress OAuth2 Guide", url: "https://developer.wordpress.com/docs/api/oauth2/" }] },
-    Shopify: { intro: "Connect a Shopify store using its myshopify.com domain. Callback URL: https://api.lulu-ai.tech/api/v1/onboarding/oauth/shopify/callback", steps: ["Open the Shopify Dev Dashboard and create or select the app.", "Configure the Admin API scopes `read_products` and `read_content` and add the callback URL shown above.", "Copy your store domain in the exact format `example.myshopify.com`.", "Click Connect here, enter the store domain, and approve the app installation."], links: [{ label: "Open Shopify Dev Dashboard", url: "https://dev.shopify.com/dashboard" }, { label: "Read Shopify OAuth Guide", url: "https://shopify.dev/docs/apps/build/authentication-authorization/access-tokens/authorization-code-grant" }] },
+  const guideContent: Record<string, { intro: string; steps: string[] }> = {
+    Salesforce: { intro: "Connect the Salesforce organization that holds your customer and pipeline data. Lulu uses a secure authorization window; you never enter provider credentials into Lulu.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to Salesforce and select the organization you want to connect.", "Review the requested access and approve it in Salesforce.", "Return to Lulu. The connection appears only after the provider confirms it."] },
+    Pipedrive: { intro: "Connect the Pipedrive organization that contains your sales pipeline. Lulu opens Pipedrive's secure authorization flow.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to the Pipedrive organization you want Lulu to read.", "Review the requested access and approve it in Pipedrive.", "Return to Lulu and wait for the connection to be confirmed."] },
+    HubSpot: { intro: "Connect the HubSpot portal that Lulu should use for customer and company context. The authorization happens securely in HubSpot.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to HubSpot with an account that can authorize the selected portal.", "Review the requested access and approve it in HubSpot.", "Return to Lulu once HubSpot confirms the connection."] },
+    Webflow: { intro: "Connect the Webflow workspace or site that Lulu should analyze and manage. You authorize the connection directly with Webflow.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to Webflow and select the intended workspace or site.", "Review the requested access and approve it in Webflow.", "Return to Lulu after the provider confirms the connection."] },
+    WordPress: { intro: "Connect the WordPress.com or Jetpack site that Lulu should use. Your provider credentials remain with WordPress.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to WordPress and select the intended site.", "Review the requested access and approve it in WordPress.", "Return to Lulu after the provider confirms the connection."] },
+    Shopify: { intro: "Connect the Shopify store that contains your catalog, orders and customer activity. Lulu opens Shopify's secure authorization flow.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Enter the exact myshopify.com store domain when prompted.", "Sign in to Shopify and approve the requested access.", "Return to Lulu once Shopify confirms the installation."] },
     WhatsApp: { intro: "WhatsApp is connected through UnifyPort. Your administrator decides whether this workspace uses the shared Lulu sender or pairs its own WhatsApp number.", steps: ["No Meta or Twilio setup is required in this workspace.", "If self-service is enabled, click Connect and enter the workspace phone number.", "Open WhatsApp → Linked devices → Link with phone number and enter the UnifyPort pairing code.", "After authorization, Lulu registers the customer-owned sender in OmniChannel automatically."] },
     'Facebook Messenger': { intro: "Lulu uses Twilio’s Facebook Messenger channel for the approved Facebook Page.", steps: ["Connect the intended Facebook Page in the Twilio Console.", "Complete any provider review or public-beta access requirements.", "Lulu registers the Messenger sender against this workspace.", "Verify one inbound and outbound message before production traffic is enabled."] },
     Instagram: { intro: "Connect your own Instagram professional account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable Instagram for your workspace.", "Make sure the Instagram professional account is linked to the correct Meta business.", "Click Connect, choose the account and approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
@@ -72,6 +72,7 @@ export const LuluExistingPlatforms = () => {
   const [whatsappDisplayName, setWhatsappDisplayName] = useState('');
   const [whatsappBusy, setWhatsappBusy] = useState(false);
   const [providerReadiness, setProviderReadiness] = useState<ProviderLaunchReadiness | null>(null);
+  const [oauthSelfServiceProviders, setOauthSelfServiceProviders] = useState<string[]>([]);
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const oauthError = params.get('oauthError');
@@ -87,10 +88,12 @@ export const LuluExistingPlatforms = () => {
       requestApi<{ platforms: Array<{ id: string; integrationKey: string | null; name: string; category: string; connectionStatus: string }> }>({ path: `/workspaces/${workspaceId}/onboarding` }),
       onboardingApi.whatsappConnection(workspaceId).catch(() => null),
       providerControlApi.launchReadiness(workspaceId).catch(() => null),
+      onboardingApi.oauthSelfServicePermissions(workspaceId).catch(() => ({ data: { providers: [] } })),
     ])
-      .then(([response, whatsappResponse, readinessResponse]) => {
+      .then(([response, whatsappResponse, readinessResponse, oauthSelfServiceResponse]) => {
         setWhatsappConnection(whatsappResponse?.data ?? null);
         setProviderReadiness(readinessResponse?.data ?? null);
+        setOauthSelfServiceProviders(oauthSelfServiceResponse.data.providers);
         setPlatforms(response.data.platforms.map(platform => ({
         id: platform.id,
         integrationKey: platform.integrationKey,
@@ -157,6 +160,10 @@ export const LuluExistingPlatforms = () => {
       setError(`${name} connection is not configured yet.`);
       return;
     }
+    if (!oauthSelfServiceProviders.includes(provider)) {
+      setError(`${name} is not enabled for secure self-service connection in this workspace.`);
+      return;
+    }
     setError('');
     setTechnicalDetails('');
     setConnectingPlatform(name);
@@ -206,6 +213,10 @@ export const LuluExistingPlatforms = () => {
     }
   };
   const guideIsManagedMessaging = guidePlatform === 'Facebook Messenger' || (guidePlatform === 'WhatsApp' && !whatsappConnection?.selfServiceAllowed);
+  const guideProviderKey = guidePlatform ? providerKeysByName[guidePlatform] : null;
+  const guideCanConnect = guidePlatform === 'WhatsApp'
+    ? Boolean(whatsappConnection?.selfServiceAllowed)
+    : !guideIsManagedMessaging && (!guideProviderKey || oauthSelfServiceProviders.includes(guideProviderKey));
   return <main className="min-h-screen bg-[var(--background)] font-['Poppins',sans-serif] text-[var(--foreground)]">
       <section className="flex items-center justify-center p-6 py-10 sm:p-8 lg:p-12">
         <div className="w-full max-w-3xl">
@@ -242,7 +253,8 @@ export const LuluExistingPlatforms = () => {
                     const whatsappCustomerConnected = isWhatsApp && Boolean(whatsappConnection?.customerConnection);
                     const luluManagedMessaging = name === 'Facebook Messenger' || (isWhatsApp && !whatsappSelfServiceAllowed);
                     const needsAdminApproval = ['whatsapp', 'instagram', 'linkedin'].includes(provider);
-                    const blockedByAdmin = needsAdminApproval && name !== 'WhatsApp';
+                    const selfServiceEnabled = provider ? oauthSelfServiceProviders.includes(provider) : false;
+                    const blockedByAdmin = (needsAdminApproval && name !== 'WhatsApp') || (!isWhatsApp && !luluManagedMessaging && !connected && !selfServiceEnabled);
                     const platformComingSoon = comingSoon || group.comingSoonPlatforms?.includes(name) === true;
                     return <article key={name} className={`grid gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.03)] transition hover:-translate-y-0.5 hover:border-[var(--primary)]/45 hover:shadow-[0_12px_30px_rgba(0,0,0,0.06)] [grid-template-columns:auto_minmax(0,1fr)] ${platformComingSoon ? 'opacity-65' : ''}`}>
                         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-[var(--secondary)] text-[var(--foreground)]">
@@ -250,9 +262,9 @@ export const LuluExistingPlatforms = () => {
                         </span>
                         <span className="min-w-0 flex-1">
                           <strong className="block text-sm font-semibold text-[var(--foreground)]">{name}{platformComingSoon && <span className="ml-1.5 text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--muted-foreground)]">Unavailable</span>}</strong>
-                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : whatsappCustomerConnected ? `Connected · ${whatsappConnection?.customerConnection?.displayName ?? 'WhatsApp'}` : isWhatsApp && whatsappSelfServiceAllowed ? (whatsappConnection?.pendingConnection ? "Pairing in progress" : "Ready to connect") : isWhatsApp ? (whatsappConnection?.adminFallback.configured ? "Managed by Lulu via UnifyPort" : "UnifyPort admin sender awaiting activation") : luluManagedMessaging ? "Managed by Lulu" : blockedByAdmin ? "Provider access restricted" : existing?.status ?? "Not connected"}</span>
+                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">{connected ? connected.status : whatsappCustomerConnected ? `Connected · ${whatsappConnection?.customerConnection?.displayName ?? 'WhatsApp'}` : isWhatsApp && whatsappSelfServiceAllowed ? (whatsappConnection?.pendingConnection ? "Pairing in progress" : "Ready to connect") : isWhatsApp ? (whatsappConnection?.adminFallback.configured ? "Managed by Lulu via UnifyPort" : "UnifyPort admin sender awaiting activation") : luluManagedMessaging ? "Managed by Lulu" : blockedByAdmin ? "Secure connection is not enabled for this workspace" : existing?.status ?? "Not connected"}</span>
                         </span>
-                        <div className={`col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3 ${platformComingSoon ? 'pointer-events-none' : ''}`}>{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} disabled={!canEdit} aria-disabled={!canEdit} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-50" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={luluManagedMessaging || platformComingSoon || blockedByAdmin || connectingPlatform === name || !canEdit} aria-disabled={luluManagedMessaging || platformComingSoon || blockedByAdmin || !canEdit} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{isWhatsApp && whatsappSelfServiceAllowed ? "Connect" : isWhatsApp ? "Managed via UnifyPort" : luluManagedMessaging ? "Managed" : platformComingSoon ? "Unavailable" : blockedByAdmin ? "Restricted" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={platformComingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{platformComingSoon ? "Unavailable" : "Guide"}</button></div>
+                        <div className={`col-span-2 flex w-full items-center gap-2 border-t border-[var(--border)] pt-3 ${platformComingSoon ? 'pointer-events-none' : ''}`}>{connected ? <button type="button" onClick={() => void removePlatform(connected.id)} disabled={!canEdit} aria-disabled={!canEdit} className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg border border-[var(--border)] px-2.5 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--destructive)] hover:text-[var(--destructive)] disabled:cursor-not-allowed disabled:opacity-50" aria-label={`Remove ${name}`}><Trash2 size={13} />Remove</button> : <button type="button" onClick={() => void connectPlatform(name)} disabled={luluManagedMessaging || platformComingSoon || blockedByAdmin || connectingPlatform === name || !canEdit} aria-disabled={luluManagedMessaging || platformComingSoon || blockedByAdmin || !canEdit} className="flex-1 rounded-lg bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50 px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] transition hover:-translate-y-0.5 hover:opacity-90 sm:flex-none">{isWhatsApp && whatsappSelfServiceAllowed ? "Connect" : isWhatsApp ? "Managed via UnifyPort" : luluManagedMessaging ? "Managed" : platformComingSoon ? "Unavailable" : blockedByAdmin ? "Not enabled" : connectingPlatform === name ? "Opening…" : "Connect"}</button>}<button type="button" onClick={() => setGuidePlatform(name)} disabled={platformComingSoon} className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:-translate-y-0.5 hover:border-[var(--foreground)] hover:text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none">{platformComingSoon ? "Unavailable" : "Guide"}</button></div>
                       </article>;
                   })}
                   </div>
@@ -278,7 +290,6 @@ export const LuluExistingPlatforms = () => {
             </div>
             <button type="button" onClick={() => setGuidePlatform(null)} className="rounded-md p-2 text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)]" aria-label="Close guide"><X size={18} /></button>
           </div>
-          {guideContent[guidePlatform].links && <div className="mt-5 flex flex-wrap gap-2">{guideContent[guidePlatform].links.map(link => <a key={link.url} href={link.url} target="_blank" rel="noreferrer" className="rounded-lg border border-[var(--border)] px-3 py-2 text-xs font-semibold text-[var(--muted-foreground)] transition hover:border-[var(--primary)] hover:text-[var(--foreground)]">{link.label}</a>)}</div>}
           <ol className="mt-6 space-y-4">
             {guideContent[guidePlatform].steps.map((step, index) => <li key={step} className="flex gap-3">
               <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[var(--primary)] text-xs font-bold text-[var(--primary-foreground)]">{index + 1}</span>
@@ -286,7 +297,7 @@ export const LuluExistingPlatforms = () => {
             </li>)}
           </ol>
           <div className="mt-6 flex justify-end">
-            <button type="button" onClick={() => { setGuidePlatform(null); if (!guideIsManagedMessaging) void connectPlatform(guidePlatform); }} disabled={!guideIsManagedMessaging && !canEdit} aria-disabled={!guideIsManagedMessaging && !canEdit} className="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">{guideIsManagedMessaging ? 'Close' : `Connect ${guidePlatform}`}{!guideIsManagedMessaging && <ArrowRight size={15} />}</button>
+            <button type="button" onClick={() => { setGuidePlatform(null); if (guideCanConnect) void connectPlatform(guidePlatform); }} disabled={guideCanConnect ? !canEdit : false} aria-disabled={guideCanConnect ? !canEdit : undefined} className="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">{guideIsManagedMessaging ? 'Close' : guideCanConnect ? `Connect ${guidePlatform}` : 'Connection not enabled'}{guideCanConnect && <ArrowRight size={15} />}</button>
           </div>
         </div>
       </div>}

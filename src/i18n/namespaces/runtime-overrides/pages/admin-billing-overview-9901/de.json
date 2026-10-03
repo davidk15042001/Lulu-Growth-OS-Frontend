@@ -199,7 +199,7 @@
   "Users konnten nicht geladen werden.": "Users konnten nicht geladen werden.",
   "USP": "USP",
   "Value Proposition": "Wertversprechen",
-  "Verify": "Überprüfen",
+  "Verify": "Verifizieren",
   "Vision": "Vision",
   "websites": "Websites",
   "Websites / Shops": "Websites / Shops",
@@ -527,5 +527,10 @@
   "Customer workspace": "Kunden-Workspace",
   "No campaigns found. Synchronize a provider to load existing campaigns.": "Keine Kampagnen gefunden. Synchronisiere einen Provider, um bestehende Kampagnen zu laden.",
   "Unassign campaign": "Kampagnenzuweisung aufheben",
-  "ad-campaigns": "Werbekampagnen"
+  "ad-campaigns": "Werbekampagnen",
+  "Ad Campaigns": "Anzeigenkampagnen",
+  "Campaign": "Kampagne",
+  "campaigns": "Kampagnen",
+  "meta": "Meta",
+  "Unassigned": "Nicht zugewiesen"
 }

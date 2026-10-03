@@ -128,6 +128,10 @@ export function AdAccountsWorkspace() {
 
   async function connect(provider: AdvertisingProvider) {
     if (!workspaceId || !provider.oauthProvider || busy) return;
+    if (!selfServiceProviders.includes(provider.oauthProvider) && !selfServiceProviders.includes(provider.key)) {
+      setError(`${provider.label} is not enabled for secure self-service connection in this workspace.`);
+      return;
+    }
     setBusy(`connect:${provider.key}`);
     setError('');
     try {
@@ -237,6 +241,7 @@ export function AdAccountsWorkspace() {
               const readinessState = findReadiness(readiness, provider.key);
               const providerItems = providerConnections(connections, provider.key);
               const selfService = provider.oauthProvider ? selfServiceProviders.includes(provider.oauthProvider) || selfServiceProviders.includes(provider.key) : false;
+              const connectionAvailable = Boolean(provider.oauthProvider && selfService);
               return (
                 <section key={provider.key} className="rounded-2xl border border-border bg-card p-5 sm:p-6">
                   <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
@@ -256,10 +261,10 @@ export function AdAccountsWorkspace() {
                       <button
                         type="button"
                         onClick={() => void connect(provider)}
-                        disabled={!workspaceId || !canEdit || !provider.oauthProvider || busy !== null}
+                          disabled={!workspaceId || !canEdit || !connectionAvailable || busy !== null}
                         className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground disabled:opacity-50"
                       >
-                        <ExternalLink size={14} /> {busy === `connect:${provider.key}` ? 'Opening...' : providerItems.length ? 'Reconnect' : 'Connect'}
+                          <ExternalLink size={14} /> {busy === `connect:${provider.key}` ? 'Opening...' : !connectionAvailable ? 'Not enabled' : providerItems.length ? 'Reconnect' : 'Connect'}
                       </button>
                       <button type="button" onClick={() => void load()} disabled={busy !== null} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm disabled:opacity-50">
                         <RefreshCw size={14} /> Reload

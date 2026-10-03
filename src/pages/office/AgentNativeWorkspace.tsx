@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
   BarChart3,
@@ -11,6 +11,7 @@ import {
   FileText,
   Globe2,
   Landmark,
+  Mail,
   MessageCircle,
   Network,
   Package,
@@ -18,12 +19,15 @@ import {
   RefreshCw,
   ShieldCheck,
   Sparkles,
+  Star,
   Store,
   WalletCards,
 } from "lucide-react";
 import { adSpendApi, type AdSpendOverview } from "../../api/adspend";
 import { commercialDocumentsApi, type Invoice, type Quote } from "../../api/commercial-documents";
 import { commerceApi, type CommerceOrder, type InventoryLevel } from "../../api/commerce";
+import { calendarApi, type CalendarAccount, type CalendarEvent, type NativeCalendarEvent } from "../../api/calendar";
+import { emailApi, type EmailAccount, type EmailDraft, type EmailThread } from "../../api/email";
 import { executiveApi, type ExecutiveOverview } from "../../api/executive";
 import { financeApi, type PayoutsData } from "../../api/finance";
 import { omnichannelApi, type OmniConversation, type OmniMessage } from "../../api/omnichannel";
@@ -32,11 +36,12 @@ import { providerControlApi, type ProviderConnection, type ProviderLaunchReadine
 import { productsApi, type Product } from "../../api/products";
 import { socialPublishingApi, type SocialContent, type SocialPublicationJob } from "../../api/social-publishing";
 import { websitesApi, type WebsiteSite } from "../../api/websites";
+import { workspaceAppApi, type GoogleReviewsManagerState } from "../../api/workspace-app";
 import type { OfficeEmployeeDetails } from "../../api/office";
-import { getFriendlyErrorMessage } from "../../api/client";
+import { ApiError, getFriendlyErrorMessage } from "../../api/client";
 import "./agent-native-workspace.css";
 
-type NativeWorkspaceKind = "command" | "crm" | "communications" | "commerce" | "finance" | "marketing" | "website" | "operations" | "intelligence";
+type NativeWorkspaceKind = "command" | "crm" | "communications" | "email" | "calendar" | "commerce" | "finance" | "marketing" | "website" | "reputation" | "operations" | "intelligence";
 
 type Props = {
   workspaceId: string;
@@ -53,10 +58,13 @@ const KINDS: Record<NativeWorkspaceKind, KindDefinition> = {
   command: { label: "Agent workbench", description: "Verified work, evidence and handoffs for this digital employee.", icon: Activity },
   crm: { label: "Customer intelligence", description: "Companies, customer context and the current CRM signal.", icon: Building2 },
   communications: { label: "Customer conversations", description: "Live OmniChannel context, handling mode and recent messages.", icon: MessageCircle },
+  email: { label: "Email operations", description: "Connected inboxes, verified threads and draft delivery state.", icon: Mail },
+  calendar: { label: "Calendar operations", description: "Connected calendars, upcoming appointments and synchronization state.", icon: CalendarDays },
   commerce: { label: "Commerce operations", description: "Products, orders and inventory supplied by the canonical commerce services.", icon: Store },
   finance: { label: "Financial operations", description: "Invoices, quotes, payouts and verified financial workflow state.", icon: Landmark },
   marketing: { label: "Growth studio", description: "Content, publications and paid-media funding state.", icon: Sparkles },
   website: { label: "Web presence", description: "Managed sites, domains and the web delivery state.", icon: Globe2 },
+  reputation: { label: "Reputation desk", description: "Connected Google reviews, response coverage and verified reputation signals.", icon: Star },
   operations: { label: "Operations control", description: "Provider readiness, integrations and durable operational evidence.", icon: Network },
   intelligence: { label: "Company intelligence", description: "Executive findings, proposals and observable operating signals.", icon: BarChart3 },
 };
@@ -65,7 +73,10 @@ function resolveKind(detail: OfficeEmployeeDetails): NativeWorkspaceKind {
   const key = detail.employee.key.toLowerCase().replaceAll("_", "-");
   const capabilities = detail.capabilities.map((capability) => capability.key);
   const has = (prefix: string) => capabilities.some((capability) => capability.startsWith(prefix));
-  if (has("omnichannel.") || /email|calendar|support|communication/.test(key)) return "communications";
+  if (/calendar/.test(key)) return "calendar";
+  if (/email|inbox|mail/.test(key)) return "email";
+  if (/reputation|review/.test(key)) return "reputation";
+  if (has("omnichannel.") || /support|communication/.test(key)) return "communications";
   if (has("crm.") || has("leads.") || has("opportunities.") || /company|customer|lead|sales|follow-up|quote/.test(key)) return "crm";
   if (has("products.") || has("orders.") || /product|catalog|inventory|fulfillment|commerce|store|order/.test(key)) return "commerce";
   if (has("invoices.") || has("finance.") || has("payouts.") || /invoice|billing|bookkeeping|finance/.test(key)) return "finance";
@@ -133,9 +144,38 @@ function CommunicationsSurface({ workspaceId }: { workspaceId: string }) {
   const [selected, setSelected] = useState<OmniConversation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  useEffect(() => { let active = true; setLoading(true); setError(""); void Promise.all([omnichannelApi.conversations(workspaceId, "limit=16"), omnichannelApi.analytics(workspaceId)]).then(([conversations]) => { if (!active) return; setItems(conversations.data.items); const first = conversations.data.items[0] ?? null; setSelected(first); if (first) return omnichannelApi.conversation(workspaceId, first.id).then((response) => active && setMessages(response.data.messages)); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, "Customer conversations are unavailable."))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [workspaceId]);
-  const open = (conversation: OmniConversation) => { setSelected(conversation); setMessages([]); void omnichannelApi.conversation(workspaceId, conversation.id).then((response) => setMessages(response.data.messages)).catch((cause) => setError(getFriendlyErrorMessage(cause, "Conversation details are unavailable."))); };
+  const messageRequestRef = useRef(0);
+  useEffect(() => { let active = true; const requestId = ++messageRequestRef.current; setLoading(true); setError(""); void omnichannelApi.conversations(workspaceId, "limit=16").then((conversations) => { if (!active) return; setItems(conversations.data.items); const first = conversations.data.items[0] ?? null; setSelected(first); if (first) return omnichannelApi.conversation(workspaceId, first.id).then((response) => { if (active && requestId === messageRequestRef.current) setMessages(response.data.messages); }); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, "Customer conversations are unavailable."))).finally(() => active && setLoading(false)); return () => { active = false; messageRequestRef.current += 1; }; }, [workspaceId]);
+  const open = (conversation: OmniConversation) => { const requestId = ++messageRequestRef.current; setSelected(conversation); setMessages([]); setError(""); void omnichannelApi.conversation(workspaceId, conversation.id).then((response) => { if (requestId === messageRequestRef.current) setMessages(response.data.messages); }).catch((cause) => { if (requestId === messageRequestRef.current) setError(getFriendlyErrorMessage(cause, "Conversation details are unavailable.")); }); };
   return <SurfaceState loading={loading} error={error} empty={!items.length ? "No connected customer conversations are available." : undefined}><div className="lulu-native-agent__conversation"><aside>{items.map((item) => <button type="button" className={selected?.id === item.id ? "is-selected" : ""} onClick={() => open(item)} key={item.id}><strong>{item.subject || "New conversation"}</strong><span>{item.channelDisplayName || "Connected channel"} · <Status>{item.handlingMode}</Status></span></button>)}</aside><section><header><div><span className="lulu-native-agent__eyebrow">LIVE CONVERSATION</span><h3>{selected?.subject ?? "Select a conversation"}</h3></div>{selected ? <Status>{selected.handlingMode}</Status> : null}</header><div className="lulu-native-agent__message-log">{selected ? messages.length ? messages.map((message) => <p key={message.id} className={message.direction === "INBOUND" ? "is-inbound" : ""}><small>{message.direction === "INBOUND" ? "Customer" : message.direction === "INTERNAL" ? "Internal note" : "Lulu"}</small>{message.textContent ?? "Unsupported message content"}</p>) : <div className="lulu-native-agent__muted">No messages are available for this conversation.</div> : <div className="lulu-native-agent__muted">Choose a verified conversation to inspect its thread.</div>}</div></section></div></SurfaceState>;
+}
+
+function EmailSurface({ workspaceId }: { workspaceId: string }) {
+  const [accounts, setAccounts] = useState<EmailAccount[]>([]);
+  const [threads, setThreads] = useState<EmailThread[]>([]);
+  const [drafts, setDrafts] = useState<EmailDraft[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => { let active = true; setLoading(true); setError(""); void Promise.all([emailApi.accounts(workspaceId), emailApi.threads(workspaceId, { limit: 8 }), emailApi.drafts(workspaceId)]).then(([accountResponse, threadResponse, draftResponse]) => { if (!active) return; setAccounts(accountResponse.data.items); setThreads(threadResponse.data.items); setDrafts(draftResponse.data.items); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, "Email operations are unavailable."))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [workspaceId]);
+  const unread = threads.filter((thread) => thread.unread).length;
+  return <SurfaceState loading={loading} error={error} empty={!accounts.length && !threads.length ? "No connected inbox is available for this workspace." : undefined}><div className="lulu-native-agent__metrics"><Metric label="Inboxes" value={accounts.length} detail="connected email accounts" icon={<Mail size={14} />} /><Metric label="Unread" value={unread} detail="visible inbox threads" icon={<CircleAlert size={14} />} /><Metric label="Drafts" value={drafts.length} detail="pending delivery review" icon={<FileText size={14} />} /></div><div className="lulu-native-agent__split-list"><section><div className="lulu-native-agent__list-head"><span>Inbox priority</span><small>{threads.length} recent threads</small></div>{threads.length ? threads.slice(0, 5).map((thread) => <article key={thread.id}><div><strong>{thread.subject || "Untitled email"}</strong><small>{thread.accountEmail} · {formatTime(thread.latestAt)}</small></div><Status>{thread.unread ? "unread" : "read"}</Status></article>) : <p className="lulu-native-agent__empty-list">No inbox threads are available yet.</p>}</section><section><div className="lulu-native-agent__list-head"><span>Draft queue</span><small>Canonical drafts</small></div>{drafts.length ? drafts.slice(0, 5).map((draft) => <article key={draft.id}><div><strong>{draft.subject || "Untitled draft"}</strong><small>{draft.accountEmail ?? "Connected inbox"} · {formatTime(draft.updatedAt)}</small></div><Status>{draft.status}</Status></article>) : <p className="lulu-native-agent__empty-list">No draft email is awaiting review.</p>}</section></div></SurfaceState>;
+}
+
+type CalendarPanelEvent = CalendarEvent | NativeCalendarEvent;
+
+function calendarEventDetail(event: CalendarPanelEvent) {
+  const attendees = "attendeeCount" in event ? `${event.attendeeCount} attendee${event.attendeeCount === 1 ? "" : "s"}` : event.customerName ?? "Lulu calendar";
+  return [event.location, attendees].filter(Boolean).join(" · ");
+}
+
+function CalendarSurface({ workspaceId }: { workspaceId: string }) {
+  const [accounts, setAccounts] = useState<CalendarAccount[]>([]);
+  const [events, setEvents] = useState<CalendarPanelEvent[]>([]);
+  const [summary, setSummary] = useState({ connectedAccounts: 0, syncedAccounts: 0, upcomingEvents: 0, providers: [] as string[] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => { let active = true; setLoading(true); setError(""); void calendarApi.overview(workspaceId, { from: new Date().toISOString(), limit: 8 }).then((response) => { if (!active) return; setAccounts(response.data.accounts); setEvents([...response.data.nativeEvents, ...response.data.events].sort((left, right) => left.startAt.localeCompare(right.startAt)).slice(0, 8)); setSummary(response.data.summary); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, "Calendar operations are unavailable."))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [workspaceId]);
+  return <SurfaceState loading={loading} error={error} empty={!accounts.length && !events.length ? "No connected calendar is available for this workspace." : undefined}><div className="lulu-native-agent__metrics"><Metric label="Calendars" value={summary.connectedAccounts} detail={`${summary.providers.length} provider${summary.providers.length === 1 ? "" : "s"} connected`} icon={<CalendarDays size={14} />} /><Metric label="Synced" value={summary.syncedAccounts} detail="calendar connections current" icon={<RefreshCw size={14} />} /><Metric label="Upcoming" value={summary.upcomingEvents} detail="scheduled customer interactions" icon={<CheckCircle2 size={14} />} /></div><div className="lulu-native-agent__split-list"><section><div className="lulu-native-agent__list-head"><span>Upcoming schedule</span><small>All connected calendars</small></div>{events.length ? events.slice(0, 5).map((event) => <article key={event.id}><div><strong>{event.title}</strong><small>{formatTime(event.startAt)}{calendarEventDetail(event) ? ` · ${calendarEventDetail(event)}` : ""}</small></div><Status>{event.status}</Status></article>) : <p className="lulu-native-agent__empty-list">No upcoming calendar events are available.</p>}</section><section><div className="lulu-native-agent__list-head"><span>Calendar connections</span><small>Sync evidence</small></div>{accounts.length ? accounts.slice(0, 5).map((account) => <article key={account.id}><div><strong>{account.displayName ?? account.emailAddress ?? "Connected calendar"}</strong><small>{account.provider} · {account.lastSyncAt ? `synced ${formatTime(account.lastSyncAt)}` : "sync pending"}</small></div><Status>{account.status}</Status></article>) : <p className="lulu-native-agent__empty-list">No calendar connection is available.</p>}</section></div></SurfaceState>;
 }
 
 function CommerceSurface({ workspaceId }: { workspaceId: string }) {
@@ -164,6 +204,67 @@ function WebsiteSurface({ workspaceId }: { workspaceId: string }) {
   return <SurfaceState loading={loading} error={error} empty={!sites.length ? "No managed website is connected to this workspace." : undefined}><div className="lulu-native-agent__metrics"><Metric label="Managed sites" value={sites.length} detail="owned by this workspace" icon={<Globe2 size={14} />} /><Metric label="Domains" value={sites.reduce((sum, site) => sum + site.domains.length, 0)} detail="domain records" icon={<Network size={14} />} /><Metric label="Live" value={sites.filter((site) => /active|published|live/i.test(site.status)).length} detail="verified site status" icon={<CheckCircle2 size={14} />} /></div><section className="lulu-native-agent__list">{sites.map((site) => <article key={site.id}><div><strong>{site.name}</strong><small>{site.domains.map((domain) => domain.hostname).join(" · ") || "No domain assigned"}</small></div><Status>{site.status}</Status></article>)}</section></SurfaceState>;
 }
 
+const REVIEW_URGENCY_RANK: Readonly<Record<GoogleReviewsManagerState["reviews"][number]["urgency"], number>> = {
+  critical: 4,
+  high: 3,
+  medium: 2,
+  low: 1,
+};
+
+function ReviewSurface({ workspaceId }: { workspaceId: string }) {
+  const [manager, setManager] = useState<GoogleReviewsManagerState | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [connectionState, setConnectionState] = useState<"unknown" | "not_connected" | "reauth_required">("unknown");
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+    setManager(null);
+    setConnectionState("unknown");
+    void workspaceAppApi.googleReviews(workspaceId, { limit: 12 })
+      .then((response) => { if (active) setManager(response.data); })
+      .catch((cause) => {
+        if (!active) return;
+        if (cause instanceof ApiError && cause.code === "GOOGLE_BUSINESS_NOT_CONNECTED") {
+          setConnectionState("not_connected");
+          return;
+        }
+        if (cause instanceof ApiError && cause.code === "GOOGLE_BUSINESS_REAUTH_REQUIRED") {
+          setConnectionState("reauth_required");
+          return;
+        }
+        setError(getFriendlyErrorMessage(cause, "Google review data is unavailable."));
+      })
+      .finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [workspaceId]);
+  const reviews = useMemo(() => (manager?.reviews ?? []).slice().sort((left, right) => {
+    const urgency = REVIEW_URGENCY_RANK[right.urgency] - REVIEW_URGENCY_RANK[left.urgency];
+    return urgency || Date.parse(right.updateTime ?? right.createTime ?? "") - Date.parse(left.updateTime ?? left.createTime ?? "");
+  }).slice(0, 6), [manager]);
+  const empty = connectionState === "reauth_required"
+    ? "The Google Business connection needs reauthorization before review data can be read."
+    : !manager?.connected
+      ? "No connected Google Business review source is available for this workspace."
+      : undefined;
+  return <SurfaceState loading={loading} error={error} empty={empty}>
+    <div className="lulu-native-agent__metrics">
+      <Metric label="Reviews" value={manager?.summary.totalReviews ?? 0} detail="loaded Google reviews" icon={<Star size={14} />} />
+      <Metric label="Rating" value={manager?.summary.averageRating?.toFixed(1) ?? "—"} detail="average rating out of 5" icon={<Star size={14} />} />
+      <Metric label="Reply rate" value={`${manager?.summary.replyRate ?? 0}%`} detail={`${manager?.summary.unansweredCount ?? 0} unanswered`} icon={<MessageCircle size={14} />} />
+    </div>
+    <section className="lulu-native-agent__list">
+      <div className="lulu-native-agent__list-head"><span>Priority review queue</span><small>Connected Google Business data</small></div>
+      {reviews.length ? reviews.map((review) => <article key={review.id}>
+        <span className="lulu-native-agent__initial">{review.reviewerDisplayName.slice(0, 2).toUpperCase()}</span>
+        <div><strong>{review.reviewerDisplayName}</strong><small>{review.starRating.toFixed(1)} / 5 · {review.reviewReply ? "answered" : "unanswered"} · {formatTime(review.updateTime ?? review.createTime)}</small></div>
+        <Status>{review.urgency}</Status>
+      </article>) : <p className="lulu-native-agent__empty-list">No Google reviews are available for the selected workspace.</p>}
+    </section>
+  </SurfaceState>;
+}
+
 function OperationsSurface({ workspaceId }: { workspaceId: string }) {
   const [connections, setConnections] = useState<ProviderConnection[]>([]); const [readiness, setReadiness] = useState<ProviderLaunchReadiness | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
   useEffect(() => { let active = true; setLoading(true); setError(""); void Promise.all([providerControlApi.connections(workspaceId), providerControlApi.launchReadiness(workspaceId)]).then(([connectionResponse, readinessResponse]) => { if (!active) return; setConnections(connectionResponse.data.connections); setReadiness(readinessResponse.data); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, "Integration readiness is unavailable."))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [workspaceId]);
@@ -185,10 +286,13 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail }: Props) {
     <div className="lulu-native-agent__content">
       {kind === "crm" ? <CrmSurface workspaceId={workspaceId} /> : null}
       {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} /> : null}
+      {kind === "email" ? <EmailSurface workspaceId={workspaceId} /> : null}
+      {kind === "calendar" ? <CalendarSurface workspaceId={workspaceId} /> : null}
       {kind === "commerce" ? <CommerceSurface workspaceId={workspaceId} /> : null}
       {kind === "finance" ? <FinanceSurface workspaceId={workspaceId} /> : null}
       {kind === "marketing" ? <MarketingSurface workspaceId={workspaceId} /> : null}
       {kind === "website" ? <WebsiteSurface workspaceId={workspaceId} /> : null}
+      {kind === "reputation" ? <ReviewSurface workspaceId={workspaceId} /> : null}
       {kind === "operations" ? <OperationsSurface workspaceId={workspaceId} /> : null}
       {kind === "intelligence" ? <IntelligenceSurface workspaceId={workspaceId} /> : null}
       {kind === "command" ? <CommandSurface detail={employeeDetail} /> : null}

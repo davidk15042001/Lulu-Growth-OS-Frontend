@@ -388,6 +388,8 @@
   "Running...": "Laufen...",
   "Select a workspace before managing advertising connections.": "Wählen Sie einen Arbeitsbereich aus, bevor Sie Werbeverbindungen verwalten.",
   "TikTok campaign visibility when the workspace grants the required advertiser permissions.": "Sichtbarkeit der TikTok-Kampagne, wenn der Arbeitsbereich die erforderlichen Werbetreibendenberechtigungen gewährt.",
-  "Verify": "Überprüfen",
-  "Workspace permissions are still loading or unavailable. Mutating actions stay disabled until permissions are known.": "Arbeitsbereichsberechtigungen werden noch geladen oder sind nicht verfügbar. Mutierende Aktionen bleiben deaktiviert, bis die Berechtigungen bekannt sind."
+  "Verify": "Verifizieren",
+  "Workspace permissions are still loading or unavailable. Mutating actions stay disabled until permissions are known.": "Arbeitsbereichsberechtigungen werden noch geladen oder sind nicht verfügbar. Mutierende Aktionen bleiben deaktiviert, bis die Berechtigungen bekannt sind.",
+  "{{0}} is not enabled for secure self-service connection in this workspace.": "{{0}} ist in diesem Arbeitsbereich nicht für eine sichere Self-Service-Verbindung aktiviert.",
+  "Not enabled": "Nicht aktiviert"
 }

@@ -83,6 +83,37 @@ export type NativeCalendarEvent = {
   updatedAt: string;
 };
 
+export type CalendarDeliveryTarget = {
+  id: string;
+  workspaceId: string;
+  integrationTeamId: string;
+  targetName: string;
+  enabled: boolean;
+  createToolSlug: string;
+  createArguments: Record<string, unknown>;
+  createResultEventIdPath: string;
+  updateToolSlug: string;
+  updateArguments: Record<string, unknown>;
+  cancelToolSlug: string;
+  cancelArguments: Record<string, unknown>;
+  createdBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CalendarDeliveryCandidate = {
+  slug: string;
+  name: string;
+  description: string | null;
+  inputParameters: Record<string, unknown> | null;
+  outputParameters: Record<string, unknown> | null;
+  operations: Array<'CREATE' | 'UPDATE' | 'CANCEL'>;
+};
+
+export type CalendarDeliveryTargetInput = Pick<CalendarDeliveryTarget,
+  'integrationTeamId' | 'targetName' | 'enabled' | 'createToolSlug' | 'createArguments' |
+  'createResultEventIdPath' | 'updateToolSlug' | 'updateArguments' | 'cancelToolSlug' | 'cancelArguments'>;
+
 export type AgoraToken = {
   appId: string;
   channelName: string;
@@ -107,6 +138,10 @@ export const calendarApi = {
     nativeEvents: NativeCalendarEvent[];
   }>({ path: `/workspaces/${workspaceId}/calendar/overview${queryString(values)}`, signal }),
   nativeEvents: (workspaceId: string, values: { q?: string; from?: string; to?: string; limit?: number } = {}) => requestApi<{ items: NativeCalendarEvent[] }>({ path: `/workspaces/${workspaceId}/calendar/events${queryString(values)}` }),
+  deliveryTargets: (workspaceId: string) => requestApi<{ items: CalendarDeliveryTarget[]; limit: number }>({ path: `/workspaces/${workspaceId}/calendar/delivery-targets` }),
+  deliveryTargetCandidates: (workspaceId: string, teamId: string) => requestApi<{ items: CalendarDeliveryCandidate[] }>({ path: `/workspaces/${workspaceId}/calendar/delivery-targets/candidates/${encodeURIComponent(teamId)}` }),
+  createDeliveryTarget: (workspaceId: string, body: CalendarDeliveryTargetInput) => requestApi<CalendarDeliveryTarget>({ path: `/workspaces/${workspaceId}/calendar/delivery-targets`, method: 'POST', body }),
+  updateDeliveryTarget: (workspaceId: string, targetId: string, body: CalendarDeliveryTargetInput) => requestApi<CalendarDeliveryTarget>({ path: `/workspaces/${workspaceId}/calendar/delivery-targets/${encodeURIComponent(targetId)}`, method: 'PATCH', body }),
   createNativeEvent: (workspaceId: string, body: { title: string; description?: string; startAt: string; endAt: string; timezone?: string; location?: string; customerId?: string }) => requestApi<NativeCalendarEvent & { guestToken: string; guestJoinPath: string }>({ path: `/workspaces/${workspaceId}/calendar/events`, method: 'POST', body }),
   deleteNativeEvent: (workspaceId: string, eventId: string) => requestApi<void>({ path: `/workspaces/${workspaceId}/calendar/events/${eventId}`, method: 'DELETE' }),
   createGuestLink: (workspaceId: string, eventId: string) => requestApi<NativeCalendarEvent & { guestToken: string; guestJoinPath: string }>({ path: `/workspaces/${workspaceId}/calendar/events/${eventId}/guest-link`, method: 'POST', body: {} }),

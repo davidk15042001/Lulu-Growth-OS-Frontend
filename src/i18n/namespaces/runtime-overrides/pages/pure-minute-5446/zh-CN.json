@@ -541,5 +541,6 @@
   "Manual checkout": "手动结账",
   "{{0}} creates a new, short-lived QR code for each manual payment. Lulu never stores your wallet credentials.": "{{0}} 会为每次手动付款创建新的短期二维码。Lulu 绝不会存储你的钱包凭据。",
   "Your payment preference is ready for manual storage invoice payment.": "你的付款偏好已可用于手动支付存储发票。",
-  "Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.": "存储发票通过安全的 Airwallex 结账链接支付。一次性二维码付款可稍后由 Lulu 支持启用。"
+  "Storage invoices are paid through the secure Airwallex checkout link. One-time QR payment can be enabled later by Lulu support.": "存储发票通过安全的 Airwallex 结账链接支付。一次性二维码付款可稍后由 Lulu 支持启用。",
+  "selected": "已选择"
 }

@@ -212,7 +212,7 @@
   "Workspaces konnten nicht geladen werden.": "无法加载工作区。",
   "Zum Account wechseln": "Zum 帐户",
   "Ablauf": "到期",
-  "Action": "操作",
+  "Action": "行动",
   "Actor": "操作者",
   "Agent": "智能体",
   "Approvals": "审批",
@@ -448,7 +448,7 @@
   "Andere": "其他",
   "Banküberweisung": "银行转账",
   "Bar / sonstig": "现金 / 其他",
-  "Betrag in CNY": "金额（CNY）",
+  "Betrag in CNY": "金额（人民币）",
   "Die manuelle Guthabenänderung konnte nicht gespeichert werden.": "无法保存手动余额更改。",
   "Freigeben": "批准",
   "Für Zahlungen per WeChat, Banküberweisung oder andere Offline-Zahlungen. Diese Änderung wird direkt im jeweiligen Ledger gespeichert und erzeugt ausdrücklich keine Airwallex-Zahlung.": "适用于微信、银行转账或其他线下支付方式。此更改直接保存在相应的分类账中，并且明确不会生成 Airwallex 付款。",
@@ -527,5 +527,10 @@
   "Customer workspace": "客户工作区",
   "No campaigns found. Synchronize a provider to load existing campaigns.": "未找到广告活动。请同步提供商以加载现有广告活动。",
   "Unassign campaign": "取消广告活动分配",
-  "ad-campaigns": "广告活动"
+  "ad-campaigns": "广告活动",
+  "Ad Campaigns": "广告活动",
+  "Campaign": "营销活动",
+  "campaigns": "营销活动",
+  "meta": "元数据",
+  "Unassigned": "未分配"
 }

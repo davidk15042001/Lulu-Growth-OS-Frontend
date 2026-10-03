@@ -79,6 +79,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   EMAIL_IMAP_CONNECTION_FAILED: "Lulu cannot reach the connected email account. Reconnect it before resuming.",
   EMAIL_RECIPIENT_MISSING: "Add a recipient before Lulu can send this email.",
   CALENDAR_PROVIDER_NOT_CONFIGURED: "Connect a calendar before Lulu can schedule this event.",
+  CALENDAR_DELIVERY_TEMPLATE_INCOMPLETE: "Map the appointment title, start, end, and external event ID before saving this calendar destination.",
   COMPOSIO_NOT_CONFIGURED: "Composio is not enabled on this server yet.",
   COMPOSIO_TOOLKIT_INVALID: "Choose a valid Composio app before connecting it.",
   COMPOSIO_CONNECT_LINK_MISSING: "Composio could not start this connection. Please try again.",

@@ -5,6 +5,7 @@ import { LiveResourceGate } from "./api/LiveResourceGate";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
 import { LuluAgentWorkspaceHeader } from "./components/LuluAgentWorkspaceHeader";
+import { LiveResourceRoute } from "./components/LiveResourceRoute";
 import { MinimalAgentWorkspacePage } from "./components/MinimalAgentWorkspacePage";
 import { HOME_PAGE_SLUG, isOfficePanelSurface, isPageAvailable, navigateApp, routes } from "./routing";
 import { getPageContract } from "./api/page-contracts";
@@ -174,6 +175,10 @@ export function NativePage({
   const officePanel = isOfficePanelSurface();
   const suppressGlobalChrome = isNavigationFree || officePanel;
   const useMinimalAgentPage = !isNavigationFree && shouldUseMinimalAgentPage(Boolean(agentContract), effectiveSlug, contract);
+  const useLiveResourceFallback = !isNavigationFree
+    && contract?.kind === "resource"
+    && !VERIFIED_RESOURCE_INTERFACES.has(effectiveSlug)
+    && !agentContract;
   const shellClassName = `lulu-global-shell${isNavigationFree ? " lulu-global-shell--navigation-free" : ""}${officePanel ? " lulu-global-shell--office-panel" : ""}${mobileNavigationOpen && !officePanel ? " lulu-global-shell--nav-open" : ""}`;
   const contentClassName = isNavigationFree
     ? "lulu-global-content lulu-global-content--auth lulu-global-content--navigation-free"
@@ -186,7 +191,7 @@ export function NativePage({
       navigateApp(routes.app.dashboard, { replace: true });
       return;
     }
-    if (useMinimalAgentPage) {
+    if (useMinimalAgentPage || useLiveResourceFallback) {
       setApp(null);
       setError(null);
       return;
@@ -278,7 +283,7 @@ export function NativePage({
         pageFrame.classList.remove("page-frame--auth");
       }
     };
-  }, [slug, useMinimalAgentPage, isAuthPage, pageAvailable]);
+  }, [slug, useMinimalAgentPage, useLiveResourceFallback, isAuthPage, pageAvailable]);
 
   if (!pageAvailable) {
     return (
@@ -333,6 +338,34 @@ export function NativePage({
               <div className="lulu-native-page lulu-native-page--without-secondary-navigation">
                 <PageErrorBoundary pageName={slug}>
                   <MinimalAgentWorkspacePage slug={effectiveSlug} contract={contract} agentContract={agentContract} />
+                </PageErrorBoundary>
+              </div>
+            </div>
+          </div>
+        </LuluRuntime>
+      );
+    }
+    if (useLiveResourceFallback && contract?.kind === "resource") {
+      return (
+        <LuluRuntime slug={slug}>
+          <div className={shellClassName}>
+            {!suppressGlobalChrome && <>
+              <div
+                className="lulu-global-navigation__backdrop"
+                aria-hidden={!mobileNavigationOpen}
+                onClick={onCloseMobileNavigation}
+              />
+              <LuluGlobalNavigation
+                activeSlug={effectiveSlug}
+                mobileOpen={mobileNavigationOpen}
+                onNavigate={onCloseMobileNavigation}
+                onRequestClose={onCloseMobileNavigation}
+              />
+            </>}
+            <div className={contentClassName}>
+              <div className="lulu-native-page lulu-native-page--without-secondary-navigation">
+                <PageErrorBoundary pageName={slug}>
+                  <LiveResourceRoute resourceType={contract.resourceType} />
                 </PageErrorBoundary>
               </div>
             </div>

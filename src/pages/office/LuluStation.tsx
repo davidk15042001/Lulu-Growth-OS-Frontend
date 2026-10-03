@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
   CheckCircle2,
   Clock3,
+  LayoutDashboard,
   Layers3,
   RefreshCw,
   Search,
@@ -11,11 +12,13 @@ import {
   Target,
   Zap,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { officeApi, type OfficeEmployeeDetails, type OfficeEmployeeStatus, type OfficeEmployeeSummary, type OfficeOverview } from "../../api/office";
 import { subscribeWorkspaceEvents, type WorkspaceLiveEvent } from "../../api/agent-stream";
 import { useLuluApp } from "../../api/LuluAppContext";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { routes } from "../../routing";
 import { AgentNativeWorkspace } from "./AgentNativeWorkspace";
 import "./lulu-station.css";
 
@@ -280,10 +283,11 @@ function propTitle(prop: RoomLayout["prop"]) {
 
 export function LuluStation() {
   const t = useTranslation();
+  const navigate = useNavigate();
   const { selectedWorkspace } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? null;
-  const [overview, setOverview] = useState<OfficeOverview | null>(null);
-  const [employeeDetail, setEmployeeDetail] = useState<OfficeEmployeeDetails | null>(null);
+  const [overviewSnapshot, setOverviewSnapshot] = useState<{ workspaceId: string; data: OfficeOverview } | null>(null);
+  const [employeeDetailSnapshot, setEmployeeDetailSnapshot] = useState<{ workspaceId: string; employeeId: string; data: OfficeEmployeeDetails } | null>(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [employeeLoading, setEmployeeLoading] = useState(false);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
@@ -295,26 +299,59 @@ export function LuluStation() {
   const [error, setError] = useState<string | null>(null);
   const [liveConnected, setLiveConnected] = useState(false);
   const [lastEventAt, setLastEventAt] = useState<string | null>(null);
+  const closeModalRef = useRef<HTMLButtonElement | null>(null);
+  const focusBeforeEmployeeModalRef = useRef<HTMLElement | null>(null);
+  const overviewRequestRef = useRef(0);
+  const employeeRequestRef = useRef(0);
+  const overview = overviewSnapshot?.workspaceId === workspaceId ? overviewSnapshot.data : null;
+  const employeeDetail = employeeDetailSnapshot?.workspaceId === workspaceId && employeeDetailSnapshot.employeeId === selectedEmployeeId
+    ? employeeDetailSnapshot.data
+    : null;
 
   const loadOverview = useCallback(async (background = false) => {
     if (!workspaceId) return;
+    const requestId = ++overviewRequestRef.current;
+    const isCurrentRequest = () => requestId === overviewRequestRef.current;
     if (background) setRefreshing(true); else setLoading(true);
     try {
       const response = await officeApi.overview(workspaceId);
-      setOverview(response.data);
+      if (!isCurrentRequest()) return;
+      setOverviewSnapshot({ workspaceId, data: response.data });
       setError(null);
     } catch (cause) {
+      if (!isCurrentRequest()) return;
       setError(getFriendlyErrorMessage(cause));
     } finally {
-      if (background) setRefreshing(false); else setLoading(false);
+      if (!isCurrentRequest()) return;
+      if (background) setRefreshing(false);
+      setLoading(false);
     }
   }, [workspaceId]);
 
   useEffect(() => {
+    overviewRequestRef.current += 1;
+    employeeRequestRef.current += 1;
+    setOverviewSnapshot(null);
+    setEmployeeDetailSnapshot(null);
+    setSelectedEmployeeId(null);
+    setEmployeeLoading(false);
+    setSelectedRoomId(null);
+    setSelectedProp(null);
+    setError(null);
+    setLiveConnected(false);
+    setLastEventAt(null);
+    if (!workspaceId) {
+      setLoading(false);
+      setRefreshing(false);
+      return undefined;
+    }
     void loadOverview();
-    if (!workspaceId) return undefined;
     const interval = window.setInterval(() => void loadOverview(true), 30_000);
-    return () => window.clearInterval(interval);
+    return () => {
+      overviewRequestRef.current += 1;
+      employeeRequestRef.current += 1;
+      window.clearInterval(interval);
+    };
   }, [loadOverview, workspaceId]);
 
   useEffect(() => {
@@ -335,31 +372,44 @@ export function LuluStation() {
 
   const selectEmployee = useCallback(async (employee: OfficeEmployeeSummary) => {
     if (!workspaceId) return;
+    const requestId = ++employeeRequestRef.current;
+    const isCurrentRequest = () => requestId === employeeRequestRef.current;
+    focusBeforeEmployeeModalRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setSelectedEmployeeId(employee.id);
+    setEmployeeDetailSnapshot(null);
     setEmployeeLoading(true);
     setSelectedRoomId(null);
     setSelectedProp(null);
     try {
-      setEmployeeDetail((await officeApi.employee(workspaceId, employee.id)).data);
+      const response = await officeApi.employee(workspaceId, employee.id);
+      if (!isCurrentRequest()) return;
+      setEmployeeDetailSnapshot({ workspaceId, employeeId: employee.id, data: response.data });
       setError(null);
     } catch (cause) {
+      if (!isCurrentRequest()) return;
       setError(getFriendlyErrorMessage(cause));
     } finally {
-      setEmployeeLoading(false);
+      if (isCurrentRequest()) setEmployeeLoading(false);
     }
   }, [workspaceId]);
 
   const closeEmployeePopup = useCallback(() => {
+    employeeRequestRef.current += 1;
+    const focusTarget = focusBeforeEmployeeModalRef.current;
     setSelectedEmployeeId(null);
-    setEmployeeDetail(null);
+    setEmployeeDetailSnapshot(null);
     setEmployeeLoading(false);
+    window.requestAnimationFrame(() => {
+      if (focusTarget?.isConnected) focusTarget.focus();
+    });
   }, []);
 
   const selectRoom = useCallback((roomId: string, prop: RoomProp | null = null) => {
+    employeeRequestRef.current += 1;
     setSelectedRoomId(roomId);
     setSelectedProp(prop);
     setSelectedEmployeeId(null);
-    setEmployeeDetail(null);
+    setEmployeeDetailSnapshot(null);
     setDepartmentMenuOpen(false);
     setDepartmentQuery("");
     window.requestAnimationFrame(() => {
@@ -370,11 +420,43 @@ export function LuluStation() {
   useEffect(() => {
     if (!selectedEmployeeId) return undefined;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") closeEmployeePopup();
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeEmployeePopup();
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [closeEmployeePopup, selectedEmployeeId]);
+
+  useEffect(() => {
+    if (!selectedEmployeeId) return undefined;
+    const frame = window.requestAnimationFrame(() => closeModalRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [selectedEmployeeId]);
+
+  const trapEmployeeModalFocus = useCallback((event: React.KeyboardEvent<HTMLElement>) => {
+    if (event.key !== "Tab") return;
+    const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+    )).filter((element) => element.offsetParent !== null);
+    if (focusable.length === 0) {
+      event.preventDefault();
+      return;
+    }
+    const currentIndex = focusable.indexOf(document.activeElement as HTMLElement);
+    const first = focusable[0]!;
+    const last = focusable[focusable.length - 1]!;
+    if (event.shiftKey && currentIndex <= 0) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && (currentIndex === focusable.length - 1 || currentIndex === -1)) {
+      event.preventDefault();
+      first.focus();
+    }
+  }, []);
+
+  const openWorkspace = useCallback(() => navigate(routes.app.dashboard), [navigate]);
 
   const stationWorld = useMemo(() => roomEmployees(overview), [overview]);
   const rooms = stationWorld.rooms;
@@ -389,6 +471,7 @@ export function LuluStation() {
   const allEmployees = overview?.departments.flatMap((department) => department.employees) ?? [];
   const onlineEmployees = allEmployees.filter((employee) => isOnlineStatus(effectiveStatus(employee.status, aiExecutionAvailable))).length;
   const blockedEmployees = allEmployees.filter((employee) => effectiveStatus(employee.status, aiExecutionAvailable) === "BLOCKED").length;
+  const queuedOrWaitingWork = (overview?.summary.queuedWorkItems ?? 0) + (overview?.summary.waitingWorkItems ?? 0);
   const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals + blockedEmployees;
   const aiExecutionMessage = overview?.executionReadiness?.ai.reason === "AI_CREDIT_RECONCILIATION_REQUIRED"
     ? "AI credit reconciliation required"
@@ -409,12 +492,13 @@ export function LuluStation() {
         </div>
         <div className="lulu-station__header-actions">
           <span className={`lulu-station__connection${liveConnected ? " is-live" : ""}`}><i />{liveConnected ? "Live events" : "Verified snapshot"}</span>
+          <button type="button" className="lulu-station__workspace-switch" onClick={openWorkspace}><LayoutDashboard size={15} />{t("Open workspace")}</button>
           <button type="button" className="lulu-station__refresh" onClick={() => void loadOverview(true)} disabled={refreshing}><RefreshCw size={15} className={refreshing ? "lulu-station__spin" : undefined} />{t("Refresh")}</button>
         </div>
       </header>
 
       <div className="lulu-station__metrics" aria-label="Station summary">
-        <div className={!aiExecutionAvailable ? "is-blocked" : ""}><span><Zap size={14} />{aiExecutionAvailable ? "Work in motion" : "AI execution"}</span><strong>{aiExecutionAvailable ? overview.summary.activeWorkItems : 0}</strong><small>{aiExecutionAvailable ? `${onlineEmployees} crew members online` : `${overview.summary.activeWorkItems} work items queued safely`}</small></div>
+        <div className={!aiExecutionAvailable ? "is-blocked" : ""}><span><Zap size={14} />{aiExecutionAvailable ? "Work in motion" : "AI execution"}</span><strong>{aiExecutionAvailable ? (overview.summary.runningWorkItems ?? 0) : 0}</strong><small>{aiExecutionAvailable ? (queuedOrWaitingWork > 0 ? `${queuedOrWaitingWork} ${t("queued or awaiting review")}` : t("No work is waiting in the queue")) : `${overview.summary.activeWorkItems} work items queued safely`}</small></div>
         <div><span><Layers3 size={14} />Crew online</span><strong>{onlineEmployees}</strong><small>{!aiExecutionAvailable ? aiExecutionMessage : `${overview.summary.employeeCount} employees assigned`}</small></div>
         <div className={attentionCount > 0 ? "is-attention" : ""}><span><Target size={14} />Needs attention</span><strong>{attentionCount}</strong><small>{openSignals} open Company Brain signals</small></div>
         <div><span><CheckCircle2 size={14} />Verified outcomes</span><strong>{overview.summary.completedToday}</strong><small>recently completed work items</small></div>
@@ -470,7 +554,7 @@ export function LuluStation() {
                   <path className="lulu-station__room-border" d={`M${room.x + 18} ${room.y}H${room.x + room.width - 18}Q${room.x + room.width} ${room.y} ${room.x + room.width} ${room.y + 18}V${room.y + room.height - 18}Q${room.x + room.width} ${room.y + room.height} ${room.x + room.width - 18} ${room.y + room.height}H${room.x + 18}Q${room.x} ${room.y + room.height} ${room.x} ${room.y + room.height - 18}V${room.y + 18}Q${room.x} ${room.y} ${room.x + 18} ${room.y}Z`} />
                   <text className="lulu-station__room-kicker" x={room.x + 22} y={room.y + 31}><title>{label}</title>{shortLabel(label.toUpperCase(), 31)}</text>
                   <text className="lulu-station__room-caption" x={room.x + 22} y={room.y + 52}><title>{department.description}</title>{shortLabel(department.description, 56)}</text>
-                  <text className="lulu-station__room-count" x={room.x + room.width - 22} y={room.y + 32} textAnchor="end">{department.employees.length} CREW</text>
+                  <text className="lulu-station__room-count" x={room.x + room.width - 22} y={room.y + 32} textAnchor="end">{employees.length} CREW</text>
                   {roomHasFlow ? <path className="lulu-station__handoff-active" d={`M${room.x + room.width / 2 - 32} ${room.y + room.height - 15}h64`} /> : null}
                   <StationProp room={room} active={employees.some((employee) => isOnlineStatus(effectiveStatus(employee.status, aiExecutionAvailable)))} onSelect={() => selectRoom(room.id, room.prop)} />
                   {employees.map((employee, index) => <StationCharacter key={employee.id} employee={employee} aiExecutionAvailable={aiExecutionAvailable} x={room.x + 130 + (index % ROOM_CREW_COLUMNS) * 148} y={room.y + ROOM_CREW_TOP + Math.floor(index / ROOM_CREW_COLUMNS) * ROOM_CREW_ROW_PITCH} selected={employee.id === selectedEmployeeId} onSelect={(selected) => void selectEmployee(selected)} />)}
@@ -494,7 +578,6 @@ export function LuluStation() {
             <div className="lulu-station__inspector-block"><span>Current work</span><strong>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? "Execution is paused until AI credit is available" : employeeDetail.currentWorkItem?.title ?? "No current work item"}</strong><small>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? aiExecutionMessage : employeeDetail.currentWorkItem?.status ?? "The employee is not running a visible work item."}</small></div>
             <div className="lulu-station__inspector-stats"><div><strong>{employeeDetail.workSummary.active}</strong><span>active</span></div><div><strong>{employeeDetail.workSummary.completedToday}</strong><span>completed</span></div><div><strong>{employeeDetail.workSummary.failed}</strong><span>failed</span></div></div>
             <div className="lulu-station__inspector-block"><span>Capabilities</span><div className="lulu-station__chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
-            <button type="button" className="lulu-station__inspector-link" onClick={() => document.querySelector<HTMLElement>(".lulu-office-control")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Open operational control center <ArrowUpRight size={14} /></button>
           </> : selectedRoom ? <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__room-badge"><Layers3 size={16} /></span><span>Department room</span></div>
             <h2>{roomName(selectedRoom)}</h2>
@@ -519,8 +602,8 @@ export function LuluStation() {
       </div>
 
       {selectedEmployeeId ? <div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEmployeePopup(); }}>
-        <section className="lulu-station__employee-modal lulu-station__employee-modal--workspace" role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title">
-          <button type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label="Close employee workspace">×</button>
+        <section className="lulu-station__employee-modal lulu-station__employee-modal--workspace" role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title" onKeyDown={trapEmployeeModalFocus}>
+          <button ref={closeModalRef} type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label="Close employee workspace">×</button>
           {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>Opening verified employee workspace…</strong><span>Loading the employee state and recent evidence.</span></div> : <>
             <header className="lulu-station__modal-header">
               <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
@@ -536,7 +619,7 @@ export function LuluStation() {
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">CAPABILITIES</span><div className="lulu-station__modal-chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
               </div>
             </div>
-            <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />Workspace-scoped verified state</span><button type="button" className="lulu-station__inspector-link" onClick={() => { closeEmployeePopup(); document.querySelector<HTMLElement>(".lulu-office-control")?.scrollIntoView({ behavior: "smooth", block: "start" }); }}>Open control center <ArrowUpRight size={14} /></button></footer>
+            <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />Workspace-scoped verified state</span><button type="button" className="lulu-station__inspector-link" onClick={openWorkspace}><LayoutDashboard size={14} />{t("Open workspace")}</button></footer>
           </>}
         </section>
       </div> : null}

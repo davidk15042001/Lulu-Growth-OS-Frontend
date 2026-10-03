@@ -113,8 +113,21 @@ export function LuluReviewsPage() {
   const [reviewScope, setReviewScope] = useState<ReviewScope>('all');
   const [replyDrafts, setReplyDrafts] = useState<Record<string, string>>({});
   const [busyConnect, setBusyConnect] = useState(false);
+  const [googleOauthEnabled, setGoogleOauthEnabled] = useState(false);
   const [savingReviewId, setSavingReviewId] = useState<string | null>(null);
   const workspaceId = getSelectedWorkspaceId();
+
+  useEffect(() => {
+    if (!workspaceId) {
+      setGoogleOauthEnabled(false);
+      return;
+    }
+    let active = true;
+    void onboardingApi.oauthSelfServicePermissions(workspaceId)
+      .then((response) => { if (active) setGoogleOauthEnabled(response.data.providers.includes('google-business')); })
+      .catch(() => { if (active) setGoogleOauthEnabled(false); });
+    return () => { active = false; };
+  }, [workspaceId]);
 
   const refresh = useCallback(async () => {
     if (!workspaceId) {
@@ -194,6 +207,10 @@ export function LuluReviewsPage() {
       setError('Es ist aktuell kein Workspace ausgewählt.');
       return;
     }
+    if (!googleOauthEnabled) {
+      setError('Google Business ist für die sichere Selbstverbindung in diesem Workspace nicht aktiviert.');
+      return;
+    }
     setBusyConnect(true);
     setError(null);
     try {
@@ -203,7 +220,7 @@ export function LuluReviewsPage() {
       setError(getFriendlyErrorMessage(cause, 'Die Google-Business-Verbindung konnte nicht gestartet werden.'));
       setBusyConnect(false);
     }
-  }, [workspaceId]);
+  }, [googleOauthEnabled, workspaceId]);
 
   const saveReply = useCallback(async (review: GoogleReviewsManagerReview) => {
     if (!workspaceId) {
@@ -268,9 +285,9 @@ export function LuluReviewsPage() {
             <RefreshCw size={14} className="mr-1 inline" />
             Refresh
           </button>
-          <button onClick={() => void connectGoogleBusiness()} disabled={busyConnect} className="inline-flex items-center justify-center rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] disabled:opacity-60">
+          <button onClick={() => void connectGoogleBusiness()} disabled={busyConnect || !googleOauthEnabled} className="inline-flex items-center justify-center rounded-md bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)] disabled:opacity-60">
             {busyConnect ? <Loader2 size={13} className="mr-1 inline animate-spin" /> : <Globe2 size={13} className="mr-1 inline" />}
-            {connectionMode === 'connected' ? 'Reconnect Google' : connectionMode === 'reauth' ? 'Reconnect Google' : 'Connect Google'}
+            {!googleOauthEnabled ? 'Nicht aktiviert' : connectionMode === 'connected' ? 'Reconnect Google' : connectionMode === 'reauth' ? 'Reconnect Google' : 'Connect Google'}
           </button>
         </div>
       </header>
@@ -326,9 +343,10 @@ export function LuluReviewsPage() {
                 <p>2. Richtige Business-Profile-Locations freigeben</p>
                 <p>3. Lulu lädt Reviews und priorisiert offene Fälle automatisch</p>
               </div>
-              <button onClick={() => void connectGoogleBusiness()} disabled={busyConnect} className="mt-5 w-full rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-60">
+              {!googleOauthEnabled ? <p className="mt-5 rounded-lg border border-border bg-secondary/40 px-4 py-3 text-xs leading-5 text-muted-foreground">Google Business ist für die sichere Selbstverbindung dieses Workspace nicht aktiviert.</p> : <button onClick={() => void connectGoogleBusiness()} disabled={busyConnect} className="mt-5 w-full rounded-lg bg-[var(--primary)] px-4 py-2 text-xs font-semibold text-primary-foreground disabled:opacity-60">
                 {busyConnect ? 'Verbinde...' : connectionMode === 'reauth' ? 'Google erneut verbinden' : 'Google jetzt verbinden'}
               </button>
+              }
             </article>
           </section> : <>
             <section className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">

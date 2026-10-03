@@ -4,16 +4,6 @@ import { Activity, AlertTriangle, ArrowUpDown, BarChart3, BookOpen, Brain, Check
 import type { LucideIcon } from 'lucide-react';
 import { ingestRecord } from '../../../../api/records';
 import { getFriendlyErrorMessage } from '../../../../api/client';
-type Knowledge = {
-  id: string;
-  name: string;
-  type: string;
-  source: string;
-  status: string;
-  updated: string;
-  used: string;
-  access: string;
-};
 type Source = {
   id: string;
   name: string;
@@ -56,7 +46,6 @@ const platformNav = [{
 }];
 const stats: Array<Record<string, any>> = [];
 const sources: Source[] = [];
-const knowledge: Knowledge[] = [];
 const documents: Array<Record<string, any>> = [];
 const usage: Array<Record<string, any>> = [];
 const quality: Array<Record<string, any>> = [];

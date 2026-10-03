@@ -1,5 +1,4 @@
-import { useLayoutEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useLayoutEffect } from "react";
 import type { PageContract } from "../api/page-contracts";
 
 const LOGO_PATH = "/branding/lulu-agentic-logo.svg";
@@ -11,6 +10,7 @@ const NAMED_BRAND_SELECTOR = [
   "[class*='-wordmark']",
   "[class*='lulu-logo']",
 ].join(",");
+const LOCAL_BRAND_SELECTOR = "[data-lulu-local-brand]";
 
 function compactText(element: Element) {
   return (element.textContent ?? "").replace(/\s+/g, "").toLowerCase();
@@ -36,22 +36,22 @@ function chooseBrandHost(textElement: HTMLElement) {
   return host;
 }
 
-function sameHosts(current: HTMLElement[], next: HTMLElement[]) {
-  return current.length === next.length && current.every((host, index) => host === next[index]);
-}
-
 function findBrandHosts(root: HTMLElement, contractKind: PageContract["kind"]) {
   const found = new Set<HTMLElement>();
 
   root.querySelectorAll<HTMLElement>(NAMED_BRAND_SELECTOR).forEach((element) => {
-    if (hasCompactBrandText(element)) found.add(element);
+    if (!element.closest(LOCAL_BRAND_SELECTOR) && hasCompactBrandText(element)) found.add(element);
   });
 
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const exactTextElements: HTMLElement[] = [];
   let node = walker.nextNode();
   while (node) {
-    if (node.parentElement instanceof HTMLElement && exactBrandText(node.textContent ?? "")) {
+    if (
+      node.parentElement instanceof HTMLElement
+      && !node.parentElement.closest(LOCAL_BRAND_SELECTOR)
+      && exactBrandText(node.textContent ?? "")
+    ) {
       exactTextElements.push(node.parentElement);
     }
     node = walker.nextNode();
@@ -66,25 +66,50 @@ function findBrandHosts(root: HTMLElement, contractKind: PageContract["kind"]) {
   return [...found].filter((host) => ![...found].some((other) => other !== host && other.contains(host)));
 }
 
-export function GlobalBranding({ contractKind }: { contractKind: PageContract["kind"] }) {
-  const [hosts, setHosts] = useState<HTMLElement[]>([]);
+function ensureBrandImage(host: HTMLElement) {
+  const existing = [...host.children].find(
+    (child): child is HTMLImageElement => child instanceof HTMLImageElement && child.dataset.luluGlobalBrandImage === "true",
+  );
+  if (existing) return;
 
+  const image = document.createElement("img");
+  image.className = "lulu-global-brand-image";
+  image.src = LOGO_PATH;
+  image.alt = "Lulu AI";
+  image.draggable = false;
+  image.dataset.luluGlobalBrandImage = "true";
+  host.append(image);
+}
+
+function clearBrandHost(host: HTMLElement) {
+  host.classList.remove("lulu-global-brand-host");
+  host.removeAttribute("data-lulu-no-translate");
+  host.removeAttribute("translate");
+  [...host.children]
+    .filter((child): child is HTMLImageElement => child instanceof HTMLImageElement && child.dataset.luluGlobalBrandImage === "true")
+    .forEach((image) => image.remove());
+}
+
+export function GlobalBranding({ contractKind }: { contractKind: PageContract["kind"] }) {
   useLayoutEffect(() => {
     const root = document.getElementById("root");
     if (!root) return;
+    const appliedHosts = new Set<HTMLElement>();
     let queued = false;
 
     const scan = () => {
       queued = false;
       const next = findBrandHosts(root, contractKind);
-      setHosts((current) => {
-        current.filter((host) => !next.includes(host)).forEach((host) => host.classList.remove("lulu-global-brand-host"));
-        next.forEach((host) => {
-          host.classList.add("lulu-global-brand-host");
-          host.setAttribute("data-lulu-no-translate", "true");
-          host.setAttribute("translate", "no");
-        });
-        return sameHosts(current, next) ? current : next;
+      [...appliedHosts].filter((host) => !next.includes(host)).forEach((host) => {
+        clearBrandHost(host);
+        appliedHosts.delete(host);
+      });
+      next.forEach((host) => {
+        host.classList.add("lulu-global-brand-host");
+        host.setAttribute("data-lulu-no-translate", "true");
+        host.setAttribute("translate", "no");
+        ensureBrandImage(host);
+        appliedHosts.add(host);
       });
     };
     const scheduleScan = () => {
@@ -98,18 +123,11 @@ export function GlobalBranding({ contractKind }: { contractKind: PageContract["k
     observer.observe(root, { childList: true, subtree: true });
     return () => {
       observer.disconnect();
-      root.querySelectorAll(".lulu-global-brand-host").forEach((host) => host.classList.remove("lulu-global-brand-host"));
+      appliedHosts.forEach(clearBrandHost);
     };
   }, [contractKind]);
 
-  return <>
-    {hosts.map((host, index) => createPortal(
-      <img className="lulu-global-brand-image" src={LOGO_PATH} alt="Lulu AI" draggable={false} />,
-      host,
-      `lulu-brand-${index}`,
-    ))}
-    <style>{globalBrandStyles}</style>
-  </>;
+  return <style>{globalBrandStyles}</style>;
 }
 
 const globalBrandStyles = `

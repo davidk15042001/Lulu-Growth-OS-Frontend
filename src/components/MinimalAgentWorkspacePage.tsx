@@ -170,7 +170,7 @@ export function MinimalAgentWorkspacePage({
             </article>
             <article className="rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Autonomy boundary")}</p>
-              <p className="mt-3 text-sm text-foreground">{t("Only new paid-media funds need customer authorization. Every other agent action executes automatically within system safeguards.")}</p>
+              <p className="mt-3 text-sm text-foreground">{t("Lulu runs autonomously within registered policies. Before an external action, the server rechecks authorization, funding, provider readiness and verification.")}</p>
             </article>
           </section>
         )}
@@ -260,7 +260,7 @@ export function MinimalAgentWorkspacePage({
               </h2>
               <div className="mt-4 space-y-3">
                 <p className="rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">
-                  {t("Lulu continuously analyzes and proposes here. Bounded read actions may execute automatically, while external, financial, identity and publishing actions remain blocked until an authorized workspace administrator approves the exact action.")}
+                  {t("Lulu continuously observes, analyzes and prepares work here. A consequential action continues only when the canonical execution policy permits the workspace, capability, provider state, funding and verification route.")}
                 </p>
               </div>
             </section>
