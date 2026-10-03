@@ -7,6 +7,7 @@ const runtimeSource = readFileSync(join(root, "src", "api", "runtime.tsx"), "utf
 const clientSource = readFileSync(join(root, "src", "api", "client.ts"), "utf8");
 const uploadSource = readFileSync(join(root, "src", "uploads", "GlobalUploadFeedback.tsx"), "utf8");
 const signupSource = readFileSync(join(root, "src", "pages", "finely-year-1146", "components", "generated", "LuluSignupPage.tsx"), "utf8");
+const resetPasswordSource = readFileSync(join(root, "src", "pages", "deep-coast-9085", "components", "generated", "LuluResetPassword.tsx"), "utf8");
 
 function sourceFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -30,6 +31,12 @@ if (!uploadSource.includes('kind: "loading"') || !uploadSource.includes('kind: "
 }
 if (!signupSource.includes("useState(false)") || !signupSource.includes("{password && <") || !signupSource.includes("{confirmPassword && <")) {
   issues.push("Registration progress is still visible before the user enters information.");
+}
+if (resetPasswordSource.includes("State reference") || resetPasswordSource.includes("Reset password state reference")) {
+  issues.push("The password-reset page still renders internal state-reference cards to customers.");
+}
+if (!resetPasswordSource.includes("const passwordsMatch = Boolean(confirmation)") || !resetPasswordSource.includes("{confirmation && <p id=\"password-match-message\"")) {
+  issues.push("The password-reset page can show a match state before the user has confirmed a password.");
 }
 
 console.log(JSON.stringify({

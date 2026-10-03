@@ -1,0 +1,114 @@
+.lulu-auth-recovery {
+  --lulu-recovery-ink: #f0f9f8;
+  --lulu-recovery-muted: #a9c1bd;
+  --lulu-recovery-line: rgba(187, 233, 225, .2);
+  --lulu-recovery-cyan: #9aece0;
+  position: relative;
+  display: flex;
+  min-height: 100svh;
+  overflow: hidden;
+  flex-direction: column;
+  background: #061217;
+  color: var(--lulu-recovery-ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  isolation: isolate;
+}
+
+.lulu-auth-recovery *,
+.lulu-auth-recovery *::before,
+.lulu-auth-recovery *::after { box-sizing: border-box; }
+.lulu-auth-recovery a { color: inherit; }
+.lulu-auth-recovery button,
+.lulu-auth-recovery input { font: inherit; }
+
+.lulu-auth-recovery__atmosphere { position: absolute; z-index: -1; inset: 0; background: radial-gradient(circle at 15% 23%, rgba(75, 172, 162, .22), transparent 26rem), radial-gradient(circle at 82% 73%, rgba(113, 195, 184, .16), transparent 31rem), linear-gradient(135deg, #071b20 0%, #061217 48%, #0a2024 100%); }
+.lulu-auth-recovery__atmosphere::before,
+.lulu-auth-recovery__atmosphere::after { position: absolute; content: ""; pointer-events: none; }
+.lulu-auth-recovery__atmosphere::before { top: -25rem; right: 11%; width: 67rem; height: 67rem; border: 1px solid rgba(171, 235, 225, .1); border-radius: 50%; box-shadow: 0 0 0 8rem rgba(171, 235, 225, .024), 0 0 0 18rem rgba(171, 235, 225, .014); }
+.lulu-auth-recovery__atmosphere::after { inset: 0; opacity: .34; background-image: linear-gradient(rgba(175, 230, 222, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(175, 230, 222, .06) 1px, transparent 1px); background-size: 72px 72px; mask-image: linear-gradient(to right, #000 0%, transparent 80%); }
+
+.lulu-auth-recovery__nav,
+.lulu-auth-recovery__layout,
+.lulu-auth-recovery__compact-content,
+.lulu-auth-recovery__footer { width: min(1120px, calc(100% - 64px)); margin-inline: auto; }
+.lulu-auth-recovery__nav { display: flex; min-height: 96px; align-items: center; justify-content: space-between; gap: 22px; }
+.lulu-auth-recovery__brand { display: inline-flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+.lulu-auth-recovery__brand img { width: 28px; height: 28px; object-fit: contain; }
+.lulu-auth-recovery__brand span { font-size: 16px; font-weight: 850; letter-spacing: .14em; }
+.lulu-auth-recovery__brand small { padding-left: 10px; border-left: 1px solid rgba(255,255,255,.32); color: #adc2be; font-size: 9px; font-weight: 800; letter-spacing: .14em; }
+.lulu-auth-recovery__nav-action { border: 0; background: transparent; color: #c3d5d2; font-size: 12px; font-weight: 700; cursor: pointer; }
+.lulu-auth-recovery__nav-action:hover { color: var(--lulu-recovery-cyan); text-decoration: underline; text-underline-offset: 4px; }
+.lulu-auth-recovery__nav-action:focus-visible,
+.lulu-auth-recovery__back:focus-visible,
+.lulu-auth-recovery__secondary-action:focus-visible { outline: 2px solid var(--lulu-recovery-cyan); outline-offset: 4px; }
+
+.lulu-auth-recovery__layout { display: grid; flex: 1; grid-template-columns: minmax(0, 1fr) minmax(390px, .85fr); align-items: center; gap: clamp(54px, 9vw, 144px); padding-block: 50px 62px; }
+.lulu-auth-recovery__story { max-width: 530px; }
+.lulu-auth-recovery__eyebrow { display: block; color: var(--lulu-recovery-cyan); font-size: 10px; font-weight: 850; letter-spacing: .16em; line-height: 1.2; }
+.lulu-auth-recovery__story-icon { margin-top: 34px; color: var(--lulu-recovery-cyan); }
+.lulu-auth-recovery__story h1 { max-width: 510px; margin: 16px 0 0; color: #fff; font-size: clamp(42px, 4.5vw, 64px); font-weight: 760; letter-spacing: -.065em; line-height: .98; }
+.lulu-auth-recovery__story p { max-width: 455px; margin: 24px 0 0; color: #c0d1cf; font-size: 16px; line-height: 1.7; }
+
+.lulu-auth-recovery__card { width: 100%; padding: clamp(26px, 3.2vw, 39px); border: 1px solid rgba(196, 233, 227, .38); border-radius: 18px; background: rgba(248, 252, 251, .98); box-shadow: 0 28px 80px rgba(0,0,0,.29), 0 2px 0 rgba(255,255,255,.7) inset; color: #123135; }
+.lulu-auth-recovery__card-header { padding-bottom: 22px; border-bottom: 1px solid #d8e3e0; }
+.lulu-auth-recovery__card-header .lulu-auth-recovery__eyebrow { color: #2e7b76; }
+.lulu-auth-recovery__card-header h2 { margin: 10px 0 0; color: #123135; font-size: 27px; font-weight: 780; letter-spacing: -.045em; line-height: 1.08; }
+.lulu-auth-recovery__card-header p { margin: 9px 0 0; color: #65807b; font-size: 12px; line-height: 1.55; }
+.lulu-auth-recovery__form { display: grid; gap: 16px; margin-top: 23px; }
+.lulu-auth-recovery__field { display: grid; gap: 7px; color: #35534f; font-size: 12px; font-weight: 800; letter-spacing: .01em; }
+.lulu-auth-recovery__field input { width: 100%; height: 47px; border: 1px solid #bdcfcc; border-radius: 7px; outline: none; background: #fff; color: #143439; padding: 0 13px; font-size: 14px; transition: border-color .16s ease, box-shadow .16s ease; }
+.lulu-auth-recovery__field input::placeholder { color: #8a9e9b; }
+.lulu-auth-recovery__field input:hover { border-color: #89a9a4; }
+.lulu-auth-recovery__field input:focus { border-color: #277b76; box-shadow: 0 0 0 3px rgba(128, 226, 216, .42); }
+.lulu-auth-recovery__code { font-size: 18px !important; letter-spacing: .35em; text-align: center; }
+.lulu-auth-recovery__password { position: relative; display: block; }
+.lulu-auth-recovery__password input { padding-right: 49px; }
+.lulu-auth-recovery__password button { position: absolute; top: 0; right: 0; display: grid; width: 46px; height: 47px; padding: 0; place-items: center; border: 0; border-radius: 7px; background: transparent; color: #5c746f; cursor: pointer; }
+.lulu-auth-recovery__password button:hover { color: #183f3d; }
+.lulu-auth-recovery__password button:focus-visible { outline: 2px solid #277b76; outline-offset: -3px; }
+.lulu-auth-recovery__match-icon { position: absolute; top: 16px; right: 46px; color: #237345; }
+.lulu-auth-recovery__password-status { display: grid; gap: 9px; margin-top: -6px; padding: 12px; border-radius: 8px; background: #eef6f3; }
+.lulu-auth-recovery__strength { display: flex; align-items: center; gap: 12px; color: #506965; font-size: 11px; }
+.lulu-auth-recovery__strength > span { display: flex; flex: 1; gap: 4px; }
+.lulu-auth-recovery__strength i { height: 4px; flex: 1; border-radius: 99px; background: #cadbd7; }
+.lulu-auth-recovery__strength i.is-active { background: #3e9b7a; }
+.lulu-auth-recovery__strength strong { font-weight: 800; }
+.lulu-auth-recovery__requirements { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 8px; }
+.lulu-auth-recovery__requirements p { display: flex; align-items: center; gap: 5px; margin: 0; color: #718984; font-size: 10px; line-height: 1.35; }
+.lulu-auth-recovery__requirements p.is-passed { color: #257345; }
+.lulu-auth-recovery__match-note { margin: -9px 0 -2px; font-size: 11px; }
+.lulu-auth-recovery__match-note.is-matched { color: #257345; }
+.lulu-auth-recovery__match-note.is-unmatched { color: #a24343; }
+.lulu-auth-recovery__primary-action { display: flex; width: 100%; min-height: 48px; align-items: center; justify-content: center; gap: 9px; border: 1px solid #225f5c; border-radius: 7px; background: #246a67; color: #f5fffd; font-size: 13px; font-weight: 800; letter-spacing: .01em; cursor: pointer; transition: transform .16s ease, background .16s ease, box-shadow .16s ease; }
+.lulu-auth-recovery__primary-action:hover { background: #184f4d; box-shadow: 0 8px 17px rgba(26,81,77,.2); transform: translateY(-1px); }
+.lulu-auth-recovery__primary-action:disabled { cursor: wait; opacity: .62; transform: none; }
+.lulu-auth-recovery__secondary-action { min-height: 46px; border: 1px solid #bdcfcc; border-radius: 7px; background: #fff; color: #245e5b; font-size: 13px; font-weight: 800; cursor: pointer; }
+.lulu-auth-recovery__secondary-action:hover { border-color: #779a95; background: #f5fafa; }
+.lulu-auth-recovery__error { display: flex; align-items: flex-start; gap: 8px; margin: 0; color: #a42f35; font-size: 12px; line-height: 1.5; }
+.lulu-auth-recovery__error svg { margin-top: 1px; flex: 0 0 auto; }
+.lulu-auth-recovery__back { display: inline-flex; align-items: center; gap: 7px; margin-top: 22px; padding: 0; border: 0; background: transparent; color: #2a625f; font-size: 12px; font-weight: 800; cursor: pointer; }
+.lulu-auth-recovery__back:hover { color: #123937; text-decoration: underline; text-underline-offset: 4px; }
+.lulu-auth-recovery__success { display: grid; gap: 14px; margin-top: 23px; }
+.lulu-auth-recovery__success > span { display: grid; width: 36px; height: 36px; place-items: center; border-radius: 50%; background: #e0f4e8; color: #237345; }
+.lulu-auth-recovery__success h3 { margin: 0; color: #183634; font-size: 18px; letter-spacing: -.025em; }
+.lulu-auth-recovery__success p { margin: 5px 0 0; color: #617b76; font-size: 12px; line-height: 1.55; }
+.lulu-auth-recovery__success .lulu-auth-recovery__primary-action { margin-top: 5px; }
+.lulu-auth-recovery__compact-content { display: flex; flex: 1; align-items: center; justify-content: center; padding-block: 42px 62px; }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card { max-width: 490px; }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card > header:first-child { padding-bottom: 22px; border-bottom: 1px solid #d8e3e0; text-align: left; }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card > header:first-child > div { display: none; }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card > header:first-child h1 { margin: 0; color: #123135; font-size: 27px; font-weight: 780; letter-spacing: -.045em; line-height: 1.08; }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card > header:first-child p { margin: 9px 0 0; color: #65807b; font-size: 12px; line-height: 1.55; }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card form { display: grid; gap: 16px; margin-top: 23px; }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card form > div > label { display: grid; gap: 7px; color: #35534f; font-size: 12px; font-weight: 800; }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card form input { width: 100%; height: 47px; border: 1px solid #bdcfcc; border-radius: 7px; outline: none; background: #fff; color: #143439; padding: 0 13px; font-size: 14px; }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card form input:focus { border-color: #277b76; box-shadow: 0 0 0 3px rgba(128,226,216,.42); }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card form > button[type="submit"] { display: flex; min-height: 48px; align-items: center; justify-content: center; border: 1px solid #225f5c; border-radius: 7px; background: #246a67; color: #f5fffd; font-size: 13px; font-weight: 800; cursor: pointer; }
+.lulu-auth-recovery--compact .lulu-auth-recovery__card form > button[type="button"] { min-height: 46px; border: 1px solid #bdcfcc; border-radius: 7px; background: #fff; color: #245e5b; font-size: 13px; font-weight: 800; cursor: pointer; }
+.lulu-auth-recovery__footer { display: flex; min-height: 63px; align-items: center; justify-content: center; gap: 20px; border-top: 1px solid var(--lulu-recovery-line); color: #9bb1ad; font-size: 10px; }
+.lulu-auth-recovery__footer a { text-decoration: none; }
+.lulu-auth-recovery__footer a:hover { color: #ddf8f3; text-decoration: underline; text-underline-offset: 4px; }
+
+@media (max-width: 900px) { .lulu-auth-recovery__layout { grid-template-columns: minmax(0, 1fr); gap: 34px; padding-block: 34px 50px; } .lulu-auth-recovery__story { max-width: 650px; } .lulu-auth-recovery__card { max-width: 560px; } }
+@media (max-width: 640px) { .lulu-auth-recovery__nav, .lulu-auth-recovery__layout, .lulu-auth-recovery__compact-content, .lulu-auth-recovery__footer { width: min(100% - 36px, 560px); } .lulu-auth-recovery__nav { min-height: 78px; } .lulu-auth-recovery__brand small { display: none; } .lulu-auth-recovery__story h1 { font-size: clamp(38px, 12vw, 52px); } .lulu-auth-recovery__story p { margin-top: 18px; font-size: 14px; } .lulu-auth-recovery__layout { gap: 28px; padding-block: 22px 35px; } .lulu-auth-recovery__card { padding: 25px 20px; border-radius: 13px; } .lulu-auth-recovery__requirements { grid-template-columns: 1fr; } .lulu-auth-recovery__compact-content { padding-block: 25px 40px; } .lulu-auth-recovery__footer { min-height: 68px; } }
+@media (prefers-reduced-motion: reduce) { .lulu-auth-recovery *, .lulu-auth-recovery *::before, .lulu-auth-recovery *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }

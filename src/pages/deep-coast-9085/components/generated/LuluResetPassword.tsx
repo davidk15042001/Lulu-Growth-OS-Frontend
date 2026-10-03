@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Check, CircleAlert, Eye, EyeOff, LoaderCircle, X } from 'lucide-react';
-import { navigateApp, routes } from '../../../../routing';
+import { Check, Eye, EyeOff, X } from 'lucide-react';
+import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { clearPendingEmail, getPendingEmail } from '../../../../api/session';
+import '../../../../styles/lulu-auth-recovery.css';
 const requirements = [
   { id: 'length', label: 'At least 12 characters', test: (value: string) => value.length >= 12 },
   { id: 'uppercase', label: 'One uppercase letter', test: (value: string) => /[A-Z]/.test(value) },
@@ -10,75 +11,6 @@ const requirements = [
   { id: 'number', label: 'One number', test: (value: string) => /[0-9]/.test(value) },
   { id: 'special', label: 'One special character', test: (value: string) => /[^A-Za-z0-9]/.test(value) },
 ];
-type StateKind = 'success' | 'expired' | 'invalid' | 'loading';
-type StateCardProps = {
-  kind: StateKind;
-  title: string;
-  description: string;
-  primaryAction?: string;
-  secondaryAction?: string;
-  note?: string;
-};
-function LuluLogo({
-  compact = false
-}: {
-  compact?: boolean;
-}) {
-  return <div className={`flex items-center justify-center ${compact ? 'gap-2' : 'gap-2.5'}`}>
-    <span aria-hidden="true" className={`${compact ? 'h-8 w-8 text-base' : 'h-9 w-9 text-lg'} grid place-items-center rounded-full bg-[var(--primary)] font-bold text-[var(--primary-foreground)]`}>L</span>
-    <span className={`${compact ? 'text-[15px]' : 'text-base'} font-bold tracking-[-0.02em] text-[var(--foreground)]`}>Lulu AI</span>
-  </div>;
-}
-function StatusIcon({
-  kind
-}: {
-  kind: StateKind;
-}) {
-  if (kind === 'loading') {
-    return <div className="grid h-10 w-10 place-items-center rounded-full bg-[var(--secondary)] text-[var(--foreground)]">
-      <LoaderCircle size={22} strokeWidth={2.5} className="animate-spin" aria-label="Resetting" />
-    </div>;
-  }
-  if (kind === 'success') {
-    return <div className="grid h-10 w-10 place-items-center rounded-full bg-[var(--chart-4)] text-white">
-      <Check size={23} strokeWidth={3} aria-hidden="true" />
-    </div>;
-  }
-  if (kind === 'expired') {
-    return <div className="grid h-10 w-10 place-items-center rounded-full bg-[var(--chart-1)] text-[var(--foreground)]">
-      <CircleAlert size={22} strokeWidth={2.5} aria-hidden="true" />
-    </div>;
-  }
-  return <div className="grid h-10 w-10 place-items-center rounded-full bg-[var(--destructive)] text-white">
-    <X size={23} strokeWidth={3} aria-hidden="true" />
-  </div>;
-}
-function StateCard({
-  kind,
-  title,
-  description,
-  primaryAction,
-  secondaryAction,
-  note
-}: StateCardProps) {
-  return <article className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-7 shadow-[0_12px_32px_rgba(0,0,0,0.08)]">
-    <header>
-      <LuluLogo compact />
-    </header>
-    <div className="mt-7 flex flex-col items-center text-center">
-      <StatusIcon kind={kind} />
-      <h3 className="mt-4 text-[18px] font-bold tracking-[-0.02em] text-[var(--foreground)]">{title}</h3>
-      <p className="mt-1.5 max-w-[292px] text-[13px] leading-5 text-[var(--muted-foreground)]">{description}</p>
-      {primaryAction && <button type="button" onClick={() => navigateApp(primaryAction === 'Request New Link' ? routes.auth.forgotPassword : routes.auth.login)} className="mt-4 flex h-10 w-full items-center justify-center rounded-md bg-[var(--primary)] px-3 text-[13px] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
-        <span>{primaryAction}</span>
-      </button>}
-      {secondaryAction && <button type="button" onClick={() => navigateApp(routes.auth.login)} className="mt-2.5 flex h-10 w-full items-center justify-center rounded-md border border-[var(--border)] bg-[var(--card)] px-3 text-[13px] font-medium text-[var(--foreground)] transition hover:bg-[var(--secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2">
-        <span>{secondaryAction}</span>
-      </button>}
-      {note && <p className="mt-2.5 text-[11px] text-[var(--muted-foreground)]">{note}</p>}
-    </div>
-  </article>;
-}
 export function LuluResetPassword() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -92,6 +24,7 @@ export function LuluResetPassword() {
   const passedRequirements = passwordResults.filter(requirement => requirement.passed).length;
   const strengthSegments = password ? Math.max(1, Math.ceil((passedRequirements / requirements.length) * 4)) : 0;
   const passwordIsStrong = passedRequirements === requirements.length;
+  const passwordsMatch = Boolean(confirmation) && password === confirmation;
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (loading) return;
@@ -119,13 +52,19 @@ export function LuluResetPassword() {
       setLoading(false);
     }
   };
-  return <div className="auth-card-shell min-h-screen w-full bg-[var(--background)] font-sans text-[var(--foreground)]">
-    <main className="flex flex-col items-center px-4 pb-10 pt-9 sm:px-6">
-      <section aria-labelledby="reset-password-title" className="w-full max-w-md rounded-xl border border-[var(--border)] bg-[var(--card)] p-7 shadow-[0_12px_32px_rgba(0,0,0,0.08)] sm:p-9">
+  return <main className="lulu-auth-recovery lulu-auth-recovery--compact">
+    <div className="lulu-auth-recovery__atmosphere" aria-hidden="true" />
+    <header className="lulu-auth-recovery__nav">
+      <a {...pageLinkProps('brightly-door-5741')} className="lulu-auth-recovery__brand lulu-global-brand-host" data-lulu-no-translate="true" translate="no" aria-label="Lulu AI login">
+        <img src="/branding/lulu-agentic-mark.svg" alt="" />
+        <span>LULU AI</span>
+        <small>OPERATING SYSTEM</small>
+      </a>
+      <button type="button" onClick={() => navigateApp(routes.auth.login)} className="lulu-auth-recovery__nav-action">Back to sign in</button>
+    </header>
+    <section className="lulu-auth-recovery__compact-content">
+      <section aria-labelledby="reset-password-title" className="lulu-auth-recovery__card">
         <header className="text-center">
-          <div className="mb-6">
-            <LuluLogo />
-          </div>
           <h1 id="reset-password-title" className="text-[22px] font-bold tracking-[-0.02em] text-[var(--foreground)]">Reset your password</h1>
           <p className="mb-6 mt-1.5 text-sm leading-5 text-[var(--muted-foreground)]">Create a new password for your Lulu AI account. Your new password must be different from your previous one.</p>
         </header>
@@ -147,6 +86,7 @@ export function LuluResetPassword() {
                 {showPassword ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
               </button>
             </div>
+            {password && <>
             <div className="mt-2.5 flex items-center gap-1.5" aria-label={`Password strength ${passwordIsStrong ? 'strong' : 'incomplete'}`}>
               {[0, 1, 2, 3].map(segment => <span key={segment} className={`h-1 flex-1 rounded-full ${segment < strengthSegments ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'}`} aria-hidden="true" />)}
             </div>
@@ -157,18 +97,19 @@ export function LuluResetPassword() {
                 <span>{requirement.label}</span>
               </p>)}
             </div>
+            </>}
           </div>
 
           <div>
             <label htmlFor="confirm-password" className="mb-1.5 block text-[13px] font-medium text-[var(--foreground)]">Confirm new password</label>
             <div className="relative">
-              <input id="confirm-password" name="confirm-password" type={showConfirmation ? 'text' : 'password'} autoComplete="new-password" placeholder="Confirm your new password" value={confirmation} onChange={event => setConfirmation(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 pr-16 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" aria-describedby="password-match-message" />
+              <input id="confirm-password" name="confirm-password" type={showConfirmation ? 'text' : 'password'} autoComplete="new-password" placeholder="Confirm your new password" value={confirmation} onChange={event => setConfirmation(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 pr-16 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" aria-describedby={confirmation ? 'password-match-message' : undefined} />
               <button type="button" className="absolute right-9 top-1/2 grid -translate-y-1/2 place-items-center text-[var(--muted-foreground)] transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]" onClick={() => setShowConfirmation(value => !value)} aria-label={showConfirmation ? 'Hide confirmation password' : 'Show confirmation password'}>
                 {showConfirmation ? <EyeOff size={16} aria-hidden="true" /> : <Eye size={16} aria-hidden="true" />}
               </button>
-              <Check size={16} strokeWidth={3} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--foreground)]" aria-hidden="true" />
+              {passwordsMatch && <Check size={16} strokeWidth={3} className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--chart-4)]" aria-hidden="true" />}
             </div>
-            <p id="password-match-message" className="mt-1.5 text-[11px] font-medium text-[var(--foreground)]">Passwords match</p>
+            {confirmation && <p id="password-match-message" className={`mt-1.5 text-[11px] font-medium ${passwordsMatch ? 'text-[var(--chart-4)]' : 'text-[var(--destructive)]'}`}>{passwordsMatch ? 'Passwords match' : 'Passwords do not match yet'}</p>}
           </div>
 
           {error && <p role="alert" className="text-[13px] text-[var(--destructive)]">{error}</p>}
@@ -182,18 +123,7 @@ export function LuluResetPassword() {
         <p className="mt-5 text-center text-[11px] text-[var(--foreground)]">Step 3 of 3 · Password Reset</p>
       </section>
 
-      <h2 className="py-16 text-center text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--foreground)]">State reference</h2>
-      <section aria-label="Reset password state reference" className="grid w-full max-w-[800px] grid-cols-1 gap-5 sm:grid-cols-2">
-        <StateCard kind="success" title="Password reset" description="Your password has been successfully reset. You can now sign in with your new password." primaryAction="Sign In to Lulu AI" note="Redirecting you to login in 5 seconds..." />
-        <StateCard kind="expired" title="Reset link expired" description="This password reset link has expired. Request a new one to continue." primaryAction="Request New Link" secondaryAction="Back to Login" />
-        <StateCard kind="invalid" title="Invalid reset link" description="This reset link is no longer valid or has already been used." primaryAction="Request New Link" secondaryAction="Back to Login" />
-        <StateCard kind="loading" title="Resetting your password" description="Please wait while we update your password." />
-      </section>
-    </main>
-    <footer className="flex items-center justify-center gap-5 pb-6 text-center text-xs text-[var(--muted-foreground)]">
-      <a href="/privacy.html" className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">Privacy</a>
-      <a href="/terms.html" className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">Terms</a>
-      <a href="/.well-known/security.txt" className="transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--border)]">Security</a>
-    </footer>
-  </div>;
+    </section>
+    <footer className="lulu-auth-recovery__footer"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/.well-known/security.txt">Security</a></footer>
+  </main>;
 }

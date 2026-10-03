@@ -1,58 +1,61 @@
 import { useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, Mail, Sparkles } from 'lucide-react';
-import { navigateApp, routes } from '../../../../routing';
+import { ArrowLeft, ArrowRight, Check, Mail } from 'lucide-react';
+import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { setPendingEmail } from '../../../../api/session';
+import '../../../../styles/lulu-auth-recovery.css';
 export const LuluPasswordReset = () => {
   const [e, setE] = useState('');
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  return <main className="auth-shell grid min-h-screen bg-[var(--background)] text-[var(--foreground)] lg:grid-cols-2">
-      <section className="flex items-center justify-center p-6">
-        <div className="w-full max-w-md">
-          <div className="flex items-center gap-2">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] font-bold text-[var(--primary-foreground)]">L</span>
-            <b className="text-xl text-[var(--foreground)]">Lulu AI</b>
-          </div>
-          <p className="mt-12 text-xs font-medium tracking-[.18em] text-[var(--foreground)]">ACCOUNT RECOVERY</p>
-          <h1 className="mt-2 text-3xl font-semibold text-[var(--foreground)]">Reset your password.</h1>
-          <p className="mt-3 text-[var(--muted-foreground)]">Enter your work email and we’ll send a secure reset code.</p>
-          {done ? <div className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-[0_12px_32px_rgba(0,0,0,0.08)]">
-              <Check className="text-[var(--chart-4)]" />
-              <p className="mt-2 font-medium text-[var(--foreground)]">Check your inbox.</p>
-              <p className="mt-1 text-sm text-[var(--muted-foreground)]">A reset code was sent to {e}.</p>
-              <button type="button" onClick={() => navigateApp(routes.auth.resetPassword)} className="mt-4 flex h-10 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)]">Enter reset code <ArrowRight size={16} /></button>
-            </div> : <form onSubmit={x => {
-          x.preventDefault();
-          if (!e || loading) return;
-          setLoading(true);
-          setError('');
-          requestApi({ path: '/auth/forgot-password', method: 'POST', body: { email: e } })
-            .then(() => {
-              setPendingEmail(e);
-              setDone(true);
-            })
-            .catch(cause => setError(getFriendlyErrorMessage(cause, 'We could not send the reset code. Please try again.')))
-            .finally(() => setLoading(false));
-        }} className="mt-8">
-              <label className="text-sm text-[var(--muted-foreground)]">
-                Work email
-                <input value={e} onChange={x => setE(x.target.value)} type="email" placeholder="you@company.com" className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-[var(--foreground)] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-              </label>
-              <button disabled={loading} className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-wait disabled:opacity-60">{loading ? 'Sending…' : 'Send reset code'} <ArrowRight size={16} /></button>
-              {error && <p role="alert" className="mt-3 text-sm text-[var(--destructive)]">{error}</p>}
-            </form>}
-          <button type="button" onClick={() => navigateApp(routes.auth.login)} className="mt-8 flex items-center gap-2 text-sm text-[var(--foreground)]"><ArrowLeft size={15} /> Back to sign in</button>
-        </div>
-      </section>
-      <aside className="hidden border-l border-[var(--border)] bg-[var(--sidebar)] p-12 text-[var(--foreground)] lg:flex lg:flex-col lg:justify-between">
-        <Mail size={42} />
-        <div>
-          <Sparkles />
-          <h2 className="mt-5 text-4xl font-semibold">Your workspace stays yours.</h2>
-          <p className="mt-4 text-[var(--muted-foreground)]">A quick reset and you’re back to the context that moves your business forward.</p>
-        </div>
+  return <main className="lulu-auth-recovery">
+    <div className="lulu-auth-recovery__atmosphere" aria-hidden="true" />
+    <header className="lulu-auth-recovery__nav">
+      <a {...pageLinkProps('brightly-door-5741')} className="lulu-auth-recovery__brand lulu-global-brand-host" data-lulu-no-translate="true" translate="no" aria-label="Lulu AI login">
+        <img src="/branding/lulu-agentic-mark.svg" alt="" />
+        <span>LULU AI</span>
+        <small>OPERATING SYSTEM</small>
+      </a>
+      <button type="button" onClick={() => navigateApp(routes.auth.login)} className="lulu-auth-recovery__nav-action">Back to sign in</button>
+    </header>
+    <section className="lulu-auth-recovery__layout">
+      <aside className="lulu-auth-recovery__story" aria-labelledby="recovery-story-title">
+        <span className="lulu-auth-recovery__eyebrow">ACCOUNT RECOVERY</span>
+        <Mail aria-hidden="true" className="lulu-auth-recovery__story-icon" size={28} />
+        <h1 id="recovery-story-title">Your workspace stays yours.</h1>
+        <p>A quick reset and you’re back to the context that moves your business forward.</p>
       </aside>
-    </main>;
+      <section className="lulu-auth-recovery__card" aria-labelledby="password-recovery-title">
+        <header className="lulu-auth-recovery__card-header">
+          <span className="lulu-auth-recovery__eyebrow">ACCOUNT RECOVERY</span>
+          <h2 id="password-recovery-title">Reset your password.</h2>
+          <p>Enter your work email and we’ll send a secure reset code.</p>
+        </header>
+        {done ? <section className="lulu-auth-recovery__success" aria-live="polite">
+            <span aria-hidden="true"><Check size={19} strokeWidth={3} /></span>
+            <div><h3>Check your inbox.</h3><p>A reset code was sent to {e}.</p></div>
+            <button type="button" onClick={() => navigateApp(routes.auth.resetPassword)} className="lulu-auth-recovery__primary-action">Enter reset code <ArrowRight size={16} /></button>
+          </section> : <form onSubmit={x => {
+            x.preventDefault();
+            if (!e || loading) return;
+            setLoading(true);
+            setError('');
+            requestApi({ path: '/auth/forgot-password', method: 'POST', body: { email: e } })
+              .then(() => {
+                setPendingEmail(e);
+                setDone(true);
+              })
+              .catch(cause => setError(getFriendlyErrorMessage(cause, 'We could not send the reset code. Please try again.')))
+              .finally(() => setLoading(false));
+          }} className="lulu-auth-recovery__form">
+            <label className="lulu-auth-recovery__field" htmlFor="recovery-email"><span>Work email</span><input id="recovery-email" value={e} onChange={x => setE(x.target.value)} type="email" autoComplete="email" placeholder="you@company.com" /></label>
+            <button disabled={loading} className="lulu-auth-recovery__primary-action">{loading ? 'Sending…' : 'Send reset code'} <ArrowRight size={16} /></button>
+            {error && <p role="alert" className="lulu-auth-recovery__error">{error}</p>}
+          </form>}
+        <button type="button" onClick={() => navigateApp(routes.auth.login)} className="lulu-auth-recovery__back"><ArrowLeft size={15} /> Back to sign in</button>
+      </section>
+    </section>
+    <footer className="lulu-auth-recovery__footer"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/.well-known/security.txt">Security</a></footer>
+  </main>;
 };
