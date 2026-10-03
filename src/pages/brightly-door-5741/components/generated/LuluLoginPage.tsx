@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, BarChart3, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, Network, ShieldCheck, Sparkles, Target, UsersRound } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
-import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
+import { ApiError, requestApi, type ApiRequest } from '../../../../api/client';
 import { switchLanguage, useLanguage, useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import { Button } from '../../../../components/ui/button';
 import { Input } from '../../../../components/ui/input';
@@ -88,7 +88,6 @@ export const LuluLoginPage = () => {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [errorDetails, setErrorDetails] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
 
   const reloadAuthenticatedRoute = (path: string) => {
@@ -110,7 +109,6 @@ export const LuluLoginPage = () => {
     }
     setLoading(true);
     setError('');
-    setErrorDetails('');
     setStatusMessage(t('Checking your account…'));
     setS(false);
     try {
@@ -156,7 +154,6 @@ export const LuluLoginPage = () => {
       setStatusMessage('');
       if (cause instanceof DOMException && cause.name === 'AbortError') {
         setError(t('The login request timed out. Please try again.'));
-        setErrorDetails(t('Code: API_TIMEOUT · The server did not respond within 15 seconds.'));
       } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
         setPendingEmail(e);
         navigateApp(routes.auth.signUp);
@@ -169,9 +166,8 @@ export const LuluLoginPage = () => {
       } else if (cause instanceof ApiError && cause.status >= 500) {
         setError(t('The login service is temporarily unavailable. Please try again shortly.'));
       } else {
-        setError(getFriendlyErrorMessage(cause, t('We could not sign you in. Please try again.')));
+        setError(t('We could not sign you in. Please try again.'));
       }
-      if (!(cause instanceof DOMException && cause.name === 'AbortError')) setErrorDetails(getTechnicalErrorDetails(cause));
     } finally {
       setLoading(false);
     }
@@ -244,7 +240,7 @@ export const LuluLoginPage = () => {
                 {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}
               </Button>
               {statusMessage && <p role="status" className="lulu-exec-status">{statusMessage}</p>}
-              {error && <div role="alert" className="lulu-exec-error"><p>{error}</p>{errorDetails && <p>{errorDetails}</p>}</div>}
+              {error && <div role="alert" className="lulu-exec-error"><p>{error}</p></div>}
               {s && <p className="lulu-exec-success"><Check size={15} /> {t('Signed in successfully.')}</p>}
             </div>
             <div className="lulu-exec-login-links">

@@ -7,6 +7,7 @@ const runtimeSource = readFileSync(join(root, "src", "api", "runtime.tsx"), "utf
 const clientSource = readFileSync(join(root, "src", "api", "client.ts"), "utf8");
 const uploadSource = readFileSync(join(root, "src", "uploads", "GlobalUploadFeedback.tsx"), "utf8");
 const signupSource = readFileSync(join(root, "src", "pages", "finely-year-1146", "components", "generated", "LuluSignupPage.tsx"), "utf8");
+const loginSource = readFileSync(join(root, "src", "pages", "brightly-door-5741", "components", "generated", "LuluLoginPage.tsx"), "utf8");
 const resetPasswordSource = readFileSync(join(root, "src", "pages", "deep-coast-9085", "components", "generated", "LuluResetPassword.tsx"), "utf8");
 
 function sourceFiles(directory) {
@@ -31,6 +32,9 @@ if (!uploadSource.includes('kind: "loading"') || !uploadSource.includes('kind: "
 }
 if (!signupSource.includes("useState(false)") || !signupSource.includes("{password && <") || !signupSource.includes("{confirmPassword && <")) {
   issues.push("Registration progress is still visible before the user enters information.");
+}
+if (loginSource.includes("getTechnicalErrorDetails") || loginSource.includes("errorDetails")) {
+  issues.push("The sign-in page can still expose internal request diagnostics to customers.");
 }
 if (resetPasswordSource.includes("State reference") || resetPasswordSource.includes("Reset password state reference")) {
   issues.push("The password-reset page still renders internal state-reference cards to customers.");
