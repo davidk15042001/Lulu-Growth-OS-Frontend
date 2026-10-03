@@ -65,7 +65,9 @@
 .lulu-station__metrics > div { display: grid; gap: 5px; min-width: 0; border: 1px solid var(--station-line); border-radius: 12px; padding: 13px 15px; background: rgba(13, 27, 43, .72); box-shadow: inset 0 1px rgba(255, 255, 255, .03); }
 .lulu-station__metrics > div.is-attention { border-color: rgba(233, 196, 122, .46); background: rgba(67, 47, 24, .3); }
 .lulu-station__metrics > div.is-blocked { border-color: rgba(255, 157, 138, .5); background: rgba(86, 35, 29, .32); }
+.lulu-station__metrics > div.is-platform-funded { border-color: rgba(156, 140, 255, .48); background: linear-gradient(135deg, rgba(53, 45, 105, .42), rgba(13, 27, 43, .76)); }
 .lulu-station__metrics > div.is-blocked span svg { color: var(--station-coral); }
+.lulu-station__metrics > div.is-platform-funded span svg { color: #b8adff; }
 .lulu-station__metrics span { display: flex; align-items: center; gap: 6px; color: var(--station-muted); font-size: .66rem; font-weight: 750; letter-spacing: .05em; text-transform: uppercase; }
 .lulu-station__metrics span svg { color: var(--station-teal); }
 .lulu-station__metrics strong { color: #fff; font-size: 1.55rem; letter-spacing: -.05em; line-height: 1; }

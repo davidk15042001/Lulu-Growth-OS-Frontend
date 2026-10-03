@@ -271,6 +271,8 @@ if (
   || !nativeAgentWorkspace.includes('if (/email|inbox|mail/.test(key)) return "email";')
   || !nativeAgentWorkspace.includes('if (/reputation|review/.test(key)) return "reputation";')
   || !nativeAgentWorkspace.includes('if (has("omnichannel.") || /support|communication/.test(key)) return "communications";')
+  || !nativeAgentWorkspace.includes('has("quotes.")')
+  || !nativeAgentWorkspace.includes('/invoice|billing|bookkeeping|finance|quote/.test(key)')
   || !nativeAgentWorkspace.includes('omnichannelApi.conversations(workspaceId, "limit=16")')
   || !nativeAgentWorkspace.includes('omnichannelApi.conversation(workspaceId, first.id)')
   || !nativeAgentWorkspace.includes('const messageRequestRef = useRef(0);')
@@ -305,6 +307,15 @@ if (
 
 if (!luluStation.includes('overview.summary.runningWorkItems') || !luluStation.includes('queuedOrWaitingWork')) {
   failures.push('Office work summary does not distinguish running work from queued or human-gated items.');
+}
+
+if (
+  !luluStation.includes('platformFundedAi')
+  || !luluStation.includes('Platform-funded work')
+  || !luluStation.includes('prepaid AI credit is not being used')
+  || !luluStationCss.includes('.lulu-station__metrics > div.is-platform-funded')
+) {
+  failures.push('Office activity does not clearly distinguish platform-funded AI work from customer prepaid-credit work.');
 }
 
 if (

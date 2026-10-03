@@ -77,9 +77,9 @@ function resolveKind(detail: OfficeEmployeeDetails): NativeWorkspaceKind {
   if (/email|inbox|mail/.test(key)) return "email";
   if (/reputation|review/.test(key)) return "reputation";
   if (has("omnichannel.") || /support|communication/.test(key)) return "communications";
+  if (has("invoices.") || has("finance.") || has("payouts.") || has("quotes.") || /invoice|billing|bookkeeping|finance|quote/.test(key)) return "finance";
   if (has("crm.") || has("leads.") || has("opportunities.") || /company|customer|lead|sales|follow-up|quote/.test(key)) return "crm";
   if (has("products.") || has("orders.") || /product|catalog|inventory|fulfillment|commerce|store|order/.test(key)) return "commerce";
-  if (has("invoices.") || has("finance.") || has("payouts.") || /invoice|billing|bookkeeping|finance/.test(key)) return "finance";
   if (has("social.") || has("advertising.") || /marketing|content|brand|social|acquisition|ads/.test(key)) return "marketing";
   if (has("website.") || /website|cms|media|domain|reputation|search/.test(key)) return "website";
   if (has("providers.") || has("settings.") || /integration|automation|operations/.test(key)) return "operations";

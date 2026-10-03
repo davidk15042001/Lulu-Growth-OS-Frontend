@@ -6821,6 +6821,8 @@
   "waiting / human control": "等待 / 人工控制",
   "approval / error": "审批 / 错误",
   "AI credit required": "需要 AI 积分",
+  "Platform-funded AI is enabled for this workspace; prepaid AI credit is not being used.": "此工作区已启用平台资助的 AI；不会使用预付费 AI 积分。",
+  "Platform-funded work": "平台资助的工作",
   "Execution is paused until AI credit is available": "执行已暂停，直到 AI 积分可用",
   "employees at dedicated stations": "员工位于固定工作站",
   "Email operations": "电子邮件运营",

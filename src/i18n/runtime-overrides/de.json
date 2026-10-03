@@ -6844,6 +6844,8 @@
   "waiting / human control": "Warten / menschliche Steuerung",
   "approval / error": "Freigabe / Fehler",
   "AI credit required": "AI-Guthaben erforderlich",
+  "Platform-funded AI is enabled for this workspace; prepaid AI credit is not being used.": "Für diesen Workspace ist plattformfinanzierte KI aktiviert; Prepaid-AI-Guthaben wird nicht verwendet.",
+  "Platform-funded work": "Plattformfinanzierte Arbeit",
   "Execution is paused until AI credit is available": "Die Ausführung ist pausiert, bis AI-Guthaben verfügbar ist",
   "employees at dedicated stations": "Mitarbeitende an festen Arbeitsplätzen",
   "Email operations": "E-Mail-Betrieb",

@@ -468,6 +468,7 @@ export function LuluStation() {
   }, [departmentQuery, rooms]);
   const openSignals = overview?.companyBrain?.signals.filter((signal) => signal.status === "OPEN").length ?? 0;
   const aiExecutionAvailable = overview?.executionReadiness?.ai.available ?? true;
+  const platformFundedAi = overview?.executionReadiness?.ai.fundingMode === "PLATFORM_FUNDED";
   const allEmployees = overview?.departments.flatMap((department) => department.employees) ?? [];
   const onlineEmployees = allEmployees.filter((employee) => isOnlineStatus(effectiveStatus(employee.status, aiExecutionAvailable))).length;
   const blockedEmployees = allEmployees.filter((employee) => effectiveStatus(employee.status, aiExecutionAvailable) === "BLOCKED").length;
@@ -498,8 +499,8 @@ export function LuluStation() {
       </header>
 
       <div className="lulu-station__metrics" aria-label="Station summary">
-        <div className={!aiExecutionAvailable ? "is-blocked" : ""}><span><Zap size={14} />{aiExecutionAvailable ? "Work in motion" : "AI execution"}</span><strong>{aiExecutionAvailable ? (overview.summary.runningWorkItems ?? 0) : 0}</strong><small>{aiExecutionAvailable ? (queuedOrWaitingWork > 0 ? `${queuedOrWaitingWork} ${t("queued or awaiting review")}` : t("No work is waiting in the queue")) : `${overview.summary.activeWorkItems} work items queued safely`}</small></div>
-        <div><span><Layers3 size={14} />Crew online</span><strong>{onlineEmployees}</strong><small>{!aiExecutionAvailable ? aiExecutionMessage : `${overview.summary.employeeCount} employees assigned`}</small></div>
+        <div className={!aiExecutionAvailable ? "is-blocked" : ""}><span><Zap size={14} />{aiExecutionAvailable ? (platformFundedAi ? t("Platform-funded work") : t("Work in motion")) : t("AI execution")}</span><strong>{aiExecutionAvailable ? (overview.summary.runningWorkItems ?? 0) : 0}</strong><small>{aiExecutionAvailable ? (queuedOrWaitingWork > 0 ? `${queuedOrWaitingWork} ${t("queued or awaiting review")}` : t("No work is waiting in the queue")) : `${overview.summary.activeWorkItems} work items queued safely`}</small></div>
+        <div className={platformFundedAi ? "is-platform-funded" : ""}><span><Layers3 size={14} />Crew online</span><strong>{onlineEmployees}</strong><small>{!aiExecutionAvailable ? aiExecutionMessage : platformFundedAi ? t("Platform-funded AI is enabled for this workspace; prepaid AI credit is not being used.") : `${overview.summary.employeeCount} employees assigned`}</small></div>
         <div className={attentionCount > 0 ? "is-attention" : ""}><span><Target size={14} />Needs attention</span><strong>{attentionCount}</strong><small>{openSignals} open Company Brain signals</small></div>
         <div><span><CheckCircle2 size={14} />Verified outcomes</span><strong>{overview.summary.completedToday}</strong><small>recently completed work items</small></div>
       </div>
