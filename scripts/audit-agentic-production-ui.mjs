@@ -257,6 +257,14 @@ if (luluStation.includes('<iframe') || nativeAgentWorkspace.includes('<iframe'))
 }
 
 if (
+  !luluStationCss.includes('.lulu-station__modal-body > * { min-width: 0; }')
+  || !luluStationCss.includes('.lulu-station__modal-details { display: grid; min-width: 0;')
+  || !luluStationCss.includes('overflow-wrap: anywhere;')
+) {
+  failures.push('Office employee workspaces can overflow their modal instead of wrapping long verified work context.');
+}
+
+if (
   !nativeAgentWorkspace.includes('function EmailSurface')
   || !nativeAgentWorkspace.includes('function CalendarSurface')
   || !nativeAgentWorkspace.includes('function ReviewSurface')
