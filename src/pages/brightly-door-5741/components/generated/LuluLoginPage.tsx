@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ArrowRight, BarChart3, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, Network, ShieldCheck, Sparkles, Target, UsersRound } from 'lucide-react';
 import { navigateApp, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi, type ApiRequest } from '../../../../api/client';
@@ -82,7 +82,6 @@ const productColorways = [
 export const LuluLoginPage = () => {
   const t = useTranslation();
   const language = useLanguage();
-  const isLandingLanguage = language === 'en' || language === 'zh-CN';
   const [e, setE] = useState('');
   const [p, setP] = useState('');
   const [s, setS] = useState(false);
@@ -91,10 +90,6 @@ export const LuluLoginPage = () => {
   const [error, setError] = useState('');
   const [errorDetails, setErrorDetails] = useState('');
   const [statusMessage, setStatusMessage] = useState('');
-
-  useEffect(() => {
-    if (!isLandingLanguage) switchLanguage('en');
-  }, [isLandingLanguage]);
 
   const reloadAuthenticatedRoute = (path: string) => {
     // The provider owns the authenticated session state. A full document
@@ -182,8 +177,6 @@ export const LuluLoginPage = () => {
     }
   };
 
-  if (!isLandingLanguage) return <main className="auth-shell lulu-executive-landing" aria-busy="true" />;
-
   return (
     <main data-deploy-rev="2026-10-03-lulu-nova-product-redesign" className="auth-shell lulu-executive-landing lulu-nova-auth">
       <header className="lulu-exec-nav">
@@ -198,8 +191,9 @@ export const LuluLoginPage = () => {
         </nav>
         <div className="lulu-exec-nav-actions">
           <div className="lulu-exec-language-switch" data-lulu-no-translate="true" translate="no">
-            <button type="button" onClick={() => switchLanguage('en')} aria-pressed={language === 'en'} className={language === 'en' ? 'is-active' : ''}>EN</button>
-            <button type="button" onClick={() => switchLanguage('zh-CN')} aria-pressed={language === 'zh-CN'} className={language === 'zh-CN' ? 'is-active' : ''}>中文</button>
+            <button type="button" data-lulu-no-translate="true" translate="no" onClick={() => switchLanguage('en')} aria-pressed={language === 'en'} className={language === 'en' ? 'is-active' : ''}>EN</button>
+            <button type="button" data-lulu-no-translate="true" translate="no" onClick={() => switchLanguage('de')} aria-pressed={language === 'de'} className={language === 'de' ? 'is-active' : ''}>DE</button>
+            <button type="button" data-lulu-no-translate="true" translate="no" onClick={() => switchLanguage('zh-CN')} aria-pressed={language === 'zh-CN'} className={language === 'zh-CN' ? 'is-active' : ''}>中文</button>
           </div>
           <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="lulu-exec-nav-login">{t('Sign up for free')}</button>
         </div>

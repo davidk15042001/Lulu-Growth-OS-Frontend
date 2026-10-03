@@ -25,6 +25,7 @@ import { PageRoute } from "./app/PageRoute";
 import { availablePages } from "./app/page-registry";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { WorkspaceSurfaceShell } from "./components/WorkspaceSurfaceShell";
+import { ReleaseUpdateNotifier } from "./components/ReleaseUpdateNotifier";
 import LuluLandingPage from "./pages/public/LuluLandingPage";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
@@ -480,6 +481,7 @@ export default function App() {
         <Route path="*" element={<NotFound />} />
       </Routes>
       </Suspense>
+      <ReleaseUpdateNotifier />
     </>
   );
 }

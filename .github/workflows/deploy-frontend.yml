@@ -42,6 +42,7 @@ jobs:
       - name: Frontend installieren, prüfen und bauen
         env:
           VITE_API_URL: ${{ env.API_BASE_URL }}
+          VITE_RELEASE_SHA: ${{ github.sha }}
           LULU_ALLOW_MISSING_BACKEND: 'true'
         run: |
           set -euo pipefail
