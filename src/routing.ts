@@ -234,9 +234,10 @@ export function isLuluNavigationMessage(value: unknown): value is LuluNavigation
 }
 
 /**
- * The Office employee panel renders the canonical Workspace route in a
- * same-origin iframe. This explicit surface flag lets every shell suppress
- * only its global chrome while preserving the real page, API and data model.
+ * A canonical Workspace route can opt into the compact Office panel shell.
+ * The native employee dialog owns its data view directly; this marker only
+ * suppresses global chrome when a full workspace route is opened from that
+ * compact surface.
  */
 export function isOfficePanelSurface(search = typeof window === "undefined" ? "" : window.location.search) {
   return new URLSearchParams(search).get("surface") === OFFICE_PANEL_SURFACE;
@@ -257,9 +258,9 @@ export function navigateApp(to: string, options: { replace?: boolean } = {}) {
 
   if (window.parent !== window) {
     const target = new URL(to, window.location.href);
-    // Navigation originating inside an employee's embedded Workspace stays in
-    // that surface. It must not unexpectedly replace the CEO's Office route,
-    // and the surface marker must survive navigation between real pages.
+    // Navigation originating inside an Office panel surface stays in that
+    // surface. It must not unexpectedly replace the CEO's Office route, and
+    // the marker must survive navigation between real pages.
     if (isOfficePanelSurface()) {
       target.searchParams.set("surface", OFFICE_PANEL_SURFACE);
       const next = `${target.pathname}${target.search}${target.hash}`;
