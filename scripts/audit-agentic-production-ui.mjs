@@ -46,6 +46,14 @@ if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_IN
   failures.push('Resource pages are not protected by the live production-interface gate.');
 }
 
+if (
+  !nativePage.includes('const EXECUTIVE_WORKSPACE_STYLE_SLUGS = new Set([')
+  || !nativePage.includes('"fancily-leaf-1766"')
+  || !nativePage.includes('if (EXECUTIVE_WORKSPACE_STYLE_SLUGS.has(slug))')
+) {
+  failures.push('The executive-only visual layer can leak into unrelated workspace routes.');
+}
+
 if (!nativePage.includes('const useLiveResourceFallback') || !nativePage.includes('<LiveResourceRoute resourceType={contract.resourceType} />')) {
   failures.push('A resource page without a dedicated agent could fall back to a static generated interface.');
 }

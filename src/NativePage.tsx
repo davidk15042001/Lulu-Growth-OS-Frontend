@@ -32,6 +32,14 @@ const authPageSlugs = new Set([
   "mightily-minute-5145",
 ]);
 
+// The executive dashboard has a dedicated composition. Its presentation layer
+// contains selectors for that dashboard and must not be mounted on every
+// generated workspace route; doing so creates a second competing visual
+// system after the shared workspace layer has already been applied.
+const EXECUTIVE_WORKSPACE_STYLE_SLUGS = new Set([
+  "fancily-leaf-1766",
+]);
+
 // Public authentication and onboarding are standalone flows. They must not
 // inherit the authenticated workspace navigation, regardless of the page's
 // generated slug or how the user reached the route.
@@ -252,10 +260,12 @@ export function NativePage({
         visualSystemStyleElement.textContent = luluVisualSystemCss;
         document.head.appendChild(visualSystemStyleElement);
       }
-      executiveWorkspaceStyleElement = document.createElement("style");
-      executiveWorkspaceStyleElement.dataset.luluExecutiveWorkspace = slug;
-      executiveWorkspaceStyleElement.textContent = executiveWorkspaceCss;
-      document.head.appendChild(executiveWorkspaceStyleElement);
+      if (EXECUTIVE_WORKSPACE_STYLE_SLUGS.has(slug)) {
+        executiveWorkspaceStyleElement = document.createElement("style");
+        executiveWorkspaceStyleElement.dataset.luluExecutiveWorkspace = slug;
+        executiveWorkspaceStyleElement.textContent = executiveWorkspaceCss;
+        document.head.appendChild(executiveWorkspaceStyleElement);
+      }
       if (isAuthPage) {
         const livePageFrame = document.querySelector<HTMLElement>(".page-frame");
         livePageFrame?.classList.add("page-frame--auth");
