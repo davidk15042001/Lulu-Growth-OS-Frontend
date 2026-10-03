@@ -10,6 +10,8 @@ const authenticatedTopBar = fs.readFileSync(path.join(root, 'src', 'components',
 const globalNavigation = fs.readFileSync(path.join(root, 'src', 'components', 'LuluGlobalNavigation.tsx'), 'utf8');
 const adminBillingPage = fs.readFileSync(path.join(root, 'src', 'pages', 'admin-billing-overview-9901', 'App.tsx'), 'utf8');
 const loginPage = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door-5741', 'components', 'generated', 'LuluLoginPage.tsx'), 'utf8');
+const signupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'finely-year-1146', 'components', 'generated', 'LuluSignupPage.tsx'), 'utf8');
+const signupCss = fs.readFileSync(path.join(root, 'src', 'pages', 'finely-year-1146', 'signup.css'), 'utf8');
 const connectionSetupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fresh-tide-9404', 'components', 'generated', 'LuluExistingPlatforms.tsx'), 'utf8');
 const budgetsPage = fs.readFileSync(path.join(root, 'src', 'pages', 'sunny-minute-1092', 'components', 'generated', 'LuluBudgets.tsx'), 'utf8');
 const advertisingConnectionsPage = fs.readFileSync(path.join(root, 'src', 'pages', 'sunny-summer-2293', 'components', 'generated', 'AdAccountsWorkspace.tsx'), 'utf8');
@@ -133,6 +135,16 @@ if (
   || !appRouter.includes('<PublicAuthRoute><PageRoute page={page} /></PublicAuthRoute>')
 ) {
   failures.push('The public /login route is no longer guaranteed to render the redesigned Lulu login experience.');
+}
+
+if (
+  !signupPage.includes('import \'../../signup.css\';')
+  || !signupPage.includes('className="lulu-signup"')
+  || !signupPage.includes('className="lulu-signup__form-card"')
+  || !signupCss.includes('.lulu-signup__form-card')
+  || !signupCss.includes('@media (max-width: 640px)')
+) {
+  failures.push('The public signup route is no longer held to the same responsive product-design standard as the redesigned login experience.');
 }
 
 if (authenticatedTopBar.includes('lulu-auth-runtime') || globalNavigation.includes('lulu-global-navigation__system') || adminBillingPage.includes('lulu-admin-console__runtime')) {

@@ -61,5 +61,20 @@
   "Verify email": "E-Mail bestätigen",
   "We could not send a new code yet.": "Ein neuer Code konnte noch nicht gesendet werden.",
   "We could not verify your email. Please try again.": "Deine E-Mail-Adresse konnte nicht bestätigt werden. Bitte versuche es erneut.",
-  "We sent a six-digit verification code to your email.": "Wir haben einen sechsstelligen Bestätigungscode an Ihre E-Mail gesendet."
+  "We sent a six-digit verification code to your email.": "Wir haben einen sechsstelligen Bestätigungscode an Ihre E-Mail gesendet.",
+  "Lulu AI login": "Lulu AI-Anmeldung",
+  "OPERATING SYSTEM": "BETRIEBSSYSTEM",
+  "Already have an account?": "Haben Sie bereits ein Konto?",
+  "YOUR COMPANY, ONE OPERATING SYSTEM": "IHR UNTERNEHMEN, EIN BETRIEBSSYSTEM",
+  "Set up the workspace where your company memory, connected systems and governed execution come together.": "Richten Sie den Arbeitsbereich ein, in dem Unternehmenswissen, verbundene Systeme und gesteuerte Ausführung zusammenkommen.",
+  "What your Lulu workspace includes": "Was Ihr Lulu-Arbeitsbereich umfasst",
+  "One trusted workspace": "Ein vertrauenswürdiger Arbeitsbereich",
+  "for the context your company needs to operate.": "für den Kontext, den Ihr Unternehmen zum Arbeiten benötigt.",
+  "Connected when you are ready": "Verbinden Sie Ihre Systeme, wenn Sie bereit sind",
+  "— keep your existing tools and data in control.": "— Ihre bestehenden Tools und Daten bleiben unter Ihrer Kontrolle.",
+  "Clear, governed execution": "Klare, gesteuerte Ausführung",
+  "with controls that remain visible to your team.": "mit Kontrollen, die für Ihr Team sichtbar bleiben.",
+  "ACCOUNT SETUP": "KONTO EINRICHTEN",
+  "Start your workspace": "Starten Sie Ihren Arbeitsbereich",
+  "Use your work email. You can invite the rest of your team after setup.": "Verwenden Sie Ihre geschäftliche E-Mail-Adresse. Nach der Einrichtung können Sie Ihr Team einladen."
 }

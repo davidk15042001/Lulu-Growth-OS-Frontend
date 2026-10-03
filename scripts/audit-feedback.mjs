@@ -28,7 +28,7 @@ if (!runtimeSource.includes("<GlobalUploadFeedback />")) issues.push("Global upl
 if (!uploadSource.includes('kind: "loading"') || !uploadSource.includes('kind: "success"') || !uploadSource.includes('kind: "error"')) {
   issues.push("Upload feedback does not cover loading, success and error states.");
 }
-if (!signupSource.includes("useState(false)") || !signupSource.includes("{password && <>") || !signupSource.includes("{confirmPassword &&")) {
+if (!signupSource.includes("useState(false)") || !signupSource.includes("{password && <") || !signupSource.includes("{confirmPassword && <")) {
   issues.push("Registration progress is still visible before the user enters information.");
 }
 

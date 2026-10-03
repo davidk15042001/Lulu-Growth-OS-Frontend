@@ -4,6 +4,7 @@ import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { clearPendingEmail, clearSelectedWorkspaceId, setPendingEmail } from '../../../../api/session';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
+import '../../signup.css';
 const LEGAL_ENTITY_NAME = 'Hong Kong Lulu Development Limited';
 const passwordRules: Array<{ label: string; test: (value: string) => boolean }> = [{ label: 'At least 12 characters', test: value => value.length >= 12 }, { label: 'One uppercase letter', test: value => /[A-Z]/.test(value) }, { label: 'One lowercase letter', test: value => /[a-z]/.test(value) }, { label: 'One number', test: value => /\d/.test(value) }, { label: 'One special character', test: value => /[^A-Za-z0-9]/.test(value) }];
 
@@ -122,104 +123,111 @@ export function LuluSignupPage() {
       setStatus('idle');
     }
   }
-  return <main className="auth-shell grid min-h-screen bg-[var(--background)] font-sans text-[var(--foreground)] lg:grid-cols-1">
-      <section className="flex items-start justify-center overflow-y-auto px-6 py-10">
-        <div className="w-full max-w-md">
-          <div className="lulu-global-brand-host flex items-center gap-2" data-lulu-no-translate="true" translate="no">
-            <span aria-hidden="true" className="grid h-9 w-9 place-items-center rounded-full bg-[var(--primary)] text-lg font-bold text-[var(--primary-foreground)]">L</span>
-            <span className="text-xl font-bold tracking-[-0.02em]">Lulu AI</span>
-          </div>
+  return <main className="lulu-signup">
+    <div className="lulu-signup__atmosphere" aria-hidden="true" />
+    <header className="lulu-signup__nav">
+      <a {...pageLinkProps('brightly-door-5741')} className="lulu-signup__brand lulu-global-brand-host" data-lulu-no-translate="true" translate="no" aria-label="Lulu AI login">
+        <img src="/branding/lulu-agentic-mark.svg" alt="" />
+        <span>LULU AI</span>
+        <small>OPERATING SYSTEM</small>
+      </a>
+      <a {...pageLinkProps('brightly-door-5741')} className="lulu-signup__sign-in-link">Already have an account? <strong>Sign in</strong></a>
+    </header>
 
-          <header className="mt-10 text-left">
-            <h1 id="signup-title" className="text-3xl font-semibold tracking-[-0.03em]">Create your Lulu AI account</h1>
-          </header>
-
-          {verificationStep && <section className="mt-8 rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-5" aria-labelledby="verify-signup-title">
-            <h2 id="verify-signup-title" className="text-lg font-semibold">{t('Confirm your email')}</h2>
-            <p className="mt-2 text-sm text-[var(--muted-foreground)]">{t('Enter the six-digit code sent to')} <strong>{email}</strong>.</p>
-            <label htmlFor="signup-verification-code" className="mt-5 block text-[13px] font-medium">Verification code</label>
-            <input id="signup-verification-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={verificationCode} onChange={event => setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="mt-1 h-11 w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 text-center text-lg tracking-[0.35em] outline-none focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-            <button type="button" onClick={() => void verifyEmail()} disabled={verificationStatus !== 'idle'} className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] disabled:cursor-not-allowed disabled:opacity-50">{verificationStatus === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}Verify email</button>
-            <button type="button" onClick={() => void resendVerificationCode()} disabled={verificationStatus !== 'idle'} className="mt-3 w-full text-sm font-medium underline disabled:opacity-50">{verificationStatus === 'resending' ? 'Sending…' : 'Send a new code'}</button>
-            {verificationMessage && <p role="status" className="mt-3 text-sm text-[var(--muted-foreground)]">{verificationMessage}</p>}
-          </section>}
-
-          {!verificationStep && <form className="mt-8" onSubmit={handleSubmit} noValidate>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="signup-first-name" className="mb-1 block text-[13px] font-medium">First name</label>
-                <input id="signup-first-name" name="firstName" autoComplete="given-name" value={firstName} onChange={event => setFirstName(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-              </div>
-              <div>
-                <label htmlFor="signup-last-name" className="mb-1 block text-[13px] font-medium">Last name</label>
-                <input id="signup-last-name" name="lastName" autoComplete="family-name" value={lastName} onChange={event => setLastName(event.target.value)} className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="signup-email" className="mb-1 mt-4 block text-[13px] font-medium">Email</label>
-              <input id="signup-email" name="email" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@company.com" className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 text-sm outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-            </div>
-
-            <div className="mt-4">
-              <label htmlFor="signup-password" className="mb-1 block text-[13px] font-medium">Password</label>
-              <span className="relative block">
-                <input id="signup-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={password} onChange={event => setPassword(event.target.value)} placeholder="Create a password" className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 pr-11 text-sm outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-0 top-0 grid h-11 w-11 place-items-center text-[var(--muted-foreground)] transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">
-                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </span>
-              {password && <>
-                <div className="mt-2.5 flex items-center gap-1.5" aria-label={`Password strength: ${strengthLabel}`}>
-                  {[1, 2, 3, 4].map(segment => <span key={segment} className={`h-1 flex-1 rounded-full ${segment <= strengthSegments ? 'bg-[var(--primary)]' : 'bg-[var(--border)]'}`} />)}
-                  <span className="ml-1 text-[11px] font-medium">{strengthLabel}</span>
-                </div>
-                <ul className="mt-2 grid gap-1 sm:grid-cols-2" aria-label="Password requirements">
-                  {passwordResults.map(rule => <li key={rule.label} className="flex items-center gap-1.5 text-[11px] text-[var(--muted-foreground)]">
-                      <span aria-hidden="true" className={`grid h-3 w-3 place-items-center rounded-full ${rule.passed ? 'text-[var(--chart-4)]' : 'text-[var(--muted-foreground)]'}`}>
-                        {rule.passed ? <Check size={11} strokeWidth={3} /> : '·'}
-                      </span>
-                      <span>{rule.label}</span>
-                    </li>)}
-                </ul>
-              </>}
-            </div>
-
-            <div className="mt-4">
-              <label htmlFor="confirm-password" className="mb-1 block text-[13px] font-medium">Confirm password</label>
-              <span className="relative block">
-                <input id="confirm-password" name="confirmPassword" type={showConfirm ? 'text' : 'password'} autoComplete="new-password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm your password" className="h-11 w-full rounded-md border border-[var(--border)] bg-[var(--secondary)] px-3 pr-[68px] text-sm outline-none transition placeholder:text-[var(--muted-foreground)] focus:ring-[3px] focus:ring-[rgba(0,0,0,0.10)]" />
-                {passwordsMatch && <span className="absolute right-10 top-0 grid h-11 w-7 place-items-center text-[var(--chart-4)]" aria-label="Passwords match"><Check size={14} strokeWidth={3} /></span>}
-                <button type="button" onClick={() => setShowConfirm(!showConfirm)} aria-label={showConfirm ? 'Hide confirmation password' : 'Show confirmation password'} className="absolute right-0 top-0 grid h-11 w-11 place-items-center text-[var(--muted-foreground)] transition hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]">
-                  {showConfirm ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </span>
-              {confirmPassword && <p className={`mt-1 text-[11px] ${passwordsMatch ? 'text-[var(--chart-4)]' : 'text-[var(--destructive)]'}`}>
-                {passwordsMatch ? 'Passwords match' : 'Passwords do not match yet'}
-              </p>}
-            </div>
-
-            <label className="mt-4 flex cursor-pointer items-start gap-2 text-[13px] leading-5">
-              <input id="signup-accept-terms" name="acceptTerms" type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} autoComplete="off" required className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[var(--primary)]" />
-              <span>I agree to the <a href="/terms.html" target="_blank" rel="noreferrer" className="underline">Terms of Service</a> and <a href="/privacy.html" target="_blank" rel="noreferrer" className="underline">Privacy Policy</a>.</span>
-            </label>
-
-            <button type="submit" disabled={status === 'loading'} className="mt-5 flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50">
-              {status === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
-              <span>{status === 'loading' ? 'Creating account...' : 'Create Account'}</span>
-            </button>
-            {error && <p role="alert" className="mt-3 flex items-start gap-2 text-[13px] text-[var(--destructive)]"><AlertCircle size={16} className="mt-0.5 shrink-0" />{error}</p>}
-          </form>}
-
-          <p className="mt-5 text-center text-[13px] text-[var(--muted-foreground)]">Already have a Lulu AI account? <a {...pageLinkProps('brightly-door-5741')} className="font-medium text-[var(--foreground)] hover:underline">Sign in</a></p>
-
-          <nav aria-label="Legal links" className="mt-8 flex justify-center gap-5 text-xs text-[var(--muted-foreground)] lg:hidden">
-            <a href="/privacy.html" className="transition hover:text-[var(--foreground)]">Privacy</a>
-            <a href="/terms.html" className="transition hover:text-[var(--foreground)]">Terms</a>
-            <a href="/.well-known/security.txt" className="transition hover:text-[var(--foreground)]">Security</a>
-          </nav>
-          <p className="mt-4 text-center text-[11px] text-[var(--muted-foreground)]">{LEGAL_ENTITY_NAME}</p>
+    <section className="lulu-signup__layout">
+      <section className="lulu-signup__story" aria-labelledby="signup-title">
+        <p className="lulu-signup__eyebrow">YOUR COMPANY, ONE OPERATING SYSTEM</p>
+        <h1 id="signup-title">Create your Lulu AI account</h1>
+        <p className="lulu-signup__lede">Set up the workspace where your company memory, connected systems and governed execution come together.</p>
+        <div className="lulu-signup__principles" aria-label="What your Lulu workspace includes">
+          <div><span aria-hidden="true">01</span><p><strong>One trusted workspace</strong> for the context your company needs to operate.</p></div>
+          <div><span aria-hidden="true">02</span><p><strong>Connected when you are ready</strong> — keep your existing tools and data in control.</p></div>
+          <div><span aria-hidden="true">03</span><p><strong>Clear, governed execution</strong> with controls that remain visible to your team.</p></div>
         </div>
       </section>
 
-    </main>;
+      <section className="lulu-signup__form-card" aria-labelledby="signup-form-title">
+        <header className="lulu-signup__form-header">
+          <span className="lulu-signup__step">ACCOUNT SETUP</span>
+          <h2 id="signup-form-title">Start your workspace</h2>
+          <p>Use your work email. You can invite the rest of your team after setup.</p>
+        </header>
+
+        {verificationStep && <section className="lulu-signup__verification" aria-labelledby="verify-signup-title">
+          <h3 id="verify-signup-title">{t('Confirm your email')}</h3>
+          <p>{t('Enter the six-digit code sent to')} <strong>{email}</strong>.</p>
+          <label htmlFor="signup-verification-code" className="lulu-signup__field">
+            <span>Verification code</span>
+            <input id="signup-verification-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={verificationCode} onChange={event => setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="lulu-signup__input lulu-signup__verification-code" />
+          </label>
+          <button type="button" onClick={() => void verifyEmail()} disabled={verificationStatus !== 'idle'} className="lulu-signup__submit">{verificationStatus === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}Verify email</button>
+          <button type="button" onClick={() => void resendVerificationCode()} disabled={verificationStatus !== 'idle'} className="lulu-signup__secondary-action">{verificationStatus === 'resending' ? 'Sending…' : 'Send a new code'}</button>
+          {verificationMessage && <p role="status" className="lulu-signup__notice">{verificationMessage}</p>}
+        </section>}
+
+        {!verificationStep && <form className="lulu-signup__form" onSubmit={handleSubmit} noValidate>
+          <div className="lulu-signup__name-fields">
+            <label htmlFor="signup-first-name" className="lulu-signup__field">
+              <span>First name</span>
+              <input id="signup-first-name" name="firstName" autoComplete="given-name" value={firstName} onChange={event => setFirstName(event.target.value)} className="lulu-signup__input" />
+            </label>
+            <label htmlFor="signup-last-name" className="lulu-signup__field">
+              <span>Last name</span>
+              <input id="signup-last-name" name="lastName" autoComplete="family-name" value={lastName} onChange={event => setLastName(event.target.value)} className="lulu-signup__input" />
+            </label>
+          </div>
+          <label htmlFor="signup-email" className="lulu-signup__field">
+            <span>Email</span>
+            <input id="signup-email" name="email" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@company.com" className="lulu-signup__input" />
+          </label>
+
+          <label htmlFor="signup-password" className="lulu-signup__field">
+            <span>Password</span>
+            <span className="lulu-signup__password-field">
+              <input id="signup-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={password} onChange={event => setPassword(event.target.value)} placeholder="Create a password" className="lulu-signup__input" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="lulu-signup__password-toggle">
+                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </span>
+          </label>
+          {password && <section className="lulu-signup__password-status" aria-label={`Password strength: ${strengthLabel}`}>
+            <div className="lulu-signup__strength"><span className="lulu-signup__strength-bars" aria-hidden="true">{[1, 2, 3, 4].map(segment => <i key={segment} className={segment <= strengthSegments ? 'is-active' : ''} />)}</span><strong>{strengthLabel}</strong></div>
+            <ul aria-label="Password requirements">
+              {passwordResults.map(rule => <li key={rule.label} className={rule.passed ? 'is-passed' : ''}><span aria-hidden="true">{rule.passed ? <Check size={11} strokeWidth={3} /> : '·'}</span>{rule.label}</li>)}
+            </ul>
+          </section>}
+
+          <label htmlFor="confirm-password" className="lulu-signup__field">
+            <span>Confirm password</span>
+            <span className="lulu-signup__password-field">
+              <input id="confirm-password" name="confirmPassword" type={showConfirm ? 'text' : 'password'} autoComplete="new-password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm your password" className="lulu-signup__input" />
+              {passwordsMatch && <span className="lulu-signup__password-match" aria-label="Passwords match"><Check size={14} strokeWidth={3} /></span>}
+              <button type="button" onClick={() => setShowConfirm(!showConfirm)} aria-label={showConfirm ? 'Hide confirmation password' : 'Show confirmation password'} className="lulu-signup__password-toggle">
+                {showConfirm ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </span>
+          </label>
+          {confirmPassword && <p className={`lulu-signup__match-note ${passwordsMatch ? 'is-matched' : 'is-unmatched'}`}>{passwordsMatch ? 'Passwords match' : 'Passwords do not match yet'}</p>}
+
+          <label className="lulu-signup__terms">
+            <input id="signup-accept-terms" name="acceptTerms" type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} autoComplete="off" required />
+            <span>I agree to the <a href="/terms.html" target="_blank" rel="noreferrer">Terms of Service</a> and <a href="/privacy.html" target="_blank" rel="noreferrer">Privacy Policy</a>.</span>
+          </label>
+
+          <button type="submit" disabled={status === 'loading'} className="lulu-signup__submit">
+            {status === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
+            <span>{status === 'loading' ? 'Creating account...' : 'Create Account'}</span>
+          </button>
+          {error && <p role="alert" className="lulu-signup__notice lulu-signup__notice--error"><AlertCircle size={16} aria-hidden="true" />{error}</p>}
+        </form>}
+
+        <p className="lulu-signup__form-footer">Already have a Lulu AI account? <a {...pageLinkProps('brightly-door-5741')}>Sign in</a></p>
+      </section>
+    </section>
+
+    <footer className="lulu-signup__footer">
+      <nav aria-label="Legal links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/.well-known/security.txt">Security</a></nav>
+      <p>{LEGAL_ENTITY_NAME}</p>
+    </footer>
+  </main>;
 }
