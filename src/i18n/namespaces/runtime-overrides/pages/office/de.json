@@ -451,5 +451,13 @@
   "Virtual Office unavailable": "Virtual Office nicht verfügbar",
   "Virtual Office": "Virtual Office",
   "What needs you": "Was dich braucht",
-  "working now": "jetzt aktiv"
+  "working now": "jetzt aktiv",
+  "rooms ·": "Räume ·",
+  "rooms": "Räume",
+  "monitoring": "Überwachung",
+  "waiting / human control": "Warten / menschliche Steuerung",
+  "approval / error": "Freigabe / Fehler",
+  "AI credit required": "AI-Guthaben erforderlich",
+  "Execution is paused until AI credit is available": "Die Ausführung ist pausiert, bis AI-Guthaben verfügbar ist",
+  "employees at dedicated stations": "Mitarbeitende an festen Arbeitsplätzen"
 }

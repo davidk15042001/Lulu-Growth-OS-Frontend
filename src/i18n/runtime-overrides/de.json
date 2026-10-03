@@ -6844,5 +6844,13 @@
   "communications": "Kommunikation",
   "marketing": "Marketing",
   "website": "Website",
-  "Uses the same workspace-scoped APIs and permission checks as the full product surface.": "Verwendet dieselben Workspace-begrenzten APIs und Berechtigungsprüfungen wie die vollständige Produktoberfläche."
+  "Uses the same workspace-scoped APIs and permission checks as the full product surface.": "Verwendet dieselben Workspace-begrenzten APIs und Berechtigungsprüfungen wie die vollständige Produktoberfläche.",
+  "rooms ·": "Räume ·",
+  "rooms": "Räume",
+  "monitoring": "Überwachung",
+  "waiting / human control": "Warten / menschliche Steuerung",
+  "approval / error": "Freigabe / Fehler",
+  "AI credit required": "AI-Guthaben erforderlich",
+  "Execution is paused until AI credit is available": "Die Ausführung ist pausiert, bis AI-Guthaben verfügbar ist",
+  "employees at dedicated stations": "Mitarbeitende an festen Arbeitsplätzen"
 }

@@ -5,6 +5,12 @@ export type OfficeEmployeeStatus =
   | 'IDLE' | 'MONITORING' | 'WORKING' | 'COLLABORATING' | 'WAITING'
   | 'WAITING_FOR_APPROVAL' | 'HUMAN_CONTROLLED' | 'ERROR' | 'OFFLINE';
 
+export type OfficeAiExecutionReadiness = {
+  available: boolean;
+  fundingMode: 'CUSTOMER_PREPAID' | 'PLATFORM_FUNDED';
+  reason: 'READY' | 'AI_CREDIT_REQUIRED' | 'AI_CREDIT_RECONCILIATION_REQUIRED';
+};
+
 export type OfficeWorkStatus =
   | 'queued' | 'running' | 'waiting' | 'paused' | 'waiting_for_approval'
   | 'human_controlled' | 'failed' | 'completed' | 'cancelled';
@@ -92,6 +98,7 @@ export type OfficeTimelineItem = {
 export type OfficeOverview = {
   generatedAt: string;
   timelineScope: 'recent';
+  executionReadiness: { ai: OfficeAiExecutionReadiness };
   summary: {
     departmentCount: number;
     employeeCount: number;
@@ -197,6 +204,7 @@ export type OfficeEmployeeDetails = {
   currentWorkItem: OfficeWorkItem | null;
   workSummary: OfficeEmployeeSummary['workSummary'];
   recentTimeline: OfficeTimelineItem[];
+  executionReadiness: { ai: OfficeAiExecutionReadiness };
 };
 
 export const officeApi = {

@@ -451,5 +451,13 @@
   "Virtual Office unavailable": "虚拟办公室不可用",
   "Virtual Office": "虚拟办公室",
   "What needs you": "需要你处理的事项",
-  "working now": "当前工作中"
+  "working now": "当前工作中",
+  "rooms ·": "房间 ·",
+  "rooms": "房间",
+  "monitoring": "监控",
+  "waiting / human control": "等待 / 人工控制",
+  "approval / error": "审批 / 错误",
+  "AI credit required": "需要 AI 积分",
+  "Execution is paused until AI credit is available": "执行已暂停，直到 AI 积分可用",
+  "employees at dedicated stations": "员工位于固定工作站"
 }

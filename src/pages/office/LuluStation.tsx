@@ -19,7 +19,8 @@ import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { AgentNativeWorkspace } from "./AgentNativeWorkspace";
 import "./lulu-station.css";
 
-type StatusTone = "idle" | "working" | "waiting" | "attention" | "offline";
+type StationStatus = OfficeEmployeeStatus | "BLOCKED";
+type StatusTone = "idle" | "working" | "monitoring" | "waiting" | "attention" | "blocked" | "offline";
 type RoomProp = "desk" | "terminal" | "archive" | "brain" | "review" | "commerce" | "calendar" | "finance";
 
 type RoomLayout = {
@@ -38,11 +39,12 @@ const ROOM_COLUMNS = 3;
 const ROOM_WIDTH = 432;
 const ROOM_X_GAP = 36;
 const ROOM_Y_GAP = 38;
-const ROOM_MIN_HEIGHT = 330;
-const ROOM_CREW_COLUMNS = 3;
-const ROOM_CREW_TOP = 128;
-const ROOM_CREW_ROW_PITCH = 96;
-const ROOM_CREW_BOTTOM = 116;
+const ROOM_MIN_HEIGHT = 460;
+const ROOM_CREW_COLUMNS = 2;
+const ROOM_CREW_TOP = 132;
+const ROOM_CREW_ROW_PITCH = 116;
+const ROOM_CREW_BOTTOM = 136;
+const ROOM_ZONE_CAPACITY = 8;
 
 const ROOM_THEMES: ReadonlyArray<Pick<RoomLayout, "color" | "prop">> = [
   { color: "teal", prop: "brain" },
@@ -60,6 +62,8 @@ type RoomAssignment = {
   room: RoomLayout;
   department: OfficeOverview["departments"][number];
   employees: OfficeEmployeeSummary[];
+  zoneIndex: number;
+  zoneCount: number;
 };
 
 type StationWorld = {
@@ -68,16 +72,32 @@ type StationWorld = {
   corridorYs: number[];
 };
 
-function toneForStatus(status: OfficeEmployeeStatus): StatusTone {
+function effectiveStatus(status: OfficeEmployeeStatus, aiExecutionAvailable: boolean): StationStatus {
+  if (!aiExecutionAvailable && (status === "WORKING" || status === "COLLABORATING" || status === "MONITORING")) return "BLOCKED";
+  return status;
+}
+
+function toneForStatus(status: StationStatus): StatusTone {
+  if (status === "BLOCKED") return "blocked";
   if (status === "OFFLINE") return "offline";
   if (status === "ERROR" || status === "WAITING_FOR_APPROVAL") return "attention";
   if (status === "WAITING" || status === "HUMAN_CONTROLLED") return "waiting";
-  if (status === "WORKING" || status === "COLLABORATING" || status === "MONITORING") return "working";
+  if (status === "MONITORING") return "monitoring";
+  if (status === "WORKING" || status === "COLLABORATING") return "working";
   return "idle";
 }
 
-function statusLabel(status: OfficeEmployeeStatus) {
+function statusLabel(status: StationStatus) {
+  if (status === "BLOCKED") return "blocked — AI credit required";
   return status.replaceAll("_", " ").toLowerCase();
+}
+
+function isOnlineStatus(status: StationStatus) {
+  return status === "WORKING" || status === "COLLABORATING" || status === "MONITORING";
+}
+
+function roomName({ department, zoneIndex, zoneCount }: Pick<RoomAssignment, "department" | "zoneIndex" | "zoneCount">) {
+  return zoneCount > 1 ? `${department.name} · Room ${zoneIndex + 1}` : department.name;
 }
 
 function formatTime(value: string | null | undefined) {
@@ -96,28 +116,36 @@ function roomHeight(employeeCount: number) {
 
 function roomEmployees(overview: OfficeOverview | null): StationWorld {
   const departments = overview?.departments ?? [];
+  const departmentZones = departments.flatMap((department) => {
+    const zoneCount = Math.max(1, Math.ceil(department.employees.length / ROOM_ZONE_CAPACITY));
+    return Array.from({ length: zoneCount }, (_, zoneIndex) => ({
+      department,
+      employees: department.employees.slice(zoneIndex * ROOM_ZONE_CAPACITY, (zoneIndex + 1) * ROOM_ZONE_CAPACITY),
+      zoneIndex,
+      zoneCount,
+    }));
+  });
   const rooms: RoomAssignment[] = [];
   const corridorYs: number[] = [];
   let rowY = WORLD_TOP;
 
-  for (let firstDepartment = 0; firstDepartment < departments.length; firstDepartment += ROOM_COLUMNS) {
-    const rowDepartments = departments.slice(firstDepartment, firstDepartment + ROOM_COLUMNS);
-    const rowHeight = Math.max(...rowDepartments.map((department) => roomHeight(department.employees.length)));
+  for (let firstRoom = 0; firstRoom < departmentZones.length; firstRoom += ROOM_COLUMNS) {
+    const rowZones = departmentZones.slice(firstRoom, firstRoom + ROOM_COLUMNS);
+    const rowHeight = Math.max(...rowZones.map((zone) => roomHeight(zone.employees.length)));
     corridorYs.push(rowY - ROOM_Y_GAP / 2);
 
-    rowDepartments.forEach((department, column) => {
-      const theme = ROOM_THEMES[(firstDepartment + column) % ROOM_THEMES.length];
+    rowZones.forEach((zone, column) => {
+      const theme = ROOM_THEMES[(firstRoom + column) % ROOM_THEMES.length];
       rooms.push({
         room: {
-          id: department.id,
+          id: `${zone.department.id}-${zone.zoneIndex + 1}`,
           x: 36 + column * (ROOM_WIDTH + ROOM_X_GAP),
           y: rowY,
           width: ROOM_WIDTH,
           height: rowHeight,
           ...theme,
         },
-        department,
-        employees: department.employees,
+        ...zone,
       });
     });
 
@@ -137,18 +165,21 @@ function shortLabel(value: string, limit: number) {
 
 function StationCharacter({
   employee,
+  aiExecutionAvailable,
   x,
   y,
   selected,
   onSelect,
 }: {
   employee: OfficeEmployeeSummary;
+  aiExecutionAvailable: boolean;
   x: number;
   y: number;
   selected: boolean;
   onSelect: (employee: OfficeEmployeeSummary) => void;
 }) {
-  const tone = toneForStatus(employee.status);
+  const status = effectiveStatus(employee.status, aiExecutionAvailable);
+  const tone = toneForStatus(status);
   const avatarVariant = Math.abs(Array.from(employee.key).reduce((sum, character) => sum + character.charCodeAt(0), 0)) % 4;
   const handleKeyDown = (event: React.KeyboardEvent<SVGGElement>) => {
     if (event.key === "Enter" || event.key === " ") {
@@ -162,12 +193,19 @@ function StationCharacter({
       transform={`translate(${x} ${y})`}
       role="button"
       tabIndex={0}
-      aria-label={`${employee.name}, ${employee.title}, ${statusLabel(employee.status)}`}
+      aria-label={`${employee.name}, ${employee.title}, ${statusLabel(status)}`}
       onClick={(event) => { event.stopPropagation(); onSelect(employee); }}
       onKeyDown={handleKeyDown}
     >
-      <ellipse className="lulu-station__character-shadow" cx="0" cy="34" rx="32" ry="9" />
-      <path className="lulu-station__character-legs" d="M-11 21v12M11 21v12" />
+      <g className={`lulu-station__workstation lulu-station__workstation--${tone}`} aria-hidden="true">
+        <ellipse className="lulu-station__workstation-shadow" cx="0" cy="51" rx="43" ry="10" />
+        <rect className="lulu-station__workstation-surface" x="-43" y="34" width="86" height="14" rx="5" />
+        <rect className="lulu-station__workstation-screen" x="20" y="12" width="21" height="20" rx="3" />
+        <path className="lulu-station__workstation-screen-line" d="M24 20h12M24 25h8" />
+        <path className="lulu-station__workstation-chair" d="M-15 52h30l-4 9h-22z" />
+      </g>
+      <ellipse className="lulu-station__character-shadow" cx="0" cy="43" rx="30" ry="8" />
+      <path className="lulu-station__character-legs" d="M-11 21v21M11 21v21" />
       <rect className="lulu-station__character-body" x="-20" y="-1" width="40" height="32" rx="12" />
       <path className="lulu-station__character-arm lulu-station__character-arm--left" d="M-18 7l-13 12" />
       <path className="lulu-station__character-arm lulu-station__character-arm--right" d="M18 7l13 12" />
@@ -176,7 +214,7 @@ function StationCharacter({
       <path className="lulu-station__character-visor" d="M-9-18h18" />
       <circle className="lulu-station__character-status" cx="19" cy="-30" r="5" />
       <text className="lulu-station__character-initials" x="0" y="18" textAnchor="middle">{initials(employee.name)}</text>
-      <text className="lulu-station__character-name" x="0" y="52" textAnchor="middle">{employee.name.split(" ")[0]}</text>
+      <text className="lulu-station__character-name" x="0" y="74" textAnchor="middle">{employee.name.split(" ")[0]}</text>
     </g>
   );
 }
@@ -347,7 +385,14 @@ export function LuluStation() {
     return rooms.filter(({ department }) => `${department.name} ${department.description}`.toLocaleLowerCase().includes(query));
   }, [departmentQuery, rooms]);
   const openSignals = overview?.companyBrain?.signals.filter((signal) => signal.status === "OPEN").length ?? 0;
-  const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals;
+  const aiExecutionAvailable = overview?.executionReadiness?.ai.available ?? true;
+  const allEmployees = overview?.departments.flatMap((department) => department.employees) ?? [];
+  const onlineEmployees = allEmployees.filter((employee) => isOnlineStatus(effectiveStatus(employee.status, aiExecutionAvailable))).length;
+  const blockedEmployees = allEmployees.filter((employee) => effectiveStatus(employee.status, aiExecutionAvailable) === "BLOCKED").length;
+  const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals + blockedEmployees;
+  const aiExecutionMessage = overview?.executionReadiness?.ai.reason === "AI_CREDIT_RECONCILIATION_REQUIRED"
+    ? "AI credit reconciliation required"
+    : "AI credit required";
   if (!workspaceId) return null;
   if (loading && !overview) {
     return <section className="lulu-station lulu-station--state" aria-label="Lulu Station"><RefreshCw className="lulu-station__spin" size={20} /><span>{t("Loading verified office state…")}</span></section>;
@@ -369,26 +414,26 @@ export function LuluStation() {
       </header>
 
       <div className="lulu-station__metrics" aria-label="Station summary">
-        <div><span><Zap size={14} />Work in motion</span><strong>{overview.summary.activeWorkItems}</strong><small>{overview.summary.workingEmployees} employees working</small></div>
-        <div><span><Layers3 size={14} />Crew online</span><strong>{overview.summary.activeEmployees}</strong><small>{overview.summary.employeeCount} employees visible</small></div>
+        <div className={!aiExecutionAvailable ? "is-blocked" : ""}><span><Zap size={14} />{aiExecutionAvailable ? "Work in motion" : "AI execution"}</span><strong>{aiExecutionAvailable ? overview.summary.activeWorkItems : 0}</strong><small>{aiExecutionAvailable ? `${onlineEmployees} crew members online` : `${overview.summary.activeWorkItems} work items queued safely`}</small></div>
+        <div><span><Layers3 size={14} />Crew online</span><strong>{onlineEmployees}</strong><small>{!aiExecutionAvailable ? aiExecutionMessage : `${overview.summary.employeeCount} employees assigned`}</small></div>
         <div className={attentionCount > 0 ? "is-attention" : ""}><span><Target size={14} />Needs attention</span><strong>{attentionCount}</strong><small>{openSignals} open Company Brain signals</small></div>
         <div><span><CheckCircle2 size={14} />Verified outcomes</span><strong>{overview.summary.completedToday}</strong><small>recently completed work items</small></div>
       </div>
 
       <div className="lulu-station__workspace">
         <div className="lulu-station__world-shell">
-          <div className="lulu-station__world-toolbar"><span><i className="lulu-station__toolbar-dot" />Station map</span><small>{overview.summary.departmentCount} departments · {formatTime(overview.generatedAt)} snapshot</small></div>
+          <div className="lulu-station__world-toolbar"><span><i className="lulu-station__toolbar-dot" />Station map</span><small>{overview.summary.departmentCount} departments · {rooms.length} rooms · {formatTime(overview.generatedAt)} snapshot</small></div>
           {rooms.length > 0 ? <div className="lulu-station__department-nav">
             <div className="lulu-station__department-picker">
-              <button type="button" className="lulu-station__department-trigger" aria-haspopup="listbox" aria-expanded={departmentMenuOpen} aria-controls="lulu-station-department-list" onClick={() => setDepartmentMenuOpen((open) => !open)}><span>{selectedRoom?.department.name ?? "Station map"}</span><i /></button>
+              <button type="button" className="lulu-station__department-trigger" aria-haspopup="listbox" aria-expanded={departmentMenuOpen} aria-controls="lulu-station-department-list" onClick={() => setDepartmentMenuOpen((open) => !open)}><span>{selectedRoom ? roomName(selectedRoom) : "Station map"}</span><i /></button>
               {departmentMenuOpen ? <div className="lulu-station__department-menu">
                 <div className="lulu-station__department-search"><Search size={14} aria-hidden="true" /><input autoFocus aria-label="Station map" placeholder="Station map" value={departmentQuery} onChange={(event) => setDepartmentQuery(event.target.value)} /></div>
                 <div id="lulu-station-department-list" className="lulu-station__department-options" role="listbox" aria-label="Station map">
-                  {filteredRooms.map(({ room, department, employees }) => <button key={room.id} type="button" role="option" aria-selected={room.id === selectedRoomId} onClick={() => selectRoom(room.id)}><span>{department.name}</span><small>{employees.length} CREW</small></button>)}
+                  {filteredRooms.map((assignment) => <button key={assignment.room.id} type="button" role="option" aria-selected={assignment.room.id === selectedRoomId} onClick={() => selectRoom(assignment.room.id)}><span>{roomName(assignment)}</span><small>{assignment.employees.length} CREW</small></button>)}
                 </div>
               </div> : null}
             </div>
-            <span>{rooms.length} departments</span>
+            <span>{overview.summary.departmentCount} departments · {rooms.length} rooms</span>
           </div> : null}
           <div className="lulu-station__world" role="region" aria-label="Lulu Station map with departments and digital employees">
             <svg viewBox={`0 0 ${WORLD_WIDTH} ${stationWorld.worldHeight}`} role="presentation">
@@ -413,20 +458,22 @@ export function LuluStation() {
                 <path d="M-7 0h14M0-7v14" />
                 <text x="0" y="58" textAnchor="middle">LULU CORE</text>
               </g>
-              {rooms.map(({ room, department, employees }) => {
+              {rooms.map((assignment) => {
+                const { room, department, employees } = assignment;
                 const roomSelected = room.id === selectedRoomId;
-                const roomHasFlow = employees.some((employee) => employee.status === "COLLABORATING");
-                return <g id={`lulu-station-room-${room.id}`} key={room.id} className={`lulu-station__room lulu-station__room--${room.color}${roomSelected ? " is-selected" : ""}`} role="button" tabIndex={0} aria-label={`${department.name} department room`} onClick={() => selectRoom(room.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectRoom(room.id); } }}>
+                const roomHasFlow = employees.some((employee) => effectiveStatus(employee.status, aiExecutionAvailable) === "COLLABORATING");
+                const label = roomName(assignment);
+                return <g id={`lulu-station-room-${room.id}`} key={room.id} className={`lulu-station__room lulu-station__room--${room.color}${roomSelected ? " is-selected" : ""}`} role="button" tabIndex={0} aria-label={`${label} department room`} onClick={() => selectRoom(room.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectRoom(room.id); } }}>
                   <rect className="lulu-station__room-floor" x={room.x} y={room.y} width={room.width} height={room.height} rx="18" />
                   <path className="lulu-station__room-inner-floor" d={`M${room.x + 15} ${room.y + 72}h${room.width - 30}v${room.height - 88}H${room.x + 15}z`} />
                   <RoomFixtures room={room} />
                   <path className="lulu-station__room-border" d={`M${room.x + 18} ${room.y}H${room.x + room.width - 18}Q${room.x + room.width} ${room.y} ${room.x + room.width} ${room.y + 18}V${room.y + room.height - 18}Q${room.x + room.width} ${room.y + room.height} ${room.x + room.width - 18} ${room.y + room.height}H${room.x + 18}Q${room.x} ${room.y + room.height} ${room.x} ${room.y + room.height - 18}V${room.y + 18}Q${room.x} ${room.y} ${room.x + 18} ${room.y}Z`} />
-                  <text className="lulu-station__room-kicker" x={room.x + 22} y={room.y + 31}><title>{department.name}</title>{shortLabel(department.name.toUpperCase(), 31)}</text>
+                  <text className="lulu-station__room-kicker" x={room.x + 22} y={room.y + 31}><title>{label}</title>{shortLabel(label.toUpperCase(), 31)}</text>
                   <text className="lulu-station__room-caption" x={room.x + 22} y={room.y + 52}><title>{department.description}</title>{shortLabel(department.description, 56)}</text>
                   <text className="lulu-station__room-count" x={room.x + room.width - 22} y={room.y + 32} textAnchor="end">{department.employees.length} CREW</text>
                   {roomHasFlow ? <path className="lulu-station__handoff-active" d={`M${room.x + room.width / 2 - 32} ${room.y + room.height - 15}h64`} /> : null}
-                  <StationProp room={room} active={department.employees.some((employee) => toneForStatus(employee.status) === "working")} onSelect={() => selectRoom(room.id, room.prop)} />
-                  {employees.map((employee, index) => <StationCharacter key={employee.id} employee={employee} x={room.x + 82 + (index % ROOM_CREW_COLUMNS) * 104} y={room.y + ROOM_CREW_TOP + Math.floor(index / ROOM_CREW_COLUMNS) * ROOM_CREW_ROW_PITCH} selected={employee.id === selectedEmployeeId} onSelect={(selected) => void selectEmployee(selected)} />)}
+                  <StationProp room={room} active={employees.some((employee) => isOnlineStatus(effectiveStatus(employee.status, aiExecutionAvailable)))} onSelect={() => selectRoom(room.id, room.prop)} />
+                  {employees.map((employee, index) => <StationCharacter key={employee.id} employee={employee} aiExecutionAvailable={aiExecutionAvailable} x={room.x + 130 + (index % ROOM_CREW_COLUMNS) * 148} y={room.y + ROOM_CREW_TOP + Math.floor(index / ROOM_CREW_COLUMNS) * ROOM_CREW_ROW_PITCH} selected={employee.id === selectedEmployeeId} onSelect={(selected) => void selectEmployee(selected)} />)}
                   {employees.length === 0 && <text className="lulu-station__room-empty" x={room.x + room.width / 2} y={room.y + room.height / 2} textAnchor="middle">No crew assigned to this room</text>}
                 </g>;
               })}
@@ -434,7 +481,7 @@ export function LuluStation() {
             </svg>
           </div>
           <div className="lulu-station__legend" aria-label="Station status legend">
-            <span><i className="is-working" />working</span><span><i className="is-waiting" />waiting / approval</span><span><i className="is-attention" />attention</span><span><i className="is-idle" />idle</span>
+            <span><i className="is-working" />working</span><span><i className="is-monitoring" />monitoring</span><span><i className="is-waiting" />waiting / human control</span><span><i className="is-attention" />approval / error</span><span><i className="is-blocked" />AI credit required</span><span><i className="is-idle" />idle</span><span><i className="is-offline" />offline</span>
           </div>
         </div>
 
@@ -443,17 +490,17 @@ export function LuluStation() {
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__avatar-badge">{initials(employeeDetail.employee.name)}</span><span>Digital Employee</span><button type="button" onClick={closeEmployeePopup} aria-label="Close employee inspector">×</button></div>
             <h2>{employeeDetail.employee.name}</h2>
             <p className="lulu-station__inspector-role">{employeeDetail.employee.title} · {employeeDetail.employee.department?.name}</p>
-            <div className={`lulu-station__inspector-status lulu-station__inspector-status--${toneForStatus(employeeDetail.employee.status)}`}><i />{statusLabel(employeeDetail.employee.status)}</div>
-            <div className="lulu-station__inspector-block"><span>Current work</span><strong>{employeeDetail.currentWorkItem?.title ?? "No current work item"}</strong><small>{employeeDetail.currentWorkItem?.status ?? "The employee is not running a visible work item."}</small></div>
+            <div className={`lulu-station__inspector-status lulu-station__inspector-status--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}</div>
+            <div className="lulu-station__inspector-block"><span>Current work</span><strong>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? "Execution is paused until AI credit is available" : employeeDetail.currentWorkItem?.title ?? "No current work item"}</strong><small>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? aiExecutionMessage : employeeDetail.currentWorkItem?.status ?? "The employee is not running a visible work item."}</small></div>
             <div className="lulu-station__inspector-stats"><div><strong>{employeeDetail.workSummary.active}</strong><span>active</span></div><div><strong>{employeeDetail.workSummary.completedToday}</strong><span>completed</span></div><div><strong>{employeeDetail.workSummary.failed}</strong><span>failed</span></div></div>
             <div className="lulu-station__inspector-block"><span>Capabilities</span><div className="lulu-station__chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
             <button type="button" className="lulu-station__inspector-link" onClick={() => document.querySelector<HTMLElement>(".lulu-office-control")?.scrollIntoView({ behavior: "smooth", block: "start" })}>Open operational control center <ArrowUpRight size={14} /></button>
           </> : selectedRoom ? <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__room-badge"><Layers3 size={16} /></span><span>Department room</span></div>
-            <h2>{selectedRoom.department.name}</h2>
+            <h2>{roomName(selectedRoom)}</h2>
             <p className="lulu-station__inspector-role">{selectedRoom.department.description}</p>
-            <div className="lulu-station__inspector-block"><span>Room function</span><strong>{roomDescription(selectedRoom.room.prop)}</strong><small>{selectedRoom.employees.length} visible employees in this room.</small></div>
-            <div className="lulu-station__crew-list">{selectedRoom.employees.map((employee) => <button type="button" key={employee.id} onClick={() => void selectEmployee(employee)}><span className={`lulu-station__mini-dot lulu-station__mini-dot--${toneForStatus(employee.status)}`} /><span><strong>{employee.name}</strong><small>{statusLabel(employee.status)}</small></span><ArrowUpRight size={13} /></button>)}</div>
+            <div className="lulu-station__inspector-block"><span>Room function</span><strong>{roomDescription(selectedRoom.room.prop)}</strong><small>{selectedRoom.employees.length} employees at dedicated stations{selectedRoom.zoneCount > 1 ? ` · Room ${selectedRoom.zoneIndex + 1} of ${selectedRoom.zoneCount}` : ""}.</small></div>
+            <div className="lulu-station__crew-list">{selectedRoom.employees.map((employee) => <button type="button" key={employee.id} onClick={() => void selectEmployee(employee)}><span className={`lulu-station__mini-dot lulu-station__mini-dot--${toneForStatus(effectiveStatus(employee.status, aiExecutionAvailable))}`} /><span><strong>{employee.name}</strong><small>{statusLabel(effectiveStatus(employee.status, aiExecutionAvailable))}</small></span><ArrowUpRight size={13} /></button>)}</div>
           </> : selectedProp ? <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__room-badge"><Zap size={16} /></span><span>Functional object</span></div>
             <h2>{propTitle(selectedProp)}</h2>
@@ -476,9 +523,9 @@ export function LuluStation() {
           <button type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label="Close employee workspace">×</button>
           {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>Opening verified employee workspace…</strong><span>Loading the employee state and recent evidence.</span></div> : <>
             <header className="lulu-station__modal-header">
-              <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(employeeDetail.employee.status)}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
+              <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
               <div><span className="lulu-station__modal-kicker">DIGITAL EMPLOYEE WORKSPACE</span><h2 id="lulu-station-employee-title">{employeeDetail.employee.name}</h2><p>{employeeDetail.employee.title} · {employeeDetail.employee.department?.name ?? "Lulu Station"}</p></div>
-              <div className={`lulu-station__modal-status lulu-station__modal-status--${toneForStatus(employeeDetail.employee.status)}`}><i />{statusLabel(employeeDetail.employee.status)}</div>
+              <div className={`lulu-station__modal-status lulu-station__modal-status--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}</div>
             </header>
             <div className="lulu-station__modal-body">
               <AgentNativeWorkspace workspaceId={workspaceId} employeeDetail={employeeDetail} />

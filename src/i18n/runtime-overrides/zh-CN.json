@@ -6821,5 +6821,13 @@
   "communications": "沟通",
   "marketing": "营销",
   "website": "网站",
-  "Uses the same workspace-scoped APIs and permission checks as the full product surface.": "使用与完整产品界面相同的工作区范围 API 和权限检查。"
+  "Uses the same workspace-scoped APIs and permission checks as the full product surface.": "使用与完整产品界面相同的工作区范围 API 和权限检查。",
+  "rooms ·": "房间 ·",
+  "rooms": "房间",
+  "monitoring": "监控",
+  "waiting / human control": "等待 / 人工控制",
+  "approval / error": "审批 / 错误",
+  "AI credit required": "需要 AI 积分",
+  "Execution is paused until AI credit is available": "执行已暂停，直到 AI 积分可用",
+  "employees at dedicated stations": "员工位于固定工作站"
 }
