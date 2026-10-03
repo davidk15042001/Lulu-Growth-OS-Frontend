@@ -108,6 +108,7 @@ export type OfficeOverview = {
     attentionEmployees: number;
     activeWorkItems: number;
     runningWorkItems: number;
+    stalledWorkItems: number;
     queuedWorkItems: number;
     waitingWorkItems: number;
     completedToday: number;

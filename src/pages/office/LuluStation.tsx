@@ -108,6 +108,18 @@ function formatTime(value: string | null | undefined) {
   return new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+function formatCount(value: number) {
+  return new Intl.NumberFormat().format(value);
+}
+
+function displayedWorkStatus(employeeStatus: OfficeEmployeeStatus, workStatus: string | null | undefined) {
+  // A running record without a fresh execution lease remains traceable as
+  // open work, but it is not executing. Keep that distinction explicit in
+  // every Office surface that shows the record.
+  if (employeeStatus === "WAITING" && workStatus === "running") return "awaiting recovery";
+  return workStatus ?? "No active work";
+}
+
 function initials(name: string) {
   return name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase() || "LU";
 }
@@ -472,7 +484,8 @@ export function LuluStation() {
   const allEmployees = overview?.departments.flatMap((department) => department.employees) ?? [];
   const onlineEmployees = allEmployees.filter((employee) => isOnlineStatus(effectiveStatus(employee.status, aiExecutionAvailable))).length;
   const blockedEmployees = allEmployees.filter((employee) => effectiveStatus(employee.status, aiExecutionAvailable) === "BLOCKED").length;
-  const queuedOrWaitingWork = (overview?.summary.queuedWorkItems ?? 0) + (overview?.summary.waitingWorkItems ?? 0);
+  const stalledWorkItems = overview?.summary.stalledWorkItems ?? 0;
+  const queuedOrWaitingWork = (overview?.summary.queuedWorkItems ?? 0) + (overview?.summary.waitingWorkItems ?? 0) + stalledWorkItems;
   const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals + blockedEmployees;
   const aiExecutionMessage = overview?.executionReadiness?.ai.reason === "AI_CREDIT_RECONCILIATION_REQUIRED"
     ? "AI credit reconciliation required"
@@ -499,7 +512,7 @@ export function LuluStation() {
       </header>
 
       <div className="lulu-station__metrics" aria-label="Station summary">
-        <div className={!aiExecutionAvailable ? "is-blocked" : ""}><span><Zap size={14} />{aiExecutionAvailable ? (platformFundedAi ? t("Platform-funded work") : t("Work in motion")) : t("AI execution")}</span><strong>{aiExecutionAvailable ? (overview.summary.runningWorkItems ?? 0) : 0}</strong><small>{aiExecutionAvailable ? (queuedOrWaitingWork > 0 ? `${queuedOrWaitingWork} ${t("queued or awaiting review")}` : t("No work is waiting in the queue")) : `${overview.summary.activeWorkItems} work items queued safely`}</small></div>
+        <div className={!aiExecutionAvailable ? "is-blocked" : ""}><span><Zap size={14} />{aiExecutionAvailable ? (platformFundedAi ? t("Platform-funded work") : t("Work in motion")) : t("AI execution")}</span><strong>{aiExecutionAvailable ? (overview.summary.runningWorkItems ?? 0) : 0}</strong><small>{aiExecutionAvailable ? (queuedOrWaitingWork > 0 ? `${formatCount(queuedOrWaitingWork)} ${t("awaiting scheduling or review")}${stalledWorkItems > 0 ? ` · ${formatCount(stalledWorkItems)} ${t("awaiting recovery")}` : ""}` : t("No work is waiting in the queue")) : `${formatCount(overview.summary.activeWorkItems)} work items queued safely`}</small></div>
         <div className={platformFundedAi ? "is-platform-funded" : ""}><span><Layers3 size={14} />Crew online</span><strong>{onlineEmployees}</strong><small>{!aiExecutionAvailable ? aiExecutionMessage : platformFundedAi ? t("Platform-funded AI is enabled for this workspace; prepaid AI credit is not being used.") : `${overview.summary.employeeCount} employees assigned`}</small></div>
         <div className={attentionCount > 0 ? "is-attention" : ""}><span><Target size={14} />Needs attention</span><strong>{attentionCount}</strong><small>{openSignals} open Company Brain signals</small></div>
         <div><span><CheckCircle2 size={14} />Verified outcomes</span><strong>{overview.summary.completedToday}</strong><small>recently completed work items</small></div>
@@ -576,8 +589,8 @@ export function LuluStation() {
             <h2>{employeeDetail.employee.name}</h2>
             <p className="lulu-station__inspector-role">{employeeDetail.employee.title} · {employeeDetail.employee.department?.name}</p>
             <div className={`lulu-station__inspector-status lulu-station__inspector-status--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}</div>
-            <div className="lulu-station__inspector-block"><span>Current work</span><strong>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? "Execution is paused until AI credit is available" : employeeDetail.currentWorkItem?.title ?? "No current work item"}</strong><small>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? aiExecutionMessage : employeeDetail.currentWorkItem?.status ?? "The employee is not running a visible work item."}</small></div>
-            <div className="lulu-station__inspector-stats"><div><strong>{employeeDetail.workSummary.active}</strong><span>active</span></div><div><strong>{employeeDetail.workSummary.completedToday}</strong><span>completed</span></div><div><strong>{employeeDetail.workSummary.failed}</strong><span>failed</span></div></div>
+            <div className="lulu-station__inspector-block"><span>Current work</span><strong>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? "Execution is paused until AI credit is available" : employeeDetail.currentWorkItem?.title ?? "No current work item"}</strong><small>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? aiExecutionMessage : employeeDetail.currentWorkItem ? displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem.status) : "The employee is not running a visible work item."}</small></div>
+            <div className="lulu-station__inspector-stats"><div><strong>{formatCount(employeeDetail.workSummary.active)}</strong><span>open</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday)}</strong><span>completed</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed)}</strong><span>failed</span></div></div>
             <div className="lulu-station__inspector-block"><span>Capabilities</span><div className="lulu-station__chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
           </> : selectedRoom ? <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__room-badge"><Layers3 size={16} /></span><span>Department room</span></div>
@@ -614,8 +627,8 @@ export function LuluStation() {
             <div className="lulu-station__modal-body">
               <AgentNativeWorkspace workspaceId={workspaceId} employeeDetail={employeeDetail} />
               <div className="lulu-station__modal-details">
-                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">CURRENT WORK</span><strong>{employeeDetail.currentWorkItem?.title ?? "No current work item"}</strong><p>{employeeDetail.currentWorkItem?.objective ?? "This employee has no active work item in the verified office projection."}</p><small>{employeeDetail.currentWorkItem?.status ?? "No active work"}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${employeeDetail.currentWorkItem.relatedObjectType}` : ""}</small></div>
-                <div className="lulu-station__modal-stats"><div><strong>{employeeDetail.workSummary.active}</strong><span>active</span></div><div><strong>{employeeDetail.workSummary.completedToday}</strong><span>completed today</span></div><div><strong>{employeeDetail.workSummary.failed}</strong><span>failed</span></div></div>
+                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">CURRENT WORK</span><strong>{employeeDetail.currentWorkItem?.title ?? "No current work item"}</strong><p>{employeeDetail.currentWorkItem?.objective ?? "This employee has no active work item in the verified office projection."}</p><small>{displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem?.status)}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${employeeDetail.currentWorkItem.relatedObjectType}` : ""}</small></div>
+                <div className="lulu-station__modal-stats"><div><strong>{formatCount(employeeDetail.workSummary.active)}</strong><span>open</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday)}</strong><span>completed today</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed)}</strong><span>failed</span></div></div>
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">RECENT EVIDENCE</span><div className="lulu-station__modal-timeline">{employeeDetail.recentTimeline.slice(0, 4).map((item) => <div key={item.id}><i /><span><strong>{item.title}</strong><small>{item.type} · {formatTime(item.occurredAt)}</small></span></div>)}{employeeDetail.recentTimeline.length === 0 ? <p>No recent employee events are available.</p> : null}</div></div>
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">CAPABILITIES</span><div className="lulu-station__modal-chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
               </div>

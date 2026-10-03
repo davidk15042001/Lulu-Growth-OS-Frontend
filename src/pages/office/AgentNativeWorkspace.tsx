@@ -96,7 +96,7 @@ function statusClass(value: string | null | undefined) {
   const normalized = (value ?? "unknown").toLowerCase();
   if (/failed|error|blocked|cancelled|unavailable/.test(normalized)) return "is-alert";
   if (/running|working|active|ready|completed|published|available|succeeded/.test(normalized)) return "is-positive";
-  if (/waiting|pending|queued|draft|paused|review/.test(normalized)) return "is-waiting";
+  if (/waiting|awaiting|pending|queued|draft|paused|review/.test(normalized)) return "is-waiting";
   return "";
 }
 
@@ -117,14 +117,17 @@ function Status({ children }: { children: string | null | undefined }) {
 
 function CommandSurface({ detail }: { detail: OfficeEmployeeDetails }) {
   const work = detail.currentWorkItem;
+  const workStatus = detail.employee.status === "WAITING" && work?.status === "running"
+    ? "awaiting recovery"
+    : work?.status ?? detail.employee.status;
   return <div className="lulu-native-agent__command">
     <section className="lulu-native-agent__focus-card">
       <div><span className="lulu-native-agent__eyebrow">CURRENT ASSIGNMENT</span><h3>{work?.title ?? "No active assignment"}</h3><p>{work?.objective ?? "This agent is available. Lulu will only animate or execute when a persisted work item is assigned."}</p></div>
-      <Status>{work?.status ?? detail.employee.status}</Status>
+      <Status>{workStatus}</Status>
     </section>
     <section className="lulu-native-agent__evidence-grid">
       <div><span className="lulu-native-agent__eyebrow">RECENT EVIDENCE</span>{detail.recentTimeline.length ? <ol>{detail.recentTimeline.slice(0, 5).map((item) => <li key={item.id}><i /><span><strong>{item.title}</strong><small>{item.type.replaceAll("_", " ")} · {formatTime(item.occurredAt)}</small></span></li>)}</ol> : <p className="lulu-native-agent__muted">No persisted employee events are available yet.</p>}</div>
-      <div><span className="lulu-native-agent__eyebrow">WORKLOAD</span><div className="lulu-native-agent__stat-stack"><strong>{detail.workSummary.active}<small>active work</small></strong><strong>{detail.workSummary.completedToday}<small>completed today</small></strong><strong>{detail.workSummary.failed}<small>failed</small></strong></div></div>
+      <div><span className="lulu-native-agent__eyebrow">WORKLOAD</span><div className="lulu-native-agent__stat-stack"><strong>{new Intl.NumberFormat().format(detail.workSummary.active)}<small>open work</small></strong><strong>{new Intl.NumberFormat().format(detail.workSummary.completedToday)}<small>completed today</small></strong><strong>{new Intl.NumberFormat().format(detail.workSummary.failed)}<small>failed</small></strong></div></div>
     </section>
   </div>;
 }
