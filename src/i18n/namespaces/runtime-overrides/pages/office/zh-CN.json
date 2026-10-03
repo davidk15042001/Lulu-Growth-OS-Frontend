@@ -477,6 +477,8 @@
   "awaiting recovery": "等待恢复",
   "open work": "开放工作",
   "No work is waiting in the queue": "队列中没有等待的工作",
+  "Work records": "工作记录",
+  "marked running; no crew member is online": "已标记为运行中；没有在线员工",
   "{{0}} department room": "{{0}} 部门房间",
   "{{0}} native workspace": "{{0}} 原生工作区",
   "active work": "活动工作",

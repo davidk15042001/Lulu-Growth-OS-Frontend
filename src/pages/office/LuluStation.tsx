@@ -483,11 +483,19 @@ export function LuluStation() {
     return rooms.filter(({ department }) => `${department.name} ${department.description}`.toLocaleLowerCase().includes(query));
   }, [departmentQuery, rooms]);
   const openSignals = overview?.companyBrain?.signals.filter((signal) => signal.status === "OPEN").length ?? 0;
-  const aiExecutionAvailable = overview?.executionReadiness?.ai.available ?? true;
+  // A missing readiness payload must never make the visual Office claim that
+  // AI execution is funded. The server is authoritative and already sends the
+  // explicit state; if it is absent while a response is being rolled out, we
+  // fail closed in the UI as well.
+  const aiExecutionAvailable = overview?.executionReadiness?.ai.available === true;
   const platformFundedAi = overview?.executionReadiness?.ai.fundingMode === "PLATFORM_FUNDED";
   const allEmployees = overview?.departments.flatMap((department) => department.employees) ?? [];
   const onlineEmployees = allEmployees.filter((employee) => isOnlineStatus(effectiveStatus(employee.status, aiExecutionAvailable))).length;
   const blockedEmployees = allEmployees.filter((employee) => effectiveStatus(employee.status, aiExecutionAvailable) === "BLOCKED").length;
+  const runningWorkItems = overview?.summary.runningWorkItems ?? 0;
+  // Running records can outlive the employee projection during recovery. They
+  // remain visible evidence, but are not a claim that a crew member is working.
+  const runningWithoutOnlineCrew = aiExecutionAvailable && runningWorkItems > 0 && onlineEmployees === 0;
   const stalledWorkItems = overview?.summary.stalledWorkItems ?? 0;
   const queuedOrWaitingWork = (overview?.summary.queuedWorkItems ?? 0) + (overview?.summary.waitingWorkItems ?? 0) + stalledWorkItems;
   const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals + blockedEmployees;
@@ -516,7 +524,7 @@ export function LuluStation() {
       </header>
 
       <div className="lulu-station__metrics" aria-label="Station summary">
-        <div className={!aiExecutionAvailable ? "is-blocked" : ""}><span><Zap size={14} />{aiExecutionAvailable ? (platformFundedAi ? t("Platform-funded work") : t("Work in motion")) : t("AI execution")}</span><strong>{aiExecutionAvailable ? (overview.summary.runningWorkItems ?? 0) : 0}</strong><small>{aiExecutionAvailable ? (queuedOrWaitingWork > 0 ? `${formatCount(queuedOrWaitingWork)} ${t("awaiting scheduling or review")}${stalledWorkItems > 0 ? ` · ${formatCount(stalledWorkItems)} ${t("awaiting recovery")}` : ""}` : t("No work is waiting in the queue")) : `${formatCount(overview.summary.activeWorkItems)} work items queued safely`}</small></div>
+        <div className={!aiExecutionAvailable ? "is-blocked" : runningWithoutOnlineCrew ? "is-attention" : ""}><span><Zap size={14} />{!aiExecutionAvailable ? t("AI execution") : runningWithoutOnlineCrew ? t("Work records") : platformFundedAi ? t("Platform-funded work") : t("Work in motion")}</span><strong>{aiExecutionAvailable ? runningWorkItems : 0}</strong><small>{!aiExecutionAvailable ? `${formatCount(overview.summary.activeWorkItems)} work items queued safely` : runningWithoutOnlineCrew ? `${formatCount(runningWorkItems)} ${t("marked running; no crew member is online")}` : queuedOrWaitingWork > 0 ? `${formatCount(queuedOrWaitingWork)} ${t("awaiting scheduling or review")}${stalledWorkItems > 0 ? ` · ${formatCount(stalledWorkItems)} ${t("awaiting recovery")}` : ""}` : t("No work is waiting in the queue")}</small></div>
         <div className={platformFundedAi ? "is-platform-funded" : ""}><span><Layers3 size={14} />Crew online</span><strong>{onlineEmployees}</strong><small>{!aiExecutionAvailable ? aiExecutionMessage : platformFundedAi ? t("Platform-funded AI is enabled for this workspace; prepaid AI credit is not being used.") : `${overview.summary.employeeCount} employees assigned`}</small></div>
         <div className={attentionCount > 0 ? "is-attention" : ""}><span><Target size={14} />Needs attention</span><strong>{attentionCount}</strong><small>{openSignals} open Company Brain signals</small></div>
         <div><span><CheckCircle2 size={14} />Verified outcomes</span><strong>{overview.summary.completedToday}</strong><small>recently completed work items</small></div>

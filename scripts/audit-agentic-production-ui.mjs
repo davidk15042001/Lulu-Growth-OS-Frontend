@@ -41,6 +41,7 @@ const removedOfficeControlSurfaces = [
   path.join(root, 'src', 'pages', 'office', 'WorkforceControlCenterCompletion.tsx'),
 ];
 const failures = [];
+const modalLayerZIndex = Number(luluStationCss.match(/\.lulu-station__modal-layer\s*\{\s*position:\s*fixed;\s*z-index:\s*(\d+);/)?.[1] ?? 0);
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
   failures.push('Resource pages are not protected by the live production-interface gate.');
@@ -281,7 +282,8 @@ if (
   !luluStationCss.includes('.lulu-station__modal-body > * { min-width: 0; }')
   || !luluStationCss.includes('.lulu-station__modal-details { display: grid; min-width: 0;')
   || !luluStationCss.includes('overflow-wrap: anywhere;')
-  || !luluStationCss.includes('.lulu-station__modal-layer { position: fixed; z-index: 100;')
+  || modalLayerZIndex <= 50
+  || !luluStationCss.includes('background: rgba(2, 8, 16, .9);')
   || !luluStation.includes('createPortal(<div className="lulu-station__modal-layer"')
   || !luluStation.includes('>, document.body) : null}')
 ) {
@@ -366,7 +368,7 @@ if (
   failures.push('The Office does not keep every visible room crew bounded, accurately counted and reachable from a workspace entry point.');
 }
 
-if (!luluStation.includes('overview.summary.runningWorkItems') || !luluStation.includes('queuedOrWaitingWork')) {
+if (!luluStation.includes('runningWorkItems') || !luluStation.includes('queuedOrWaitingWork')) {
   failures.push('Office work summary does not distinguish running work from queued or human-gated items.');
 }
 

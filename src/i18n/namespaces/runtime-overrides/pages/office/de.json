@@ -477,6 +477,8 @@
   "awaiting recovery": "warten auf Wiederherstellung",
   "open work": "offene Arbeit",
   "No work is waiting in the queue": "Keine Arbeit wartet in der Warteschlange",
+  "Work records": "Arbeitsdatensätze",
+  "marked running; no crew member is online": "als laufend markiert; kein Crew-Mitglied ist online",
   "{{0}} department room": "Abteilungsraum {{0}}",
   "{{0}} native workspace": "{{0}} nativer Arbeitsbereich",
   "active work": "aktive Arbeit",

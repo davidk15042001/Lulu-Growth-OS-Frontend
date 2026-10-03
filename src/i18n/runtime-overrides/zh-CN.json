@@ -6856,6 +6856,8 @@
   "awaiting recovery": "等待恢复",
   "open work": "开放工作",
   "No work is waiting in the queue": "队列中没有等待的工作",
+  "Work records": "工作记录",
+  "marked running; no crew member is online": "已标记为运行中；没有在线员工",
   "Operating cadence": "操作节奏",
   "Scheduled cycles": "预定周期",
   "Next run:": "下次运行：",
