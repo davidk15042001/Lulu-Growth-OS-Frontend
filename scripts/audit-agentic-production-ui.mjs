@@ -260,8 +260,9 @@ if (
   !luluStationCss.includes('.lulu-station__modal-body > * { min-width: 0; }')
   || !luluStationCss.includes('.lulu-station__modal-details { display: grid; min-width: 0;')
   || !luluStationCss.includes('overflow-wrap: anywhere;')
+  || !luluStationCss.includes('.lulu-station__modal-layer { position: fixed; z-index: 100;')
 ) {
-  failures.push('Office employee workspaces can overflow their modal instead of wrapping long verified work context.');
+  failures.push('Office employee workspaces can overflow or be obscured by the persistent command surface.');
 }
 
 if (
