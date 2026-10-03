@@ -4,6 +4,7 @@ import path from 'node:path';
 const root = process.cwd();
 const nativePage = fs.readFileSync(path.join(root, 'src', 'NativePage.tsx'), 'utf8');
 const appCss = fs.readFileSync(path.join(root, 'src', 'app.css'), 'utf8');
+const luluNovaCss = fs.readFileSync(path.join(root, 'src', 'ui', 'lulu-nova.css'), 'utf8');
 const routing = fs.readFileSync(path.join(root, 'src', 'routing.ts'), 'utf8');
 const globalBranding = fs.readFileSync(path.join(root, 'src', 'branding', 'GlobalBranding.tsx'), 'utf8');
 const authenticatedTopBar = fs.readFileSync(path.join(root, 'src', 'components', 'AuthenticatedWorkspaceTopBar.tsx'), 'utf8');
@@ -101,6 +102,13 @@ if (!appCss.includes('body { display: block !important; height: auto !important;
 
 if (!appCss.includes('overflow-x: clip !important;')) {
   failures.push('The application root does not prevent document-level horizontal scrolling.');
+}
+
+if (
+  !luluNovaCss.includes('.lulu-native-page--surface-shell > main > div > header:first-child')
+  || !luluNovaCss.includes('linear-gradient(138deg, #121f37 0%, #0b172c 54%, #0a1326 100%)')
+) {
+  failures.push('The dark product visual system can leave native page headings light on a light header surface.');
 }
 
 if (
