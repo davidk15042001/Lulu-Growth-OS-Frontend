@@ -28,6 +28,7 @@ const virtualOfficePage = fs.readFileSync(path.join(root, 'src', 'pages', 'offic
 const officeCommandCenter = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'OfficeCommandCenter.tsx'), 'utf8');
 const luluStation = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'LuluStation.tsx'), 'utf8');
 const nativeAgentWorkspace = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'AgentNativeWorkspace.tsx'), 'utf8');
+const officeCopy = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'office-copy.ts'), 'utf8');
 const calendarPortal = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-calendar-portal-9014', 'components', 'generated', 'LuluCalendarPortal.tsx'), 'utf8');
 const calendarApi = fs.readFileSync(path.join(root, 'src', 'api', 'calendar.ts'), 'utf8');
 const luluStationCss = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'lulu-station.css'), 'utf8');
@@ -265,6 +266,16 @@ if (
   || !luluStation.includes('>, document.body) : null}')
 ) {
   failures.push('Office employee workspaces can overflow or be obscured by the persistent command surface.');
+}
+
+if (
+  !officeCopy.includes('const REFERENCE_MARKER')
+  || !officeCopy.includes('const TECHNICAL_CONTEXT')
+  || !luluStation.includes('conciseOfficeCopy(employeeDetail.currentWorkItem?.title')
+  || !luluStation.includes('conciseOfficeCopy(item.title, "Verified employee event"')
+  || !nativeAgentWorkspace.includes('conciseOfficeCopy(work?.title')
+) {
+  failures.push('Office employee dialogs must present concise work context instead of raw internal routing data.');
 }
 
 if (

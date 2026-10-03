@@ -39,6 +39,7 @@ import { websitesApi, type WebsiteSite } from "../../api/websites";
 import { workspaceAppApi, type GoogleReviewsManagerState } from "../../api/workspace-app";
 import type { OfficeEmployeeDetails } from "../../api/office";
 import { ApiError, getFriendlyErrorMessage } from "../../api/client";
+import { conciseOfficeCopy } from "./office-copy";
 import "./agent-native-workspace.css";
 
 type NativeWorkspaceKind = "command" | "crm" | "communications" | "email" | "calendar" | "commerce" | "finance" | "marketing" | "website" | "reputation" | "operations" | "intelligence";
@@ -122,11 +123,11 @@ function CommandSurface({ detail }: { detail: OfficeEmployeeDetails }) {
     : work?.status ?? detail.employee.status;
   return <div className="lulu-native-agent__command">
     <section className="lulu-native-agent__focus-card">
-      <div><span className="lulu-native-agent__eyebrow">CURRENT ASSIGNMENT</span><h3>{work?.title ?? "No active assignment"}</h3><p>{work?.objective ?? "This agent is available. Lulu will only animate or execute when a persisted work item is assigned."}</p></div>
+      <div><span className="lulu-native-agent__eyebrow">CURRENT ASSIGNMENT</span><h3 title={work?.title}>{conciseOfficeCopy(work?.title, "No active assignment")}</h3><p title={work?.objective}>{conciseOfficeCopy(work?.objective, "This agent is available. Lulu will only animate or execute when a persisted work item is assigned.", 260)}</p></div>
       <Status>{workStatus}</Status>
     </section>
     <section className="lulu-native-agent__evidence-grid">
-      <div><span className="lulu-native-agent__eyebrow">RECENT EVIDENCE</span>{detail.recentTimeline.length ? <ol>{detail.recentTimeline.slice(0, 5).map((item) => <li key={item.id}><i /><span><strong>{item.title}</strong><small>{item.type.replaceAll("_", " ")} · {formatTime(item.occurredAt)}</small></span></li>)}</ol> : <p className="lulu-native-agent__muted">No persisted employee events are available yet.</p>}</div>
+      <div><span className="lulu-native-agent__eyebrow">RECENT EVIDENCE</span>{detail.recentTimeline.length ? <ol>{detail.recentTimeline.slice(0, 5).map((item) => <li key={item.id}><i /><span><strong title={item.title}>{conciseOfficeCopy(item.title, "Verified employee event", 96)}</strong><small>{item.type.replaceAll("_", " ")} · {formatTime(item.occurredAt)}</small></span></li>)}</ol> : <p className="lulu-native-agent__muted">No persisted employee events are available yet.</p>}</div>
       <div><span className="lulu-native-agent__eyebrow">WORKLOAD</span><div className="lulu-native-agent__stat-stack"><strong>{new Intl.NumberFormat().format(detail.workSummary.active)}<small>open work</small></strong><strong>{new Intl.NumberFormat().format(detail.workSummary.completedToday)}<small>completed today</small></strong><strong>{new Intl.NumberFormat().format(detail.workSummary.failed)}<small>failed</small></strong></div></div>
     </section>
   </div>;
