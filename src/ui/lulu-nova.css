@@ -138,7 +138,8 @@
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page tbody tr:hover { background: rgba(117, 233, 226, .06) !important; }
 
 /* Station and native agent popups */
-.lulu-station {
+.lulu-station,
+.lulu-station__modal-layer {
   --station-bg: #060d1a;
   --station-panel: #0d1930;
   --station-panel-strong: #13213c;
@@ -147,6 +148,8 @@
   --station-ink: #f4f8ff;
   --station-teal: #72e6da;
   --station-violet: #a997ff;
+}
+.lulu-station {
   background:
     radial-gradient(circle at 72% 5%, rgba(112, 121, 255, .18), transparent 31rem),
     radial-gradient(circle at 4% 60%, rgba(74, 224, 211, .1), transparent 29rem),

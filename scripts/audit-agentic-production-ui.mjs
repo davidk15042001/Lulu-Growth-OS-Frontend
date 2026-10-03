@@ -44,6 +44,8 @@ const removedOfficeControlSurfaces = [
 ];
 const failures = [];
 const modalLayerZIndex = Number(luluStationCss.match(/\.lulu-station__modal-layer\s*\{\s*position:\s*fixed;\s*z-index:\s*(\d+);/)?.[1] ?? 0);
+const modalLayerHasStationTokens = /\.lulu-station,\s*\.lulu-station__modal-layer\s*\{[\s\S]*?--station-teal:\s*#56e1d0;/.test(luluStationCss);
+const modalLayerHasNovaTokens = /\.lulu-station,\s*\.lulu-station__modal-layer\s*\{[\s\S]*?--station-teal:\s*#72e6da;/.test(luluNovaCss);
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
   failures.push('Resource pages are not protected by the live production-interface gate.');
@@ -297,10 +299,12 @@ if (
   || !luluStationCss.includes('overflow-wrap: anywhere;')
   || modalLayerZIndex <= 50
   || !luluStationCss.includes('background: rgba(2, 8, 16, .9);')
+  || !modalLayerHasStationTokens
+  || !modalLayerHasNovaTokens
   || !luluStation.includes('createPortal(<div className="lulu-station__modal-layer"')
   || !luluStation.includes('>, document.body) : null}')
 ) {
-  failures.push('Office employee workspaces can overflow or be obscured by the persistent command surface.');
+  failures.push('Office employee workspaces can lose their design tokens, overflow, or be obscured by the persistent command surface.');
 }
 
 if (
