@@ -343,6 +343,14 @@ if (
   failures.push('The Office status legend does not fully and truthfully match the visible employee status colors.');
 }
 
+if (
+  !luluStation.includes('className="lulu-station__character-frame"')
+  || !luluStation.includes('transform={`translate(${x} ${y})`}')
+  || !luluStation.includes('className={`lulu-station__character lulu-station__character--${tone}')
+) {
+  failures.push('Office agent animations can override their SVG room coordinates and displace crew members from their stations.');
+}
+
 if (luluStation.includes('Open control center') || luluStation.includes('Open operational control center')) {
   failures.push('The Office still exposes a control-center link whose legacy surface is not rendered.');
 }

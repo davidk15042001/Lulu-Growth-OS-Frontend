@@ -204,7 +204,7 @@ function StationCharacter({
   };
   return (
     <g
-      className={`lulu-station__character lulu-station__character--${tone} lulu-station__character--avatar-${avatarVariant}${selected ? " is-selected" : ""}`}
+      className="lulu-station__character-frame"
       transform={`translate(${x} ${y})`}
       role="button"
       tabIndex={0}
@@ -212,24 +212,26 @@ function StationCharacter({
       onClick={(event) => { event.stopPropagation(); onSelect(employee); }}
       onKeyDown={handleKeyDown}
     >
-      <g className={`lulu-station__workstation lulu-station__workstation--${tone}`} aria-hidden="true">
-        <ellipse className="lulu-station__workstation-shadow" cx="0" cy="51" rx="43" ry="10" />
-        <rect className="lulu-station__workstation-surface" x="-43" y="34" width="86" height="14" rx="5" />
-        <rect className="lulu-station__workstation-screen" x="20" y="12" width="21" height="20" rx="3" />
-        <path className="lulu-station__workstation-screen-line" d="M24 20h12M24 25h8" />
-        <path className="lulu-station__workstation-chair" d="M-15 52h30l-4 9h-22z" />
+      <g className={`lulu-station__character lulu-station__character--${tone} lulu-station__character--avatar-${avatarVariant}${selected ? " is-selected" : ""}`}>
+        <g className={`lulu-station__workstation lulu-station__workstation--${tone}`} aria-hidden="true">
+          <ellipse className="lulu-station__workstation-shadow" cx="0" cy="51" rx="43" ry="10" />
+          <rect className="lulu-station__workstation-surface" x="-43" y="34" width="86" height="14" rx="5" />
+          <rect className="lulu-station__workstation-screen" x="20" y="12" width="21" height="20" rx="3" />
+          <path className="lulu-station__workstation-screen-line" d="M24 20h12M24 25h8" />
+          <path className="lulu-station__workstation-chair" d="M-15 52h30l-4 9h-22z" />
+        </g>
+        <ellipse className="lulu-station__character-shadow" cx="0" cy="43" rx="30" ry="8" />
+        <path className="lulu-station__character-legs" d="M-11 21v21M11 21v21" />
+        <rect className="lulu-station__character-body" x="-20" y="-1" width="40" height="32" rx="12" />
+        <path className="lulu-station__character-arm lulu-station__character-arm--left" d="M-18 7l-13 12" />
+        <path className="lulu-station__character-arm lulu-station__character-arm--right" d="M18 7l13 12" />
+        <circle className="lulu-station__character-head" cx="0" cy="-18" r="16" />
+        <path className="lulu-station__character-hair" d="M-15-17c1-14 27-19 32-1-4-4-8-5-13-3-5-3-12-1-19 4Z" />
+        <path className="lulu-station__character-visor" d="M-9-18h18" />
+        <circle className="lulu-station__character-status" cx="19" cy="-30" r="5" />
+        <text className="lulu-station__character-initials" x="0" y="18" textAnchor="middle">{initials(employee.name)}</text>
+        <text className="lulu-station__character-name" x="0" y="74" textAnchor="middle">{employee.name.split(" ")[0]}</text>
       </g>
-      <ellipse className="lulu-station__character-shadow" cx="0" cy="43" rx="30" ry="8" />
-      <path className="lulu-station__character-legs" d="M-11 21v21M11 21v21" />
-      <rect className="lulu-station__character-body" x="-20" y="-1" width="40" height="32" rx="12" />
-      <path className="lulu-station__character-arm lulu-station__character-arm--left" d="M-18 7l-13 12" />
-      <path className="lulu-station__character-arm lulu-station__character-arm--right" d="M18 7l13 12" />
-      <circle className="lulu-station__character-head" cx="0" cy="-18" r="16" />
-      <path className="lulu-station__character-hair" d="M-15-17c1-14 27-19 32-1-4-4-8-5-13-3-5-3-12-1-19 4Z" />
-      <path className="lulu-station__character-visor" d="M-9-18h18" />
-      <circle className="lulu-station__character-status" cx="19" cy="-30" r="5" />
-      <text className="lulu-station__character-initials" x="0" y="18" textAnchor="middle">{initials(employee.name)}</text>
-      <text className="lulu-station__character-name" x="0" y="74" textAnchor="middle">{employee.name.split(" ")[0]}</text>
     </g>
   );
 }
