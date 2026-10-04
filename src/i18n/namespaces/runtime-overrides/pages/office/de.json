@@ -826,5 +826,16 @@
   "Operations Manager": "Betriebsmanager",
   "Analytics Manager": "Analysemanager",
   "Commerce Analytics Manager": "Commerce-Analytics-Manager",
-  "Bookkeeping Specialist": "Buchhaltungs-Spezialist"
+  "Bookkeeping Specialist": "Buchhaltungs-Spezialist",
+  "No companies are available in the customer graph.": "Im Kundenprofil sind keine Unternehmen verfügbar.",
+  "No connected inbox is available for this workspace.": "Für diesen Workspace ist kein verbundenes Postfach verfügbar.",
+  "No connected calendar is available for this workspace.": "Für diesen Workspace ist kein verbundener Kalender verfügbar.",
+  "No commerce records are available yet.": "Noch keine Handelsdaten verfügbar.",
+  "No financial documents are available yet.": "Es sind noch keine Finanzdokumente verfügbar.",
+  "No verified marketing work is available yet.": "Noch keine verifizierte Marketingarbeit verfügbar.",
+  "No managed website is connected to this workspace.": "Mit diesem Workspace ist keine verwaltete Website verbunden.",
+  "The Google Business connection needs reauthorization before review data can be read.": "Die Google-Business-Verbindung muss erneut autorisiert werden, bevor Bewertungsdaten gelesen werden können.",
+  "No connected Google Business review source is available for this workspace.": "Für diesen Workspace ist keine verbundene Google-Business-Bewertungsquelle verfügbar.",
+  "No provider connection is available for this workspace.": "Für diesen Workspace ist keine Provider-Verbindung verfügbar.",
+  "No executive intelligence is available yet.": "Noch keine Unternehmensintelligenz verfügbar."
 }

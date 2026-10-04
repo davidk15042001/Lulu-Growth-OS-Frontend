@@ -826,5 +826,16 @@
   "Operations Manager": "运营经理",
   "Analytics Manager": "分析经理",
   "Commerce Analytics Manager": "商务分析经理",
-  "Bookkeeping Specialist": "记账专员"
+  "Bookkeeping Specialist": "记账专员",
+  "No companies are available in the customer graph.": "客户图谱中暂无公司。",
+  "No connected inbox is available for this workspace.": "此工作区没有已连接的收件箱。",
+  "No connected calendar is available for this workspace.": "此工作区没有已连接的日历。",
+  "No commerce records are available yet.": "暂时没有可用的商业记录。",
+  "No financial documents are available yet.": "暂时没有可用的财务文档。",
+  "No verified marketing work is available yet.": "暂时没有可用的已验证营销工作。",
+  "No managed website is connected to this workspace.": "此工作区未连接受管网站。",
+  "The Google Business connection needs reauthorization before review data can be read.": "需要重新授权 Google 商家连接后才能读取评价数据。",
+  "No connected Google Business review source is available for this workspace.": "此工作区没有已连接的 Google 商家评价来源。",
+  "No provider connection is available for this workspace.": "此工作区没有可用的服务商连接。",
+  "No executive intelligence is available yet.": "暂时没有可用的公司智能数据。"
 }
