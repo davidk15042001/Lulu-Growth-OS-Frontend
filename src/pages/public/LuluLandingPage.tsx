@@ -172,8 +172,8 @@ export default function LuluLandingPage() {
           <div className="lulu-landing__trust-line"><LockKeyhole size={15} /> {t("Workspace-scoped. Permission-aware. Evidence-led.")}</div>
         </div>
         <div className="lulu-landing__operation-board">
-          <div className="lulu-landing__board-header"><span>{t("LIVE COMPANY POSITION")}</span><span><span className="lulu-landing__status-dot" /> {t("SYNCED")}</span></div>
-          <div className="lulu-landing__board-core"><div className="lulu-landing__board-ring lulu-landing__board-ring--outer" /><div className="lulu-landing__board-ring lulu-landing__board-ring--inner" /><div className="lulu-landing__board-core-mark"><Sparkles size={22} /></div><span className="lulu-landing__board-core-label">COMPANY<br />BRAIN</span></div>
+          <div className="lulu-landing__board-header"><span>{t("Company Brain")}</span><span><Sparkles size={13} /> {t("The operating loop")}</span></div>
+          <div className="lulu-landing__board-core"><div className="lulu-landing__board-ring lulu-landing__board-ring--outer" /><div className="lulu-landing__board-ring lulu-landing__board-ring--inner" /><div className="lulu-landing__board-core-mark"><Sparkles size={22} /></div><span className="lulu-landing__board-core-label">{t("Company Brain")}</span></div>
           <div className="lulu-landing__board-node lulu-landing__board-node--top"><Globe2 size={15} /><span>{t("Market signal")}</span></div>
           <div className="lulu-landing__board-node lulu-landing__board-node--right"><CircleDollarSign size={15} /><span>{t("Unit economics")}</span></div>
           <div className="lulu-landing__board-node lulu-landing__board-node--bottom"><Layers3 size={15} /><span>{t("Execution graph")}</span></div>
