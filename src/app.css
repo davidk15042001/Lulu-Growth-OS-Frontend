@@ -433,9 +433,11 @@ button, input { font: inherit; }
   .page-grid { grid-template-columns: 1fr; }
 }
 
-/* Portal dialogs must keep readable contrast outside the app root. */
-.lulu-viewport-portal [role="dialog"],.lulu-viewport-portal [role="alertdialog"]{color:#111827!important;background:#fff!important}
-.lulu-viewport-portal [role="dialog"] p,.lulu-viewport-portal [role="dialog"] span,.lulu-viewport-portal [role="dialog"] button,.lulu-viewport-portal [role="alertdialog"] p,.lulu-viewport-portal [role="alertdialog"] span,.lulu-viewport-portal [role="alertdialog"] button{color:#111827!important}
+/* Portal dialogs must keep readable contrast outside the app root. Native
+   workspace dialogs provide their own themed surface and must not be forced
+   back to the legacy white portal treatment. */
+.lulu-viewport-portal [role="dialog"]:not(.calendar-dialog--modern),.lulu-viewport-portal [role="alertdialog"]{color:#111827!important;background:#fff!important}
+.lulu-viewport-portal [role="dialog"]:not(.calendar-dialog--modern) p,.lulu-viewport-portal [role="dialog"]:not(.calendar-dialog--modern) span,.lulu-viewport-portal [role="dialog"]:not(.calendar-dialog--modern) button,.lulu-viewport-portal [role="alertdialog"] p,.lulu-viewport-portal [role="alertdialog"] span,.lulu-viewport-portal [role="alertdialog"] button{color:#111827!important}
 .lulu-viewport-portal [role="alertdialog"] h2{color:#b91c1c!important}
 
 /* Global authenticated search bar */
