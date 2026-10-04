@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useLuluApp } from "../../api/LuluAppContext";
 import { navigateApp, routes } from "../../routing";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { FinanceOverviewPanel } from "../../components/FinanceOverviewWorkspace";
 import { WorkspaceSurfaceShell } from "../../components/WorkspaceSurfaceShell";
 
 /**
@@ -44,12 +45,14 @@ export default function FinanceTemplatesPage() {
                   {t("Managed by Lulu agents")}
                 </span>
               </div>
-              <h1 className="mt-3 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">{t("Finance templates")}</h1>
+              <h1 className="mt-3 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">{t("Finance Overview")}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--muted-foreground)]">
-                {t("Lulu automatically creates invoices and quotes when they are needed. Choose a template to review the format used for your customer documents.")}
+                {t("Verified financial records from the connected workspace. Amounts remain exact and are never converted or mixed across currencies.")}
               </p>
             </div>
           </header>
+
+          <FinanceOverviewPanel />
 
           <section aria-labelledby="finance-template-heading">
             <div className="mb-3 flex items-end justify-between gap-4">
