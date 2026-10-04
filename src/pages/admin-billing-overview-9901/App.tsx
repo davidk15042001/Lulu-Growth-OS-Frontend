@@ -3,7 +3,7 @@ import { ApiError, getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi
 import { setAdminSurface, setStoredUser } from "../../api/session";
 import { useLuluApp } from '../../api/LuluAppContext';
 import { DEFAULT_LANGUAGE, isAvailableLanguageCode, LANGUAGE_STORAGE_KEY } from "../../i18n/languages";
-import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { GlobalLanguageSwitcher, useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { routes } from "../../routing";
 import SupportInbox from '../support/SupportPage';
 import AdminOmniChannelPage from '../admin-omnichannel/AdminOmniChannelPage';
@@ -511,6 +511,7 @@ export default function App() {
 
   return (
     <div className="lulu-admin-console min-h-screen bg-slate-50 text-slate-900" data-admin-page={page}>
+      <GlobalLanguageSwitcher showButton={false} />
       <div className="flex h-screen w-full">
         <aside className={`${sidebarOpen ? "w-64" : "w-0 -translate-x-full md:w-16 md:translate-x-0"} transition-all duration-200 shrink-0 border-r border-slate-200 bg-white md:static fixed left-0 top-0 z-30 h-full overflow-y-auto`}>
           <div className="lulu-admin-console__brand flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">

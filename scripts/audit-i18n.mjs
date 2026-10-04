@@ -13,6 +13,7 @@ const root = process.cwd();
 const languageSource = readFileSync(join(root, "src", "i18n", "languages.ts"), "utf8");
 const runtimeSource = readFileSync(join(root, "src", "api", "runtime.tsx"), "utf8");
 const isolatedEntrySource = readFileSync(join(root, "src", "isolated-entry.tsx"), "utf8");
+const adminPanelSource = readFileSync(join(root, "src", "pages", "admin-billing-overview-9901", "App.tsx"), "utf8");
 const translationsSource = readFileSync(join(root, "src", "i18n", "translations.json"), "utf8");
 const translations = JSON.parse(translationsSource);
 const expectedCodes = ["en", "de", "zh-CN"];
@@ -55,6 +56,9 @@ if (!runtimeSource.includes("<GlobalLanguageSwitcher")) {
 }
 if (!readFileSync(join(root, "src", "i18n", "GlobalLanguageSwitcher.tsx"), "utf8").includes("ensureNamespaces(language, requiredNamespaces(window.location.pathname, window.location.search))")) {
   blockingIssues.push("The translation hook does not load the active route catalog for standalone application surfaces");
+}
+if (!adminPanelSource.includes("<GlobalLanguageSwitcher showButton={false} />")) {
+  blockingIssues.push("The standalone admin console does not mount the global language renderer");
 }
 if (!isolatedEntrySource.includes("<LuluRuntime slug={slug}>")) {
   blockingIssues.push("Isolated pages are not wrapped by LuluRuntime");
