@@ -1108,7 +1108,13 @@ export function OfficeCommandCenter() {
 
   return <section className={`lulu-office-command lulu-office-command--${coreState}${hasConversation ? " has-conversation" : ""}`} aria-label={t("Lulu Core")}>
     <header className="lulu-office-command__header">
-      <OfficeSettingsMenu workspaceName={selectedWorkspace?.companyName ?? t("Lulu workspace")} />
+      <div className="lulu-office-command__header-primary-actions">
+        <button type="button" className="lulu-office-command__workspace-toggle" onClick={() => navigateApp(routes.app.dashboard)}>
+          <LayoutDashboard aria-hidden="true" size={16} />
+          <span>{t("Open workspace")}</span>
+        </button>
+        <OfficeSettingsMenu workspaceName={selectedWorkspace?.companyName ?? t("Lulu workspace")} />
+      </div>
       <div className="lulu-office-command__header-actions"><button type="button" className="lulu-office-command__history-toggle" aria-expanded={historyOpen} onClick={() => setHistoryOpen((current) => !current)}><History aria-hidden="true" size={16} /><span>{t("History")}</span>{conversations.length > 0 && <small>{conversations.length}</small>}</button><button type="button" className="lulu-office-command__new-intent" onClick={startNewIntent}><Sparkles aria-hidden="true" size={15} /><span>{t("New intent")}</span></button></div>
     </header>
 

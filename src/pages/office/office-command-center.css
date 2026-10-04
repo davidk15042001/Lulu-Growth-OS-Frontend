@@ -28,7 +28,8 @@
 }
 
 .lulu-office-command__history-toggle,
-.lulu-office-command__new-intent {
+.lulu-office-command__new-intent,
+.lulu-office-command__workspace-toggle {
   display: inline-flex;
   min-height: 32px;
   align-items: center;
@@ -45,10 +46,13 @@
 
 .lulu-office-command__history-toggle { padding: 0 8px; }
 .lulu-office-command__history-toggle:hover,
-.lulu-office-command__new-intent:hover { border-color: #434c76; background: #151a31; color: #f4f3ff; }
+.lulu-office-command__new-intent:hover,
+.lulu-office-command__workspace-toggle:hover { border-color: #434c76; background: #151a31; color: #f4f3ff; }
 .lulu-office-command__history-toggle small { display: grid; width: 17px; height: 17px; place-items: center; border-radius: 50%; background: #302567; color: #d8d0ff; font-size: .6rem; }
 .lulu-office-command__header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 4px; }
+.lulu-office-command__header-primary-actions { display: flex; min-width: 0; align-items: center; gap: 4px; }
 .lulu-office-command__new-intent { padding: 0 8px; }
+.lulu-office-command__workspace-toggle { padding: 0 8px; color: #9ddfeb; }
 
 .lulu-office-command__settings-menu { position: relative; justify-self: start; }
 .lulu-office-command__settings-menu > summary { display: inline-flex; min-height: 32px; align-items: center; gap: 7px; border: 1px solid transparent; border-radius: 4px; padding: 0 8px; color: var(--command-muted); cursor: pointer; font-size: .72rem; font-weight: 680; list-style: none; }
@@ -281,11 +285,13 @@
   .lulu-office-command__header { min-height: 52px; padding: 0 12px; }
   .lulu-office-command__settings-menu > summary span,
   .lulu-office-command__history-toggle span,
-  .lulu-office-command__new-intent span { display: none; }
+  .lulu-office-command__new-intent span,
+  .lulu-office-command__workspace-toggle span { display: none; }
   .lulu-office-command__settings-menu > summary { width: 32px; justify-content: center; padding: 0; }
   .lulu-office-command__settings-menu > summary > svg:last-child { display: none; }
   .lulu-office-command__history-toggle,
-  .lulu-office-command__new-intent { width: 32px; padding: 0; }
+  .lulu-office-command__new-intent,
+  .lulu-office-command__workspace-toggle { width: 32px; padding: 0; }
   .lulu-office-command__body { padding: 12px 18px 204px; }
   .lulu-office-command__core-stage { gap: 19px; }
   .lulu-office-command__core { width: 136px; height: 136px; }
