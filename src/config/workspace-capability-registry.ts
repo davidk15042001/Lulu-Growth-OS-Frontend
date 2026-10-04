@@ -77,6 +77,11 @@ const LABEL_OVERRIDES = new Map([
   ["glad-coast-1428", "Integrations"],
   ["fresh-tide-9404", "Integrations"],
   [CRM_LANDING_PAGE_ID, "Companies"],
+  // Keep the two campaign workspaces distinguishable in every locale. The
+  // original generic "Campaigns" label is translated to the same term as
+  // paid advertising campaigns in Chinese, leaving two indistinguishable
+  // destinations side by side in Workspace navigation.
+  ["dreamily-soil-9290", "Marketing Campaigns"],
 ]);
 
 const SECTION_METADATA: Readonly<Record<string, {
