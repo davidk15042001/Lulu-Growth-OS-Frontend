@@ -805,5 +805,18 @@
   "providers connected": "Anbieter verbunden",
   "synced": "synchronisiert",
   "gated": "gesperrt",
-  "verified": "verifiziert"
+  "verified": "verifiziert",
+  "Customer Manager": "Kundenmanager",
+  "Lead Generation Specialist": "Lead-Generierungs-Spezialist",
+  "Lead Qualification Specialist": "Lead-Qualifizierungs-Spezialist",
+  "Opportunity Manager": "Opportunity-Manager",
+  "Content Specialist": "Content-Spezialist",
+  "Media & Assets Manager": "Medien- & Asset-Manager",
+  "Store Manager": "Shop-Manager",
+  "Finance Operations Manager": "Finanzoperationsmanager",
+  "Automation Manager": "Automatisierungsmanager",
+  "Operations Manager": "Betriebsmanager",
+  "Analytics Manager": "Analysemanager",
+  "Commerce Analytics Manager": "Commerce-Analytics-Manager",
+  "Bookkeeping Specialist": "Buchhaltungs-Spezialist"
 }

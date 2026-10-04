@@ -805,5 +805,18 @@
   "providers connected": "个服务商已连接",
   "synced": "已同步",
   "gated": "受限",
-  "verified": "已验证"
+  "verified": "已验证",
+  "Customer Manager": "客户经理",
+  "Lead Generation Specialist": "潜在客户开发专员",
+  "Lead Qualification Specialist": "潜在客户筛选专员",
+  "Opportunity Manager": "商机经理",
+  "Content Specialist": "内容专员",
+  "Media & Assets Manager": "媒体与资产经理",
+  "Store Manager": "店铺经理",
+  "Finance Operations Manager": "财务运营经理",
+  "Automation Manager": "自动化经理",
+  "Operations Manager": "运营经理",
+  "Analytics Manager": "分析经理",
+  "Commerce Analytics Manager": "商务分析经理",
+  "Bookkeeping Specialist": "记账专员"
 }

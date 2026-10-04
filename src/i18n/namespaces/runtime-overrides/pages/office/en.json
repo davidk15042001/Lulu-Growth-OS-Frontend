@@ -475,5 +475,18 @@
   "providers connected": "providers connected",
   "synced": "synced",
   "gated": "gated",
-  "verified": "verified"
+  "verified": "verified",
+  "Customer Manager": "Customer Manager",
+  "Lead Generation Specialist": "Lead Generation Specialist",
+  "Lead Qualification Specialist": "Lead Qualification Specialist",
+  "Opportunity Manager": "Opportunity Manager",
+  "Content Specialist": "Content Specialist",
+  "Media & Assets Manager": "Media & Assets Manager",
+  "Store Manager": "Store Manager",
+  "Finance Operations Manager": "Finance Operations Manager",
+  "Automation Manager": "Automation Manager",
+  "Operations Manager": "Operations Manager",
+  "Analytics Manager": "Analytics Manager",
+  "Commerce Analytics Manager": "Commerce Analytics Manager",
+  "Bookkeeping Specialist": "Bookkeeping Specialist"
 }
