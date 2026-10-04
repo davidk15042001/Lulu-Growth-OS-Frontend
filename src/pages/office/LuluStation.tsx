@@ -760,8 +760,12 @@ export function LuluStation() {
                 <section className="lulu-station__catalog-section"><span>{t("Activation & safeguards")}</span><p>{selectedCatalogAgent.activationTriggers.slice(0, 4).join(" · ") || t("The verified team planner selects this specialist when its domain is relevant.")}</p><small>{selectedCatalogAgent.permissions.slice(0, 4).join(" · ") || t("Workspace-scoped permissions are evaluated before every action.")}</small></section>
                 <section className="lulu-station__catalog-section"><span>{t("Success measures")}</span><div className="lulu-station__modal-chips">{selectedCatalogAgent.kpis.slice(0, 8).map((kpi) => <span key={kpi}>{kpi}</span>)}</div></section>
               </div>
+              <section className="lulu-station__catalog-native-workspace" aria-label={`${selectedCatalogAgent.name} ${t("workspace preview")}`}>
+                <div className="lulu-station__catalog-native-heading"><span>{t("NATIVE WORKSPACE PREVIEW")}</span><small>{t("The same workspace-scoped data surface, without leaving the Station.")}</small></div>
+                <AgentNativeWorkspace workspaceId={workspaceId} catalogAgent={selectedCatalogAgent} />
+              </section>
             </div>
-            <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />{t("Canonical registry · workspace-safe")}</span>{selectedCatalogAgent.pageId && isPageNavigable(selectedCatalogAgent.pageId) ? <button type="button" className="lulu-station__inspector-link" onClick={() => openCatalogWorkspace(selectedCatalogAgent)}><ArrowUpRight size={14} />{t("Open live workspace")}</button> : <span>{t("No dedicated workspace surface")}</span>}</footer>
+            <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />{t("Canonical registry · workspace-safe")}</span>{selectedCatalogAgent.pageId && isPageNavigable(selectedCatalogAgent.pageId) ? <button type="button" className="lulu-station__inspector-link" onClick={() => openCatalogWorkspace(selectedCatalogAgent)}><ArrowUpRight size={14} />{t("Open full workspace")}</button> : <span>{t("No dedicated workspace surface")}</span>}</footer>
           </> : <>
             <header className="lulu-station__catalog-header">
               <div><span className="lulu-station__modal-kicker"><Bot size={14} />{t("SPECIALIST DIRECTORY")}</span><h2 id="lulu-station-catalog-title">{catalogLoading && !ecosystem ? t("Loading specialists…") : t("All registered specialists")}</h2><p>{t("The Station map only shows the verified Digital Employee roster. This directory exposes the complete on-demand specialist ecosystem without presenting inactive specialists as online or working.")}</p></div>

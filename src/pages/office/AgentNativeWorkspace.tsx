@@ -37,6 +37,7 @@ import { productsApi, type Product } from "../../api/products";
 import { socialPublishingApi, type SocialContent, type SocialPublicationJob } from "../../api/social-publishing";
 import { websitesApi, type WebsiteSite } from "../../api/websites";
 import { workspaceAppApi, type GoogleReviewsManagerState } from "../../api/workspace-app";
+import type { AgentEcosystemDefinition } from "../../api/agents";
 import type { OfficeEmployeeDetails } from "../../api/office";
 import { ApiError, getFriendlyErrorMessage } from "../../api/client";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
@@ -47,7 +48,17 @@ type NativeWorkspaceKind = "command" | "crm" | "communications" | "email" | "cal
 
 type Props = {
   workspaceId: string;
-  employeeDetail: OfficeEmployeeDetails;
+  employeeDetail?: OfficeEmployeeDetails;
+  catalogAgent?: AgentEcosystemDefinition;
+};
+
+type AgentSurfaceSource = {
+  key: string;
+  name: string;
+  capabilities: readonly string[];
+  module?: string | null;
+  pageId?: string | null;
+  purpose?: string | null;
 };
 
 type KindDefinition = {
@@ -71,21 +82,25 @@ const KINDS: Record<NativeWorkspaceKind, KindDefinition> = {
   intelligence: { label: "Company intelligence", description: "Executive findings, proposals and observable operating signals.", icon: BarChart3 },
 };
 
-function resolveKind(detail: OfficeEmployeeDetails): NativeWorkspaceKind {
-  const key = detail.employee.key.toLowerCase().replaceAll("_", "-");
-  const capabilities = detail.capabilities.map((capability) => capability.key);
+function resolveKind(source: AgentSurfaceSource): NativeWorkspaceKind {
+  const capabilities = source.capabilities.map((capability) => capability.toLowerCase());
+  const classification = [source.key, source.name, source.module, source.pageId, ...capabilities]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+    .replaceAll("_", "-");
   const has = (prefix: string) => capabilities.some((capability) => capability.startsWith(prefix));
-  if (/calendar/.test(key)) return "calendar";
-  if (/email|inbox|mail/.test(key)) return "email";
-  if (/reputation|review/.test(key)) return "reputation";
-  if (has("omnichannel.") || /support|communication/.test(key)) return "communications";
-  if (has("invoices.") || has("finance.") || has("payouts.") || has("quotes.") || /invoice|billing|bookkeeping|finance|quote/.test(key)) return "finance";
-  if (has("crm.") || has("leads.") || has("opportunities.") || /company|customer|lead|sales|follow-up|quote/.test(key)) return "crm";
-  if (has("products.") || has("orders.") || /product|catalog|inventory|fulfillment|commerce|store|order/.test(key)) return "commerce";
-  if (has("social.") || has("advertising.") || /marketing|content|brand|social|acquisition|ads/.test(key)) return "marketing";
-  if (has("website.") || /website|cms|media|domain|reputation|search/.test(key)) return "website";
-  if (has("providers.") || has("settings.") || /integration|automation|operations/.test(key)) return "operations";
-  if (/intelligence|analytics|executive|orchestrator|quality|security/.test(key)) return "intelligence";
+  if (/calendar|scheduling|appointment/.test(classification)) return "calendar";
+  if (/email|inbox|mail/.test(classification)) return "email";
+  if (/reputation|review/.test(classification)) return "reputation";
+  if (has("omnichannel.") || /omnichannel|support|communication|conversation/.test(classification)) return "communications";
+  if (has("invoices.") || has("finance.") || has("payouts.") || has("quotes.") || /invoice|billing|bookkeeping|finance|quote|tax|commission/.test(classification)) return "finance";
+  if (has("crm.") || has("leads.") || has("opportunities.") || /crm|company|contact|customer|lead|sales|follow-up|opportunity|deal|pipeline|territor/.test(classification)) return "crm";
+  if (has("products.") || has("orders.") || /product|catalog|inventory|fulfillment|commerce|store|order/.test(classification)) return "commerce";
+  if (has("social.") || has("advertising.") || /marketing|content|brand|social|acquisition|ads|campaign|keyword|audience/.test(classification)) return "marketing";
+  if (has("website.") || /website|cms|media|domain|search|seo/.test(classification)) return "website";
+  if (has("providers.") || has("settings.") || /integration|automation|operations|provider|settings|capability/.test(classification)) return "operations";
+  if (/intelligence|analytics|executive|orchestrator|quality|security|knowledge|audit|assistant/.test(classification)) return "intelligence";
   return "command";
 }
 
@@ -121,8 +136,12 @@ function Status({ children }: { children: string | null | undefined }) {
   return <span className={`lulu-native-agent__status ${statusClass(children)}`}>{t(label.toLowerCase())}</span>;
 }
 
-function CommandSurface({ detail }: { detail: OfficeEmployeeDetails }) {
+function CommandSurface({ detail, source }: { detail?: OfficeEmployeeDetails; source: AgentSurfaceSource }) {
   const t = useTranslation();
+  if (!detail) return <section className="lulu-native-agent__focus-card">
+    <div><span className="lulu-native-agent__eyebrow">{t("WORKSPACE CONTEXT")}</span><h3>{t(source.name)}</h3><p>{t(source.purpose ?? "This specialist is available on demand. It has no persisted assignment or activity until the verified planner selects it.")}</p></div>
+    <Status>{t("available on demand")}</Status>
+  </section>;
   const work = detail.currentWorkItem;
   const workStatus = detail.employee.status === "WAITING" && work?.status === "running"
     ? "awaiting recovery"
@@ -298,13 +317,30 @@ function IntelligenceSurface({ workspaceId }: { workspaceId: string }) {
   return <SurfaceState loading={loading} error={error} empty={!overview ? "No executive intelligence is available yet." : undefined}><div className="lulu-native-agent__metrics"><Metric label="Findings" value={overview?.summary.visibleFindingCount ?? 0} detail="visible operating signals" icon={<CircleAlert size={14} />} /><Metric label="Proposals" value={overview?.summary.visibleProposalCount ?? 0} detail="decision-ready items" icon={<Sparkles size={14} />} /><Metric label="Forecasts" value={overview?.summary.forecastCount ?? 0} detail="evidence-backed scenarios" icon={<BarChart3 size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Executive signals")}</span><small>{t("Verified cycle evidence")}</small></div>{overview?.findings.slice(0, 6).map((finding) => <article key={finding.id}><div><strong>{finding.title}</strong><small>{finding.description}</small></div><Status>{finding.status}</Status></article>)}</section></SurfaceState>;
 }
 
-export function AgentNativeWorkspace({ workspaceId, employeeDetail }: Props) {
+export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent }: Props) {
   const t = useTranslation();
-  const kind = useMemo(() => resolveKind(employeeDetail), [employeeDetail]);
+  const source = useMemo<AgentSurfaceSource>(() => employeeDetail
+    ? {
+        key: employeeDetail.employee.key,
+        name: employeeDetail.employee.name,
+        capabilities: employeeDetail.capabilities.map((capability) => capability.key),
+        module: employeeDetail.employee.department?.key,
+        purpose: employeeDetail.employee.description ?? null,
+      }
+    : {
+        key: catalogAgent?.pageId ?? catalogAgent?.id ?? "specialist",
+        name: catalogAgent?.name ?? t("Digital employee"),
+        capabilities: catalogAgent?.capabilities ?? [],
+        module: catalogAgent?.module,
+        pageId: catalogAgent?.pageId,
+        purpose: catalogAgent?.purpose,
+      }, [catalogAgent, employeeDetail, t]);
+  const kind = useMemo(() => resolveKind(source), [source]);
   const definition = KINDS[kind];
   const Icon = definition.icon;
-  return <section className="lulu-native-agent" aria-label={`${t(employeeDetail.employee.name)} ${t("native workspace")}`.trim()}>
-    <header className="lulu-native-agent__header"><span className="lulu-native-agent__header-icon"><Icon size={17} /></span><div><span className="lulu-native-agent__eyebrow">{t(definition.label)}</span><h3>{t(employeeDetail.employee.name)}</h3><p>{t(definition.description)}</p></div><span className="lulu-native-agent__live"><i />{t("Native workspace")}</span></header>
+  const isCatalogPreview = Boolean(catalogAgent && !employeeDetail);
+  return <section className="lulu-native-agent" aria-label={`${t(source.name)} ${t("native workspace")}`.trim()}>
+    <header className="lulu-native-agent__header"><span className="lulu-native-agent__header-icon"><Icon size={17} /></span><div><span className="lulu-native-agent__eyebrow">{t(definition.label)}</span><h3>{t(source.name)}</h3><p>{t(definition.description)}</p></div><span className="lulu-native-agent__live"><i />{t(isCatalogPreview ? "Workspace context" : "Native workspace")}</span></header>
     <div className="lulu-native-agent__content">
       {kind === "crm" ? <CrmSurface workspaceId={workspaceId} /> : null}
       {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} /> : null}
@@ -317,8 +353,8 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail }: Props) {
       {kind === "reputation" ? <ReviewSurface workspaceId={workspaceId} /> : null}
       {kind === "operations" ? <OperationsSurface workspaceId={workspaceId} /> : null}
       {kind === "intelligence" ? <IntelligenceSurface workspaceId={workspaceId} /> : null}
-      {kind === "command" ? <CommandSurface detail={employeeDetail} /> : null}
+      {kind === "command" ? <CommandSurface detail={employeeDetail} source={source} /> : null}
     </div>
-    <footer className="lulu-native-agent__footer"><ShieldCheck size={14} /><span>{t("Uses the same workspace-scoped APIs and permission checks as the full product surface.")}</span></footer>
+    <footer className="lulu-native-agent__footer"><ShieldCheck size={14} /><span>{t(isCatalogPreview ? "Shows verified workspace context. This specialist remains inactive until the planner assigns persisted work." : "Uses the same workspace-scoped APIs and permission checks as the full product surface.")}</span></footer>
   </section>;
 }

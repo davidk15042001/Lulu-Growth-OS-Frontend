@@ -336,12 +336,13 @@ if (
   || !nativeAgentWorkspace.includes('function WebsiteSurface')
   || !nativeAgentWorkspace.includes('function OperationsSurface')
   || !nativeAgentWorkspace.includes('function IntelligenceSurface')
-  || !nativeAgentWorkspace.includes('if (/calendar/.test(key)) return "calendar";')
-  || !nativeAgentWorkspace.includes('if (/email|inbox|mail/.test(key)) return "email";')
-  || !nativeAgentWorkspace.includes('if (/reputation|review/.test(key)) return "reputation";')
-  || !nativeAgentWorkspace.includes('if (has("omnichannel.") || /support|communication/.test(key)) return "communications";')
+  || !nativeAgentWorkspace.includes('const classification = [source.key, source.name, source.module, source.pageId, ...capabilities]')
+  || !nativeAgentWorkspace.includes('if (/calendar|scheduling|appointment/.test(classification)) return "calendar";')
+  || !nativeAgentWorkspace.includes('if (/email|inbox|mail/.test(classification)) return "email";')
+  || !nativeAgentWorkspace.includes('if (/reputation|review/.test(classification)) return "reputation";')
+  || !nativeAgentWorkspace.includes('if (has("omnichannel.") || /omnichannel|support|communication|conversation/.test(classification)) return "communications";')
   || !nativeAgentWorkspace.includes('has("quotes.")')
-  || !nativeAgentWorkspace.includes('/invoice|billing|bookkeeping|finance|quote/.test(key)')
+  || !nativeAgentWorkspace.includes('/invoice|billing|bookkeeping|finance|quote|tax|commission/.test(classification)')
   || !nativeAgentWorkspace.includes('omnichannelApi.conversations(workspaceId, "limit=16")')
   || !nativeAgentWorkspace.includes('omnichannelApi.conversation(workspaceId, first.id)')
   || !nativeAgentWorkspace.includes('const messageRequestRef = useRef(0);')
@@ -357,6 +358,9 @@ if (
   || !nativeAgentWorkspace.includes('GOOGLE_BUSINESS_NOT_CONNECTED')
   || !nativeAgentWorkspace.includes('GOOGLE_BUSINESS_REAUTH_REQUIRED')
   || !nativeAgentWorkspace.includes('setManager(null);')
+  || !nativeAgentWorkspace.includes('catalogAgent?: AgentEcosystemDefinition;')
+  || !nativeAgentWorkspace.includes('const isCatalogPreview = Boolean(catalogAgent && !employeeDetail);')
+  || !luluStation.includes('<AgentNativeWorkspace workspaceId={workspaceId} catalogAgent={selectedCatalogAgent} />')
 ) {
   failures.push('Dedicated communication, scheduling and reputation employees do not resolve to their native live workspace surfaces.');
 }
