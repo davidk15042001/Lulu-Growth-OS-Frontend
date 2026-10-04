@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
+  Bot,
   CheckCircle2,
+  ChevronLeft,
   Clock3,
   LayoutDashboard,
   Layers3,
@@ -15,11 +17,12 @@ import {
 import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { getFriendlyErrorMessage } from "../../api/client";
+import { agentApi, type AgentEcosystem, type AgentEcosystemDefinition } from "../../api/agents";
 import { officeApi, type OfficeEmployeeDetails, type OfficeEmployeeStatus, type OfficeEmployeeSummary, type OfficeOverview } from "../../api/office";
 import { subscribeWorkspaceEvents, type WorkspaceLiveEvent } from "../../api/agent-stream";
 import { useLuluApp } from "../../api/LuluAppContext";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
-import { routes } from "../../routing";
+import { isPageNavigable, pagePath, routes } from "../../routing";
 import { AgentNativeWorkspace } from "./AgentNativeWorkspace";
 import { conciseOfficeCopy } from "./office-copy";
 import "./lulu-station.css";
@@ -304,8 +307,15 @@ export function LuluStation() {
   const workspaceId = selectedWorkspace?.id ?? null;
   const [overviewSnapshot, setOverviewSnapshot] = useState<{ workspaceId: string; data: OfficeOverview } | null>(null);
   const [employeeDetailSnapshot, setEmployeeDetailSnapshot] = useState<{ workspaceId: string; employeeId: string; data: OfficeEmployeeDetails } | null>(null);
+  const [ecosystemSnapshot, setEcosystemSnapshot] = useState<{ workspaceId: string; data: AgentEcosystem } | null>(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [employeeLoading, setEmployeeLoading] = useState(false);
+  const [catalogOpen, setCatalogOpen] = useState(false);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
+  const [catalogQuery, setCatalogQuery] = useState("");
+  const [catalogTier, setCatalogTier] = useState<"all" | AgentEcosystemDefinition["tier"]>("all");
+  const [selectedCatalogAgent, setSelectedCatalogAgent] = useState<AgentEcosystemDefinition | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedProp, setSelectedProp] = useState<RoomLayout["prop"] | null>(null);
   const [departmentMenuOpen, setDepartmentMenuOpen] = useState(false);
@@ -315,14 +325,18 @@ export function LuluStation() {
   const [error, setError] = useState<string | null>(null);
   const [liveConnected, setLiveConnected] = useState(false);
   const [lastEventAt, setLastEventAt] = useState<string | null>(null);
-  const closeModalRef = useRef<HTMLButtonElement | null>(null);
+  const closeEmployeeModalRef = useRef<HTMLButtonElement | null>(null);
+  const closeCatalogModalRef = useRef<HTMLButtonElement | null>(null);
   const focusBeforeEmployeeModalRef = useRef<HTMLElement | null>(null);
+  const focusBeforeCatalogModalRef = useRef<HTMLElement | null>(null);
   const overviewRequestRef = useRef(0);
   const employeeRequestRef = useRef(0);
+  const catalogRequestRef = useRef(0);
   const overview = overviewSnapshot?.workspaceId === workspaceId ? overviewSnapshot.data : null;
   const employeeDetail = employeeDetailSnapshot?.workspaceId === workspaceId && employeeDetailSnapshot.employeeId === selectedEmployeeId
     ? employeeDetailSnapshot.data
     : null;
+  const ecosystem = ecosystemSnapshot?.workspaceId === workspaceId ? ecosystemSnapshot.data : null;
 
   const loadOverview = useCallback(async (background = false) => {
     if (!workspaceId) return;
@@ -344,13 +358,39 @@ export function LuluStation() {
     }
   }, [workspaceId]);
 
+  const loadCatalog = useCallback(async () => {
+    if (!workspaceId) return;
+    const requestId = ++catalogRequestRef.current;
+    const isCurrentRequest = () => requestId === catalogRequestRef.current;
+    setCatalogLoading(true);
+    try {
+      const response = await agentApi.ecosystem(workspaceId);
+      if (!isCurrentRequest()) return;
+      setEcosystemSnapshot({ workspaceId, data: response.data });
+      setCatalogError(null);
+    } catch (cause) {
+      if (!isCurrentRequest()) return;
+      setCatalogError(getFriendlyErrorMessage(cause));
+    } finally {
+      if (isCurrentRequest()) setCatalogLoading(false);
+    }
+  }, [workspaceId]);
+
   useEffect(() => {
     overviewRequestRef.current += 1;
     employeeRequestRef.current += 1;
+    catalogRequestRef.current += 1;
     setOverviewSnapshot(null);
     setEmployeeDetailSnapshot(null);
+    setEcosystemSnapshot(null);
     setSelectedEmployeeId(null);
     setEmployeeLoading(false);
+    setCatalogOpen(false);
+    setCatalogLoading(false);
+    setCatalogError(null);
+    setCatalogQuery("");
+    setCatalogTier("all");
+    setSelectedCatalogAgent(null);
     setSelectedRoomId(null);
     setSelectedProp(null);
     setError(null);
@@ -366,6 +406,7 @@ export function LuluStation() {
     return () => {
       overviewRequestRef.current += 1;
       employeeRequestRef.current += 1;
+      catalogRequestRef.current += 1;
       window.clearInterval(interval);
     };
   }, [loadOverview, workspaceId]);
@@ -420,6 +461,30 @@ export function LuluStation() {
     });
   }, []);
 
+  const openCatalog = useCallback(() => {
+    focusBeforeCatalogModalRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    setCatalogOpen(true);
+    setSelectedCatalogAgent(null);
+    if (!ecosystem && !catalogLoading) void loadCatalog();
+  }, [catalogLoading, ecosystem, loadCatalog]);
+
+  const closeCatalog = useCallback(() => {
+    catalogRequestRef.current += 1;
+    const focusTarget = focusBeforeCatalogModalRef.current;
+    setCatalogOpen(false);
+    setCatalogLoading(false);
+    setSelectedCatalogAgent(null);
+    window.requestAnimationFrame(() => {
+      if (focusTarget?.isConnected) focusTarget.focus();
+    });
+  }, []);
+
+  const openCatalogWorkspace = useCallback((agent: AgentEcosystemDefinition) => {
+    if (!agent.pageId || !isPageNavigable(agent.pageId)) return;
+    closeCatalog();
+    navigate(pagePath(agent.pageId));
+  }, [closeCatalog, navigate]);
+
   const selectRoom = useCallback((roomId: string, prop: RoomProp | null = null) => {
     employeeRequestRef.current += 1;
     setSelectedRoomId(roomId);
@@ -434,22 +499,30 @@ export function LuluStation() {
   }, []);
 
   useEffect(() => {
-    if (!selectedEmployeeId) return undefined;
+    if (!selectedEmployeeId && !catalogOpen) return undefined;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
-        closeEmployeePopup();
+        if (selectedEmployeeId) closeEmployeePopup();
+        else if (selectedCatalogAgent) setSelectedCatalogAgent(null);
+        else closeCatalog();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [closeEmployeePopup, selectedEmployeeId]);
+  }, [catalogOpen, closeCatalog, closeEmployeePopup, selectedCatalogAgent, selectedEmployeeId]);
 
   useEffect(() => {
     if (!selectedEmployeeId) return undefined;
-    const frame = window.requestAnimationFrame(() => closeModalRef.current?.focus());
+    const frame = window.requestAnimationFrame(() => closeEmployeeModalRef.current?.focus());
     return () => window.cancelAnimationFrame(frame);
   }, [selectedEmployeeId]);
+
+  useEffect(() => {
+    if (!catalogOpen) return undefined;
+    const frame = window.requestAnimationFrame(() => closeCatalogModalRef.current?.focus());
+    return () => window.cancelAnimationFrame(frame);
+  }, [catalogOpen]);
 
   const trapEmployeeModalFocus = useCallback((event: React.KeyboardEvent<HTMLElement>) => {
     if (event.key !== "Tab") return;
@@ -482,6 +555,18 @@ export function LuluStation() {
     if (!query) return rooms;
     return rooms.filter(({ department }) => `${department.name} ${department.description}`.toLocaleLowerCase().includes(query));
   }, [departmentQuery, rooms]);
+  const activeCatalogAgents = useMemo(() => new Map(ecosystem?.activeTeam.map((agent) => [agent.id, agent]) ?? []), [ecosystem]);
+  const filteredCatalogDefinitions = useMemo(() => {
+    const query = catalogQuery.trim().toLocaleLowerCase();
+    return (ecosystem?.definitions ?? []).filter((agent) => {
+      if (catalogTier !== "all" && agent.tier !== catalogTier) return false;
+      if (!query) return true;
+      return [agent.name, agent.domain, agent.module, agent.purpose, ...agent.capabilities, ...agent.requiredTools]
+        .join(" ")
+        .toLocaleLowerCase()
+        .includes(query);
+    });
+  }, [catalogQuery, catalogTier, ecosystem]);
   const openSignals = overview?.companyBrain?.signals.filter((signal) => signal.status === "OPEN").length ?? 0;
   // A missing readiness payload must never make the visual Office claim that
   // AI execution is funded. The server is authoritative and already sends the
@@ -518,6 +603,7 @@ export function LuluStation() {
         </div>
         <div className="lulu-station__header-actions">
           <span className={`lulu-station__connection${liveConnected ? " is-live" : ""}`}><i />{liveConnected ? "Live events" : "Verified snapshot"}</span>
+          <button type="button" className="lulu-station__catalog-trigger" onClick={openCatalog}><Bot size={15} />{t("Specialists")}</button>
           <button type="button" className="lulu-station__workspace-switch" onClick={openWorkspace}><LayoutDashboard size={15} />{t("Open workspace")}</button>
           <button type="button" className="lulu-station__refresh" onClick={() => void loadOverview(true)} disabled={refreshing}><RefreshCw size={15} className={refreshing ? "lulu-station__spin" : undefined} />{t("Refresh")}</button>
         </div>
@@ -631,7 +717,7 @@ export function LuluStation() {
 
       {selectedEmployeeId ? createPortal(<div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEmployeePopup(); }}>
         <section className="lulu-station__employee-modal lulu-station__employee-modal--workspace" role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title" onKeyDown={trapEmployeeModalFocus}>
-          <button ref={closeModalRef} type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label="Close employee workspace">×</button>
+          <button ref={closeEmployeeModalRef} type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label="Close employee workspace">×</button>
           {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>Opening verified employee workspace…</strong><span>Loading the employee state and recent evidence.</span></div> : <>
             <header className="lulu-station__modal-header">
               <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
@@ -648,6 +734,43 @@ export function LuluStation() {
               </div>
             </div>
             <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />Workspace-scoped verified state</span><button type="button" className="lulu-station__inspector-link" onClick={openWorkspace}><LayoutDashboard size={14} />{t("Open workspace")}</button></footer>
+          </>}
+        </section>
+      </div>, document.body) : null}
+
+      {catalogOpen ? createPortal(<div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCatalog(); }}>
+        <section className="lulu-station__catalog-modal" role="dialog" aria-modal="true" aria-labelledby="lulu-station-catalog-title" onKeyDown={trapEmployeeModalFocus}>
+          <button ref={closeCatalogModalRef} type="button" className="lulu-station__modal-close" onClick={closeCatalog} aria-label={t("Close specialist directory")}>×</button>
+          {selectedCatalogAgent ? <>
+            <header className="lulu-station__modal-header lulu-station__catalog-detail-header">
+              <div className="lulu-station__modal-avatar"><span>{initials(selectedCatalogAgent.name)}</span><i /></div>
+              <div><span className="lulu-station__modal-kicker">{t("SPECIALIST PROFILE")}</span><h2 id="lulu-station-catalog-title">{selectedCatalogAgent.name}</h2><p>{selectedCatalogAgent.tier.replaceAll("_", " ")} · {selectedCatalogAgent.domain}</p></div>
+              <div className={`lulu-station__catalog-status${activeCatalogAgents.has(selectedCatalogAgent.id) ? " is-active" : ""}`}><i />{activeCatalogAgents.has(selectedCatalogAgent.id) ? t("Selected for the current team") : t("Available on demand")}</div>
+            </header>
+            <div className="lulu-station__catalog-detail">
+              <button type="button" className="lulu-station__catalog-back" onClick={() => setSelectedCatalogAgent(null)}><ChevronLeft size={15} />{t("All specialists")}</button>
+              <div className="lulu-station__catalog-detail-grid">
+                <section className="lulu-station__catalog-focus"><span>{t("Purpose")}</span><h3>{selectedCatalogAgent.purpose}</h3><p>{selectedCatalogAgent.module} · {t("confidence")} {selectedCatalogAgent.confidenceRequirement}</p></section>
+                <section className="lulu-station__catalog-facts" aria-label={t("Specialist profile summary")}><div><strong>{selectedCatalogAgent.capabilities.length}</strong><span>{t("Capabilities")}</span></div><div><strong>{selectedCatalogAgent.requiredTools.length}</strong><span>{t("Required tools")}</span></div><div><strong>{selectedCatalogAgent.kpis.length}</strong><span>{t("Success measures")}</span></div></section>
+                {activeCatalogAgents.get(selectedCatalogAgent.id) ? <section className="lulu-station__catalog-section"><span>{t("Why this specialist is selected")}</span><p>{activeCatalogAgents.get(selectedCatalogAgent.id)?.selectionReasons.join(" · ") || t("Selected by the verified team planner.")}</p></section> : <section className="lulu-station__catalog-section"><span>{t("Availability")}</span><p>{t("This specialist is available on demand. It is not shown as working until the verified planner assigns persisted work.")}</p></section>}
+                <section className="lulu-station__catalog-section"><span>{t("Capabilities")}</span><div className="lulu-station__modal-chips">{selectedCatalogAgent.capabilities.slice(0, 12).map((capability) => <span key={capability}>{capability.replaceAll("_", " ")}</span>)}</div></section>
+                <section className="lulu-station__catalog-section"><span>{t("Activation & safeguards")}</span><p>{selectedCatalogAgent.activationTriggers.slice(0, 4).join(" · ") || t("The verified team planner selects this specialist when its domain is relevant.")}</p><small>{selectedCatalogAgent.permissions.slice(0, 4).join(" · ") || t("Workspace-scoped permissions are evaluated before every action.")}</small></section>
+                <section className="lulu-station__catalog-section"><span>{t("Success measures")}</span><div className="lulu-station__modal-chips">{selectedCatalogAgent.kpis.slice(0, 8).map((kpi) => <span key={kpi}>{kpi}</span>)}</div></section>
+              </div>
+            </div>
+            <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />{t("Canonical registry · workspace-safe")}</span>{selectedCatalogAgent.pageId && isPageNavigable(selectedCatalogAgent.pageId) ? <button type="button" className="lulu-station__inspector-link" onClick={() => openCatalogWorkspace(selectedCatalogAgent)}><ArrowUpRight size={14} />{t("Open live workspace")}</button> : <span>{t("No dedicated workspace surface")}</span>}</footer>
+          </> : <>
+            <header className="lulu-station__catalog-header">
+              <div><span className="lulu-station__modal-kicker"><Bot size={14} />{t("SPECIALIST DIRECTORY")}</span><h2 id="lulu-station-catalog-title">{catalogLoading && !ecosystem ? t("Loading specialists…") : t("All registered specialists")}</h2><p>{t("The Station map only shows the verified Digital Employee roster. This directory exposes the complete on-demand specialist ecosystem without presenting inactive specialists as online or working.")}</p></div>
+              <div className="lulu-station__catalog-summary"><strong>{ecosystem?.summary.registeredAgents ?? "—"}</strong><span>{t("Registered")}</span><small>{ecosystem ? `${ecosystem.summary.pageSpecialists} ${t("specialists")} · ${ecosystem.summary.systemAgents} ${t("system agents")}` : t("Verified catalog")}</small></div>
+            </header>
+            <div className="lulu-station__catalog-body">
+              {catalogError ? <div className="lulu-station__catalog-error" role="alert"><strong>{t("Specialist directory unavailable")}</strong><span>{catalogError}</span><button type="button" onClick={() => void loadCatalog()}>{t("Try again")}</button></div> : catalogLoading && !ecosystem ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>{t("Loading verified specialist catalog…")}</strong><span>{t("No specialist is marked as active while the catalog loads.")}</span></div> : <>
+                <div className="lulu-station__catalog-controls"><label className="lulu-station__catalog-search"><Search size={16} aria-hidden="true" /><input autoFocus value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder={t("Search specialists, capabilities or tools…")} aria-label={t("Search all specialists")} /></label><label className="lulu-station__catalog-filter"><span>{t("Role")}</span><select value={catalogTier} onChange={(event) => setCatalogTier(event.target.value as typeof catalogTier)}><option value="all">{t("All roles")}</option><option value="executive">{t("Executive")}</option><option value="domain_lead">{t("Domain lead")}</option><option value="specialist">{t("Specialist")}</option><option value="auditor">{t("Auditor")}</option></select></label></div>
+                <div className="lulu-station__catalog-meta"><span>{formatCount(filteredCatalogDefinitions.length)} {t("specialists shown")}</span><span><i className="is-active" />{t("Selected for the current team")} <i />{t("Available on demand")}</span></div>
+                <div className="lulu-station__catalog-list">{filteredCatalogDefinitions.map((agent) => <button type="button" key={agent.id} className="lulu-station__catalog-card" onClick={() => setSelectedCatalogAgent(agent)}><span className={`lulu-station__catalog-dot${activeCatalogAgents.has(agent.id) ? " is-active" : ""}`} /><span className="lulu-station__catalog-card-copy"><strong>{agent.name}</strong><small>{agent.tier.replaceAll("_", " ")} · {agent.domain}</small><em>{agent.purpose}</em></span><ArrowUpRight size={15} /></button>)}{filteredCatalogDefinitions.length === 0 ? <p className="lulu-station__catalog-empty">{t("No specialists match this search.")}</p> : null}</div>
+              </>}
+            </div>
           </>}
         </section>
       </div>, document.body) : null}
