@@ -43,7 +43,7 @@ type ComposioCatalogProps = {
   canManageTeams?: boolean;
 };
 
-export function ComposioCatalog({ workspaceId, canConnect = true, canManageTeams = false }: ComposioCatalogProps) {
+export function ComposioCatalog({ workspaceId, canConnect = false, canManageTeams = false }: ComposioCatalogProps) {
   const t = useTranslation();
   const [toolkits, setToolkits] = useState<ComposioToolkit[]>([]);
   const [teams, setTeams] = useState<ComposioIntegrationTeam[]>([]);

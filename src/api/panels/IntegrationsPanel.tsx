@@ -6,9 +6,14 @@ import { providerControlApi, type ProviderConnection, type ProviderContractCheck
 import { ComposioCatalog } from "../../components/ComposioCatalog";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 import { useLuluConfirm } from "../../components/LuluConfirmDialog";
+import { useLuluApp } from "../LuluAppContext";
 
 export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
   const confirm = useLuluConfirm();
+  const { hasCapability, permissions } = useLuluApp();
+  const providerCapabilitiesReady = permissions.status === "ready";
+  const canConnectComposio = providerCapabilitiesReady && hasCapability("providers.connect");
+  const canManageComposioTeams = providerCapabilitiesReady && hasCapability("providers.manage");
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [providerConnections, setProviderConnections] = useState<ProviderConnection[]>([]);
   const [contractChecks, setContractChecks] = useState<Record<string, ProviderContractCheck | undefined>>({});
@@ -113,7 +118,7 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
   return <LivePanelShell title="Live integrations" subtitle="Connections and synchronization jobs" onClose={onClose}>
     <LiveError message={error} />
     {notice ? <p className="lulu-live-message" role="status">{notice}</p> : null}
-    <ComposioCatalog workspaceId={workspaceId} />
+    <ComposioCatalog workspaceId={workspaceId} canConnect={canConnectComposio} canManageTeams={canManageComposioTeams} />
     {launchReadiness && <LiveSection title="Production readiness" action={<span className="lulu-live-message">Autonomous work is allowed only when every provider gate is ready.</span>}>
       <div className="lulu-live-message">{launchReadiness.overallReady ? "All provider connections are ready for autonomous execution." : `${launchReadiness.readyCount} of ${launchReadiness.totalConnections} provider connections are ready.`}</div>
       {launchReadiness.connections.filter((connection) => !connection.ready).map((connection) => <article className="lulu-live-row" key={`readiness-${connection.connectionId}`}>
