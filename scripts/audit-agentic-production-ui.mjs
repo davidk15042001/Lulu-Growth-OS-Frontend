@@ -12,6 +12,8 @@ const globalNavigation = fs.readFileSync(path.join(root, 'src', 'components', 'L
 const adminBillingPage = fs.readFileSync(path.join(root, 'src', 'pages', 'admin-billing-overview-9901', 'App.tsx'), 'utf8');
 const loginPage = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door-5741', 'components', 'generated', 'LuluLoginPage.tsx'), 'utf8');
 const loginCss = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door-5741', 'index.css'), 'utf8');
+const publicLandingPage = fs.readFileSync(path.join(root, 'src', 'pages', 'public', 'LuluLandingPage.tsx'), 'utf8');
+const publicLandingCss = fs.readFileSync(path.join(root, 'src', 'pages', 'public', 'lulu-landing.css'), 'utf8');
 const signupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'finely-year-1146', 'components', 'generated', 'LuluSignupPage.tsx'), 'utf8');
 const signupCss = fs.readFileSync(path.join(root, 'src', 'pages', 'finely-year-1146', 'signup.css'), 'utf8');
 const connectionSetupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'fresh-tide-9404', 'components', 'generated', 'LuluExistingPlatforms.tsx'), 'utf8');
@@ -46,6 +48,16 @@ const failures = [];
 const modalLayerZIndex = Number(luluStationCss.match(/\.lulu-station__modal-layer\s*\{\s*position:\s*fixed;\s*z-index:\s*(\d+);/)?.[1] ?? 0);
 const modalLayerHasStationTokens = /\.lulu-station,\s*\.lulu-station__modal-layer\s*\{[\s\S]*?--station-teal:\s*#56e1d0;/.test(luluStationCss);
 const modalLayerHasNovaTokens = /\.lulu-station,\s*\.lulu-station__modal-layer\s*\{[\s\S]*?--station-teal:\s*#72e6da;/.test(luluNovaCss);
+
+if (
+  !publicLandingPage.includes('import "./lulu-landing.css";')
+  || !publicLandingPage.includes('className="public-entry"')
+  || !publicLandingCss.includes('.public-entry__hero')
+  || !publicLandingCss.includes('.public-entry__loop-board')
+  || !publicLandingCss.includes('Public entry refinement')
+) {
+  failures.push('The public landing design is not owned by the styles mounted by its current component.');
+}
 
 if (!nativePage.includes('contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)')) {
   failures.push('Resource pages are not protected by the live production-interface gate.');
