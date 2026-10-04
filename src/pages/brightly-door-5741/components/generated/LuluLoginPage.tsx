@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { ArrowRight, BarChart3, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, Network, ShieldCheck, Sparkles, Target, UsersRound } from 'lucide-react';
-import { navigateApp, routes } from '../../../../routing';
-import { ApiError, requestApi, type ApiRequest } from '../../../../api/client';
-import { switchLanguage, useLanguage, useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
-import { Button } from '../../../../components/ui/button';
-import { Input } from '../../../../components/ui/input';
-import { Label } from '../../../../components/ui/label';
+import { useState } from "react";
+import { ArrowRight, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, Network, ShieldCheck, Sparkles, UsersRound } from "lucide-react";
+import { navigateApp, routes } from "../../../../routing";
+import { ApiError, requestApi, type ApiRequest } from "../../../../api/client";
+import { switchLanguage, useLanguage, useTranslation } from "../../../../i18n/GlobalLanguageSwitcher";
+import { Button } from "../../../../components/ui/button";
+import { Input } from "../../../../components/ui/input";
+import { Label } from "../../../../components/ui/label";
 import {
   clearPendingInvitation,
   getAdminLandingPath,
@@ -15,7 +15,7 @@ import {
   setPendingEmail,
   setStoredUser,
   setSelectedWorkspaceId,
-} from '../../../../api/session';
+} from "../../../../api/session";
 
 async function requestWithTimeout<T>(request: ApiRequest, timeoutMs = 15000) {
   const controller = new AbortController();
@@ -27,62 +27,36 @@ async function requestWithTimeout<T>(request: ApiRequest, timeoutMs = 15000) {
   }
 }
 
-const missionPillars = [
-  {
-    icon: Target,
-    title: 'One company memory.',
-    text: 'Website, CRM, commerce, finance and conversations come together as one operating context.',
-  },
-  {
-    icon: BarChart3,
-    title: 'Signals become work.',
-    text: 'Lulu reads the next commercial signal and turns it into a page, campaign, record or action.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Agents move together.',
-    text: 'Specialists plan, execute and verify outcomes without losing the audit trail.',
-  },
-] as const;
-
 const operatingLayers = [
   {
     icon: Network,
-    title: 'Connected workspace',
-    text: 'Website, CRM, commerce, finance and communications share one company memory.',
+    title: "Connected workspace",
+    text: "Website, CRM, commerce, finance and communications share one company memory.",
   },
   {
     icon: UsersRound,
-    title: 'Agent workforce',
-    text: 'Specialists plan, create, execute and verify work without fragmenting the operating state.',
+    title: "Agent workforce",
+    text: "Specialists plan, create, execute and verify work without fragmenting the operating state.",
   },
   {
     icon: ShieldCheck,
-    title: 'Guarded execution',
-    text: 'Money, provider actions and customer data stay inside permissions, funding and audit boundaries.',
+    title: "Guarded execution",
+    text: "Money, provider actions and customer data stay inside permissions, funding and audit boundaries.",
   },
 ] as const;
 
-const LEGAL_ENTITY_NAME = 'Hong Kong Lulu Development Limited';
-
-const productColorways = [
-  { name: 'Midnight', label: 'Operations', text: 'Keep every workspace action connected to the company record.' },
-  { name: 'Starlight', label: 'Knowledge', text: 'Turn policies, files and context into usable operating memory.' },
-  { name: 'Blue', label: 'Signals', text: 'Read revenue, search, customer and channel data in one place.' },
-  { name: 'Violet', label: 'Agents', text: 'Assemble the smallest team needed for the strongest outcome.' },
-  { name: 'Coral', label: 'Growth', text: 'Publish pages, campaigns and experiments with evidence attached.' },
-] as const;
+const LEGAL_ENTITY_NAME = "Hong Kong Lulu Development Limited";
 
 export const LuluLoginPage = () => {
   const t = useTranslation();
   const language = useLanguage();
-  const [e, setE] = useState('');
-  const [p, setP] = useState('');
-  const [s, setS] = useState(false);
-  const [show, setShow] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [signedIn, setSignedIn] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [statusMessage, setStatusMessage] = useState('');
+  const [error, setError] = useState("");
+  const [statusMessage, setStatusMessage] = useState("");
 
   const reloadAuthenticatedRoute = (path: string) => {
     // The provider owns the authenticated session state. A full document
@@ -90,73 +64,73 @@ export const LuluLoginPage = () => {
     window.location.replace(path);
   };
 
-  const submit = async (x: React.FormEvent) => {
-    x.preventDefault();
+  const submit = async (event: React.FormEvent) => {
+    event.preventDefault();
     if (loading) return;
-    if (!e.trim() || !p) {
-      setError(t('missingCredentials'));
+    if (!email.trim() || !password) {
+      setError(t("missingCredentials"));
       return;
     }
     setLoading(true);
-    setError('');
-    setStatusMessage(t('Checking your account…'));
-    setS(false);
+    setError("");
+    setStatusMessage(t("Checking your account…"));
+    setSignedIn(false);
     try {
-      const loginResponse = await requestWithTimeout<{ token?: string; user?: unknown }>({ path: '/auth/login', method: 'POST', body: { email: e, password: p } });
-      setStatusMessage(t('Loading your profile…'));
-      const meResp = await requestWithTimeout<{ id: string; email: string; firstName: string | null; lastName: string | null; role: string }>({ path: '/auth/me' });
-      const currentUser = meResp.data;
+      await requestWithTimeout<{ token?: string; user?: unknown }>({ path: "/auth/login", method: "POST", body: { email, password } });
+      setStatusMessage(t("Loading your profile…"));
+      const meResponse = await requestWithTimeout<{ id: string; email: string; firstName: string | null; lastName: string | null; role: string }>({ path: "/auth/me" });
+      const currentUser = meResponse.data;
       setStoredUser(currentUser);
       if (isAdminUser(currentUser)) {
-        setS(true);
-        setStatusMessage(t('Signed in as admin.'));
+        setSignedIn(true);
+        setStatusMessage(t("Signed in as admin."));
         reloadAuthenticatedRoute(getAdminLandingPath(routes.app.dashboard));
         return;
       }
       const pendingInvitation = getPendingInvitation();
       let invitedWorkspaceId: string | null = null;
       if (pendingInvitation) {
-        setStatusMessage(t('Accepting your workspace invitation…'));
+        setStatusMessage(t("Accepting your workspace invitation…"));
         const invitation = await requestWithTimeout<{ workspaceId: string }>({
-          path: '/workspaces/invitations/' + encodeURIComponent(pendingInvitation) + '/accept',
-          method: 'POST',
+          path: `/workspaces/invitations/${encodeURIComponent(pendingInvitation)}/accept`,
+          method: "POST",
         });
         invitedWorkspaceId = invitation.data.workspaceId;
         clearPendingInvitation();
       }
-      setStatusMessage(t('Loading your workspace…'));
-      const workspaces = await requestWithTimeout<{ items: Array<{ id: string; onboardingStep: string; onboardingCompletedAt: string | null }> }>({ path: '/workspaces' });
-      const workspace = workspaces.data.items.find(item => item.id === invitedWorkspaceId) ?? workspaces.data.items[0];
-      setS(true);
-      setStatusMessage(t('Signed in successfully.'));
+      setStatusMessage(t("Loading your workspace…"));
+      const workspaces = await requestWithTimeout<{ items: Array<{ id: string; onboardingStep: string; onboardingCompletedAt: string | null }> }>({ path: "/workspaces" });
+      const workspace = workspaces.data.items.find((item) => item.id === invitedWorkspaceId) ?? workspaces.data.items[0];
+      setSignedIn(true);
+      setStatusMessage(t("Signed in successfully."));
       if (workspace) {
         setSelectedWorkspaceId(workspace.id);
         reloadAuthenticatedRoute(workspace.onboardingCompletedAt ? routes.app.dashboard
-          : workspace.onboardingStep === 'company_information' ? routes.onboarding.companyInformation
-            : workspace.onboardingStep === 'billing' ? routes.onboarding.billing
-              : workspace.onboardingStep === 'profile_completion' ? routes.app.profile
+          : workspace.onboardingStep === "company_information" ? routes.onboarding.companyInformation
+            : workspace.onboardingStep === "billing" ? routes.onboarding.billing
+              : workspace.onboardingStep === "profile_completion" ? routes.app.profile
                 : routes.app.knowledgeBase);
       } else {
         clearSelectedWorkspaceId();
         reloadAuthenticatedRoute(routes.onboarding.companyInformation);
       }
     } catch (cause) {
-      setStatusMessage('');
-      if (cause instanceof DOMException && cause.name === 'AbortError') {
-        setError(t('The login request timed out. Please try again.'));
-      } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_UNVERIFIED') {
-        setPendingEmail(e);
+      setStatusMessage("");
+      if (cause instanceof DOMException && cause.name === "AbortError") {
+        setError(t("The login request timed out. Please try again."));
+      } else if (cause instanceof ApiError && cause.code === "ACCOUNT_UNVERIFIED") {
+        setPendingEmail(email);
         navigateApp(routes.auth.signUp);
-      } else if (cause instanceof ApiError && cause.code === 'ACCOUNT_NOT_FOUND') {
-        setError(t('accountNotFound'));
-      } else if (cause instanceof ApiError && cause.code === 'INVALID_CREDENTIALS') {
-        setError(t('invalidCredentials'));
-      } else if (cause instanceof ApiError && cause.code === 'API_TIMEOUT') {
-        setError(t('timeout'));
+      } else if (cause instanceof ApiError && cause.code === "ACCOUNT_NOT_FOUND") {
+        setError(t("accountNotFound"));
+      } else if (cause instanceof ApiError && cause.code === "INVALID_CREDENTIALS") {
+        setError(t("invalidCredentials"));
+      } else if (cause instanceof ApiError && cause.code === "API_TIMEOUT") {
+        setError(t("timeout"));
       } else if (cause instanceof ApiError && cause.status >= 500) {
-        setError(t('The login service is temporarily unavailable. Please try again shortly.'));
+        setError(t("The login service is temporarily unavailable. Please try again shortly."));
       } else {
-        setError(t('We could not sign you in. Please try again.'));
+        setError(t("We could not sign you in. Please try again."));
       }
     } finally {
       setLoading(false);
@@ -164,165 +138,83 @@ export const LuluLoginPage = () => {
   };
 
   return (
-    <main data-deploy-rev="2026-10-04-lulu-auth-entry-redesign" className="auth-shell lulu-executive-landing lulu-nova-auth">
-      <header className="lulu-exec-nav">
-        <a href="#top" className="lulu-exec-brand" aria-label="Lulu home" data-lulu-no-translate="true" translate="no">
+    <main data-deploy-rev="2026-10-04-lulu-entry-redesign" className="auth-shell lulu-entry">
+      <header className="lulu-entry__nav">
+        <a href="/" className="lulu-entry__brand" aria-label="Lulu home" data-lulu-no-translate="true" translate="no">
           <img src="/branding/lulu-agentic-mark.svg" alt="" />
           <span>LULU</span>
           <small>Growth OS</small>
         </a>
-        <nav className="lulu-exec-nav-links" aria-label={t('Primary navigation')}>
-          <a href="#mission">{t('Capabilities')}</a>
-          <a href="#operating-system">{t('How it works')}</a>
-        </nav>
-        <div className="lulu-exec-nav-actions">
-          <div className="lulu-exec-language-switch" data-lulu-no-translate="true" translate="no">
-            <button type="button" data-lulu-no-translate="true" translate="no" onClick={() => switchLanguage('en')} aria-pressed={language === 'en'} className={language === 'en' ? 'is-active' : ''}>EN</button>
-            <button type="button" data-lulu-no-translate="true" translate="no" onClick={() => switchLanguage('de')} aria-pressed={language === 'de'} className={language === 'de' ? 'is-active' : ''}>DE</button>
-            <button type="button" data-lulu-no-translate="true" translate="no" onClick={() => switchLanguage('zh-CN')} aria-pressed={language === 'zh-CN'} className={language === 'zh-CN' ? 'is-active' : ''}>中文</button>
+        <div className="lulu-entry__nav-actions">
+          <div className="lulu-entry__language-switch" aria-label={t("Language")} data-lulu-no-translate="true" translate="no">
+            <button type="button" onClick={() => switchLanguage("en")} aria-pressed={language === "en"} className={language === "en" ? "is-active" : ""}>EN</button>
+            <button type="button" onClick={() => switchLanguage("de")} aria-pressed={language === "de"} className={language === "de" ? "is-active" : ""}>DE</button>
+            <button type="button" onClick={() => switchLanguage("zh-CN")} aria-pressed={language === "zh-CN"} className={language === "zh-CN" ? "is-active" : ""}>中文</button>
           </div>
-          <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="lulu-exec-nav-login">{t('Sign up for free')}</button>
+          <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="lulu-entry__signup">{t("Sign up for free")}</button>
         </div>
       </header>
 
-      <section id="top" className="lulu-exec-hero" aria-labelledby="lulu-exec-title">
-        <div className="lulu-exec-hero-overlay" aria-hidden="true" />
-        <div className="lulu-exec-hero-content">
-          <div className="lulu-exec-hero-copy-column">
-            <p className="lulu-exec-product-name" data-lulu-local-brand="true" data-lulu-no-translate="true" translate="no">Lulu AI</p>
-            <h1 id="lulu-exec-title">{t('Growth. Remastered.')}</h1>
-            <p className="lulu-exec-hero-copy">{t('A complete operating system for company memory, growth agents and guarded execution.')}</p>
-            <div className="lulu-exec-trust-list" aria-label={t('Lulu AI surfaces')}>
-              {operatingLayers.map(({ icon: Icon, title }) => (
-                <span key={title}><Icon size={15} aria-hidden="true" /> {t(title)}</span>
-              ))}
+      <section className="lulu-entry__stage" aria-labelledby="lulu-entry-title">
+        <div className="lulu-entry__hero">
+          <p className="lulu-entry__eyebrow" data-lulu-local-brand="true" data-lulu-no-translate="true" translate="no"><span />Lulu AI</p>
+          <h1 id="lulu-entry-title">{t("Growth. Remastered.")}</h1>
+          <p className="lulu-entry__lede">{t("A complete operating system for company memory, growth agents and guarded execution.")}</p>
+
+          <div className="lulu-entry__proof-grid" aria-label={t("Lulu AI surfaces")}>
+            {operatingLayers.map(({ icon: Icon, title, text }) => (
+              <article key={title} className="lulu-entry__proof">
+                <span><Icon size={17} aria-hidden="true" /></span>
+                <div><strong>{t(title)}</strong><p>{t(text)}</p></div>
+              </article>
+            ))}
+          </div>
+
+          <div className="lulu-entry__signal-panel" aria-label={t("Company Brain")}>
+            <div className="lulu-entry__signal-header"><span><Sparkles size={14} /> {t("Company Brain")}</span><small><i /> {t("Workspace-scoped")}</small></div>
+            <div className="lulu-entry__signal-core"><span className="lulu-entry__signal-orbit lulu-entry__signal-orbit--outer" /><span className="lulu-entry__signal-orbit lulu-entry__signal-orbit--inner" /><Sparkles size={22} /></div>
+            <div className="lulu-entry__signal-nodes"><span>{t("Connected data")}</span><span>{t("Autonomous work")}</span><span>{t("Guarded execution")}</span></div>
+          </div>
+        </div>
+
+        <aside className="lulu-entry__access" aria-label={t("Sign in form")}>
+          <form onSubmit={submit} className="lulu-entry__card">
+            <div className="lulu-entry__card-heading">
+              <div><p>{t("Sign in to Lulu")}</p><span><LockKeyhole size={13} aria-hidden="true" /> {t("Protected workspace")}</span></div>
+              <img src="/branding/lulu-agentic-mark.svg" alt="" aria-hidden="true" />
             </div>
-          </div>
-          <div className="lulu-exec-entry-column">
-            <picture>
-              <source
-                type="image/webp"
-                srcSet="/landing/lulu-growth-os-product-lineup-v1-900.webp 900w, /landing/lulu-growth-os-product-lineup-v1-1400.webp 1400w"
-                sizes="(max-width: 900px) 100vw, 48vw"
-              />
-              <img
-                className="lulu-exec-hero-image"
-                src="/landing/lulu-growth-os-product-lineup-v1.png"
-                alt={t('Lulu AI product lineup')}
-                decoding="async"
-                loading="eager"
-              />
-            </picture>
-
-            <form onSubmit={submit} className="lulu-exec-login-card" aria-label={t('Sign in form')}>
-              <div className="lulu-exec-login-heading">
-                <div>
-                  <p>{t('Sign in to Lulu')}</p>
-                  <span><LockKeyhole size={13} aria-hidden="true" /> {t('Protected workspace')}</span>
-                </div>
-                <img src="/branding/lulu-agentic-mark.svg" alt="" aria-hidden="true" />
-              </div>
-              <div className="lulu-exec-fields">
-                <Label htmlFor="login-email" className="lulu-exec-label">
-                  {t('email')}
-                  <Input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="lulu-exec-input" />
-                </Label>
-                <Label htmlFor="login-password" className="lulu-exec-label">
-                  {t('password')}
-                  <span className="lulu-exec-password-field">
-                    <Input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="lulu-exec-input" />
-                    <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="lulu-exec-password-toggle">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
-                  </span>
-                </Label>
-                <Button type="submit" disabled={loading} className="lulu-exec-submit">
-                  {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}
-                </Button>
-                {statusMessage && <p role="status" className="lulu-exec-status">{statusMessage}</p>}
-                {error && <div role="alert" className="lulu-exec-error"><p>{error}</p></div>}
-                {s && <p className="lulu-exec-success"><Check size={15} /> {t('Signed in successfully.')}</p>}
-              </div>
-              <div className="lulu-exec-login-links">
-                <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)}>{t('forgotPassword')}</button>
-                <button type="button" onClick={() => navigateApp(routes.auth.signUp)}>{t('Sign up for free')}</button>
-              </div>
-            </form>
-          </div>
-        </div>
-        <a className="lulu-exec-scroll-cue" href="#mission">{t('See what Lulu can do')} <ArrowRight size={15} /></a>
+            <div className="lulu-entry__fields">
+              <Label htmlFor="login-email" className="lulu-entry__label">
+                {t("email")}
+                <Input id="login-email" name="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} type="email" placeholder={t("you@company.com")} className="lulu-entry__input" />
+              </Label>
+              <Label htmlFor="login-password" className="lulu-entry__label">
+                {t("password")}
+                <span className="lulu-entry__password-field">
+                  <Input id="login-password" name="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} type={showPassword ? "text" : "password"} className="lulu-entry__input" />
+                  <button type="button" onClick={() => setShowPassword((current) => !current)} aria-label={showPassword ? t("Hide password") : t("Show password")} className="lulu-entry__password-toggle">{showPassword ? <EyeOff size={17} /> : <Eye size={17} />}</button>
+                </span>
+              </Label>
+              <Button type="submit" disabled={loading} className="lulu-entry__submit">
+                {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t("signingIn")}</> : <>{t("signIn")} <ArrowRight size={16} /></>}
+              </Button>
+              {statusMessage && <p role="status" className="lulu-entry__status">{statusMessage}</p>}
+              {error && <div role="alert" className="lulu-entry__error"><p>{error}</p></div>}
+              {signedIn && <p className="lulu-entry__success"><Check size={15} /> {t("Signed in successfully.")}</p>}
+            </div>
+            <div className="lulu-entry__card-links">
+              <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)}>{t("forgotPassword")}</button>
+              <button type="button" onClick={() => navigateApp(routes.auth.signUp)}>{t("Sign up for free")}</button>
+            </div>
+          </form>
+          <p className="lulu-entry__access-note"><ShieldCheck size={15} /> {t("Every meaningful step is grounded in a workspace, a record, a permission and an audit trail.")}</p>
+        </aside>
       </section>
 
-      <section id="mission" className="lulu-exec-mission" aria-labelledby="lulu-mission-title">
-        <div className="lulu-exec-section-intro">
-          <p className="lulu-exec-kicker">{t('The highlights.')}</p>
-          <h2 id="lulu-mission-title">{t('A new way to run growth.')}</h2>
-          <p>{t('Lulu turns commercial intent into coordinated work across records, agents and connected systems.')}</p>
-        </div>
-        <div className="lulu-exec-mission-grid">
-          {missionPillars.map(({ icon: Icon, title, text }, index) => (
-            <article key={title} className="lulu-exec-mission-pillar">
-              <span className="lulu-exec-index">0{index + 1}</span>
-              <Icon size={22} aria-hidden="true" />
-              <h3>{t(title)}</h3>
-              <p>{t(text)}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="operating-system" className="lulu-exec-system" aria-labelledby="lulu-system-title">
-        <div className="lulu-exec-system-intro">
-          <p className="lulu-exec-kicker">{t('Take a closer look.')}</p>
-          <h2 id="lulu-system-title">{t('Five surfaces. One operating system.')}</h2>
-          <p>{t('Each surface reflects a core Lulu capability, tuned to the way modern companies move from context to execution.')}</p>
-        </div>
-        <div className="lulu-exec-colorways" aria-label={t('Lulu AI surfaces')}>
-          {productColorways.map(item => (
-            <article key={item.name} className="lulu-exec-colorway">
-              <span className={`lulu-exec-swatch ${item.name.toLowerCase()}`} aria-hidden="true" />
-              <p>{t(item.name)}</p>
-              <h3>{t(item.label)}</h3>
-              <span>{t(item.text)}</span>
-            </article>
-          ))}
-        </div>
-        <div className="lulu-exec-layer-grid">
-          {operatingLayers.map(({ icon: Icon, title, text }, index) => (
-            <article key={title} className="lulu-exec-layer">
-              <div className="lulu-exec-layer-head">
-                <span>0{index + 1}</span>
-                <Icon size={20} aria-hidden="true" />
-              </div>
-              <h3>{t(title)}</h3>
-              <p>{t(text)}</p>
-            </article>
-          ))}
-        </div>
-        <p className="lulu-exec-system-footnote"><ShieldCheck size={16} /> {t('Every meaningful step is grounded in a workspace, a record, a permission and an audit trail.')}</p>
-      </section>
-
-      <section id="login-access" className="lulu-exec-access" aria-labelledby="lulu-access-title">
-        <div className="lulu-exec-access-copy">
-          <p className="lulu-exec-eyebrow"><ShieldCheck size={14} /> {t('New workspace')}</p>
-          <h2 id="lulu-access-title">{t('Made for your company.')}</h2>
-          <p>{t('Create a workspace, connect the first source of truth and let Lulu begin with a concrete growth request.')}</p>
-          <button type="button" onClick={() => navigateApp(routes.auth.signUp)} className="lulu-exec-text-button">
-            {t('Sign up for free')} <ArrowRight size={16} />
-          </button>
-        </div>
-        <div className="lulu-exec-access-panel" aria-label={t('Workspace entry summary')}>
-          <span>{t('Saved chats')}</span>
-          <span>{t('Connected data')}</span>
-          <span>{t('Autonomous work')}</span>
-        </div>
-      </section>
-
-      <footer className="lulu-exec-footer">
+      <footer className="lulu-entry__footer">
         <span data-lulu-no-translate="true" translate="no">© Lulu AI</span>
         <small>{LEGAL_ENTITY_NAME}</small>
-        <div>
-          <a href="/privacy.html">{t('Privacy')}</a>
-          <a href="/terms.html">{t('Terms')}</a>
-        </div>
+        <div><a href="/privacy.html">{t("Privacy")}</a><a href="/terms.html">{t("Terms")}</a></div>
       </footer>
     </main>
   );
