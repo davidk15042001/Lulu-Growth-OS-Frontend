@@ -660,6 +660,64 @@
 .calendar-delivery-dialog__toggle span { display: grid; gap: 3px; }
 .calendar-delivery-dialog__toggle strong { font-size: 13px; }
 .calendar-delivery-dialog__toggle small { color: var(--muted-foreground); font-size: 11px; line-height: 1.45; }
+
+/* Dialogs sit above the workspace shell, so they cannot rely on a page-level
+   surface token. Keep their contrast and input treatment explicit in the
+   dark authenticated product regardless of the active global theme. */
+.calendar-modal-backdrop {
+  background: rgba(2, 8, 23, .72);
+  backdrop-filter: blur(7px);
+}
+.calendar-dialog--modern {
+  border-color: rgba(123, 227, 234, .24);
+  background: linear-gradient(145deg, rgba(18, 42, 68, .99), rgba(6, 18, 34, .99));
+  color: #e7f6fc;
+  box-shadow: 0 30px 90px rgba(1, 7, 19, .72), inset 0 1px 0 rgba(255, 255, 255, .05);
+}
+.calendar-dialog--modern .calendar-eyebrow { color: #70e4dc; }
+.calendar-dialog--modern header h2,
+.calendar-dialog--modern .calendar-form-grid label,
+.calendar-dialog--modern .calendar-delivery-dialog__toggle strong,
+.calendar-dialog--modern .calendar-delivery-dialog__mapping-guide strong { color: #effbff; }
+.calendar-dialog--modern header p:last-child,
+.calendar-dialog--modern .calendar-delivery-dialog__form small,
+.calendar-dialog--modern .calendar-delivery-dialog__toggle small,
+.calendar-dialog--modern .calendar-delivery-dialog__mapping-guide p { color: #9dc1ce; }
+.calendar-dialog--modern .calendar-form-grid input,
+.calendar-dialog--modern .calendar-form-grid select,
+.calendar-dialog--modern .calendar-form-grid textarea {
+  border-color: rgba(123, 227, 234, .2);
+  background: rgba(4, 17, 32, .74);
+  color: #effbff;
+}
+.calendar-dialog--modern .calendar-form-grid input::placeholder,
+.calendar-dialog--modern .calendar-form-grid textarea::placeholder { color: #7f9fac; }
+.calendar-dialog--modern .calendar-form-grid select option { background: #0c2034; color: #effbff; }
+.calendar-dialog--modern .calendar-form-grid input:focus,
+.calendar-dialog--modern .calendar-form-grid select:focus,
+.calendar-dialog--modern .calendar-form-grid textarea:focus {
+  border-color: #64e5da;
+  box-shadow: 0 0 0 3px rgba(100, 229, 218, .16);
+}
+.calendar-dialog--modern .calendar-delivery-dialog__mapping-guide,
+.calendar-dialog--modern .calendar-delivery-dialog__toggle {
+  border-color: rgba(123, 227, 234, .18);
+  background: rgba(9, 29, 48, .72);
+}
+.calendar-dialog--modern .calendar-delivery-dialog__mapping-guide code {
+  background: rgba(2, 12, 25, .72);
+  color: #9ee9ef;
+}
+.calendar-dialog--modern .calendar-button--secondary {
+  border-color: rgba(123, 227, 234, .2);
+  background: rgba(14, 35, 55, .88);
+  color: #e7f6fc;
+}
+.calendar-dialog--modern .calendar-button:not(.calendar-button--secondary) {
+  border-color: rgba(134, 239, 230, .44);
+  background: linear-gradient(135deg, #67e8dc, #66a7ff);
+  color: #061524;
+}
 @media (max-width: 1080px) {
   .calendar-header--modern { align-items: stretch; }
   .calendar-header__actions { justify-content: flex-start; }
