@@ -60,12 +60,12 @@ export function ComposioCatalog({ workspaceId, canConnect = false, canManageTeam
   const settlingConnectionRef = useRef<string | null>(null);
 
   function toolkitStatus(toolkit: ComposioToolkit) {
-    if (toolkit.isNoAuth) return "Available";
-    if (toolkit.connected) return "Connected";
+    if (toolkit.isNoAuth) return t("Available");
+    if (toolkit.connected) return t("Connected");
     const status = (toolkit.connectionStatus ?? "").toUpperCase();
-    if (["INITIATED", "INITIALIZING", "CONNECTING", "PENDING", "PROVISIONING"].includes(status)) return "Connection in progress";
-    if (["FAILED", "INACTIVE", "EXPIRED", "REVOKED", "CANCELED", "CANCELLED"].includes(status)) return "Ready to retry";
-    return "Not connected";
+    if (["INITIATED", "INITIALIZING", "CONNECTING", "PENDING", "PROVISIONING"].includes(status)) return t("Connection in progress");
+    if (["FAILED", "INACTIVE", "EXPIRED", "REVOKED", "CANCELED", "CANCELLED"].includes(status)) return t("Ready to retry");
+    return t("Not connected");
   }
 
   const loadTeams = useCallback(async () => {
@@ -172,21 +172,21 @@ export function ComposioCatalog({ workspaceId, canConnect = false, canManageTeam
         </div> : <p className="lulu-live-message" style={{ marginTop: 8 }}>{t("Your workspace role can view this team, but cannot pause or resume external execution.")}</p>}
       </article>)}
     </LiveSection>}
-    <LiveSection title={`Available integrations${hasMore ? " · more available" : ""}`} action={<span className="lulu-live-message">Tool calls are deducted automatically from the AI wallet. Platform admins with billing.bypass are exempt.</span>}>
-    <p className="lulu-live-message">Connect an approved app for this workspace. Technical tool details and provider credentials stay protected by Lulu.</p>
-    {!canConnect ? <p className="lulu-live-message">You can view available apps, but your workspace role does not allow new connections.</p> : null}
+    <LiveSection title={t("Available integrations")} action={<span className="lulu-live-message">{t("Tool calls are deducted automatically from the AI wallet. Platform admins with billing.bypass are exempt.")}</span>}>
+    <p className="lulu-live-message">{t("Connect an approved app for this workspace. Technical tool details and provider credentials stay protected by Lulu.")}</p>
+    {!canConnect ? <p className="lulu-live-message">{t("You can view available apps, but your workspace role does not allow new connections.")}</p> : null}
     {error ? <div className="lulu-live-error">{error}</div> : null}
     {notice ? <p className="lulu-live-message lulu-live-message--success">{notice}</p> : null}
-    {connectUrl ? <p className="lulu-live-message">Connection in progress. <a href={connectUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline", fontWeight: 700 }}>Open the Composio connection page</a>, then finish or cancel it there.{pendingConnection && canConnect ? <button className="lulu-live-button" type="button" onClick={() => void settleAuthorization(pendingConnection, false)} style={{ marginLeft: 8 }}>Cancel and clean up</button> : null}</p> : null}
+    {connectUrl ? <p className="lulu-live-message">{t("Connection in progress.")} <a href={connectUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline", fontWeight: 700 }}>{t("Open the Composio connection page")}</a>{t(", then finish or cancel it there.")}{pendingConnection && canConnect ? <button className="lulu-live-button" type="button" onClick={() => void settleAuthorization(pendingConnection, false)} style={{ marginLeft: 8 }}>{t("Cancel and clean up")}</button> : null}</p> : null}
     <form className="lulu-live-form lulu-live-search-form" onSubmit={(event) => void submitSearch(event)}>
-      <label><span>Search Composio apps</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by app name or toolkit" /></label>
-      <button className="lulu-live-button" type="submit" disabled={loading}><Search size={15} />Search</button>
+      <label><span>{t("Search Composio apps")}</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={t("Search by app name or toolkit")} /></label>
+      <button className="lulu-live-button" type="submit" disabled={loading}><Search size={15} />{t("Search")}</button>
     </form>
-    {loading && toolkits.length === 0 ? <LiveEmpty>Loading available integrations…</LiveEmpty> : toolkits.length === 0 ? <LiveEmpty>No approved integrations match this search.</LiveEmpty> : toolkits.map((toolkit) => <article className="lulu-live-row" key={toolkit.slug}>
-      <div className="lulu-live-row-top"><div><strong>{toolkit.name}</strong><span>{toolkit.isNoAuth ? "No sign-in required" : "Secure account connection"}</span></div><span className={`lulu-live-badge ${toolkit.connected ? "good" : ""}`}>{toolkitStatus(toolkit)}</span></div>
-      <div className="lulu-live-actions" style={{ marginTop: 8 }}><button className="lulu-live-button primary" disabled={!canConnect || busyToolkit !== null || toolkit.isNoAuth || toolkit.connected} onClick={() => void connect(toolkit)}><Link2 size={15} />{toolkit.connected ? "Connected" : toolkit.isNoAuth ? "Available" : !canConnect ? "View only" : "Connect"}</button></div>
+    {loading && toolkits.length === 0 ? <LiveEmpty>{t("Loading available integrations…")}</LiveEmpty> : toolkits.length === 0 ? <LiveEmpty>{t("No approved integrations match this search.")}</LiveEmpty> : toolkits.map((toolkit) => <article className="lulu-live-row" key={toolkit.slug}>
+      <div className="lulu-live-row-top"><div><strong>{toolkit.name}</strong><span>{toolkit.isNoAuth ? t("No sign-in required") : t("Secure account connection")}</span></div><span className={`lulu-live-badge ${toolkit.connected ? "good" : ""}`}>{toolkitStatus(toolkit)}</span></div>
+      <div className="lulu-live-actions" style={{ marginTop: 8 }}><button className="lulu-live-button primary" disabled={!canConnect || busyToolkit !== null || toolkit.isNoAuth || toolkit.connected} onClick={() => void connect(toolkit)}><Link2 size={15} />{toolkit.connected ? t("Connected") : toolkit.isNoAuth ? t("Available") : !canConnect ? t("View only") : t("Connect")}</button></div>
     </article>)}
-    {hasMore ? <button className="lulu-live-button" type="button" disabled={loading} onClick={() => void loadToolkits(search.trim(), cursor)}>Load more apps</button> : null}
+    {hasMore ? <button className="lulu-live-button" type="button" disabled={loading} onClick={() => void loadToolkits(search.trim(), cursor)}>{t("Load more apps")}</button> : null}
     </LiveSection>
   </div>;
 }

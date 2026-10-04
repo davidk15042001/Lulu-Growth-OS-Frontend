@@ -163,5 +163,7 @@
   "Workspace access is temporarily unavailable.": "工作区访问暂时不可用。",
   "We could not verify your workspace permissions.": "无法验证你的工作区权限。",
   "Checking workspace access…": "正在检查工作区访问权限…",
-  "No workspace is available for this account.": "此账户没有可用的工作区。"
+  "No workspace is available for this account.": "此账户没有可用的工作区。",
+  "Available integrations": "可用集成",
+  "Ready to retry": "可以重试"
 }

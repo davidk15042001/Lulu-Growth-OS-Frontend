@@ -163,5 +163,7 @@
   "Workspace access is temporarily unavailable.": "Der Workspace-Zugriff ist vorübergehend nicht verfügbar.",
   "We could not verify your workspace permissions.": "Die Workspace-Berechtigungen konnten nicht verifiziert werden.",
   "Checking workspace access…": "Workspace-Zugriff wird geprüft…",
-  "No workspace is available for this account.": "Für dieses Konto ist kein Workspace verfügbar."
+  "No workspace is available for this account.": "Für dieses Konto ist kein Workspace verfügbar.",
+  "Available integrations": "Verfügbare Integrationen",
+  "Ready to retry": "Bereit für einen neuen Versuch"
 }
