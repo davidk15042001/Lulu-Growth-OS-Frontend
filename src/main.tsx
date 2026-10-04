@@ -10,7 +10,6 @@ import "./ui/auth-responsive.css";
 import "./ui/lulu-visual-system.css";
 import "./ui/executive-workspace.css";
 import "./ui/lulu-nova.css";
-import "./ui/lulu-public-landing.css";
 import "./ui/lulu-auth-entry.css";
 import "./ui/lulu-confirm-dialog.css";
 

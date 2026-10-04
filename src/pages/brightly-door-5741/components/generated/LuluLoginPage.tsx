@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowRight, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, Network, ShieldCheck, Sparkles, UsersRound } from "lucide-react";
+import { ArrowRight, Check, Eye, EyeOff, LoaderCircle, LockKeyhole, Network, ShieldCheck, UsersRound } from "lucide-react";
 import { navigateApp, routes } from "../../../../routing";
 import { ApiError, requestApi, type ApiRequest } from "../../../../api/client";
 import { switchLanguage, useLanguage, useTranslation } from "../../../../i18n/GlobalLanguageSwitcher";
@@ -169,12 +169,7 @@ export const LuluLoginPage = () => {
               </article>
             ))}
           </div>
-
-          <div className="lulu-entry__signal-panel" aria-label={t("Company Brain")}>
-            <div className="lulu-entry__signal-header"><span><Sparkles size={14} /> {t("Company Brain")}</span><small><i /> {t("Workspace-scoped")}</small></div>
-            <div className="lulu-entry__signal-core"><span className="lulu-entry__signal-orbit lulu-entry__signal-orbit--outer" /><span className="lulu-entry__signal-orbit lulu-entry__signal-orbit--inner" /><Sparkles size={22} /></div>
-            <div className="lulu-entry__signal-nodes"><span>{t("Connected data")}</span><span>{t("Autonomous work")}</span><span>{t("Guarded execution")}</span></div>
-          </div>
+          <p className="lulu-entry__trust-note"><ShieldCheck size={15} aria-hidden="true" />{t("Workspace-scoped. Permission-aware. Evidence-led.")}</p>
         </div>
 
         <aside className="lulu-entry__access" aria-label={t("Sign in form")}>
