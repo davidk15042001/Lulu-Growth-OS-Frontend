@@ -24,7 +24,7 @@ import { useLuluApp } from "../../api/LuluAppContext";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { isPageNavigable, pagePath, routes } from "../../routing";
 import { AgentNativeWorkspace } from "./AgentNativeWorkspace";
-import { conciseOfficeCopy } from "./office-copy";
+import { conciseOfficeCopy, officeEvidenceTypeLabel, officeRelatedObjectLabel } from "./office-copy";
 import "./lulu-station.css";
 
 type StationStatus = OfficeEmployeeStatus | "BLOCKED";
@@ -729,9 +729,9 @@ export function LuluStation() {
             <div className="lulu-station__modal-body">
               <AgentNativeWorkspace workspaceId={workspaceId} employeeDetail={employeeDetail} />
               <div className="lulu-station__modal-details">
-                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CURRENT WORK")}</span><strong title={employeeDetail.currentWorkItem?.title}>{conciseOfficeCopy(employeeDetail.currentWorkItem?.title, t("No current work item"))}</strong><p title={employeeDetail.currentWorkItem?.objective}>{conciseOfficeCopy(employeeDetail.currentWorkItem?.objective, t("This employee has no active work item in the verified office projection."), 260)}</p><small>{displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem?.status, t)}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${employeeDetail.currentWorkItem.relatedObjectType}` : ""}</small></div>
+                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CURRENT WORK")}</span><strong title={employeeDetail.currentWorkItem?.title}>{conciseOfficeCopy(employeeDetail.currentWorkItem?.title, t("No current work item"))}</strong><p title={employeeDetail.currentWorkItem?.objective}>{conciseOfficeCopy(employeeDetail.currentWorkItem?.objective, t("This employee has no active work item in the verified office projection."), 260)}</p><small>{displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem?.status, t)}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${officeRelatedObjectLabel(employeeDetail.currentWorkItem.relatedObjectType, t)}` : ""}</small></div>
                 <div className="lulu-station__modal-stats"><div><strong>{formatCount(employeeDetail.workSummary.active)}</strong><span>{t("open")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday)}</strong><span>{t("completed today")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed)}</strong><span>{t("failed")}</span></div></div>
-                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("RECENT EVIDENCE")}</span><div className="lulu-station__modal-timeline">{employeeDetail.recentTimeline.slice(0, 4).map((item) => <div key={item.id}><i /><span><strong title={item.title}>{conciseOfficeCopy(item.title, t("Verified employee event"), 96)}</strong><small>{item.type} · {formatTime(item.occurredAt)}</small></span></div>)}{employeeDetail.recentTimeline.length === 0 ? <p>{t("No recent employee events are available.")}</p> : null}</div></div>
+                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("RECENT EVIDENCE")}</span><div className="lulu-station__modal-timeline">{employeeDetail.recentTimeline.slice(0, 4).map((item) => <div key={item.id}><i /><span><strong title={item.title}>{conciseOfficeCopy(item.title, t("Verified employee event"), 96)}</strong><small>{officeEvidenceTypeLabel(item.type, t)} · {formatTime(item.occurredAt)}</small></span></div>)}{employeeDetail.recentTimeline.length === 0 ? <p>{t("No recent employee events are available.")}</p> : null}</div></div>
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CAPABILITIES")}</span><div className="lulu-station__modal-chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
               </div>
             </div>

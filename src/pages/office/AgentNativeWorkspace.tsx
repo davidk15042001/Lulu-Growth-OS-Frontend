@@ -40,7 +40,7 @@ import { workspaceAppApi, type GoogleReviewsManagerState } from "../../api/works
 import type { OfficeEmployeeDetails } from "../../api/office";
 import { ApiError, getFriendlyErrorMessage } from "../../api/client";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
-import { conciseOfficeCopy } from "./office-copy";
+import { conciseOfficeCopy, officeEvidenceTypeLabel } from "./office-copy";
 import "./agent-native-workspace.css";
 
 type NativeWorkspaceKind = "command" | "crm" | "communications" | "email" | "calendar" | "commerce" | "finance" | "marketing" | "website" | "reputation" | "operations" | "intelligence";
@@ -122,6 +122,7 @@ function Status({ children }: { children: string | null | undefined }) {
 }
 
 function CommandSurface({ detail }: { detail: OfficeEmployeeDetails }) {
+  const t = useTranslation();
   const work = detail.currentWorkItem;
   const workStatus = detail.employee.status === "WAITING" && work?.status === "running"
     ? "awaiting recovery"
@@ -132,7 +133,7 @@ function CommandSurface({ detail }: { detail: OfficeEmployeeDetails }) {
       <Status>{workStatus}</Status>
     </section>
     <section className="lulu-native-agent__evidence-grid">
-      <div><span className="lulu-native-agent__eyebrow">RECENT EVIDENCE</span>{detail.recentTimeline.length ? <ol>{detail.recentTimeline.slice(0, 5).map((item) => <li key={item.id}><i /><span><strong title={item.title}>{conciseOfficeCopy(item.title, "Verified employee event", 96)}</strong><small>{item.type.replaceAll("_", " ")} · {formatTime(item.occurredAt)}</small></span></li>)}</ol> : <p className="lulu-native-agent__muted">No persisted employee events are available yet.</p>}</div>
+      <div><span className="lulu-native-agent__eyebrow">RECENT EVIDENCE</span>{detail.recentTimeline.length ? <ol>{detail.recentTimeline.slice(0, 5).map((item) => <li key={item.id}><i /><span><strong title={item.title}>{conciseOfficeCopy(item.title, "Verified employee event", 96)}</strong><small>{officeEvidenceTypeLabel(item.type, t)} · {formatTime(item.occurredAt)}</small></span></li>)}</ol> : <p className="lulu-native-agent__muted">No persisted employee events are available yet.</p>}</div>
       <div><span className="lulu-native-agent__eyebrow">WORKLOAD</span><div className="lulu-native-agent__stat-stack"><strong>{new Intl.NumberFormat().format(detail.workSummary.active)}<small>open work</small></strong><strong>{new Intl.NumberFormat().format(detail.workSummary.completedToday)}<small>completed today</small></strong><strong>{new Intl.NumberFormat().format(detail.workSummary.failed)}<small>failed</small></strong></div></div>
     </section>
   </div>;
