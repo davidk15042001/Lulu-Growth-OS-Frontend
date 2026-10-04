@@ -413,3 +413,16 @@
 .lulu-global-navigation__search button:focus-visible { outline: 2px solid var(--lulu-nova-cyan); outline-offset: 2px; }
 .lulu-global-navigation__empty-search { margin: 8px 3px; border: 1px dashed rgba(175, 204, 245, .2); border-radius: 10px; color: #98a9c4; padding: 12px 10px; font-size: .72rem; line-height: 1.45; text-align: center; }
 @media (max-width: 900px) { .lulu-global-navigation__search { margin: 0 2px 9px; } }
+
+/* Chromium applies a light browser-controlled fill to remembered credentials.
+ * Authenticated workspace pages are dark, so keep those fields legible without
+ * changing the intentionally light public entry screens. */
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) :is(input, textarea, select):-webkit-autofill,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) :is(input, textarea, select):-webkit-autofill:hover,
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) :is(input, textarea, select):-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--lulu-nova-ink) !important;
+  caret-color: var(--lulu-nova-ink);
+  -webkit-box-shadow: 0 0 0 1000px #0d1b31 inset !important;
+  box-shadow: 0 0 0 1000px #0d1b31 inset !important;
+  border-color: var(--lulu-nova-line-strong);
+}
