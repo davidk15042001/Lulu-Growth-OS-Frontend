@@ -50,7 +50,7 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
   const [notice, setNotice] = useState("");
   const [pendingConnection, setPendingConnection] = useState<PendingConnection | null>(null);
   const [busyToolkit, setBusyToolkit] = useState<string | null>(null);
-  const pendingPopupRef = useRef<{ pending: PendingConnection; popup: Window | null; closeTimer: number; pollTimer: number; timeoutTimer: number } | null>(null);
+  const pendingPopupRef = useRef<{ pending: PendingConnection; pollTimer: number; timeoutTimer: number } | null>(null);
   const settlingConnectionRef = useRef<string | null>(null);
 
   function toolkitStatus(toolkit: ComposioToolkit) {
@@ -97,13 +97,10 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
     try {
       const response = await composioApi.authorize(workspaceId, toolkit.slug);
       setConnectUrl(response.data.redirectUrl);
-      const opened = window.open(response.data.redirectUrl, "_blank", "noopener,noreferrer");
-      if (!opened) setError("The connection page was blocked by the browser. Use the link shown below to continue.");
+      // `noopener` deliberately makes window.open return no handle. The inline
+      // link is the reliable fallback when a browser blocks an async popup.
+      window.open(response.data.redirectUrl, "_blank", "noopener,noreferrer");
       const pending: PendingConnection = { toolkit: toolkit.slug, connectionId: response.data.connectedAccountId, startedAt: new Date().toISOString() };
-      const closeTimer = window.setInterval(() => {
-        if (!opened?.closed) return;
-        void settleAuthorization(pending, true);
-      }, 700);
       const pollTimer = window.setInterval(async () => {
         try {
           const [toolkitResponse, teamsResponse] = await Promise.all([
@@ -118,7 +115,7 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
         }
       }, 2_000);
       const timeoutTimer = window.setTimeout(() => void settleAuthorization(pending, true), 10 * 60 * 1_000);
-      pendingPopupRef.current = { pending, popup: opened, closeTimer, pollTimer, timeoutTimer };
+      pendingPopupRef.current = { pending, pollTimer, timeoutTimer };
       setPendingConnection(pending);
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, "We could not start this Composio connection."));
@@ -130,10 +127,8 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
     settlingConnectionRef.current = pending.connectionId;
     const active = pendingPopupRef.current;
     if (active && active.pending.connectionId === pending.connectionId) {
-      window.clearInterval(active.closeTimer);
       window.clearInterval(active.pollTimer);
       window.clearTimeout(active.timeoutTimer);
-      if (active.popup && !active.popup.closed) active.popup.close();
       pendingPopupRef.current = null;
     }
     setPendingConnection(null);
@@ -156,7 +151,6 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
   useEffect(() => () => {
     const pending = pendingPopupRef.current;
     if (pending) {
-      window.clearInterval(pending.closeTimer);
       window.clearInterval(pending.pollTimer);
       window.clearTimeout(pending.timeoutTimer);
     }
