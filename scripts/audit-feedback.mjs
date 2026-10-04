@@ -9,6 +9,7 @@ const uploadSource = readFileSync(join(root, "src", "uploads", "GlobalUploadFeed
 const signupSource = readFileSync(join(root, "src", "pages", "finely-year-1146", "components", "generated", "LuluSignupPage.tsx"), "utf8");
 const loginSource = readFileSync(join(root, "src", "pages", "brightly-door-5741", "components", "generated", "LuluLoginPage.tsx"), "utf8");
 const resetPasswordSource = readFileSync(join(root, "src", "pages", "deep-coast-9085", "components", "generated", "LuluResetPassword.tsx"), "utf8");
+const confirmDialogSource = readFileSync(join(root, "src", "components", "LuluConfirmDialog.tsx"), "utf8");
 
 function sourceFiles(directory) {
   return readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
@@ -23,7 +24,13 @@ const rawErrorFiles = sourceFiles(join(root, "src")).filter((path) => {
   return /instanceof Error\s*\?\s*[^:;\n]*\.message/.test(source) && !path.endsWith(join("api", "client.ts"));
 });
 
+const nativeDialogFiles = sourceFiles(join(root, "src")).filter((path) => /window\.(?:confirm|alert)\s*\(/.test(readFileSync(path, "utf8")));
+
 if (rawErrorFiles.length) issues.push(`${rawErrorFiles.length} files can still display raw technical error messages.`);
+if (nativeDialogFiles.length) issues.push(`${nativeDialogFiles.length} files still use browser-native confirmation or alert dialogs.`);
+if (!confirmDialogSource.includes("role=\"alertdialog\"") || !confirmDialogSource.includes("createPortal") || !confirmDialogSource.includes("event.key === \"Escape\"")) {
+  issues.push("The shared confirmation dialog is missing an accessible modal implementation.");
+}
 if (!clientSource.includes("function createMessageId()")) issues.push("The secure-context-compatible request id fallback is missing.");
 if (!clientSource.includes("FRIENDLY_API_MESSAGES")) issues.push("The friendly API error map is missing.");
 if (!runtimeSource.includes("<GlobalUploadFeedback />")) issues.push("Global upload feedback is not mounted on every page.");
@@ -47,6 +54,7 @@ console.log(JSON.stringify({
   friendlyErrorMap: clientSource.includes("FRIENDLY_API_MESSAGES"),
   globalUploadFeedback: runtimeSource.includes("<GlobalUploadFeedback />"),
   rawTechnicalErrorFiles: rawErrorFiles.length,
+  nativeDialogFiles: nativeDialogFiles.length,
   issues,
 }, null, 2));
 if (issues.length) process.exitCode = 1;

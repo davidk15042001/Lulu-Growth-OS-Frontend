@@ -4,6 +4,7 @@ import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, requestApi } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
 import { exitOnboardingToLogin } from '../../../../components/OnboardingHeader';
+import { useLuluConfirm } from '../../../../components/LuluConfirmDialog';
 type OfferingType = "Product" | "Service";
 type OfferingStatus = "Active" | "Coming Soon" | "Planned" | "Discontinued";
 type Offering = {
@@ -157,6 +158,7 @@ function RightPanel() {
     </aside>;
 }
 export function LuluProductsServices() {
+  const confirm = useLuluConfirm();
   const [offerings, setOfferings] = useState<Offering[]>([]);
   const [editing, setEditing] = useState<Offering>(emptyOffering());
   const [selectedId, setSelectedId] = useState("");
@@ -344,7 +346,7 @@ export function LuluProductsServices() {
   }
   async function handleExit() {
     if (exiting) return;
-    const confirmed = window.confirm("Onboarding abbrechen und zur Login-Seite zurueckkehren?");
+    const confirmed = await confirm({ title: "Onboarding abbrechen?", description: "Du kehrst zur Login-Seite zurück. Deine bisher gespeicherten Angaben bleiben erhalten.", confirmLabel: "Onboarding abbrechen", cancelLabel: "Weiter bearbeiten", tone: "danger" });
     if (!confirmed) return;
     setExiting(true);
     await exitOnboardingToLogin();

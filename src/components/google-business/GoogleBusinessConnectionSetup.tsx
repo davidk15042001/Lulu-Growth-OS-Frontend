@@ -4,8 +4,10 @@ import { getFriendlyErrorMessage, getTechnicalErrorDetails } from "../../api/cli
 import { formatLiveDate } from "../../api/live-panel-ui";
 import { workspaceAppApi, type GoogleBusinessState } from "../../api/workspace-app";
 import { exitOnboardingToLogin } from "../OnboardingHeader";
+import { useLuluConfirm } from "../LuluConfirmDialog";
 
 export function GoogleBusinessConnectionSetup({ workspaceId }: { workspaceId: string }) {
+  const confirm = useLuluConfirm();
   const [state, setState] = useState<GoogleBusinessState | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
@@ -57,7 +59,7 @@ export function GoogleBusinessConnectionSetup({ workspaceId }: { workspaceId: st
   }
 
   async function disconnect() {
-    if (!window.confirm("Disconnect Google Business from this workspace?")) return;
+    if (!(await confirm({ title: "Disconnect Google Business?", description: "Synchronization and provider operations will stop until you reconnect this workspace.", confirmLabel: "Disconnect", cancelLabel: "Keep connected", tone: "danger" }))) return;
     setBusy(true);
     setError("");
     setTechnicalDetails("");
@@ -89,7 +91,7 @@ export function GoogleBusinessConnectionSetup({ workspaceId }: { workspaceId: st
 
   async function handleExit() {
     if (exiting) return;
-    const confirmed = window.confirm("Onboarding abbrechen und zur Login-Seite zurueckkehren?");
+    const confirmed = await confirm({ title: "Leave onboarding?", description: "Your current setup progress remains saved, but you will be signed out of this workspace.", confirmLabel: "Leave onboarding", cancelLabel: "Continue setup", tone: "danger" });
     if (!confirmed) return;
     setExiting(true);
     await exitOnboardingToLogin();

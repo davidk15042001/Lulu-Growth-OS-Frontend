@@ -7,6 +7,7 @@ import {
   clearStoredUser,
 } from "../api/session";
 import { navigateApp, routes } from "../routing";
+import { useLuluConfirm } from "./LuluConfirmDialog";
 
 type OnboardingHeaderProps = {
   step: number;
@@ -32,10 +33,11 @@ export async function exitOnboardingToLogin() {
 
 export function OnboardingHeader({ step, totalSteps = steps.length, showBrandName = true }: OnboardingHeaderProps) {
   const [exiting, setExiting] = useState(false);
+  const confirm = useLuluConfirm();
 
   const handleExit = async () => {
     if (exiting) return;
-    const confirmed = window.confirm("Onboarding abbrechen und zur Login-Seite zurueckkehren?");
+    const confirmed = await confirm({ title: "Onboarding verlassen?", description: "Dein bisheriger Fortschritt bleibt gespeichert. Du wirst aus diesem Workspace abgemeldet.", confirmLabel: "Onboarding verlassen", cancelLabel: "Einrichtung fortsetzen", tone: "danger" });
     if (!confirmed) return;
     setExiting(true);
     await exitOnboardingToLogin();

@@ -6,6 +6,7 @@ import { listRecords, type WorkspaceRecord } from '../../../../api/records';
 import { getFriendlyErrorMessage } from '../../../../api/client';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { useLanguage, useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
+import { useLuluConfirm } from '../../../../components/LuluConfirmDialog';
 import '../../index.css';
 
 function dateLabel(value: string, language: string, options: Intl.DateTimeFormatOptions = {}) {
@@ -26,6 +27,7 @@ export default function CalendarPortal() {
   const { selectedWorkspace, permissions, loading: appLoading } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? null;
   const t = useTranslation();
+  const confirm = useLuluConfirm();
   const language = useLanguage();
   const [events, setEvents] = useState<NativeCalendarEvent[]>([]);
   const [customers, setCustomers] = useState<WorkspaceRecord[]>([]);
@@ -77,7 +79,8 @@ export default function CalendarPortal() {
     return Array.from(buckets.entries()).map(([key, items]) => ({ key, label: dayLabel(items[0]?.startAt ?? key, language), items }));
   }, [events, language]);
   async function removeEvent(event: NativeCalendarEvent) {
-    if (!workspaceId || !window.confirm(t('Delete this appointment?'))) return;
+    if (!workspaceId) return;
+    if (!(await confirm({ title: t('Delete this appointment?'), description: t('This removes the appointment from Lulu. Connected external calendars are not changed by this action.'), confirmLabel: t('Delete appointment'), cancelLabel: t('Keep appointment'), tone: 'danger' }))) return;
     setActionBusy(true);
     try { await calendarApi.deleteNativeEvent(workspaceId, event.id); setEvents((current) => current.filter((item) => item.id !== event.id)); setNotice(t('Appointment deleted.')); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, t('The appointment could not be deleted.'))); }

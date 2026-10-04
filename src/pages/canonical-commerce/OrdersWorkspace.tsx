@@ -17,6 +17,7 @@ import {
 import { productsApi, type Product } from "../../api/products";
 import { isOfficePanelSurface, routes, withOfficePanelSurface } from "../../routing";
 import { CommerceTabs, EmptyState, Feedback, Modal, StatCard, StatusBadge, fieldClass, formatDate, formatMoney, formatNumber, primaryButtonClass, secondaryButtonClass } from "./commerce-ui";
+import { useLuluConfirm } from "../../components/LuluConfirmDialog";
 
 const orderTransitions: Readonly<Record<OrderStatus, readonly ("PLACED" | "CONFIRMED" | "PROCESSING" | "CANCELLED")[]>> = {
   DRAFT: ["PLACED", "CANCELLED"],
@@ -48,6 +49,7 @@ function actionLabel(status: string) {
 
 export default function OrdersWorkspace() {
   const { selectedWorkspace, hasCapability } = useLuluApp();
+  const confirm = useLuluConfirm();
   const workspaceId = selectedWorkspace?.id ?? "";
   const [searchParams, setSearchParams] = useSearchParams();
   const [items, setItems] = useState<CommerceOrder[]>([]);
@@ -150,7 +152,7 @@ export default function OrdersWorkspace() {
 
   const transitionOrder = async (targetStatus: "PLACED" | "CONFIRMED" | "PROCESSING" | "CANCELLED") => {
     if (!selected || !workspaceId || busy || !canWrite) return;
-    if (targetStatus === "CANCELLED" && !window.confirm("Cancel this order? Reserved inventory will be released.")) return;
+    if (targetStatus === "CANCELLED" && !(await confirm({ title: "Cancel this order?", description: "Reserved inventory will be released. This transition is recorded in the order history.", confirmLabel: "Cancel order", cancelLabel: "Keep order", tone: "danger" }))) return;
     setBusy(`order:${targetStatus}`);
     setError("");
     setNotice("");
@@ -173,7 +175,7 @@ export default function OrdersWorkspace() {
 
   const transitionFulfillment = async (fulfillment: CommerceFulfillment, targetStatus: Exclude<FulfillmentStatus, "DRAFT">) => {
     if (!selected || !workspaceId || busy || !canWrite) return;
-    if (targetStatus === "CANCELLED" && !window.confirm("Cancel this fulfillment?")) return;
+    if (targetStatus === "CANCELLED" && !(await confirm({ title: "Cancel this fulfillment?", description: "The fulfillment will stop and its change will be recorded against the order.", confirmLabel: "Cancel fulfillment", cancelLabel: "Keep fulfillment", tone: "danger" }))) return;
     setBusy(`fulfillment:${fulfillment.id}:${targetStatus}`);
     setError("");
     setNotice("");

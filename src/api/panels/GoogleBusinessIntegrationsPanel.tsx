@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState } from "react";
 import { getFriendlyErrorMessage } from "../client";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 import { workspaceAppApi, type GoogleBusinessState } from "../workspace-app";
+import { useLuluConfirm } from "../../components/LuluConfirmDialog";
 
 export function GoogleBusinessIntegrationsPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
+  const confirm = useLuluConfirm();
   const [state, setState] = useState<GoogleBusinessState | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -40,7 +42,7 @@ export function GoogleBusinessIntegrationsPanel({ workspaceId, onClose }: { work
   }
 
   async function disconnect() {
-    if (!window.confirm("Disconnect Google Business from this workspace?")) return;
+    if (!(await confirm({ title: "Disconnect Google Business?", description: "Synchronization and provider operations will stop until you reconnect this workspace.", confirmLabel: "Disconnect", cancelLabel: "Keep connected", tone: "danger" }))) return;
     setBusy(true);
     setError("");
     try {

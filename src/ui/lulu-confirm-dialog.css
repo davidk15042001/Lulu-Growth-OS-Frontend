@@ -1,0 +1,75 @@
+.lulu-confirm-layer {
+  position: fixed;
+  z-index: 2147483004;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
+  background: rgba(2, 8, 17, .76);
+  backdrop-filter: blur(12px);
+}
+
+.lulu-confirm-dialog {
+  position: relative;
+  width: min(100%, 480px);
+  border: 1px solid rgba(148, 183, 236, .23);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 87% 0%, rgba(107, 116, 255, .22), transparent 40%),
+    linear-gradient(145deg, #142441, #081527 78%);
+  color: #f5f8ff;
+  padding: 29px;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .07), 0 32px 100px rgba(0, 0, 0, .58);
+}
+
+.lulu-confirm-dialog__icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 1px solid rgba(105, 225, 213, .28);
+  border-radius: 14px;
+  background: rgba(94, 222, 209, .13);
+  color: #a6fff4;
+}
+
+.lulu-confirm-dialog__icon.is-danger {
+  border-color: rgba(255, 147, 139, .34);
+  background: rgba(255, 113, 110, .14);
+  color: #ffb6ad;
+}
+
+.lulu-confirm-dialog__close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(152, 181, 228, .18);
+  border-radius: 10px;
+  background: rgba(4, 13, 29, .46);
+  color: #a9bddb;
+  cursor: pointer;
+}
+
+.lulu-confirm-dialog__close:hover { border-color: rgba(126, 226, 216, .42); color: #efffff; }
+.lulu-confirm-dialog__body { margin-top: 18px; }
+.lulu-confirm-dialog__eyebrow { margin: 0; color: #78e5d8; font-size: .65rem; font-weight: 800; letter-spacing: .14em; }
+.lulu-confirm-dialog h2 { margin: 8px 34px 0 0; color: #f7faff; font-size: 1.28rem; letter-spacing: -.025em; line-height: 1.2; }
+.lulu-confirm-dialog__body > p:last-child { margin: 11px 0 0; color: #a9bbd7; font-size: .86rem; line-height: 1.58; }
+.lulu-confirm-dialog__actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px; }
+.lulu-confirm-dialog__button { min-height: 40px; border-radius: 11px; padding: 0 15px; font-size: .78rem; font-weight: 760; cursor: pointer; transition: transform .16s ease, border-color .16s ease, background .16s ease; }
+.lulu-confirm-dialog__button:hover { transform: translateY(-1px); }
+.lulu-confirm-dialog__button--secondary { border: 1px solid rgba(153, 184, 230, .2); background: rgba(4, 13, 29, .44); color: #d1def1; }
+.lulu-confirm-dialog__button--secondary:hover { border-color: rgba(143, 211, 237, .45); color: #fff; }
+.lulu-confirm-dialog__button--primary { border: 1px solid rgba(113, 227, 214, .38); background: linear-gradient(120deg, #70ddcf, #879cff); color: #071326; box-shadow: 0 12px 24px rgba(84, 178, 209, .18); }
+.lulu-confirm-dialog__button--primary.is-danger { border-color: rgba(255, 156, 144, .4); background: linear-gradient(120deg, #ff9b8b, #f06a83); color: #260b14; box-shadow: 0 12px 24px rgba(212, 80, 103, .2); }
+.lulu-confirm-dialog :is(button):focus-visible { outline: 2px solid #78e5d8; outline-offset: 3px; }
+
+@media (max-width: 520px) {
+  .lulu-confirm-dialog { padding: 23px; border-radius: 20px; }
+  .lulu-confirm-dialog__actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .lulu-confirm-dialog__button { width: 100%; padding: 0 10px; }
+}

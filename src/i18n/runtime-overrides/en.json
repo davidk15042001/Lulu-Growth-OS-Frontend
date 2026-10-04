@@ -1062,5 +1062,22 @@
   "Save policy": "Save policy",
   "Loading execution policy…": "Loading execution policy…",
   "Saving…": "Saving…",
-  "Last changed:": "Last changed:"
+  "Last changed:": "Last changed:",
+  "Dein bisheriger Fortschritt bleibt gespeichert. Du wirst aus diesem Workspace abgemeldet.": "Your progress remains saved. You will be signed out of this workspace.",
+  "Onboarding verlassen?": "Leave onboarding?",
+  "Onboarding verlassen": "Leave onboarding",
+  "Einrichtung fortsetzen": "Continue setup",
+  "Account {{0}} endgültig löschen?": "Permanently delete account {{0}}?",
+  "Der Zugang wird sofort beendet. Eigene Workspaces einschließlich Integrationen werden gelöscht; persönliche Inhalte in geteilten Workspaces werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.": "Access ends immediately. Your own workspaces, including integrations, will be deleted; personal content in shared workspaces will also be removed. This cannot be undone.",
+  "Account endgültig löschen": "Permanently delete account",
+  "Zentrale {{0}}-Verbindung trennen?": "Disconnect the central {{0}} connection?",
+  "Verbundene Arbeitsbereiche können diesen Provider nicht weiter nutzen, bis die zentrale Verbindung wiederhergestellt ist.": "Connected workspaces cannot use this provider until the central connection is restored.",
+  "Verbindung trennen": "Disconnect connection",
+  "Verbunden bleiben": "Keep connected",
+  "„{{0}}“ wird aus der aktiven CRM-Ansicht entfernt. Die auditierbare Historie bleibt erhalten.": "\"{{0}}\" will be removed from the active CRM view. Its auditable history remains available.",
+  "Das Produkt wird aus dem aktiven Katalog entfernt. Bestehende Nachweise bleiben auditierbar.": "The product will be removed from the active catalog. Existing evidence remains auditable.",
+  "„{{0}}“ wird aus der aktiven Liste entfernt. Die Historie bleibt zur Nachvollziehbarkeit erhalten.": "\"{{0}}\" will be removed from the active list. Its history remains available for traceability.",
+  "Onboarding abbrechen?": "Cancel onboarding?",
+  "Du kehrst zur Login-Seite zurück. Deine bisher gespeicherten Angaben bleiben erhalten.": "You will return to the sign-in page. Your saved information remains available.",
+  "Weiter bearbeiten": "Continue editing"
 }

@@ -3,6 +3,7 @@ import { archiveRecord, createRecord, listRecords, updateRecord, type WorkspaceR
 import { getFriendlyErrorMessage } from "../client";
 import { workspaceAppApi, type SavedView } from "../workspace-app";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
+import { useLuluConfirm } from "../../components/LuluConfirmDialog";
 
 type RecordDraft = { name: string; status: string; description: string; tags: string; data: string };
 const emptyDraft: RecordDraft = { name: "", status: "active", description: "", tags: "", data: "{}" };
@@ -35,6 +36,7 @@ function parseDraft(draft: RecordDraft) {
 }
 
 export function ResourcePanel({ workspaceId, resourceType, onClose }: { workspaceId: string; resourceType: string; onClose: () => void }) {
+  const confirm = useLuluConfirm();
   const [records, setRecords] = useState<WorkspaceRecord[]>([]);
   const [views, setViews] = useState<SavedView[]>([]);
   const [draft, setDraft] = useState<RecordDraft>(emptyDraft);
@@ -85,7 +87,8 @@ export function ResourcePanel({ workspaceId, resourceType, onClose }: { workspac
   }
 
   async function archive(recordId: string) {
-    if (busy || !window.confirm("Archive this live record?")) return;
+    if (busy) return;
+    if (!(await confirm({ title: "Archive this live record?", description: "It will leave the active list while its audit history remains available.", confirmLabel: "Archive", cancelLabel: "Cancel", tone: "danger" }))) return;
     setBusy(true);
     setError("");
     try { await archiveRecord(resourceType, recordId); await load(); }

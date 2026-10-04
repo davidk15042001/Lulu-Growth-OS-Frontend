@@ -10,6 +10,7 @@ import AdminOmniChannelPage from '../admin-omnichannel/AdminOmniChannelPage';
 import AdminCommercialDocumentsPage from '../admin-commercial/AdminCommercialDocumentsPage';
 import AdminAdCampaignsPage from './AdminAdCampaignsPage';
 import { AdminComposioCatalog } from '../../components/AdminComposioCatalog';
+import { useLuluConfirm } from '../../components/LuluConfirmDialog';
 import {
   LayoutDashboard, Users, Building2, Contact2, CreditCard, Globe, Bot,
   Plug, KeyRound, CheckSquare2, AlertTriangle, Shield, Clock, FileArchive, Headphones,
@@ -912,6 +913,7 @@ function CustomersPage({ onError }: { onError: (m: string) => void }) {
 }
 
 function UsersPage({ onError }: { onError: (m: string) => void }) {
+  const confirm = useLuluConfirm();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<UserRow[]>([]);
   const [search, setSearch] = useState("");
@@ -1012,7 +1014,13 @@ function UsersPage({ onError }: { onError: (m: string) => void }) {
 
   const deleteUser = async () => {
     if (!detail) return;
-    const confirmed = window.confirm(`Account ${detail.email} endgültig löschen? Der Zugang wird sofort beendet. Eigene Workspaces einschließlich Integrationen werden gelöscht; persönliche Inhalte in geteilten Workspaces werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.`);
+    const confirmed = await confirm({
+      title: `Account ${detail.email} endgültig löschen?`,
+      description: "Der Zugang wird sofort beendet. Eigene Workspaces einschließlich Integrationen werden gelöscht; persönliche Inhalte in geteilten Workspaces werden ebenfalls entfernt. Diese Aktion kann nicht rückgängig gemacht werden.",
+      confirmLabel: "Account endgültig löschen",
+      cancelLabel: "Abbrechen",
+      tone: "danger",
+    });
     if (!confirmed) return;
     setSaving("delete"); onError(""); setNotice("");
     try {
@@ -1986,6 +1994,7 @@ function oauthProviderLabel(provider: string) {
 }
 
 function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
+  const confirm = useLuluConfirm();
   const { currentUser } = useLuluApp();
   const [loading, setLoading] = useState(true);
   const [rows, setRows] = useState<OAuthConnectionRow[]>([]);
@@ -2051,7 +2060,13 @@ function OAuthConnectionsPage({ onError }: { onError: (m: string) => void }) {
   };
   const disconnectManaged = async (provider: string) => {
     if (!canManage || busyProvider) return;
-    if (!window.confirm(`Die zentrale ${oauthProviderLabel(provider)}-Verbindung wirklich trennen?`)) return;
+    if (!(await confirm({
+      title: `Zentrale ${oauthProviderLabel(provider)}-Verbindung trennen?`,
+      description: "Verbundene Arbeitsbereiche können diesen Provider nicht weiter nutzen, bis die zentrale Verbindung wiederhergestellt ist.",
+      confirmLabel: "Verbindung trennen",
+      cancelLabel: "Verbunden bleiben",
+      tone: "danger",
+    }))) return;
     setBusyProvider(provider); onError("");
     try {
       await requestApi({ path: `/admin/oauth-connections/${encodeURIComponent(provider)}`, method: "DELETE" });

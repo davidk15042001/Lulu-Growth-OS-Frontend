@@ -6,6 +6,7 @@ import { onboardingApi, type CatalogImport, type CatalogImportProgress, type Cat
 import { useTranslation } from '../i18n/GlobalLanguageSwitcher';
 import { navigateApp, routes } from '../routing';
 import { exitOnboardingToLogin } from './OnboardingHeader';
+import { useLuluConfirm } from './LuluConfirmDialog';
 
 function catalogImportStorageKey(workspaceId: string) {
   return `lulu.catalog-import.${workspaceId}`;
@@ -43,6 +44,7 @@ function elapsedLabel(createdAt: string | undefined, now: number) {
 export function KnowledgeActivationGate() {
   const { selectedWorkspace, refresh, updateWorkspace } = useLuluApp();
   const t = useTranslation();
+  const confirm = useLuluConfirm();
   const workspaceId = selectedWorkspace?.id ?? null;
   const [text, setText] = useState('');
   const [documents, setDocuments] = useState<OnboardingDocument[]>([]);
@@ -156,7 +158,7 @@ export function KnowledgeActivationGate() {
 
   async function exit() {
     if (exiting || processing || confirming) return;
-    if (!window.confirm(t('Onboarding abbrechen und zur Login-Seite zurueckkehren?'))) return;
+    if (!(await confirm({ title: t('Leave onboarding?'), description: t('Your current onboarding progress will remain saved, but you will be signed out of this workspace.'), confirmLabel: t('Leave onboarding'), cancelLabel: t('Continue setup'), tone: 'danger' }))) return;
     setExiting(true);
     await exitOnboardingToLogin();
   }

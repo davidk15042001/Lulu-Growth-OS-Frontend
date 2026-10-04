@@ -5,8 +5,10 @@ import { workspaceAppApi } from "../workspace-app";
 import { providerControlApi, type ProviderConnection, type ProviderContractCheck, type ProviderLaunchReadiness } from "../providers";
 import { ComposioCatalog } from "../../components/ComposioCatalog";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
+import { useLuluConfirm } from "../../components/LuluConfirmDialog";
 
 export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
+  const confirm = useLuluConfirm();
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [providerConnections, setProviderConnections] = useState<ProviderConnection[]>([]);
   const [contractChecks, setContractChecks] = useState<Record<string, ProviderContractCheck | undefined>>({});
@@ -14,6 +16,7 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
   const [draft, setDraft] = useState({ name: "", category: "other", integrationKey: "" });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
   const load = useCallback(async () => {
     setBusy(true); setError("");
@@ -78,7 +81,7 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
   }
 
   async function disconnectProvider(connectionId: string, displayName: string) {
-    if (!window.confirm(`Disconnect ${displayName}? Existing records remain available, but provider operations stop.`)) return;
+    if (!(await confirm({ title: `Disconnect ${displayName}?`, description: "Existing records remain available, but provider operations stop until the connection is restored.", confirmLabel: "Disconnect", cancelLabel: "Keep connected", tone: "danger" }))) return;
     setBusy(true); setError("");
     try { await providerControlApi.disconnect(workspaceId, connectionId); await load(); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not disconnect this provider.")); setBusy(false); }
@@ -96,12 +99,12 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
   }
 
   async function disconnect(platform: Platform) {
-    if (!window.confirm(`Disconnect ${platform.name}? Existing records will remain available, but synchronization will stop.`)) return;
+    if (!(await confirm({ title: `Disconnect ${platform.name}?`, description: "Existing records remain available, but synchronization will stop until the connection is restored.", confirmLabel: "Disconnect", cancelLabel: "Keep connected", tone: "danger" }))) return;
     await updateStatus(platform, "disconnected");
   }
 
   async function remove(platform: Platform) {
-    if (!window.confirm(`Remove ${platform.name} from this workspace?`)) return;
+    if (!(await confirm({ title: `Remove ${platform.name}?`, description: "The integration configuration will be removed from this workspace. Existing records are retained.", confirmLabel: "Remove integration", cancelLabel: "Keep integration", tone: "danger" }))) return;
     setBusy(true); setError("");
     try { await onboardingApi.deletePlatform(workspaceId, platform.id); await load(); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not remove this integration. No data was deleted.")); setBusy(false); }
@@ -109,6 +112,7 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
 
   return <LivePanelShell title="Live integrations" subtitle="Connections and synchronization jobs" onClose={onClose}>
     <LiveError message={error} />
+    {notice ? <p className="lulu-live-message" role="status">{notice}</p> : null}
     <ComposioCatalog workspaceId={workspaceId} />
     {launchReadiness && <LiveSection title="Production readiness" action={<span className="lulu-live-message">Autonomous work is allowed only when every provider gate is ready.</span>}>
       <div className="lulu-live-message">{launchReadiness.overallReady ? "All provider connections are ready for autonomous execution." : `${launchReadiness.readyCount} of ${launchReadiness.totalConnections} provider connections are ready.`}</div>
@@ -142,7 +146,7 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
           <select aria-label={`Status for ${platform.name}`} value={platform.connectionStatus} onChange={(event) => void updateStatus(platform, event.target.value)}><option value="not_connected">Not connected</option><option value="disconnected">Disconnected</option><option value="pending">Pending</option><option value="connected">Connected</option><option value="syncing">Syncing</option><option value="error">Error</option></select>
           {platform.connectionStatus !== "connected" && <button className="lulu-live-button primary" disabled={busy} onClick={() => void connect(platform)}>Connect</button>}
           {platform.connectionStatus === "connected" && <button className="lulu-live-button" disabled={busy} onClick={() => void disconnect(platform)}>Disconnect</button>}
-          <button className="lulu-live-button" disabled={busy} onClick={async () => { setBusy(true); setError(""); try { const result = await workspaceAppApi.syncIntegration(workspaceId, platform.id); window.alert(`Sync job ${result.data.jobId} created (${result.data.status}).`); await load(); } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not start the sync. Check that the provider is connected and available.")); setBusy(false); } }}>Sync</button>
+          <button className="lulu-live-button" disabled={busy} onClick={async () => { setBusy(true); setError(""); setNotice(""); try { const result = await workspaceAppApi.syncIntegration(workspaceId, platform.id); await load(); setNotice(`Sync job ${result.data.jobId} created (${result.data.status}).`); } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not start the sync. Check that the provider is connected and available.")); setBusy(false); } }}>Sync</button>
           <button className="lulu-live-button danger" disabled={busy} onClick={() => void remove(platform)}>Remove</button>
         </div>
       </article>)}

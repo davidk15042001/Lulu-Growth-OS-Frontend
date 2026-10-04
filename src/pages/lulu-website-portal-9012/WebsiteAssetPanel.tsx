@@ -3,6 +3,7 @@ import { Image, Loader2, Sparkles, Trash2, Upload, X, XCircle } from "lucide-rea
 import { getFriendlyErrorMessage } from "../../api/client";
 import { websitesApi, type ManagedWebsiteAsset, type WebsiteAssetEdit, type WebsiteSite } from "../../api/websites";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { useLuluConfirm } from "../../components/LuluConfirmDialog";
 
 const outputWidth = 1400;
 const outputHeight = 900;
@@ -45,6 +46,7 @@ const terminalEditStatuses = new Set<WebsiteAssetEdit["status"]>(["COMPLETED", "
 
 export function WebsiteAssetPanel({ workspaceId, site }: { workspaceId: string; site: WebsiteSite }) {
   const t = useTranslation();
+  const confirm = useLuluConfirm();
   const inputRef = useRef<HTMLInputElement>(null);
   const [assets, setAssets] = useState<ManagedWebsiteAsset[]>([]);
   const [assetUrls, setAssetUrls] = useState<Record<string, string>>({});
@@ -167,7 +169,7 @@ export function WebsiteAssetPanel({ workspaceId, site }: { workspaceId: string; 
 
   const deleteAsset = async (asset: ManagedWebsiteAsset) => {
     const label = asset.altText || asset.fileName;
-    if (!window.confirm(t("Delete image {{0}}? This removes it from the website and cannot be undone.").replace("{{0}}", label))) return;
+    if (!(await confirm({ title: t("Delete image {{0}}?").replace("{{0}}", label), description: t("This removes it from the website and cannot be undone."), confirmLabel: t("Delete image"), cancelLabel: t("Cancel"), tone: "danger" }))) return;
     setDeletingAssetId(asset.id);
     setError("");
     try {

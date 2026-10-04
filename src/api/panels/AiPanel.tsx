@@ -4,9 +4,11 @@ import { agentApi, type AgentRunDetails } from "../agents";
 import { getFriendlyErrorMessage } from "../client";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { useLuluConfirm } from "../../components/LuluConfirmDialog";
 
 export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
   const t = useTranslation();
+  const confirm = useLuluConfirm();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [messages, setMessages] = useState<AiMessage[]>([]);
@@ -81,11 +83,11 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
     <LiveError message={error} />
     <LiveSection title="Conversations" action={<div className="lulu-live-actions"><button className="lulu-live-button" onClick={() => void newConversation()} disabled={busy}>New</button>{selectedId && <button className="lulu-live-button" onClick={async () => { setBusy(true); setError(""); try { const response = await aiApi.exportConversation(workspaceId, selectedId); const blob = new Blob([JSON.stringify(response.data, null, 2)], { type: "application/json" }); const url = URL.createObjectURL(blob); const anchor = document.createElement("a"); anchor.href = url; anchor.download = `lulu-conversation-${selectedId}.json`; anchor.click(); URL.revokeObjectURL(url); } catch (cause) { setError(getFriendlyErrorMessage(cause, t("We could not export this conversation."))); } finally { setBusy(false); } }}>{t("Export")}</button>}</div>}>
       {conversations.length === 0 ? <LiveEmpty>No conversations yet.</LiveEmpty> : <div className="lulu-live-form"><label>Conversation<select value={selectedId} onChange={(event) => setSelectedId(event.target.value)}>{conversations.map((conversation) => <option key={conversation.id} value={conversation.id}>{conversation.title}</option>)}</select></label></div>}
-      {selectedId && <button className="lulu-live-button danger" style={{ marginTop: 10 }} onClick={async () => { if (!window.confirm("Archive this conversation?")) return; await aiApi.archiveConversation(workspaceId, selectedId); setSelectedId(""); await loadConversations(); }}>Archive</button>}
+      {selectedId && <button className="lulu-live-button danger" style={{ marginTop: 10 }} onClick={async () => { if (!(await confirm({ title: t("Archive this conversation?"), description: t("The conversation will be removed from the active list while its audit history remains available."), confirmLabel: t("Archive"), cancelLabel: t("Cancel"), tone: "danger" }))) return; await aiApi.archiveConversation(workspaceId, selectedId); setSelectedId(""); await loadConversations(); }}>Archive</button>}
     </LiveSection>
     <LiveSection title="Coordinated agent runs">
-      <p style={{ marginTop: 0 }}>Lulu continuously executes one permanent mission: build a trusted global brand at maximum sustainable speed and become number one worldwide. No goal input or action approvals are required.</p>
-      <button className="lulu-live-button primary" disabled={agentBusy} onClick={async () => { setAgentBusy(true); setError(""); try { await agentApi.create(workspaceId); await loadAgentRuns(); } catch (cause) { setError(getFriendlyErrorMessage(cause, "Lulu could not refresh the coordinated mission.")); } finally { setAgentBusy(false); } }}>{agentBusy ? "Refreshing…" : "Refresh mission now"}</button>
+      <p style={{ marginTop: 0 }}>Agent runs remain workspace-scoped, evidence-backed and subject to permission, funding and approval rules. This view never authorizes work by itself.</p>
+      <button className="lulu-live-button primary" disabled={agentBusy} onClick={async () => { setAgentBusy(true); setError(""); try { await agentApi.create(workspaceId); await loadAgentRuns(); } catch (cause) { setError(getFriendlyErrorMessage(cause, "Lulu could not refresh the coordinated mission.")); } finally { setAgentBusy(false); } }}>{agentBusy ? "Refreshing…" : "Refresh agent runs"}</button>
       {agentRuns.length === 0 ? <LiveEmpty>No coordinated agent runs yet.</LiveEmpty> : agentRuns.map((details) => { const result = details.run.result as Record<PropertyKey, unknown> | null; const isInitialAnalysis = details.run.goal.startsWith("[initial-business-analysis]"); return <article className="lulu-live-message" key={details.run.id}><strong>{details.run.goal}</strong><small>{details.run.status} · {details.steps.filter((step) => step.status === "completed").length}/{details.steps.length} steps completed · {formatLiveDate(details.run.updatedAt)}</small>{details.run.errorMessage && <span>{details.run.errorCode}: {details.run.errorMessage}</span>}{isInitialAnalysis && result?.executiveSummary != null && <p style={{ whiteSpace: "pre-wrap" }}>{String(result.executiveSummary)}</p>}{isInitialAnalysis && Array.isArray(result?.dataGaps) && <small>{result.dataGaps.length} · {String(result?.confidence ?? "unknown")}</small>}</article>; })}
     </LiveSection>
     <LiveSection title="Messages">
@@ -106,7 +108,7 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
           finally { setBusy(false); }
         }}>Refresh status</button>}
         {["ready", "pending_approval"].includes(action.status) && <button className="lulu-live-button danger" style={{ marginTop: 8, marginLeft: 8 }} onClick={async () => {
-          if (!window.confirm(t("Cancel this assistant action?"))) return;
+          if (!(await confirm({ title: t("Cancel this assistant action?"), description: t("The action will stop before its next execution step. Its prior evidence stays available."), confirmLabel: t("Cancel action"), cancelLabel: t("Keep action"), tone: "danger" }))) return;
           setBusy(true); setError("");
           try { await aiApi.cancelAction(workspaceId, action.conversationId, action.id); await loadActions(); }
           catch (cause) { setError(getFriendlyErrorMessage(cause, t("The assistant action could not be cancelled."))); }

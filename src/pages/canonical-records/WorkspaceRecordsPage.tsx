@@ -5,6 +5,7 @@ import { getFriendlyErrorMessage } from '../../api/client';
 import { archiveRecord, createRecord, ingestRecord, type WorkspaceRecord } from '../../api/records';
 import { useLiveRecords } from '../../api/useLiveRecords';
 import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
+import { useLuluConfirm } from '../../components/LuluConfirmDialog';
 
 type Props = { resourceType: string; title: string; activeSlug: string; description?: string };
 const inputClass = 'w-full rounded-xl border border-[var(--border)] bg-transparent px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--ring)]';
@@ -12,6 +13,7 @@ function dataValue(record: WorkspaceRecord, key: string) { return String(record.
 
 export default function WorkspaceRecordsPage({ resourceType, title, activeSlug, description }: Props) {
   const { hasCapability } = useLuluApp();
+  const confirm = useLuluConfirm();
   // This reusable surface writes through the generic workspace record routes.
   const canWrite = hasCapability('workspace.write');
   const [query, setQuery] = useState('');
@@ -45,7 +47,8 @@ export default function WorkspaceRecordsPage({ resourceType, title, activeSlug, 
     finally { setBusy(false); }
   };
   const archive = async (record: WorkspaceRecord) => {
-    if (!canWrite || !window.confirm('Datensatz archivieren?')) return;
+    if (!canWrite) return;
+    if (!(await confirm({ title: 'Datensatz archivieren?', description: `„${record.name}“ wird aus der aktiven Liste entfernt. Die Historie bleibt zur Nachvollziehbarkeit erhalten.`, confirmLabel: 'Archivieren', cancelLabel: 'Abbrechen', tone: 'danger' }))) return;
     setBusy(true); setError('');
     try { await archiveRecord(resourceType, record.id); await refresh(); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, 'Der Datensatz konnte nicht archiviert werden.')); }

@@ -7,6 +7,7 @@ import { providerControlApi, type ProviderLaunchReadiness } from '../../../../ap
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { LuluGlobalNavigation } from '../../../../components/LuluGlobalNavigation';
 import { ComposioCatalog } from '../../../../components/ComposioCatalog';
+import { useLuluConfirm } from '../../../../components/LuluConfirmDialog';
 import { navigateApp, routes } from '../../../../routing';
 
 const oauthProviders = new Set(['salesforce', 'pipedrive', 'hubspot', 'webflow', 'wordpress', 'shopify']);
@@ -32,6 +33,7 @@ function formatDate(value: string | null) {
 
 export function LuluIntegrations() {
   const { selectedWorkspace, can } = useLuluApp();
+  const confirm = useLuluConfirm();
   const canEdit = can('edit');
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [whatsappConnection, setWhatsappConnection] = useState<WhatsAppConnectionSummary | null>(null);
@@ -149,7 +151,7 @@ export function LuluIntegrations() {
   };
 
   const disconnectWhatsApp = async () => {
-    if (!selectedWorkspace || !window.confirm('Disconnect this WhatsApp account from the workspace?')) return;
+    if (!selectedWorkspace || !(await confirm({ title: 'Disconnect this WhatsApp account?', description: 'Messaging through this workspace will stop until the account is connected again.', confirmLabel: 'Disconnect WhatsApp', cancelLabel: 'Keep connected', tone: 'danger' }))) return;
     setBusyId('whatsapp'); setError('');
     try { await onboardingApi.disconnectWhatsApp(selectedWorkspace.id); await load(); setNotice('WhatsApp disconnected.'); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, 'WhatsApp could not be disconnected.')); }
@@ -157,7 +159,7 @@ export function LuluIntegrations() {
   };
 
   const disconnect = async (platform: Platform) => {
-    if (!selectedWorkspace || !window.confirm(`Disconnect ${platform.name}? Existing synchronized records will remain available.`)) return;
+    if (!selectedWorkspace || !(await confirm({ title: `Disconnect ${platform.name}?`, description: 'Existing synchronized records remain available, but synchronization stops until the connection is restored.', confirmLabel: 'Disconnect', cancelLabel: 'Keep connected', tone: 'danger' }))) return;
     setBusyId(platform.id); setError('');
     try {
       await onboardingApi.updatePlatform(selectedWorkspace.id, platform.id, { connectionStatus: 'disconnected' });
@@ -177,7 +179,7 @@ export function LuluIntegrations() {
   };
 
   const remove = async (platform: Platform) => {
-    if (!selectedWorkspace || !window.confirm(`Remove ${platform.name} from this workspace?`)) return;
+    if (!selectedWorkspace || !(await confirm({ title: `Remove ${platform.name}?`, description: 'Its integration configuration will be removed from this workspace. Existing synchronized records are retained.', confirmLabel: 'Remove integration', cancelLabel: 'Keep integration', tone: 'danger' }))) return;
     setBusyId(platform.id); setError('');
     try {
       await onboardingApi.deletePlatform(selectedWorkspace.id, platform.id);

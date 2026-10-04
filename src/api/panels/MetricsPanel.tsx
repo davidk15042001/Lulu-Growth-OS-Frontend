@@ -2,8 +2,10 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { metricApi, type Metric, type MetricPoint } from "../metrics";
 import { getFriendlyErrorMessage } from "../client";
 import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } from "../live-panel-ui";
+import { useLuluConfirm } from "../../components/LuluConfirmDialog";
 
 export function MetricsPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
+  const confirm = useLuluConfirm();
   const [metrics, setMetrics] = useState<Metric[]>([]);
   const [selectedId, setSelectedId] = useState("");
   const [points, setPoints] = useState<MetricPoint[]>([]);
@@ -54,6 +56,12 @@ export function MetricsPanel({ workspaceId, onClose }: { workspaceId: string; on
     } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not save this value. Please try again.")); setBusy(false); }
   }
 
+  async function archiveMetric(metric: Metric) {
+    if (!(await confirm({ title: `Archive ${metric.name}?`, description: "The metric will be removed from active reporting while its recorded history remains available.", confirmLabel: "Archive", cancelLabel: "Cancel", tone: "danger" }))) return;
+    await metricApi.archive(workspaceId, metric.id);
+    await loadMetrics();
+  }
+
   return <LivePanelShell title="Live metrics" subtitle={`${metrics.length} configured metrics`} onClose={onClose}>
     <LiveError message={error} />
     <LiveSection title="Metrics" action={<span className="lulu-live-message">Use Update in the navigation bar.</span>}>
@@ -61,7 +69,7 @@ export function MetricsPanel({ workspaceId, onClose }: { workspaceId: string; on
       {metrics.map((metric) => <article className="lulu-live-row" key={metric.id}>
         <div className="lulu-live-row-top"><div><strong>{metric.name}</strong><span>{metric.key} · {metric.domain}</span></div><span className="lulu-live-badge good">{metric.latestValue ?? "—"} {metric.unit}</span></div>
         <small>{metric.latestRecordedAt ? `Recorded ${formatLiveDate(metric.latestRecordedAt)}` : "No points recorded"}</small>
-        <button className="lulu-live-button danger" style={{ marginTop: 8 }} onClick={async () => { if (!window.confirm(`Archive ${metric.name}?`)) return; await metricApi.archive(workspaceId, metric.id); await loadMetrics(); }}>Archive</button>
+        <button className="lulu-live-button danger" style={{ marginTop: 8 }} onClick={() => void archiveMetric(metric)}>Archive</button>
       </article>)}
     </LiveSection>
     <LiveSection title="Record a point">

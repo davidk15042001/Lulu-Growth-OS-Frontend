@@ -34,6 +34,7 @@ import {
 import { transitionSalesRecord } from '../../api/salesPipeline';
 import { useLiveRecords, type LiveRecordsLoadState } from '../../api/useLiveRecords';
 import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
+import { useLuluConfirm } from '../../components/LuluConfirmDialog';
 
 type Kind = 'contacts' | 'companies' | 'activities' | 'tasks';
 type EnrichmentStatus = 'queued' | 'researching' | 'complete' | 'partial' | 'blocked_funds' | 'failed';
@@ -275,6 +276,7 @@ function IntelligenceSection({ title, icon, children }: { title: string; icon: R
 
 export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { kind: Kind; showEntitySwitcher?: boolean }) {
   const { hasCapability } = useLuluApp();
+  const confirm = useLuluConfirm();
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewKind, setViewKind] = useState<Kind>(kind);
   const [query, setQuery] = useState('');
@@ -349,7 +351,11 @@ export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { 
     try { const data = new FormData(); data.append('name', file.name); data.append('text', ''); data.append('files', file, file.name); await ingestRecord(resourceType, data); setImportOpen(false); setNotice(`${file.name} wurde importiert. Lulu reichert die Unternehmen automatisch an.`); await refresh(); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, 'Der Import konnte nicht verarbeitet werden.')); } finally { setBusy(false); }
   };
-  const archive = async (record: WorkspaceRecord) => { if (!canWrite || !window.confirm('Datensatz archivieren?')) return; setBusy(true); try { await archiveRecord(resourceType, record.id); await refresh(); } catch (cause) { setError(getFriendlyErrorMessage(cause, 'Der Datensatz konnte nicht archiviert werden.')); } finally { setBusy(false); } };
+  const archive = async (record: WorkspaceRecord) => {
+    if (!canWrite) return;
+    if (!(await confirm({ title: 'Datensatz archivieren?', description: `„${record.name}“ wird aus der aktiven CRM-Ansicht entfernt. Die auditierbare Historie bleibt erhalten.`, confirmLabel: 'Archivieren', cancelLabel: 'Abbrechen', tone: 'danger' }))) return;
+    setBusy(true); try { await archiveRecord(resourceType, record.id); await refresh(); } catch (cause) { setError(getFriendlyErrorMessage(cause, 'Der Datensatz konnte nicht archiviert werden.')); } finally { setBusy(false); }
+  };
   const retry = async (record: WorkspaceRecord) => { if (!canWrite) return; setBusy(true); setError(''); try { await requestRecordEnrichment('crm_companies', record.id); setNotice('Die autonome Recherche wurde neu eingeplant.'); await refresh(); } catch (cause) { setError(getFriendlyErrorMessage(cause, 'Die Recherche konnte nicht neu gestartet werden.')); } finally { setBusy(false); } };
   const markDone = async (record: WorkspaceRecord) => { if (!canWrite) return; setBusy(true); try { if (resourceType === 'crm_tasks') await transitionSalesRecord(resourceType, record.id, { targetState: 'completed', expectedVersion: record.version, reason: 'crm_manual_completion' }); else await updateRecord(resourceType, record.id, { status: 'Completed', expectedVersion: record.version }); await refresh(); } catch (cause) { setError(getFriendlyErrorMessage(cause, 'Der Status konnte nicht aktualisiert werden.')); } finally { setBusy(false); } };
   const activeSlug = kind === 'contacts' || kind === 'companies' ? 'sturdy-month-1562' : kind === 'activities' ? 'cosmic-pool-1616' : 'deeply-noon-9539';
