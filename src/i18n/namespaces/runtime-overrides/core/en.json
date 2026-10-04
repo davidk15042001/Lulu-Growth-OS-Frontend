@@ -258,5 +258,19 @@
   "Some finance data could not be refreshed. The view may show the last verified result.": "Some finance data could not be refreshed. The view may show the last verified result.",
   "Unspecified currency": "Unspecified currency",
   "verified records in this workspace": "verified records in this workspace",
-  "Verified financial records from the connected workspace. Amounts remain exact and are never converted or mixed across currencies.": "Verified financial records from the connected workspace. Amounts remain exact and are never converted or mixed across currencies."
+  "Verified financial records from the connected workspace. Amounts remain exact and are never converted or mixed across currencies.": "Verified financial records from the connected workspace. Amounts remain exact and are never converted or mixed across currencies.",
+  "No companies are available in the customer graph.": "No companies are available in the customer graph.",
+  "No connected inbox is available for this workspace.": "No connected inbox is available for this workspace.",
+  "No connected calendar is available for this workspace.": "No connected calendar is available for this workspace.",
+  "No commerce records are available yet.": "No commerce records are available yet.",
+  "No financial documents are available yet.": "No financial documents are available yet.",
+  "No verified marketing work is available yet.": "No verified marketing work is available yet.",
+  "No managed website is connected to this workspace.": "No managed website is connected to this workspace.",
+  "The Google Business connection needs reauthorization before review data can be read.": "The Google Business connection needs reauthorization before review data can be read.",
+  "No connected Google Business review source is available for this workspace.": "No connected Google Business review source is available for this workspace.",
+  "No provider connection is available for this workspace.": "No provider connection is available for this workspace.",
+  "No executive intelligence is available yet.": "No executive intelligence is available yet.",
+  "Priority review queue": "Priority review queue",
+  "Connected Google Business data": "Connected Google Business data",
+  "unanswered": "unanswered"
 }
