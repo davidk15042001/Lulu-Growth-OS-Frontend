@@ -1,5 +1,5 @@
 import { Theme } from './settings/types';
-import { FinanceOverview } from './components/generated/FinanceOverview';
+import { FinanceOverviewWorkspace } from '../../components/FinanceOverviewWorkspace';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +15,7 @@ function App() {
 
   setTheme(theme);
 
-  return <FinanceOverview />; // %EXPORT_STATEMENT%
+  return <FinanceOverviewWorkspace />; // %EXPORT_STATEMENT%
 }
 
 export default App;
