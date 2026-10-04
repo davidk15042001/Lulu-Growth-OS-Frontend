@@ -412,6 +412,13 @@ export function useTranslation() {
   const language = useLanguage();
   const [, refresh] = useState(0);
   useEffect(() => {
+    let active = true;
+    void ensureNamespaces(language, requiredNamespaces(window.location.pathname, window.location.search))
+      .then(() => { if (active) refresh((value) => value + 1); })
+      .catch((error) => console.error("Language catalog could not be loaded", error));
+    return () => { active = false; };
+  }, [language]);
+  useEffect(() => {
     const sync = () => refresh((value) => value + 1);
     window.addEventListener(LANGUAGE_LOADED_EVENT, sync);
     return () => window.removeEventListener(LANGUAGE_LOADED_EVENT, sync);

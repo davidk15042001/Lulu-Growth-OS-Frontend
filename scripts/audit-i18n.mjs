@@ -53,6 +53,9 @@ if (JSON.stringify(actualCodes) !== JSON.stringify(expectedCodes)) {
 if (!runtimeSource.includes("<GlobalLanguageSwitcher")) {
   blockingIssues.push("Global language switcher is not mounted in LuluRuntime");
 }
+if (!readFileSync(join(root, "src", "i18n", "GlobalLanguageSwitcher.tsx"), "utf8").includes("ensureNamespaces(language, requiredNamespaces(window.location.pathname, window.location.search))")) {
+  blockingIssues.push("The translation hook does not load the active route catalog for standalone application surfaces");
+}
 if (!isolatedEntrySource.includes("<LuluRuntime slug={slug}>")) {
   blockingIssues.push("Isolated pages are not wrapped by LuluRuntime");
 }
