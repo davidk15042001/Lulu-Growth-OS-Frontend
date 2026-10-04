@@ -792,5 +792,18 @@
   "department room": "Abteilungsraum",
   "Last event": "Letztes Ereignis",
   "Verified employee event": "Verifiziertes Mitarbeiterereignis",
-  "native workspace": "nativer Workspace"
+  "native workspace": "nativer Workspace",
+  "No connected customer conversations are available.": "Für diesen Workspace sind keine verbundenen Kundengespräche verfügbar.",
+  "Industry is being verified": "Branche wird verifiziert",
+  "Location pending": "Standort ausstehend",
+  "with outstanding balance": "mit offenem Betrag",
+  "checked": "geprüft",
+  "attendee": "Teilnehmer",
+  "attendees": "Teilnehmende",
+  "Lulu calendar": "Lulu-Kalender",
+  "provider connected": "Anbieter verbunden",
+  "providers connected": "Anbieter verbunden",
+  "synced": "synchronisiert",
+  "gated": "gesperrt",
+  "verified": "verifiziert"
 }

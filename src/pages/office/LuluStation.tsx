@@ -216,7 +216,7 @@ function StationCharacter({
       transform={`translate(${x} ${y})`}
       role="button"
       tabIndex={0}
-      aria-label={`${employee.name}, ${employee.title}, ${statusLabel(status, t)}`}
+      aria-label={`${t(employee.name)}, ${t(employee.title)}, ${statusLabel(status, t)}`}
       onClick={(event) => { event.stopPropagation(); onSelect(employee); }}
       onKeyDown={handleKeyDown}
     >
@@ -238,7 +238,7 @@ function StationCharacter({
         <path className="lulu-station__character-visor" d="M-9-18h18" />
         <circle className="lulu-station__character-status" cx="19" cy="-30" r="5" />
         <text className="lulu-station__character-initials" x="0" y="18" textAnchor="middle">{initials(employee.name)}</text>
-        <text className="lulu-station__character-name" x="0" y="74" textAnchor="middle">{employee.name.split(" ")[0]}</text>
+        <text className="lulu-station__character-name" x="0" y="74" textAnchor="middle">{shortLabel(t(employee.name), 12)}</text>
       </g>
     </g>
   );
@@ -689,8 +689,8 @@ export function LuluStation() {
         <aside className="lulu-station__inspector" aria-label={t("Station inspector")}>
           {employeeDetail ? <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__avatar-badge">{initials(employeeDetail.employee.name)}</span><span>{t("Digital Employee")}</span><button type="button" onClick={closeEmployeePopup} aria-label={t("Close employee inspector")}>×</button></div>
-            <h2>{employeeDetail.employee.name}</h2>
-            <p className="lulu-station__inspector-role">{employeeDetail.employee.title} · {employeeDetail.employee.department ? t(employeeDetail.employee.department.name) : undefined}</p>
+            <h2>{t(employeeDetail.employee.name)}</h2>
+            <p className="lulu-station__inspector-role">{t(employeeDetail.employee.title)} · {employeeDetail.employee.department ? t(employeeDetail.employee.department.name) : undefined}</p>
             <div className={`lulu-station__inspector-status lulu-station__inspector-status--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable), t)}</div>
             <div className="lulu-station__inspector-block"><span>{t("Current work")}</span><strong title={employeeDetail.currentWorkItem?.title}>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t("Execution is paused until AI credit is available") : conciseOfficeCopy(employeeDetail.currentWorkItem?.title, t("No current work item"), 120)}</strong><small>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t(aiExecutionMessage) : employeeDetail.currentWorkItem ? displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem.status, t) : t("The employee is not running a visible work item.")}</small></div>
             <div className="lulu-station__inspector-stats"><div><strong>{formatCount(employeeDetail.workSummary.active)}</strong><span>{t("open")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday)}</strong><span>{t("completed")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed)}</strong><span>{t("failed")}</span></div></div>
@@ -724,7 +724,7 @@ export function LuluStation() {
           {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>{t("Opening verified employee workspace…")}</strong><span>{t("Loading the employee state and recent evidence.")}</span></div> : <>
             <header className="lulu-station__modal-header">
               <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
-              <div><span className="lulu-station__modal-kicker">{t("DIGITAL EMPLOYEE WORKSPACE")}</span><h2 id="lulu-station-employee-title">{employeeDetail.employee.name}</h2><p>{employeeDetail.employee.title} · {employeeDetail.employee.department ? t(employeeDetail.employee.department.name) : t("Lulu Station")}</p></div>
+              <div><span className="lulu-station__modal-kicker">{t("DIGITAL EMPLOYEE WORKSPACE")}</span><h2 id="lulu-station-employee-title">{t(employeeDetail.employee.name)}</h2><p>{t(employeeDetail.employee.title)} · {employeeDetail.employee.department ? t(employeeDetail.employee.department.name) : t("Lulu Station")}</p></div>
               <div className={`lulu-station__modal-status lulu-station__modal-status--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable), t)}</div>
             </header>
             <div className="lulu-station__modal-body">

@@ -792,5 +792,18 @@
   "department room": "部门房间",
   "Last event": "最近事件",
   "Verified employee event": "已验证的员工事件",
-  "native workspace": "原生工作区"
+  "native workspace": "原生工作区",
+  "No connected customer conversations are available.": "此工作区没有可用的已连接客户对话。",
+  "Industry is being verified": "行业正在验证",
+  "Location pending": "地点待定",
+  "with outstanding balance": "笔未结余额",
+  "checked": "已检查",
+  "attendee": "位参与者",
+  "attendees": "位参与者",
+  "Lulu calendar": "Lulu 日历",
+  "provider connected": "个服务商已连接",
+  "providers connected": "个服务商已连接",
+  "synced": "已同步",
+  "gated": "受限",
+  "verified": "已验证"
 }

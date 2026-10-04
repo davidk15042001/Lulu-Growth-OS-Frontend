@@ -462,5 +462,18 @@
   "Specialist": "Specialist",
   "Auditor": "Auditor",
   "specialists shown": "specialists shown",
-  "No specialists match this search.": "No specialists match this search."
+  "No specialists match this search.": "No specialists match this search.",
+  "No connected customer conversations are available.": "No connected customer conversations are available.",
+  "Industry is being verified": "Industry is being verified",
+  "Location pending": "Location pending",
+  "with outstanding balance": "with outstanding balance",
+  "checked": "checked",
+  "attendee": "attendee",
+  "attendees": "attendees",
+  "Lulu calendar": "Lulu calendar",
+  "provider connected": "provider connected",
+  "providers connected": "providers connected",
+  "synced": "synced",
+  "gated": "gated",
+  "verified": "verified"
 }
