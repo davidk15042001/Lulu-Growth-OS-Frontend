@@ -1,0 +1,174 @@
+/*
+ * Definitive public sign-in surface.  This file is deliberately loaded after
+ * the shared visual layers so the public entry point has one owner instead of
+ * inheriting competing dashboard and marketing treatments.
+ */
+.lulu-nova-auth {
+  --entry-ink: #f7f9ff;
+  --entry-muted: #a8b8d2;
+  --entry-line: rgba(181, 205, 245, .16);
+  --entry-cyan: #7ce8df;
+  --entry-violet: #a290ff;
+  min-height: 100svh;
+  background:
+    radial-gradient(circle at 82% 8%, rgba(124, 116, 255, .24), transparent 31rem),
+    radial-gradient(circle at 8% 72%, rgba(78, 226, 211, .11), transparent 27rem),
+    #060d1a !important;
+  color: var(--entry-ink) !important;
+}
+
+.lulu-nova-auth .lulu-exec-nav {
+  min-height: 74px;
+  border-bottom: 1px solid var(--entry-line) !important;
+  background: rgba(6, 13, 26, .78) !important;
+  box-shadow: none;
+  backdrop-filter: blur(20px) saturate(130%);
+}
+
+.lulu-nova-auth .lulu-exec-brand { gap: 9px; }
+.lulu-nova-auth .lulu-exec-brand img { width: 30px; height: 30px; }
+.lulu-nova-auth .lulu-exec-brand span { letter-spacing: .12em !important; }
+.lulu-nova-auth .lulu-exec-brand small { color: #89a0c3 !important; }
+.lulu-nova-auth .lulu-exec-nav-links a { color: #a9b9d3 !important; }
+.lulu-nova-auth .lulu-exec-nav-links a:hover { color: #fff !important; }
+.lulu-nova-auth .lulu-exec-language-switch { border-color: var(--entry-line) !important; background: rgba(255, 255, 255, .035) !important; }
+.lulu-nova-auth .lulu-exec-language-switch button.is-active { background: rgba(124, 232, 223, .16) !important; color: #e6fffc !important; }
+.lulu-nova-auth .lulu-exec-nav-login,
+.lulu-nova-auth .lulu-exec-submit {
+  border: 1px solid rgba(196, 231, 255, .22) !important;
+  background: linear-gradient(105deg, #9e8cff, #628cf9 55%, #69dfd5) !important;
+  color: #06101f !important;
+  box-shadow: 0 12px 28px rgba(90, 126, 244, .24) !important;
+}
+
+.lulu-nova-auth .lulu-exec-hero {
+  min-height: calc(100svh - 74px) !important;
+  padding: clamp(52px, 7vw, 112px) clamp(20px, 6vw, 104px) clamp(74px, 8vw, 116px) !important;
+  background:
+    linear-gradient(115deg, rgba(5, 13, 27, .2), rgba(5, 13, 27, .86)),
+    repeating-linear-gradient(90deg, rgba(168, 199, 245, .028) 0 1px, transparent 1px 64px),
+    repeating-linear-gradient(0deg, rgba(168, 199, 245, .025) 0 1px, transparent 1px 64px) !important;
+}
+
+.lulu-nova-auth .lulu-exec-hero::after {
+  top: 10%; right: -17rem; width: 42rem; box-shadow: 0 0 0 56px rgba(128, 120, 255, .035), 0 0 0 112px rgba(96, 223, 215, .02);
+}
+
+.lulu-nova-auth .lulu-exec-hero-content {
+  display: grid !important;
+  grid-template-columns: minmax(0, .88fr) minmax(390px, .88fr) !important;
+  grid-template-areas: none !important;
+  align-items: center;
+  gap: clamp(42px, 8vw, 128px) !important;
+  max-width: 1240px;
+}
+
+.lulu-nova-auth .lulu-exec-hero-copy-column { min-width: 0; }
+.lulu-nova-auth .lulu-exec-product-name {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0 0 19px;
+  border: 1px solid rgba(124, 232, 223, .25);
+  border-radius: 999px;
+  background: rgba(81, 222, 211, .075);
+  color: #a9fbf4 !important;
+  padding: 8px 11px;
+}
+.lulu-nova-auth .lulu-exec-product-name::before { width: 7px; height: 7px; margin-right: 8px; border-radius: 99px; background: var(--entry-cyan); box-shadow: 0 0 15px rgba(124, 232, 223, .9); content: ""; }
+.lulu-nova-auth .lulu-exec-hero h1 {
+  max-width: 650px !important;
+  font-family: Poppins, Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: clamp(3.7rem, 6.1vw, 6.55rem) !important;
+  font-weight: 730 !important;
+  letter-spacing: -.078em !important;
+  line-height: .91 !important;
+}
+.lulu-nova-auth .lulu-exec-hero-copy { max-width: 530px !important; margin-top: 27px !important; color: var(--entry-muted) !important; font-size: clamp(1.02rem, 1.45vw, 1.18rem) !important; line-height: 1.66 !important; }
+.lulu-nova-auth .lulu-exec-trust-list { display: grid; gap: 10px; margin-top: 32px; }
+.lulu-nova-auth .lulu-exec-trust-list span { display: inline-flex; align-items: center; gap: 10px; color: #d9e5fa; font-size: .79rem; font-weight: 650; }
+.lulu-nova-auth .lulu-exec-trust-list svg { color: var(--entry-cyan); }
+
+.lulu-nova-auth .lulu-exec-entry-column { position: relative; display: grid; min-width: 0; padding: 0 20px 4px; }
+.lulu-nova-auth .lulu-exec-entry-column picture {
+  grid-area: auto;
+  display: grid;
+  min-height: 384px !important;
+  overflow: hidden;
+  place-items: end center;
+  border: 1px solid rgba(183, 210, 255, .18) !important;
+  border-radius: 28px !important;
+  background: radial-gradient(circle at 50% 34%, rgba(105, 220, 210, .17), transparent 30%), linear-gradient(145deg, #182b4e, #081326 74%) !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .08), 0 34px 92px rgba(0, 0, 0, .32) !important;
+}
+.lulu-nova-auth .lulu-exec-entry-column picture::before { inset: 14px !important; border-color: rgba(255, 255, 255, .075) !important; border-radius: 19px !important; }
+.lulu-nova-auth .lulu-exec-hero-image { width: min(610px, 108%) !important; max-width: none !important; margin: 0 !important; filter: saturate(1.04) contrast(1.04) drop-shadow(0 22px 32px rgba(0, 0, 0, .35)) !important; transform: translateY(25px) scale(1.03) !important; }
+.lulu-nova-auth .lulu-exec-login-card {
+  grid-area: auto;
+  z-index: 2;
+  width: calc(100% - 48px) !important;
+  margin: -96px auto 0 !important;
+  border: 1px solid rgba(194, 217, 255, .24) !important;
+  border-radius: 20px !important;
+  background: rgba(10, 23, 44, .92) !important;
+  padding: 22px !important;
+  box-shadow: inset 0 1px rgba(255, 255, 255, .07), 0 28px 70px rgba(0, 0, 0, .34) !important;
+  backdrop-filter: blur(22px) saturate(150%);
+}
+.lulu-nova-auth .lulu-exec-login-heading { padding-bottom: 15px !important; }
+.lulu-nova-auth .lulu-exec-fields { grid-template-columns: 1fr !important; gap: 12px !important; margin-top: 16px !important; }
+.lulu-nova-auth .lulu-exec-label { color: #c3d1e7 !important; font-size: .68rem !important; letter-spacing: .03em; }
+.lulu-nova-auth .lulu-exec-input { min-height: 50px !important; border-color: rgba(185, 211, 253, .2) !important; background: rgba(3, 10, 23, .7) !important; }
+.lulu-nova-auth .lulu-exec-submit { min-height: 50px !important; margin-top: 4px !important; font-size: .8rem !important; }
+.lulu-nova-auth .lulu-exec-login-links { margin-top: 15px !important; padding-top: 14px !important; }
+.lulu-nova-auth .lulu-exec-login-links button { color: #a8f3eb !important; }
+.lulu-nova-auth .lulu-exec-scroll-cue { display: none; }
+
+.lulu-nova-auth .lulu-exec-mission,
+.lulu-nova-auth .lulu-exec-system,
+.lulu-nova-auth .lulu-exec-access { padding: clamp(76px, 9vw, 126px) clamp(20px, 6vw, 104px) !important; }
+.lulu-nova-auth .lulu-exec-mission { background: linear-gradient(180deg, #0a1529, #081225) !important; }
+.lulu-nova-auth .lulu-exec-system { background: radial-gradient(circle at 80% 8%, rgba(135, 116, 255, .15), transparent 29rem), #060e1d !important; }
+.lulu-nova-auth .lulu-exec-access { background: linear-gradient(125deg, #111f3d, #070f20 70%) !important; }
+.lulu-nova-auth :is(.lulu-exec-section-intro, .lulu-exec-system-intro) { gap: 24px 74px !important; }
+.lulu-nova-auth :is(.lulu-exec-section-intro, .lulu-exec-system-intro) h2,
+.lulu-nova-auth .lulu-exec-access h2 { font-family: Poppins, Inter, ui-sans-serif, system-ui, sans-serif !important; font-weight: 720 !important; letter-spacing: -.065em !important; }
+.lulu-nova-auth .lulu-exec-mission-grid { gap: 14px !important; margin-top: 46px !important; }
+.lulu-nova-auth .lulu-exec-mission-pillar { min-height: 250px !important; border-color: var(--entry-line) !important; border-radius: 18px !important; background: linear-gradient(145deg, rgba(27, 47, 80, .86), rgba(10, 23, 44, .96)) !important; }
+.lulu-nova-auth .lulu-exec-mission-pillar svg { margin-top: clamp(30px, 4.4vw, 58px) !important; color: var(--entry-cyan) !important; }
+.lulu-nova-auth .lulu-exec-colorways { gap: 12px !important; margin-top: 46px !important; }
+.lulu-nova-auth .lulu-exec-colorway,
+.lulu-nova-auth .lulu-exec-layer { border-color: var(--entry-line) !important; background: rgba(17, 35, 64, .7) !important; }
+.lulu-nova-auth .lulu-exec-access-panel { border-color: var(--entry-line) !important; background: rgba(4, 13, 28, .52) !important; }
+
+@media (max-width: 980px) {
+  .lulu-nova-auth .lulu-exec-hero-content { grid-template-columns: minmax(0, 1fr) !important; max-width: 690px !important; }
+  .lulu-nova-auth .lulu-exec-hero-copy-column { text-align: center; }
+  .lulu-nova-auth .lulu-exec-product-name { margin-inline: auto; }
+  .lulu-nova-auth .lulu-exec-hero h1,
+  .lulu-nova-auth .lulu-exec-hero-copy { margin-inline: auto !important; }
+  .lulu-nova-auth .lulu-exec-trust-list { justify-items: center; }
+  .lulu-nova-auth .lulu-exec-entry-column { margin-top: 12px; }
+}
+
+@media (max-width: 640px) {
+  .lulu-nova-auth .lulu-exec-nav { min-height: 64px; padding-inline: 18px; }
+  .lulu-nova-auth .lulu-exec-brand small,
+  .lulu-nova-auth .lulu-exec-nav-login { display: none; }
+  .lulu-nova-auth .lulu-exec-nav-actions { gap: 0; }
+  .lulu-nova-auth .lulu-exec-language-switch button { min-width: 34px; }
+  .lulu-nova-auth .lulu-exec-hero { min-height: auto !important; padding: 49px 17px 68px !important; }
+  .lulu-nova-auth .lulu-exec-hero h1 { font-size: clamp(3.05rem, 14vw, 4.35rem) !important; }
+  .lulu-nova-auth .lulu-exec-hero-copy { font-size: 1rem !important; }
+  .lulu-nova-auth .lulu-exec-trust-list { gap: 8px; margin-top: 26px; }
+  .lulu-nova-auth .lulu-exec-trust-list span { font-size: .74rem; }
+  .lulu-nova-auth .lulu-exec-entry-column { padding: 0; }
+  .lulu-nova-auth .lulu-exec-entry-column picture { min-height: 280px !important; border-radius: 20px !important; }
+  .lulu-nova-auth .lulu-exec-hero-image { width: 121% !important; transform: translateY(16px) scale(1.02) !important; }
+  .lulu-nova-auth .lulu-exec-login-card { width: calc(100% - 20px) !important; margin-top: -44px !important; padding: 17px !important; }
+  .lulu-nova-auth .lulu-exec-mission-grid,
+  .lulu-nova-auth .lulu-exec-layer-grid,
+  .lulu-nova-auth .lulu-exec-access { grid-template-columns: 1fr !important; }
+  .lulu-nova-auth .lulu-exec-colorways { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+  .lulu-nova-auth .lulu-exec-colorway:last-child { grid-column: 1 / -1; }
+}

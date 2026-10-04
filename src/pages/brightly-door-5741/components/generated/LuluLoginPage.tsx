@@ -63,12 +63,6 @@ const operatingLayers = [
   },
 ] as const;
 
-const promptSuggestions = [
-  'Company memory',
-  'Growth agents',
-  'Guarded execution',
-] as const;
-
 const LEGAL_ENTITY_NAME = 'Hong Kong Lulu Development Limited';
 
 const productColorways = [
@@ -94,10 +88,6 @@ export const LuluLoginPage = () => {
     // The provider owns the authenticated session state. A full document
     // reload lets it restore the token and workspace before route guards run.
     window.location.replace(path);
-  };
-
-  const scrollToAccess = () => {
-    document.getElementById('login-access')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const submit = async (x: React.FormEvent) => {
@@ -174,7 +164,7 @@ export const LuluLoginPage = () => {
   };
 
   return (
-    <main data-deploy-rev="2026-10-03-lulu-nova-product-redesign" className="auth-shell lulu-executive-landing lulu-nova-auth">
+    <main data-deploy-rev="2026-10-04-lulu-auth-entry-redesign" className="auth-shell lulu-executive-landing lulu-nova-auth">
       <header className="lulu-exec-nav">
         <a href="#top" className="lulu-exec-brand" aria-label="Lulu home" data-lulu-no-translate="true" translate="no">
           <img src="/branding/lulu-agentic-mark.svg" alt="" />
@@ -198,59 +188,64 @@ export const LuluLoginPage = () => {
       <section id="top" className="lulu-exec-hero" aria-labelledby="lulu-exec-title">
         <div className="lulu-exec-hero-overlay" aria-hidden="true" />
         <div className="lulu-exec-hero-content">
-          <p className="lulu-exec-product-name" data-lulu-local-brand="true" data-lulu-no-translate="true" translate="no">Lulu AI</p>
-          <h1 id="lulu-exec-title">{t('Growth. Remastered.')}</h1>
-          <p className="lulu-exec-hero-copy">{t('A complete operating system for company memory, growth agents and guarded execution.')}</p>
-          <picture>
-            <source
-              type="image/webp"
-              srcSet="/landing/lulu-growth-os-product-lineup-v1-900.webp 900w, /landing/lulu-growth-os-product-lineup-v1-1400.webp 1400w"
-              sizes="(max-width: 560px) 112vw, min(1160px, 116vw)"
-            />
-            <img
-              className="lulu-exec-hero-image"
-              src="/landing/lulu-growth-os-product-lineup-v1.png"
-              alt={t('Lulu AI product lineup')}
-              decoding="async"
-              loading="eager"
-            />
-          </picture>
+          <div className="lulu-exec-hero-copy-column">
+            <p className="lulu-exec-product-name" data-lulu-local-brand="true" data-lulu-no-translate="true" translate="no">Lulu AI</p>
+            <h1 id="lulu-exec-title">{t('Growth. Remastered.')}</h1>
+            <p className="lulu-exec-hero-copy">{t('A complete operating system for company memory, growth agents and guarded execution.')}</p>
+            <div className="lulu-exec-trust-list" aria-label={t('Lulu AI surfaces')}>
+              {operatingLayers.map(({ icon: Icon, title }) => (
+                <span key={title}><Icon size={15} aria-hidden="true" /> {t(title)}</span>
+              ))}
+            </div>
+          </div>
+          <div className="lulu-exec-entry-column">
+            <picture>
+              <source
+                type="image/webp"
+                srcSet="/landing/lulu-growth-os-product-lineup-v1-900.webp 900w, /landing/lulu-growth-os-product-lineup-v1-1400.webp 1400w"
+                sizes="(max-width: 900px) 100vw, 48vw"
+              />
+              <img
+                className="lulu-exec-hero-image"
+                src="/landing/lulu-growth-os-product-lineup-v1.png"
+                alt={t('Lulu AI product lineup')}
+                decoding="async"
+                loading="eager"
+              />
+            </picture>
 
-          <form onSubmit={submit} className="lulu-exec-login-card" aria-label={t('Sign in form')}>
-            <div className="lulu-exec-login-heading">
-              <div>
-                <p>{t('Sign in to Lulu')}</p>
-                <span><LockKeyhole size={13} aria-hidden="true" /> {t('Protected workspace')}</span>
+            <form onSubmit={submit} className="lulu-exec-login-card" aria-label={t('Sign in form')}>
+              <div className="lulu-exec-login-heading">
+                <div>
+                  <p>{t('Sign in to Lulu')}</p>
+                  <span><LockKeyhole size={13} aria-hidden="true" /> {t('Protected workspace')}</span>
+                </div>
+                <img src="/branding/lulu-agentic-mark.svg" alt="" aria-hidden="true" />
               </div>
-              <img src="/branding/lulu-agentic-mark.svg" alt="" aria-hidden="true" />
-            </div>
-            <div className="lulu-exec-fields">
-              <Label htmlFor="login-email" className="lulu-exec-label">
-                {t('email')}
-                <Input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="lulu-exec-input" />
-              </Label>
-              <Label htmlFor="login-password" className="lulu-exec-label">
-                {t('password')}
-                <span className="lulu-exec-password-field">
-                  <Input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="lulu-exec-input" />
-                  <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="lulu-exec-password-toggle">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
-                </span>
-              </Label>
-              <Button type="submit" disabled={loading} className="lulu-exec-submit">
-                {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}
-              </Button>
-              {statusMessage && <p role="status" className="lulu-exec-status">{statusMessage}</p>}
-              {error && <div role="alert" className="lulu-exec-error"><p>{error}</p></div>}
-              {s && <p className="lulu-exec-success"><Check size={15} /> {t('Signed in successfully.')}</p>}
-            </div>
-            <div className="lulu-exec-login-links">
-              <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)}>{t('forgotPassword')}</button>
-              <button type="button" onClick={() => navigateApp(routes.auth.signUp)}>{t('Sign up for free')}</button>
-            </div>
-          </form>
-
-          <div className="lulu-exec-prompt-strip" aria-label={t('Example starts')}>
-            {promptSuggestions.map(item => <button key={item} type="button" onClick={scrollToAccess}>{t(item)}</button>)}
+              <div className="lulu-exec-fields">
+                <Label htmlFor="login-email" className="lulu-exec-label">
+                  {t('email')}
+                  <Input id="login-email" name="email" autoComplete="email" value={e} onChange={x => setE(x.target.value)} type="email" placeholder={t('you@company.com')} className="lulu-exec-input" />
+                </Label>
+                <Label htmlFor="login-password" className="lulu-exec-label">
+                  {t('password')}
+                  <span className="lulu-exec-password-field">
+                    <Input id="login-password" name="password" autoComplete="current-password" value={p} onChange={x => setP(x.target.value)} type={show ? 'text' : 'password'} className="lulu-exec-input" />
+                    <button type="button" onClick={() => setShow(!show)} aria-label={show ? t('Hide password') : t('Show password')} className="lulu-exec-password-toggle">{show ? <EyeOff size={17} /> : <Eye size={17} />}</button>
+                  </span>
+                </Label>
+                <Button type="submit" disabled={loading} className="lulu-exec-submit">
+                  {loading ? <><LoaderCircle size={16} className="animate-spin" aria-hidden="true" /> {t('signingIn')}</> : <>{t('signIn')} <ArrowRight size={16} /></>}
+                </Button>
+                {statusMessage && <p role="status" className="lulu-exec-status">{statusMessage}</p>}
+                {error && <div role="alert" className="lulu-exec-error"><p>{error}</p></div>}
+                {s && <p className="lulu-exec-success"><Check size={15} /> {t('Signed in successfully.')}</p>}
+              </div>
+              <div className="lulu-exec-login-links">
+                <button type="button" onClick={() => navigateApp(routes.auth.forgotPassword)}>{t('forgotPassword')}</button>
+                <button type="button" onClick={() => navigateApp(routes.auth.signUp)}>{t('Sign up for free')}</button>
+              </div>
+            </form>
           </div>
         </div>
         <a className="lulu-exec-scroll-cue" href="#mission">{t('See what Lulu can do')} <ArrowRight size={15} /></a>
