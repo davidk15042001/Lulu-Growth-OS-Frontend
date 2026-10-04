@@ -14,10 +14,50 @@ const advertisingQuickLinks = [
   { id: 'zesty-grass-9196', title: 'AI Optimization', detail: 'Open optimization suggestions.' },
 ];
 
-function moneyTotal(values: Array<string | null | undefined>) {
-  const total = values.reduce((sum, item) => sum + Number(item || 0), 0);
-  if (!total) return '—';
-  return new Intl.NumberFormat(undefined, { maximumFractionDigits: 0 }).format(total);
+type MoneyValue = { valueAmount: string | null; currency: string | null };
+
+function normalizeDecimal(value: string | null) {
+  const match = value?.trim().match(/^([+-]?)(\d+)(?:\.(\d+))?$/);
+  if (!match) return null;
+  const [, sign, rawInteger, rawFraction = ''] = match;
+  const integer = rawInteger.replace(/^0+(?=\d)/, '') || '0';
+  const fraction = rawFraction.replace(/0+$/, '');
+  const isZero = integer === '0' && !fraction;
+  return `${sign === '-' && !isZero ? '-' : ''}${integer}${fraction ? `.${fraction}` : ''}`;
+}
+
+function addExactDecimals(left: string, right: string) {
+  const [leftInteger, leftFraction = ''] = left.replace(/^\+/, '').split('.');
+  const [rightInteger, rightFraction = ''] = right.replace(/^\+/, '').split('.');
+  const scale = Math.max(leftFraction.length, rightFraction.length);
+  const multiplier = 10n ** BigInt(scale);
+  const toScaledInteger = (integer: string, fraction: string) => {
+    const negative = integer.startsWith('-');
+    const whole = negative ? integer.slice(1) : integer;
+    const value = BigInt(whole) * multiplier + BigInt((fraction + '0'.repeat(scale)).slice(0, scale) || '0');
+    return negative ? -value : value;
+  };
+  const total = toScaledInteger(leftInteger, leftFraction) + toScaledInteger(rightInteger, rightFraction);
+  const negative = total < 0n;
+  const digits = (negative ? -total : total).toString().padStart(scale + 1, '0');
+  const whole = scale ? digits.slice(0, -scale) : digits;
+  const fraction = scale ? digits.slice(-scale).replace(/0+$/, '') : '';
+  return `${negative && total !== 0n ? '-' : ''}${whole}${fraction ? `.${fraction}` : ''}`;
+}
+
+function exactMoneyTotals(values: MoneyValue[]) {
+  const totals = new Map<string, string>();
+  for (const value of values) {
+    const amount = normalizeDecimal(value.valueAmount);
+    if (amount == null) continue;
+    const currency = value.currency?.trim().toUpperCase() || '';
+    totals.set(currency, totals.has(currency) ? addExactDecimals(totals.get(currency)!, amount) : amount);
+  }
+  if (totals.size === 0) return '—';
+  return [...totals.entries()]
+    .sort(([left], [right]) => left.localeCompare(right))
+    .map(([currency, amount]) => currency ? `${amount} ${currency}` : amount)
+    .join(' · ');
 }
 
 export function AdvertisingWorkspace() {
@@ -86,8 +126,8 @@ export function AdvertisingWorkspace() {
           </article>
           <article className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">Tracked spend</p>
-            <p className="mt-2 text-2xl font-semibold text-foreground">{moneyTotal(campaigns.items.map((record) => record.valueAmount))}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Summed from current live records</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{exactMoneyTotals(campaigns.items)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">Exact totals by currency from current live records</p>
           </article>
         </section>
 
