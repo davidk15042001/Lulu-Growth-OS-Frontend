@@ -128,6 +128,40 @@ button, input { font: inherit; }
 
 .page-frame { position: relative; width: 100%; max-width: 100%; min-height: 100vh; height: auto; overflow: visible; overflow-x: clip; background: var(--lulu-page-gradient); }
 
+/* Keep route transitions visually continuous. This lives in the app shell
+   instead of a page bundle because it is displayed before a lazy route and
+   its page-specific styles are available. */
+.lulu-route-loading {
+  display: flex;
+  min-height: 100svh;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(107, 233, 221, .14), transparent 24rem),
+    radial-gradient(circle at 82% 10%, rgba(151, 127, 255, .21), transparent 30rem),
+    #06101f;
+  color: #edf4ff;
+}
+.lulu-route-loading__mark {
+  display: grid;
+  width: 35px;
+  height: 35px;
+  place-items: center;
+  border: 1px solid rgba(135, 235, 226, .3);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(126, 238, 225, .17), rgba(151, 128, 255, .18));
+  color: #affbf3;
+  box-shadow: 0 0 28px rgba(102, 230, 218, .18), inset 0 1px rgba(255, 255, 255, .12);
+}
+.lulu-route-loading__copy { display: grid; gap: 2px; }
+.lulu-route-loading__copy span { color: #fff; font-size: .72rem; font-weight: 820; letter-spacing: .18em; }
+.lulu-route-loading__copy small { color: #9fb2d0; font-size: .67rem; }
+.lulu-route-loading__spinner { margin-left: 4px; color: #8bece3; animation: lulu-route-loading-spin .85s linear infinite; }
+@keyframes lulu-route-loading-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .lulu-route-loading__spinner { animation-duration: 2.5s; } }
+
 /* Activation profile pages are document flows, not centered app canvases. Keep
    the form close to its progress header so a filled profile never opens with
    a mostly empty viewport on desktop or tablet. */

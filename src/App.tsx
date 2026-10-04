@@ -26,6 +26,7 @@ import { availablePages } from "./app/page-registry";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { WorkspaceSurfaceShell } from "./components/WorkspaceSurfaceShell";
 import { ReleaseUpdateNotifier } from "./components/ReleaseUpdateNotifier";
+import { LuluRouteLoading } from "./components/LuluRouteLoading";
 import LuluLandingPage from "./pages/public/LuluLandingPage";
 
 const AdminBillingPage = lazy(() => import("./pages/admin-billing-overview-9901/App"));
@@ -79,7 +80,7 @@ function AdminBillingRoute() {
   if (!isAdminUser(currentUser)) return <Navigate replace to="/not-found" />;
   return (
     <PageErrorBoundary pageName="admin-billing-overview-9901">
-      <Suspense fallback={<main role="status" className="page-frame grid min-h-screen place-items-center">Loading admin panel…</main>}>
+      <Suspense fallback={<LuluRouteLoading label="Loading admin panel" />}>
         <AdminBillingPage />
       </Suspense>
     </PageErrorBoundary>
@@ -389,7 +390,7 @@ export default function App() {
     <>
       <AdminImpersonationSwitcher />
       <AdminSurfaceSwitcher />
-      <Suspense fallback={<main role="status" className="page-frame grid min-h-screen place-items-center">Loading Lulu AI…</main>}>
+      <Suspense fallback={<LuluRouteLoading />}>
       <Routes>
         <Route path="/" element={<HomeOrAdminRoute />} />
         <Route path={routes.allPages} element={<AdminOmniChannelRoute><Directory /></AdminOmniChannelRoute>} />

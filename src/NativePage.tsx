@@ -7,6 +7,7 @@ import { LuluGlobalNavigation } from "./components/LuluGlobalNavigation";
 import { LuluAgentWorkspaceHeader } from "./components/LuluAgentWorkspaceHeader";
 import { LiveResourceRoute } from "./components/LiveResourceRoute";
 import { MinimalAgentWorkspacePage } from "./components/MinimalAgentWorkspacePage";
+import { LuluRouteLoading } from "./components/LuluRouteLoading";
 import { HOME_PAGE_SLUG, isOfficePanelSurface, isPageAvailable, navigateApp, routes } from "./routing";
 import { getPageContract } from "./api/page-contracts";
 import type { PageContract } from "./api/page-contracts";
@@ -296,11 +297,7 @@ export function NativePage({
   }, [slug, useMinimalAgentPage, useLiveResourceFallback, isAuthPage, pageAvailable]);
 
   if (!pageAvailable) {
-    return (
-      <main className="page-loading" role="status">
-        Loading page…
-      </main>
-    );
+    return <LuluRouteLoading label="Loading page" />;
   }
 
   if (error) {
@@ -383,11 +380,7 @@ export function NativePage({
         </LuluRuntime>
       );
     }
-    return (
-      <main className="page-loading" role="status">
-        Loading page…
-      </main>
-    );
+    return <LuluRouteLoading label="Loading page" />;
   }
 
   return (
