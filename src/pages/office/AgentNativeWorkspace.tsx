@@ -44,7 +44,7 @@ import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { conciseOfficeCopy, officeEvidenceTypeLabel } from "./office-copy";
 import "./agent-native-workspace.css";
 
-type NativeWorkspaceKind = "command" | "crm" | "communications" | "email" | "calendar" | "commerce" | "finance" | "marketing" | "website" | "reputation" | "operations" | "intelligence";
+export type NativeWorkspaceKind = "command" | "crm" | "communications" | "email" | "calendar" | "commerce" | "finance" | "marketing" | "website" | "reputation" | "operations" | "intelligence";
 
 type Props = {
   workspaceId: string;
@@ -82,7 +82,74 @@ const KINDS: Record<NativeWorkspaceKind, KindDefinition> = {
   intelligence: { label: "Company intelligence", description: "Executive findings, proposals and observable operating signals.", icon: BarChart3 },
 };
 
+/**
+ * Every employee rendered in the Station has an intentional native workspace.
+ *
+ * The Office employee detail currently exposes its department as `module`, so
+ * resolving visible employees only from free-text capabilities could route a
+ * role to an adjacent surface. Keep that deterministic here. The semantic
+ * resolver below is deliberately retained for future catalog/Composio agents
+ * that do not yet have an Office role projection.
+ */
+export const OFFICE_EMPLOYEE_WORKSPACE_KINDS: Readonly<Record<string, NativeWorkspaceKind>> = {
+  "executive-orchestrator": "intelligence",
+  "security-policy-auditor": "intelligence",
+  "outcome-quality-auditor": "intelligence",
+  "business-intelligence-analyst": "intelligence",
+  "analytics-manager": "intelligence",
+  "commerce-analytics-manager": "intelligence",
+
+  "company-intelligence-specialist": "crm",
+  "crm-manager": "crm",
+  "follow-up-specialist": "crm",
+  "customer-manager": "crm",
+  "lead-generation-specialist": "crm",
+  "lead-qualification-specialist": "crm",
+  "opportunity-manager": "crm",
+  "sales-representative": "crm",
+
+  "quote-specialist": "finance",
+  "invoice-manager": "finance",
+  "billing-usage-manager": "finance",
+  "bookkeeping-manager": "finance",
+  "finance-operations-manager": "finance",
+
+  "omnichannel-manager": "communications",
+  "customer-communication-specialist": "communications",
+  "customer-support-specialist": "communications",
+  "email-specialist": "email",
+  "calendar-coordinator": "calendar",
+
+  "brand-content-strategist": "marketing",
+  "paid-acquisition-specialist": "marketing",
+  "social-publishing-specialist": "marketing",
+  "marketing-manager": "marketing",
+  "content-specialist": "marketing",
+
+  "website-manager": "website",
+  "pages-cms-manager": "website",
+  "search-visibility-manager": "website",
+  "media-assets-manager": "website",
+  "domain-manager": "website",
+  "reviews-reputation-manager": "reputation",
+
+  "product-manager": "commerce",
+  "premium-media-producer": "commerce",
+  "category-manager": "commerce",
+  "order-manager": "commerce",
+  "inventory-manager": "commerce",
+  "fulfillment-manager": "commerce",
+  "store-manager": "commerce",
+
+  "integration-manager": "operations",
+  "automation-manager": "operations",
+  "operations-manager": "operations",
+};
+
 function resolveKind(source: AgentSurfaceSource): NativeWorkspaceKind {
+  const canonicalKind = OFFICE_EMPLOYEE_WORKSPACE_KINDS[source.key];
+  if (canonicalKind) return canonicalKind;
+
   const capabilities = source.capabilities.map((capability) => capability.toLowerCase());
   const classification = [source.key, source.name, source.module, source.pageId, ...capabilities]
     .filter(Boolean)

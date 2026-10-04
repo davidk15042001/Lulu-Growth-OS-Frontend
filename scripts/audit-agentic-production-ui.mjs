@@ -336,6 +336,9 @@ if (
   || !nativeAgentWorkspace.includes('function WebsiteSurface')
   || !nativeAgentWorkspace.includes('function OperationsSurface')
   || !nativeAgentWorkspace.includes('function IntelligenceSurface')
+  || !nativeAgentWorkspace.includes('export const OFFICE_EMPLOYEE_WORKSPACE_KINDS')
+  || !nativeAgentWorkspace.includes('const canonicalKind = OFFICE_EMPLOYEE_WORKSPACE_KINDS[source.key];')
+  || !nativeAgentWorkspace.includes('if (canonicalKind) return canonicalKind;')
   || !nativeAgentWorkspace.includes('const classification = [source.key, source.name, source.module, source.pageId, ...capabilities]')
   || !nativeAgentWorkspace.includes('if (/calendar|scheduling|appointment/.test(classification)) return "calendar";')
   || !nativeAgentWorkspace.includes('if (/email|inbox|mail/.test(classification)) return "email";')
@@ -363,6 +366,60 @@ if (
   || !luluStation.includes('<AgentNativeWorkspace workspaceId={workspaceId} catalogAgent={selectedCatalogAgent} />')
 ) {
   failures.push('Dedicated communication, scheduling and reputation employees do not resolve to their native live workspace surfaces.');
+}
+
+const officeEmployeeWorkspaceKinds = {
+  "executive-orchestrator": "intelligence",
+  "security-policy-auditor": "intelligence",
+  "outcome-quality-auditor": "intelligence",
+  "business-intelligence-analyst": "intelligence",
+  "analytics-manager": "intelligence",
+  "commerce-analytics-manager": "intelligence",
+  "company-intelligence-specialist": "crm",
+  "crm-manager": "crm",
+  "follow-up-specialist": "crm",
+  "customer-manager": "crm",
+  "lead-generation-specialist": "crm",
+  "lead-qualification-specialist": "crm",
+  "opportunity-manager": "crm",
+  "sales-representative": "crm",
+  "quote-specialist": "finance",
+  "invoice-manager": "finance",
+  "billing-usage-manager": "finance",
+  "bookkeeping-manager": "finance",
+  "finance-operations-manager": "finance",
+  "omnichannel-manager": "communications",
+  "customer-communication-specialist": "communications",
+  "customer-support-specialist": "communications",
+  "email-specialist": "email",
+  "calendar-coordinator": "calendar",
+  "brand-content-strategist": "marketing",
+  "paid-acquisition-specialist": "marketing",
+  "social-publishing-specialist": "marketing",
+  "marketing-manager": "marketing",
+  "content-specialist": "marketing",
+  "website-manager": "website",
+  "pages-cms-manager": "website",
+  "search-visibility-manager": "website",
+  "media-assets-manager": "website",
+  "domain-manager": "website",
+  "reviews-reputation-manager": "reputation",
+  "product-manager": "commerce",
+  "premium-media-producer": "commerce",
+  "category-manager": "commerce",
+  "order-manager": "commerce",
+  "inventory-manager": "commerce",
+  "fulfillment-manager": "commerce",
+  "store-manager": "commerce",
+  "integration-manager": "operations",
+  "automation-manager": "operations",
+  "operations-manager": "operations",
+};
+
+for (const [employeeKey, surface] of Object.entries(officeEmployeeWorkspaceKinds)) {
+  if (!nativeAgentWorkspace.includes(`"${employeeKey}": "${surface}"`)) {
+    failures.push(`Office employee ${employeeKey} is not deterministically mapped to its ${surface} workspace.`);
+  }
 }
 
 if (!luluStation.includes('routes.app.dashboard') || !luluStation.includes('Open workspace')) {
