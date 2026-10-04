@@ -1,4 +1,12 @@
 {
+  "New in the last 30 days": "new in the last 30 days",
+  "Administrators": "administrators",
+  "Onboarded": "onboarded",
+  "5-day retention policy applied": "5-day retention policy applied",
+  "Published": "published",
+  "Errors": "errors",
+  "Warnings": "warnings",
+  "Website runtime": "Website runtime",
   "Lulu handles email, website chat, Twilio WhatsApp and Facebook Messenger as one continuous customer relationship. Instagram messaging is enabled separately through Meta.": "Lulu handles email, website chat, WhatsApp through UnifyPort and Facebook Messenger as one continuous customer relationship. Instagram messaging is enabled separately through Meta.",
   "WhatsApp and Facebook Messenger run through Lulu’s managed Twilio transport. Instagram and LinkedIn remain direct account connections.": "WhatsApp runs through Lulu’s managed UnifyPort transport. Facebook Messenger, Instagram and LinkedIn use their configured providers.",
   "Lulu uses Twilio Programmable Messaging for WhatsApp delivery and verified inbound webhooks.": "Lulu uses UnifyPort for WhatsApp delivery and verified inbound webhooks.",

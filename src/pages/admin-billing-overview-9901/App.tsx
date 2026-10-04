@@ -619,6 +619,7 @@ export default function App() {
 }
 
 function DashboardPage({ onError }: { onError: (m: string) => void }) {
+  const t = useTranslation();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const load = async () => {
@@ -639,33 +640,33 @@ function DashboardPage({ onError }: { onError: (m: string) => void }) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KPI label="Total Users" value={stats?.users.total ?? "—"} hint={`${stats?.users.newLast30d ?? 0} new last 30 days`} accent="sky" />
-        <KPI label="Verified Users" value={stats?.users.verified ?? "—"} hint={`${stats?.users.admins ?? 0} admins`} accent="emerald" />
-        <KPI label="Workspaces" value={stats?.workspaces.total ?? "—"} hint={`${stats?.workspaces.onboarded ?? 0} onboarded`} accent="violet" />
-        <KPI label="Files Purged" value={stats?.workspaces.filesPurged ?? "—"} hint="5-day rule applied" accent="amber" />
+        <KPI label={t("Total Users")} value={stats?.users.total ?? "—"} hint={`${stats?.users.newLast30d ?? 0} ${t("New in the last 30 days")}`} accent="sky" />
+        <KPI label={t("Verified Users")} value={stats?.users.verified ?? "—"} hint={`${stats?.users.admins ?? 0} ${t("Administrators")}`} accent="emerald" />
+        <KPI label={t("Workspaces")} value={stats?.workspaces.total ?? "—"} hint={`${stats?.workspaces.onboarded ?? 0} ${t("Onboarded")}`} accent="violet" />
+        <KPI label={t("Files Purged")} value={stats?.workspaces.filesPurged ?? "—"} hint={t("5-day retention policy applied")} accent="amber" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <KPI label="Subscriptions" value={stats?.subscriptions.total ?? "—"} accent="slate" />
-        <KPI label="Active / Trialing" value={`${stats?.subscriptions.active ?? 0} / ${stats?.subscriptions.trialing ?? 0}`} accent="emerald" />
-        <KPI label="Canceled" value={stats?.subscriptions.canceled ?? 0} accent="rose" />
+        <KPI label={t("Subscriptions")} value={stats?.subscriptions.total ?? "—"} accent="slate" />
+        <KPI label={t("Active / Trialing")} value={`${stats?.subscriptions.active ?? 0} / ${stats?.subscriptions.trialing ?? 0}`} accent="emerald" />
+        <KPI label={t("Canceled")} value={stats?.subscriptions.canceled ?? 0} accent="rose" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
-        <KPI label="AI Plan" value={stats?.subscriptions.aiPlan ?? 0} accent="violet" />
-        <KPI label="Starter Plan" value={stats?.subscriptions.starterPlan ?? 0} accent="sky" />
-        <KPI label="Explorer Plan" value={stats?.subscriptions.explorerPlan ?? 0} accent="slate" />
-        <KPI label="Test Plan" value={stats?.subscriptions.testPlan ?? 0} accent="amber" />
+        <KPI label={t("AI Plan")} value={stats?.subscriptions.aiPlan ?? 0} accent="violet" />
+        <KPI label={t("Starter Plan")} value={stats?.subscriptions.starterPlan ?? 0} accent="sky" />
+        <KPI label={t("Explorer Plan")} value={stats?.subscriptions.explorerPlan ?? 0} accent="slate" />
+        <KPI label={t("Test Plan")} value={stats?.subscriptions.testPlan ?? 0} accent="amber" />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <KPI label="Websites" value={stats?.websites.total ?? "—"} hint={`${stats?.websites.published ?? 0} published`} accent="sky" />
-        <KPI label="Website runtime" value={`Lulu ${stats?.websites.managed ?? 0}`} hint={`WC ${stats?.websites.woocommerce ?? 0}`} accent="violet" />
-        <KPI label="Events last 24h" value={stats?.notifications.totalLast24h ?? 0} hint={`${stats?.notifications.errorsLast24h ?? 0} errors · ${stats?.notifications.warningsLast24h ?? 0} warnings`} accent={stats?.notifications.errorsLast24h ? "rose" : "emerald"} />
+        <KPI label={t("Websites")} value={stats?.websites.total ?? "—"} hint={`${stats?.websites.published ?? 0} ${t("Published")}`} accent="sky" />
+        <KPI label={t("Website runtime")} value={`Lulu ${stats?.websites.managed ?? 0}`} hint={`WC ${stats?.websites.woocommerce ?? 0}`} accent="violet" />
+        <KPI label={t("Events last 24h")} value={stats?.notifications.totalLast24h ?? 0} hint={`${stats?.notifications.errorsLast24h ?? 0} ${t("Errors")} · ${stats?.notifications.warningsLast24h ?? 0} ${t("Warnings")}`} accent={stats?.notifications.errorsLast24h ? "rose" : "emerald"} />
       </div>
 
       <div>
-        <div className="mb-2 text-sm font-semibold text-slate-700">CRM by Type</div>
+        <div className="mb-2 text-sm font-semibold text-slate-700">{t("CRM by Type")}</div>
         {stats && Object.keys(crmMap).length > 0 ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
             {Object.entries(crmMap).map(([type, count]) => (
@@ -675,7 +676,7 @@ function DashboardPage({ onError }: { onError: (m: string) => void }) {
               </div>
             ))}
           </div>
-        ) : loading ? <div className="text-sm text-slate-500">Loading CRM summary…</div> : <EmptyPanel title="No CRM records yet" />}
+        ) : loading ? <div className="text-sm text-slate-500">{t("Loading CRM summary…")}</div> : <EmptyPanel title={t("No CRM records yet")} />}
       </div>
 
       {loading ? null : null}
