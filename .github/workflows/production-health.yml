@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  actions: write
 
 jobs:
   health:
@@ -28,7 +29,17 @@ jobs:
           api_backend_sha="$(printf '%s' "$api_version" | jq -r '.data.commitSha // empty')"
           test -n "$manifest_backend_sha" -a "$manifest_backend_sha" != null
           test -n "$api_backend_sha" -a "$api_backend_sha" != null
-          test "$manifest_backend_sha" = "$api_backend_sha"
+          if [ "$manifest_backend_sha" != "$api_backend_sha" ]; then
+            echo "Release manifest backend SHA ($manifest_backend_sha) does not match the running API ($api_backend_sha)." >&2
+            active_frontend_deploy="$(gh run list --workflow deploy-frontend.yml --branch main --limit 10 --json databaseId,status --jq '[.[] | select(.status != "completed")][0].databaseId // empty')"
+            if [ -z "$active_frontend_deploy" ]; then
+              gh api --method POST "repos/$GITHUB_REPOSITORY/actions/workflows/deploy-frontend.yml/dispatches" -f ref=main
+              echo 'Requested a frontend deployment to refresh the paired release manifest.' >&2
+            else
+              echo "Frontend deployment $active_frontend_deploy is already in progress; it will refresh the paired release manifest." >&2
+            fi
+            exit 1
+          fi
           jq -e '
             .version == 1
             and (.generatedAt | type == "string")
