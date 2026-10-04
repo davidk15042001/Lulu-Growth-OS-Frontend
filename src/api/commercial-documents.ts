@@ -44,6 +44,31 @@ export type DocumentSellerProfile = {
   logoUrl: string | null;
 };
 export type InvoiceDetail = { invoice: Invoice; sellerProfile: DocumentSellerProfile | null; lines: Array<Record<string, unknown>>; deliveries: Array<Record<string, unknown>>; payments?: InvoicePayment[] };
+export type CommercialDocumentDeliveryTarget = {
+  id: string;
+  workspaceId: string;
+  documentType: 'QUOTE' | 'INVOICE';
+  integrationTeamId: string;
+  targetName: string;
+  enabled: boolean;
+  createToolSlug: string;
+  createArguments: Record<string, unknown>;
+  createResultExternalIdPath: string;
+  createdBy: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+export type CommercialDocumentDeliveryTargetInput = Pick<CommercialDocumentDeliveryTarget,
+  'integrationTeamId' | 'targetName' | 'enabled' | 'createToolSlug' | 'createArguments' | 'createResultExternalIdPath'>;
+export type CommercialDocumentDeliveryCandidate = {
+  slug: string;
+  name: string;
+  description: string | null;
+  toolkitSlug: string;
+  inputParameters: Record<string, unknown> | null;
+  outputParameters: Record<string, unknown> | null;
+  tags: string[];
+};
 const path = (workspaceId: string, suffix: string) => `/workspaces/${encodeURIComponent(workspaceId)}/commercial-documents${suffix}`;
 export const commercialDocumentsApi = {
   listQuotes: (workspaceId: string, query = '') => requestApi<{ items: Quote[]; pagination: { page: number; limit: number; total: number; pages: number } }>({ path: path(workspaceId, `/quotes${query ? `?${query}` : ''}`) }),
@@ -51,6 +76,10 @@ export const commercialDocumentsApi = {
   createQuote: (workspaceId: string, body: Record<string, unknown>) => requestApi<QuoteDetail>({ path: path(workspaceId, '/quotes'), method: 'POST', body }),
   reviseQuote: (workspaceId: string, id: string, body: Record<string, unknown>) => requestApi<QuoteDetail>({ path: path(workspaceId, `/quotes/${id}/revisions`), method: 'POST', body }),
   sendQuote: (workspaceId: string, id: string, body: Record<string, unknown>) => requestApi<Record<string, unknown>>({ path: path(workspaceId, `/quotes/${id}/send`), method: 'POST', body }),
+  quoteDeliveryTargets: (workspaceId: string) => requestApi<{ items: CommercialDocumentDeliveryTarget[]; limit: number }>({ path: path(workspaceId, '/quotes/delivery-targets') }),
+  quoteDeliveryTargetCandidates: (workspaceId: string, teamId: string) => requestApi<{ items: CommercialDocumentDeliveryCandidate[] }>({ path: path(workspaceId, `/quotes/delivery-target-candidates/${encodeURIComponent(teamId)}`) }),
+  createQuoteDeliveryTarget: (workspaceId: string, body: CommercialDocumentDeliveryTargetInput) => requestApi<CommercialDocumentDeliveryTarget>({ path: path(workspaceId, '/quotes/delivery-targets'), method: 'POST', body }),
+  updateQuoteDeliveryTarget: (workspaceId: string, targetId: string, body: CommercialDocumentDeliveryTargetInput) => requestApi<CommercialDocumentDeliveryTarget>({ path: path(workspaceId, `/quotes/delivery-targets/${encodeURIComponent(targetId)}`), method: 'PATCH', body }),
   listInvoices: (workspaceId: string, query = '') => requestApi<{ items: Invoice[]; pagination: { page: number; limit: number; total: number; pages: number } }>({ path: path(workspaceId, `/invoices${query ? `?${query}` : ''}`) }),
   getDocumentSellerProfile: (workspaceId: string) => requestApi<DocumentSellerProfile>({ path: path(workspaceId, '/seller-profile') }),
   getInvoice: (workspaceId: string, id: string) => requestApi<InvoiceDetail>({ path: path(workspaceId, `/invoices/${id}`) }),
@@ -58,6 +87,10 @@ export const commercialDocumentsApi = {
   createInvoice: (workspaceId: string, body: Record<string, unknown>) => requestApi<InvoiceDetail>({ path: path(workspaceId, '/invoices'), method: 'POST', body }),
   issueInvoice: (workspaceId: string, id: string) => requestApi<InvoiceDetail>({ path: path(workspaceId, `/invoices/${id}/issue`), method: 'POST', body: {} }),
   sendInvoice: (workspaceId: string, id: string, body: Record<string, unknown>) => requestApi<Record<string, unknown>>({ path: path(workspaceId, `/invoices/${id}/send`), method: 'POST', body }),
+  invoiceDeliveryTargets: (workspaceId: string) => requestApi<{ items: CommercialDocumentDeliveryTarget[]; limit: number }>({ path: path(workspaceId, '/invoices/delivery-targets') }),
+  invoiceDeliveryTargetCandidates: (workspaceId: string, teamId: string) => requestApi<{ items: CommercialDocumentDeliveryCandidate[] }>({ path: path(workspaceId, `/invoices/delivery-target-candidates/${encodeURIComponent(teamId)}`) }),
+  createInvoiceDeliveryTarget: (workspaceId: string, body: CommercialDocumentDeliveryTargetInput) => requestApi<CommercialDocumentDeliveryTarget>({ path: path(workspaceId, '/invoices/delivery-targets'), method: 'POST', body }),
+  updateInvoiceDeliveryTarget: (workspaceId: string, targetId: string, body: CommercialDocumentDeliveryTargetInput) => requestApi<CommercialDocumentDeliveryTarget>({ path: path(workspaceId, `/invoices/delivery-targets/${encodeURIComponent(targetId)}`), method: 'PATCH', body }),
   listInvoicePayments: (workspaceId: string, id: string, signal?: AbortSignal) => requestApi<InvoicePayment[]>({ path: path(workspaceId, `/invoices/${encodeURIComponent(id)}/payments`), signal }),
   recordInvoicePayment: (workspaceId: string, id: string, body: RecordInvoicePaymentInput) => requestApi<{ payment: InvoicePayment; invoice: InvoiceDetail; idempotent: boolean }>({ path: path(workspaceId, `/invoices/${encodeURIComponent(id)}/payments`), method: 'POST', body }),
 };

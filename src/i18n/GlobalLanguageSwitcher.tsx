@@ -298,6 +298,8 @@ const canonicalWorkspaceNamespacesByPath: Record<string, string> = {
   [routes.app.inventory]: "canonical-commerce",
   [routes.app.omnichannel]: "canonical-omnichannel",
   [routes.app.finance]: "canonical-finance",
+  [routes.app.quotes]: "canonical-commercial",
+  [routes.app.invoices]: "canonical-commercial",
   [routes.app.growth]: "canonical-growth",
   [routes.app.profile]: "canonical-profile",
 };
