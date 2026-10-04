@@ -103,12 +103,12 @@ export function LuluConfirmProvider({ children }: { children: ReactNode }) {
           <button type="button" className="lulu-confirm-dialog__close" onClick={() => settle(false)} aria-label={t("Close confirmation")}><X size={17} /></button>
           <div className="lulu-confirm-dialog__body">
             <p className="lulu-confirm-dialog__eyebrow">{t("Confirm action")}</p>
-            <h2 id="lulu-confirm-title">{pending.title}</h2>
-            {pending.description ? <p id="lulu-confirm-description">{pending.description}</p> : null}
+            <h2 id="lulu-confirm-title">{t(pending.title)}</h2>
+            {pending.description ? <p id="lulu-confirm-description">{t(pending.description)}</p> : null}
           </div>
           <footer className="lulu-confirm-dialog__actions">
-            <button ref={cancelRef} type="button" className="lulu-confirm-dialog__button lulu-confirm-dialog__button--secondary" onClick={() => settle(false)}>{pending.cancelLabel ?? t("Cancel")}</button>
-            <button type="button" className={`lulu-confirm-dialog__button lulu-confirm-dialog__button--primary${pending.tone === "danger" ? " is-danger" : ""}`} onClick={() => settle(true)}>{pending.confirmLabel ?? t("Continue")}</button>
+            <button ref={cancelRef} type="button" className="lulu-confirm-dialog__button lulu-confirm-dialog__button--secondary" onClick={() => settle(false)}>{pending.cancelLabel ? t(pending.cancelLabel) : t("Cancel")}</button>
+            <button type="button" className={`lulu-confirm-dialog__button lulu-confirm-dialog__button--primary${pending.tone === "danger" ? " is-danger" : ""}`} onClick={() => settle(true)}>{pending.confirmLabel ? t(pending.confirmLabel) : t("Continue")}</button>
           </footer>
         </section>
       </div>,

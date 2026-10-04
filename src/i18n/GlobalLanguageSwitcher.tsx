@@ -416,7 +416,7 @@ export function useTranslation() {
     window.addEventListener(LANGUAGE_LOADED_EVENT, sync);
     return () => window.removeEventListener(LANGUAGE_LOADED_EVENT, sync);
   }, []);
-  return useCallback((key: string) => loadedTables[language]?.[key] ?? loadedTables.en?.[key] ?? key, [language]);
+  return useCallback((key: string) => lookup(loadedTables[language] ?? {}, key) ?? lookup(loadedTables.en ?? {}, key) ?? key, [language]);
 }
 
 export async function switchLanguage(next: LanguageCode) {

@@ -28,7 +28,7 @@ const nativeDialogFiles = sourceFiles(join(root, "src")).filter((path) => /windo
 
 if (rawErrorFiles.length) issues.push(`${rawErrorFiles.length} files can still display raw technical error messages.`);
 if (nativeDialogFiles.length) issues.push(`${nativeDialogFiles.length} files still use browser-native confirmation or alert dialogs.`);
-if (!confirmDialogSource.includes("role=\"alertdialog\"") || !confirmDialogSource.includes("createPortal") || !confirmDialogSource.includes("event.key === \"Escape\"")) {
+if (!confirmDialogSource.includes("role=\"alertdialog\"") || !confirmDialogSource.includes("createPortal") || !confirmDialogSource.includes("event.key === \"Escape\"") || !confirmDialogSource.includes("{t(pending.title)}") || !confirmDialogSource.includes("t(pending.description)")) {
   issues.push("The shared confirmation dialog is missing an accessible modal implementation.");
 }
 if (!clientSource.includes("function createMessageId()")) issues.push("The secure-context-compatible request id fallback is missing.");
