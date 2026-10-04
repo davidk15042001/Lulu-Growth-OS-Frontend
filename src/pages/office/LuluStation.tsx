@@ -21,7 +21,7 @@ import { agentApi, type AgentEcosystem, type AgentEcosystemDefinition } from "..
 import { officeApi, type OfficeEmployeeDetails, type OfficeEmployeeStatus, type OfficeEmployeeSummary, type OfficeOverview } from "../../api/office";
 import { subscribeWorkspaceEvents, type WorkspaceLiveEvent } from "../../api/agent-stream";
 import { useLuluApp } from "../../api/LuluAppContext";
-import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { useLanguage, useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { isPageNavigable, pagePath, routes } from "../../routing";
 import { AgentNativeWorkspace } from "./AgentNativeWorkspace";
 import { conciseOfficeCopy, officeEvidenceTypeLabel, officeRelatedObjectLabel } from "./office-copy";
@@ -109,13 +109,33 @@ function roomName({ department, zoneIndex, zoneCount }: Pick<RoomAssignment, "de
   return zoneCount > 1 ? `${departmentName} · ${t("Room")} ${zoneIndex + 1}` : departmentName;
 }
 
-function formatTime(value: string | null | undefined) {
+function formatTime(value: string | null | undefined, language: string) {
   if (!value) return "—";
-  return new Date(value).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return new Date(value).toLocaleTimeString(language, { hour: "2-digit", minute: "2-digit" });
 }
 
-function formatCount(value: number) {
-  return new Intl.NumberFormat().format(value);
+function formatCount(value: number, language: string) {
+  return new Intl.NumberFormat(language, { maximumFractionDigits: 0 }).format(value);
+}
+
+type TimelineEvidence = OfficeEmployeeDetails["recentTimeline"][number] & { updateCount: number };
+
+function compactTimelineEvidence(items: OfficeEmployeeDetails["recentTimeline"]): TimelineEvidence[] {
+  const grouped = new Map<string, TimelineEvidence>();
+  for (const item of items) {
+    // Repeated lifecycle transitions can share a title when a parent agent run
+    // is paused, retried, or reconciled. Keep the newest verified evidence and
+    // expose how many updates it represents instead of rendering a wall of the
+    // same sentence.
+    const key = conciseOfficeCopy(item.title, "verified employee event", 144).toLocaleLowerCase();
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.updateCount += 1;
+      continue;
+    }
+    grouped.set(key, { ...item, updateCount: 1 });
+  }
+  return [...grouped.values()];
 }
 
 function displayedWorkStatus(employeeStatus: OfficeEmployeeStatus, workStatus: string | null | undefined, t: (key: string) => string) {
@@ -304,6 +324,7 @@ function propTitle(prop: RoomLayout["prop"], t: (key: string) => string) {
 }
 
 export function LuluStation() {
+  const language = useLanguage();
   const t = useTranslation();
   const navigate = useNavigate();
   const { selectedWorkspace } = useLuluApp();
@@ -340,6 +361,11 @@ export function LuluStation() {
     ? employeeDetailSnapshot.data
     : null;
   const ecosystem = ecosystemSnapshot?.workspaceId === workspaceId ? ecosystemSnapshot.data : null;
+  const employeeEvidence = useMemo(() => compactTimelineEvidence(employeeDetail?.recentTimeline ?? []), [employeeDetail]);
+  const employeeWorkTitle = conciseOfficeCopy(employeeDetail?.currentWorkItem?.title, t("No current work item"));
+  const employeeWorkObjective = conciseOfficeCopy(employeeDetail?.currentWorkItem?.objective, t("This employee has no active work item in the verified office projection."), 260);
+  const employeeWorkObjectiveIsDistinct = Boolean(employeeDetail?.currentWorkItem)
+    && employeeWorkTitle.localeCompare(employeeWorkObjective, undefined, { sensitivity: "base" }) !== 0;
 
   const loadOverview = useCallback(async (background = false) => {
     if (!workspaceId) return;
@@ -613,7 +639,7 @@ export function LuluStation() {
       </header>
 
       <div className="lulu-station__metrics" aria-label="Station summary">
-        <div className={!aiExecutionAvailable ? "is-blocked" : runningWithoutOnlineCrew ? "is-attention" : ""}><span><Zap size={14} />{!aiExecutionAvailable ? t("AI execution") : runningWithoutOnlineCrew ? t("Work records") : platformFundedAi ? t("Platform-funded work") : t("Work in motion")}</span><strong>{aiExecutionAvailable ? runningWorkItems : 0}</strong><small>{!aiExecutionAvailable ? `${formatCount(overview.summary.activeWorkItems)} ${t("work items queued safely")}` : runningWithoutOnlineCrew ? `${formatCount(runningWorkItems)} ${t("marked running; no crew member is online")}` : queuedOrWaitingWork > 0 ? `${formatCount(queuedOrWaitingWork)} ${t("awaiting scheduling or review")}${stalledWorkItems > 0 ? ` · ${formatCount(stalledWorkItems)} ${t("awaiting recovery")}` : ""}` : t("No work is waiting in the queue")}</small></div>
+        <div className={!aiExecutionAvailable ? "is-blocked" : runningWithoutOnlineCrew ? "is-attention" : ""}><span><Zap size={14} />{!aiExecutionAvailable ? t("AI execution") : runningWithoutOnlineCrew ? t("Work records") : platformFundedAi ? t("Platform-funded work") : t("Work in motion")}</span><strong>{aiExecutionAvailable ? runningWorkItems : 0}</strong><small>{!aiExecutionAvailable ? `${formatCount(overview.summary.activeWorkItems, language)} ${t("work items queued safely")}` : runningWithoutOnlineCrew ? `${formatCount(runningWorkItems, language)} ${t("marked running; no crew member is online")}` : queuedOrWaitingWork > 0 ? `${formatCount(queuedOrWaitingWork, language)} ${t("awaiting scheduling or review")}${stalledWorkItems > 0 ? ` · ${formatCount(stalledWorkItems, language)} ${t("awaiting recovery")}` : ""}` : t("No work is waiting in the queue")}</small></div>
         <div className={platformFundedAi ? "is-platform-funded" : ""}><span><Layers3 size={14} />{t("Crew online")}</span><strong>{onlineEmployees}</strong><small>{!aiExecutionAvailable ? t(aiExecutionMessage) : platformFundedAi ? t("Platform-funded AI is enabled for this workspace; prepaid AI credit is not being used.") : `${overview.summary.employeeCount} ${t("employees assigned")}`}</small></div>
         <div className={attentionCount > 0 ? "is-attention" : ""}><span><Target size={14} />{t("Needs attention")}</span><strong>{attentionCount}</strong><small>{openSignals} {t("open Company Brain signals")}</small></div>
         <div><span><CheckCircle2 size={14} />{t("Verified outcomes")}</span><strong>{overview.summary.completedToday}</strong><small>{t("recently completed work items")}</small></div>
@@ -621,7 +647,7 @@ export function LuluStation() {
 
       <div className="lulu-station__workspace">
         <div className="lulu-station__world-shell">
-          <div className="lulu-station__world-toolbar"><span><i className="lulu-station__toolbar-dot" />{t("Station map")}</span><small>{overview.summary.departmentCount} {t("departments")} · {rooms.length} {t("rooms")} · {formatTime(overview.generatedAt)} {t("snapshot")}</small></div>
+          <div className="lulu-station__world-toolbar"><span><i className="lulu-station__toolbar-dot" />{t("Station map")}</span><small>{overview.summary.departmentCount} {t("departments")} · {rooms.length} {t("rooms")} · {formatTime(overview.generatedAt, language)} {t("snapshot")}</small></div>
           {rooms.length > 0 ? <div className="lulu-station__department-nav">
             <div className="lulu-station__department-picker">
               <button type="button" className="lulu-station__department-trigger" aria-haspopup="listbox" aria-expanded={departmentMenuOpen} aria-controls="lulu-station-department-list" onClick={() => setDepartmentMenuOpen((open) => !open)}><span>{selectedRoom ? roomName(selectedRoom, t) : t("Station map")}</span><i /></button>
@@ -693,7 +719,7 @@ export function LuluStation() {
             <p className="lulu-station__inspector-role">{t(employeeDetail.employee.title)} · {employeeDetail.employee.department ? t(employeeDetail.employee.department.name) : undefined}</p>
             <div className={`lulu-station__inspector-status lulu-station__inspector-status--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable), t)}</div>
             <div className="lulu-station__inspector-block"><span>{t("Current work")}</span><strong title={employeeDetail.currentWorkItem?.title}>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t("Execution is paused until AI credit is available") : conciseOfficeCopy(employeeDetail.currentWorkItem?.title, t("No current work item"), 120)}</strong><small>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t(aiExecutionMessage) : employeeDetail.currentWorkItem ? displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem.status, t) : t("The employee is not running a visible work item.")}</small></div>
-            <div className="lulu-station__inspector-stats"><div><strong>{formatCount(employeeDetail.workSummary.active)}</strong><span>{t("open")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday)}</strong><span>{t("completed")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed)}</strong><span>{t("failed")}</span></div></div>
+            <div className="lulu-station__inspector-stats"><div><strong>{formatCount(employeeDetail.workSummary.active, language)}</strong><span>{t("open work")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday, language)}</strong><span>{t("completed")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed, language)}</strong><span>{t("failed")}</span></div></div>
             <div className="lulu-station__inspector-block"><span>{t("Capabilities")}</span><div className="lulu-station__chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
           </> : selectedProp ? <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__room-badge"><Zap size={16} /></span><span>{t("Functional object")}</span></div>
@@ -710,7 +736,7 @@ export function LuluStation() {
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__avatar-badge"><Sparkles size={15} /></span><span>{t("Station briefing")}</span></div>
             <h2>{t("The company is present.")}</h2>
             <p className="lulu-station__inspector-role">{t("Select a room, employee or functional object to inspect its verified workspace state.")}</p>
-            <div className="lulu-station__inspector-block"><span>{t("Last backend snapshot")}</span><strong>{formatTime(overview.generatedAt)}</strong><small>{lastEventAt ? `${t("Last event")} ${formatTime(lastEventAt)}.` : t("The station refreshes every 30 seconds when live events are unavailable.")}</small></div>
+            <div className="lulu-station__inspector-block"><span>{t("Last backend snapshot")}</span><strong>{formatTime(overview.generatedAt, language)}</strong><small>{lastEventAt ? `${t("Last event")} ${formatTime(lastEventAt, language)}.` : t("The station refreshes every 30 seconds when live events are unavailable.")}</small></div>
             <div className="lulu-station__inspector-block"><span>{t("Evidence rule")}</span><strong>{t("Animation follows persisted work.")}</strong><small>{t("Idle rooms are quiet. Waiting rooms are explicit. Errors stop at a visible boundary.")}</small></div>
             <div className="lulu-station__inspector-links"><span><ShieldCheck size={14} />{t("Workspace-scoped")}</span><span><Clock3 size={14} />{t("Bounded timeline")}</span><span><Target size={14} />{t("Quality-aware")}</span></div>
           </>}
@@ -730,9 +756,9 @@ export function LuluStation() {
             <div className="lulu-station__modal-body">
               <AgentNativeWorkspace workspaceId={workspaceId} employeeDetail={employeeDetail} />
               <div className="lulu-station__modal-details">
-                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CURRENT WORK")}</span><strong title={employeeDetail.currentWorkItem?.title}>{conciseOfficeCopy(employeeDetail.currentWorkItem?.title, t("No current work item"))}</strong><p title={employeeDetail.currentWorkItem?.objective}>{conciseOfficeCopy(employeeDetail.currentWorkItem?.objective, t("This employee has no active work item in the verified office projection."), 260)}</p><small>{displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem?.status, t)}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${officeRelatedObjectLabel(employeeDetail.currentWorkItem.relatedObjectType, t)}` : ""}</small></div>
-                <div className="lulu-station__modal-stats"><div><strong>{formatCount(employeeDetail.workSummary.active)}</strong><span>{t("open")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday)}</strong><span>{t("completed today")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed)}</strong><span>{t("failed")}</span></div></div>
-                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("RECENT EVIDENCE")}</span><div className="lulu-station__modal-timeline">{employeeDetail.recentTimeline.slice(0, 4).map((item) => <div key={item.id}><i /><span><strong title={item.title}>{conciseOfficeCopy(item.title, t("Verified employee event"), 96)}</strong><small>{officeEvidenceTypeLabel(item.type, t)} · {formatTime(item.occurredAt)}</small></span></div>)}{employeeDetail.recentTimeline.length === 0 ? <p>{t("No recent employee events are available.")}</p> : null}</div></div>
+                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CURRENT WORK")}</span><strong title={employeeDetail.currentWorkItem?.title}>{employeeWorkTitle}</strong>{employeeWorkObjectiveIsDistinct ? <p title={employeeDetail.currentWorkItem?.objective}>{employeeWorkObjective}</p> : null}<small>{displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem?.status, t)}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${officeRelatedObjectLabel(employeeDetail.currentWorkItem.relatedObjectType, t)}` : ""}</small></div>
+                <div className="lulu-station__modal-stats"><div><strong>{formatCount(employeeDetail.workSummary.active, language)}</strong><span>{t("open work")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday, language)}</strong><span>{t("completed today")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed, language)}</strong><span>{t("failed")}</span></div></div>
+                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("RECENT EVIDENCE")}</span><div className="lulu-station__modal-timeline">{employeeEvidence.slice(0, 4).map((item) => <div key={item.id}><i /><span><strong title={item.title}>{conciseOfficeCopy(item.title, t("Verified employee event"), 96)}</strong><small>{officeEvidenceTypeLabel(item.type, t)} · {formatTime(item.occurredAt, language)}{item.updateCount > 1 ? ` · ${formatCount(item.updateCount, language)} ${t("updates")}` : ""}</small></span></div>)}{employeeEvidence.length === 0 ? <p>{t("No recent employee events are available.")}</p> : null}</div></div>
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CAPABILITIES")}</span><div className="lulu-station__modal-chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
               </div>
             </div>
@@ -774,7 +800,7 @@ export function LuluStation() {
             <div className="lulu-station__catalog-body">
               {catalogError ? <div className="lulu-station__catalog-error" role="alert"><strong>{t("Specialist directory unavailable")}</strong><span>{catalogError}</span><button type="button" onClick={() => void loadCatalog()}>{t("Try again")}</button></div> : catalogLoading && !ecosystem ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>{t("Loading verified specialist catalog…")}</strong><span>{t("No specialist is marked as active while the catalog loads.")}</span></div> : <>
                 <div className="lulu-station__catalog-controls"><label className="lulu-station__catalog-search"><Search size={16} aria-hidden="true" /><input autoFocus value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder={t("Search specialists, capabilities or tools…")} aria-label={t("Search all specialists")} /></label><label className="lulu-station__catalog-filter"><span>{t("Role")}</span><select value={catalogTier} onChange={(event) => setCatalogTier(event.target.value as typeof catalogTier)}><option value="all">{t("All roles")}</option><option value="executive">{t("Executive")}</option><option value="domain_lead">{t("Domain lead")}</option><option value="specialist">{t("Specialist")}</option><option value="auditor">{t("Auditor")}</option></select></label></div>
-                <div className="lulu-station__catalog-meta"><span>{formatCount(filteredCatalogDefinitions.length)} {t("specialists shown")}</span><span><i className="is-active" />{t("Selected for the current team")} <i />{t("Available on demand")}</span></div>
+                <div className="lulu-station__catalog-meta"><span>{formatCount(filteredCatalogDefinitions.length, language)} {t("specialists shown")}</span><span><i className="is-active" />{t("Selected for the current team")} <i />{t("Available on demand")}</span></div>
                 <div className="lulu-station__catalog-list">{filteredCatalogDefinitions.map((agent) => <button type="button" key={agent.id} className="lulu-station__catalog-card" onClick={() => setSelectedCatalogAgent(agent)}><span className={`lulu-station__catalog-dot${activeCatalogAgents.has(agent.id) ? " is-active" : ""}`} /><span className="lulu-station__catalog-card-copy"><strong>{agent.name}</strong><small>{agent.tier.replaceAll("_", " ")} · {agent.domain}</small><em>{agent.purpose}</em></span><ArrowUpRight size={15} /></button>)}{filteredCatalogDefinitions.length === 0 ? <p className="lulu-station__catalog-empty">{t("No specialists match this search.")}</p> : null}</div>
               </>}
             </div>
