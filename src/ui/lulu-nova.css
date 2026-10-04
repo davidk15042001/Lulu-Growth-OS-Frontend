@@ -389,3 +389,27 @@
   .lulu-nova-landing *,
   .lulu-nova-auth * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* Navigation has to remain usable when a workspace gains dozens of connected
+ * tools. Keep search local to already authorised destinations: it is a finder,
+ * never an alternate route or permission path. */
+.lulu-global-navigation__search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  margin: 0 2px 10px;
+  border: 1px solid rgba(175, 204, 245, .17);
+  border-radius: 11px;
+  background: rgba(8, 20, 39, .68);
+  color: #8ca0c1;
+  padding: 0 9px;
+}
+.lulu-global-navigation__search:focus-within { border-color: rgba(117, 233, 226, .58); box-shadow: 0 0 0 3px rgba(117, 233, 226, .1); color: #aaf8f0; }
+.lulu-global-navigation__search input { min-width: 0; flex: 1; border: 0; outline: 0; background: transparent; color: #f5f8ff; font: inherit; font-size: .74rem; }
+.lulu-global-navigation__search input::placeholder { color: #8294b3; opacity: 1; }
+.lulu-global-navigation__search button { display: grid; width: 24px; height: 24px; place-items: center; border: 0; border-radius: 7px; background: transparent; color: #9eb0ca; padding: 0; }
+.lulu-global-navigation__search button:hover { background: rgba(152, 172, 212, .13); color: #fff; }
+.lulu-global-navigation__search button:focus-visible { outline: 2px solid var(--lulu-nova-cyan); outline-offset: 2px; }
+.lulu-global-navigation__empty-search { margin: 8px 3px; border: 1px dashed rgba(175, 204, 245, .2); border-radius: 10px; color: #98a9c4; padding: 12px 10px; font-size: .72rem; line-height: 1.45; text-align: center; }
+@media (max-width: 900px) { .lulu-global-navigation__search { margin: 0 2px 9px; } }

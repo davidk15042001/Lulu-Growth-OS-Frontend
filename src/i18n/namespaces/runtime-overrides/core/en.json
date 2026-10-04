@@ -205,6 +205,8 @@
   "Quellengestützter Katalogimport": "Source-grounded catalog import",
   "REVIEW_REQUIRED": "Review required",
   "Suchen": "Search",
+  "Clear": "Clear",
+  "No matching workspace destinations.": "No matching workspace destinations.",
   "Text, Tabellen, gescannte Seiten und Produktbilder werden mit ihren Quellen abgeglichen.": "Text, tables, scanned pages and product images are reconciled with their sources.",
   "Tools anzeigen": "Show tools",
   "Tools ausblenden": "Hide tools",

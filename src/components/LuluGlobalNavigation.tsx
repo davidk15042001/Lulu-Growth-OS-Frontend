@@ -1,4 +1,4 @@
-import { CalendarDays, Check, ChevronDown, Languages, LogOut, RefreshCw, X } from "lucide-react";
+import { CalendarDays, Check, ChevronDown, Languages, LogOut, RefreshCw, Search, X } from "lucide-react";
 import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react";
 import { clearAuthSession, requestApi } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
@@ -77,6 +77,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
   const [websiteLock, setWebsiteLock] = useState(() => readWebsiteGenerationLock());
   const [hideWebsiteAutomation, setHideWebsiteAutomation] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [navigationQuery, setNavigationQuery] = useState("");
   const activationPageId = !selectedWorkspace?.onboardingCompletedAt
     ? selectedWorkspace?.onboardingStep === "profile_completion" ? "profile" : selectedWorkspace?.onboardingStep === "knowledge_base" ? "rich-field-1880" : null
     : null;
@@ -97,6 +98,18 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
     }))
     .filter((section) => section.pages.length > 0), [activeSlug, activationPageId, hideWebsiteAutomation, permissions]);
   const activeSection = navigationSections.find((section) => section.pages.some((page) => page.id === activeSlug))?.label ?? null;
+  const normalizedNavigationQuery = navigationQuery.trim().toLocaleLowerCase();
+  const filteredNavigationSections = useMemo(() => {
+    if (!normalizedNavigationQuery) return navigationSections;
+    return navigationSections.map((section) => {
+      const matchesSection = t(section.label).toLocaleLowerCase().includes(normalizedNavigationQuery);
+      return {
+        ...section,
+        pages: matchesSection ? section.pages : section.pages.filter((page) => t(page.label).toLocaleLowerCase().includes(normalizedNavigationQuery)),
+      };
+    }).filter((section) => section.pages.length > 0);
+  }, [navigationSections, normalizedNavigationQuery, t]);
+  const isSearchingNavigation = Boolean(normalizedNavigationQuery);
   const [openSection, setOpenSection] = useState<string | null>(() => activeSection);
 
   useEffect(() => setOpenSection(activeSection), [activeSection]);
@@ -161,6 +174,18 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
   const directLink = (section: NavigationSection, pageId: string, icon?: ReactNode) => {
     const props = pageLinkProps(pageId);
     const active = section.pages.some((page) => page.id === activeSlug);
+    if (isSearchingNavigation) {
+      return <details key={section.label} open>
+        <summary className={active ? "is-active" : undefined}>{icon}<span className="lulu-global-navigation__section-label"><span>{t(section.label)}</span></span><ChevronDown aria-hidden="true" size={14} /></summary>
+        <div className="lulu-global-navigation__subitems">
+          {section.pages.map((page) => {
+            const pageProps = pageLinkProps(page.id);
+            const available = Boolean(pageProps.href);
+            return <a key={page.id} {...pageProps} href={available ? pageProps.href : undefined} data-lulu-route={available ? pageProps["data-lulu-route"] : undefined} className={`${page.id === activeSlug ? "is-active" : ""}${available ? "" : " is-locked"}`.trim() || undefined} aria-current={page.id === activeSlug ? "page" : undefined} aria-disabled={!available || undefined} onClick={(event) => { event.preventDefault(); if (pageProps.href) { onNavigate?.(); navigateApp(pageProps.href); } }}><span>{t(page.label)}</span></a>;
+          })}
+        </div>
+      </details>;
+    }
     return <a key={section.label} {...props} className={`lulu-global-navigation__primary-link${active ? " is-active" : ""}`} aria-current={active ? "page" : undefined} onClick={(event) => { event.preventDefault(); if (props.href) { onNavigate?.(); navigateApp(props.href); } }}>
       {icon}<span>{t(section.label)}</span>
     </a>;
@@ -168,14 +193,20 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
 
   return <aside id="lulu-global-navigation" className={`lulu-global-navigation${mobileOpen ? " is-mobile-open" : ""}`} data-lulu-global-navigation="true">
     <div className="lulu-global-navigation__workspace-label"><span>{t(activationPageId ? "Complete activation" : "Workspace")}</span><button type="button" className="lulu-global-navigation__close" aria-label={t("Close navigation")} onClick={onRequestClose}><X aria-hidden="true" size={16} /></button></div>
+    {!activationPageId && <label className="lulu-global-navigation__search">
+      <Search aria-hidden="true" size={15} />
+      <input value={navigationQuery} onChange={(event) => setNavigationQuery(event.target.value)} placeholder={t("Search")} aria-label={t("Search")} autoComplete="off" spellCheck={false} />
+      {navigationQuery && <button type="button" aria-label={t("Clear")} onClick={() => setNavigationQuery("")}><X aria-hidden="true" size={14} /></button>}
+    </label>}
     <nav className="lulu-global-navigation__sections" aria-label={t("Workspace")}>
-      {navigationSections.map((section) => {
+      {filteredNavigationSections.map((section) => {
         if (section.label === CRM_LABEL) return directLink(section, CRM_LANDING_PAGE_ID);
         if (section.label === "Finance") return directLink(section, "quietly-stone-4158");
         if (section.label === "Calendar") return directLink(section, "lulu-calendar-portal-9014", <CalendarDays aria-hidden="true" size={16} />);
         if (DIRECT_SECTION_LABELS.has(section.label)) return directLink(section, section.pages[0]!.id);
         const active = section.pages.some((page) => page.id === activeSlug);
-        return <Fragment key={section.label}><details open={openSection === section.label} onToggle={(event) => {
+        return <Fragment key={section.label}><details open={isSearchingNavigation || openSection === section.label} onToggle={(event) => {
+          if (isSearchingNavigation) return;
           const isOpen = event.currentTarget.open;
           setOpenSection((current) => isOpen ? section.label : current === section.label ? null : current);
         }}>
@@ -197,6 +228,7 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
           </div>
         </details></Fragment>;
       })}
+      {isSearchingNavigation && filteredNavigationSections.length === 0 && <p className="lulu-global-navigation__empty-search" role="status">{t("No matching workspace destinations.")}</p>}
       {activationPageId && navigationSections.length === 0 && signOutButton}
       {!navigationSections.some((section) => section.label === SETTINGS_LABEL) && !activationPageId && signOutButton}
     </nav>
