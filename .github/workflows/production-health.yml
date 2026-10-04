@@ -15,6 +15,12 @@ jobs:
     timeout-minutes: 10
     steps:
       - name: Frontend und AWS-API prüfen
+        env:
+          # The mismatch recovery below uses GitHub CLI to inspect and, when
+          # needed, dispatch the already-authorized frontend deploy workflow.
+          # gh intentionally refuses to use the implicit Actions token unless
+          # it is exposed explicitly through GH_TOKEN.
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           curl --fail --silent --show-error --retry 3 --retry-all-errors https://lulu-ai.tech/login | grep -qi '<html'
