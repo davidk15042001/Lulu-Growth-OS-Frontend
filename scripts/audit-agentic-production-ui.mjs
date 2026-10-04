@@ -114,6 +114,14 @@ if (
 }
 
 if (
+  !luluNovaCss.includes('--secondary: rgba(128, 145, 194, .16);')
+  || !luluNovaCss.includes('--secondary-foreground: #e1e9fb;')
+  || !luluNovaCss.includes('--muted-foreground: var(--lulu-nova-muted);')
+) {
+  failures.push('The dark product shell can leave neutral workspace status pills on a light surface with light text.');
+}
+
+if (
   !appCss.includes('position: sticky;')
   || !appCss.includes('width: var(--lulu-workspace-navigation-width);')
   || !appCss.includes('grid-column: 2;')

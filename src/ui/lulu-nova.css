@@ -87,7 +87,32 @@
 .lulu-global-navigation__workspace-label::before { background: var(--lulu-nova-cyan) !important; box-shadow: 0 0 12px rgba(117, 233, 226, .55); }
 
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
-  color: var(--lulu-nova-ink) !important;
+  /*
+   * Canonical pages use the shared semantic Tailwind tokens (for example
+   * bg-[var(--secondary)] for quiet status pills).  Nova renders those pages
+   * on a dark shell, so the complete token set must change with the shell.
+   * Setting only the inherited text colour made neutral pills retain their
+   * light background while inheriting light text.
+   */
+  --background: var(--lulu-nova-canvas);
+  --foreground: var(--lulu-nova-ink);
+  --card: rgba(16, 28, 49, .88);
+  --card-foreground: var(--lulu-nova-ink);
+  --popover: #111f36;
+  --popover-foreground: var(--lulu-nova-ink);
+  --border: var(--lulu-nova-line);
+  --input: var(--lulu-nova-line-strong);
+  --secondary: rgba(128, 145, 194, .16);
+  --secondary-foreground: #e1e9fb;
+  --muted: rgba(116, 137, 177, .14);
+  --muted-foreground: var(--lulu-nova-muted);
+  --accent: rgba(117, 233, 226, .12);
+  --accent-foreground: #e0fffb;
+  --primary: var(--lulu-nova-cyan);
+  --primary-foreground: #061019;
+  --ring: var(--lulu-nova-cyan);
+  --destructive: #ff9baa;
+  color: var(--foreground) !important;
   font-family: var(--font-sans, Poppins, ui-sans-serif, system-ui, sans-serif);
 }
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(h1, h2, h3, h4) { color: #f7faff !important; letter-spacing: -.04em; }
