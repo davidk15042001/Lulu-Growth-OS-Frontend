@@ -27,7 +27,7 @@ export function LuluSignupPage() {
   const passwordResults = passwordRules.map(rule => ({ ...rule, passed: rule.test(password) }));
   const passedRules = passwordResults.filter(rule => rule.passed).length;
   const strengthSegments = password ? Math.max(1, Math.ceil((passedRules / passwordRules.length) * 4)) : 0;
-  const strengthLabel = passedRules <= 1 ? 'Weak' : passedRules <= 3 ? 'Fair' : passedRules === 4 ? 'Good' : 'Strong';
+  const strengthLabel = t(passedRules <= 1 ? 'Weak' : passedRules <= 3 ? 'Fair' : passedRules === 4 ? 'Good' : 'Strong');
   const passwordsMatch = Boolean(confirmPassword) && password === confirmPassword;
   async function verifyEmail() {
     if (verificationStatus !== 'idle' || !/^\d{6}$/.test(verificationCode)) {
@@ -51,7 +51,7 @@ export function LuluSignupPage() {
     setVerificationMessage('');
     try {
       await requestApi({ path: '/auth/resend-otp', method: 'POST', body: { email: email.trim(), purpose: 'verify' } });
-      setVerificationMessage('A new verification code was sent.');
+      setVerificationMessage(t('A new verification code was sent.'));
     } catch (cause) {
       setVerificationMessage(getFriendlyErrorMessage(cause, t('We could not send a new code yet.')));
     } finally {
@@ -75,23 +75,23 @@ export function LuluSignupPage() {
     event.preventDefault();
     if (status === 'loading') return;
     if (!accepted) {
-      setError('Please accept the Terms of Service and Privacy Policy to create your account.');
+      setError(t('Please accept the Terms of Service and Privacy Policy to create your account.'));
       return;
     }
     if (!firstName.trim() || !lastName.trim()) {
-      setError('Please enter your first and last name.');
+      setError(t('Please enter your first and last name.'));
       return;
     }
     if (!/^\S+@\S+\.\S+$/.test(email.trim())) {
-      setError('Please enter a valid email address.');
+      setError(t('Please enter a valid email address.'));
       return;
     }
     if (!passwordResults.every(rule => rule.passed)) {
-      setError('Please complete all password requirements shown below.');
+      setError(t('Please complete all password requirements shown below.'));
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('Passwords do not match.'));
       return;
     }
     setStatus('loading');
@@ -106,7 +106,7 @@ export function LuluSignupPage() {
       if (response.data.verificationRequired) {
         setPendingEmail(email.trim());
         setVerificationStep(true);
-        setVerificationMessage('We sent a six-digit verification code to your email.');
+        setVerificationMessage(t('We sent a six-digit verification code to your email.'));
         setStatus('idle');
         return;
       }
@@ -114,7 +114,7 @@ export function LuluSignupPage() {
       navigateApp(routes.auth.login, { replace: true });
     } catch (cause) {
       if (cause instanceof ApiError && cause.code === 'EMAIL_IN_USE') {
-        setError('An account already exists for this email address. Sign in or use a different email address.');
+        setError(t('An account already exists for this email address. Sign in or use a different email address.'));
       } else if (cause instanceof ApiError && cause.code === 'VALIDATION_ERROR') {
         setError(validationErrorMessage(cause));
       } else {
@@ -131,102 +131,102 @@ export function LuluSignupPage() {
         <span>LULU AI</span>
         <small>OPERATING SYSTEM</small>
       </a>
-      <a {...pageLinkProps('brightly-door-5741')} className="lulu-signup__sign-in-link">Already have an account? <strong>Sign in</strong></a>
+      <a {...pageLinkProps('brightly-door-5741')} className="lulu-signup__sign-in-link">{t('Already have an account?')} <strong>{t('Sign in')}</strong></a>
     </header>
 
     <section className="lulu-signup__layout">
       <section className="lulu-signup__story" aria-labelledby="signup-title">
-        <p className="lulu-signup__eyebrow">YOUR COMPANY, ONE OPERATING SYSTEM</p>
-        <h1 id="signup-title">Create your Lulu AI account</h1>
-        <p className="lulu-signup__lede">Set up the workspace where your company memory, connected systems and governed execution come together.</p>
-        <div className="lulu-signup__principles" aria-label="What your Lulu workspace includes">
-          <div><span aria-hidden="true">01</span><p><strong>One trusted workspace</strong> for the context your company needs to operate.</p></div>
-          <div><span aria-hidden="true">02</span><p><strong>Connected when you are ready</strong> — keep your existing tools and data in control.</p></div>
-          <div><span aria-hidden="true">03</span><p><strong>Clear, governed execution</strong> with controls that remain visible to your team.</p></div>
+        <p className="lulu-signup__eyebrow">{t('YOUR COMPANY, ONE OPERATING SYSTEM')}</p>
+        <h1 id="signup-title">{t('Create your Lulu AI account')}</h1>
+        <p className="lulu-signup__lede">{t('Set up the workspace where your company memory, connected systems and governed execution come together.')}</p>
+        <div className="lulu-signup__principles" aria-label={t('What your Lulu workspace includes')}>
+          <div><span aria-hidden="true">01</span><p><strong>{t('One trusted workspace')}</strong> {t('for the context your company needs to operate.')}</p></div>
+          <div><span aria-hidden="true">02</span><p><strong>{t('Connected when you are ready')}</strong> {t('— keep your existing tools and data in control.')}</p></div>
+          <div><span aria-hidden="true">03</span><p><strong>{t('Clear, governed execution')}</strong> {t('with controls that remain visible to your team.')}</p></div>
         </div>
       </section>
 
       <section className="lulu-signup__form-card" aria-labelledby="signup-form-title">
         <header className="lulu-signup__form-header">
-          <span className="lulu-signup__step">ACCOUNT SETUP</span>
-          <h2 id="signup-form-title">Start your workspace</h2>
-          <p>Use your work email. You can invite the rest of your team after setup.</p>
+          <span className="lulu-signup__step">{t('ACCOUNT SETUP')}</span>
+          <h2 id="signup-form-title">{t('Start your workspace')}</h2>
+          <p>{t('Use your work email. You can invite the rest of your team after setup.')}</p>
         </header>
 
         {verificationStep && <section className="lulu-signup__verification" aria-labelledby="verify-signup-title">
           <h3 id="verify-signup-title">{t('Confirm your email')}</h3>
           <p>{t('Enter the six-digit code sent to')} <strong>{email}</strong>.</p>
           <label htmlFor="signup-verification-code" className="lulu-signup__field">
-            <span>Verification code</span>
+            <span>{t('Verification code')}</span>
             <input id="signup-verification-code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={verificationCode} onChange={event => setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="lulu-signup__input lulu-signup__verification-code" />
           </label>
-          <button type="button" onClick={() => void verifyEmail()} disabled={verificationStatus !== 'idle'} className="lulu-signup__submit">{verificationStatus === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}Verify email</button>
-          <button type="button" onClick={() => void resendVerificationCode()} disabled={verificationStatus !== 'idle'} className="lulu-signup__secondary-action">{verificationStatus === 'resending' ? 'Sending…' : 'Send a new code'}</button>
+          <button type="button" onClick={() => void verifyEmail()} disabled={verificationStatus !== 'idle'} className="lulu-signup__submit">{verificationStatus === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}{t('Verify email')}</button>
+          <button type="button" onClick={() => void resendVerificationCode()} disabled={verificationStatus !== 'idle'} className="lulu-signup__secondary-action">{t(verificationStatus === 'resending' ? 'Sending…' : 'Send a new code')}</button>
           {verificationMessage && <p role="status" className="lulu-signup__notice">{verificationMessage}</p>}
         </section>}
 
         {!verificationStep && <form className="lulu-signup__form" onSubmit={handleSubmit} noValidate>
           <div className="lulu-signup__name-fields">
             <label htmlFor="signup-first-name" className="lulu-signup__field">
-              <span>First name</span>
+              <span>{t('First name')}</span>
               <input id="signup-first-name" name="firstName" autoComplete="given-name" value={firstName} onChange={event => setFirstName(event.target.value)} className="lulu-signup__input" />
             </label>
             <label htmlFor="signup-last-name" className="lulu-signup__field">
-              <span>Last name</span>
+              <span>{t('Last name')}</span>
               <input id="signup-last-name" name="lastName" autoComplete="family-name" value={lastName} onChange={event => setLastName(event.target.value)} className="lulu-signup__input" />
             </label>
           </div>
           <label htmlFor="signup-email" className="lulu-signup__field">
-            <span>Email</span>
-            <input id="signup-email" name="email" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} placeholder="you@company.com" className="lulu-signup__input" />
+            <span>{t('Email')}</span>
+            <input id="signup-email" name="email" type="email" autoComplete="email" value={email} onChange={event => setEmail(event.target.value)} placeholder={t('you@company.com')} className="lulu-signup__input" />
           </label>
 
           <label htmlFor="signup-password" className="lulu-signup__field">
-            <span>Password</span>
+            <span>{t('Password')}</span>
             <span className="lulu-signup__password-field">
-              <input id="signup-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={password} onChange={event => setPassword(event.target.value)} placeholder="Create a password" className="lulu-signup__input" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="lulu-signup__password-toggle">
+              <input id="signup-password" name="password" type={showPassword ? 'text' : 'password'} autoComplete="new-password" value={password} onChange={event => setPassword(event.target.value)} placeholder={t('Create a password')} className="lulu-signup__input" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} aria-label={t(showPassword ? 'Hide password' : 'Show password')} className="lulu-signup__password-toggle">
                 {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </span>
           </label>
-          {password && <section className="lulu-signup__password-status" aria-label={`Password strength: ${strengthLabel}`}>
+          {password && <section className="lulu-signup__password-status" aria-label={t(`Password strength: ${strengthLabel}`)}>
             <div className="lulu-signup__strength"><span className="lulu-signup__strength-bars" aria-hidden="true">{[1, 2, 3, 4].map(segment => <i key={segment} className={segment <= strengthSegments ? 'is-active' : ''} />)}</span><strong>{strengthLabel}</strong></div>
-            <ul aria-label="Password requirements">
-              {passwordResults.map(rule => <li key={rule.label} className={rule.passed ? 'is-passed' : ''}><span aria-hidden="true">{rule.passed ? <Check size={11} strokeWidth={3} /> : '·'}</span>{rule.label}</li>)}
+            <ul aria-label={t('Password requirements')}>
+              {passwordResults.map(rule => <li key={rule.label} className={rule.passed ? 'is-passed' : ''}><span aria-hidden="true">{rule.passed ? <Check size={11} strokeWidth={3} /> : '·'}</span>{t(rule.label)}</li>)}
             </ul>
           </section>}
 
           <label htmlFor="confirm-password" className="lulu-signup__field">
-            <span>Confirm password</span>
+            <span>{t('Confirm password')}</span>
             <span className="lulu-signup__password-field">
-              <input id="confirm-password" name="confirmPassword" type={showConfirm ? 'text' : 'password'} autoComplete="new-password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder="Confirm your password" className="lulu-signup__input" />
-              {passwordsMatch && <span className="lulu-signup__password-match" aria-label="Passwords match"><Check size={14} strokeWidth={3} /></span>}
-              <button type="button" onClick={() => setShowConfirm(!showConfirm)} aria-label={showConfirm ? 'Hide confirmation password' : 'Show confirmation password'} className="lulu-signup__password-toggle">
+              <input id="confirm-password" name="confirmPassword" type={showConfirm ? 'text' : 'password'} autoComplete="new-password" value={confirmPassword} onChange={event => setConfirmPassword(event.target.value)} placeholder={t('Confirm your password')} className="lulu-signup__input" />
+              {passwordsMatch && <span className="lulu-signup__password-match" aria-label={t('Passwords match')}><Check size={14} strokeWidth={3} /></span>}
+              <button type="button" onClick={() => setShowConfirm(!showConfirm)} aria-label={t(showConfirm ? 'Hide confirmation password' : 'Show confirmation password')} className="lulu-signup__password-toggle">
                 {showConfirm ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </span>
           </label>
-          {confirmPassword && <p className={`lulu-signup__match-note ${passwordsMatch ? 'is-matched' : 'is-unmatched'}`}>{passwordsMatch ? 'Passwords match' : 'Passwords do not match yet'}</p>}
+          {confirmPassword && <p className={`lulu-signup__match-note ${passwordsMatch ? 'is-matched' : 'is-unmatched'}`}>{t(passwordsMatch ? 'Passwords match' : 'Passwords do not match yet')}</p>}
 
           <label className="lulu-signup__terms">
             <input id="signup-accept-terms" name="acceptTerms" type="checkbox" checked={accepted} onChange={event => setAccepted(event.target.checked)} autoComplete="off" required />
-            <span>I agree to the <a href="/terms.html" target="_blank" rel="noreferrer">Terms of Service</a> and <a href="/privacy.html" target="_blank" rel="noreferrer">Privacy Policy</a>.</span>
+            <span>{t('I agree to the')} <a href="/terms.html" target="_blank" rel="noreferrer">{t('Terms of Service')}</a> {t('and')} <a href="/privacy.html" target="_blank" rel="noreferrer">{t('Privacy Policy')}</a>.</span>
           </label>
 
           <button type="submit" disabled={status === 'loading'} className="lulu-signup__submit">
             {status === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}
-            <span>{status === 'loading' ? 'Creating account...' : 'Create Account'}</span>
+            <span>{t(status === 'loading' ? 'Creating account...' : 'Create Account')}</span>
           </button>
           {error && <p role="alert" className="lulu-signup__notice lulu-signup__notice--error"><AlertCircle size={16} aria-hidden="true" />{error}</p>}
         </form>}
 
-        <p className="lulu-signup__form-footer">Already have a Lulu AI account? <a {...pageLinkProps('brightly-door-5741')}>Sign in</a></p>
+        <p className="lulu-signup__form-footer">{t('Already have a Lulu AI account?')} <a {...pageLinkProps('brightly-door-5741')}>{t('Sign in')}</a></p>
       </section>
     </section>
 
     <footer className="lulu-signup__footer">
-      <nav aria-label="Legal links"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a><a href="/.well-known/security.txt">Security</a></nav>
+      <nav aria-label={t('Legal links')}><a href="/privacy.html">{t('Privacy')}</a><a href="/terms.html">{t('Terms')}</a><a href="/.well-known/security.txt">{t('Security')}</a></nav>
       <p>{LEGAL_ENTITY_NAME}</p>
     </footer>
   </main>;

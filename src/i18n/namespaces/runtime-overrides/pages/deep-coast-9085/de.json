@@ -1,5 +1,6 @@
 {
   "Back to Login": "Zurück zur Anmeldung",
+  "Back to sign in": "Zurück zur Anmeldung",
   "Confirm new password": "Neues Passwort bestätigen",
   "Confirm your new password": "Ihr neues Passwort bestätigen",
   "Create a new password": "Ein neues Passwort erstellen",
@@ -20,8 +21,10 @@
   "Password requirements": "Passwortanforderungen",
   "Password reset": "Passwort zurücksetzen",
   "Password strength strong": "Passwortstärke: stark",
+  "Password strength incomplete": "Passwortstärke: unvollständig",
   "Password strength {{0}}": "Passwortstärke: {{0}}",
   "Passwords do not match.": "Die Passwörter stimmen nicht überein.",
+  "Passwords do not match yet": "Die Passwörter stimmen noch nicht überein.",
   "Passwords match": "Passwörter stimmen überein",
   "Privacy": "Datenschutz",
   "Reset code": "Code zurücksetzen",

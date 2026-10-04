@@ -1,5 +1,6 @@
 {
   "Back to Login": "返回登录",
+  "Back to sign in": "返回登录",
   "Confirm new password": "确认新密码",
   "Confirm your new password": "确认您的新密码",
   "Create a new password": "创建新密码",
@@ -20,8 +21,10 @@
   "Password requirements": "密码要求",
   "Password reset": "重置密码",
   "Password strength strong": "密码强度高",
+  "Password strength incomplete": "密码强度未满足要求",
   "Password strength {{0}}": "密码强度：{{0}}",
   "Passwords do not match.": "两次输入的密码不一致。",
+  "Passwords do not match yet": "两次输入的密码尚不一致。",
   "Passwords match": "密码匹配",
   "Privacy": "隐私",
   "Reset code": "重置验证码",
