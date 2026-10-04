@@ -31,6 +31,15 @@ const actualCodes = [...languageSource.matchAll(/\{ code: "([^"]+)"/g)].map((mat
 const issues = [];
 const blockingIssues = [];
 const { values, valuesByFile } = collectI18nSourceCatalog(root);
+// Page-local translations are loaded with their active route namespace and
+// intentionally override the global catalog.  Keep global coverage strict for
+// shared code, while letting the namespace pass below verify page-local copy
+// against the same assets that production actually loads.
+const globallyRequiredValues = new Set();
+for (const [file, fileValues] of valuesByFile) {
+  if (pageSlugFromSourcePath(file)) continue;
+  for (const source of fileValues) globallyRequiredValues.add(source);
+}
 const navigationSource = readFileSync(join(root, "src", "pages", "fancily-leaf-1766", "components", "generated", "LuluExecutiveDashboard.tsx"), "utf8");
 const navigationMatch = navigationSource.match(/export const luluDropdownNavigation = (\[.*?\]) as const;/s);
 let visibleNavigationLabels = [];
@@ -81,25 +90,25 @@ if (untranslatedEnglishNavigationLabels.length) {
   issues.push(`en is missing ${untranslatedEnglishNavigationLabels.length} navigation labels (examples: ${untranslatedEnglishNavigationLabels.slice(0, 5).join(" | ")})`);
 }
 for (const language of ["de", "zh-CN"]) {
-  const missing = [...values].filter((source) => !mergedTranslations[language]?.[source]);
+  const missing = [...globallyRequiredValues].filter((source) => !mergedTranslations[language]?.[source]);
   if (missing.length) issues.push(`${language} is missing ${missing.length} UI strings (examples: ${missing.slice(0, 5).join(" | ")})`);
-  const placeholderErrors = [...values].filter((source) => mergedTranslations[language]?.[source]
+  const placeholderErrors = [...globallyRequiredValues].filter((source) => mergedTranslations[language]?.[source]
     && !hasMatchingPlaceholders(source, mergedTranslations[language][source]));
   if (placeholderErrors.length) issues.push(`${language} has ${placeholderErrors.length} placeholder mismatches (examples: ${placeholderErrors.slice(0, 5).join(" | ")})`);
   if (language === "zh-CN") {
-    const untranslatedNaturalLanguage = [...values].filter((source) => requiresHanTranslation(source)
+    const untranslatedNaturalLanguage = [...globallyRequiredValues].filter((source) => requiresHanTranslation(source)
       && !/[\u3400-\u9fff]/.test(mergedTranslations[language]?.[source] ?? ""));
     if (untranslatedNaturalLanguage.length) {
       issues.push(`zh-CN has ${untranslatedNaturalLanguage.length} untranslated natural-language strings (examples: ${untranslatedNaturalLanguage.slice(0, 5).join(" | ")})`);
     }
-    const germanFragments = [...values].filter((source) => {
+    const germanFragments = [...globallyRequiredValues].filter((source) => {
       const translation = mergedTranslations[language]?.[source] ?? "";
       return /[\u3400-\u9fff]/.test(translation) && isLikelyGermanSource(translation);
     });
     if (germanFragments.length) {
       issues.push(`zh-CN has ${germanFragments.length} translations containing German fragments (examples: ${germanFragments.slice(0, 5).join(" | ")})`);
     }
-    const agentTerminologyErrors = [...values].filter((source) => /(?:\bagents?\b|agenten)/i.test(source)
+    const agentTerminologyErrors = [...globallyRequiredValues].filter((source) => /(?:\bagents?\b|agenten)/i.test(source)
       && /代理商|代理人|代理/.test(mergedTranslations[language]?.[source] ?? ""));
     if (agentTerminologyErrors.length) {
       issues.push(`zh-CN has ${agentTerminologyErrors.length} inconsistent AI-agent terms (examples: ${agentTerminologyErrors.slice(0, 5).join(" | ")})`);
@@ -167,7 +176,7 @@ for (const language of expectedCodes) {
 if (process.env.I18N_REPORT_IDENTITIES === "1") {
   const identities = Object.fromEntries(["de", "zh-CN"].map((language) => [
     language,
-    [...values].filter((source) => isLikelyEnglishSentence(source) && mergedTranslations[language]?.[source] === source),
+    [...globallyRequiredValues].filter((source) => isLikelyEnglishSentence(source) && mergedTranslations[language]?.[source] === source),
   ]));
   console.error(JSON.stringify({ untranslatedIdentities: identities }, null, 2));
 }

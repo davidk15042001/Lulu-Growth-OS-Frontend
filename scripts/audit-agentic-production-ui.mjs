@@ -319,7 +319,7 @@ if (
   !officeCopy.includes('const REFERENCE_MARKER')
   || !officeCopy.includes('const TECHNICAL_CONTEXT')
   || !luluStation.includes('conciseOfficeCopy(employeeDetail.currentWorkItem?.title')
-  || !luluStation.includes('conciseOfficeCopy(item.title, "Verified employee event"')
+  || !luluStation.includes('conciseOfficeCopy(item.title, t("Verified employee event")')
   || !nativeAgentWorkspace.includes('conciseOfficeCopy(work?.title')
 ) {
   failures.push('Office employee dialogs must present concise work context instead of raw internal routing data.');
@@ -388,7 +388,7 @@ if (
   (luluStation.match(/Open workspace/g) ?? []).length < 2
   || !luluStation.includes('const ROOM_ZONE_CAPACITY = 8')
   || !luluStation.includes('employees: department.employees.slice(zoneIndex * ROOM_ZONE_CAPACITY, (zoneIndex + 1) * ROOM_ZONE_CAPACITY)')
-  || !luluStation.includes('>{employees.length} CREW</text>')
+  || !luluStation.includes('>{employees.length} {t("Crew")}</text>')
 ) {
   failures.push('The Office does not keep every visible room crew bounded, accurately counted and reachable from a workspace entry point.');
 }
@@ -419,13 +419,13 @@ if (
 }
 
 if (
-  !luluStation.includes('is-working" />working')
-  || !luluStation.includes('is-monitoring" />monitoring')
-  || !luluStation.includes('is-waiting" />waiting / human control')
-  || !luluStation.includes('is-attention" />approval / error')
-  || !luluStation.includes('is-blocked" />AI credit required')
-  || !luluStation.includes('is-idle" />idle')
-  || !luluStation.includes('is-offline" />offline')
+  !luluStation.includes('is-working" />{t("working")}')
+  || !luluStation.includes('is-monitoring" />{t("monitoring")}')
+  || !luluStation.includes('is-waiting" />{t("waiting / human control")}')
+  || !luluStation.includes('is-attention" />{t("approval / error")}')
+  || !luluStation.includes('is-blocked" />{t("AI credit required")}')
+  || !luluStation.includes('is-idle" />{t("idle")}')
+  || !luluStation.includes('is-offline" />{t("offline")}')
   || !luluStationCss.includes('.lulu-station__character--offline .lulu-station__character-status { fill: #526a74; }')
 ) {
   failures.push('The Office status legend does not fully and truthfully match the visible employee status colors.');
