@@ -12,7 +12,7 @@ import {
   getPendingInvitation,
   isAdminUser,
   clearSelectedWorkspaceId,
-  setPendingEmail,
+  setPendingVerificationEmail,
   setStoredUser,
   setSelectedWorkspaceId,
 } from "../../../../api/session";
@@ -119,7 +119,7 @@ export const LuluLoginPage = () => {
       if (cause instanceof DOMException && cause.name === "AbortError") {
         setError(t("The login request timed out. Please try again."));
       } else if (cause instanceof ApiError && cause.code === "ACCOUNT_UNVERIFIED") {
-        setPendingEmail(email);
+        setPendingVerificationEmail(email);
         navigateApp(routes.auth.signUp);
       } else if (cause instanceof ApiError && cause.code === "ACCOUNT_NOT_FOUND") {
         setError(t("accountNotFound"));

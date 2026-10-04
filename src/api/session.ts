@@ -1,5 +1,9 @@
 const WORKSPACE_KEY = "lulu.workspace-id";
 const PENDING_EMAIL_KEY = "lulu.pending-email";
+// Password recovery and email verification both need to remember an address
+// across a route change. Keep their intent distinct: otherwise an unfinished
+// password reset could incorrectly open the account-verification screen.
+const PENDING_EMAIL_VERIFICATION_KEY = "lulu.pending-email-verification";
 const PENDING_INVITATION_KEY = "lulu.pending-invitation";
 const CURRENT_USER_KEY = "lulu.current-user";
 const ADMIN_SURFACE_KEY = "lulu.admin-surface";
@@ -91,10 +95,23 @@ export function getPendingEmail() {
 
 export function setPendingEmail(email: string) {
   window.sessionStorage.setItem(PENDING_EMAIL_KEY, email.trim().toLowerCase());
+  window.sessionStorage.removeItem(PENDING_EMAIL_VERIFICATION_KEY);
+}
+
+export function setPendingVerificationEmail(email: string) {
+  setPendingEmail(email);
+  window.sessionStorage.setItem(PENDING_EMAIL_VERIFICATION_KEY, "1");
 }
 
 export function clearPendingEmail() {
   window.sessionStorage.removeItem(PENDING_EMAIL_KEY);
+  window.sessionStorage.removeItem(PENDING_EMAIL_VERIFICATION_KEY);
+}
+
+export function getPendingVerificationEmail() {
+  return window.sessionStorage.getItem(PENDING_EMAIL_VERIFICATION_KEY) === "1"
+    ? getPendingEmail()
+    : "";
 }
 
 export function getPendingInvitation() {

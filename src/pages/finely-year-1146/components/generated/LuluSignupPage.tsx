@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { AlertCircle, Check, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { navigateApp, pageLinkProps, routes } from '../../../../routing';
 import { ApiError, getFriendlyErrorMessage, requestApi } from '../../../../api/client';
-import { clearPendingEmail, clearSelectedWorkspaceId, setPendingEmail } from '../../../../api/session';
+import { clearPendingEmail, clearSelectedWorkspaceId, getPendingVerificationEmail, setPendingVerificationEmail } from '../../../../api/session';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import '../../signup.css';
 const LEGAL_ENTITY_NAME = 'Hong Kong Lulu Development Limited';
@@ -12,14 +12,14 @@ export function LuluSignupPage() {
   const t = useTranslation();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => getPendingVerificationEmail());
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [accepted, setAccepted] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [status, setStatus] = useState<'idle' | 'loading'>('idle');
-  const [verificationStep, setVerificationStep] = useState(false);
+  const [verificationStep, setVerificationStep] = useState(() => Boolean(getPendingVerificationEmail()));
   const [verificationCode, setVerificationCode] = useState('');
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'loading' | 'resending'>('idle');
   const [verificationMessage, setVerificationMessage] = useState('');
@@ -57,6 +57,14 @@ export function LuluSignupPage() {
     } finally {
       setVerificationStatus('idle');
     }
+  }
+  function useAnotherEmail() {
+    clearPendingEmail();
+    setEmail('');
+    setVerificationCode('');
+    setVerificationMessage('');
+    setError('');
+    setVerificationStep(false);
   }
   function validationErrorMessage(cause: ApiError) {
     const details = Array.isArray(cause.details) ? cause.details : [];
@@ -104,7 +112,7 @@ export function LuluSignupPage() {
         body: { email, password, first_name: firstName, last_name: lastName },
       });
       if (response.data.verificationRequired) {
-        setPendingEmail(email.trim());
+        setPendingVerificationEmail(email.trim());
         setVerificationStep(true);
         setVerificationMessage(t('We sent a six-digit verification code to your email.'));
         setStatus('idle');
@@ -162,6 +170,7 @@ export function LuluSignupPage() {
           </label>
           <button type="button" onClick={() => void verifyEmail()} disabled={verificationStatus !== 'idle'} className="lulu-signup__submit">{verificationStatus === 'loading' && <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />}{t('Verify email')}</button>
           <button type="button" onClick={() => void resendVerificationCode()} disabled={verificationStatus !== 'idle'} className="lulu-signup__secondary-action">{t(verificationStatus === 'resending' ? 'Sending…' : 'Send a new code')}</button>
+          <button type="button" onClick={useAnotherEmail} disabled={verificationStatus !== 'idle'} className="lulu-signup__secondary-action">{t('Use another email')}</button>
           {verificationMessage && <p role="status" className="lulu-signup__notice">{verificationMessage}</p>}
         </section>}
 
