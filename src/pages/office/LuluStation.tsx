@@ -105,7 +105,8 @@ function isOnlineStatus(status: StationStatus) {
 }
 
 function roomName({ department, zoneIndex, zoneCount }: Pick<RoomAssignment, "department" | "zoneIndex" | "zoneCount">, t: (key: string) => string) {
-  return zoneCount > 1 ? `${department.name} · ${t("Room")} ${zoneIndex + 1}` : department.name;
+  const departmentName = t(department.name);
+  return zoneCount > 1 ? `${departmentName} · ${t("Room")} ${zoneIndex + 1}` : departmentName;
 }
 
 function formatTime(value: string | null | undefined) {
@@ -669,7 +670,7 @@ export function LuluStation() {
                   <RoomFixtures room={room} />
                   <path className="lulu-station__room-border" d={`M${room.x + 18} ${room.y}H${room.x + room.width - 18}Q${room.x + room.width} ${room.y} ${room.x + room.width} ${room.y + 18}V${room.y + room.height - 18}Q${room.x + room.width} ${room.y + room.height} ${room.x + room.width - 18} ${room.y + room.height}H${room.x + 18}Q${room.x} ${room.y + room.height} ${room.x} ${room.y + room.height - 18}V${room.y + 18}Q${room.x} ${room.y} ${room.x + 18} ${room.y}Z`} />
                   <text className="lulu-station__room-kicker" x={room.x + 22} y={room.y + 31}><title>{label}</title>{shortLabel(label.toUpperCase(), 31)}</text>
-                  <text className="lulu-station__room-caption" x={room.x + 22} y={room.y + 52}><title>{department.description}</title>{shortLabel(department.description, 56)}</text>
+                  <text className="lulu-station__room-caption" x={room.x + 22} y={room.y + 52}><title>{t(department.description)}</title>{shortLabel(t(department.description), 56)}</text>
                   <text className="lulu-station__room-count" x={room.x + room.width - 22} y={room.y + 32} textAnchor="end">{employees.length} {t("Crew")}</text>
                   {roomHasFlow ? <path className="lulu-station__handoff-active" d={`M${room.x + room.width / 2 - 32} ${room.y + room.height - 15}h64`} /> : null}
                   <StationProp room={room} active={employees.some((employee) => isOnlineStatus(effectiveStatus(employee.status, aiExecutionAvailable)))} onSelect={() => selectRoom(room.id, room.prop)} t={t} />
@@ -689,7 +690,7 @@ export function LuluStation() {
           {employeeDetail ? <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__avatar-badge">{initials(employeeDetail.employee.name)}</span><span>{t("Digital Employee")}</span><button type="button" onClick={closeEmployeePopup} aria-label={t("Close employee inspector")}>×</button></div>
             <h2>{employeeDetail.employee.name}</h2>
-            <p className="lulu-station__inspector-role">{employeeDetail.employee.title} · {employeeDetail.employee.department?.name}</p>
+            <p className="lulu-station__inspector-role">{employeeDetail.employee.title} · {employeeDetail.employee.department ? t(employeeDetail.employee.department.name) : undefined}</p>
             <div className={`lulu-station__inspector-status lulu-station__inspector-status--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable), t)}</div>
             <div className="lulu-station__inspector-block"><span>{t("Current work")}</span><strong title={employeeDetail.currentWorkItem?.title}>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t("Execution is paused until AI credit is available") : conciseOfficeCopy(employeeDetail.currentWorkItem?.title, t("No current work item"), 120)}</strong><small>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t(aiExecutionMessage) : employeeDetail.currentWorkItem ? displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem.status, t) : t("The employee is not running a visible work item.")}</small></div>
             <div className="lulu-station__inspector-stats"><div><strong>{formatCount(employeeDetail.workSummary.active)}</strong><span>{t("open")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday)}</strong><span>{t("completed")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed)}</strong><span>{t("failed")}</span></div></div>
@@ -702,7 +703,7 @@ export function LuluStation() {
           </> : selectedRoom ? <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__room-badge"><Layers3 size={16} /></span><span>{t("Department room")}</span></div>
             <h2>{roomName(selectedRoom, t)}</h2>
-            <p className="lulu-station__inspector-role">{selectedRoom.department.description}</p>
+            <p className="lulu-station__inspector-role">{t(selectedRoom.department.description)}</p>
             <div className="lulu-station__inspector-block"><span>{t("Room function")}</span><strong>{roomDescription(selectedRoom.room.prop, t)}</strong><small>{selectedRoom.employees.length} {t("employees at dedicated stations")}{selectedRoom.zoneCount > 1 ? ` · ${t("Room")} ${selectedRoom.zoneIndex + 1} ${t("of")} ${selectedRoom.zoneCount}` : ""}.</small></div>
             <div className="lulu-station__crew-list">{selectedRoom.employees.map((employee) => <button type="button" key={employee.id} onClick={() => void selectEmployee(employee)}><span className={`lulu-station__mini-dot lulu-station__mini-dot--${toneForStatus(effectiveStatus(employee.status, aiExecutionAvailable))}`} /><span><strong>{employee.name}</strong><small>{statusLabel(effectiveStatus(employee.status, aiExecutionAvailable), t)}</small></span><ArrowUpRight size={13} /></button>)}</div>
           </> : <>
@@ -723,7 +724,7 @@ export function LuluStation() {
           {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>{t("Opening verified employee workspace…")}</strong><span>{t("Loading the employee state and recent evidence.")}</span></div> : <>
             <header className="lulu-station__modal-header">
               <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
-              <div><span className="lulu-station__modal-kicker">{t("DIGITAL EMPLOYEE WORKSPACE")}</span><h2 id="lulu-station-employee-title">{employeeDetail.employee.name}</h2><p>{employeeDetail.employee.title} · {employeeDetail.employee.department?.name ?? t("Lulu Station")}</p></div>
+              <div><span className="lulu-station__modal-kicker">{t("DIGITAL EMPLOYEE WORKSPACE")}</span><h2 id="lulu-station-employee-title">{employeeDetail.employee.name}</h2><p>{employeeDetail.employee.title} · {employeeDetail.employee.department ? t(employeeDetail.employee.department.name) : t("Lulu Station")}</p></div>
               <div className={`lulu-station__modal-status lulu-station__modal-status--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable), t)}</div>
             </header>
             <div className="lulu-station__modal-body">
