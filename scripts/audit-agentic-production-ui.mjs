@@ -108,13 +108,13 @@ if (!appCss.includes('overflow-x: clip !important;')) {
 
 if (
   !luluNovaCss.includes('.lulu-native-page--surface-shell > main > div > header:first-child')
-  || !luluNovaCss.includes('linear-gradient(138deg, #121f37 0%, #0b172c 54%, #0a1326 100%)')
+  || !luluNovaCss.includes('linear-gradient(120deg, rgba(28, 40, 60, .98), rgba(19, 28, 42, .98))')
 ) {
   failures.push('The dark product visual system can leave native page headings light on a light header surface.');
 }
 
 if (
-  !luluNovaCss.includes('--secondary: rgba(128, 145, 194, .16);')
+  !luluNovaCss.includes('--secondary: rgba(132, 149, 176, .17);')
   || !luluNovaCss.includes('--secondary-foreground: #e1e9fb;')
   || !luluNovaCss.includes('--muted-foreground: var(--lulu-nova-muted);')
 ) {

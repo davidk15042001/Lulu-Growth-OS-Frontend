@@ -1,22 +1,23 @@
 /*
  * Lulu Nova — the shared product presentation layer.
  * It deliberately sits after legacy/generated page styles so all canonical
- * surfaces share one calm visual language without duplicating business UI.
+ * surfaces share one precise, low-noise visual language without duplicating
+ * business UI. Operational density needs hierarchy, not decorative chrome.
  */
 :root {
-  --lulu-nova-canvas: #07101f;
-  --lulu-nova-canvas-deep: #030914;
-  --lulu-nova-panel: rgba(16, 28, 49, .82);
-  --lulu-nova-panel-strong: #111f36;
-  --lulu-nova-line: rgba(165, 191, 229, .14);
-  --lulu-nova-line-strong: rgba(135, 169, 225, .26);
-  --lulu-nova-ink: #f3f7ff;
-  --lulu-nova-muted: #91a3c3;
-  --lulu-nova-cyan: #75e9e2;
-  --lulu-nova-violet: #9d8cff;
-  --lulu-nova-blue: #6aa9ff;
-  --lulu-nova-shadow: 0 22px 70px rgba(0, 0, 0, .24);
-  --lulu-nova-radius: 20px;
+  --lulu-nova-canvas: #0a0f18;
+  --lulu-nova-canvas-deep: #060a11;
+  --lulu-nova-panel: rgba(20, 28, 42, .94);
+  --lulu-nova-panel-strong: #151d2b;
+  --lulu-nova-line: rgba(181, 199, 224, .13);
+  --lulu-nova-line-strong: rgba(157, 186, 220, .28);
+  --lulu-nova-ink: #f4f7fb;
+  --lulu-nova-muted: #9aa9bd;
+  --lulu-nova-cyan: #79dfd4;
+  --lulu-nova-violet: #a6a1ff;
+  --lulu-nova-blue: #8cc8ff;
+  --lulu-nova-shadow: 0 10px 28px rgba(0, 0, 0, .2);
+  --lulu-nova-radius: 16px;
 }
 
 /* Global authenticated product shell */
@@ -25,9 +26,8 @@
   gap: 12px !important;
   padding: 0 clamp(14px, 2.1vw, 34px) !important;
   border-bottom: 1px solid var(--lulu-nova-line) !important;
-  background:
-    linear-gradient(90deg, rgba(6, 14, 29, .96), rgba(13, 25, 47, .92)) !important;
-  box-shadow: 0 10px 28px rgba(0, 0, 0, .16);
+  background: rgba(10, 15, 24, .96) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
   backdrop-filter: blur(20px);
 }
 
@@ -48,23 +48,21 @@
 .lulu-auth-nav-toggle:hover,
 .lulu-auth-usage:hover { border-color: rgba(117, 233, 226, .4) !important; background: rgba(117, 233, 226, .08) !important; }
 .lulu-backend-release { border: 1px solid rgba(117, 233, 226, .18); border-radius: 999px; padding: 6px 9px; background: rgba(69, 217, 191, .06); color: #b8f6ef !important; font-size: .62rem !important; }
-.lulu-backend-release__dot { background: var(--lulu-nova-cyan) !important; box-shadow: 0 0 12px var(--lulu-nova-cyan); }
+.lulu-backend-release__dot { background: var(--lulu-nova-cyan) !important; box-shadow: 0 0 8px rgba(121, 223, 212, .6); }
 .lulu-surface-switch { border-radius: 12px !important; padding: 3px !important; }
 .lulu-surface-switch button { min-height: 34px !important; border-radius: 8px !important; color: var(--lulu-nova-muted) !important; font-size: .68rem !important; font-weight: 750 !important; }
-.lulu-surface-switch button.is-active { background: linear-gradient(115deg, rgba(141, 126, 255, .3), rgba(92, 160, 255, .18)) !important; color: #fff !important; box-shadow: inset 0 1px rgba(255, 255, 255, .14), 0 5px 14px rgba(0, 0, 0, .18); }
+.lulu-surface-switch button.is-active { background: rgba(140, 200, 255, .16) !important; color: #fff !important; box-shadow: inset 0 1px rgba(255, 255, 255, .08); }
 
 .lulu-global-shell:not(.lulu-global-shell--navigation-free),
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-content {
   background:
-    radial-gradient(circle at 82% -8%, rgba(104, 128, 255, .13), transparent 28rem),
-    radial-gradient(circle at 12% 82%, rgba(54, 211, 207, .07), transparent 31rem),
+    radial-gradient(circle at 86% -16%, rgba(105, 150, 255, .1), transparent 36rem),
     var(--lulu-nova-canvas) !important;
 }
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-global-navigation {
   border-right-color: var(--lulu-nova-line) !important;
-  background:
-    linear-gradient(180deg, rgba(10, 19, 36, .99), rgba(5, 11, 23, .98)) !important;
-  box-shadow: 18px 0 42px rgba(0, 0, 0, .12);
+  background: #0b111b !important;
+  box-shadow: 12px 0 28px rgba(0, 0, 0, .1);
 }
 .lulu-global-navigation__workspace-label { color: #7389ae !important; font-weight: 800 !important; letter-spacing: .13em !important; }
 .lulu-global-navigation__primary-link,
@@ -79,12 +77,12 @@
 .lulu-global-navigation__primary-link.is-active,
 .lulu-global-navigation__subitems a.is-active {
   border-left-color: var(--lulu-nova-cyan) !important;
-  background: linear-gradient(90deg, rgba(118, 233, 226, .16), rgba(139, 126, 255, .1)) !important;
+  background: rgba(121, 223, 212, .12) !important;
   color: #fff !important;
   box-shadow: inset 0 1px rgba(255,255,255,.05);
 }
 .lulu-global-navigation__section-label::before { background: #68779b !important; }
-.lulu-global-navigation__workspace-label::before { background: var(--lulu-nova-cyan) !important; box-shadow: 0 0 12px rgba(117, 233, 226, .55); }
+.lulu-global-navigation__workspace-label::before { background: var(--lulu-nova-cyan) !important; box-shadow: 0 0 8px rgba(121, 223, 212, .45); }
 
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page {
   /*
@@ -96,17 +94,17 @@
    */
   --background: var(--lulu-nova-canvas);
   --foreground: var(--lulu-nova-ink);
-  --card: rgba(16, 28, 49, .88);
+  --card: rgba(20, 28, 42, .94);
   --card-foreground: var(--lulu-nova-ink);
   --popover: #111f36;
   --popover-foreground: var(--lulu-nova-ink);
   --border: var(--lulu-nova-line);
   --input: var(--lulu-nova-line-strong);
-  --secondary: rgba(128, 145, 194, .16);
+  --secondary: rgba(132, 149, 176, .17);
   --secondary-foreground: #e1e9fb;
   --muted: rgba(116, 137, 177, .14);
   --muted-foreground: var(--lulu-nova-muted);
-  --accent: rgba(117, 233, 226, .12);
+  --accent: rgba(121, 223, 212, .12);
   --accent-foreground: #e0fffb;
   --primary: var(--lulu-nova-cyan);
   --primary-foreground: #061019;
@@ -119,8 +117,8 @@
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(p, small, label) { color: inherit; }
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.card, .panel, .content-card, .metric-card, .kpi-card, .summary-card, .stat-card, [class*="rounded-xl"], [class*="rounded-2xl"], [class*="rounded-3xl"]) {
   border-color: var(--lulu-nova-line) !important;
-  background: linear-gradient(145deg, rgba(23, 39, 66, .9), rgba(11, 23, 43, .92)) !important;
-  box-shadow: inset 0 1px rgba(255,255,255,.04), var(--lulu-nova-shadow) !important;
+  background: rgba(20, 28, 42, .92) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.035), var(--lulu-nova-shadow) !important;
 }
 
 /* The legacy visual layer promotes first-page headers into a light card. Nova
@@ -133,11 +131,9 @@
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page [class*="mx-auto"] > div:first-child:has(h1) {
   border-color: var(--lulu-nova-line) !important;
   background:
-    radial-gradient(circle at 90% 0%, rgba(105, 121, 255, .22), transparent 34%),
-    radial-gradient(circle at 6% 112%, rgba(92, 222, 212, .12), transparent 36%),
-    linear-gradient(138deg, #121f37 0%, #0b172c 54%, #0a1326 100%) !important;
+    linear-gradient(120deg, rgba(28, 40, 60, .98), rgba(19, 28, 42, .98)) !important;
   color: var(--lulu-nova-ink) !important;
-  box-shadow: inset 0 1px rgba(255,255,255,.055), var(--lulu-nova-shadow) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.045), var(--lulu-nova-shadow) !important;
 }
 
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(input, select, textarea) {
@@ -154,20 +150,20 @@
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a).lulu-workspace-primary-action,
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(button, a)[class*="bg-primary"] {
   border-color: transparent !important;
-  background: linear-gradient(110deg, #8e7dff, #587df5 52%, #5bded4) !important;
+  background: #8cc8ff !important;
   color: #061019 !important;
-  box-shadow: 0 12px 26px rgba(92, 125, 245, .22) !important;
+  box-shadow: 0 8px 20px rgba(89, 161, 219, .2) !important;
 }
 .lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(table, .table-wrap, .recent-table) { border-color: var(--lulu-nova-line) !important; background: rgba(5, 13, 28, .45) !important; }
-.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page thead { background: rgba(140, 153, 255, .09) !important; }
-.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page tbody tr:hover { background: rgba(117, 233, 226, .06) !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page thead { background: rgba(140, 171, 209, .08) !important; }
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page tbody tr:hover { background: rgba(121, 223, 212, .05) !important; }
 
 /* Station and native agent popups */
 .lulu-station,
 .lulu-station__modal-layer {
-  --station-bg: #060d1a;
-  --station-panel: #0d1930;
-  --station-panel-strong: #13213c;
+  --station-bg: #090f19;
+  --station-panel: #121b29;
+  --station-panel-strong: #182437;
   --station-line: rgba(151, 183, 229, .15);
   --station-muted: #91a5c5;
   --station-ink: #f4f8ff;
@@ -176,8 +172,7 @@
 }
 .lulu-station {
   background:
-    radial-gradient(circle at 72% 5%, rgba(112, 121, 255, .18), transparent 31rem),
-    radial-gradient(circle at 4% 60%, rgba(74, 224, 211, .1), transparent 29rem),
+    radial-gradient(circle at 78% -8%, rgba(104, 150, 229, .11), transparent 34rem),
     var(--station-bg) !important;
 }
 .lulu-station__metrics > div,
@@ -187,17 +182,17 @@
   border-color: var(--station-line) !important;
   box-shadow: inset 0 1px rgba(255,255,255,.035), 0 24px 72px rgba(0,0,0,.2) !important;
 }
-.lulu-station__metrics > div { border-radius: 16px !important; background: linear-gradient(145deg, rgba(19, 35, 61, .92), rgba(9, 19, 35, .94)) !important; }
-.lulu-station__world { background: linear-gradient(155deg, rgba(15, 31, 56, .96), rgba(6, 15, 29, .98)) !important; }
-.lulu-station__employee-modal { border-radius: 24px !important; background: linear-gradient(155deg, #111f38, #081425 76%) !important; }
-.lulu-native-agent { border-color: rgba(137, 170, 225, .2) !important; border-radius: 18px !important; background: linear-gradient(145deg, rgba(19, 35, 62, .96), rgba(8, 17, 32, .99)) !important; box-shadow: inset 0 1px rgba(255,255,255,.045), 0 24px 60px rgba(0,0,0,.2) !important; }
-.lulu-native-agent__header-icon { border-color: rgba(117, 233, 226, .28) !important; background: linear-gradient(145deg, rgba(117, 233, 226, .18), rgba(137, 126, 255, .12)) !important; color: var(--lulu-nova-cyan) !important; }
+.lulu-station__metrics > div { border-radius: 14px !important; background: rgba(18, 27, 41, .94) !important; }
+.lulu-station__world { background: #101927 !important; }
+.lulu-station__employee-modal { border-radius: 20px !important; background: #121c2a !important; }
+.lulu-native-agent { border-color: rgba(137, 170, 225, .2) !important; border-radius: 16px !important; background: #141f2f !important; box-shadow: inset 0 1px rgba(255,255,255,.045), 0 14px 38px rgba(0,0,0,.2) !important; }
+.lulu-native-agent__header-icon { border-color: rgba(121, 223, 212, .28) !important; background: rgba(121, 223, 212, .1) !important; color: var(--lulu-nova-cyan) !important; }
 .lulu-native-agent__metric,
 .lulu-native-agent__list,
 .lulu-native-agent__split-list > section,
 .lulu-native-agent__conversation,
 .lulu-native-agent__evidence-grid > div { border-color: rgba(151, 183, 229, .16) !important; background: rgba(4, 13, 27, .42) !important; }
-.lulu-native-agent__metric { border-radius: 14px !important; background: linear-gradient(145deg, rgba(24, 43, 71, .72), rgba(11, 25, 45, .62)) !important; }
+.lulu-native-agent__metric { border-radius: 12px !important; background: rgba(28, 41, 60, .64) !important; }
 .lulu-native-agent__status.is-positive { border-color: rgba(117, 233, 226, .32) !important; background: rgba(117, 233, 226, .12) !important; color: #b3fff5 !important; }
 
 /* Public landing — editorial, product-led and light on decoration */
