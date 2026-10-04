@@ -9,6 +9,7 @@ export default function ComposioWorkspacePage() {
   const t = useTranslation();
   const { selectedWorkspace, permissions } = useLuluApp();
   const canConnect = permissions.status === "ready" && permissions.capabilities.includes("providers.connect");
+  const canManageTeams = permissions.status === "ready" && permissions.capabilities.includes("providers.manage");
 
   if (!selectedWorkspace) {
     return <WorkspaceSurfaceShell activeSlug="lulu-connected-apps-9011"><main className="page-frame grid min-h-screen place-items-center p-6"><p className="text-sm text-muted-foreground">{t("Choose a workspace to continue.")}</p></main></WorkspaceSurfaceShell>;
@@ -35,7 +36,7 @@ export default function ComposioWorkspacePage() {
         </div>
       </header>
       <section className="mt-7 max-w-3xl">
-        <ComposioCatalog workspaceId={selectedWorkspace.id} canConnect={canConnect} />
+        <ComposioCatalog workspaceId={selectedWorkspace.id} canConnect={canConnect} canManageTeams={canManageTeams} />
       </section>
     </div>
     <style>{livePanelStyles}</style>

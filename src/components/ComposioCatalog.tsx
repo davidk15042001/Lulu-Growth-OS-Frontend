@@ -37,7 +37,13 @@ function teamStatusDescription(status: string, t: (key: string) => string) {
   return t(descriptions[status] ?? "The integration status is being reconciled.");
 }
 
-export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceId: string; canConnect?: boolean }) {
+type ComposioCatalogProps = {
+  workspaceId: string;
+  canConnect?: boolean;
+  canManageTeams?: boolean;
+};
+
+export function ComposioCatalog({ workspaceId, canConnect = true, canManageTeams = false }: ComposioCatalogProps) {
   const t = useTranslation();
   const [toolkits, setToolkits] = useState<ComposioToolkit[]>([]);
   const [teams, setTeams] = useState<ComposioIntegrationTeam[]>([]);
@@ -161,9 +167,9 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
       {teams.map((team) => <article className="lulu-live-row" key={team.id}>
         <div className="lulu-live-row-top"><div><strong>{team.teamName}</strong><span>{team.composioToolkit} · {team.mission}</span></div><span className={`lulu-live-badge ${team.status === "ACTIVE" ? "good" : ""}`}>{teamStatusLabel(team.status, t)}</span></div>
         <small>{teamStatusDescription(team.status, t)}{team.lastProviderStatus ? ` · provider ${team.lastProviderStatus}` : ""}</small>
-        <div className="lulu-live-actions" style={{ marginTop: 8 }}>
+        {canManageTeams ? <div className="lulu-live-actions" style={{ marginTop: 8 }}>
           {team.status === "SUSPENDED" ? <button className="lulu-live-button" onClick={async () => { await composioApi.resumeTeam(workspaceId, team.id); await loadTeams(); }}>{t("Resume")}</button> : <button className="lulu-live-button danger" onClick={async () => { await composioApi.suspendTeam(workspaceId, team.id); await loadTeams(); }}>{t("Suspend")}</button>}
-        </div>
+        </div> : <p className="lulu-live-message" style={{ marginTop: 8 }}>{t("Your workspace role can view this team, but cannot pause or resume external execution.")}</p>}
       </article>)}
     </LiveSection>}
     <LiveSection title={`Available integrations${hasMore ? " · more available" : ""}`} action={<span className="lulu-live-message">Tool calls are deducted automatically from the AI wallet. Platform admins with billing.bypass are exempt.</span>}>
@@ -171,7 +177,7 @@ export function ComposioCatalog({ workspaceId, canConnect = true }: { workspaceI
     {!canConnect ? <p className="lulu-live-message">You can view available apps, but your workspace role does not allow new connections.</p> : null}
     {error ? <div className="lulu-live-error">{error}</div> : null}
     {notice ? <p className="lulu-live-message lulu-live-message--success">{notice}</p> : null}
-    {connectUrl ? <p className="lulu-live-message">Connection in progress. <a href={connectUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline", fontWeight: 700 }}>Open the Composio connection page</a>, then finish or cancel it there.{pendingConnection ? <button className="lulu-live-button" type="button" onClick={() => void settleAuthorization(pendingConnection, false)} style={{ marginLeft: 8 }}>Cancel and clean up</button> : null}</p> : null}
+    {connectUrl ? <p className="lulu-live-message">Connection in progress. <a href={connectUrl} target="_blank" rel="noreferrer" style={{ textDecoration: "underline", fontWeight: 700 }}>Open the Composio connection page</a>, then finish or cancel it there.{pendingConnection && canConnect ? <button className="lulu-live-button" type="button" onClick={() => void settleAuthorization(pendingConnection, false)} style={{ marginLeft: 8 }}>Cancel and clean up</button> : null}</p> : null}
     <form className="lulu-live-form lulu-live-search-form" onSubmit={(event) => void submitSearch(event)}>
       <label><span>Search Composio apps</span><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by app name or toolkit" /></label>
       <button className="lulu-live-button" type="submit" disabled={loading}><Search size={15} />Search</button>
