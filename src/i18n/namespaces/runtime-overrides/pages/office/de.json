@@ -709,5 +709,6 @@
   "Crew": "Crew",
   "department room": "Abteilungsraum",
   "Last event": "Letztes Ereignis",
-  "Verified employee event": "Verifiziertes Mitarbeiterereignis"
+  "Verified employee event": "Verifiziertes Mitarbeiterereignis",
+  "native workspace": "nativer Workspace"
 }

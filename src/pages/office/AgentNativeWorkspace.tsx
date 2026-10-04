@@ -39,6 +39,7 @@ import { websitesApi, type WebsiteSite } from "../../api/websites";
 import { workspaceAppApi, type GoogleReviewsManagerState } from "../../api/workspace-app";
 import type { OfficeEmployeeDetails } from "../../api/office";
 import { ApiError, getFriendlyErrorMessage } from "../../api/client";
+import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { conciseOfficeCopy } from "./office-copy";
 import "./agent-native-workspace.css";
 
@@ -102,18 +103,22 @@ function statusClass(value: string | null | undefined) {
 }
 
 function SurfaceState({ loading, error, empty, children }: { loading: boolean; error: string; empty?: string; children: React.ReactNode }) {
-  if (loading) return <div className="lulu-native-agent__state"><RefreshCw size={18} className="lulu-station__spin" /><span>Loading verified workspace data…</span></div>;
+  const t = useTranslation();
+  if (loading) return <div className="lulu-native-agent__state"><RefreshCw size={18} className="lulu-station__spin" /><span>{t("Loading verified workspace data…")}</span></div>;
   if (error) return <div className="lulu-native-agent__state lulu-native-agent__state--error"><CircleAlert size={18} /><span>{error}</span></div>;
-  if (empty) return <div className="lulu-native-agent__state"><Boxes size={18} /><span>{empty}</span></div>;
+  if (empty) return <div className="lulu-native-agent__state"><Boxes size={18} /><span>{t(empty)}</span></div>;
   return <>{children}</>;
 }
 
 function Metric({ label, value, detail, icon }: { label: string; value: string | number; detail: string; icon: React.ReactNode }) {
-  return <div className="lulu-native-agent__metric"><span>{icon}{label}</span><strong>{value}</strong><small>{detail}</small></div>;
+  const t = useTranslation();
+  return <div className="lulu-native-agent__metric"><span>{icon}{t(label)}</span><strong>{value}</strong><small>{t(detail)}</small></div>;
 }
 
 function Status({ children }: { children: string | null | undefined }) {
-  return <span className={`lulu-native-agent__status ${statusClass(children)}`}>{children?.replaceAll("_", " ") ?? "unknown"}</span>;
+  const t = useTranslation();
+  const label = children?.replaceAll("_", " ") ?? "unknown";
+  return <span className={`lulu-native-agent__status ${statusClass(children)}`}>{t(label.toLowerCase())}</span>;
 }
 
 function CommandSurface({ detail }: { detail: OfficeEmployeeDetails }) {
@@ -276,17 +281,19 @@ function OperationsSurface({ workspaceId }: { workspaceId: string }) {
 }
 
 function IntelligenceSurface({ workspaceId }: { workspaceId: string }) {
+  const t = useTranslation();
   const [overview, setOverview] = useState<ExecutiveOverview | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
-  useEffect(() => { let active = true; setLoading(true); setError(""); void executiveApi.overview(workspaceId).then((response) => active && setOverview(response.data)).catch((cause) => active && setError(getFriendlyErrorMessage(cause, "Executive intelligence is unavailable."))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [workspaceId]);
-  return <SurfaceState loading={loading} error={error} empty={!overview ? "No executive intelligence is available yet." : undefined}><div className="lulu-native-agent__metrics"><Metric label="Findings" value={overview?.summary.visibleFindingCount ?? 0} detail="visible operating signals" icon={<CircleAlert size={14} />} /><Metric label="Proposals" value={overview?.summary.visibleProposalCount ?? 0} detail="decision-ready items" icon={<Sparkles size={14} />} /><Metric label="Forecasts" value={overview?.summary.forecastCount ?? 0} detail="evidence-backed scenarios" icon={<BarChart3 size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>Executive signals</span><small>Verified cycle evidence</small></div>{overview?.findings.slice(0, 6).map((finding) => <article key={finding.id}><div><strong>{finding.title}</strong><small>{finding.description}</small></div><Status>{finding.status}</Status></article>)}</section></SurfaceState>;
+  useEffect(() => { let active = true; setLoading(true); setError(""); void executiveApi.overview(workspaceId).then((response) => active && setOverview(response.data)).catch((cause) => active && setError(getFriendlyErrorMessage(cause, t("Executive intelligence is unavailable.")))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [t, workspaceId]);
+  return <SurfaceState loading={loading} error={error} empty={!overview ? "No executive intelligence is available yet." : undefined}><div className="lulu-native-agent__metrics"><Metric label="Findings" value={overview?.summary.visibleFindingCount ?? 0} detail="visible operating signals" icon={<CircleAlert size={14} />} /><Metric label="Proposals" value={overview?.summary.visibleProposalCount ?? 0} detail="decision-ready items" icon={<Sparkles size={14} />} /><Metric label="Forecasts" value={overview?.summary.forecastCount ?? 0} detail="evidence-backed scenarios" icon={<BarChart3 size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Executive signals")}</span><small>{t("Verified cycle evidence")}</small></div>{overview?.findings.slice(0, 6).map((finding) => <article key={finding.id}><div><strong>{finding.title}</strong><small>{finding.description}</small></div><Status>{finding.status}</Status></article>)}</section></SurfaceState>;
 }
 
 export function AgentNativeWorkspace({ workspaceId, employeeDetail }: Props) {
+  const t = useTranslation();
   const kind = useMemo(() => resolveKind(employeeDetail), [employeeDetail]);
   const definition = KINDS[kind];
   const Icon = definition.icon;
-  return <section className="lulu-native-agent" aria-label={`${employeeDetail.employee.name} native workspace`}>
-    <header className="lulu-native-agent__header"><span className="lulu-native-agent__header-icon"><Icon size={17} /></span><div><span className="lulu-native-agent__eyebrow">{definition.label}</span><h3>{employeeDetail.employee.name}</h3><p>{definition.description}</p></div><span className="lulu-native-agent__live"><i />Native workspace</span></header>
+  return <section className="lulu-native-agent" aria-label={`${employeeDetail.employee.name} ${t("native workspace")}`.trim()}>
+    <header className="lulu-native-agent__header"><span className="lulu-native-agent__header-icon"><Icon size={17} /></span><div><span className="lulu-native-agent__eyebrow">{t(definition.label)}</span><h3>{employeeDetail.employee.name}</h3><p>{t(definition.description)}</p></div><span className="lulu-native-agent__live"><i />{t("Native workspace")}</span></header>
     <div className="lulu-native-agent__content">
       {kind === "crm" ? <CrmSurface workspaceId={workspaceId} /> : null}
       {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} /> : null}
@@ -301,6 +308,6 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail }: Props) {
       {kind === "intelligence" ? <IntelligenceSurface workspaceId={workspaceId} /> : null}
       {kind === "command" ? <CommandSurface detail={employeeDetail} /> : null}
     </div>
-    <footer className="lulu-native-agent__footer"><ShieldCheck size={14} /><span>Uses the same workspace-scoped APIs and permission checks as the full product surface.</span></footer>
+    <footer className="lulu-native-agent__footer"><ShieldCheck size={14} /><span>{t("Uses the same workspace-scoped APIs and permission checks as the full product surface.")}</span></footer>
   </section>;
 }
