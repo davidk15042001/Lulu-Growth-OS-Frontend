@@ -538,7 +538,7 @@
   backdrop-filter: blur(8px);
 }
 
-.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.modal, [role="dialog"]) {
+.lulu-global-shell:not(.lulu-global-shell--navigation-free) .lulu-native-page :is(.modal, [role="dialog"]):not(.calendar-dialog--modern) {
   border-color: var(--lulu-surface-border);
   border-radius: 22px;
   background: #ffffff;
