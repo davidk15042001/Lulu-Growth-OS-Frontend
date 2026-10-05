@@ -11,6 +11,7 @@
   --station-gold: #e9c47a;
   --station-blue: #7fc8ff;
   --station-coral: #ff9d8a;
+  --station-composer-clearance: clamp(148px, 18dvh, 220px);
 }
 
 .lulu-station {
@@ -19,7 +20,7 @@
   display: grid;
   gap: 18px;
   min-height: 100dvh;
-  padding: clamp(18px, 3vw, 38px) clamp(15px, 4vw, 54px) 34px;
+  padding: clamp(18px, 3vw, 38px) clamp(15px, 4vw, 54px) var(--station-composer-clearance);
   overflow: hidden;
   background:
     radial-gradient(circle at 18% 0%, rgba(61, 145, 173, .16), transparent 33%),
@@ -111,7 +112,7 @@
 .lulu-station__department-options button small { flex: 0 0 auto; color: #7bd8d0; font-size: .54rem; font-weight: 850; }
 .lulu-station__department-empty { margin: 0; padding: 14px 9px; color: #8ca9b4; font-size: .66rem; line-height: 1.45; }
 .lulu-station__department-nav > span { flex: 0 0 auto; color: #78949f; font-size: .6rem; font-weight: 700; }
-.lulu-station__world { max-height: min(76dvh, 920px); overflow: auto; overscroll-behavior: contain; border-radius: 0 0 17px 17px; padding: 10px; background: radial-gradient(circle at 50% 52%, rgba(86, 225, 208, .06), transparent 36%); scrollbar-color: rgba(86, 225, 208, .42) transparent; scrollbar-width: thin; }
+.lulu-station__world { max-height: min(76dvh, 920px); overflow: auto; overscroll-behavior: contain; border-radius: 0 0 17px 17px; padding: 10px 10px calc(10px + var(--station-composer-clearance)); background: radial-gradient(circle at 50% 52%, rgba(86, 225, 208, .06), transparent 36%); scrollbar-color: rgba(86, 225, 208, .42) transparent; scrollbar-width: thin; }
 .lulu-station__world svg { display: block; width: 100%; min-width: 960px; height: auto; min-height: 620px; overflow: visible; }
 .lulu-station__spine { fill: none; stroke: rgba(107, 160, 182, .1); stroke-width: 13; stroke-linecap: round; }
 .lulu-station__corridor { fill: none; stroke: #83b8ca; stroke-opacity: .16; stroke-width: 5; stroke-linecap: round; }
@@ -294,7 +295,7 @@
   .lulu-station__header { align-items: start; flex-direction: column; gap: 15px; }
   .lulu-station__header-actions { width: 100%; justify-content: space-between; }
   .lulu-station__metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .lulu-station__world { max-height: 70dvh; padding: 6px; }
+  .lulu-station__world { max-height: 70dvh; padding: 6px 6px calc(6px + var(--station-composer-clearance)); }
   .lulu-station__world svg { min-height: 0; }
   .lulu-station__world-toolbar { align-items: start; flex-direction: column; justify-content: center; gap: 3px; padding: 9px 12px; }
   .lulu-station__world-toolbar small { font-size: .58rem; }
