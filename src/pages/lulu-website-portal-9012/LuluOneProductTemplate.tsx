@@ -157,7 +157,7 @@ export function LuluOneProductTemplate({
   ] as const;
 
   return (
-    <div className="overflow-hidden bg-[#0a0f14] text-[#eaf3f8]">
+    <div className="overflow-hidden bg-[#0a0f14] text-[#eaf3f8]" data-lulu-no-translate="true" translate="no">
       <nav className="sticky top-0 z-40 border-b border-white/10 bg-[#0a0f14]/75 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-4 px-5">
           <a

@@ -37,6 +37,8 @@ const nativeAgentWorkspace = fs.readFileSync(path.join(root, 'src', 'pages', 'of
 const officeCopy = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'office-copy.ts'), 'utf8');
 const calendarPortal = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-calendar-portal-9014', 'components', 'generated', 'LuluCalendarPortal.tsx'), 'utf8');
 const calendarApi = fs.readFileSync(path.join(root, 'src', 'api', 'calendar.ts'), 'utf8');
+const industrialWebsiteTemplate = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-website-portal-9012', 'LuluIndustrialTemplate.tsx'), 'utf8');
+const oneProductWebsiteTemplate = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-website-portal-9012', 'LuluOneProductTemplate.tsx'), 'utf8');
 const luluStationCss = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'lulu-station.css'), 'utf8');
 const executivePage = fs.readFileSync(path.join(root, 'src', 'pages', 'tender-water-4095', 'App.tsx'), 'utf8');
 const executiveWorkspace = fs.readFileSync(path.join(root, 'src', 'components', 'ExecutiveOverviewWorkspace.tsx'), 'utf8');
@@ -202,6 +204,13 @@ if (authenticatedTopBar.includes('lulu-auth-runtime') || globalNavigation.includ
 
 if (!connectionSetupPage.includes("id: 'crm'") || !connectionSetupPage.includes("hidden: true") || !connectionSetupPage.includes('platformGroups.filter(group => !group.hidden)')) {
   failures.push('The CRM & Sales connection block is not hidden from the connection setup page.');
+}
+
+if (
+  !industrialWebsiteTemplate.includes('className="lulu-industrial-preview" data-lulu-no-translate="true" translate="no"')
+  || !oneProductWebsiteTemplate.includes('data-lulu-no-translate="true" translate="no"')
+) {
+  failures.push('The managed website preview can be rewritten by the global language observer instead of respecting its own template language.');
 }
 
 if (
