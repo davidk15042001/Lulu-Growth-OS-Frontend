@@ -543,7 +543,7 @@ if (
   || !luluStation.includes('No department rooms match this search.')
   || !luluStationCss.includes('color-scheme: dark;')
   || !luluStationCss.includes('isolation: isolate;')
-  || !luluStationCss.includes('.lulu-station__world-shell { position: relative; z-index: 2; display: grid; min-width: 0; overflow: visible;')
+  || !luluStationCss.includes('.lulu-station__world-shell { position: relative; z-index: 2; display: grid; min-width: 0; min-height: 0; grid-template-rows: auto auto minmax(0, 1fr) auto;')
   || !luluStationCss.includes('.lulu-station__department-menu { position: absolute; z-index: 8;')
   || !luluStationCss.includes('.lulu-station.is-department-menu-open { z-index: 51; }')
   || !luluStation.includes('className={`lulu-station${departmentMenuOpen ? " is-department-menu-open" : ""}`}')
@@ -553,9 +553,14 @@ if (
 
 if (
   !luluStationCss.includes('--station-composer-clearance: clamp(148px, 18dvh, 220px);')
+  || !luluStationCss.includes('box-sizing: border-box;')
+  || !luluStationCss.includes('grid-template-rows: auto auto minmax(0, 1fr);')
+  || !luluStationCss.includes('height: 100dvh;')
   || !luluStationCss.includes('padding: clamp(18px, 3vw, 38px) clamp(15px, 4vw, 54px) var(--station-composer-clearance);')
-  || !luluStationCss.includes('calc(10px + var(--station-composer-clearance))')
-  || !luluStationCss.includes('margin-bottom: var(--station-composer-clearance);')
+  || !luluStationCss.includes('.lulu-station__world-shell { position: relative; z-index: 2; display: grid; min-width: 0; min-height: 0; grid-template-rows: auto auto minmax(0, 1fr) auto;')
+  || !luluStationCss.includes('.lulu-station__world { min-height: 0; max-height: none;')
+  || !luluStationCss.includes('.lulu-station__world svg { display: block; width: 100%; min-width: 960px; height: auto; min-height: 620px; overflow: visible;')
+  || !luluStationCss.includes('.lulu-station { padding: 18px 12px var(--station-composer-clearance); }')
 ) {
   failures.push('The fixed Lulu Core composer can cover the lower Station map without a responsive clearance zone.');
 }

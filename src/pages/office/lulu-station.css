@@ -15,13 +15,16 @@
 }
 
 .lulu-station {
+  box-sizing: border-box;
   position: relative;
   z-index: 2;
   display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
   gap: 18px;
+  height: 100dvh;
   min-height: 100dvh;
   padding: clamp(18px, 3vw, 38px) clamp(15px, 4vw, 54px) var(--station-composer-clearance);
-  overflow: hidden;
+  overflow: auto;
   background:
     radial-gradient(circle at 18% 0%, rgba(61, 145, 173, .16), transparent 33%),
     radial-gradient(circle at 88% 18%, rgba(118, 92, 225, .14), transparent 28%),
@@ -86,7 +89,7 @@
 .lulu-station__metrics small { color: #73909f; font-size: .66rem; }
 
 .lulu-station__workspace { display: grid; min-height: 0; grid-template-columns: minmax(0, 1fr) 290px; gap: 13px; align-items: stretch; }
-.lulu-station__world-shell { position: relative; z-index: 2; display: grid; min-width: 0; overflow: visible; border: 1px solid rgba(138, 202, 223, .18); border-radius: 18px; background: rgba(7, 17, 29, .72); box-shadow: 0 25px 80px rgba(0, 0, 0, .22); }
+.lulu-station__world-shell { position: relative; z-index: 2; display: grid; min-width: 0; min-height: 0; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow: visible; border: 1px solid rgba(138, 202, 223, .18); border-radius: 18px; background: rgba(7, 17, 29, .72); box-shadow: 0 25px 80px rgba(0, 0, 0, .22); }
 .lulu-station__world-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid var(--station-line); padding: 0 15px; }
 .lulu-station__world-toolbar span { display: flex; align-items: center; gap: 7px; color: #eafaff; font-size: .72rem; font-weight: 750; }
 .lulu-station__world-toolbar small { color: var(--station-muted); font-size: .63rem; }
@@ -112,8 +115,8 @@
 .lulu-station__department-options button small { flex: 0 0 auto; color: #7bd8d0; font-size: .54rem; font-weight: 850; }
 .lulu-station__department-empty { margin: 0; padding: 14px 9px; color: #8ca9b4; font-size: .66rem; line-height: 1.45; }
 .lulu-station__department-nav > span { flex: 0 0 auto; color: #78949f; font-size: .6rem; font-weight: 700; }
-.lulu-station__world { max-height: min(76dvh, 920px); overflow: auto; overscroll-behavior: contain; border-radius: 0 0 17px 17px; padding: 10px 10px calc(10px + var(--station-composer-clearance)); background: radial-gradient(circle at 50% 52%, rgba(86, 225, 208, .06), transparent 36%); scrollbar-color: rgba(86, 225, 208, .42) transparent; scrollbar-width: thin; }
-.lulu-station__world svg { display: block; width: 100%; min-width: 960px; height: auto; min-height: 620px; margin-bottom: var(--station-composer-clearance); overflow: visible; }
+.lulu-station__world { min-height: 0; max-height: none; overflow: auto; overscroll-behavior: contain; border-radius: 0 0 17px 17px; padding: 10px; background: radial-gradient(circle at 50% 52%, rgba(86, 225, 208, .06), transparent 36%); scrollbar-color: rgba(86, 225, 208, .42) transparent; scrollbar-width: thin; }
+.lulu-station__world svg { display: block; width: 100%; min-width: 960px; height: auto; min-height: 620px; overflow: visible; }
 .lulu-station__spine { fill: none; stroke: rgba(107, 160, 182, .1); stroke-width: 13; stroke-linecap: round; }
 .lulu-station__corridor { fill: none; stroke: #83b8ca; stroke-opacity: .16; stroke-width: 5; stroke-linecap: round; }
 .lulu-station__corridor-glow { fill: none; stroke: var(--station-teal); stroke-dasharray: 4 24; stroke-linecap: round; stroke-opacity: .72; stroke-width: 2; animation: lulu-station-flow 4s linear infinite; }
@@ -291,11 +294,11 @@
 }
 
 @media (max-width: 760px) {
-  .lulu-station { padding: 18px 12px 28px; }
+  .lulu-station { padding: 18px 12px var(--station-composer-clearance); }
   .lulu-station__header { align-items: start; flex-direction: column; gap: 15px; }
   .lulu-station__header-actions { width: 100%; justify-content: space-between; }
   .lulu-station__metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .lulu-station__world { max-height: 70dvh; padding: 6px 6px calc(6px + var(--station-composer-clearance)); }
+  .lulu-station__world { padding: 6px; }
   .lulu-station__world svg { min-height: 0; }
   .lulu-station__world-toolbar { align-items: start; flex-direction: column; justify-content: center; gap: 3px; padding: 9px 12px; }
   .lulu-station__world-toolbar small { font-size: .58rem; }
