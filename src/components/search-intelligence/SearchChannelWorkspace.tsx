@@ -17,6 +17,7 @@ import {
   type SearchChannelSummary,
   type SearchItem,
 } from "../../api/searchIntelligence";
+import "./search-channel-workspace.css";
 
 type Props = {
   channel: SearchChannel;
@@ -185,7 +186,7 @@ export function SearchChannelWorkspace({ channel }: Props) {
   );
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="lulu-search-intelligence min-h-screen bg-slate-950 text-slate-100">
       <div className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
         <section className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 via-slate-900 to-slate-800 p-6 shadow-2xl shadow-black/20">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">

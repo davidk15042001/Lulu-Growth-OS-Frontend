@@ -1,0 +1,38 @@
+.lulu-search-intelligence {
+  color-scheme: dark;
+  isolation: isolate;
+}
+
+.lulu-search-intelligence :is(input, select, textarea) {
+  color-scheme: dark;
+}
+
+/* Native option menus otherwise inherit the light browser palette while the
+   field itself uses a dark surface, making the selected text unreadable in
+   Chromium and Safari. */
+.lulu-search-intelligence select,
+.lulu-search-intelligence select option {
+  background-color: #0b1222 !important;
+  color: #eff6ff !important;
+}
+
+.lulu-search-intelligence :is(input, select, textarea):focus-visible {
+  border-color: rgba(103, 232, 249, .72) !important;
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, .12) !important;
+  outline: 2px solid rgba(103, 232, 249, .72);
+  outline-offset: 1px;
+}
+
+.lulu-search-intelligence input[type="checkbox"] {
+  accent-color: #22d3ee;
+}
+
+@media (max-width: 640px) {
+  .lulu-search-intelligence > div {
+    padding-inline: 1rem;
+  }
+
+  .lulu-search-intelligence h1 {
+    font-size: clamp(1.8rem, 9vw, 2.5rem);
+  }
+}
