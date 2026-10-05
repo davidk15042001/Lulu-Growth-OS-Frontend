@@ -190,6 +190,16 @@ if (
 }
 
 if (
+  !appCss.includes('.lulu-global-shell--navigation-free{display:block;width:100%;max-width:100%;min-width:0}')
+  || !appCss.includes('.lulu-global-content--navigation-free{width:100%;max-width:100%;min-width:0}')
+  || !appCss.includes('.page-frame--auth{width:100%;max-width:100%;min-width:0}')
+  || !loginCss.includes('width: 100%;\n  max-width: none;\n  min-width: 0;')
+  || !publicLandingCss.includes('width: 100%;\n  max-width: none;\n  min-width: 0;')
+) {
+  failures.push('Standalone public/auth surfaces must explicitly occupy the full available viewport width.');
+}
+
+if (
   !signupPage.includes('import \'../../signup.css\';')
   || !signupPage.includes('className="lulu-signup"')
   || !signupPage.includes('className="lulu-signup__form-card"')

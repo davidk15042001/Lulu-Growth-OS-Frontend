@@ -6,6 +6,9 @@
   --public-line: rgba(180, 207, 244, .14);
   --public-cyan: #7ce5dc;
   --public-violet: #a593ff;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
   position: relative;
   min-height: 100svh;
   overflow: hidden;

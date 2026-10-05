@@ -504,6 +504,9 @@ body.lulu-mobile-nav-open{overflow:hidden}
 
 /* Public auth layout: do not reserve the authenticated workspace navigation grid column. */
 .lulu-global-shell:has(.lulu-global-content--auth){display:block;min-height:100vh}
+.lulu-global-shell--navigation-free{display:block;width:100%;max-width:100%;min-width:0}
+.lulu-global-content--navigation-free{width:100%;max-width:100%;min-width:0}
+.page-frame--auth{width:100%;max-width:100%;min-width:0}
 .lulu-global-content--auth,.lulu-global-content--auth .lulu-native-page{width:100%;min-width:0}
 .lulu-global-content--auth [data-lulu-global-navigation="true"],.lulu-global-content--auth .lulu-global-navigation,.page-frame--auth [data-lulu-global-navigation="true"]{display:none!important}
 .lulu-global-content--auth .auth-shell{display:block!important;width:100%!important;min-width:0}

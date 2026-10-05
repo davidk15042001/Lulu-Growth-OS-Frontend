@@ -14,6 +14,9 @@
   --entry-cyan: #7ee8df;
   --entry-violet: #a592ff;
   display: grid;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
   grid-template-rows: auto 1fr auto;
   min-height: 100svh;
   overflow: hidden;
