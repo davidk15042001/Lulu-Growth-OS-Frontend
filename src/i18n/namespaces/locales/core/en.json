@@ -139,6 +139,7 @@
   "No approved integrations match this search.": "No approved integrations match this search.",
   "Secure account connection": "Secure account connection",
   "Die Tools konnten nicht geladen werden.": "The tools could not be loaded.",
+  "Die Provider-Antwort enthält mehr als 500 Tools. Es werden die ersten 500 gezeigt; nutze die Suche, um weitere Tools gezielt zu finden.": "The provider response contains more than 500 tools. The first 500 are shown; use search to find additional tools.",
   "Tools ausblenden": "Hide tools",
   "Tools anzeigen": "Show tools",
   "Tools werden geladen…": "Loading tools…",
