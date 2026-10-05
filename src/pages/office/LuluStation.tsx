@@ -4,6 +4,7 @@ import {
   Bot,
   CheckCircle2,
   ChevronLeft,
+  ChevronRight,
   Clock3,
   LayoutDashboard,
   Layers3,
@@ -53,6 +54,7 @@ const ROOM_CREW_TOP = 132;
 const ROOM_CREW_ROW_PITCH = 116;
 const ROOM_CREW_BOTTOM = 136;
 const ROOM_ZONE_CAPACITY = 8;
+const CATALOG_PAGE_SIZE = 24;
 
 const ROOM_THEMES: ReadonlyArray<Pick<RoomLayout, "color" | "prop">> = [
   { color: "teal", prop: "brain" },
@@ -339,6 +341,7 @@ export function LuluStation() {
   const [catalogError, setCatalogError] = useState<string | null>(null);
   const [catalogQuery, setCatalogQuery] = useState("");
   const [catalogTier, setCatalogTier] = useState<"all" | AgentEcosystemDefinition["tier"]>("all");
+  const [catalogPage, setCatalogPage] = useState(1);
   const [selectedCatalogAgent, setSelectedCatalogAgent] = useState<AgentEcosystemDefinition | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedProp, setSelectedProp] = useState<RoomLayout["prop"] | null>(null);
@@ -420,6 +423,7 @@ export function LuluStation() {
     setCatalogError(null);
     setCatalogQuery("");
     setCatalogTier("all");
+    setCatalogPage(1);
     setSelectedCatalogAgent(null);
     setSelectedRoomId(null);
     setSelectedProp(null);
@@ -495,6 +499,7 @@ export function LuluStation() {
     focusBeforeCatalogModalRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setCatalogOpen(true);
     setSelectedCatalogAgent(null);
+    setCatalogPage(1);
     if (!ecosystem && !catalogLoading) void loadCatalog();
   }, [catalogLoading, ecosystem, loadCatalog]);
 
@@ -504,6 +509,7 @@ export function LuluStation() {
     setCatalogOpen(false);
     setCatalogLoading(false);
     setSelectedCatalogAgent(null);
+    setCatalogPage(1);
     window.requestAnimationFrame(() => {
       if (focusTarget?.isConnected) focusTarget.focus();
     });
@@ -552,10 +558,15 @@ export function LuluStation() {
     if (!catalogOpen) return undefined;
     const frame = window.requestAnimationFrame(() => {
       catalogModalRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
-      closeCatalogModalRef.current?.focus({ preventScroll: true });
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [catalogOpen, selectedCatalogAgent]);
+  }, [catalogOpen, catalogPage, selectedCatalogAgent]);
+
+  useEffect(() => {
+    if (!catalogOpen) return undefined;
+    const frame = window.requestAnimationFrame(() => closeCatalogModalRef.current?.focus({ preventScroll: true }));
+    return () => window.cancelAnimationFrame(frame);
+  }, [catalogOpen]);
 
   const trapEmployeeModalFocus = useCallback((event: React.KeyboardEvent<HTMLElement>) => {
     if (event.key !== "Tab") return;
@@ -600,6 +611,12 @@ export function LuluStation() {
         .includes(query);
     });
   }, [catalogQuery, catalogTier, ecosystem]);
+  const catalogPageCount = Math.max(1, Math.ceil(filteredCatalogDefinitions.length / CATALOG_PAGE_SIZE));
+  const safeCatalogPage = Math.min(catalogPage, catalogPageCount);
+  const visibleCatalogDefinitions = useMemo(
+    () => filteredCatalogDefinitions.slice((safeCatalogPage - 1) * CATALOG_PAGE_SIZE, safeCatalogPage * CATALOG_PAGE_SIZE),
+    [filteredCatalogDefinitions, safeCatalogPage],
+  );
   const openSignals = overview?.companyBrain?.signals.filter((signal) => signal.status === "OPEN").length ?? 0;
   // A missing readiness payload must never make the visual Office claim that
   // AI execution is funded. The server is authoritative and already sends the
@@ -807,9 +824,17 @@ export function LuluStation() {
             </header>
             <div className="lulu-station__catalog-body">
               {catalogError ? <div className="lulu-station__catalog-error" role="alert"><strong>{t("Specialist directory unavailable")}</strong><span>{catalogError}</span><button type="button" onClick={() => void loadCatalog()}>{t("Try again")}</button></div> : catalogLoading && !ecosystem ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>{t("Loading verified specialist catalog…")}</strong><span>{t("No specialist is marked as active while the catalog loads.")}</span></div> : <>
-                <div className="lulu-station__catalog-controls"><label className="lulu-station__catalog-search"><Search size={16} aria-hidden="true" /><input autoFocus value={catalogQuery} onChange={(event) => setCatalogQuery(event.target.value)} placeholder={t("Search specialists, capabilities or tools…")} aria-label={t("Search all specialists")} /></label><label className="lulu-station__catalog-filter"><span>{t("Role")}</span><select value={catalogTier} onChange={(event) => setCatalogTier(event.target.value as typeof catalogTier)}><option value="all">{t("All roles")}</option><option value="executive">{t("Executive")}</option><option value="domain_lead">{t("Domain lead")}</option><option value="specialist">{t("Specialist")}</option><option value="auditor">{t("Auditor")}</option></select></label></div>
+                <div className="lulu-station__catalog-controls"><label className="lulu-station__catalog-search"><Search size={16} aria-hidden="true" /><input autoFocus value={catalogQuery} onChange={(event) => { setCatalogQuery(event.target.value); setCatalogPage(1); }} placeholder={t("Search specialists, capabilities or tools…")} aria-label={t("Search all specialists")} /></label><label className="lulu-station__catalog-filter"><span>{t("Role")}</span><select value={catalogTier} onChange={(event) => { setCatalogTier(event.target.value as typeof catalogTier); setCatalogPage(1); }}><option value="all">{t("All roles")}</option><option value="executive">{t("Executive")}</option><option value="domain_lead">{t("Domain lead")}</option><option value="specialist">{t("Specialist")}</option><option value="auditor">{t("Auditor")}</option></select></label></div>
                 <div className="lulu-station__catalog-meta"><span>{formatCount(filteredCatalogDefinitions.length, language)} {t("specialists shown")}</span><span><i className="is-active" />{t("Selected for the current team")} <i />{t("Available on demand")}</span></div>
-                <div className="lulu-station__catalog-list">{filteredCatalogDefinitions.map((agent) => <button type="button" key={agent.id} className="lulu-station__catalog-card" onClick={() => setSelectedCatalogAgent(agent)}><span className={`lulu-station__catalog-dot${activeCatalogAgents.has(agent.id) ? " is-active" : ""}`} /><span className="lulu-station__catalog-card-copy"><strong>{agent.name}</strong><small>{agent.tier.replaceAll("_", " ")} · {agent.domain}</small><em>{conciseOfficeCopy(agent.purpose, agent.name, 140)}</em></span><ArrowUpRight size={15} /></button>)}{filteredCatalogDefinitions.length === 0 ? <p className="lulu-station__catalog-empty">{t("No specialists match this search.")}</p> : null}</div>
+                <div className="lulu-station__catalog-list">{visibleCatalogDefinitions.map((agent) => <button type="button" key={agent.id} className="lulu-station__catalog-card" onClick={() => setSelectedCatalogAgent(agent)}><span className={`lulu-station__catalog-dot${activeCatalogAgents.has(agent.id) ? " is-active" : ""}`} /><span className="lulu-station__catalog-card-copy"><strong>{agent.name}</strong><small>{agent.tier.replaceAll("_", " ")} · {agent.domain}</small><em>{conciseOfficeCopy(agent.purpose, agent.name, 140)}</em></span><ArrowUpRight size={15} /></button>)}{filteredCatalogDefinitions.length === 0 ? <p className="lulu-station__catalog-empty">{t("No specialists match this search.")}</p> : null}</div>
+                {filteredCatalogDefinitions.length > CATALOG_PAGE_SIZE ? <nav className="lulu-station__catalog-pagination" aria-label={t("Specialist directory pagination")}>
+                  <span>{t("Showing")} {(safeCatalogPage - 1) * CATALOG_PAGE_SIZE + 1}–{Math.min(safeCatalogPage * CATALOG_PAGE_SIZE, filteredCatalogDefinitions.length)} {t("of")} {filteredCatalogDefinitions.length}</span>
+                  <div>
+                    <button type="button" onClick={() => setCatalogPage((page) => Math.max(1, page - 1))} disabled={safeCatalogPage <= 1} aria-label={t("Previous page")}><ChevronLeft size={14} />{t("Previous page")}</button>
+                    <strong aria-live="polite">{safeCatalogPage} / {catalogPageCount}</strong>
+                    <button type="button" onClick={() => setCatalogPage((page) => Math.min(catalogPageCount, page + 1))} disabled={safeCatalogPage >= catalogPageCount} aria-label={t("Next page")}>{t("Next page")}<ChevronRight size={14} /></button>
+                  </div>
+                </nav> : null}
               </>}
             </div>
           </>}

@@ -543,8 +543,11 @@ if (
   || !luluStation.includes('const ROOM_ZONE_CAPACITY = 8')
   || !luluStation.includes('employees: department.employees.slice(zoneIndex * ROOM_ZONE_CAPACITY, (zoneIndex + 1) * ROOM_ZONE_CAPACITY)')
   || !luluStation.includes('>{employees.length} {t("Crew")}</text>')
+  || !luluStation.includes('const CATALOG_PAGE_SIZE = 24')
+  || !luluStation.includes('const visibleCatalogDefinitions = useMemo(')
+  || !luluStation.includes('lulu-station__catalog-pagination')
 ) {
-  failures.push('The Office does not keep every visible room crew bounded, accurately counted and reachable from a workspace entry point.');
+  failures.push('The Office does not keep visible room crew and the growing specialist directory bounded, accurately counted and reachable from a workspace entry point.');
 }
 
 if (!luluStation.includes('overview.summary.specialistCount')) {
