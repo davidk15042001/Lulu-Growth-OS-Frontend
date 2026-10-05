@@ -629,7 +629,7 @@ export function LuluStation() {
   }
 
   return (
-    <section className="lulu-station" aria-label="Lulu Station">
+    <section className={`lulu-station${departmentMenuOpen ? " is-department-menu-open" : ""}`} aria-label="Lulu Station">
       <header className="lulu-station__header">
         <div>
           <div className="lulu-station__eyebrow"><Sparkles size={13} aria-hidden="true" />{t("LULU STATION / VERIFIED OPERATING WORLD")}</div>

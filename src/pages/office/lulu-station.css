@@ -29,6 +29,9 @@
   font-family: var(--font-sans, Inter, ui-sans-serif, system-ui, sans-serif);
 }
 
+/* Keep every Department option above the fixed Lulu Core composer while the picker is open. */
+.lulu-station.is-department-menu-open { z-index: 51; }
+
 .lulu-station::after {
   position: absolute;
   z-index: -1;

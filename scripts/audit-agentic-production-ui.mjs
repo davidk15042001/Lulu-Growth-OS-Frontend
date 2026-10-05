@@ -497,6 +497,8 @@ if (
   || !luluStationCss.includes('isolation: isolate;')
   || !luluStationCss.includes('.lulu-station__world-shell { position: relative; z-index: 2; display: grid; min-width: 0; overflow: visible;')
   || !luluStationCss.includes('.lulu-station__department-menu { position: absolute; z-index: 8;')
+  || !luluStationCss.includes('.lulu-station.is-department-menu-open { z-index: 51; }')
+  || !luluStation.includes('className={`lulu-station${departmentMenuOpen ? " is-department-menu-open" : ""}`}')
 ) {
   failures.push('The Station map cannot safely scale through a visible, dark, isolated, searchable department menu.');
 }
