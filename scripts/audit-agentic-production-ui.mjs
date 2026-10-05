@@ -314,6 +314,14 @@ if (!calendarPortal.includes('CalendarDeliverySettings')
   failures.push('The calendar workspace must expose the existing tenant-scoped Composio delivery targets and their safe lifecycle configuration.');
 }
 
+if (
+  !calendarPortal.includes("import { createPortal } from 'react-dom';")
+  || !calendarPortal.includes('return createPortal(<div className="calendar-modal-backdrop"')
+  || !calendarPortal.includes('</div>, document.body);')
+) {
+  failures.push('Calendar dialogs must escape the authenticated shell stacking context so their header and close action remain visible above the fixed navigation.');
+}
+
 if (luluStation.includes('<iframe') || nativeAgentWorkspace.includes('<iframe')) {
   failures.push('Office employee dialogs must render native workspace surfaces, not iframes.');
 }
