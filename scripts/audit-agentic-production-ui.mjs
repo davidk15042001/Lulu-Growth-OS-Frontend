@@ -34,6 +34,7 @@ const virtualOfficePage = fs.readFileSync(path.join(root, 'src', 'pages', 'offic
 const officeCommandCenter = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'OfficeCommandCenter.tsx'), 'utf8');
 const luluStation = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'LuluStation.tsx'), 'utf8');
 const nativeAgentWorkspace = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'AgentNativeWorkspace.tsx'), 'utf8');
+const nativeAgentWorkspaceCss = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'agent-native-workspace.css'), 'utf8');
 const officeCopy = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'office-copy.ts'), 'utf8');
 const calendarPortal = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-calendar-portal-9014', 'components', 'generated', 'LuluCalendarPortal.tsx'), 'utf8');
 const calendarApi = fs.readFileSync(path.join(root, 'src', 'api', 'calendar.ts'), 'utf8');
@@ -435,6 +436,8 @@ if (
   || !nativeAgentWorkspace.includes('setManager(null);')
   || !nativeAgentWorkspace.includes('catalogAgent?: AgentEcosystemDefinition;')
   || !nativeAgentWorkspace.includes('const isCatalogPreview = Boolean(catalogAgent && !employeeDetail);')
+  || !nativeAgentWorkspace.includes('lulu-native-agent__live ${isCatalogPreview ? "is-preview" : "is-surface"}')
+  || !nativeAgentWorkspaceCss.includes('border: 1px solid #789aa5;')
   || !luluStation.includes('<AgentNativeWorkspace workspaceId={workspaceId} catalogAgent={selectedCatalogAgent} />')
 ) {
   failures.push('Dedicated communication, scheduling and reputation employees do not resolve to their native live workspace surfaces.');

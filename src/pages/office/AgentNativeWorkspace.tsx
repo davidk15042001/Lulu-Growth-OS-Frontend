@@ -449,7 +449,7 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
   const Icon = definition.icon;
   const isCatalogPreview = Boolean(catalogAgent && !employeeDetail);
   return <section className="lulu-native-agent" aria-label={`${t(source.name)} ${t("native workspace")}`.trim()}>
-    <header className="lulu-native-agent__header"><span className="lulu-native-agent__header-icon"><Icon size={17} /></span><div><span className="lulu-native-agent__eyebrow">{t(definition.label)}</span><h3>{t(source.name)}</h3><p>{t(definition.description)}</p></div><span className="lulu-native-agent__live"><i />{t(isCatalogPreview ? "Workspace context" : "Native workspace")}</span></header>
+    <header className="lulu-native-agent__header"><span className="lulu-native-agent__header-icon"><Icon size={17} /></span><div><span className="lulu-native-agent__eyebrow">{t(definition.label)}</span><h3>{t(source.name)}</h3><p>{t(definition.description)}</p></div><span className={`lulu-native-agent__live ${isCatalogPreview ? "is-preview" : "is-surface"}`}><i />{t(isCatalogPreview ? "Workspace context" : "Native workspace")}</span></header>
     <div className="lulu-native-agent__content">
       {kind === "crm" ? <CrmSurface workspaceId={workspaceId} /> : null}
       {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} /> : null}
