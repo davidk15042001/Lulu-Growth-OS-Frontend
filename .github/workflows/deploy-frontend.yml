@@ -47,6 +47,7 @@ jobs:
         run: |
           set -euo pipefail
           npm ci --no-audit
+          npm audit --audit-level=high
           npm run check
           test -d dist
           grep -R "api.lulu-ai.tech/api/v1" dist/assets >/dev/null
