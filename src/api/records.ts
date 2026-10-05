@@ -50,19 +50,31 @@ export function listResourceTypes() {
 function workspacePath(path: string) {
   const workspaceId = getSelectedWorkspaceId();
   if (!workspaceId) throw new Error("No Lulu workspace is selected");
-  return `/workspaces/${workspaceId}${path}`;
+  return workspacePathFor(workspaceId, path);
+}
+
+function workspacePathFor(workspaceId: string, path: string) {
+  const normalizedWorkspaceId = workspaceId.trim();
+  if (!normalizedWorkspaceId) throw new Error("No Lulu workspace is selected");
+  return `/workspaces/${encodeURIComponent(normalizedWorkspaceId)}${path}`;
 }
 
 export type RecordListOptions = { includeTotal?: boolean; signal?: AbortSignal };
 
 export function listRecords(resourceType: string, query = "", options: RecordListOptions = {}) {
+  const workspaceId = getSelectedWorkspaceId();
+  if (!workspaceId) throw new Error("No Lulu workspace is selected");
+  return listWorkspaceRecords(workspaceId, resourceType, query, options);
+}
+
+export function listWorkspaceRecords(workspaceId: string, resourceType: string, query = "", options: RecordListOptions = {}) {
   const params = new URLSearchParams(query);
   if (options.includeTotal !== undefined && !params.has("includeTotal")) {
     params.set("includeTotal", String(options.includeTotal));
   }
   const serializedQuery = params.toString();
   return requestApi<{ items: WorkspaceRecord[]; pagination: { page: number; limit: number; total: number | null; pages: number | null; hasMore: boolean } }>({
-    path: workspacePath(`/records/${resourceType}${serializedQuery ? `?${serializedQuery}` : ""}`),
+    path: workspacePathFor(workspaceId, `/records/${resourceType}${serializedQuery ? `?${serializedQuery}` : ""}`),
     signal: options.signal,
   });
 }

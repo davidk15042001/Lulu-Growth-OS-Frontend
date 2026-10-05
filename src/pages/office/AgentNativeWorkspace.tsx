@@ -31,7 +31,7 @@ import { emailApi, type EmailAccount, type EmailDraft, type EmailThread } from "
 import { executiveApi, type ExecutiveOverview } from "../../api/executive";
 import { financeApi, type PayoutsData } from "../../api/finance";
 import { omnichannelApi, type OmniConversation, type OmniMessage } from "../../api/omnichannel";
-import { listRecords, type WorkspaceRecord } from "../../api/records";
+import { listWorkspaceRecords, type WorkspaceRecord } from "../../api/records";
 import { providerControlApi, type ProviderConnection, type ProviderLaunchReadiness } from "../../api/providers";
 import { productsApi, type Product } from "../../api/products";
 import { socialPublishingApi, type SocialContent, type SocialPublicationJob } from "../../api/social-publishing";
@@ -146,9 +146,41 @@ export const OFFICE_EMPLOYEE_WORKSPACE_KINDS: Readonly<Record<string, NativeWork
   "operations-manager": "operations",
 };
 
+/**
+ * Catalog specialists are not provisioned Digital Employees, so their role
+ * keys are intentionally more numerous than the Station roster.  Their
+ * canonical module is still part of the API contract; resolve it before any
+ * free-text heuristics so every on-demand specialist opens a predictable
+ * native workspace rather than falling into a neighbouring surface because a
+ * capability happened to share a keyword.
+ */
+const AGENT_MODULE_WORKSPACE_KINDS: Readonly<Record<string, NativeWorkspaceKind>> = {
+  general: "command",
+  dashboard: "intelligence",
+  intelligence: "intelligence",
+  finance: "finance",
+  sales: "crm",
+  crm: "crm",
+  ai: "command",
+  email: "email",
+  calendar: "calendar",
+  marketing: "marketing",
+  ads: "marketing",
+  website: "website",
+  commerce: "commerce",
+  reputation: "reputation",
+  settings: "operations",
+  seo: "website",
+  geo: "website",
+  aeo: "website",
+};
+
 function resolveKind(source: AgentSurfaceSource): NativeWorkspaceKind {
   const canonicalKind = OFFICE_EMPLOYEE_WORKSPACE_KINDS[source.key];
   if (canonicalKind) return canonicalKind;
+
+  const moduleKind = source.module ? AGENT_MODULE_WORKSPACE_KINDS[source.module.toLowerCase()] : undefined;
+  if (moduleKind) return moduleKind;
 
   const capabilities = source.capabilities.map((capability) => capability.toLowerCase());
   const classification = [source.key, source.name, source.module, source.pageId, ...capabilities]
@@ -230,7 +262,7 @@ function CrmSurface({ workspaceId }: { workspaceId: string }) {
   const [items, setItems] = useState<WorkspaceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  useEffect(() => { let active = true; setLoading(true); setError(""); void listRecords("crm_companies", "limit=8", { includeTotal: true }).then((response) => { if (active) setItems(response.data.items); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, t("Customer intelligence is unavailable.")))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [t, workspaceId]);
+  useEffect(() => { let active = true; setLoading(true); setError(""); void listWorkspaceRecords(workspaceId, "crm_companies", "limit=8", { includeTotal: true }).then((response) => { if (active) setItems(response.data.items); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, t("Customer intelligence is unavailable.")))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [t, workspaceId]);
   const researching = items.filter((item) => ["queued", "researching"].includes(String(item.data.enrichment && typeof item.data.enrichment === "object" ? (item.data.enrichment as Record<string, unknown>).status : ""))).length;
   return <SurfaceState loading={loading} error={error} empty={!items.length ? t("No companies are available in the customer graph.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Companies" value={items.length} detail="loaded in this view" icon={<Building2 size={14} />} /><Metric label="Research" value={researching} detail="verified in progress" icon={<Sparkles size={14} />} /><Metric label="Fresh signal" value={items.filter((item) => item.status !== "ARCHIVED").length} detail="active company profiles" icon={<Radio size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Company intelligence")}</span><small>{t("Canonical CRM records")}</small></div>{items.map((item) => { const enrichment = item.data.enrichment && typeof item.data.enrichment === "object" ? item.data.enrichment as Record<string, unknown> : {}; return <article key={item.id}><span className="lulu-native-agent__initial">{item.name.slice(0, 2).toUpperCase()}</span><div><strong>{item.name}</strong><small>{String(item.data.industry ?? t("Industry is being verified"))} · {String(item.data.city ?? item.data.country ?? t("Location pending"))}</small></div><span className="lulu-native-agent__progress"><i style={{ width: `${Math.min(100, Number(enrichment.completeness ?? 0))}%` }} /><small>{Number(enrichment.completeness ?? 0)}%</small></span><Status>{String(enrichment.status ?? item.status)}</Status></article>; })}</section></SurfaceState>;
 }
@@ -381,7 +413,17 @@ function IntelligenceSurface({ workspaceId }: { workspaceId: string }) {
   const t = useTranslation();
   const [overview, setOverview] = useState<ExecutiveOverview | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
   useEffect(() => { let active = true; setLoading(true); setError(""); void executiveApi.overview(workspaceId).then((response) => active && setOverview(response.data)).catch((cause) => active && setError(getFriendlyErrorMessage(cause, t("Executive intelligence is unavailable.")))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [t, workspaceId]);
-  return <SurfaceState loading={loading} error={error} empty={!overview ? t("No executive intelligence is available yet.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Findings" value={overview?.summary.visibleFindingCount ?? 0} detail="visible operating signals" icon={<CircleAlert size={14} />} /><Metric label="Proposals" value={overview?.summary.visibleProposalCount ?? 0} detail="decision-ready items" icon={<Sparkles size={14} />} /><Metric label="Forecasts" value={overview?.summary.forecastCount ?? 0} detail="evidence-backed scenarios" icon={<BarChart3 size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Executive signals")}</span><small>{t("Verified cycle evidence")}</small></div>{overview?.findings.slice(0, 6).map((finding) => <article key={finding.id}><div><strong>{finding.title}</strong><small>{finding.description}</small></div><Status>{finding.status}</Status></article>)}</section></SurfaceState>;
+  const hasVisibleExecutiveEvidence = Boolean(
+    overview && (overview.findings.length || overview.proposals.length || overview.forecasts.length || overview.scenarios.length || overview.learning.length),
+  );
+  const executiveItems = [
+    ...(overview?.findings.map((finding) => ({ id: `finding:${finding.id}`, title: finding.title, detail: finding.description, status: finding.status })) ?? []),
+    ...(overview?.proposals.map((proposal) => ({ id: `proposal:${proposal.id}`, title: proposal.title, detail: proposal.objective, status: proposal.status })) ?? []),
+    ...(overview?.forecasts.map((forecast) => ({ id: `forecast:${forecast.id}`, title: forecast.metricName, detail: `${forecast.projectedBase} ${forecast.metricUnit} · ${forecast.metricDomain}`, status: forecast.status })) ?? []),
+    ...(overview?.scenarios.map((scenario) => ({ id: `scenario:${scenario.id}`, title: scenario.name, detail: scenario.description, status: scenario.status })) ?? []),
+    ...(overview?.learning.map((learning) => ({ id: `learning:${learning.id}`, title: learning.learningType, detail: learning.outcome, status: learning.verified ? "verified" : "pending" })) ?? []),
+  ].slice(0, 6);
+  return <SurfaceState loading={loading} error={error} empty={!hasVisibleExecutiveEvidence ? t("No executive intelligence is available yet.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Findings" value={overview?.summary.visibleFindingCount ?? 0} detail="visible operating signals" icon={<CircleAlert size={14} />} /><Metric label="Proposals" value={overview?.summary.visibleProposalCount ?? 0} detail="decision-ready items" icon={<Sparkles size={14} />} /><Metric label="Forecasts" value={overview?.summary.forecastCount ?? 0} detail="evidence-backed scenarios" icon={<BarChart3 size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Executive signals")}</span><small>{t("Verified cycle evidence")}</small></div>{executiveItems.map((item) => <article key={item.id}><div><strong>{item.title}</strong><small>{item.detail}</small></div><Status>{item.status}</Status></article>)}</section></SurfaceState>;
 }
 
 export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent }: Props) {

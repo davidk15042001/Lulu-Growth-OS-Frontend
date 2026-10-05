@@ -660,6 +660,28 @@
 .calendar-delivery-dialog__toggle span { display: grid; gap: 3px; }
 .calendar-delivery-dialog__toggle strong { font-size: 13px; }
 .calendar-delivery-dialog__toggle small { color: var(--muted-foreground); font-size: 11px; line-height: 1.45; }
+.calendar-mapping-mode { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 15px 16px; border: 1px solid color-mix(in srgb, var(--primary) 25%, var(--border)); border-radius: 14px; background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 10%, var(--card)), color-mix(in srgb, var(--card) 96%, transparent)); }
+.calendar-mapping-mode > div { min-width: 0; }
+.calendar-mapping-mode strong { font-size: 13px; }
+.calendar-mapping-mode span { display: inline-flex; min-height: 20px; margin-left: 8px; padding: 0 7px; align-items: center; border: 1px solid color-mix(in srgb, var(--primary) 35%, var(--border)); border-radius: 999px; color: var(--primary); font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.calendar-mapping-mode p { max-width: 540px; margin: 5px 0 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.5; }
+.calendar-mapping-mode .calendar-button { flex: 0 0 auto; min-height: 34px; padding: 0 11px; }
+.calendar-guided-mapping { padding: 15px; border: 1px solid color-mix(in srgb, var(--primary) 20%, var(--border)); border-radius: 14px; background: color-mix(in srgb, var(--card) 94%, transparent); }
+.calendar-guided-mapping > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+.calendar-guided-mapping > header strong { font-size: 13px; }
+.calendar-guided-mapping > header p { margin: 4px 0 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.45; }
+.calendar-guided-mapping > header span { flex: 0 0 auto; color: var(--primary); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.calendar-guided-mapping__fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.calendar-guided-mapping__fields label { display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, .9fr); align-items: center; gap: 12px; min-width: 0; padding: 10px 11px; border: 1px solid color-mix(in srgb, var(--border) 88%, transparent); border-radius: 10px; background: color-mix(in srgb, var(--card) 72%, transparent); }
+.calendar-guided-mapping__fields label > span { display: grid; gap: 3px; min-width: 0; }
+.calendar-guided-mapping__fields label strong { overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+.calendar-guided-mapping__fields label small { color: var(--muted-foreground); font-size: 10px; }
+.calendar-guided-mapping__fields select { min-width: 0; }
+.calendar-guided-mapping--waiting, .calendar-guided-mapping--warning { color: var(--muted-foreground); font-size: 12px; line-height: 1.5; }
+.calendar-guided-mapping--waiting strong, .calendar-guided-mapping--warning strong { display: block; color: var(--foreground); font-size: 13px; }
+.calendar-guided-mapping--waiting p, .calendar-guided-mapping--warning p { margin: 4px 0 0; }
+.calendar-guided-mapping--warning { border-color: color-mix(in srgb, #f59e0b 38%, var(--border)); background: color-mix(in srgb, #f59e0b 8%, var(--card)); }
+.calendar-event__delivery-note { margin: 12px 0 0; color: var(--muted-foreground); font-size: 12px; line-height: 1.45; }
 
 /* Dialogs sit above the workspace shell, so they cannot rely on a page-level
    surface token. Keep their contrast and input treatment explicit in the
@@ -745,4 +767,8 @@
   .calendar-delivery-settings__header { display: grid; gap: 17px; }
   .calendar-delivery-target { grid-template-columns: auto minmax(0, 1fr); }
   .calendar-delivery-target__edit { grid-column: 2; justify-self: start; }
+  .calendar-mapping-mode { align-items: flex-start; flex-direction: column; }
+  .calendar-guided-mapping { padding: 13px; }
+  .calendar-guided-mapping__fields { grid-template-columns: 1fr; }
+  .calendar-guided-mapping__fields label { grid-template-columns: 1fr; gap: 8px; }
 }

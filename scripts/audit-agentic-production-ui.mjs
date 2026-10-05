@@ -11,7 +11,7 @@ const authenticatedTopBar = fs.readFileSync(path.join(root, 'src', 'components',
 const globalNavigation = fs.readFileSync(path.join(root, 'src', 'components', 'LuluGlobalNavigation.tsx'), 'utf8');
 const adminBillingPage = fs.readFileSync(path.join(root, 'src', 'pages', 'admin-billing-overview-9901', 'App.tsx'), 'utf8');
 const loginPage = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door-5741', 'components', 'generated', 'LuluLoginPage.tsx'), 'utf8');
-const loginCss = fs.readFileSync(path.join(root, 'src', 'pages', 'brightly-door-5741', 'index.css'), 'utf8');
+const loginCss = fs.readFileSync(path.join(root, 'src', 'ui', 'lulu-auth-entry.css'), 'utf8');
 const publicLandingPage = fs.readFileSync(path.join(root, 'src', 'pages', 'public', 'LuluLandingPage.tsx'), 'utf8');
 const publicLandingCss = fs.readFileSync(path.join(root, 'src', 'pages', 'public', 'lulu-landing.css'), 'utf8');
 const signupPage = fs.readFileSync(path.join(root, 'src', 'pages', 'finely-year-1146', 'components', 'generated', 'LuluSignupPage.tsx'), 'utf8');
@@ -177,8 +177,13 @@ if (
   failures.push('The public /login route is no longer guaranteed to render the redesigned Lulu login experience.');
 }
 
-if (!loginCss.includes('grid-template-areas: "product" "title" "copy" "card" "visual" "prompts"')) {
-  failures.push('The responsive login page places its decorative product image ahead of account access.');
+if (
+  !loginCss.includes('.lulu-entry__stage')
+  || !loginCss.includes('.lulu-entry__access')
+  || !loginCss.includes('@media (max-width: 640px)')
+  || !loginCss.includes('grid-template-columns: minmax(0, 1fr);')
+) {
+  failures.push('The responsive login page no longer keeps account access in the active, dedicated entry design system.');
 }
 
 if (
@@ -338,6 +343,13 @@ if (
 }
 
 if (
+  !luluStation.includes('conciseOfficeCopy(agent.purpose, agent.name, 140)')
+  || !luluStation.includes('conciseOfficeCopy(selectedCatalogAgent.purpose, selectedCatalogAgent.name, 220)')
+) {
+  failures.push('The specialist directory can expose repetitive internal strategy suffixes instead of concise role purposes.');
+}
+
+if (
   !nativeAgentWorkspace.includes('function EmailSurface')
   || !nativeAgentWorkspace.includes('function CalendarSurface')
   || !nativeAgentWorkspace.includes('function ReviewSurface')
@@ -351,6 +363,9 @@ if (
   || !nativeAgentWorkspace.includes('export const OFFICE_EMPLOYEE_WORKSPACE_KINDS')
   || !nativeAgentWorkspace.includes('const canonicalKind = OFFICE_EMPLOYEE_WORKSPACE_KINDS[source.key];')
   || !nativeAgentWorkspace.includes('if (canonicalKind) return canonicalKind;')
+  || !nativeAgentWorkspace.includes('const AGENT_MODULE_WORKSPACE_KINDS: Readonly<Record<string, NativeWorkspaceKind>>')
+  || !nativeAgentWorkspace.includes('const moduleKind = source.module ? AGENT_MODULE_WORKSPACE_KINDS[source.module.toLowerCase()] : undefined;')
+  || !nativeAgentWorkspace.includes('if (moduleKind) return moduleKind;')
   || !nativeAgentWorkspace.includes('const classification = [source.key, source.name, source.module, source.pageId, ...capabilities]')
   || !nativeAgentWorkspace.includes('if (/calendar|scheduling|appointment/.test(classification)) return "calendar";')
   || !nativeAgentWorkspace.includes('if (/email|inbox|mail/.test(classification)) return "email";')
@@ -434,6 +449,33 @@ for (const [employeeKey, surface] of Object.entries(officeEmployeeWorkspaceKinds
   }
 }
 
+const agentModuleWorkspaceKinds = {
+  general: "command",
+  dashboard: "intelligence",
+  intelligence: "intelligence",
+  finance: "finance",
+  sales: "crm",
+  crm: "crm",
+  ai: "command",
+  email: "email",
+  calendar: "calendar",
+  marketing: "marketing",
+  ads: "marketing",
+  website: "website",
+  commerce: "commerce",
+  reputation: "reputation",
+  settings: "operations",
+  seo: "website",
+  geo: "website",
+  aeo: "website",
+};
+
+for (const [module, surface] of Object.entries(agentModuleWorkspaceKinds)) {
+  if (!nativeAgentWorkspace.includes(`${module}: "${surface}"`)) {
+    failures.push(`Catalog specialists in the ${module} module do not deterministically resolve to the ${surface} native workspace.`);
+  }
+}
+
 if (!luluStation.includes('routes.app.dashboard') || !luluStation.includes('Open workspace')) {
   failures.push('The Office does not provide a direct route back to the workspace dashboard.');
 }
@@ -453,8 +495,10 @@ if (
   || !luluStation.includes('No department rooms match this search.')
   || !luluStationCss.includes('color-scheme: dark;')
   || !luluStationCss.includes('isolation: isolate;')
+  || !luluStationCss.includes('.lulu-station__world-shell { position: relative; z-index: 2; display: grid; min-width: 0; overflow: visible;')
+  || !luluStationCss.includes('.lulu-station__department-menu { position: absolute; z-index: 8;')
 ) {
-  failures.push('The Station map cannot safely scale through a dark, isolated, searchable department menu.');
+  failures.push('The Station map cannot safely scale through a visible, dark, isolated, searchable department menu.');
 }
 
 if (
@@ -464,6 +508,10 @@ if (
   || !luluStation.includes('>{employees.length} {t("Crew")}</text>')
 ) {
   failures.push('The Office does not keep every visible room crew bounded, accurately counted and reachable from a workspace entry point.');
+}
+
+if (!luluStation.includes('overview.summary.specialistCount')) {
+  failures.push('The Office does not distinguish its visible Digital Employee roster from the complete on-demand specialist ecosystem.');
 }
 
 if (!luluStation.includes('runningWorkItems') || !luluStation.includes('queuedOrWaitingWork')) {
@@ -502,6 +550,15 @@ if (
   || !luluStationCss.includes('.lulu-station__character--offline .lulu-station__character-status { fill: #526a74; }')
 ) {
   failures.push('The Office status legend does not fully and truthfully match the visible employee status colors.');
+}
+
+if (
+  !luluStation.includes('const showsBacklogInsteadOfRunningWork')
+  || !luluStation.includes('showsBacklogInsteadOfRunningWork ? t("Work backlog")')
+  || !luluStation.includes('showsBacklogInsteadOfRunningWork ? queuedOrWaitingWork : runningWorkItems')
+  || !luluStation.includes('t("No work is currently running.")')
+) {
+  failures.push('The Office can present a queued or paused backlog as if AI workers were actively running.');
 }
 
 if (

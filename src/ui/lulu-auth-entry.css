@@ -138,3 +138,46 @@
 @media (prefers-reduced-motion: reduce) {
   .lulu-entry *, .lulu-entry *::before, .lulu-entry *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
+
+/*
+ * The login entry owns a three-row composition (nav, stage, footer). Generic
+ * authentication fallbacks target every `.auth-shell > section` with
+ * `!important`, which made this dedicated surface taller than the viewport on
+ * desktop and replaced its intentional responsive spacing on tablets. Keep
+ * those fallbacks available to legacy auth pages while preserving this
+ * self-contained entry layout.
+ */
+@media (min-width: 900px) {
+  .auth-shell.lulu-entry {
+    display: grid !important;
+    min-height: 100svh !important;
+  }
+
+  .auth-shell.lulu-entry > .lulu-entry__stage {
+    min-height: 0 !important;
+    height: auto !important;
+    align-items: center !important;
+    padding: clamp(68px, 9vw, 132px) clamp(20px, 6vw, 76px) !important;
+  }
+}
+
+@media (max-width: 899px) {
+  .auth-shell.lulu-entry {
+    display: grid !important;
+    min-height: 100svh !important;
+    overflow: visible !important;
+  }
+
+  .auth-shell.lulu-entry > .lulu-entry__stage {
+    min-height: 0 !important;
+    height: auto !important;
+    align-items: center !important;
+    padding: clamp(68px, 9vw, 132px) clamp(20px, 6vw, 76px) !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .auth-shell.lulu-entry > .lulu-entry__stage {
+    padding: 54px 17px 58px !important;
+  }
+}

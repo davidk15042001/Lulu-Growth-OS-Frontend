@@ -102,6 +102,7 @@ export type OfficeOverview = {
   summary: {
     departmentCount: number;
     employeeCount: number;
+    specialistCount: number;
     activeEmployees: number;
     workingEmployees: number;
     waitingEmployees: number;
