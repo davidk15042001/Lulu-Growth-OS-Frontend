@@ -37,6 +37,7 @@ const nativeAgentWorkspace = fs.readFileSync(path.join(root, 'src', 'pages', 'of
 const officeCopy = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'office-copy.ts'), 'utf8');
 const calendarPortal = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-calendar-portal-9014', 'components', 'generated', 'LuluCalendarPortal.tsx'), 'utf8');
 const calendarApi = fs.readFileSync(path.join(root, 'src', 'api', 'calendar.ts'), 'utf8');
+const emailPortal = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-email-portal-9013', 'components', 'generated', 'LuluEmailPortal.tsx'), 'utf8');
 const industrialWebsiteTemplate = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-website-portal-9012', 'LuluIndustrialTemplate.tsx'), 'utf8');
 const oneProductWebsiteTemplate = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-website-portal-9012', 'LuluOneProductTemplate.tsx'), 'utf8');
 const luluStationCss = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'lulu-station.css'), 'utf8');
@@ -211,6 +212,15 @@ if (
   || !oneProductWebsiteTemplate.includes('data-lulu-no-translate="true" translate="no"')
 ) {
   failures.push('The managed website preview can be rewritten by the global language observer instead of respecting its own template language.');
+}
+
+if (
+  !emailPortal.includes('function useDialogFocus(onClose: () => void)')
+  || !emailPortal.includes('data-lulu-dialog-initial-focus')
+  || !emailPortal.includes("event.key === 'Escape'")
+  || !emailPortal.includes('previousFocus?.isConnected')
+) {
+  failures.push('Email dialogs must move focus into the active surface, trap keyboard navigation, close on Escape, and restore focus to the trigger.');
 }
 
 if (
