@@ -351,6 +351,7 @@ export function LuluStation() {
   const [lastEventAt, setLastEventAt] = useState<string | null>(null);
   const closeEmployeeModalRef = useRef<HTMLButtonElement | null>(null);
   const closeCatalogModalRef = useRef<HTMLButtonElement | null>(null);
+  const catalogModalRef = useRef<HTMLElement | null>(null);
   const focusBeforeEmployeeModalRef = useRef<HTMLElement | null>(null);
   const focusBeforeCatalogModalRef = useRef<HTMLElement | null>(null);
   const overviewRequestRef = useRef(0);
@@ -549,9 +550,12 @@ export function LuluStation() {
 
   useEffect(() => {
     if (!catalogOpen) return undefined;
-    const frame = window.requestAnimationFrame(() => closeCatalogModalRef.current?.focus());
+    const frame = window.requestAnimationFrame(() => {
+      catalogModalRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      closeCatalogModalRef.current?.focus({ preventScroll: true });
+    });
     return () => window.cancelAnimationFrame(frame);
-  }, [catalogOpen]);
+  }, [catalogOpen, selectedCatalogAgent]);
 
   const trapEmployeeModalFocus = useCallback((event: React.KeyboardEvent<HTMLElement>) => {
     if (event.key !== "Tab") return;
@@ -772,7 +776,7 @@ export function LuluStation() {
       </div>, document.body) : null}
 
       {catalogOpen ? createPortal(<div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCatalog(); }}>
-        <section className="lulu-station__catalog-modal" role="dialog" aria-modal="true" aria-labelledby="lulu-station-catalog-title" onKeyDown={trapEmployeeModalFocus}>
+        <section ref={catalogModalRef} className="lulu-station__catalog-modal" role="dialog" aria-modal="true" aria-labelledby="lulu-station-catalog-title" onKeyDown={trapEmployeeModalFocus}>
           <button ref={closeCatalogModalRef} type="button" className="lulu-station__modal-close" onClick={closeCatalog} aria-label={t("Close specialist directory")}>×</button>
           {selectedCatalogAgent ? <>
             <header className="lulu-station__modal-header lulu-station__catalog-detail-header">

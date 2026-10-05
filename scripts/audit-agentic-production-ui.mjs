@@ -336,6 +336,10 @@ if (
   || !modalLayerHasNovaTokens
   || !luluStation.includes('createPortal(<div className="lulu-station__modal-layer"')
   || !luluStation.includes('>, document.body) : null}')
+  || !luluStation.includes('const catalogModalRef = useRef<HTMLElement | null>(null)')
+  || !luluStation.includes('catalogModalRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" })')
+  || !luluStation.includes('focus({ preventScroll: true })')
+  || !luluStation.includes('ref={catalogModalRef}')
 ) {
   failures.push('Office employee workspaces can lose their design tokens, overflow, or be obscured by the persistent command surface.');
 }
