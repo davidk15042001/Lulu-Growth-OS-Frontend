@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
-import { AlertTriangle, Database, LoaderCircle, RefreshCw } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Database, LoaderCircle, RefreshCw } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useLiveRecords } from "../api/useLiveRecords";
 import { useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
@@ -13,6 +14,8 @@ type BackendResourceOverviewPageProps = {
   emptyDescription: string;
   emptyIcon: ReactNode;
 };
+
+const PAGE_SIZE = 24;
 
 function formatDate(value: string | null | undefined, language: string) {
   if (!value) return "—";
@@ -38,7 +41,23 @@ export function BackendResourceOverviewPage({
   const language = useLanguage();
   const [searchParams] = useSearchParams();
   const selectedRecordId = searchParams.get("recordId");
-  const records = useLiveRecords(resourceType, "limit=100", { includeTotal: true });
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const records = useLiveRecords(resourceType, `page=${page}&limit=${PAGE_SIZE}`, { includeTotal: true });
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  useEffect(() => {
+    setPage(1);
+    setTotal(0);
+  }, [resourceType]);
+
+  useEffect(() => {
+    if (records.status === "ready" || records.status === "stale") setTotal(records.total);
+  }, [records.status, records.total]);
+
+  useEffect(() => {
+    if (!records.loading && page > totalPages) setPage(totalPages);
+  }, [page, records.loading, totalPages]);
 
   return <main className="min-h-screen min-w-0 bg-[var(--background)] p-5 text-foreground sm:p-8 lg:p-10" aria-busy={records.loading}>
     <div className="mx-auto max-w-6xl">
@@ -51,7 +70,7 @@ export function BackendResourceOverviewPage({
         <div className="flex shrink-0 flex-wrap items-center gap-2">
           <span className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground">
             <Database aria-hidden="true" size={15} />
-            {records.status === "loading" || records.status === "error" ? "—" : records.total.toLocaleString(language)} {t("records")}
+            {records.status === "loading" || records.status === "error" ? "—" : total.toLocaleString(language)} {t("records")}
           </span>
           <button
             type="button"
@@ -76,7 +95,8 @@ export function BackendResourceOverviewPage({
         <div className="max-w-xl"><AlertTriangle aria-hidden="true" className="mx-auto mb-3 text-chart-5" size={28} /><h2 className="text-lg font-semibold">{t("Verified records unavailable")}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{records.error}</p><p className="mt-2 text-xs text-muted-foreground">{t("No metrics or success claims are inferred while the backend state is unavailable.")}</p></div>
       </section> : records.items.length === 0 ? <section className="grid min-h-[360px] place-items-center rounded-2xl border border-dashed border-border bg-card p-8 text-center">
         <div className="max-w-xl"><div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-2xl bg-secondary text-muted-foreground">{emptyIcon}</div><h2 className="text-xl font-semibold">{t(emptyTitle)}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{t(emptyDescription)}</p></div>
-      </section> : <section className="grid gap-3 md:grid-cols-2" aria-label={t(title)}>
+      </section> : <>
+        <section className="grid gap-3 md:grid-cols-2" aria-label={t(title)}>
         {records.items.map((record) => <article key={record.id} className={`min-w-0 rounded-2xl border p-5 shadow-sm ${record.id === selectedRecordId ? "border-primary/50 bg-primary/5" : "border-border bg-card"}`}>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -93,7 +113,19 @@ export function BackendResourceOverviewPage({
           </dl>
           {record.tags.length > 0 ? <div className="mt-4 flex flex-wrap gap-1.5">{record.tags.map((tag) => <span key={tag} className="max-w-full rounded-full bg-secondary px-2 py-1 text-[10px] text-muted-foreground [overflow-wrap:anywhere]">{tag}</span>)}</div> : null}
         </article>)}
-      </section>}
+        </section>
+        {totalPages > 1 ? <nav className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3" aria-label={t(title)}>
+          <span className="text-sm text-muted-foreground">{t("Page")} {page} {t("of")} {totalPages}</span>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1 || records.loading} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border px-3 text-sm font-medium transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50">
+              <ChevronLeft aria-hidden="true" size={15} />{t("Previous")}
+            </button>
+            <button type="button" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={page === totalPages || records.loading} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border px-3 text-sm font-medium transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50">
+              {t("Next")}<ChevronRight aria-hidden="true" size={15} />
+            </button>
+          </div>
+        </nav> : null}
+      </>}
     </div>
   </main>;
 }
