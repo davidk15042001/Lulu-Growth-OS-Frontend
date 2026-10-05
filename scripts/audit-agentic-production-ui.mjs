@@ -345,6 +345,10 @@ if (luluStation.includes('<iframe') || nativeAgentWorkspace.includes('<iframe'))
   failures.push('Office employee dialogs must render native workspace surfaces, not iframes.');
 }
 
+if (!officeCommandCenter.includes('type="file" hidden aria-hidden="true" tabIndex={-1}')) {
+  failures.push('The Office composer file picker must remain a single accessible control instead of exposing the hidden browser file input as a second UI element.');
+}
+
 if (
   !luluStationCss.includes('.lulu-station__modal-body > * { min-width: 0; }')
   || !luluStationCss.includes('.lulu-station__modal-details { display: grid; min-width: 0;')
