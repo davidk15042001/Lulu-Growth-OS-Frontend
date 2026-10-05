@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { CalendarDays, Check, CircleAlert, Copy, Link2, LoaderCircle, MapPin, Plus, PlugZap, Search, Settings2, Video, X } from 'lucide-react';
 import { calendarApi, type CalendarDeliveryCandidate, type CalendarDeliveryTarget, type CalendarDeliveryTargetInput, type NativeCalendarEvent } from '../../../../api/calendar';
@@ -22,6 +22,61 @@ function dayKey(value: string) { const date = new Date(value); return Number.isF
 function localDateTimeToIso(value: string) { const date = new Date(value); return Number.isFinite(date.getTime()) ? date.toISOString() : ''; }
 function absoluteGuestLink(value: string) {
   try { return new URL(value, window.location.origin).toString(); } catch { return value; }
+}
+
+function calendarFocusableElements(container: HTMLElement | null) {
+  if (!container) return [] as HTMLElement[];
+  return [...container.querySelectorAll<HTMLElement>(
+    'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+  )].filter((element) => element.getClientRects().length > 0);
+}
+
+function useCalendarDialogA11y(
+  dialogRef: RefObject<HTMLElement | null>,
+  initialFocusRef: RefObject<HTMLElement | null>,
+  onClose: () => void,
+  closeDisabled: boolean,
+) {
+  const onCloseRef = useRef(onClose);
+  const closeDisabledRef = useRef(closeDisabled);
+  onCloseRef.current = onClose;
+  closeDisabledRef.current = closeDisabled;
+
+  useEffect(() => {
+    const focusTarget = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        if (closeDisabledRef.current) return;
+        event.preventDefault();
+        onCloseRef.current();
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const items = calendarFocusableElements(dialogRef.current);
+      if (!items.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener('keydown', onKeyDown);
+    const frame = window.requestAnimationFrame(() => initialFocusRef.current?.focus());
+    return () => {
+      window.cancelAnimationFrame(frame);
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKeyDown);
+      window.requestAnimationFrame(() => {
+        if (focusTarget?.isConnected) focusTarget.focus();
+      });
+    };
+  }, [dialogRef, initialFocusRef]);
 }
 
 export default function CalendarPortal() {
@@ -119,6 +174,9 @@ export default function CalendarPortal() {
 function CreateEventDialog({ workspaceId, customers, busy, onClose, onError, onCreated }: { workspaceId: string; customers: WorkspaceRecord[]; busy: boolean; onClose: () => void; onError: (value: string) => void; onCreated: (event: NativeCalendarEvent, link: string) => void }) {
   const t = useTranslation();
   const [title, setTitle] = useState(''); const [description, setDescription] = useState(''); const [startAt, setStartAt] = useState(''); const [duration, setDuration] = useState('30'); const [location, setLocation] = useState(''); const [customerId, setCustomerId] = useState(''); const [saving, setSaving] = useState(false);
+  const dialogRef = useRef<HTMLElement | null>(null);
+  const titleInputRef = useRef<HTMLInputElement | null>(null);
+  useCalendarDialogA11y(dialogRef, titleInputRef, onClose, saving);
   async function submit() {
     const start = localDateTimeToIso(startAt); const startDate = start ? new Date(start) : null; const end = startDate ? new Date(startDate.getTime() + Number(duration) * 60_000).toISOString() : '';
     if (!title.trim() || !start || !end) { onError(t('Enter a title and date/time.')); return; }
@@ -127,7 +185,7 @@ function CreateEventDialog({ workspaceId, customers, busy, onClose, onError, onC
     catch (cause) { onError(getFriendlyErrorMessage(cause, t('The appointment could not be created.'))); }
     finally { setSaving(false); }
   }
-  return createPortal(<div className="calendar-modal-backdrop"><section className="calendar-dialog calendar-dialog--modern" role="dialog" aria-modal="true" aria-labelledby="calendar-create-title"><header><div><p className="calendar-eyebrow">Lulu / Agora RTC</p><h2 id="calendar-create-title">{t('Create appointment')}</h2><p>{t('Customers join through a secure link without an account.')}</p></div><button type="button" onClick={onClose} aria-label={t('Close')}><X /></button></header><div className="calendar-form-grid"><label className="wide">{t('Customer (optional)')}<select value={customerId} onChange={(event) => setCustomerId(event.target.value)}><option value="">{t('No customer selected')}</option>{customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}</select></label><label className="wide">{t('Title')}<input autoFocus value={title} onChange={(event) => setTitle(event.target.value)} placeholder={t('Product consultation')} /></label><label className="wide">{t('Date and time')}<input type="datetime-local" value={startAt} onChange={(event) => setStartAt(event.target.value)} /></label><label>{t('Duration')}<select value={duration} onChange={(event) => setDuration(event.target.value)}><option value="15">15 {t('minutes')}</option><option value="30">30 {t('minutes')}</option><option value="60">60 {t('minutes')}</option><option value="120">2 {t('hours')}</option></select></label><label>{t('Location (optional)')}<input value={location} onChange={(event) => setLocation(event.target.value)} placeholder={t('Agora video meeting')} /></label><label className="wide">{t('Description (optional)')}<textarea rows={3} value={description} onChange={(event) => setDescription(event.target.value)} /></label></div><footer><button type="button" className="calendar-button calendar-button--secondary" onClick={onClose}>{t('Cancel')}</button><button type="button" className="calendar-button" disabled={busy || saving} onClick={() => void submit()}>{saving ? <LoaderCircle className="spin" size={16} /> : <Plus size={16} />}{t('Create appointment')}</button></footer></section></div>, document.body);
+  return createPortal(<div className="calendar-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !saving) onClose(); }}><section ref={dialogRef} className="calendar-dialog calendar-dialog--modern" role="dialog" aria-modal="true" aria-labelledby="calendar-create-title"><header><div><p className="calendar-eyebrow">Lulu / Agora RTC</p><h2 id="calendar-create-title">{t('Create appointment')}</h2><p>{t('Customers join through a secure link without an account.')}</p></div><button type="button" onClick={onClose} disabled={saving} aria-label={t('Close')}><X /></button></header><div className="calendar-form-grid"><label className="wide">{t('Customer (optional)')}<select value={customerId} onChange={(event) => setCustomerId(event.target.value)}><option value="">{t('No customer selected')}</option>{customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}</select></label><label className="wide">{t('Title')}<input ref={titleInputRef} value={title} onChange={(event) => setTitle(event.target.value)} placeholder={t('Product consultation')} /></label><label className="wide">{t('Date and time')}<input type="datetime-local" value={startAt} onChange={(event) => setStartAt(event.target.value)} /></label><label>{t('Duration')}<select value={duration} onChange={(event) => setDuration(event.target.value)}><option value="15">15 {t('minutes')}</option><option value="30">30 {t('minutes')}</option><option value="60">60 {t('minutes')}</option><option value="120">2 {t('hours')}</option></select></label><label>{t('Location (optional)')}<input value={location} onChange={(event) => setLocation(event.target.value)} placeholder={t('Agora video meeting')} /></label><label className="wide">{t('Description (optional)')}<textarea rows={3} value={description} onChange={(event) => setDescription(event.target.value)} /></label></div><footer><button type="button" className="calendar-button calendar-button--secondary" onClick={onClose} disabled={saving}>{t('Cancel')}</button><button type="button" className="calendar-button" disabled={busy || saving} onClick={() => void submit()}>{saving ? <LoaderCircle className="spin" size={16} /> : <Plus size={16} />}{t('Create appointment')}</button></footer></section></div>, document.body);
 }
 
 const defaultCreateArguments = JSON.stringify({
@@ -293,6 +351,9 @@ function CalendarDeliveryTargetDialog({ workspaceId, target, onClose, onSaved, o
   const [updateAssignments, setUpdateAssignments] = useState<GuidedAssignments>(() => assignmentsFromArguments(target?.updateArguments));
   const [cancelAssignments, setCancelAssignments] = useState<GuidedAssignments>(() => assignmentsFromArguments(target?.cancelArguments));
   const [mappingMode, setMappingMode] = useState<'guided' | 'advanced'>(() => target && ![target.createArguments, target.updateArguments, target.cancelArguments].every(isGuidedArgumentsTemplate) ? 'advanced' : 'guided');
+  const dialogRef = useRef<HTMLElement | null>(null);
+  const targetNameInputRef = useRef<HTMLInputElement | null>(null);
+  useCalendarDialogA11y(dialogRef, targetNameInputRef, onClose, saving);
 
   useEffect(() => {
     let active = true;
@@ -443,12 +504,12 @@ function CalendarDeliveryTargetDialog({ workspaceId, target, onClose, onSaved, o
     } finally { setSaving(false); }
   }
 
-  return createPortal(<div className="calendar-modal-backdrop">
-    <section className="calendar-dialog calendar-dialog--modern calendar-delivery-dialog" role="dialog" aria-modal="true" aria-labelledby="calendar-delivery-dialog-title">
-      <header><div><p className="calendar-eyebrow">Lulu / Composio</p><h2 id="calendar-delivery-dialog-title">{target ? t('Edit calendar destination') : t('Add calendar destination')}</h2><p>{t('Choose one connected calendar and map the three safe lifecycle actions. Lulu will keep one canonical appointment and stores delivery evidence for every external calendar.')}</p></div><button type="button" onClick={onClose} aria-label={t('Close')}><X /></button></header>
+  return createPortal(<div className="calendar-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !saving) onClose(); }}>
+    <section ref={dialogRef} className="calendar-dialog calendar-dialog--modern calendar-delivery-dialog" role="dialog" aria-modal="true" aria-labelledby="calendar-delivery-dialog-title">
+      <header><div><p className="calendar-eyebrow">Lulu / Composio</p><h2 id="calendar-delivery-dialog-title">{target ? t('Edit calendar destination') : t('Add calendar destination')}</h2><p>{t('Choose one connected calendar and map the three safe lifecycle actions. Lulu will keep one canonical appointment and stores delivery evidence for every external calendar.')}</p></div><button type="button" onClick={onClose} disabled={saving} aria-label={t('Close')}><X /></button></header>
       {formError && <div className="calendar-alert calendar-alert--error" role="alert"><CircleAlert size={16} /><span>{formError}</span></div>}
       <div className="calendar-form-grid calendar-delivery-dialog__form">
-        <label className="wide">{t('Destination name')}<input autoFocus value={targetName} onChange={(event) => setTargetName(event.target.value)} placeholder={t('e.g. Sales calendar')} /></label>
+        <label className="wide">{t('Destination name')}<input ref={targetNameInputRef} value={targetName} onChange={(event) => setTargetName(event.target.value)} placeholder={t('e.g. Sales calendar')} /></label>
         <label className="wide">{t('Connected calendar application')}<select value={teamId} disabled={loadingTeams} onChange={(event) => updateTeam(event.target.value)}><option value="">{loadingTeams ? t('Loading connected applications…') : t('Choose a connected application')}</option>{teams.map((team) => <option key={team.id} value={team.id}>{team.teamName} · {team.composioToolkit}</option>)}</select></label>
         {!loadingTeams && !teams.length && <p className="wide calendar-delivery-dialog__hint">{t('No active calendar application is connected yet. Connect one in the Integrations area, then return here.')}</p>}
         {teamId && <>
@@ -470,7 +531,7 @@ function CalendarDeliveryTargetDialog({ workspaceId, target, onClose, onSaved, o
         </>}
         <label className="wide calendar-delivery-dialog__toggle"><input type="checkbox" checked={enabled} onChange={(event) => setEnabled(event.target.checked)} /> <span><strong>{t('Activate this destination')}</strong><small>{t('When disabled, Lulu retains the setup but sends no appointments to this external calendar.')}</small></span></label>
       </div>
-      <footer><button type="button" className="calendar-button calendar-button--secondary" onClick={onClose}>{t('Cancel')}</button><button type="button" className="calendar-button" disabled={saving || loadingTeams || loadingCandidates || !canSave} onClick={() => void save()}>{saving ? <LoaderCircle className="spin" size={16} /> : <Check size={16} />}{t('Save destination')}</button></footer>
+      <footer><button type="button" className="calendar-button calendar-button--secondary" onClick={onClose} disabled={saving}>{t('Cancel')}</button><button type="button" className="calendar-button" disabled={saving || loadingTeams || loadingCandidates || !canSave} onClick={() => void save()}>{saving ? <LoaderCircle className="spin" size={16} /> : <Check size={16} />}{t('Save destination')}</button></footer>
     </section>
   </div>, document.body);
 }
