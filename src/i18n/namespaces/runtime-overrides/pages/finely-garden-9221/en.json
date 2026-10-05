@@ -1,4 +1,11 @@
 {
+  "Active on this page": "Active on this page",
+  "Campaign pages": "Campaign pages",
+  "Campaigns currently marked live in the loaded result": "Campaigns currently marked live in the loaded result",
+  "Draft, paused or flagged loaded records": "Draft, paused or flagged loaded records",
   "Exact totals by currency from current live records": "Exact totals by currency from current live records",
-  "Status": "status"
+  "Exact totals by currency on this loaded page": "Exact totals by currency on this loaded page",
+  "Needs review on this page": "Needs review on this page",
+  "Status": "status",
+  "Visible spend": "Visible spend"
 }

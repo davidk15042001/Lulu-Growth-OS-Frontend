@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { ArrowRight, Search, Target } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowRight, ChevronLeft, ChevronRight, Search, Target } from 'lucide-react';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { WorkspaceIntelligencePanel } from '../../../../components/WorkspaceIntelligencePanel';
@@ -15,6 +15,8 @@ const advertisingQuickLinks = [
 ];
 
 type MoneyValue = { valueAmount: string | null; currency: string | null };
+
+const PAGE_SIZE = 24;
 
 function normalizeDecimal(value: string | null) {
   const match = value?.trim().match(/^([+-]?)(\d+)(?:\.(\d+))?$/);
@@ -63,18 +65,31 @@ function exactMoneyTotals(values: MoneyValue[]) {
 export function AdvertisingWorkspace() {
   const { selectedWorkspace } = useLuluApp();
   const [query, setQuery] = useState('');
-  const campaigns = useLiveRecords('ad_campaigns', '', { includeTotal: true });
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const campaignsQuery = useMemo(() => {
+    const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE) });
+    if (query.trim()) params.set('search', query.trim());
+    return params.toString();
+  }, [page, query]);
+  const campaigns = useLiveRecords('ad_campaigns', campaignsQuery, { includeTotal: true });
   const workspaceId = selectedWorkspace?.id ?? null;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
-  const filteredCampaigns = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
-    if (!normalized) return campaigns.items;
-    return campaigns.items.filter((record) =>
-      `${record.name} ${record.description ?? ''} ${record.status} ${record.stage ?? ''} ${record.tags.join(' ')}`
-        .toLowerCase()
-        .includes(normalized),
-    );
-  }, [campaigns.items, query]);
+  useEffect(() => {
+    setPage(1);
+    setTotal(0);
+  }, [query]);
+
+  useEffect(() => {
+    if (campaigns.status === 'ready' || campaigns.status === 'stale') setTotal(campaigns.total);
+  }, [campaigns.status, campaigns.total]);
+
+  useEffect(() => {
+    if (!campaigns.loading && page > totalPages) setPage(totalPages);
+  }, [campaigns.loading, page, totalPages]);
+
+  const filteredCampaigns = campaigns.items;
 
   const activeCampaigns = useMemo(
     () => campaigns.items.filter((record) => /active|running|live/i.test(record.status || '')),
@@ -111,23 +126,23 @@ export function AdvertisingWorkspace() {
         <section className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
           <article className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">Campaigns</p>
-            <p className="mt-2 text-2xl font-semibold text-foreground">{campaigns.total}</p>
+            <p className="mt-2 text-2xl font-semibold text-foreground">{total}</p>
             <p className="mt-1 text-xs text-muted-foreground">Tracked advertising records</p>
           </article>
           <article className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">Active</p>
+            <p className="text-xs text-muted-foreground">Active on this page</p>
             <p className="mt-2 text-2xl font-semibold text-foreground">{activeCampaigns.length}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Campaigns currently marked live</p>
+            <p className="mt-1 text-xs text-muted-foreground">Campaigns currently marked live in the loaded result</p>
           </article>
           <article className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">Needs review</p>
+            <p className="text-xs text-muted-foreground">Needs review on this page</p>
             <p className="mt-2 text-2xl font-semibold text-foreground">{reviewCampaigns.length}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Draft, paused or flagged records</p>
+            <p className="mt-1 text-xs text-muted-foreground">Draft, paused or flagged loaded records</p>
           </article>
           <article className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">Tracked spend</p>
+            <p className="text-xs text-muted-foreground">Visible spend</p>
             <p className="mt-2 text-2xl font-semibold text-foreground">{exactMoneyTotals(campaigns.items)}</p>
-            <p className="mt-1 text-xs text-muted-foreground">Exact totals by currency from current live records</p>
+            <p className="mt-1 text-xs text-muted-foreground">Exact totals by currency on this loaded page</p>
           </article>
         </section>
 
@@ -187,7 +202,7 @@ export function AdvertisingWorkspace() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {filteredCampaigns.slice(0, 12).map((record) => (
+                    {filteredCampaigns.map((record) => (
                       <tr key={record.id}>
                         <td className="py-3">
                           <div className="font-medium text-foreground">{record.name}</div>
@@ -203,6 +218,17 @@ export function AdvertisingWorkspace() {
                 </table>
               </div>
             )}
+            {totalPages > 1 ? <nav className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4" aria-label="Campaign pages">
+              <span className="text-xs text-muted-foreground">Page {page} of {totalPages}</span>
+              <div className="flex items-center gap-2">
+                <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page === 1 || campaigns.loading} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border px-3 text-xs font-medium text-foreground transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50">
+                  <ChevronLeft aria-hidden="true" size={14} />Previous
+                </button>
+                <button type="button" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={page === totalPages || campaigns.loading} className="inline-flex min-h-9 items-center gap-1 rounded-lg border border-border px-3 text-xs font-medium text-foreground transition hover:bg-secondary disabled:cursor-not-allowed disabled:opacity-50">
+                  Next<ChevronRight aria-hidden="true" size={14} />
+                </button>
+              </div>
+            </nav> : null}
           </section>
 
           <div className="grid gap-6">
