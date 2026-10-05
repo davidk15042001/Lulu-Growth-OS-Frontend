@@ -327,6 +327,28 @@
   .lulu-station__catalog-native-heading > small { text-align: left; }
 }
 
+/* Keep the station useful on short laptop/browser viewports. The fixed Lulu
+   Core composer still gets a protected clearance zone, while the summary and
+   map chrome compact enough to leave the actual room canvas usable. */
+@media (max-height: 700px) {
+  .lulu-station {
+    --station-composer-clearance: 132px;
+    gap: 10px;
+    padding-top: 12px;
+  }
+  .lulu-station__header { gap: 12px; }
+  .lulu-station__header h1 { margin: 5px 0 3px; font-size: clamp(1.45rem, 4vw, 2.5rem); }
+  .lulu-station__header p { max-width: 540px; font-size: .72rem; line-height: 1.35; }
+  .lulu-station__metrics { gap: 6px; }
+  .lulu-station__metrics > div { gap: 3px; padding: 8px 10px; }
+  .lulu-station__metrics span { font-size: .56rem; }
+  .lulu-station__metrics strong { font-size: 1.2rem; }
+  .lulu-station__metrics small { display: none; }
+  .lulu-station__world-toolbar { min-height: 38px; padding-inline: 12px; }
+  .lulu-station__department-nav { padding: 6px 10px; }
+  .lulu-station__legend { gap: 8px; padding: 7px 12px 2px; font-size: .52rem; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lulu-station *, .lulu-station *::before, .lulu-station *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
 }

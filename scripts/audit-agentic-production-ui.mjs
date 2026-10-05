@@ -561,6 +561,9 @@ if (
   || !luluStationCss.includes('.lulu-station__world { min-height: 0; max-height: none;')
   || !luluStationCss.includes('.lulu-station__world svg { display: block; width: 100%; min-width: 960px; height: auto; min-height: 620px; overflow: visible;')
   || !luluStationCss.includes('.lulu-station { padding: 18px 12px var(--station-composer-clearance); }')
+  || !luluStationCss.includes('@media (max-height: 700px)')
+  || !luluStationCss.includes('--station-composer-clearance: 132px;')
+  || !luluStationCss.includes('.lulu-station__metrics small { display: none; }')
 ) {
   failures.push('The fixed Lulu Core composer can cover the lower Station map without a responsive clearance zone.');
 }
