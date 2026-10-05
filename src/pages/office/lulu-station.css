@@ -113,7 +113,7 @@
 .lulu-station__department-empty { margin: 0; padding: 14px 9px; color: #8ca9b4; font-size: .66rem; line-height: 1.45; }
 .lulu-station__department-nav > span { flex: 0 0 auto; color: #78949f; font-size: .6rem; font-weight: 700; }
 .lulu-station__world { max-height: min(76dvh, 920px); overflow: auto; overscroll-behavior: contain; border-radius: 0 0 17px 17px; padding: 10px 10px calc(10px + var(--station-composer-clearance)); background: radial-gradient(circle at 50% 52%, rgba(86, 225, 208, .06), transparent 36%); scrollbar-color: rgba(86, 225, 208, .42) transparent; scrollbar-width: thin; }
-.lulu-station__world svg { display: block; width: 100%; min-width: 960px; height: auto; min-height: 620px; overflow: visible; }
+.lulu-station__world svg { display: block; width: 100%; min-width: 960px; height: auto; min-height: 620px; margin-bottom: var(--station-composer-clearance); overflow: visible; }
 .lulu-station__spine { fill: none; stroke: rgba(107, 160, 182, .1); stroke-width: 13; stroke-linecap: round; }
 .lulu-station__corridor { fill: none; stroke: #83b8ca; stroke-opacity: .16; stroke-width: 5; stroke-linecap: round; }
 .lulu-station__corridor-glow { fill: none; stroke: var(--station-teal); stroke-dasharray: 4 24; stroke-linecap: round; stroke-opacity: .72; stroke-width: 2; animation: lulu-station-flow 4s linear infinite; }

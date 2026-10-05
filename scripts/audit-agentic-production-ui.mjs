@@ -542,6 +542,7 @@ if (
   !luluStationCss.includes('--station-composer-clearance: clamp(148px, 18dvh, 220px);')
   || !luluStationCss.includes('padding: clamp(18px, 3vw, 38px) clamp(15px, 4vw, 54px) var(--station-composer-clearance);')
   || !luluStationCss.includes('calc(10px + var(--station-composer-clearance))')
+  || !luluStationCss.includes('margin-bottom: var(--station-composer-clearance);')
 ) {
   failures.push('The fixed Lulu Core composer can cover the lower Station map without a responsive clearance zone.');
 }
