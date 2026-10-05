@@ -224,6 +224,10 @@ function SurfaceState({ loading, error, empty, children }: { loading: boolean; e
   return <>{children}</>;
 }
 
+function DataNotice({ children }: { children: React.ReactNode }) {
+  return <p className="lulu-native-agent__notice" role="status"><CircleAlert size={14} /><span>{children}</span></p>;
+}
+
 function Metric({ label, value, detail, icon }: { label: string; value: string | number; detail: string; icon: React.ReactNode }) {
   const t = useTranslation();
   return <div className="lulu-native-agent__metric"><span>{icon}{t(label)}</span><strong>{value}</strong><small>{t(detail)}</small></div>;
@@ -287,9 +291,34 @@ function EmailSurface({ workspaceId }: { workspaceId: string }) {
   const [drafts, setDrafts] = useState<EmailDraft[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  useEffect(() => { let active = true; setLoading(true); setError(""); void Promise.all([emailApi.accounts(workspaceId), emailApi.threads(workspaceId, { limit: 8 }), emailApi.drafts(workspaceId)]).then(([accountResponse, threadResponse, draftResponse]) => { if (!active) return; setAccounts(accountResponse.data.items); setThreads(threadResponse.data.items); setDrafts(draftResponse.data.items); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, t("Email operations are unavailable.")))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [t, workspaceId]);
+  const [partial, setPartial] = useState(false);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+    setPartial(false);
+    setAccounts([]);
+    setThreads([]);
+    setDrafts([]);
+    void Promise.allSettled([
+      emailApi.accounts(workspaceId),
+      emailApi.threads(workspaceId, { limit: 8 }),
+      emailApi.drafts(workspaceId),
+    ]).then(([accountResult, threadResult, draftResult]) => {
+      if (!active) return;
+      if (accountResult.status === "fulfilled") setAccounts(accountResult.value.data.items);
+      if (threadResult.status === "fulfilled") setThreads(threadResult.value.data.items);
+      if (draftResult.status === "fulfilled") setDrafts(draftResult.value.data.items);
+      const results = [accountResult, threadResult, draftResult];
+      const rejected = results.filter((result): result is PromiseRejectedResult => result.status === "rejected");
+      const allFailed = rejected.length === results.length;
+      setPartial(rejected.length > 0 && !allFailed);
+      if (allFailed) setError(getFriendlyErrorMessage(rejected[0].reason, t("Email operations are unavailable.")));
+    }).finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [t, workspaceId]);
   const unread = threads.filter((thread) => thread.unread).length;
-  return <SurfaceState loading={loading} error={error} empty={!accounts.length && !threads.length ? t("No connected inbox is available for this workspace.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Inboxes" value={accounts.length} detail="connected email accounts" icon={<Mail size={14} />} /><Metric label="Unread" value={unread} detail="visible inbox threads" icon={<CircleAlert size={14} />} /><Metric label="Drafts" value={drafts.length} detail="pending delivery review" icon={<FileText size={14} />} /></div><div className="lulu-native-agent__split-list"><section><div className="lulu-native-agent__list-head"><span>{t("Inbox priority")}</span><small>{threads.length} {t("recent threads")}</small></div>{threads.length ? threads.slice(0, 5).map((thread) => <article key={thread.id}><div><strong>{thread.subject || t("Untitled email")}</strong><small>{thread.accountEmail} · {formatTime(thread.latestAt)}</small></div><Status>{thread.unread ? "unread" : "read"}</Status></article>) : <p className="lulu-native-agent__empty-list">{t("No inbox threads are available yet.")}</p>}</section><section><div className="lulu-native-agent__list-head"><span>{t("Draft queue")}</span><small>{t("Canonical drafts")}</small></div>{drafts.length ? drafts.slice(0, 5).map((draft) => <article key={draft.id}><div><strong>{draft.subject || t("Untitled draft")}</strong><small>{draft.accountEmail ?? t("Connected inbox")} · {formatTime(draft.updatedAt)}</small></div><Status>{draft.status}</Status></article>) : <p className="lulu-native-agent__empty-list">{t("No draft email is awaiting review.")}</p>}</section></div></SurfaceState>;
+  return <SurfaceState loading={loading} error={error} empty={!accounts.length && !threads.length && !drafts.length ? t("No connected inbox is available for this workspace.") : undefined}><>{partial ? <DataNotice>{t("Verified records unavailable")}</DataNotice> : null}<div className="lulu-native-agent__metrics"><Metric label="Inboxes" value={accounts.length} detail="connected email accounts" icon={<Mail size={14} />} /><Metric label="Unread" value={unread} detail="visible inbox threads" icon={<CircleAlert size={14} />} /><Metric label="Drafts" value={drafts.length} detail="pending delivery review" icon={<FileText size={14} />} /></div><div className="lulu-native-agent__split-list"><section><div className="lulu-native-agent__list-head"><span>{t("Inbox priority")}</span><small>{threads.length} {t("recent threads")}</small></div>{threads.length ? threads.slice(0, 5).map((thread) => <article key={thread.id}><div><strong>{thread.subject || t("Untitled email")}</strong><small>{thread.accountEmail} · {formatTime(thread.latestAt)}</small></div><Status>{thread.unread ? "unread" : "read"}</Status></article>) : <p className="lulu-native-agent__empty-list">{t("No inbox threads are available yet.")}</p>}</section><section><div className="lulu-native-agent__list-head"><span>{t("Draft queue")}</span><small>{t("Canonical drafts")}</small></div>{drafts.length ? drafts.slice(0, 5).map((draft) => <article key={draft.id}><div><strong>{draft.subject || t("Untitled draft")}</strong><small>{draft.accountEmail ?? t("Connected inbox")} · {formatTime(draft.updatedAt)}</small></div><Status>{draft.status}</Status></article>) : <p className="lulu-native-agent__empty-list">{t("No draft email is awaiting review.")}</p>}</section></div></></SurfaceState>;
 }
 
 type CalendarPanelEvent = CalendarEvent | NativeCalendarEvent;
@@ -313,24 +342,103 @@ function CalendarSurface({ workspaceId }: { workspaceId: string }) {
 function CommerceSurface({ workspaceId }: { workspaceId: string }) {
   const t = useTranslation();
   const [products, setProducts] = useState<Product[]>([]); const [orders, setOrders] = useState<CommerceOrder[]>([]); const [levels, setLevels] = useState<InventoryLevel[]>([]); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
-  useEffect(() => { let active = true; setLoading(true); setError(""); void Promise.all([productsApi.list(workspaceId, "limit=8"), commerceApi.listOrders(workspaceId, { limit: 8 }), commerceApi.listLevels(workspaceId, { limit: 8 })]).then(([productResponse, orderResponse, levelResponse]) => { if (!active) return; setProducts(productResponse.data.items); setOrders(orderResponse.data.items); setLevels(levelResponse.data.items); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, t("Commerce data is unavailable.")))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [t, workspaceId]);
+  const [partial, setPartial] = useState(false);
+  const [levelsAvailable, setLevelsAvailable] = useState(true);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+    setPartial(false);
+    setLevelsAvailable(true);
+    setProducts([]);
+    setOrders([]);
+    setLevels([]);
+    void Promise.allSettled([
+      productsApi.list(workspaceId, "limit=8"),
+      commerceApi.listOrders(workspaceId, { limit: 8 }),
+      commerceApi.listLevels(workspaceId, { limit: 8 }),
+    ]).then(([productResult, orderResult, levelResult]) => {
+      if (!active) return;
+      if (productResult.status === "fulfilled") setProducts(productResult.value.data.items);
+      if (orderResult.status === "fulfilled") setOrders(orderResult.value.data.items);
+      if (levelResult.status === "fulfilled") setLevels(levelResult.value.data.items);
+      const primaryResults = [productResult, orderResult];
+      const primaryRejected = primaryResults.filter((result): result is PromiseRejectedResult => result.status === "rejected");
+      const allPrimaryFailed = primaryRejected.length === primaryResults.length;
+      setLevelsAvailable(levelResult.status === "fulfilled");
+      setPartial((primaryRejected.length > 0 && !allPrimaryFailed) || levelResult.status === "rejected");
+      if (allPrimaryFailed) setError(getFriendlyErrorMessage(primaryRejected[0].reason, t("Commerce data is unavailable.")));
+    }).finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [t, workspaceId]);
   const atRisk = levels.filter((item) => Number(item.available) <= Number(item.reorderPoint)).length;
-  return <SurfaceState loading={loading} error={error} empty={!products.length && !orders.length ? t("No commerce records are available yet.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Products" value={products.length} detail="catalog records" icon={<Package size={14} />} /><Metric label="Orders" value={orders.length} detail="recent canonical orders" icon={<FileText size={14} />} /><Metric label="Stock attention" value={atRisk} detail="at or below reorder point" icon={<Boxes size={14} />} /></div><div className="lulu-native-agent__split-list"><section><div className="lulu-native-agent__list-head"><span>{t("Product catalog")}</span><small>{products.length} {t("visible")}</small></div>{products.slice(0, 5).map((product) => <article key={product.id}><div><strong>{product.name}</strong><small>{product.sku || t("No SKU")} · {product.status}</small></div><Status>{product.completeness?.readyForPublishing ? "ready" : product.status}</Status></article>)}</section><section><div className="lulu-native-agent__list-head"><span>{t("Order flow")}</span><small>{orders.length} {t("visible")}</small></div>{orders.slice(0, 5).map((order) => <article key={order.id}><div><strong>{order.orderNumber}</strong><small>{order.lineCount ?? 0} {t("lines ·")} {order.currency} {order.grandTotal}</small></div><Status>{order.status}</Status></article>)}</section></div></SurfaceState>;
+  return <SurfaceState loading={loading} error={error} empty={!products.length && !orders.length && !levels.length ? t("No commerce records are available yet.") : undefined}><>{partial ? <DataNotice>{t("Verified records unavailable")}</DataNotice> : null}<div className="lulu-native-agent__metrics"><Metric label="Products" value={products.length} detail="catalog records" icon={<Package size={14} />} /><Metric label="Orders" value={orders.length} detail="recent canonical orders" icon={<FileText size={14} />} /><Metric label="Stock attention" value={levelsAvailable ? atRisk : "—"} detail={levelsAvailable ? "at or below reorder point" : "Verified records unavailable"} icon={<Boxes size={14} />} /></div><div className="lulu-native-agent__split-list"><section><div className="lulu-native-agent__list-head"><span>{t("Product catalog")}</span><small>{products.length} {t("visible")}</small></div>{products.slice(0, 5).map((product) => <article key={product.id}><div><strong>{product.name}</strong><small>{product.sku || t("No SKU")} · {product.status}</small></div><Status>{product.completeness?.readyForPublishing ? "ready" : product.status}</Status></article>)}</section><section><div className="lulu-native-agent__list-head"><span>{t("Order flow")}</span><small>{orders.length} {t("visible")}</small></div>{orders.slice(0, 5).map((order) => <article key={order.id}><div><strong>{order.orderNumber}</strong><small>{order.lineCount ?? 0} {t("lines ·")} {order.currency} {order.grandTotal}</small></div><Status>{order.status}</Status></article>)}</section></div></></SurfaceState>;
 }
 
 function FinanceSurface({ workspaceId }: { workspaceId: string }) {
   const t = useTranslation();
   const [invoices, setInvoices] = useState<Invoice[]>([]); const [quotes, setQuotes] = useState<Quote[]>([]); const [payouts, setPayouts] = useState<PayoutsData | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
-  useEffect(() => { let active = true; setLoading(true); setError(""); void Promise.all([commercialDocumentsApi.listInvoices(workspaceId, "limit=8"), commercialDocumentsApi.listQuotes(workspaceId, "limit=8"), financeApi.listPayouts(workspaceId, 8)]).then(([invoiceResponse, quoteResponse, payoutResponse]) => { if (!active) return; setInvoices(invoiceResponse.data.items); setQuotes(quoteResponse.data.items); setPayouts(payoutResponse.data); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, t("Financial records are unavailable.")))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [t, workspaceId]);
+  const [partial, setPartial] = useState(false);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+    setPartial(false);
+    setInvoices([]);
+    setQuotes([]);
+    setPayouts(null);
+    void Promise.allSettled([
+      commercialDocumentsApi.listInvoices(workspaceId, "limit=8"),
+      commercialDocumentsApi.listQuotes(workspaceId, "limit=8"),
+      financeApi.listPayouts(workspaceId, 8),
+    ]).then(([invoiceResult, quoteResult, payoutResult]) => {
+      if (!active) return;
+      if (invoiceResult.status === "fulfilled") setInvoices(invoiceResult.value.data.items);
+      if (quoteResult.status === "fulfilled") setQuotes(quoteResult.value.data.items);
+      if (payoutResult.status === "fulfilled") setPayouts(payoutResult.value.data);
+      const primaryResults = [invoiceResult, quoteResult];
+      const primaryRejected = primaryResults.filter((result): result is PromiseRejectedResult => result.status === "rejected");
+      const allPrimaryFailed = primaryRejected.length === primaryResults.length;
+      setPartial((primaryRejected.length > 0 && !allPrimaryFailed) || payoutResult.status === "rejected");
+      if (allPrimaryFailed) setError(getFriendlyErrorMessage(primaryRejected[0].reason, t("Financial records are unavailable.")));
+    }).finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [t, workspaceId]);
   const due = invoices.filter((item) => Number(item.amountDue) > 0).length;
-  return <SurfaceState loading={loading} error={error} empty={!invoices.length && !quotes.length ? t("No financial documents are available yet.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Invoices" value={invoices.length} detail={`${due} ${t("with outstanding balance")}`} icon={<FileText size={14} />} /><Metric label="Quotes" value={quotes.length} detail="commercial documents" icon={<WalletCards size={14} />} /><Metric label="Payouts" value={payouts?.items.length ?? 0} detail="canonical payout records" icon={<Landmark size={14} />} /></div><div className="lulu-native-agent__split-list"><section><div className="lulu-native-agent__list-head"><span>{t("Invoice flow")}</span><small>{t("Verified amounts")}</small></div>{invoices.slice(0, 5).map((invoice) => <article key={invoice.id}><div><strong>{invoice.invoiceNumber}</strong><small>{invoice.currency} {invoice.amountDue} {t("due ·")} {invoice.dueDate ? formatTime(invoice.dueDate) : t("No due date")}</small></div><Status>{invoice.status}</Status></article>)}</section><section><div className="lulu-native-agent__list-head"><span>{t("Quote pipeline")}</span><small>{t("Canonical records")}</small></div>{quotes.slice(0, 5).map((quote) => <article key={quote.id}><div><strong>{quote.quoteNumber}</strong><small>{quote.currency} {quote.grandTotal ?? "—"} · {quote.creationMode}</small></div><Status>{quote.status}</Status></article>)}</section></div></SurfaceState>;
+  return <SurfaceState loading={loading} error={error} empty={!invoices.length && !quotes.length && !(payouts?.items.length) ? t("No financial documents are available yet.") : undefined}><>{partial ? <DataNotice>{t("Verified records unavailable")}</DataNotice> : null}<div className="lulu-native-agent__metrics"><Metric label="Invoices" value={invoices.length} detail={`${due} ${t("with outstanding balance")}`} icon={<FileText size={14} />} /><Metric label="Quotes" value={quotes.length} detail="commercial documents" icon={<WalletCards size={14} />} /><Metric label="Payouts" value={payouts?.items.length ?? "—"} detail={payouts ? "canonical payout records" : "Verified records unavailable"} icon={<Landmark size={14} />} /></div><div className="lulu-native-agent__split-list"><section><div className="lulu-native-agent__list-head"><span>{t("Invoice flow")}</span><small>{t("Verified amounts")}</small></div>{invoices.slice(0, 5).map((invoice) => <article key={invoice.id}><div><strong>{invoice.invoiceNumber}</strong><small>{invoice.currency} {invoice.amountDue} {t("due ·")} {invoice.dueDate ? formatTime(invoice.dueDate) : t("No due date")}</small></div><Status>{invoice.status}</Status></article>)}</section><section><div className="lulu-native-agent__list-head"><span>{t("Quote pipeline")}</span><small>{t("Canonical records")}</small></div>{quotes.slice(0, 5).map((quote) => <article key={quote.id}><div><strong>{quote.quoteNumber}</strong><small>{quote.currency} {quote.grandTotal ?? "—"} · {quote.creationMode}</small></div><Status>{quote.status}</Status></article>)}</section></div></></SurfaceState>;
 }
 
 function MarketingSurface({ workspaceId }: { workspaceId: string }) {
   const t = useTranslation();
   const [content, setContent] = useState<SocialContent[]>([]); const [publications, setPublications] = useState<SocialPublicationJob[]>([]); const [ads, setAds] = useState<AdSpendOverview | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
-  useEffect(() => { let active = true; setLoading(true); setError(""); void Promise.all([socialPublishingApi.listContent(workspaceId), socialPublishingApi.listPublications(workspaceId), adSpendApi.overview(workspaceId)]).then(([contentResponse, publicationResponse, adSpendResponse]) => { if (!active) return; setContent(contentResponse.data.items); setPublications(publicationResponse.data.items); setAds(adSpendResponse.data); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, t("Marketing data is unavailable.")))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [t, workspaceId]);
-  return <SurfaceState loading={loading} error={error} empty={!content.length && !publications.length ? t("No verified marketing work is available yet.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Content" value={content.length} detail="canonical social content" icon={<Sparkles size={14} />} /><Metric label="Publications" value={publications.length} detail="publication jobs" icon={<Radio size={14} />} /><Metric label="Ad balance" value={ads ? `${ads.wallet.availableAmount} ${ads.wallet.currency}` : "—"} detail={ads?.wallet.adsEnabled ? "funding available" : "ads not funded"} icon={<WalletCards size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Publication queue")}</span><small>{t("Real publication state")}</small></div>{publications.slice(0, 6).map((item) => <article key={item.id}><div><strong>{item.content?.message?.slice(0, 80) || t("Untitled publication")}</strong><small>{item.account?.displayName ?? t("Social account")} · {formatTime(item.scheduledAt ?? item.createdAt)}</small></div><Status>{item.status}</Status></article>)}</section></SurfaceState>;
+  const [partial, setPartial] = useState(false);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+    setPartial(false);
+    setContent([]);
+    setPublications([]);
+    setAds(null);
+    void Promise.allSettled([
+      socialPublishingApi.listContent(workspaceId),
+      socialPublishingApi.listPublications(workspaceId),
+      adSpendApi.overview(workspaceId),
+    ]).then(([contentResult, publicationResult, adSpendResult]) => {
+      if (!active) return;
+      if (contentResult.status === "fulfilled") setContent(contentResult.value.data.items);
+      if (publicationResult.status === "fulfilled") setPublications(publicationResult.value.data.items);
+      if (adSpendResult.status === "fulfilled") setAds(adSpendResult.value.data);
+      const primaryResults = [contentResult, publicationResult];
+      const primaryRejected = primaryResults.filter((result): result is PromiseRejectedResult => result.status === "rejected");
+      const adSpendUnavailable = adSpendResult.status === "rejected";
+      const allPrimaryFailed = primaryRejected.length === primaryResults.length;
+      setPartial((primaryRejected.length > 0 && !allPrimaryFailed) || adSpendUnavailable);
+      if (allPrimaryFailed) setError(getFriendlyErrorMessage(primaryRejected[0].reason, t("Marketing data is unavailable.")));
+    }).finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [t, workspaceId]);
+  return <SurfaceState loading={loading} error={error} empty={!content.length && !publications.length ? t("No verified marketing work is available yet.") : undefined}><>{partial ? <DataNotice>{t("Verified records unavailable")}</DataNotice> : null}<div className="lulu-native-agent__metrics"><Metric label="Content" value={content.length} detail="canonical social content" icon={<Sparkles size={14} />} /><Metric label="Publications" value={publications.length} detail="publication jobs" icon={<Radio size={14} />} /><Metric label="Ad balance" value={ads ? `${ads.wallet.availableAmount} ${ads.wallet.currency}` : "—"} detail={ads ? (ads.wallet.adsEnabled ? "funding available" : "ads not funded") : "Verified records unavailable"} icon={<WalletCards size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Publication queue")}</span><small>{t("Real publication state")}</small></div>{publications.slice(0, 6).map((item) => <article key={item.id}><div><strong>{item.content?.message?.slice(0, 80) || t("Untitled publication")}</strong><small>{item.account?.displayName ?? t("Social account")} · {formatTime(item.scheduledAt ?? item.createdAt)}</small></div><Status>{item.status}</Status></article>)}</section></></SurfaceState>;
 }
 
 function WebsiteSurface({ workspaceId }: { workspaceId: string }) {
@@ -405,8 +513,27 @@ function ReviewSurface({ workspaceId }: { workspaceId: string }) {
 function OperationsSurface({ workspaceId }: { workspaceId: string }) {
   const t = useTranslation();
   const [connections, setConnections] = useState<ProviderConnection[]>([]); const [readiness, setReadiness] = useState<ProviderLaunchReadiness | null>(null); const [loading, setLoading] = useState(true); const [error, setError] = useState("");
-  useEffect(() => { let active = true; setLoading(true); setError(""); void Promise.all([providerControlApi.connections(workspaceId), providerControlApi.launchReadiness(workspaceId)]).then(([connectionResponse, readinessResponse]) => { if (!active) return; setConnections(connectionResponse.data.connections); setReadiness(readinessResponse.data); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, t("Integration readiness is unavailable.")))).finally(() => active && setLoading(false)); return () => { active = false; }; }, [t, workspaceId]);
-  return <SurfaceState loading={loading} error={error} empty={!connections.length ? t("No provider connection is available for this workspace.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Connections" value={connections.length} detail="provider control plane" icon={<Network size={14} />} /><Metric label="Ready" value={readiness?.readyCount ?? 0} detail={`${readiness?.totalConnections ?? 0} ${t("checked")}`} icon={<CheckCircle2 size={14} />} /><Metric label="Readiness" value={t(readiness?.overallReady ? "ready" : "gated")} detail="launch evidence" icon={<ShieldCheck size={14} />} /></div><section className="lulu-native-agent__list">{connections.slice(0, 8).map((connection) => <article key={connection.id}><div><strong>{connection.displayName}</strong><small>{connection.providerKey} · {connection.lastVerifiedAt ? `${t("verified")} ${formatTime(connection.lastVerifiedAt)}` : t("verification pending")}</small></div><Status>{connection.healthStatus}</Status></article>)}</section></SurfaceState>;
+  const [partial, setPartial] = useState(false);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError("");
+    setPartial(false);
+    setConnections([]);
+    setReadiness(null);
+    void Promise.allSettled([
+      providerControlApi.connections(workspaceId),
+      providerControlApi.launchReadiness(workspaceId),
+    ]).then(([connectionResult, readinessResult]) => {
+      if (!active) return;
+      if (connectionResult.status === "fulfilled") setConnections(connectionResult.value.data.connections);
+      if (readinessResult.status === "fulfilled") setReadiness(readinessResult.value.data);
+      if (connectionResult.status === "rejected") setError(getFriendlyErrorMessage(connectionResult.reason, t("Integration readiness is unavailable.")));
+      setPartial(readinessResult.status === "rejected" && connectionResult.status === "fulfilled");
+    }).finally(() => active && setLoading(false));
+    return () => { active = false; };
+  }, [t, workspaceId]);
+  return <SurfaceState loading={loading} error={error} empty={!connections.length ? t("No provider connection is available for this workspace.") : undefined}><>{partial ? <DataNotice>{t("Verified records unavailable")}</DataNotice> : null}<div className="lulu-native-agent__metrics"><Metric label="Connections" value={connections.length} detail="provider control plane" icon={<Network size={14} />} /><Metric label="Ready" value={readiness?.readyCount ?? "—"} detail={readiness ? `${readiness.totalConnections} ${t("checked")}` : "Verified records unavailable"} icon={<CheckCircle2 size={14} />} /><Metric label="Readiness" value={readiness ? t(readiness.overallReady ? "ready" : "gated") : "—"} detail="launch evidence" icon={<ShieldCheck size={14} />} /></div><section className="lulu-native-agent__list">{connections.slice(0, 8).map((connection) => <article key={connection.id}><div><strong>{connection.displayName}</strong><small>{connection.providerKey} · {connection.lastVerifiedAt ? `${t("verified")} ${formatTime(connection.lastVerifiedAt)}` : t("verification pending")}</small></div><Status>{connection.healthStatus}</Status></article>)}</section></></SurfaceState>;
 }
 
 function IntelligenceSurface({ workspaceId }: { workspaceId: string }) {
