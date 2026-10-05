@@ -715,8 +715,8 @@ export function LuluStation() {
                 const roomSelected = room.id === selectedRoomId;
                 const roomHasFlow = employees.some((employee) => effectiveStatus(employee.status, aiExecutionAvailable) === "COLLABORATING");
                 const label = roomName(assignment, t);
-                return <g id={`lulu-station-room-${room.id}`} key={room.id} className={`lulu-station__room lulu-station__room--${room.color}${roomSelected ? " is-selected" : ""}`} role="button" tabIndex={0} aria-label={`${label} ${t("department room")}`} onClick={() => selectRoom(room.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectRoom(room.id); } }}>
-                  <rect className="lulu-station__room-floor" x={room.x} y={room.y} width={room.width} height={room.height} rx="18" />
+                return <g id={`lulu-station-room-${room.id}`} key={room.id} className={`lulu-station__room lulu-station__room--${room.color}${roomSelected ? " is-selected" : ""}`}>
+                  <rect className="lulu-station__room-floor" x={room.x} y={room.y} width={room.width} height={room.height} rx="18" role="button" tabIndex={0} aria-label={`${label} ${t("department room")}`} onClick={() => selectRoom(room.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectRoom(room.id); } }} />
                   <path className="lulu-station__room-inner-floor" d={`M${room.x + 15} ${room.y + 72}h${room.width - 30}v${room.height - 88}H${room.x + 15}z`} />
                   <RoomFixtures room={room} />
                   <path className="lulu-station__room-border" d={`M${room.x + 18} ${room.y}H${room.x + room.width - 18}Q${room.x + room.width} ${room.y} ${room.x + room.width} ${room.y + 18}V${room.y + room.height - 18}Q${room.x + room.width} ${room.y + room.height} ${room.x + room.width - 18} ${room.y + room.height}H${room.x + 18}Q${room.x} ${room.y + room.height} ${room.x} ${room.y + room.height - 18}V${room.y + 18}Q${room.x} ${room.y} ${room.x + 18} ${room.y}Z`} />
