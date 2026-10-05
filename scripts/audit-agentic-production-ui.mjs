@@ -59,6 +59,8 @@ if (
   || !publicLandingCss.includes('.public-entry__hero')
   || !publicLandingCss.includes('.public-entry__loop-board')
   || !publicLandingCss.includes('Public entry refinement')
+  || !publicLandingCss.includes('.public-entry a.public-entry__nav-cta')
+  || !publicLandingCss.includes('.public-entry a.public-entry__primary-cta')
 ) {
   failures.push('The public landing design is not owned by the styles mounted by its current component.');
 }

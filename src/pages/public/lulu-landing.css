@@ -94,6 +94,11 @@
   color: #061019;
 }
 
+.public-entry a.public-entry__nav-cta,
+.public-entry a.public-entry__primary-cta {
+  color: #061019;
+}
+
 .public-entry :is(.public-entry__nav-cta, .public-entry__primary-cta):hover {
   box-shadow: 0 12px 26px rgba(89, 161, 219, .28);
 }
