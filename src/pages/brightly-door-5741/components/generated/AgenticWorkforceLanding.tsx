@@ -15,11 +15,11 @@ import {
 } from 'lucide-react';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 const AGENT_COUNTS = {
-  total: 137,
+  total: 145,
   executiveOrchestrator: 1,
   domainLeads: 9,
-  independentAuditors: 2,
-  specialists: 125,
+  independentAuditors: 3,
+  specialists: 132,
 } as const;
 
 const systemLayers = [

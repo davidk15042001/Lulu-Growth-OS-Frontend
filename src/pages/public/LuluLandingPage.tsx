@@ -3,6 +3,7 @@ import { ArrowDown, ArrowRight, Bot, Check, ChevronRight, CircleDollarSign, Gaug
 import { Link } from "react-router-dom";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { routes } from "../../routing";
+import { agentSummaryApi, type AgentRegistrySummary } from "../../api/agent-summary";
 import "./lulu-landing.css";
 
 type Pillar = {
@@ -77,9 +78,20 @@ export default function LuluLandingPage() {
   const t = useTranslation();
   const activeSection = useActiveSection();
   const [selectedPillar, setSelectedPillar] = useState(pillars[0].id);
+  const [agentSummary, setAgentSummary] = useState<AgentRegistrySummary | null>(null);
   const activePillar = pillars.find((pillar) => pillar.id === selectedPillar) ?? pillars[0];
   const ActivePillarIcon = activePillar.icon;
   const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  useEffect(() => {
+    const controller = new AbortController();
+    agentSummaryApi.get(controller.signal)
+      .then((response) => setAgentSummary(response.data))
+      .catch((cause) => {
+        if (!(cause instanceof DOMException && cause.name === "AbortError")) setAgentSummary(null);
+      });
+    return () => controller.abort();
+  }, []);
 
   return (
     <main className="public-entry" aria-label={t("Lulu Growth OS public website")}>
@@ -112,6 +124,11 @@ export default function LuluLandingPage() {
           <div className="public-entry__principles" aria-label={t("Lulu system capabilities")}>
             <span><Check size={14} /> {t("Workspace-scoped. Permission-aware. Evidence-led.")}</span>
           </div>
+          {agentSummary && <div className="public-entry__agent-proof" aria-label={t("The Lulu agent ecosystem")}>
+            <Bot size={16} aria-hidden="true" />
+            <strong>{new Intl.NumberFormat().format(agentSummary.registeredAgents)}</strong>
+            <span>{t("The Lulu agent ecosystem")}</span>
+          </div>}
         </div>
 
         <div className="public-entry__hero-visual" role="img" aria-label={t("Lulu executive operating constellation")}>
