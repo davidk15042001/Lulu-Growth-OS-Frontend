@@ -45,15 +45,8 @@ export default function CalendarPortal() {
 
   const loadEvents = useCallback(async () => {
     if (!workspaceId) return;
-    const [result, customerResult] = await Promise.all([
-      calendarApi.nativeEvents(workspaceId, { ...(query.trim() ? { q: query.trim() } : {}), limit: 300 }),
-      // The records API caps a single page at 100 items.  Requesting 200
-      // previously returned 422 and caused Promise.all to hide the otherwise
-      // healthy calendar response behind a misleading calendar error.
-      listRecords('customers', 'limit=100'),
-    ]);
+    const result = await calendarApi.nativeEvents(workspaceId, { ...(query.trim() ? { q: query.trim() } : {}), limit: 300 });
     setEvents(result.data.items);
-    setCustomers(customerResult.data.items);
   }, [workspaceId, query]);
   useEffect(() => {
     if (!workspaceId) { if (!appLoading) setBusy(false); return; }
@@ -61,6 +54,19 @@ export default function CalendarPortal() {
     loadEvents().catch((cause) => { if (active) setError(getFriendlyErrorMessage(cause, t('Calendar could not be loaded.'))); }).finally(() => { if (active) setBusy(false); });
     return () => { active = false; };
   }, [workspaceId, appLoading, loadEvents, t]);
+  useEffect(() => {
+    if (!workspaceId) { setCustomers([]); return; }
+    let active = true;
+    // Customer records are only needed by the create dialog. Keep them out of
+    // the appointment search request so a customer-list failure cannot hide a
+    // healthy calendar, and typing in the search box does not refetch them.
+    void listRecords('customers', 'limit=100').then((result) => {
+      if (active) setCustomers(result.data.items);
+    }).catch(() => {
+      if (active) setCustomers([]);
+    });
+    return () => { active = false; };
+  }, [workspaceId]);
   useEffect(() => {
     if (!workspaceId) { setDeliveryTargets([]); setDeliveryLoading(false); return; }
     let active = true;
