@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { LuluPayouts } from './components/generated/LuluPayouts';
+import { CircleDollarSign } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +16,15 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluPayouts />; // %EXPORT_STATEMENT%
+  return <BackendResourceOverviewPage
+    resourceType="finance_payouts"
+    eyebrow="Finance"
+    title="Payouts"
+    description="Verified payout records from connected payment and commerce providers."
+    emptyTitle="No payout records available yet"
+    emptyDescription="Connect an approved payment provider before reviewing settlement state. No amounts, timings, reconciliations or transfer actions are inferred without verified records."
+    emptyIcon={<CircleDollarSign aria-hidden="true" size={24} />}
+  />; // %EXPORT_STATEMENT%
 }
 
 export default App;
