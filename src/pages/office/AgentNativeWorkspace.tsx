@@ -203,9 +203,18 @@ function resolveKind(source: AgentSurfaceSource): NativeWorkspaceKind {
   return "command";
 }
 
+function activeLocale() {
+  if (typeof document === "undefined") return "en";
+  return document.documentElement.lang || "en";
+}
+
+function formatNumber(value: number) {
+  return new Intl.NumberFormat(activeLocale()).format(value);
+}
+
 function formatTime(value: string | null | undefined) {
   if (!value) return "—";
-  return new Date(value).toLocaleString([], { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+  return new Date(value).toLocaleString(activeLocale(), { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
 function statusClass(value: string | null | undefined) {
@@ -256,7 +265,7 @@ function CommandSurface({ detail, source }: { detail?: OfficeEmployeeDetails; so
     </section>
     <section className="lulu-native-agent__evidence-grid">
       <div><span className="lulu-native-agent__eyebrow">{t("RECENT EVIDENCE")}</span>{detail.recentTimeline.length ? <ol>{detail.recentTimeline.slice(0, 5).map((item) => <li key={item.id}><i /><span><strong title={item.title}>{conciseOfficeCopy(item.title, t("Verified employee event"), 96)}</strong><small>{officeEvidenceTypeLabel(item.type, t)} · {formatTime(item.occurredAt)}</small></span></li>)}</ol> : <p className="lulu-native-agent__muted">{t("No persisted employee events are available yet.")}</p>}</div>
-      <div><span className="lulu-native-agent__eyebrow">{t("WORKLOAD")}</span><div className="lulu-native-agent__stat-stack"><strong>{new Intl.NumberFormat().format(detail.workSummary.active)}<small>{t("open work")}</small></strong><strong>{new Intl.NumberFormat().format(detail.workSummary.completedToday)}<small>{t("completed today")}</small></strong><strong>{new Intl.NumberFormat().format(detail.workSummary.failed)}<small>{t("failed")}</small></strong></div></div>
+      <div><span className="lulu-native-agent__eyebrow">{t("WORKLOAD")}</span><div className="lulu-native-agent__stat-stack"><strong>{formatNumber(detail.workSummary.active)}<small>{t("open work")}</small></strong><strong>{formatNumber(detail.workSummary.completedToday)}<small>{t("completed today")}</small></strong><strong>{formatNumber(detail.workSummary.failed)}<small>{t("failed")}</small></strong></div></div>
     </section>
   </div>;
 }
