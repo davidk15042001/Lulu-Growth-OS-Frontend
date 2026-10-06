@@ -37,6 +37,23 @@ function teamStatusDescription(status: string, t: (key: string) => string) {
   return t(descriptions[status] ?? "The integration status is being reconciled.");
 }
 
+const teamStatusPriority: Record<string, number> = {
+  ACTIVE: 0,
+  CONNECTED: 1,
+  PROVISIONING: 2,
+  CONNECTING: 3,
+  DEGRADED: 4,
+  REAUTH_REQUIRED: 5,
+  SUSPENDED: 6,
+  DISCONNECTED: 7,
+  ARCHIVED: 8,
+  NOT_CONNECTED: 9,
+};
+
+function isSuspendableTeamStatus(status: string) {
+  return ["ACTIVE", "CONNECTED", "PROVISIONING", "CONNECTING", "DEGRADED"].includes(status);
+}
+
 type ComposioCatalogProps = {
   workspaceId: string;
   canConnect?: boolean;
@@ -69,7 +86,10 @@ export function ComposioCatalog({ workspaceId, canConnect = false, canManageTeam
   }
 
   const loadTeams = useCallback(async () => {
-    try { setTeams((await composioApi.teams(workspaceId, { limit: 100 })).data.items); }
+    try {
+      const items = (await composioApi.teams(workspaceId, { limit: 100 })).data.items;
+      setTeams([...items].sort((left, right) => (teamStatusPriority[left.status] ?? 99) - (teamStatusPriority[right.status] ?? 99)));
+    }
     catch { setTeams([]); }
   }, [workspaceId]);
 
@@ -167,9 +187,9 @@ export function ComposioCatalog({ workspaceId, canConnect = false, canManageTeam
       {teams.map((team) => <article className="lulu-live-row" key={team.id}>
         <div className="lulu-live-row-top"><div><strong>{team.teamName}</strong><span>{team.composioToolkit} · {team.mission}</span></div><span className={`lulu-live-badge ${team.status === "ACTIVE" ? "good" : ""}`}>{teamStatusLabel(team.status, t)}</span></div>
         <small>{teamStatusDescription(team.status, t)}{team.lastProviderStatus ? ` · provider ${team.lastProviderStatus}` : ""}</small>
-        {canManageTeams ? <div className="lulu-live-actions" style={{ marginTop: 8 }}>
+        {canManageTeams && (team.status === "SUSPENDED" || isSuspendableTeamStatus(team.status)) ? <div className="lulu-live-actions" style={{ marginTop: 8 }}>
           {team.status === "SUSPENDED" ? <button className="lulu-live-button" onClick={async () => { await composioApi.resumeTeam(workspaceId, team.id); await loadTeams(); }}>{t("Resume")}</button> : <button className="lulu-live-button danger" onClick={async () => { await composioApi.suspendTeam(workspaceId, team.id); await loadTeams(); }}>{t("Suspend")}</button>}
-        </div> : <p className="lulu-live-message" style={{ marginTop: 8 }}>{t("Your workspace role can view this team, but cannot pause or resume external execution.")}</p>}
+        </div> : canManageTeams ? null : <p className="lulu-live-message" style={{ marginTop: 8 }}>{t("Your workspace role can view this team, but cannot pause or resume external execution.")}</p>}
       </article>)}
     </LiveSection>}
     <LiveSection title={t("Available integrations")} action={<span className="lulu-live-message">{t("Tool calls are deducted automatically from the AI wallet. Platform admins with billing.bypass are exempt.")}</span>}>
