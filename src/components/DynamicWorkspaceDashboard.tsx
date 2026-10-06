@@ -6,11 +6,13 @@ import { workspaceApi } from "../api/workspaces";
 import type { WorkspaceBootstrap } from "../api/types";
 import { LuluSectionNavigation } from "../pages/fancily-leaf-1766/components/generated/LuluExecutiveDashboard";
 import { useLuluApp } from "../api/LuluAppContext";
+import { useLanguage } from "../i18n/GlobalLanguageSwitcher";
+import { toIntlLocale } from "../i18n/languages";
 
-function formatDate(value: string | null | undefined) {
+function formatDate(value: string | null | undefined, locale: string) {
   if (!value) return "No date available";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "No date available" : new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(date);
+  return Number.isNaN(date.getTime()) ? "No date available" : new Intl.DateTimeFormat(locale, { dateStyle: "medium" }).format(date);
 }
 
 function planLabel(planKey: string | undefined) {
@@ -24,6 +26,8 @@ function EmptyState({ children }: { children: string }) {
 
 export function DynamicWorkspaceDashboard() {
   const { currentUser, selectedWorkspace, bootstrap: appBootstrap, loading: contextLoading } = useLuluApp();
+  const language = useLanguage();
+  const locale = toIntlLocale(language);
   const workspaceId = selectedWorkspace?.id ?? "";
   const [bootstrap, setBootstrap] = useState<WorkspaceBootstrap | null>(null);
   const [billing, setBilling] = useState<BillingState | null>(null);
@@ -98,7 +102,7 @@ export function DynamicWorkspaceDashboard() {
           <article className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6"><h2 className="text-lg font-semibold">Connected platforms</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">No platform is shown as connected unless the backend reports it.</p><div className="mt-6 space-y-3">{integrationRows.length === 0 ? <EmptyState>No platforms are connected yet.</EmptyState> : integrationRows.map(([name, count]) => <div key={name} className="flex items-center justify-between rounded-xl border border-[var(--border)] px-4 py-3"><span className="text-sm">{name}</span><span className="text-sm font-semibold">{count}</span></div>)}</div></article>
         </section>
 
-        <section className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6"><h2 className="text-lg font-semibold">Recent activity</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">Real audit events from this workspace.</p><div className="mt-6">{bootstrap.recentActivity.length === 0 ? <EmptyState>No activity has been recorded yet.</EmptyState> : <div className="space-y-3">{bootstrap.recentActivity.map((entry) => <div key={entry.id} className="flex flex-col gap-1 border-b border-[var(--border)] py-3 last:border-0 sm:flex-row sm:items-center sm:justify-between"><span className="text-sm font-medium">{entry.action}</span><span className="text-xs text-[var(--muted-foreground)]">{entry.entityType} · {formatDate(entry.createdAt)}</span></div>)}</div>}</div></section>
+        <section className="mt-8 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6"><h2 className="text-lg font-semibold">Recent activity</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">Real audit events from this workspace.</p><div className="mt-6">{bootstrap.recentActivity.length === 0 ? <EmptyState>No activity has been recorded yet.</EmptyState> : <div className="space-y-3">{bootstrap.recentActivity.map((entry) => <div key={entry.id} className="flex flex-col gap-1 border-b border-[var(--border)] py-3 last:border-0 sm:flex-row sm:items-center sm:justify-between"><span className="text-sm font-medium">{entry.action}</span><span className="text-xs text-[var(--muted-foreground)]">{entry.entityType} · {formatDate(entry.createdAt, locale)}</span></div>)}</div>}</div></section>
       </div>
       </main>
     </div>

@@ -6,7 +6,8 @@ import { releaseApi } from "../api/release";
 import { isOfficePanelSurface, routes } from "../routing";
 import { LuluWorkspaceRefreshButton } from "./LuluWorkspaceTopBar";
 import { LuluUsageControl } from "./LuluUsageControl";
-import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { toIntlLocale } from "../i18n/languages";
 
 export function AuthenticatedWorkspaceTopBar({
   navigationOpen,
@@ -19,6 +20,7 @@ export function AuthenticatedWorkspaceTopBar({
   showNavigationToggle?: boolean;
 }) {
   const { currentUser, selectedWorkspace } = useLuluApp();
+  const language = useLanguage();
   const t = useTranslation();
   const [backendPushedAt, setBackendPushedAt] = useState<string | null>(null);
   const location = useLocation();
@@ -38,7 +40,7 @@ export function AuthenticatedWorkspaceTopBar({
 
   if (!currentUser || !selectedWorkspace || officePanel || activationLocked) return null;
 
-  const backendTimestamp = backendPushedAt ? new Date(backendPushedAt).toLocaleString(undefined, {
+  const backendTimestamp = backendPushedAt ? new Date(backendPushedAt).toLocaleString(toIntlLocale(language), {
     dateStyle: "medium",
     timeStyle: "short",
   }) : null;

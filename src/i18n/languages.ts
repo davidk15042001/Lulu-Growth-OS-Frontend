@@ -27,3 +27,13 @@ export function isAvailableLanguageCode(value: string | null): value is (typeof 
 export function getLanguage(code: LanguageCode) {
   return languages.find((language) => language.code === code)!;
 }
+
+/**
+ * Keep browser-facing number/date formatting aligned with Lulu's language
+ * switcher instead of inheriting an unrelated device locale.
+ */
+export function toIntlLocale(language: LanguageCode): string {
+  if (language === "de") return "de-DE";
+  if (language === "zh-CN") return "zh-CN";
+  return "en-US";
+}

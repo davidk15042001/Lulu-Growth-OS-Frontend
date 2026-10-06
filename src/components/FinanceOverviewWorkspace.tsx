@@ -75,7 +75,8 @@ function MetricCard({ label, detail, totals, icon, accent }: { label: string; de
 
 function formatUpdatedAt(value: string) {
   const date = new Date(value);
-  return Number.isNaN(date.valueOf()) ? "—" : date.toLocaleString();
+  const locale = typeof document !== "undefined" ? document.documentElement.lang || "en-US" : "en-US";
+  return Number.isNaN(date.valueOf()) ? "—" : date.toLocaleString(locale);
 }
 
 function FinanceSurface({ embedded, className, children }: { embedded: boolean; className: string; children: React.ReactNode }) {

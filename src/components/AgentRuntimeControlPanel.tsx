@@ -2,7 +2,8 @@ import { BrainCircuit, Clock3, Coins, Eye, RotateCcw, ShieldCheck, XCircle } fro
 import { formatLiveDate } from "../api/live-panel-ui";
 import type { AgentRunStatus, AgentStep } from "../api/agents";
 import type { WorkspaceRecord } from "../api/records";
-import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { toIntlLocale } from "../i18n/languages";
 import { usePageAgentRun } from "./usePageAgentRun";
 
 type PageAgentRunController = ReturnType<typeof usePageAgentRun>;
@@ -83,8 +84,8 @@ function payloadPreview(value: Record<string, unknown> | null | undefined) {
   }
 }
 
-function tokenCount(value: number | undefined) {
-  return typeof value === "number" ? value.toLocaleString() : "0";
+function tokenCount(value: number | undefined, locale: string) {
+  return typeof value === "number" ? value.toLocaleString(locale) : "0";
 }
 
 function costValue(value: number | undefined) {
@@ -99,6 +100,8 @@ export function AgentRuntimeControlPanel({
   pageLabel: string;
 }) {
   const t = useTranslation();
+  const language = useLanguage();
+  const locale = toIntlLocale(language);
   const currentRun = runtime.details?.run ?? runtime.latestRun;
   const status = currentRun?.status ?? "idle";
   const stepCount = runtime.details?.steps.length ?? 0;
@@ -213,9 +216,9 @@ export function AgentRuntimeControlPanel({
         <article className="rounded-lg border border-border bg-background/60 p-4 xl:col-span-2">
           <div className="flex items-center gap-2 text-xs text-muted-foreground"><Coins size={15} /> {t("AI token usage")}</div>
           <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-foreground">
-            <span>{t("Input")}: <strong>{tokenCount(runUsage?.inputTokens)}</strong></span>
-            <span>{t("Output")}: <strong>{tokenCount(runUsage?.outputTokens)}</strong></span>
-            <span>{t("Total")}: <strong>{tokenCount(runUsage?.totalTokens)}</strong></span>
+            <span>{t("Input")}: <strong>{tokenCount(runUsage?.inputTokens, locale)}</strong></span>
+            <span>{t("Output")}: <strong>{tokenCount(runUsage?.outputTokens, locale)}</strong></span>
+            <span>{t("Total")}: <strong>{tokenCount(runUsage?.totalTokens, locale)}</strong></span>
           </div>
           <p className="mt-2 text-xs text-muted-foreground">{runUsage?.model || t("No metered AI call yet")} · {costValue(runUsage?.customerCostUsd)} {t("customer cost")}</p>
         </article>
@@ -283,9 +286,9 @@ export function AgentRuntimeControlPanel({
                     </p>
                     {step.usage ? (
                       <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                        <span>{t("Tokens")}: {tokenCount(step.usage.totalTokens)}</span>
-                        <span>{t("Input")}: {tokenCount(step.usage.inputTokens)}</span>
-                        <span>{t("Output")}: {tokenCount(step.usage.outputTokens)}</span>
+                        <span>{t("Tokens")}: {tokenCount(step.usage.totalTokens, locale)}</span>
+                        <span>{t("Input")}: {tokenCount(step.usage.inputTokens, locale)}</span>
+                        <span>{t("Output")}: {tokenCount(step.usage.outputTokens, locale)}</span>
                       </div>
                     ) : null}
                     {step.errorMessage ? <p className="mt-2 text-sm text-destructive">{step.errorMessage}</p> : null}
