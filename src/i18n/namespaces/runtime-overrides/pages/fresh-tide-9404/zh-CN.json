@@ -283,5 +283,14 @@
   "Sign in to Shopify and approve the requested access.": "登录 Shopify 并批准请求的访问权限。",
   "Sign in to the Pipedrive organization you want Lulu to read.": "登录到您希望 Lulu 阅读的 Pipedrive 组织。",
   "Sign in to Webflow and select the intended workspace or site.": "登录 Webflow 并选择所需的工作区或站点。",
-  "Sign in to WordPress and select the intended site.": "登录 WordPress 并选择目标站点。"
+  "Sign in to WordPress and select the intended site.": "登录 WordPress 并选择目标站点。",
+  "Shopify connection": "Shopify 连接",
+  "Enter your store domain": "输入您的商店域名",
+  "Use the exact": "请使用准确的",
+  "your-store.myshopify.com": "your-store.myshopify.com",
+  "domain so Lulu opens the correct Shopify authorization flow.": "域名，以便 Lulu 打开正确的 Shopify 授权流程。",
+  "Close Shopify dialog": "关闭 Shopify 对话框",
+  "Shop domain": "商店域名",
+  "Cancel": "取消",
+  "Continue": "继续"
 }

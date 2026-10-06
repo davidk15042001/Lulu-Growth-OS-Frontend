@@ -7,5 +7,14 @@
   "Sender: ": "Sender: ",
   "View connection": "View connection",
   "View UnifyPort": "View UnifyPort",
-  "unifyport · whatsapp": "unifyport · whatsapp"
+  "unifyport · whatsapp": "unifyport · whatsapp",
+  "Shopify connection": "Shopify connection",
+  "Enter your store domain": "Enter your store domain",
+  "Use the exact": "Use the exact",
+  "your-store.myshopify.com": "your-store.myshopify.com",
+  "domain so Lulu opens the correct authorization flow.": "domain so Lulu opens the correct authorization flow.",
+  "Close Shopify dialog": "Close Shopify dialog",
+  "Shop domain": "Shop domain",
+  "Cancel": "Cancel",
+  "Continue": "Continue"
 }

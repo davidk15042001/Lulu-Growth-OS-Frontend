@@ -371,5 +371,14 @@
   "Production readiness": "Produktionsbereitschaft",
   "Provider Control Plane": "Provider-Steuerung",
   "Readiness check": "Bereitschaftsprüfung",
-  "Ready": "Bereit"
+  "Ready": "Bereit",
+  "Shopify connection": "Shopify-Verbindung",
+  "Enter your store domain": "Geben Sie Ihre Shop-Domain ein",
+  "Use the exact": "Verwenden Sie die genaue",
+  "your-store.myshopify.com": "your-store.myshopify.com",
+  "domain so Lulu opens the correct authorization flow.": "Domain, damit Lulu den richtigen Shopify-Autorisierungsablauf öffnet.",
+  "Close Shopify dialog": "Shopify-Dialog schließen",
+  "Shop domain": "Shop-Domain",
+  "Cancel": "Abbrechen",
+  "Continue": "Fortfahren"
 }

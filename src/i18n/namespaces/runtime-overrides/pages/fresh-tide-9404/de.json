@@ -283,5 +283,14 @@
   "Sign in to Shopify and approve the requested access.": "Melden Sie sich bei Shopify an und genehmigen Sie den angeforderten Zugriff.",
   "Sign in to the Pipedrive organization you want Lulu to read.": "Melden Sie sich bei der Pipedrive-Organisation an, die Lulu lesen soll.",
   "Sign in to Webflow and select the intended workspace or site.": "Melden Sie sich bei Webflow an und wählen Sie den gewünschten Arbeitsbereich oder die gewünschte Site aus.",
-  "Sign in to WordPress and select the intended site.": "Melden Sie sich bei WordPress an und wählen Sie die gewünschte Site aus."
+  "Sign in to WordPress and select the intended site.": "Melden Sie sich bei WordPress an und wählen Sie die gewünschte Site aus.",
+  "Shopify connection": "Shopify-Verbindung",
+  "Enter your store domain": "Geben Sie Ihre Shop-Domain ein",
+  "Use the exact": "Verwenden Sie die genaue",
+  "your-store.myshopify.com": "your-store.myshopify.com",
+  "domain so Lulu opens the correct Shopify authorization flow.": "Domain, damit Lulu den richtigen Shopify-Autorisierungsablauf öffnet.",
+  "Close Shopify dialog": "Shopify-Dialog schließen",
+  "Shop domain": "Shop-Domain",
+  "Cancel": "Abbrechen",
+  "Continue": "Fortfahren"
 }

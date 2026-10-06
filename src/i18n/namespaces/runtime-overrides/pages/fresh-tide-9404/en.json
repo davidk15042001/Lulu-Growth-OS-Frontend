@@ -20,5 +20,14 @@
   "Managed via UnifyPort": "Managed via UnifyPort",
   "Managed by Lulu": "Managed by Lulu",
   "Managed": "Managed",
-  "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.": "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized."
+  "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.": "Add `oauth`, `crm.objects.contacts.read`, `crm.objects.companies.read` and `crm.objects.companies.write` to the required scopes so Lulu can keep company records synchronized.",
+  "Shopify connection": "Shopify connection",
+  "Enter your store domain": "Enter your store domain",
+  "Use the exact": "Use the exact",
+  "your-store.myshopify.com": "your-store.myshopify.com",
+  "domain so Lulu opens the correct Shopify authorization flow.": "domain so Lulu opens the correct Shopify authorization flow.",
+  "Close Shopify dialog": "Close Shopify dialog",
+  "Shop domain": "Shop domain",
+  "Cancel": "Cancel",
+  "Continue": "Continue"
 }

@@ -371,5 +371,14 @@
   "Production readiness": "生产就绪状态",
   "Provider Control Plane": "提供商控制中心",
   "Readiness check": "就绪检查",
-  "Ready": "已就绪"
+  "Ready": "已就绪",
+  "Shopify connection": "Shopify 连接",
+  "Enter your store domain": "输入您的商店域名",
+  "Use the exact": "请使用准确的",
+  "your-store.myshopify.com": "your-store.myshopify.com",
+  "domain so Lulu opens the correct authorization flow.": "域名，以便 Lulu 打开正确的 Shopify 授权流程。",
+  "Close Shopify dialog": "关闭 Shopify 对话框",
+  "Shop domain": "商店域名",
+  "Cancel": "取消",
+  "Continue": "继续"
 }
