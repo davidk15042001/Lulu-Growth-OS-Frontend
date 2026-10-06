@@ -270,6 +270,7 @@
 .lulu-entry__footer { border-top-color: rgba(192, 213, 239, .12); background: rgba(5, 11, 21, .62); }
 
 @media (max-width: 980px) {
+  .lulu-entry__stage { grid-template-columns: minmax(0, 1fr); }
   .lulu-entry__hero::before { display: none; }
   .lulu-entry__proof { text-align: left; }
 }
