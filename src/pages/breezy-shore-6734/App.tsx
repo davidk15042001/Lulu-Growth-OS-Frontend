@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { LuluMarketingAnalytics } from './components/generated/LuluMarketingAnalytics';
+import { LineChart } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +16,7 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluMarketingAnalytics />; // %EXPORT_STATEMENT%
+  return <BackendResourceOverviewPage resourceType="marketing_campaigns" eyebrow="Marketing" title="Marketing Analytics" description="Live records in this workflow" emptyTitle="No live records are available for this page yet." emptyDescription="No metrics or success claims are inferred while the backend state is unavailable." emptyIcon={<LineChart aria-hidden="true" size={24} />} />; // %EXPORT_STATEMENT%
 }
 
 export default App;

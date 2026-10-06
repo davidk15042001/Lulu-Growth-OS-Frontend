@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { SalesOverview } from './components/generated/SalesOverview';
+import { ChartNoAxesCombined } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +16,7 @@ function App() {
 
   setTheme(theme);
 
-  return <SalesOverview />; // %EXPORT_STATEMENT%
+  return <BackendResourceOverviewPage resourceType="sales_deals" eyebrow="Sales" title="Sales Overview" description="Live records in this workflow" emptyTitle="No live records are available for this page yet." emptyDescription="No metrics or success claims are inferred while the backend state is unavailable." emptyIcon={<ChartNoAxesCombined aria-hidden="true" size={24} />} />; // %EXPORT_STATEMENT%
 }
 
 export default App;

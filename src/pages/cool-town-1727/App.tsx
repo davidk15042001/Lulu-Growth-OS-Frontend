@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { ProductsIntelligence } from './components/generated/ProductsIntelligence';
+import { Package } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 
 let theme: Theme = 'light';
 
@@ -14,7 +15,7 @@ function App() {
 
   setTheme(theme);
 
-  return <ProductsIntelligence />;
+  return <BackendResourceOverviewPage resourceType="ecommerce_products" eyebrow="Commerce" title="Products" description="Live records in this workflow" emptyTitle="No live records are available for this page yet." emptyDescription="No metrics or success claims are inferred while the backend state is unavailable." emptyIcon={<Package aria-hidden="true" size={24} />} />;
 }
 
 export default App;
