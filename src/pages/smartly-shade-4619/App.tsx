@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { LuluDealsPage } from './components/generated/LuluDealsPage';
+import { BriefcaseBusiness } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +16,17 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluDealsPage />; // %EXPORT_STATEMENT%
+  return (
+    <BackendResourceOverviewPage
+      resourceType="crm_deals"
+      eyebrow="CRM"
+      title="Deals"
+      description="Verified CRM deal records for the current workspace."
+      emptyTitle="No verified CRM deals yet"
+      emptyDescription="Connect an approved CRM before reviewing deal stages, values or pipeline health. No create, import or bulk action is exposed without a canonical mutation."
+      emptyIcon={<BriefcaseBusiness aria-hidden="true" size={24} />}
+    />
+  ); // %EXPORT_STATEMENT%
 }
 
 export default App;

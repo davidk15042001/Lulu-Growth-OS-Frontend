@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { LuluLeads } from './components/generated/LuluLeads';
+import { UserPlus } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +16,17 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluLeads />; // %EXPORT_STATEMENT%
+  return (
+    <BackendResourceOverviewPage
+      resourceType="crm_leads"
+      eyebrow="CRM"
+      title="Leads"
+      description="Verified CRM lead records for the current workspace."
+      emptyTitle="No verified CRM leads yet"
+      emptyDescription="Connect an approved CRM before reviewing lead scores, qualification or conversion state. No create, import, qualify or convert action is exposed without a canonical mutation."
+      emptyIcon={<UserPlus aria-hidden="true" size={24} />}
+    />
+  ); // %EXPORT_STATEMENT%
 }
 
 export default App;
