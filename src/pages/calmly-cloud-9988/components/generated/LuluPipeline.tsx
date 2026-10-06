@@ -1,634 +1,79 @@
-import { useState } from 'react';
-import { useLiveRecords } from '../../../../api/useLiveRecords';
-import { AnimatePresence, motion } from 'framer-motion';
-import { Activity, AlertTriangle, ArrowDownRight, ArrowRight, Bot, BriefcaseBusiness, Building2, CalendarDays, Check, ChevronDown, CircleHelp, Clock3, Command, Filter, Gauge, GripVertical, LayoutDashboard, ListTodo, Menu, MoreHorizontal, PanelRight, Plus, RefreshCcw, Search, Settings, SlidersHorizontal, Sparkles, Target, Trophy, UserRound, Users, X, Zap } from 'lucide-react';
-type Deal = {
-  name: string;
-  company: string;
-  contact: string;
-  value: string;
-  probability?: number;
-  close: string;
-  owner: string;
-  initials: string;
-  last: string;
-  overdue?: boolean;
-  risk?: string;
-  won?: boolean;
-};
-type Stage = {
-  name: string;
-  count: string;
-  total: string;
-  conversion: string;
-  tone: string;
-  deals: Deal[];
-  more: string;
-};
-const navGroups = [{
-  label: 'Workspace',
-  items: [{
-    icon: LayoutDashboard,
-    label: 'Dashboard'
-  }, {
-    icon: Sparkles,
-    label: 'AI Insights'
-  }]
-}, {
-  label: 'CRM',
-  items: [{
-    icon: Gauge,
-    label: 'Overview'
-  }, {
-    icon: Users,
-    label: 'Contacts'
-  }, {
-    icon: Building2,
-    label: 'Companies'
-  }, {
-    icon: Target,
-    label: 'Leads'
-  }, {
-    icon: BriefcaseBusiness,
-    label: 'Deals'
-  }, {
-    icon: Activity,
-    label: 'Pipeline',
-    active: true
-  }, {
-    icon: Clock3,
-    label: 'Activities'
-  }, {
-    icon: ListTodo,
-    label: 'Tasks'
-  }]
-}, {
-  label: 'Intelligence',
-  items: [{
-    icon: Bot,
-    label: 'AI Assistant'
-  }, {
-    icon: Zap,
-    label: 'AI Agents'
-  }]
-}];
-const stages: Stage[] = [];
-const kpis: string[][] = [];
-function Logo() {
-  return <div className="flex items-center gap-3"><div className="grid h-9 w-9 place-items-center rounded-xl bg-primary shadow-lg shadow-black/40 text-primary-foreground"><Sparkles size={18} className="text-primary-foreground" /></div><span className="text-[15px] font-semibold tracking-tight text-foreground">lulu<span className="text-foreground">.</span>ai</span></div>;
+import { AlertTriangle, ChevronRight, LoaderCircle, RefreshCw, Search, Sparkles, X } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useLiveRecords } from "../../../../api/useLiveRecords";
+import { useLanguage, useTranslation } from "../../../../i18n/GlobalLanguageSwitcher";
+
+const PAGE_SIZE = 48;
+
+function field(record: { data?: Record<string, unknown> | null }, key: string) {
+  return record.data?.[key] == null ? "" : String(record.data[key]);
 }
-function DealCard({
-  deal,
-  onSelect
-}: {
-  deal: Deal;
-  onSelect: (deal: Deal) => void;
-}) {
-  return <button onClick={() => onSelect(deal)} className="group relative w-full rounded-xl border border-border bg-[var(--primary)] p-3 text-left transition-all hover:-translate-y-0.5 hover:border-border/50 hover:bg-[var(--primary)] focus:outline-none focus:ring-2 focus:ring-ring/60 text-primary-foreground">
-    <GripVertical size={13} className="absolute -left-1 top-4 text-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-    <div className="flex items-start justify-between gap-2"><div><h4 className="text-[13px] font-semibold text-foreground">{deal.name}</h4><p className="mt-1 text-[11px] text-muted-foreground">{deal.company} · {deal.contact}</p></div><MoreHorizontal size={16} className="shrink-0 text-muted-foreground opacity-0 group-hover:opacity-100" /></div>
-    <div className="mt-3 flex items-center justify-between"><strong className="text-[14px] font-semibold text-foreground">{deal.value}</strong>{deal.won ? <span className="rounded-md bg-secondary/10 px-2 py-1 text-[10px] font-bold text-foreground">WON</span> : <span className="rounded-md bg-secondary px-2 py-1 text-[10px] font-semibold text-foreground">{deal.probability}%</span>}</div>
-    {!deal.won && <div className="mt-2 h-1 overflow-hidden rounded-full bg-secondary"><div className="h-full rounded-full bg-primary text-primary-foreground" style={{
-        width: `${deal.probability}%`
-      }} /></div>}
-    <div className="mt-3 flex items-center justify-between text-[10px] text-muted-foreground"><span className={deal.overdue ? 'font-medium text-chart-5' : ''}><CalendarDays size={11} className="mr-1 inline" />{deal.close}{deal.overdue && ' · OVERDUE'}</span><span className="flex items-center gap-1"><span className="grid h-4 w-4 place-items-center rounded-full bg-secondary/20 text-[8px] font-bold text-foreground">{deal.initials}</span>{deal.owner}</span></div>
-    <div className="mt-2 flex items-center justify-between border-t border-border pt-2 text-[10px] text-muted-foreground"><span>Last activity: {deal.last}</span>{deal.risk && <span className="flex items-center gap-1 text-chart-5"><AlertTriangle size={11} />{deal.risk}</span>}</div>
-  </button>;
+
+function formatDate(value: string | null | undefined, language: string) {
+  if (!value) return "—";
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toLocaleString(language) : "—";
 }
-function PipelineBoard({
-  stages,
-  onSelect
-}: {
-  stages: Stage[];
-  onSelect: (deal: Deal) => void;
-}) {
-  return <section className="rounded-2xl border border-border bg-[var(--card)] p-3 shadow-2xl shadow-black/20"><div className="mb-3 flex items-center justify-between px-1"><div><h2 className="text-sm font-semibold text-foreground">Sales pipeline</h2><p className="mt-0.5 text-[11px] text-muted-foreground">Drag deals to update their stage</p></div><button className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-[11px] font-medium text-foreground hover:bg-secondary"><SlidersHorizontal size={13} />Board view</button></div><div className="flex gap-3 overflow-x-auto pb-2">{stages.map(stage => <div key={stage.name} className="min-w-[222px] flex-1 rounded-xl bg-[var(--secondary)] p-2"><div className="mb-2 flex items-start justify-between"><div><div className="flex items-center gap-1.5"><span className={`h-2 w-2 rounded-full bg-${stage.tone === 'violet' ? 'violet' : stage.tone === 'blue' ? 'sky' : stage.tone === 'amber' ? 'amber' : stage.tone === 'orange' ? 'orange' : 'emerald'}-400`} /><h3 className="text-[12px] font-bold text-foreground">{stage.name}</h3>{null}{stage.name === 'Won' && <Trophy size={12} className="text-foreground" />}</div><p className="mt-1 text-[10px] text-muted-foreground">{stage.count} · {stage.total}</p></div><MoreHorizontal size={16} className="text-muted-foreground" /></div>{stage.conversion && <p className="mb-2 text-[10px] text-muted-foreground">Conversion <span className="font-semibold text-muted-foreground">{stage.conversion}</span> <ArrowRight size={11} className="inline text-muted-foreground" /></p>}<div className="space-y-2">{stage.deals.map(deal => <DealCard key={deal.name} deal={deal} onSelect={onSelect} />)}</div><button className="mt-2 w-full rounded-lg border border-dashed border-border py-2 text-[10px] font-medium text-foreground transition hover:border-border/40 hover:text-foreground">+ {stage.more} · Load more</button></div>)}</div></section>;
-}
+
 export function LuluPipeline() {
-  const { items: liveStageRecords, loading: stagesLoading, error: stagesError } = useLiveRecords('crm_pipeline_stages');
-  const { items: liveDealRecords, loading: dealsLoading, error: dealsError } = useLiveRecords('sales_deals');
-  const liveStages: Stage[] = liveStageRecords.map((stageRecord, index) => {
-    const fields = stageRecord as unknown as Record<string, unknown>;
-    const stageName = stageRecord.name || String(fields.stageName ?? `Stage ${index + 1}`);
-    const stageDeals = liveDealRecords.filter(deal => String((deal as unknown as Record<string, unknown>).stage ?? '') === stageName).map((dealRecord, dealIndex) => {
-      const dealFields = dealRecord as unknown as Record<string, unknown>;
-      const name = dealRecord.name || String(dealFields.dealName ?? 'Unnamed deal');
-      return { name, company: String(dealFields.company ?? '—'), contact: String(dealFields.contact ?? '—'), value: dealRecord.valueAmount ?? '—', probability: Number(dealFields.probability ?? 0), close: String(dealFields.closeDate ?? '—'), owner: String(dealFields.owner ?? '—'), initials: name.split(' ').map(part => part[0]).join('').slice(0, 2).toUpperCase(), last: String(dealFields.lastActivity ?? '—'), overdue: Boolean(dealFields.overdue ?? false) };
-    });
-    return { name: stageName, count: `${stageDeals.length} live deals`, total: stageDeals.reduce((sum, deal) => sum + (Number(String(deal.value).replace(/[^0-9.-]/g, '')) || 0), 0).toLocaleString(), conversion: '', tone: String(fields.tone ?? 'blue'), deals: stageDeals, more: 'Load more' };
-  });
-  const liveLoading = stagesLoading || dealsLoading;
-  const liveError = stagesError || dealsError;
-  const liveDealValue = liveDealRecords.reduce((sum, record) => sum + (Number(String(record.valueAmount || '').replace(/[^0-9.-]/g, '')) || 0), 0);
-  const wonDealValue = liveDealRecords.filter(record => /won|closed/i.test(`${record.status} ${record.data?.stage || ''}`)).reduce((sum, record) => sum + (Number(String(record.valueAmount || '').replace(/[^0-9.-]/g, '')) || 0), 0);
-  const liveKpis: string[][] = liveDealRecords.length ? [['Open Deals', String(liveDealRecords.length), 'Live records', '', ''], ['Pipeline Value', liveDealValue.toLocaleString(), 'Live records', '', ''], ['Weighted Value', liveDealRecords.reduce((sum, record) => sum + ((Number(String(record.valueAmount || '').replace(/[^0-9.-]/g, '')) || 0) * (Number(record.data?.probability || 0) / 100)), 0).toLocaleString(), 'Calculated', '', ''], ['Won Revenue', wonDealValue.toLocaleString(), 'Live records', '', ''], ['Stages', String(liveStages.length), 'Live records', '', ''], ['Avg. Deal', Math.round(liveDealValue / liveDealRecords.length).toLocaleString(), 'Calculated', '', '']] : [];
-  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
-  const [showCreate, setShowCreate] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
-  const [showMove, setShowMove] = useState(false);
-  const [mobileNav, setMobileNav] = useState(false);
-  const [query, setQuery] = useState('');
-  return <div className="min-h-screen bg-[var(--background)] text-foreground">
-    <aside className={`fixed inset-y-0 left-0 z-40 w-[220px] border-r border-border bg-[var(--sidebar)] px-3 py-5 transition-transform lg:translate-x-0 ${mobileNav ? 'translate-x-0' : '-translate-x-full'}`}><div className="px-3"><Logo /></div><LuluSectionNavigation activeId="calmly-cloud-9988" /><div className="absolute bottom-5 left-4 right-4 border-t border-border pt-4"><div className="flex items-center gap-2.5 px-2"><div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-primary to-primary text-[11px] font-bold text-primary-foreground">—</div><div><p className="text-[11px] font-semibold text-foreground">Workspace user</p><p className="text-[10px] text-muted-foreground">CRM access</p></div><MoreHorizontal size={15} className="ml-auto text-muted-foreground" /></div></div></aside>
-    <main className="lg:ml-[220px]">
-    {liveError && <div className="mx-5 mt-4 rounded-lg border border-chart-5/30 bg-chart-5/5 px-4 py-3 text-sm text-chart-5">{liveError}</div>}
-    {!liveLoading && liveStages.length === 0 && <></>}<header className="flex h-16 items-center justify-between border-b border-border px-5 md:px-8"><div className="flex items-center gap-3"><button onClick={() => setMobileNav(true)} className="text-foreground lg:hidden"><Menu size={20} /></button><span className="text-xs text-muted-foreground">CRM</span><span className="text-foreground">/</span><span className="text-xs font-medium text-foreground">Pipeline</span></div><div className="flex items-center gap-2 text-muted-foreground"><button className="hidden rounded-lg border border-border p-2 hover:text-foreground md:block"><Command size={14} /></button><div className="h-5 w-px bg-secondary" /><CircleHelp size={16} /><div className="h-7 w-7 rounded-full bg-secondary/20" /></div></header>
-      <div className="mx-auto max-w-[1480px] px-5 py-7 md:px-8"><div className="flex flex-col justify-between gap-5 xl:flex-row xl:items-end"><div><div className="mb-2 flex items-center gap-2 text-[11px] font-semibold text-foreground"><Sparkles size={13} />AI-POWERED REVENUE OPERATIONS</div><h1 className="text-3xl font-bold tracking-[-0.04em] text-foreground md:text-[34px]">Pipeline</h1><p className="mt-2 max-w-2xl text-[13px] text-muted-foreground">Visualize, manage and optimize your sales pipeline from first qualification to closed revenue.</p></div><div className="flex flex-wrap gap-2"><span className="inline-flex items-center rounded-lg border border-border bg-card px-3 py-2 text-sm text-muted-foreground">Use Update in the navigation bar</span><button onClick={() => setShowSettings(true)} className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-[11px] font-semibold text-foreground hover:bg-secondary"><Settings size={13} />Pipeline Settings</button><button onClick={() => setShowCreate(true)} className="flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-[11px] font-semibold text-primary-foreground shadow-lg shadow-black/40 hover:bg-primary"><Plus size={14} />Create Deal</button></div></div>
-        <div className="mt-7 flex flex-wrap items-center gap-2 border-y border-border py-3"><span className="mr-1 text-[11px] font-semibold text-muted-foreground">Pipeline</span>{([] as string[]).map(item => <button key={item} className="flex items-center gap-2 rounded-lg border border-border bg-[var(--primary)] px-3 py-2 text-[11px] text-primary-foreground">{item}<ChevronDown size={13} className="text-muted-foreground" /></button>)}<button className="ml-auto text-[11px] font-medium text-foreground hover:text-foreground">Manage Pipelines</button></div>
-        <div className="grid grid-cols-2 gap-2 py-4 md:grid-cols-3 xl:grid-cols-6">{liveKpis.map(kpi => <div key={kpi[0]} className="rounded-xl border border-border bg-[var(--secondary)] px-3 py-2.5"><p className="text-[10px] text-muted-foreground">{kpi[0]}</p><div className="mt-1 flex items-end justify-between gap-2"><strong className="text-sm font-bold text-foreground">{kpi[1]}</strong><span className={`text-[9px] font-semibold ${kpi[3] === 'amber' ? 'text-chart-1' : 'text-foreground'}`}>{kpi[2]}</span></div></div>)}</div>
-        <div className="mb-4 flex flex-wrap items-center gap-2"><div className="relative min-w-[220px] flex-1 md:max-w-[310px]"><Search size={15} className="absolute left-3 top-2.5 text-muted-foreground" /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search pipeline..." className="h-9 w-full rounded-lg border border-border bg-[var(--secondary)] pl-9 pr-3 text-[11px] text-muted-foreground outline-none placeholder:text-muted-foreground focus:border-border/60" /></div><button className="flex h-9 items-center gap-2 rounded-lg border border-border px-3 text-[11px] text-foreground hover:bg-secondary"><Filter size={13} />Filter <span className="grid h-4 w-4 place-items-center rounded-full bg-secondary text-[9px] font-bold text-muted-foreground">—</span></button><span className="rounded-md bg-secondary/10 px-2 py-1.5 text-[10px] text-muted-foreground">No live owner filter <X size={11} className="ml-1 inline" /></span><span className="rounded-md bg-secondary/10 px-2 py-1.5 text-[10px] text-muted-foreground">No live closing filter <X size={11} className="ml-1 inline" /></span><button className="text-[10px] text-foreground hover:text-foreground">Clear All</button></div>
-        <PipelineBoard stages={liveStages} onSelect={deal => setSelectedDeal(deal)} />
-        <section className="mt-7 rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground">Live pipeline insights will appear when connected stages and deal activity are available.</section>
-        <section className="mt-7 grid gap-4 xl:grid-cols-[1.2fr_0.8fr]"><div className="rounded-2xl border border-border bg-[var(--secondary)] p-5"><div className="flex items-start justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Revenue intelligence</p><h2 className="mt-1 text-lg font-bold text-foreground">Pipeline Velocity</h2></div><button className="flex items-center gap-1 text-[10px] text-foreground">Previous Period <ChevronDown size={12} /></button></div><div className="mt-5 grid grid-cols-3 gap-4"><div><p className="text-[10px] text-muted-foreground">Avg Time in Stage</p><strong className="mt-1 block text-lg text-muted-foreground">—</strong><p className="mt-1 text-[10px] text-muted-foreground">Live data unavailable</p></div><div><p className="text-[10px] text-muted-foreground">Avg Sales Cycle</p><strong className="mt-1 block text-lg text-muted-foreground">—</strong><p className="mt-1 text-[10px] text-muted-foreground">Live data unavailable</p></div><div><p className="text-[10px] text-muted-foreground">Deal Movement</p><strong className="mt-1 block text-lg text-muted-foreground">—</strong><p className="mt-1 text-[10px] text-muted-foreground">Live data unavailable</p></div></div><div className="mt-6 flex h-20 items-end gap-2 border-b border-border">{([] as number[]).map((height, i) => <div key={`bar-${height}`} className="flex-1 rounded-t bg-secondary/60" style={{
-                height: `${height}%`
-              }} />)}</div><div className="mt-3 flex justify-between text-[10px] text-muted-foreground"><span>Stage conversion</span><span className="text-muted-foreground">Live data unavailable</span></div></div><div className="rounded-2xl border border-border bg-[var(--secondary)] p-5"><div className="flex items-center justify-between"><h2 className="text-lg font-bold text-foreground">Pipeline Conversion</h2><span className="text-[10px] text-muted-foreground">Funnel view</span></div><div className="mt-5 space-y-2">{([] as string[][]).map(row => <div key={row[0]} className="flex items-center gap-3"><span className="w-20 text-[10px] text-muted-foreground">{row[0]}</span><div className="h-6 flex-1 overflow-hidden rounded bg-secondary/10"><div className="flex h-full items-center rounded bg-secondary/70 px-2 text-[10px] font-bold text-foreground" style={{
-                    width: `${row[2]}%`
-                  }}>{row[1]}</div></div></div>)}</div></div></section>
-        <section className="mt-7 rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground">AI pipeline insights will appear when live deal activity is available.</section>
-        <section className="mt-7 pb-10 rounded-xl border border-dashed border-border p-5 text-sm text-muted-foreground">AI recommendations will appear when connected live pipeline signals are available.</section>
-      </div>
-    </main>
-    <AnimatePresence>{selectedDeal && <motion.aside initial={{
-        x: 380
-      }} animate={{
-        x: 0
-      }} exit={{
-        x: 380
-      }} className="fixed right-0 top-0 z-50 flex h-full w-[min(380px,100vw)] flex-col border-l border-border bg-[var(--card)] p-6 shadow-2xl"><div className="flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground">Deal Preview</p><h2 className="mt-1 text-xl font-bold text-foreground">{selectedDeal.name}</h2></div><button onClick={() => setSelectedDeal(null)} className="rounded-lg p-2 text-foreground hover:bg-secondary hover:text-foreground"><X size={18} /></button></div><div className="mt-8 space-y-5"><div><p className="text-[10px] text-muted-foreground">Company</p><p className="mt-1 text-sm text-foreground">{selectedDeal.company}</p></div><div><p className="text-[10px] text-muted-foreground">Value</p><p className="mt-1 text-2xl font-bold text-foreground">{selectedDeal.value}</p></div><div className="grid grid-cols-2 gap-4"><div><p className="text-[10px] text-muted-foreground">Contact</p><p className="mt-1 text-sm text-foreground">{selectedDeal.contact}</p></div><div><p className="text-[10px] text-muted-foreground">Owner</p><p className="mt-1 text-sm text-foreground">{selectedDeal.owner}</p></div></div><div className="rounded-xl border border-border bg-secondary p-4"><p className="text-[10px] text-muted-foreground">Next best action</p><p className="mt-2 text-sm leading-5 text-foreground">Re-engage the buying committee and confirm the decision timeline.</p></div><button onClick={() => setShowMove(true)} className="flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-xs font-semibold text-primary-foreground">Move deal <ArrowRight size={14} /></button></div></motion.aside>}</AnimatePresence>
-    <AnimatePresence>{(showCreate || showSettings || showMove) && <div className="fixed inset-0 z-[60] grid place-items-center bg-primary/60 p-4 backdrop-blur-sm"><motion.div initial={{
-          opacity: 0,
-          y: 12
-        }} animate={{
-          opacity: 1,
-          y: 0
-        }} className="w-full max-w-lg rounded-2xl border border-border bg-[var(--card)] p-6 shadow-2xl"><div className="flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[0.18em] text-foreground">{showCreate ? 'New opportunity' : showSettings ? 'Workspace configuration' : 'Move Deal'}</p><h2 className="mt-1 text-xl font-bold text-foreground">{showCreate ? 'Create Deal' : showSettings ? 'Pipeline Settings' : 'Move Deal'}</h2></div><button onClick={() => {
-              setShowCreate(false);
-              setShowSettings(false);
-              setShowMove(false);
-            }} className="text-foreground hover:text-foreground"><X size={18} /></button></div>{showCreate ? <div className="mt-6 grid grid-cols-2 gap-3">{['Deal Name *', 'Company *', 'Primary Contact', 'Pipeline', 'Stage', 'Value *', 'Currency *', 'Expected Close Date *', 'Owner', 'Lead Source'].map(label => <label key={label} className="text-[10px] text-muted-foreground">{label}<input className="mt-1 h-9 w-full rounded-lg border border-border bg-[var(--secondary)] px-3 text-xs text-foreground outline-none focus:border-border" placeholder={label.replace(' *', '')} /></label>)}</div> : showSettings ? <div className="mt-6 space-y-3">{['Pipeline name', 'Stage names & order', 'Stage probabilities', 'Required fields', 'Won / Lost stage', 'Permissions'].map(setting => <button key={setting} className="flex w-full items-center justify-between rounded-lg border border-border bg-secondary px-4 py-3 text-left text-sm text-foreground">{setting}<ArrowRight size={14} className="text-muted-foreground" /></button>)}</div> : <div className="mt-6 space-y-4"><div className="rounded-xl bg-secondary p-4 text-sm text-foreground"><p>Current stage <strong className="float-right text-muted-foreground">Live data required</strong></p><p className="mt-3">New stage <strong className="float-right text-muted-foreground">Select a live stage</strong></p><p className="mt-3">Deal <strong className="float-right text-muted-foreground">No live deal selected</strong></p></div><label className="block text-[10px] text-muted-foreground">Note (optional)<textarea className="mt-1 h-20 w-full resize-none rounded-lg border border-border bg-[var(--secondary)] p-3 text-xs text-foreground outline-none" placeholder="Add context for your team..." /></label></div>}<div className="mt-6 flex justify-end gap-2"><button onClick={() => {
-              setShowCreate(false);
-              setShowSettings(false);
-              setShowMove(false);
-            }} className="rounded-lg px-4 py-2 text-xs font-semibold text-muted-foreground hover:bg-secondary">Cancel</button><button className="rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary">{showCreate ? 'Create Deal' : showSettings ? 'Save changes' : 'Move Deal'}</button></div></motion.div></div>}</AnimatePresence>
-  </div>;
+  const t = useTranslation();
+  const language = useLanguage();
+  const [query, setQuery] = useState("");
+  const [selectedDealId, setSelectedDealId] = useState<string | null>(null);
+  const stages = useLiveRecords("crm_pipeline_stages", `limit=${PAGE_SIZE}`);
+  const deals = useLiveRecords("sales_deals", `limit=${PAGE_SIZE}`);
+  const loading = stages.loading || deals.loading;
+  const error = stages.error || deals.error;
+  const refresh = () => void Promise.all([stages.refresh(), deals.refresh()]);
+
+  const stageNames = useMemo(() => {
+    const configured = stages.items.map((record, index) => record.name || field(record, "stageName") || `${t("Stage")} ${index + 1}`);
+    const inferred = deals.items.map((record) => field(record, "stage") || field(record, "stageName")).filter(Boolean);
+    return [...new Set([...configured, ...inferred])];
+  }, [deals.items, stages.items, t]);
+
+  const visibleDeals = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    if (!normalizedQuery) return deals.items;
+    return deals.items.filter((record) => `${record.id} ${record.name} ${record.description ?? ""} ${field(record, "company")}`.toLowerCase().includes(normalizedQuery));
+  }, [deals.items, query]);
+
+  const selectedDeal = selectedDealId ? deals.items.find((record) => record.id === selectedDealId) ?? null : null;
+  const stageRecords = stageNames.map((name) => ({
+    name,
+    deals: visibleDeals.filter((record) => (field(record, "stage") || field(record, "stageName") || "") === name),
+  }));
+  const unassignedDeals = visibleDeals.filter((record) => !field(record, "stage") && !field(record, "stageName"));
+
+  if (loading && !stages.items.length && !deals.items.length) {
+    return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-foreground"><section className="w-full max-w-2xl rounded-2xl border border-border bg-card p-10 text-center" role="status" aria-live="polite"><LoaderCircle aria-hidden="true" className="mx-auto mb-4 animate-spin text-muted-foreground" size={28} /><h1 className="text-xl font-semibold">{t("Live data required")}</h1><p className="mt-3 text-sm leading-6 text-muted-foreground">{t("Live pipeline insights will appear when connected stages and deal activity are available.")}</p></section></main>;
+  }
+
+  if (error && !stages.items.length && !deals.items.length) {
+    return <main className="grid min-h-screen place-items-center bg-[var(--background)] p-6 text-foreground"><section className="w-full max-w-2xl rounded-2xl border border-chart-5/30 bg-card p-10 text-center" role="alert"><AlertTriangle aria-hidden="true" className="mx-auto mb-4 text-chart-5" size={28} /><h1 className="text-xl font-semibold">{t("Live data unavailable")}</h1><p className="mt-3 text-sm leading-6 text-muted-foreground">{t("Live pipeline insights will appear when connected stages and deal activity are available.")}</p><p className="mt-2 text-xs text-muted-foreground">{error}</p><button type="button" onClick={refresh} className="mt-5 inline-flex min-h-10 items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"><RefreshCw size={15} />{t("Refresh")}</button></section></main>;
+  }
+
+  return <main className="min-h-screen bg-[var(--background)] p-5 text-foreground sm:p-8 lg:p-10">
+    <div className="mx-auto max-w-[1500px]">
+      <header className="mb-8 flex flex-col justify-between gap-5 lg:flex-row lg:items-end"><div className="min-w-0"><p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-primary"><Sparkles aria-hidden="true" size={14} />{t("AI-POWERED REVENUE OPERATIONS")}</p><h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{t("Pipeline")}</h1><p className="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">{t("Visualize, manage and optimize your sales pipeline from first qualification to closed revenue.")}</p></div><button type="button" onClick={refresh} disabled={loading} className="inline-flex min-h-10 shrink-0 items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium transition hover:bg-secondary disabled:cursor-wait disabled:opacity-60"><RefreshCw aria-hidden="true" className={loading ? "animate-spin" : undefined} size={15} />{t("Refresh")}</button></header>
+
+      {error ? <div className="mb-6 flex items-start gap-2 rounded-xl border border-chart-1/30 bg-chart-1/5 px-4 py-3 text-sm text-muted-foreground" role="status"><AlertTriangle aria-hidden="true" className="mt-0.5 shrink-0 text-chart-1" size={16} /><span>{t("Live data unavailable")}. {t("Live pipeline insights will appear when connected stages and deal activity are available.")}</span></div> : null}
+
+      <section className="mb-7 grid gap-3 sm:grid-cols-2" aria-label={t("Pipeline")}><article className="rounded-2xl border border-border bg-card p-5 shadow-sm"><p className="text-sm text-muted-foreground">{t("Open Deals")}</p><strong className="mt-3 block text-3xl tracking-tight">{deals.total.toLocaleString(language)}</strong><span className="mt-1 block text-xs text-muted-foreground">{t("Live records")}</span></article><article className="rounded-2xl border border-border bg-card p-5 shadow-sm"><p className="text-sm text-muted-foreground">{t("Stages")}</p><strong className="mt-3 block text-3xl tracking-tight">{stageNames.length.toLocaleString(language)}</strong><span className="mt-1 block text-xs text-muted-foreground">{t("Live records")}</span></article></section>
+
+      <section className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"><div className="mb-5 flex flex-col gap-4 border-b border-border pb-5 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-lg font-semibold">{t("Sales pipeline")}</h2><p className="mt-1 text-sm text-muted-foreground">{t("Live pipeline insights will appear when connected stages and deal activity are available.")}</p></div><label className="flex min-h-10 min-w-0 items-center gap-2 rounded-lg border border-border bg-secondary px-3 sm:w-80"><Search aria-hidden="true" className="shrink-0 text-muted-foreground" size={15} /><input aria-label={t("Search pipeline...")} value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t("Search pipeline...")} className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground" /></label></div>
+        {stageRecords.length || unassignedDeals.length ? <div className="flex gap-4 overflow-x-auto pb-2">{stageRecords.map((stage) => <section key={stage.name} className="min-w-[270px] flex-1 rounded-xl border border-border bg-secondary/50 p-3"><header className="mb-3 flex items-start justify-between gap-3"><div><h3 className="text-sm font-semibold">{stage.name}</h3><p className="mt-1 text-xs text-muted-foreground">{stage.deals.length.toLocaleString(language)} {t("Live records")}</p></div><ChevronRight aria-hidden="true" className="mt-0.5 text-muted-foreground" size={16} /></header><div className="space-y-2">{stage.deals.map((record) => <DealCard key={record.id} record={record} language={language} t={t} onSelect={setSelectedDealId} />)}</div></section>)}{unassignedDeals.length ? <section className="min-w-[270px] flex-1 rounded-xl border border-dashed border-border bg-secondary/30 p-3"><header className="mb-3"><h3 className="text-sm font-semibold">{t("Live data required")}</h3><p className="mt-1 text-xs text-muted-foreground">{unassignedDeals.length.toLocaleString(language)} {t("Live records")}</p></header><div className="space-y-2">{unassignedDeals.map((record) => <DealCard key={record.id} record={record} language={language} t={t} onSelect={setSelectedDealId} />)}</div></section> : null}</div> : <div className="grid min-h-[320px] place-items-center rounded-xl border border-dashed border-border p-8 text-center"><div><Sparkles aria-hidden="true" className="mx-auto text-muted-foreground" size={28} /><p className="mt-4 text-sm text-muted-foreground">{t("Live pipeline insights will appear when connected stages and deal activity are available.")}</p></div></div>}
+      </section>
+    </div>
+
+    {selectedDeal ? <aside className="fixed inset-y-0 right-0 z-50 flex w-[min(420px,100vw)] flex-col border-l border-border bg-card p-6 shadow-2xl" aria-label={t("Deal Preview")}><div className="flex items-start justify-between gap-4"><div className="min-w-0"><p className="text-xs font-semibold uppercase tracking-[.16em] text-muted-foreground">{t("Deal Preview")}</p><h2 className="mt-2 text-xl font-semibold [overflow-wrap:anywhere]">{selectedDeal.name}</h2></div><button type="button" onClick={() => setSelectedDealId(null)} className="rounded-lg p-2 text-muted-foreground hover:bg-secondary hover:text-foreground" aria-label={t("Cancel")}><X size={18} /></button></div><dl className="mt-8 space-y-5 text-sm"><Detail label={t("Value")} value={selectedDeal.valueAmount ? `${selectedDeal.valueAmount} ${selectedDeal.currency ?? ""}`.trim() : "—"} /><Detail label={t("Company")} value={field(selectedDeal, "company") || "—"} /><Detail label={t("Contact")} value={field(selectedDeal, "contact") || "—"} /><Detail label={t("Owner")} value={field(selectedDeal, "owner") || "—"} /><Detail label={t("Stage")} value={field(selectedDeal, "stage") || field(selectedDeal, "stageName") || "—"} /><Detail label={t("Updated")} value={formatDate(selectedDeal.updatedAt, language)} /></dl>{selectedDeal.description ? <p className="mt-6 rounded-xl border border-border bg-secondary p-4 text-sm leading-6 text-muted-foreground">{selectedDeal.description}</p> : null}</aside> : null}
+  </main>;
 }
 
-/* Lulu dropdown navigation — intentionally isolated from page content. */
-const luluDropdownNavigation = [{
-  "label": "Dashboard",
-  "pages": [{
-    "id": "fancily-leaf-1766",
-    "label": "Executive Dashboard"
-  }]
-}, {
-  "label": "AI",
-  "pages": [{
-    "id": "fresh-moon-5374",
-    "label": "Assistant"
-  }, {
-    "id": "radiant-dusk-9079",
-    "label": "Agents"
-  }, {
-    "id": "calmly-park-3313",
-    "label": "Agent Marketplace"
-  }, {
-    "id": "rich-field-1880",
-    "label": "Knowledge"
-  }, {
-    "id": "wondrously-second-5656",
-    "label": "Actions"
-  }, {
-    "id": "sunny-moon-6307",
-    "label": "Conversations"
-  }, {
-    "id": "sparkling-cave-8456",
-    "label": "Activity"
-  }]
-}, {
-  "label": "CRM",
-  "pages": [{
-    "id": "bright-meadow-7537",
-    "label": "Overview"
-  }, {
-    "id": "sturdy-month-1562",
-    "label": "Contacts"
-  }, {
-    "id": "kindly-pool-8785",
-    "label": "Companies"
-  }, {
-    "id": "swift-hour-7844",
-    "label": "Leads"
-  }, {
-    "id": "smartly-shade-4619",
-    "label": "Deals"
-  }, {
-    "id": "calmly-cloud-9988",
-    "label": "Pipeline"
-  }, {
-    "id": "cosmic-pool-1616",
-    "label": "Activities"
-  }, {
-    "id": "deeply-noon-9539",
-    "label": "Tasks"
-  }, {
-    "id": "sunnily-gulf-7520",
-    "label": "Customer Segments"
-  }, {
-    "id": "gracefully-storm-2649",
-    "label": "Customer Intelligence"
-  }]
-}, {
-  "label": "Marketing",
-  "pages": [{
-    "id": "dreamily-soil-9290",
-    "label": "Campaigns"
-  }, {
-    "id": "wondrous-cloud-1355",
-    "label": "Content"
-  }, {
-    "id": "sparklingly-home-7386",
-    "label": "Strategy"
-  }, {
-    "id": "gently-shade-2476",
-    "label": "Campaigns"
-  }, {
-    "id": "kind-time-4492",
-    "label": "Keywords"
-  }, {
-    "id": "smartly-shore-1468",
-    "label": "Competitors"
-  }, {
-    "id": "breezily-wood-5980",
-    "label": "Audiences"
-  }, {
-    "id": "breezy-shore-6734",
-    "label": "Analytics"
-  }]
-}, {
-  "label": "Advertising",
-  "pages": [{
-    "id": "finely-garden-9221",
-    "label": "Overview"
-  }, {
-    "id": "friendly-path-8200",
-    "label": "Analytics"
-  }, {
-    "id": "wise-brook-1762",
-    "label": "Campaigns"
-  }, {
-    "id": "softly-second-7684",
-    "label": "Audiences"
-  }, {
-    "id": "happily-storm-2690",
-    "label": "Creatives"
-  }, {
-    "id": "sunny-minute-1092",
-    "label": "Budgets"
-  }, {
-    "id": "zesty-grass-9196",
-    "label": "AI Optimization"
-  }, {
-    "id": "nicely-shade-2637",
-    "label": "Tracking & Attribution"
-  }, {
-    "id": "nice-moon-2056",
-    "label": "AI Campaign & Ad Builder"
-  }, {
-    "id": "sunnily-peak-7188",
-    "label": "Autonomous Publishing Center"
-  }, {
-    "id": "solid-sand-5563",
-    "label": "AI Experiments & A/B Testing"
-  }, {
-    "id": "sunny-summer-2293",
-    "label": "Ad Accounts & Platform Management"
-  }]
-}, {
-  "label": "Intelligence",
-  "pages": [{
-    "id": "serene-cloud-7079",
-    "label": "Intelligence Overview"
-  }, {
-    "id": "tender-water-4095",
-    "label": "Executive Overview"
-  }, {
-    "id": "swiftly-cliff-4166",
-    "label": "Business Health"
-  }, {
-    "id": "sharp-current-9677",
-    "label": "Growth"
-  }, {
-    "id": "proudly-river-8017",
-    "label": "Revenue"
-  }, {
-    "id": "dreamily-shade-6192",
-    "label": "Customers"
-  }, {
-    "id": "nicely-hour-4035",
-    "label": "Sales"
-  }, {
-    "id": "eagerly-winter-3152",
-    "label": "Marketing"
-  }, {
-    "id": "sharply-wood-4560",
-    "label": "Advertising Intelligence"
-  }, {
-    "id": "bold-ocean-5847",
-    "label": "Ecommerce Intelligence"
-  }, {
-    "id": "cozily-path-5612",
-    "label": "Finance Intelligence"
-  }, {
-    "id": "gently-light-6089",
-    "label": "Operations Intelligence"
-  }, {
-    "id": "cool-town-1727",
-    "label": "Products Intelligence"
-  }, {
-    "id": "swift-pool-5077",
-    "label": "KPI Explorer"
-  }, {
-    "id": "friendly-ground-4157",
-    "label": "Reports"
-  }, {
-    "id": "brave-stream-5322",
-    "label": "Comparisons"
-  }, {
-    "id": "sparkling-time-5280",
-    "label": "Comparisons"
-  }, {
-    "id": "wispy-current-7490",
-    "label": "Forecasts"
-  }, {
-    "id": "kindly-year-8981",
-    "label": "Benchmarks"
-  }, {
-    "id": "serenely-creek-1765",
-    "label": "Trends"
-  }, {
-    "id": "sparklingly-light-7230",
-    "label": "Anomalies"
-  }, {
-    "id": "clever-soil-5964",
-    "label": "Attribution"
-  }, {
-    "id": "serenely-week-1771",
-    "label": "AI Insights"
-  }, {
-    "id": "daring-home-4179",
-    "label": "AI Recommendations"
-  }, {
-    "id": "wispy-leaf-3778",
-    "label": "AI Tasks"
-  }, {
-    "id": "happily-brook-7061",
-    "label": "Opportunities"
-  }, {
-    "id": "radiant-cave-9340",
-    "label": "Decisions"
-  }, {
-    "id": "boldly-time-5189",
-    "label": "Risk Center"
-  }, {
-    "id": "proud-rain-4772",
-    "label": "Activity Timeline"
-  }]
-}, {
-  "label": "Finance",
-  "pages": [{
-    "id": "quietly-stone-4158",
-    "label": "Overview"
-  }, {
-    "id": "breezy-soil-2475",
-    "label": "Invoices"
-  }, {
-    "id": "tender-creek-3139",
-    "label": "Offers & Quotes"
-  }, {
-    "id": "cool-rain-6499",
-    "label": "Income"
-  }, {
-    "id": "richly-land-8084",
-    "label": "Transactions"
-  }, {
-    "id": "calm-tide-3752",
-    "label": "Payments"
-  }, {
-    "id": "zesty-earth-3938",
-    "label": "Expenses"
-  }, {
-    "id": "bravely-bay-4544",
-    "label": "Customers"
-  }, {
-    "id": "eager-minute-1586",
-    "label": "Vendors"
-  }, {
-    "id": "fair-bridge-8618",
-    "label": "Accounts"
-  }, {
-    "id": "soft-town-3284",
-    "label": "Cash Flow"
-  }, {
-    "id": "wisely-gate-3183",
-    "label": "Budgets"
-  }, {
-    "id": "sharp-morning-7310",
-    "label": "Financial Planning"
-  }, {
-    "id": "sparklingly-city-3338",
-    "label": "Reconciliation"
-  }, {
-    "id": "radiant-hour-5376",
-    "label": "Recurring Revenue"
-  }, {
-    "id": "lucky-park-8649",
-    "label": "Payouts"
-  }, {
-    "id": "vibrantly-second-9428",
-    "label": "Financial Automation"
-  }, {
-    "id": "sturdy-week-3372",
-    "label": "Taxes"
-  }, {
-    "id": "boldly-field-4971",
-    "label": "Finance Settings"
-  }]
-}, {
-  "label": "Sales",
-  "pages": [{
-    "id": "fine-park-8079",
-    "label": "Overview"
-  }, {
-    "id": "softly-autumn-9038",
-    "label": "Leads"
-  }, {
-    "id": "wildly-sun-6424",
-    "label": "Opportunities"
-  }, {
-    "id": "deeply-month-1392",
-    "label": "Deals"
-  }, {
-    "id": "sweet-evening-7753",
-    "label": "Pipeline"
-  }, {
-    "id": "warmly-road-3804",
-    "label": "Activities"
-  }, {
-    "id": "wondrously-gate-2200",
-    "label": "Tasks"
-  }, {
-    "id": "sharp-cliff-6925",
-    "label": "Customer Segments"
-  }, {
-    "id": "lovingly-shore-4782",
-    "label": "Forecast"
-  }, {
-    "id": "rich-moon-9195",
-    "label": "Reports"
-  }, {
-    "id": "lively-house-6788",
-    "label": "Commissions"
-  }, {
-    "id": "gentle-cliff-7133",
-    "label": "Goals"
-  }, {
-    "id": "kindly-morning-7115",
-    "label": "Territories"
-  }, {
-    "id": "friendly-tower-1528",
-    "label": "Lead Assignment"
-  }]
-}, {
-  "label": "Website & Commerce",
-  "pages": [{
-    "id": "lulu-website-portal-9012",
-    "label": "Website"
-  }, {
-    "id": "website-wordpress-jetpack-9013",
-    "label": "WordPress / Jetpack"
-  }, {
-    "id": "website-webflow-9014",
-    "label": "Webflow"
-  }, {
-    "id": "website-pages-cms-9015",
-    "label": "Pages & CMS"
-  }, {
-    "id": "website-posts-9016",
-    "label": "Posts"
-  }, {
-    "id": "website-media-assets-9017",
-    "label": "Media & Assets"
-  }, {
-    "id": "website-domains-9018",
-    "label": "Domains"
-  }, {
-    "id": "sparklingly-moon-5114",
-    "label": "SEO"
-  }, {
-    "id": "zealously-path-4224",
-    "label": "GEO"
-  }, {
-    "id": "sunny-house-9595",
-    "label": "AEO"
-  }, {
-    "id": "daring-brook-9034",
-    "label": "Reviews"
-  }, {
-    "id": "smart-ocean-3898",
-    "label": "Overview"
-  }, {
-    "id": "nice-year-6253",
-    "label": "Stores"
-  }, {
-    "id": "nicely-ocean-1051",
-    "label": "Products"
-  }, {
-    "id": "richly-forest-5832",
-    "label": "Categories"
-  }, {
-    "id": "mightily-shore-7108",
-    "label": "Orders"
-  }, {
-    "id": "fancy-ground-8040",
-    "label": "Customers"
-  }, {
-    "id": "serenely-sand-9226",
-    "label": "Carts"
-  }, {
-    "id": "smart-village-1099",
-    "label": "Inventory"
-  }, {
-    "id": "dreamy-shade-5445",
-    "label": "Returns & Refunds"
-  }, {
-    "id": "sharply-sky-4161",
-    "label": "Discounts & Promotions"
-  }, {
-    "id": "wildly-time-4260",
-    "label": "Carts & Abandoned Carts"
-  }, {
-    "id": "quietly-moon-4186",
-    "label": "Shipping"
-  }, {
-    "id": "merry-castle-3260",
-    "label": "Payments"
-  }, {
-    "id": "merry-cliff-8846",
-    "label": "Coupons"
-  }, {
-    "id": "safely-dawn-7731",
-    "label": "Subscriptions"
-  }, {
-    "id": "purely-dusk-2409",
-    "label": "Shipping & Fulfillment"
-  }, {
-    "id": "soft-hill-4757",
-    "label": "Taxes"
-  }, {
-    "id": "safely-air-9334",
-    "label": "Collections"
-  }, {
-    "id": "merry-land-6169",
-    "label": "Store Performance"
-  }]
-}, {
-  "label": "Settings",
-  "pages": [{
-    "id": "nicely-land-1864",
-    "label": "Settings"
-  }, {
-    "id": "glad-coast-1428",
-    "label": "Integrations"
-  }, {
-    "id": "pure-minute-5446",
-    "label": "Billing"
-  }]
-}] as const;
-function LuluSectionNavigation({
-  activeId
-}: {
-  activeId: string;
-}) {
-  return <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto pr-1" aria-label="Lulu AI sections">
-    {luluDropdownNavigation.map(section => ({ ...section, pages: section.pages.filter(page => page.id !== "website-wordpress-jetpack-9013" && page.id !== "website-webflow-9014") })).map(section => {
-      const isActiveSection = section.pages.some(page => page.id === activeId);
-      return <details key={section.label} open={isActiveSection} className="group rounded-lg">
-        <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm transition [&::-webkit-details-marker]:hidden ${isActiveSection ? 'bg-secondary/15 font-medium text-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
-          <span data-lulu-section-soon={section.label !== "Website & Commerce" && section.label !== "Settings" ? "true" : undefined}>{section.label}</span>
-          <span aria-hidden="true" className="text-xs transition-transform group-open:rotate-180">⌄</span>
-        </summary>
-        <div className="ml-3 mt-1 space-y-0.5 border-l border-border pl-2 pb-1">
-          {section.pages.map(page => {
-            const isActivePage = page.id === activeId;
-            return <a key={page.id} {...pageLinkProps(page.id)} aria-current={isActivePage ? 'page' : undefined} className={`block rounded-md px-3 py-2 text-xs transition ${isActivePage ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'}`}>
-              {page.label}
-              {!pageLinkProps(page.id)["data-lulu-soon"] ? null : null}
-            </a>;
-          })}
-        </div>
-      </details>;
-    })}
-  </nav>;
+function DealCard({ record, language, t, onSelect }: { record: { id: string; name: string; description?: string | null; status?: string | null; valueAmount?: string | null; currency?: string | null; updatedAt?: string | null; data?: Record<string, unknown> | null }; language: string; t: (value: string) => string; onSelect: (id: string) => void }) {
+  return <button type="button" onClick={() => onSelect(record.id)} className="w-full rounded-xl border border-border bg-card p-4 text-left transition hover:border-primary/40 hover:bg-primary/5 focus:outline-none focus:ring-2 focus:ring-primary/40"><div className="flex items-start justify-between gap-3"><h4 className="min-w-0 font-medium [overflow-wrap:anywhere]">{record.name}</h4><span className="shrink-0 rounded-full border border-border bg-secondary px-2 py-1 text-[10px] text-muted-foreground">{record.status || t("Live records")}</span></div><p className="mt-3 text-sm font-semibold">{record.valueAmount ? `${record.valueAmount} ${record.currency ?? ""}`.trim() : "—"}</p><div className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-muted-foreground"><span>{t("Updated")}: {formatDate(record.updatedAt, language)}</span><span>{record.id}</span></div></button>;
 }
-import { pageLinkProps } from '../../../../routing';
 
+function Detail({ label, value }: { label: string; value: string }) {
+  return <div className="border-b border-border pb-4 last:border-0"><dt className="text-xs text-muted-foreground">{label}</dt><dd className="mt-1 break-words font-medium">{value}</dd></div>;
+}
