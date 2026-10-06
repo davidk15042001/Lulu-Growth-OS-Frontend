@@ -268,7 +268,7 @@ function CommandSurface({ detail, source }: { detail?: OfficeEmployeeDetails; so
     <Status>{t("available on demand")}</Status>
   </section>;
   const work = detail.currentWorkItem;
-  const displayStatus = effectiveOfficeEmployeeStatus(detail.employee.status, detail.executionReadiness.ai.available === true);
+  const displayStatus = effectiveOfficeEmployeeStatus(detail.employee.status, detail.executionReadiness.ai.available === true, detail.employee.aiExecutionBlocked);
   const workStatus = displayStatus === "BLOCKED" ? "blocked" : displayStatus === "WAITING" && work?.status === "running"
     ? "awaiting recovery"
     : work?.status ?? detail.employee.status;

@@ -18,8 +18,8 @@ export type OfficeAiExecutionReadiness = {
  * must fail closed when a worker projection says it is active but the current
  * workspace cannot actually execute AI work.
  */
-export function effectiveOfficeEmployeeStatus(status: OfficeEmployeeStatus, aiExecutionAvailable: boolean): OfficeStationStatus {
-  if (!aiExecutionAvailable && (status === 'WORKING' || status === 'COLLABORATING' || status === 'MONITORING')) return 'BLOCKED';
+export function effectiveOfficeEmployeeStatus(status: OfficeEmployeeStatus, aiExecutionAvailable: boolean, aiExecutionBlocked = false): OfficeStationStatus {
+  if (aiExecutionBlocked || (!aiExecutionAvailable && (status === 'WORKING' || status === 'COLLABORATING' || status === 'MONITORING'))) return 'BLOCKED';
   return status;
 }
 
@@ -90,6 +90,7 @@ export type OfficeEmployeeSummary = {
   department?: { id: string; key: string; name: string };
   availability: 'AVAILABLE' | 'LIMITED' | 'UNAVAILABLE';
   status: OfficeEmployeeStatus;
+  aiExecutionBlocked: boolean;
   currentWorkItem: OfficeCurrentWorkItem | null;
   workSummary: { active: number; completedToday: number; failed: number };
   sourceAgentIds: string[];
@@ -125,6 +126,7 @@ export type OfficeOverview = {
     workingEmployees: number;
     waitingEmployees: number;
     attentionEmployees: number;
+    blockedEmployees: number;
     activeWorkItems: number;
     runningWorkItems: number;
     stalledWorkItems: number;
