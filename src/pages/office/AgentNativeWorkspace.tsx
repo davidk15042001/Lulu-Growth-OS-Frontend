@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
+  ArrowUpRight,
   BarChart3,
   Bot,
   Boxes,
@@ -41,6 +42,7 @@ import type { AgentEcosystemDefinition } from "../../api/agents";
 import { effectiveOfficeEmployeeStatus, officeAiReadinessMessage, type OfficeEmployeeDetails } from "../../api/office";
 import { ApiError, getFriendlyErrorMessage } from "../../api/client";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { isPageNavigable, pagePath, routes } from "../../routing";
 import { conciseOfficeCopy, officeEvidenceTypeLabel } from "./office-copy";
 import "./agent-native-workspace.css";
 
@@ -80,6 +82,21 @@ const KINDS: Record<NativeWorkspaceKind, KindDefinition> = {
   reputation: { label: "Reputation desk", description: "Connected Google reviews, response coverage and verified reputation signals.", icon: Star },
   operations: { label: "Operations control", description: "Provider readiness, integrations and durable operational evidence.", icon: Network },
   intelligence: { label: "Company intelligence", description: "Executive findings, proposals and observable operating signals.", icon: BarChart3 },
+};
+
+const NATIVE_WORKSPACE_PATHS: Readonly<Partial<Record<NativeWorkspaceKind, string>>> = {
+  command: routes.app.dashboard,
+  crm: routes.app.crmCompanies,
+  communications: routes.app.omnichannel,
+  email: routes.app.email,
+  calendar: routes.app.calendar,
+  commerce: routes.app.products,
+  finance: routes.app.finance,
+  marketing: routes.app.growth,
+  website: routes.app.website,
+  reputation: pagePath("daring-brook-9034"),
+  operations: routes.app.connections,
+  intelligence: routes.app.dashboard,
 };
 
 /**
@@ -601,8 +618,11 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
   const definition = KINDS[kind];
   const Icon = definition.icon;
   const isCatalogPreview = Boolean(catalogAgent && !employeeDetail);
+  const fullWorkspacePath = source.pageId && isPageNavigable(source.pageId)
+    ? pagePath(source.pageId)
+    : NATIVE_WORKSPACE_PATHS[kind] ?? null;
   return <section className="lulu-native-agent" aria-label={`${t(source.name)} ${t("native workspace")}`.trim()}>
-    <header className="lulu-native-agent__header"><span className="lulu-native-agent__header-icon"><Icon size={17} /></span><div><span className="lulu-native-agent__eyebrow">{t(definition.label)}</span><h3>{t(source.name)}</h3><p>{t(definition.description)}</p></div><span className={`lulu-native-agent__live ${isCatalogPreview ? "is-preview" : "is-surface"}`}><i />{t(isCatalogPreview ? "Workspace context" : "Native workspace")}</span></header>
+    <header className="lulu-native-agent__header"><span className="lulu-native-agent__header-icon"><Icon size={17} /></span><div><span className="lulu-native-agent__eyebrow">{t(definition.label)}</span><h3>{t(source.name)}</h3><p>{t(definition.description)}</p></div><span className={`lulu-native-agent__live ${isCatalogPreview ? "is-preview" : "is-surface"}`}><i />{t(isCatalogPreview ? "Workspace context" : "Native workspace")}</span>{fullWorkspacePath ? <a className="lulu-native-agent__workspace-link" href={fullWorkspacePath} target="_top"><ArrowUpRight aria-hidden="true" size={14} />{t("Open full workspace")}</a> : null}</header>
     <div className="lulu-native-agent__content">
       {kind === "crm" ? <CrmSurface workspaceId={workspaceId} /> : null}
       {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} /> : null}
