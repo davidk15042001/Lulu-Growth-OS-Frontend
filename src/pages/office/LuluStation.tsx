@@ -545,6 +545,38 @@ export function LuluStation() {
   }, [catalogOpen, closeCatalog, closeEmployeePopup, selectedCatalogAgent, selectedEmployeeId]);
 
   useEffect(() => {
+    if (!selectedEmployeeId && !catalogOpen) return undefined;
+
+    const appRoot = document.getElementById("root");
+    const previousRootState = appRoot ? {
+      inert: appRoot.inert,
+      ariaHidden: appRoot.getAttribute("aria-hidden"),
+    } : null;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousBodyPaddingRight = document.body.style.paddingRight;
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+
+    // The dialog is portaled to document.body, so keep the application behind
+    // it out of the focus/accessibility tree and prevent background scroll.
+    if (appRoot) {
+      appRoot.inert = true;
+      appRoot.setAttribute("aria-hidden", "true");
+    }
+    document.body.style.overflow = "hidden";
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
+
+    return () => {
+      if (appRoot && previousRootState) {
+        appRoot.inert = previousRootState.inert;
+        if (previousRootState.ariaHidden == null) appRoot.removeAttribute("aria-hidden");
+        else appRoot.setAttribute("aria-hidden", previousRootState.ariaHidden);
+      }
+      document.body.style.overflow = previousBodyOverflow;
+      document.body.style.paddingRight = previousBodyPaddingRight;
+    };
+  }, [catalogOpen, selectedEmployeeId]);
+
+  useEffect(() => {
     if (!departmentMenuOpen) return undefined;
     const handlePointerDown = (event: PointerEvent) => {
       if (event.target instanceof Node && !departmentPickerRef.current?.contains(event.target)) {
