@@ -184,3 +184,101 @@
     padding: 54px 17px 58px !important;
   }
 }
+
+/* 2026 signal architecture pass: make authentication feel like the front
+   door to the product, with a calmer split between narrative and access. */
+.lulu-entry {
+  --entry-bg: #070d18;
+  --entry-panel: rgba(13, 25, 41, .94);
+  --entry-panel-raised: rgba(21, 38, 60, .97);
+  background:
+    radial-gradient(circle at 11% 10%, rgba(108, 231, 216, .1), transparent 27rem),
+    radial-gradient(circle at 88% 18%, rgba(151, 136, 255, .13), transparent 29rem),
+    #070d18;
+}
+
+.lulu-entry__nav {
+  min-height: 80px;
+  border-bottom-color: rgba(192, 213, 239, .12);
+  background: rgba(7, 13, 24, .84);
+}
+
+.lulu-entry__stage {
+  grid-template-columns: minmax(0, 1.05fr) minmax(370px, 430px);
+  gap: clamp(50px, 7vw, 112px);
+  width: min(1280px, 100%);
+  padding-top: clamp(82px, 9vw, 138px);
+  padding-bottom: clamp(82px, 9vw, 138px);
+}
+
+.lulu-entry__hero { position: relative; }
+.lulu-entry__hero::before {
+  position: absolute;
+  top: -34px;
+  bottom: -34px;
+  left: -24px;
+  width: 1px;
+  background: linear-gradient(transparent, rgba(126, 232, 223, .38) 24%, rgba(126, 232, 223, .1) 78%, transparent);
+  content: "";
+}
+
+.lulu-entry__hero h1 {
+  max-width: 700px;
+  font-size: clamp(3.6rem, 5.65vw, 6.55rem);
+  letter-spacing: -.078em;
+  line-height: .88;
+}
+
+.lulu-entry__lede { max-width: 570px; color: #a4b5ca; }
+.lulu-entry__proof-grid { gap: 12px; max-width: 740px; }
+.lulu-entry__proof {
+  border: 1px solid rgba(192, 213, 239, .12);
+  border-radius: 14px;
+  background: rgba(16, 29, 46, .48);
+  padding: 16px 14px;
+}
+.lulu-entry__proof:last-child { border-right: 1px solid rgba(192, 213, 239, .12); padding-right: 14px; }
+.lulu-entry__proof > span { background: rgba(102, 229, 216, .1); }
+.lulu-entry__proof p { color: #9aacc5; }
+
+.lulu-entry__card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 22px;
+  border-color: rgba(126, 232, 223, .24);
+  background: linear-gradient(145deg, var(--entry-panel-raised), var(--entry-panel));
+  box-shadow: 0 28px 74px rgba(0, 0, 0, .28), inset 0 1px rgba(255, 255, 255, .07);
+}
+
+.lulu-entry__card::before {
+  position: absolute;
+  top: 0;
+  right: 28px;
+  left: 28px;
+  height: 2px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--entry-cyan), var(--entry-violet));
+  content: "";
+  opacity: .8;
+}
+
+.lulu-entry__card-heading { padding-top: 2px; }
+.lulu-entry__input { border-color: rgba(192, 213, 239, .18); border-radius: 12px; background: rgba(5, 13, 25, .72); }
+.lulu-entry__input:focus { border-color: rgba(126, 232, 223, .72); }
+.lulu-entry__submit { border-radius: 12px; box-shadow: 0 10px 24px rgba(91, 172, 224, .18); }
+.lulu-entry__card-links { border-top-color: rgba(192, 213, 239, .12); }
+.lulu-entry__footer { border-top-color: rgba(192, 213, 239, .12); background: rgba(5, 11, 21, .62); }
+
+@media (max-width: 980px) {
+  .lulu-entry__hero::before { display: none; }
+  .lulu-entry__proof { text-align: left; }
+}
+
+@media (max-width: 640px) {
+  .lulu-entry__nav { min-height: 66px; }
+  .lulu-entry__stage { gap: 40px; padding-top: 68px !important; padding-bottom: 64px !important; }
+  .lulu-entry__hero h1 { font-size: clamp(3.1rem, 14vw, 4.35rem); }
+  .lulu-entry__proof { border-radius: 12px; padding: 13px 12px; }
+  .lulu-entry__proof:last-child { border-right: 0; padding-right: 0; }
+  .lulu-entry__card { border-radius: 18px; }
+}
