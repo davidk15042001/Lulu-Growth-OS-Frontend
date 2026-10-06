@@ -104,7 +104,7 @@ export default function CommercialDocumentsPage({ kind, create = false }: { kind
     if (!form.customerRecordId || validLines.length === 0) { setError(t('Customer and at least one product line are required.')); return; }
     setSaving(true); setError('');
     try {
-      const common = { customerRecordId: form.customerRecordId, currency: form.currency, language: form.language, lines: validLines.map((line) => ({ productId: line.productId || null, productName: line.productName.trim(), sku: line.sku || null, quantity: numeric(line.quantity), unitPrice: numeric(line.unitPrice), discount: numeric(line.discount), tax: numeric(line.tax), quantityUnit: line.quantityUnit || null })), shippingTotal: numeric(form.shippingTotal), source: 'workspace', creationMode: 'MANUAL' };
+      const common = { customerRecordId: form.customerRecordId, currency: form.currency, language: form.language, lines: validLines.map((line) => ({ productId: line.productId || null, productName: line.productName.trim(), sku: line.sku || null, quantity: line.quantity.trim(), unitPrice: line.unitPrice.trim() || '0', discount: line.discount.trim() || '0', tax: line.tax.trim() || '0', quantityUnit: line.quantityUnit || null })), shippingTotal: form.shippingTotal.trim() || '0', source: 'workspace', creationMode: 'MANUAL' };
       if (kind === 'quotes') {
         await commercialDocumentsApi.createQuote(selectedWorkspace.id, { ...common, validUntil: form.validUntil || null });
       } else {

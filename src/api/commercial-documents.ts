@@ -1,6 +1,6 @@
 import { requestApi, requestApiBlob } from './client';
 
-export type CommercialLine = { productId?: string | null; variantId?: string | null; sku?: string | null; productName: string; description?: string | null; quantity: number; quantityUnit?: string | null; unitPrice: number; discount?: number; tax?: number; priceSource?: string };
+export type CommercialLine = { productId?: string | null; variantId?: string | null; sku?: string | null; productName: string; description?: string | null; quantity: string; quantityUnit?: string | null; unitPrice: string; discount?: string; tax?: string; priceSource?: string };
 export type Quote = { id: string; workspaceId: string; quoteNumber: string; status: string; currency: string; language: string; customerRecordId: string | null; currentVersionId: string | null; currentVersion?: number; subtotal?: string; discountTotal?: string; shippingTotal?: string; taxTotal?: string; grandTotal?: string; documentStatus?: string; creationMode: string; createdAt: string };
 export type Invoice = { id: string; workspaceId: string; invoiceNumber: string; invoiceType: string; status: string; currency: string; language: string; customerRecordId: string | null; orderRecordId: string | null; grandTotal: string; amountPaid: string; amountDue: string; creationMode: string; issueDate: string | null; dueDate: string | null; createdAt: string };
 export type InvoicePaymentMethod = 'BANK_TRANSFER' | 'CARD' | 'ALIPAY' | 'WECHAT_PAY' | 'CASH' | 'OTHER';
