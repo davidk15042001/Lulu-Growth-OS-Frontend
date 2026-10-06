@@ -158,28 +158,41 @@ const AGENT_MODULE_WORKSPACE_KINDS: Readonly<Record<string, NativeWorkspaceKind>
   general: "command",
   dashboard: "intelligence",
   intelligence: "intelligence",
+  "market-intelligence": "intelligence",
   finance: "finance",
+  "finance-bookkeeping": "finance",
   sales: "crm",
   crm: "crm",
+  "customer-revenue": "crm",
+  "sales-operations": "crm",
   ai: "command",
+  "ai-operations": "operations",
   email: "email",
   calendar: "calendar",
   marketing: "marketing",
   ads: "marketing",
+  "paid-acquisition": "marketing",
+  "content-distribution": "marketing",
   website: "website",
+  "online-presence": "website",
   commerce: "commerce",
   reputation: "reputation",
+  "brand-trust": "reputation",
   settings: "operations",
   seo: "website",
   geo: "website",
   aeo: "website",
 };
 
+function normalizeModuleKey(module: string) {
+  return module.trim().toLowerCase().replaceAll("_", "-").replace(/\s+/g, "-");
+}
+
 function resolveKind(source: AgentSurfaceSource): NativeWorkspaceKind {
   const canonicalKind = OFFICE_EMPLOYEE_WORKSPACE_KINDS[source.key];
   if (canonicalKind) return canonicalKind;
 
-  const moduleKind = source.module ? AGENT_MODULE_WORKSPACE_KINDS[source.module.toLowerCase()] : undefined;
+  const moduleKind = source.module ? AGENT_MODULE_WORKSPACE_KINDS[normalizeModuleKey(source.module)] : undefined;
   if (moduleKind) return moduleKind;
 
   const capabilities = source.capabilities.map((capability) => capability.toLowerCase());
