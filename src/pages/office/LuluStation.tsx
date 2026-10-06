@@ -350,6 +350,7 @@ export function LuluStation() {
   const closeEmployeeModalRef = useRef<HTMLButtonElement | null>(null);
   const closeCatalogModalRef = useRef<HTMLButtonElement | null>(null);
   const catalogBodyRef = useRef<HTMLDivElement | null>(null);
+  const departmentPickerRef = useRef<HTMLDivElement | null>(null);
   const focusBeforeEmployeeModalRef = useRef<HTMLElement | null>(null);
   const focusBeforeCatalogModalRef = useRef<HTMLElement | null>(null);
   const overviewRequestRef = useRef(0);
@@ -544,6 +545,28 @@ export function LuluStation() {
   }, [catalogOpen, closeCatalog, closeEmployeePopup, selectedCatalogAgent, selectedEmployeeId]);
 
   useEffect(() => {
+    if (!departmentMenuOpen) return undefined;
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !departmentPickerRef.current?.contains(event.target)) {
+        setDepartmentMenuOpen(false);
+        setDepartmentQuery("");
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setDepartmentMenuOpen(false);
+      setDepartmentQuery("");
+    };
+    document.addEventListener("pointerdown", handlePointerDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [departmentMenuOpen]);
+
+  useEffect(() => {
     if (!selectedEmployeeId) return undefined;
     const frame = window.requestAnimationFrame(() => closeEmployeeModalRef.current?.focus());
     return () => window.cancelAnimationFrame(frame);
@@ -667,7 +690,7 @@ export function LuluStation() {
         <div className="lulu-station__world-shell">
           <div className="lulu-station__world-toolbar"><span><i className="lulu-station__toolbar-dot" />{t("Station map")}</span><small>{overview.summary.departmentCount} {t("departments")} · {overview.summary.employeeCount} {t("digital employees")} · {overview.summary.specialistCount} {t("specialists")} · {formatTime(overview.generatedAt, language)} {t("snapshot")}</small></div>
           {rooms.length > 0 ? <div className="lulu-station__department-nav">
-            <div className="lulu-station__department-picker">
+            <div ref={departmentPickerRef} className="lulu-station__department-picker">
               <button type="button" className="lulu-station__department-trigger" aria-haspopup="listbox" aria-expanded={departmentMenuOpen} aria-controls="lulu-station-department-list" onClick={() => setDepartmentMenuOpen((open) => !open)}><span>{selectedRoom ? roomName(selectedRoom, t) : t("Station map")}</span><i /></button>
               {departmentMenuOpen ? <div className="lulu-station__department-menu">
                 <div className="lulu-station__department-search"><Search size={14} aria-hidden="true" /><input autoFocus aria-label={t("Station map")} placeholder={t("Station map")} value={departmentQuery} onChange={(event) => setDepartmentQuery(event.target.value)} /></div>
