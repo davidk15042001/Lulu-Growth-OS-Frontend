@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowDown, ArrowRight, Bot, Check, ChevronRight, CircleDollarSign, Gauge, Globe2, Layers3, LockKeyhole, Network, Sparkles, Target, Workflow } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { useLanguage, useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { routes } from "../../routing";
 import { agentSummaryApi, type AgentRegistrySummary } from "../../api/agent-summary";
 import "./lulu-landing.css";
@@ -76,6 +76,8 @@ function useActiveSection() {
 
 export default function LuluLandingPage() {
   const t = useTranslation();
+  const language = useLanguage();
+  const locale = language === "zh-CN" ? "zh-CN" : language === "de" ? "de-DE" : "en-US";
   const activeSection = useActiveSection();
   const [selectedPillar, setSelectedPillar] = useState(pillars[0].id);
   const [agentSummary, setAgentSummary] = useState<AgentRegistrySummary | null>(null);
@@ -126,7 +128,7 @@ export default function LuluLandingPage() {
           </div>
           {agentSummary && <div className="public-entry__agent-proof" aria-label={t("The Lulu agent ecosystem")}>
             <Bot size={16} aria-hidden="true" />
-            <strong>{new Intl.NumberFormat().format(agentSummary.registeredAgents)}</strong>
+            <strong>{new Intl.NumberFormat(locale).format(agentSummary.registeredAgents)}</strong>
             <span>{t("The Lulu agent ecosystem")}</span>
           </div>}
         </div>
