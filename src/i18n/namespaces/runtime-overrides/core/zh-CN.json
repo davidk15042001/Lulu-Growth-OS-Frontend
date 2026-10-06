@@ -3831,5 +3831,17 @@
   "No executive intelligence is available yet.": "暂时没有可用的公司智能数据。",
   "Priority review queue": "优先审查队列",
   "Connected Google Business data": "关联的 Google 商家数据",
-  "unanswered": "未答复的"
+  "unanswered": "未答复的",
+  "Loading verified revenue data…": "正在加载已验证的收入数据…",
+  "Revenue data is unavailable": "收入数据不可用",
+  "No verified income or recurring-revenue records are available for this workspace yet. Connect an approved finance provider before reviewing revenue composition or trends.": "此工作区暂时没有已验证的收入或经常性收入记录。请连接获批准的财务服务商后，再查看收入构成或趋势。",
+  "Observed income and recurring-revenue records from the current workspace. No forecast or exchange rate is inferred.": "来自当前工作区的已观测收入和经常性收入记录。不推断预测或汇率。",
+  "Verified workspace data": "已验证的工作区数据",
+  "Canonical income records currently loaded.": "当前加载的规范收入记录。",
+  "Canonical recurring-revenue records currently loaded.": "当前加载的规范经常性收入记录。",
+  "Exact totals grouped by source currency.": "按来源货币分组的精确汇总。",
+  "Verified revenue records": "已验证的收入记录",
+  "records loaded; amounts remain separate by currency": "条记录已加载；金额按货币分开保留",
+  "No verified revenue records match this search.": "没有已验证的收入记录符合此搜索。",
+  "Forecasts, customer segments and currency conversion are intentionally hidden until supported by a canonical, verifiable data contract.": "在获得规范且可验证的数据契约支持之前，预测、客户细分和货币换算将被有意隐藏。"
 }

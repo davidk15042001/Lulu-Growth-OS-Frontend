@@ -3831,5 +3831,17 @@
   "No executive intelligence is available yet.": "Noch keine Unternehmensintelligenz verfügbar.",
   "Priority review queue": "Warteschlange für Prioritätsprüfungen",
   "Connected Google Business data": "Verbundene Google Business-Daten",
-  "unanswered": "unbeantwortet"
+  "unanswered": "unbeantwortet",
+  "Loading verified revenue data…": "Verifizierte Umsatzdaten werden geladen…",
+  "Revenue data is unavailable": "Umsatzdaten sind nicht verfügbar",
+  "No verified income or recurring-revenue records are available for this workspace yet. Connect an approved finance provider before reviewing revenue composition or trends.": "Für diesen Workspace sind noch keine verifizierten Einkommens- oder wiederkehrenden Umsatzdatensätze verfügbar. Verbinden Sie einen freigegebenen Finanz-Provider, bevor Sie Umsatzstruktur oder Trends prüfen.",
+  "Observed income and recurring-revenue records from the current workspace. No forecast or exchange rate is inferred.": "Beobachtete Einkommens- und wiederkehrende Umsatzdatensätze aus dem aktuellen Workspace. Es werden keine Prognosen oder Wechselkurse abgeleitet.",
+  "Verified workspace data": "Verifizierte Workspace-Daten",
+  "Canonical income records currently loaded.": "Aktuell geladene kanonische Einkommensdatensätze.",
+  "Canonical recurring-revenue records currently loaded.": "Aktuell geladene kanonische Datensätze für wiederkehrende Umsätze.",
+  "Exact totals grouped by source currency.": "Exakte Summen, nach Ursprungswährung gruppiert.",
+  "Verified revenue records": "Verifizierte Umsatzdatensätze",
+  "records loaded; amounts remain separate by currency": "Datensätze geladen; Beträge bleiben nach Währung getrennt",
+  "No verified revenue records match this search.": "Keine verifizierten Umsatzdatensätze entsprechen dieser Suche.",
+  "Forecasts, customer segments and currency conversion are intentionally hidden until supported by a canonical, verifiable data contract.": "Prognosen, Kundensegmente und Währungsumrechnung bleiben ausgeblendet, bis ein kanonischer, überprüfbarer Datenvertrag sie unterstützt."
 }

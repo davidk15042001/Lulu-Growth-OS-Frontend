@@ -1,5 +1,5 @@
 import { Theme } from './settings/types';
-import { RevenueIntelligence } from './components/generated/RevenueIntelligence';
+import { RevenueOverviewWorkspace } from '../../components/RevenueOverviewWorkspace';
 
 let theme: Theme = 'light';
 
@@ -14,7 +14,7 @@ function App() {
 
   setTheme(theme);
 
-  return <RevenueIntelligence />;
+  return <RevenueOverviewWorkspace />;
 }
 
 export default App;

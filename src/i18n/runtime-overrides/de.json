@@ -7144,5 +7144,17 @@
   "Some finance data could not be refreshed. The view may show the last verified result.": "Einige Finanzdaten konnten nicht aktualisiert werden. Die Ansicht kann den zuletzt verifizierten Stand zeigen.",
   "Unspecified currency": "Nicht angegebene Währung",
   "verified records in this workspace": "verifizierte Datensätze in diesem Workspace",
-  "Verified financial records from the connected workspace. Amounts remain exact and are never converted or mixed across currencies.": "Verifizierte Finanzdatensätze aus dem verbundenen Workspace. Beträge bleiben exakt und werden weder umgerechnet noch zwischen Währungen vermischt."
+  "Verified financial records from the connected workspace. Amounts remain exact and are never converted or mixed across currencies.": "Verifizierte Finanzdatensätze aus dem verbundenen Workspace. Beträge bleiben exakt und werden weder umgerechnet noch zwischen Währungen vermischt.",
+  "Loading verified revenue data…": "Verifizierte Umsatzdaten werden geladen…",
+  "Revenue data is unavailable": "Umsatzdaten sind nicht verfügbar",
+  "No verified income or recurring-revenue records are available for this workspace yet. Connect an approved finance provider before reviewing revenue composition or trends.": "Für diesen Workspace sind noch keine verifizierten Einkommens- oder wiederkehrenden Umsatzdatensätze verfügbar. Verbinden Sie einen freigegebenen Finanz-Provider, bevor Sie Umsatzstruktur oder Trends prüfen.",
+  "Observed income and recurring-revenue records from the current workspace. No forecast or exchange rate is inferred.": "Beobachtete Einkommens- und wiederkehrende Umsatzdatensätze aus dem aktuellen Workspace. Es werden keine Prognosen oder Wechselkurse abgeleitet.",
+  "Verified workspace data": "Verifizierte Workspace-Daten",
+  "Some revenue data could not be refreshed. The view may show the last verified result.": "Einige Umsatzdaten konnten nicht aktualisiert werden. Die Ansicht kann den zuletzt verifizierten Stand zeigen.",
+  "Verified revenue records": "Verifizierte Umsatzdatensätze",
+  "records loaded; amounts remain separate by currency": "Datensätze geladen; Beträge bleiben nach Währung getrennt",
+  "Search revenue records": "Umsatzdatensätze durchsuchen",
+  "No verified revenue records match this search.": "Keine verifizierten Umsatzdatensätze entsprechen dieser Suche.",
+  "Forecasts, customer segments and currency conversion are intentionally hidden until supported by a canonical, verifiable data contract.": "Prognosen, Kundensegmente und Währungsumrechnung bleiben ausgeblendet, bis ein kanonischer, überprüfbarer Datenvertrag sie unterstützt.",
+  "source currencies": "Quellwährungen"
 }

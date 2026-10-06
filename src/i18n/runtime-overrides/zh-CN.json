@@ -7121,5 +7121,17 @@
   "Some finance data could not be refreshed. The view may show the last verified result.": "部分财务数据无法刷新。该视图可能显示最后一次已验证的结果。",
   "Unspecified currency": "未指定货币",
   "verified records in this workspace": "此工作区中的已验证记录",
-  "Verified financial records from the connected workspace. Amounts remain exact and are never converted or mixed across currencies.": "来自已连接工作区的已验证财务记录。金额保持精确，不会换算或混合不同货币。"
+  "Verified financial records from the connected workspace. Amounts remain exact and are never converted or mixed across currencies.": "来自已连接工作区的已验证财务记录。金额保持精确，不会换算或混合不同货币。",
+  "Loading verified revenue data…": "正在加载已验证的收入数据…",
+  "Revenue data is unavailable": "收入数据不可用",
+  "No verified income or recurring-revenue records are available for this workspace yet. Connect an approved finance provider before reviewing revenue composition or trends.": "此工作区暂时没有已验证的收入或经常性收入记录。请连接获批准的财务服务商后，再查看收入构成或趋势。",
+  "Observed income and recurring-revenue records from the current workspace. No forecast or exchange rate is inferred.": "来自当前工作区的已观测收入和经常性收入记录。不推断预测或汇率。",
+  "Verified workspace data": "已验证的工作区数据",
+  "Some revenue data could not be refreshed. The view may show the last verified result.": "部分收入数据无法刷新。该视图可能显示最后一次已验证的结果。",
+  "Verified revenue records": "已验证的收入记录",
+  "records loaded; amounts remain separate by currency": "条记录已加载；金额按货币分开保留",
+  "Search revenue records": "搜索收入记录",
+  "No verified revenue records match this search.": "没有已验证的收入记录符合此搜索。",
+  "Forecasts, customer segments and currency conversion are intentionally hidden until supported by a canonical, verifiable data contract.": "在获得规范且可验证的数据契约支持之前，预测、客户细分和货币换算将被有意隐藏。",
+  "source currencies": "来源货币"
 }
