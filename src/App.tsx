@@ -418,6 +418,10 @@ export default function App() {
         <Route path="/admin/invoices" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="invoices" /></AdminOmniChannelRoute>} />
         <Route path="/app/dashboard" element={<AdminOnlyAppRoute><Navigate replace to={routes.app.dashboard} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.office} element={<AdminOnlyAppRoute><VirtualOfficePage /></AdminOnlyAppRoute>} />
+        {/* Preserve old generated deep links while routing users to the
+            canonical surfaces that own these experiences today. */}
+        <Route path="/app/lulu-website-portal-9012" element={<AdminOnlyAppRoute><Navigate replace to="/app/website-editor" /></AdminOnlyAppRoute>} />
+        <Route path="/app/brightly-door-5741" element={<Navigate replace to={routes.auth.login} />} />
         <Route path={routes.app.email} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-email-portal-9013"><EmailWorkspacePage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path={routes.app.calendar} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-calendar-portal-9014"><CalendarWorkspacePage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
         <Route path="/app/website" element={<AdminOnlyAppRoute><Navigate replace to="/app/website-editor" /></AdminOnlyAppRoute>} />
