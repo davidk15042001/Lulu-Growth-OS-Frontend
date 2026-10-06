@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { LuluExperiments } from './components/generated/LuluExperiments';
+import { Beaker } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 
 let theme: Theme = 'light';
 
@@ -14,7 +15,17 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluExperiments />;
+  return (
+    <BackendResourceOverviewPage
+      resourceType="ad_experiments"
+      eyebrow="Advertising"
+      title="AI Experiments & A/B Testing"
+      description="Verified advertising experiment records for the current workspace."
+      emptyTitle="No verified experiments yet"
+      emptyDescription="Connect approved advertising data before reviewing experiment results. No hypotheses, lift, recommendations or execution controls are shown without verified records."
+      emptyIcon={<Beaker aria-hidden="true" size={24} />}
+    />
+  );
 }
 
 export default App;

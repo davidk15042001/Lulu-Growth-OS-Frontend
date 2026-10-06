@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { LuluCreatives } from './components/generated/LuluCreatives';
+import { Image } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +16,17 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluCreatives />; // %EXPORT_STATEMENT%
+  return (
+    <BackendResourceOverviewPage
+      resourceType="ad_creatives"
+      eyebrow="Advertising"
+      title="Creatives"
+      description="Verified creative records for the current workspace."
+      emptyTitle="No verified creative records yet"
+      emptyDescription="Connect an approved advertising source before reviewing creative assets or performance. No upload, sync or publish action is exposed without a canonical provider operation."
+      emptyIcon={<Image aria-hidden="true" size={24} />}
+    />
+  ); // %EXPORT_STATEMENT%
 }
 
 export default App;

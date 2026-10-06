@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { LuluTrackingAttribution } from './components/generated/LuluTrackingAttribution';
+import { ShieldCheck } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 // %IMPORT_STATEMENT%
 
 let theme: Theme = 'light';
@@ -15,7 +16,17 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluTrackingAttribution />; // %EXPORT_STATEMENT%
+  return (
+    <BackendResourceOverviewPage
+      resourceType="ad_attributions"
+      eyebrow="Advertising"
+      title="Tracking & Attribution"
+      description="Verified attribution records for the current workspace."
+      emptyTitle="No verified attribution records yet"
+      emptyDescription="Connect an approved advertising source before reviewing conversion events or attribution health. No event counts, discrepancies or tracking actions are inferred without verified records."
+      emptyIcon={<ShieldCheck aria-hidden="true" size={24} />}
+    />
+  ); // %EXPORT_STATEMENT%
 }
 
 export default App;
