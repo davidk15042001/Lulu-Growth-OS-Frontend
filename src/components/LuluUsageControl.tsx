@@ -149,14 +149,14 @@ export function LuluUsageControl() {
     return authorization.workspaceId === workspaceId
       && authorization.status === "ACTIVE"
       && authorization.currency === adWallet?.currency
-      && authorization.remainingAmount > 0
+      && isPositiveDecimal(authorization.remainingAmount)
       && Number.isFinite(startsAt)
       && Number.isFinite(endsAt)
       && startsAt <= now
       && endsAt > now;
   });
   const hasApiReversalDebt = isPositiveDecimal(apiWallet?.reversalDebtAmount);
-  const hasAdvertisingReversalDebt = (adWallet?.reversalDebtAmount ?? 0) > 0;
+  const hasAdvertisingReversalDebt = isPositiveDecimal(adWallet?.reversalDebtAmount);
   const advertisingReady = Boolean(!hasAdvertisingReversalDebt && adWallet?.adsEnabled && activeAuthorization);
   const apiStatus = hasApiReversalDebt
     ? t("AI execution is paused until the outstanding payment reversal balance is covered.")

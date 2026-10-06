@@ -20,6 +20,7 @@ import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { currentIntlLocale } from "../i18n/languages";
 import { createPaymentQrDataUrl } from "../utils/paymentQr";
+import { formatDecimalMoney, isPositiveDecimal } from "../utils/decimal-money";
 
 const packages = [10_000, 25_000, 50_000, 90_000];
 const methods: Array<{ id: AdSpendPaymentMethod; label: string; detail: string }> = [
@@ -27,13 +28,8 @@ const methods: Array<{ id: AdSpendPaymentMethod; label: string; detail: string }
   { id: "alipaycn", label: "Alipay", detail: "Scan a secure QR code" },
   { id: "wechatpay", label: "WeChat Pay", detail: "Scan a secure QR code" },
 ];
-function formatMoney(value: number) {
-  return new Intl.NumberFormat(currentIntlLocale(), {
-    style: "currency",
-    currency: "CNY",
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 2,
-  }).format(value);
+function formatMoney(value: string | number) {
+  return formatDecimalMoney(value, "CNY", currentIntlLocale());
 }
 
 function secureCheckoutUrl(value: string | null) {
@@ -149,7 +145,7 @@ export function AdSpendWalletPanel() {
   const fee = Math.round(amount * 0.04 * 100) / 100;
   const total = Math.round((amount + fee) * 100) / 100;
   const wallet = overview?.wallet;
-  const ready = Boolean(wallet?.adsEnabled && wallet.availableAmount > 0 && wallet.reversalDebtAmount === 0);
+  const ready = Boolean(wallet?.adsEnabled && isPositiveDecimal(wallet.availableAmount) && !isPositiveDecimal(wallet.reversalDebtAmount));
 
   async function pay() {
     if (!workspaceId || !can("administer") || paying || amount < 1) return;
@@ -160,7 +156,7 @@ export function AdSpendWalletPanel() {
     setError("");
     try {
       const result = (await adSpendApi.createTopup(targetWorkspaceId, {
-        amount,
+        amount: amount.toFixed(2),
         paymentMethod: targetMethod,
         returnUrl: `${window.location.origin}${window.location.pathname}?adspend=return`,
       })).data.topup;

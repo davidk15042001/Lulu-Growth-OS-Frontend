@@ -6,6 +6,7 @@ import { useLuluApp } from '../../../../api/LuluAppContext';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import { createPaymentQrDataUrl } from '../../../../utils/paymentQr';
+import { formatDecimalMoney, isPositiveDecimal } from '../../../../utils/decimal-money';
 
 function textValue(value: unknown) {
   if (value === null || value === undefined) return '';
@@ -14,7 +15,7 @@ function textValue(value: unknown) {
   return '';
 }
 
-const money = new Intl.NumberFormat('en', { style: 'currency', currency: 'CNY', currencyDisplay: 'narrowSymbol' });
+const money = { format: (value: string | number) => formatDecimalMoney(value, 'CNY', 'en-US') };
 const paymentMethods: Array<{ id: AdSpendPaymentMethod; label: string; detail: string }> = [
   { id: 'card', label: 'Bank card', detail: 'Secure hosted checkout' },
   { id: 'alipaycn', label: 'Alipay', detail: 'Scan QR code' },
@@ -156,14 +157,14 @@ export function LuluBudgets() {
     const endsAt = Date.parse(authorization.endsAt);
     return authorization.status === 'ACTIVE'
       && authorization.currency === overview?.wallet.currency
-      && authorization.remainingAmount > 0
+      && isPositiveDecimal(authorization.remainingAmount)
       && Number.isFinite(startsAt)
       && Number.isFinite(endsAt)
       && startsAt <= now
       && endsAt > now;
   });
-  const reversalDebt = overview?.wallet.reversalDebtAmount ?? 0;
-  const hasReversalDebt = reversalDebt > 0;
+  const reversalDebt = overview?.wallet.reversalDebtAmount ?? '0.00';
+  const hasReversalDebt = isPositiveDecimal(reversalDebt);
   const advertisingReady = Boolean(!hasReversalDebt && overview?.wallet.adsEnabled && activeAuthorizations.length > 0);
   const paymentAwaitingSettlement = currentTopup?.status === 'SUCCEEDED' && currentTopup.creditStatus !== 'AVAILABLE';
   const paymentResult = paymentAwaitingSettlement
@@ -186,7 +187,7 @@ export function LuluBudgets() {
     setPaying(true); setPaymentErrorState(null);
     try {
       const response = await adSpendApi.createTopup(targetWorkspaceId, {
-        amount: normalizedAmount,
+        amount: normalizedAmount.toFixed(2),
         paymentMethod: targetPaymentMethod,
         returnUrl: `${window.location.origin}${window.location.pathname}?adspend=return`,
       });
@@ -225,7 +226,7 @@ export function LuluBudgets() {
         accountId: authorizationForm.accountId.trim().replace(/-/g, ''),
         campaignId: authorizationForm.campaignId.trim(),
         currency: 'CNY',
-        amount: authorizedAmount,
+        amount: authorizedAmount.toFixed(2),
         startsAt: new Date().toISOString(),
         endsAt: endsAt.toISOString(),
         idempotencyKey: crypto.randomUUID(),
@@ -315,7 +316,7 @@ export function LuluBudgets() {
             </div>
             <div className="p-6 sm:p-8">
               <div className="flex items-center justify-between gap-3"><div><p className="text-sm font-semibold">Campaign authorizations</p><p className="mt-1 text-xs text-muted-foreground">{activeAuthorizations.length} active with remaining authority</p></div><span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium">{authorizations.length} total</span></div>
-              {authorizations.length===0?<div className="mt-6 rounded-2xl border border-dashed border-border p-8 text-center"><KeyRound className="mx-auto text-muted-foreground" size={25}/><p className="mt-3 text-sm font-semibold">No campaign is authorized</p><p className="mt-1 text-xs leading-5 text-muted-foreground">Paid execution remains paused even when the wallet contains funds.</p></div>:<div className="mt-5 space-y-3">{authorizations.map((authorization)=><article key={authorization.id} className="rounded-2xl border border-border bg-background/40 p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold">Campaign {authorization.campaignId}</p><p className="mt-1 truncate text-xs text-muted-foreground">Account {authorization.accountId} · {authorization.provider}</p></div><span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${authorization.status==='ACTIVE'?'bg-emerald-500/10 text-emerald-600':'bg-secondary text-muted-foreground'}`}>{authorization.status}</span></div><div className="mt-4 grid grid-cols-3 gap-3 text-xs"><div><span className="block text-muted-foreground">Authorized</span><strong className="mt-1 block">{money.format(authorization.authorizedAmount)}</strong></div><div><span className="block text-muted-foreground">Remaining</span><strong className="mt-1 block">{money.format(authorization.remainingAmount)}</strong></div><div><span className="block text-muted-foreground">Ends</span><strong className="mt-1 block">{new Date(authorization.endsAt).toLocaleDateString()}</strong></div></div>{authorization.status==='ACTIVE'&&<button type="button" onClick={()=>void revokeAuthorization(authorization.id)} disabled={!permissions.canAdminister||authorizationSaving||authorization.reservedAmount>0} className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-destructive disabled:opacity-40"><Ban size={14}/>Revoke authorization</button>}</article>)}</div>}
+              {authorizations.length===0?<div className="mt-6 rounded-2xl border border-dashed border-border p-8 text-center"><KeyRound className="mx-auto text-muted-foreground" size={25}/><p className="mt-3 text-sm font-semibold">No campaign is authorized</p><p className="mt-1 text-xs leading-5 text-muted-foreground">Paid execution remains paused even when the wallet contains funds.</p></div>:<div className="mt-5 space-y-3">{authorizations.map((authorization)=><article key={authorization.id} className="rounded-2xl border border-border bg-background/40 p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-semibold">Campaign {authorization.campaignId}</p><p className="mt-1 truncate text-xs text-muted-foreground">Account {authorization.accountId} · {authorization.provider}</p></div><span className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${authorization.status==='ACTIVE'?'bg-emerald-500/10 text-emerald-600':'bg-secondary text-muted-foreground'}`}>{authorization.status}</span></div><div className="mt-4 grid grid-cols-3 gap-3 text-xs"><div><span className="block text-muted-foreground">Authorized</span><strong className="mt-1 block">{money.format(authorization.authorizedAmount)}</strong></div><div><span className="block text-muted-foreground">Remaining</span><strong className="mt-1 block">{money.format(authorization.remainingAmount)}</strong></div><div><span className="block text-muted-foreground">Ends</span><strong className="mt-1 block">{new Date(authorization.endsAt).toLocaleDateString()}</strong></div></div>{authorization.status==='ACTIVE'&&<button type="button" onClick={()=>void revokeAuthorization(authorization.id)} disabled={!permissions.canAdminister||authorizationSaving||isPositiveDecimal(authorization.reservedAmount)} className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-destructive disabled:opacity-40"><Ban size={14}/>Revoke authorization</button>}</article>)}</div>}
             </div>
           </div>
         </section>

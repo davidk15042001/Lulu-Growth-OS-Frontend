@@ -6,6 +6,7 @@ import { useLiveRecords } from "../../api/useLiveRecords";
 import type { WorkspaceRecord } from "../../api/records";
 import { WorkspaceSurfaceShell } from "../../components/WorkspaceSurfaceShell";
 import { navigateApp, routes } from "../../routing";
+import { formatDecimalMoney } from "../../utils/decimal-money";
 
 function newest(records: WorkspaceRecord[]) {
   return records.slice().sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt));
@@ -63,7 +64,7 @@ export default function GrowthPage() {
             <Metric
               icon={Megaphone}
               label="Advertising funds"
-              value={new Intl.NumberFormat("en-US", { style: "currency", currency: "CNY", maximumFractionDigits: 2 }).format(wallet?.availableAmount ?? 0)}
+              value={formatDecimalMoney(wallet?.availableAmount ?? "0.00", "CNY", "en-US")}
               helper={wallet?.adsEnabled ? "Campaigns may launch automatically" : "Add funds to enable paid execution"}
             />
           </section>
