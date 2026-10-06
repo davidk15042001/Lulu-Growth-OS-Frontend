@@ -513,5 +513,6 @@
   "unanswered": "unanswered",
   "degraded": "degraded",
   "Live team selection is temporarily unavailable.": "Live team selection is temporarily unavailable.",
-  "The complete registry remains available. No specialist is marked as active until the verified team state returns.": "The complete registry remains available. No specialist is marked as active until the verified team state returns."
+  "The complete registry remains available. No specialist is marked as active until the verified team state returns.": "The complete registry remains available. No specialist is marked as active until the verified team state returns.",
+  "Execution paused": "Execution paused"
 }

@@ -5,11 +5,29 @@ export type OfficeEmployeeStatus =
   | 'IDLE' | 'MONITORING' | 'WORKING' | 'COLLABORATING' | 'WAITING'
   | 'WAITING_FOR_APPROVAL' | 'HUMAN_CONTROLLED' | 'ERROR' | 'OFFLINE';
 
+export type OfficeStationStatus = OfficeEmployeeStatus | 'BLOCKED';
+
 export type OfficeAiExecutionReadiness = {
   available: boolean;
   fundingMode: 'CUSTOMER_PREPAID' | 'PLATFORM_FUNDED';
   reason: 'READY' | 'AI_CREDIT_REQUIRED' | 'AI_CREDIT_RECONCILIATION_REQUIRED';
 };
+
+/**
+ * The server remains authoritative for execution readiness. The visual Office
+ * must fail closed when a worker projection says it is active but the current
+ * workspace cannot actually execute AI work.
+ */
+export function effectiveOfficeEmployeeStatus(status: OfficeEmployeeStatus, aiExecutionAvailable: boolean): OfficeStationStatus {
+  if (!aiExecutionAvailable && (status === 'WORKING' || status === 'COLLABORATING' || status === 'MONITORING')) return 'BLOCKED';
+  return status;
+}
+
+export function officeAiReadinessMessage(readiness: OfficeAiExecutionReadiness | null | undefined) {
+  return readiness?.reason === 'AI_CREDIT_RECONCILIATION_REQUIRED'
+    ? 'AI credit reconciliation required'
+    : 'AI credit required';
+}
 
 export type OfficeWorkStatus =
   | 'queued' | 'running' | 'waiting' | 'paused' | 'waiting_for_approval'

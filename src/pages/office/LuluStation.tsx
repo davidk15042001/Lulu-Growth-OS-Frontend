@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { getFriendlyErrorMessage } from "../../api/client";
 import { agentApi, type AgentEcosystem, type AgentEcosystemDefinition } from "../../api/agents";
-import { officeApi, type OfficeEmployeeDetails, type OfficeEmployeeStatus, type OfficeEmployeeSummary, type OfficeOverview } from "../../api/office";
+import { effectiveOfficeEmployeeStatus, officeAiReadinessMessage, officeApi, type OfficeEmployeeDetails, type OfficeEmployeeStatus, type OfficeEmployeeSummary, type OfficeOverview, type OfficeStationStatus } from "../../api/office";
 import { subscribeWorkspaceEvents, type WorkspaceLiveEvent } from "../../api/agent-stream";
 import { useLuluApp } from "../../api/LuluAppContext";
 import { useLanguage, useTranslation } from "../../i18n/GlobalLanguageSwitcher";
@@ -28,7 +28,7 @@ import { AgentNativeWorkspace } from "./AgentNativeWorkspace";
 import { conciseOfficeCopy, officeEvidenceTypeLabel, officeRelatedObjectLabel } from "./office-copy";
 import "./lulu-station.css";
 
-type StationStatus = OfficeEmployeeStatus | "BLOCKED";
+type StationStatus = OfficeStationStatus;
 type StatusTone = "idle" | "working" | "monitoring" | "waiting" | "attention" | "blocked" | "offline";
 type RoomProp = "desk" | "terminal" | "archive" | "brain" | "review" | "commerce" | "calendar" | "finance";
 
@@ -81,11 +81,6 @@ type StationWorld = {
   worldHeight: number;
   corridorYs: number[];
 };
-
-function effectiveStatus(status: OfficeEmployeeStatus, aiExecutionAvailable: boolean): StationStatus {
-  if (!aiExecutionAvailable && (status === "WORKING" || status === "COLLABORATING" || status === "MONITORING")) return "BLOCKED";
-  return status;
-}
 
 function toneForStatus(status: StationStatus): StatusTone {
   if (status === "BLOCKED") return "blocked";
@@ -223,7 +218,7 @@ function StationCharacter({
   onSelect: (employee: OfficeEmployeeSummary) => void;
   t: (key: string) => string;
 }) {
-  const status = effectiveStatus(employee.status, aiExecutionAvailable);
+  const status = effectiveOfficeEmployeeStatus(employee.status, aiExecutionAvailable);
   const tone = toneForStatus(status);
   const avatarVariant = Math.abs(Array.from(employee.key).reduce((sum, character) => sum + character.charCodeAt(0), 0)) % 4;
   const handleKeyDown = (event: React.KeyboardEvent<SVGGElement>) => {
@@ -625,8 +620,8 @@ export function LuluStation() {
   const aiExecutionAvailable = overview?.executionReadiness?.ai.available === true;
   const platformFundedAi = overview?.executionReadiness?.ai.fundingMode === "PLATFORM_FUNDED";
   const allEmployees = overview?.departments.flatMap((department) => department.employees) ?? [];
-  const onlineEmployees = allEmployees.filter((employee) => isOnlineStatus(effectiveStatus(employee.status, aiExecutionAvailable))).length;
-  const blockedEmployees = allEmployees.filter((employee) => effectiveStatus(employee.status, aiExecutionAvailable) === "BLOCKED").length;
+  const onlineEmployees = allEmployees.filter((employee) => isOnlineStatus(effectiveOfficeEmployeeStatus(employee.status, aiExecutionAvailable))).length;
+  const blockedEmployees = allEmployees.filter((employee) => effectiveOfficeEmployeeStatus(employee.status, aiExecutionAvailable) === "BLOCKED").length;
   const runningWorkItems = overview?.summary.runningWorkItems ?? 0;
   // Running records can outlive the employee projection during recovery. They
   // remain visible evidence, but are not a claim that a crew member is working.
@@ -638,9 +633,7 @@ export function LuluStation() {
   // never makes a paused or scheduled workload look like active AI activity.
   const showsBacklogInsteadOfRunningWork = aiExecutionAvailable && runningWorkItems === 0 && queuedOrWaitingWork > 0;
   const attentionCount = (overview?.summary.attentionEmployees ?? 0) + openSignals + blockedEmployees;
-  const aiExecutionMessage = overview?.executionReadiness?.ai.reason === "AI_CREDIT_RECONCILIATION_REQUIRED"
-    ? "AI credit reconciliation required"
-    : "AI credit required";
+  const aiExecutionMessage = officeAiReadinessMessage(overview?.executionReadiness?.ai);
   if (!workspaceId) return null;
   if (loading && !overview) {
     return <section className="lulu-station lulu-station--state" aria-label="Lulu Station"><RefreshCw className="lulu-station__spin" size={20} /><span>{t("Loading verified office state…")}</span></section>;
@@ -713,7 +706,7 @@ export function LuluStation() {
               {rooms.map((assignment) => {
                 const { room, department, employees } = assignment;
                 const roomSelected = room.id === selectedRoomId;
-                const roomHasFlow = employees.some((employee) => effectiveStatus(employee.status, aiExecutionAvailable) === "COLLABORATING");
+                const roomHasFlow = employees.some((employee) => effectiveOfficeEmployeeStatus(employee.status, aiExecutionAvailable) === "COLLABORATING");
                 const label = roomName(assignment, t);
                 return <g id={`lulu-station-room-${room.id}`} key={room.id} className={`lulu-station__room lulu-station__room--${room.color}${roomSelected ? " is-selected" : ""}`}>
                   <rect className="lulu-station__room-floor" x={room.x} y={room.y} width={room.width} height={room.height} rx="18" role="button" tabIndex={0} aria-label={`${label} ${t("department room")}`} onClick={() => selectRoom(room.id)} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectRoom(room.id); } }} />
@@ -724,7 +717,7 @@ export function LuluStation() {
                   <text className="lulu-station__room-caption" x={room.x + 22} y={room.y + 52}><title>{t(department.description)}</title>{shortLabel(t(department.description), 56)}</text>
                   <text className="lulu-station__room-count" x={room.x + room.width - 22} y={room.y + 32} textAnchor="end">{employees.length} {t("Crew")}</text>
                   {roomHasFlow ? <path className="lulu-station__handoff-active" d={`M${room.x + room.width / 2 - 32} ${room.y + room.height - 15}h64`} /> : null}
-                  <StationProp room={room} active={employees.some((employee) => isOnlineStatus(effectiveStatus(employee.status, aiExecutionAvailable)))} onSelect={() => selectRoom(room.id, room.prop)} t={t} />
+                  <StationProp room={room} active={employees.some((employee) => isOnlineStatus(effectiveOfficeEmployeeStatus(employee.status, aiExecutionAvailable)))} onSelect={() => selectRoom(room.id, room.prop)} t={t} />
                   {employees.map((employee, index) => <StationCharacter key={employee.id} employee={employee} aiExecutionAvailable={aiExecutionAvailable} x={room.x + 130 + (index % ROOM_CREW_COLUMNS) * 148} y={room.y + ROOM_CREW_TOP + Math.floor(index / ROOM_CREW_COLUMNS) * ROOM_CREW_ROW_PITCH} selected={employee.id === selectedEmployeeId} onSelect={(selected) => void selectEmployee(selected)} t={t} />)}
                   {employees.length === 0 && <text className="lulu-station__room-empty" x={room.x + room.width / 2} y={room.y + room.height / 2} textAnchor="middle">{t("No crew assigned to this room")}</text>}
                 </g>;
@@ -742,8 +735,8 @@ export function LuluStation() {
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__avatar-badge">{initials(employeeDetail.employee.name)}</span><span>{t("Digital Employee")}</span><button type="button" onClick={closeEmployeePopup} aria-label={t("Close employee inspector")}>×</button></div>
             <h2>{t(employeeDetail.employee.name)}</h2>
             <p className="lulu-station__inspector-role">{t(employeeDetail.employee.title)} · {employeeDetail.employee.department ? t(employeeDetail.employee.department.name) : undefined}</p>
-            <div className={`lulu-station__inspector-status lulu-station__inspector-status--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable), t)}</div>
-            <div className="lulu-station__inspector-block"><span>{t("Current work")}</span><strong title={employeeDetail.currentWorkItem?.title}>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t("Execution is paused until AI credit is available") : conciseOfficeCopy(employeeDetail.currentWorkItem?.title, t("No current work item"), 120)}</strong><small>{effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t(aiExecutionMessage) : employeeDetail.currentWorkItem ? displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem.status, t) : t("The employee is not running a visible work item.")}</small></div>
+            <div className={`lulu-station__inspector-status lulu-station__inspector-status--${toneForStatus(effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable), t)}</div>
+            <div className="lulu-station__inspector-block"><span>{t("Current work")}</span><strong title={employeeDetail.currentWorkItem?.title}>{effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t("Execution is paused until AI credit is available") : conciseOfficeCopy(employeeDetail.currentWorkItem?.title, t("No current work item"), 120)}</strong><small>{effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t(aiExecutionMessage) : employeeDetail.currentWorkItem ? displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem.status, t) : t("The employee is not running a visible work item.")}</small></div>
             <div className="lulu-station__inspector-stats"><div><strong>{formatCount(employeeDetail.workSummary.active, language)}</strong><span>{t("open work")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday, language)}</strong><span>{t("completed")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed, language)}</strong><span>{t("failed")}</span></div></div>
             <div className="lulu-station__inspector-block"><span>{t("Capabilities")}</span><div className="lulu-station__chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
           </> : selectedProp ? <>
@@ -756,7 +749,7 @@ export function LuluStation() {
             <h2>{roomName(selectedRoom, t)}</h2>
             <p className="lulu-station__inspector-role">{t(selectedRoom.department.description)}</p>
             <div className="lulu-station__inspector-block"><span>{t("Room function")}</span><strong>{roomDescription(selectedRoom.room.prop, t)}</strong><small>{selectedRoom.employees.length} {t("employees at dedicated stations")}{selectedRoom.zoneCount > 1 ? ` · ${t("Room")} ${selectedRoom.zoneIndex + 1} ${t("of")} ${selectedRoom.zoneCount}` : ""}.</small></div>
-            <div className="lulu-station__crew-list">{selectedRoom.employees.map((employee) => <button type="button" key={employee.id} onClick={() => void selectEmployee(employee)}><span className={`lulu-station__mini-dot lulu-station__mini-dot--${toneForStatus(effectiveStatus(employee.status, aiExecutionAvailable))}`} /><span><strong>{employee.name}</strong><small>{statusLabel(effectiveStatus(employee.status, aiExecutionAvailable), t)}</small></span><ArrowUpRight size={13} /></button>)}</div>
+            <div className="lulu-station__crew-list">{selectedRoom.employees.map((employee) => <button type="button" key={employee.id} onClick={() => void selectEmployee(employee)}><span className={`lulu-station__mini-dot lulu-station__mini-dot--${toneForStatus(effectiveOfficeEmployeeStatus(employee.status, aiExecutionAvailable))}`} /><span><strong>{employee.name}</strong><small>{statusLabel(effectiveOfficeEmployeeStatus(employee.status, aiExecutionAvailable), t)}</small></span><ArrowUpRight size={13} /></button>)}</div>
           </> : <>
             <div className="lulu-station__inspector-kicker"><span className="lulu-station__avatar-badge"><Sparkles size={15} /></span><span>{t("Station briefing")}</span></div>
             <h2>{t("The company is present.")}</h2>
@@ -774,14 +767,14 @@ export function LuluStation() {
           <button ref={closeEmployeeModalRef} type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label={t("Close employee workspace")}>×</button>
           {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>{t("Opening verified employee workspace…")}</strong><span>{t("Loading the employee state and recent evidence.")}</span></div> : <>
             <header className="lulu-station__modal-header">
-              <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
+              <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
               <div><span className="lulu-station__modal-kicker">{t("DIGITAL EMPLOYEE WORKSPACE")}</span><h2 id="lulu-station-employee-title">{t(employeeDetail.employee.name)}</h2><p>{t(employeeDetail.employee.title)} · {employeeDetail.employee.department ? t(employeeDetail.employee.department.name) : t("Lulu Station")}</p></div>
-              <div className={`lulu-station__modal-status lulu-station__modal-status--${toneForStatus(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveStatus(employeeDetail.employee.status, aiExecutionAvailable), t)}</div>
+              <div className={`lulu-station__modal-status lulu-station__modal-status--${toneForStatus(effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable))}`}><i />{statusLabel(effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable), t)}</div>
             </header>
             <div className="lulu-station__modal-body">
               <AgentNativeWorkspace workspaceId={workspaceId} employeeDetail={employeeDetail} />
               <div className="lulu-station__modal-details">
-                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CURRENT WORK")}</span><strong title={employeeDetail.currentWorkItem?.title}>{employeeWorkTitle}</strong>{employeeWorkObjectiveIsDistinct ? <p title={employeeDetail.currentWorkItem?.objective}>{employeeWorkObjective}</p> : null}<small>{displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem?.status, t)}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${officeRelatedObjectLabel(employeeDetail.currentWorkItem.relatedObjectType, t)}` : ""}</small></div>
+                <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CURRENT WORK")}</span><strong title={employeeDetail.currentWorkItem?.title}>{effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t("Execution paused") : employeeWorkTitle}</strong>{effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? <p>{t("Execution is paused until AI credit is available")}</p> : employeeWorkObjectiveIsDistinct ? <p title={employeeDetail.currentWorkItem?.objective}>{employeeWorkObjective}</p> : null}<small>{effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable) === "BLOCKED" ? t(officeAiReadinessMessage(employeeDetail.executionReadiness.ai)) : displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem?.status, t)}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${officeRelatedObjectLabel(employeeDetail.currentWorkItem.relatedObjectType, t)}` : ""}</small></div>
                 <div className="lulu-station__modal-stats"><div><strong>{formatCount(employeeDetail.workSummary.active, language)}</strong><span>{t("open work")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday, language)}</strong><span>{t("completed today")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed, language)}</strong><span>{t("failed")}</span></div></div>
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("RECENT EVIDENCE")}</span><div className="lulu-station__modal-timeline">{employeeEvidence.slice(0, 4).map((item) => <div key={item.id}><i /><span><strong title={item.title}>{conciseOfficeCopy(item.title, t("Verified employee event"), 96)}</strong><small>{officeEvidenceTypeLabel(item.type, t)} · {formatTime(item.occurredAt, language)}{item.updateCount > 1 ? ` · ${formatCount(item.updateCount, language)} ${t("updates")}` : ""}</small></span></div>)}{employeeEvidence.length === 0 ? <p>{t("No recent employee events are available.")}</p> : null}</div></div>
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CAPABILITIES")}</span><div className="lulu-station__modal-chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>

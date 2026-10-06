@@ -38,7 +38,7 @@ import { socialPublishingApi, type SocialContent, type SocialPublicationJob } fr
 import { websitesApi, type WebsiteSite } from "../../api/websites";
 import { workspaceAppApi, type GoogleReviewsManagerState } from "../../api/workspace-app";
 import type { AgentEcosystemDefinition } from "../../api/agents";
-import type { OfficeEmployeeDetails } from "../../api/office";
+import { effectiveOfficeEmployeeStatus, officeAiReadinessMessage, type OfficeEmployeeDetails } from "../../api/office";
 import { ApiError, getFriendlyErrorMessage } from "../../api/client";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { conciseOfficeCopy, officeEvidenceTypeLabel } from "./office-copy";
@@ -255,12 +255,16 @@ function CommandSurface({ detail, source }: { detail?: OfficeEmployeeDetails; so
     <Status>{t("available on demand")}</Status>
   </section>;
   const work = detail.currentWorkItem;
-  const workStatus = detail.employee.status === "WAITING" && work?.status === "running"
+  const displayStatus = effectiveOfficeEmployeeStatus(detail.employee.status, detail.executionReadiness.ai.available === true);
+  const workStatus = displayStatus === "BLOCKED" ? "blocked" : displayStatus === "WAITING" && work?.status === "running"
     ? "awaiting recovery"
     : work?.status ?? detail.employee.status;
+  const assignmentDescription = displayStatus === "BLOCKED"
+    ? t("Execution is paused until AI credit is available")
+    : conciseOfficeCopy(work?.objective, t("This agent is available. Lulu will only animate or execute when a persisted work item is assigned."), 260);
   return <div className="lulu-native-agent__command">
     <section className="lulu-native-agent__focus-card">
-      <div><span className="lulu-native-agent__eyebrow">{t("CURRENT ASSIGNMENT")}</span><h3 title={work?.title}>{conciseOfficeCopy(work?.title, t("No active assignment"))}</h3><p title={work?.objective}>{conciseOfficeCopy(work?.objective, t("This agent is available. Lulu will only animate or execute when a persisted work item is assigned."), 260)}</p></div>
+      <div><span className="lulu-native-agent__eyebrow">{t("CURRENT ASSIGNMENT")}</span><h3 title={work?.title}>{displayStatus === "BLOCKED" ? t("Execution paused") : conciseOfficeCopy(work?.title, t("No active assignment"))}</h3><p title={work?.objective}>{assignmentDescription}{displayStatus === "BLOCKED" ? ` · ${t(officeAiReadinessMessage(detail.executionReadiness.ai))}` : ""}</p></div>
       <Status>{workStatus}</Status>
     </section>
     <section className="lulu-native-agent__evidence-grid">
