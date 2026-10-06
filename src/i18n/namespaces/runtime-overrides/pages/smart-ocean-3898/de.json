@@ -328,5 +328,9 @@
   "Vendors": "Anbieter",
   "Webflow": "Webflow",
   "Website": "Website",
-  "Autonomous Publishing Center": "Autonomes Verlagszentrum"
+  "Autonomous Publishing Center": "Autonomes Verlagszentrum",
+  "Loading verified commerce data": "Verifizierte Commerce-Daten werden geladen",
+  "Orders, customers and stores are being read from the connected workspace.": "Bestellungen, Kunden und Shops werden aus dem verbundenen Workspace gelesen.",
+  "Commerce overview unavailable": "Commerce-Übersicht nicht verfügbar",
+  "Lulu could not verify the current commerce state. No metrics or example records are shown.": "Lulu konnte den aktuellen Commerce-Status nicht verifizieren. Es werden keine Kennzahlen oder Beispieldatensätze angezeigt."
 }
