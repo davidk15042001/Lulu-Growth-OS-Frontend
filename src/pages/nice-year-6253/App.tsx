@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { LuluStores } from './components/generated/LuluStores';
+import { Store } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 
 let theme: Theme = 'light';
 
@@ -14,7 +15,17 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluStores />;
+  return (
+    <BackendResourceOverviewPage
+      resourceType="ecommerce_stores"
+      eyebrow="Ecommerce"
+      title="Stores"
+      description="Verified connected-store records for the current workspace."
+      emptyTitle="No verified stores yet"
+      emptyDescription="Connect an approved commerce provider before reviewing store status or synchronization details. No add-store, sync or health claims are shown without a canonical provider operation."
+      emptyIcon={<Store aria-hidden="true" size={24} />}
+    />
+  );
 }
 
 export default App;
