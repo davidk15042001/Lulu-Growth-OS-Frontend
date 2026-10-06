@@ -297,8 +297,15 @@
 @media (max-width: 760px) {
   .lulu-station { padding: 18px 12px var(--station-composer-clearance); }
   .lulu-station__header { align-items: start; flex-direction: column; gap: 15px; }
-  .lulu-station__header-actions { width: 100%; justify-content: space-between; }
+  .lulu-station__header-actions { width: 100%; flex-wrap: wrap; justify-content: flex-start; gap: 6px; }
+  .lulu-station__header-actions .lulu-station__connection { flex: 1 0 100%; }
+  .lulu-station__header-actions .lulu-station__workspace-switch,
+  .lulu-station__header-actions .lulu-station__catalog-trigger,
+  .lulu-station__header-actions .lulu-station__refresh { flex: 1 1 0; justify-content: center; min-width: 0; padding-inline: 9px; }
   .lulu-station__metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lulu-station__department-nav { align-items: stretch; flex-direction: column; gap: 7px; }
+  .lulu-station__department-picker { width: 100%; }
+  .lulu-station__department-nav > span { align-self: flex-start; }
   .lulu-station__world { padding: 6px; }
   .lulu-station__world svg { min-height: 0; }
   .lulu-station__world-toolbar { align-items: start; flex-direction: column; justify-content: center; gap: 3px; padding: 9px 12px; }

@@ -592,8 +592,8 @@ export function LuluStation() {
   const filteredRooms = useMemo(() => {
     const query = departmentQuery.trim().toLocaleLowerCase();
     if (!query) return rooms;
-    return rooms.filter(({ department }) => `${department.name} ${department.description}`.toLocaleLowerCase().includes(query));
-  }, [departmentQuery, rooms]);
+    return rooms.filter(({ department }) => `${t(department.name)} ${t(department.description)}`.toLocaleLowerCase().includes(query));
+  }, [departmentQuery, rooms, t]);
   const activeCatalogAgents = useMemo(() => new Map(ecosystem?.activeTeam.map((agent) => [agent.id, agent]) ?? []), [ecosystem]);
   const filteredCatalogDefinitions = useMemo(() => {
     const query = catalogQuery.trim().toLocaleLowerCase();
