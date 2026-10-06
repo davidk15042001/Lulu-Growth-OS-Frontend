@@ -16,6 +16,7 @@ import {
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { currentIntlLocale } from "../i18n/languages";
 import { createPaymentQrDataUrl } from "../utils/paymentQr";
 import { navigateApp, routes } from "../routing";
 const packages = [500, 1000];
@@ -23,12 +24,14 @@ const methods: Array<{ id: ApiPaymentMethod; label: string }> = [
   { id: "alipaycn", label: "Alipay" },
   { id: "wechatpay", label: "WeChat Pay" },
 ];
-const money = new Intl.NumberFormat("en", {
-  style: "currency",
-  currency: "CNY",
-  currencyDisplay: "narrowSymbol",
-  maximumFractionDigits: 2,
-});
+function formatMoney(value: number) {
+  return new Intl.NumberFormat(currentIntlLocale(), {
+    style: "currency",
+    currency: "CNY",
+    currencyDisplay: "narrowSymbol",
+    maximumFractionDigits: 2,
+  }).format(value);
+}
 export function ApiWalletPanel() {
   const { selectedWorkspace, can, refresh } = useLuluApp();
   const t = useTranslation();
@@ -285,7 +288,7 @@ export function ApiWalletPanel() {
   const methodLabel = (value: ApiTopup["paymentMethod"]) => value === "legacy" ? t("Legacy payment") : methods.find((item) => item.id === value)?.label ?? value;
   const formatDate = (value: string | null) => {
     if (!value) return "—";
-    try { return new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
+    try { return new Intl.DateTimeFormat(currentIntlLocale(), { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)); }
     catch { return value; }
   };
   return (
@@ -302,7 +305,7 @@ export function ApiWalletPanel() {
             </p>
             <p className="mt-1 text-xs leading-5">
               Outstanding chargeback or refund balance:{" "}
-              {money.format(reversalDebt)}. New top-ups settle this amount
+              {formatMoney(reversalDebt)}. New top-ups settle this amount
               first; agents resume automatically only when the balance is fully
               covered and usable credit remains.
             </p>
@@ -325,22 +328,22 @@ export function ApiWalletPanel() {
           <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Available now")}</p>
-              <p className="mt-2 text-2xl font-semibold text-emerald-700">{displayLoading ? "—" : money.format(wallet?.availableAmount ?? 0)}</p>
+              <p className="mt-2 text-2xl font-semibold text-emerald-700">{displayLoading ? "—" : formatMoney(wallet?.availableAmount ?? 0)}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Ready to use for new AI work")}</p>
             </div>
             <div className="rounded-2xl border border-sky-500/20 bg-sky-500/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Reserved for payment")}</p>
-              <p className="mt-2 text-2xl font-semibold text-sky-700">{displayLoading ? "—" : money.format(wallet?.paymentReservedAmount ?? 0)}</p>
+              <p className="mt-2 text-2xl font-semibold text-sky-700">{displayLoading ? "—" : formatMoney(wallet?.paymentReservedAmount ?? 0)}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Paid deposits awaiting Airwallex confirmation")}</p>
             </div>
             <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Reserved for AI work")}</p>
-              <p className="mt-2 text-2xl font-semibold text-amber-700">{displayLoading ? "—" : money.format(wallet?.reservedAmount ?? 0)}</p>
+              <p className="mt-2 text-2xl font-semibold text-amber-700">{displayLoading ? "—" : formatMoney(wallet?.reservedAmount ?? 0)}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Held for work in progress")}</p>
             </div>
             <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Actually spent")}</p>
-              <p className="mt-2 text-2xl font-semibold text-violet-700">{displayLoading ? "—" : money.format(wallet?.spentAmount ?? 0)}</p>
+              <p className="mt-2 text-2xl font-semibold text-violet-700">{displayLoading ? "—" : formatMoney(wallet?.spentAmount ?? 0)}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Settled provider costs")}</p>
             </div>
           </div>
@@ -370,7 +373,7 @@ export function ApiWalletPanel() {
                 onClick={() => setAmount(value)}
                 className={`rounded-xl border px-3 py-3 text-sm font-semibold ${amount === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-secondary"}`}
               >
-                {money.format(value)}
+                {formatMoney(value)}
               </button>
             ))}
           </div>
@@ -401,7 +404,7 @@ export function ApiWalletPanel() {
             ) : (
               <WalletCards size={16} />
             )}
-            {generationOpening ? t("Activating Lulu…") : `Pay ${money.format(amount)}`}
+            {generationOpening ? t("Activating Lulu…") : `Pay ${formatMoney(amount)}`}
           </button>
         </div>
       </div>
@@ -463,7 +466,7 @@ export function ApiWalletPanel() {
                 <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-border bg-background/50 p-4 sm:flex-row sm:items-center sm:justify-between">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold">{money.format(item.amount)}</p>
+                      <p className="font-semibold">{formatMoney(item.amount)}</p>
                       <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${item.status === "SUCCEEDED" ? "bg-emerald-500/10 text-emerald-700" : item.status === "FAILED" || item.status === "REVERSED" ? "bg-red-500/10 text-red-700" : "bg-amber-500/10 text-amber-700"}`}>{statusLabel(item.status)}</span>
                     </div>
                     <p className="mt-1 text-xs text-muted-foreground">{methodLabel(item.paymentMethod)} · {formatDate(item.paidAt ?? item.createdAt)}</p>

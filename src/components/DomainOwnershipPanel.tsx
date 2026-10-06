@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { websitesApi, type WebsiteSite } from '../api/websites';
 import { getFriendlyErrorMessage } from '../api/client';
 import { useTranslation } from '../i18n/GlobalLanguageSwitcher';
+import { currentIntlLocale } from '../i18n/languages';
 
 export function DomainOwnershipPanel({ site, workspaceId, onSiteCreated }: { site: WebsiteSite | null; workspaceId?: string | null; onSiteCreated?: (site: WebsiteSite) => void }) {
   const t = useTranslation();
@@ -46,7 +47,7 @@ export function DomainOwnershipPanel({ site, workspaceId, onSiteCreated }: { sit
     {busy && <p role="status">{t('Checking…')}</p>}
     <div className="mt-5 space-y-4">{(current?.domains ?? []).map(domain => <article key={domain.id} className="rounded border border-border p-4">
       <div className="flex justify-between gap-3"><strong>{domain.hostname}</strong><span>{t(domain.status)}</span></div>
-      {domain.status !== 'verified' && <><dl className="mt-3 space-y-2 break-all text-sm"><dt>{t('TXT record name')}</dt><dd><code>{domain.recordName}</code></dd><dt>{t('TXT record value')}</dt><dd><code>{domain.verificationToken}</code></dd><dt>{t('Expires')}</dt><dd>{new Date(domain.expiresAt).toLocaleString()}</dd></dl>
+      {domain.status !== 'verified' && <><dl className="mt-3 space-y-2 break-all text-sm"><dt>{t('TXT record name')}</dt><dd><code>{domain.recordName}</code></dd><dt>{t('TXT record value')}</dt><dd><code>{domain.verificationToken}</code></dd><dt>{t('Expires')}</dt><dd>{new Date(domain.expiresAt).toLocaleString(currentIntlLocale())}</dd></dl>
         {domain.lastError && <p role="status" className="my-3 text-sm">{reason(domain.lastError)}</p>}
         <div className="mt-3 flex gap-3"><button disabled={busy} onClick={() => void act('verify',domain.id)}>{t('Check ownership')}</button><button disabled={busy} onClick={() => void act('renew',domain.id)}>{t('Renew challenge')}</button></div></>}
       {domain.status === 'verified' && <div className="mt-3 rounded-lg bg-secondary p-3 text-sm"><p className="font-medium">{t('Connect this domain to Lulu')}</p><p className="mt-1 text-muted-foreground">{domain.cnameTarget ? <>{t('Create a CNAME record pointing to')} <code>{domain.cnameTarget}</code>.</> : t('The Lulu edge hostname is not configured on this server yet. An administrator must set LULU_MANAGED_WEBSITE_HOSTNAME before routing can be activated.')}</p><p className="mt-2 text-muted-foreground">{t('Once DNS is connected, this domain shows the current Lulu template immediately and updates automatically when your website is published.')}</p></div>}

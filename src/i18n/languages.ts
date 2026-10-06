@@ -37,3 +37,9 @@ export function toIntlLocale(language: LanguageCode): string {
   if (language === "zh-CN") return "zh-CN";
   return "en-US";
 }
+
+export function currentIntlLocale(): string {
+  if (typeof document === "undefined") return toIntlLocale(DEFAULT_LANGUAGE);
+  const language = document.documentElement.lang;
+  return isLanguageCode(language) ? toIntlLocale(language) : toIntlLocale(DEFAULT_LANGUAGE);
+}

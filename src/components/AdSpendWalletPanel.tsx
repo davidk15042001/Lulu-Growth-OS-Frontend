@@ -18,6 +18,7 @@ import {
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { currentIntlLocale } from "../i18n/languages";
 import { createPaymentQrDataUrl } from "../utils/paymentQr";
 
 const packages = [10_000, 25_000, 50_000, 90_000];
@@ -26,12 +27,14 @@ const methods: Array<{ id: AdSpendPaymentMethod; label: string; detail: string }
   { id: "alipaycn", label: "Alipay", detail: "Scan a secure QR code" },
   { id: "wechatpay", label: "WeChat Pay", detail: "Scan a secure QR code" },
 ];
-const money = new Intl.NumberFormat("en", {
-  style: "currency",
-  currency: "CNY",
-  currencyDisplay: "narrowSymbol",
-  maximumFractionDigits: 2,
-});
+function formatMoney(value: number) {
+  return new Intl.NumberFormat(currentIntlLocale(), {
+    style: "currency",
+    currency: "CNY",
+    currencyDisplay: "narrowSymbol",
+    maximumFractionDigits: 2,
+  }).format(value);
+}
 
 function secureCheckoutUrl(value: string | null) {
   if (!value) return null;
@@ -187,12 +190,12 @@ export function AdSpendWalletPanel() {
           <h2 className="mt-3 text-2xl font-semibold">{t("Ads budget wallet")}</h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("Advertising has its own prepaid balance. It is completely separate from AI/API funds and Cloudflare R2 storage.")}</p>
           <p className="mt-7 text-xs uppercase tracking-[.15em] text-muted-foreground">{t("Available budget")}</p>
-          <p className="mt-2 text-4xl font-semibold">{loading ? "—" : money.format(wallet?.availableAmount ?? 0)}</p>
+          <p className="mt-2 text-4xl font-semibold">{loading ? "—" : formatMoney(wallet?.availableAmount ?? 0)}</p>
           <div className="mt-4 grid grid-cols-2 gap-2 text-xs 2xl:grid-cols-4">
-            <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3"><span className="text-muted-foreground">{t("Reserved for payment")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.paymentReservedAmount ?? 0)}</strong></div>
-            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Reserved for campaigns")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.reservedAmount ?? 0)}</strong></div>
-            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Spent")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.spentAmount ?? 0)}</strong></div>
-            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Funded")}</span><strong className="mt-1 block text-sm">{money.format(wallet?.totalFundedAmount ?? 0)}</strong></div>
+            <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3"><span className="text-muted-foreground">{t("Reserved for payment")}</span><strong className="mt-1 block text-sm">{formatMoney(wallet?.paymentReservedAmount ?? 0)}</strong></div>
+            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Reserved for campaigns")}</span><strong className="mt-1 block text-sm">{formatMoney(wallet?.reservedAmount ?? 0)}</strong></div>
+            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Spent")}</span><strong className="mt-1 block text-sm">{formatMoney(wallet?.spentAmount ?? 0)}</strong></div>
+            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Funded")}</span><strong className="mt-1 block text-sm">{formatMoney(wallet?.totalFundedAmount ?? 0)}</strong></div>
           </div>
           <span className={`mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${ready ? "bg-emerald-500/10 text-emerald-700" : "bg-amber-500/10 text-amber-700"}`}><span className={`h-2 w-2 rounded-full ${ready ? "bg-emerald-500" : "bg-amber-500"}`} />{ready ? t("Paid execution can run") : t("Waiting for confirmed ad funds")}</span>
           <div className="mt-5 flex items-start gap-2 rounded-xl bg-secondary p-3 text-xs leading-5 text-muted-foreground"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-foreground" />{t("Lulu can optimize campaigns autonomously, but it can never spend beyond the prepaid wallet and the customer-authorized campaign limit.")}</div>
@@ -200,11 +203,11 @@ export function AdSpendWalletPanel() {
         <div className="border-t border-border bg-background/40 p-6 sm:p-8 2xl:border-l 2xl:border-t-0">
           <p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">{t("Add advertising budget")}</p>
           <p className="mt-2 text-sm text-muted-foreground">The selected amount is credited to ads. A 4% Lulu service fee is charged on top.</p>
-          <div className="mt-4 grid grid-cols-2 gap-2">{packages.map((value) => <button key={value} type="button" onClick={() => setAmount(value)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${amount === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-secondary"}`}>{money.format(value)}</button>)}</div>
+          <div className="mt-4 grid grid-cols-2 gap-2">{packages.map((value) => <button key={value} type="button" onClick={() => setAmount(value)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${amount === value ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card hover:bg-secondary"}`}>{formatMoney(value)}</button>)}</div>
           <div className="mt-4 grid gap-2 sm:grid-cols-3">{methods.map((item) => <button key={item.id} type="button" onClick={() => setMethod(item.id)} className={`rounded-xl border p-3 text-left text-sm ${method === item.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card hover:bg-secondary"}`}>{item.id === "card" ? <CreditCard size={15} /> : <QrCode size={15} />}<span className="mt-1 block font-semibold">{item.label}</span><span className="mt-1 block text-[11px] text-muted-foreground">{item.detail}</span></button>)}</div>
-          <dl className="mt-4 space-y-2 rounded-xl border border-border bg-card p-4 text-sm"><div className="flex justify-between"><dt className="text-muted-foreground">{t("Ad budget credited")}</dt><dd>{money.format(amount)}</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">{t("Lulu fee (4%)")}</dt><dd>{money.format(fee)}</dd></div><div className="flex justify-between border-t border-border pt-2 font-semibold"><dt>{t("Total charged")}</dt><dd>{money.format(total)}</dd></div></dl>
+          <dl className="mt-4 space-y-2 rounded-xl border border-border bg-card p-4 text-sm"><div className="flex justify-between"><dt className="text-muted-foreground">{t("Ad budget credited")}</dt><dd>{formatMoney(amount)}</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">{t("Lulu fee (4%)")}</dt><dd>{formatMoney(fee)}</dd></div><div className="flex justify-between border-t border-border pt-2 font-semibold"><dt>{t("Total charged")}</dt><dd>{formatMoney(total)}</dd></div></dl>
           {error && <p className="mt-3 flex items-start gap-2 text-sm text-destructive"><AlertTriangle size={16} className="mt-0.5 shrink-0" />{error}</p>}
-          <button type="button" onClick={() => void pay()} disabled={!can("administer") || paying || loading} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40">{paying ? <LoaderCircle className="animate-spin" size={16} /> : method === "card" ? <WalletCards size={16} /> : <QrCode size={16} />}{paying ? "Creating payment…" : `Pay ${money.format(total)}`}</button>
+          <button type="button" onClick={() => void pay()} disabled={!can("administer") || paying || loading} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40">{paying ? <LoaderCircle className="animate-spin" size={16} /> : method === "card" ? <WalletCards size={16} /> : <QrCode size={16} />}{paying ? "Creating payment…" : `Pay ${formatMoney(total)}`}</button>
           {!can("administer") && <p className="mt-2 text-xs text-muted-foreground">{t("Only workspace owners and administrators can add advertising budget.")}</p>}
         </div>
       </div>

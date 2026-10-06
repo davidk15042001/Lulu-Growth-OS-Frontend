@@ -18,6 +18,7 @@ import {
   type SearchItem,
 } from "../../api/searchIntelligence";
 import "./search-channel-workspace.css";
+import { currentIntlLocale } from "../../i18n/languages";
 
 type Props = {
   channel: SearchChannel;
@@ -73,7 +74,7 @@ function formatDate(value: string | null) {
   if (!value) return "Noch nicht analysiert";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat(currentIntlLocale(), {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { authApi, type ActiveSession } from '../api/auth';
 import { getFriendlyErrorMessage } from '../api/client';
 import { useTranslation } from '../i18n/GlobalLanguageSwitcher';
+import { currentIntlLocale } from '../i18n/languages';
 
 export function AccountSessions({ onClose }: { onClose: () => void }) {
   const t = useTranslation();
@@ -23,7 +24,7 @@ export function AccountSessions({ onClose }: { onClose: () => void }) {
       {error && <p role="alert" className="text-destructive">{t(error)}</p>}
       {busy && <p role="status">{t('Loading…')}</p>}
       <ul className="divide-y divide-border">{sessions.map(session => <li key={session.id} className="flex justify-between gap-3 py-3">
-        <div><strong>{session.deviceLabel} {session.current && t('(current session)')}</strong><p className="text-sm">{t('Last active')}: {new Date(session.lastUsedAt).toLocaleString()}</p><p className="text-xs text-muted-foreground">{t('Expires')}: {new Date(session.expiresAt).toLocaleString()}</p></div>
+        <div><strong>{session.deviceLabel} {session.current && t('(current session)')}</strong><p className="text-sm">{t('Last active')}: {new Date(session.lastUsedAt).toLocaleString(currentIntlLocale())}</p><p className="text-xs text-muted-foreground">{t('Expires')}: {new Date(session.expiresAt).toLocaleString(currentIntlLocale())}</p></div>
         {!session.current && <button disabled={busy} onClick={() => void revoke(session.id)}>{t('Revoke session')}</button>}
       </li>)}</ul>
       <button className="mt-4 rounded-md border border-border px-3 py-2 disabled:opacity-50" disabled={busy || sessions.length < 2} onClick={() => void revoke()}>{t('Revoke all other sessions')}</button>

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Bell, CheckCircle2, Circle, CircleStop, ExternalLink, FileText, Play, RefreshCw, Upload, X } from "lucide-react";
 import type { WebsiteGenerationJob } from "../api/websites";
+import { currentIntlLocale } from "../i18n/languages";
 
 type Translate = (key: string) => string;
 type PreviewSection = { key: string; title: string; completed: boolean };
@@ -89,7 +90,7 @@ export function generationActivityMessage(event: WebsiteGenerationActivity, t: T
 
 function activityTime(value: string) {
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? "" : new Intl.DateTimeFormat(undefined, { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(date);
+  return Number.isNaN(date.getTime()) ? "" : new Intl.DateTimeFormat(currentIntlLocale(), { hour: "2-digit", minute: "2-digit", second: "2-digit" }).format(date);
 }
 
 function liveUrl(value: string, updatedAt: string) {

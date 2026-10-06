@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getFriendlyErrorMessage } from "../api/client";
 import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { currentIntlLocale } from "../i18n/languages";
 import {
   onboardingApi,
   type AiBusinessProfileSuggestion,
@@ -403,7 +404,7 @@ export function KnowledgeBaseWorkspace() {
               </p>
               {aiBusinessProfile?.generatedAt ? (
                 <p className="mt-3 text-xs text-muted-foreground">
-                  Last generated {new Date(aiBusinessProfile.generatedAt).toLocaleString()} {aiBusinessProfile.model ? `· ${aiBusinessProfile.model}` : ""}
+                  Last generated {new Date(aiBusinessProfile.generatedAt).toLocaleString(currentIntlLocale())} {aiBusinessProfile.model ? `· ${aiBusinessProfile.model}` : ""}
                 </p>
               ) : null}
             </div>

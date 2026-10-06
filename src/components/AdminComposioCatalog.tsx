@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState, type FormEvent } from "react";
 import { getFriendlyErrorMessage } from "../api/client";
 import { composioApi, type AdminComposioTool, type AdminComposioToolkit } from "../api/composio";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
+import { currentIntlLocale } from "../i18n/languages";
 
 type ToolMetadata = { total: number; truncated: boolean };
 
@@ -99,7 +100,7 @@ export function AdminComposioCatalog() {
         const query = toolSearch[item.slug] ?? "";
         return <article key={item.slug} className="p-4">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><strong>{item.name}</strong><span className="font-mono text-xs text-muted-foreground">{item.slug}</span>{item.customerRestricted ? <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">Lulu managed</span> : null}</div><p className="mt-1 text-xs text-muted-foreground">{item.certificationStatus}{item.publishedAt ? ` · published ${new Date(item.publishedAt).toLocaleDateString()}` : ""}</p></div>
+            <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><strong>{item.name}</strong><span className="font-mono text-xs text-muted-foreground">{item.slug}</span>{item.customerRestricted ? <span className="rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-800">Lulu managed</span> : null}</div><p className="mt-1 text-xs text-muted-foreground">{item.certificationStatus}{item.publishedAt ? ` · published ${new Date(item.publishedAt).toLocaleDateString(currentIntlLocale())}` : ""}</p></div>
             <div className="flex flex-wrap gap-2"><button type="button" onClick={() => void toggleTools(item)} disabled={toolsLoading === item.slug} aria-expanded={expanded} className="inline-flex w-fit items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium disabled:opacity-50">{expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />} {expanded ? t("Tools ausblenden") : t("Tools anzeigen")}</button><button type="button" onClick={() => void toggle(item)} disabled={busySlug === item.slug || item.customerRestricted} className={`inline-flex w-fit items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 ${item.customerAvailable ? "border border-border" : "bg-primary text-primary-foreground"}`}>{item.customerAvailable ? <><ShieldOff size={14} />{t("Für Kunden deaktivieren")}</> : <><ShieldCheck size={14} />{t("Für Kunden veröffentlichen")}</>}</button></div>
           </div>
           {expanded ? <div className="mt-3 rounded-lg border border-border bg-secondary p-3">

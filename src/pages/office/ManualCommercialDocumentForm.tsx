@@ -5,6 +5,7 @@ import { commercialDocumentsApi } from "../../api/commercial-documents";
 import { productsApi, type Product } from "../../api/products";
 import { listRecords, type WorkspaceRecord } from "../../api/records";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { currentIntlLocale } from "../../i18n/languages";
 import type { CommercialDocumentKind } from "./VirtualOfficePage";
 
 type LineDraft = {
@@ -183,7 +184,7 @@ export default function ManualCommercialDocumentForm({
         </div>)}
       </div>
       <label className="lulu-office-commercial-form__shipping"><span>{t("Shipping")}</span><input inputMode="decimal" type="number" min="0" step="0.01" value={form.shippingTotal} onChange={(event) => setForm((current) => ({ ...current, shippingTotal: event.target.value }))} /></label>
-      <div className="lulu-office-commercial-form__total"><span>{t("Estimated total")}</span><strong>{new Intl.NumberFormat(undefined, { style: "currency", currency: form.currency }).format(total)}</strong></div>
+      <div className="lulu-office-commercial-form__total"><span>{t("Estimated total")}</span><strong>{new Intl.NumberFormat(currentIntlLocale(), { style: "currency", currency: form.currency }).format(total)}</strong></div>
     </fieldset>
     <div className="lulu-office-commercial-form__actions"><button type="button" onClick={onCancel}>{t("Cancel")}</button><button type="submit" className="is-primary" disabled={!canCreate || saving}><Save aria-hidden="true" size={14} />{saving ? t("Saving…") : saveLabel}</button></div>
   </form>;

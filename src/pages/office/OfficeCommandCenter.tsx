@@ -38,6 +38,7 @@ import { getFriendlyErrorMessage } from "../../api/client";
 import { ingestRecord, type WorkspaceRecord } from "../../api/records";
 import { useLuluApp } from "../../api/LuluAppContext";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { currentIntlLocale } from "../../i18n/languages";
 import { navigateApp, pagePath, routes } from "../../routing";
 import { VoiceActivityMonitor, VoiceRealtimeRuntime } from "../../voice/voice-runtime";
 import "./office-command-center.css";
@@ -1121,7 +1122,7 @@ export function OfficeCommandCenter() {
     <aside className={`lulu-office-command__history ${historyOpen ? "is-open" : ""}`} aria-label={t("Conversation history")}>
       <div className="lulu-office-command__history-heading"><div><p>{t("Company conversations")}</p><strong>{selectedWorkspace?.companyName ?? t("Lulu workspace")}</strong></div><button type="button" aria-label={t("Close conversation history")} onClick={() => setHistoryOpen(false)}><X aria-hidden="true" size={16} /></button></div>
       <button type="button" className="lulu-office-command__start-history" onClick={startNewIntent}><Sparkles aria-hidden="true" size={15} />{t("Start a new intent")}</button>
-      <div className="lulu-office-command__conversation-list">{conversations.length === 0 ? <p>{t("No saved conversations yet.")}</p> : conversations.map((conversation) => <button key={conversation.id} type="button" className={conversation.id === activeConversationId ? "is-active" : ""} onClick={() => void selectConversation(conversation.id)}><strong>{conversation.title || t("Untitled conversation")}</strong><small>{conversation.lastMessageAt ? new Date(conversation.lastMessageAt).toLocaleDateString() : t("No messages yet")}</small></button>)}</div>
+      <div className="lulu-office-command__conversation-list">{conversations.length === 0 ? <p>{t("No saved conversations yet.")}</p> : conversations.map((conversation) => <button key={conversation.id} type="button" className={conversation.id === activeConversationId ? "is-active" : ""} onClick={() => void selectConversation(conversation.id)}><strong>{conversation.title || t("Untitled conversation")}</strong><small>{conversation.lastMessageAt ? new Date(conversation.lastMessageAt).toLocaleDateString(currentIntlLocale()) : t("No messages yet")}</small></button>)}</div>
     </aside>
     {historyOpen && <button type="button" className="lulu-office-command__history-backdrop" aria-label={t("Close conversation history")} onClick={() => setHistoryOpen(false)} />}
 

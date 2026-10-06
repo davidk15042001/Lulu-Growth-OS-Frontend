@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { currentIntlLocale } from "../i18n/languages";
 
 export function LivePanelShell({
   title,
@@ -39,7 +40,7 @@ export function LiveEmpty({ children }: { children: ReactNode }) {
 export function formatLiveDate(value: string | null | undefined) {
   if (!value) return "—";
   const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(undefined, {
+  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(currentIntlLocale(), {
     dateStyle: "medium", timeStyle: "short",
   }).format(date);
 }
