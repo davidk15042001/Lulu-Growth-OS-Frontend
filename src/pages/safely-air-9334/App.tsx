@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { LuluCollectionsPage } from './components/generated/LuluCollectionsPage';
+import { Layers3 } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 // %IMPORT_STATEMENT%
 
 let theme: Theme = 'light';
@@ -15,7 +16,17 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluCollectionsPage />; // %EXPORT_STATEMENT%
+  return (
+    <BackendResourceOverviewPage
+      resourceType="ecommerce_collections"
+      eyebrow="Ecommerce"
+      title="Collections"
+      description="Verified product-collection records for the current workspace."
+      emptyTitle="No verified collections yet"
+      emptyDescription="Connect an approved commerce provider before reviewing collection health, synchronization or product assignments. Create, edit and sync actions remain unavailable until a canonical provider operation is connected."
+      emptyIcon={<Layers3 aria-hidden="true" size={24} />}
+    />
+  ); // %EXPORT_STATEMENT%
 }
 
 export default App;
