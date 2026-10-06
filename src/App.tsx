@@ -427,10 +427,14 @@ export default function App() {
         <Route path="/app/deep-coast-9085" element={<Navigate replace to={{ pathname: routes.auth.resetPassword, search: location.search }} />} />
         <Route path="/app/kind-morning-4984" element={<Navigate replace to={{ pathname: routes.auth.sessionExpired, search: location.search }} />} />
         <Route path="/app/mightily-minute-5145" element={<Navigate replace to={{ pathname: routes.auth.signedOut, search: location.search }} />} />
+        <Route path="/app/bravely-path-4713" element={<Navigate replace to={{ pathname: routes.onboarding.companyInformation, search: location.search }} />} />
+        <Route path="/app/quiet-garden-9477" element={<Navigate replace to={{ pathname: routes.onboarding.businessDescription, search: location.search }} />} />
+        <Route path="/app/keen-morning-6353" element={<Navigate replace to={{ pathname: routes.onboarding.productsServices, search: location.search }} />} />
         <Route path="/app/lulu-email-portal-9013" element={<Navigate replace to={{ pathname: routes.app.email, search: location.search }} />} />
         <Route path="/app/lulu-calendar-portal-9014" element={<Navigate replace to={{ pathname: routes.app.calendar, search: location.search }} />} />
         <Route path="/app/lulu-connected-apps-9011" element={<Navigate replace to={{ pathname: routes.app.connections, search: location.search }} />} />
         <Route path="/app/lulu-website-editor-9012" element={<Navigate replace to={{ pathname: "/app/website-editor", search: location.search }} />} />
+        <Route path="/app/lulu-website-preview-9012" element={<Navigate replace to={{ pathname: "/app/website-preview", search: location.search }} />} />
         <Route path="/app/lulu-website-media-9017" element={<Navigate replace to={{ pathname: "/app/website-media", search: location.search }} />} />
         <Route path="/app/lulu-website-domains-9018" element={<Navigate replace to={{ pathname: "/app/website-domains", search: location.search }} />} />
         <Route path={routes.app.email} element={<AdminOnlyAppRoute><WorkspaceSurfaceShell activeSlug="lulu-email-portal-9013"><EmailWorkspacePage /></WorkspaceSurfaceShell></AdminOnlyAppRoute>} />
