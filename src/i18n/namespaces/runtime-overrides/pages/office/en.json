@@ -510,5 +510,8 @@
   "No executive intelligence is available yet.": "No executive intelligence is available yet.",
   "Priority review queue": "Priority review queue",
   "Connected Google Business data": "Connected Google Business data",
-  "unanswered": "unanswered"
+  "unanswered": "unanswered",
+  "degraded": "degraded",
+  "Live team selection is temporarily unavailable.": "Live team selection is temporarily unavailable.",
+  "The complete registry remains available. No specialist is marked as active until the verified team state returns.": "The complete registry remains available. No specialist is marked as active until the verified team state returns."
 }

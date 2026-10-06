@@ -839,5 +839,8 @@
   "The Google Business connection needs reauthorization before review data can be read.": "Die Google-Business-Verbindung muss erneut autorisiert werden, bevor Bewertungsdaten gelesen werden können.",
   "No connected Google Business review source is available for this workspace.": "Für diesen Workspace ist keine verbundene Google-Business-Bewertungsquelle verfügbar.",
   "No provider connection is available for this workspace.": "Für diesen Workspace ist keine Provider-Verbindung verfügbar.",
-  "No executive intelligence is available yet.": "Noch keine Unternehmensintelligenz verfügbar."
+  "No executive intelligence is available yet.": "Noch keine Unternehmensintelligenz verfügbar.",
+  "degraded": "eingeschränkt",
+  "Live team selection is temporarily unavailable.": "Die Live-Team-Auswahl ist vorübergehend nicht verfügbar.",
+  "The complete registry remains available. No specialist is marked as active until the verified team state returns.": "Das vollständige Register bleibt verfügbar. Kein Spezialist wird als aktiv markiert, bis der verifizierte Teamstatus wieder verfügbar ist."
 }

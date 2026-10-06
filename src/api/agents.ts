@@ -122,6 +122,9 @@ export type AgentEcosystemDefinition = {
 };
 export type AgentEcosystem = {
   northStar: string;
+  dynamicState?: {
+    status: 'available' | 'degraded';
+  };
   autonomy: {
     mode: 'fully_agentic';
     routineHumanApproval: false;

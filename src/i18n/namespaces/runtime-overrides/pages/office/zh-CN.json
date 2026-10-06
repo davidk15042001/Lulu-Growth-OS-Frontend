@@ -839,5 +839,8 @@
   "The Google Business connection needs reauthorization before review data can be read.": "需要重新授权 Google 商家连接后才能读取评价数据。",
   "No connected Google Business review source is available for this workspace.": "此工作区没有已连接的 Google 商家评价来源。",
   "No provider connection is available for this workspace.": "此工作区没有可用的服务商连接。",
-  "No executive intelligence is available yet.": "暂时没有可用的公司智能数据。"
+  "No executive intelligence is available yet.": "暂时没有可用的公司智能数据。",
+  "degraded": "受限",
+  "Live team selection is temporarily unavailable.": "实时团队选择暂时不可用。",
+  "The complete registry remains available. No specialist is marked as active until the verified team state returns.": "完整注册表仍然可用。在经过验证的团队状态恢复之前，不会将任何专员标记为活跃。"
 }
