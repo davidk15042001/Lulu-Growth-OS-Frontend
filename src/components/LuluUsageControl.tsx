@@ -7,10 +7,11 @@ import { usageApi, type UsageHistoryCursor, type UsageHistoryItem } from "../api
 import { workspaceAppApi, type BillingState } from "../api/workspace-app";
 import { useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { navigateApp, routes } from "../routing";
+import { formatDecimalMoney, isPositiveDecimal } from "../utils/decimal-money";
 
-function formatMoney(value: number, currency: string, language: string) {
+function formatMoney(value: string | number, currency: string, language: string) {
   const locale = language === "de" ? "de-DE" : language === "zh-CN" ? "zh-CN" : "en-US";
-  return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 2 }).format(value);
+  return formatDecimalMoney(value, currency, locale);
 }
 
 function formatInteger(value: number, language: string) {
@@ -154,7 +155,7 @@ export function LuluUsageControl() {
       && startsAt <= now
       && endsAt > now;
   });
-  const hasApiReversalDebt = (apiWallet?.reversalDebtAmount ?? 0) > 0;
+  const hasApiReversalDebt = isPositiveDecimal(apiWallet?.reversalDebtAmount);
   const hasAdvertisingReversalDebt = (adWallet?.reversalDebtAmount ?? 0) > 0;
   const advertisingReady = Boolean(!hasAdvertisingReversalDebt && adWallet?.adsEnabled && activeAuthorization);
   const apiStatus = hasApiReversalDebt

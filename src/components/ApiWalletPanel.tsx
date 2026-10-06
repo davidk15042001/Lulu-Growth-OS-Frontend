@@ -18,26 +18,22 @@ import { useLuluApp } from "../api/LuluAppContext";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { currentIntlLocale } from "../i18n/languages";
 import { createPaymentQrDataUrl } from "../utils/paymentQr";
+import { formatDecimalMoney, isPositiveDecimal } from "../utils/decimal-money";
 import { navigateApp, routes } from "../routing";
-const packages = [500, 1000];
+const packages = ["500.00", "1000.00"];
 const methods: Array<{ id: ApiPaymentMethod; label: string }> = [
   { id: "alipaycn", label: "Alipay" },
   { id: "wechatpay", label: "WeChat Pay" },
 ];
-function formatMoney(value: number) {
-  return new Intl.NumberFormat(currentIntlLocale(), {
-    style: "currency",
-    currency: "CNY",
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 2,
-  }).format(value);
+function formatMoney(value: string) {
+  return formatDecimalMoney(value, "CNY", currentIntlLocale());
 }
 export function ApiWalletPanel() {
   const { selectedWorkspace, can, refresh } = useLuluApp();
   const t = useTranslation();
   const workspaceId = selectedWorkspace?.id ?? null;
   const [overview, setOverview] = useState<ApiWalletOverview | null>(null);
-  const [amount, setAmount] = useState(1000);
+  const [amount, setAmount] = useState("1000.00");
   const [method, setMethod] = useState<ApiPaymentMethod>("alipaycn");
   const [topup, setTopup] = useState<ApiTopup | null>(null);
   const [topupWorkspaceId, setTopupWorkspaceId] = useState<string | null>(null);
@@ -61,8 +57,8 @@ export function ApiWalletPanel() {
   const generationStorageKey = workspaceId ? `lulu.ai-generation-popup.${workspaceId}` : null;
   const error =
     errorState?.workspaceId === workspaceId ? errorState.message : "";
-  const reversalDebt = currentOverview?.wallet.reversalDebtAmount ?? 0;
-  const hasReversalDebt = reversalDebt > 0;
+  const reversalDebt = currentOverview?.wallet.reversalDebtAmount ?? "0.000000";
+  const hasReversalDebt = isPositiveDecimal(reversalDebt);
   const aiReady = Boolean(
     currentOverview?.wallet.aiEnabled && !hasReversalDebt,
   );
@@ -149,7 +145,7 @@ export function ApiWalletPanel() {
   useEffect(() => {
     if (availablePackages.includes(amount)) return;
     const nextAmount = availablePackages[availablePackages.length - 1];
-    if (typeof nextAmount === "number") setAmount(nextAmount);
+    setAmount(nextAmount);
   }, [amount, availablePackages]);
   useEffect(() => {
     if (!currentTopup?.qrPayload) {
@@ -328,22 +324,22 @@ export function ApiWalletPanel() {
           <div className="mt-7 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Available now")}</p>
-              <p className="mt-2 text-2xl font-semibold text-emerald-700">{displayLoading ? "—" : formatMoney(wallet?.availableAmount ?? 0)}</p>
+              <p className="mt-2 text-2xl font-semibold text-emerald-700">{displayLoading ? "—" : formatMoney(wallet?.availableAmount ?? "0.000000")}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Ready to use for new AI work")}</p>
             </div>
             <div className="rounded-2xl border border-sky-500/20 bg-sky-500/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Reserved for payment")}</p>
-              <p className="mt-2 text-2xl font-semibold text-sky-700">{displayLoading ? "—" : formatMoney(wallet?.paymentReservedAmount ?? 0)}</p>
+              <p className="mt-2 text-2xl font-semibold text-sky-700">{displayLoading ? "—" : formatMoney(wallet?.paymentReservedAmount ?? "0.000000")}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Paid deposits awaiting Airwallex confirmation")}</p>
             </div>
             <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Reserved for AI work")}</p>
-              <p className="mt-2 text-2xl font-semibold text-amber-700">{displayLoading ? "—" : formatMoney(wallet?.reservedAmount ?? 0)}</p>
+              <p className="mt-2 text-2xl font-semibold text-amber-700">{displayLoading ? "—" : formatMoney(wallet?.reservedAmount ?? "0.000000")}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Held for work in progress")}</p>
             </div>
             <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-4">
               <p className="text-xs font-semibold uppercase tracking-[.12em] text-muted-foreground">{t("Actually spent")}</p>
-              <p className="mt-2 text-2xl font-semibold text-violet-700">{displayLoading ? "—" : formatMoney(wallet?.spentAmount ?? 0)}</p>
+              <p className="mt-2 text-2xl font-semibold text-violet-700">{displayLoading ? "—" : formatMoney(wallet?.spentAmount ?? "0.000000")}</p>
               <p className="mt-1 text-xs leading-5 text-muted-foreground">{t("Settled provider costs")}</p>
             </div>
           </div>
