@@ -196,6 +196,7 @@ const exactScenarios: Record<string, ErrorScenario> = {
   EMAIL_RECIPIENT_MISSING: { category: "validation", userAction: "check-input", retryable: false },
   EMAIL_DRAFT_CREATE_FAILED: { category: "storage", userAction: "retry", retryable: true },
   EMAIL_DRAFT_STATE_INVALID: { category: "validation", userAction: "check-input", retryable: false },
+  EMAIL_DRAFT_OUTCOME_UNKNOWN: { category: "integration", userAction: "retry", retryable: false },
   CALENDAR_PROVIDER_NOT_CONFIGURED: { category: "integration", userAction: "contact-admin", retryable: false },
   CALENDAR_DELIVERY_TEMPLATE_INCOMPLETE: { category: "validation", userAction: "check-input", retryable: false },
   COMPOSIO_NOT_CONFIGURED: { category: "integration", userAction: "contact-admin", retryable: false },

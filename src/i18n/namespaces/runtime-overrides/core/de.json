@@ -1606,6 +1606,7 @@
   "This dashboard only shows information returned by your connected workspace. No sample or demo metrics are displayed.": "Dieses Dashboard zeigt nur Informationen an, die von Ihrem verbundenen Arbeitsbereich zurückgegeben werden. Es werden keine Beispiel- oder Demo-Metriken angezeigt.",
   "This document is no longer available.": "Dieses Dokument ist nicht mehr verfügbar.",
   "This draft is already being sent or has already been sent.": "Dieser Entwurf wird bereits gesendet oder wurde bereits gesendet.",
+  "The email may already have been sent. Synchronize the mailbox before trying again.": "Die E-Mail wurde möglicherweise bereits gesendet. Synchronisieren Sie das Postfach, bevor Sie es erneut versuchen.",
   "This email account must be reconnected before it can synchronize or send.": "Dieses E-Mail-Konto muss erneut verbunden werden, bevor es synchronisieren oder senden kann.",
   "This email provider is not configured on the server yet.": "Dieser E-Mail-Anbieter ist auf dem Server noch nicht konfiguriert.",
   "This email provider is not supported.": "Dieser E-Mail-Anbieter wird nicht unterstützt.",

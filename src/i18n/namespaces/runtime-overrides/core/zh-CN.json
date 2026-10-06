@@ -1606,6 +1606,7 @@
   "This dashboard only shows information returned by your connected workspace. No sample or demo metrics are displayed.": "此仪表板仅显示您已连接工作区返回的信息。不会显示示例或演示指标。",
   "This document is no longer available.": "此文档已不可用。",
   "This draft is already being sent or has already been sent.": "此草稿正在发送或已经发送。",
+  "The email may already have been sent. Synchronize the mailbox before trying again.": "邮件可能已经发送。请先同步邮箱，再重试。",
   "This email account must be reconnected before it can synchronize or send.": "此邮箱账户必须重新连接后才能同步或发送邮件。",
   "This email provider is not configured on the server yet.": "服务器尚未配置此邮件服务商。",
   "This email provider is not supported.": "不支持此邮件服务商。",

@@ -270,6 +270,7 @@
   "No reply recipient could be determined.": "Es konnte kein Empfänger für die Antwort ermittelt werden.",
   "The email draft could not be saved.": "Der E-Mail-Entwurf konnte nicht gespeichert werden.",
   "This draft is already being sent or has already been sent.": "Dieser Entwurf wird bereits gesendet oder wurde bereits gesendet.",
+  "The email may already have been sent. Synchronize the mailbox before trying again.": "Die E-Mail wurde möglicherweise bereits gesendet. Synchronisieren Sie das Postfach, bevor Sie es erneut versuchen.",
   "Too many requests. Please wait briefly and try again.": "Zu viele Anfragen. Bitte warten Sie kurz und versuchen Sie es erneut.",
   "Connected customer financial records · selected period": "Verbundene Finanzunterlagen des Kunden · ausgewählter Zeitraum",
   "Create a workflow from connected finance data": "Erstellen Sie einen Workflow aus vernetzten Finanzdaten",

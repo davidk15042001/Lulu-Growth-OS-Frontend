@@ -265,6 +265,7 @@ const FRIENDLY_API_MESSAGES: Record<string, string> = {
   EMAIL_THREAD_EMPTY: "This conversation has no message to answer.",
   EMAIL_DRAFT_CREATE_FAILED: "The email draft could not be saved.",
   EMAIL_DRAFT_STATE_INVALID: "This draft is already being sent or has already been sent.",
+  EMAIL_DRAFT_OUTCOME_UNKNOWN: "The email may already have been sent. Synchronize the mailbox before trying again.",
 };
 
 function friendlyApiMessage(status: number, code: string) {

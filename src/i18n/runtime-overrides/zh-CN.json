@@ -270,6 +270,7 @@
   "No reply recipient could be determined.": "无法确定回复收件人。",
   "The email draft could not be saved.": "无法保存邮件草稿。",
   "This draft is already being sent or has already been sent.": "此草稿正在发送或已经发送。",
+  "The email may already have been sent. Synchronize the mailbox before trying again.": "邮件可能已经发送。请先同步邮箱，再重试。",
   "Too many requests. Please wait briefly and try again.": "请求过于频繁，请稍候再试。",
   "Connected customer financial records · selected period": "关联客户财务记录·选定期间",
   "Create a workflow from connected finance data": "从互联财务数据创建工作流程",
