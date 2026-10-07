@@ -77,11 +77,11 @@ export function archiveFinanceAutomation(automationId: string) {
   return requestApi<null>({ path: workspacePath(`/finance/automations/${encodeURIComponent(automationId)}`), method: 'DELETE' });
 }
 
-export function validateFinanceAutomation(automationId: string) {
-  return requestApi<{ automationId: string; status: 'validated'; executionBoundary: 'validation_only'; sideEffectsApplied: false; trigger: FinanceAutomationStep; actions: FinanceAutomationStep[]; evaluatedAt: string; message: string }>({
+export function validateFinanceAutomation(automationId: string, idempotencyKey = globalThis.crypto.randomUUID()) {
+  return requestApi<{ automationId: string; status: 'validated'; executionBoundary: 'validation_only'; sideEffectsApplied: false; trigger: FinanceAutomationStep; actions: FinanceAutomationStep[]; evaluatedAt: string; runId: string; message: string }>({
     path: workspacePath(`/finance/automations/${encodeURIComponent(automationId)}/validate`),
     method: 'POST',
-    body: {},
+    body: { idempotencyKey },
   });
 }
 

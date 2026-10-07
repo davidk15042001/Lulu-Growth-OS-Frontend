@@ -143,8 +143,12 @@ export function FinanceAutomationWorkspace() {
       setRecords((current) => current.map((item) => {
         if (item.id !== record.id) return item;
         const execution = item.data.execution ?? { lastRunAt: null, lastStatus: 'never', runs: 0, successfulRuns: 0, failedRuns: 0 };
-        return { ...item, data: { ...item.data, execution: { ...execution, lastStatus: 'validated' } } };
+        return { ...item, data: { ...item.data, execution: { ...execution, lastRunAt: new Date().toISOString(), lastStatus: 'validated', runs: execution.runs + 1, successfulRuns: execution.successfulRuns + 1 } } };
       }));
+      if (runDetails[record.id]) {
+        const response = await listFinanceAutomationRuns(record.id);
+        setRunDetails((current) => ({ ...current, [record.id]: response.data.items }));
+      }
     } catch (cause) {
       setError(getFriendlyErrorMessage(cause, 'The automation could not be validated.'));
     } finally {
