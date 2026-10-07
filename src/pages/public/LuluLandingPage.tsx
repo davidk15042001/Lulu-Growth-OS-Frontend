@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { ArrowDown, ArrowRight, Bot, Check, ChevronRight, CircleDollarSign, Gauge, Globe2, Layers3, LockKeyhole, Network, Sparkles, Target, Workflow } from "lucide-react";
+import { ArrowDown, ArrowRight, Bot, Check, ChevronRight, CircleDollarSign, Gauge, Globe2, Layers3, LockKeyhole, Menu, Network, Sparkles, Target, Workflow, X } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useLanguage, useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { GlobalLanguageSwitcher, useLanguage, useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { routes } from "../../routing";
 import { agentSummaryApi, type AgentRegistrySummary } from "../../api/agent-summary";
 import "./lulu-landing.css";
@@ -80,10 +80,25 @@ export default function LuluLandingPage() {
   const locale = language === "zh-CN" ? "zh-CN" : language === "de" ? "de-DE" : "en-US";
   const activeSection = useActiveSection();
   const [selectedPillar, setSelectedPillar] = useState(pillars[0].id);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [agentSummary, setAgentSummary] = useState<AgentRegistrySummary | null>(null);
   const activePillar = pillars.find((pillar) => pillar.id === selectedPillar) ?? pillars[0];
   const ActivePillarIcon = activePillar.icon;
-  const scrollTo = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const scrollTo = (id: string) => {
+    setMobileMenuOpen(false);
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return undefined;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      setMobileMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -111,7 +126,13 @@ export default function LuluLandingPage() {
         <div className="public-entry__nav-actions">
           <Link to={routes.auth.login}>{t("Sign in")}</Link>
           <Link className="public-entry__nav-cta" to={routes.auth.signUp}>{t("Enter Lulu")} <ArrowRight size={15} /></Link>
+          <button className="public-entry__mobile-toggle" type="button" aria-label={t(mobileMenuOpen ? "Close navigation" : "Open navigation")} aria-expanded={mobileMenuOpen} aria-controls="public-entry-mobile-menu" onClick={() => setMobileMenuOpen((open) => !open)}>
+            {mobileMenuOpen ? <X size={17} aria-hidden="true" /> : <Menu size={17} aria-hidden="true" />}
+          </button>
         </div>
+        {mobileMenuOpen && <div id="public-entry-mobile-menu" className="public-entry__mobile-menu" role="menu" aria-label={t("Landing page sections")}>
+          {[['vision', 'The approach'], ['system', 'The system'], ['operation', 'The loop']].map(([id, label]) => <button key={id} type="button" role="menuitem" onClick={() => scrollTo(id)}>{t(label)} <ArrowRight size={14} aria-hidden="true" /></button>)}
+        </div>}
       </header>
 
       <section id="vision" data-lulu-section="vision" className="public-entry__hero">
@@ -205,6 +226,7 @@ export default function LuluLandingPage() {
         </div>
         <footer><span>{t("© Lulu Growth OS")}</span><span>{t("Built for companies with somewhere to go.")}</span><Link to={routes.auth.login}>{t("Sign in")} <ArrowRight size={14} /></Link></footer>
       </section>
+      <GlobalLanguageSwitcher />
     </main>
   );
 }
