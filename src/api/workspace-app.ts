@@ -349,7 +349,7 @@ export const workspaceAppApi = {
   }) => requestApi<{
     paymentId: string;
     paymentMethod: "alipaycn" | "wechatpay";
-    amount: number;
+    amount: string;
     currency: "USD";
     status: "requires_customer_action" | "pending" | "succeeded" | "cancelled" | "failed" | "expired";
     qrPayload: string | null;
@@ -365,7 +365,7 @@ export const workspaceAppApi = {
   syncPaygQrPayment: (workspaceId: string, paymentId: string) => requestApi<{
     paymentId: string;
     paymentMethod: "alipaycn" | "wechatpay";
-    amount: number;
+    amount: string;
     currency: "USD";
     status: "requires_customer_action" | "pending" | "succeeded" | "cancelled" | "failed" | "expired";
     qrPayload: string | null;

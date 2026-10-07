@@ -7,6 +7,7 @@ import { LuluGlobalNavigation } from '../../../../components/LuluGlobalNavigatio
 import { ApiWalletPanel } from '../../../../components/ApiWalletPanel';
 import { AdSpendWalletPanel } from '../../../../components/AdSpendWalletPanel';
 import { createPaymentQrDataUrl } from '../../../../utils/paymentQr';
+import { formatDecimalMoney } from '../../../../utils/decimal-money';
 
 const tabs = [
   { id: 'payments', label: 'Payments' },
@@ -26,7 +27,7 @@ const paymentMethodDetails: Record<PaygPaymentMethod, { label: string; detail: s
 type QrPayment = {
   paymentId: string;
   paymentMethod: Exclude<PaygPaymentMethod, 'card'>;
-  amount: number;
+  amount: string;
   currency: 'USD';
   status: 'requires_customer_action' | 'pending' | 'succeeded' | 'cancelled' | 'failed' | 'expired';
   qrPayload: string | null;
@@ -35,8 +36,8 @@ type QrPayment = {
   paidAt: string | null;
 };
 
-function money(value: number, currency = 'USD') {
-  return new Intl.NumberFormat(undefined, { style: 'currency', currency, maximumFractionDigits: 2 }).format(value);
+function money(value: string | number, currency = 'USD') {
+  return formatDecimalMoney(value, currency, typeof navigator === 'undefined' ? 'en-US' : navigator.language);
 }
 
 function date(value: string | null) {
