@@ -6,6 +6,7 @@ import { archiveRecord, createRecord, ingestRecord, type WorkspaceRecord } from 
 import { useLiveRecords } from '../../api/useLiveRecords';
 import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
 import { useLuluConfirm } from '../../components/LuluConfirmDialog';
+import { useLuluDialog } from '../../components/useLuluDialog';
 
 type Props = { resourceType: string; title: string; activeSlug: string; description?: string };
 const inputClass = 'w-full rounded-xl border border-[var(--border)] bg-transparent px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-[var(--ring)]';
@@ -62,4 +63,12 @@ export default function WorkspaceRecordsPage({ resourceType, title, activeSlug, 
   </div></main>{modal && canWrite && <Modal title={`Neue ${title}`} onClose={() => setModal(false)}><label className="block"><span className="mb-1 block text-xs">Name *</span><input autoFocus value={name} onChange={(event) => setName(event.target.value)} className={inputClass}/></label><label className="mt-4 block"><span className="mb-1 block text-xs">Beschreibung</span><textarea value={details} onChange={(event) => setDetails(event.target.value)} className={`${inputClass} min-h-28`}/></label><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setModal(false)} className="rounded-xl border border-[var(--border)] px-4 py-2 text-sm">Abbrechen</button><button type="button" onClick={() => void save()} disabled={busy} className="rounded-xl bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)] disabled:opacity-40">Speichern</button></div></Modal>}{importOpen && canWrite && <Modal title={`Import ${title}`} onClose={() => setImportOpen(false)}><p className="text-sm text-[var(--muted-foreground)]">CSV, PDF oder Excel-Datei auswählen. Die Datei wird Workspace-sicher verarbeitet.</p><input ref={fileRef} type="file" accept=".csv,.xlsx,.xls,.pdf,.txt" onChange={(event) => void importFile(event.target.files?.[0])} className="mt-4 block w-full text-sm"/><div className="mt-5 flex justify-end"><button type="button" onClick={() => fileRef.current?.click()} disabled={busy} className="inline-flex items-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2 text-sm text-[var(--background)] disabled:opacity-40"><FileUp size={15}/>Datei auswählen</button></div></Modal>}</WorkspaceSurfaceShell>;
 }
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) { return <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" role="dialog" aria-modal="true"><div className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-2xl"><div className="flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={onClose} aria-label="Schließen"><X size={18}/></button></div><div className="mt-5">{children}</div></div></div>; }
+function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  const dialogRef = useLuluDialog({ open: true, onClose });
+  return <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
+    <section ref={dialogRef} className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-2xl" role="dialog" aria-modal="true" aria-labelledby="workspace-record-dialog-title">
+      <div className="flex items-center justify-between"><h2 id="workspace-record-dialog-title" className="text-lg font-semibold">{title}</h2><button type="button" onClick={onClose} aria-label="Schließen"><X size={18}/></button></div>
+      <div className="mt-5">{children}</div>
+    </section>
+  </div>;
+}
