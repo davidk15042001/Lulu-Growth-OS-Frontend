@@ -1,5 +1,5 @@
 import { Theme } from './settings/types';
-import { SalesTasks } from './components/generated/SalesTasks';
+import { SalesPipelineWorkspace } from '../../components/SalesPipelineWorkspace';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +15,7 @@ function App() {
 
   setTheme(theme);
 
-  return <SalesTasks />; // %EXPORT_STATEMENT%
+  return <SalesPipelineWorkspace mode="task" />; // %EXPORT_STATEMENT%
 }
 
 export default App;

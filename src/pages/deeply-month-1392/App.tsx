@@ -1,5 +1,5 @@
 import { Theme } from './settings/types';
-import { LuluSalesDeals } from './components/generated/LuluSalesDeals';
+import { SalesPipelineWorkspace } from '../../components/SalesPipelineWorkspace';
 
 let theme: Theme = 'light';
 
@@ -14,7 +14,7 @@ function App() {
 
   setTheme(theme);
 
-  return <LuluSalesDeals />;
+  return <SalesPipelineWorkspace mode="opportunity" />;
 }
 
 export default App;
