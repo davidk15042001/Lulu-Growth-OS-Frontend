@@ -28,6 +28,13 @@ export type CrmDeliveryTarget = {
   reconcileToolSlug: string | null;
   reconcileArguments: Record<string, unknown>;
   reconcileResultExternalIdPath: string | null;
+  inboundSyncEnabled: boolean;
+  inboundToolSlug: string | null;
+  inboundArguments: Record<string, unknown>;
+  inboundItemsPath: string | null;
+  inboundExternalIdPath: string | null;
+  inboundFieldMapping: Record<string, unknown>;
+  lastInboundSyncedAt: string | null;
   createdBy: string | null;
   createdAt: string;
   updatedAt: string;
@@ -47,7 +54,8 @@ export type CrmDeliveryTargetInput = Pick<CrmDeliveryTarget,
   'resourceType' | 'integrationTeamId' | 'targetName' | 'enabled' | 'createToolSlug' |
   'createArguments' | 'createResultExternalIdPath' | 'updateToolSlug' | 'updateArguments' |
   'cancelToolSlug' | 'cancelArguments' | 'reconcileToolSlug' | 'reconcileArguments' |
-  'reconcileResultExternalIdPath'>;
+  'reconcileResultExternalIdPath' | 'inboundSyncEnabled' | 'inboundToolSlug' | 'inboundArguments' |
+  'inboundItemsPath' | 'inboundExternalIdPath' | 'inboundFieldMapping'>;
 
 export type CrmDeliveryProjectionStatus = 'PENDING' | 'SYNCED' | 'CANCELLED' | 'FAILED' | 'AMBIGUOUS';
 
@@ -103,5 +111,10 @@ export const crmApi = {
   }),
   updateDeliveryTarget: (workspaceId: string, targetId: string, body: CrmDeliveryTargetInput) => requestApi<CrmDeliveryTarget>({
     path: workspaceApiPath(workspaceId, `/crm/delivery-targets/${encodeURIComponent(targetId)}`), method: 'PATCH', body,
+  }),
+  syncInboundDeliveryTarget: (workspaceId: string, targetId: string) => requestApi<{
+    targetId: string; providerLogId: string | null; fetched: number; created: number; updated: number; skipped: number; failed: number;
+  }>({
+    path: workspaceApiPath(workspaceId, `/crm/delivery-targets/${encodeURIComponent(targetId)}/inbound-sync`), method: 'POST', body: {},
   }),
 };

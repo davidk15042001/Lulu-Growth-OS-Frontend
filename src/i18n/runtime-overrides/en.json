@@ -1200,5 +1200,21 @@
   "Readback-Aktion": "Readback action",
   "AMBIGUOUS": "AMBIGUOUS",
   "oder": "or",
-  "record.id oder id": "record.id or id"
+  "record.id oder id": "record.id or id",
+  "Der Provider-Rückimport konnte nicht abgeschlossen werden.": "Provider import could not be completed.",
+  "Provider-Daten jetzt einlesen": "Import provider data now",
+  "Bitte für den Provider-Rückimport Aktion, JSON, Feldmapping und beide Antwortpfade hinterlegen.": "Add an action, JSON, field mapping and both response paths for provider import.",
+  "Provider-Rückimport": "Provider import",
+  "Optional: Lulu liest eine begrenzte Liste aus dem ausgewählten Provider und übernimmt nur die unten gemappten Felder. Rohdaten werden nicht gespeichert; gleiche Provider-IDs werden aktualisiert statt dupliziert.": "Optional: Lulu reads a bounded list from the selected provider and imports only the mapped fields below. Raw payloads are not stored; matching provider IDs are updated instead of duplicated.",
+  "Inbound": "Inbound",
+  "Einlesen": "Import",
+  "Rückimport aktivieren": "Enable provider import",
+  "Inbound-Leseaktion": "Inbound read action",
+  "Leseaktion auswählen": "Select read action",
+  "Pfad zur Liste": "List path",
+  "Pfad zur Provider-ID": "Provider ID path",
+  "Leseparameter JSON": "Read parameters JSON",
+  "Feldmapping JSON": "Field mapping JSON",
+  "Das Mapping muss": "The mapping must include",
+  "Provider-Rückimport Aktion, JSON, Feldmapping und beide Antwortpfade": "provider import action, JSON, field mapping and both response paths"
 }
