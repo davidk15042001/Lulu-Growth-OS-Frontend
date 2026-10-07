@@ -1121,5 +1121,6 @@
   "Checking workspace access…": "Checking workspace access…",
   "No workspace is available for this account.": "No workspace is available for this account.",
   "Available integrations": "Available integrations",
-  "Ready to retry": "Ready to retry"
+  "Ready to retry": "Ready to retry",
+  "No matching records found.": "No matching records found."
 }

@@ -22098,5 +22098,6 @@
   "Start your workspace": "开始创建工作区",
   "Use your work email. You can invite the rest of your team after setup.": "请使用工作邮箱。完成设置后，您可以邀请团队其他成员。",
   "Available integrations": "可用集成",
-  "Ready to retry": "可以重试"
+  "Ready to retry": "可以重试",
+  "No matching records found.": "未找到匹配的记录。"
 }
