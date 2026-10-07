@@ -36,6 +36,7 @@ import { executiveApi, type ExecutiveOverview } from "../../api/executive";
 import { financeApi, type PayoutsData } from "../../api/finance";
 import { omnichannelApi, type OmniConversation, type OmniMessage } from "../../api/omnichannel";
 import { listWorkspaceRecords, type WorkspaceRecord } from "../../api/records";
+import { useLiveRecords } from "../../api/useLiveRecords";
 import { providerControlApi, type ProviderConnection, type ProviderLaunchReadiness } from "../../api/providers";
 import { productsApi, type Product } from "../../api/products";
 import { socialPublishingApi, type SocialContent, type SocialPublicationJob } from "../../api/social-publishing";
@@ -44,6 +45,7 @@ import { workspaceAppApi, type GoogleReviewsManagerState } from "../../api/works
 import type { AgentEcosystemDefinition } from "../../api/agents";
 import { effectiveOfficeEmployeeStatus, officeAiReadinessMessage, type OfficeEmployeeDetails } from "../../api/office";
 import { ApiError, getFriendlyErrorMessage } from "../../api/client";
+import { RESOURCE_BY_SLUG } from "../../api/page-contracts";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { isPageNavigable, pagePath, routes } from "../../routing";
 import { conciseOfficeCopy, officeEvidenceTypeLabel } from "./office-copy";
@@ -103,6 +105,39 @@ const NATIVE_WORKSPACE_PATHS: Readonly<Partial<Record<NativeWorkspaceKind, strin
   reputation: pagePath("daring-brook-9034"),
   operations: routes.app.connections,
   intelligence: routes.app.dashboard,
+};
+
+/**
+ * Resource pages already have a canonical live-record contract.  When one of
+ * those pages is opened from the Station, the popup should show that same
+ * resource instead of falling back to a broad department summary.  The
+ * employee-key entries cover provisioned Office roles that do not carry a
+ * page id in their employee projection.
+ */
+const OFFICE_EMPLOYEE_RESOURCE_TYPES: Readonly<Record<string, string>> = {
+  "company-intelligence-specialist": "crm_companies",
+  "crm-manager": "crm_companies",
+  "customer-manager": "crm_contacts",
+  "lead-generation-specialist": "sales_leads",
+  "lead-qualification-specialist": "sales_leads",
+  "opportunity-manager": "sales_opportunities",
+  "sales-representative": "sales_deals",
+  "follow-up-specialist": "sales_tasks",
+  "quote-specialist": "finance_quotes",
+  "invoice-manager": "finance_invoices",
+  "bookkeeping-manager": "finance_accounts",
+  "finance-operations-manager": "finance_automations",
+  "brand-content-strategist": "marketing_strategies",
+  "marketing-manager": "marketing_campaigns",
+  "paid-acquisition-specialist": "ad_campaigns",
+  "content-specialist": "marketing_content",
+};
+
+const OVERVIEW_RESOURCE_BY_PAGE_ID: Readonly<Record<string, string>> = {
+  "finely-garden-9221": "ad_campaigns",
+  "quietly-stone-4158": "finance_invoices",
+  "fine-park-8079": "sales_deals",
+  "eagerly-winter-3152": "marketing_campaigns",
 };
 
 /**
@@ -239,6 +274,13 @@ function resolveKind(source: AgentSurfaceSource): NativeWorkspaceKind {
   return "command";
 }
 
+function resolveResourceSurface(source: AgentSurfaceSource) {
+  if (source.pageId) {
+    return OVERVIEW_RESOURCE_BY_PAGE_ID[source.pageId] ?? RESOURCE_BY_SLUG[source.pageId] ?? null;
+  }
+  return OFFICE_EMPLOYEE_RESOURCE_TYPES[source.key] ?? null;
+}
+
 function activeLocale() {
   if (typeof document === "undefined") return "en";
   return document.documentElement.lang || "en";
@@ -271,6 +313,40 @@ function SurfaceState({ loading, error, empty, children }: { loading: boolean; e
 
 function DataNotice({ children }: { children: React.ReactNode }) {
   return <p className="lulu-native-agent__notice" role="status"><CircleAlert size={14} /><span>{children}</span></p>;
+}
+
+function AgentRecordSurface({ resourceType, title }: { resourceType: string; title: string }) {
+  const t = useTranslation();
+  const records = useLiveRecords(resourceType, "limit=8", { includeTotal: true });
+  const activeRecords = records.items.filter((record) => !/done|completed|paid|won|archived|closed/i.test(record.status || "")).length;
+  const signalTags = Array.from(new Set(records.items.flatMap((record) => record.tags).filter(Boolean))).slice(0, 4);
+
+  return <SurfaceState
+    loading={records.loading && records.items.length === 0}
+    error={records.error && records.items.length === 0 ? records.error : ""}
+    empty={!records.items.length ? t("No live records are available for this page yet.") : undefined}
+  >
+    <>
+      {records.error ? <DataNotice>{records.error}</DataNotice> : null}
+      <div className="lulu-native-agent__metrics">
+        <Metric label="Records" value={records.total} detail="Live records in this workflow" icon={<FileText size={14} />} />
+        <Metric label="Active in view" value={activeRecords} detail="Loaded records not marked complete" icon={<Activity size={14} />} />
+        <Metric label="Tags in view" value={signalTags.length} detail={signalTags.length ? signalTags.join(" · ") : "No dominant tags yet"} icon={<Network size={14} />} />
+      </div>
+      <section className="lulu-native-agent__list">
+        <div className="lulu-native-agent__list-head"><span>{t(title)}</span><small>{t("Canonical records")}</small></div>
+        {records.items.slice(0, 6).map((record) => (
+          <article key={record.id}>
+            <div><strong>{record.name}</strong><small>{record.description ?? record.stage ?? t("No additional detail")} · {t("Updated")} {formatTime(record.updatedAt)}</small></div>
+            <Status>{record.status}</Status>
+          </article>
+        ))}
+        <button type="button" className="lulu-native-agent__refresh" onClick={() => void records.refresh()} disabled={records.loading}>
+          <RefreshCw size={14} className={records.loading ? "lulu-station__spin" : ""} />{records.loading ? t("Loading…") : t("Refresh")}
+        </button>
+      </section>
+    </>
+  </SurfaceState>;
 }
 
 function Metric({ label, value, detail, icon }: { label: string; value: string | number; detail: string; icon: React.ReactNode }) {
@@ -654,6 +730,7 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
         purpose: catalogAgent?.purpose,
       }, [catalogAgent, employeeDetail, t]);
   const kind = useMemo(() => resolveKind(source), [source]);
+  const resourceSurface = useMemo(() => resolveResourceSurface(source), [source]);
   const definition = KINDS[kind];
   const Icon = definition.icon;
   const isCatalogPreview = Boolean(catalogAgent && !employeeDetail);
@@ -673,18 +750,20 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
       <div><span>{t("Spend boundary")}</span><strong>{spendBoundary}</strong></div>
     </div>
     <div className="lulu-native-agent__content">
-      {kind === "crm" ? <CrmSurface workspaceId={workspaceId} /> : null}
-      {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} canManage={canManageOmnichannel} canReply={canReplyOmnichannel} /> : null}
-      {kind === "email" ? <EmailSurface workspaceId={workspaceId} /> : null}
-      {kind === "calendar" ? <CalendarSurface workspaceId={workspaceId} /> : null}
-      {kind === "commerce" ? <CommerceSurface workspaceId={workspaceId} /> : null}
-      {kind === "finance" ? <FinanceSurface workspaceId={workspaceId} /> : null}
-      {kind === "marketing" ? <MarketingSurface workspaceId={workspaceId} /> : null}
-      {kind === "website" ? <WebsiteSurface workspaceId={workspaceId} /> : null}
-      {kind === "reputation" ? <ReviewSurface workspaceId={workspaceId} /> : null}
-      {kind === "operations" ? <OperationsSurface workspaceId={workspaceId} /> : null}
-      {kind === "intelligence" ? <IntelligenceSurface workspaceId={workspaceId} /> : null}
-      {kind === "command" ? <CommandSurface detail={employeeDetail} source={source} /> : null}
+      {resourceSurface ? <AgentRecordSurface resourceType={resourceSurface} title={source.name} /> : <>
+        {kind === "crm" ? <CrmSurface workspaceId={workspaceId} /> : null}
+        {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} canManage={canManageOmnichannel} canReply={canReplyOmnichannel} /> : null}
+        {kind === "email" ? <EmailSurface workspaceId={workspaceId} /> : null}
+        {kind === "calendar" ? <CalendarSurface workspaceId={workspaceId} /> : null}
+        {kind === "commerce" ? <CommerceSurface workspaceId={workspaceId} /> : null}
+        {kind === "finance" ? <FinanceSurface workspaceId={workspaceId} /> : null}
+        {kind === "marketing" ? <MarketingSurface workspaceId={workspaceId} /> : null}
+        {kind === "website" ? <WebsiteSurface workspaceId={workspaceId} /> : null}
+        {kind === "reputation" ? <ReviewSurface workspaceId={workspaceId} /> : null}
+        {kind === "operations" ? <OperationsSurface workspaceId={workspaceId} /> : null}
+        {kind === "intelligence" ? <IntelligenceSurface workspaceId={workspaceId} /> : null}
+        {kind === "command" ? <CommandSurface detail={employeeDetail} source={source} /> : null}
+      </>}
     </div>
     <footer className="lulu-native-agent__footer"><ShieldCheck size={14} /><span>{t(isCatalogPreview ? "Shows verified workspace context. This specialist remains inactive until the planner assigns persisted work." : "Uses the same workspace-scoped APIs and permission checks as the full product surface.")}</span></footer>
   </section>;
