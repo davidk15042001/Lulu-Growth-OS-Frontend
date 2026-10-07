@@ -10,6 +10,7 @@ export type WorkspaceRecord = {
   description: string | null;
   status: string;
   stage: string | null;
+  source: string | null;
   valueAmount: string | null;
   currency: string | null;
   dueAt: string | null;
