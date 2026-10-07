@@ -7266,5 +7266,12 @@
   "Zustellstatus filtern": "筛选交付状态",
   "geladen": "已加载",
   "Weitere Zustellungen sind verfügbar.": "还有更多交付记录。",
-  "Weitere laden": "加载更多"
+  "Weitere laden": "加载更多",
+  "Agent governance metadata": "智能体治理元数据",
+  "Surface": "界面",
+  "Capabilities": "能力",
+  "Required tools": "所需工具",
+  "Spend boundary": "支出权限",
+  "Prepaid ad spend only": "仅限预付广告支出",
+  "No spend authority": "无支出权限"
 }

@@ -174,5 +174,12 @@
   "selected now": "当前已选择",
   "Specialists": "专业智能体",
   "specialists +": "专业智能体 +",
-  "system agents": "系统智能体"
+  "system agents": "系统智能体",
+  "Agent governance metadata": "智能体治理元数据",
+  "Surface": "界面",
+  "Capabilities": "能力",
+  "Required tools": "所需工具",
+  "Spend boundary": "支出权限",
+  "Prepaid ad spend only": "仅限预付广告支出",
+  "No spend authority": "无支出权限"
 }

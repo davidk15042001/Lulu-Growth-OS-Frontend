@@ -843,5 +843,12 @@
   "No executive intelligence is available yet.": "Noch keine Unternehmensintelligenz verfügbar.",
   "degraded": "eingeschränkt",
   "Live team selection is temporarily unavailable.": "Die Live-Team-Auswahl ist vorübergehend nicht verfügbar.",
-  "The complete registry remains available. No specialist is marked as active until the verified team state returns.": "Das vollständige Register bleibt verfügbar. Kein Spezialist wird als aktiv markiert, bis der verifizierte Teamstatus wieder verfügbar ist."
+  "The complete registry remains available. No specialist is marked as active until the verified team state returns.": "Das vollständige Register bleibt verfügbar. Kein Spezialist wird als aktiv markiert, bis der verifizierte Teamstatus wieder verfügbar ist.",
+  "Agent governance metadata": "Agenten-Governance-Metadaten",
+  "Surface": "Ansicht",
+  "Capabilities": "Fähigkeiten",
+  "Required tools": "Erforderliche Tools",
+  "Spend boundary": "Ausgabengrenze",
+  "Prepaid ad spend only": "Nur vorausbezahlte Werbeausgaben",
+  "No spend authority": "Keine Ausgabeberechtigung"
 }

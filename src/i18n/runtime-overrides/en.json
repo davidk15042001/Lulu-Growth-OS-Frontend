@@ -1177,5 +1177,12 @@
   "Zustellstatus filtern": "Filter delivery status",
   "geladen": "loaded",
   "Weitere Zustellungen sind verfügbar.": "More deliveries are available.",
-  "Weitere laden": "Load more"
+  "Weitere laden": "Load more",
+  "Agent governance metadata": "Agent governance metadata",
+  "Surface": "Surface",
+  "Capabilities": "Capabilities",
+  "Required tools": "Required tools",
+  "Spend boundary": "Spend boundary",
+  "Prepaid ad spend only": "Prepaid ad spend only",
+  "No spend authority": "No spend authority"
 }

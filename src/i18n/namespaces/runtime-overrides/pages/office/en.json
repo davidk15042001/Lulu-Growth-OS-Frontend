@@ -514,5 +514,12 @@
   "degraded": "degraded",
   "Live team selection is temporarily unavailable.": "Live team selection is temporarily unavailable.",
   "The complete registry remains available. No specialist is marked as active until the verified team state returns.": "The complete registry remains available. No specialist is marked as active until the verified team state returns.",
-  "Execution paused": "Execution paused"
+  "Execution paused": "Execution paused",
+  "Agent governance metadata": "Agent governance metadata",
+  "Surface": "Surface",
+  "Capabilities": "Capabilities",
+  "Required tools": "Required tools",
+  "Spend boundary": "Spend boundary",
+  "Prepaid ad spend only": "Prepaid ad spend only",
+  "No spend authority": "No spend authority"
 }

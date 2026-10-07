@@ -660,8 +660,18 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
   const fullWorkspacePath = source.pageId && isPageNavigable(source.pageId)
     ? pagePath(source.pageId)
     : NATIVE_WORKSPACE_PATHS[kind] ?? null;
+  const requiredToolCount = catalogAgent ? catalogAgent.requiredTools.length : null;
+  const spendBoundary = catalogAgent?.spendPermission === "prepaid_ad_spend_only"
+    ? t("Prepaid ad spend only")
+    : t("No spend authority");
   return <section className="lulu-native-agent" aria-label={`${t(source.name)} ${t("native workspace")}`.trim()}>
     <header className="lulu-native-agent__header"><span className="lulu-native-agent__header-icon"><Icon size={17} /></span><div><span className="lulu-native-agent__eyebrow">{t(definition.label)}</span><h3>{t(source.name)}</h3><p>{t(definition.description)}</p></div><span className={`lulu-native-agent__live ${isCatalogPreview ? "is-preview" : "is-surface"}`}><i />{t(isCatalogPreview ? "Workspace context" : "Native workspace")}</span>{fullWorkspacePath ? <a className="lulu-native-agent__workspace-link" href={fullWorkspacePath} target="_top"><ArrowUpRight aria-hidden="true" size={14} />{t("Open full workspace")}</a> : null}</header>
+    <div className="lulu-native-agent__meta" aria-label={t("Agent governance metadata")}>
+      <div><span>{t("Surface")}</span><strong>{t(isCatalogPreview ? "Workspace context" : "Native workspace")}</strong></div>
+      <div><span>{t("Capabilities")}</span><strong>{source.capabilities.length || "—"}</strong></div>
+      <div><span>{t("Required tools")}</span><strong>{requiredToolCount ?? "—"}</strong></div>
+      <div><span>{t("Spend boundary")}</span><strong>{spendBoundary}</strong></div>
+    </div>
     <div className="lulu-native-agent__content">
       {kind === "crm" ? <CrmSurface workspaceId={workspaceId} /> : null}
       {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} canManage={canManageOmnichannel} canReply={canReplyOmnichannel} /> : null}

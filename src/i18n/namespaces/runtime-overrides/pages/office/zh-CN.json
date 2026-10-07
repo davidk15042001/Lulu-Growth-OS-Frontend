@@ -843,5 +843,12 @@
   "No executive intelligence is available yet.": "暂时没有可用的公司智能数据。",
   "degraded": "受限",
   "Live team selection is temporarily unavailable.": "实时团队选择暂时不可用。",
-  "The complete registry remains available. No specialist is marked as active until the verified team state returns.": "完整注册表仍然可用。在经过验证的团队状态恢复之前，不会将任何专员标记为活跃。"
+  "The complete registry remains available. No specialist is marked as active until the verified team state returns.": "完整注册表仍然可用。在经过验证的团队状态恢复之前，不会将任何专员标记为活跃。",
+  "Agent governance metadata": "智能体治理元数据",
+  "Surface": "界面",
+  "Capabilities": "能力",
+  "Required tools": "所需工具",
+  "Spend boundary": "支出权限",
+  "Prepaid ad spend only": "仅限预付广告支出",
+  "No spend authority": "无支出权限"
 }

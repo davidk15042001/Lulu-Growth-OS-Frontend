@@ -174,5 +174,12 @@
   "selected now": "aktuell ausgewählt",
   "Specialists": "Spezialisten",
   "specialists +": "Spezialisten +",
-  "system agents": "Systemagenten"
+  "system agents": "Systemagenten",
+  "Agent governance metadata": "Agenten-Governance-Metadaten",
+  "Surface": "Ansicht",
+  "Capabilities": "Fähigkeiten",
+  "Required tools": "Erforderliche Tools",
+  "Spend boundary": "Ausgabengrenze",
+  "Prepaid ad spend only": "Nur vorausbezahlte Werbeausgaben",
+  "No spend authority": "Keine Ausgabeberechtigung"
 }

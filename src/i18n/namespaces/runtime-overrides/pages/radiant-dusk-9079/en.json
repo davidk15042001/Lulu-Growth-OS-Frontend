@@ -12,5 +12,12 @@
   "Agenten-Ökosystem wird geladen …": "Loading agent ecosystem …",
   "Das Agenten-Ökosystem konnte nicht geladen werden.": "The agent ecosystem could not be loaded.",
   "Kein Workspace ausgewählt.": "No workspace selected.",
-  "Lulu stellt für jede Situation automatisch das kleinste wirksame Team zusammen.": "Lulu automatically assembles the smallest effective team for every situation."
+  "Lulu stellt für jede Situation automatisch das kleinste wirksame Team zusammen.": "Lulu automatically assembles the smallest effective team for every situation.",
+  "Agent governance metadata": "Agent governance metadata",
+  "Surface": "Surface",
+  "Capabilities": "Capabilities",
+  "Required tools": "Required tools",
+  "Spend boundary": "Spend boundary",
+  "Prepaid ad spend only": "Prepaid ad spend only",
+  "No spend authority": "No spend authority"
 }
