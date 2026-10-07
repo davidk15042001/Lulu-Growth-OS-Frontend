@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
-import { CalendarDays, Check, CircleAlert, Copy, Link2, LoaderCircle, MapPin, Plus, PlugZap, Search, Settings2, Video, X } from 'lucide-react';
+import { CalendarDays, Check, CircleAlert, Copy, Link2, LoaderCircle, MapPin, Pencil, Plus, PlugZap, Search, Settings2, Video, X } from 'lucide-react';
 import { calendarApi, type CalendarDeliveryCandidate, type CalendarDeliveryTarget, type CalendarDeliveryTargetInput, type NativeCalendarEvent } from '../../../../api/calendar';
 import { composioApi, type ComposioIntegrationTeam } from '../../../../api/composio';
 import { listRecords, type WorkspaceRecord } from '../../../../api/records';
@@ -20,6 +20,12 @@ function dayLabel(value: string, language: string) {
 }
 function dayKey(value: string) { const date = new Date(value); return Number.isFinite(date.getTime()) ? date.toISOString().slice(0, 10) : value; }
 function localDateTimeToIso(value: string) { const date = new Date(value); return Number.isFinite(date.getTime()) ? date.toISOString() : ''; }
+function isoToLocalDateTime(value: string) {
+  const date = new Date(value);
+  if (!Number.isFinite(date.getTime())) return '';
+  const pad = (item: number) => String(item).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
 function absoluteGuestLink(value: string) {
   try { return new URL(value, window.location.origin).toString(); } catch { return value; }
 }
@@ -93,6 +99,7 @@ export default function CalendarPortal() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [showCreate, setShowCreate] = useState(false);
+  const [rescheduleEvent, setRescheduleEvent] = useState<NativeCalendarEvent | null>(null);
   const [createdLink, setCreatedLink] = useState<string | null>(null);
   const [deliveryTargets, setDeliveryTargets] = useState<CalendarDeliveryTarget[]>([]);
   const [deliveryLoading, setDeliveryLoading] = useState(true);
@@ -156,6 +163,17 @@ export default function CalendarPortal() {
     catch (cause) { setError(getFriendlyErrorMessage(cause, t('The guest link could not be created.'))); }
     finally { setActionBusy(false); }
   }
+  async function saveReschedule(event: NativeCalendarEvent, startAt: string, endAt: string, timezone: string) {
+    if (!workspaceId) return;
+    setActionBusy(true); setError(null);
+    try {
+      const result = await calendarApi.updateNativeEvent(workspaceId, event.id, { startAt, endAt, timezone });
+      setEvents((current) => current.map((item) => item.id === event.id ? { ...item, ...result.data } : item).sort((left, right) => left.startAt.localeCompare(right.startAt)));
+      setRescheduleEvent(null);
+      setNotice(t('Appointment rescheduled.'));
+    } catch (cause) { setError(getFriendlyErrorMessage(cause, t('The appointment could not be rescheduled.'))); }
+    finally { setActionBusy(false); }
+  }
   if (appLoading || busy) return <main className="calendar-page calendar-page--center" role="status"><LoaderCircle className="spin" /><p>{t('Loading calendar…')}</p></main>;
   if (!workspaceId) return <main className="calendar-page calendar-page--center"><CircleAlert /><h1>{t('No workspace selected')}</h1><p>{t('Select a workspace before opening the calendar.')}</p></main>;
   return <main className="calendar-page">
@@ -166,8 +184,9 @@ export default function CalendarPortal() {
     <section className="calendar-kpis calendar-kpis--modern"><article><span>{t('Upcoming appointments')}</span><strong>{events.filter((event) => event.status === 'scheduled' && new Date(event.endAt).getTime() >= Date.now()).length}</strong></article><article><span>{t('This week')}</span><strong>{events.filter((event) => { const at = new Date(event.startAt).getTime(); return at >= Date.now() && at < Date.now() + 7 * 86400000; }).length}</strong></article><article><span>{t('Calendar destinations')}</span><strong>{deliveryLoading ? '—' : deliveryTargets.filter((target) => target.enabled).length}</strong></article></section>
     {showDeliverySettings && <CalendarDeliverySettings workspaceId={workspaceId} canEdit={permissions.canEdit} loading={deliveryLoading} targets={deliveryTargets} onClose={() => setShowDeliverySettings(false)} onSaved={(target) => { setDeliveryTargets((current) => { const index = current.findIndex((item) => item.id === target.id); return index < 0 ? [target, ...current] : current.map((item) => item.id === target.id ? target : item); }); setNotice(target.enabled ? t('Calendar destination saved.') : t('Calendar destination saved as paused.')); }} onError={setError} />}
     <section className="calendar-toolbar"><label className="calendar-search"><Search size={16} /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={t('Search appointments')} /></label></section>
-    <section className="calendar-timeline calendar-timeline--native">{!events.length && <div className="calendar-empty-state"><CalendarDays size={30} /><h2>{t('No appointments yet')}</h2><p>{t('Create your first appointment to start a customer meeting.')}</p>{permissions.canEdit && <button type="button" className="calendar-button" onClick={() => setShowCreate(true)}><Plus size={16} />{t('Create appointment')}</button>}</div>}{groupedEvents.map((group) => <article key={group.key} className="calendar-day"><header><h2>{group.label}</h2><span>{group.items.length} {t('appointments')}</span></header><div className="calendar-event-list">{group.items.map((event) => <div key={event.id} className={`calendar-event calendar-event--native status-${event.status}`}><div className="calendar-event__time"><strong>{dateLabel(event.startAt, language, { weekday: undefined })}</strong><span>{dateLabel(event.endAt, language, { weekday: undefined, day: undefined, month: undefined, year: undefined })}</span></div><div className="calendar-event__content"><div><h3>{event.title}</h3>{event.customerName && <p>{t('Customer')}: {event.customerName}</p>}{event.description && <p>{event.description}</p>}</div><div className="calendar-event__meta"><span><Video size={14} />{t('Agora meeting')}</span>{event.location && <span><MapPin size={14} />{event.location}</span>}<span>{event.timezone}</span></div>{event.status === 'scheduled' ? <div className="calendar-event__actions">{event.guestJoinPath ? <button type="button" onClick={() => { void navigator.clipboard?.writeText(event.guestJoinPath!); setCreatedLink(event.guestJoinPath); setNotice(t('Link copied.')); }}><Link2 size={14} />{t('Copy guest link')}</button> : <button type="button" disabled={actionBusy} onClick={() => void createGuestLink(event)}><Link2 size={14} />{t('Create guest link')}</button>}<button type="button" disabled={actionBusy} className="danger" onClick={() => void removeEvent(event)}><X size={14} />{t('Cancel')}</button></div> : <p className="calendar-event__delivery-note">{hasActiveCalendarDeliveryTarget ? t('Cancelled in Lulu and queued for selected external calendars.') : t('Cancelled in Lulu.')}</p>}</div></div>)}</div></article>)}</section>
+    <section className="calendar-timeline calendar-timeline--native">{!events.length && <div className="calendar-empty-state"><CalendarDays size={30} /><h2>{t('No appointments yet')}</h2><p>{t('Create your first appointment to start a customer meeting.')}</p>{permissions.canEdit && <button type="button" className="calendar-button" onClick={() => setShowCreate(true)}><Plus size={16} />{t('Create appointment')}</button>}</div>}{groupedEvents.map((group) => <article key={group.key} className="calendar-day"><header><h2>{group.label}</h2><span>{group.items.length} {t('appointments')}</span></header><div className="calendar-event-list">{group.items.map((event) => <div key={event.id} className={`calendar-event calendar-event--native status-${event.status}`}><div className="calendar-event__time"><strong>{dateLabel(event.startAt, language, { weekday: undefined })}</strong><span>{dateLabel(event.endAt, language, { weekday: undefined, day: undefined, month: undefined, year: undefined })}</span></div><div className="calendar-event__content"><div><h3>{event.title}</h3>{event.customerName && <p>{t('Customer')}: {event.customerName}</p>}{event.description && <p>{event.description}</p>}</div><div className="calendar-event__meta"><span><Video size={14} />{t('Agora meeting')}</span>{event.location && <span><MapPin size={14} />{event.location}</span>}<span>{event.timezone}</span></div>{event.status === 'scheduled' ? <div className="calendar-event__actions">{event.guestJoinPath ? <button type="button" onClick={() => { void navigator.clipboard?.writeText(event.guestJoinPath!); setCreatedLink(event.guestJoinPath); setNotice(t('Link copied.')); }}><Link2 size={14} />{t('Copy guest link')}</button> : <button type="button" disabled={actionBusy} onClick={() => void createGuestLink(event)}><Link2 size={14} />{t('Create guest link')}</button>}<button type="button" disabled={actionBusy} onClick={() => setRescheduleEvent(event)}><Pencil size={14} />{t('Reschedule')}</button><button type="button" disabled={actionBusy} className="danger" onClick={() => void removeEvent(event)}><X size={14} />{t('Cancel')}</button></div> : <p className="calendar-event__delivery-note">{hasActiveCalendarDeliveryTarget ? t('Cancelled in Lulu and queued for selected external calendars.') : t('Cancelled in Lulu.')}</p>}</div></div>)}</div></article>)}</section>
     {showCreate && <CreateEventDialog workspaceId={workspaceId} customers={customers} busy={actionBusy} onClose={() => setShowCreate(false)} onError={setError} onCreated={(event, link) => { setEvents((current) => [...current, event].sort((a, b) => a.startAt.localeCompare(b.startAt))); setCreatedLink(link); setShowCreate(false); setNotice(t('Appointment created.')); }} />}
+    {rescheduleEvent && <RescheduleEventDialog event={rescheduleEvent} busy={actionBusy} onClose={() => setRescheduleEvent(null)} onError={setError} onSave={(startAt, endAt, timezone) => saveReschedule(rescheduleEvent, startAt, endAt, timezone)} />}
   </main>;
 }
 
@@ -186,6 +205,29 @@ function CreateEventDialog({ workspaceId, customers, busy, onClose, onError, onC
     finally { setSaving(false); }
   }
   return createPortal(<div className="calendar-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !saving) onClose(); }}><section ref={dialogRef} className="calendar-dialog calendar-dialog--modern" role="dialog" aria-modal="true" aria-labelledby="calendar-create-title"><header><div><p className="calendar-eyebrow">Lulu / Agora RTC</p><h2 id="calendar-create-title">{t('Create appointment')}</h2><p>{t('Customers join through a secure link without an account.')}</p></div><button type="button" onClick={onClose} disabled={saving} aria-label={t('Close')}><X /></button></header><div className="calendar-form-grid"><label className="wide">{t('Customer (optional)')}<select value={customerId} onChange={(event) => setCustomerId(event.target.value)}><option value="">{t('No customer selected')}</option>{customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.name}</option>)}</select></label><label className="wide">{t('Title')}<input ref={titleInputRef} value={title} onChange={(event) => setTitle(event.target.value)} placeholder={t('Product consultation')} /></label><label className="wide">{t('Date and time')}<input type="datetime-local" value={startAt} onChange={(event) => setStartAt(event.target.value)} /></label><label>{t('Duration')}<select value={duration} onChange={(event) => setDuration(event.target.value)}><option value="15">15 {t('minutes')}</option><option value="30">30 {t('minutes')}</option><option value="60">60 {t('minutes')}</option><option value="120">2 {t('hours')}</option></select></label><label>{t('Location (optional)')}<input value={location} onChange={(event) => setLocation(event.target.value)} placeholder={t('Agora video meeting')} /></label><label className="wide">{t('Description (optional)')}<textarea rows={3} value={description} onChange={(event) => setDescription(event.target.value)} /></label></div><footer><button type="button" className="calendar-button calendar-button--secondary" onClick={onClose} disabled={saving}>{t('Cancel')}</button><button type="button" className="calendar-button" disabled={busy || saving} onClick={() => void submit()}>{saving ? <LoaderCircle className="spin" size={16} /> : <Plus size={16} />}{t('Create appointment')}</button></footer></section></div>, document.body);
+}
+
+function RescheduleEventDialog({ event, busy, onClose, onError, onSave }: { event: NativeCalendarEvent; busy: boolean; onClose: () => void; onError: (value: string) => void; onSave: (startAt: string, endAt: string, timezone: string) => Promise<void> }) {
+  const t = useTranslation();
+  const [startAt, setStartAt] = useState(() => isoToLocalDateTime(event.startAt));
+  const [endAt, setEndAt] = useState(() => isoToLocalDateTime(event.endAt));
+  const [timezone, setTimezone] = useState(event.timezone);
+  const [saving, setSaving] = useState(false);
+  const dialogRef = useRef<HTMLElement | null>(null);
+  const startInputRef = useRef<HTMLInputElement | null>(null);
+  useCalendarDialogA11y(dialogRef, startInputRef, onClose, saving);
+  async function submit() {
+    const nextStart = localDateTimeToIso(startAt);
+    const nextEnd = localDateTimeToIso(endAt);
+    if (!nextStart || !nextEnd || new Date(nextEnd).getTime() <= new Date(nextStart).getTime()) {
+      onError(t('The end time must be after the start time.'));
+      return;
+    }
+    setSaving(true);
+    try { await onSave(nextStart, nextEnd, timezone.trim() || Intl.DateTimeFormat().resolvedOptions().timeZone); }
+    finally { setSaving(false); }
+  }
+  return createPortal(<div className="calendar-modal-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !saving) onClose(); }}><section ref={dialogRef} className="calendar-dialog calendar-dialog--modern" role="dialog" aria-modal="true" aria-labelledby="calendar-reschedule-title"><header><div><p className="calendar-eyebrow">Lulu / Composio</p><h2 id="calendar-reschedule-title">{t('Reschedule appointment')}</h2><p>{t('The canonical appointment and every active external calendar will be updated together.')}</p></div><button type="button" onClick={onClose} disabled={saving} aria-label={t('Close')}><X /></button></header><div className="calendar-form-grid"><label className="wide">{t('Appointment')}<input value={event.title} readOnly /></label><label>{t('Start date and time')}<input ref={startInputRef} type="datetime-local" value={startAt} onChange={(inputEvent) => setStartAt(inputEvent.target.value)} /></label><label>{t('End date and time')}<input type="datetime-local" value={endAt} onChange={(inputEvent) => setEndAt(inputEvent.target.value)} /></label><label className="wide">{t('Time zone')}<input value={timezone} onChange={(inputEvent) => setTimezone(inputEvent.target.value)} placeholder="Europe/Berlin" /></label></div><footer><button type="button" className="calendar-button calendar-button--secondary" onClick={onClose} disabled={saving}>{t('Keep time')}</button><button type="button" className="calendar-button" disabled={busy || saving} onClick={() => void submit()}>{saving ? <LoaderCircle className="spin" size={16} /> : <Pencil size={16} />}{t('Save new time')}</button></footer></section></div>, document.body);
 }
 
 const defaultCreateArguments = JSON.stringify({
