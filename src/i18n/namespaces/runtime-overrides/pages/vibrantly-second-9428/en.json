@@ -1,3 +1,9 @@
 {
-  "Status": "status"
+  "Status": "status",
+  "Scheduled automations must run every 15 minutes to 24 hours.": "Scheduled automations must run every 15 minutes to 24 hours.",
+  "schedule": "schedule",
+  "Run every 15 minutes–24 hours": "Run every 15 minutes–24 hours",
+  "The cadence is stored with the rule so the backend can evaluate it deterministically.": "The cadence is stored with the rule so the backend can evaluate it deterministically.",
+  "Every {{0}}h": "Every {{0}}h",
+  "Every {{0}}m": "Every {{0}}m"
 }

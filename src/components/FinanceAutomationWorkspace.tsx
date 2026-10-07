@@ -14,7 +14,13 @@ function stepLabel(step: FinanceAutomationStep | undefined) {
 
 function triggerLabel(trigger: FinanceAutomationStep | undefined) {
   if (!trigger) return 'Manual';
-  if (trigger.type === 'schedule') return String(trigger.config.label ?? trigger.config.cron ?? 'Scheduled');
+  if (trigger.type === 'schedule') {
+    const intervalMinutes = Number(trigger.config.intervalMinutes);
+    if (Number.isInteger(intervalMinutes) && intervalMinutes > 0) {
+      return `Every ${intervalMinutes >= 60 ? `${intervalMinutes / 60}h` : `${intervalMinutes}m`}`;
+    }
+    return String(trigger.config.label ?? trigger.config.cron ?? 'Scheduled');
+  }
   return trigger.type.replaceAll('_', ' ');
 }
 
@@ -39,6 +45,7 @@ export function FinanceAutomationWorkspace() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [trigger, setTrigger] = useState('manual');
+  const [scheduleIntervalMinutes, setScheduleIntervalMinutes] = useState('60');
   const [jobText, setJobText] = useState('');
   const [saving, setSaving] = useState(false);
   const [archiveTarget, setArchiveTarget] = useState<FinanceAutomation | null>(null);
@@ -77,6 +84,7 @@ export function FinanceAutomationWorkspace() {
     setName('');
     setDescription('');
     setTrigger('manual');
+    setScheduleIntervalMinutes('60');
     setJobText('');
   };
 
@@ -86,13 +94,18 @@ export function FinanceAutomationWorkspace() {
       setError('Give the automation a name and add at least one action.');
       return;
     }
+    const intervalMinutes = Number(scheduleIntervalMinutes);
+    if (trigger === 'schedule' && (!Number.isInteger(intervalMinutes) || intervalMinutes < 15 || intervalMinutes > 1_440)) {
+      setError('Scheduled automations must run every 15 minutes to 24 hours.');
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
       await createFinanceAutomation({
         name: name.trim(),
         description: description.trim() || null,
-        trigger: { type: trigger, config: {} },
+        trigger: { type: trigger, config: trigger === 'schedule' ? { intervalMinutes } : {} },
         actions,
         enabled: true,
       });
@@ -180,7 +193,7 @@ export function FinanceAutomationWorkspace() {
       <p className="mt-5 flex items-center gap-2 text-xs leading-5 text-muted-foreground"><ShieldCheck size={14} className="shrink-0 text-primary" />Rules are tenant-scoped and versioned. Validation confirms configuration; it does not pretend that provider or accounting side effects already happened.</p>
     </div>
 
-    {modalOpen ? <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="new-automation-title"><div className="w-full max-w-xl rounded-3xl border border-border bg-card p-6 shadow-2xl sm:p-8"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Finance control</p><h2 id="new-automation-title" className="mt-2 text-xl font-semibold">Create automation</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Describe one trigger and the bounded jobs it should prepare. One job per line.</p></div><button type="button" onClick={closeModal} className="grid h-9 w-9 place-items-center rounded-xl border border-border text-muted-foreground hover:text-foreground" aria-label="Close dialog"><X size={16} /></button></div><label className="mt-6 block text-sm font-medium">Name<input autoFocus value={name} onChange={(event) => setName(event.target.value)} className={inputClass} placeholder="Overdue invoice follow-up" /></label><label className="mt-4 block text-sm font-medium">Description<textarea value={description} onChange={(event) => setDescription(event.target.value)} className={`${inputClass} min-h-24 py-3`} placeholder="What should this rule achieve?" /></label><label className="mt-4 block text-sm font-medium">Trigger<select value={trigger} onChange={(event) => setTrigger(event.target.value)} className={inputClass}><option value="manual">Manual / assistant request</option><option value="invoice_overdue">Invoice becomes overdue</option><option value="invoice_created">Invoice is created</option><option value="payment_received">Payment is received</option><option value="schedule">Scheduled trigger</option></select></label><label className="mt-4 block text-sm font-medium">Actions<textarea value={jobText} onChange={(event) => setJobText(event.target.value)} className={`${inputClass} min-h-28 py-3`} placeholder={'Review overdue balance\nPrepare a follow-up task'} /></label><div className="mt-7 flex justify-end gap-2"><button type="button" onClick={closeModal} className="rounded-xl border border-border px-4 py-2.5 text-sm font-semibold">Cancel</button><button type="button" onClick={() => void save()} disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50">{saving ? <LoaderCircle size={15} className="animate-spin" /> : <Plus size={15} />} Save automation</button></div></div></div> : null}
+    {modalOpen ? <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="new-automation-title"><div className="w-full max-w-xl rounded-3xl border border-border bg-card p-6 shadow-2xl sm:p-8"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Finance control</p><h2 id="new-automation-title" className="mt-2 text-xl font-semibold">Create automation</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Describe one trigger and the bounded jobs it should prepare. One job per line.</p></div><button type="button" onClick={closeModal} className="grid h-9 w-9 place-items-center rounded-xl border border-border text-muted-foreground hover:text-foreground" aria-label="Close dialog"><X size={16} /></button></div><label className="mt-6 block text-sm font-medium">Name<input autoFocus value={name} onChange={(event) => setName(event.target.value)} className={inputClass} placeholder="Overdue invoice follow-up" /></label><label className="mt-4 block text-sm font-medium">Description<textarea value={description} onChange={(event) => setDescription(event.target.value)} className={`${inputClass} min-h-24 py-3`} placeholder="What should this rule achieve?" /></label><label className="mt-4 block text-sm font-medium">Trigger<select value={trigger} onChange={(event) => setTrigger(event.target.value)} className={inputClass}><option value="manual">Manual / assistant request</option><option value="invoice_overdue">Invoice becomes overdue</option><option value="invoice_created">Invoice is created</option><option value="payment_received">Payment is received</option><option value="schedule">Scheduled trigger</option></select></label>{trigger === 'schedule' ? <label className="mt-4 block text-sm font-medium">Run every 15 minutes–24 hours<input type="number" min="15" max="1440" step="15" value={scheduleIntervalMinutes} onChange={(event) => setScheduleIntervalMinutes(event.target.value)} className={inputClass} /><span className="mt-1 block text-xs font-normal text-muted-foreground">The cadence is stored with the rule so the backend can evaluate it deterministically.</span></label> : null}<label className="mt-4 block text-sm font-medium">Actions<textarea value={jobText} onChange={(event) => setJobText(event.target.value)} className={`${inputClass} min-h-28 py-3`} placeholder={'Review overdue balance\nPrepare a follow-up task'} /></label><div className="mt-7 flex justify-end gap-2"><button type="button" onClick={closeModal} className="rounded-xl border border-border px-4 py-2.5 text-sm font-semibold">Cancel</button><button type="button" onClick={() => void save()} disabled={saving} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50">{saving ? <LoaderCircle size={15} className="animate-spin" /> : <Plus size={15} />} Save automation</button></div></div></div> : null}
     {archiveTarget ? <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="archive-automation-title"><div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-2xl"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.15em] text-primary">Finance control</p><h2 id="archive-automation-title" className="mt-2 text-xl font-semibold">Archive</h2><p className="mt-3 text-sm leading-6 text-foreground">{archiveTarget.name}</p></div><button type="button" onClick={() => setArchiveTarget(null)} className="grid h-9 w-9 place-items-center rounded-xl border border-border text-muted-foreground hover:text-foreground" aria-label="Close dialog"><X size={16} /></button></div><div className="mt-6 flex justify-end gap-2"><button type="button" onClick={() => setArchiveTarget(null)} className="rounded-xl border border-border px-4 py-2.5 text-sm font-semibold">Cancel</button><button type="button" onClick={() => void archive()} className="inline-flex items-center gap-2 rounded-xl bg-destructive px-4 py-2.5 text-sm font-semibold text-destructive-foreground"><Archive size={15} /> Archive</button></div></div></div> : null}
   </main></WorkspaceSurfaceShell>;
 }

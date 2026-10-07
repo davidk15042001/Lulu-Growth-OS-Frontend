@@ -22145,5 +22145,11 @@
   "Payment is received": "已收到付款",
   "Scheduled trigger": "计划触发器",
   "Review overdue balance Prepare a follow-up task": "检查逾期余额 准备跟进任务",
-  "Save automation": "保存自动化规则"
+  "Save automation": "保存自动化规则",
+  "Scheduled automations must run every 15 minutes to 24 hours.": "计划自动化必须每 15 分钟至 24 小时运行一次。",
+  "schedule": "计划",
+  "Run every 15 minutes–24 hours": "每 15 分钟至 24 小时运行",
+  "The cadence is stored with the rule so the backend can evaluate it deterministically.": "该运行节奏会与规则一起保存，以便后端进行确定性评估。",
+  "Every {{0}}h": "每 {{0}} 小时",
+  "Every {{0}}m": "每 {{0}} 分钟"
 }

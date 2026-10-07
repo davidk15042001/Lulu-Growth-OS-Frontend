@@ -193,5 +193,11 @@
   "Autonomy Boundary": "自治边界",
   "Financial automations execute autonomously inside system permissions and audit policies. Only adding paid-media budget requires customer authorization.": "财务自动化在系统权限和审计策略内自主执行。仅添加付费媒体预算需要客户授权。",
   "Human Approvals": "人类的认可",
-  "Run repetitive financial processes autonomously with deterministic controls and complete audit trails.": "通过确定性控制和完整的审计跟踪自主运行重复的财务流程。"
+  "Run repetitive financial processes autonomously with deterministic controls and complete audit trails.": "通过确定性控制和完整的审计跟踪自主运行重复的财务流程。",
+  "Scheduled automations must run every 15 minutes to 24 hours.": "计划自动化必须每 15 分钟至 24 小时运行一次。",
+  "schedule": "计划",
+  "Run every 15 minutes–24 hours": "每 15 分钟至 24 小时运行",
+  "The cadence is stored with the rule so the backend can evaluate it deterministically.": "该运行节奏会与规则一起保存，以便后端进行确定性评估。",
+  "Every {{0}}h": "每 {{0}} 小时",
+  "Every {{0}}m": "每 {{0}} 分钟"
 }
