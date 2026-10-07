@@ -17,6 +17,7 @@ env:
   AWS_REGION: eu-central-1
   FRONTEND_DOMAIN: https://lulu-ai.tech
   API_BASE_URL: https://api.lulu-ai.tech/api/v1
+  BACKEND_REPOSITORY: luluaicn/Business-Backend
 
 jobs:
   deploy:
@@ -51,6 +52,29 @@ jobs:
           npm run check
           test -d dist
           grep -R "api.lulu-ai.tech/api/v1" dist/assets >/dev/null
+
+      - name: Auf den gepaarten Backend-Commit warten
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 48); do
+            expected_backend_sha="$(curl --fail --silent --show-error --retry 3 --retry-all-errors \
+              "https://api.github.com/repos/$BACKEND_REPOSITORY/commits/main" \
+              -H 'Accept: application/vnd.github+json' \
+              | jq -r '.sha // empty')"
+            running_backend_sha="$(curl --fail --silent --show-error --retry 3 --retry-all-errors \
+              "$API_BASE_URL/version" \
+              | jq -r '.data.commitSha // empty')"
+            if printf '%s' "$expected_backend_sha" | grep -Eq '^[a-fA-F0-9]{40}$' \
+              && printf '%s' "$running_backend_sha" | grep -Eq '^[a-fA-F0-9]{40}$' \
+              && [ "$expected_backend_sha" = "$running_backend_sha" ]; then
+              echo "Backend $running_backend_sha is live and matches main."
+              exit 0
+            fi
+            echo "Waiting for backend main to become live (attempt $attempt/48; expected ${expected_backend_sha:-unknown}, running ${running_backend_sha:-unknown})."
+            sleep 20
+          done
+          echo 'The deployed API did not catch up with the backend main commit before the frontend release window expired.' >&2
+          exit 1
 
       - name: Öffentliches Release-Manifest erzeugen
         run: |
