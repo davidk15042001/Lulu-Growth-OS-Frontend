@@ -1,11 +1,12 @@
-import { Link2, Search } from "lucide-react";
+import { ChevronDown, ChevronUp, Link2, LoaderCircle, Search, Wrench } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import { getFriendlyErrorMessage } from "../api/client";
-import { composioApi, type ComposioIntegrationTeam, type ComposioToolkit } from "../api/composio";
+import { composioApi, type ComposioIntegrationTeam, type ComposioTool, type ComposioToolkit } from "../api/composio";
 import { LiveEmpty, LiveSection } from "../api/live-panel-ui";
 import { useTranslation } from "../i18n/GlobalLanguageSwitcher";
 
 type PendingConnection = { toolkit: string; connectionId: string; startedAt: string };
+type TeamToolsState = { status: "loading" | "ready" | "error"; items: ComposioTool[]; total: number; truncated: boolean; error?: string };
 
 function teamStatusLabel(status: string, t: (key: string) => string) {
   const labels: Record<string, string> = {
@@ -73,6 +74,8 @@ export function ComposioCatalog({ workspaceId, canConnect = false, canManageTeam
   const [notice, setNotice] = useState("");
   const [pendingConnection, setPendingConnection] = useState<PendingConnection | null>(null);
   const [busyToolkit, setBusyToolkit] = useState<string | null>(null);
+  const [expandedTeamId, setExpandedTeamId] = useState<string | null>(null);
+  const [teamTools, setTeamTools] = useState<Record<string, TeamToolsState>>({});
   const pendingPopupRef = useRef<{ pending: PendingConnection; pollTimer: number; timeoutTimer: number } | null>(null);
   const settlingConnectionRef = useRef<string | null>(null);
 
@@ -112,6 +115,32 @@ export function ComposioCatalog({ workspaceId, canConnect = false, canManageTeam
 
   useEffect(() => { void loadToolkits("", null); }, [loadToolkits]);
   useEffect(() => { void loadTeams(); }, [loadTeams]);
+  useEffect(() => { setExpandedTeamId(null); setTeamTools({}); }, [workspaceId]);
+
+  async function toggleTeamTools(team: ComposioIntegrationTeam) {
+    if (expandedTeamId === team.id) {
+      setExpandedTeamId(null);
+      return;
+    }
+    setExpandedTeamId(team.id);
+    const existing = teamTools[team.id];
+    if (existing?.status === "ready" || existing?.status === "loading") return;
+    setTeamTools((current) => ({ ...current, [team.id]: { status: "loading", items: [], total: 0, truncated: false } }));
+    try {
+      const response = await composioApi.tools(workspaceId, team.composioToolkit);
+      setTeamTools((current) => ({
+        ...current,
+        [team.id]: {
+          status: "ready",
+          items: response.data.items.slice(0, 16),
+          total: response.data.total,
+          truncated: response.data.truncated || response.data.items.length > 16,
+        },
+      }));
+    } catch (cause) {
+      setTeamTools((current) => ({ ...current, [team.id]: { status: "error", items: [], total: 0, truncated: false, error: getFriendlyErrorMessage(cause, "Available Composio tools could not be loaded.") } }));
+    }
+  }
 
   async function submitSearch(event: FormEvent) {
     event.preventDefault();
@@ -184,13 +213,25 @@ export function ComposioCatalog({ workspaceId, canConnect = false, canManageTeam
 
   return <div className="lulu-composio-catalog">
     {teams.length > 0 && <LiveSection title={t("Integration teams")} action={<span className="lulu-live-message">{t("Every team is workspace-scoped and can be paused before external tool execution.")}</span>}>
-      {teams.map((team) => <article className="lulu-live-row" key={team.id}>
-        <div className="lulu-live-row-top"><div><strong>{team.teamName}</strong><span>{team.composioToolkit} · {team.mission}</span></div><span className={`lulu-live-badge ${team.status === "ACTIVE" ? "good" : ""}`}>{teamStatusLabel(team.status, t)}</span></div>
-        <small>{teamStatusDescription(team.status, t)}{team.lastProviderStatus ? ` · provider ${team.lastProviderStatus}` : ""}</small>
-        {canManageTeams && (team.status === "SUSPENDED" || isSuspendableTeamStatus(team.status)) ? <div className="lulu-live-actions" style={{ marginTop: 8 }}>
-          {team.status === "SUSPENDED" ? <button className="lulu-live-button" onClick={async () => { await composioApi.resumeTeam(workspaceId, team.id); await loadTeams(); }}>{t("Resume")}</button> : <button className="lulu-live-button danger" onClick={async () => { await composioApi.suspendTeam(workspaceId, team.id); await loadTeams(); }}>{t("Suspend")}</button>}
-        </div> : canManageTeams ? null : <p className="lulu-live-message" style={{ marginTop: 8 }}>{t("Your workspace role can view this team, but cannot pause or resume external execution.")}</p>}
-      </article>)}
+      {teams.map((team) => {
+        const tools = teamTools[team.id];
+        const expanded = expandedTeamId === team.id;
+        return <article className="lulu-live-row" key={team.id}>
+          <div className="lulu-live-row-top"><div><strong>{team.teamName}</strong><span>{team.composioToolkit} · {team.mission}</span></div><span className={`lulu-live-badge ${team.status === "ACTIVE" ? "good" : ""}`}>{teamStatusLabel(team.status, t)}</span></div>
+          <small>{teamStatusDescription(team.status, t)}{team.lastProviderStatus ? ` · provider ${team.lastProviderStatus}` : ""}</small>
+          <div className="lulu-live-actions" style={{ marginTop: 8 }}>
+            <button className="lulu-live-button" type="button" disabled={tools?.status === "loading"} onClick={() => void toggleTeamTools(team)}><Wrench size={14} />{expanded ? <><ChevronUp size={14} />{t("Hide available tools")}</> : <><ChevronDown size={14} />{t("Inspect available tools")}</>}</button>
+            {canManageTeams && (team.status === "SUSPENDED" || isSuspendableTeamStatus(team.status)) ? team.status === "SUSPENDED" ? <button className="lulu-live-button" type="button" onClick={async () => { await composioApi.resumeTeam(workspaceId, team.id); await loadTeams(); }}>{t("Resume")}</button> : <button className="lulu-live-button danger" type="button" onClick={async () => { await composioApi.suspendTeam(workspaceId, team.id); await loadTeams(); }}>{t("Suspend")}</button> : null}
+          </div>
+          {!canManageTeams ? <p className="lulu-live-message" style={{ marginTop: 8 }}>{t("Your workspace role can view this team, but cannot pause or resume external execution.")}</p> : null}
+          {expanded ? <div className="lulu-composio-tool-inspector" style={{ marginTop: 12, borderTop: "1px solid var(--border)", paddingTop: 12 }}>
+            <div className="lulu-live-row-top"><div><strong>{t("Verified tool surface")}</strong><span>{team.allowedCapabilities.length ? team.allowedCapabilities.join(" · ") : t("No additional capabilities are declared")}</span></div><span className="lulu-live-badge">{tools?.status === "ready" ? `${tools.total} ${t("tools")}` : t("Loading")}</span></div>
+            {tools?.status === "loading" ? <p className="lulu-live-message" role="status"><LoaderCircle size={14} className="animate-spin" /> {t("Loading available tools…")}</p> : null}
+            {tools?.status === "error" ? <p className="lulu-live-error" role="alert">{tools.error}</p> : null}
+            {tools?.status === "ready" ? <>{tools.items.length ? <div className="lulu-composio-tool-list" style={{ display: "grid", gap: 8, marginTop: 10 }}>{tools.items.map((tool) => <div key={tool.slug} style={{ border: "1px solid var(--border)", borderRadius: 10, padding: "8px 10px" }}><strong style={{ display: "block", fontSize: 12 }}>{tool.name}</strong><span style={{ display: "block", marginTop: 2, fontSize: 11, color: "var(--muted-foreground)" }}>{tool.slug}</span>{tool.description ? <small style={{ display: "block", marginTop: 4 }}>{tool.description}</small> : null}</div>)}</div> : <p className="lulu-live-message">{t("No verified tools are available for this integration.")}</p>}{tools.truncated ? <p className="lulu-live-message" style={{ marginTop: 8 }}>{t("Only the first tools are shown here; execution remains restricted to the selected integration team.")}</p> : null}</> : null}
+          </div> : null}
+        </article>;
+      })}
     </LiveSection>}
     <LiveSection title={t("Available integrations")} action={<span className="lulu-live-message">{t("Tool calls are deducted automatically from the AI wallet. Platform admins with billing.bypass are exempt.")}</span>}>
     <p className="lulu-live-message">{t("Connect an approved app for this workspace. Technical tool details and provider credentials stay protected by Lulu.")}</p>

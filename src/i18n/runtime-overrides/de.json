@@ -7181,5 +7181,14 @@
   "Search revenue records": "Umsatzdatensätze durchsuchen",
   "No verified revenue records match this search.": "Keine verifizierten Umsatzdatensätze entsprechen dieser Suche.",
   "Forecasts, customer segments and currency conversion are intentionally hidden until supported by a canonical, verifiable data contract.": "Prognosen, Kundensegmente und Währungsumrechnung bleiben ausgeblendet, bis ein kanonischer, überprüfbarer Datenvertrag sie unterstützt.",
-  "source currencies": "Quellwährungen"
+  "source currencies": "Quellwährungen",
+  "Available Composio tools could not be loaded.": "Die verfügbaren Composio-Tools konnten nicht geladen werden.",
+  "Hide available tools": "Verfügbare Tools ausblenden",
+  "Inspect available tools": "Verfügbare Tools anzeigen",
+  "Verified tool surface": "Verifizierter Tool-Umfang",
+  "No additional capabilities are declared": "Keine zusätzlichen Fähigkeiten angegeben",
+  "tools": "Tools",
+  "Loading available tools…": "Verfügbare Tools werden geladen…",
+  "No verified tools are available for this integration.": "Für diese Integration sind keine verifizierten Tools verfügbar.",
+  "Only the first tools are shown here; execution remains restricted to the selected integration team.": "Hier werden nur die ersten Tools angezeigt; die Ausführung bleibt auf das ausgewählte Integrationsteam beschränkt."
 }

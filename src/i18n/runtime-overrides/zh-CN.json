@@ -7158,5 +7158,14 @@
   "Search revenue records": "搜索收入记录",
   "No verified revenue records match this search.": "没有已验证的收入记录符合此搜索。",
   "Forecasts, customer segments and currency conversion are intentionally hidden until supported by a canonical, verifiable data contract.": "在获得规范且可验证的数据契约支持之前，预测、客户细分和货币换算将被有意隐藏。",
-  "source currencies": "来源货币"
+  "source currencies": "来源货币",
+  "Available Composio tools could not be loaded.": "无法加载可用的 Composio 工具。",
+  "Hide available tools": "隐藏可用工具",
+  "Inspect available tools": "查看可用工具",
+  "Verified tool surface": "已验证的工具范围",
+  "No additional capabilities are declared": "未声明其他能力",
+  "tools": "个工具",
+  "Loading available tools…": "正在加载可用工具…",
+  "No verified tools are available for this integration.": "此集成没有可用的已验证工具。",
+  "Only the first tools are shown here; execution remains restricted to the selected integration team.": "此处仅显示前部分工具；执行仍限制在选定的集成团队内。"
 }

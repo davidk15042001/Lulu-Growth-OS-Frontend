@@ -1088,5 +1088,14 @@
   "„{{0}}“ wird aus der aktiven Liste entfernt. Die Historie bleibt zur Nachvollziehbarkeit erhalten.": "\"{{0}}\" will be removed from the active list. Its history remains available for traceability.",
   "Onboarding abbrechen?": "Cancel onboarding?",
   "Du kehrst zur Login-Seite zurück. Deine bisher gespeicherten Angaben bleiben erhalten.": "You will return to the sign-in page. Your saved information remains available.",
-  "Weiter bearbeiten": "Continue editing"
+  "Weiter bearbeiten": "Continue editing",
+  "Available Composio tools could not be loaded.": "Available Composio tools could not be loaded.",
+  "Hide available tools": "Hide available tools",
+  "Inspect available tools": "Inspect available tools",
+  "Verified tool surface": "Verified tool surface",
+  "No additional capabilities are declared": "No additional capabilities are declared",
+  "tools": "tools",
+  "Loading available tools…": "Loading available tools…",
+  "No verified tools are available for this integration.": "No verified tools are available for this integration.",
+  "Only the first tools are shown here; execution remains restricted to the selected integration team.": "Only the first tools are shown here; execution remains restricted to the selected integration team."
 }
