@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { AlertTriangle, CheckCircle2, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { isOfficePanelSurface, routes, withOfficePanelSurface } from "../../routing";
+import { useLuluDialog } from "../../components/useLuluDialog";
 
 export const fieldClass = "w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-sm text-[var(--foreground)] outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 disabled:cursor-not-allowed disabled:opacity-50";
 export const primaryButtonClass = "inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-semibold text-[var(--background)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40";
@@ -60,9 +61,10 @@ export function Feedback({ error, notice }: { error?: string; notice?: string })
 }
 
 export function Modal({ title, description, children, onClose, width = "max-w-2xl" }: { title: string; description?: string; children: ReactNode; onClose: () => void; width?: string }) {
+  const dialogRef = useLuluDialog({ open: true, onClose });
   return (
-    <div className="fixed inset-0 z-[120] grid place-items-center overflow-y-auto bg-slate-950/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={title} onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
-      <section className={`my-auto w-full ${width} overflow-hidden rounded-2xl border border-white/60 bg-[var(--card)] shadow-[0_30px_100px_rgba(15,23,42,.28)]`}>
+    <div className="fixed inset-0 z-[120] grid place-items-center overflow-y-auto bg-slate-950/45 p-4 backdrop-blur-sm" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <section ref={dialogRef} className={`my-auto w-full ${width} overflow-hidden rounded-2xl border border-white/60 bg-[var(--card)] shadow-[0_30px_100px_rgba(15,23,42,.28)]`} role="dialog" aria-modal="true" aria-label={title}>
         <header className="flex items-start justify-between gap-4 border-b border-[var(--border)] px-5 py-4">
           <div>
             <h2 className="text-lg font-semibold text-[var(--foreground)]">{title}</h2>

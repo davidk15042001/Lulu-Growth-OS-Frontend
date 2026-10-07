@@ -9,6 +9,7 @@ import { navigateApp, routes } from '../../routing';
 import { OnboardingHeader } from '../../components/OnboardingHeader';
 import { useTranslation } from '../../i18n/GlobalLanguageSwitcher';
 import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
+import { useLuluDialog } from '../../components/useLuluDialog';
 
 type ProfileField = 'companyName'|'industry'|'countryRegion'|'taxId'|'address'|'legalForm'|'legalRepresentative'|'phoneNumber'|'bankAccountNumber'|'bankOpeningBank'|'bankBranch'|'bankCode'|'branch';
 type ProfileForm = Record<ProfileField,string>;
@@ -208,6 +209,7 @@ export default function ProfilePage() {
   const [logoLoadError, setLogoLoadError] = useState(false);
   const cropImageRef = useRef<HTMLImageElement | null>(null);
   const cropDragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
+  const cropDialogRef = useLuluDialog<HTMLDivElement>({ open: Boolean(pendingLogo), onClose: () => { if (!logoUploading) setPendingLogo(null); } });
 
   useEffect(() => () => {
     if (logoPreviewUrl) URL.revokeObjectURL(logoPreviewUrl);
@@ -612,8 +614,8 @@ export default function ProfilePage() {
         </>}
       </>}
     </section>
-    {pendingLogo ? <div className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain bg-slate-950/70 p-3 sm:grid sm:place-items-center sm:p-4" role="dialog" aria-modal="true" aria-labelledby="company-logo-crop-title">
-      <div className="mx-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-white/10 bg-[var(--card)] shadow-2xl sm:max-h-[calc(100dvh-2rem)]">
+    {pendingLogo ? <div className="fixed inset-0 z-[100] overflow-y-auto overscroll-contain bg-slate-950/70 p-3 sm:grid sm:place-items-center sm:p-4" role="presentation">
+      <div ref={cropDialogRef} className="mx-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-hidden rounded-3xl border border-white/10 bg-[var(--card)] shadow-2xl sm:max-h-[calc(100dvh-2rem)]" role="dialog" aria-modal="true" aria-labelledby="company-logo-crop-title">
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-[var(--border)] p-5 sm:p-6"><div><p className="eyebrow">{t('Company logo')}</p><h2 id="company-logo-crop-title" className="mt-1 text-xl font-semibold">{t('Adjust company logo')}</h2><p className="mt-1 text-sm text-[var(--muted-foreground)]">{t('Drag to position and use the slider to zoom.')}</p></div><button type="button" onClick={() => setPendingLogo(null)} disabled={logoUploading} className="shrink-0 rounded-xl border border-[var(--border)] px-3 py-2 text-sm disabled:opacity-50">{t('Cancel')}</button></header>
         <div className="min-h-0 flex-1 overflow-y-auto p-5 sm:p-6"><div className="mx-auto w-fit max-w-full overflow-hidden rounded-2xl bg-slate-950 p-2 shadow-inner"><div className="relative overflow-hidden rounded-xl bg-[conic-gradient(#263248_25%,#111827_0_50%,#263248_0_75%,#111827_0)] bg-[length:24px_24px] cursor-grab active:cursor-grabbing" style={{ width: cropViewportSize, height: cropViewportSize, touchAction: 'none' }} onDoubleClick={() => { setCropZoom(1); setCropOffset({ x: 0, y: 0 }); }} onPointerDown={(event) => { if (!logoUploading) { event.currentTarget.setPointerCapture(event.pointerId); cropDragRef.current = { startX: event.clientX, startY: event.clientY, originX: cropOffset.x, originY: cropOffset.y }; } }} onPointerMove={moveCrop} onPointerUp={endCropDrag} onPointerCancel={endCropDrag}>
           <img ref={cropImageRef} src={pendingLogo.url} alt={t('Company logo')} onLoad={() => setCropImageLoaded(true)} onError={() => { setCropImageLoaded(false); setError(t('The logo image could not be loaded.')); }} draggable={false} className="pointer-events-none absolute max-w-none select-none" style={{ width: pendingLogo.width * cropScale, height: pendingLogo.height * cropScale, left: '50%', top: '50%', transform: `translate(-50%, -50%) translate(${cropOffset.x}px, ${cropOffset.y}px)` }} />

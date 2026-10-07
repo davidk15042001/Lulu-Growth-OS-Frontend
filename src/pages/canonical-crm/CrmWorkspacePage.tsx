@@ -33,6 +33,7 @@ import {
 } from '../../api/records';
 import { transitionSalesRecord } from '../../api/salesPipeline';
 import { useLiveRecords, type LiveRecordsLoadState } from '../../api/useLiveRecords';
+import { useLuluDialog } from '../../components/useLuluDialog';
 import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
 import { useLuluConfirm } from '../../components/LuluConfirmDialog';
 
@@ -393,5 +394,6 @@ export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { 
 }
 
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
-  return <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" role="dialog" aria-modal="true"><div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-2xl"><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={onClose} aria-label="Schließen"><X size={18}/></button></div>{children}</div></div>;
+  const dialogRef = useLuluDialog<HTMLDivElement>({ open: true, onClose });
+  return <div className="fixed inset-0 z-50 grid place-items-center bg-black/50 p-4" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><div ref={dialogRef} className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-2xl" role="dialog" aria-modal="true" aria-label={title}><div className="mb-5 flex items-center justify-between"><h2 className="text-lg font-semibold">{title}</h2><button type="button" onClick={onClose} aria-label="Schließen"><X size={18}/></button></div>{children}</div></div>;
 }
