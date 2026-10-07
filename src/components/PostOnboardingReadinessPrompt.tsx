@@ -4,6 +4,7 @@ import { getFriendlyErrorMessage } from '../api/client';
 import { postOnboardingReadinessApi, type PostOnboardingReadiness } from '../api/workspaces';
 import { useLuluApp } from '../api/LuluAppContext';
 import { useTranslation } from '../i18n/GlobalLanguageSwitcher';
+import { useLuluDialog } from './useLuluDialog';
 
 export function PostOnboardingReadinessPrompt({ workspaceId }: { workspaceId: string }) {
   const { selectedWorkspace, capabilities, can, refresh } = useLuluApp();
@@ -34,6 +35,7 @@ export function PostOnboardingReadinessPrompt({ workspaceId }: { workspaceId: st
   const needsMarkets = readiness?.missingFields.includes('targetMarkets') ?? false;
   const needsAudience = readiness?.missingFields.includes('targetAudience') ?? false;
   const selectedLabels = useMemo(() => new Set(markets), [markets]);
+  const dialogRef = useLuluDialog({ open, onClose: () => setOpen(false) });
 
   if (!open || !readiness || !selectedWorkspace || !can('administer')) return null;
   if (capabilities.aiBudgetRequired && !capabilities.aiBudgetFunded) return null;
@@ -63,6 +65,7 @@ export function PostOnboardingReadinessPrompt({ workspaceId }: { workspaceId: st
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/45 p-4" role="presentation">
       <section
+        ref={dialogRef}
         aria-labelledby="post-onboarding-readiness-title"
         aria-modal="true"
         className="max-h-[min(760px,calc(100vh-32px))] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-card p-6 shadow-2xl sm:p-8"

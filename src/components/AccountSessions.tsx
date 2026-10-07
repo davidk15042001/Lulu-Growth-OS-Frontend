@@ -4,12 +4,14 @@ import { authApi, type ActiveSession } from '../api/auth';
 import { getFriendlyErrorMessage } from '../api/client';
 import { useTranslation } from '../i18n/GlobalLanguageSwitcher';
 import { currentIntlLocale } from '../i18n/languages';
+import { useLuluDialog } from './useLuluDialog';
 
 export function AccountSessions({ onClose }: { onClose: () => void }) {
   const t = useTranslation();
   const [sessions, setSessions] = useState<ActiveSession[]>([]);
   const [busy, setBusy] = useState(true);
   const [error, setError] = useState('');
+  const dialogRef = useLuluDialog({ open: true, onClose });
   const load = async () => setSessions((await authApi.sessions()).data.items);
   useEffect(() => { void load().catch(cause => setError(getFriendlyErrorMessage(cause))).finally(() => setBusy(false)); }, []);
   const revoke = async (id?: string) => {
@@ -17,8 +19,8 @@ export function AccountSessions({ onClose }: { onClose: () => void }) {
     try { if (id) await authApi.revokeSession(id); else await authApi.revokeOtherSessions(); await load(); }
     catch (cause) { setError(getFriendlyErrorMessage(cause)); } finally { setBusy(false); }
   };
-  return createPortal(<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4" onKeyDown={event => { if(event.key === 'Escape') onClose(); }}>
-    <section role="dialog" aria-modal="true" aria-labelledby="session-title" className="max-h-[85vh] w-full max-w-xl overflow-auto rounded-xl border border-border bg-card p-6 text-foreground shadow-xl">
+  return createPortal(<div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 p-4">
+    <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="session-title" className="max-h-[85vh] w-full max-w-xl overflow-auto rounded-xl border border-border bg-card p-6 text-foreground shadow-xl">
       <div className="flex justify-between gap-4"><h2 id="session-title" className="text-xl font-semibold">{t('Active sessions')}</h2><button autoFocus onClick={onClose}>{t('Close')}</button></div>
       <p className="my-3 text-sm text-muted-foreground">{t('Revoke a session to end its access. Only a coarse browser label is stored.')}</p>
       {error && <p role="alert" className="text-destructive">{t(error)}</p>}

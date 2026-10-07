@@ -8,6 +8,7 @@ import { workspaceAppApi, type BillingState } from "../api/workspace-app";
 import { useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { navigateApp, routes } from "../routing";
 import { formatDecimalMoney, isPositiveDecimal } from "../utils/decimal-money";
+import { useLuluDialog } from "./useLuluDialog";
 
 function formatMoney(value: string | number, currency: string, language: string) {
   const locale = language === "de" ? "de-DE" : language === "zh-CN" ? "zh-CN" : "en-US";
@@ -43,6 +44,7 @@ export function LuluUsageControl() {
   const loadRequest = useRef(0);
   const workspaceRef = useRef(workspaceId);
   workspaceRef.current = workspaceId;
+  const dialogRef = useLuluDialog({ open, onClose: () => setOpen(false) });
 
   const load = useCallback(async () => {
     const request = ++loadRequest.current;
@@ -188,6 +190,7 @@ export function LuluUsageControl() {
       {open && (
         <div className="lulu-usage-overlay" role="presentation" onMouseDown={() => setOpen(false)}>
           <section
+            ref={dialogRef}
             className="lulu-usage-dialog"
             role="dialog"
             aria-modal="true"

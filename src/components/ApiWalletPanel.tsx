@@ -20,6 +20,7 @@ import { currentIntlLocale } from "../i18n/languages";
 import { createPaymentQrDataUrl } from "../utils/paymentQr";
 import { formatDecimalMoney, isPositiveDecimal } from "../utils/decimal-money";
 import { navigateApp, routes } from "../routing";
+import { useLuluDialog } from "./useLuluDialog";
 const packages = ["500.00", "1000.00"];
 const methods: Array<{ id: ApiPaymentMethod; label: string }> = [
   { id: "alipaycn", label: "Alipay" },
@@ -50,6 +51,7 @@ export function ApiWalletPanel() {
   const paymentRequest = useRef(0);
   const workspaceRef = useRef(workspaceId);
   workspaceRef.current = workspaceId;
+  const generationDialogRef = useLuluDialog({ open: generationOpen, onClose: () => setGenerationOpen(false) });
   const currentOverview =
     overview?.wallet.workspaceId === workspaceId ? overview : null;
   const availablePackages = currentOverview?.packages?.length ? currentOverview.packages : packages;
@@ -435,7 +437,7 @@ export function ApiWalletPanel() {
       ) : null}
       {generationOpen ? (
         <div className="fixed inset-0 z-[130] grid place-items-center bg-slate-950/55 p-4 backdrop-blur-sm" role="presentation">
-          <section role="dialog" aria-modal="true" aria-labelledby="ai-generation-started-title" className="w-full max-w-lg rounded-2xl border border-border bg-card p-7 text-foreground shadow-2xl">
+          <section ref={generationDialogRef} role="dialog" aria-modal="true" aria-labelledby="ai-generation-started-title" className="w-full max-w-lg rounded-2xl border border-border bg-card p-7 text-foreground shadow-2xl">
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-violet-500/10 text-violet-700"><Sparkles size={23} /></div>
             <h2 id="ai-generation-started-title" className="mt-5 text-2xl font-semibold">{t("Budget confirmed — Lulu is getting to work")}</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">{t("Your Knowledge Base, initial business analysis and the required operating data are now being generated in the background. The rest of the platform is unlocked.")}</p>
