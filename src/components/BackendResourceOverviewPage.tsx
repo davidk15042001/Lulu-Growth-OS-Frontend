@@ -59,8 +59,17 @@ export function BackendResourceOverviewPage({
   const records = useLiveRecords(resourceType, recordsQuery.toString(), { includeTotal: true });
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const hasRecords = records.items.length > 0;
-  const isLoaded = records.status === "ready" || records.status === "stale";
+  const isLoaded = records.configured && (records.status === "ready" || records.status === "stale");
   const hasSearch = debouncedSearch.length > 0;
+  const dataState = !records.configured
+    ? { label: "Not configured", className: "border-chart-1/30 bg-chart-1/10 text-chart-1" }
+    : records.status === "ready"
+      ? { label: "Live", className: "border-chart-4/30 bg-chart-4/10 text-chart-4" }
+      : records.status === "stale"
+        ? { label: "Refresh needed", className: "border-chart-1/30 bg-chart-1/10 text-chart-1" }
+        : records.status === "error"
+          ? { label: "Unavailable", className: "border-chart-5/30 bg-chart-5/10 text-chart-5" }
+          : { label: "Waiting", className: "border-border bg-secondary text-muted-foreground" };
 
   useEffect(() => {
     const handle = window.setTimeout(() => {
@@ -107,14 +116,17 @@ export function BackendResourceOverviewPage({
               </div>
             </div>
             <div className="mt-5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-              <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/70 px-3 py-1.5">
-                <span className={`h-2 w-2 rounded-full ${isLoaded ? "bg-chart-4" : "bg-muted-foreground"}`} />
-                {isLoaded ? t("Workspace data") : t("Waiting for workspace data")}
+              <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 ${dataState.className}`} role="status" aria-live="polite">
+                <span className="h-2 w-2 rounded-full bg-current" />
+                {t(dataState.label)}
               </span>
               <span className="inline-flex items-center gap-2 rounded-full border border-border bg-background/70 px-3 py-1.5">
                 <Database aria-hidden="true" size={13} />
                 {t("Tenant-scoped records")}
               </span>
+              {records.lastLoadedAt ? <span className="inline-flex items-center rounded-full border border-border bg-background/70 px-3 py-1.5">
+                {t("Last updated")} {formatDate(records.lastLoadedAt, language)}
+              </span> : null}
             </div>
           </div>
           <div className="flex shrink-0 flex-wrap items-center gap-2">

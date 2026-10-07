@@ -8,6 +8,8 @@ export type LiveRecordsLoadState = "loading" | "refreshing" | "ready" | "stale" 
 export type LiveRecordsState = {
   items: WorkspaceRecord[];
   total: number;
+  configured: boolean;
+  lastLoadedAt: string | null;
   loading: boolean;
   error: string | null;
   status: LiveRecordsLoadState;
@@ -17,6 +19,7 @@ export type LiveRecordsState = {
 export function useLiveRecords(resourceType: string | null, query = "", options: { includeTotal?: boolean } = {}): LiveRecordsState {
   const [items, setItems] = useState<WorkspaceRecord[]>([]);
   const [total, setTotal] = useState(0);
+  const [lastLoadedAt, setLastLoadedAt] = useState<string | null>(null);
   const [loading, setLoading] = useState(Boolean(resourceType));
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<LiveRecordsLoadState>("loading");
@@ -32,6 +35,7 @@ export function useLiveRecords(resourceType: string | null, query = "", options:
     if (!resourceType || !requestKey) {
       setItems([]);
       setTotal(0);
+      setLastLoadedAt(null);
       setLoading(false);
       setError(null);
       setDataKey(null);
@@ -52,6 +56,7 @@ export function useLiveRecords(resourceType: string | null, query = "", options:
       if (request !== requestRef.current || getSelectedWorkspaceId() !== workspaceId) return;
       setItems(response.data.items);
       setTotal(response.data.pagination.total ?? response.data.items.length);
+      setLastLoadedAt(new Date().toISOString());
       dataKeyRef.current = requestKey;
       setDataKey(requestKey);
       setStatus("ready");
@@ -75,5 +80,14 @@ export function useLiveRecords(resourceType: string | null, query = "", options:
     };
   }, [refresh]);
   const hasCurrentData = dataKey === requestKey;
-  return { items: hasCurrentData ? items : [], total: hasCurrentData ? total : 0, loading: hasCurrentData ? loading : status !== "error", error, status: hasCurrentData ? status : status === "error" ? "error" : "loading", refresh };
+  return {
+    items: hasCurrentData ? items : [],
+    total: hasCurrentData ? total : 0,
+    configured: Boolean(requestKey),
+    lastLoadedAt: hasCurrentData ? lastLoadedAt : null,
+    loading: hasCurrentData ? loading : status !== "error",
+    error,
+    status: hasCurrentData ? status : status === "error" ? "error" : "loading",
+    refresh,
+  };
 }
