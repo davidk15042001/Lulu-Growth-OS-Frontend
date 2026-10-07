@@ -77,6 +77,7 @@ const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   "nice-year-6253",
   "nicely-ocean-1051",
   "cool-town-1727",
+  "sharp-current-9677",
   "richly-forest-5832",
   "mightily-shore-7108",
   "fancy-ground-8040",

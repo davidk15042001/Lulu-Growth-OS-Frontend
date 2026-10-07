@@ -1,6 +1,5 @@
 import { Theme } from './settings/types';
-import { TrendingUp } from 'lucide-react';
-import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
+import GrowthPage from '../canonical-growth/GrowthPage';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -16,7 +15,7 @@ function App() {
 
   setTheme(theme);
 
-  return <BackendResourceOverviewPage resourceType="marketing_campaigns" eyebrow="Growth" title="Growth" description="Live records in this workflow" emptyTitle="No live records are available for this page yet." emptyDescription="No metrics or success claims are inferred while the backend state is unavailable." emptyIcon={<TrendingUp aria-hidden="true" size={24} />} />; // %EXPORT_STATEMENT%
+  return <GrowthPage />; // %EXPORT_STATEMENT%
 }
 
 export default App;
