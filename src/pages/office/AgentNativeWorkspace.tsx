@@ -47,6 +47,7 @@ import { effectiveOfficeEmployeeStatus, officeAiReadinessMessage, type OfficeEmp
 import { ApiError, getFriendlyErrorMessage } from "../../api/client";
 import { RESOURCE_BY_SLUG } from "../../api/page-contracts";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
+import { resolveEmployeeWorkspaceRoute } from "../../config/workspace-capability-registry";
 import { isPageNavigable, pagePath, routes } from "../../routing";
 import { conciseOfficeCopy, officeEvidenceTypeLabel } from "./office-copy";
 import { isPositiveDecimal } from "../../utils/decimal-money";
@@ -66,6 +67,7 @@ type AgentSurfaceSource = {
   key: string;
   name: string;
   capabilities: readonly string[];
+  sourceAgentIds: readonly string[];
   module?: string | null;
   pageId?: string | null;
   purpose?: string | null;
@@ -723,6 +725,7 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
         key: employeeDetail.employee.key,
         name: employeeDetail.employee.name,
         capabilities: employeeDetail.capabilities.map((capability) => capability.key),
+        sourceAgentIds: employeeDetail.employee.sourceAgentIds,
         module: employeeDetail.employee.department?.key,
         purpose: employeeDetail.employee.description ?? null,
       }
@@ -730,20 +733,29 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
         key: catalogAgent?.pageId ?? catalogAgent?.id ?? "specialist",
         name: catalogAgent?.name ?? t("Digital employee"),
         capabilities: catalogAgent?.capabilities ?? [],
+        sourceAgentIds: [],
         module: catalogAgent?.module,
         pageId: catalogAgent?.pageId,
         purpose: catalogAgent?.purpose,
       }, [catalogAgent, employeeDetail, t]);
   const kind = useMemo(() => resolveKind(source), [source]);
   const resourceSurface = useMemo(() => resolveResourceSurface(source), [source]);
+  const canonicalWorkspaceRoute = useMemo(() => resolveEmployeeWorkspaceRoute({
+    employeeKey: source.key,
+    sourceAgentIds: source.sourceAgentIds,
+    capabilityKeys: source.capabilities,
+    pageId: source.pageId,
+    allowKnownEmployeeRoute: true,
+  }), [source]);
   const definition = KINDS[kind];
   const Icon = definition.icon;
   const isCatalogPreview = Boolean(catalogAgent && !employeeDetail);
   const fullWorkspacePath = source.pageId && isPageNavigable(source.pageId)
     ? pagePath(source.pageId)
-    : resourceSurface && RESOURCE_PAGE_BY_TYPE[resourceSurface] && isPageNavigable(RESOURCE_PAGE_BY_TYPE[resourceSurface])
-      ? pagePath(RESOURCE_PAGE_BY_TYPE[resourceSurface])
-    : NATIVE_WORKSPACE_PATHS[kind] ?? null;
+    : canonicalWorkspaceRoute?.href
+      ?? (resourceSurface && RESOURCE_PAGE_BY_TYPE[resourceSurface] && isPageNavigable(RESOURCE_PAGE_BY_TYPE[resourceSurface])
+        ? pagePath(RESOURCE_PAGE_BY_TYPE[resourceSurface])
+        : NATIVE_WORKSPACE_PATHS[kind] ?? null);
   const requiredToolCount = catalogAgent ? catalogAgent.requiredTools.length : null;
   const spendBoundary = catalogAgent?.spendPermission === "prepaid_ad_spend_only"
     ? t("Prepaid ad spend only")
