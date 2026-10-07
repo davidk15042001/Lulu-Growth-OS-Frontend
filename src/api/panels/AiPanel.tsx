@@ -101,20 +101,20 @@ export function AiPanel({ workspaceId, onClose }: { workspaceId: string; onClose
         {action.requiresApproval && ["ready", "pending_approval"].includes(action.status) && <small>{t("Confirmation required before this action can run.")}</small>}
         {action.errorMessage && <span>{action.errorMessage}</span>}
         {action.result && <small>{JSON.stringify(action.result)}</small>}
-        {action.status === "ready" && <button className="lulu-live-button" style={{ marginTop: 8 }} onClick={async () => {
+        {action.status === "ready" && <button className="lulu-live-button" style={{ marginTop: 8 }} disabled={busy} onClick={async () => {
           if (action.requiresApproval && !(await confirm({ title: "Confirm this assistant action?", description: "This action can create an external side effect. Review the action details above before continuing.", confirmLabel: t("Confirm and continue"), cancelLabel: t("Cancel") }))) return;
           setBusy(true); setError("");
           try { await aiApi.executeAction(workspaceId, action.conversationId, action.id); await loadActions(); }
           catch (cause) { setError(getFriendlyErrorMessage(cause, "The assistant action could not be executed.")); }
           finally { setBusy(false); }
-        }}>{action.requiresApproval ? t("Confirm and continue") : "Execute action"}</button>}
-        {action.status === "executing" && <button className="lulu-live-button" style={{ marginTop: 8 }} onClick={async () => {
+        }}>{action.requiresApproval ? t("Confirm and continue") : t("Execute action")}</button>}
+        {action.status === "executing" && <button className="lulu-live-button" style={{ marginTop: 8 }} disabled={busy} onClick={async () => {
           setBusy(true); setError("");
           try { await loadActions(); }
           catch (cause) { setError(getFriendlyErrorMessage(cause, "The assistant action status could not be refreshed.")); }
           finally { setBusy(false); }
         }}>{t("Refresh status")}</button>}
-        {["ready", "pending_approval"].includes(action.status) && <button className="lulu-live-button danger" style={{ marginTop: 8, marginLeft: 8 }} onClick={async () => {
+        {["ready", "pending_approval"].includes(action.status) && <button className="lulu-live-button danger" style={{ marginTop: 8, marginLeft: 8 }} disabled={busy} onClick={async () => {
           if (!(await confirm({ title: t("Cancel this assistant action?"), description: t("The action will stop before its next execution step. Its prior evidence stays available."), confirmLabel: t("Cancel action"), cancelLabel: t("Keep action"), tone: "danger" }))) return;
           setBusy(true); setError("");
           try { await aiApi.cancelAction(workspaceId, action.conversationId, action.id); await loadActions(); }
