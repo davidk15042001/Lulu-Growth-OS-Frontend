@@ -31,6 +31,22 @@ function resolveResourceType(slug: string, contract: PageContract | undefined) {
   return OVERVIEW_RESOURCE_BY_PAGE_ID[slug] ?? RESOURCE_BY_SLUG[slug] ?? null;
 }
 
+function formatRecordValue(value: unknown, language: string) {
+  if (value === null || value === undefined || value === "") return "—";
+  if (typeof value === "boolean") return value ? "true" : "false";
+  if (typeof value === "number") return new Intl.NumberFormat(language).format(value);
+  if (typeof value === "string") return value;
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+function fillTranslation(template: string, values: Array<string | number>) {
+  return values.reduce<string>((result, value, index) => result.replace(`{{${index + 1}}}`, String(value)), template);
+}
+
 export function MinimalAgentWorkspacePage({
   slug,
   contract,
@@ -45,9 +61,28 @@ export function MinimalAgentWorkspacePage({
   const { selectedWorkspace } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? null;
   const resourceType = resolveResourceType(slug, contract);
-  const records = useLiveRecords(resourceType, "limit=25", { includeTotal: true });
   const [searchParams] = useSearchParams();
   const linkedRecordId = searchParams.get("recordId");
+  const [searchDraft, setSearchDraft] = useState("");
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [sort, setSort] = useState<"createdAt" | "updatedAt" | "name">("updatedAt");
+  const [order, setOrder] = useState<"asc" | "desc">("desc");
+  const [page, setPage] = useState(1);
+  const pageSize = 12;
+  const recordsQuery = useMemo(() => {
+    const params = new URLSearchParams({
+      page: String(page),
+      limit: String(pageSize),
+      includeTotal: "true",
+      sort,
+      order,
+    });
+    if (search) params.set("search", search);
+    if (statusFilter) params.set("status", statusFilter);
+    return params.toString();
+  }, [order, page, search, sort, statusFilter]);
+  const records = useLiveRecords(resourceType, recordsQuery, { includeTotal: true });
   const linkedKey = workspaceId && resourceType && linkedRecordId
     ? `${workspaceId}:${resourceType}:${linkedRecordId}`
     : null;
@@ -58,6 +93,11 @@ export function MinimalAgentWorkspacePage({
   const linkedRecord = linkedRecordState?.key === linkedKey ? linkedRecordState.record : null;
   const linkedRecordError = linkedRecordFailure?.key === linkedKey ? linkedRecordFailure.message : null;
   const linkedRecordLoading = Boolean(linkedKey && linkedRecordLoadingKey === linkedKey);
+  const [selectedRecordId, setSelectedRecordId] = useState<string | null>(linkedRecordId);
+
+  useEffect(() => {
+    setSelectedRecordId(linkedRecordId);
+  }, [linkedRecordId]);
 
   useEffect(() => {
     const request = ++linkedRequestRef.current;
@@ -96,13 +136,33 @@ export function MinimalAgentWorkspacePage({
     [linkedRecord, records.items],
   );
 
+  const selectedRecord = useMemo(
+    () => linkedRecord ?? visibleRecords.find((record) => record.id === selectedRecordId) ?? null,
+    [linkedRecord, selectedRecordId, visibleRecords],
+  );
+
+  const statusOptions = useMemo(
+    () => Array.from(new Set(records.items.map((record) => record.status).filter(Boolean))).sort(),
+    [records.items],
+  );
+
+  const totalPages = Math.max(1, Math.ceil(records.total / pageSize));
+  const pageStart = records.total === 0 ? 0 : (page - 1) * pageSize + 1;
+  const pageEnd = Math.min(page * pageSize, records.total);
+  const recordDataEntries = useMemo(
+    () => selectedRecord
+      ? Object.entries(selectedRecord.data ?? {}).filter(([, value]) => value !== null && value !== undefined).slice(0, 12)
+      : [],
+    [selectedRecord],
+  );
+
   const recentRecords = useMemo(
     () => {
       const sorted = visibleRecords
         .filter((record) => record.id !== linkedRecord?.id)
         .slice()
         .sort((left, right) => Date.parse(right.updatedAt) - Date.parse(left.updatedAt));
-      return linkedRecord ? [linkedRecord, ...sorted].slice(0, 6) : sorted.slice(0, 6);
+      return linkedRecord ? [linkedRecord, ...sorted] : sorted;
     },
     [linkedRecord, visibleRecords],
   );
@@ -177,7 +237,7 @@ export function MinimalAgentWorkspacePage({
 
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,0.85fr)]">
           <section className="rounded-xl border border-border bg-card p-5">
-            <div className="flex items-center justify-between gap-3">
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
                   {resourceType ? t("Most important records") : t("What matters here")}
@@ -186,10 +246,66 @@ export function MinimalAgentWorkspacePage({
                   {resourceType ? t("Current live view") : t("How this agent helps")}
                 </h2>
               </div>
+              {resourceType ? (
+                <button
+                  type="button"
+                  onClick={() => void records.refresh()}
+                  disabled={records.loading}
+                  className="rounded-lg border border-border px-3 py-2 text-xs font-semibold text-foreground transition hover:bg-background disabled:cursor-wait disabled:opacity-60"
+                >
+                  {records.loading ? t("Loading…") : t("Refresh")}
+                </button>
+              ) : null}
             </div>
 
             {resourceType ? (
-              linkedRecordLoading && recentRecords.length === 0 ? (
+              <>
+                <form
+                  className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto_auto_auto]"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+                    setPage(1);
+                    setSearch(searchDraft.trim());
+                  }}
+                >
+                  <input
+                    value={searchDraft}
+                    onChange={(event) => setSearchDraft(event.target.value)}
+                    placeholder={t("Search live records")}
+                    aria-label={t("Search live records")}
+                    className="min-w-0 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20"
+                  />
+                  <select
+                    value={statusFilter}
+                    onChange={(event) => { setPage(1); setStatusFilter(event.target.value); }}
+                    aria-label={t("Filter by status")}
+                    className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+                  >
+                    <option value="">{t("All statuses")}</option>
+                    {statusOptions.map((status) => <option key={status} value={status}>{status}</option>)}
+                  </select>
+                  <select
+                    value={`${sort}:${order}`}
+                    onChange={(event) => {
+                      const [nextSort, nextOrder] = event.target.value.split(":") as ["createdAt" | "updatedAt" | "name", "asc" | "desc"];
+                      setPage(1);
+                      setSort(nextSort);
+                      setOrder(nextOrder);
+                    }}
+                    aria-label={t("Sort records")}
+                    className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+                  >
+                    <option value="updatedAt:desc">{t("Recently updated")}</option>
+                    <option value="createdAt:desc">{t("Recently created")}</option>
+                    <option value="name:asc">{t("Name A–Z")}</option>
+                    <option value="name:desc">{t("Name Z–A")}</option>
+                  </select>
+                  <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:opacity-90">
+                    {t("Search")}
+                  </button>
+                </form>
+
+                {linkedRecordLoading && recentRecords.length === 0 ? (
                 <p className="mt-4 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-muted-foreground">{t("Loading selected record…")}</p>
               ) : linkedRecordError && recentRecords.length === 0 ? (
                 <p role="alert" className="mt-4 rounded-lg border border-dashed border-border px-4 py-6 text-sm text-destructive">{linkedRecordError}</p>
@@ -204,7 +320,13 @@ export function MinimalAgentWorkspacePage({
                   {linkedRecordError ? <p role="alert" className="rounded-lg border border-dashed border-border px-4 py-3 text-sm text-destructive">{linkedRecordError}</p> : null}
                   {records.error ? <p role="status" className="rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">{records.error}</p> : null}
                   {recentRecords.map((record) => (
-                    <article key={record.id} className={`rounded-lg border px-4 py-3 ${record.id === linkedRecordId ? "border-primary/40 bg-primary/5" : "border-border bg-background/50"}`}>
+                    <button
+                      type="button"
+                      key={record.id}
+                      onClick={() => setSelectedRecordId(record.id)}
+                      aria-pressed={record.id === selectedRecord?.id}
+                      className={`w-full rounded-lg border px-4 py-3 text-left transition hover:border-primary/50 hover:bg-primary/5 ${record.id === selectedRecord?.id ? "border-primary/40 bg-primary/5" : "border-border bg-background/50"}`}
+                    >
                       <div className="flex flex-wrap items-start justify-between gap-3">
                         <div className="min-w-0 flex-1">
                           {record.id === linkedRecordId ? <p className="mb-1 text-[10px] font-semibold uppercase tracking-[.12em] text-primary">{t("Selected record")}</p> : null}
@@ -224,10 +346,20 @@ export function MinimalAgentWorkspacePage({
                           {t("Updated")}: {formatDate(record.updatedAt, language)}
                         </span>
                       </div>
-                    </article>
+                      <div className="mt-3 text-xs font-semibold text-primary">{t("Open record")}</div>
+                    </button>
                   ))}
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3 text-xs text-muted-foreground">
+                    <span>{fillTranslation(t("Showing {{1}}–{{2}} of {{3}}"), [pageStart, pageEnd, records.total])}</span>
+                    <div className="flex items-center gap-2">
+                      <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={page <= 1 || records.loading} className="rounded-lg border border-border px-3 py-1.5 font-semibold text-foreground disabled:opacity-40">{t("Previous")}</button>
+                      <span>{fillTranslation(t("Page {{1}} of {{2}}"), [page, totalPages])}</span>
+                      <button type="button" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={page >= totalPages || records.loading} className="rounded-lg border border-border px-3 py-1.5 font-semibold text-foreground disabled:opacity-40">{t("Next")}</button>
+                    </div>
+                  </div>
                 </div>
-              )
+              )}
+              </>
             ) : (
               <div className="mt-4 grid gap-3 md:grid-cols-2">
                 <article className="rounded-lg border border-border bg-background/50 px-4 py-3">
@@ -251,6 +383,36 @@ export function MinimalAgentWorkspacePage({
           </section>
 
           <div className="grid gap-5">
+            {resourceType ? (
+              <section className="rounded-xl border border-border bg-card p-5">
+                <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("Record details")}</p>
+                {selectedRecord ? (
+                  <>
+                    <h2 className="mt-1 text-lg font-semibold text-foreground">{selectedRecord.name}</h2>
+                    <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                      <span className="rounded-full border border-border bg-background px-2.5 py-1 text-foreground">{selectedRecord.status || "—"}</span>
+                      {selectedRecord.stage ? <span className="rounded-full border border-border bg-background px-2.5 py-1 text-muted-foreground">{selectedRecord.stage}</span> : null}
+                    </div>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">{selectedRecord.description ?? t("No additional detail")}</p>
+                    <dl className="mt-4 grid gap-2 text-xs">
+                      <div className="flex justify-between gap-3 border-b border-border pb-2"><dt className="text-muted-foreground">{t("Updated")}</dt><dd className="text-right text-foreground">{formatDate(selectedRecord.updatedAt, language)}</dd></div>
+                      <div className="flex justify-between gap-3 border-b border-border pb-2"><dt className="text-muted-foreground">{t("Source")}</dt><dd className="text-right text-foreground">{selectedRecord.source ?? "—"}</dd></div>
+                      <div className="flex justify-between gap-3 border-b border-border pb-2"><dt className="text-muted-foreground">{t("Value")}</dt><dd className="text-right text-foreground">{selectedRecord.valueAmount ?? "—"} {selectedRecord.currency ?? ""}</dd></div>
+                    </dl>
+                    <div className="mt-4">
+                      <p className="text-xs font-semibold uppercase tracking-[0.1em] text-muted-foreground">{t("Data fields")}</p>
+                      {recordDataEntries.length > 0 ? (
+                        <dl className="mt-2 space-y-2 text-xs">
+                          {recordDataEntries.map(([key, value]) => <div key={key} className="grid grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)] gap-3 border-b border-border/70 pb-2"><dt className="break-words text-muted-foreground">{key}</dt><dd className="break-words text-right text-foreground">{formatRecordValue(value, language)}</dd></div>)}
+                        </dl>
+                      ) : <p className="mt-2 text-sm text-muted-foreground">{t("No additional fields returned.")}</p>}
+                    </div>
+                  </>
+                ) : (
+                  <p className="mt-3 rounded-lg border border-dashed border-border px-4 py-5 text-sm text-muted-foreground">{t("Select a record to inspect its live fields.")}</p>
+                )}
+              </section>
+            ) : null}
             <section className="rounded-xl border border-border bg-card p-5">
               <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">
                 {t("Autonomous execution")}
