@@ -5,9 +5,11 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  List as ListIcon,
   Clock3,
   LayoutDashboard,
   Layers3,
+  Map as MapIcon,
   RefreshCw,
   Search,
   ShieldCheck,
@@ -341,6 +343,7 @@ export function LuluStation() {
   const [selectedCatalogAgent, setSelectedCatalogAgent] = useState<AgentEcosystemDefinition | null>(null);
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [selectedProp, setSelectedProp] = useState<RoomLayout["prop"] | null>(null);
+  const [stationView, setStationView] = useState<"map" | "directory">("map");
   const [departmentMenuOpen, setDepartmentMenuOpen] = useState(false);
   const [departmentQuery, setDepartmentQuery] = useState("");
   const [loading, setLoading] = useState(true);
@@ -420,6 +423,7 @@ export function LuluStation() {
     setSelectedCatalogAgent(null);
     setSelectedRoomId(null);
     setSelectedProp(null);
+    setStationView("map");
     setError(null);
     setLiveConnected(false);
     setLastEventAt(null);
@@ -669,7 +673,7 @@ export function LuluStation() {
 
       <div className="lulu-station__workspace">
         <div className="lulu-station__world-shell">
-          <div className="lulu-station__world-toolbar"><span><i className="lulu-station__toolbar-dot" />{t("Station map")}</span><small>{overview.summary.departmentCount} {t("departments")} · {overview.summary.employeeCount} {t("digital employees")} · {overview.summary.specialistCount} {t("specialists")} · {formatTime(overview.generatedAt, language)} {t("snapshot")}</small></div>
+          <div className="lulu-station__world-toolbar"><span><i className="lulu-station__toolbar-dot" />{stationView === "map" ? t("Station map") : t("Department directory")}</span><div className="lulu-station__world-toolbar-actions"><small>{overview.summary.departmentCount} {t("departments")} · {overview.summary.employeeCount} {t("digital employees")} · {overview.summary.specialistCount} {t("specialists")} · {formatTime(overview.generatedAt, language)} {t("snapshot")}</small><div className="lulu-station__view-switch" role="group" aria-label={t("Station view")}><button type="button" className={stationView === "map" ? "is-active" : undefined} aria-pressed={stationView === "map"} onClick={() => setStationView("map")}><MapIcon size={13} />{t("Map")}</button><button type="button" className={stationView === "directory" ? "is-active" : undefined} aria-pressed={stationView === "directory"} onClick={() => setStationView("directory")}><ListIcon size={13} />{t("Directory")}</button></div></div></div>
           {rooms.length > 0 ? <div className="lulu-station__department-nav">
             <div ref={departmentPickerRef} className="lulu-station__department-picker">
               <button type="button" className="lulu-station__department-trigger" aria-haspopup="listbox" aria-expanded={departmentMenuOpen} aria-controls="lulu-station-department-list" onClick={() => setDepartmentMenuOpen((open) => !open)}><span>{selectedRoom ? roomName(selectedRoom, t) : t("Station map")}</span><i /></button>
@@ -684,7 +688,23 @@ export function LuluStation() {
             </div>
             <span>{overview.summary.departmentCount} {t("departments")} · {rooms.length} {t("rooms")}</span>
           </div> : null}
-          <div className="lulu-station__world" role="region" aria-label={t("Lulu Station map with departments and digital employees")}>
+          {stationView === "directory" ? <div className="lulu-station__department-directory" role="region" aria-label={t("Department directory with digital employees")}>
+            {rooms.map((assignment) => {
+              const { room, department, employees } = assignment;
+              const statuses = employees.reduce<Record<StatusTone, number>>((counts, employee) => {
+                const tone = toneForStatus(effectiveOfficeEmployeeStatus(employee.status, aiExecutionAvailable, employee.aiExecutionBlocked));
+                counts[tone] = (counts[tone] ?? 0) + 1;
+                return counts;
+              }, { idle: 0, working: 0, monitoring: 0, waiting: 0, attention: 0, blocked: 0, offline: 0 });
+              return <button type="button" key={room.id} className={`lulu-station__department-card${room.id === selectedRoomId ? " is-selected" : ""}`} onClick={() => selectRoom(room.id)}>
+                <span className={`lulu-station__department-card-accent lulu-station__department-card-accent--${room.color}`} />
+                <span className="lulu-station__department-card-copy"><strong>{roomName(assignment, t)}</strong><small>{t(department.description)}</small></span>
+                <span className="lulu-station__department-card-stats"><strong>{employees.length}</strong><small>{t("crew")}</small><span>{statuses.working + statuses.monitoring > 0 ? `${statuses.working + statuses.monitoring} ${t("active")}` : statuses.blocked > 0 ? `${statuses.blocked} ${t("blocked")}` : t("quiet")}</span></span>
+                <ArrowUpRight size={15} aria-hidden="true" />
+              </button>;
+            })}
+            {rooms.length === 0 ? <p className="lulu-station__department-directory-empty">{t("No department rooms are available for this workspace.")}</p> : null}
+          </div> : <div className="lulu-station__world" role="region" aria-label={t("Lulu Station map with departments and digital employees")}>
             <svg viewBox={`0 0 ${WORLD_WIDTH} ${stationWorld.worldHeight}`} role="presentation">
               <defs>
                 <linearGradient id="station-shell" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stopColor="#182a3c" /><stop offset="1" stopColor="#0b1524" /></linearGradient>
@@ -728,7 +748,7 @@ export function LuluStation() {
               })}
               {rooms.length === 0 && <g><rect className="lulu-station__empty-world" x="120" y="180" width="1200" height="280" rx="24" /><text x="720" y="310" textAnchor="middle">{t("No department roster is available for this workspace.")}</text><text x="720" y="340" textAnchor="middle">{t("The station is waiting for verified workspace setup.")}</text></g>}
             </svg>
-          </div>
+          </div>}
           <div className="lulu-station__legend" aria-label={t("Station status legend")}>
             <span><i className="is-working" />{t("working")}</span><span><i className="is-monitoring" />{t("monitoring")}</span><span><i className="is-waiting" />{t("waiting / human control")}</span><span><i className="is-attention" />{t("approval / error")}</span><span><i className="is-blocked" />{t("AI credit required")}</span><span><i className="is-idle" />{t("idle")}</span><span><i className="is-offline" />{t("offline")}</span>
           </div>

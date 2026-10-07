@@ -850,5 +850,14 @@
   "Required tools": "Erforderliche Tools",
   "Spend boundary": "Ausgabengrenze",
   "Prepaid ad spend only": "Nur vorausbezahlte Werbeausgaben",
-  "No spend authority": "Keine Ausgabeberechtigung"
+  "No spend authority": "Keine Ausgabeberechtigung",
+  "Map": "Karte",
+  "map": "Karte",
+  "Department directory": "Department-Verzeichnis",
+  "Station view": "Stationsansicht",
+  "Directory": "Verzeichnis",
+  "Department directory with digital employees": "Department-Verzeichnis mit digitalen Mitarbeitenden",
+  "crew": "Crew",
+  "quiet": "ruhig",
+  "No department rooms are available for this workspace.": "Für diesen Workspace sind keine Department-Räume verfügbar."
 }

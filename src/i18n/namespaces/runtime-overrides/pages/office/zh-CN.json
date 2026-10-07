@@ -850,5 +850,14 @@
   "Required tools": "所需工具",
   "Spend boundary": "支出权限",
   "Prepaid ad spend only": "仅限预付广告支出",
-  "No spend authority": "无支出权限"
+  "No spend authority": "无支出权限",
+  "Map": "地图",
+  "map": "地图",
+  "Department directory": "部门目录",
+  "Station view": "站点视图",
+  "Directory": "目录",
+  "Department directory with digital employees": "包含数字员工的部门目录",
+  "crew": "团队",
+  "quiet": "安静",
+  "No department rooms are available for this workspace.": "此工作区没有可用的部门房间。"
 }

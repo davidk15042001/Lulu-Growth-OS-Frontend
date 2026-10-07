@@ -521,5 +521,14 @@
   "Required tools": "Required tools",
   "Spend boundary": "Spend boundary",
   "Prepaid ad spend only": "Prepaid ad spend only",
-  "No spend authority": "No spend authority"
+  "No spend authority": "No spend authority",
+  "Map": "Map",
+  "map": "map",
+  "Department directory": "Department directory",
+  "Station view": "Station view",
+  "Directory": "Directory",
+  "Department directory with digital employees": "Department directory with digital employees",
+  "crew": "crew",
+  "quiet": "quiet",
+  "No department rooms are available for this workspace.": "No department rooms are available for this workspace."
 }

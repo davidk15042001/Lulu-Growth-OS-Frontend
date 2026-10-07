@@ -93,6 +93,12 @@
 .lulu-station__world-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 48px; border-bottom: 1px solid var(--station-line); padding: 0 15px; }
 .lulu-station__world-toolbar span { display: flex; align-items: center; gap: 7px; color: #eafaff; font-size: .72rem; font-weight: 750; }
 .lulu-station__world-toolbar small { color: var(--station-muted); font-size: .63rem; }
+.lulu-station__world-toolbar-actions { display: flex; min-width: 0; align-items: center; justify-content: flex-end; gap: 12px; }
+.lulu-station__view-switch { display: inline-flex; flex: 0 0 auto; gap: 3px; border: 1px solid rgba(142, 203, 222, .16); border-radius: 8px; padding: 3px; background: rgba(4, 12, 22, .54); }
+.lulu-station__view-switch button { display: inline-flex; min-height: 27px; align-items: center; gap: 5px; border: 0; border-radius: 5px; padding: 0 8px; background: transparent; color: #7896a4; cursor: pointer; font: inherit; font-size: .59rem; font-weight: 800; }
+.lulu-station__view-switch button:hover { color: #dffbf8; background: rgba(86, 225, 208, .08); }
+.lulu-station__view-switch button.is-active { background: rgba(86, 225, 208, .14); color: #cffff7; box-shadow: inset 0 1px rgba(255, 255, 255, .05); }
+.lulu-station__view-switch button:focus-visible { outline: 2px solid var(--station-teal); outline-offset: 2px; }
 .lulu-station__toolbar-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--station-teal); box-shadow: 0 0 14px rgba(86, 225, 208, .75); }
 .lulu-station__department-nav { display: flex; min-width: 0; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--station-line); padding: 9px 12px; }
 .lulu-station__department-picker { position: relative; min-width: 0; width: min(100%, 350px); }
@@ -117,6 +123,22 @@
 .lulu-station__department-nav > span { flex: 0 0 auto; color: #78949f; font-size: .6rem; font-weight: 700; }
 .lulu-station__world { min-height: 0; max-height: none; overflow: auto; overscroll-behavior: contain; border-radius: 0 0 17px 17px; padding: 10px; background: radial-gradient(circle at 50% 52%, rgba(86, 225, 208, .06), transparent 36%); scrollbar-color: rgba(86, 225, 208, .42) transparent; scrollbar-width: thin; }
 .lulu-station__world svg { display: block; width: 100%; min-width: 960px; height: auto; min-height: 620px; overflow: visible; }
+.lulu-station__department-directory { display: grid; min-height: 0; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); align-content: start; gap: 9px; overflow: auto; border-radius: 0 0 17px 17px; padding: 14px; background: radial-gradient(circle at 50% 0%, rgba(86, 225, 208, .06), transparent 48%); scrollbar-color: rgba(86, 225, 208, .42) transparent; scrollbar-width: thin; }
+.lulu-station__department-card { position: relative; display: grid; min-width: 0; grid-template-columns: 5px minmax(0, 1fr) auto auto; align-items: center; gap: 10px; border: 1px solid rgba(142, 203, 222, .14); border-radius: 12px; padding: 13px 12px 13px 0; background: rgba(13, 27, 43, .74); color: inherit; cursor: pointer; text-align: left; transition: border-color .18s ease, background .18s ease, transform .18s ease; }
+.lulu-station__department-card:hover,
+.lulu-station__department-card.is-selected { border-color: rgba(86, 225, 208, .52); background: linear-gradient(120deg, rgba(23, 58, 67, .82), rgba(13, 27, 43, .84)); transform: translateY(-1px); }
+.lulu-station__department-card:focus-visible { outline: 2px solid var(--station-teal); outline-offset: 2px; }
+.lulu-station__department-card-accent { align-self: stretch; min-height: 46px; border-radius: 0 4px 4px 0; background: var(--station-teal); }
+.lulu-station__department-card-accent--teal { background: var(--station-teal); }.lulu-station__department-card-accent--violet { background: var(--station-violet); }.lulu-station__department-card-accent--blue { background: var(--station-blue); }.lulu-station__department-card-accent--gold { background: var(--station-gold); }.lulu-station__department-card-accent--coral { background: var(--station-coral); }.lulu-station__department-card-accent--green { background: #78d99a; }.lulu-station__department-card-accent--indigo { background: #8595ff; }.lulu-station__department-card-accent--rose { background: #f39bb9; }.lulu-station__department-card-accent--cyan { background: #6fd9e9; }
+.lulu-station__department-card-copy { display: grid; min-width: 0; gap: 5px; }
+.lulu-station__department-card-copy strong { overflow: hidden; color: #eafaff; font-size: .72rem; text-overflow: ellipsis; white-space: nowrap; }
+.lulu-station__department-card-copy small { display: -webkit-box; overflow: hidden; color: #7f9eac; font-size: .62rem; line-height: 1.4; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.lulu-station__department-card-stats { display: grid; min-width: 54px; gap: 2px; text-align: right; }
+.lulu-station__department-card-stats strong { color: #f2ffff; font-size: 1.05rem; line-height: 1; }
+.lulu-station__department-card-stats small,
+.lulu-station__department-card-stats span { color: #78a3ac; font-size: .55rem; white-space: nowrap; }
+.lulu-station__department-card > svg { color: #76cfc9; }
+.lulu-station__department-directory-empty { grid-column: 1 / -1; margin: 0; border: 1px dashed rgba(142, 203, 222, .25); border-radius: 12px; padding: 30px; color: var(--station-muted); font-size: .72rem; text-align: center; }
 .lulu-station__spine { fill: none; stroke: rgba(107, 160, 182, .1); stroke-width: 13; stroke-linecap: round; }
 .lulu-station__corridor { fill: none; stroke: #83b8ca; stroke-opacity: .16; stroke-width: 5; stroke-linecap: round; }
 .lulu-station__corridor-glow { fill: none; stroke: var(--station-teal); stroke-dasharray: 4 24; stroke-linecap: round; stroke-opacity: .72; stroke-width: 2; animation: lulu-station-flow 4s linear infinite; }
@@ -308,8 +330,10 @@
   .lulu-station__department-nav > span { align-self: flex-start; }
   .lulu-station__world { padding: 6px; }
   .lulu-station__world svg { min-height: 0; }
-  .lulu-station__world-toolbar { align-items: start; flex-direction: column; justify-content: center; gap: 3px; padding: 9px 12px; }
-  .lulu-station__world-toolbar small { font-size: .58rem; }
+  .lulu-station__world-toolbar { align-items: start; flex-direction: column; justify-content: center; gap: 8px; padding: 9px 12px; }
+  .lulu-station__world-toolbar-actions { width: 100%; align-items: center; justify-content: space-between; gap: 8px; }
+  .lulu-station__world-toolbar small { overflow: hidden; font-size: .58rem; text-overflow: ellipsis; white-space: nowrap; }
+  .lulu-station__view-switch button { padding-inline: 7px; }
   .lulu-station__modal-layer { padding: 10px; }
   .lulu-station__modal-header { align-items: flex-start; flex-wrap: wrap; padding: 22px 54px 18px 18px; }
   .lulu-station__modal-status { margin-left: 0; }
