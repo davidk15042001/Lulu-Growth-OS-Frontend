@@ -1,1 +1,5 @@
-{}
+{
+  "Open native workspace": "打开原生工作区",
+  "Native agent workspace": "原生 Agent 工作区",
+  "Close agent workspace": "关闭 Agent 工作区"
+}
