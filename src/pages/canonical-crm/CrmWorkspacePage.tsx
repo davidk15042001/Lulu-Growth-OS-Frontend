@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import {
   Archive,
@@ -36,6 +36,7 @@ import { useLiveRecords, type LiveRecordsLoadState } from '../../api/useLiveReco
 import { useLuluDialog } from '../../components/useLuluDialog';
 import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
 import { useLuluConfirm } from '../../components/LuluConfirmDialog';
+import { CrmExternalDeliverySettings } from './CrmExternalDeliverySettings';
 
 type Kind = 'contacts' | 'companies' | 'activities' | 'tasks';
 type EnrichmentStatus = 'queued' | 'researching' | 'complete' | 'partial' | 'blocked_funds' | 'failed';
@@ -276,7 +277,7 @@ function IntelligenceSection({ title, icon, children }: { title: string; icon: R
 }
 
 export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { kind: Kind; showEntitySwitcher?: boolean }) {
-  const { hasCapability } = useLuluApp();
+  const { hasCapability, selectedWorkspace } = useLuluApp();
   const confirm = useLuluConfirm();
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewKind, setViewKind] = useState<Kind>(kind);
@@ -294,6 +295,8 @@ export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { 
   // Canonical CRM still uses the generic record endpoints. Their write,
   // upload, archive and enrichment routes require workspace.write.
   const canWrite = hasCapability('workspace.write');
+  const canManageExternalDelivery = hasCapability('crm.manage');
+  const handleDeliveryError = useCallback((message: string) => setError(message), []);
   const filtered = useMemo(() => query ? items.filter((item) => `${item.name} ${JSON.stringify(item.data)}`.toLowerCase().includes(query.toLowerCase())) : items, [items, query]);
   const linkedRecordId = searchParams.get('recordId');
   const selectLinkedRecord = (recordId: string) => setSearchParams((current) => {
@@ -367,6 +370,7 @@ export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { 
       {(error || loadError) && <div role="alert" className="mx-auto mb-4 max-w-[1500px] rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error || loadError}</div>}
       {notice && <div className="mx-auto mb-4 max-w-[1500px] rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</div>}
       <CompanyIntelligenceView items={items} filtered={filtered} loading={loading} loadState={loadState} canWrite={canWrite} busy={busy} query={query} setQuery={setQuery} refresh={refresh} onCreate={openNew} onImport={() => setImportOpen(true)} onEdit={openEdit} onArchive={(record) => void archive(record)} onRetry={(record) => void retry(record)} initialSelectedId={linkedRecordId} onSelect={selectLinkedRecord}/>
+      {selectedWorkspace ? <CrmExternalDeliverySettings workspaceId={selectedWorkspace.id} canManage={canManageExternalDelivery} onError={handleDeliveryError}/> : null}
     </> : <div className="mx-auto max-w-7xl space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4"><div><p className="eyebrow">Lulu CRM</p><h1 className="text-3xl font-semibold">{title}</h1><p className="mt-2 text-sm text-[var(--muted-foreground)]">Live-Daten aus deinem Workspace – ohne Demo-Einträge.</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => void refresh()} className="rounded-xl border border-[var(--border)] p-2.5" aria-label="Aktualisieren"><RefreshCw size={16} className={loading ? 'animate-spin' : ''}/></button><button type="button" onClick={() => setImportOpen(true)} disabled={!canWrite} className="inline-flex items-center gap-2 rounded-xl border border-[var(--border)] px-3 py-2.5 text-sm disabled:opacity-40"><FileUp size={15}/>Import</button><button type="button" onClick={openNew} disabled={!canWrite} className="lulu-workspace-primary-action inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium disabled:opacity-40"><Plus size={16}/>Neu</button></div></header>
       {showEntitySwitcher && (kind === 'contacts' || kind === 'companies') && <div className="flex gap-2 border-b border-[var(--border)] pb-2"><button type="button" onClick={() => setViewKind('contacts')} className={`rounded-lg px-3 py-2 text-sm ${viewKind === 'contacts' ? 'lulu-workspace-primary-action' : 'border border-[var(--border)]'}`}>Kontakte</button><button type="button" onClick={() => setViewKind('companies')} className="rounded-lg border border-[var(--border)] px-3 py-2 text-sm">Unternehmen</button></div>}
