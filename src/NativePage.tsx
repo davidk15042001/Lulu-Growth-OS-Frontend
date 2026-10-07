@@ -82,6 +82,7 @@ const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   "breezy-shore-6734",
   "friendly-path-8200",
   "sharply-wood-4560",
+  "gently-light-6089",
   "richly-forest-5832",
   "mightily-shore-7108",
   "fancy-ground-8040",
