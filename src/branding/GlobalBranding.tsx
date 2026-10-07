@@ -1,4 +1,5 @@
 import { useLayoutEffect } from "react";
+import { useLocation } from "react-router-dom";
 import type { PageContract } from "../api/page-contracts";
 
 const LOGO_PATH = "/branding/lulu-agentic-logo.svg";
@@ -66,15 +67,19 @@ function findBrandHosts(root: HTMLElement, contractKind: PageContract["kind"]) {
   return [...found].filter((host) => ![...found].some((other) => other !== host && other.contains(host)));
 }
 
-function ensureBrandImage(host: HTMLElement) {
+function ensureBrandImage(host: HTMLElement, isAuthSurface: boolean) {
+  const logoPath = isAuthSurface ? DARK_LOGO_PATH : LOGO_PATH;
   const existing = [...host.children].find(
     (child): child is HTMLImageElement => child instanceof HTMLImageElement && child.dataset.luluGlobalBrandImage === "true",
   );
-  if (existing) return;
+  if (existing) {
+    if (existing.getAttribute("src") !== logoPath) existing.src = logoPath;
+    return;
+  }
 
   const image = document.createElement("img");
   image.className = "lulu-global-brand-image";
-  image.src = LOGO_PATH;
+  image.src = logoPath;
   image.alt = "Lulu AI";
   image.draggable = false;
   image.dataset.luluGlobalBrandImage = "true";
@@ -91,9 +96,12 @@ function clearBrandHost(host: HTMLElement) {
 }
 
 export function GlobalBranding({ contractKind }: { contractKind: PageContract["kind"] }) {
+  const { pathname } = useLocation();
+
   useLayoutEffect(() => {
     const root = document.getElementById("root");
     if (!root) return;
+    const isAuthSurface = pathname === "/login" || pathname.startsWith("/auth/");
     const appliedHosts = new Set<HTMLElement>();
     let queued = false;
 
@@ -108,7 +116,7 @@ export function GlobalBranding({ contractKind }: { contractKind: PageContract["k
         host.classList.add("lulu-global-brand-host");
         host.setAttribute("data-lulu-no-translate", "true");
         host.setAttribute("translate", "no");
-        ensureBrandImage(host);
+        ensureBrandImage(host, isAuthSurface);
         appliedHosts.add(host);
       });
     };
@@ -125,7 +133,7 @@ export function GlobalBranding({ contractKind }: { contractKind: PageContract["k
       observer.disconnect();
       appliedHosts.forEach(clearBrandHost);
     };
-  }, [contractKind]);
+  }, [contractKind, pathname]);
 
   return <style>{globalBrandStyles}</style>;
 }
