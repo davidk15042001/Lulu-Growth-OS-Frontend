@@ -44,6 +44,7 @@ import { ApiError, getFriendlyErrorMessage } from "../../api/client";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { isPageNavigable, pagePath, routes } from "../../routing";
 import { conciseOfficeCopy, officeEvidenceTypeLabel } from "./office-copy";
+import { isPositiveDecimal } from "../../utils/decimal-money";
 import "./agent-native-workspace.css";
 
 export type NativeWorkspaceKind = "command" | "crm" | "communications" | "email" | "calendar" | "commerce" | "finance" | "marketing" | "website" | "reputation" | "operations" | "intelligence";
@@ -447,7 +448,7 @@ function FinanceSurface({ workspaceId }: { workspaceId: string }) {
     }).finally(() => active && setLoading(false));
     return () => { active = false; };
   }, [t, workspaceId]);
-  const due = invoices.filter((item) => Number(item.amountDue) > 0).length;
+  const due = invoices.filter((item) => isPositiveDecimal(item.amountDue)).length;
   return <SurfaceState loading={loading} error={error} empty={!invoices.length && !quotes.length && !(payouts?.items.length) ? t("No financial documents are available yet.") : undefined}><>{partial ? <DataNotice>{t("Verified records unavailable")}</DataNotice> : null}<div className="lulu-native-agent__metrics"><Metric label="Invoices" value={invoices.length} detail={`${due} ${t("with outstanding balance")}`} icon={<FileText size={14} />} /><Metric label="Quotes" value={quotes.length} detail="commercial documents" icon={<WalletCards size={14} />} /><Metric label="Payouts" value={payouts?.items.length ?? "—"} detail={payouts ? "canonical payout records" : "Verified records unavailable"} icon={<Landmark size={14} />} /></div><div className="lulu-native-agent__split-list"><section><div className="lulu-native-agent__list-head"><span>{t("Invoice flow")}</span><small>{t("Verified amounts")}</small></div>{invoices.slice(0, 5).map((invoice) => <article key={invoice.id}><div><strong>{invoice.invoiceNumber}</strong><small>{invoice.currency} {invoice.amountDue} {t("due ·")} {invoice.dueDate ? formatTime(invoice.dueDate) : t("No due date")}</small></div><Status>{invoice.status}</Status></article>)}</section><section><div className="lulu-native-agent__list-head"><span>{t("Quote pipeline")}</span><small>{t("Canonical records")}</small></div>{quotes.slice(0, 5).map((quote) => <article key={quote.id}><div><strong>{quote.quoteNumber}</strong><small>{quote.currency} {quote.grandTotal ?? "—"} · {quote.creationMode}</small></div><Status>{quote.status}</Status></article>)}</section></div></></SurfaceState>;
 }
 
