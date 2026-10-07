@@ -39,6 +39,7 @@ import { ingestRecord, type WorkspaceRecord } from "../../api/records";
 import { useLuluApp } from "../../api/LuluAppContext";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { currentIntlLocale } from "../../i18n/languages";
+import { useLuluConfirm } from "../../components/LuluConfirmDialog";
 import { navigateApp, pagePath, routes } from "../../routing";
 import { VoiceActivityMonitor, VoiceRealtimeRuntime } from "../../voice/voice-runtime";
 import "./office-command-center.css";
@@ -305,6 +306,7 @@ function OfficeSettingsMenu({ workspaceName }: { workspaceName: string }) {
 export function OfficeCommandCenter() {
   const { selectedWorkspace } = useLuluApp();
   const t = useTranslation();
+  const confirm = useLuluConfirm();
   const workspaceId = selectedWorkspace?.id ?? null;
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const composerInputRef = useRef<HTMLTextAreaElement | null>(null);
@@ -1027,7 +1029,7 @@ export function OfficeCommandCenter() {
       setVoiceTranscript(transcript);
       setVoiceMode("thinking");
       setCoreState("thinking");
-      const result = await executeAction(pendingVoiceAction);
+      const result = await executeAction(pendingVoiceAction, { confirmed: true });
       voiceConfirmationActionRef.current = null;
       voiceProcessingRef.current = false;
       if (result && voiceSessionRef.current) speakVoiceResponse(result.status === "succeeded" ? t("The critical action was completed and verified.") : t("The critical action is waiting at its governed approval boundary."));
@@ -1054,8 +1056,14 @@ export function OfficeCommandCenter() {
     void sendContent();
   };
 
-  const executeAction = async (action: AssistantPendingAction): Promise<AssistantPendingAction | null> => {
+  const executeAction = async (action: AssistantPendingAction, options: { confirmed?: boolean } = {}): Promise<AssistantPendingAction | null> => {
     if (!workspaceId || !activeConversationId || action.status !== "ready") return null;
+    if (action.requiresApproval && !options.confirmed && !(await confirm({
+      title: "Confirm this assistant action?",
+      description: "This action can create an external side effect. Review the action details above before continuing.",
+      confirmLabel: t("Confirm and continue"),
+      cancelLabel: t("Cancel"),
+    }))) return null;
     setExecutingActionId(action.id);
     setError("");
     setCoreState("working");
