@@ -8,6 +8,7 @@ import { useLuluApp } from "../api/LuluAppContext";
 import { billingPricing, billingRegions, type BillingRegion } from "../billing/planCatalog";
 import { useLanguage } from "../i18n/GlobalLanguageSwitcher";
 import { currentIntlLocale } from "../i18n/languages";
+import { formatDecimalMoney } from "../utils/decimal-money";
 
 type PlanId = "ai";
 type Plan = { id: PlanId; name: string; eyebrow: string; description: string; icon: typeof WandSparkles; accent: string; features: string[]; limitations: string; cta: string };
@@ -16,7 +17,7 @@ const plans: Plan[] = [
   { id: "ai", name: "AI", eyebrow: "Let Lulu run growth", description: "Give Lulu the authority to recommend, execute and automate the work across your workspace.", icon: WandSparkles, accent: "bg-[var(--secondary)] text-[var(--foreground)] border border-[var(--primary)]/20", features: ["AI insights and recommendations", "AI-assisted content and decisions", "Full automation of supported workflows", "Prepaid AI execution with fixed RMB packages", "No commission on Lulu-attributed sales"], limitations: "AI automation starts with confirmed AI funds; Paid Ads and campaigns stay paused until separate advertising funds are available", cta: "Activate AI" },
 ];
 
-const formatMoney = (value: number) => new Intl.NumberFormat(currentIntlLocale(), { style: "currency", currency: "USD", minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
+const formatMoney = (value: string | number) => formatDecimalMoney(value, "USD", currentIntlLocale());
 const formatDate = (value: string) => new Intl.DateTimeFormat(currentIntlLocale(), { dateStyle: "medium" }).format(new Date(value));
 const safeExternalUrl = (value: string | null) => {
   if (!value) return null;

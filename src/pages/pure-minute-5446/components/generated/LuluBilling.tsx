@@ -7,7 +7,7 @@ import { LuluGlobalNavigation } from '../../../../components/LuluGlobalNavigatio
 import { ApiWalletPanel } from '../../../../components/ApiWalletPanel';
 import { AdSpendWalletPanel } from '../../../../components/AdSpendWalletPanel';
 import { createPaymentQrDataUrl } from '../../../../utils/paymentQr';
-import { formatDecimalMoney } from '../../../../utils/decimal-money';
+import { compareDecimalMoney, formatDecimalMoney } from '../../../../utils/decimal-money';
 
 const tabs = [
   { id: 'payments', label: 'Payments' },
@@ -124,7 +124,7 @@ export function LuluBilling() {
   const payableStorageInvoice = paidInvoices.find((invoice) =>
     ['payment_due', 'payment_failed', 'failed'].includes(invoice.status)
     && invoice.billingMode === 'weekly'
-    && invoice.totalCost >= 0.01
+    && compareDecimalMoney(invoice.totalCost, '0.01', 2) >= 0
   ) ?? null;
 
   const syncCardSetup = useCallback(async (setupId: string, automatic = false) => {

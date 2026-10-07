@@ -135,9 +135,9 @@ export type BillingState = {
     blockReason: "PAYMENT_SOURCE_SETUP_REQUIRED" | "PAYMENT_SOURCE_REQUIRED" | "AUTOMATIC_PAYMENT_FAILED" | string | null;
     blockedPeriodId: string | null;
     paymentLink: string | null;
-    apiCost: number;
-    serverCost: number;
-    estimatedTotal: number;
+    apiCost: string;
+    serverCost: string;
+    estimatedTotal: string;
     inputTokens: number;
     outputTokens: number;
     apiEvents: number;
@@ -156,7 +156,7 @@ export type BillingState = {
       inputTokens: number;
       outputTokens: number;
       kieCredits: number;
-      customerCost: number;
+      customerCost: string;
     }>;
     paymentMethods: Array<"card" | "alipaycn" | "wechatpay">;
     invoices: Array<{
@@ -165,9 +165,9 @@ export type BillingState = {
       periodEnd: string;
       status: "processing" | "payment_due" | "payment_failed" | "paid" | "skipped" | "failed" | "voided";
       currency: "USD";
-      apiCost: number;
-      serverCost: number;
-      totalCost: number;
+      apiCost: string;
+      serverCost: string;
+      totalCost: string;
       hostedInvoiceUrl: string | null;
       invoicePdfUrl: string | null;
       finalizedAt: string | null;
