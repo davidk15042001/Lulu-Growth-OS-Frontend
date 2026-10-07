@@ -118,6 +118,11 @@ export function PageFrame({
     });
   }, [page.slug, selectedWorkspace?.id]);
 
+  // Auth and onboarding page components own their semantic <main>. Keeping
+  // the shared frame neutral there avoids nested main landmarks while
+  // preserving the main landmark for ordinary workspace surfaces.
+  const Frame = isStandalone ? "div" : "main";
+
   return (
     <>
       {!isStandalone && !officePanel && (
@@ -128,7 +133,7 @@ export function PageFrame({
           showNavigationToggle
         />
       )}
-      <main
+      <Frame
         className={`page-frame${isStandalone ? " page-frame--auth" : ""}${officePanel ? " page-frame--office-panel" : ""}`}
         style={isStandalone ? { height: "auto", minHeight: "100vh", overflow: "visible" } : undefined}
       >
@@ -138,7 +143,7 @@ export function PageFrame({
           mobileNavigationOpen={mobileNavigationOpen}
           onCloseMobileNavigation={closeMobileNavigation}
         />
-      </main>
+      </Frame>
     </>
   );
 }
