@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { AlertTriangle, ChevronLeft, ChevronRight, Database, LoaderCircle, RefreshCw, Sparkles } from "lucide-react";
+import { AlertTriangle, ChevronLeft, ChevronRight, Database, LoaderCircle, RefreshCw, Search, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useLiveRecords } from "../api/useLiveRecords";
@@ -49,12 +49,26 @@ export function BackendResourceOverviewPage({
   const language = useLanguage();
   const [searchParams] = useSearchParams();
   const selectedRecordId = searchParams.get("recordId");
+  const initialSearch = searchParams.get("search") ?? "";
+  const [search, setSearch] = useState(initialSearch);
+  const [debouncedSearch, setDebouncedSearch] = useState(initialSearch.trim());
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
-  const records = useLiveRecords(resourceType, `page=${page}&limit=${PAGE_SIZE}`, { includeTotal: true });
+  const recordsQuery = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE) });
+  if (debouncedSearch) recordsQuery.set("search", debouncedSearch);
+  const records = useLiveRecords(resourceType, recordsQuery.toString(), { includeTotal: true });
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const hasRecords = records.items.length > 0;
   const isLoaded = records.status === "ready" || records.status === "stale";
+  const hasSearch = debouncedSearch.length > 0;
+
+  useEffect(() => {
+    const handle = window.setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 240);
+    return () => window.clearTimeout(handle);
+  }, [search]);
 
   useEffect(() => {
     setPage(1);
@@ -126,12 +140,33 @@ export function BackendResourceOverviewPage({
         <span>{t("The latest refresh failed. Only the last successfully loaded records are shown.")}</span>
       </div> : null}
 
+      <div className="mb-5 flex flex-col gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-4">
+        <label className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-border bg-background/75 px-3 transition focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/15 sm:max-w-xl">
+          <Search aria-hidden="true" className="shrink-0 text-muted-foreground" size={17} />
+          <span className="sr-only">{t("Search")}</span>
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder={t("Search")}
+            aria-label={t("Search")}
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            autoComplete="off"
+          />
+          {search ? <button type="button" onClick={() => setSearch("")} className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-muted-foreground transition hover:bg-secondary hover:text-foreground" aria-label={t("Clear search")}>
+            <X aria-hidden="true" size={15} />
+          </button> : null}
+        </label>
+        <p className="m-0 text-xs text-muted-foreground" aria-live="polite">
+          {isLoaded ? <><strong className="font-semibold text-foreground">{total.toLocaleString(language)}</strong> {t("Records")}</> : t("Waiting for workspace data")}
+        </p>
+      </div>
+
       {records.status === "loading" && !hasRecords ? <section className="grid min-h-[380px] place-items-center rounded-[28px] border border-border bg-card p-8 shadow-[0_18px_60px_-42px_rgba(15,23,42,.35)]" role="status" aria-live="polite">
         <div className="text-center text-sm text-muted-foreground"><LoaderCircle aria-hidden="true" className="mx-auto mb-4 animate-spin text-primary" size={28} /><p className="font-medium">{t("Loading verified records…")}</p><p className="mt-1 text-xs">{t("Reading the current workspace state")}</p></div>
       </section> : records.status === "error" && !hasRecords ? <section className="grid min-h-[380px] place-items-center rounded-[28px] border border-chart-5/30 bg-chart-5/5 p-8 text-center shadow-sm" role="alert">
         <div className="max-w-xl"><AlertTriangle aria-hidden="true" className="mx-auto mb-4 text-chart-5" size={30} /><h2 className="text-xl font-semibold">{t("Verified records unavailable")}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{records.error}</p><p className="mt-2 text-xs text-muted-foreground">{t("No metrics or success claims are inferred while the backend state is unavailable.")}</p></div>
       </section> : !hasRecords ? <section className="grid min-h-[380px] place-items-center rounded-[28px] border border-dashed border-border bg-card p-8 text-center shadow-[0_18px_60px_-42px_rgba(15,23,42,.35)]">
-        <div className="max-w-xl"><div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">{emptyIcon}</div><h2 className="text-xl font-semibold tracking-[-.02em]">{t(emptyTitle)}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{t(emptyDescription)}</p></div>
+        <div className="max-w-xl"><div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary">{emptyIcon}</div><h2 className="text-xl font-semibold tracking-[-.02em]">{hasSearch ? t("No matching page found.") : t(emptyTitle)}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">{hasSearch ? t("Clear search") : t(emptyDescription)}</p>{hasSearch ? <button type="button" onClick={() => setSearch("")} className="mt-5 inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 text-sm font-semibold transition hover:bg-secondary">{t("Clear search")}</button> : null}</div>
       </section> : <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3" aria-label={t(title)}>
         {records.items.map((record) => <article key={record.id} className={`group min-w-0 rounded-[24px] border p-5 shadow-[0_14px_40px_-30px_rgba(15,23,42,.45)] transition hover:-translate-y-0.5 hover:shadow-[0_20px_45px_-30px_rgba(15,23,42,.55)] ${record.id === selectedRecordId ? "border-primary/50 bg-primary/5 ring-2 ring-primary/10" : "border-border bg-card"}`}>
           <div className="flex items-start justify-between gap-3">
