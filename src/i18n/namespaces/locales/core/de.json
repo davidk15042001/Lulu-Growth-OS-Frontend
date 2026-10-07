@@ -167,5 +167,14 @@
   "Checking workspace access…": "Workspace-Zugriff wird geprüft…",
   "No workspace is available for this account.": "Für dieses Konto ist kein Workspace verfügbar.",
   "Available integrations": "Verfügbare Integrationen",
-  "Ready to retry": "Bereit für einen neuen Versuch"
+  "Ready to retry": "Bereit für einen neuen Versuch",
+  "Confirm this assistant action?": "Diese Assistant-Aktion bestätigen?",
+  "This action can create an external side effect. Review the action details above before continuing.": "Diese Aktion kann eine externe Nebenwirkung auslösen. Prüfe die Aktionsdetails oben, bevor du fortfährst.",
+  "The assistant action could not be executed.": "Die Assistant-Aktion konnte nicht ausgeführt werden.",
+  "Execute action": "Aktion ausführen",
+  "executing": "wird ausgeführt",
+  "The assistant action status could not be refreshed.": "Der Status der Assistant-Aktion konnte nicht aktualisiert werden.",
+  "Confirm and continue": "Bestätigen und fortfahren",
+  "Cancel": "Abbrechen",
+  "Refresh status": "Status aktualisieren"
 }

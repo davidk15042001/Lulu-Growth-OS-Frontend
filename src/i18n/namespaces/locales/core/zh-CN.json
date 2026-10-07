@@ -167,5 +167,14 @@
   "Checking workspace access…": "正在检查工作区访问权限…",
   "No workspace is available for this account.": "此账户没有可用的工作区。",
   "Available integrations": "可用集成",
-  "Ready to retry": "可以重试"
+  "Ready to retry": "可以重试",
+  "Confirm this assistant action?": "确认此助手操作？",
+  "This action can create an external side effect. Review the action details above before continuing.": "此操作可能产生外部副作用。请在继续前查看上方的操作详情。",
+  "The assistant action could not be executed.": "无法执行助手操作。",
+  "Execute action": "执行操作",
+  "executing": "执行中",
+  "The assistant action status could not be refreshed.": "无法刷新助手操作状态。",
+  "Confirm and continue": "确认并继续",
+  "Cancel": "取消",
+  "Refresh status": "刷新状态"
 }
