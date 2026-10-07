@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { ArrowRight, ChevronLeft, ChevronRight, Search, Target } from 'lucide-react';
+import { AlertTriangle, ArrowRight, ChevronLeft, ChevronRight, RefreshCw, Search, Target } from 'lucide-react';
 import { useLuluApp } from '../../../../api/LuluAppContext';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { WorkspaceIntelligencePanel } from '../../../../components/WorkspaceIntelligencePanel';
@@ -119,7 +119,23 @@ export function AdvertisingWorkspace() {
               This workspace should stay centered on live campaign status, budget exposure and the items that need approval or optimization.
             </p>
           </div>
+          <button
+            type="button"
+            onClick={() => void campaigns.refresh()}
+            disabled={campaigns.loading}
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground transition hover:bg-secondary disabled:cursor-wait disabled:opacity-60"
+          >
+            <RefreshCw size={15} className={campaigns.loading ? 'animate-spin' : undefined} />
+            {campaigns.loading ? 'Refreshing…' : 'Refresh live data'}
+          </button>
         </header>
+
+        {campaigns.status === 'stale' ? (
+          <div role="status" className="mb-6 flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200">
+            <AlertTriangle size={17} className="mt-0.5 shrink-0" />
+            <span>{campaigns.error ?? 'The latest refresh failed. Only the last successfully loaded records are shown.'}</span>
+          </div>
+        ) : null}
 
         <WorkspaceIntelligencePanel workspaceId={workspaceId} />
 
@@ -140,7 +156,7 @@ export function AdvertisingWorkspace() {
             <p className="mt-1 text-xs text-muted-foreground">Draft, paused or flagged loaded records</p>
           </article>
           <article className="rounded-xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">Visible spend</p>
+            <p className="text-xs text-muted-foreground">Visible campaign value</p>
             <p className="mt-2 text-2xl font-semibold text-foreground">{exactMoneyTotals(campaigns.items)}</p>
             <p className="mt-1 text-xs text-muted-foreground">Exact totals by currency on this loaded page</p>
           </article>
