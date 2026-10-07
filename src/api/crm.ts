@@ -25,6 +25,9 @@ export type CrmDeliveryTarget = {
   updateArguments: Record<string, unknown>;
   cancelToolSlug: string;
   cancelArguments: Record<string, unknown>;
+  reconcileToolSlug: string | null;
+  reconcileArguments: Record<string, unknown>;
+  reconcileResultExternalIdPath: string | null;
   createdBy: string | null;
   createdAt: string;
   updatedAt: string;
@@ -43,7 +46,8 @@ export type CrmDeliveryCandidate = {
 export type CrmDeliveryTargetInput = Pick<CrmDeliveryTarget,
   'resourceType' | 'integrationTeamId' | 'targetName' | 'enabled' | 'createToolSlug' |
   'createArguments' | 'createResultExternalIdPath' | 'updateToolSlug' | 'updateArguments' |
-  'cancelToolSlug' | 'cancelArguments'>;
+  'cancelToolSlug' | 'cancelArguments' | 'reconcileToolSlug' | 'reconcileArguments' |
+  'reconcileResultExternalIdPath'>;
 
 export type CrmDeliveryProjectionStatus = 'PENDING' | 'SYNCED' | 'CANCELLED' | 'FAILED' | 'AMBIGUOUS';
 
@@ -65,6 +69,7 @@ export type CrmDeliveryProjection = {
   status: CrmDeliveryProjectionStatus;
   lastOperation: 'CREATE' | 'UPDATE' | 'CANCEL';
   lastErrorCode: string | null;
+  reconciliationAvailable: boolean;
   updatedAt: string;
 };
 
@@ -81,6 +86,9 @@ export const crmApi = {
       path: workspaceApiPath(workspaceId, `/crm/delivery-projections${query ? `?${query}` : ''}`),
     });
   },
+  reconcileDeliveryProjection: (workspaceId: string, projectionId: string) => requestApi<CrmDeliveryProjection>({
+    path: workspaceApiPath(workspaceId, `/crm/delivery-projections/${encodeURIComponent(projectionId)}/reconcile`), method: 'POST',
+  }),
   deliveryTargets: (workspaceId: string, resourceType?: CrmDeliveryResourceType) => {
     const query = resourceType ? `?resourceType=${encodeURIComponent(resourceType)}` : '';
     return requestApi<{ items: CrmDeliveryTarget[]; limit: number }>({

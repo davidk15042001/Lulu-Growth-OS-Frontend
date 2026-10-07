@@ -178,5 +178,21 @@
   "Zustellstatus filtern": "Filter delivery status",
   "geladen": "loaded",
   "Weitere Zustellungen sind verfügbar.": "More deliveries are available.",
-  "Weitere laden": "Load more"
+  "Weitere laden": "Load more",
+  "Die Provider-Rücklese konnte nicht abgeschlossen werden.": "Provider readback could not be completed.",
+  "Nicht konfiguriert": "Not configured",
+  "Provider-Rücklese verifizieren": "Verify provider readback",
+  "Bitte für die Provider-Rücklese ein gültiges JSON-Objekt und den ID-Pfad hinterlegen.": "Add valid JSON and an ID path for provider readback.",
+  "Keine Rücklese-Aktion": "No readback action",
+  "Readback": "Readback",
+  "Aktion": "Action",
+  "Verifizieren": "Verify",
+  "Unklare Ergebnisse bleiben manuell": "Unclear outcomes remain manual",
+  "Readback-Mapping JSON": "Readback mapping JSON",
+  "Pfad zur externen ID aus der Readback-Antwort": "External ID path from the readback response",
+  "Nur bei einem stabilen Treffer wird das unklare Create/Update als synchronisiert markiert.": "Only a stable match marks the unclear create/update as synchronized.",
+  "Readback-Aktion": "Readback action",
+  "AMBIGUOUS": "AMBIGUOUS",
+  "oder": "or",
+  "record.id oder id": "record.id or id"
 }

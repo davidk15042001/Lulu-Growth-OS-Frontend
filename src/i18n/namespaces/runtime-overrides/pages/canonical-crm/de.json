@@ -198,5 +198,21 @@
   "Zustellstatus filtern": "Zustellstatus filtern",
   "geladen": "geladen",
   "Weitere Zustellungen sind verfügbar.": "Weitere Zustellungen sind verfügbar.",
-  "Weitere laden": "Weitere laden"
+  "Weitere laden": "Weitere laden",
+  "Die Provider-Rücklese konnte nicht abgeschlossen werden.": "Die Provider-Rücklese konnte nicht abgeschlossen werden.",
+  "Nicht konfiguriert": "Nicht konfiguriert",
+  "Provider-Rücklese verifizieren": "Provider-Rücklese verifizieren",
+  "Bitte für die Provider-Rücklese ein gültiges JSON-Objekt und den ID-Pfad hinterlegen.": "Bitte für die Provider-Rücklese ein gültiges JSON-Objekt und den ID-Pfad hinterlegen.",
+  "Keine Rücklese-Aktion": "Keine Rücklese-Aktion",
+  "Readback": "Readback",
+  "Aktion": "Aktion",
+  "Verifizieren": "Verifizieren",
+  "Unklare Ergebnisse bleiben manuell": "Unklare Ergebnisse bleiben manuell",
+  "Readback-Mapping JSON": "Readback-Mapping JSON",
+  "Pfad zur externen ID aus der Readback-Antwort": "Pfad zur externen ID aus der Readback-Antwort",
+  "Nur bei einem stabilen Treffer wird das unklare Create/Update als synchronisiert markiert.": "Nur bei einem stabilen Treffer wird das unklare Create/Update als synchronisiert markiert.",
+  "Readback-Aktion": "Readback-Aktion",
+  "AMBIGUOUS": "AMBIGUOUS",
+  "oder": "oder",
+  "record.id oder id": "record.id oder id"
 }

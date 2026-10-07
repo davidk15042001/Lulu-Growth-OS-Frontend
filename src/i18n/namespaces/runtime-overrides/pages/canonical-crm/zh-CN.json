@@ -205,5 +205,21 @@
   "Zustellstatus filtern": "筛选交付状态",
   "geladen": "已加载",
   "Weitere Zustellungen sind verfügbar.": "还有更多交付记录。",
-  "Weitere laden": "加载更多"
+  "Weitere laden": "加载更多",
+  "Die Provider-Rücklese konnte nicht abgeschlossen werden.": "无法完成提供商回读。",
+  "Nicht konfiguriert": "未配置",
+  "Provider-Rücklese verifizieren": "验证提供商回读",
+  "Bitte für die Provider-Rücklese ein gültiges JSON-Objekt und den ID-Pfad hinterlegen.": "请为提供商回读填写有效的 JSON 对象和 ID 路径。",
+  "Keine Rücklese-Aktion": "无回读操作",
+  "Readback": "回读",
+  "Aktion": "操作",
+  "Verifizieren": "验证",
+  "Unklare Ergebnisse bleiben manuell": "不明确的结果仍需手动处理",
+  "Readback-Mapping JSON": "回读映射 JSON",
+  "Pfad zur externen ID aus der Readback-Antwort": "回读响应中的外部 ID 路径",
+  "Nur bei einem stabilen Treffer wird das unklare Create/Update als synchronisiert markiert.": "只有匹配到稳定结果时，未确定的创建/更新才会标记为已同步。",
+  "Readback-Aktion": "回读操作",
+  "AMBIGUOUS": "未确定",
+  "oder": "或",
+  "record.id oder id": "record.id 或 id"
 }
