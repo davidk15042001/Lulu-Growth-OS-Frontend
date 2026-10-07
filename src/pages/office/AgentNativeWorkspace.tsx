@@ -140,6 +140,11 @@ const OVERVIEW_RESOURCE_BY_PAGE_ID: Readonly<Record<string, string>> = {
   "eagerly-winter-3152": "marketing_campaigns",
 };
 
+const RESOURCE_PAGE_BY_TYPE: Readonly<Record<string, string>> = Object.entries(RESOURCE_BY_SLUG).reduce<Record<string, string>>((pages, [pageId, resourceType]) => {
+  if (!pages[resourceType]) pages[resourceType] = pageId;
+  return pages;
+}, {});
+
 /**
  * Every employee rendered in the Station has an intentional native workspace.
  *
@@ -736,6 +741,8 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
   const isCatalogPreview = Boolean(catalogAgent && !employeeDetail);
   const fullWorkspacePath = source.pageId && isPageNavigable(source.pageId)
     ? pagePath(source.pageId)
+    : resourceSurface && RESOURCE_PAGE_BY_TYPE[resourceSurface] && isPageNavigable(RESOURCE_PAGE_BY_TYPE[resourceSurface])
+      ? pagePath(RESOURCE_PAGE_BY_TYPE[resourceSurface])
     : NATIVE_WORKSPACE_PATHS[kind] ?? null;
   const requiredToolCount = catalogAgent ? catalogAgent.requiredTools.length : null;
   const spendBoundary = catalogAgent?.spendPermission === "prepaid_ad_spend_only"
