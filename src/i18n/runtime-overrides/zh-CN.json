@@ -7246,5 +7246,20 @@
   "Opportunities": "销售机会",
   "The record will leave the active view while its audit history remains available.": "该记录将从活动视图中移除，但其可审计历史仍会保留。",
   "Add the context needed to complete this task.": "添加完成此任务所需的上下文。",
-  "Add context for the next opportunity step.": "添加下一步销售机会行动所需的上下文。"
+  "Add context for the next opportunity step.": "添加下一步销售机会行动所需的上下文。",
+  "Ausstehend": "待处理",
+  "Synchronisiert": "已同步",
+  "Storniert": "已取消",
+  "Fehlgeschlagen": "失败",
+  "Klärung erforderlich": "需要对账",
+  "Der Zustellstatus konnte nicht geladen werden.": "无法加载交付状态。",
+  "Letzte Zustellungen": "最近交付",
+  "Nur gespeicherte Provider-Ergebnisse werden angezeigt. Ein laufender UI-Zustand gilt nicht als Beleg.": "这里只显示已保存的提供商结果。实时界面状态不构成证据。",
+  "Einträge": "条目",
+  "Zustellstatus wird geladen …": "正在加载交付状态……",
+  "Für": "尚未记录",
+  "wurden noch keine externen Zustellungen protokolliert.": "的外部交付。",
+  "Datensatz": "记录",
+  "Ziel": "目标",
+  "Vorgang": "操作"
 }

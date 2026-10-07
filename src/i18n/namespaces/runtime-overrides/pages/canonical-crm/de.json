@@ -178,5 +178,20 @@
   "Speichern …": "Speichern …",
   "Ziel speichern": "Ziel speichern",
   "„{{0}}“ wird aus der aktiven CRM-Ansicht entfernt. Die auditierbare Historie bleibt erhalten.": "„{{0}}“ wird aus der aktiven CRM-Ansicht entfernt. Die auditierbare Historie bleibt erhalten.",
-  "danger": "danger"
+  "danger": "danger",
+  "Ausstehend": "Ausstehend",
+  "Synchronisiert": "Synchronisiert",
+  "Storniert": "Storniert",
+  "Fehlgeschlagen": "Fehlgeschlagen",
+  "Klärung erforderlich": "Klärung erforderlich",
+  "Der Zustellstatus konnte nicht geladen werden.": "Der Zustellstatus konnte nicht geladen werden.",
+  "Letzte Zustellungen": "Letzte Zustellungen",
+  "Nur gespeicherte Provider-Ergebnisse werden angezeigt. Ein laufender UI-Zustand gilt nicht als Beleg.": "Nur gespeicherte Provider-Ergebnisse werden angezeigt. Ein laufender UI-Zustand gilt nicht als Beleg.",
+  "Einträge": "Einträge",
+  "Zustellstatus wird geladen …": "Zustellstatus wird geladen …",
+  "Für": "Für",
+  "wurden noch keine externen Zustellungen protokolliert.": "wurden noch keine externen Zustellungen protokolliert.",
+  "Datensatz": "Datensatz",
+  "Ziel": "Ziel",
+  "Vorgang": "Vorgang"
 }

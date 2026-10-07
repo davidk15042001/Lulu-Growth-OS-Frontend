@@ -1157,5 +1157,20 @@
   "Bei einer Pause bleibt die Konfiguration erhalten; neue Projektionen werden nicht gestartet.": "When paused, the configuration is retained and new projections are not started.",
   "Speichern …": "Saving …",
   "Ziel speichern": "Save destination",
-  "„{{0}}“ wird aus der aktiven CRM-Ansicht entfernt. Die auditierbare Historie bleibt erhalten.": "“{{0}}” will be removed from the active CRM view. The auditable history remains available."
+  "„{{0}}“ wird aus der aktiven CRM-Ansicht entfernt. Die auditierbare Historie bleibt erhalten.": "“{{0}}” will be removed from the active CRM view. The auditable history remains available.",
+  "Ausstehend": "Pending",
+  "Synchronisiert": "Synchronized",
+  "Storniert": "Cancelled",
+  "Fehlgeschlagen": "Failed",
+  "Klärung erforderlich": "Reconciliation required",
+  "Der Zustellstatus konnte nicht geladen werden.": "Delivery status could not be loaded.",
+  "Letzte Zustellungen": "Recent deliveries",
+  "Nur gespeicherte Provider-Ergebnisse werden angezeigt. Ein laufender UI-Zustand gilt nicht als Beleg.": "Only persisted provider results are shown. A live UI state is not evidence.",
+  "Einträge": "Entries",
+  "Zustellstatus wird geladen …": "Loading delivery status …",
+  "Für": "For",
+  "wurden noch keine externen Zustellungen protokolliert.": "no external deliveries have been recorded yet.",
+  "Datensatz": "Record",
+  "Ziel": "Destination",
+  "Vorgang": "Operation"
 }

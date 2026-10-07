@@ -45,7 +45,35 @@ export type CrmDeliveryTargetInput = Pick<CrmDeliveryTarget,
   'createArguments' | 'createResultExternalIdPath' | 'updateToolSlug' | 'updateArguments' |
   'cancelToolSlug' | 'cancelArguments'>;
 
+export type CrmDeliveryProjectionStatus = 'PENDING' | 'SYNCED' | 'CANCELLED' | 'FAILED' | 'AMBIGUOUS';
+
+export type CrmDeliveryProjection = {
+  id: string;
+  workspaceId: string;
+  sourceRecordId: string;
+  resourceType: CrmDeliveryResourceType;
+  recordName: string;
+  recordStatus: string;
+  deliveryTargetId: string;
+  targetName: string;
+  externalResourceId: string | null;
+  status: CrmDeliveryProjectionStatus;
+  lastOperation: 'CREATE' | 'UPDATE' | 'CANCEL';
+  lastErrorCode: string | null;
+  updatedAt: string;
+};
+
 export const crmApi = {
+  deliveryProjections: (workspaceId: string, input: { resourceType?: CrmDeliveryResourceType; status?: CrmDeliveryProjectionStatus; limit?: number } = {}) => {
+    const params = new URLSearchParams();
+    if (input.resourceType) params.set('resourceType', input.resourceType);
+    if (input.status) params.set('status', input.status);
+    if (input.limit) params.set('limit', String(input.limit));
+    const query = params.toString();
+    return requestApi<{ items: CrmDeliveryProjection[]; nextCursor: { beforeUpdatedAt: string; beforeId: string } | null }>({
+      path: workspaceApiPath(workspaceId, `/crm/delivery-projections${query ? `?${query}` : ''}`),
+    });
+  },
   deliveryTargets: (workspaceId: string, resourceType?: CrmDeliveryResourceType) => {
     const query = resourceType ? `?resourceType=${encodeURIComponent(resourceType)}` : '';
     return requestApi<{ items: CrmDeliveryTarget[]; limit: number }>({

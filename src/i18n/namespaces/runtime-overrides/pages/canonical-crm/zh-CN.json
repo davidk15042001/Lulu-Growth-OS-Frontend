@@ -185,5 +185,20 @@
   "Speichern …": "正在保存……",
   "Ziel speichern": "保存目标",
   "„{{0}}“ wird aus der aktiven CRM-Ansicht entfernt. Die auditierbare Historie bleibt erhalten.": "“{{0}}”将从活动 CRM 视图中移除，可审计历史仍会保留。",
-  "danger": "danger"
+  "danger": "danger",
+  "Ausstehend": "待处理",
+  "Synchronisiert": "已同步",
+  "Storniert": "已取消",
+  "Fehlgeschlagen": "失败",
+  "Klärung erforderlich": "需要对账",
+  "Der Zustellstatus konnte nicht geladen werden.": "无法加载交付状态。",
+  "Letzte Zustellungen": "最近交付",
+  "Nur gespeicherte Provider-Ergebnisse werden angezeigt. Ein laufender UI-Zustand gilt nicht als Beleg.": "这里只显示已保存的提供商结果。实时界面状态不构成证据。",
+  "Einträge": "条目",
+  "Zustellstatus wird geladen …": "正在加载交付状态……",
+  "Für": "尚未记录",
+  "wurden noch keine externen Zustellungen protokolliert.": "的外部交付。",
+  "Datensatz": "记录",
+  "Ziel": "目标",
+  "Vorgang": "操作"
 }

@@ -7269,5 +7269,20 @@
   "Opportunities": "Verkaufschancen",
   "The record will leave the active view while its audit history remains available.": "Der Datensatz wird aus der aktiven Ansicht entfernt; seine auditierbare Historie bleibt verfügbar.",
   "Add the context needed to complete this task.": "Füge den Kontext hinzu, der zum Erledigen dieser Aufgabe benötigt wird.",
-  "Add context for the next opportunity step.": "Füge Kontext für den nächsten Opportunity-Schritt hinzu."
+  "Add context for the next opportunity step.": "Füge Kontext für den nächsten Opportunity-Schritt hinzu.",
+  "Ausstehend": "Ausstehend",
+  "Synchronisiert": "Synchronisiert",
+  "Storniert": "Storniert",
+  "Fehlgeschlagen": "Fehlgeschlagen",
+  "Klärung erforderlich": "Klärung erforderlich",
+  "Der Zustellstatus konnte nicht geladen werden.": "Der Zustellstatus konnte nicht geladen werden.",
+  "Letzte Zustellungen": "Letzte Zustellungen",
+  "Nur gespeicherte Provider-Ergebnisse werden angezeigt. Ein laufender UI-Zustand gilt nicht als Beleg.": "Nur gespeicherte Provider-Ergebnisse werden angezeigt. Ein laufender UI-Zustand gilt nicht als Beleg.",
+  "Einträge": "Einträge",
+  "Zustellstatus wird geladen …": "Zustellstatus wird geladen …",
+  "Für": "Für",
+  "wurden noch keine externen Zustellungen protokolliert.": "wurden noch keine externen Zustellungen protokolliert.",
+  "Datensatz": "Datensatz",
+  "Ziel": "Ziel",
+  "Vorgang": "Vorgang"
 }

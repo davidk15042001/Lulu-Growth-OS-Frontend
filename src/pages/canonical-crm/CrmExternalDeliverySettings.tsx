@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Check, ChevronDown, CircleAlert, Link2, LoaderCircle, Pencil, Plus, X } from 'lucide-react';
 import { getFriendlyErrorMessage } from '../../api/client';
-import { crmApi, type CrmDeliveryCandidate, type CrmDeliveryResourceType, type CrmDeliveryTarget, type CrmDeliveryTargetInput } from '../../api/crm';
+import { crmApi, type CrmDeliveryCandidate, type CrmDeliveryProjection, type CrmDeliveryResourceType, type CrmDeliveryTarget, type CrmDeliveryTargetInput } from '../../api/crm';
 import { composioApi, type ComposioIntegrationTeam } from '../../api/composio';
 import { useLuluDialog } from '../../components/useLuluDialog';
 
@@ -59,6 +59,17 @@ function toolLabel(candidate: CrmDeliveryCandidate | undefined, slug: string) {
   return candidate ? `${candidate.name} · ${candidate.toolkitSlug}` : slug;
 }
 
+function deliveryStatusLabel(status: CrmDeliveryProjection['status']) {
+  return ({ PENDING: 'Ausstehend', SYNCED: 'Synchronisiert', CANCELLED: 'Storniert', FAILED: 'Fehlgeschlagen', AMBIGUOUS: 'Klärung erforderlich' } as const)[status];
+}
+
+function deliveryStatusClass(status: CrmDeliveryProjection['status']) {
+  if (status === 'SYNCED' || status === 'CANCELLED') return 'bg-emerald-500/15 text-emerald-600';
+  if (status === 'AMBIGUOUS') return 'bg-amber-500/15 text-amber-700';
+  if (status === 'FAILED') return 'bg-rose-500/15 text-rose-700';
+  return 'bg-sky-500/15 text-sky-700';
+}
+
 export function CrmExternalDeliverySettings({
   workspaceId, canManage, onError,
 }: {
@@ -69,6 +80,8 @@ export function CrmExternalDeliverySettings({
   const [resourceType, setResourceType] = useState<CrmDeliveryResourceType>('crm_companies');
   const [targets, setTargets] = useState<CrmDeliveryTarget[]>([]);
   const [loading, setLoading] = useState(true);
+  const [projections, setProjections] = useState<CrmDeliveryProjection[]>([]);
+  const [loadingProjections, setLoadingProjections] = useState(false);
   const [expanded, setExpanded] = useState(false);
   const [editing, setEditing] = useState<CrmDeliveryTarget | null | undefined>(undefined);
 
@@ -84,6 +97,20 @@ export function CrmExternalDeliverySettings({
     });
     return () => { active = false; };
   }, [onError, resourceType, workspaceId]);
+
+  useEffect(() => {
+    if (!expanded) return;
+    let active = true;
+    setLoadingProjections(true);
+    void crmApi.deliveryProjections(workspaceId, { resourceType, limit: 20 }).then((result) => {
+      if (active) setProjections(result.data.items);
+    }).catch((cause) => {
+      if (active) onError(getFriendlyErrorMessage(cause, 'Der Zustellstatus konnte nicht geladen werden.'));
+    }).finally(() => {
+      if (active) setLoadingProjections(false);
+    });
+    return () => { active = false; };
+  }, [expanded, onError, resourceType, workspaceId]);
 
   function saved(target: CrmDeliveryTarget) {
     setTargets((current) => {
@@ -111,6 +138,12 @@ export function CrmExternalDeliverySettings({
       {loading ? <div className="flex min-h-24 items-center gap-3 text-sm text-[var(--muted-foreground)]"><LoaderCircle size={17} className="animate-spin"/>Ziele werden geladen …</div>
         : !targets.length ? <div className="flex min-h-28 items-start gap-4 rounded-xl border border-dashed border-[var(--border)] bg-[var(--background)]/45 p-5"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[var(--secondary)] text-[var(--muted-foreground)]"><Link2 size={18}/></span><div><h3 className="font-medium">Noch kein externes Ziel für {resourceLabel(resourceType)}</h3><p className="mt-1 max-w-2xl text-sm leading-6 text-[var(--muted-foreground)]">Verbinde zuerst eine Anwendung unter Integrationen. Danach werden ausschließlich die für das gewählte Composio-Team verfügbaren Aktionen angeboten.</p></div></div>
           : <div className="grid gap-3 xl:grid-cols-2">{targets.map((target) => <article key={target.id} className="rounded-xl border border-[var(--border)] bg-[var(--background)]/45 p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><h3 className="truncate font-medium">{target.targetName}</h3><span className={target.enabled ? 'rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-600' : 'rounded-full bg-[var(--secondary)] px-2 py-0.5 text-[11px] font-semibold text-[var(--muted-foreground)]'}>{target.enabled ? 'Aktiv' : 'Pausiert'}</span></div><p className="mt-1 text-xs text-[var(--muted-foreground)]">{resourceLabel(target.resourceType)} · Create, Update und Cancel über das ausgewählte Team</p></div>{canManage ? <button type="button" onClick={() => setEditing(target)} className="shrink-0 rounded-lg border border-[var(--border)] p-2 text-[var(--muted-foreground)] hover:bg-[var(--secondary)] hover:text-[var(--foreground)]" aria-label={`${target.targetName} bearbeiten`}><Pencil size={15}/></button> : null}</div><div className="mt-3 grid gap-2 border-t border-[var(--border)] pt-3 text-xs text-[var(--muted-foreground)] sm:grid-cols-3"><span><strong className="block text-[var(--foreground)]">Create</strong><code className="break-all text-[10px]">{target.createToolSlug}</code></span><span><strong className="block text-[var(--foreground)]">Update</strong><code className="break-all text-[10px]">{target.updateToolSlug}</code></span><span><strong className="block text-[var(--foreground)]">Cancel</strong><code className="break-all text-[10px]">{target.cancelToolSlug}</code></span></div></article>)}</div>}
+      <section className="overflow-hidden rounded-xl border border-[var(--border)] bg-[var(--background)]/45" aria-labelledby="crm-delivery-status-title">
+        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--border)] px-4 py-3 sm:px-5"><div><h3 id="crm-delivery-status-title" className="text-sm font-semibold">Letzte Zustellungen</h3><p className="mt-1 text-xs text-[var(--muted-foreground)]">Nur gespeicherte Provider-Ergebnisse werden angezeigt. Ein laufender UI-Zustand gilt nicht als Beleg.</p></div><span className="text-xs text-[var(--muted-foreground)]">{projections.length} Einträge</span></header>
+        {loadingProjections ? <div className="flex min-h-20 items-center gap-3 px-4 text-sm text-[var(--muted-foreground)] sm:px-5"><LoaderCircle size={16} className="animate-spin"/>Zustellstatus wird geladen …</div>
+          : !projections.length ? <div className="px-4 py-6 text-sm text-[var(--muted-foreground)] sm:px-5">Für {resourceLabel(resourceType)} wurden noch keine externen Zustellungen protokolliert.</div>
+            : <div className="overflow-x-auto"><table className="w-full min-w-[780px] text-left text-xs"><thead className="border-b border-[var(--border)] text-[10px] uppercase tracking-[.14em] text-[var(--muted-foreground)]"><tr><th className="px-4 py-3 sm:px-5">Datensatz</th><th className="px-3 py-3">Ziel</th><th className="px-3 py-3">Vorgang</th><th className="px-3 py-3">Status</th><th className="px-3 py-3">Aktualisiert</th></tr></thead><tbody className="divide-y divide-[var(--border)]">{projections.map((projection) => <tr key={projection.id}><td className="px-4 py-3 font-medium sm:px-5">{projection.recordName}</td><td className="px-3 py-3 text-[var(--muted-foreground)]">{projection.targetName}</td><td className="px-3 py-3 text-[var(--muted-foreground)]">{projection.lastOperation}</td><td className="px-3 py-3"><span className={`inline-flex rounded-full px-2 py-1 text-[10px] font-semibold ${deliveryStatusClass(projection.status)}`}>{deliveryStatusLabel(projection.status)}</span>{projection.lastErrorCode ? <span className="mt-1 block text-[10px] text-[var(--muted-foreground)]">{projection.lastErrorCode}</span> : null}</td><td className="px-3 py-3 text-[var(--muted-foreground)]">{new Date(projection.updatedAt).toLocaleString()}</td></tr>)}</tbody></table></div>}
+      </section>
       <p className="text-xs leading-5 text-[var(--muted-foreground)]">Provider-Antworten, fehlgeschlagene Zustellungen und unklare Ergebnisse werden separat gespeichert. Eine Animation oder ein UI-Status behauptet keine erfolgreiche externe Synchronisierung.</p>
     </div> : null}
     {editing !== undefined ? <CrmExternalDeliveryDialog workspaceId={workspaceId} resourceType={resourceType} target={editing ?? null} onClose={() => setEditing(undefined)} onSaved={saved} onError={onError}/> : null}
