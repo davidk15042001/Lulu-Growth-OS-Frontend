@@ -374,7 +374,9 @@ if (
   || !luluStation.includes('>, document.body) : null}')
   || !luluStation.includes('const catalogBodyRef = useRef<HTMLDivElement | null>(null)')
   || !luluStation.includes('catalogBodyRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" })')
-  || !luluStation.includes('focus({ preventScroll: true })')
+  || !luluStation.includes('useLuluDialog')
+  || !luluStation.includes('employeeDialogRef')
+  || !luluStation.includes('catalogDialogRef')
   || !luluStation.includes('ref={catalogBodyRef} className="lulu-station__catalog-body"')
 ) {
   failures.push('Office employee workspaces can lose their design tokens, overflow, or be obscured by the persistent command surface.');

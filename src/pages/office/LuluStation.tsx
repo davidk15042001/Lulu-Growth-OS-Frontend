@@ -24,6 +24,7 @@ import { subscribeWorkspaceEvents, type WorkspaceLiveEvent } from "../../api/age
 import { useLuluApp } from "../../api/LuluAppContext";
 import { useLanguage, useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { isPageNavigable, pagePath, routes } from "../../routing";
+import { useLuluDialog } from "../../components/useLuluDialog";
 import { AgentNativeWorkspace } from "./AgentNativeWorkspace";
 import { conciseOfficeCopy, officeEvidenceTypeLabel, officeRelatedObjectLabel } from "./office-copy";
 import "./lulu-station.css";
@@ -347,12 +348,8 @@ export function LuluStation() {
   const [error, setError] = useState<string | null>(null);
   const [liveConnected, setLiveConnected] = useState(false);
   const [lastEventAt, setLastEventAt] = useState<string | null>(null);
-  const closeEmployeeModalRef = useRef<HTMLButtonElement | null>(null);
-  const closeCatalogModalRef = useRef<HTMLButtonElement | null>(null);
   const catalogBodyRef = useRef<HTMLDivElement | null>(null);
   const departmentPickerRef = useRef<HTMLDivElement | null>(null);
-  const focusBeforeEmployeeModalRef = useRef<HTMLElement | null>(null);
-  const focusBeforeCatalogModalRef = useRef<HTMLElement | null>(null);
   const overviewRequestRef = useRef(0);
   const employeeRequestRef = useRef(0);
   const catalogRequestRef = useRef(0);
@@ -461,7 +458,6 @@ export function LuluStation() {
     if (!workspaceId) return;
     const requestId = ++employeeRequestRef.current;
     const isCurrentRequest = () => requestId === employeeRequestRef.current;
-    focusBeforeEmployeeModalRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setSelectedEmployeeId(employee.id);
     setEmployeeDetailSnapshot(null);
     setEmployeeLoading(true);
@@ -482,17 +478,12 @@ export function LuluStation() {
 
   const closeEmployeePopup = useCallback(() => {
     employeeRequestRef.current += 1;
-    const focusTarget = focusBeforeEmployeeModalRef.current;
     setSelectedEmployeeId(null);
     setEmployeeDetailSnapshot(null);
     setEmployeeLoading(false);
-    window.requestAnimationFrame(() => {
-      if (focusTarget?.isConnected) focusTarget.focus();
-    });
   }, []);
 
   const openCatalog = useCallback(() => {
-    focusBeforeCatalogModalRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setCatalogOpen(true);
     setSelectedCatalogAgent(null);
     setCatalogPage(1);
@@ -501,15 +492,20 @@ export function LuluStation() {
 
   const closeCatalog = useCallback(() => {
     catalogRequestRef.current += 1;
-    const focusTarget = focusBeforeCatalogModalRef.current;
     setCatalogOpen(false);
     setCatalogLoading(false);
     setSelectedCatalogAgent(null);
     setCatalogPage(1);
-    window.requestAnimationFrame(() => {
-      if (focusTarget?.isConnected) focusTarget.focus();
-    });
   }, []);
+
+  const employeeDialogRef = useLuluDialog<HTMLElement>({ open: Boolean(selectedEmployeeId), onClose: closeEmployeePopup });
+  const catalogDialogRef = useLuluDialog<HTMLElement>({
+    open: catalogOpen,
+    onClose: () => {
+      if (selectedCatalogAgent) setSelectedCatalogAgent(null);
+      else closeCatalog();
+    },
+  });
 
   const openCatalogWorkspace = useCallback((agent: AgentEcosystemDefinition) => {
     if (!agent.pageId || !isPageNavigable(agent.pageId)) return;
@@ -529,20 +525,6 @@ export function LuluStation() {
       document.getElementById(`lulu-station-room-${roomId}`)?.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
     });
   }, []);
-
-  useEffect(() => {
-    if (!selectedEmployeeId && !catalogOpen) return undefined;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        if (selectedEmployeeId) closeEmployeePopup();
-        else if (selectedCatalogAgent) setSelectedCatalogAgent(null);
-        else closeCatalog();
-      }
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [catalogOpen, closeCatalog, closeEmployeePopup, selectedCatalogAgent, selectedEmployeeId]);
 
   useEffect(() => {
     if (!selectedEmployeeId && !catalogOpen) return undefined;
@@ -599,45 +581,12 @@ export function LuluStation() {
   }, [departmentMenuOpen]);
 
   useEffect(() => {
-    if (!selectedEmployeeId) return undefined;
-    const frame = window.requestAnimationFrame(() => closeEmployeeModalRef.current?.focus());
-    return () => window.cancelAnimationFrame(frame);
-  }, [selectedEmployeeId]);
-
-  useEffect(() => {
     if (!catalogOpen) return undefined;
     const frame = window.requestAnimationFrame(() => {
       catalogBodyRef.current?.scrollTo({ top: 0, left: 0, behavior: "auto" });
     });
     return () => window.cancelAnimationFrame(frame);
   }, [catalogOpen, catalogPage, selectedCatalogAgent]);
-
-  useEffect(() => {
-    if (!catalogOpen) return undefined;
-    const frame = window.requestAnimationFrame(() => closeCatalogModalRef.current?.focus({ preventScroll: true }));
-    return () => window.cancelAnimationFrame(frame);
-  }, [catalogOpen]);
-
-  const trapEmployeeModalFocus = useCallback((event: React.KeyboardEvent<HTMLElement>) => {
-    if (event.key !== "Tab") return;
-    const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>(
-      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-    )).filter((element) => element.offsetParent !== null);
-    if (focusable.length === 0) {
-      event.preventDefault();
-      return;
-    }
-    const currentIndex = focusable.indexOf(document.activeElement as HTMLElement);
-    const first = focusable[0]!;
-    const last = focusable[focusable.length - 1]!;
-    if (event.shiftKey && currentIndex <= 0) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && (currentIndex === focusable.length - 1 || currentIndex === -1)) {
-      event.preventDefault();
-      first.focus();
-    }
-  }, []);
 
   const openWorkspace = useCallback(() => navigate(routes.app.dashboard), [navigate]);
 
@@ -818,8 +767,8 @@ export function LuluStation() {
       </div>
 
       {selectedEmployeeId ? createPortal(<div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEmployeePopup(); }}>
-        <section className="lulu-station__employee-modal lulu-station__employee-modal--workspace" role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title" onKeyDown={trapEmployeeModalFocus}>
-          <button ref={closeEmployeeModalRef} type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label={t("Close employee workspace")}>×</button>
+        <section ref={employeeDialogRef} className="lulu-station__employee-modal lulu-station__employee-modal--workspace" role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title">
+          <button type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label={t("Close employee workspace")}>×</button>
           {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>{t("Opening verified employee workspace…")}</strong><span>{t("Loading the employee state and recent evidence.")}</span></div> : <>
             <header className="lulu-station__modal-header">
               <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable, employeeDetail.employee.aiExecutionBlocked))}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
@@ -841,8 +790,8 @@ export function LuluStation() {
       </div>, document.body) : null}
 
       {catalogOpen ? createPortal(<div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeCatalog(); }}>
-        <section className="lulu-station__catalog-modal" role="dialog" aria-modal="true" aria-labelledby="lulu-station-catalog-title" onKeyDown={trapEmployeeModalFocus}>
-          <button ref={closeCatalogModalRef} type="button" className="lulu-station__modal-close" onClick={closeCatalog} aria-label={t("Close specialist directory")}>×</button>
+        <section ref={catalogDialogRef} className="lulu-station__catalog-modal" role="dialog" aria-modal="true" aria-labelledby="lulu-station-catalog-title">
+          <button type="button" className="lulu-station__modal-close" onClick={closeCatalog} aria-label={t("Close specialist directory")}>×</button>
           {selectedCatalogAgent ? <>
             <header className="lulu-station__modal-header lulu-station__catalog-detail-header">
               <div className="lulu-station__modal-avatar"><span>{initials(selectedCatalogAgent.name)}</span><i /></div>
