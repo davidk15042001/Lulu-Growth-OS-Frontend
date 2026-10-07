@@ -7,9 +7,12 @@ modify a workspace, send provider messages, or create payments.
 The test verifies:
 
 - the public release manifest contains frontend/backend revisions and a build timestamp;
+- the backend revision in that manifest matches the authoritative public
+  `/api/v1/version` response;
 - the public root, login, registration, Office and website-preview shells return HTML;
 - `/api/v1/health` reports `ok`;
 - `/api/v1/ready` reports `ready: true`.
+- `/api/v1/version` exposes a valid backend commit SHA.
 
 Use `LULU_PRODUCTION_BASE_URL` to target another environment and
 `LULU_SMOKE_TIMEOUT_MS` to adjust the per-request timeout.
