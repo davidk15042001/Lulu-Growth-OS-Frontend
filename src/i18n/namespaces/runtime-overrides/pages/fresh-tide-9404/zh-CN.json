@@ -292,5 +292,9 @@
   "Close Shopify dialog": "关闭 Shopify 对话框",
   "Shop domain": "商店域名",
   "Cancel": "取消",
-  "Continue": "继续"
+  "Continue": "继续",
+  "Lulu Website & Shop": "Lulu 网站与商店",
+  "Lulu manages the website and storefront directly. Retired WordPress, Webflow and Shopify connection cards are not shown as live integrations.": "Lulu 直接管理网站和店铺。已停用的 WordPress、Webflow 和 Shopify 连接卡片不会显示为可用集成。",
+  "Open Website": "打开网站",
+  "Open Shop": "打开商店"
 }

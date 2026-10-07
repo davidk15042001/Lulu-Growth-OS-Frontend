@@ -292,5 +292,9 @@
   "Close Shopify dialog": "Shopify-Dialog schließen",
   "Shop domain": "Shop-Domain",
   "Cancel": "Abbrechen",
-  "Continue": "Fortfahren"
+  "Continue": "Fortfahren",
+  "Lulu Website & Shop": "Lulu Website & Shop",
+  "Lulu manages the website and storefront directly. Retired WordPress, Webflow and Shopify connection cards are not shown as live integrations.": "Lulu verwaltet Website und Shop direkt. Die stillgelegten WordPress-, Webflow- und Shopify-Verbindungskarten werden nicht als aktive Integrationen angezeigt.",
+  "Open Website": "Website öffnen",
+  "Open Shop": "Shop öffnen"
 }

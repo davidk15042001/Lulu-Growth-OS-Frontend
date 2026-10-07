@@ -221,6 +221,16 @@ if (!connectionSetupPage.includes("id: 'crm'") || !connectionSetupPage.includes(
 }
 
 if (
+  !connectionSetupPage.includes('lulu-managed-surfaces-heading')
+  || connectionSetupPage.includes("platforms: ['Shopify']")
+  || connectionSetupPage.includes('Webflow: {')
+  || connectionSetupPage.includes('WordPress: {')
+  || connectionSetupPage.includes('shopifyPlatformName')
+) {
+  failures.push('The connection setup page still exposes retired external website or Shopify flows instead of the Lulu-managed Website & Shop surfaces.');
+}
+
+if (
   !industrialWebsiteTemplate.includes('className="lulu-industrial-preview" data-lulu-no-translate="true" translate="no"')
   || !oneProductWebsiteTemplate.includes('data-lulu-no-translate="true" translate="no"')
 ) {

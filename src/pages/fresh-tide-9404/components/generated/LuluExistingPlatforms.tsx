@@ -1,5 +1,5 @@
 import { FormEvent, useEffect, useState } from "react";
-import { ArrowRight, CircleCheck, Globe, Store, Trash2, UsersRound, X } from "lucide-react";
+import { ArrowRight, CircleCheck, Globe, Trash2, UsersRound, X } from "lucide-react";
 import { navigateApp, routes } from '../../../../routing';
 import { getFriendlyErrorMessage, getTechnicalErrorDetails, requestApi } from '../../../../api/client';
 import { useLuluApp } from '../../../../api/LuluAppContext';
@@ -7,7 +7,6 @@ import { getSelectedWorkspaceId } from '../../../../api/session';
 import { onboardingApi } from '../../../../api/onboarding';
 import { providerControlApi, type ProviderLaunchReadiness } from '../../../../api/providers';
 import { OnboardingHeader } from '../../../../components/OnboardingHeader';
-import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 interface Platform {
   id: string;
   integrationKey: string | null;
@@ -36,22 +35,16 @@ interface WhatsAppConnectionState {
 }
 const platformGroups: PlatformGroup[] = [
   { id: 'crm', label: 'CRM & Sales', description: 'Connect customer, pipeline and sales systems that contain your business relationships.', icon: UsersRound, platforms: ['Salesforce', 'HubSpot', 'Pipedrive'], hidden: true },
-  { id: 'website', label: 'Website & Publishing', description: 'Connect the website platforms Lulu can use for content, publishing and website intelligence.', icon: Globe, platforms: ['WordPress', 'Webflow'] },
-  { id: 'commerce', label: 'Commerce', description: 'Connect commerce platforms to analyze products, orders and customer activity.', icon: Store, platforms: ['Shopify'] },
   { id: 'social', label: 'Social & Messaging', description: 'WhatsApp uses UnifyPort. If an administrator enables self-service, each workspace can securely pair its own number; otherwise the approved Lulu fallback is used.', icon: UsersRound, platforms: ['WhatsApp', 'Facebook Messenger', 'Instagram', 'LinkedIn'] },
 ];
 const providerKeysByName: Record<string, string> = {
   Salesforce: 'salesforce', Pipedrive: 'pipedrive', HubSpot: 'hubspot',
-  Webflow: 'webflow', WordPress: 'wordpress', Shopify: 'shopify',
   WhatsApp: 'whatsapp', 'Facebook Messenger': 'twilio', Instagram: 'instagram', LinkedIn: 'linkedin',
 };
   const guideContent: Record<string, { intro: string; steps: string[] }> = {
     Salesforce: { intro: "Connect the Salesforce organization that holds your customer and pipeline data. Lulu uses a secure authorization window; you never enter provider credentials into Lulu.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to Salesforce and select the organization you want to connect.", "Review the requested access and approve it in Salesforce.", "Return to Lulu. The connection appears only after the provider confirms it."] },
     Pipedrive: { intro: "Connect the Pipedrive organization that contains your sales pipeline. Lulu opens Pipedrive's secure authorization flow.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to the Pipedrive organization you want Lulu to read.", "Review the requested access and approve it in Pipedrive.", "Return to Lulu and wait for the connection to be confirmed."] },
     HubSpot: { intro: "Connect the HubSpot portal that Lulu should use for customer and company context. The authorization happens securely in HubSpot.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to HubSpot with an account that can authorize the selected portal.", "Review the requested access and approve it in HubSpot.", "Return to Lulu once HubSpot confirms the connection."] },
-    Webflow: { intro: "Connect the Webflow workspace or site that Lulu should analyze and manage. You authorize the connection directly with Webflow.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to Webflow and select the intended workspace or site.", "Review the requested access and approve it in Webflow.", "Return to Lulu after the provider confirms the connection."] },
-    WordPress: { intro: "Connect the WordPress.com or Jetpack site that Lulu should use. Your provider credentials remain with WordPress.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to WordPress and select the intended site.", "Review the requested access and approve it in WordPress.", "Return to Lulu after the provider confirms the connection."] },
-    Shopify: { intro: "Connect the Shopify store that contains your catalog, orders and customer activity. Lulu opens Shopify's secure authorization flow.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Enter the exact myshopify.com store domain when prompted.", "Sign in to Shopify and approve the requested access.", "Return to Lulu once Shopify confirms the installation."] },
     WhatsApp: { intro: "WhatsApp is connected through UnifyPort. Your administrator decides whether this workspace uses the shared Lulu sender or pairs its own WhatsApp number.", steps: ["No Meta or Twilio setup is required in this workspace.", "If self-service is enabled, click Connect and enter the workspace phone number.", "Open WhatsApp → Linked devices → Link with phone number and enter the UnifyPort pairing code.", "After authorization, Lulu registers the customer-owned sender in OmniChannel automatically."] },
     'Facebook Messenger': { intro: "Lulu uses Twilio’s Facebook Messenger channel for the approved Facebook Page.", steps: ["Connect the intended Facebook Page in the Twilio Console.", "Complete any provider review or public-beta access requirements.", "Lulu registers the Messenger sender against this workspace.", "Verify one inbound and outbound message before production traffic is enabled."] },
     Instagram: { intro: "Connect your own Instagram professional account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable Instagram for your workspace.", "Make sure the Instagram professional account is linked to the correct Meta business.", "Click Connect, choose the account and approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
@@ -60,7 +53,6 @@ const providerKeysByName: Record<string, string> = {
 
 export const LuluExistingPlatforms = () => {
   const { updateWorkspace, can } = useLuluApp();
-  const t = useTranslation();
   const canEdit = can('edit');
   const isOnboarding = window.location.pathname.startsWith("/onboarding/");
   const [platforms, setPlatforms] = useState<Platform[]>([]);
@@ -68,8 +60,6 @@ export const LuluExistingPlatforms = () => {
   const [technicalDetails, setTechnicalDetails] = useState('');
   const [guidePlatform, setGuidePlatform] = useState<string | null>(null);
   const [connectingPlatform, setConnectingPlatform] = useState<string | null>(null);
-  const [shopifyPlatformName, setShopifyPlatformName] = useState<string | null>(null);
-  const [shopifyDomain, setShopifyDomain] = useState('');
   const [whatsappConnection, setWhatsappConnection] = useState<WhatsAppConnectionState | null>(null);
   const [whatsappSetupOpen, setWhatsappSetupOpen] = useState(false);
   const [whatsappPhone, setWhatsappPhone] = useState('');
@@ -98,7 +88,8 @@ export const LuluExistingPlatforms = () => {
         setWhatsappConnection(whatsappResponse?.data ?? null);
         setProviderReadiness(readinessResponse?.data ?? null);
         setOauthSelfServiceProviders(oauthSelfServiceResponse.data.providers);
-        setPlatforms(response.data.platforms.map(platform => ({
+        const retiredProviders = new Set(['wordpress', 'webflow', 'shopify', 'resend']);
+        setPlatforms(response.data.platforms.filter(platform => !retiredProviders.has((platform.integrationKey ?? '').toLowerCase())).map(platform => ({
         id: platform.id,
         integrationKey: platform.integrationKey,
         name: platform.name,
@@ -150,7 +141,7 @@ export const LuluExistingPlatforms = () => {
     } catch (cause) { setError(getFriendlyErrorMessage(cause, 'The WhatsApp pairing flow could not be started.')); setTechnicalDetails(getTechnicalErrorDetails(cause)); }
     finally { setWhatsappBusy(false); }
   };
-  const connectPlatform = async (name: string, shopOverride?: string) => {
+  const connectPlatform = async (name: string) => {
     if (!canEdit) return;
     if (name === 'WhatsApp') {
       if (whatsappConnection?.selfServiceAllowed) setWhatsappSetupOpen(true);
@@ -172,19 +163,8 @@ export const LuluExistingPlatforms = () => {
     setTechnicalDetails('');
     setConnectingPlatform(name);
     try {
-      const shop = provider === 'shopify' ? (shopOverride ?? shopifyDomain).trim() : undefined;
-      if (provider === 'shopify' && !shop) {
-        setShopifyPlatformName(name);
-        setShopifyDomain('');
-        setConnectingPlatform(null);
-        return;
-      }
-      if (provider === 'shopify') {
-        setShopifyPlatformName(null);
-        setShopifyDomain('');
-      }
       const returnTo = `${window.location.pathname}${window.location.search}`;
-      const response = await onboardingApi.startOAuth(workspaceId, provider, shop, returnTo);
+      const response = await onboardingApi.startOAuth(workspaceId, provider, undefined, returnTo);
       if (!response.data?.authorizationUrl) throw new Error('The provider authorization URL was not returned by the backend.');
       window.location.assign(response.data.authorizationUrl);
     } catch (cause) {
@@ -192,11 +172,6 @@ export const LuluExistingPlatforms = () => {
       setTechnicalDetails(getTechnicalErrorDetails(cause));
       setConnectingPlatform(null);
     }
-  };
-  const submitShopifyDomain = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!shopifyPlatformName || !shopifyDomain.trim()) return;
-    void connectPlatform(shopifyPlatformName, shopifyDomain);
   };
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -242,6 +217,19 @@ export const LuluExistingPlatforms = () => {
           <form onSubmit={submit} className="mt-8 space-y-6 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_24px_70px_rgba(0,0,0,0.08)] sm:p-6 lg:p-7">
             {error && <div role="alert" className="space-y-2 rounded-xl border border-[var(--destructive)]/30 bg-[var(--destructive)]/10 px-4 py-3 text-sm leading-6 text-[var(--destructive)]"><p className="font-medium text-[var(--destructive)]">{error}</p>{technicalDetails && <details><summary className="cursor-pointer text-xs font-semibold text-[var(--destructive)]">Show technical details</summary><p className="mt-2 break-words font-mono text-[11px] leading-5 text-[var(--destructive)]">{technicalDetails}</p></details>}</div>}
             {providerReadiness && <section className="mb-5 rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-4 sm:p-5"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Production readiness</p><h2 className="mt-2 text-base font-semibold">Provider Control Plane</h2><p className="mt-1 max-w-xl text-xs leading-5 text-[var(--muted-foreground)]">Autonomous work is allowed only when every provider gate is ready.</p></div><span className={`inline-flex w-fit rounded-full px-2.5 py-1 text-xs font-semibold ${providerReadiness.totalConnections === 0 ? 'bg-secondary text-[var(--muted-foreground)]' : providerReadiness.overallReady ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{providerReadiness.totalConnections === 0 ? 'No integrations configured.' : providerReadiness.overallReady ? 'Ready' : `${providerReadiness.readyCount}/${providerReadiness.totalConnections}`}</span></div>{!providerReadiness.overallReady && providerReadiness.connections.length > 0 && <div className="mt-4 space-y-2">{providerReadiness.connections.filter(connection => !connection.ready).map(connection => <article key={connection.connectionId} className="rounded-xl border border-[var(--border)] bg-[var(--card)] p-3"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="text-sm font-semibold">{connection.displayName}</p><p className="text-[11px] text-[var(--muted-foreground)]">{connection.providerKey}</p></div><span className="rounded-full bg-amber-100 px-2 py-1 text-[11px] font-semibold text-amber-700">Readiness check</span></div><ul className="mt-2 space-y-1 text-xs leading-5 text-[var(--muted-foreground)]">{connection.blockers.map(blocker => <li key={`${connection.connectionId}-${blocker.code}`}>{blocker.message}</li>)}</ul></article>)}</div>}</section>}
+            <section className="rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-4 shadow-sm sm:p-5" aria-labelledby="lulu-managed-surfaces-heading">
+              <div className="flex items-start gap-4">
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]"><Globe size={16} /></span>
+                <div className="min-w-0 flex-1">
+                  <h2 id="lulu-managed-surfaces-heading" className="text-base font-semibold tracking-tight text-[var(--foreground)]">Lulu Website &amp; Shop</h2>
+                  <p className="mt-1 max-w-xl text-xs leading-5 text-[var(--muted-foreground)]">Lulu manages the website and storefront directly. Retired WordPress, Webflow and Shopify connection cards are not shown as live integrations.</p>
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <button type="button" onClick={() => navigateApp(routes.app.website)} className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-3 py-2 text-xs font-semibold text-[var(--primary-foreground)]">Open Website <ArrowRight size={14} /></button>
+                    <button type="button" onClick={() => navigateApp(routes.app.products)} className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--foreground)]">Open Shop <ArrowRight size={14} /></button>
+                  </div>
+                </div>
+              </div>
+            </section>
             <div className="space-y-5">
               {platformGroups.filter(group => !group.hidden).map(group => {
               const Icon = group.icon;
@@ -314,18 +302,6 @@ export const LuluExistingPlatforms = () => {
           <div className="mt-6 flex justify-end">
             <button type="button" onClick={() => { setGuidePlatform(null); if (guideCanConnect) void connectPlatform(guidePlatform); }} disabled={guideCanConnect ? !canEdit : false} aria-disabled={guideCanConnect ? !canEdit : undefined} className="inline-flex items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50">{guideIsManagedMessaging ? 'Close' : guideCanConnect ? `Connect ${guidePlatform}` : 'Connection not enabled'}{guideCanConnect && <ArrowRight size={15} />}</button>
           </div>
-        </div>
-      </div>}
-      {shopifyPlatformName && <div className="fixed inset-0 z-[60] grid place-items-center bg-black/50 p-4" role="dialog" aria-modal="true" aria-labelledby="shopify-domain-title" onClick={() => setShopifyPlatformName(null)}>
-        <div className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl" onClick={event => event.stopPropagation()}>
-          <div className="flex items-start justify-between gap-4">
-            <div><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">{t('Shopify connection')}</p><h2 id="shopify-domain-title" className="mt-2 text-2xl font-semibold text-[var(--foreground)]">{t('Enter your store domain')}</h2><p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">{t('Use the exact')} <code className="rounded bg-[var(--secondary)] px-1 py-0.5 text-xs">{t('your-store.myshopify.com')}</code> {t('domain so Lulu opens the correct Shopify authorization flow.')}</p></div>
-            <button type="button" onClick={() => setShopifyPlatformName(null)} className="rounded-md p-2 text-[var(--muted-foreground)] transition hover:bg-[var(--secondary)] hover:text-[var(--foreground)]" aria-label={t('Close Shopify dialog')}><X size={18} /></button>
-          </div>
-          <form className="mt-6 space-y-4" onSubmit={submitShopifyDomain}>
-            <label className="block text-sm font-medium text-[var(--foreground)]" htmlFor="shopify-domain">{t('Shop domain')}<input id="shopify-domain" autoFocus required value={shopifyDomain} onChange={event => setShopifyDomain(event.target.value)} placeholder="your-store.myshopify.com" inputMode="url" className="mt-2 h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 text-sm outline-none focus:border-[var(--primary)]" /></label>
-            <div className="flex justify-end gap-2"><button type="button" onClick={() => setShopifyPlatformName(null)} className="rounded-lg border border-[var(--border)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)]">{t('Cancel')}</button><button type="submit" disabled={Boolean(connectingPlatform)} className="inline-flex items-center gap-2 rounded-lg bg-[var(--primary)] px-4 py-2.5 text-sm font-semibold text-[var(--primary-foreground)] disabled:cursor-not-allowed disabled:opacity-50">{t('Continue')} <ArrowRight size={15} /></button></div>
-          </form>
         </div>
       </div>}
       {whatsappSetupOpen && whatsappConnection?.selfServiceAllowed && <div className="fixed inset-0 z-50 grid place-items-center bg-black/45 p-4" role="dialog" aria-modal="true" aria-labelledby="whatsapp-setup-title"><div className="w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-2xl"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.18em] text-[var(--muted-foreground)]">UnifyPort WhatsApp</p><h2 id="whatsapp-setup-title" className="mt-2 text-2xl font-semibold">Connect your number</h2><p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">Lulu never receives your WhatsApp password. UnifyPort gives you a short pairing code.</p></div><button type="button" onClick={() => setWhatsappSetupOpen(false)} className="text-sm text-[var(--muted-foreground)]">Close</button></div>{whatsappConnection.pendingConnection ? <div className="mt-6 space-y-4"><div className="rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4"><p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Pairing code</p><p className="mt-2 text-3xl font-bold tracking-[.22em]">{typeof whatsappConnection.pendingConnection.authPayload?.verify_code === 'string' ? whatsappConnection.pendingConnection.authPayload.verify_code : 'Waiting…'}</p><p className="mt-2 text-sm leading-6 text-[var(--muted-foreground)]">WhatsApp → Linked devices → Link with phone number. Enter the code before it expires.</p></div><p className="text-xs text-[var(--muted-foreground)]">Status: {whatsappConnection.pendingConnection.authStatus} · Runtime: {whatsappConnection.pendingConnection.runtimeStatus}</p></div> : whatsappConnection.customerConnection ? <div className="mt-6 rounded-xl border border-[var(--border)] bg-[var(--secondary)] p-4 text-sm">WhatsApp is connected as <strong>{whatsappConnection.customerConnection.displayName}</strong>.</div> : <div className="mt-6 space-y-4"><label className="block text-sm font-medium">WhatsApp phone number<input value={whatsappPhone} onChange={(event) => setWhatsappPhone(event.target.value)} placeholder="+491701234567" className="mt-2 h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3" /></label><label className="block text-sm font-medium">Display name (optional)<input value={whatsappDisplayName} onChange={(event) => setWhatsappDisplayName(event.target.value)} placeholder="Customer Support" className="mt-2 h-11 w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3" /></label><button type="button" onClick={() => void beginWhatsApp()} disabled={whatsappBusy || !whatsappPhone.trim()} className="w-full rounded-lg bg-[var(--primary)] px-4 py-3 text-sm font-semibold text-[var(--primary-foreground)] disabled:opacity-50">{whatsappBusy ? 'Starting secure pairing…' : 'Start pairing'}</button></div>}</div></div>}
