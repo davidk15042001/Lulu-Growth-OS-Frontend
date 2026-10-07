@@ -1,5 +1,6 @@
 import { ArrowRight, Globe2, LayoutTemplate, PencilLine, X } from "lucide-react";
 import type { WebsiteGenerationTargetMode, WebsiteSite } from "../api/websites";
+import { useLuluDialog } from "./useLuluDialog";
 
 type Translate = (key: string) => string;
 
@@ -21,10 +22,11 @@ export function WebsiteGenerationTargetDialog({ provider, sites, selectedSiteId,
   const providerLabel = "Lulu managed Website";
   const siteRequired = false;
   const canContinue = Boolean(mode && (!siteRequired || selectedSiteId) && !busy);
+  const dialogRef = useLuluDialog<HTMLDivElement>({ open: true, onClose: onCancel });
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/35 p-4 backdrop-blur-[3px]">
-      <div role="dialog" aria-modal="true" aria-labelledby="website-target-title" style={{ color: "#111827" }} className="pointer-events-auto relative my-auto max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-card p-5 shadow-2xl sm:p-7">
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="website-target-title" style={{ color: "#111827" }} className="pointer-events-auto relative my-auto max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl border border-border bg-card p-5 shadow-2xl sm:p-7">
         <button type="button" onClick={onCancel} aria-label={t("Close selection")} className="absolute right-4 top-4 rounded-lg border border-border p-2 text-[#4b5563] transition hover:bg-secondary">
           <X size={17} />
         </button>

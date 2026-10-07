@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Bell, CheckCircle2, Circle, CircleStop, ExternalLink, FileText, Play, RefreshCw, Upload, X } from "lucide-react";
 import type { WebsiteGenerationJob } from "../api/websites";
 import { currentIntlLocale } from "../i18n/languages";
+import { useLuluDialog } from "./useLuluDialog";
 
 type Translate = (key: string) => string;
 type PreviewSection = { key: string; title: string; completed: boolean };
@@ -184,6 +185,7 @@ export function WebsiteGenerationLivePanel({
   const [selectedSlug, setSelectedSlug] = useState("");
   const [previewMode, setPreviewMode] = useState<"generated" | "published">("generated");
   const previousPublishedCount = useRef(0);
+  const dialogRef = useLuluDialog({ open: true, onClose });
 
   useEffect(() => {
     const latestPublished = [...pages].reverse().find((page) => page.published);
@@ -225,7 +227,7 @@ export function WebsiteGenerationLivePanel({
   const homepageAdminUrl = String(homepageSetup.adminUrl ?? "");
 
   return <div className="pointer-events-none fixed inset-0 z-[1000] flex min-h-[100dvh] items-center justify-center overflow-y-auto bg-black/35 p-3 backdrop-blur-[2px] sm:p-6">
-    <section role="dialog" aria-modal="true" aria-labelledby="website-generation-title" className="pointer-events-auto my-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[#dcdcde] bg-white text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)]">
+    <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="website-generation-title" className="pointer-events-auto my-auto flex max-h-[calc(100dvh-1.5rem)] w-full max-w-6xl flex-col overflow-hidden rounded-2xl border border-[#dcdcde] bg-white text-[#111827] shadow-2xl sm:max-h-[calc(100dvh-3rem)]">
       <header className="flex items-start justify-between gap-4 border-b border-[#dcdcde] px-4 py-4 sm:px-6">
         <div className="flex min-w-0 items-start gap-3">
           <span className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl ${job.status === "failed" || job.status === "cancelled" ? "bg-red-50 text-red-700" : job.status === "published" ? "bg-emerald-50 text-emerald-700" : "bg-blue-50 text-[#2271b1]"}`}>

@@ -17,8 +17,8 @@ function focusableElements(container: HTMLElement | null) {
  * current React tree, so this deliberately locks document scroll without
  * marking the entire #root inert (which would also hide the dialog itself).
  */
-export function useLuluDialog({ open, onClose }: UseLuluDialogOptions): RefObject<HTMLElement | null> {
-  const dialogRef = useRef<HTMLElement | null>(null);
+export function useLuluDialog<T extends HTMLElement = HTMLElement>({ open, onClose }: UseLuluDialogOptions): RefObject<T | null> {
+  const dialogRef = useRef<T | null>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
 
