@@ -57,6 +57,16 @@ export function addDecimalMoney(left: DecimalMoneyValue, right: DecimalMoneyValu
   return unitsToDecimal(scaledInteger(left, scale) + scaledInteger(right, scale), scale);
 }
 
+export function sumDecimalMoney(values: readonly DecimalMoneyValue[], scale = 2): string {
+  return unitsToDecimal(values.reduce<bigint>((total, value) => total + scaledInteger(value, scale), 0n), scale);
+}
+
+/** Convert an integer minor-unit value (for example cents) to major units. */
+export function minorUnitsToDecimalMoney(value: DecimalMoneyValue, minorScale = 2): string {
+  if (!Number.isInteger(minorScale) || minorScale < 0 || minorScale > 18) throw new Error("Invalid minor money scale");
+  return unitsToDecimal(scaledInteger(value, 0), minorScale);
+}
+
 /** Calculate a percentage using integer arithmetic, rounded to the requested scale. */
 export function percentageDecimalMoney(value: DecimalMoneyValue, percentage: DecimalMoneyValue, scale = 2): string {
   const calculationScale = Math.max(scale + 4, 6);

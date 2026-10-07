@@ -5,6 +5,7 @@ import { useLuluApp } from '../../api/LuluAppContext';
 import { DEFAULT_LANGUAGE, isAvailableLanguageCode, LANGUAGE_STORAGE_KEY } from "../../i18n/languages";
 import { GlobalLanguageSwitcher, useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { routes } from "../../routing";
+import { compareDecimalMoney, formatDecimalMoney, minorUnitsToDecimalMoney, sumDecimalMoney, tryNormalizeDecimalMoney } from "../../utils/decimal-money";
 import SupportInbox from '../support/SupportPage';
 import AdminOmniChannelPage from '../admin-omnichannel/AdminOmniChannelPage';
 import AdminCommercialDocumentsPage from '../admin-commercial/AdminCommercialDocumentsPage';
@@ -160,14 +161,14 @@ type WorkspaceDetail = WorkspaceRow & {
   paygUsage: {
     periodStart: string;
     periodEnd: string;
-    apiCostUsd: number;
-    serverCostUsd: number;
-    apiCreditUsd: number;
-    serverCreditUsd: number;
-    storageCreditUsd: number;
-    apiBillableUsd: number;
-    serverBillableUsd: number;
-    totalBillableUsd: number;
+    apiCostUsd: string;
+    serverCostUsd: string;
+    apiCreditUsd: string;
+    serverCreditUsd: string;
+    storageCreditUsd: string;
+    apiBillableUsd: string;
+    serverBillableUsd: string;
+    totalBillableUsd: string;
   } | null;
   usageAdjustments: Array<{
     id: string;
@@ -183,9 +184,9 @@ type WorkspaceDetail = WorkspaceRow & {
     createdAt: string;
   }>;
   funding: {
-    ai: { currency: string; availableAmount: number; reservedAmount: number; paymentReservedAmount: number; spentAmount: number; reversalDebtAmount: number; totalFundedAmount: number };
-    adSpend: { currency: string; availableAmount: number; reservedAmount: number; paymentReservedAmount: number; spentAmount: number; reversalDebtAmount: number; totalFundedAmount: number };
-    storage: { currency: string; availableCreditUsd: number; billableUsd: number };
+    ai: { currency: string; availableAmount: string; reservedAmount: string; paymentReservedAmount: string; spentAmount: string; reversalDebtAmount: string; totalFundedAmount: string };
+    adSpend: { currency: string; availableAmount: string; reservedAmount: string; paymentReservedAmount: string; spentAmount: string; reversalDebtAmount: string; totalFundedAmount: string };
+    storage: { currency: string; availableCreditUsd: string; billableUsd: string };
     adjustments: Array<{
       id: string; metric: "api" | "server" | "storage"; amountUsd: string; periodStart: string; periodEnd: string;
       paygPeriodId: string | null; appliedAt: string | null; reason: string; source?: string;
@@ -305,11 +306,6 @@ type DashboardStats = {
   notifications: { totalLast24h: number; errorsLast24h: number; warningsLast24h: number };
 };
 
-const money = (minor: string | number | null) => `${(Number(minor || 0) / 100).toFixed(2)} CNY`;
-const moneyUsd = (amount: string | number | null) => {
-  const value = Number(amount ?? 0);
-  return `$${Number.isFinite(value) ? value.toFixed(2) : "0.00"} USD`;
-};
 const DATE_LOCALE_BY_LANGUAGE = {
   en: "en-US",
   de: "de-DE",
@@ -335,13 +331,16 @@ function currentDateLocale() {
   return mapDateLocale(DEFAULT_LANGUAGE);
 }
 
+const money = (minor: string | number | null) => formatDecimalMoney(minorUnitsToDecimalMoney(minor ?? 0), "CNY", currentDateLocale());
+const moneyUsd = (amount: string | number | null) => `${formatDecimalMoney(amount ?? "0", "USD", currentDateLocale())} USD`;
+
 const date = (value: string | null | undefined) =>
   value ? new Intl.DateTimeFormat(currentDateLocale(), { dateStyle: "medium", timeStyle: "short" }).format(new Date(value)) : "—";
 const dateOnly = (value: string | null | undefined) =>
   value ? new Intl.DateTimeFormat(currentDateLocale(), { dateStyle: "medium" }).format(new Date(value)) : "—";
 const monthNow = () => new Date().toISOString().slice(0, 7);
 const sizeMB = (bytes: string | number | null) => `${(Number(bytes || 0) / 1024 / 1024).toFixed(2)} MB`;
-const moneyCny = (minor: string | number | null | undefined) => new Intl.NumberFormat(currentDateLocale(), { style: "currency", currency: "CNY", maximumFractionDigits: 2 }).format(Number(minor ?? 0) / 100);
+const moneyCny = (minor: string | number | null | undefined) => formatDecimalMoney(minorUnitsToDecimalMoney(minor ?? 0), "CNY", currentDateLocale());
 const nameOf = (first: string | null, last: string | null, fallback = "") => {
   const parts = [first, last].filter(Boolean);
   return parts.length ? parts.join(" ") : fallback;
@@ -748,8 +747,8 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
       const detail = await requestApi<WorkspaceDetail>({ path: `/admin/workspaces/${customer.id}` });
       setCostEditor({
         customer,
-        apiAiCostUsd: String(detail.data.paygUsage?.apiBillableUsd ?? Number(customer.apiCostUsd || 0)),
-        storageCostUsd: String(detail.data.paygUsage?.serverBillableUsd ?? Number(customer.serverCostUsd || 0)),
+        apiAiCostUsd: detail.data.paygUsage?.apiBillableUsd ?? customer.apiCostUsd,
+        storageCostUsd: detail.data.paygUsage?.serverBillableUsd ?? customer.serverCostUsd,
         reason: "Manuelle Kostenanpassung durch Admin",
       });
     } catch (cause) { onError(getFriendlyErrorMessage(cause, "Die aktuellen Kosten konnten nicht geladen werden.")); }
@@ -758,15 +757,15 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
 
   const saveUsageCosts = async () => {
     if (!costEditor) return;
-    const apiAiCostUsd = Number(costEditor.apiAiCostUsd);
-    const storageCostUsd = Number(costEditor.storageCostUsd);
-    if (![apiAiCostUsd, storageCostUsd].every((value) => Number.isFinite(value) && value >= 0) || !costEditor.reason.trim()) {
+    const apiAiCostUsd = tryNormalizeDecimalMoney(costEditor.apiAiCostUsd, 8);
+    const storageCostUsd = tryNormalizeDecimalMoney(costEditor.storageCostUsd, 8);
+    if (!apiAiCostUsd || !storageCostUsd || compareDecimalMoney(apiAiCostUsd, "0", 8) < 0 || compareDecimalMoney(storageCostUsd, "0", 8) < 0 || compareDecimalMoney(apiAiCostUsd, "1000000", 8) > 0 || compareDecimalMoney(storageCostUsd, "1000000", 8) > 0 || !costEditor.reason.trim()) {
       onError("Bitte gültige Kostenwerte und einen Grund angeben.");
       return;
     }
     setSavingId(`${costEditor.customer.id}:cost`); onError("");
     try {
-      const response = await requestApi<{ apiBillableUsd: number; serverBillableUsd: number }>({
+      const response = await requestApi<{ apiBillableUsd: string; serverBillableUsd: string }>({
         path: `/admin/workspaces/${costEditor.customer.id}/usage-costs`, method: "PUT",
         body: { apiAiCostUsd, storageCostUsd, reason: costEditor.reason.trim() },
       });
@@ -781,9 +780,9 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
     finally { setSavingId(""); }
   };
 
-  const totalApi = overview?.customers.reduce((s, c) => s + Number(c.apiCostMinor || 0), 0) ?? 0;
-  const totalApiUsd = overview?.customers.reduce((s, c) => s + Number(c.apiCostUsd || 0), 0) ?? 0;
-  const totalServerUsd = overview?.customers.reduce((s, c) => s + Number(c.serverCostUsd || 0), 0) ?? 0;
+  const totalApi = sumDecimalMoney(overview?.customers.map((c) => c.apiCostMinor || "0") ?? [], 0);
+  const totalApiUsd = sumDecimalMoney(overview?.customers.map((c) => c.apiCostUsd || "0") ?? [], 8);
+  const totalServerUsd = sumDecimalMoney(overview?.customers.map((c) => c.serverCostUsd || "0") ?? [], 8);
   const totalStorageBytes = overview?.customers.reduce((s, c) => s + Number(c.storageBytes || 0), 0) ?? 0;
 
   return (
@@ -792,7 +791,7 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
         <label className="text-sm font-medium text-slate-700">Monat</label>
         <input type="month" className="rounded-md border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-indigo-400" value={month} onChange={(e) => setMonth(e.target.value)} />
         <div className="ml-auto flex items-center gap-2 text-sm">
-          <Pill tone="sky">API: {moneyUsd(totalApiUsd)}{totalApi > 0 ? ` · ${money(totalApi)}` : ""}</Pill>
+          <Pill tone="sky">API: {moneyUsd(totalApiUsd)}{compareDecimalMoney(totalApi, "0", 0) > 0 ? ` · ${money(totalApi)}` : ""}</Pill>
           <Pill tone="violet">Storage / Infrastruktur: {moneyUsd(totalServerUsd)}</Pill>
           <Pill tone="amber">Bytes: {sizeMB(totalStorageBytes)}</Pill>
           <button type="button" disabled={loading} onClick={() => void load()} className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50 disabled:opacity-50"><RotateCcw size={14} className={loading ? "animate-spin" : undefined} /> Aktualisieren</button>
@@ -861,7 +860,7 @@ function BillingPage({ onError }: { onError: (m: string) => void }) {
           columns={[
             { key: "createdAt", label: "Datum", render: (p) => dateOnly(p.createdAt) },
             { key: "workspaceName", label: "Kunde", render: (p) => <div><div className="font-medium text-slate-900">{p.workspaceName}</div><div className="text-[11px] text-slate-500">{p.walletType === "ai" ? "AI" : "Ads"} · {p.paymentMethod}</div></div> },
-            { key: "amount", label: "Betrag", render: (p) => <span className="font-mono text-xs">¥{Number(p.amount).toFixed(2)}</span> },
+            { key: "amount", label: "Betrag", render: (p) => <span className="font-mono text-xs">{formatDecimalMoney(p.amount ?? "0", "CNY", currentDateLocale())}</span> },
             { key: "paymentStatus", label: "Zahlung", render: (p) => <Pill tone={toneFromStatus(p.paymentStatus)}>{p.paymentStatus}</Pill> },
             { key: "creditStatus", label: "Guthaben", render: (p) => <Pill tone={toneFromStatus(p.creditStatus)}>{p.creditStatus}</Pill> },
             { key: "settlementStatus", label: "Abrechnung", render: (p) => <Pill tone={toneFromStatus(p.settlementStatus)}>{p.settlementStatus}</Pill> },
@@ -1229,7 +1228,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
     try {
       const res = await requestApi<WorkspaceDetail>({ path: `/admin/workspaces/${id}` });
       setDetail(res.data);
-      setSubscriptionPrice(res.data.customPriceMinor === null || res.data.customPriceMinor === undefined ? "" : (Number(res.data.customPriceMinor) / 100).toFixed(2));
+      setSubscriptionPrice(res.data.customPriceMinor === null || res.data.customPriceMinor === undefined ? "" : minorUnitsToDecimalMoney(res.data.customPriceMinor, 2));
       setSubscriptionPriceReason("");
     } catch (e) { onError(getFriendlyErrorMessage(e, "Workspace details konnten nicht geladen werden.")); }
     finally { setDetailLoading(false); }
@@ -1262,9 +1261,9 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
 
   const addUsageAdjustment = async () => {
     if (!detail) return;
-    const amountUsd = Number(usageAmount);
+    const amountUsd = tryNormalizeDecimalMoney(usageAmount, 8);
     const reason = usageReason.trim();
-    if (!Number.isFinite(amountUsd) || amountUsd <= 0) {
+    if (!amountUsd || compareDecimalMoney(amountUsd, "0", 8) <= 0 || compareDecimalMoney(amountUsd, "1000000", 8) > 0) {
       onError("Bitte einen gültigen positiven USD-Betrag eingeben.");
       return;
     }
@@ -1289,11 +1288,12 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
 
   const addManualFundingAdjustment = async () => {
     if (!detail) return;
-    const amount = Number(fundingAmount);
+    const fundingScale = fundingWallet === "ai" ? 6 : 2;
+    const amount = tryNormalizeDecimalMoney(fundingAmount, fundingScale);
     const typedReason = fundingReason.trim();
     const walletLabel = fundingWallet === "ai" ? "AI-Credits" : "Adspend";
     const reason = typedReason || `${walletLabel} als Admin-Gutschrift geschenkt`;
-    if (!Number.isFinite(amount) || amount <= 0) {
+    if (!amount || compareDecimalMoney(amount, "0", fundingScale) <= 0 || compareDecimalMoney(amount, "1000000000", fundingScale) > 0) {
       onError("Bitte einen gültigen positiven Betrag eingeben.");
       return;
     }
@@ -1324,8 +1324,8 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
   const saveSubscriptionPrice = async (restoreCatalog = false) => {
     if (!detail) return;
     const rawAmount = subscriptionPrice.trim();
-    const amountCny = restoreCatalog || rawAmount === "" ? null : Number(rawAmount);
-    if (amountCny !== null && (!Number.isFinite(amountCny) || amountCny < 0 || amountCny > 10_000_000 || Math.abs(amountCny * 100 - Math.round(amountCny * 100)) > 1e-6)) {
+    const amountCny = restoreCatalog || rawAmount === "" ? null : tryNormalizeDecimalMoney(rawAmount, 2);
+    if (amountCny !== null && (!amountCny || compareDecimalMoney(amountCny, "0", 2) < 0 || compareDecimalMoney(amountCny, "10000000", 2) > 0)) {
       onError(t("Subscription price must be between 0 and 10,000,000 CNY with at most two decimal places"));
       return;
     }
@@ -1339,7 +1339,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
       await requestApi({ path: `/admin/workspaces/${detail.id}/subscription-price`, method: "PATCH", body: { amountCny, reason } });
       const refreshed = await requestApi<WorkspaceDetail>({ path: `/admin/workspaces/${detail.id}` });
       setDetail(refreshed.data);
-      setSubscriptionPrice(refreshed.data.customPriceMinor === null || refreshed.data.customPriceMinor === undefined ? "" : (Number(refreshed.data.customPriceMinor) / 100).toFixed(2));
+      setSubscriptionPrice(refreshed.data.customPriceMinor === null || refreshed.data.customPriceMinor === undefined ? "" : minorUnitsToDecimalMoney(refreshed.data.customPriceMinor, 2));
       setSubscriptionPriceReason("");
       await load(search);
     } catch (e) {
@@ -1440,11 +1440,11 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                     <div className="grid min-w-[260px] grid-cols-2 gap-2 text-xs">
                       <div className="rounded-md border border-white/70 bg-white/80 p-2">
                         <div className="flex items-center gap-1.5 text-slate-500"><Sparkles size={13} /> AI-Credits</div>
-                        <div className="mt-1 font-semibold text-slate-950">¥{detail.funding.ai.availableAmount.toFixed(2)}</div>
+                        <div className="mt-1 font-semibold text-slate-950">{formatDecimalMoney(detail.funding.ai.availableAmount, "CNY", currentDateLocale())}</div>
                       </div>
                       <div className="rounded-md border border-white/70 bg-white/80 p-2">
                         <div className="flex items-center gap-1.5 text-slate-500"><Megaphone size={13} /> Adspend</div>
-                        <div className="mt-1 font-semibold text-slate-950">¥{detail.funding.adSpend.availableAmount.toFixed(2)}</div>
+                        <div className="mt-1 font-semibold text-slate-950">{formatDecimalMoney(detail.funding.adSpend.availableAmount, "CNY", currentDateLocale())}</div>
                       </div>
                     </div>
                   ) : null}
@@ -1678,11 +1678,11 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                 </div>
                 {detail.paygUsage ? (
                   <div className="grid grid-cols-2 gap-x-5 gap-y-1 text-right text-xs text-slate-600 sm:grid-cols-5">
-                    <span>API offen <strong className="ml-1 text-slate-900">${detail.paygUsage.apiBillableUsd.toFixed(2)}</strong></span>
-                    <span>Server offen <strong className="ml-1 text-slate-900">${detail.paygUsage.serverBillableUsd.toFixed(2)}</strong></span>
-                    <span>API/AI-Gutschrift <strong className="ml-1 text-emerald-700">${detail.paygUsage.apiCreditUsd.toFixed(2)}</strong></span>
-                    <span>Server-Gutschrift <strong className="ml-1 text-emerald-700">${detail.paygUsage.serverCreditUsd.toFixed(2)}</strong></span>
-                    <span>Storage-Gutschrift <strong className="ml-1 text-emerald-700">${Number(detail.paygUsage.storageCreditUsd ?? 0).toFixed(2)}</strong></span>
+                    <span>API offen <strong className="ml-1 text-slate-900">{moneyUsd(detail.paygUsage.apiBillableUsd)}</strong></span>
+                    <span>Server offen <strong className="ml-1 text-slate-900">{moneyUsd(detail.paygUsage.serverBillableUsd)}</strong></span>
+                    <span>API/AI-Gutschrift <strong className="ml-1 text-emerald-700">{moneyUsd(detail.paygUsage.apiCreditUsd)}</strong></span>
+                    <span>Server-Gutschrift <strong className="ml-1 text-emerald-700">{moneyUsd(detail.paygUsage.serverCreditUsd)}</strong></span>
+                    <span>Storage-Gutschrift <strong className="ml-1 text-emerald-700">{moneyUsd(detail.paygUsage.storageCreditUsd)}</strong></span>
                   </div>
                 ) : <span className="text-xs text-slate-500">PAYG ist für diesen Workspace nicht konfiguriert.</span>}
               </div>
@@ -1736,7 +1736,7 @@ function WorkspacesPage({ onError }: { onError: (m: string) => void }) {
                       {detail.usageAdjustments.map((adjustment) => (
                         <tr key={adjustment.id} className="border-b border-slate-50 last:border-0">
                           <td className="px-3 py-2 font-medium">{adjustment.metric === "api" ? "API / AI" : adjustment.metric === "storage" ? "Storage" : "Server"}</td>
-                          <td className="px-3 py-2 font-semibold text-emerald-700">${Number(adjustment.amountUsd).toFixed(2)}</td>
+                          <td className="px-3 py-2 font-semibold text-emerald-700">{moneyUsd(adjustment.amountUsd)}</td>
                           <td className="max-w-[260px] truncate px-3 py-2 text-slate-600" title={adjustment.reason}>{adjustment.reason}</td>
                           <td className="whitespace-nowrap px-3 py-2 text-slate-500">{dateOnly(adjustment.periodStart)} – {dateOnly(adjustment.periodEnd)}</td>
                           <td className="px-3 py-2"><Pill tone={adjustment.appliedAt ? "sky" : "amber"}>{adjustment.appliedAt ? "An Periode gebunden" : "Offen"}</Pill></td>
