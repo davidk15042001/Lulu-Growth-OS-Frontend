@@ -132,6 +132,8 @@ export default function LuluLandingPage() {
         </div>
         {mobileMenuOpen && <div id="public-entry-mobile-menu" className="public-entry__mobile-menu" role="menu" aria-label={t("Landing page sections")}>
           {[['vision', 'The approach'], ['system', 'The system'], ['operation', 'The loop']].map(([id, label]) => <button key={id} type="button" role="menuitem" onClick={() => scrollTo(id)}>{t(label)} <ArrowRight size={14} aria-hidden="true" /></button>)}
+          <span className="public-entry__mobile-menu-divider" aria-hidden="true" />
+          <Link role="menuitem" to={routes.auth.login} onClick={() => setMobileMenuOpen(false)}>{t("Sign in")} <ArrowRight size={14} aria-hidden="true" /></Link>
         </div>}
       </header>
 

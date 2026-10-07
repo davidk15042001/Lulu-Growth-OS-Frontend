@@ -88,7 +88,7 @@
     padding: 8px;
     backdrop-filter: blur(18px) saturate(130%);
   }
-  .public-entry__mobile-menu button {
+  .public-entry__mobile-menu :is(button, a) {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -102,9 +102,10 @@
     font-size: .75rem;
     font-weight: 720;
   }
-  .public-entry__mobile-menu button:hover,
-  .public-entry__mobile-menu button:focus-visible { background: rgba(121, 223, 212, .08); color: #fff; outline: 0; }
-  .public-entry__mobile-menu button svg { color: var(--public-cyan); }
+  .public-entry__mobile-menu :is(button, a):hover,
+  .public-entry__mobile-menu :is(button, a):focus-visible { background: rgba(121, 223, 212, .08); color: #fff; outline: 0; }
+  .public-entry__mobile-menu :is(button, a) svg { color: var(--public-cyan); }
+  .public-entry__mobile-menu-divider { display: block; height: 1px; margin: 5px 8px; background: rgba(192, 213, 239, .12); }
 }
 
 @media (min-width: 981px) { .public-entry__mobile-menu { display: none !important; } }
