@@ -109,11 +109,10 @@ function formatDate(value: string | null | undefined, locale: string) {
 
 function formatAmount(value: string | null, currency: string | null, locale: string) {
   if (!value) return "—";
-  try {
-    return new Intl.NumberFormat(locale, { style: "currency", currency: currency || "EUR", maximumFractionDigits: 2 }).format(Number(value));
-  } catch {
-    return `${value} ${currency || "EUR"}`;
-  }
+  // Keep the canonical decimal string intact. Formatting money through a
+  // JavaScript number could round large or high-precision values in the UI.
+  void locale;
+  return `${value} ${currency || "EUR"}`;
 }
 
 function PipelineModal({ mode, form, busy, error, onChange, onSave, onClose }: { mode: PipelineMode; form: PipelineForm; busy: boolean; error: string; onChange: (next: PipelineForm) => void; onSave: () => void; onClose: () => void }) {
