@@ -325,7 +325,7 @@ export function LuluStation() {
   const language = useLanguage();
   const t = useTranslation();
   const navigate = useNavigate();
-  const { selectedWorkspace } = useLuluApp();
+  const { selectedWorkspace, hasCapability } = useLuluApp();
   const workspaceId = selectedWorkspace?.id ?? null;
   const [overviewSnapshot, setOverviewSnapshot] = useState<{ workspaceId: string; data: OfficeOverview } | null>(null);
   const [employeeDetailSnapshot, setEmployeeDetailSnapshot] = useState<{ workspaceId: string; employeeId: string; data: OfficeEmployeeDetails } | null>(null);
@@ -776,7 +776,7 @@ export function LuluStation() {
               <div className={`lulu-station__modal-status lulu-station__modal-status--${toneForStatus(effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable, employeeDetail.employee.aiExecutionBlocked))}`}><i />{statusLabel(effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable, employeeDetail.employee.aiExecutionBlocked), t)}</div>
             </header>
             <div className="lulu-station__modal-body">
-              <AgentNativeWorkspace workspaceId={workspaceId} employeeDetail={employeeDetail} />
+              <AgentNativeWorkspace workspaceId={workspaceId} employeeDetail={employeeDetail} canManageOmnichannel={hasCapability("omnichannel.manage")} canReplyOmnichannel={hasCapability("omnichannel.reply")} />
               <div className="lulu-station__modal-details">
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CURRENT WORK")}</span><strong title={employeeDetail.currentWorkItem?.title}>{effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable, employeeDetail.employee.aiExecutionBlocked) === "BLOCKED" ? t("Execution paused") : employeeWorkTitle}</strong>{effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable, employeeDetail.employee.aiExecutionBlocked) === "BLOCKED" ? <p>{t("Execution is paused until AI credit is available")}</p> : employeeWorkObjectiveIsDistinct ? <p title={employeeDetail.currentWorkItem?.objective}>{employeeWorkObjective}</p> : null}<small>{effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable, employeeDetail.employee.aiExecutionBlocked) === "BLOCKED" ? t(officeAiReadinessMessage(employeeDetail.executionReadiness.ai)) : displayedWorkStatus(employeeDetail.employee.status, employeeDetail.currentWorkItem?.status, t)}{employeeDetail.currentWorkItem?.relatedObjectType ? ` · ${officeRelatedObjectLabel(employeeDetail.currentWorkItem.relatedObjectType, t)}` : ""}</small></div>
                 <div className="lulu-station__modal-stats"><div><strong>{formatCount(employeeDetail.workSummary.active, language)}</strong><span>{t("open work")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.completedToday, language)}</strong><span>{t("completed today")}</span></div><div><strong>{formatCount(employeeDetail.workSummary.failed, language)}</strong><span>{t("failed")}</span></div></div>
@@ -810,7 +810,7 @@ export function LuluStation() {
               </div>
               <section className="lulu-station__catalog-native-workspace" aria-label={`${selectedCatalogAgent.name} ${t("workspace preview")}`}>
                 <div className="lulu-station__catalog-native-heading"><span>{t("NATIVE WORKSPACE PREVIEW")}</span><small>{t("The same workspace-scoped data surface, without leaving the Station.")}</small></div>
-                <AgentNativeWorkspace workspaceId={workspaceId} catalogAgent={selectedCatalogAgent} />
+                <AgentNativeWorkspace workspaceId={workspaceId} catalogAgent={selectedCatalogAgent} canManageOmnichannel={hasCapability("omnichannel.manage")} canReplyOmnichannel={hasCapability("omnichannel.reply")} />
               </section>
             </div>
             <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />{t("Canonical registry · workspace-safe")}</span>{selectedCatalogAgent.pageId && isPageNavigable(selectedCatalogAgent.pageId) ? <button type="button" className="lulu-station__inspector-link" onClick={() => openCatalogWorkspace(selectedCatalogAgent)}><ArrowUpRight size={14} />{t("Open full workspace")}</button> : <span>{t("No dedicated workspace surface")}</span>}</footer>

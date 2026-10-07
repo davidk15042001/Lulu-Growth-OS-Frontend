@@ -443,7 +443,9 @@ if (
   || !nativeAgentWorkspace.includes('const isCatalogPreview = Boolean(catalogAgent && !employeeDetail);')
   || !nativeAgentWorkspace.includes('lulu-native-agent__live ${isCatalogPreview ? "is-preview" : "is-surface"}')
   || !nativeAgentWorkspaceCss.includes('border: 1px solid #789aa5;')
-  || !luluStation.includes('<AgentNativeWorkspace workspaceId={workspaceId} catalogAgent={selectedCatalogAgent} />')
+  || !luluStation.includes('catalogAgent={selectedCatalogAgent}')
+  || !luluStation.includes('canManageOmnichannel={hasCapability("omnichannel.manage")}')
+  || !luluStation.includes('canReplyOmnichannel={hasCapability("omnichannel.reply")}')
 ) {
   failures.push('Dedicated communication, scheduling and reputation employees do not resolve to their native live workspace surfaces.');
 }

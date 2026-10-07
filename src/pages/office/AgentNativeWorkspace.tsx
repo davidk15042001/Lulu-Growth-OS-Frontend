@@ -11,6 +11,7 @@ import {
   CircleAlert,
   FileText,
   Globe2,
+  Hand,
   Landmark,
   Mail,
   MessageCircle,
@@ -21,6 +22,8 @@ import {
   ShieldCheck,
   Sparkles,
   Star,
+  Send,
+  StickyNote,
   Store,
   WalletCards,
 } from "lucide-react";
@@ -53,6 +56,8 @@ type Props = {
   workspaceId: string;
   employeeDetail?: OfficeEmployeeDetails;
   catalogAgent?: AgentEcosystemDefinition;
+  canManageOmnichannel?: boolean;
+  canReplyOmnichannel?: boolean;
 };
 
 type AgentSurfaceSource = {
@@ -315,17 +320,50 @@ function CrmSurface({ workspaceId }: { workspaceId: string }) {
   return <SurfaceState loading={loading} error={error} empty={!items.length ? t("No companies are available in the customer graph.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Companies" value={items.length} detail="loaded in this view" icon={<Building2 size={14} />} /><Metric label="Research" value={researching} detail="verified in progress" icon={<Sparkles size={14} />} /><Metric label="Fresh signal" value={items.filter((item) => item.status !== "ARCHIVED").length} detail="active company profiles" icon={<Radio size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Company intelligence")}</span><small>{t("Canonical CRM records")}</small></div>{items.map((item) => { const enrichment = item.data.enrichment && typeof item.data.enrichment === "object" ? item.data.enrichment as Record<string, unknown> : {}; return <article key={item.id}><span className="lulu-native-agent__initial">{item.name.slice(0, 2).toUpperCase()}</span><div><strong>{item.name}</strong><small>{String(item.data.industry ?? t("Industry is being verified"))} · {String(item.data.city ?? item.data.country ?? t("Location pending"))}</small></div><span className="lulu-native-agent__progress"><i style={{ width: `${Math.min(100, Number(enrichment.completeness ?? 0))}%` }} /><small>{Number(enrichment.completeness ?? 0)}%</small></span><Status>{String(enrichment.status ?? item.status)}</Status></article>; })}</section></SurfaceState>;
 }
 
-function CommunicationsSurface({ workspaceId }: { workspaceId: string }) {
+function CommunicationsSurface({ workspaceId, canManage, canReply }: { workspaceId: string; canManage: boolean; canReply: boolean }) {
   const t = useTranslation();
   const [items, setItems] = useState<OmniConversation[]>([]);
   const [messages, setMessages] = useState<OmniMessage[]>([]);
   const [selected, setSelected] = useState<OmniConversation | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [actionError, setActionError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [draft, setDraft] = useState("");
+  const [composerMode, setComposerMode] = useState<"message" | "note">("message");
+  const [actionBusy, setActionBusy] = useState(false);
   const messageRequestRef = useRef(0);
   useEffect(() => { let active = true; const requestId = ++messageRequestRef.current; setLoading(true); setError(""); void omnichannelApi.conversations(workspaceId, "limit=16").then((conversations) => { if (!active) return; setItems(conversations.data.items); const first = conversations.data.items[0] ?? null; setSelected(first); if (first) return omnichannelApi.conversation(workspaceId, first.id).then((response) => { if (active && requestId === messageRequestRef.current) setMessages(response.data.messages); }); }).catch((cause) => active && setError(getFriendlyErrorMessage(cause, t("Customer conversations are unavailable.")))).finally(() => active && setLoading(false)); return () => { active = false; messageRequestRef.current += 1; }; }, [t, workspaceId]);
-  const open = (conversation: OmniConversation) => { const requestId = ++messageRequestRef.current; setSelected(conversation); setMessages([]); setError(""); void omnichannelApi.conversation(workspaceId, conversation.id).then((response) => { if (requestId === messageRequestRef.current) setMessages(response.data.messages); }).catch((cause) => { if (requestId === messageRequestRef.current) setError(getFriendlyErrorMessage(cause, t("Conversation details are unavailable."))); }); };
-  return <SurfaceState loading={loading} error={error} empty={!items.length ? t("No connected customer conversations are available.") : undefined}><div className="lulu-native-agent__conversation"><aside>{items.map((item) => <button type="button" className={selected?.id === item.id ? "is-selected" : ""} onClick={() => open(item)} key={item.id}><strong>{item.subject || t("New conversation")}</strong><span>{item.channelDisplayName || t("Connected channel")} · <Status>{item.handlingMode}</Status></span></button>)}</aside><section><header><div><span className="lulu-native-agent__eyebrow">{t("LIVE CONVERSATION")}</span><h3>{selected?.subject ?? t("Select a conversation")}</h3></div>{selected ? <Status>{selected.handlingMode}</Status> : null}</header><div className="lulu-native-agent__message-log">{selected ? messages.length ? messages.map((message) => <p key={message.id} className={message.direction === "INBOUND" ? "is-inbound" : ""}><small>{message.direction === "INBOUND" ? t("Customer") : message.direction === "INTERNAL" ? t("Internal note") : "Lulu"}</small>{message.textContent ?? t("Unsupported message content")}</p>) : <div className="lulu-native-agent__muted">{t("No messages are available for this conversation.")}</div> : <div className="lulu-native-agent__muted">{t("Choose a verified conversation to inspect its thread.")}</div>}</div></section></div></SurfaceState>;
+  const open = (conversation: OmniConversation) => { const requestId = ++messageRequestRef.current; setSelected(conversation); setMessages([]); setError(""); setActionError(""); setNotice(""); setDraft(""); void omnichannelApi.conversation(workspaceId, conversation.id).then((response) => { if (requestId === messageRequestRef.current) { setSelected(response.data.conversation); setMessages(response.data.messages); } }).catch((cause) => { if (requestId === messageRequestRef.current) setError(getFriendlyErrorMessage(cause, t("Conversation details are unavailable."))); }); };
+  const updateSelectedConversation = (conversation: OmniConversation) => { setSelected(conversation); setItems((current) => current.map((item) => item.id === conversation.id ? { ...item, ...conversation } : item)); };
+  const takeOver = async () => {
+    if (!selected || !canManage) return;
+    setActionBusy(true); setActionError(""); setNotice("");
+    try { updateSelectedConversation((await omnichannelApi.takeOver(workspaceId, selected.id)).data); setNotice(t("You are now in control of this conversation.")); }
+    catch (cause) { setActionError(getFriendlyErrorMessage(cause, t("The conversation could not be taken over."))); }
+    finally { setActionBusy(false); }
+  };
+  const returnToAi = async () => {
+    if (!selected || !canManage) return;
+    setActionBusy(true); setActionError(""); setNotice("");
+    try { updateSelectedConversation((await omnichannelApi.returnToAi(workspaceId, selected.id, "AI_AUTO")).data); setNotice(t("Lulu has resumed autonomous handling.")); }
+    catch (cause) { setActionError(getFriendlyErrorMessage(cause, t("The conversation could not be returned to Lulu."))); }
+    finally { setActionBusy(false); }
+  };
+  const submitComposer = async () => {
+    const text = draft.trim();
+    if (!selected || !text || !canReply) return;
+    if (composerMode === "message" && selected.handlingMode !== "HUMAN") { setActionError(t("Take control of the conversation before sending a manual customer message.")); return; }
+    setActionBusy(true); setActionError(""); setNotice("");
+    try {
+      const message = composerMode === "note"
+        ? (await omnichannelApi.note(workspaceId, selected.id, text)).data
+        : (await omnichannelApi.send(workspaceId, selected.id, text, crypto.randomUUID())).data;
+      setMessages((current) => [...current, message]); setDraft(""); setNotice(t(composerMode === "note" ? "Internal note added." : "Message sent."));
+    } catch (cause) { setActionError(getFriendlyErrorMessage(cause, t(composerMode === "note" ? "The note could not be added." : "The message could not be sent."))); }
+    finally { setActionBusy(false); }
+  };
+  return <SurfaceState loading={loading} error={error} empty={!items.length ? t("No connected customer conversations are available.") : undefined}><div className="lulu-native-agent__conversation"><aside>{items.map((item) => <button type="button" className={selected?.id === item.id ? "is-selected" : ""} onClick={() => open(item)} key={item.id}><strong>{item.subject || t("New conversation")}</strong><span>{item.channelDisplayName || t("Connected channel")} · <Status>{item.handlingMode}</Status></span></button>)}</aside><section><header><div><span className="lulu-native-agent__eyebrow">{t("LIVE CONVERSATION")}</span><h3>{selected?.subject ?? t("Select a conversation")}</h3></div>{selected ? <div className="lulu-native-agent__conversation-actions">{selected.handlingMode === "HUMAN" ? <button type="button" className="lulu-native-agent__conversation-action" disabled={actionBusy || !canManage} onClick={() => void returnToAi()}><Bot size={13} />{t("Return to Lulu")}</button> : <button type="button" className="lulu-native-agent__conversation-action" disabled={actionBusy || !canManage} onClick={() => void takeOver()}><Hand size={13} />{t("Take control")}</button>}<Status>{selected.handlingMode}</Status></div> : null}</header><div className="lulu-native-agent__message-log">{selected ? messages.length ? messages.map((message) => <p key={message.id} className={`${message.direction === "INBOUND" ? "is-inbound" : ""}${message.direction === "INTERNAL" ? " is-internal" : ""}`}><small>{message.direction === "INBOUND" ? t("Customer") : message.direction === "INTERNAL" ? t("Internal note") : "Lulu"}</small>{message.textContent ?? t("Unsupported message content")}</p>) : <div className="lulu-native-agent__muted">{t("No messages are available for this conversation.")}</div> : <div className="lulu-native-agent__muted">{t("Choose a verified conversation to inspect its thread.")}</div>}</div>{selected && canReply ? <div className="lulu-native-agent__composer"><div className="lulu-native-agent__composer-tools"><div className="lulu-native-agent__composer-mode"><button type="button" className={composerMode === "message" ? "is-selected" : ""} onClick={() => setComposerMode("message")}><Send size={12} />{t("Message")}</button><button type="button" className={composerMode === "note" ? "is-selected" : ""} onClick={() => setComposerMode("note")}><StickyNote size={12} />{t("Internal note")}</button></div><span>{composerMode === "note" ? t("Internal note") : selected.handlingMode === "HUMAN" ? t("Human control") : t("Lulu is handling this")}</span></div><div className="lulu-native-agent__composer-row"><textarea value={draft} onChange={(event) => setDraft(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) { event.preventDefault(); void submitComposer(); } }} rows={2} maxLength={4000} placeholder={t(composerMode === "note" ? "Add context for your team…" : selected.handlingMode === "HUMAN" ? "Write a customer message…" : "Take control to write a customer message…")} disabled={actionBusy || (composerMode === "message" && selected.handlingMode !== "HUMAN")} aria-label={t(composerMode === "note" ? "Internal note" : "Customer message")} /><button type="button" className="lulu-native-agent__composer-submit" onClick={() => void submitComposer()} disabled={actionBusy || !draft.trim() || (composerMode === "message" && selected.handlingMode !== "HUMAN")}><Send size={13} />{t(composerMode === "note" ? "Add" : "Send")}</button></div>{actionError ? <p className="lulu-native-agent__composer-feedback is-error" role="alert">{actionError}</p> : notice ? <p className="lulu-native-agent__composer-feedback" role="status">{notice}</p> : <p className="lulu-native-agent__composer-help">{t(composerMode === "note" ? "Notes remain internal and are never sent to the customer." : selected.handlingMode === "HUMAN" ? "Manual messages use the same canonical conversation and audit trail as Lulu." : "Lulu remains autonomous until you explicitly take control.")}</p>}</div> : selected && !canReply ? <div className="lulu-native-agent__composer lulu-native-agent__composer--readonly"><span>{t("Read-only access")}</span><small>{t("Open full workspace")}</small></div> : null}</section></div></SurfaceState>;
 }
 
 function EmailSurface({ workspaceId }: { workspaceId: string }) {
@@ -597,7 +635,7 @@ function IntelligenceSurface({ workspaceId }: { workspaceId: string }) {
   return <SurfaceState loading={loading} error={error} empty={!hasVisibleExecutiveEvidence ? t("No executive intelligence is available yet.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Findings" value={overview?.summary.visibleFindingCount ?? 0} detail="visible operating signals" icon={<CircleAlert size={14} />} /><Metric label="Proposals" value={overview?.summary.visibleProposalCount ?? 0} detail="decision-ready items" icon={<Sparkles size={14} />} /><Metric label="Forecasts" value={overview?.summary.forecastCount ?? 0} detail="evidence-backed scenarios" icon={<BarChart3 size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Executive signals")}</span><small>{t("Verified cycle evidence")}</small></div>{executiveItems.map((item) => <article key={item.id}><div><strong>{item.title}</strong><small>{item.detail}</small></div><Status>{item.status}</Status></article>)}</section></SurfaceState>;
 }
 
-export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent }: Props) {
+export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent, canManageOmnichannel = false, canReplyOmnichannel = false }: Props) {
   const t = useTranslation();
   const source = useMemo<AgentSurfaceSource>(() => employeeDetail
     ? {
@@ -626,7 +664,7 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
     <header className="lulu-native-agent__header"><span className="lulu-native-agent__header-icon"><Icon size={17} /></span><div><span className="lulu-native-agent__eyebrow">{t(definition.label)}</span><h3>{t(source.name)}</h3><p>{t(definition.description)}</p></div><span className={`lulu-native-agent__live ${isCatalogPreview ? "is-preview" : "is-surface"}`}><i />{t(isCatalogPreview ? "Workspace context" : "Native workspace")}</span>{fullWorkspacePath ? <a className="lulu-native-agent__workspace-link" href={fullWorkspacePath} target="_top"><ArrowUpRight aria-hidden="true" size={14} />{t("Open full workspace")}</a> : null}</header>
     <div className="lulu-native-agent__content">
       {kind === "crm" ? <CrmSurface workspaceId={workspaceId} /> : null}
-      {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} /> : null}
+      {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} canManage={canManageOmnichannel} canReply={canReplyOmnichannel} /> : null}
       {kind === "email" ? <EmailSurface workspaceId={workspaceId} /> : null}
       {kind === "calendar" ? <CalendarSurface workspaceId={workspaceId} /> : null}
       {kind === "commerce" ? <CommerceSurface workspaceId={workspaceId} /> : null}
