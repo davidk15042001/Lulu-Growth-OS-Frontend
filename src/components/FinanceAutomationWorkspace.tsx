@@ -196,6 +196,7 @@ export function FinanceAutomationWorkspace() {
         <button type="button" onClick={() => setModalOpen(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/15 transition hover:-translate-y-0.5 hover:bg-primary/90"><Plus size={16} /> New automation</button>
       </header>
 
+      <div className="mt-5 flex items-start gap-3 rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-200"><ShieldCheck size={17} className="mt-0.5 shrink-0" /><div><p className="font-semibold">Live validation</p><p className="mt-1 leading-5 text-amber-800/80 dark:text-amber-200/80">Rules are tenant-scoped and versioned. Validation confirms configuration; it does not pretend that provider or accounting side effects already happened.</p></div></div>
       {error ? <div role="alert" className="mt-5 flex items-start justify-between gap-4 rounded-2xl border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-destructive"><span>{error}</span><button type="button" onClick={() => setError(null)} aria-label="Dismiss error"><X size={16} /></button></div> : null}
 
       <section className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
