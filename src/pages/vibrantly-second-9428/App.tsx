@@ -1,5 +1,5 @@
 import { Theme } from './settings/types';
-import { FinancialAutomation } from './components/generated/FinancialAutomation';
+import { FinanceAutomationWorkspace } from '../../components/FinanceAutomationWorkspace';
 // %IMPORT_STATEMENT%
 
 let theme: Theme = 'light';
@@ -15,7 +15,7 @@ function App() {
 
   setTheme(theme);
 
-  return <FinancialAutomation />; // %EXPORT_STATEMENT%
+  return <FinanceAutomationWorkspace />; // %EXPORT_STATEMENT%
 }
 
 export default App;
