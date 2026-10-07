@@ -193,5 +193,10 @@
   "wurden noch keine externen Zustellungen protokolliert.": "wurden noch keine externen Zustellungen protokolliert.",
   "Datensatz": "Datensatz",
   "Ziel": "Ziel",
-  "Vorgang": "Vorgang"
+  "Vorgang": "Vorgang",
+  "Alle Status": "Alle Status",
+  "Zustellstatus filtern": "Zustellstatus filtern",
+  "geladen": "geladen",
+  "Weitere Zustellungen sind verfügbar.": "Weitere Zustellungen sind verfügbar.",
+  "Weitere laden": "Weitere laden"
 }

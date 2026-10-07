@@ -7261,5 +7261,10 @@
   "wurden noch keine externen Zustellungen protokolliert.": "的外部交付。",
   "Datensatz": "记录",
   "Ziel": "目标",
-  "Vorgang": "操作"
+  "Vorgang": "操作",
+  "Alle Status": "所有状态",
+  "Zustellstatus filtern": "筛选交付状态",
+  "geladen": "已加载",
+  "Weitere Zustellungen sind verfügbar.": "还有更多交付记录。",
+  "Weitere laden": "加载更多"
 }

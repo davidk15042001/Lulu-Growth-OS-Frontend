@@ -47,6 +47,11 @@ export type CrmDeliveryTargetInput = Pick<CrmDeliveryTarget,
 
 export type CrmDeliveryProjectionStatus = 'PENDING' | 'SYNCED' | 'CANCELLED' | 'FAILED' | 'AMBIGUOUS';
 
+export type CrmDeliveryProjectionCursor = {
+  beforeUpdatedAt: string;
+  beforeId: string;
+};
+
 export type CrmDeliveryProjection = {
   id: string;
   workspaceId: string;
@@ -64,13 +69,15 @@ export type CrmDeliveryProjection = {
 };
 
 export const crmApi = {
-  deliveryProjections: (workspaceId: string, input: { resourceType?: CrmDeliveryResourceType; status?: CrmDeliveryProjectionStatus; limit?: number } = {}) => {
+  deliveryProjections: (workspaceId: string, input: { resourceType?: CrmDeliveryResourceType; status?: CrmDeliveryProjectionStatus; limit?: number; beforeUpdatedAt?: string; beforeId?: string } = {}) => {
     const params = new URLSearchParams();
     if (input.resourceType) params.set('resourceType', input.resourceType);
     if (input.status) params.set('status', input.status);
     if (input.limit) params.set('limit', String(input.limit));
+    if (input.beforeUpdatedAt) params.set('beforeUpdatedAt', input.beforeUpdatedAt);
+    if (input.beforeId) params.set('beforeId', input.beforeId);
     const query = params.toString();
-    return requestApi<{ items: CrmDeliveryProjection[]; nextCursor: { beforeUpdatedAt: string; beforeId: string } | null }>({
+    return requestApi<{ items: CrmDeliveryProjection[]; nextCursor: CrmDeliveryProjectionCursor | null }>({
       path: workspaceApiPath(workspaceId, `/crm/delivery-projections${query ? `?${query}` : ''}`),
     });
   },

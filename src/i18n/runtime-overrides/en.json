@@ -1172,5 +1172,10 @@
   "wurden noch keine externen Zustellungen protokolliert.": "no external deliveries have been recorded yet.",
   "Datensatz": "Record",
   "Ziel": "Destination",
-  "Vorgang": "Operation"
+  "Vorgang": "Operation",
+  "Alle Status": "All statuses",
+  "Zustellstatus filtern": "Filter delivery status",
+  "geladen": "loaded",
+  "Weitere Zustellungen sind verfügbar.": "More deliveries are available.",
+  "Weitere laden": "Load more"
 }
