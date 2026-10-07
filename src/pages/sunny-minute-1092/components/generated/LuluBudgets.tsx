@@ -6,7 +6,7 @@ import { useLuluApp } from '../../../../api/LuluAppContext';
 import { useLiveRecords } from '../../../../api/useLiveRecords';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import { createPaymentQrDataUrl } from '../../../../utils/paymentQr';
-import { formatDecimalMoney, isPositiveDecimal } from '../../../../utils/decimal-money';
+import { addDecimalMoney, compareDecimalMoney, formatDecimalMoney, isPositiveDecimal, percentageDecimalMoney, tryNormalizeDecimalMoney } from '../../../../utils/decimal-money';
 
 function textValue(value: unknown) {
   if (value === null || value === undefined) return '';
@@ -129,10 +129,10 @@ export function LuluBudgets() {
     return () => { active = false; window.clearInterval(poll); };
   }, [currentTopup?.creditStatus, currentTopup?.id, currentTopup?.status, loadWallet, workspaceId]);
 
-  const netAmount = Number(amount);
-  const normalizedAmount = Number.isFinite(netAmount) && netAmount > 0 ? Math.round(netAmount * 100) / 100 : 0;
-  const feeAmount = Math.round(normalizedAmount * 4) / 100;
-  const totalAmount = Math.round((normalizedAmount + feeAmount) * 100) / 100;
+  const normalizedAmount = tryNormalizeDecimalMoney(amount) ?? '0.00';
+  const topupAmountValid = compareDecimalMoney(normalizedAmount, '1.00') >= 0;
+  const feeAmount = percentageDecimalMoney(normalizedAmount, '4.00');
+  const totalAmount = addDecimalMoney(normalizedAmount, feeAmount);
 
   function choosePresetAmount(value: number) {
     setCustomAmountOpen(false);
@@ -180,14 +180,14 @@ export function LuluBudgets() {
           : t('Payment confirmed. No usable advertising balance remains.');
 
   async function topUp() {
-    if (!workspaceId || normalizedAmount < 1 || paying) return;
+    if (!workspaceId || !topupAmountValid || paying) return;
     const request = ++actionRequest.current;
     const targetWorkspaceId = workspaceId;
     const targetPaymentMethod = paymentMethod;
     setPaying(true); setPaymentErrorState(null);
     try {
       const response = await adSpendApi.createTopup(targetWorkspaceId, {
-        amount: normalizedAmount.toFixed(2),
+        amount: normalizedAmount,
         paymentMethod: targetPaymentMethod,
         returnUrl: `${window.location.origin}${window.location.pathname}?adspend=return`,
       });
@@ -211,9 +211,9 @@ export function LuluBudgets() {
 
   async function authorizeCampaign() {
     if (!workspaceId || authorizationSaving || !permissions.canAdminister) return;
-    const authorizedAmount = Number(authorizationForm.amount);
+    const authorizedAmount = tryNormalizeDecimalMoney(authorizationForm.amount);
     const endsAt = new Date(`${authorizationForm.endsOn}T23:59:59.999Z`);
-    if (!authorizationForm.accountId.trim() || !authorizationForm.campaignId.trim() || !Number.isFinite(authorizedAmount) || authorizedAmount <= 0 || Number.isNaN(endsAt.getTime())) {
+    if (!authorizationForm.accountId.trim() || !authorizationForm.campaignId.trim() || !authorizedAmount || !isPositiveDecimal(authorizedAmount) || Number.isNaN(endsAt.getTime())) {
       setPaymentErrorState({ workspaceId, message: 'Enter the Google Ads account, campaign, amount and authorization end date.' });
       return;
     }
@@ -226,7 +226,7 @@ export function LuluBudgets() {
         accountId: authorizationForm.accountId.trim().replace(/-/g, ''),
         campaignId: authorizationForm.campaignId.trim(),
         currency: 'CNY',
-        amount: authorizedAmount.toFixed(2),
+        amount: authorizedAmount,
         startsAt: new Date().toISOString(),
         endsAt: endsAt.toISOString(),
         idempotencyKey: crypto.randomUUID(),
@@ -288,11 +288,11 @@ export function LuluBudgets() {
             <div className="border-t border-border bg-background/40 p-6 sm:p-8 lg:border-l lg:border-t-0">
               <p className="text-xs font-semibold uppercase tracking-[.18em] text-muted-foreground">Add advertising budget</p>
               <label className="mt-5 block text-sm font-medium">{t('Amount credited to ads')}</label>
-              <div className="mt-2 grid grid-cols-2 gap-2">{adSpendPackages.map(value=><button key={value} type="button" aria-pressed={!customAmountOpen && normalizedAmount===value} onClick={()=>choosePresetAmount(value)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${!customAmountOpen && normalizedAmount===value?'border-primary bg-primary text-primary-foreground':'border-border bg-card hover:bg-secondary'}`}>{money.format(value)}</button>)}<button type="button" aria-pressed={customAmountOpen} onClick={openCustomAmount} className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold ${customAmountOpen?'border-primary bg-primary text-primary-foreground':'border-border bg-card hover:bg-secondary'}`}><PencilLine size={15} />{t('Custom')}</button></div>
-              {customAmountOpen && <div className="mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3"><label className="block text-sm font-medium">{t('Custom amount (CNY)')}<input type="number" min="1" max="1000000000" step="0.01" inputMode="decimal" autoFocus value={amount} onChange={(event)=>setAmount(event.target.value)} placeholder="1000.00" className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring" /></label>{normalizedAmount<1 && <p className="mt-2 text-xs text-destructive">{t('Enter a custom amount of at least CNY 1.00.')}</p>}</div>}
+              <div className="mt-2 grid grid-cols-2 gap-2">{adSpendPackages.map(value=>{const presetAmount=tryNormalizeDecimalMoney(String(value)) ?? '0.00'; return <button key={value} type="button" aria-pressed={!customAmountOpen && normalizedAmount===presetAmount} onClick={()=>choosePresetAmount(value)} className={`rounded-xl border px-3 py-3 text-sm font-semibold ${!customAmountOpen && normalizedAmount===presetAmount?'border-primary bg-primary text-primary-foreground':'border-border bg-card hover:bg-secondary'}`}>{money.format(value)}</button>})}<button type="button" aria-pressed={customAmountOpen} onClick={openCustomAmount} className={`inline-flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold ${customAmountOpen?'border-primary bg-primary text-primary-foreground':'border-border bg-card hover:bg-secondary'}`}><PencilLine size={15} />{t('Custom')}</button></div>
+              {customAmountOpen && <div className="mt-3 rounded-xl border border-primary/30 bg-primary/5 p-3"><label className="block text-sm font-medium">{t('Custom amount (CNY)')}<input type="number" min="1" max="1000000000" step="0.01" inputMode="decimal" autoFocus value={amount} onChange={(event)=>setAmount(event.target.value)} placeholder="1000.00" className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-ring" /></label>{!topupAmountValid && <p className="mt-2 text-xs text-destructive">{t('Enter a custom amount of at least CNY 1.00.')}</p>}</div>}
               <div className="mt-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">{paymentMethods.map((method) => <button key={method.id} type="button" onClick={() => setPaymentMethod(method.id)} className={`rounded-xl border p-3 text-left transition ${paymentMethod === method.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border bg-card hover:bg-secondary'}`}><span className="flex items-center gap-2 text-sm font-semibold">{method.id === 'card' ? <CreditCard size={15} /> : <QrCode size={15} />}{method.label}</span><span className="mt-1 block text-[11px] text-muted-foreground">{method.detail}</span></button>)}</div>
               <dl className="mt-5 space-y-2 rounded-xl border border-border bg-card p-4 text-sm"><div className="flex justify-between"><dt className="text-muted-foreground">Ad spend</dt><dd>{money.format(normalizedAmount)}</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">Lulu fee (4%)</dt><dd>{money.format(feeAmount)}</dd></div><div className="flex justify-between border-t border-border pt-2 font-semibold"><dt>Total charged</dt><dd>{money.format(totalAmount)}</dd></div></dl>
-              <button type="button" onClick={() => void topUp()} disabled={!permissions.canAdminister || normalizedAmount < 1 || paying} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">{paying ? <Loader2 className="animate-spin" size={16} /> : paymentMethod === 'card' ? <CreditCard size={16} /> : <QrCode size={16} />}{paying ? 'Creating payment…' : `Pay ${money.format(totalAmount)}`}</button>
+              <button type="button" onClick={() => void topUp()} disabled={!permissions.canAdminister || !topupAmountValid || paying} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-50">{paying ? <Loader2 className="animate-spin" size={16} /> : paymentMethod === 'card' ? <CreditCard size={16} /> : <QrCode size={16} />}{paying ? 'Creating payment…' : `Pay ${money.format(totalAmount)}`}</button>
               {!permissions.canAdminister && <p className="mt-2 text-xs text-muted-foreground">Only workspace owners and administrators can authorize new budget.</p>}
             </div>
           </div>

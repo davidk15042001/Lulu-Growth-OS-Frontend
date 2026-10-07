@@ -3,6 +3,7 @@ import { AlertTriangle, CheckCircle2, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { isOfficePanelSurface, routes, withOfficePanelSurface } from "../../routing";
 import { useLuluDialog } from "../../components/useLuluDialog";
+import { formatDecimalMoney } from "../../utils/decimal-money";
 
 export const fieldClass = "w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-sm text-[var(--foreground)] outline-none transition focus:border-violet-400 focus:ring-2 focus:ring-violet-200 disabled:cursor-not-allowed disabled:opacity-50";
 export const primaryButtonClass = "inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-semibold text-[var(--background)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40";
@@ -24,12 +25,11 @@ export function formatNumber(value: string | number | null | undefined, maximumF
 }
 
 export function formatMoney(value: string | number | null | undefined, currency: string) {
-  const amount = Number(value ?? 0);
-  if (!Number.isFinite(amount)) return `${currency} ${String(value ?? "—")}`;
   try {
-    return new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 2 }).format(amount);
+    const locale = typeof navigator === "undefined" ? "en-US" : navigator.language || "en-US";
+    return formatDecimalMoney(value ?? "0", currency, locale);
   } catch {
-    return `${currency} ${formatNumber(amount, 2)}`;
+    return `${currency} ${String(value ?? "—")}`;
   }
 }
 
