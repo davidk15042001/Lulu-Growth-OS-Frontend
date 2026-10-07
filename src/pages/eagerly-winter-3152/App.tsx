@@ -1,6 +1,5 @@
 import { Theme } from './settings/types';
-import { Megaphone } from 'lucide-react';
-import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
+import GrowthPage from '../canonical-growth/GrowthPage';
 
 let theme: Theme = 'light';
 
@@ -15,7 +14,7 @@ function App() {
 
   setTheme(theme);
 
-  return <BackendResourceOverviewPage resourceType="marketing_campaigns" eyebrow="Marketing" title="Marketing" description="Live records in this workflow" emptyTitle="No live records are available for this page yet." emptyDescription="No metrics or success claims are inferred while the backend state is unavailable." emptyIcon={<Megaphone aria-hidden="true" size={24} />} />;
+  return <GrowthPage />;
 }
 
 export default App;

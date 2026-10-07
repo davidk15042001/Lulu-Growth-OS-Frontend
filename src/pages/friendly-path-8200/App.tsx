@@ -1,6 +1,5 @@
 import { Theme } from './settings/types';
-import { LineChart } from 'lucide-react';
-import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
+import { AdvertisingWorkspace } from '../finely-garden-9221/components/generated/AdvertisingWorkspace';
 
 let theme: Theme = 'light';
 
@@ -15,7 +14,7 @@ function App() {
 
   setTheme(theme);
 
-  return <BackendResourceOverviewPage resourceType="ad_campaigns" eyebrow="Advertising" title="Advertising Analytics" description="Live records in this workflow" emptyTitle="No live records are available for this page yet." emptyDescription="No metrics or success claims are inferred while the backend state is unavailable." emptyIcon={<LineChart aria-hidden="true" size={24} />} />;
+  return <AdvertisingWorkspace />;
 }
 
 export default App;
