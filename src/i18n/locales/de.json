@@ -22151,5 +22151,12 @@
   "Run every 15 minutes–24 hours": "Alle 15 Minuten bis 24 Stunden ausführen",
   "The cadence is stored with the rule so the backend can evaluate it deterministically.": "Der Rhythmus wird mit der Regel gespeichert, damit das Backend ihn deterministisch auswerten kann.",
   "Every {{0}}h": "Alle {{0}} Std.",
-  "Every {{0}}m": "Alle {{0}} Min."
+  "Every {{0}}m": "Alle {{0}} Min.",
+  "Runtime evidence could not be loaded.": "Laufzeitnachweise konnten nicht geladen werden.",
+  "Hide evidence": "Nachweise ausblenden",
+  "Run evidence": "Laufnachweise",
+  "Runtime evidence": "Laufzeitnachweise",
+  "Persisted interval runs. Every entry is validation-only; no provider or journal side effect is implied.": "Gespeicherte Intervallläufe. Jeder Eintrag dient nur der Validierung; ein Provider- oder Buchhaltungseffekt wird nicht behauptet.",
+  "No scheduled run has been recorded yet.": "Bisher wurde kein geplanter Lauf aufgezeichnet.",
+  "· side effects: none": "· keine Seiteneffekte"
 }

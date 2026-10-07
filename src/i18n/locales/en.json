@@ -1128,5 +1128,12 @@
   "Run every 15 minutes–24 hours": "Run every 15 minutes–24 hours",
   "The cadence is stored with the rule so the backend can evaluate it deterministically.": "The cadence is stored with the rule so the backend can evaluate it deterministically.",
   "Every {{0}}h": "Every {{0}}h",
-  "Every {{0}}m": "Every {{0}}m"
+  "Every {{0}}m": "Every {{0}}m",
+  "Runtime evidence could not be loaded.": "Runtime evidence could not be loaded.",
+  "Hide evidence": "Hide evidence",
+  "Run evidence": "Run evidence",
+  "Runtime evidence": "Runtime evidence",
+  "Persisted interval runs. Every entry is validation-only; no provider or journal side effect is implied.": "Persisted interval runs. Every entry is validation-only; no provider or journal side effect is implied.",
+  "No scheduled run has been recorded yet.": "No scheduled run has been recorded yet.",
+  "· side effects: none": "· side effects: none"
 }

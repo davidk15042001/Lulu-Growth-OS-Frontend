@@ -199,5 +199,12 @@
   "Run every 15 minutes–24 hours": "每 15 分钟至 24 小时运行",
   "The cadence is stored with the rule so the backend can evaluate it deterministically.": "该运行节奏会与规则一起保存，以便后端进行确定性评估。",
   "Every {{0}}h": "每 {{0}} 小时",
-  "Every {{0}}m": "每 {{0}} 分钟"
+  "Every {{0}}m": "每 {{0}} 分钟",
+  "Runtime evidence could not be loaded.": "无法加载运行时证据。",
+  "Hide evidence": "隐藏证据",
+  "Run evidence": "运行证据",
+  "Runtime evidence": "运行时证据",
+  "Persisted interval runs. Every entry is validation-only; no provider or journal side effect is implied.": "已保存的间隔运行记录。每条记录仅用于验证，不代表已产生供应商或会计副作用。",
+  "No scheduled run has been recorded yet.": "尚未记录任何计划运行。",
+  "· side effects: none": "· 无副作用"
 }

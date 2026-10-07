@@ -23,6 +23,27 @@ export type FinanceAutomationData = {
 
 export type FinanceAutomation = WorkspaceRecord & { data: FinanceAutomationData };
 
+export type FinanceAutomationRun = {
+  id: string;
+  workspaceId: string;
+  automationId: string;
+  scheduledFor: string;
+  status: 'running' | 'validated' | 'failed';
+  executionBoundary: 'validation_only';
+  sideEffectsApplied: false;
+  idempotencyKey: string;
+  triggerSnapshot: FinanceAutomationStep;
+  actionsSnapshot: FinanceAutomationStep[];
+  workerId: string;
+  leaseExpiresAt: string | null;
+  errorCode: string | null;
+  errorMessage: string | null;
+  startedAt: string;
+  finishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
 export type FinanceAutomationInput = {
   name: string;
   description?: string | null;
@@ -61,5 +82,12 @@ export function validateFinanceAutomation(automationId: string) {
     path: workspacePath(`/finance/automations/${encodeURIComponent(automationId)}/validate`),
     method: 'POST',
     body: {},
+  });
+}
+
+export function listFinanceAutomationRuns(automationId: string, query = 'page=1&limit=8') {
+  const normalized = query.startsWith('?') ? query.slice(1) : query;
+  return requestApi<{ items: FinanceAutomationRun[]; pagination: { page: number; limit: number; total: number; pages: number; hasMore: boolean } }>({
+    path: `${workspacePath(`/finance/automations/${encodeURIComponent(automationId)}/runs`)}?${normalized}`,
   });
 }
