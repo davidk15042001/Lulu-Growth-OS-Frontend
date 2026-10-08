@@ -44,8 +44,8 @@ function summarizeList(items: readonly string[], limit: number) {
 export function LuluAgentWorkspaceHeader({ contract }: { contract: LuluAgentContract }) {
   const t = useTranslation();
   const { selectedWorkspace } = useLuluApp();
-  const integrationsLabel = summarizeList(contract.integrations, 3);
-  const jobsLabel = summarizeList(contract.jobs, 3);
+  const integrationsLabel = summarizeList(contract.integrations.map((item) => t(item)), 3);
+  const jobsLabel = summarizeList(contract.jobs.map((item) => t(item)), 3);
   const workspaceId = selectedWorkspace?.id ?? null;
   const {
     currentFocusDetail,
@@ -66,9 +66,9 @@ export function LuluAgentWorkspaceHeader({ contract }: { contract: LuluAgentCont
     <section className="lulu-agent-workspace-header" aria-label={t("Dedicated agent workspace")}>
       <div className="lulu-agent-workspace-header__intro">
         <div className="lulu-agent-workspace-header__eyebrow">
-          <span>{contract.sectionLabel}</span>
+          <span>{t(contract.sectionLabel)}</span>
           <span aria-hidden="true">/</span>
-          <span>{contract.agentName}</span>
+          <span>{contract.agentName ? t(contract.agentName) : t("Lulu AI Agent")}</span>
         </div>
         <div className="lulu-agent-workspace-header__headline">
           <div className="lulu-agent-workspace-header__identity">
@@ -76,8 +76,8 @@ export function LuluAgentWorkspaceHeader({ contract }: { contract: LuluAgentCont
               <Bot size={18} />
             </div>
             <div className="lulu-agent-workspace-header__copy">
-              <h1>{contract.pageLabel}</h1>
-              <p>{contract.objective}</p>
+              <h1>{t(contract.pageLabel)}</h1>
+              <p>{t(contract.objective)}</p>
             </div>
           </div>
           <div className="lulu-agent-workspace-header__badges" aria-label={t("Agent workspace metadata")}>

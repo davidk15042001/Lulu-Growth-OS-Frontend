@@ -240,7 +240,7 @@ export function MinimalAgentWorkspacePage({
               <div className="mt-3 flex flex-wrap gap-2">
                 {agentContract.jobs.slice(0, 4).map((job) => (
                   <span key={job} className="rounded-full border border-border bg-background/60 px-3 py-1 text-xs text-foreground">
-                    {job}
+                    {t(job)}
                   </span>
                 ))}
               </div>
@@ -248,7 +248,7 @@ export function MinimalAgentWorkspacePage({
             <article className="rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Connected systems")}</p>
               <p className="mt-3 text-sm text-foreground">
-                {agentContract.integrations.length > 0 ? agentContract.integrations.slice(0, 4).join(" · ") : t("No integration dependency is defined for this page.")}
+                {agentContract.integrations.length > 0 ? agentContract.integrations.slice(0, 4).map((integration) => t(integration)).join(" · ") : t("No integration dependency is defined for this page.")}
               </p>
             </article>
             <article className="rounded-xl border border-border bg-card p-4">
@@ -389,7 +389,7 @@ export function MinimalAgentWorkspacePage({
                   <p className="text-xs text-muted-foreground">{t("Primary jobs")}</p>
                   <div className="mt-2 space-y-2 text-sm text-foreground">
                     {agentContract.jobs.slice(0, 4).map((job) => (
-                      <div key={job}>{job}</div>
+                      <div key={job}>{t(job)}</div>
                     ))}
                   </div>
                 </article>
@@ -397,7 +397,7 @@ export function MinimalAgentWorkspacePage({
                   <p className="text-xs text-muted-foreground">{t("Success metrics")}</p>
                   <div className="mt-2 space-y-2 text-sm text-foreground">
                     {agentContract.successMetrics.slice(0, 4).map((metric) => (
-                      <div key={metric}>{metric}</div>
+                      <div key={metric}>{t(metric)}</div>
                     ))}
                   </div>
                 </article>
