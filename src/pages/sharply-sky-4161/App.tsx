@@ -1,5 +1,6 @@
 import { Theme } from './settings/types';
-import { DiscountsPromotions } from './components/generated/DiscountsPromotions';
+import { BadgePercent } from 'lucide-react';
+import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
 // %IMPORT_STATEMENT
 
 let theme: Theme = 'light';
@@ -15,7 +16,15 @@ function App() {
 
   setTheme(theme);
 
-  return <DiscountsPromotions />; // %EXPORT_STATEMENT%
+  return <BackendResourceOverviewPage
+    resourceType="ecommerce_discounts"
+    eyebrow="Ecommerce"
+    title="Discounts and Promotions"
+    description="Verified discount and promotion records from connected stores. Unsupported mutation controls stay hidden until a canonical action is available."
+    emptyTitle="No verified discounts yet"
+    emptyDescription="Connect a store and synchronize discount records before reviewing promotions. No example discounts are displayed."
+    emptyIcon={<BadgePercent aria-hidden="true" size={24} />}
+  />; // %EXPORT_STATEMENT%
 }
 
 export default App;
