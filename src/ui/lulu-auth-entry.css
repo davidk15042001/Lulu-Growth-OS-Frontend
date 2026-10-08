@@ -275,6 +275,27 @@
   .lulu-entry__proof { text-align: left; }
 }
 
+/* Keep the access card inside the first viewport on compact desktop and
+   embedded browser surfaces. The two-column composition needs more room than
+   a narrow browser shell can reliably provide. */
+@media (max-width: 1120px) {
+  .lulu-entry__stage {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 760px;
+    gap: 48px;
+  }
+
+  .lulu-entry__stage::before { display: none; }
+  .lulu-entry__hero { text-align: center; }
+  .lulu-entry__eyebrow { justify-content: center; }
+  .lulu-entry__hero h1,
+  .lulu-entry__lede,
+  .lulu-entry__proof-grid { margin-right: auto; margin-left: auto; }
+  .lulu-entry__proof-grid { text-align: left; }
+  .lulu-entry__trust-note { justify-content: center; }
+  .lulu-entry__access { width: min(100%, 480px); justify-self: center; }
+}
+
 @media (max-width: 640px) {
   .lulu-entry__nav { min-height: 66px; }
   .lulu-entry__stage { gap: 40px; padding-top: 68px !important; padding-bottom: 64px !important; }
