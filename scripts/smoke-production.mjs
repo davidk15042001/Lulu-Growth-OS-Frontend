@@ -26,6 +26,7 @@ const checks = [
   { name: "API health", url: `${apiBaseUrl}/health`, kind: "health" },
   { name: "API readiness", url: `${apiBaseUrl}/ready`, kind: "ready" },
   { name: "API version", url: `${apiBaseUrl}/version`, kind: "version" },
+  { name: "public agent registry", url: `${apiBaseUrl}/public/agent-summary`, kind: "agent-summary" },
 ];
 
 const results = [];
@@ -100,6 +101,19 @@ async function request(check) {
         && typeof payload?.data?.commitSha === "string"
         && /^[a-f0-9]{7,64}$/i.test(payload.data.commitSha);
       return valid ? result : { ...result, ok: false, error: "version payload is missing a valid commit SHA" };
+    }
+
+    if (check.kind === "agent-summary") {
+      const minimumRequired = Number(payload?.data?.minimumRequired);
+      const registeredAgents = Number(payload?.data?.registeredAgents);
+      const pageSpecialists = Number(payload?.data?.pageSpecialists);
+      const valid = payload?.success === true
+        && Number.isFinite(minimumRequired)
+        && Number.isFinite(registeredAgents)
+        && registeredAgents >= minimumRequired
+        && Number.isFinite(pageSpecialists)
+        && pageSpecialists > 0;
+      return valid ? result : { ...result, ok: false, error: "agent registry is incomplete or below its declared minimum" };
     }
 
     return result;
