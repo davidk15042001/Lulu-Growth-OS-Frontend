@@ -146,6 +146,7 @@ export type OfficeOverview = {
   timeline: OfficeTimelineItem[];
   companyBrain?: {
     generatedAt: string;
+    mode?: 'full' | 'summary';
     counts: { signals: number; openSignals: number; missions: number; activeMissions: number; tasks: number; decisions: number };
     scorecard?: {
       generatedAt: string;
@@ -171,9 +172,9 @@ export type OfficeOverview = {
       }>;
     };
     signals: Array<{ id: string; signalType: string; severity: number; materiality: number; status: string; explanation: string; detectedAt: string }>;
-    missions: Array<{ id: string; title: string; objective: string; status: string; priority: number; updatedAt: string }>;
-    decisions: Array<{ id: string; decisionType: string; decision: string; confidence: number; createdAt: string }>;
-    learning: Array<{ id: string; outcomeType: string; outcome: string; confidence: number; verified: boolean; createdAt: string }>;
+    missions?: Array<{ id: string; title: string; objective: string; status: string; priority: number; updatedAt: string }>;
+    decisions?: Array<{ id: string; decisionType: string; decision: string; confidence: number; createdAt: string }>;
+    learning?: Array<{ id: string; outcomeType: string; outcome: string; confidence: number; verified: boolean; createdAt: string }>;
   };
 };
 
@@ -234,7 +235,7 @@ export type OfficeEmployeeDetails = {
 
 export const officeApi = {
   overview: (workspaceId: string, signal?: AbortSignal) => requestApi<OfficeOverview>({
-    path: workspaceApiPath(workspaceId, '/office/overview?timelineLimit=36'), signal,
+    path: workspaceApiPath(workspaceId, '/office/overview?timelineLimit=36&brain=summary'), signal,
   }),
   brainMissionGraph: (workspaceId: string, missionId: string, signal?: AbortSignal) => requestApi<OfficeBrainMissionGraph>({
     path: workspaceApiPath(workspaceId, `/brain/missions/${encodeURIComponent(missionId)}/graph`), signal,
