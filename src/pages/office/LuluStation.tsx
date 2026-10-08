@@ -643,7 +643,22 @@ export function LuluStation() {
   const aiExecutionMessage = officeAiReadinessMessage(overview?.executionReadiness?.ai);
   if (!workspaceId) return null;
   if (loading && !overview) {
-    return <section className="lulu-station lulu-station--state" aria-label="Lulu Station"><RefreshCw className="lulu-station__spin" size={20} /><span>{t("Loading verified office state…")}</span></section>;
+    return <section className="lulu-station lulu-station--loading" aria-label="Lulu Station" aria-busy="true">
+      <div className="lulu-station__loading-header">
+        <div>
+          <div className="lulu-station__eyebrow"><Sparkles size={13} aria-hidden="true" />{t("LULU STATION / VERIFIED OPERATING WORLD")}</div>
+          <div className="lulu-station__loading-title"><RefreshCw className="lulu-station__spin" size={18} aria-hidden="true" /><span>{t("Loading verified office state…")}</span></div>
+        </div>
+        <span className="lulu-station__loading-badge"><i />{t("Verified snapshot")}</span>
+      </div>
+      <div className="lulu-station__loading-metrics" aria-hidden="true">
+        {["backlog", "crew", "attention", "results"].map((key) => <div key={key} className="lulu-station__loading-card"><span /><strong /><small /></div>)}
+      </div>
+      <div className="lulu-station__loading-workspace" aria-hidden="true">
+        <div className="lulu-station__loading-map"><div className="lulu-station__loading-map-core" /><div className="lulu-station__loading-map-line lulu-station__loading-map-line--one" /><div className="lulu-station__loading-map-line lulu-station__loading-map-line--two" /><div className="lulu-station__loading-room lulu-station__loading-room--one" /><div className="lulu-station__loading-room lulu-station__loading-room--two" /><div className="lulu-station__loading-room lulu-station__loading-room--three" /></div>
+        <aside className="lulu-station__loading-inspector"><div className="lulu-station__loading-inspector-icon"><ShieldCheck size={17} aria-hidden="true" /></div><strong>{t("Station briefing")}</strong><span>{t("Loading verified office state…")}</span><div className="lulu-station__loading-line" /><div className="lulu-station__loading-line lulu-station__loading-line--short" /></aside>
+      </div>
+    </section>;
   }
   if (!overview) {
     return <section className="lulu-station lulu-station--state" aria-label="Lulu Station"><ShieldCheck size={20} /><div><strong>{t("Virtual Office unavailable")}</strong><p>{error ?? t("No verified station state is available.")}</p><button type="button" onClick={() => void loadOverview()}>{t("Try again")}</button></div></section>;

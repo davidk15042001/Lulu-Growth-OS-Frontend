@@ -299,6 +299,38 @@
 
 .lulu-station--state { min-height: 420px; place-items: center; grid-auto-flow: column; align-content: center; justify-content: center; color: var(--station-muted); }
 .lulu-station--state > div { display: grid; gap: 6px; }.lulu-station--state p { margin: 0; font-size: .78rem; }.lulu-station--state button { width: fit-content; border: 1px solid var(--station-line); border-radius: 8px; padding: 7px 10px; background: rgba(255,255,255,.04); color: #e9fbff; cursor: pointer; }
+.lulu-station--loading { align-content: start; }
+.lulu-station__loading-header { display: flex; align-items: end; justify-content: space-between; gap: 18px; width: min(1480px, 100%); margin: 0 auto; }
+.lulu-station__loading-title { display: flex; align-items: center; gap: 9px; margin-top: 13px; color: #eafaff; font-size: .9rem; font-weight: 700; }
+.lulu-station__loading-badge { display: inline-flex; min-height: 32px; align-items: center; gap: 7px; border: 1px solid var(--station-line); border-radius: 999px; padding: 0 11px; color: var(--station-muted); font-size: .64rem; font-weight: 750; }
+.lulu-station__loading-badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--station-gold); box-shadow: 0 0 0 4px rgba(233, 196, 122, .08); }
+.lulu-station__loading-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; width: min(1480px, 100%); margin: 0 auto; }
+.lulu-station__loading-card { display: grid; gap: 9px; min-height: 92px; border: 1px solid var(--station-line); border-radius: 12px; padding: 14px 15px; background: rgba(13, 27, 43, .72); }
+.lulu-station__loading-card span,
+.lulu-station__loading-card strong,
+.lulu-station__loading-card small,
+.lulu-station__loading-line { display: block; border-radius: 999px; background: linear-gradient(90deg, rgba(142, 203, 222, .09), rgba(86, 225, 208, .2), rgba(142, 203, 222, .09)); background-size: 220% 100%; animation: lulu-station-skeleton 1.8s ease-in-out infinite; }
+.lulu-station__loading-card span { width: 42%; height: 8px; }
+.lulu-station__loading-card strong { width: 28%; height: 21px; }
+.lulu-station__loading-card small { width: 76%; height: 7px; }
+.lulu-station__loading-workspace { display: grid; min-height: 370px; grid-template-columns: minmax(0, 1fr) 290px; gap: 13px; width: min(1480px, 100%); margin: 0 auto; }
+.lulu-station__loading-map,
+.lulu-station__loading-inspector { position: relative; overflow: hidden; min-height: 370px; border: 1px solid rgba(138, 202, 223, .18); border-radius: 18px; background: rgba(7, 17, 29, .72); }
+.lulu-station__loading-map { background-image: linear-gradient(rgba(107, 160, 182, .06) 1px, transparent 1px), linear-gradient(90deg, rgba(107, 160, 182, .06) 1px, transparent 1px); background-size: 36px 36px; }
+.lulu-station__loading-map::after { position: absolute; inset: 15% 12%; border: 1px solid rgba(86, 225, 208, .12); border-radius: 16px; content: ""; box-shadow: 0 0 0 48px rgba(86, 225, 208, .025), 0 0 0 96px rgba(156, 140, 255, .02); }
+.lulu-station__loading-map-core { position: absolute; z-index: 1; top: 12%; left: calc(50% - 23px); width: 46px; height: 46px; border: 1px solid rgba(86, 225, 208, .45); border-radius: 50%; background: rgba(86, 225, 208, .12); box-shadow: 0 0 28px rgba(86, 225, 208, .16); animation: lulu-station-pulse 2.4s ease-in-out infinite; }
+.lulu-station__loading-map-line { position: absolute; z-index: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(86, 225, 208, .3), transparent); transform-origin: left center; animation: lulu-station-skeleton 2.1s ease-in-out infinite; }
+.lulu-station__loading-map-line--one { top: 33%; left: 18%; width: 64%; transform: rotate(13deg); }
+.lulu-station__loading-map-line--two { top: 58%; left: 24%; width: 54%; transform: rotate(-18deg); animation-delay: .3s; }
+.lulu-station__loading-room { position: absolute; z-index: 1; width: 27%; height: 22%; border: 1px solid rgba(142, 203, 222, .18); border-radius: 12px; background: rgba(13, 27, 43, .6); animation: lulu-station-skeleton 2.4s ease-in-out infinite; }
+.lulu-station__loading-room--one { top: 28%; left: 8%; }.lulu-station__loading-room--two { top: 34%; right: 8%; animation-delay: .2s; }.lulu-station__loading-room--three { bottom: 13%; left: 37%; animation-delay: .4s; }
+.lulu-station__loading-inspector { display: grid; align-content: start; gap: 12px; padding: 22px 19px; }
+.lulu-station__loading-inspector-icon { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(86, 225, 208, .28); border-radius: 10px; color: var(--station-teal); background: rgba(86, 225, 208, .08); }
+.lulu-station__loading-inspector strong { color: #eafaff; font-size: .76rem; letter-spacing: .12em; text-transform: uppercase; }
+.lulu-station__loading-inspector > span { color: var(--station-muted); font-size: .72rem; line-height: 1.55; }
+.lulu-station__loading-line { width: 88%; height: 8px; margin-top: 9px; }.lulu-station__loading-line--short { width: 64%; margin-top: 0; }
+@keyframes lulu-station-skeleton { 0%, 100% { background-position: 100% 0; opacity: .6; } 50% { background-position: 0 0; opacity: 1; } }
+@keyframes lulu-station-pulse { 0%, 100% { transform: scale(.96); opacity: .7; } 50% { transform: scale(1.06); opacity: 1; } }
 .lulu-station__spin { animation: lulu-station-spin .9s linear infinite; }
 
 @keyframes lulu-station-spin { to { transform: rotate(360deg); } }
@@ -312,7 +344,9 @@
 
 @media (max-width: 1100px) {
   .lulu-station__workspace { grid-template-columns: 1fr; }
+  .lulu-station__loading-workspace { grid-template-columns: 1fr; }
   .lulu-station__inspector { min-height: 250px; }
+  .lulu-station__loading-inspector { min-height: 250px; }
   .lulu-station__employee-modal { max-height: calc(100dvh - 24px); }
   .lulu-station__catalog-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
@@ -320,6 +354,11 @@
 @media (max-width: 760px) {
   .lulu-station { padding: 18px 12px var(--station-composer-clearance); }
   .lulu-station__header { align-items: start; flex-direction: column; gap: 15px; }
+  .lulu-station__loading-header { align-items: start; flex-direction: column; gap: 12px; }
+  .lulu-station__loading-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .lulu-station__loading-workspace { min-height: 0; }
+  .lulu-station__loading-map { min-height: 260px; }
+  .lulu-station__loading-inspector { min-height: 220px; }
   .lulu-station__header-actions { width: 100%; flex-wrap: wrap; justify-content: flex-start; gap: 6px; }
   .lulu-station__header-actions .lulu-station__connection { flex: 1 0 100%; }
   .lulu-station__header-actions .lulu-station__workspace-switch,
