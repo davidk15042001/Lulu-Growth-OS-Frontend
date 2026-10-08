@@ -1,6 +1,10 @@
 import { requestApi } from './client';
 
+// Calendar accounts can contain historical Microsoft records, while this
+// deployment's direct OAuth/sync path is Google-only. Other calendar apps,
+// including Microsoft/Outlook, are connected and delivered through Composio.
 export type CalendarProvider = 'google' | 'microsoft';
+export type DirectCalendarOAuthProvider = Extract<CalendarProvider, 'google'>;
 export type CalendarAttendee = { name?: string | null; email?: string | null; status?: string | null };
 export type CalendarAccount = {
   id: string;
@@ -149,7 +153,7 @@ export const calendarApi = {
   createAgoraToken: (workspaceId: string, eventId: string, userAccount?: string) => requestApi<AgoraToken>({ path: `/workspaces/${workspaceId}/calendar/events/${eventId}/agora-token`, method: 'POST', body: userAccount ? { userAccount } : {} }),
   createGuestAgoraToken: (token: string, guestName?: string) => requestApi<Omit<AgoraToken, 'userAccount'> & { userAccount: string; workspaceName?: string }>({ path: `/public/calendar/meetings/${encodeURIComponent(token)}/agora-token`, method: 'POST', body: guestName ? { guestName } : {} }),
   accounts: (workspaceId: string) => requestApi<{ items: CalendarAccount[] }>({ path: `/workspaces/${workspaceId}/calendar/accounts` }),
-  startOAuth: (workspaceId: string, provider: 'google' | 'microsoft', returnTo = '/app/calendar?section=settings') => requestApi<{ provider: string; authorizationUrl: string }>({ path: `/workspaces/${workspaceId}/calendar/accounts/oauth/start`, method: 'POST', body: { provider, returnTo } }),
+  startOAuth: (workspaceId: string, provider: DirectCalendarOAuthProvider, returnTo = '/app/calendar?section=settings') => requestApi<{ provider: string; authorizationUrl: string }>({ path: `/workspaces/${workspaceId}/calendar/accounts/oauth/start`, method: 'POST', body: { provider, returnTo } }),
   disconnect: (workspaceId: string, accountId: string) => requestApi<void>({ path: `/workspaces/${workspaceId}/calendar/accounts/${accountId}`, method: 'DELETE' }),
   startSync: (workspaceId: string, accountId: string) => requestApi<CalendarSyncJob>({ path: `/workspaces/${workspaceId}/calendar/accounts/${accountId}/sync`, method: 'POST', body: {} }),
   syncJob: (workspaceId: string, accountId: string, jobId: string) => requestApi<CalendarSyncJob>({ path: `/workspaces/${workspaceId}/calendar/accounts/${accountId}/sync/${jobId}` }),
