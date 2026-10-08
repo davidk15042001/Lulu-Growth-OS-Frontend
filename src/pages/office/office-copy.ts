@@ -49,6 +49,21 @@ export function conciseOfficeCopy(value: string | null | undefined, fallback: st
 }
 
 /**
+ * Dynamic work records do not pass through static page-copy extraction.
+ * Translate exact known operational phrases when a locale provides them,
+ * while preserving workspace-authored text when no translation exists.
+ */
+export function translatedOfficeCopy(value: string | null | undefined, fallback: string, t: Translate, maxLength = 180) {
+  const normalized = (value ?? "")
+    .replace(TECHNICAL_CONTEXT, "")
+    .replace(REFERENCE_MARKER, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!normalized) return fallback;
+  return conciseOfficeCopy(t(normalized), fallback, maxLength);
+}
+
+/**
  * Events and related-object identifiers are canonical API evidence, but the
  * Office is a human-facing projection. Render a stable, localized summary
  * instead of leaking implementation keys such as `Office.Work_item.Paused`.

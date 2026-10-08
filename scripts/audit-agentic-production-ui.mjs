@@ -412,9 +412,9 @@ if (
 if (
   !officeCopy.includes('const REFERENCE_MARKER')
   || !officeCopy.includes('const TECHNICAL_CONTEXT')
-  || !luluStation.includes('conciseOfficeCopy(employeeDetail.currentWorkItem?.title')
-  || !luluStation.includes('conciseOfficeCopy(item.title, t("Verified employee event")')
-  || !nativeAgentWorkspace.includes('conciseOfficeCopy(work?.title')
+  || !(luluStation.includes('conciseOfficeCopy(employeeDetail.currentWorkItem?.title') || luluStation.includes('translatedOfficeCopy(employeeDetail.currentWorkItem?.title'))
+  || !(luluStation.includes('conciseOfficeCopy(item.title, t("Verified employee event")') || luluStation.includes('translatedOfficeCopy(item.title, t("Verified employee event")'))
+  || !(nativeAgentWorkspace.includes('conciseOfficeCopy(work?.title') || nativeAgentWorkspace.includes('translatedOfficeCopy(work?.title'))
 ) {
   failures.push('Office employee dialogs must present concise work context instead of raw internal routing data.');
 }

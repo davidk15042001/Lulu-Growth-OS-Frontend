@@ -49,7 +49,7 @@ import { RESOURCE_BY_SLUG } from "../../api/page-contracts";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { resolveEmployeeWorkspaceRoute } from "../../config/workspace-capability-registry";
 import { isPageNavigable, pagePath, routes } from "../../routing";
-import { conciseOfficeCopy, officeEvidenceTypeLabel } from "./office-copy";
+import { conciseOfficeCopy, officeEvidenceTypeLabel, translatedOfficeCopy } from "./office-copy";
 import { isPositiveDecimal } from "../../utils/decimal-money";
 import "./agent-native-workspace.css";
 
@@ -380,14 +380,14 @@ function CommandSurface({ detail, source }: { detail?: OfficeEmployeeDetails; so
     : work?.status ?? detail.employee.status;
   const assignmentDescription = displayStatus === "BLOCKED"
     ? t("Execution is paused until AI credit is available")
-    : conciseOfficeCopy(work?.objective, t("This agent is available. Lulu will only animate or execute when a persisted work item is assigned."), 260);
+    : translatedOfficeCopy(work?.objective, t("This agent is available. Lulu will only animate or execute when a persisted work item is assigned."), t, 260);
   return <div className="lulu-native-agent__command">
     <section className="lulu-native-agent__focus-card">
-      <div><span className="lulu-native-agent__eyebrow">{t("CURRENT ASSIGNMENT")}</span><h3 title={work?.title}>{displayStatus === "BLOCKED" ? t("Execution paused") : conciseOfficeCopy(work?.title, t("No active assignment"))}</h3><p title={work?.objective}>{assignmentDescription}{displayStatus === "BLOCKED" ? ` · ${t(officeAiReadinessMessage(detail.executionReadiness.ai))}` : ""}</p></div>
+      <div><span className="lulu-native-agent__eyebrow">{t("CURRENT ASSIGNMENT")}</span><h3 title={translatedOfficeCopy(work?.title, t("No active assignment"), t)}>{displayStatus === "BLOCKED" ? t("Execution paused") : translatedOfficeCopy(work?.title, t("No active assignment"), t)}</h3><p title={assignmentDescription}>{assignmentDescription}{displayStatus === "BLOCKED" ? ` · ${t(officeAiReadinessMessage(detail.executionReadiness.ai))}` : ""}</p></div>
       <Status>{workStatus}</Status>
     </section>
     <section className="lulu-native-agent__evidence-grid">
-      <div><span className="lulu-native-agent__eyebrow">{t("RECENT EVIDENCE")}</span>{detail.recentTimeline.length ? <ol>{detail.recentTimeline.slice(0, 5).map((item) => <li key={item.id}><i /><span><strong title={item.title}>{conciseOfficeCopy(item.title, t("Verified employee event"), 96)}</strong><small>{officeEvidenceTypeLabel(item.type, t)} · {formatTime(item.occurredAt)}</small></span></li>)}</ol> : <p className="lulu-native-agent__muted">{t("No persisted employee events are available yet.")}</p>}</div>
+      <div><span className="lulu-native-agent__eyebrow">{t("RECENT EVIDENCE")}</span>{detail.recentTimeline.length ? <ol>{detail.recentTimeline.slice(0, 5).map((item) => <li key={item.id}><i /><span><strong title={translatedOfficeCopy(item.title, t("Verified employee event"), t, 96)}>{translatedOfficeCopy(item.title, t("Verified employee event"), t, 96)}</strong><small>{officeEvidenceTypeLabel(item.type, t)} · {formatTime(item.occurredAt)}</small></span></li>)}</ol> : <p className="lulu-native-agent__muted">{t("No persisted employee events are available yet.")}</p>}</div>
       <div><span className="lulu-native-agent__eyebrow">{t("WORKLOAD")}</span><div className="lulu-native-agent__stat-stack"><strong>{formatNumber(detail.workSummary.active)}<small>{t("open work")}</small></strong><strong>{formatNumber(detail.workSummary.completedToday)}<small>{t("completed today")}</small></strong><strong>{formatNumber(detail.workSummary.failed)}<small>{t("failed")}</small></strong></div></div>
     </section>
   </div>;
@@ -715,7 +715,7 @@ function IntelligenceSurface({ workspaceId }: { workspaceId: string }) {
     ...(overview?.scenarios.map((scenario) => ({ id: `scenario:${scenario.id}`, title: scenario.name, detail: scenario.description, status: scenario.status })) ?? []),
     ...(overview?.learning.map((learning) => ({ id: `learning:${learning.id}`, title: learning.learningType, detail: learning.outcome, status: learning.verified ? "verified" : "pending" })) ?? []),
   ].slice(0, 6);
-  return <SurfaceState loading={loading} error={error} empty={!hasVisibleExecutiveEvidence ? t("No executive intelligence is available yet.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Findings" value={overview?.summary.visibleFindingCount ?? 0} detail="visible operating signals" icon={<CircleAlert size={14} />} /><Metric label="Proposals" value={overview?.summary.visibleProposalCount ?? 0} detail="decision-ready items" icon={<Sparkles size={14} />} /><Metric label="Forecasts" value={overview?.summary.forecastCount ?? 0} detail="evidence-backed scenarios" icon={<BarChart3 size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Executive signals")}</span><small>{t("Verified cycle evidence")}</small></div>{executiveItems.map((item) => <article key={item.id}><div><strong>{item.title}</strong><small>{item.detail}</small></div><Status>{item.status}</Status></article>)}</section></SurfaceState>;
+  return <SurfaceState loading={loading} error={error} empty={!hasVisibleExecutiveEvidence ? t("No executive intelligence is available yet.") : undefined}><div className="lulu-native-agent__metrics"><Metric label="Findings" value={overview?.summary.visibleFindingCount ?? 0} detail="visible operating signals" icon={<CircleAlert size={14} />} /><Metric label="Proposals" value={overview?.summary.visibleProposalCount ?? 0} detail="decision-ready items" icon={<Sparkles size={14} />} /><Metric label="Forecasts" value={overview?.summary.forecastCount ?? 0} detail="evidence-backed scenarios" icon={<BarChart3 size={14} />} /></div><section className="lulu-native-agent__list"><div className="lulu-native-agent__list-head"><span>{t("Executive signals")}</span><small>{t("Verified cycle evidence")}</small></div>{executiveItems.map((item) => <article key={item.id}><div><strong>{translatedOfficeCopy(item.title, t("Executive signal"), t, 180)}</strong><small>{translatedOfficeCopy(item.detail, t("No additional detail"), t, 260)}</small></div><Status>{item.status}</Status></article>)}</section></SurfaceState>;
 }
 
 export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent, canManageOmnichannel = false, canReplyOmnichannel = false }: Props) {
