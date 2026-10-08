@@ -18,6 +18,7 @@ import { productsApi, type Product } from "../../api/products";
 import { isOfficePanelSurface, routes, withOfficePanelSurface } from "../../routing";
 import { CommerceTabs, EmptyState, Feedback, Modal, StatCard, StatusBadge, fieldClass, formatDate, formatMoney, formatNumber, primaryButtonClass, secondaryButtonClass } from "./commerce-ui";
 import { useLuluConfirm } from "../../components/LuluConfirmDialog";
+import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 
 const orderTransitions: Readonly<Record<OrderStatus, readonly ("PLACED" | "CONFIRMED" | "PROCESSING" | "CANCELLED")[]>> = {
   DRAFT: ["PLACED", "CANCELLED"],
@@ -334,6 +335,7 @@ function DetailMetric({ label, value }: { label: string; value: string }) {
 }
 
 function CreateOrderDialog({ workspaceId, onClose, onCreated }: { workspaceId: string; onClose: () => void; onCreated: (detail: CommerceOrderDetail) => void }) {
+  const t = useTranslation();
   const [products, setProducts] = useState<Product[]>([]);
   const [locations, setLocations] = useState<InventoryLocation[]>([]);
   const [productId, setProductId] = useState("");
@@ -365,7 +367,7 @@ function CreateOrderDialog({ workspaceId, onClose, onCreated }: { workspaceId: s
       }
       const preferred = locationResponse.data.find((location) => location.isDefault) ?? locationResponse.data[0];
       if (preferred) setLocationId(preferred.id);
-    }).catch((nextError) => setError(getFriendlyErrorMessage(nextError, "The product catalog could not be prepared."))).finally(() => active && setLoading(false));
+    }).catch((nextError) => setError(getFriendlyErrorMessage(nextError, t("The product catalog could not be prepared.")))).finally(() => active && setLoading(false));
     return () => { active = false; };
   }, [workspaceId]);
 
@@ -407,33 +409,34 @@ function CreateOrderDialog({ workspaceId, onClose, onCreated }: { workspaceId: s
       });
       onCreated(response.data);
     } catch (nextError) {
-      setError(getFriendlyErrorMessage(nextError, "The order could not be created."));
+      setError(getFriendlyErrorMessage(nextError, t("The order could not be created.")));
     } finally {
       setSaving(false);
     }
   };
 
-  return <Modal title="Create canonical order" description="The order starts as a draft. Placing and confirming it are separate, auditable steps; confirmation reserves tracked stock." onClose={onClose}>
+  return <Modal title={t("Create canonical order")} description={t("The order starts as a draft. Placing and confirming it are separate, auditable steps; confirmation reserves tracked stock.")} onClose={onClose}>
     <form onSubmit={(event) => void submit(event)} className="space-y-5">
       <Feedback error={error} />
-      {loading ? <div className="grid min-h-40 place-items-center text-sm text-[var(--muted-foreground)]"><RefreshCw className="mb-2 animate-spin" />Loading catalog…</div> : products.length === 0 ? <EmptyState icon={<Box />} title="No active products" description="Create and activate a canonical product before creating an order." action={<Link to={isOfficePanelSurface() ? withOfficePanelSurface(routes.app.products) : routes.app.products} className={primaryButtonClass}>Open products</Link>} /> : <>
+      {loading ? <div className="grid min-h-40 place-items-center text-sm text-[var(--muted-foreground)]"><RefreshCw className="mb-2 animate-spin" />{t("Loading catalog…")}</div> : products.length === 0 ? <EmptyState icon={<Box />} title={t("No active products")} description={t("Create and activate a canonical product before creating an order.")} action={<Link to={isOfficePanelSurface() ? withOfficePanelSurface(routes.app.products) : routes.app.products} className={primaryButtonClass}>{t("Open products")}</Link>} /> : <>
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Product</span><select required value={productId} onChange={(event) => selectProduct(event.target.value)} className={fieldClass}>{products.map((product) => <option value={product.id} key={product.id}>{product.name}{product.sku ? ` · ${product.sku}` : ""}</option>)}</select></label>
-          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Quantity</span><input required min="0.0001" step="0.0001" type="number" value={quantity} onChange={(event) => setQuantity(event.target.value)} className={fieldClass} /></label>
-          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Inventory location <span className="font-normal">(optional)</span></span><select value={locationId} onChange={(event) => setLocationId(event.target.value)} className={fieldClass}><option value="">Not inventory-tracked</option>{locations.map((location) => <option value={location.id} key={location.id}>{location.name}{location.isDefault ? " · Default" : ""}</option>)}</select></label>
-          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Unit price</span><input min="0" step="0.0001" type="number" value={unitPrice} onChange={(event) => setUnitPrice(event.target.value)} placeholder="Use catalog price" className={fieldClass} /></label>
-          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Currency</span><input required minLength={3} maxLength={3} value={currency} onChange={(event) => setCurrency(event.target.value.toUpperCase())} className={fieldClass} /></label>
-          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Shipping total</span><input min="0" step="0.0001" type="number" value={shippingTotal} onChange={(event) => setShippingTotal(event.target.value)} className={fieldClass} /></label>
-          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">External reference <span className="font-normal">(optional)</span></span><input value={externalReference} maxLength={300} onChange={(event) => setExternalReference(event.target.value)} className={fieldClass} /></label>
-          <label className="sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Internal notes <span className="font-normal">(optional)</span></span><textarea rows={4} value={notes} maxLength={20_000} onChange={(event) => setNotes(event.target.value)} className={fieldClass} /></label>
+          <label className="sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Product")}</span><select required value={productId} onChange={(event) => selectProduct(event.target.value)} className={fieldClass}>{products.map((product) => <option value={product.id} key={product.id}>{product.name}{product.sku ? ` · ${product.sku}` : ""}</option>)}</select></label>
+          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Quantity")}</span><input required min="0.0001" step="0.0001" type="number" value={quantity} onChange={(event) => setQuantity(event.target.value)} className={fieldClass} /></label>
+          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Inventory location")} <span className="font-normal">{t("(optional)")}</span></span><select value={locationId} onChange={(event) => setLocationId(event.target.value)} className={fieldClass}><option value="">{t("Not inventory-tracked")}</option>{locations.map((location) => <option value={location.id} key={location.id}>{location.name}{location.isDefault ? ` ${t("· Default")}` : ""}</option>)}</select></label>
+          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Unit price")}</span><input min="0" step="0.0001" type="number" value={unitPrice} onChange={(event) => setUnitPrice(event.target.value)} placeholder={t("Use catalog price")} className={fieldClass} /></label>
+          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Currency")}</span><input required minLength={3} maxLength={3} value={currency} onChange={(event) => setCurrency(event.target.value.toUpperCase())} className={fieldClass} /></label>
+          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Shipping total")}</span><input min="0" step="0.0001" type="number" value={shippingTotal} onChange={(event) => setShippingTotal(event.target.value)} className={fieldClass} /></label>
+          <label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("External reference")} <span className="font-normal">{t("(optional)")}</span></span><input value={externalReference} maxLength={300} onChange={(event) => setExternalReference(event.target.value)} className={fieldClass} /></label>
+          <label className="sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Internal notes")} <span className="font-normal">{t("(optional)")}</span></span><textarea rows={4} value={notes} maxLength={20_000} onChange={(event) => setNotes(event.target.value)} className={fieldClass} /></label>
         </div>
-        <div className="flex justify-end gap-2"><button type="button" onClick={onClose} className={secondaryButtonClass}>Cancel</button><button type="submit" disabled={saving || !productId} className={primaryButtonClass}>{saving ? <RefreshCw size={15} className="animate-spin" /> : <Plus size={15} />}{saving ? "Creating…" : "Create draft"}</button></div>
+        <div className="flex justify-end gap-2"><button type="button" onClick={onClose} className={secondaryButtonClass}>{t("Cancel")}</button><button type="submit" disabled={saving || !productId} className={primaryButtonClass}>{saving ? <RefreshCw size={15} className="animate-spin" /> : <Plus size={15} />}{saving ? t("Creating…") : t("Create draft")}</button></div>
       </>}
     </form>
   </Modal>;
 }
 
 function CreateFulfillmentDialog({ workspaceId, detail, onClose, onCreated }: { workspaceId: string; detail: CommerceOrderDetail; onClose: () => void; onCreated: () => void }) {
+  const t = useTranslation();
   const eligible = detail.lines.filter((line) => Number(line.quantity) > Number(line.fulfilledQuantity));
   const baseRemaining = Object.fromEntries(eligible.map((line) => [line.id, Math.max(0, Number(line.quantity) - Number(line.fulfilledQuantity))]));
   const [remainingByLine, setRemainingByLine] = useState<Record<string, number>>(baseRemaining);
@@ -458,7 +461,7 @@ function CreateFulfillmentDialog({ workspaceId, detail, onClose, onCreated }: { 
         setRemainingByLine(nextRemaining);
         setQuantities(Object.fromEntries(eligible.map((line) => [line.id, String(nextRemaining[line.id] ?? 0)])));
       })
-      .catch((nextError) => setError(getFriendlyErrorMessage(nextError, "Existing fulfillment allocations could not be verified.")))
+      .catch((nextError) => setError(getFriendlyErrorMessage(nextError, t("Existing fulfillment allocations could not be verified."))))
       .finally(() => active && setAllocationLoading(false));
     return () => { active = false; };
   }, [detail.fulfillments, detail.lines, detail.order.id, workspaceId]);
@@ -466,7 +469,7 @@ function CreateFulfillmentDialog({ workspaceId, detail, onClose, onCreated }: { 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     const lines = eligible.flatMap((line) => Number(quantities[line.id]) > 0 && Number(quantities[line.id]) <= (remainingByLine[line.id] ?? 0) ? [{ orderLineId: line.id, quantity: quantities[line.id]! }] : []);
-    if (!lines.length) { setError("Enter a quantity for at least one order line."); return; }
+    if (!lines.length) { setError(t("Enter a quantity for at least one order line.")); return; }
     setSaving(true);
     setError("");
     try {
@@ -482,19 +485,19 @@ function CreateFulfillmentDialog({ workspaceId, detail, onClose, onCreated }: { 
       });
       onCreated();
     } catch (nextError) {
-      setError(getFriendlyErrorMessage(nextError, "The fulfillment could not be created. Reload the order and try again."));
+      setError(getFriendlyErrorMessage(nextError, t("The fulfillment could not be created. Reload the order and try again.")));
     } finally {
       setSaving(false);
     }
   };
 
-  return <Modal title="Create fulfillment" description="Allocate only the quantity being handled in this shipment. Stock is deducted later, when the fulfillment is marked shipped." onClose={onClose}>
+  return <Modal title={t("Create fulfillment")} description={t("Allocate only the quantity being handled in this shipment. Stock is deducted later, when the fulfillment is marked shipped.")} onClose={onClose}>
     <form onSubmit={(event) => void submit(event)} className="space-y-5">
       <Feedback error={error} />
-      {allocationLoading ? <div className="flex items-center gap-2 rounded-xl bg-[var(--secondary)] px-4 py-3 text-xs text-[var(--muted-foreground)]"><RefreshCw size={14} className="animate-spin" />Verifying unallocated quantities…</div> : null}
-      <div className="space-y-2">{eligible.map((line) => { const remaining = remainingByLine[line.id] ?? 0; return <label key={line.id} className="grid items-center gap-3 rounded-xl border border-[var(--border)] p-3 sm:grid-cols-[minmax(0,1fr)_130px]"><span><strong className="block text-sm text-[var(--foreground)]">{line.productName}</strong><small className="text-[var(--muted-foreground)]">{formatNumber(remaining)} unallocated{line.sku ? ` · ${line.sku}` : ""}</small></span><input disabled={allocationLoading || remaining <= 0} aria-label={`Quantity for ${line.productName}`} type="number" min="0" max={remaining} step="0.0001" value={quantities[line.id] ?? "0"} onChange={(event) => setQuantities((current) => ({ ...current, [line.id]: event.target.value }))} className={fieldClass} /></label>; })}</div>
-      <div className="grid gap-4 sm:grid-cols-2"><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Carrier <span className="font-normal">(optional)</span></span><input value={carrier} maxLength={200} onChange={(event) => setCarrier(event.target.value)} className={fieldClass} /></label><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Tracking number <span className="font-normal">(optional)</span></span><input value={trackingNumber} maxLength={300} onChange={(event) => setTrackingNumber(event.target.value)} className={fieldClass} /></label><label className="sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Tracking URL <span className="font-normal">(optional)</span></span><input type="url" value={trackingUrl} onChange={(event) => setTrackingUrl(event.target.value)} className={fieldClass} /></label><label className="sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">Notes <span className="font-normal">(optional)</span></span><textarea rows={3} value={notes} maxLength={5000} onChange={(event) => setNotes(event.target.value)} className={fieldClass} /></label></div>
-      <div className="flex justify-end gap-2"><button type="button" onClick={onClose} className={secondaryButtonClass}>Cancel</button><button type="submit" disabled={saving || allocationLoading || !eligible.some((line) => Number(quantities[line.id]) > 0 && Number(quantities[line.id]) <= (remainingByLine[line.id] ?? 0))} className={primaryButtonClass}>{saving ? <RefreshCw size={15} className="animate-spin" /> : <Truck size={15} />}{saving ? "Creating…" : "Create fulfillment"}</button></div>
+      {allocationLoading ? <div className="flex items-center gap-2 rounded-xl bg-[var(--secondary)] px-4 py-3 text-xs text-[var(--muted-foreground)]"><RefreshCw size={14} className="animate-spin" />{t("Verifying unallocated quantities…")}</div> : null}
+      <div className="space-y-2">{eligible.map((line) => { const remaining = remainingByLine[line.id] ?? 0; return <label key={line.id} className="grid items-center gap-3 rounded-xl border border-[var(--border)] p-3 sm:grid-cols-[minmax(0,1fr)_130px]"><span><strong className="block text-sm text-[var(--foreground)]">{line.productName}</strong><small className="text-[var(--muted-foreground)]">{formatNumber(remaining)} {t("unallocated")}{line.sku ? ` · ${line.sku}` : ""}</small></span><input disabled={allocationLoading || remaining <= 0} aria-label={t("Quantity for {{0}}").replace("{{0}}", line.productName)} type="number" min="0" max={remaining} step="0.0001" value={quantities[line.id] ?? "0"} onChange={(event) => setQuantities((current) => ({ ...current, [line.id]: event.target.value }))} className={fieldClass} /></label>; })}</div>
+      <div className="grid gap-4 sm:grid-cols-2"><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Carrier")} <span className="font-normal">{t("(optional)")}</span></span><input value={carrier} maxLength={200} onChange={(event) => setCarrier(event.target.value)} className={fieldClass} /></label><label><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Tracking number")} <span className="font-normal">{t("(optional)")}</span></span><input value={trackingNumber} maxLength={300} onChange={(event) => setTrackingNumber(event.target.value)} className={fieldClass} /></label><label className="sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Tracking URL")} <span className="font-normal">{t("(optional)")}</span></span><input type="url" value={trackingUrl} onChange={(event) => setTrackingUrl(event.target.value)} className={fieldClass} /></label><label className="sm:col-span-2"><span className="mb-1.5 block text-xs font-medium text-[var(--muted-foreground)]">{t("Notes")} <span className="font-normal">{t("(optional)")}</span></span><textarea rows={3} value={notes} maxLength={5000} onChange={(event) => setNotes(event.target.value)} className={fieldClass} /></label></div>
+      <div className="flex justify-end gap-2"><button type="button" onClick={onClose} className={secondaryButtonClass}>{t("Cancel")}</button><button type="submit" disabled={saving || allocationLoading || !eligible.some((line) => Number(quantities[line.id]) > 0 && Number(quantities[line.id]) <= (remainingByLine[line.id] ?? 0))} className={primaryButtonClass}>{saving ? <RefreshCw size={15} className="animate-spin" /> : <Truck size={15} />}{saving ? t("Creating…") : t("Create fulfillment")}</button></div>
     </form>
   </Modal>;
 }

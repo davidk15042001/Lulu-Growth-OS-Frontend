@@ -13,6 +13,8 @@
   "Locations are canonical stock boundaries used by manual work, Lulu employees and connected commerce providers.": "Locations are canonical stock boundaries used by manual work, Lulu employees and connected commerce providers.",
   "The order starts as a draft. Placing and confirming it are separate, auditable steps; confirmation reserves tracked stock.": "The order starts as a draft. Placing and confirming it are separate, auditable steps; confirmation reserves tracked stock.",
   "Create and activate a canonical product before creating an order.": "Create and activate a canonical product before creating an order.",
+  "Create and activate a product first.": "Create and activate a product first.",
+  "Allocate only the quantity being handled in this shipment. Stock is deducted later, when the fulfillment is marked shipped.": "Allocate only the quantity being handled in this shipment. Stock is deducted later, when the fulfillment is marked shipped.",
   "No canonical order matches the current filters.": "No canonical order matches the current filters.",
   "Orders created by the team, Lulu or a connected storefront will appear here.": "Orders created by the team, Lulu or a connected storefront will appear here.",
   "CONFIRMED": "CONFIRMED",
