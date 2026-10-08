@@ -46,6 +46,7 @@ const WorkspaceRecordsPage=lazy(()=>import("./pages/canonical-records/WorkspaceR
 const ProfilePage=lazy(()=>import("./pages/canonical-profile/ProfilePage"));
 const GrowthPage=lazy(()=>import("./pages/canonical-growth/GrowthPage"));
 const FinancePage=lazy(()=>import("./pages/canonical-finance/FinanceTemplatesPage"));
+const FinanceAutomationWorkspace=lazy(() => import("./components/FinanceAutomationWorkspace").then((module) => ({ default: module.FinanceAutomationWorkspace })));
 const PayoutsPage=lazy(()=>import("./pages/canonical-finance/PayoutsPage"));
 const KnowledgePage=lazy(()=>import("./pages/canonical-knowledge/KnowledgePage"));
 const CalendarMeetingPage=lazy(()=>import("./pages/calendar-meeting/CalendarMeetingPage"));
@@ -70,7 +71,6 @@ const FINANCE_RECORD_ROUTES = [
   ["sharp-morning-7310", "finance_plans", "Financial Planning"],
   ["sparklingly-city-3338", "finance_reconciliations", "Reconciliation"],
   ["radiant-hour-5376", "finance_recurring_revenue", "Recurring Revenue"],
-  ["vibrantly-second-9428", "finance_automations", "Financial Automation"],
   ["sturdy-week-3372", "finance_taxes", "Taxes"],
   ["boldly-field-4971", "finance_settings", "Finance Settings"],
 ] as const;
@@ -476,6 +476,7 @@ export default function App() {
         <Route path="/app/wondrous-cloud-1355" element={<AdminOnlyAppRoute><SocialPublishingPage /></AdminOnlyAppRoute>} />
         <Route path="/app/quietly-stone-4158" element={<AdminOnlyAppRoute><FinancePage /></AdminOnlyAppRoute>} />
         <Route path="/app/lucky-park-8649" element={<AdminOnlyAppRoute><PayoutsPage /></AdminOnlyAppRoute>} />
+        <Route path="/app/vibrantly-second-9428" element={<AdminOnlyAppRoute><FinanceAutomationWorkspace /></AdminOnlyAppRoute>} />
         {FINANCE_RECORD_ROUTES.map(([slug, resourceType, title]) => <Route key={slug} path={`/app/${slug}`} element={<AdminOnlyAppRoute><WorkspaceRecordsPage activeSlug={slug} resourceType={resourceType} title={title} /></AdminOnlyAppRoute>} />)}
         <Route path={routes.app.quotesNew} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" create /></AdminOnlyAppRoute>} />
         <Route path={routes.app.quotes} element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" /></AdminOnlyAppRoute>} />
