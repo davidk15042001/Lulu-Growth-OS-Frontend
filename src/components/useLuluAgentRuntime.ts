@@ -177,6 +177,7 @@ function buildRecordsLiveData(
   const openRecords = records.filter((record) => !["done", "completed", "paid", "won", "archived"].includes(record.status));
   const stageNames = Array.from(new Set(records.map((record) => record.stage).filter((stage): stage is string => Boolean(stage)))).slice(0, 3);
   const tagNames = Array.from(new Set(records.flatMap((record) => record.tags).filter(Boolean))).slice(0, 3);
+  const localizedResourceLabel = t(resourceLabel).toLowerCase();
   return {
     cards: [
       {
@@ -201,7 +202,7 @@ function buildRecordsLiveData(
       },
     ],
     currentFocusDetail: records[0] ? `${records[0].name} · ${records[0].status}` : t(emptyState),
-    connectedSystemsDetail: interpolate(t("Uses {{0}} connected systems and {{1}} live records for {{2}}."), [integrationCount, records.length, resourceLabel.toLowerCase()]),
+    connectedSystemsDetail: interpolate(t("Uses {{0}} connected systems and {{1}} live records for {{2}}."), [integrationCount, records.length, localizedResourceLabel]),
     impactDetail: interpolate(t(impactTemplate), [records.length, openRecords.length, tagNames.length]),
     latestActivityAt: records[0]?.updatedAt ?? null,
     runtimeStatusHint: records.length > 0 ? "monitoring" : undefined,
