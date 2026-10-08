@@ -87,7 +87,7 @@ export function LuluDealsPage() {
   const [view, setView] = useState('Table');
   const [showCreate, setShowCreate] = useState(false);
   const [savedOpen, setSavedOpen] = useState(false);
-  const visibleDeals = useMemo(() => dealsForView.filter(deal => `${deal.name} ${deal.company} ${deal.contact}`.toLowerCase().includes(query.toLowerCase())), [query]);
+  const visibleDeals = useMemo(() => dealsForView.filter(deal => `${deal.name} ${deal.company} ${deal.contact}`.toLowerCase().includes(query.toLowerCase())), [dealsForView, query]);
   const toggleSelected = (id: string) => setSelected(current => current.includes(id) ? current.filter(item => item !== id) : [...current, id]);
   const allSelected = selected.length === visibleDeals.length && visibleDeals.length > 0;
   return <div className="min-h-screen bg-[var(--background)] text-foreground">
