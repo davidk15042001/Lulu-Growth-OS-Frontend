@@ -1,6 +1,11 @@
 import { requestApi } from './client';
 
 export type EmailProvider = 'google' | 'microsoft' | 'imap';
+// Microsoft records can still exist in historical API responses, but this
+// deployment's direct OAuth/sync path is Google-only. Other mailboxes can be
+// connected through the explicit IMAP/SMTP flow until a native Microsoft
+// connector is implemented end to end.
+export type DirectEmailOAuthProvider = Extract<EmailProvider, 'google'>;
 export type EmailAddress = { name?: string | null; address: string };
 export type EmailAccount = { id: string; workspaceId: string; provider: EmailProvider; emailAddress: string; displayName: string | null; status: string; lastSyncAt: string | null; lastErrorCode: string | null; lastErrorMessage: string | null; createdAt: string; updatedAt: string };
 export type EmailFolder = { id: string; accountId: string; providerFolderId: string; parentProviderFolderId: string | null; name: string; systemName: string | null; unreadCount: number; totalCount: number };
@@ -20,7 +25,7 @@ function queryString(values: Record<string, string | number | boolean | undefine
 
 export const emailApi = {
   accounts: (workspaceId: string, signal?: AbortSignal) => requestApi<{ items: EmailAccount[] }>({ path: `/workspaces/${workspaceId}/email/accounts`, signal }),
-  startOAuth: (workspaceId: string, provider: 'google' | 'microsoft', returnTo = '/app/email') => requestApi<{ provider: string; authorizationUrl: string }>({ path: `/workspaces/${workspaceId}/email/accounts/oauth/start`, method: 'POST', body: { provider, returnTo } }),
+  startOAuth: (workspaceId: string, provider: DirectEmailOAuthProvider, returnTo = '/app/email') => requestApi<{ provider: string; authorizationUrl: string }>({ path: `/workspaces/${workspaceId}/email/accounts/oauth/start`, method: 'POST', body: { provider, returnTo } }),
   connectImap: (workspaceId: string, body: { emailAddress: string; displayName?: string; password: string; imapHost: string; imapPort: number; imapSecure: boolean; smtpHost: string; smtpPort: number; smtpSecure: boolean }) => requestApi<EmailAccount>({ path: `/workspaces/${workspaceId}/email/accounts/imap`, method: 'POST', body, timeoutMs: 45_000 }),
   disconnect: (workspaceId: string, accountId: string) => requestApi<void>({ path: `/workspaces/${workspaceId}/email/accounts/${accountId}`, method: 'DELETE' }),
   startSync: (workspaceId: string, accountId: string) => requestApi<EmailSyncJob>({ path: `/workspaces/${workspaceId}/email/accounts/${accountId}/sync`, method: 'POST', body: {} }),
