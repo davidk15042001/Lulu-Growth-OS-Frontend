@@ -16,7 +16,11 @@ export default function WorkspaceRecordsPage({ resourceType, title, activeSlug, 
   const { hasCapability } = useLuluApp();
   const confirm = useLuluConfirm();
   // This reusable surface writes through the generic workspace record routes.
-  const canWrite = hasCapability('workspace.write');
+  // The records API maps finance resources to `finance.manage` server-side.
+  // Keep the presentation gate aligned with that domain capability so roles
+  // such as marketing_user or member do not see enabled-looking finance
+  // actions that would be rejected by the canonical backend route.
+  const canWrite = hasCapability('finance.manage');
   const [query, setQuery] = useState('');
   const [modal, setModal] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
