@@ -35,6 +35,7 @@ const officeCommandCenter = fs.readFileSync(path.join(root, 'src', 'pages', 'off
 const luluStation = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'LuluStation.tsx'), 'utf8');
 const nativeAgentWorkspace = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'AgentNativeWorkspace.tsx'), 'utf8');
 const nativeAgentWorkspaceCss = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'agent-native-workspace.css'), 'utf8');
+const liveResourceRoute = fs.readFileSync(path.join(root, 'src', 'components', 'LiveResourceRoute.tsx'), 'utf8');
 const officeCopy = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'office-copy.ts'), 'utf8');
 const calendarPortal = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-calendar-portal-9014', 'components', 'generated', 'LuluCalendarPortal.tsx'), 'utf8');
 const calendarApi = fs.readFileSync(path.join(root, 'src', 'api', 'calendar.ts'), 'utf8');
@@ -79,6 +80,16 @@ if (
 
 if (!nativePage.includes('const useLiveResourceFallback') || !nativePage.includes('<LiveResourceRoute resourceType={contract.resourceType} />')) {
   failures.push('A resource page without a dedicated agent could fall back to a static generated interface.');
+}
+
+if (
+  !liveResourceRoute.includes('BackendResourceOverviewPage')
+  || liveResourceRoute.includes('ResourcePanel')
+  || liveResourceRoute.includes('createRecord')
+  || liveResourceRoute.includes('updateRecord')
+  || liveResourceRoute.includes('archiveRecord')
+) {
+  failures.push('The generic resource fallback must remain read-only until a canonical domain workflow is available.');
 }
 
 const expectedVerifiedResourceInterfaces = [
