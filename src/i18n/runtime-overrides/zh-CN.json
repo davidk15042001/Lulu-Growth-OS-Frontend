@@ -7338,5 +7338,8 @@
   "Source": "来源",
   "Data fields": "数据字段",
   "No additional fields returned.": "没有返回其他字段。",
-  "Select a record to inspect its live fields.": "选择一条记录以查看其实时字段。"
+  "Select a record to inspect its live fields.": "选择一条记录以查看其实时字段。",
+  "Employee workspace unavailable": "员工工作区不可用",
+  "No verified employee details": "暂无已验证的员工详情",
+  "The employee is still being synchronized. Close this window and try again shortly.": "该员工仍在同步中。请关闭此窗口，稍后再试。"
 }

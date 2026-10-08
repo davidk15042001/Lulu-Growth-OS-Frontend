@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  CircleAlert,
   List as ListIcon,
   Clock3,
   LayoutDashboard,
@@ -334,6 +335,7 @@ export function LuluStation() {
   const [ecosystemSnapshot, setEcosystemSnapshot] = useState<{ workspaceId: string; data: AgentEcosystem } | null>(null);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(null);
   const [employeeLoading, setEmployeeLoading] = useState(false);
+  const [employeeLoadError, setEmployeeLoadError] = useState<string | null>(null);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [catalogLoading, setCatalogLoading] = useState(false);
   const [catalogError, setCatalogError] = useState<string | null>(null);
@@ -465,6 +467,7 @@ export function LuluStation() {
     setSelectedEmployeeId(employee.id);
     setEmployeeDetailSnapshot(null);
     setEmployeeLoading(true);
+    setEmployeeLoadError(null);
     setSelectedRoomId(null);
     setSelectedProp(null);
     try {
@@ -474,7 +477,7 @@ export function LuluStation() {
       setError(null);
     } catch (cause) {
       if (!isCurrentRequest()) return;
-      setError(getFriendlyErrorMessage(cause));
+      setEmployeeLoadError(getFriendlyErrorMessage(cause));
     } finally {
       if (isCurrentRequest()) setEmployeeLoading(false);
     }
@@ -485,6 +488,7 @@ export function LuluStation() {
     setSelectedEmployeeId(null);
     setEmployeeDetailSnapshot(null);
     setEmployeeLoading(false);
+    setEmployeeLoadError(null);
   }, []);
 
   const openCatalog = useCallback(() => {
@@ -523,6 +527,7 @@ export function LuluStation() {
     setSelectedProp(prop);
     setSelectedEmployeeId(null);
     setEmployeeDetailSnapshot(null);
+    setEmployeeLoadError(null);
     setDepartmentMenuOpen(false);
     setDepartmentQuery("");
     window.requestAnimationFrame(() => {
@@ -783,7 +788,7 @@ export function LuluStation() {
       {selectedEmployeeId ? createPortal(<div className="lulu-station__modal-layer" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) closeEmployeePopup(); }}>
         <section ref={employeeDialogRef} className="lulu-station__employee-modal lulu-station__employee-modal--workspace" role="dialog" aria-modal="true" aria-labelledby="lulu-station-employee-title">
           <button type="button" className="lulu-station__modal-close" onClick={closeEmployeePopup} aria-label={t("Close employee workspace")}>×</button>
-          {employeeLoading || !employeeDetail ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>{t("Opening verified employee workspace…")}</strong><span>{t("Loading the employee state and recent evidence.")}</span></div> : <>
+          {employeeLoading ? <div className="lulu-station__modal-loading"><RefreshCw className="lulu-station__spin" size={22} /><strong>{t("Opening verified employee workspace…")}</strong><span>{t("Loading the employee state and recent evidence.")}</span></div> : employeeLoadError ? <div className="lulu-station__modal-error" role="alert"><CircleAlert size={24} /><strong>{t("Employee workspace unavailable")}</strong><span>{employeeLoadError}</span><div><button type="button" onClick={() => { const employee = rooms.flatMap((assignment) => assignment.employees).find((candidate) => candidate.id === selectedEmployeeId); if (employee) void selectEmployee(employee); }}>{t("Try again")}</button><button type="button" onClick={closeEmployeePopup}>{t("Close")}</button></div></div> : !employeeDetail ? <div className="lulu-station__modal-error" role="status"><ShieldCheck size={24} /><strong>{t("No verified employee details")}</strong><span>{t("The employee is still being synchronized. Close this window and try again shortly.")}</span><div><button type="button" onClick={closeEmployeePopup}>{t("Close")}</button></div></div> : <>
             <header className="lulu-station__modal-header">
               <div className={`lulu-station__modal-avatar lulu-station__modal-avatar--${toneForStatus(effectiveOfficeEmployeeStatus(employeeDetail.employee.status, aiExecutionAvailable, employeeDetail.employee.aiExecutionBlocked))}`}><span>{initials(employeeDetail.employee.name)}</span><i /></div>
               <div><span className="lulu-station__modal-kicker">{t("DIGITAL EMPLOYEE WORKSPACE")}</span><h2 id="lulu-station-employee-title">{t(employeeDetail.employee.name)}</h2><p>{t(employeeDetail.employee.title)} · {employeeDetail.employee.department ? t(employeeDetail.employee.department.name) : t("Lulu Station")}</p></div>

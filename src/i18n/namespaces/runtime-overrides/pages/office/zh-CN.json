@@ -860,5 +860,8 @@
   "Department directory with digital employees": "包含数字员工的部门目录",
   "crew": "团队",
   "quiet": "安静",
-  "No department rooms are available for this workspace.": "此工作区没有可用的部门房间。"
+  "No department rooms are available for this workspace.": "此工作区没有可用的部门房间。",
+  "Employee workspace unavailable": "员工工作区不可用",
+  "No verified employee details": "暂无已验证的员工详情",
+  "The employee is still being synchronized. Close this window and try again shortly.": "该员工仍在同步中。请关闭此窗口，稍后再试。"
 }

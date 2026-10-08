@@ -861,5 +861,8 @@
   "Department directory with digital employees": "Department-Verzeichnis mit digitalen Mitarbeitenden",
   "crew": "Crew",
   "quiet": "ruhig",
-  "No department rooms are available for this workspace.": "Für diesen Workspace sind keine Department-Räume verfügbar."
+  "No department rooms are available for this workspace.": "Für diesen Workspace sind keine Department-Räume verfügbar.",
+  "Employee workspace unavailable": "Agenten-Workspace nicht verfügbar",
+  "No verified employee details": "Keine verifizierten Agentendetails verfügbar",
+  "The employee is still being synchronized. Close this window and try again shortly.": "Der Agent wird noch synchronisiert. Schließe dieses Fenster und versuche es in Kürze erneut."
 }
