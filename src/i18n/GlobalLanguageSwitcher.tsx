@@ -294,6 +294,7 @@ function pageNamespacesForPortalSection(pathname: string, search: string) {
 const canonicalWorkspaceNamespacesByPath: Record<string, string> = {
   [routes.app.crmCompanies]: "canonical-crm",
   [routes.app.products]: "canonical-products",
+  "/app/nicely-ocean-1051": "canonical-products",
   [routes.app.orders]: "canonical-commerce",
   [routes.app.inventory]: "canonical-commerce",
   [routes.app.omnichannel]: "canonical-omnichannel",
