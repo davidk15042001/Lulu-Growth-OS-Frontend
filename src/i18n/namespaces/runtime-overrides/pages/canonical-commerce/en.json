@@ -1,3 +1,16 @@
 {
-  "error": "Error"
+  "error": "Error",
+  "Matching orders": "Matching orders",
+  "In progress": "In progress",
+  "Needs fulfillment": "Needs fulfillment",
+  "On this page": "On this page",
+  "Current filters": "Current filters",
+  "No canonical order matches the current filters.": "No canonical order matches the current filters.",
+  "Orders created by the team, Lulu or a connected storefront will appear here.": "Orders created by the team, Lulu or a connected storefront will appear here.",
+  "CONFIRMED": "CONFIRMED",
+  "PROCESSING": "PROCESSING",
+  "PARTIALLY FULFILLED": "PARTIALLY FULFILLED",
+  "FULFILLED": "FULFILLED",
+  "CANCELLED": "CANCELLED",
+  "Inspect line items, inventory reservations, payments and fulfillment using the same canonical record Lulu operates on.": "Inspect line items, inventory reservations, payments and fulfillment using the same canonical record Lulu operates on."
 }
