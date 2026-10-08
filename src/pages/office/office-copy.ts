@@ -78,6 +78,30 @@ export function translatedOfficeCopy(value: string | null | undefined, fallback:
 }
 
 /**
+ * Backend agent metadata is intentionally stored as stable identifiers. The
+ * Office is a human-facing projection, so render those identifiers as
+ * localized labels instead of leaking snake_case or English registry terms.
+ */
+export function localizedOfficeToken(value: string | null | undefined, t: Translate, fallback = "—") {
+  const raw = (value ?? "").trim();
+  if (!raw) return fallback;
+  const spaced = raw
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[._-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const translatedRaw = t(raw);
+  if (translatedRaw !== raw) return translatedRaw;
+  const translatedSpaced = t(spaced);
+  return translatedSpaced !== spaced ? translatedSpaced : spaced;
+}
+
+export function localizedOfficeTokenList(values: readonly string[] | null | undefined, t: Translate, fallback = "—") {
+  const labels = (values ?? []).map((value) => localizedOfficeToken(value, t, "")).filter(Boolean);
+  return labels.length ? labels.join(" · ") : fallback;
+}
+
+/**
  * Events and related-object identifiers are canonical API evidence, but the
  * Office is a human-facing projection. Render a stable, localized summary
  * instead of leaking implementation keys such as `Office.Work_item.Paused`.
