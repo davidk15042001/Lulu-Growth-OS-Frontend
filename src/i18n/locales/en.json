@@ -1135,5 +1135,13 @@
   "Runtime evidence": "Runtime evidence",
   "Persisted interval runs. Every entry is validation-only; no provider or journal side effect is implied.": "Persisted interval runs. Every entry is validation-only; no provider or journal side effect is implied.",
   "No scheduled run has been recorded yet.": "No scheduled run has been recorded yet.",
-  "· side effects: none": "· side effects: none"
+  "· side effects: none": "· side effects: none",
+  "Advertising Audience Agent": "Advertising Audience Agent",
+  "Advertising Audience Manager": "Advertising Audience Manager",
+  "Keep paid-media audiences useful, current and measurable.": "Keep paid-media audiences useful, current and measurable.",
+  "inspect audience quality": "inspect audience quality",
+  "surface audience gaps": "surface audience gaps",
+  "activating or changing audiences": "activating or changing audiences",
+  "audience quality": "audience quality",
+  "targeting coverage": "targeting coverage"
 }

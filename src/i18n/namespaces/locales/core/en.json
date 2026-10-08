@@ -154,5 +154,13 @@
   "Checking workspace access…": "Checking workspace access…",
   "No workspace is available for this account.": "No workspace is available for this account.",
   "Available integrations": "Available integrations",
-  "Ready to retry": "Ready to retry"
+  "Ready to retry": "Ready to retry",
+  "Advertising Audience Agent": "Advertising Audience Agent",
+  "Advertising Audience Manager": "Advertising Audience Manager",
+  "Keep paid-media audiences useful, current and measurable.": "Keep paid-media audiences useful, current and measurable.",
+  "inspect audience quality": "inspect audience quality",
+  "surface audience gaps": "surface audience gaps",
+  "activating or changing audiences": "activating or changing audiences",
+  "audience quality": "audience quality",
+  "targeting coverage": "targeting coverage"
 }

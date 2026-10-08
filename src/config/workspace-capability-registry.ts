@@ -120,6 +120,7 @@ const PAGE_METADATA: Readonly<Record<string, Partial<{
   "lulu-calendar-portal-9014": { department: "Operations", employee: "Calendar Coordinator", capabilityKey: "operations.calendar", readPermission: "workspace.read" },
   "nicely-ocean-1051": { department: "Commerce", employee: "Product Manager", capabilityKey: "commerce.products", readPermission: "products.read" },
   "wondrous-cloud-1355": { department: "Marketing", employee: "Social Publishing Specialist", capabilityKey: "marketing.social_publishing", readPermission: "social.read" },
+  "softly-second-7684": { department: "Advertising", employee: "Advertising Audience Manager", capabilityKey: "advertising.audiences", readPermission: "advertising.read" },
   "richly-forest-5832": { department: "Commerce", employee: "Category Manager", capabilityKey: "commerce.categories", readPermission: "products.read" },
   "mightily-shore-7108": { department: "Commerce", employee: "Order Manager", capabilityKey: "commerce.orders", readPermission: "orders.read" },
   "smart-village-1099": { department: "Commerce", employee: "Inventory Manager", capabilityKey: "commerce.inventory", readPermission: "orders.read" },

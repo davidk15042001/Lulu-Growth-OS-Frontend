@@ -22159,5 +22159,13 @@
   "Runtime evidence": "运行时证据",
   "Persisted interval runs. Every entry is validation-only; no provider or journal side effect is implied.": "已保存的间隔运行记录。每条记录仅用于验证，不代表已产生供应商或会计副作用。",
   "No scheduled run has been recorded yet.": "尚未记录任何计划运行。",
-  "· side effects: none": "· 无副作用"
+  "· side effects: none": "· 无副作用",
+  "Advertising Audience Agent": "广告受众智能体",
+  "Advertising Audience Manager": "广告受众经理",
+  "Keep paid-media audiences useful, current and measurable.": "让付费媒体受众保持有效、最新且可衡量。",
+  "inspect audience quality": "检查受众质量",
+  "surface audience gaps": "发现受众缺口",
+  "activating or changing audiences": "激活或更改受众",
+  "audience quality": "受众质量",
+  "targeting coverage": "定向覆盖率"
 }

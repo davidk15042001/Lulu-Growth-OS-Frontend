@@ -22159,5 +22159,13 @@
   "Runtime evidence": "Laufzeitnachweise",
   "Persisted interval runs. Every entry is validation-only; no provider or journal side effect is implied.": "Gespeicherte Intervallläufe. Jeder Eintrag dient nur der Validierung; ein Provider- oder Buchhaltungseffekt wird nicht behauptet.",
   "No scheduled run has been recorded yet.": "Bisher wurde kein geplanter Lauf aufgezeichnet.",
-  "· side effects: none": "· keine Seiteneffekte"
+  "· side effects: none": "· keine Seiteneffekte",
+  "Advertising Audience Agent": "Werbe-Zielgruppenagent",
+  "Advertising Audience Manager": "Manager für Werbe-Zielgruppen",
+  "Keep paid-media audiences useful, current and measurable.": "Halte Werbe-Zielgruppen nützlich, aktuell und messbar.",
+  "inspect audience quality": "Zielgruppenqualität prüfen",
+  "surface audience gaps": "Lücken in Zielgruppen aufzeigen",
+  "activating or changing audiences": "Aktivierung oder Änderung von Zielgruppen",
+  "audience quality": "Zielgruppenqualität",
+  "targeting coverage": "Targeting-Abdeckung"
 }
