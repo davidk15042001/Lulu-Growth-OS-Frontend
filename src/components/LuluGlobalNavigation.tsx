@@ -105,7 +105,17 @@ export function LuluGlobalNavigation({ activeSlug, mobileOpen = false, onNavigat
       const matchesSection = t(section.label).toLocaleLowerCase().includes(normalizedNavigationQuery);
       return {
         ...section,
-        pages: matchesSection ? section.pages : section.pages.filter((page) => t(page.label).toLocaleLowerCase().includes(normalizedNavigationQuery)),
+        pages: matchesSection ? section.pages : section.pages.filter((page) => {
+          const route = getWorkspaceCapabilityRoute(page.id);
+          const searchableText = [
+            t(page.label),
+            page.id,
+            route?.capabilityKey,
+            route?.employee.name,
+            route?.employee.department,
+          ].filter(Boolean).join(" ").toLocaleLowerCase();
+          return searchableText.includes(normalizedNavigationQuery);
+        }),
       };
     }).filter((section) => section.pages.length > 0);
   }, [navigationSections, normalizedNavigationQuery, t]);
