@@ -1,26 +1,37 @@
+/* Lulu signup surface: the account flow shares the login entry language. */
 .lulu-signup {
-  --lulu-signup-ink: #eff8f7;
-  --lulu-signup-muted: #9eb5b2;
-  --lulu-signup-line: rgba(190, 229, 223, .2);
-  --lulu-signup-cyan: #9cece0;
-  --lulu-signup-deep: #07171c;
-  position: relative;
+  --signup-bg: #060d1a;
+  --signup-panel: rgba(14, 27, 46, .95);
+  --signup-panel-raised: rgba(22, 40, 64, .98);
+  --signup-line: rgba(188, 212, 244, .15);
+  --signup-cyan: #7ee8df;
+  --signup-violet: #a592ff;
+  --signup-text: #f5f9ff;
+  --signup-muted: #a5b5cc;
   display: flex;
+  width: 100%;
+  max-width: none;
+  min-width: 0;
   min-height: 100svh;
-  overflow: hidden;
   flex-direction: column;
-  color: var(--lulu-signup-ink);
-  background: #061217;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: clip;
+  overflow-y: visible;
   isolation: isolate;
+  background: var(--signup-bg);
+  color: var(--signup-text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .lulu-signup *,
 .lulu-signup *::before,
 .lulu-signup *::after { box-sizing: border-box; }
+.lulu-signup :is(a, button, input) { font: inherit; }
 .lulu-signup a { color: inherit; }
-.lulu-signup button,
-.lulu-signup input { font: inherit; }
+.lulu-signup button { cursor: pointer; }
+.lulu-signup :is(a, button, input):focus-visible {
+  outline: 2px solid var(--signup-cyan);
+  outline-offset: 3px;
+}
 
 .lulu-signup__atmosphere {
   position: absolute;
@@ -28,178 +39,439 @@
   inset: 0;
   overflow: hidden;
   background:
-    radial-gradient(circle at 17% 20%, rgba(81, 177, 168, .21), transparent 25rem),
-    radial-gradient(circle at 81% 76%, rgba(128, 195, 182, .14), transparent 29rem),
-    linear-gradient(132deg, #071b20 0%, #061217 43%, #0b2023 100%);
+    radial-gradient(circle at 81% 8%, rgba(125, 116, 255, .2), transparent 30rem),
+    radial-gradient(circle at 9% 75%, rgba(78, 226, 211, .11), transparent 27rem),
+    linear-gradient(132deg, #081426 0%, #060d1a 53%, #0a1222 100%);
 }
-
 .lulu-signup__atmosphere::before,
 .lulu-signup__atmosphere::after {
   position: absolute;
   content: "";
   pointer-events: none;
 }
-
 .lulu-signup__atmosphere::before {
-  top: -12rem;
-  left: 46%;
-  width: 58rem;
-  height: 58rem;
-  border: 1px solid rgba(166, 235, 224, .12);
+  top: -14rem;
+  left: 44%;
+  width: 60rem;
+  height: 60rem;
+  border: 1px solid rgba(176, 195, 255, .12);
   border-radius: 50%;
-  box-shadow: 0 0 0 7rem rgba(166, 235, 224, .025), 0 0 0 16rem rgba(166, 235, 224, .018);
+  box-shadow: 0 0 0 7rem rgba(132, 121, 255, .025), 0 0 0 16rem rgba(91, 223, 214, .016);
 }
-
 .lulu-signup__atmosphere::after {
   inset: 0;
-  opacity: .4;
-  background-image: linear-gradient(rgba(179, 230, 223, .055) 1px, transparent 1px), linear-gradient(90deg, rgba(179, 230, 223, .055) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: linear-gradient(to right, #000 0%, transparent 80%);
+  opacity: .5;
+  background-image: linear-gradient(rgba(168, 199, 245, .025) 1px, transparent 1px), linear-gradient(90deg, rgba(168, 199, 245, .025) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: linear-gradient(to right, #000 0%, transparent 82%);
 }
 
 .lulu-signup__nav,
 .lulu-signup__layout,
-.lulu-signup__footer { width: min(1180px, calc(100% - 64px)); margin-inline: auto; }
-
+.lulu-signup__footer {
+  width: min(1240px, calc(100% - 64px));
+  margin-inline: auto;
+}
 .lulu-signup__nav {
   display: flex;
-  min-height: 96px;
+  min-height: 80px;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  border-bottom: 1px solid var(--signup-line);
 }
-
-.lulu-signup__brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
-.lulu-signup__brand img { width: 28px; height: 28px; object-fit: contain; }
-.lulu-signup__brand span { color: #fff; font-size: 16px; font-weight: 850; letter-spacing: .14em; }
-.lulu-signup__brand small { padding-left: 10px; border-left: 1px solid rgba(255,255,255,.32); color: #afc1be; font-size: 9px; font-weight: 800; letter-spacing: .14em; }
-.lulu-signup__sign-in-link { color: #c4d3d1; font-size: 12px; font-weight: 650; text-decoration: none; }
-.lulu-signup__sign-in-link strong { margin-left: 5px; color: var(--lulu-signup-cyan); font-weight: 800; }
-.lulu-signup__sign-in-link:hover strong { color: #e6fffa; text-decoration: underline; text-underline-offset: 4px; }
+.lulu-signup__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.lulu-signup__brand img {
+  width: 29px;
+  height: 29px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 15px rgba(126, 232, 223, .24));
+}
+.lulu-signup__brand span {
+  color: #fff;
+  font-size: .78rem;
+  font-weight: 850;
+  letter-spacing: .14em;
+}
+.lulu-signup__brand small {
+  border-left: 1px solid var(--signup-line);
+  padding-left: 10px;
+  color: #8fa3c4;
+  font-size: .59rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+.lulu-signup__sign-in-link {
+  color: #acbbd3;
+  font-size: .72rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+.lulu-signup__sign-in-link strong {
+  margin-left: 5px;
+  color: #aaf8f0;
+  font-weight: 800;
+}
+.lulu-signup__sign-in-link:hover strong {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 
 .lulu-signup__layout {
   display: grid;
   flex: 1;
-  grid-template-columns: minmax(0, 1.03fr) minmax(390px, .84fr);
+  grid-template-columns: minmax(0, .94fr) minmax(390px, .86fr);
   align-items: center;
-  gap: clamp(56px, 9vw, 148px);
-  padding-block: 58px 62px;
+  gap: clamp(50px, 8vw, 118px);
+  padding-block: clamp(68px, 8vw, 116px);
 }
-
-.lulu-signup__story { max-width: 590px; padding-bottom: 8px; }
+.lulu-signup__story { max-width: 620px; padding-bottom: 8px; }
 .lulu-signup__eyebrow,
-.lulu-signup__step { margin: 0; color: var(--lulu-signup-cyan); font-size: 10px; font-weight: 850; letter-spacing: .16em; line-height: 1.2; }
-.lulu-signup__story h1 { max-width: 540px; margin: 17px 0 0; color: #fff; font-size: clamp(42px, 4.4vw, 66px); font-weight: 760; letter-spacing: -.065em; line-height: .98; }
-.lulu-signup__lede { max-width: 495px; margin: 25px 0 0; color: #c0d2cf; font-size: 16px; line-height: 1.7; }
-.lulu-signup__principles { display: grid; max-width: 532px; margin-top: 43px; border-top: 1px solid var(--lulu-signup-line); }
-.lulu-signup__principles > div { display: grid; grid-template-columns: 35px 1fr; gap: 12px; padding: 15px 0; border-bottom: 1px solid var(--lulu-signup-line); }
-.lulu-signup__principles span { color: var(--lulu-signup-cyan); font-size: 10px; font-weight: 800; letter-spacing: .08em; }
-.lulu-signup__principles p { margin: 0; color: #a7bdb9; font-size: 12px; line-height: 1.55; }
-.lulu-signup__principles strong { color: #f3fbf9; font-weight: 750; }
+.lulu-signup__step {
+  margin: 0;
+  color: var(--signup-cyan);
+  font-size: .64rem;
+  font-weight: 850;
+  letter-spacing: .16em;
+  line-height: 1.2;
+}
+.lulu-signup__story h1 {
+  max-width: 600px;
+  margin: 18px 0 0;
+  color: #f7f9ff;
+  font-family: Poppins, Inter, ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(3.4rem, 5vw, 5.8rem);
+  font-weight: 720;
+  letter-spacing: -.075em;
+  line-height: .91;
+}
+.lulu-signup__lede {
+  max-width: 520px;
+  margin: 26px 0 0;
+  color: #aebdd4;
+  font-size: 1rem;
+  line-height: 1.7;
+}
+.lulu-signup__principles {
+  display: grid;
+  max-width: 560px;
+  margin-top: 44px;
+  border-top: 1px solid var(--signup-line);
+}
+.lulu-signup__principles > div {
+  display: grid;
+  grid-template-columns: 36px 1fr;
+  gap: 13px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--signup-line);
+}
+.lulu-signup__principles span {
+  color: var(--signup-cyan);
+  font-size: .63rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.lulu-signup__principles p {
+  margin: 0;
+  color: #a5b5ce;
+  font-size: .73rem;
+  line-height: 1.55;
+}
+.lulu-signup__principles strong { color: #f0f5ff; font-weight: 750; }
 
 .lulu-signup__form-card {
+  position: relative;
   width: 100%;
   padding: clamp(26px, 3.3vw, 40px);
-  border: 1px solid rgba(196, 233, 227, .38);
-  border-radius: 18px;
-  background: rgba(247, 252, 250, .98);
-  box-shadow: 0 28px 80px rgba(0, 0, 0, .28), 0 2px 0 rgba(255,255,255,.7) inset;
-  color: #102c30;
+  border: 1px solid rgba(126, 232, 223, .25);
+  border-radius: 22px;
+  background: linear-gradient(145deg, var(--signup-panel-raised), var(--signup-panel));
+  box-shadow: inset 0 1px rgba(255, 255, 255, .07), 0 28px 70px rgba(0, 0, 0, .34);
+  color: #f3f7ff;
+  backdrop-filter: blur(22px) saturate(150%);
 }
-
-.lulu-signup__form-header { padding-bottom: 22px; border-bottom: 1px solid #d8e3e0; }
-.lulu-signup__form-header .lulu-signup__step { color: #317d79; }
-.lulu-signup__form-header h2 { margin: 10px 0 0; font-size: 27px; font-weight: 780; letter-spacing: -.045em; line-height: 1.08; }
-.lulu-signup__form-header p { margin: 9px 0 0; color: #63807c; font-size: 12px; line-height: 1.55; }
+.lulu-signup__form-card::before {
+  position: absolute;
+  top: 0;
+  right: 30px;
+  left: 30px;
+  height: 2px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--signup-cyan), var(--signup-violet));
+  content: "";
+}
+.lulu-signup__form-header {
+  border-bottom: 1px solid var(--signup-line);
+  padding-bottom: 22px;
+}
+.lulu-signup__form-header .lulu-signup__step { color: #98eee6; }
+.lulu-signup__form-header h2 {
+  margin: 10px 0 0;
+  color: #f7f9ff;
+  font-size: 1.7rem;
+  font-weight: 780;
+  letter-spacing: -.045em;
+  line-height: 1.08;
+}
+.lulu-signup__form-header p {
+  margin: 9px 0 0;
+  color: #a9b9d2;
+  font-size: .75rem;
+  line-height: 1.55;
+}
 
 .lulu-signup__form,
-.lulu-signup__verification { display: grid; gap: 16px; margin-top: 23px; }
+.lulu-signup__verification {
+  display: grid;
+  gap: 16px;
+  margin-top: 23px;
+}
 .lulu-signup__name-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 13px; }
-.lulu-signup__field { display: grid; gap: 7px; color: #35534f; font-size: 12px; font-weight: 800; letter-spacing: .01em; }
+.lulu-signup__field {
+  display: grid;
+  gap: 7px;
+  color: #c3d1e7;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .01em;
+}
 .lulu-signup__input {
   width: 100%;
-  height: 47px;
-  border: 1px solid #bdcfcc;
-  border-radius: 7px;
+  min-height: 49px;
+  border: 1px solid rgba(185, 211, 253, .2);
+  border-radius: 12px;
   outline: none;
-  background: #fff;
-  color: #143439;
-  padding: 0 13px;
-  font-size: 14px;
-  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+  background: rgba(3, 10, 23, .72);
+  color: #f7f9ff;
+  padding: 0 14px;
+  font-size: .88rem;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
 }
-.lulu-signup__input::placeholder { color: #8a9e9b; }
-.lulu-signup__input:hover { border-color: #89a9a4; }
-.lulu-signup__input:focus { border-color: #277b76; box-shadow: 0 0 0 3px rgba(128, 226, 216, .42); }
+.lulu-signup__input::placeholder { color: #7287a8; opacity: 1; }
+.lulu-signup__input:hover { border-color: rgba(185, 211, 253, .42); }
+.lulu-signup__input:focus {
+  border-color: var(--signup-cyan);
+  background: rgba(4, 12, 27, .94);
+  box-shadow: 0 0 0 4px rgba(124, 232, 223, .1);
+}
+.lulu-signup__input:-webkit-autofill,
+.lulu-signup__input:-webkit-autofill:hover,
+.lulu-signup__input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f7f9ff !important;
+  -webkit-box-shadow: 0 0 0 1000px #0a1529 inset !important;
+  box-shadow: 0 0 0 1000px #0a1529 inset !important;
+}
 .lulu-signup__password-field { position: relative; display: block; }
-.lulu-signup__password-field .lulu-signup__input { padding-right: 46px; }
-.lulu-signup__password-toggle { position: absolute; top: 0; right: 0; display: grid; width: 46px; height: 47px; padding: 0; place-items: center; border: 0; background: transparent; color: #5b746f; cursor: pointer; }
-.lulu-signup__password-toggle:hover { color: #183f3d; }
-.lulu-signup__password-toggle:focus-visible { outline: 2px solid #277b76; outline-offset: -3px; border-radius: 6px; }
-.lulu-signup__password-match { position: absolute; top: 0; right: 39px; display: grid; width: 28px; height: 47px; place-items: center; color: #237345; }
+.lulu-signup__password-field .lulu-signup__input { padding-right: 82px; }
+.lulu-signup__password-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  width: 46px;
+  height: 49px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #a8bbd7;
+}
+.lulu-signup__password-toggle:hover { color: #aaf8f0; }
+.lulu-signup__password-match {
+  position: absolute;
+  top: 0;
+  right: 39px;
+  display: grid;
+  width: 28px;
+  height: 49px;
+  place-items: center;
+  color: #86eed7;
+}
 
-.lulu-signup__password-status { display: grid; gap: 9px; margin-top: -6px; padding: 12px; border-radius: 8px; background: #eef6f3; }
-.lulu-signup__strength { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #506965; font-size: 11px; }
-.lulu-signup__strength strong { color: #315d58; font-weight: 800; }
+.lulu-signup__password-status {
+  display: grid;
+  gap: 9px;
+  margin-top: -6px;
+  border: 1px solid rgba(181, 205, 245, .12);
+  border-radius: 11px;
+  background: rgba(89, 124, 183, .11);
+  padding: 12px;
+}
+.lulu-signup__strength {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #c8d6ec;
+  font-size: .69rem;
+}
+.lulu-signup__strength strong { color: #c8d6ec; font-weight: 800; }
 .lulu-signup__strength-bars { display: flex; flex: 1; gap: 4px; }
-.lulu-signup__strength-bars i { height: 4px; flex: 1; border-radius: 999px; background: #ccdcd8; }
-.lulu-signup__strength-bars i.is-active { background: #3e9b7a; }
-.lulu-signup__password-status ul { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 9px; margin: 0; padding: 0; list-style: none; color: #718984; font-size: 10px; line-height: 1.35; }
+.lulu-signup__strength-bars i {
+  height: 4px;
+  flex: 1;
+  border-radius: 999px;
+  background: rgba(183, 209, 249, .18);
+}
+.lulu-signup__strength-bars i.is-active { background: linear-gradient(90deg, #a18eff, #6fe0d6); }
+.lulu-signup__password-status ul {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 9px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: #9fb0c9;
+  font-size: .63rem;
+  line-height: 1.35;
+}
 .lulu-signup__password-status li { display: flex; align-items: center; gap: 5px; }
-.lulu-signup__password-status li > span { display: grid; width: 12px; height: 12px; place-items: center; color: #9aafab; }
-.lulu-signup__password-status li.is-passed { color: #256f46; }
-.lulu-signup__password-status li.is-passed > span { color: #25844e; }
-.lulu-signup__match-note { margin: -9px 0 -2px; font-size: 11px; }
-.lulu-signup__match-note.is-matched { color: #257345; }
-.lulu-signup__match-note.is-unmatched { color: #a24343; }
+.lulu-signup__password-status li > span {
+  display: grid;
+  width: 12px;
+  height: 12px;
+  place-items: center;
+  color: #9fb0c9;
+}
+.lulu-signup__password-status li.is-passed,
+.lulu-signup__password-status li.is-passed > span { color: #8ff2db; }
+.lulu-signup__match-note { margin: -9px 0 -2px; font-size: .68rem; }
+.lulu-signup__match-note.is-matched { color: #8ff2db; }
+.lulu-signup__match-note.is-unmatched { color: #ffb8c6; }
 
-.lulu-signup__terms { display: flex; align-items: flex-start; gap: 10px; color: #59716d; font-size: 11px; line-height: 1.55; cursor: pointer; }
-.lulu-signup__terms input { width: 16px; height: 16px; margin: 1px 0 0; flex: 0 0 auto; accent-color: #20736f; cursor: pointer; }
-.lulu-signup__terms a { color: #1b625f; font-weight: 750; text-underline-offset: 3px; }
-.lulu-signup__terms a:hover { color: #102e2d; }
-
+.lulu-signup__terms {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: #a6b7cf;
+  font-size: .68rem;
+  line-height: 1.55;
+  cursor: pointer;
+}
+.lulu-signup__terms input {
+  width: 16px;
+  height: 16px;
+  margin: 1px 0 0;
+  flex: 0 0 auto;
+  accent-color: #74dcd4;
+  cursor: pointer;
+}
+.lulu-signup__terms a,
+.lulu-signup__form-footer a,
+.lulu-signup__secondary-action {
+  color: #aaf8f0;
+}
+.lulu-signup__terms a { font-weight: 750; text-underline-offset: 3px; }
+.lulu-signup__terms a:hover { color: #fff; }
 .lulu-signup__submit {
   display: flex;
   width: 100%;
-  min-height: 48px;
+  min-height: 49px;
   align-items: center;
   justify-content: center;
   gap: 9px;
-  border: 1px solid #225f5c;
-  border-radius: 7px;
-  background: #246a67;
-  color: #f5fffd;
-  font-size: 13px;
+  border: 1px solid rgba(196, 231, 255, .22);
+  border-radius: 12px;
+  background: linear-gradient(105deg, #9e8cff, #628cf9 55%, #69dfd5);
+  color: #06101f;
+  box-shadow: 0 12px 28px rgba(90, 126, 244, .24);
+  font-size: .8rem;
   font-weight: 800;
   letter-spacing: .01em;
-  cursor: pointer;
-  transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
+  transition: transform .16s ease, filter .16s ease, box-shadow .16s ease;
 }
-.lulu-signup__submit:hover { background: #184f4d; box-shadow: 0 8px 17px rgba(26, 81, 77, .2); transform: translateY(-1px); }
+.lulu-signup__submit:hover {
+  filter: brightness(1.05) saturate(1.08);
+  box-shadow: 0 15px 32px rgba(90, 126, 244, .3);
+  transform: translateY(-1px);
+}
 .lulu-signup__submit:active { transform: translateY(0); }
 .lulu-signup__submit:disabled { cursor: wait; opacity: .62; transform: none; }
-.lulu-signup__secondary-action { justify-self: start; padding: 0; border: 0; background: transparent; color: #245e5b; font-size: 12px; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
-.lulu-signup__secondary-action:hover { color: #0e302f; }
+.lulu-signup__secondary-action {
+  justify-self: start;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  font-size: .73rem;
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.lulu-signup__secondary-action:hover { color: #fff; }
 .lulu-signup__secondary-action:disabled { opacity: .55; cursor: wait; }
-.lulu-signup__notice { display: flex; align-items: flex-start; gap: 8px; margin: 0; color: #52706b; font-size: 12px; line-height: 1.5; }
-.lulu-signup__notice--error { color: #a42f35; }
+.lulu-signup__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  color: #b3c4da;
+  font-size: .73rem;
+  line-height: 1.5;
+}
+.lulu-signup__notice--error { color: #ffb8c6; }
 .lulu-signup__notice svg { margin-top: 1px; flex: 0 0 auto; }
-.lulu-signup__verification h3 { margin: 0; color: #183634; font-size: 18px; letter-spacing: -.025em; }
-.lulu-signup__verification > p { margin: -7px 0 3px; color: #627b77; font-size: 12px; line-height: 1.55; }
-.lulu-signup__verification-code { letter-spacing: .35em; text-align: center; font-size: 19px; }
-.lulu-signup__form-footer { margin: 22px 0 0; padding-top: 19px; border-top: 1px solid #d8e3e0; color: #607974; font-size: 12px; text-align: center; }
-.lulu-signup__form-footer a { color: #1a605d; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
-.lulu-signup__form-footer a:hover { color: #102f2f; }
+.lulu-signup__verification h3 {
+  margin: 0;
+  color: #f7f9ff;
+  font-size: 1.14rem;
+  letter-spacing: -.025em;
+}
+.lulu-signup__verification > p {
+  margin: -7px 0 3px;
+  color: #a9b9d2;
+  font-size: .75rem;
+  line-height: 1.55;
+}
+.lulu-signup__verification-code {
+  letter-spacing: .35em;
+  text-align: center;
+  font-size: 1.2rem;
+}
+.lulu-signup__form-footer {
+  margin: 22px 0 0;
+  border-top: 1px solid var(--signup-line);
+  padding-top: 19px;
+  color: #a6b7cf;
+  font-size: .73rem;
+  text-align: center;
+}
+.lulu-signup__form-footer a {
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.lulu-signup__form-footer a:hover { color: #fff; }
 
-.lulu-signup__footer { display: flex; min-height: 63px; align-items: center; justify-content: space-between; gap: 22px; border-top: 1px solid rgba(193, 231, 224, .17); color: #92aaa6; font-size: 10px; }
+.lulu-signup__footer {
+  display: flex;
+  min-height: 63px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  border-top: 1px solid var(--signup-line);
+  color: #8da2c1;
+  font-size: .63rem;
+}
 .lulu-signup__footer nav { display: flex; gap: 19px; }
 .lulu-signup__footer a { text-decoration: none; }
-.lulu-signup__footer a:hover { color: #d4f6f0; text-decoration: underline; text-underline-offset: 4px; }
+.lulu-signup__footer a:hover {
+  color: #d4f6f0;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 .lulu-signup__footer p { margin: 0; }
 
 @media (max-width: 920px) {
-  .lulu-signup__layout { grid-template-columns: minmax(0, 1fr); gap: 38px; padding-block: 38px 48px; }
+  .lulu-signup__layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 38px;
+    padding-block: 58px 68px;
+  }
   .lulu-signup__story { max-width: 660px; }
   .lulu-signup__principles { display: none; }
   .lulu-signup__form-card { max-width: 560px; }
@@ -209,90 +481,32 @@
   .lulu-signup__nav,
   .lulu-signup__layout,
   .lulu-signup__footer { width: min(100% - 36px, 560px); }
-  .lulu-signup__nav { min-height: 78px; }
+  .lulu-signup__nav { min-height: 76px; }
   .lulu-signup__brand small { display: none; }
-  .lulu-signup__sign-in-link { font-size: 11px; }
-  .lulu-signup__story h1 { max-width: 420px; font-size: clamp(38px, 12vw, 52px); }
-  .lulu-signup__lede { margin-top: 18px; font-size: 14px; }
-  .lulu-signup__layout { gap: 30px; padding-block: 24px 36px; }
-  .lulu-signup__form-card { padding: 25px 20px; border-radius: 13px; }
-  .lulu-signup__form-header h2 { font-size: 25px; }
+  .lulu-signup__sign-in-link { font-size: .68rem; }
+  .lulu-signup__story h1 { max-width: 420px; font-size: clamp(3rem, 12vw, 4.2rem); }
+  .lulu-signup__lede { margin-top: 19px; font-size: .9rem; }
+  .lulu-signup__layout { gap: 30px; padding-block: 36px 48px; }
+  .lulu-signup__form-card { border-radius: 18px; padding: 25px 20px; }
+  .lulu-signup__form-header h2 { font-size: 1.55rem; }
   .lulu-signup__name-fields,
   .lulu-signup__password-status ul { grid-template-columns: 1fr; }
-  .lulu-signup__footer { min-height: 74px; align-items: flex-start; flex-direction: column; justify-content: center; gap: 7px; }
+  .lulu-signup__footer {
+    min-height: 74px;
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    gap: 7px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lulu-signup *, .lulu-signup *::before, .lulu-signup *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
-}
-
-/* Shared Lulu public-entry language: the account flow should feel like one product. */
-.lulu-signup {
-  --lulu-signup-ink: #f4f8ff;
-  --lulu-signup-muted: #a9b9d3;
-  --lulu-signup-line: rgba(181, 205, 245, .16);
-  --lulu-signup-cyan: #7ce8df;
-  --lulu-signup-deep: #060d1a;
-  background:
-    radial-gradient(circle at 81% 8%, rgba(125, 116, 255, .22), transparent 30rem),
-    radial-gradient(circle at 9% 78%, rgba(78, 226, 211, .1), transparent 27rem),
-    #060d1a;
-}
-.lulu-signup__atmosphere { background: repeating-linear-gradient(90deg, rgba(168, 199, 245, .028) 0 1px, transparent 1px 64px), repeating-linear-gradient(0deg, rgba(168, 199, 245, .025) 0 1px, transparent 1px 64px); }
-.lulu-signup__atmosphere::before { border-color: rgba(176, 195, 255, .13); box-shadow: 0 0 0 7rem rgba(132, 121, 255, .025), 0 0 0 16rem rgba(91, 223, 214, .016); }
-.lulu-signup__atmosphere::after { opacity: 0; }
-.lulu-signup__nav { min-height: 76px; border-bottom: 1px solid var(--lulu-signup-line); }
-.lulu-signup__brand span { font-size: .78rem; letter-spacing: .12em; }
-.lulu-signup__brand small { border-left-color: var(--lulu-signup-line); color: #8fa3c4; }
-.lulu-signup__sign-in-link { color: #acbbd3; }
-.lulu-signup__sign-in-link strong { color: #aaf8f0; }
-.lulu-signup__layout { grid-template-columns: minmax(0, .9fr) minmax(390px, .88fr); gap: clamp(50px, 8vw, 118px); }
-.lulu-signup__eyebrow,
-.lulu-signup__step { color: var(--lulu-signup-cyan); }
-.lulu-signup__story h1 { font-family: Poppins, Inter, ui-sans-serif, system-ui, sans-serif; color: #f7f9ff; font-weight: 720; }
-.lulu-signup__lede { color: #aebdd4; }
-.lulu-signup__principles { border-top-color: var(--lulu-signup-line); }
-.lulu-signup__principles > div { border-bottom-color: var(--lulu-signup-line); }
-.lulu-signup__principles span { color: var(--lulu-signup-cyan); }
-.lulu-signup__principles p { color: #a5b5ce; }
-.lulu-signup__principles strong { color: #f0f5ff; }
-.lulu-signup__form-card { border-color: rgba(194, 217, 255, .24); border-radius: 20px; background: rgba(10, 23, 44, .94); box-shadow: inset 0 1px rgba(255,255,255,.07), 0 28px 70px rgba(0,0,0,.34); color: #f3f7ff; backdrop-filter: blur(22px) saturate(150%); }
-.lulu-signup__form-header { border-bottom-color: var(--lulu-signup-line); }
-.lulu-signup__form-header .lulu-signup__step { color: #98eee6; }
-.lulu-signup__form-header h2,
-.lulu-signup__verification h3 { color: #f7f9ff; }
-.lulu-signup__form-header p,
-.lulu-signup__verification > p { color: #a9b9d2; }
-.lulu-signup__field { color: #c3d1e7; }
-.lulu-signup__input { border-color: rgba(185, 211, 253, .2); border-radius: 11px; background: rgba(3, 10, 23, .72); color: #f7f9ff; }
-.lulu-signup__input::placeholder { color: #7287a8; }
-.lulu-signup__input:hover { border-color: rgba(185, 211, 253, .42); }
-.lulu-signup__input:focus { border-color: #7ce8df; box-shadow: 0 0 0 4px rgba(124, 232, 223, .1); }
-.lulu-signup__password-toggle { color: #a8bbd7; }
-.lulu-signup__password-toggle:hover { color: #aaf8f0; }
-.lulu-signup__password-match { color: #86eed7; }
-.lulu-signup__password-status { border: 1px solid rgba(181, 205, 245, .12); border-radius: 11px; background: rgba(89, 124, 183, .11); }
-.lulu-signup__strength,
-.lulu-signup__strength strong { color: #c8d6ec; }
-.lulu-signup__strength-bars i { background: rgba(183, 209, 249, .18); }
-.lulu-signup__strength-bars i.is-active { background: linear-gradient(90deg, #a18eff, #6fe0d6); }
-.lulu-signup__password-status ul { color: #9fb0c9; }
-.lulu-signup__password-status li.is-passed,
-.lulu-signup__password-status li.is-passed > span,
-.lulu-signup__match-note.is-matched { color: #8ff2db; }
-.lulu-signup__match-note.is-unmatched,
-.lulu-signup__notice--error { color: #ffb8c6; }
-.lulu-signup__terms { color: #a6b7cf; }
-.lulu-signup__terms input { accent-color: #74dcd4; }
-.lulu-signup__terms a,
-.lulu-signup__form-footer a,
-.lulu-signup__secondary-action { color: #aaf8f0; }
-.lulu-signup__submit { border: 1px solid rgba(196, 231, 255, .22); border-radius: 11px; background: linear-gradient(105deg, #9e8cff, #628cf9 55%, #69dfd5); color: #06101f; box-shadow: 0 12px 28px rgba(90,126,244,.24); }
-.lulu-signup__submit:hover { background: linear-gradient(105deg, #ac9dff, #739cff 55%, #7bece0); box-shadow: 0 15px 32px rgba(90,126,244,.3); }
-.lulu-signup__form-footer { border-top-color: var(--lulu-signup-line); color: #a6b7cf; }
-.lulu-signup__notice { color: #b3c4da; }
-.lulu-signup__footer { border-top-color: var(--lulu-signup-line); color: #8da2c1; }
-
-@media (max-width: 920px) {
-  .lulu-signup__layout { grid-template-columns: minmax(0, 1fr); }
+  .lulu-signup *,
+  .lulu-signup *::before,
+  .lulu-signup *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
