@@ -209,7 +209,10 @@ function PublicAuthRoute({ children }: { children: React.ReactNode }) {
 
 function HomeOrAdminRoute() {
   const { currentUser, loading } = useLuluApp();
-  if (loading) return <main role="status" className="page-frame grid min-h-screen place-items-center">Loading your session…</main>;
+  // The public home is usable without a session. Render it immediately while
+  // the background session check restores a known user; authenticated visitors
+  // still redirect as soon as the session state is authoritative.
+  if (loading && !currentUser) return <LuluLandingPage />;
   if (currentUser && isAdminUser(currentUser)) return <Navigate replace to={getAdminLandingPath(routes.app.dashboard)} />;
   if (currentUser) return <Navigate replace to={routes.app.dashboard} />;
   return <LuluLandingPage />;
