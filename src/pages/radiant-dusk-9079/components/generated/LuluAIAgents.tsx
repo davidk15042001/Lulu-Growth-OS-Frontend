@@ -7,6 +7,7 @@ import type { LucideIcon } from 'lucide-react';
 import { agentApi, type AgentEcosystem, type AgentEcosystemDefinition } from '../../../../api/agents';
 import { getFriendlyErrorMessage } from '../../../../api/client';
 import { getSelectedWorkspaceId } from '../../../../api/session';
+import { useLuluApp } from '../../../../api/LuluAppContext';
 import { useTranslation } from '../../../../i18n/GlobalLanguageSwitcher';
 import { useLuluDialog } from '../../../../components/useLuluDialog';
 import { AgentNativeWorkspace } from '../../../office/AgentNativeWorkspace';
@@ -242,6 +243,7 @@ function sortBySeverity(items: WorkspaceRecord[]) {
 
 export const LuluAIAgents = () => {
   const workspaceId = getSelectedWorkspaceId();
+  const { hasCapability } = useLuluApp();
   const t = useTranslation();
   const [ecosystem, setEcosystem] = useState<AgentEcosystem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -312,7 +314,7 @@ export const LuluAIAgents = () => {
         })}
       </section> : null}
     </main>
-    {selectedAgent ? createPortal(<div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/75 p-3 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedAgent(null); }}><section ref={agentDialogRef} role="dialog" aria-modal="true" aria-labelledby="agent-ecosystem-dialog-title" className="flex max-h-[calc(100dvh-24px)] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 text-slate-100 shadow-2xl"><header className="flex items-start gap-4 border-b border-slate-800 px-5 py-4 sm:px-7"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-violet-400/30 bg-violet-400/10 text-sm font-bold text-violet-200">{agentInitials(selectedAgent.name)}</div><div className="min-w-0 flex-1"><span className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-300">{t("Native agent workspace")}</span><h2 id="agent-ecosystem-dialog-title" className="mt-1 truncate text-xl font-semibold tracking-tight">{selectedAgent.name}</h2><p className="mt-1 text-xs text-slate-400">{selectedAgent.tier.replaceAll('_', ' ')} · {selectedAgent.domain} · {activeIds.has(selectedAgent.id) ? t('Selected for the current team') : t('Available on demand')}</p></div><button type="button" onClick={() => setSelectedAgent(null)} className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-slate-700 text-slate-400 transition hover:border-slate-500 hover:text-white" aria-label={t("Close agent workspace")}><X size={17} /></button></header><div className="min-h-0 overflow-y-auto p-4 sm:p-6"><AgentNativeWorkspace workspaceId={workspaceId ?? ''} catalogAgent={selectedAgent} /></div></section></div>, document.body) : null}
+    {selectedAgent ? createPortal(<div className="fixed inset-0 z-[100] grid place-items-center bg-slate-950/75 p-3 backdrop-blur-sm" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) setSelectedAgent(null); }}><section ref={agentDialogRef} role="dialog" aria-modal="true" aria-labelledby="agent-ecosystem-dialog-title" className="flex max-h-[calc(100dvh-24px)] w-full max-w-6xl flex-col overflow-hidden rounded-3xl border border-slate-700 bg-slate-950 text-slate-100 shadow-2xl"><header className="flex items-start gap-4 border-b border-slate-800 px-5 py-4 sm:px-7"><div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-violet-400/30 bg-violet-400/10 text-sm font-bold text-violet-200">{agentInitials(selectedAgent.name)}</div><div className="min-w-0 flex-1"><span className="text-[10px] font-bold uppercase tracking-[0.18em] text-violet-300">{t("Native agent workspace")}</span><h2 id="agent-ecosystem-dialog-title" className="mt-1 truncate text-xl font-semibold tracking-tight">{selectedAgent.name}</h2><p className="mt-1 text-xs text-slate-400">{selectedAgent.tier.replaceAll('_', ' ')} · {selectedAgent.domain} · {activeIds.has(selectedAgent.id) ? t('Selected for the current team') : t('Available on demand')}</p></div><button type="button" onClick={() => setSelectedAgent(null)} className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-slate-700 text-slate-400 transition hover:border-slate-500 hover:text-white" aria-label={t("Close agent workspace")}><X size={17} /></button></header><div className="min-h-0 overflow-y-auto p-4 sm:p-6"><AgentNativeWorkspace workspaceId={workspaceId ?? ''} catalogAgent={selectedAgent} canManageOmnichannel={hasCapability("omnichannel.manage")} canReplyOmnichannel={hasCapability("omnichannel.reply")} /></div></section></div>, document.body) : null}
   </div>;
 };
 const luluDropdownNavigation = [{
