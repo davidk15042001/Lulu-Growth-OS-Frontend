@@ -61,7 +61,20 @@ export function translatedOfficeCopy(value: string | null | undefined, fallback:
     .trim();
   if (!normalized) return fallback;
   const concise = conciseOfficeCopy(normalized, fallback, Number.MAX_SAFE_INTEGER);
-  return conciseOfficeCopy(t(concise), fallback, maxLength);
+  const translated = t(concise);
+  if (translated !== concise) return conciseOfficeCopy(translated, fallback, maxLength);
+
+  // Some timeline providers already truncate their title before it reaches
+  // the Office. Translate the stable beginning as well, so the projection
+  // does not expose an English fragment just because the full source phrase
+  // is no longer available in the payload.
+  const knownPrefixes = ["Continuously build a trusted global brand"];
+  const translatedPrefix = knownPrefixes.find((prefix) => concise.startsWith(prefix) && t(prefix) !== prefix);
+  if (translatedPrefix) {
+    return conciseOfficeCopy(`${t(translatedPrefix)}${concise.slice(translatedPrefix.length)}`, fallback, maxLength);
+  }
+
+  return conciseOfficeCopy(concise, fallback, maxLength);
 }
 
 /**
