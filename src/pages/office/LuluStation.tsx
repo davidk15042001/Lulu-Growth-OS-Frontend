@@ -538,18 +538,14 @@ export function LuluStation() {
       inert: appRoot.inert,
       ariaHidden: appRoot.getAttribute("aria-hidden"),
     } : null;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousBodyPaddingRight = document.body.style.paddingRight;
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
-
     // The dialog is portaled to document.body, so keep the application behind
-    // it out of the focus/accessibility tree and prevent background scroll.
+    // it out of the focus/accessibility tree. Scroll locking is owned by the
+    // shared dialog hook above; keeping a second body snapshot here can restore
+    // the stale locked value after the dialog closes.
     if (appRoot) {
       appRoot.inert = true;
       appRoot.setAttribute("aria-hidden", "true");
     }
-    document.body.style.overflow = "hidden";
-    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`;
 
     return () => {
       if (appRoot && previousRootState) {
@@ -557,8 +553,6 @@ export function LuluStation() {
         if (previousRootState.ariaHidden == null) appRoot.removeAttribute("aria-hidden");
         else appRoot.setAttribute("aria-hidden", previousRootState.ariaHidden);
       }
-      document.body.style.overflow = previousBodyOverflow;
-      document.body.style.paddingRight = previousBodyPaddingRight;
     };
   }, [catalogOpen, selectedEmployeeId]);
 
