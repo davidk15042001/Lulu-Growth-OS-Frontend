@@ -117,6 +117,7 @@ const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   "calendar-overview",
   "calendar-settings",
   "rich-field-1880",
+  "radiant-dusk-9079",
 ]);
 
 // Only interfaces whose primary controls are backed by dedicated production
