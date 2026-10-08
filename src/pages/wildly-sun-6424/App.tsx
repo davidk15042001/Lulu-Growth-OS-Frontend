@@ -1,6 +1,5 @@
 import { Theme } from './settings/types';
-import { Target } from 'lucide-react';
-import { BackendResourceOverviewPage } from '../../components/BackendResourceOverviewPage';
+import { SalesPipelineWorkspace } from '../../components/SalesPipelineWorkspace';
 
 let theme: Theme = 'light';
 
@@ -15,17 +14,7 @@ function App() {
 
   setTheme(theme);
 
-  return (
-    <BackendResourceOverviewPage
-      resourceType="sales_opportunities"
-      eyebrow="Sales"
-      title="Opportunities"
-      description="Verified sales-opportunity records for the current workspace."
-      emptyTitle="No verified sales opportunities yet"
-      emptyDescription="Connect an approved CRM or sales provider before reviewing pipeline values, forecasts or next actions. No create, import or forecast claim is shown without verified records."
-      emptyIcon={<Target aria-hidden="true" size={24} />}
-    />
-  );
+  return <SalesPipelineWorkspace mode="opportunity" resourceType="sales_opportunities" activeSlug="wildly-sun-6424" />;
 }
 
 export default App;

@@ -100,6 +100,7 @@ const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   "soft-hill-4757",
   "safely-air-9334",
   "sturdy-month-1562",
+  "wildly-sun-6424",
   "kindly-pool-8785",
   "cosmic-pool-1616",
   "deeply-noon-9539",
@@ -123,6 +124,7 @@ const VERIFIED_RESOURCE_INTERFACES = new Set([
   "sunny-summer-2293", // provider account connection
   "daring-brook-9034", // Google Business reviews
   "rich-field-1880", // knowledge base
+  "wildly-sun-6424", // governed sales opportunities
 ]);
 
 function shouldUseMinimalAgentPage(

@@ -170,10 +170,12 @@ function Metric({ icon, label, value, detail }: { icon: ReactNode; label: string
   return <article className="rounded-2xl border border-border bg-card p-4 shadow-[0_16px_45px_-32px_rgba(15,23,42,.45)]"><div className="flex items-center justify-between gap-3"><span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">{icon}</span><span className="text-[11px] font-medium uppercase tracking-[.12em] text-muted-foreground">{label}</span></div><p className="mt-4 text-2xl font-semibold tracking-tight">{value}</p><p className="mt-1 text-xs text-muted-foreground">{detail}</p></article>;
 }
 
-export function SalesPipelineWorkspace({ mode }: { mode: PipelineMode }) {
+export function SalesPipelineWorkspace({ mode, resourceType, activeSlug }: { mode: PipelineMode; resourceType?: string; activeSlug?: string }) {
   const t = useTranslation();
   const language = useLanguage();
   const config = CONFIG[mode];
+  const resolvedResourceType = resourceType ?? config.resourceType;
+  const resolvedActiveSlug = activeSlug ?? config.activeSlug;
   const isTask = mode === "task";
   const isDeal = mode === "deal";
   const Icon = config.icon;
@@ -189,7 +191,7 @@ export function SalesPipelineWorkspace({ mode }: { mode: PipelineMode }) {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const queryString = query.trim() ? `search=${encodeURIComponent(query.trim())}&limit=100&sort=updatedAt&order=desc` : "limit=100&sort=updatedAt&order=desc";
-  const { items, total, loading, error: loadError, status, refresh } = useLiveRecords(config.resourceType, queryString, { includeTotal: true });
+  const { items, total, loading, error: loadError, status, refresh } = useLiveRecords(resolvedResourceType, queryString, { includeTotal: true });
   const filtered = useMemo(() => stateFilter === "all" ? items : items.filter((record) => stateFor(mode, record) === stateFilter), [items, mode, stateFilter]);
   const counts = useMemo(() => {
     const terminal = isTask ? ["completed", "cancelled"] : ["won", "lost"];
@@ -202,7 +204,7 @@ export function SalesPipelineWorkspace({ mode }: { mode: PipelineMode }) {
     setBusy(true); setError("");
     try {
       const initialState = isTask ? "open" : "open";
-      await createRecord(config.resourceType, {
+      await createRecord(resolvedResourceType, {
         name: form.name.trim(),
         status: "active",
         stage: initialState,
@@ -219,7 +221,7 @@ export function SalesPipelineWorkspace({ mode }: { mode: PipelineMode }) {
   const transition = async (record: WorkspaceRecord, targetState: string) => {
     if (!canManage || targetState === stateFor(mode, record)) return;
     setBusyRecordId(record.id); setError("");
-    try { await transitionSalesRecord(config.resourceType, record.id, { targetState, expectedVersion: record.version, reason: `${config.resourceType}_workspace` }); showNotice(t(isTask ? "Task state updated." : isDeal ? "Deal state updated." : "Opportunity state updated.")); await refresh(); }
+    try { await transitionSalesRecord(resolvedResourceType, record.id, { targetState, expectedVersion: record.version, reason: `${resolvedResourceType}_workspace` }); showNotice(t(isTask ? "Task state updated." : isDeal ? "Deal state updated." : "Opportunity state updated.")); await refresh(); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, t(isTask ? "The task state could not be updated." : isDeal ? "The deal state could not be updated." : "The opportunity state could not be updated."))); }
     finally { setBusyRecordId(null); }
   };
@@ -228,12 +230,12 @@ export function SalesPipelineWorkspace({ mode }: { mode: PipelineMode }) {
     const confirmed = await confirm({ title: t(isTask ? "Archive task?" : isDeal ? "Archive deal?" : "Archive opportunity?"), description: t("The record will leave the active view while its audit history remains available."), confirmLabel: t("Archive"), cancelLabel: t("Cancel"), tone: "danger" });
     if (!confirmed) return;
     setBusyRecordId(record.id); setError("");
-    try { await archiveRecord(config.resourceType, record.id); showNotice(t(isTask ? "Task archived." : isDeal ? "Deal archived." : "Opportunity archived.")); await refresh(); }
+    try { await archiveRecord(resolvedResourceType, record.id); showNotice(t(isTask ? "Task archived." : isDeal ? "Deal archived." : "Opportunity archived.")); await refresh(); }
     catch (cause) { setError(getFriendlyErrorMessage(cause, t(isTask ? "The task could not be archived." : isDeal ? "The deal could not be archived." : "The opportunity could not be archived."))); }
     finally { setBusyRecordId(null); }
   };
 
-  return <WorkspaceSurfaceShell activeSlug={config.activeSlug}><main className="page-frame min-h-screen min-w-0 overflow-x-clip bg-background p-4 sm:p-8">
+  return <WorkspaceSurfaceShell activeSlug={resolvedActiveSlug}><main className="page-frame min-h-screen min-w-0 overflow-x-clip bg-background p-4 sm:p-8">
     <div className="mx-auto max-w-[1480px] space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-5"><div className="max-w-3xl"><p className="eyebrow">{t(config.eyebrow)}</p><h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">{t(config.title)}</h1><p className="mt-3 text-sm leading-6 text-muted-foreground">{t(config.description)}</p></div><div className="flex flex-wrap gap-2"><button type="button" onClick={() => void refresh()} disabled={loading} className="inline-flex items-center gap-2 rounded-xl border border-border px-3 py-2.5 text-sm font-medium transition hover:bg-secondary disabled:opacity-50"><RefreshCw size={15} className={loading ? "animate-spin" : ""} />{t("Refresh")}</button><button type="button" onClick={() => { setError(""); setForm(EMPTY_FORM); setModalOpen(true); }} disabled={!canManage} className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-45"><Plus size={16} />{t(config.createLabel)}</button></div></header>
       {error || loadError ? <div className="flex items-start gap-2 rounded-2xl border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive" role="alert"><CircleAlert size={17} className="mt-0.5 shrink-0" /><span>{error || loadError}</span></div> : null}
