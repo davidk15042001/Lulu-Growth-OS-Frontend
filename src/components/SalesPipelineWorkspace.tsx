@@ -10,7 +10,7 @@ import { useLuluDialog } from "./useLuluDialog";
 import { WorkspaceSurfaceShell } from "./WorkspaceSurfaceShell";
 import { useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 
-type PipelineMode = "opportunity" | "deal" | "task";
+type PipelineMode = "opportunity" | "deal" | "pipeline" | "task";
 type OpportunityState = "open" | "qualified" | "proposal" | "negotiation" | "won" | "lost";
 type TaskState = "open" | "in_progress" | "completed" | "cancelled";
 
@@ -19,6 +19,7 @@ const OPPORTUNITY_STATES = ["open", "qualified", "proposal", "negotiation", "won
 const STATES: Record<PipelineMode, readonly string[]> = {
   opportunity: OPPORTUNITY_STATES,
   deal: OPPORTUNITY_STATES,
+  pipeline: OPPORTUNITY_STATES,
   task: ["open", "in_progress", "completed", "cancelled"],
 };
 
@@ -34,6 +35,7 @@ const OPPORTUNITY_NEXT_STATES: Record<string, readonly string[]> = {
 const NEXT_STATES: Record<PipelineMode, Record<string, readonly string[]>> = {
   opportunity: OPPORTUNITY_NEXT_STATES,
   deal: OPPORTUNITY_NEXT_STATES,
+  pipeline: OPPORTUNITY_NEXT_STATES,
   task: {
     open: ["in_progress", "cancelled", "completed"],
     in_progress: ["completed", "cancelled"],
@@ -82,6 +84,16 @@ const CONFIG: Record<PipelineMode, {
     description: "Verified CRM deal records and their governed pipeline state for the current workspace.",
     capability: "opportunities.manage",
     createLabel: "Create deal",
+    icon: BriefcaseBusiness,
+  },
+  pipeline: {
+    resourceType: "sales_deals",
+    activeSlug: "sweet-evening-7753",
+    eyebrow: "Sales",
+    title: "Pipeline",
+    description: "Verified opportunity records and their governed pipeline state for the current workspace.",
+    capability: "opportunities.manage",
+    createLabel: "Create opportunity",
     icon: BriefcaseBusiness,
   },
   task: {
