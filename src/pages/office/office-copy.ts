@@ -60,7 +60,8 @@ export function translatedOfficeCopy(value: string | null | undefined, fallback:
     .replace(/\s+/g, " ")
     .trim();
   if (!normalized) return fallback;
-  return conciseOfficeCopy(t(normalized), fallback, maxLength);
+  const concise = conciseOfficeCopy(normalized, fallback, maxLength);
+  return conciseOfficeCopy(t(concise), fallback, maxLength);
 }
 
 /**
