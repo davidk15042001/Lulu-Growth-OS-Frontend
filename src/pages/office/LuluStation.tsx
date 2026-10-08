@@ -356,6 +356,7 @@ export function LuluStation() {
   const catalogBodyRef = useRef<HTMLDivElement | null>(null);
   const departmentPickerRef = useRef<HTMLDivElement | null>(null);
   const overviewSnapshotRef = useRef<{ workspaceId: string; data: OfficeOverview } | null>(null);
+  const stationViewAutoSelectedWorkspaceRef = useRef<string | null>(null);
   const overviewRequestRef = useRef(0);
   const employeeRequestRef = useRef(0);
   const catalogRequestRef = useRef(0);
@@ -373,6 +374,22 @@ export function LuluStation() {
   useEffect(() => {
     overviewSnapshotRef.current = overviewSnapshot;
   }, [overviewSnapshot]);
+
+  useEffect(() => {
+    if (!workspaceId) {
+      stationViewAutoSelectedWorkspaceRef.current = null;
+      return;
+    }
+    if (!overview || stationViewAutoSelectedWorkspaceRef.current === workspaceId) return;
+
+    // A dense roster is easier to understand from the directory first. The
+    // map remains one click away, while the initial view no longer makes a
+    // large workspace look partially empty or hide rooms behind a canvas
+    // scrollbar. Do this once per workspace so an explicit user choice wins.
+    stationViewAutoSelectedWorkspaceRef.current = workspaceId;
+    const crowdedStation = overview.summary.departmentCount > 6 || overview.summary.employeeCount > 36;
+    setStationView(crowdedStation ? "directory" : "map");
+  }, [overview, workspaceId]);
 
   const loadOverview = useCallback(async (background = false) => {
     if (!workspaceId) return;
