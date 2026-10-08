@@ -602,6 +602,50 @@ if (
   failures.push('The Office does not keep visible room crew and the growing specialist directory bounded, accurately counted and reachable from a workspace entry point.');
 }
 
+const stationNumericConstant = (name) => Number(luluStation.match(new RegExp(`const ${name} = (\\d+)`))?.[1] ?? NaN);
+const stationLayout = {
+  worldWidth: stationNumericConstant('WORLD_WIDTH'),
+  roomColumns: stationNumericConstant('ROOM_COLUMNS'),
+  roomWidth: stationNumericConstant('ROOM_WIDTH'),
+  roomXGap: stationNumericConstant('ROOM_X_GAP'),
+  roomMinHeight: stationNumericConstant('ROOM_MIN_HEIGHT'),
+  crewColumns: stationNumericConstant('ROOM_CREW_COLUMNS'),
+  crewTop: stationNumericConstant('ROOM_CREW_TOP'),
+  crewRowPitch: stationNumericConstant('ROOM_CREW_ROW_PITCH'),
+  crewBottom: stationNumericConstant('ROOM_CREW_BOTTOM'),
+  zoneCapacity: stationNumericConstant('ROOM_ZONE_CAPACITY'),
+};
+const layoutNumbersAreValid = Object.values(stationLayout).every((value) => Number.isFinite(value) && value > 0);
+if (!layoutNumbersAreValid) {
+  failures.push('The Office station layout constants are incomplete or invalid.');
+} else {
+  const maxCrewRows = Math.ceil(stationLayout.zoneCapacity / stationLayout.crewColumns);
+  const maxRoomHeight = Math.max(
+    stationLayout.roomMinHeight,
+    stationLayout.crewTop + (maxCrewRows - 1) * stationLayout.crewRowPitch + 52 + stationLayout.crewBottom,
+  );
+  const lastRoomRight = 36 + (stationLayout.roomColumns - 1) * (stationLayout.roomWidth + stationLayout.roomXGap) + stationLayout.roomWidth;
+  const leftWorkstationEdge = 130 - 43;
+  const rightWorkstationEdge = 130 + (stationLayout.crewColumns - 1) * 148 + 43;
+  const lastCrewLabelBottom = stationLayout.crewTop + (maxCrewRows - 1) * stationLayout.crewRowPitch + 74;
+  if (lastRoomRight > stationLayout.worldWidth) {
+    failures.push('The Office room grid can overflow the station world horizontally.');
+  }
+  if (leftWorkstationEdge < 0 || rightWorkstationEdge > stationLayout.roomWidth) {
+    failures.push('The Office workstation columns can place agent visuals outside their room bounds.');
+  }
+  if (lastCrewLabelBottom > maxRoomHeight) {
+    failures.push('The Office room height does not contain the last agent label in a full room.');
+  }
+  if (
+    !luluStation.includes('rowY += rowHeight + ROOM_Y_GAP')
+    || !luluStation.includes('x: 36 + column * (ROOM_WIDTH + ROOM_X_GAP)')
+    || !luluStation.includes('Math.floor(index / ROOM_CREW_COLUMNS) * ROOM_CREW_ROW_PITCH')
+  ) {
+    failures.push('The Office does not derive room and agent positions from the bounded layout constants.');
+  }
+}
+
 if (!luluStation.includes('overview.summary.specialistCount')) {
   failures.push('The Office does not distinguish its visible Digital Employee roster from the complete on-demand specialist ecosystem.');
 }
