@@ -51,6 +51,29 @@ const teamStatusPriority: Record<string, number> = {
   NOT_CONNECTED: 9,
 };
 
+const HISTORICAL_TEAM_STATUSES = new Set(["DISCONNECTED", "ARCHIVED"]);
+
+function visibleIntegrationTeams(items: ComposioIntegrationTeam[]) {
+  const liveToolkits = new Set(
+    items
+      .filter((team) => !HISTORICAL_TEAM_STATUSES.has(team.status))
+      .map((team) => team.composioToolkit),
+  );
+  const latestHistoricalByToolkit = new Map<string, ComposioIntegrationTeam>();
+  for (const team of items) {
+    if (!HISTORICAL_TEAM_STATUSES.has(team.status) || liveToolkits.has(team.composioToolkit)) continue;
+    const current = latestHistoricalByToolkit.get(team.composioToolkit);
+    const currentTime = Date.parse(current?.updatedAt ?? current?.createdAt ?? "") || 0;
+    const teamTime = Date.parse(team.updatedAt || team.createdAt) || 0;
+    if (!current || teamTime > currentTime) latestHistoricalByToolkit.set(team.composioToolkit, team);
+  }
+  return items.filter((team) => {
+    if (team.status === "ARCHIVED") return false;
+    if (!HISTORICAL_TEAM_STATUSES.has(team.status)) return true;
+    return !liveToolkits.has(team.composioToolkit) && latestHistoricalByToolkit.get(team.composioToolkit)?.id === team.id;
+  });
+}
+
 function isSuspendableTeamStatus(status: string) {
   return ["ACTIVE", "CONNECTED", "PROVISIONING", "CONNECTING", "DEGRADED"].includes(status);
 }
@@ -91,7 +114,7 @@ export function ComposioCatalog({ workspaceId, canConnect = false, canManageTeam
   const loadTeams = useCallback(async () => {
     try {
       const items = (await composioApi.teams(workspaceId, { limit: 100 })).data.items;
-      setTeams([...items].sort((left, right) => (teamStatusPriority[left.status] ?? 99) - (teamStatusPriority[right.status] ?? 99)));
+      setTeams(visibleIntegrationTeams(items).sort((left, right) => (teamStatusPriority[left.status] ?? 99) - (teamStatusPriority[right.status] ?? 99)));
     }
     catch { setTeams([]); }
   }, [workspaceId]);
