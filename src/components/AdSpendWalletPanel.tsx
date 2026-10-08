@@ -5,6 +5,7 @@ import {
   DollarSign,
   LoaderCircle,
   QrCode,
+  RefreshCw,
   ShieldCheck,
   WalletCards,
 } from "lucide-react";
@@ -32,6 +33,12 @@ function formatMoney(value: string | number) {
   return formatDecimalMoney(value, "CNY", currentIntlLocale());
 }
 
+function formatLoadedAt(value: string | null) {
+  if (!value) return "—";
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toLocaleString(currentIntlLocale()) : "—";
+}
+
 function secureCheckoutUrl(value: string | null) {
   if (!value) return null;
   try {
@@ -52,11 +59,14 @@ export function AdSpendWalletPanel() {
   const [topup, setTopup] = useState<AdSpendTopup | null>(null);
   const [qr, setQr] = useState("");
   const [loading, setLoading] = useState(true);
+  const [stale, setStale] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<string | null>(null);
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState("");
   const loadRequest = useRef(0);
   const actionRequest = useRef(0);
   const workspaceRef = useRef(workspaceId);
+  const overviewRef = useRef<AdSpendOverview | null>(null);
   workspaceRef.current = workspaceId;
 
   const load = useCallback(async () => {
@@ -64,8 +74,11 @@ export function AdSpendWalletPanel() {
     const targetWorkspaceId = workspaceId;
     setLoading(true);
     setError("");
-    setOverview(null);
     if (!targetWorkspaceId) {
+      overviewRef.current = null;
+      setOverview(null);
+      setStale(false);
+      setLastLoadedAt(null);
       setLoading(false);
       return;
     }
@@ -75,10 +88,14 @@ export function AdSpendWalletPanel() {
       if (result.wallet.workspaceId !== targetWorkspaceId) {
         throw new Error("The advertising wallet response did not match the current workspace.");
       }
+      overviewRef.current = result;
       setOverview(result);
+      setStale(false);
+      setLastLoadedAt(new Date().toISOString());
     } catch (cause) {
       if (request === loadRequest.current && workspaceRef.current === targetWorkspaceId) {
         setError(getFriendlyErrorMessage(cause, t("The advertising wallet could not be loaded.")));
+        setStale(Boolean(overviewRef.current));
       }
     } finally {
       if (request === loadRequest.current && workspaceRef.current === targetWorkspaceId) setLoading(false);
@@ -87,6 +104,10 @@ export function AdSpendWalletPanel() {
 
   useEffect(() => {
     actionRequest.current += 1;
+    overviewRef.current = null;
+    setOverview(null);
+    setStale(false);
+    setLastLoadedAt(null);
     setTopup(null);
     setQr("");
     setPaying(false);
@@ -146,6 +167,7 @@ export function AdSpendWalletPanel() {
   const total = Math.round((amount + fee) * 100) / 100;
   const wallet = overview?.wallet;
   const ready = Boolean(wallet?.adsEnabled && isPositiveDecimal(wallet.availableAmount) && !isPositiveDecimal(wallet.reversalDebtAmount));
+  const showingInitialLoad = loading && !overview;
 
   async function pay() {
     if (!workspaceId || !can("administer") || paying || amount < 1) return;
@@ -182,18 +204,18 @@ export function AdSpendWalletPanel() {
     <section className="overflow-hidden rounded-3xl border border-sky-500/20 bg-[radial-gradient(circle_at_top_right,rgba(14,165,233,.14),transparent_48%),var(--card)] shadow-sm">
       <div className="grid 2xl:grid-cols-[.9fr_1.1fr]">
         <div className="p-6 sm:p-8">
-          <div className="flex items-center gap-2 text-sky-700"><DollarSign size={18} /><p className="text-xs font-semibold uppercase tracking-[.18em]">{t("Prepaid advertising")}</p></div>
+          <div className="flex items-center justify-between gap-3"><div className="flex items-center gap-2 text-sky-700"><DollarSign size={18} /><p className="text-xs font-semibold uppercase tracking-[.18em]">{t("Prepaid advertising")}</p></div><button type="button" onClick={() => void load()} disabled={loading} className="inline-flex items-center gap-1.5 rounded-lg border border-border px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-secondary disabled:opacity-60" aria-label={t("Refresh")}><RefreshCw size={13} className={loading ? "animate-spin" : ""} />{t("Refresh")}</button></div>
           <h2 className="mt-3 text-2xl font-semibold">{t("Ads budget wallet")}</h2>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">{t("Advertising has its own prepaid balance. It is completely separate from AI/API funds and Cloudflare R2 storage.")}</p>
           <p className="mt-7 text-xs uppercase tracking-[.15em] text-muted-foreground">{t("Available budget")}</p>
-          <p className="mt-2 text-4xl font-semibold">{loading ? "—" : formatMoney(wallet?.availableAmount ?? 0)}</p>
+          <p className="mt-2 text-4xl font-semibold">{showingInitialLoad ? "—" : wallet ? formatMoney(wallet.availableAmount) : "—"}</p>
           <div className="mt-4 grid grid-cols-2 gap-2 text-xs 2xl:grid-cols-4">
-            <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3"><span className="text-muted-foreground">{t("Reserved for payment")}</span><strong className="mt-1 block text-sm">{formatMoney(wallet?.paymentReservedAmount ?? 0)}</strong></div>
-            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Reserved for campaigns")}</span><strong className="mt-1 block text-sm">{formatMoney(wallet?.reservedAmount ?? 0)}</strong></div>
-            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Spent")}</span><strong className="mt-1 block text-sm">{formatMoney(wallet?.spentAmount ?? 0)}</strong></div>
-            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Funded")}</span><strong className="mt-1 block text-sm">{formatMoney(wallet?.totalFundedAmount ?? 0)}</strong></div>
+            <div className="rounded-xl border border-sky-500/20 bg-sky-500/5 p-3"><span className="text-muted-foreground">{t("Reserved for payment")}</span><strong className="mt-1 block text-sm">{wallet ? formatMoney(wallet.paymentReservedAmount) : "—"}</strong></div>
+            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Reserved for campaigns")}</span><strong className="mt-1 block text-sm">{wallet ? formatMoney(wallet.reservedAmount) : "—"}</strong></div>
+            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Spent")}</span><strong className="mt-1 block text-sm">{wallet ? formatMoney(wallet.spentAmount) : "—"}</strong></div>
+            <div className="rounded-xl border border-border bg-background/50 p-3"><span className="text-muted-foreground">{t("Funded")}</span><strong className="mt-1 block text-sm">{wallet ? formatMoney(wallet.totalFundedAmount) : "—"}</strong></div>
           </div>
-          <span className={`mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${ready ? "bg-emerald-500/10 text-emerald-700" : "bg-amber-500/10 text-amber-700"}`}><span className={`h-2 w-2 rounded-full ${ready ? "bg-emerald-500" : "bg-amber-500"}`} />{ready ? t("Paid execution can run") : t("Waiting for confirmed ad funds")}</span>
+          <span className={`mt-4 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${!overview ? "bg-rose-500/10 text-rose-700" : ready ? "bg-emerald-500/10 text-emerald-700" : "bg-amber-500/10 text-amber-700"}`}><span className={`h-2 w-2 rounded-full ${!overview ? "bg-rose-500" : ready ? "bg-emerald-500" : "bg-amber-500"}`} />{!overview ? t("The advertising wallet could not be loaded.") : ready ? t("Paid execution can run") : t("Waiting for confirmed ad funds")}</span>
           <div className="mt-5 flex items-start gap-2 rounded-xl bg-secondary p-3 text-xs leading-5 text-muted-foreground"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-foreground" />{t("Lulu can optimize campaigns autonomously, but it can never spend beyond the prepaid wallet and the customer-authorized campaign limit.")}</div>
         </div>
         <div className="border-t border-border bg-background/40 p-6 sm:p-8 2xl:border-l 2xl:border-t-0">
@@ -203,10 +225,11 @@ export function AdSpendWalletPanel() {
           <div className="mt-4 grid gap-2 sm:grid-cols-3">{methods.map((item) => <button key={item.id} type="button" onClick={() => setMethod(item.id)} className={`rounded-xl border p-3 text-left text-sm ${method === item.id ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border bg-card hover:bg-secondary"}`}>{item.id === "card" ? <CreditCard size={15} /> : <QrCode size={15} />}<span className="mt-1 block font-semibold">{item.label}</span><span className="mt-1 block text-[11px] text-muted-foreground">{item.detail}</span></button>)}</div>
           <dl className="mt-4 space-y-2 rounded-xl border border-border bg-card p-4 text-sm"><div className="flex justify-between"><dt className="text-muted-foreground">{t("Ad budget credited")}</dt><dd>{formatMoney(amount)}</dd></div><div className="flex justify-between"><dt className="text-muted-foreground">{t("Lulu fee (4%)")}</dt><dd>{formatMoney(fee)}</dd></div><div className="flex justify-between border-t border-border pt-2 font-semibold"><dt>{t("Total charged")}</dt><dd>{formatMoney(total)}</dd></div></dl>
           {error && <p className="mt-3 flex items-start gap-2 text-sm text-destructive"><AlertTriangle size={16} className="mt-0.5 shrink-0" />{error}</p>}
-          <button type="button" onClick={() => void pay()} disabled={!can("administer") || paying || loading} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40">{paying ? <LoaderCircle className="animate-spin" size={16} /> : method === "card" ? <WalletCards size={16} /> : <QrCode size={16} />}{paying ? "Creating payment…" : `Pay ${formatMoney(total)}`}</button>
+          <button type="button" onClick={() => void pay()} disabled={!wallet || !can("administer") || paying || loading} className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:cursor-not-allowed disabled:opacity-40">{paying ? <LoaderCircle className="animate-spin" size={16} /> : method === "card" ? <WalletCards size={16} /> : <QrCode size={16} />}{paying ? "Creating payment…" : `Pay ${formatMoney(total)}`}</button>
           {!can("administer") && <p className="mt-2 text-xs text-muted-foreground">{t("Only workspace owners and administrators can add advertising budget.")}</p>}
         </div>
       </div>
+      <div className="border-t border-border px-6 py-3 text-xs text-muted-foreground sm:px-8"><div className="flex flex-wrap items-center justify-between gap-2"><span className={`inline-flex items-center gap-1.5 font-semibold ${stale ? "text-amber-700" : overview ? "text-emerald-700" : "text-muted-foreground"}`}><span className={`h-1.5 w-1.5 rounded-full ${stale ? "bg-amber-500" : overview ? "bg-emerald-500" : "bg-muted-foreground"}`} />{stale ? t("Stale snapshot") : overview ? t("Verified workspace data") : t("Waiting for the first verified refresh")}</span><span>{lastLoadedAt ? `${t("Last successful refresh")}: ${formatLoadedAt(lastLoadedAt)}` : t("Waiting for the first verified refresh")}</span></div>{stale ? <p className="mt-1">{t("The latest refresh failed. Only the last successfully loaded records are shown.")}</p> : null}</div>
       {topup?.qrPayload && <div className="border-t border-border p-6 text-center"><h3 className="font-semibold">Scan with {topup.paymentMethod === "alipaycn" ? "Alipay" : "WeChat Pay"}</h3>{qr && <div className="mx-auto mt-4 w-fit max-w-full rounded-xl border bg-white p-4"><img src={qr} alt={t("Advertising budget payment QR code")} className="block h-auto w-[280px] max-w-full" /></div>}<p className="mt-3 text-sm text-muted-foreground">{topup.status === "SUCCEEDED" ? <span className="inline-flex items-center gap-2 text-emerald-700"><CheckCircle2 size={16} />{t("Advertising budget credited.")}</span> : t("Waiting for confirmed payment…")}</p></div>}
     </section>
   );
