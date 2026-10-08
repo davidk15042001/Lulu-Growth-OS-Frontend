@@ -418,6 +418,7 @@ export default function App() {
         <Route path="/admin/support" element={<AdminOmniChannelRoute><SupportPage admin /></AdminOmniChannelRoute>} />
         <Route path="/app/support" element={<AdminOnlyAppRoute><SupportPage /></AdminOnlyAppRoute>} />
         <Route path="/app/profile" element={<AdminOnlyAppRoute><ProfilePage /></AdminOnlyAppRoute>} />
+        <Route path={routes.app.settings} element={<AdminOnlyAppRoute><Navigate replace to={{ pathname: routes.app.profile, search: location.search }} /></AdminOnlyAppRoute>} />
         <Route path={routes.app.connections} element={<AdminOnlyAppRoute><ComposioWorkspacePage /></AdminOnlyAppRoute>} />
         <Route path="/admin/quotes" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="quotes" /></AdminOmniChannelRoute>} />
         <Route path="/admin/invoices" element={<AdminOmniChannelRoute><AdminCommercialDocumentsPage kind="invoices" /></AdminOmniChannelRoute>} />

@@ -37,6 +37,7 @@ export const routes = {
     omnichannel: "/app/omnichannel",
     crmCompanies: "/app/sturdy-month-1562",
     profile: "/app/profile",
+    settings: "/app/settings",
     knowledgeBase: "/app/rich-field-1880",
     quotes: "/app/quotes",
     quotesNew: "/app/quotes/new",
