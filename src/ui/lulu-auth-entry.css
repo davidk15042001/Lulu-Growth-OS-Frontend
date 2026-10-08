@@ -1,29 +1,28 @@
-/*
- * Public sign-in is intentionally quieter than the product surface. It gives
- * the form visual priority and uses the same restrained foundation as the
- * public site without turning authentication into a second landing page.
- */
+/* Lulu entry surface: one responsive visual system for login and session access. */
 .lulu-entry {
-  --entry-bg: #07101f;
-  --entry-panel: rgba(13, 25, 46, .9);
-  --entry-panel-raised: rgba(18, 34, 61, .96);
-  --entry-line: rgba(183, 209, 247, .14);
-  --entry-line-strong: rgba(141, 225, 216, .32);
-  --entry-text: #f7f9ff;
-  --entry-muted: #9cacc5;
+  --entry-bg: #070d18;
+  --entry-bg-soft: #0c1728;
+  --entry-panel: rgba(14, 27, 46, .94);
+  --entry-panel-raised: rgba(22, 40, 64, .98);
+  --entry-line: rgba(188, 212, 244, .14);
+  --entry-line-strong: rgba(126, 232, 223, .3);
+  --entry-text: #f7faff;
+  --entry-muted: #a2b2c9;
+  --entry-subtle: #8d9fba;
   --entry-cyan: #7ee8df;
   --entry-violet: #a592ff;
-  display: grid;
+  display: grid !important;
   width: 100%;
   max-width: none;
   min-width: 0;
   grid-template-rows: auto 1fr auto;
   min-height: 100svh;
-  overflow: hidden;
+  overflow-x: clip !important;
+  overflow-y: visible !important;
   background:
-    radial-gradient(circle at 8% 13%, rgba(79, 215, 202, .12), transparent 29rem),
-    radial-gradient(circle at 91% 7%, rgba(145, 119, 255, .18), transparent 30rem),
-    linear-gradient(135deg, #081426, var(--entry-bg) 62%, #0b1021);
+    radial-gradient(circle at 9% 11%, rgba(102, 232, 216, .12), transparent 28rem),
+    radial-gradient(circle at 89% 9%, rgba(151, 136, 255, .16), transparent 31rem),
+    linear-gradient(132deg, #081426 0%, var(--entry-bg) 57%, #0a1020 100%);
   color: var(--entry-text);
 }
 
@@ -33,18 +32,22 @@
 .lulu-entry :is(a, button, input) { font: inherit; }
 .lulu-entry a { color: inherit; text-decoration: none; }
 .lulu-entry button { cursor: pointer; }
-.lulu-entry :is(a, button, input):focus-visible { outline: 2px solid var(--entry-cyan); outline-offset: 3px; }
+.lulu-entry :is(a, button, input):focus-visible {
+  outline: 2px solid var(--entry-cyan);
+  outline-offset: 3px;
+}
 
 .lulu-entry__nav {
   display: flex;
-  min-height: 72px;
+  min-height: 80px;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--entry-line);
   padding: 0 clamp(20px, 5vw, 76px);
-  background: rgba(6, 14, 29, .65);
+  background: rgba(7, 13, 24, .84);
   backdrop-filter: blur(18px) saturate(125%);
 }
+
 .lulu-entry__brand,
 .lulu-entry__nav-actions,
 .lulu-entry__language-switch,
@@ -56,16 +59,53 @@
 .lulu-entry__access-note,
 .lulu-entry__success,
 .lulu-entry__footer,
-.lulu-entry__footer div { display: flex; align-items: center; }
+.lulu-entry__footer div {
+  display: flex;
+  align-items: center;
+}
+
 .lulu-entry__brand { gap: 9px; width: fit-content; }
-.lulu-entry__brand img { width: 29px; height: 29px; filter: drop-shadow(0 0 15px rgba(126, 232, 223, .24)); }
-.lulu-entry__brand span { color: #fff; font-size: .76rem; font-weight: 840; letter-spacing: .17em; }
-.lulu-entry__brand small { color: #8da0bf; font-size: .63rem; font-weight: 700; letter-spacing: .08em; }
+.lulu-entry__brand img {
+  width: 29px;
+  height: 29px;
+  filter: drop-shadow(0 0 15px rgba(126, 232, 223, .24));
+}
+.lulu-entry__brand span {
+  color: #fff;
+  font-size: .76rem;
+  font-weight: 840;
+  letter-spacing: .17em;
+}
+.lulu-entry__brand small {
+  color: #8da0bf;
+  font-size: .63rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+}
 .lulu-entry__nav-actions { gap: 12px; }
-.lulu-entry__language-switch { min-height: 34px; overflow: hidden; border: 1px solid var(--entry-line); border-radius: 999px; background: rgba(255, 255, 255, .035); }
-.lulu-entry__language-switch button { min-width: 36px; min-height: 32px; border: 0; background: transparent; color: #aebddb; font-size: .64rem; font-weight: 760; transition: background .18s ease, color .18s ease; }
+.lulu-entry__language-switch {
+  min-height: 34px;
+  overflow: hidden;
+  border: 1px solid var(--entry-line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .035);
+}
+.lulu-entry__language-switch button {
+  min-width: 36px;
+  min-height: 32px;
+  border: 0;
+  background: transparent;
+  color: #aebddb;
+  font-size: .64rem;
+  font-weight: 760;
+  transition: background .18s ease, color .18s ease;
+}
 .lulu-entry__language-switch button:hover { color: #fff; }
-.lulu-entry__language-switch button.is-active { background: rgba(126, 232, 223, .14); color: #eafffb; }
+.lulu-entry__language-switch button.is-active {
+  background: rgba(126, 232, 223, .14);
+  color: #eafffb;
+}
+
 .lulu-entry__signup,
 .lulu-entry__submit {
   border: 1px solid rgba(194, 229, 249, .22);
@@ -74,144 +114,46 @@
   font-weight: 830;
   transition: transform .18s ease, box-shadow .18s ease, filter .18s ease;
 }
-.lulu-entry__signup { min-height: 37px; border-radius: 10px; padding: 0 14px; font-size: .7rem; }
-.lulu-entry :is(.lulu-entry__signup, .lulu-entry__submit):hover { filter: brightness(1.04) saturate(1.06); box-shadow: 0 14px 29px rgba(81, 132, 246, .26); transform: translateY(-1px); }
+.lulu-entry__signup {
+  min-height: 37px;
+  border-radius: 10px;
+  padding: 0 14px;
+  font-size: .7rem;
+}
+.lulu-entry :is(.lulu-entry__signup, .lulu-entry__submit):hover {
+  filter: brightness(1.04) saturate(1.06);
+  box-shadow: 0 14px 29px rgba(81, 132, 246, .26);
+  transform: translateY(-1px);
+}
 
 .lulu-entry__stage {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 430px);
-  align-items: center;
-  gap: clamp(48px, 9vw, 150px);
-  width: min(1240px, 100%);
+  grid-template-columns: minmax(0, 1.05fr) minmax(370px, 430px);
+  align-items: center !important;
+  gap: clamp(50px, 7vw, 112px);
+  width: min(1280px, 100%);
+  min-width: 0;
+  min-height: 0 !important;
+  height: auto !important;
   margin: 0 auto;
-  padding: clamp(68px, 9vw, 132px) clamp(20px, 6vw, 76px);
+  padding: clamp(82px, 9vw, 138px) clamp(20px, 6vw, 76px) !important;
 }
 .lulu-entry__stage::before {
   position: absolute;
   top: 15%;
   bottom: 14%;
-  left: 45%;
+  left: 46%;
   width: 1px;
-  background: linear-gradient(transparent, rgba(158, 197, 239, .16), transparent);
+  background: linear-gradient(transparent, rgba(158, 197, 239, .18), transparent);
   content: "";
 }
 .lulu-entry__hero,
-.lulu-entry__access { position: relative; z-index: 1; min-width: 0; }
-.lulu-entry__eyebrow { display: inline-flex; align-items: center; gap: 9px; margin: 0; color: #b5fcf5; font-size: .66rem; font-weight: 820; letter-spacing: .16em; text-transform: uppercase; }
-.lulu-entry__eyebrow > span { width: 7px; height: 7px; border-radius: 50%; background: var(--entry-cyan); box-shadow: 0 0 16px rgba(126, 232, 223, .82); }
-.lulu-entry__hero h1 { max-width: 660px; margin: 20px 0 0; color: #f9fbff; font-family: Poppins, Inter, ui-sans-serif, system-ui, sans-serif; font-size: clamp(3.35rem, 5.6vw, 6.4rem); font-weight: 740; letter-spacing: -.075em; line-height: .91; }
-.lulu-entry__lede { max-width: 550px; margin: 25px 0 0; color: var(--entry-muted); font-size: clamp(.98rem, 1.25vw, 1.1rem); line-height: 1.7; }
-.lulu-entry__proof-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; max-width: 680px; margin-top: 36px; }
-.lulu-entry__proof { min-width: 0; padding-right: 14px; border-right: 1px solid var(--entry-line); }
-.lulu-entry__proof:last-child { border-right: 0; padding-right: 0; }
-.lulu-entry__proof > span { display: inline-grid; width: 29px; height: 29px; place-items: center; border: 1px solid rgba(126, 232, 223, .2); border-radius: 9px; background: rgba(102, 229, 216, .08); color: var(--entry-cyan); }
-.lulu-entry__proof strong { display: block; margin-top: 11px; color: #eaf1ff; font-size: .74rem; line-height: 1.3; }
-.lulu-entry__proof p { margin: 6px 0 0; color: #8ea1bf; font-size: .64rem; line-height: 1.5; }
-.lulu-entry__trust-note { gap: 8px; margin: 28px 0 0; color: #b7f7f1; font-size: .7rem; font-weight: 680; }
-.lulu-entry__trust-note svg { color: var(--entry-cyan); }
-
-.lulu-entry__access { width: 100%; }
-.lulu-entry__card { border: 1px solid var(--entry-line-strong); border-radius: 20px; background: linear-gradient(150deg, var(--entry-panel-raised), var(--entry-panel)); padding: clamp(22px, 3vw, 30px); box-shadow: 0 30px 74px rgba(0, 0, 0, .3), inset 0 1px rgba(255, 255, 255, .065); backdrop-filter: blur(18px) saturate(140%); }
-.lulu-entry__card-heading { justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--entry-line); padding-bottom: 18px; }
-.lulu-entry__card-heading p { margin: 0; color: #fff; font-size: 1.08rem; font-weight: 770; letter-spacing: -.03em; }
-.lulu-entry__card-heading span { gap: 6px; margin-top: 6px; color: #9db1cf; font-size: .69rem; font-weight: 650; }.lulu-entry__card-heading span svg { color: var(--entry-cyan); }
-.lulu-entry__card-heading > img { width: 31px; height: 31px; opacity: .9; }
-.lulu-entry__fields { display: grid; gap: 14px; margin-top: 21px; }
-.lulu-entry__label { display: grid; gap: 8px; color: #c8d5e8; font-size: .69rem; font-weight: 730; letter-spacing: .025em; }
-.lulu-entry__input { width: 100%; min-height: 51px; border: 1px solid rgba(185, 211, 253, .2); border-radius: 11px; background: rgba(5, 13, 29, .68); color: #f7fbff !important; padding: 0 43px 0 14px; transition: border-color .18s ease, box-shadow .18s ease, background .18s ease; }
-.lulu-entry__input:focus { border-color: rgba(126, 232, 223, .68); background: rgba(5, 14, 31, .96); box-shadow: 0 0 0 4px rgba(126, 232, 223, .1); outline: none; }
-.lulu-entry__input:-webkit-autofill,
-.lulu-entry__input:-webkit-autofill:hover,
-.lulu-entry__input:-webkit-autofill:focus { -webkit-text-fill-color: #f7fbff !important; -webkit-box-shadow: 0 0 0 1000px #0a1529 inset !important; box-shadow: 0 0 0 1000px #0a1529 inset !important; caret-color: #f7fbff; }
-.lulu-entry__password-field { position: relative; display: block; }.lulu-entry__password-toggle { position: absolute; top: 50%; right: 12px; display: grid; width: 28px; height: 28px; place-items: center; border: 0; background: transparent; color: #9fafca; transform: translateY(-50%); }.lulu-entry__password-toggle:hover { color: #fff; }
-.lulu-entry__submit { display: inline-flex; width: 100%; min-height: 51px; align-items: center; justify-content: center; gap: 9px; margin-top: 3px; border-radius: 11px; font-size: .8rem; }.lulu-entry__submit:disabled { cursor: wait; opacity: .74; transform: none; }
-.lulu-entry__status,.lulu-entry__success { gap: 7px; margin: 0; color: #b4f8f1; font-size: .72rem; line-height: 1.45; }.lulu-entry__error { border: 1px solid rgba(255, 147, 147, .28); border-radius: 10px; background: rgba(145, 43, 54, .18); color: #ffd1d7; padding: 10px 12px; font-size: .72rem; line-height: 1.45; }.lulu-entry__error p { margin: 0; }
-.lulu-entry__card-links { justify-content: space-between; gap: 15px; margin-top: 20px; border-top: 1px solid var(--entry-line); padding-top: 16px; }.lulu-entry__card-links button { border: 0; background: transparent; color: #aaf1e9; padding: 0; font-size: .71rem; font-weight: 730; }.lulu-entry__card-links button:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
-.lulu-entry__access-note { gap: 8px; margin: 15px 5px 0; color: #8ea2c2; font-size: .66rem; line-height: 1.5; }.lulu-entry__access-note svg { flex: 0 0 auto; color: var(--entry-cyan); }
-.lulu-entry__footer { justify-content: space-between; gap: 20px; min-height: 68px; border-top: 1px solid var(--entry-line); padding: 0 clamp(20px, 5vw, 76px); background: rgba(4, 10, 22, .48); color: #8395b3; font-size: .67rem; }.lulu-entry__footer small { color: #6e809e; }.lulu-entry__footer div { justify-content: flex-end; gap: 18px; }.lulu-entry__footer a:hover { color: #f3f7ff; }
-
-@media (max-width: 980px) {
-  .lulu-entry { overflow: visible; }
-  .lulu-entry__stage { grid-template-columns: minmax(0, 1fr); gap: 50px; max-width: 690px; }.lulu-entry__stage::before { display: none; }.lulu-entry__hero { text-align: center; }.lulu-entry__eyebrow { justify-content: center; }.lulu-entry__hero h1,.lulu-entry__lede { margin-right: auto; margin-left: auto; }.lulu-entry__proof-grid { margin-right: auto; margin-left: auto; text-align: left; }.lulu-entry__trust-note { justify-content: center; }.lulu-entry__access { width: min(100%, 450px); justify-self: center; }
+.lulu-entry__access {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
 }
-@media (max-width: 640px) {
-  .lulu-entry__nav { min-height: 64px; padding-inline: 17px; }.lulu-entry__brand small,.lulu-entry__signup { display: none; }.lulu-entry__nav-actions { gap: 0; }.lulu-entry__language-switch button { min-width: 35px; }.lulu-entry__stage { gap: 38px; padding: 54px 17px 58px; }.lulu-entry__hero h1 { font-size: clamp(3rem, 14vw, 4.25rem); }.lulu-entry__lede { margin-top: 20px; font-size: .96rem; }.lulu-entry__proof-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 30px; }.lulu-entry__proof { display: grid; grid-template-columns: auto 1fr; gap: 11px; border-right: 0; border-bottom: 1px solid var(--entry-line); padding: 0 0 12px; text-align: left; }.lulu-entry__proof > span { grid-row: span 2; }.lulu-entry__proof strong { margin-top: 1px; }.lulu-entry__proof p { grid-column: 2; margin-top: -7px; }.lulu-entry__proof:last-child { border-bottom: 0; padding-bottom: 0; }.lulu-entry__trust-note { justify-content: flex-start; text-align: left; }.lulu-entry__card { border-radius: 17px; padding: 18px; }.lulu-entry__access-note { margin-inline: 2px; }.lulu-entry__footer { display: grid; grid-template-columns: 1fr auto; padding: 18px 17px; }.lulu-entry__footer small { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  .lulu-entry *, .lulu-entry *::before, .lulu-entry *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
-}
-
-/*
- * The login entry owns a three-row composition (nav, stage, footer). Generic
- * authentication fallbacks target every `.auth-shell > section` with
- * `!important`, which made this dedicated surface taller than the viewport on
- * desktop and replaced its intentional responsive spacing on tablets. Keep
- * those fallbacks available to legacy auth pages while preserving this
- * self-contained entry layout.
- */
-@media (min-width: 900px) {
-  .auth-shell.lulu-entry {
-    display: grid !important;
-    min-height: 100svh !important;
-  }
-
-  .auth-shell.lulu-entry > .lulu-entry__stage {
-    min-height: 0 !important;
-    height: auto !important;
-    align-items: center !important;
-    padding: clamp(68px, 9vw, 132px) clamp(20px, 6vw, 76px) !important;
-  }
-}
-
-@media (max-width: 899px) {
-  .auth-shell.lulu-entry {
-    display: grid !important;
-    min-height: 100svh !important;
-    overflow: visible !important;
-  }
-
-  .auth-shell.lulu-entry > .lulu-entry__stage {
-    min-height: 0 !important;
-    height: auto !important;
-    align-items: center !important;
-    padding: clamp(68px, 9vw, 132px) clamp(20px, 6vw, 76px) !important;
-  }
-}
-
-@media (max-width: 640px) {
-  .auth-shell.lulu-entry > .lulu-entry__stage {
-    padding: 54px 17px 58px !important;
-  }
-}
-
-/* 2026 signal architecture pass: make authentication feel like the front
-   door to the product, with a calmer split between narrative and access. */
-.lulu-entry {
-  --entry-bg: #070d18;
-  --entry-panel: rgba(13, 25, 41, .94);
-  --entry-panel-raised: rgba(21, 38, 60, .97);
-  background:
-    radial-gradient(circle at 11% 10%, rgba(108, 231, 216, .1), transparent 27rem),
-    radial-gradient(circle at 88% 18%, rgba(151, 136, 255, .13), transparent 29rem),
-    #070d18;
-}
-
-.lulu-entry__nav {
-  min-height: 80px;
-  border-bottom-color: rgba(192, 213, 239, .12);
-  background: rgba(7, 13, 24, .84);
-}
-
-.lulu-entry__stage {
-  grid-template-columns: minmax(0, 1.05fr) minmax(370px, 430px);
-  gap: clamp(50px, 7vw, 112px);
-  width: min(1280px, 100%);
-  padding-top: clamp(82px, 9vw, 138px);
-  padding-bottom: clamp(82px, 9vw, 138px);
-}
-
-.lulu-entry__hero { position: relative; }
 .lulu-entry__hero::before {
   position: absolute;
   top: -34px;
@@ -221,35 +163,98 @@
   background: linear-gradient(transparent, rgba(126, 232, 223, .38) 24%, rgba(126, 232, 223, .1) 78%, transparent);
   content: "";
 }
-
+.lulu-entry__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0;
+  color: #b5fcf5;
+  font-size: .66rem;
+  font-weight: 820;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.lulu-entry__eyebrow > span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--entry-cyan);
+  box-shadow: 0 0 16px rgba(126, 232, 223, .82);
+}
 .lulu-entry__hero h1 {
   max-width: 700px;
+  margin: 20px 0 0;
+  color: #f9fbff;
+  font-family: Poppins, Inter, ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(3.6rem, 5.65vw, 6.55rem);
+  font-weight: 740;
   letter-spacing: -.078em;
   line-height: .88;
 }
-
-.lulu-entry__lede { max-width: 570px; color: #a4b5ca; }
-.lulu-entry__proof-grid { gap: 12px; max-width: 740px; }
+.lulu-entry__lede {
+  max-width: 570px;
+  margin: 25px 0 0;
+  color: #a4b5ca;
+  font-size: clamp(.98rem, 1.25vw, 1.1rem);
+  line-height: 1.7;
+}
+.lulu-entry__proof-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 740px;
+  margin-top: 36px;
+}
 .lulu-entry__proof {
+  min-width: 0;
   border: 1px solid rgba(192, 213, 239, .12);
   border-radius: 14px;
   background: rgba(16, 29, 46, .48);
   padding: 16px 14px;
 }
-.lulu-entry__proof:last-child { border-right: 1px solid rgba(192, 213, 239, .12); padding-right: 14px; }
-.lulu-entry__proof > span { background: rgba(102, 229, 216, .1); }
-.lulu-entry__proof p { color: #9aacc5; }
+.lulu-entry__proof > span {
+  display: inline-grid;
+  width: 29px;
+  height: 29px;
+  place-items: center;
+  border: 1px solid rgba(126, 232, 223, .2);
+  border-radius: 9px;
+  background: rgba(102, 229, 216, .1);
+  color: var(--entry-cyan);
+}
+.lulu-entry__proof strong {
+  display: block;
+  margin-top: 11px;
+  color: #eaf1ff;
+  font-size: .74rem;
+  line-height: 1.3;
+}
+.lulu-entry__proof p {
+  margin: 6px 0 0;
+  color: #9aacc5;
+  font-size: .64rem;
+  line-height: 1.5;
+}
+.lulu-entry__trust-note {
+  gap: 8px;
+  margin: 28px 0 0;
+  color: #b7f7f1;
+  font-size: .7rem;
+  font-weight: 680;
+}
+.lulu-entry__trust-note svg { color: var(--entry-cyan); }
 
+.lulu-entry__access { width: 100%; }
 .lulu-entry__card {
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(126, 232, 223, .24);
   border-radius: 22px;
-  border-color: rgba(126, 232, 223, .24);
   background: linear-gradient(145deg, var(--entry-panel-raised), var(--entry-panel));
+  padding: clamp(22px, 3vw, 30px);
   box-shadow: 0 28px 74px rgba(0, 0, 0, .28), inset 0 1px rgba(255, 255, 255, .07);
+  backdrop-filter: blur(18px) saturate(140%);
 }
-
 .lulu-entry__card::before {
   position: absolute;
   top: 0;
@@ -261,23 +266,169 @@
   content: "";
   opacity: .8;
 }
+.lulu-entry__card-heading {
+  justify-content: space-between;
+  gap: 16px;
+  border-bottom: 1px solid var(--entry-line);
+  padding-top: 2px;
+  padding-bottom: 18px;
+}
+.lulu-entry__card-heading p {
+  margin: 0;
+  color: #fff;
+  font-size: 1.08rem;
+  font-weight: 770;
+  letter-spacing: -.03em;
+}
+.lulu-entry__card-heading span {
+  gap: 6px;
+  margin-top: 6px;
+  color: #9db1cf;
+  font-size: .69rem;
+  font-weight: 650;
+}
+.lulu-entry__card-heading span svg { color: var(--entry-cyan); }
+.lulu-entry__card-heading > img { width: 31px; height: 31px; opacity: .9; }
+.lulu-entry__fields { display: grid; gap: 14px; margin-top: 21px; }
+.lulu-entry__label {
+  display: grid;
+  gap: 8px;
+  color: #c8d5e8;
+  font-size: .69rem;
+  font-weight: 730;
+  letter-spacing: .025em;
+}
+.lulu-entry__input {
+  width: 100%;
+  min-height: 51px;
+  border: 1px solid rgba(192, 213, 239, .18);
+  border-radius: 12px;
+  background: rgba(5, 13, 25, .72);
+  color: #f7fbff !important;
+  padding: 0 43px 0 14px;
+  transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+}
+.lulu-entry__input:focus {
+  border-color: rgba(126, 232, 223, .72);
+  background: rgba(5, 14, 31, .96);
+  box-shadow: 0 0 0 4px rgba(126, 232, 223, .1);
+  outline: none;
+}
+.lulu-entry__input::placeholder { color: #7286a5; opacity: 1; }
+.lulu-entry__input:-webkit-autofill,
+.lulu-entry__input:-webkit-autofill:hover,
+.lulu-entry__input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #f7fbff !important;
+  -webkit-box-shadow: 0 0 0 1000px #0a1529 inset !important;
+  box-shadow: 0 0 0 1000px #0a1529 inset !important;
+  caret-color: #f7fbff;
+}
+.lulu-entry__password-field { position: relative; display: block; }
+.lulu-entry__password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: #9fafca;
+  transform: translateY(-50%);
+}
+.lulu-entry__password-toggle:hover { color: #fff; }
+.lulu-entry__submit {
+  display: inline-flex;
+  width: 100%;
+  min-height: 51px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 3px;
+  border-radius: 12px;
+  box-shadow: 0 10px 24px rgba(91, 172, 224, .18);
+  font-size: .8rem;
+}
+.lulu-entry__submit:disabled { cursor: wait; opacity: .74; transform: none; }
+.lulu-entry__status,
+.lulu-entry__success {
+  gap: 7px;
+  margin: 0;
+  color: #b4f8f1;
+  font-size: .72rem;
+  line-height: 1.45;
+}
+.lulu-entry__error {
+  border: 1px solid rgba(255, 147, 147, .28);
+  border-radius: 10px;
+  background: rgba(145, 43, 54, .18);
+  color: #ffd1d7;
+  padding: 10px 12px;
+  font-size: .72rem;
+  line-height: 1.45;
+}
+.lulu-entry__error p { margin: 0; }
+.lulu-entry__card-links {
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+  border-top: 1px solid var(--entry-line);
+  padding-top: 16px;
+}
+.lulu-entry__card-links button {
+  border: 0;
+  background: transparent;
+  color: #aaf1e9;
+  padding: 0;
+  font-size: .71rem;
+  font-weight: 730;
+}
+.lulu-entry__card-links button:hover {
+  color: #fff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.lulu-entry__access-note {
+  gap: 8px;
+  margin: 15px 5px 0;
+  color: #8ea2c2;
+  font-size: .66rem;
+  line-height: 1.5;
+}
+.lulu-entry__access-note svg { flex: 0 0 auto; color: var(--entry-cyan); }
 
-.lulu-entry__card-heading { padding-top: 2px; }
-.lulu-entry__input { border-color: rgba(192, 213, 239, .18); border-radius: 12px; background: rgba(5, 13, 25, .72); }
-.lulu-entry__input:focus { border-color: rgba(126, 232, 223, .72); }
-.lulu-entry__submit { border-radius: 12px; box-shadow: 0 10px 24px rgba(91, 172, 224, .18); }
-.lulu-entry__card-links { border-top-color: rgba(192, 213, 239, .12); }
-.lulu-entry__footer { border-top-color: rgba(192, 213, 239, .12); background: rgba(5, 11, 21, .62); }
+.lulu-entry__footer {
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 68px;
+  border-top: 1px solid var(--entry-line);
+  padding: 0 clamp(20px, 5vw, 76px);
+  background: rgba(5, 11, 21, .62);
+  color: #8395b3;
+  font-size: .67rem;
+}
+.lulu-entry__footer small { color: #6e809e; }
+.lulu-entry__footer div { justify-content: flex-end; gap: 18px; }
+.lulu-entry__footer a:hover { color: #f3f7ff; }
 
-@media (max-width: 980px) {
-  .lulu-entry__stage { grid-template-columns: minmax(0, 1fr); }
-  .lulu-entry__hero::before { display: none; }
-  .lulu-entry__proof { text-align: left; }
+/* The shared auth stylesheet is intentionally broad. Keep this owned entry
+   surface in control of its grid and do not let legacy layout fallbacks hide
+   the access card on compact screens. */
+@media (min-width: 900px) {
+  .auth-shell.lulu-entry {
+    display: grid !important;
+    min-height: 100svh !important;
+  }
+
+  .auth-shell.lulu-entry > .lulu-entry__stage {
+    min-height: 0 !important;
+    height: auto !important;
+    align-items: center !important;
+    padding: clamp(82px, 9vw, 138px) clamp(20px, 6vw, 76px) !important;
+  }
 }
 
-/* Keep the access card inside the first viewport on compact desktop and
-   embedded browser surfaces. The two-column composition needs more room than
-   a narrow browser shell can reliably provide. */
 @media (max-width: 1120px) {
   .lulu-entry__stage {
     grid-template-columns: minmax(0, 1fr);
@@ -285,7 +436,8 @@
     gap: 48px;
   }
 
-  .lulu-entry__stage::before { display: none; }
+  .lulu-entry__stage::before,
+  .lulu-entry__hero::before { display: none; }
   .lulu-entry__hero { text-align: center; }
   .lulu-entry__eyebrow { justify-content: center; }
   .lulu-entry__hero h1,
@@ -293,14 +445,80 @@
   .lulu-entry__proof-grid { margin-right: auto; margin-left: auto; }
   .lulu-entry__proof-grid { text-align: left; }
   .lulu-entry__trust-note { justify-content: center; }
-  .lulu-entry__access { width: min(100%, 480px); justify-self: center; }
+  .lulu-entry__access {
+    display: block !important;
+    width: min(100%, 480px);
+    justify-self: center;
+  }
+}
+
+@media (max-width: 899px) {
+  .auth-shell.lulu-entry {
+    display: grid !important;
+    min-height: 100svh !important;
+    overflow: visible !important;
+  }
+
+  .auth-shell.lulu-entry > .lulu-entry__stage {
+    display: grid !important;
+    min-height: 0 !important;
+    height: auto !important;
+    align-items: center !important;
+    padding: clamp(68px, 9vw, 132px) clamp(20px, 6vw, 76px) !important;
+  }
+
+  .auth-shell.lulu-entry > .lulu-entry__access {
+    display: block !important;
+    min-width: 0;
+  }
 }
 
 @media (max-width: 640px) {
-  .lulu-entry__nav { min-height: 66px; }
-  .lulu-entry__stage { gap: 40px; padding-top: 68px !important; padding-bottom: 64px !important; }
+  .lulu-entry__nav { min-height: 66px; padding-inline: 17px; }
+  .lulu-entry__brand small,
+  .lulu-entry__signup { display: none; }
+  .lulu-entry__nav-actions { gap: 0; }
+  .lulu-entry__language-switch button { min-width: 35px; }
+  .auth-shell.lulu-entry > .lulu-entry__stage {
+    gap: 40px;
+    padding: 68px 17px 64px !important;
+  }
   .lulu-entry__hero h1 { font-size: clamp(3.1rem, 14vw, 4.35rem); }
-  .lulu-entry__proof { border-radius: 12px; padding: 13px 12px; }
-  .lulu-entry__proof:last-child { border-right: 0; padding-right: 0; }
-  .lulu-entry__card { border-radius: 18px; }
+  .lulu-entry__lede { margin-top: 20px; font-size: .96rem; }
+  .lulu-entry__proof-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 30px;
+  }
+  .lulu-entry__proof {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 11px;
+    border-radius: 12px;
+    padding: 13px 12px;
+    text-align: left;
+  }
+  .lulu-entry__proof > span { grid-row: span 2; }
+  .lulu-entry__proof strong { margin-top: 1px; }
+  .lulu-entry__proof p { grid-column: 2; margin-top: -7px; }
+  .lulu-entry__trust-note { justify-content: flex-start; text-align: left; }
+  .lulu-entry__card { border-radius: 18px; padding: 18px; }
+  .lulu-entry__access-note { margin-inline: 2px; }
+  .lulu-entry__footer {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    padding: 18px 17px;
+  }
+  .lulu-entry__footer small { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lulu-entry *,
+  .lulu-entry *::before,
+  .lulu-entry *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
