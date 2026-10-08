@@ -3211,6 +3211,7 @@
   "Fulfillment Manager": "Fulfillment-Manager",
   "intelligence": "Intelligenz",
   "Live page data": "Live-Seitendaten",
+  "Initial page intelligence analysis pending": "Erste Seitenintelligenz-Analyse steht noch aus",
   "Derived": "Abgeleitet",
   "Not applicable": "Nicht zutreffend",
   "The page analysis starts automatically and uses only page-specific signals, onboarding data and connected sources. No demo values are shown.": "Die Seitenanalyse startet automatisch und nutzt ausschließlich seitenspezifische Signale, Onboarding-Daten und verbundene Quellen. Es werden keine Demowerte angezeigt.",

@@ -3211,6 +3211,7 @@
   "Fulfillment Manager": "履约经理",
   "intelligence": "智能分析",
   "Live page data": "实时页面数据",
+  "Initial page intelligence analysis pending": "初始页面情报分析待定",
   "Derived": "推导",
   "Not applicable": "不适用",
   "The page analysis starts automatically and uses only page-specific signals, onboarding data and connected sources. No demo values are shown.": "页面分析会自动启动，仅使用页面专属信号、引导设置数据和已连接的数据源。不会显示演示数据。",
