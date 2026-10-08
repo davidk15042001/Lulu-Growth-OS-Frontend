@@ -19,11 +19,17 @@ function readableProvider(providerKey: string) {
 }
 
 function oauthProviderFor(providerKey: string) {
-  const normalized = providerKey.toLowerCase();
-  if (normalized.startsWith('google_')) return 'google';
-  if (['meta', 'facebook', 'instagram'].includes(normalized)) return 'meta';
-  if (['linkedin', 'tiktok_ads', 'salesforce', 'hubspot', 'pipedrive'].includes(normalized)) return normalized;
-  return null;
+  const normalized = providerKey.toLowerCase().replaceAll('-', '_');
+  const supportedProviders: Record<string, string> = {
+    google_ads: 'google-ads',
+    google_analytics: 'google-analytics',
+    google_business: 'google-business',
+    meta: 'meta',
+    facebook: 'facebook',
+    instagram: 'instagram',
+    whatsapp: 'whatsapp',
+  };
+  return supportedProviders[normalized] ?? null;
 }
 
 export function GrowthGovernancePanel({ workspaceId }: { workspaceId: string | null }) {
