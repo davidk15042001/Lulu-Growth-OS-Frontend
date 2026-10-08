@@ -62,6 +62,18 @@ function packetExecutionStatus(packet: WorkspaceRecord) {
   return textValue(packet.data.executionStatus) || packet.stage || packet.status;
 }
 
+function isPlanningOnlyPacket(packet: WorkspaceRecord) {
+  return textValue(packet.data.executionBoundary) === "planning_artifact_only"
+    || textValue(packet.data.executionStatus) === "planned"
+    || packet.stage === "planned";
+}
+
+function boundaryLabel(packet: WorkspaceRecord, t: (key: string) => string) {
+  if (isPlanningOnlyPacket(packet)) return t("Planning only");
+  if (textValue(packet.data.executionBoundary) === "canonical_domain_action" && packet.data.sideEffectsApplied === true) return t("Canonical action");
+  return t("Not yet verified");
+}
+
 function resultCount(packet: WorkspaceRecord) {
   const ids = packet.data.resultRecordIds;
   return Array.isArray(ids) ? ids.length : 0;
@@ -69,8 +81,9 @@ function resultCount(packet: WorkspaceRecord) {
 
 function recordTone(record: WorkspaceRecord) {
   const status = `${record.status} ${record.stage ?? ""} ${packetExecutionStatus(record)}`.toLowerCase();
-  if (status.includes("executed") || status.includes("completed")) return "border-emerald-500/20 bg-emerald-500/5";
   if (status.includes("failed") || status.includes("error")) return "border-destructive/20 bg-destructive/5";
+  if (isPlanningOnlyPacket(record)) return "border-sky-500/20 bg-sky-500/5";
+  if (status.includes("executed") || status.includes("completed")) return "border-emerald-500/20 bg-emerald-500/5";
   if (status.includes("waiting") || status.includes("approval")) return "border-amber-500/20 bg-amber-500/5";
   return "border-border bg-background/70";
 }
@@ -108,6 +121,8 @@ export function AgentRuntimeControlPanel({
   const isRunning = status === "queued" || status === "planning" || status === "running";
   const canRetry = status === "failed" || status === "cancelled";
   const executedPacketCount = runtime.executionPackets.filter((entry) => packetExecutionStatus(entry.packet) === "executed").length;
+  const plannedPacketCount = runtime.executionPackets.filter((entry) => isPlanningOnlyPacket(entry.packet)).length;
+  const hasOnlyPlanningPackets = plannedPacketCount > 0 && executedPacketCount === 0;
   const artifactCount = runtime.executionArtifacts.length;
   const currentHealth = runtime.currentHealth;
   const runUsage = currentRun?.usage;
@@ -144,7 +159,9 @@ export function AgentRuntimeControlPanel({
           <p className="text-xs uppercase tracking-[0.12em] text-muted-foreground">{t("Agent runtime")}</p>
           <h2 className="mt-1 text-lg font-semibold text-foreground">{t("Autonomous execution control")}</h2>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-            {t("This is the live execution layer for the permanent global-brand mission. Actions execute automatically and remain fully auditable.")}
+            {hasOnlyPlanningPackets
+              ? t("This page has a recorded planning boundary. No external side effect is claimed until a canonical domain action is registered.")
+              : t("This is the live execution layer for the permanent global-brand mission. Actions execute automatically and remain fully auditable.")}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
@@ -462,6 +479,8 @@ export function AgentRuntimeControlPanel({
                   <span>{t("Mode")}: {textValue(packet.data.executionMode) || "—"}</span>
                   <span>{t("Policy")}: {textValue(packet.data.policyDecision) || "—"}</span>
                   <span>{t("Command")}: {textValue(packet.data.primaryCommandType) || "—"}</span>
+                  <span>{t("Boundary")}: {boundaryLabel(packet, t)}</span>
+                  <span>{t("Side effects")}: {packet.data.sideEffectsApplied === true ? t("Applied") : t("None claimed")}</span>
                   <span>{t("Outputs")}: {results.length || resultCount(packet)}</span>
                   <span>{t("Updated")}: {formatLiveDate(packet.updatedAt)}</span>
                 </div>
@@ -475,6 +494,7 @@ export function AgentRuntimeControlPanel({
                       {textValue(packet.data.approvalPolicy) ? <span>{t("Approval")}: {textValue(packet.data.approvalPolicy)}</span> : null}
                     </div>
                     {stringList(packet.data.evidenceRefs).length > 0 ? <p className="mt-2 text-xs text-muted-foreground">{t("Evidence")}: {stringList(packet.data.evidenceRefs).slice(0, 4).join(" · ")}</p> : null}
+                    {isPlanningOnlyPacket(packet) ? <p className="mt-2 text-xs text-sky-700 dark:text-sky-300">{t("The page agent recorded a planning artifact. It did not mutate an external provider or canonical business entity.")}</p> : null}
                   </div>
                 ) : null}
                 {textValue(packet.data.requiresHumanReviewReason) ? (
