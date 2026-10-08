@@ -192,5 +192,9 @@
   "Select account": "Konto auswählen",
   "Status": "Status",
   "Submit": "Übermitteln",
-  "Use paid storefront revenue only. Lulu reserves the amount before submission.": "Es werden nur bezahlte Storefront-Einnahmen verwendet. Lulu reserviert den Betrag vor der Übermittlung."
+  "Use paid storefront revenue only. Lulu reserves the amount before submission.": "Es werden nur bezahlte Storefront-Einnahmen verwendet. Lulu reserviert den Betrag vor der Übermittlung.",
+  "Stale snapshot": "Veralteter Datenstand",
+  "Last successful refresh": "Letzte erfolgreiche Aktualisierung",
+  "Waiting for the first verified refresh": "Warten auf die erste verifizierte Aktualisierung",
+  "Only the last successfully loaded records are shown.": "Es werden nur die zuletzt erfolgreich geladenen Datensätze angezeigt."
 }

@@ -7,9 +7,20 @@ import { WorkspaceSurfaceShell } from "../../components/WorkspaceSurfaceShell";
 import { useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 
 function money(value: string, currency: string) {
-  const amount = Number(value);
-  if (!Number.isFinite(amount)) return `${value} ${currency}`;
-  return new Intl.NumberFormat(undefined, { style: "currency", currency, maximumFractionDigits: 2 }).format(amount);
+  // Keep the provider/ledger decimal as a string. This is display-only, but
+  // converting a NUMERIC value to a JavaScript Number can still round large
+  // balances before they reach the user.
+  const normalized = String(value).trim();
+  if (!/^\d+(?:\.\d+)?$/.test(normalized)) return `${value} ${currency}`;
+  const [whole, fraction] = normalized.split(".");
+  const groupedWhole = whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${currency} ${groupedWhole}${fraction ? `.${fraction}` : ".00"}`;
+}
+
+function formatLoadedAt(value: string | null) {
+  if (!value) return "—";
+  const timestamp = Date.parse(value);
+  return Number.isFinite(timestamp) ? new Date(timestamp).toLocaleString() : "—";
 }
 
 function statusTone(status: string) {
@@ -25,6 +36,8 @@ export default function PayoutsPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [stale, setStale] = useState(false);
+  const [lastLoadedAt, setLastLoadedAt] = useState<string | null>(null);
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("CNY");
   const [reference, setReference] = useState("");
@@ -39,6 +52,9 @@ export default function PayoutsPage() {
   const load = useCallback(async (workspaceId: string, signal?: AbortSignal) => {
     const response = await financeApi.listPayouts(workspaceId, 50, signal);
     setData(response.data);
+    setLastLoadedAt(new Date().toISOString());
+    setStale(false);
+    setError(null);
     const firstCurrency = response.data.summary[0]?.currency ?? response.data.accounts[0]?.currency ?? "CNY";
     setCurrency((current) => response.data.summary.some((item) => item.currency === current) ? current : firstCurrency);
     setAccountCurrency((current) => response.data.accounts.some((item) => item.currency === current) ? current : firstCurrency);
@@ -51,7 +67,10 @@ export default function PayoutsPage() {
     setLoading(true);
     setError(null);
     void load(selectedWorkspace.id, controller.signal).catch((cause) => {
-      if (cause?.name !== "AbortError") setError(getFriendlyErrorMessage(cause));
+      if (cause?.name !== "AbortError") {
+        setError(getFriendlyErrorMessage(cause));
+        setStale(Boolean(data));
+      }
     }).finally(() => setLoading(false));
     return () => controller.abort();
   }, [load, selectedWorkspace]);
@@ -64,7 +83,10 @@ export default function PayoutsPage() {
     if (!selectedWorkspace) return;
     setRefreshing(true);
     setError(null);
-    try { await load(selectedWorkspace.id); } catch (cause) { setError(getFriendlyErrorMessage(cause)); } finally { setRefreshing(false); }
+    try { await load(selectedWorkspace.id); } catch (cause) {
+      setError(getFriendlyErrorMessage(cause));
+      setStale(Boolean(data));
+    } finally { setRefreshing(false); }
   }
 
   async function saveAccount() {
@@ -101,6 +123,16 @@ export default function PayoutsPage() {
           <div><p className="eyebrow">{t("Finance")}</p><h1 className="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">{t("Payouts")}</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-[var(--muted-foreground)]">{t("Move paid customer revenue to a verified payout beneficiary with a traceable approval and provider status.")}</p></div>
           <button type="button" onClick={() => void refresh()} disabled={refreshing} className="inline-flex items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-sm font-semibold hover:bg-[var(--secondary)] disabled:opacity-60"><RefreshCw size={15} className={refreshing ? "animate-spin" : ""} />{t("Refresh")}</button>
         </header>
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-3 text-xs text-[var(--muted-foreground)]">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-semibold ${stale ? "border-amber-500/25 bg-amber-500/10 text-amber-700" : "border-emerald-500/25 bg-emerald-500/10 text-emerald-700"}`}>
+              <span className={`h-1.5 w-1.5 rounded-full ${stale ? "bg-amber-500" : "bg-emerald-500"}`} />
+              {stale ? t("Stale snapshot") : t("Verified workspace data")}
+            </span>
+            <span>{lastLoadedAt ? `${t("Last successful refresh")}: ${formatLoadedAt(lastLoadedAt)}` : t("Waiting for the first verified refresh")}</span>
+          </div>
+          {stale ? <span>{t("Only the last successfully loaded records are shown.")}</span> : null}
+        </div>
         {error ? <div role="alert" className="flex items-start gap-2 rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-700"><XCircle size={17} className="mt-0.5 shrink-0" />{error}</div> : null}
         {notice ? <div role="status" className="flex items-start gap-2 rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-sm text-emerald-700"><CheckCircle2 size={17} className="mt-0.5 shrink-0" />{notice}</div> : null}
         {loading ? <div className="flex items-center gap-2 rounded-xl border border-dashed border-[var(--border)] p-8 text-sm text-[var(--muted-foreground)]"><LoaderCircle size={16} className="animate-spin" />{t("Loading payouts…")}</div> : <>

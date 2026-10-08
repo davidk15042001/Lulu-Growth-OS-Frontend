@@ -192,5 +192,9 @@
   "Select account": "选择账户",
   "Status": "状态",
   "Submit": "提交",
-  "Use paid storefront revenue only. Lulu reserves the amount before submission.": "仅使用已支付的店铺收入。Lulu 会在提交前预留金额。"
+  "Use paid storefront revenue only. Lulu reserves the amount before submission.": "仅使用已支付的店铺收入。Lulu 会在提交前预留金额。",
+  "Stale snapshot": "数据快照已过期",
+  "Last successful refresh": "上次成功刷新",
+  "Waiting for the first verified refresh": "等待首次验证刷新",
+  "Only the last successfully loaded records are shown.": "当前仅显示上次成功加载的记录。"
 }
