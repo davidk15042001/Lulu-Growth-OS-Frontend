@@ -35,11 +35,11 @@ interface WhatsAppConnectionState {
 }
 const platformGroups: PlatformGroup[] = [
   { id: 'crm', label: 'CRM & Sales', description: 'Connect customer, pipeline and sales systems that contain your business relationships.', icon: UsersRound, platforms: ['Salesforce', 'HubSpot', 'Pipedrive'], hidden: true },
-  { id: 'social', label: 'Social & Messaging', description: 'WhatsApp uses UnifyPort. If an administrator enables self-service, each workspace can securely pair its own number; otherwise the approved Lulu fallback is used.', icon: UsersRound, platforms: ['WhatsApp', 'Facebook Messenger', 'Instagram', 'LinkedIn'] },
+  { id: 'social', label: 'Social & Messaging', description: 'WhatsApp uses UnifyPort. If an administrator enables self-service, each workspace can securely pair its own number; otherwise the approved Lulu fallback is used. Additional social and business apps are available through the Composio catalog.', icon: UsersRound, platforms: ['WhatsApp', 'Facebook Messenger', 'Instagram'] },
 ];
 const providerKeysByName: Record<string, string> = {
   Salesforce: 'salesforce', Pipedrive: 'pipedrive', HubSpot: 'hubspot',
-  WhatsApp: 'whatsapp', 'Facebook Messenger': 'twilio', Instagram: 'instagram', LinkedIn: 'linkedin',
+  WhatsApp: 'whatsapp', 'Facebook Messenger': 'twilio', Instagram: 'instagram',
 };
   const guideContent: Record<string, { intro: string; steps: string[] }> = {
     Salesforce: { intro: "Connect the Salesforce organization that holds your customer and pipeline data. Lulu uses a secure authorization window; you never enter provider credentials into Lulu.", steps: ["Choose Connect when this provider is enabled for your workspace.", "Sign in to Salesforce and select the organization you want to connect.", "Review the requested access and approve it in Salesforce.", "Return to Lulu. The connection appears only after the provider confirms it."] },
@@ -48,7 +48,6 @@ const providerKeysByName: Record<string, string> = {
     WhatsApp: { intro: "WhatsApp is connected through UnifyPort. Your administrator decides whether this workspace uses the shared Lulu sender or pairs its own WhatsApp number.", steps: ["No Meta or Twilio setup is required in this workspace.", "If self-service is enabled, click Connect and enter the workspace phone number.", "Open WhatsApp → Linked devices → Link with phone number and enter the UnifyPort pairing code.", "After authorization, Lulu registers the customer-owned sender in OmniChannel automatically."] },
     'Facebook Messenger': { intro: "Lulu uses Twilio’s Facebook Messenger channel for the approved Facebook Page.", steps: ["Connect the intended Facebook Page in the Twilio Console.", "Complete any provider review or public-beta access requirements.", "Lulu registers the Messenger sender against this workspace.", "Verify one inbound and outbound message before production traffic is enabled."] },
     Instagram: { intro: "Connect your own Instagram professional account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable Instagram for your workspace.", "Make sure the Instagram professional account is linked to the correct Meta business.", "Click Connect, choose the account and approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
-    LinkedIn: { intro: "Connect your own LinkedIn account after an administrator has enabled OAuth self-service for this workspace.", steps: ["Ask a Lulu administrator to enable LinkedIn for your workspace.", "Click Connect and sign in with the LinkedIn account that manages the intended organization or campaigns.", "Approve the requested permissions.", "Return to Lulu and confirm that the account is shown as connected."] },
   };
 
 export const LuluExistingPlatforms = () => {
@@ -274,6 +273,16 @@ export const LuluExistingPlatforms = () => {
                 </section>;
               })}
             </div>
+            <section className="rounded-2xl border border-[var(--border)] bg-[var(--secondary)]/35 p-4 shadow-sm sm:p-5" aria-labelledby="composio-catalog-heading">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[.16em] text-[var(--muted-foreground)]">Composio app catalog</p>
+                  <h2 id="composio-catalog-heading" className="mt-2 text-base font-semibold text-[var(--foreground)]">Connect more tools after onboarding</h2>
+                  <p className="mt-1 max-w-xl text-xs leading-5 text-[var(--muted-foreground)]">Calendars, CRM, finance, support and additional social tools are connected through the tenant-scoped app catalog with managed authorization.</p>
+                </div>
+                <button type="button" onClick={() => navigateApp(routes.app.connections)} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-2 text-xs font-semibold text-[var(--foreground)] transition hover:border-[var(--primary)]/50">Open app catalog <ArrowRight size={14} /></button>
+              </div>
+            </section>
             {isOnboarding && <button type="submit" disabled={!canEdit} aria-disabled={!canEdit} className="flex h-11 w-full items-center justify-center gap-2 rounded-md bg-[var(--primary)] font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-50">
               
               Continue

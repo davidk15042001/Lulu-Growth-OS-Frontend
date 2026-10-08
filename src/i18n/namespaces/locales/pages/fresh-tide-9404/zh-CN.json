@@ -1,1 +1,7 @@
-{}
+{
+  "WhatsApp uses UnifyPort. If an administrator enables self-service, each workspace can securely pair its own number; otherwise the approved Lulu fallback is used. Additional social and business apps are available through the Composio catalog.": "WhatsApp 通过 UnifyPort 连接。如果管理员启用自助服务，每个工作区都可以安全配对自己的号码；否则将使用 Lulu 批准的备用号码。更多社交和业务应用可通过 Composio 目录获取。",
+  "Composio app catalog": "Composio 应用目录",
+  "Connect more tools after onboarding": "完成引导后连接更多工具",
+  "Calendars, CRM, finance, support and additional social tools are connected through the tenant-scoped app catalog with managed authorization.": "日历、CRM、财务、客服及其他社交工具均通过租户范围的应用目录，在受管理的授权流程下连接。",
+  "Open app catalog": "打开应用目录"
+}
