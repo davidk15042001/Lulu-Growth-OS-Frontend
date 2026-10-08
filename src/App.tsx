@@ -25,6 +25,7 @@ import { PageRoute } from "./app/PageRoute";
 import { availablePages } from "./app/page-registry";
 import { PageErrorBoundary } from "./PageErrorBoundary";
 import { WorkspaceSurfaceShell } from "./components/WorkspaceSurfaceShell";
+import { SalesPipelineWorkspace } from "./components/SalesPipelineWorkspace";
 import { ReleaseUpdateNotifier } from "./components/ReleaseUpdateNotifier";
 import { LuluRouteLoading } from "./components/LuluRouteLoading";
 import LuluLandingPage from "./pages/public/LuluLandingPage";
@@ -463,7 +464,10 @@ export default function App() {
         <Route path="/app/partner-operations-9020" element={<AdminOnlyAppRoute><PartnerNetworkPage /></AdminOnlyAppRoute>} />
         <Route path="/app/kindly-pool-8785" element={<AdminOnlyAppRoute><Navigate replace to="/app/sturdy-month-1562" /></AdminOnlyAppRoute>} />
         <Route path="/app/cosmic-pool-1616" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="activities" /></AdminOnlyAppRoute>} />
+        <Route path="/app/warmly-road-3804" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="activities" activeSlug="warmly-road-3804" /></AdminOnlyAppRoute>} />
         <Route path="/app/deeply-noon-9539" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="tasks" /></AdminOnlyAppRoute>} />
+        <Route path="/app/fine-park-8079" element={<AdminOnlyAppRoute><SalesPipelineWorkspace mode="pipeline" resourceType="sales_deals" activeSlug="fine-park-8079" /></AdminOnlyAppRoute>} />
+        <Route path="/app/nicely-hour-4035" element={<AdminOnlyAppRoute><SalesPipelineWorkspace mode="pipeline" resourceType="sales_deals" activeSlug="nicely-hour-4035" /></AdminOnlyAppRoute>} />
         <Route path="/app/breezy-soil-2475" element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="invoices" /></AdminOnlyAppRoute>} />
         <Route path="/app/tender-creek-3139" element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="quotes" /></AdminOnlyAppRoute>} />
         <Route path="/app/wondrous-cloud-1355" element={<AdminOnlyAppRoute><SocialPublishingPage /></AdminOnlyAppRoute>} />

@@ -100,6 +100,9 @@ const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   "soft-hill-4757",
   "safely-air-9334",
   "sturdy-month-1562",
+  "warmly-road-3804",
+  "fine-park-8079",
+  "nicely-hour-4035",
   "wildly-sun-6424",
   "kindly-pool-8785",
   "cosmic-pool-1616",
@@ -125,6 +128,9 @@ const VERIFIED_RESOURCE_INTERFACES = new Set([
   "daring-brook-9034", // Google Business reviews
   "rich-field-1880", // knowledge base
   "wildly-sun-6424", // governed sales opportunities
+  "warmly-road-3804", // governed CRM activities
+  "fine-park-8079", // governed sales pipeline
+  "nicely-hour-4035", // governed sales pipeline alias
 ]);
 
 function shouldUseMinimalAgentPage(

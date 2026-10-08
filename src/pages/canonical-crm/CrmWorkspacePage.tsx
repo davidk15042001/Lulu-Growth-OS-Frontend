@@ -276,7 +276,7 @@ function IntelligenceSection({ title, icon, children }: { title: string; icon: R
   return <section><p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[.14em] text-[var(--muted-foreground)]"><span className="text-violet-500">{icon}</span>{title}</p><div className="mt-3 rounded-2xl border border-[var(--border)] bg-[color-mix(in_srgb,var(--secondary)_55%,transparent)] p-4 text-sm leading-6 text-[var(--foreground)]">{children}</div></section>;
 }
 
-export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { kind: Kind; showEntitySwitcher?: boolean }) {
+export default function CrmWorkspacePage({ kind, showEntitySwitcher = true, activeSlug }: { kind: Kind; showEntitySwitcher?: boolean; activeSlug?: string }) {
   const { hasCapability, selectedWorkspace } = useLuluApp();
   const confirm = useLuluConfirm();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -362,10 +362,10 @@ export default function CrmWorkspacePage({ kind, showEntitySwitcher = true }: { 
   };
   const retry = async (record: WorkspaceRecord) => { if (!canWrite) return; setBusy(true); setError(''); try { await requestRecordEnrichment('crm_companies', record.id); setNotice('Die autonome Recherche wurde neu eingeplant.'); await refresh(); } catch (cause) { setError(getFriendlyErrorMessage(cause, 'Die Recherche konnte nicht neu gestartet werden.')); } finally { setBusy(false); } };
   const markDone = async (record: WorkspaceRecord) => { if (!canWrite) return; setBusy(true); try { if (resourceType === 'crm_tasks') await transitionSalesRecord(resourceType, record.id, { targetState: 'completed', expectedVersion: record.version, reason: 'crm_manual_completion' }); else await updateRecord(resourceType, record.id, { status: 'Completed', expectedVersion: record.version }); await refresh(); } catch (cause) { setError(getFriendlyErrorMessage(cause, 'Der Status konnte nicht aktualisiert werden.')); } finally { setBusy(false); } };
-  const activeSlug = kind === 'contacts' || kind === 'companies' ? 'sturdy-month-1562' : kind === 'activities' ? 'cosmic-pool-1616' : 'deeply-noon-9539';
+  const resolvedActiveSlug = activeSlug ?? (kind === 'contacts' || kind === 'companies' ? 'sturdy-month-1562' : kind === 'activities' ? 'cosmic-pool-1616' : 'deeply-noon-9539');
   const title = labels[viewKind];
 
-  return <WorkspaceSurfaceShell activeSlug={activeSlug}><main className="page-frame min-h-screen min-w-0 overflow-x-clip bg-[var(--background)] p-4 sm:p-8">
+  return <WorkspaceSurfaceShell activeSlug={resolvedActiveSlug}><main className="page-frame min-h-screen min-w-0 overflow-x-clip bg-[var(--background)] p-4 sm:p-8">
     {viewKind === 'companies' ? <>
       {(error || loadError) && <div role="alert" className="mx-auto mb-4 max-w-[1500px] rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">{error || loadError}</div>}
       {notice && <div className="mx-auto mb-4 max-w-[1500px] rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">{notice}</div>}
