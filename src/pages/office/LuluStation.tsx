@@ -25,6 +25,7 @@ import { agentApi, type AgentEcosystem, type AgentEcosystemDefinition } from "..
 import { effectiveOfficeEmployeeStatus, officeAiReadinessMessage, officeApi, type OfficeEmployeeDetails, type OfficeEmployeeStatus, type OfficeEmployeeSummary, type OfficeOverview, type OfficeStationStatus } from "../../api/office";
 import { subscribeWorkspaceEvents, type WorkspaceLiveEvent } from "../../api/agent-stream";
 import { useLuluApp } from "../../api/LuluAppContext";
+import { resolveEmployeeWorkspaceRoute } from "../../config/workspace-capability-registry";
 import { useLanguage, useTranslation } from "../../i18n/GlobalLanguageSwitcher";
 import { isPageNavigable, pagePath, routes } from "../../routing";
 import { useLuluDialog } from "../../components/useLuluDialog";
@@ -621,6 +622,23 @@ export function LuluStation() {
 
   const openWorkspace = useCallback(() => navigate(routes.app.dashboard), [navigate]);
 
+  const openEmployeeWorkspace = useCallback(() => {
+    const route = employeeDetail
+      ? resolveEmployeeWorkspaceRoute({
+          employeeKey: employeeDetail.employee.key,
+          sourceAgentIds: employeeDetail.employee.sourceAgentIds,
+          capabilityKeys: employeeDetail.capabilities.map((capability) => capability.key),
+          allowKnownEmployeeRoute: true,
+        })
+      : null;
+    if (route?.href) {
+      closeEmployeePopup();
+      navigate(route.href);
+      return;
+    }
+    openWorkspace();
+  }, [closeEmployeePopup, employeeDetail, navigate, openWorkspace]);
+
   const stationWorld = useMemo(() => roomEmployees(overview), [overview]);
   const rooms = stationWorld.rooms;
   const selectedRoom = rooms.find(({ room }) => room.id === selectedRoomId) ?? null;
@@ -846,7 +864,7 @@ export function LuluStation() {
                 <div className="lulu-station__modal-section"><span className="lulu-station__modal-label">{t("CAPABILITIES")}</span><div className="lulu-station__modal-chips">{employeeDetail.capabilities.slice(0, 8).map((capability) => <span key={capability.key}>{capability.key}</span>)}</div></div>
               </div>
             </div>
-            <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />{t("Workspace-scoped verified state")}</span><button type="button" className="lulu-station__inspector-link" onClick={openWorkspace}><LayoutDashboard size={14} />{t("Open workspace")}</button></footer>
+            <footer className="lulu-station__modal-footer"><span><ShieldCheck size={14} />{t("Workspace-scoped verified state")}</span><button type="button" className="lulu-station__inspector-link" onClick={openEmployeeWorkspace}><LayoutDashboard size={14} />{t("Open workspace")}</button></footer>
           </>}
         </section>
       </div>, document.body) : null}
