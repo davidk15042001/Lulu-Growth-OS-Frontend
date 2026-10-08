@@ -83,6 +83,16 @@ export function MinimalAgentWorkspacePage({
     return params.toString();
   }, [order, page, search, sort, statusFilter]);
   const records = useLiveRecords(resourceType, recordsQuery, { includeTotal: true });
+  const recordsLoaded = records.configured && (records.status === "ready" || records.status === "stale");
+  const dataState = !records.configured
+    ? { label: "Not configured", className: "border-chart-1/30 bg-chart-1/10 text-chart-1" }
+    : records.status === "ready"
+      ? { label: "Live", className: "border-chart-4/30 bg-chart-4/10 text-chart-4" }
+      : records.status === "stale"
+        ? { label: "Refresh needed", className: "border-chart-1/30 bg-chart-1/10 text-chart-1" }
+        : records.status === "error"
+          ? { label: "Unavailable", className: "border-chart-5/30 bg-chart-5/10 text-chart-5" }
+          : { label: "Waiting", className: "border-border bg-secondary text-muted-foreground" };
   const linkedKey = workspaceId && resourceType && linkedRecordId
     ? `${workspaceId}:${resourceType}:${linkedRecordId}`
     : null;
@@ -184,30 +194,43 @@ export function MinimalAgentWorkspacePage({
           workspaceId={workspaceId}
           pageId={agentContract.pageId}
           title={`${t(agentContract.pageLabel)} ${t("intelligence")}`}
-          summaryBadge={t("Live page data")}
+          summaryBadge={t(recordsLoaded ? "Live page data" : dataState.label)}
         />
+
+        {resourceType ? <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground" role="status" aria-live="polite">
+          <span className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 ${dataState.className}`}>
+            <span className="h-2 w-2 rounded-full bg-current" />
+            {t(dataState.label)}
+          </span>
+          {records.lastLoadedAt ? <span className="rounded-full border border-border bg-card px-3 py-1.5">
+            {t("Last updated")} {formatDate(records.lastLoadedAt, language)}
+          </span> : null}
+          {records.status === "stale" && records.error ? <span className="max-w-full rounded-full border border-chart-1/30 bg-chart-1/5 px-3 py-1.5 text-chart-1">
+            {t("The latest refresh failed. Only the last successfully loaded records are shown.")}
+          </span> : null}
+        </div> : null}
 
         {resourceType ? (
           <section className="lulu-agent-kpi-grid grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
             <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Records")}</p>
-              <p className="mt-2 text-2xl font-semibold text-foreground">{records.total}</p>
+              <p className="mt-2 text-2xl font-semibold text-foreground">{recordsLoaded ? records.total : "—"}</p>
               <p className="mt-1 text-xs text-muted-foreground">{t("Live records in this workflow")}</p>
             </article>
             <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Active in view")}</p>
-              <p className="mt-2 text-2xl font-semibold text-foreground">{activeRecords}</p>
+              <p className="mt-2 text-2xl font-semibold text-foreground">{recordsLoaded ? activeRecords : "—"}</p>
               <p className="mt-1 text-xs text-muted-foreground">{t("Loaded records not marked complete")}</p>
             </article>
             <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Records shown")}</p>
-              <p className="mt-2 text-2xl font-semibold text-foreground">{recentRecords.length}</p>
+              <p className="mt-2 text-2xl font-semibold text-foreground">{recordsLoaded ? recentRecords.length : "—"}</p>
               <p className="mt-1 text-xs text-muted-foreground">{t("Most recently updated records")}</p>
             </article>
             <article className="lulu-agent-kpi rounded-xl border border-border bg-card p-4">
               <p className="text-xs text-muted-foreground">{t("Tags in view")}</p>
-              <p className="mt-2 text-2xl font-semibold text-foreground">{signalTags.length}</p>
-              <p className="mt-1 text-xs text-muted-foreground">{signalTags.length > 0 ? signalTags.join(" · ") : t("No dominant tags yet")}</p>
+              <p className="mt-2 text-2xl font-semibold text-foreground">{recordsLoaded ? signalTags.length : "—"}</p>
+              <p className="mt-1 text-xs text-muted-foreground">{recordsLoaded && signalTags.length > 0 ? signalTags.join(" · ") : recordsLoaded ? t("No dominant tags yet") : t("Waiting for workspace data")}</p>
             </article>
           </section>
         ) : (
