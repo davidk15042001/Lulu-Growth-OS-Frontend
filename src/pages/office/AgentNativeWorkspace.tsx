@@ -110,11 +110,11 @@ const NATIVE_WORKSPACE_PATHS: Readonly<Partial<Record<NativeWorkspaceKind, strin
 };
 
 /**
- * Resource pages already have a canonical live-record contract.  When one of
- * those pages is opened from the Station, the popup should show that same
- * resource instead of falling back to a broad department summary.  The
- * employee-key entries cover provisioned Office roles that do not carry a
- * page id in their employee projection.
+ * Resource pages already have a canonical live-record contract.  On-demand
+ * catalog agents that point at one of those pages should show that same
+ * resource in the popup.  Provisioned Office employees still keep these
+ * mappings for their full-workspace deep link, but their popup must prefer
+ * the richer native department surface below.
  */
 const OFFICE_EMPLOYEE_RESOURCE_TYPES: Readonly<Record<string, string>> = {
   "company-intelligence-specialist": "crm_companies",
@@ -740,6 +740,10 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
       }, [catalogAgent, employeeDetail, t]);
   const kind = useMemo(() => resolveKind(source), [source]);
   const resourceSurface = useMemo(() => resolveResourceSurface(source), [source]);
+  // Employee projections have a department-specific native surface (CRM,
+  // OmniChannel, finance, ...).  A generic record card is appropriate for a
+  // catalog preview, but it must not hide the richer employee workspace.
+  const showResourceSurface = Boolean(resourceSurface && !employeeDetail);
   const canonicalWorkspaceRoute = useMemo(() => resolveEmployeeWorkspaceRoute({
     employeeKey: source.key,
     sourceAgentIds: source.sourceAgentIds,
@@ -769,7 +773,7 @@ export function AgentNativeWorkspace({ workspaceId, employeeDetail, catalogAgent
       <div><span>{t("Spend boundary")}</span><strong>{spendBoundary}</strong></div>
     </div>
     <div className="lulu-native-agent__content">
-      {resourceSurface ? <AgentRecordSurface resourceType={resourceSurface} title={source.name} /> : <>
+      {showResourceSurface ? <AgentRecordSurface resourceType={resourceSurface!} title={source.name} /> : <>
         {kind === "crm" ? <CrmSurface workspaceId={workspaceId} /> : null}
         {kind === "communications" ? <CommunicationsSurface workspaceId={workspaceId} canManage={canManageOmnichannel} canReply={canReplyOmnichannel} /> : null}
         {kind === "email" ? <EmailSurface workspaceId={workspaceId} /> : null}

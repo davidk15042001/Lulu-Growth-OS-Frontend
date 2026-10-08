@@ -468,6 +468,8 @@ if (
   || !nativeAgentWorkspace.includes('setManager(null);')
   || !nativeAgentWorkspace.includes('catalogAgent?: AgentEcosystemDefinition;')
   || !nativeAgentWorkspace.includes('const isCatalogPreview = Boolean(catalogAgent && !employeeDetail);')
+  || !nativeAgentWorkspace.includes('const showResourceSurface = Boolean(resourceSurface && !employeeDetail);')
+  || !nativeAgentWorkspace.includes('{showResourceSurface ? <AgentRecordSurface resourceType={resourceSurface!} title={source.name} /> : <>')
   || !nativeAgentWorkspace.includes('lulu-native-agent__live ${isCatalogPreview ? "is-preview" : "is-surface"}')
   || !nativeAgentWorkspaceCss.includes('border: 1px solid #789aa5;')
   || !luluStation.includes('catalogAgent={selectedCatalogAgent}')
