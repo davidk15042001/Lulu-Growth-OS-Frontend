@@ -22,7 +22,7 @@ function mergeRecords(actions: WorkspaceRecord[], tasks: WorkspaceRecord[]) {
     .slice(0, 50);
 }
 
-export default function OperationsPage() {
+export default function OperationsPage({ activeSlug = "gently-light-6089" }: { activeSlug?: string }) {
   const actions = useLiveRecords("ai_actions", "limit=50");
   const tasks = useLiveRecords("ai_tasks", "limit=50");
   const [query, setQuery] = useState("");
@@ -43,7 +43,7 @@ export default function OperationsPage() {
   };
 
   return (
-    <WorkspaceSurfaceShell activeSlug="gently-light-6089">
+    <WorkspaceSurfaceShell activeSlug={activeSlug}>
       <main className="min-h-screen bg-[var(--background)] px-4 py-6 sm:px-8 sm:py-8">
         <div className="mx-auto max-w-7xl space-y-6">
           <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">

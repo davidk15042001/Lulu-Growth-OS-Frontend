@@ -103,6 +103,7 @@ const CUSTOM_INTERFACE_PAGE_SLUGS = new Set([
   "warmly-road-3804",
   "fine-park-8079",
   "nicely-hour-4035",
+  "wondrously-second-5656",
   "wildly-sun-6424",
   "kindly-pool-8785",
   "cosmic-pool-1616",
@@ -131,6 +132,7 @@ const VERIFIED_RESOURCE_INTERFACES = new Set([
   "warmly-road-3804", // governed CRM activities
   "fine-park-8079", // governed sales pipeline
   "nicely-hour-4035", // governed sales pipeline alias
+  "wondrously-second-5656", // governed AI operations ledger
 ]);
 
 function shouldUseMinimalAgentPage(

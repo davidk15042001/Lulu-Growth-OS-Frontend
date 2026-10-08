@@ -55,6 +55,7 @@ const ManagedWebsitePage=lazy(()=>import("./pages/lulu-website-portal-9012/Manag
 const ComposioWorkspacePage=lazy(()=>import("./pages/canonical-composio/ComposioWorkspacePage"));
 const VirtualOfficePage=lazy(()=>import("./pages/office/VirtualOfficePage"));
 const SocialPublishingPage=lazy(()=>import("./pages/canonical-social/SocialPublishingPage"));
+const OperationsPage=lazy(()=>import("./pages/canonical-operations/OperationsPage"));
 const ADMIN_BILLING_PATH = ADMIN_PANEL_PATH;
 const FINANCE_RECORD_ROUTES = [
   ["cool-rain-6499", "finance_income", "Income"],
@@ -466,6 +467,7 @@ export default function App() {
         <Route path="/app/cosmic-pool-1616" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="activities" /></AdminOnlyAppRoute>} />
         <Route path="/app/warmly-road-3804" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="activities" activeSlug="warmly-road-3804" /></AdminOnlyAppRoute>} />
         <Route path="/app/deeply-noon-9539" element={<AdminOnlyAppRoute><CrmWorkspacePage kind="tasks" /></AdminOnlyAppRoute>} />
+        <Route path="/app/wondrously-second-5656" element={<AdminOnlyAppRoute><OperationsPage activeSlug="wondrously-second-5656" /></AdminOnlyAppRoute>} />
         <Route path="/app/fine-park-8079" element={<AdminOnlyAppRoute><SalesPipelineWorkspace mode="pipeline" resourceType="sales_deals" activeSlug="fine-park-8079" /></AdminOnlyAppRoute>} />
         <Route path="/app/nicely-hour-4035" element={<AdminOnlyAppRoute><SalesPipelineWorkspace mode="pipeline" resourceType="sales_deals" activeSlug="nicely-hour-4035" /></AdminOnlyAppRoute>} />
         <Route path="/app/breezy-soil-2475" element={<AdminOnlyAppRoute><CommercialDocumentsPage kind="invoices" /></AdminOnlyAppRoute>} />

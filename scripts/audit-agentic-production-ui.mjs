@@ -90,6 +90,7 @@ const expectedVerifiedResourceInterfaces = [
   'warmly-road-3804',
   'fine-park-8079',
   'nicely-hour-4035',
+  'wondrously-second-5656',
 ];
 const verifiedResourceInterfaceBlock = nativePage.match(/const VERIFIED_RESOURCE_INTERFACES = new Set\(\[([\s\S]*?)\]\);/);
 const verifiedResourceInterfaces = verifiedResourceInterfaceBlock
