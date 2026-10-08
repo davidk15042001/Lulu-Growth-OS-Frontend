@@ -6,5 +6,7 @@
   "Produkte konnten nicht geladen werden.": "Products could not be loaded.",
   "error": "Error",
   "Zuletzt erfolgreich geladene Produktdaten werden angezeigt. {{0}}": "Showing the last successfully loaded product data. {{0}}",
-  "Status": "status"
+  "Status": "status",
+  "Total products": "Total products",
+  "Ready to publish": "Ready to publish"
 }
