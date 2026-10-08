@@ -162,5 +162,18 @@
   "surface audience gaps": "surface audience gaps",
   "activating or changing audiences": "activating or changing audiences",
   "audience quality": "audience quality",
-  "targeting coverage": "targeting coverage"
+  "targeting coverage": "targeting coverage",
+  "Die Google-Reviews konnten nicht geladen werden.": "The Google reviews could not be loaded.",
+  "Standorte, Review-Risiken und Owner Replies werden ausschließlich aus der verbundenen Workspace-Quelle geladen.": "Locations, review risks and owner replies are loaded exclusively from the connected workspace source.",
+  "Google neu verbinden": "Reconnect Google",
+  "Google verbinden": "Connect Google",
+  "Google Reviews werden geladen…": "Loading Google reviews…",
+  "Lulu kann Reviews, Standorte und Antwortentwürfe erst anzeigen, wenn dieser Workspace eine gültige Verbindung besitzt. Es werden keine Beispielwerte dargestellt.": "Lulu can show reviews, locations and reply drafts only after this workspace has a valid connection. No example values are displayed.",
+  "Verbindung starten": "Start connection",
+  "Live-Daten nach der Verbindung": "Live data after connection",
+  "Alle Standorte": "All locations",
+  "Keine Reviews für diesen Filter gefunden.": "No reviews found for this filter.",
+  "Keine öffentliche Bewertung zurückgegeben.": "No public review was returned.",
+  "AI-Entwurf laden": "Load AI draft",
+  "Antwort speichern": "Save reply"
 }

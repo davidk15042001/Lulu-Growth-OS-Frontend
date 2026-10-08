@@ -224,5 +224,18 @@
   "surface audience gaps": "发现受众缺口",
   "activating or changing audiences": "激活或更改受众",
   "audience quality": "受众质量",
-  "targeting coverage": "定向覆盖率"
+  "targeting coverage": "定向覆盖率",
+  "Die Google-Reviews konnten nicht geladen werden.": "无法加载 Google 评价。",
+  "Standorte, Review-Risiken und Owner Replies werden ausschließlich aus der verbundenen Workspace-Quelle geladen.": "地点、评价风险和商家回复仅从已连接的工作区数据源加载。",
+  "Google neu verbinden": "重新连接 Google",
+  "Google verbinden": "连接 Google",
+  "Google Reviews werden geladen…": "正在加载 Google 评价…",
+  "Lulu kann Reviews, Standorte und Antwortentwürfe erst anzeigen, wenn dieser Workspace eine gültige Verbindung besitzt. Es werden keine Beispielwerte dargestellt.": "只有工作区建立有效连接后，Lulu 才会显示评价、地点和回复草稿。不会显示示例数据。",
+  "Verbindung starten": "开始连接",
+  "Live-Daten nach der Verbindung": "连接后的实时数据",
+  "Alle Standorte": "所有地点",
+  "Keine Reviews für diesen Filter gefunden.": "没有找到符合此筛选条件的评价。",
+  "Keine öffentliche Bewertung zurückgegeben.": "未返回公开评价。",
+  "AI-Entwurf laden": "加载 AI 草稿",
+  "Antwort speichern": "保存回复"
 }
