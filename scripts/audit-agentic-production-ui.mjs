@@ -35,6 +35,7 @@ const officeCommandCenter = fs.readFileSync(path.join(root, 'src', 'pages', 'off
 const luluStation = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'LuluStation.tsx'), 'utf8');
 const nativeAgentWorkspace = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'AgentNativeWorkspace.tsx'), 'utf8');
 const nativeAgentWorkspaceCss = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'agent-native-workspace.css'), 'utf8');
+const luluDialogHook = fs.readFileSync(path.join(root, 'src', 'components', 'useLuluDialog.ts'), 'utf8');
 const liveResourceRoute = fs.readFileSync(path.join(root, 'src', 'components', 'LiveResourceRoute.tsx'), 'utf8');
 const officeCopy = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'office-copy.ts'), 'utf8');
 const calendarPortal = fs.readFileSync(path.join(root, 'src', 'pages', 'lulu-calendar-portal-9014', 'components', 'generated', 'LuluCalendarPortal.tsx'), 'utf8');
@@ -714,6 +715,14 @@ if (
   || !luluStation.includes('className={`lulu-station__character lulu-station__character--${tone}')
 ) {
   failures.push('Office agent animations can override their SVG room coordinates and displace crew members from their stations.');
+}
+
+if (
+  !luluDialogHook.includes('document.body.style.overflow = "hidden"')
+  || !luluDialogHook.includes('const previousOverflow = document.body.style.overflow;')
+  || /document\.body\.style\.(overflow|paddingRight)/.test(luluStation)
+) {
+  failures.push('Office dialogs must centralize body scroll locking in the shared dialog hook so closing a popup cannot leave the page locked.');
 }
 
 if (luluStation.includes('Open control center') || luluStation.includes('Open operational control center')) {
