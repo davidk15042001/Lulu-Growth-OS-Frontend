@@ -24,7 +24,7 @@ const advertisingProviders: AdvertisingProvider[] = [
   {
     key: 'google_ads',
     label: 'Google Ads',
-    oauthProvider: 'google',
+    oauthProvider: 'google-ads',
     description: 'Google campaign and spend data for cross-channel planning once the customer account is connected.',
   },
 ];
