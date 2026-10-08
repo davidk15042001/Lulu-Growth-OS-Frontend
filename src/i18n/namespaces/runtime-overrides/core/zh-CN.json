@@ -3919,5 +3919,11 @@
   "Loading verified CRM deals…": "正在加载已验证的 CRM 交易…",
   "Deal data unavailable": "交易数据不可用",
   "No verified CRM deals yet": "尚无已验证的 CRM 交易",
-  "Create a deal or connect an approved CRM provider to begin.": "创建交易或连接获批准的 CRM 服务商后即可开始。"
+  "Create a deal or connect an approved CRM provider to begin.": "创建交易或连接获批准的 CRM 服务商后即可开始。",
+  "Execute job": "执行任务",
+  "Every": "每隔",
+  "Never": "从未",
+  "rules shown": "条规则显示",
+  "actions": "个操作",
+  "side effects: none": "无副作用"
 }

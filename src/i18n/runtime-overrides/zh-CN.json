@@ -7341,5 +7341,11 @@
   "Select a record to inspect its live fields.": "选择一条记录以查看其实时字段。",
   "Employee workspace unavailable": "员工工作区不可用",
   "No verified employee details": "暂无已验证的员工详情",
-  "The employee is still being synchronized. Close this window and try again shortly.": "该员工仍在同步中。请关闭此窗口，稍后再试。"
+  "The employee is still being synchronized. Close this window and try again shortly.": "该员工仍在同步中。请关闭此窗口，稍后再试。",
+  "Execute job": "执行任务",
+  "Every": "每隔",
+  "Never": "从未",
+  "rules shown": "条规则显示",
+  "actions": "个操作",
+  "side effects: none": "无副作用"
 }

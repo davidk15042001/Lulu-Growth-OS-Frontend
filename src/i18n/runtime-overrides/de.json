@@ -7373,5 +7373,11 @@
   "Select a record to inspect its live fields.": "Wähle einen Datensatz aus, um seine Live-Felder zu prüfen.",
   "Employee workspace unavailable": "Agenten-Workspace nicht verfügbar",
   "No verified employee details": "Keine verifizierten Agentendetails verfügbar",
-  "The employee is still being synchronized. Close this window and try again shortly.": "Der Agent wird noch synchronisiert. Schließe dieses Fenster und versuche es in Kürze erneut."
+  "The employee is still being synchronized. Close this window and try again shortly.": "Der Agent wird noch synchronisiert. Schließe dieses Fenster und versuche es in Kürze erneut.",
+  "Execute job": "Aufgabe ausführen",
+  "Every": "Alle",
+  "Never": "Nie",
+  "rules shown": "Regeln angezeigt",
+  "actions": "Aktionen",
+  "side effects: none": "keine Nebenwirkungen"
 }

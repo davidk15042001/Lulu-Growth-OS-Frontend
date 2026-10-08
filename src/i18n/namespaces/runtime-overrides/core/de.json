@@ -3919,5 +3919,11 @@
   "Loading verified CRM deals…": "Verifizierte CRM-Deals werden geladen…",
   "Deal data unavailable": "Deal-Daten nicht verfügbar",
   "No verified CRM deals yet": "Noch keine verifizierten CRM-Deals",
-  "Create a deal or connect an approved CRM provider to begin.": "Erstelle einen Deal oder verbinde einen freigegebenen CRM-Provider, um zu beginnen."
+  "Create a deal or connect an approved CRM provider to begin.": "Erstelle einen Deal oder verbinde einen freigegebenen CRM-Provider, um zu beginnen.",
+  "Execute job": "Aufgabe ausführen",
+  "Every": "Alle",
+  "Never": "Nie",
+  "rules shown": "Regeln angezeigt",
+  "actions": "Aktionen",
+  "side effects: none": "keine Nebenwirkungen"
 }
