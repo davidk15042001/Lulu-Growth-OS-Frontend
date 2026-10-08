@@ -355,6 +355,7 @@ export function LuluStation() {
   const [lastEventAt, setLastEventAt] = useState<string | null>(null);
   const catalogBodyRef = useRef<HTMLDivElement | null>(null);
   const departmentPickerRef = useRef<HTMLDivElement | null>(null);
+  const overviewSnapshotRef = useRef<{ workspaceId: string; data: OfficeOverview } | null>(null);
   const overviewRequestRef = useRef(0);
   const employeeRequestRef = useRef(0);
   const catalogRequestRef = useRef(0);
@@ -369,6 +370,10 @@ export function LuluStation() {
   const employeeWorkObjectiveIsDistinct = Boolean(employeeDetail?.currentWorkItem)
     && employeeWorkTitle.localeCompare(employeeWorkObjective, undefined, { sensitivity: "base" }) !== 0;
 
+  useEffect(() => {
+    overviewSnapshotRef.current = overviewSnapshot;
+  }, [overviewSnapshot]);
+
   const loadOverview = useCallback(async (background = false) => {
     if (!workspaceId) return;
     const requestId = ++overviewRequestRef.current;
@@ -381,7 +386,13 @@ export function LuluStation() {
       setError(null);
     } catch (cause) {
       if (!isCurrentRequest()) return;
-      setError(getFriendlyErrorMessage(cause));
+      // A scheduled/live refresh can fail transiently after a valid snapshot
+      // has already been rendered. Keep the verified snapshot visible instead
+      // of replacing the inspector with a scary global error. Initial loads
+      // (and refreshes without any usable snapshot) still surface the error.
+      if (!background || !overviewSnapshotRef.current || overviewSnapshotRef.current.workspaceId !== workspaceId) {
+        setError(getFriendlyErrorMessage(cause));
+      }
     } finally {
       if (!isCurrentRequest()) return;
       if (background) setRefreshing(false);
