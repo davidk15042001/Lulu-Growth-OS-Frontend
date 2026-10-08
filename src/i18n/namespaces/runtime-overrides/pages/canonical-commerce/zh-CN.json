@@ -37,6 +37,8 @@
   "Create canonical order": "创建统一订单",
   "Create draft": "创建草稿",
   "Create first order": "创建首个订单",
+  "The order starts as a draft. Placing and confirming it are separate, auditable steps; confirmation reserves tracked stock.": "订单会从草稿开始。下单和确认是分开且可审计的步骤；确认时会预留受库存跟踪的商品。",
+  "Create and activate a canonical product before creating an order.": "创建订单前，请先创建并启用统一产品。",
   "Create fulfillment": "创建履约",
   "Create inventory location": "创建库存地点",
   "Create location": "创建库存地点",
@@ -64,6 +66,9 @@
   "Inventory location": "库存地点",
   "Inventory locations could not be loaded.": "无法加载库存地点。",
   "Inventory setup required": "需要设置库存",
+  "Positive values receive stock; negative values remove it. Lulu prevents the result from becoming negative or falling below reserved stock.": "正数表示入库，负数表示出库。Lulu 会防止库存变为负数或低于已预留库存。",
+  "Create an active inventory location first.": "请先创建一个启用的库存地点。",
+  "Locations are canonical stock boundaries used by manual work, Lulu employees and connected commerce providers.": "库存地点是人工操作、Lulu 数字员工和已连接商务服务使用的统一库存边界。",
   "Inventory views": "库存视图",
   "levels": "库存水平",
   "line": "线",
@@ -183,7 +188,6 @@
   "Orders created by the team, Lulu or a connected storefront will appear here.": "团队、Lulu 或已连接店铺创建的订单会显示在这里。",
   "Inspect line items, inventory reservations, payments and fulfillment using the same canonical record Lulu operates on.": "使用 Lulu 运行所依据的同一统一记录，查看订单明细、库存预留、付款和履约。",
   "Stock records": "库存记录",
-  "Current filters": "当前筛选条件",
   "At/below reorder": "达到或低于补货点",
   "Create a location, then add the first stock adjustment. Lulu and manual workflows will use the same record.": "创建一个库存地点，然后添加第一笔库存调整。Lulu 和人工流程将使用同一条记录。"
 }
