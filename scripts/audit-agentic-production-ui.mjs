@@ -259,8 +259,8 @@ if (
   || connectionSetupPage.includes('Callback URL: https://api.lulu-ai.tech')
   || !advertisingConnectionsPage.includes('connectionAvailable')
   || !advertisingConnectionsPage.includes('is not enabled for secure self-service connection in this workspace')
-  || !googleReviewsPage.includes("providers.includes('google-business')")
-  || !googleReviewsPage.includes('disabled={busyConnect || !googleOauthEnabled}')
+  || !googleReviewsPage.includes('workspaceAppApi.connectGoogleBusiness(workspaceId')
+  || !googleReviewsPage.includes('disabled={busyConnect}')
 ) {
   failures.push('Provider connection screens can expose setup secrets or start OAuth when server-side self-service is not enabled.');
 }

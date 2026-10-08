@@ -8,6 +8,24 @@ import { LiveEmpty, LiveError, LivePanelShell, LiveSection, formatLiveDate } fro
 import { useLuluConfirm } from "../../components/LuluConfirmDialog";
 import { useLuluApp } from "../LuluAppContext";
 
+const directOAuthProviderByIntegrationKey: Record<string, string> = {
+  "google-ads": "google-ads",
+  google_ads: "google-ads",
+  "google-analytics": "google-analytics",
+  google_analytics: "google-analytics",
+  "google-business": "google-business",
+  google_business: "google-business",
+  meta: "meta",
+  facebook: "facebook",
+  instagram: "instagram",
+  whatsapp: "whatsapp",
+};
+
+function directOAuthProviderFor(integrationKey: string | null | undefined) {
+  const normalized = integrationKey?.trim().toLowerCase();
+  return normalized ? directOAuthProviderByIntegrationKey[normalized] : undefined;
+}
+
 export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: string; onClose: () => void }) {
   const confirm = useLuluConfirm();
   const { hasCapability, permissions } = useLuluApp();
@@ -93,8 +111,8 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
   }
 
   async function connect(platform: Platform) {
-    const provider = platform.integrationKey?.trim();
-    if (!provider) { setError("CONNECT_PROVIDER_MISSING: Add the provider integration key before connecting this integration."); return; }
+    const provider = directOAuthProviderFor(platform.integrationKey);
+    if (!provider) { setError("This integration does not have a configured OAuth provider."); return; }
     setBusy(true); setError("");
     try {
       const response = await onboardingApi.startOAuth(workspaceId, provider);
@@ -144,17 +162,17 @@ export function IntegrationsPanel({ workspaceId, onClose }: { workspaceId: strin
       </article>)}
     </LiveSection>
     <LiveSection title={`${platforms.length} connections`} action={<span className="lulu-live-message">Use Update in the navigation bar.</span>}>
-      {platforms.length === 0 ? <LiveEmpty>No integrations configured.</LiveEmpty> : platforms.map((platform) => <article className="lulu-live-row" key={platform.id}>
+      {platforms.length === 0 ? <LiveEmpty>No integrations configured.</LiveEmpty> : platforms.map((platform) => { const nativeOAuthProvider = directOAuthProviderFor(platform.integrationKey); return <article className="lulu-live-row" key={platform.id}>
         <div className="lulu-live-row-top"><div><strong>{platform.name}</strong><span>{platform.category}{platform.integrationKey ? ` · ${platform.integrationKey}` : ""}</span></div><span className={`lulu-live-badge ${platform.connectionStatus === "connected" ? "good" : ""}`}>{platform.connectionStatus}</span></div>
         <small>Last sync: {formatLiveDate(platform.lastSyncedAt)}{platform.lastError ? ` · ${platform.lastError}` : ""}</small>
         <div className="lulu-live-actions" style={{ marginTop: 8 }}>
           <select aria-label={`Status for ${platform.name}`} value={platform.connectionStatus} onChange={(event) => void updateStatus(platform, event.target.value)}><option value="not_connected">Not connected</option><option value="disconnected">Disconnected</option><option value="pending">Pending</option><option value="connected">Connected</option><option value="syncing">Syncing</option><option value="error">Error</option></select>
-          {platform.connectionStatus !== "connected" && <button className="lulu-live-button primary" disabled={busy} onClick={() => void connect(platform)}>Connect</button>}
+          {platform.connectionStatus !== "connected" && <button className="lulu-live-button primary" disabled={busy || !nativeOAuthProvider} onClick={() => void connect(platform)}>Connect</button>}
           {platform.connectionStatus === "connected" && <button className="lulu-live-button" disabled={busy} onClick={() => void disconnect(platform)}>Disconnect</button>}
           <button className="lulu-live-button" disabled={busy} onClick={async () => { setBusy(true); setError(""); setNotice(""); try { const result = await workspaceAppApi.syncIntegration(workspaceId, platform.id); await load(); setNotice(`Sync job ${result.data.jobId} created (${result.data.status}).`); } catch (cause) { setError(getFriendlyErrorMessage(cause, "We could not start the sync. Check that the provider is connected and available.")); setBusy(false); } }}>Sync</button>
           <button className="lulu-live-button danger" disabled={busy} onClick={() => void remove(platform)}>Remove</button>
         </div>
-      </article>)}
+      </article>; })}
     </LiveSection>
     <LiveSection title="Add integration"><form className="lulu-live-form" onSubmit={create}><label>Name<input value={draft.name} onChange={(event) => setDraft({ ...draft, name: event.target.value })} required /></label><div className="lulu-live-grid"><label>Category<input value={draft.category} onChange={(event) => setDraft({ ...draft, category: event.target.value })} required /></label><label>Integration key<input value={draft.integrationKey} onChange={(event) => setDraft({ ...draft, integrationKey: event.target.value })} placeholder="e.g. google_ads" /></label></div><button className="lulu-live-button primary" disabled={busy}>Add integration</button></form></LiveSection>
   </LivePanelShell>;
