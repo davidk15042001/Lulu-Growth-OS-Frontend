@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { useLocation } from "react-router-dom";
 import { LuluGlobalNavigation } from "./LuluGlobalNavigation";
 import { AuthenticatedWorkspaceTopBar } from "./AuthenticatedWorkspaceTopBar";
@@ -21,6 +21,7 @@ export function WorkspaceSurfaceShell({
   showNavigation?: boolean;
   showGlobalNavigation?: boolean;
 }) {
+  const nativePageSurface = useContext(NativePageSurfaceContext);
   const location = useLocation();
   const officePanel = isOfficePanelSurface(location.search);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -106,7 +107,7 @@ export function WorkspaceSurfaceShell({
     };
   }, [close, mobileOpen, officePanel, showGlobalNavigation]);
 
-  if (!showNavigation) return <>{children}</>;
+  if (!showNavigation || nativePageSurface) return <>{children}</>;
 
   if (officePanel) {
     return (
@@ -139,3 +140,10 @@ export function WorkspaceSurfaceShell({
     </>
   );
 }
+
+/**
+ * Generated page modules are mounted inside NativePage, whose PageFrame already
+ * owns the authenticated chrome. Canonical routes mounted directly from App.tsx
+ * leave this context unset and keep the full surface shell.
+ */
+export const NativePageSurfaceContext = createContext(false);

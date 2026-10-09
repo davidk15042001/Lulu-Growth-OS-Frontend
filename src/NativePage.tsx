@@ -15,6 +15,7 @@ import { getLuluAgentContract } from "./config/lulu-agent-registry";
 import nativeMobileCss from "./ui/native-mobile.css?inline";
 import luluVisualSystemCss from "./ui/lulu-visual-system.css?inline";
 import executiveWorkspaceCss from "./ui/executive-workspace.css?inline";
+import { NativePageSurfaceContext } from "./components/WorkspaceSurfaceShell";
 
 type AppModule = { default: ComponentType };
 type StyleModule = string;
@@ -428,7 +429,9 @@ export function NativePage({
                 enabled={contract?.kind === "resource" && usesStaticResourceGate(slug)}
                 resourceType={contract?.kind === "resource" ? contract.resourceType : null}
               >
-                <App />
+                <NativePageSurfaceContext.Provider value>
+                  <App />
+                </NativePageSurfaceContext.Provider>
               </LiveResourceGate>
             </PageErrorBoundary>
           </div>
