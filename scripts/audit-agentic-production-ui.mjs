@@ -338,6 +338,10 @@ if (observedAgentRuntime.includes('agentApi.create')) {
   failures.push('Rendering an agent-aware page can still create an agent run implicitly.');
 }
 
+if (!observedAgentRuntime.includes('translatedOfficeCopy') || !observedAgentRuntime.includes('agentRunSummary')) {
+  failures.push('Agent-run projections can expose internal routing markers or diagnostic context to customers.');
+}
+
 if (!capabilityRegistry.includes('workspaceCapabilityRoutes') || !capabilityRegistry.includes('buildWorkspaceDeepLink') || !globalNavigation.includes('getWorkspaceNavigationSections')) {
   failures.push('Navigation and future Office deep links do not share the typed capability registry.');
 }

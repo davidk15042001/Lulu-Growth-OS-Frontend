@@ -20,6 +20,7 @@ import { websitesApi, type WebsiteGenerationJob, type WebsiteSite } from "../api
 import type { LuluAgentContract, LuluAgentUiState } from "../config/lulu-agent-registry";
 import { useLanguage } from "../i18n/GlobalLanguageSwitcher";
 import { subscribeWorkspaceEvents } from "../api/agent-stream";
+import { translatedOfficeCopy } from "../pages/office/office-copy";
 
 export type LiveCard = {
   label: string;
@@ -115,6 +116,14 @@ function providerNames(platforms: readonly Platform[], limit: number) {
 
 function listNames(items: readonly string[], limit: number) {
   return items.slice(0, limit).join(" · ");
+}
+
+function agentRunGoal(t: (key: string) => string, run: AgentRun) {
+  return translatedOfficeCopy(run.goal, t("No live activity recorded yet."), t, 160);
+}
+
+function agentRunSummary(t: (key: string) => string, run: AgentRun) {
+  return `${agentRunGoal(t, run)} · ${t(run.status)}`;
 }
 
 function sumRecordValues(values: Record<string, number>) {
@@ -331,6 +340,7 @@ function buildDashboardLiveData(
   knowledge: IntelligenceBundle,
 ): SpecializedLiveData {
   const activeRuns = agentRuns.filter((run) => !["completed", "failed", "cancelled"].includes(run.status));
+  const activeRunGoals = activeRuns.slice(0, 3).map((run) => agentRunGoal(t, run));
   const priorityItems = knowledge.snapshot?.priorities ?? [];
   const dataGaps = knowledge.snapshot?.dataGaps ?? [];
   const facts = knowledge.snapshot?.verifiedFacts ?? [];
@@ -344,7 +354,7 @@ function buildDashboardLiveData(
       {
         label: t("Agent workforce"),
         value: interpolate(t("{{0}} active runs"), [activeRuns.length]),
-        detail: activeRuns.length > 0 ? listNames(activeRuns.slice(0, 3).map((run) => run.goal), 3) : t("No active executive agent runs right now."),
+        detail: activeRuns.length > 0 ? listNames(activeRunGoals, 3) : t("No active executive agent runs right now."),
       },
       {
         label: t("Priority stack"),
@@ -357,7 +367,7 @@ function buildDashboardLiveData(
         detail: knowledge.snapshot?.confidence ? interpolate(t("Current intelligence confidence: {{0}}"), [knowledge.snapshot.confidence]) : t("No executive intelligence snapshot exists yet."),
       },
     ],
-    currentFocusDetail: activeRuns[0] ? `${activeRuns[0].goal} · ${activeRuns[0].status}` : t("Watching business health, priorities and executive drift."),
+    currentFocusDetail: activeRuns[0] ? agentRunSummary(t, activeRuns[0]) : t("Watching business health, priorities and executive drift."),
     connectedSystemsDetail: interpolate(t("Uses {{0}} connected systems, {{1}} KPIs and {{2}} active agent runs."), [integrationCount, metrics.length, activeRuns.length]),
     impactDetail: interpolate(t("Executive impact is grounded in {{0}} KPIs, {{1}} verified facts and {{2}} strategic priorities."), [metrics.length, facts.length, priorityItems.length]),
     latestActivityAt: activeRuns[0]?.updatedAt ?? null,
@@ -374,6 +384,7 @@ function buildAiLiveData(
   knowledge: IntelligenceBundle,
 ): SpecializedLiveData {
   const activeRuns = agentRuns.filter((run) => !["completed", "failed", "cancelled"].includes(run.status));
+  const activeRunGoals = activeRuns.slice(0, 3).map((run) => agentRunGoal(t, run));
   const conversationTitles = conversations.slice(0, 3).map((conversation) => conversation.title || t("Untitled conversation"));
   return {
     cards: [
@@ -385,7 +396,7 @@ function buildAiLiveData(
       {
         label: t("Agent runs"),
         value: interpolate(t("{{0}} active runs"), [activeRuns.length]),
-        detail: activeRuns.length > 0 ? listNames(activeRuns.slice(0, 3).map((run) => run.goal), 3) : t("No AI agent run is active right now."),
+        detail: activeRuns.length > 0 ? listNames(activeRunGoals, 3) : t("No AI agent run is active right now."),
       },
       {
         label: t("Autonomy"),
@@ -398,7 +409,7 @@ function buildAiLiveData(
         detail: knowledge.snapshot?.executiveSummary || t("No AI knowledge snapshot is available yet."),
       },
     ],
-    currentFocusDetail: activeRuns[0] ? `${activeRuns[0].goal} · ${activeRuns[0].status}` : t("Watching conversations, agent runs and shared knowledge."),
+    currentFocusDetail: activeRuns[0] ? agentRunSummary(t, activeRuns[0]) : t("Watching conversations, agent runs and shared knowledge."),
     connectedSystemsDetail: interpolate(t("Uses {{0}} connected systems, {{1}} conversations and {{2}} knowledge sections."), [integrationCount, conversations.length, knowledge.sections.length]),
     impactDetail: interpolate(t("AI impact is grounded in {{0}} conversations, {{1}} active runs and {{2}} knowledge sections."), [conversations.length, activeRuns.length, knowledge.sections.length]),
     latestActivityAt: activeRuns[0]?.updatedAt ?? conversations[0]?.updatedAt ?? null,

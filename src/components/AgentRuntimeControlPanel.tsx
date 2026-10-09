@@ -5,6 +5,7 @@ import type { WorkspaceRecord } from "../api/records";
 import { useLanguage, useTranslation } from "../i18n/GlobalLanguageSwitcher";
 import { toIntlLocale } from "../i18n/languages";
 import { usePageAgentRun } from "./usePageAgentRun";
+import { translatedOfficeCopy } from "../pages/office/office-copy";
 
 type PageAgentRunController = ReturnType<typeof usePageAgentRun>;
 
@@ -394,7 +395,7 @@ export function AgentRuntimeControlPanel({
                 className={`flex w-full flex-col rounded-lg border px-4 py-3 text-left transition hover:bg-background/80 ${runtime.selectedRunId === run.id ? "border-primary/40 bg-primary/5" : "border-border bg-background/70"}`}
               >
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="text-sm font-medium text-foreground">{run.goal}</div>
+                  <div className="text-sm font-medium text-foreground">{translatedOfficeCopy(run.goal, t("No live activity recorded yet."), t)}</div>
                   <div className={`rounded-full border px-2.5 py-1 text-xs font-medium ${statusTone(run.status)}`}>{run.status}</div>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-muted-foreground">
