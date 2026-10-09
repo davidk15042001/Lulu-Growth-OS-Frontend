@@ -255,7 +255,12 @@ function offeringToTemplateItem(offering: Offering): TemplateCatalogItem {
 
 function EmptyWebsiteTemplate({ hasServices, hasProducts, products, services, branding, palette, templateChoice }: { hasServices: boolean; hasProducts: boolean; products?: TemplateCatalogItem[]; services?: TemplateCatalogItem[]; branding?: TemplateBranding; palette?: TemplatePalette; templateChoice?: WebsiteTemplateChoice }) {
   const [locale, setLocale] = useState<TemplateLocale>("de");
-  if (!hasServices && !hasProducts && templateChoice !== "one-product") return <EmptyBrandPreview branding={branding} palette={palette} />;
+  // Presence flags can be true when an upstream catalog source exists but its
+  // bounded read returned no renderable items. The preview must follow the
+  // data that can actually be shown, otherwise customers see template copy
+  // that looks like fabricated content.
+  const hasRenderableCatalog = Boolean(products?.length || services?.length);
+  if (!hasRenderableCatalog && templateChoice !== "one-product") return <EmptyBrandPreview branding={branding} palette={palette} />;
   const copy = placeholderCopy(locale);
   const oneProduct = templateChoice === "one-product" || (templateChoice === "auto" && products?.length === 1 && !services?.length);
   if (oneProduct) return <LuluOneProductTemplate data={oneProductDataFromCatalog(products?.[0], locale)} locale={locale} setLocale={setLocale} branding={branding} previewLabel={copy.preview} />;
