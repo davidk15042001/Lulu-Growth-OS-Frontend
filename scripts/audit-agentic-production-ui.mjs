@@ -546,6 +546,23 @@ for (const [employeeKey, surface] of Object.entries(officeEmployeeWorkspaceKinds
   }
 }
 
+// These portal surfaces are intentionally hidden from the generated sidebar,
+// but Office still links to them from the corresponding Digital Employee.
+// Keep them in the typed route registry so a missing sidebar entry cannot
+// silently fall back to the generic executive dashboard.
+const hiddenNativeEmployeeRoutes = [
+  ["omnichannel", "communications.omnichannel_manager"],
+  ["lulu-email-portal-9013", "communications.email_specialist"],
+  ["lulu-calendar-portal-9014", "operations.calendar_coordinator"],
+];
+
+for (const [pageId, employeeId] of hiddenNativeEmployeeRoutes) {
+  if (!capabilityRegistry.includes(`pageId: "${pageId}"`)
+    || !capabilityRegistry.includes(`employee: { id: "${employeeId}"`)) {
+    failures.push(`Hidden native employee route ${pageId} is missing from the shared capability registry.`);
+  }
+}
+
 const agentModuleWorkspaceKinds = {
   general: "command",
   dashboard: "intelligence",
