@@ -1,4 +1,8 @@
 {
+  "Advertising / Tracking": "广告 / 跟踪",
+  "Verified attribution records for the current workspace.": "当前工作区的已验证归因记录。",
+  "No verified attribution records yet": "尚无已验证的归因记录",
+  "Connect an approved advertising source before reviewing conversion events or attribution health. No event counts, discrepancies or tracking actions are inferred without verified records.": "请先连接获批的广告来源，再查看转化事件或归因状态。没有已验证记录时，不会推断事件数量、差异或跟踪操作。",
   "· Detected: Not available, 09:42": "· 检测到：不可用，09:42",
   "· Observed": "· 已观测",
   "· Reported:": "· 已报告：",

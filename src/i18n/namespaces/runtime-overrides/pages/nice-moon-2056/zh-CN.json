@@ -1,4 +1,8 @@
 {
+  "Advertising / Campaign Builder": "广告 / 活动构建器",
+  "Verified campaign records available to Lulu's autonomous campaign workflow. Unsupported draft controls are intentionally not exposed.": "提供给 Lulu 自主活动工作流的已验证活动记录。不会显示不受支持的草稿控制项。",
+  "No campaign context available yet": "尚无活动上下文",
+  "Campaign context will appear after verified workspace data or a persisted campaign becomes available.": "验证的工作区数据或已保存的活动可用后，活动上下文会显示在这里。",
   "—/mo": "—/月",
   "—/month": "-/月",
   "2 Active": "2 个活跃",

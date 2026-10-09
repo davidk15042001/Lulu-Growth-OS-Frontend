@@ -1,4 +1,9 @@
 {
+  "Advertising / Publishing": "广告 / 发布",
+  "Autonomous Publishing": "自主发布",
+  "A verified view of persisted publishing work. Lulu shows an operation only after the backend has recorded it.": "已持久化发布工作的验证视图。只有后端记录了操作后，Lulu 才会显示该操作。",
+  "No live publishing operations yet": "暂无实时发布操作",
+  "Publishing work will appear after an eligible provider is connected and an operation is created by the backend.": "连接合格的提供商并由后端创建操作后，发布工作会显示在这里。",
   "— New campaign + financial commitment. Requires Marketing Manager approval.": "— 新营销活动 + 财务承诺。需要营销经理审批。",
   "— per action": "— 每个动作",
   "—/mo Google + —/mo Meta": "—/mo Google + —/mo 元",

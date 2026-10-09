@@ -1,4 +1,8 @@
 {
+  "Advertising / Tracking": "Werbung / Tracking",
+  "Verified attribution records for the current workspace.": "Verifizierte Attributionsdatensätze für den aktuellen Workspace.",
+  "No verified attribution records yet": "Noch keine verifizierten Attributionsdatensätze",
+  "Connect an approved advertising source before reviewing conversion events or attribution health. No event counts, discrepancies or tracking actions are inferred without verified records.": "Verbinden Sie zuerst eine freigegebene Werbequelle, bevor Sie Conversion-Ereignisse oder den Zustand der Attribution prüfen. Ohne verifizierte Datensätze werden keine Ereigniszahlen, Abweichungen oder Tracking-Aktionen abgeleitet.",
   "· Detected: Not available, 09:42": "· Erkannt: Nicht verfügbar, 09:42",
   "· Observed": "· Beobachtet",
   "· Reported:": "· Gemeldet:",

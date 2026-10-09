@@ -1,4 +1,7 @@
 {
+  "Verified creative records for the current workspace.": "当前工作区的已验证创意记录。",
+  "No verified creative records yet": "尚无已验证的创意记录",
+  "Connect an approved advertising source before reviewing creative assets or performance. No upload, sync or publish action is exposed without a canonical provider operation.": "请先连接获批的广告来源，再查看创意素材或效果。没有规范的提供商操作时，不会开放上传、同步或发布操作。",
   "— vs avg": "— 与平均",
   "— vs avg · Last 30 days": "— vs 平均 · 最近 30 天",
   "● Connected": "● 已连接",

@@ -1,4 +1,8 @@
 {
+  "Advertising / Campaign Builder": "Werbung / Kampagnen-Builder",
+  "Verified campaign records available to Lulu's autonomous campaign workflow. Unsupported draft controls are intentionally not exposed.": "Verifizierte Kampagnendatensätze für Lulus autonomen Kampagnen-Workflow. Nicht unterstützte Entwurfssteuerungen werden bewusst nicht angezeigt.",
+  "No campaign context available yet": "Noch kein Kampagnenkontext verfügbar",
+  "Campaign context will appear after verified workspace data or a persisted campaign becomes available.": "Kampagnenkontext erscheint, sobald verifizierte Workspace-Daten oder eine gespeicherte Kampagne verfügbar sind.",
   "—/mo": "—/Mo",
   "—/month": "-/Monat",
   "2 Active": "2 aktiv",

@@ -1,4 +1,9 @@
 {
+  "Advertising / Publishing": "Werbung / Veröffentlichung",
+  "Autonomous Publishing": "Autonomes Publizieren",
+  "A verified view of persisted publishing work. Lulu shows an operation only after the backend has recorded it.": "Eine verifizierte Ansicht gespeicherter Veröffentlichungsarbeit. Lulu zeigt einen Vorgang erst, nachdem das Backend ihn erfasst hat.",
+  "No live publishing operations yet": "Noch keine Live-Veröffentlichungsvorgänge",
+  "Publishing work will appear after an eligible provider is connected and an operation is created by the backend.": "Veröffentlichungsarbeit erscheint, sobald ein geeigneter Anbieter verbunden und ein Vorgang vom Backend erstellt wurde.",
   "— New campaign + financial commitment. Requires Marketing Manager approval.": "— Neue Kampagne + finanzielle Verpflichtung. Erfordert die Genehmigung des Marketing Managers.",
   "— per action": "– pro Aktion",
   "—/mo Google + —/mo Meta": "—/mo Google + —/mo Meta",

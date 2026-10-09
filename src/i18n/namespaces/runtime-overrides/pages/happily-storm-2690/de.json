@@ -1,4 +1,7 @@
 {
+  "Verified creative records for the current workspace.": "Verifizierte Werbemittel-Datensätze für den aktuellen Workspace.",
+  "No verified creative records yet": "Noch keine verifizierten Werbemittel",
+  "Connect an approved advertising source before reviewing creative assets or performance. No upload, sync or publish action is exposed without a canonical provider operation.": "Verbinden Sie zuerst eine freigegebene Werbequelle, bevor Sie Werbemittel oder deren Performance prüfen. Ohne einen kanonischen Anbieter-Vorgang werden keine Upload-, Synchronisierungs- oder Veröffentlichungsaktionen angeboten.",
   "— vs avg": "– vs. Durchschn",
   "— vs avg · Last 30 days": "— vs. Durchschnitt · Letzte 30 Tage",
   "● Connected": "● Verbunden",
