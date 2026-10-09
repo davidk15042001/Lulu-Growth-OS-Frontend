@@ -239,5 +239,8 @@
   "Vendors": "供应商",
   "Webflow": "Webflow",
   "Website": "网站",
+  "Verified product-collection records for the current workspace.": "当前工作区的已验证产品集合记录。",
+  "No verified collections yet": "暂无已验证的集合",
+  "Connect an approved commerce provider before reviewing collection health, synchronization or product assignments. Create, edit and sync actions remain unavailable until a canonical provider operation is connected.": "请先连接获批准的电商服务商，再查看集合健康状况、同步或产品分配。在连接规范的服务商操作前，创建、编辑和同步操作将不可用。",
   "Autonomous Publishing Center": "自治出版中心"
 }

@@ -207,5 +207,8 @@
   "Vendors": "Anbieter",
   "Webflow": "Webflow",
   "Website": "Website",
+  "Verified coupon records for the current workspace.": "Verifizierte Gutscheindatensätze für den aktuellen Workspace.",
+  "No verified coupons yet": "Noch keine verifizierten Gutscheine",
+  "Connect an approved commerce provider before reviewing coupon usage, health or activity. No counts, insights or coupon actions are inferred without verified records.": "Verbinden Sie zuerst einen freigegebenen Commerce-Provider, bevor Sie Gutscheinnutzung, Zustand oder Aktivitäten prüfen. Ohne verifizierte Datensätze werden keine Zählungen, Erkenntnisse oder Gutscheinaktionen abgeleitet.",
   "Autonomous Publishing Center": "Autonomes Verlagszentrum"
 }

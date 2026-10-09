@@ -207,5 +207,8 @@
   "Vendors": "供应商",
   "Webflow": "Webflow",
   "Website": "网站",
+  "Verified coupon records for the current workspace.": "当前工作区的已验证优惠券记录。",
+  "No verified coupons yet": "暂无已验证的优惠券",
+  "Connect an approved commerce provider before reviewing coupon usage, health or activity. No counts, insights or coupon actions are inferred without verified records.": "请先连接获批准的电商服务商，再查看优惠券使用情况、健康状况或活动。没有已验证记录时，不会推断数量、洞察或优惠券操作。",
   "Autonomous Publishing Center": "自治出版中心"
 }

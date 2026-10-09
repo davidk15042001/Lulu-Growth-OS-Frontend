@@ -177,5 +177,8 @@
   "Vendors": "Anbieter",
   "Webflow": "Webflow",
   "Website": "Website",
+  "Verified ecommerce customer records from connected stores.": "Verifizierte E-Commerce-Kundendatensätze aus verbundenen Shops.",
+  "No live ecommerce customers yet": "Noch keine Live-E-Commerce-Kunden",
+  "Customers appear after an approved ecommerce source synchronizes records into this workspace. No example profiles, counts or customer value are displayed.": "Kunden erscheinen, sobald eine freigegebene E-Commerce-Quelle Datensätze in diesen Workspace synchronisiert. Es werden keine Beispielprofile, Zählungen oder Kundenwerte angezeigt.",
   "Autonomous Publishing Center": "Autonomes Verlagszentrum"
 }

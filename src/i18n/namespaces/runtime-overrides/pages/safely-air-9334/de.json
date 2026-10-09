@@ -239,5 +239,8 @@
   "Vendors": "Anbieter",
   "Webflow": "Webflow",
   "Website": "Website",
+  "Verified product-collection records for the current workspace.": "Verifizierte Produktkollektions-Datensätze für den aktuellen Workspace.",
+  "No verified collections yet": "Noch keine verifizierten Sammlungen",
+  "Connect an approved commerce provider before reviewing collection health, synchronization or product assignments. Create, edit and sync actions remain unavailable until a canonical provider operation is connected.": "Verbinden Sie zuerst einen freigegebenen Commerce-Provider, bevor Sie Zustand, Synchronisierung oder Produktzuweisungen von Sammlungen prüfen. Erstellen, Bearbeiten und Synchronisieren bleibt deaktiviert, bis eine kanonische Provider-Operation verbunden ist.",
   "Autonomous Publishing Center": "Autonomes Verlagszentrum"
 }
