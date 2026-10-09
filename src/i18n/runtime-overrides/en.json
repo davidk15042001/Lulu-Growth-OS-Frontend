@@ -1244,5 +1244,22 @@
   "Select a record to inspect its live fields.": "Select a record to inspect its live fields.",
   "Verified connected-store records for the current workspace.": "Verified connected-store records for the current workspace.",
   "No verified stores yet": "No verified stores yet",
-  "Connect an approved commerce provider before reviewing store status or synchronization details. No add-store, sync or health claims are shown without a canonical provider operation.": "Connect an approved commerce provider before reviewing store status or synchronization details. No add-store, sync or health claims are shown without a canonical provider operation."
+  "Connect an approved commerce provider before reviewing store status or synchronization details. No add-store, sync or health claims are shown without a canonical provider operation.": "Connect an approved commerce provider before reviewing store status or synchronization details. No add-store, sync or health claims are shown without a canonical provider operation.",
+  "BEREIT FÜR DEINE INHALTE": "READY FOR YOUR CONTENT",
+  "Die visuelle Bühne steht. Lulu ergänzt sie erst mit Daten, die für dein Unternehmen verifiziert wurden.": "The visual stage is ready. Lulu adds content only after it has been verified for your business.",
+  "DEINE DIGITALE PRÄSENZ": "YOUR DIGITAL PRESENCE",
+  "Ein klarer Auftritt für das, was dein Unternehmen ausmacht.": "A clear presence for what makes your business matter.",
+  "Diese Vorschau zeigt das Designsystem deiner Website. Profil, Leistungen und Produkte werden automatisch sichtbar, sobald sie im Workspace verifiziert vorhanden sind.": "This preview shows your website design system. Your profile, services and products appear automatically once verified in the workspace.",
+  "Was als Nächstes sichtbar wird": "What will appear next",
+  "Positionierung, Zielgruppen und die Geschichte hinter deiner Marke.": "Positioning, audiences and the story behind your brand.",
+  "Dein echtes Angebot — strukturiert, verständlich und direkt anfragbar.": "Your real offer — structured, understandable and ready for enquiries.",
+  "Nachweise, Standards und Antworten aus deiner freigegebenen Knowledge Base.": "Proof points, standards and answers from your approved Knowledge Base.",
+  "DER WEG ZUR VERÖFFENTLICHUNG": "THE PATH TO PUBLISHING",
+  "Von verifizierten Daten zur fertigen Website.": "From verified data to a finished website.",
+  "Keine erfundenen Inhalte, keine Demo-Zahlen. Jeder Abschnitt erscheint, sobald die zugehörige Quelle bereit ist.": "No invented content, no demo metrics. Each section appears when its source is ready.",
+  "Daten prüfen": "Verify data",
+  "Unternehmensprofil und Knowledge Base verbinden": "Connect your company profile and Knowledge Base",
+  "Lulu erstellt Struktur, Texte und visuelle Hierarchie": "Lulu builds the structure, copy and visual hierarchy",
+  "Nach deiner Freigabe wird die Website live geschaltet": "Your website goes live after your approval",
+  "Diese Vorschau ist noch nicht veröffentlicht.": "This preview has not been published yet."
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 import { CheckCircle2, ExternalLink, Globe2, Image, Loader2, Package, Plus, RefreshCw, ShoppingBag, Sparkles, XCircle } from "lucide-react";
 import { getSelectedWorkspaceId } from "../../api/session";
 import {
@@ -56,6 +56,124 @@ function TemplateChoicePicker({ choice, hasProducts, onChange, labels }: { choic
 
 export type TemplateLocale = "de" | "en" | "zh";
 const TEMPLATE_LOCALE_SHORT_CODE: Record<TemplateLocale, string> = { de: String.fromCharCode(68, 69), en: String.fromCharCode(69, 78), zh: "中文" };
+
+const EMPTY_PREVIEW_COPY: Record<TemplateLocale, {
+  preview: string;
+  subline: string;
+  status: string;
+  statusBody: string;
+  eyebrow: string;
+  title: string;
+  body: string;
+  next: string;
+  profile: string;
+  profileBody: string;
+  offering: string;
+  offeringBody: string;
+  proof: string;
+  proofBody: string;
+  processEyebrow: string;
+  processTitle: string;
+  processBody: string;
+  steps: Array<[string, string, string]>;
+  footer: string;
+}> = {
+  de: {
+    preview: "VORSCHAU",
+    subline: "LULU MANAGED WEBSITE",
+    status: "BEREIT FÜR DEINE INHALTE",
+    statusBody: "Die visuelle Bühne steht. Lulu ergänzt sie erst mit Daten, die für dein Unternehmen verifiziert wurden.",
+    eyebrow: "DEINE DIGITALE PRÄSENZ",
+    title: "Ein klarer Auftritt für das, was dein Unternehmen ausmacht.",
+    body: "Diese Vorschau zeigt das Designsystem deiner Website. Profil, Leistungen und Produkte werden automatisch sichtbar, sobald sie im Workspace verifiziert vorhanden sind.",
+    next: "Was als Nächstes sichtbar wird",
+    profile: "Unternehmensprofil",
+    profileBody: "Positionierung, Zielgruppen und die Geschichte hinter deiner Marke.",
+    offering: "Leistungen & Produkte",
+    offeringBody: "Dein echtes Angebot — strukturiert, verständlich und direkt anfragbar.",
+    proof: "Vertrauen",
+    proofBody: "Nachweise, Standards und Antworten aus deiner freigegebenen Knowledge Base.",
+    processEyebrow: "DER WEG ZUR VERÖFFENTLICHUNG",
+    processTitle: "Von verifizierten Daten zur fertigen Website.",
+    processBody: "Keine erfundenen Inhalte, keine Demo-Zahlen. Jeder Abschnitt erscheint, sobald die zugehörige Quelle bereit ist.",
+    steps: [["01", "Daten prüfen", "Unternehmensprofil und Knowledge Base verbinden"], ["02", "Auftritt erzeugen", "Lulu erstellt Struktur, Texte und visuelle Hierarchie"], ["03", "Veröffentlichen", "Nach deiner Freigabe wird die Website live geschaltet"]],
+    footer: "Diese Vorschau ist noch nicht veröffentlicht."
+  },
+  en: {
+    preview: "PREVIEW",
+    subline: "LULU MANAGED WEBSITE",
+    status: "READY FOR YOUR CONTENT",
+    statusBody: "The visual stage is ready. Lulu adds content only after it has been verified for your business.",
+    eyebrow: "YOUR DIGITAL PRESENCE",
+    title: "A clear presence for what makes your business matter.",
+    body: "This preview shows your website design system. Your profile, services and products appear automatically once verified in the workspace.",
+    next: "What will appear next",
+    profile: "Company profile",
+    profileBody: "Positioning, audiences and the story behind your brand.",
+    offering: "Services & products",
+    offeringBody: "Your real offer — structured, understandable and ready for enquiries.",
+    proof: "Trust",
+    proofBody: "Proof points, standards and answers from your approved Knowledge Base.",
+    processEyebrow: "THE PATH TO PUBLISHING",
+    processTitle: "From verified data to a finished website.",
+    processBody: "No invented content, no demo metrics. Each section appears when its source is ready.",
+    steps: [["01", "Verify data", "Connect your company profile and Knowledge Base"], ["02", "Create the presence", "Lulu builds the structure, copy and visual hierarchy"], ["03", "Publish", "Your website goes live after your approval"]],
+    footer: "This preview has not been published yet."
+  },
+  zh: {
+    preview: "预览",
+    subline: "LULU 托管网站",
+    status: "等待你的内容",
+    statusBody: "视觉框架已经准备好。Lulu 只会添加经过企业验证的信息。",
+    eyebrow: "你的数字形象",
+    title: "清晰呈现让企业与众不同的价值。",
+    body: "这里展示网站的设计系统。企业简介、服务和产品在工作区完成验证后会自动出现。",
+    next: "接下来会展示的内容",
+    profile: "企业简介",
+    profileBody: "品牌定位、目标客户以及企业故事。",
+    offering: "服务与产品",
+    offeringBody: "真实的业务内容，以清晰的结构呈现并支持咨询。",
+    proof: "信任信息",
+    proofBody: "来自已批准知识库的资质、标准和答案。",
+    processEyebrow: "发布路径",
+    processTitle: "从已验证数据到完整网站。",
+    processBody: "不编造内容，不展示演示数据。每个模块只会在对应来源准备好后出现。",
+    steps: [["01", "验证数据", "连接企业资料和知识库"], ["02", "生成页面", "Lulu 创建结构、文案和视觉层级"], ["03", "发布", "确认后将网站正式上线"]],
+    footer: "此预览尚未发布。"
+  }
+};
+
+function EmptyBrandPreview({ branding, palette }: { branding?: TemplateBranding; palette?: TemplatePalette }) {
+  const [locale, setLocale] = useState<TemplateLocale>("de");
+  const copy = EMPTY_PREVIEW_COPY[locale];
+  const brand = branding?.companyName || (locale === "zh" ? "你的品牌" : locale === "en" ? "Your brand" : "Deine Marke");
+  const primary = palette?.primary ?? "#4f46e5";
+  const primaryDark = palette?.primaryDark ?? "#1e1b4b";
+  const accent = palette?.accent ?? "#06b6d4";
+  const page = palette?.page ?? "#f8fafc";
+  const ink = palette?.ink ?? "#111827";
+  const muted = palette?.muted ?? "#64748b";
+  const line = palette?.line ?? "#dbe4ef";
+  const style = { "--empty-primary": primary, "--empty-accent": accent, "--empty-ink": ink, "--empty-muted": muted, "--empty-line": line } as CSSProperties;
+  return <div className="overflow-hidden" style={{ ...style, background: page, color: ink }} data-lulu-no-translate="true" translate="no">
+    <header className="flex flex-wrap items-center justify-between gap-4 border-b px-5 py-4 sm:px-8" style={{ borderColor: line, background: `${page}f2` }}>
+      <div className="flex min-w-0 items-center gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-sm font-bold text-white shadow-lg" style={{ background: primary }}>L</span><div className="min-w-0"><strong className="block truncate text-sm tracking-wide">{brand}</strong><span className="mt-1 block text-[10px] font-semibold uppercase tracking-[.16em]" style={{ color: muted }}>{copy.subline}</span></div></div>
+      <div className="flex items-center gap-2"><span className="rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.12em]" style={{ borderColor: line, color: muted }}>{copy.preview}</span><label className="sr-only" htmlFor="empty-template-language">Language</label><select id="empty-template-language" value={locale} onChange={(event) => setLocale(event.target.value as TemplateLocale)} className="h-8 rounded-full border bg-transparent px-3 text-xs font-semibold outline-none" style={{ borderColor: line, color: ink }}><option value="de">DE</option><option value="en">EN</option><option value="zh">中文</option></select></div>
+    </header>
+    <main>
+      <section className="relative overflow-hidden px-5 py-12 text-white sm:px-10 sm:py-20" style={{ background: `linear-gradient(135deg, ${primaryDark} 0%, ${primary} 56%, ${accent} 150%)` }}>
+        <div className="pointer-events-none absolute -right-24 -top-28 h-80 w-80 rounded-full border-[60px] border-white/10" /><div className="pointer-events-none absolute bottom-0 left-0 h-px w-full bg-white/15" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-[1.08fr_.92fr]">
+          <div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[.2em] text-cyan-100">{copy.eyebrow}</p><h1 className="mt-4 text-4xl font-semibold leading-[1.04] tracking-[-.055em] sm:text-6xl">{copy.title}</h1><p className="mt-5 max-w-xl text-base leading-7 text-white/75 sm:text-lg">{copy.body}</p><div className="mt-8 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white/90"><span className="h-2 w-2 rounded-full bg-cyan-200" />{copy.status}</div></div>
+          <div className="rounded-[2rem] border border-white/20 bg-white/10 p-4 shadow-2xl backdrop-blur-sm sm:p-6"><div className="rounded-[1.5rem] border border-white/15 bg-slate-950/20 p-5 sm:p-7"><div className="flex items-center justify-between gap-3"><span className="text-[10px] font-bold uppercase tracking-[.16em] text-white/60">LULU / LIVE BLUEPRINT</span><span className="h-2 w-2 rounded-full bg-emerald-300 shadow-[0_0_18px_rgba(110,231,183,.9)]" /></div><div className="mt-8 space-y-3"><div className="h-3 w-2/3 rounded-full bg-white/20" /><div className="h-3 w-5/6 rounded-full bg-white/10" /><div className="grid grid-cols-3 gap-3 pt-5"><span className="h-20 rounded-xl border border-white/10 bg-white/10" /><span className="h-20 rounded-xl border border-white/10 bg-white/5" /><span className="h-20 rounded-xl border border-white/10 bg-white/10" /></div></div><p className="mt-6 text-sm leading-6 text-white/65">{copy.statusBody}</p></div></div>
+        </div>
+      </section>
+      <section className="px-5 py-12 sm:px-10 sm:py-16"><div className="mx-auto max-w-6xl"><div className="max-w-2xl"><p className="text-xs font-bold uppercase tracking-[.18em]" style={{ color: primary }}>{copy.next}</p><div className="mt-3 grid gap-4 sm:grid-cols-3">{[[copy.profile, copy.profileBody, "01"], [copy.offering, copy.offeringBody, "02"], [copy.proof, copy.proofBody, "03"]].map(([title, body, number]) => <article key={number} className="rounded-2xl border p-5" style={{ borderColor: line, background: `${page}cc` }}><span className="text-xs font-bold" style={{ color: accent }}>{number}</span><h2 className="mt-6 text-xl font-semibold tracking-[-.03em]">{title}</h2><p className="mt-2 text-sm leading-6" style={{ color: muted }}>{body}</p></article>)}</div></div></div></section>
+      <section className="px-5 pb-14 sm:px-10 sm:pb-20"><div className="mx-auto max-w-6xl rounded-[2rem] border p-6 sm:p-10" style={{ borderColor: line, background: `${primary}08` }}><p className="text-xs font-bold uppercase tracking-[.18em]" style={{ color: primary }}>{copy.processEyebrow}</p><h2 className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-.045em] sm:text-4xl">{copy.processTitle}</h2><p className="mt-3 max-w-2xl text-sm leading-6" style={{ color: muted }}>{copy.processBody}</p><div className="mt-8 grid gap-4 md:grid-cols-3">{copy.steps.map(([number, title, body]) => <div key={number} className="flex gap-4 border-t pt-4" style={{ borderColor: line }}><span className="text-xs font-bold" style={{ color: accent }}>{number}</span><div><h3 className="font-semibold">{title}</h3><p className="mt-1 text-sm leading-6" style={{ color: muted }}>{body}</p></div></div>)}</div></div></section>
+    </main>
+    <footer className="border-t px-5 py-5 text-xs sm:px-10" style={{ borderColor: line, color: muted }}><div className="mx-auto flex max-w-6xl flex-wrap justify-between gap-3"><span>{brand}</span><span>{copy.footer}</span></div></footer>
+  </div>;
+}
 
 export const TEMPLATE_UI: Record<TemplateLocale, {
   language: string; brand: string; preview: string; templateKicker: string; templateMode: string; templateSubline: string; languageDe: string; languageEn: string; languageZh: string; menu: string; close: string; productsOn: string; productsOff: string; backHome: string; home: string; solutions: string; services: string; products: string; about: string; contact: string;
@@ -137,6 +255,7 @@ function offeringToTemplateItem(offering: Offering): TemplateCatalogItem {
 
 function EmptyWebsiteTemplate({ hasServices, hasProducts, products, services, branding, palette, templateChoice }: { hasServices: boolean; hasProducts: boolean; products?: TemplateCatalogItem[]; services?: TemplateCatalogItem[]; branding?: TemplateBranding; palette?: TemplatePalette; templateChoice?: WebsiteTemplateChoice }) {
   const [locale, setLocale] = useState<TemplateLocale>("de");
+  if (!hasServices && !hasProducts && templateChoice !== "one-product") return <EmptyBrandPreview branding={branding} palette={palette} />;
   const copy = placeholderCopy(locale);
   const oneProduct = templateChoice === "one-product" || (templateChoice === "auto" && products?.length === 1 && !services?.length);
   if (oneProduct) return <LuluOneProductTemplate data={oneProductDataFromCatalog(products?.[0], locale)} locale={locale} setLocale={setLocale} branding={branding} previewLabel={copy.preview} />;
