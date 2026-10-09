@@ -30,6 +30,7 @@ const communicationsPage = fs.readFileSync(path.join(root, 'src', 'pages', 'cano
 const profilePage = fs.readFileSync(path.join(root, 'src', 'pages', 'canonical-profile', 'ProfilePage.tsx'), 'utf8');
 const capabilityRegistry = fs.readFileSync(path.join(root, 'src', 'config', 'workspace-capability-registry.ts'), 'utf8');
 const observedAgentRuntime = fs.readFileSync(path.join(root, 'src', 'components', 'useLuluAgentRuntime.ts'), 'utf8');
+const workspaceSurfaceShell = fs.readFileSync(path.join(root, 'src', 'components', 'WorkspaceSurfaceShell.tsx'), 'utf8');
 const virtualOfficePage = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'VirtualOfficePage.tsx'), 'utf8');
 const officeCommandCenter = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'OfficeCommandCenter.tsx'), 'utf8');
 const luluStation = fs.readFileSync(path.join(root, 'src', 'pages', 'office', 'LuluStation.tsx'), 'utf8');
@@ -340,6 +341,14 @@ if (observedAgentRuntime.includes('agentApi.create')) {
 
 if (!observedAgentRuntime.includes('translatedOfficeCopy') || !observedAgentRuntime.includes('agentRunSummary')) {
   failures.push('Agent-run projections can expose internal routing markers or diagnostic context to customers.');
+}
+
+if (
+  !nativePage.includes('NativePageSurfaceContext.Provider value')
+  || !workspaceSurfaceShell.includes('NativePageSurfaceContext')
+  || !workspaceSurfaceShell.includes('if (!showNavigation || nativePageSurface) return <>{children}</>')
+) {
+  failures.push('Generated pages can mount a second authenticated workspace shell on top of the NativePage chrome.');
 }
 
 if (!capabilityRegistry.includes('workspaceCapabilityRoutes') || !capabilityRegistry.includes('buildWorkspaceDeepLink') || !globalNavigation.includes('getWorkspaceNavigationSections')) {
