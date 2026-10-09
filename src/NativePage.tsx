@@ -141,10 +141,10 @@ function shouldUseMinimalAgentPage(
   slug: string,
   contract: PageContract | undefined,
 ) {
-  if (contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)) return hasAgentContract;
   // Pages with a dedicated custom interface render their own component
   // instead of the generic agent workspace.
   if (CUSTOM_INTERFACE_PAGE_SLUGS.has(slug)) return false;
+  if (contract?.kind === "resource" && !VERIFIED_RESOURCE_INTERFACES.has(slug)) return hasAgentContract;
   return hasAgentContract;
 }
 
