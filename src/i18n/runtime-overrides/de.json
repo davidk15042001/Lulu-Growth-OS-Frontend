@@ -7386,5 +7386,8 @@
   "Never": "Nie",
   "rules shown": "Regeln angezeigt",
   "actions": "Aktionen",
-  "side effects: none": "keine Nebenwirkungen"
+  "side effects: none": "keine Nebenwirkungen",
+  "Verified connected-store records for the current workspace.": "Verifizierte verbundene Shop-Datensätze für den aktuellen Workspace.",
+  "No verified stores yet": "Noch keine verifizierten Shops",
+  "Connect an approved commerce provider before reviewing store status or synchronization details. No add-store, sync or health claims are shown without a canonical provider operation.": "Verbinde einen freigegebenen Commerce-Provider, bevor du Shopstatus oder Synchronisationsdetails prüfst. Ohne kanonische Provider-Operation werden keine Aussagen zu Shopanlage, Synchronisation oder Zustand angezeigt."
 }

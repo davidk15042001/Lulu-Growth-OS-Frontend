@@ -1241,5 +1241,8 @@
   "Source": "Source",
   "Data fields": "Data fields",
   "No additional fields returned.": "No additional fields returned.",
-  "Select a record to inspect its live fields.": "Select a record to inspect its live fields."
+  "Select a record to inspect its live fields.": "Select a record to inspect its live fields.",
+  "Verified connected-store records for the current workspace.": "Verified connected-store records for the current workspace.",
+  "No verified stores yet": "No verified stores yet",
+  "Connect an approved commerce provider before reviewing store status or synchronization details. No add-store, sync or health claims are shown without a canonical provider operation.": "Connect an approved commerce provider before reviewing store status or synchronization details. No add-store, sync or health claims are shown without a canonical provider operation."
 }
