@@ -249,6 +249,36 @@ const generatedWorkspaceCapabilityRoutes: WorkspaceCapabilityRoute[] = navigatio
 // so Office → employee → Workspace never degrades to a false unavailable state.
 const hiddenEmployeeWorkspaceRoutes: WorkspaceCapabilityRoute[] = [
   {
+    pageId: "omnichannel",
+    pageLabel: "OmniChannel",
+    sectionLabel: OMNICHANNEL_LABEL,
+    capabilityKey: "omnichannel.conversations",
+    href: pagePath("omnichannel"),
+    requiredPermissions: ["omnichannel.read"],
+    employee: { id: "communications.omnichannel_manager", name: "OmniChannel Manager", department: "Communications" },
+    recordQueryParam: "recordId",
+  },
+  {
+    pageId: "lulu-email-portal-9013",
+    pageLabel: "Email",
+    sectionLabel: "Email",
+    capabilityKey: "communications.email",
+    href: pagePath("lulu-email-portal-9013"),
+    requiredPermissions: ["workspace.read"],
+    employee: { id: "communications.email_specialist", name: "Email Specialist", department: "Communications" },
+    recordQueryParam: "recordId",
+  },
+  {
+    pageId: "lulu-calendar-portal-9014",
+    pageLabel: "Calendar",
+    sectionLabel: "Calendar",
+    capabilityKey: "operations.calendar",
+    href: pagePath("lulu-calendar-portal-9014"),
+    requiredPermissions: ["workspace.read"],
+    employee: { id: "operations.calendar_coordinator", name: "Calendar Coordinator", department: "Operations" },
+    recordQueryParam: "recordId",
+  },
+  {
     pageId: "lulu-website-portal-9012",
     pageLabel: "Website",
     sectionLabel: WEBSITE_AND_COMMERCE_LABEL,
