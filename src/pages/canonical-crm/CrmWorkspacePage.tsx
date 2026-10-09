@@ -36,6 +36,7 @@ import { useLiveRecords, type LiveRecordsLoadState } from '../../api/useLiveReco
 import { useLuluDialog } from '../../components/useLuluDialog';
 import { WorkspaceSurfaceShell } from '../../components/WorkspaceSurfaceShell';
 import { useLuluConfirm } from '../../components/LuluConfirmDialog';
+import { useTranslation } from '../../i18n/GlobalLanguageSwitcher';
 import { CrmExternalDeliverySettings } from './CrmExternalDeliverySettings';
 
 type Kind = 'contacts' | 'companies' | 'activities' | 'tasks';
@@ -135,6 +136,7 @@ function CompanyIntelligenceView({
   initialSelectedId?: string | null;
   onSelect: (recordId: string) => void;
 }) {
+  const t = useTranslation();
   const [selectedId, setSelectedId] = useState<string | null>(initialSelectedId ?? null);
   useEffect(() => {
     if (initialSelectedId && filtered.some((item) => item.id === initialSelectedId)) setSelectedId(initialSelectedId);
@@ -160,9 +162,9 @@ function CompanyIntelligenceView({
     </header>
 
     <section className="grid gap-3 sm:grid-cols-3">
-      <Metric label="Unternehmen" value={loadState === 'loading' || loadState === 'error' ? '—' : items.length} detail="im Customer Graph" icon={<Building2 size={17}/>}/>
-      <Metric label="Datenabdeckung" value={loadState === 'loading' || loadState === 'error' ? '—' : `${average}%`} detail="über alle Profile" icon={<ShieldCheck size={17}/>}/>
-      <Metric label="Live-Recherche" value={loadState === 'loading' || loadState === 'error' ? '—' : activeResearch} detail={loadState === 'loading' || loadState === 'error' ? 'Stand nicht verifiziert' : activeResearch ? 'läuft autonom' : 'alles verarbeitet'} icon={<Sparkles size={17}/>}/>
+      <Metric label={t("Unternehmen")} value={loadState === 'loading' || loadState === 'error' ? '—' : items.length} detail={t("im Customer Graph")} icon={<Building2 size={17}/>}/>
+      <Metric label={t("Datenabdeckung")} value={loadState === 'loading' || loadState === 'error' ? '—' : `${average}%`} detail={t("über alle Profile")} icon={<ShieldCheck size={17}/>}/>
+      <Metric label={t("Live-Recherche")} value={loadState === 'loading' || loadState === 'error' ? '—' : activeResearch} detail={t(loadState === 'loading' || loadState === 'error' ? "Stand nicht verifiziert" : activeResearch ? "läuft autonom" : "alles verarbeitet")} icon={<Sparkles size={17}/>}/>
     </section>
 
     <section className="grid min-w-0 gap-5 xl:grid-cols-[minmax(420px,.9fr)_minmax(0,1.35fr)]">
